@@ -44,11 +44,31 @@ class ProvenanceRef(BaseModel):
     quote: Optional[str] = None
 
 
+def _normalize_feature_tokens(tokens: list[str]) -> list[str]:
+    normalized = [t.strip().lower() for t in tokens]
+    normalized = [t for t in normalized if t]
+    return sorted(set(normalized))
+
+
+class SourceFeatures(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    modals: list[str] = Field(default_factory=list)
+    connectives: list[str] = Field(default_factory=list)
+    has_time_vagueness: bool = False
+
+    @model_validator(mode="after")
+    def _normalize(self) -> "SourceFeatures":
+        self.modals = _normalize_feature_tokens(self.modals)
+        self.connectives = _normalize_feature_tokens(self.connectives)
+        return self
+
+
 class Context(BaseModel):
     model_config = ConfigDict(extra="forbid")
     doc_id: str
     jurisdiction: str
     time_eval: datetime
+    source_features: SourceFeatures = Field(default_factory=SourceFeatures)
 
 
 class Entity(BaseModel):

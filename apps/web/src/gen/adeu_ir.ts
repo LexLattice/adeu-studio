@@ -93,6 +93,9 @@ export type Ref = string;
 export type Bridges = Bridge[];
 export type DocId = string;
 export type Jurisdiction1 = string;
+export type Connectives = string[];
+export type HasTimeVagueness = boolean;
+export type Modals = string[];
 export type TimeEval = string;
 export type IrId = string;
 export type SchemaVersion = "adeu.ir.v0";
@@ -260,5 +263,11 @@ export interface ValidatorRef {
 export interface Context {
   doc_id: DocId;
   jurisdiction: Jurisdiction1;
+  source_features?: SourceFeatures;
   time_eval: TimeEval;
+}
+export interface SourceFeatures {
+  connectives?: Connectives;
+  has_time_vagueness?: HasTimeVagueness;
+  modals?: Modals;
 }

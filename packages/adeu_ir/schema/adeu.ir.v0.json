@@ -255,6 +255,9 @@
           "title": "Jurisdiction",
           "type": "string"
         },
+        "source_features": {
+          "$ref": "#/$defs/SourceFeatures"
+        },
         "time_eval": {
           "format": "date-time",
           "title": "Time Eval",
@@ -894,6 +897,32 @@
         "time_about"
       ],
       "title": "Scope",
+      "type": "object"
+    },
+    "SourceFeatures": {
+      "additionalProperties": false,
+      "properties": {
+        "connectives": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Connectives",
+          "type": "array"
+        },
+        "has_time_vagueness": {
+          "default": false,
+          "title": "Has Time Vagueness",
+          "type": "boolean"
+        },
+        "modals": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Modals",
+          "type": "array"
+        }
+      },
+      "title": "SourceFeatures",
       "type": "object"
     },
     "SourceSpan": {
