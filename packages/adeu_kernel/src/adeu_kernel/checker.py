@@ -9,6 +9,7 @@ from adeu_ir import (
     CheckReport,
     ReasonCode,
     ReasonSeverity,
+    Ref,
     TraceItem,
 )
 from pydantic import ValidationError
@@ -402,16 +403,15 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
     )
 
 
-def _ref_key(ref: object) -> tuple:
-    ref_type = getattr(ref, "ref_type", None)
-    if ref_type == "text":
-        return ("text", ref.text)  # type: ignore[attr-defined]
-    if ref_type == "entity":
-        return ("entity", ref.entity_id)  # type: ignore[attr-defined]
-    if ref_type == "def":
-        return ("def", ref.def_id)  # type: ignore[attr-defined]
-    if ref_type == "doc":
-        return ("doc", ref.doc_ref)  # type: ignore[attr-defined]
+def _ref_key(ref: Ref) -> tuple:
+    if ref.ref_type == "text":
+        return ("text", ref.text)
+    if ref.ref_type == "entity":
+        return ("entity", ref.entity_id)
+    if ref.ref_type == "def":
+        return ("def", ref.def_id)
+    if ref.ref_type == "doc":
+        return ("doc", ref.doc_ref)
     return ("unknown",)
 
 

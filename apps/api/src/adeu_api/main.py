@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
-from adeu_ir import CheckReport
+from adeu_ir import AdeuIR, CheckReport
 from adeu_kernel import KernelMode, check
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -17,33 +17,33 @@ class ProposeRequest(BaseModel):
 
 
 class ProposeResponse(BaseModel):
-    candidates: list[dict[str, Any]]
+    candidates: list[AdeuIR]
     provider: str
 
 
 class CheckRequest(BaseModel):
-    ir: dict[str, Any]
+    ir: AdeuIR
     mode: KernelMode = KernelMode.LAX
 
 
 class ArtifactCreateRequest(BaseModel):
     clause_text: str = Field(min_length=1)
-    ir: dict[str, Any]
+    ir: AdeuIR
     mode: KernelMode = KernelMode.STRICT
 
 
 class ArtifactCreateResponse(BaseModel):
     artifact_id: str
     created_at: str
-    check_report: dict[str, Any]
+    check_report: CheckReport
 
 
 class ArtifactGetResponse(BaseModel):
     artifact_id: str
     created_at: str
     clause_text: str
-    ir: dict[str, Any]
-    check_report: dict[str, Any]
+    ir: AdeuIR
+    check_report: CheckReport
 
 
 app = FastAPI(title="ADEU Studio API")
@@ -57,10 +57,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
     if bundle is None:
         return ProposeResponse(candidates=[], provider="mock")
 
-    return ProposeResponse(
-        candidates=[c.model_dump(mode="json", exclude_none=True) for c in bundle.proposals],
-        provider="mock",
-    )
+    return ProposeResponse(candidates=bundle.proposals, provider="mock")
 
 
 @app.post("/check", response_model=CheckReport)
@@ -76,13 +73,13 @@ def create_artifact_endpoint(req: ArtifactCreateRequest) -> ArtifactCreateRespon
 
     row = create_artifact(
         clause_text=req.clause_text,
-        ir_json=req.ir,
+        ir_json=req.ir.model_dump(mode="json", exclude_none=True),
         check_report_json=report.model_dump(mode="json", exclude_none=True),
     )
     return ArtifactCreateResponse(
         artifact_id=row.artifact_id,
         created_at=row.created_at,
-        check_report=row.check_report_json,
+        check_report=report,
     )
 
 
@@ -95,8 +92,8 @@ def get_artifact_endpoint(artifact_id: str) -> ArtifactGetResponse:
         artifact_id=row.artifact_id,
         created_at=row.created_at,
         clause_text=row.clause_text,
-        ir=row.ir_json,
-        check_report=row.check_report_json,
+        ir=AdeuIR.model_validate(row.ir_json),
+        check_report=CheckReport.model_validate(row.check_report_json),
     )
 
 

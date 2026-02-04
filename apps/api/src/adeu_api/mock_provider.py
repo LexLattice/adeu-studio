@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 from adeu_ir import AdeuIR, Context
+from adeu_ir.repo import repo_root
 
 
 @dataclass(frozen=True)
@@ -13,14 +15,16 @@ class FixtureBundle:
     proposals: list[AdeuIR]
 
 
-def _repo_root() -> Path:
-    # apps/api/src/adeu_api/mock_provider.py -> adeu_api -> src -> api -> apps -> repo root
-    return Path(__file__).resolve().parents[4]
-
-
+@lru_cache(maxsize=1)
 def load_fixture_bundles() -> dict[str, FixtureBundle]:
-    repo_root = _repo_root()
-    fixtures_root = repo_root / "examples" / "fixtures"
+    try:
+        root = repo_root(anchor=Path(__file__))
+    except RuntimeError:
+        return {}
+
+    fixtures_root = root / "examples" / "fixtures"
+    if not fixtures_root.is_dir():
+        return {}
 
     bundles: dict[str, FixtureBundle] = {}
     for fixture_dir in sorted([p for p in fixtures_root.iterdir() if p.is_dir()]):
@@ -48,4 +52,3 @@ def default_context_for_clause(clause_text: str) -> Context:
         return bundle.proposals[0].context
 
     raise ValueError("No fixture context available for clause")
-

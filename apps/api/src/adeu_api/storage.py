@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from adeu_ir.repo import repo_root
 
 
 @dataclass(frozen=True)
@@ -17,20 +20,22 @@ class ArtifactRow:
     ir_json: dict[str, Any]
     check_report_json: dict[str, Any]
 
-
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[4]
-
-
 def _default_db_path() -> Path:
-    repo_root = _repo_root()
-    var_dir = repo_root / "apps" / "api" / "var"
+    env = os.environ.get("ADEU_API_DB_PATH")
+    if env:
+        return Path(env).expanduser().resolve()
+
+    try:
+        root = repo_root(anchor=Path(__file__))
+        var_dir = root / "apps" / "api" / "var"
+    except RuntimeError:
+        var_dir = Path.cwd() / ".adeu" / "api"
+
     var_dir.mkdir(parents=True, exist_ok=True)
     return var_dir / "adeu.sqlite3"
 
 
-def _connect(db_path: Path) -> sqlite3.Connection:
-    con = sqlite3.connect(db_path)
+def _ensure_schema(con: sqlite3.Connection) -> None:
     con.execute(
         """
         CREATE TABLE IF NOT EXISTS artifacts (
@@ -42,7 +47,6 @@ def _connect(db_path: Path) -> sqlite3.Connection:
         )
         """
     )
-    return con
 
 
 def create_artifact(
@@ -58,8 +62,8 @@ def create_artifact(
     artifact_id = uuid.uuid4().hex
     created_at = datetime.now(tz=timezone.utc).isoformat()
 
-    con = _connect(db_path)
-    with con:
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
         con.execute(
             """
             INSERT INTO artifacts (artifact_id, created_at, clause_text, ir_json, check_report_json)
@@ -87,14 +91,15 @@ def get_artifact(*, artifact_id: str, db_path: Path | None = None) -> ArtifactRo
     if db_path is None:
         db_path = _default_db_path()
 
-    con = _connect(db_path)
-    row = con.execute(
-        "SELECT artifact_id, created_at, clause_text, ir_json, check_report_json "
-        "FROM artifacts WHERE artifact_id = ?",
-        (artifact_id,),
-    ).fetchone()
-    if row is None:
-        return None
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        row = con.execute(
+            "SELECT artifact_id, created_at, clause_text, ir_json, check_report_json "
+            "FROM artifacts WHERE artifact_id = ?",
+            (artifact_id,),
+        ).fetchone()
+        if row is None:
+            return None
 
     return ArtifactRow(
         artifact_id=row[0],
