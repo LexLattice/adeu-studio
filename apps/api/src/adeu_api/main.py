@@ -79,7 +79,9 @@ def check_variant(req: CheckRequest) -> CheckReport:
 
 
 @app.post("/apply_ambiguity_option", response_model=ApplyAmbiguityOptionResponse)
-def apply_ambiguity_option_endpoint(req: ApplyAmbiguityOptionRequest) -> ApplyAmbiguityOptionResponse:
+def apply_ambiguity_option_endpoint(
+    req: ApplyAmbiguityOptionRequest,
+) -> ApplyAmbiguityOptionResponse:
     try:
         patched = apply_ambiguity_option(
             req.ir,

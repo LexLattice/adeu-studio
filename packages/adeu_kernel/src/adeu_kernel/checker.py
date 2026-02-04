@@ -15,6 +15,7 @@ from adeu_ir import (
 from pydantic import ValidationError
 
 from .mode import KernelMode
+from .predicate import PredicateParseError, parse_predicate, referenced_def_ids
 
 SUPPORTED_SCHEMA_VERSION = "adeu.ir.v0"
 MODALITY_AMBIGUITY_ISSUES = frozenset({"modality_ambiguity"})
@@ -265,6 +266,7 @@ def _check_norm_completeness(
     ir: AdeuIR, *, mode: KernelMode
 ) -> tuple[list[CheckReason], TraceItem]:
     reasons: list[CheckReason] = []
+    def_ids = {d.id for d in ir.O.definitions}
 
     for stmt in ir.D_norm.statements:
         if stmt.subject.ref_type == "text" and not stmt.subject.text.strip():
@@ -327,6 +329,37 @@ def _check_norm_completeness(
                         object_id=stmt.id,
                     )
                 )
+            if stmt.condition.kind == "predicate" and (
+                stmt.condition.predicate and stmt.condition.predicate.strip()
+            ):
+                try:
+                    predicate = parse_predicate(stmt.condition.predicate)
+                except PredicateParseError as e:
+                    pred_severity = (
+                        ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+                    )
+                    reasons.append(
+                        CheckReason(
+                            code=ReasonCode.CONDITION_PREDICATE_INVALID,
+                            severity=pred_severity,
+                            message=str(e),
+                            object_id=stmt.id,
+                        )
+                    )
+                else:
+                    pred_def_severity = (
+                        ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+                    )
+                    for def_id in sorted(referenced_def_ids(predicate)):
+                        if def_id not in def_ids:
+                            reasons.append(
+                                CheckReason(
+                                    code=ReasonCode.DEF_TERM_UNRESOLVED,
+                                    severity=pred_def_severity,
+                                    message=f"Predicate references unknown def_id: {def_id!r}",
+                                    object_id=stmt.id,
+                                )
+                            )
 
     return reasons, TraceItem(
         rule_id="dnorm/completeness",
@@ -339,6 +372,7 @@ def _check_norm_completeness(
 def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason], TraceItem]:
     reasons: list[CheckReason] = []
     statement_ids = {s.id for s in ir.D_norm.statements}
+    def_ids = {d.id for d in ir.O.definitions}
 
     applies_index: dict[str, list[object]] = {sid: [] for sid in statement_ids}
 
@@ -370,6 +404,53 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
             )
             continue
 
+        if ex.condition.kind == "predicate" and not (
+            ex.condition.predicate and ex.condition.predicate.strip()
+        ):
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.CONDITION_UNDISCHARGED,
+                    severity=ReasonSeverity.ERROR,
+                    message=(
+                        "exception.condition.kind='predicate' requires "
+                        "exception.condition.predicate"
+                    ),
+                    object_id=ex.id,
+                )
+            )
+
+        if ex.condition.kind == "predicate" and (
+            ex.condition.predicate and ex.condition.predicate.strip()
+        ):
+            try:
+                predicate = parse_predicate(ex.condition.predicate)
+            except PredicateParseError as e:
+                pred_severity = (
+                    ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+                )
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.CONDITION_PREDICATE_INVALID,
+                        severity=pred_severity,
+                        message=str(e),
+                        object_id=ex.id,
+                    )
+                )
+            else:
+                pred_def_severity = (
+                    ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+                )
+                for def_id in sorted(referenced_def_ids(predicate)):
+                    if def_id not in def_ids:
+                        reasons.append(
+                            CheckReason(
+                                code=ReasonCode.DEF_TERM_UNRESOLVED,
+                                severity=pred_def_severity,
+                                message=f"Predicate references unknown def_id: {def_id!r}",
+                                object_id=ex.id,
+                            )
+                        )
+
         for target_id in ex.applies_to:
             if target_id not in statement_ids:
                 reasons.append(
@@ -397,7 +478,9 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                 CheckReason(
                     code=ReasonCode.EXCEPTION_PRECEDENCE_UNDETERMINED,
                     severity=precedence_severity,
-                    message="multiple exceptions apply; precedence requires strict priority ordering",
+                    message=(
+                        "multiple exceptions apply; precedence requires strict priority ordering"
+                    ),
                     object_id=stmt_id,
                 )
             )
@@ -638,8 +721,8 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
                     code=ReasonCode.MODALITY_AMBIGUOUS_UNRESOLVED,
                     severity=severity,
                     message=(
-                        "context.source_features.modals is non-empty but no ambiguity.issue indicates "
-                        "modality ambiguity"
+                        "context.source_features.modals is non-empty but no ambiguity.issue "
+                        "indicates modality ambiguity"
                     ),
                     object_id=ir.ir_id,
                     json_path="/context/source_features/modals",
@@ -648,7 +731,11 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
         trace.append(
             TraceItem(
                 rule_id="source_features/modality_ambiguity",
-                because=[r.code for r in reasons if r.code == ReasonCode.MODALITY_AMBIGUOUS_UNRESOLVED],
+                because=[
+                    r.code
+                    for r in reasons
+                    if r.code == ReasonCode.MODALITY_AMBIGUOUS_UNRESOLVED
+                ],
                 affected_ids=[ir.ir_id],
             )
         )
