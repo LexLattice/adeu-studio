@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Annotated, Any, Literal, Optional, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .reason_codes import ReasonCode, ReasonSeverity
 
@@ -195,6 +195,14 @@ class AmbiguityOption(BaseModel):
     variant_ir_id: Optional[str] = None
     patch: list[JsonPatchOp] = Field(default_factory=list)
 
+    @model_validator(mode="after")
+    def _one_of_variant_or_patch(self) -> "AmbiguityOption":
+        has_variant = bool(self.variant_ir_id)
+        has_patch = bool(self.patch)
+        if has_variant == has_patch:
+            raise ValueError("must provide exactly one of variant_ir_id or patch")
+        return self
+
 
 class Ambiguity(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -290,4 +298,3 @@ class CheckReport(BaseModel):
     reason_codes: list[CheckReason] = Field(default_factory=list)
     trace: list[TraceItem] = Field(default_factory=list)
     metrics: CheckMetrics
-
