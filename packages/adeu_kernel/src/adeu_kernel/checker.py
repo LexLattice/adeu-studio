@@ -583,13 +583,35 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     try:
         ir = AdeuIR.model_validate(raw)
     except ValidationError as e:
+        errors = e.errors()
+        code = ReasonCode.SCHEMA_INVALID
+        chosen = errors[0] if errors else None
+
+        for err in errors:
+            loc = err.get("loc", ())
+            if "ambiguity" in loc:
+                code = ReasonCode.AMBIGUITY_OPTION_INVALID
+                chosen = err
+                break
+
+        json_path = None
+        if chosen is not None:
+            loc = chosen.get("loc", ())
+            if isinstance(loc, (list, tuple)) and loc:
+                json_path = "/" + "/".join(str(p) for p in loc)
+
+        message = str(e)
+        if chosen is not None and isinstance(chosen.get("msg"), str):
+            message = chosen["msg"]
+
         return CheckReport(
             status="REFUSE",
             reason_codes=[
                 CheckReason(
-                    code=ReasonCode.SCHEMA_INVALID,
+                    code=code,
                     severity=ReasonSeverity.ERROR,
-                    message=str(e),
+                    message=message,
+                    json_path=json_path,
                 )
             ],
             trace=[TraceItem(rule_id="parse/validation_error")],
