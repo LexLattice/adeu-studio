@@ -2,14 +2,21 @@
 
 import { useMemo, useState } from "react";
 
+import type { AdeuIR } from "../gen/adeu_ir";
+import type { CheckReport } from "../gen/check_report";
+
 type KernelMode = "STRICT" | "LAX";
 
 type ProposeResponse = {
-  candidates: any[];
+  candidates: AdeuIR[];
   provider: string;
 };
 
-type CheckReport = any;
+type ArtifactCreateResponse = {
+  artifact_id: string;
+  created_at: string;
+  check_report: CheckReport;
+};
 
 function apiBase(): string {
   return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
@@ -17,7 +24,7 @@ function apiBase(): string {
 
 export default function HomePage() {
   const [clauseText, setClauseText] = useState<string>("");
-  const [candidates, setCandidates] = useState<any[]>([]);
+  const [candidates, setCandidates] = useState<AdeuIR[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
   const [checkReport, setCheckReport] = useState<CheckReport | null>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
@@ -35,7 +42,7 @@ export default function HomePage() {
       body: JSON.stringify({ clause_text: clauseText, provider: "mock" })
     });
     const data = (await res.json()) as ProposeResponse;
-    setCandidates(data.candidates || []);
+    setCandidates(data.candidates ?? []);
     setSelectedIdx(0);
   }
 
@@ -48,7 +55,7 @@ export default function HomePage() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ ir: selected, mode })
     });
-    setCheckReport(await res.json());
+    setCheckReport((await res.json()) as CheckReport);
   }
 
   async function accept() {
@@ -64,7 +71,7 @@ export default function HomePage() {
       setError(detail);
       return;
     }
-    const data = await res.json();
+    const data = (await res.json()) as ArtifactCreateResponse;
     setArtifactId(data.artifact_id);
   }
 
@@ -118,4 +125,3 @@ export default function HomePage() {
     </div>
   );
 }
-

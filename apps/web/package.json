@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
+    "gen:types": "node scripts/gen-types.mjs",
+    "predev": "npm run gen:types",
+    "prebuild": "npm run gen:types",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -19,7 +22,7 @@
     "@types/react-dom": "^18.2.22",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.0",
+    "json-schema-to-typescript": "^14.1.0",
     "typescript": "^5.4.5"
   }
 }
-
