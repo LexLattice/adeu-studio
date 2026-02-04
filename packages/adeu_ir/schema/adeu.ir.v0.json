@@ -1,0 +1,1079 @@
+{
+  "$defs": {
+    "Action": {
+      "additionalProperties": false,
+      "properties": {
+        "object": {
+          "anyOf": [
+            {
+              "discriminator": {
+                "mapping": {
+                  "def": "#/$defs/DefinitionRef",
+                  "doc": "#/$defs/DocRef",
+                  "entity": "#/$defs/EntityRef",
+                  "text": "#/$defs/TextRef"
+                },
+                "propertyName": "ref_type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/EntityRef"
+                },
+                {
+                  "$ref": "#/$defs/DefinitionRef"
+                },
+                {
+                  "$ref": "#/$defs/DocRef"
+                },
+                {
+                  "$ref": "#/$defs/TextRef"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object"
+        },
+        "qualifiers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Qualifiers",
+          "type": "array"
+        },
+        "verb": {
+          "title": "Verb",
+          "type": "string"
+        }
+      },
+      "required": [
+        "verb"
+      ],
+      "title": "Action",
+      "type": "object"
+    },
+    "Ambiguity": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "issue": {
+          "title": "Issue",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/AmbiguityOption"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "span": {
+          "$ref": "#/$defs/SourceSpan"
+        }
+      },
+      "required": [
+        "id",
+        "span",
+        "issue",
+        "options"
+      ],
+      "title": "Ambiguity",
+      "type": "object"
+    },
+    "AmbiguityOption": {
+      "additionalProperties": false,
+      "properties": {
+        "effect": {
+          "title": "Effect",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "option_id": {
+          "title": "Option Id",
+          "type": "string"
+        },
+        "patch": {
+          "items": {
+            "$ref": "#/$defs/JsonPatchOp"
+          },
+          "title": "Patch",
+          "type": "array"
+        },
+        "variant_ir_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variant Ir Id"
+        }
+      },
+      "required": [
+        "option_id",
+        "label",
+        "effect"
+      ],
+      "title": "AmbiguityOption",
+      "type": "object"
+    },
+    "Bridge": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Authority Ref"
+        },
+        "bridge_type": {
+          "enum": [
+            "interpretation",
+            "u_to_dnorm",
+            "u_to_e",
+            "e_to_dnorm",
+            "o_to_dnorm"
+          ],
+          "title": "Bridge Type",
+          "type": "string"
+        },
+        "calibration_tag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Calibration Tag"
+        },
+        "from_channel": {
+          "enum": [
+            "O",
+            "D_phys",
+            "D_norm",
+            "E",
+            "U"
+          ],
+          "title": "From Channel",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "justification_text": {
+          "title": "Justification Text",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/ProvenanceRef"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Scope"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "status": {
+          "enum": [
+            "provisional",
+            "certified",
+            "revoked"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "to_channel": {
+          "enum": [
+            "O",
+            "D_phys",
+            "D_norm",
+            "E",
+            "U"
+          ],
+          "title": "To Channel",
+          "type": "string"
+        },
+        "validator": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValidatorRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "from_channel",
+        "to_channel",
+        "bridge_type",
+        "justification_text",
+        "provenance"
+      ],
+      "title": "Bridge",
+      "type": "object"
+    },
+    "Context": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_id": {
+          "title": "Doc Id",
+          "type": "string"
+        },
+        "jurisdiction": {
+          "title": "Jurisdiction",
+          "type": "string"
+        },
+        "time_eval": {
+          "format": "date-time",
+          "title": "Time Eval",
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_id",
+        "jurisdiction",
+        "time_eval"
+      ],
+      "title": "Context",
+      "type": "object"
+    },
+    "DNormChannel": {
+      "additionalProperties": false,
+      "properties": {
+        "exceptions": {
+          "items": {
+            "$ref": "#/$defs/ExceptionClause"
+          },
+          "title": "Exceptions",
+          "type": "array"
+        },
+        "statements": {
+          "items": {
+            "$ref": "#/$defs/NormStatement"
+          },
+          "title": "Statements",
+          "type": "array"
+        }
+      },
+      "title": "DNormChannel",
+      "type": "object"
+    },
+    "DPhysChannel": {
+      "additionalProperties": false,
+      "properties": {
+        "constraints": {
+          "items": {
+            "$ref": "#/$defs/DPhysConstraint"
+          },
+          "title": "Constraints",
+          "type": "array"
+        }
+      },
+      "title": "DPhysChannel",
+      "type": "object"
+    },
+    "DPhysConstraint": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "mechanism",
+            "resource_limit",
+            "invariant",
+            "law",
+            "assumption"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "statement"
+      ],
+      "title": "DPhysConstraint",
+      "type": "object"
+    },
+    "Definition": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "meaning": {
+          "title": "Meaning",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "term": {
+          "title": "Term",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "term",
+        "meaning"
+      ],
+      "title": "Definition",
+      "type": "object"
+    },
+    "DefinitionRef": {
+      "additionalProperties": false,
+      "properties": {
+        "def_id": {
+          "title": "Def Id",
+          "type": "string"
+        },
+        "ref_type": {
+          "const": "def",
+          "default": "def",
+          "title": "Ref Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "def_id"
+      ],
+      "title": "DefinitionRef",
+      "type": "object"
+    },
+    "DocRef": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_ref": {
+          "title": "Doc Ref",
+          "type": "string"
+        },
+        "ref_type": {
+          "const": "doc",
+          "default": "doc",
+          "title": "Ref Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_ref"
+      ],
+      "title": "DocRef",
+      "type": "object"
+    },
+    "EChannel": {
+      "additionalProperties": false,
+      "properties": {
+        "claims": {
+          "items": {
+            "$ref": "#/$defs/EvidenceClaim"
+          },
+          "title": "Claims",
+          "type": "array"
+        }
+      },
+      "title": "EChannel",
+      "type": "object"
+    },
+    "Entity": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "party|role|org|person|system|other",
+          "title": "Kind"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Entity",
+      "type": "object"
+    },
+    "EntityRef": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "ref_type": {
+          "const": "entity",
+          "default": "entity",
+          "title": "Ref Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id"
+      ],
+      "title": "EntityRef",
+      "type": "object"
+    },
+    "EvidenceClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "obs",
+            "def",
+            "testimony",
+            "infer"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "statement"
+      ],
+      "title": "EvidenceClaim",
+      "type": "object"
+    },
+    "ExceptionClause": {
+      "additionalProperties": false,
+      "properties": {
+        "applies_to": {
+          "description": "NormStatement.id targets",
+          "items": {
+            "type": "string"
+          },
+          "title": "Applies To",
+          "type": "array"
+        },
+        "condition": {
+          "$ref": "#/$defs/ExceptionCondition"
+        },
+        "effect": {
+          "enum": [
+            "defeats",
+            "narrows",
+            "clarifies"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/ProvenanceRef"
+        }
+      },
+      "required": [
+        "id",
+        "applies_to",
+        "condition",
+        "effect",
+        "provenance"
+      ],
+      "title": "ExceptionClause",
+      "type": "object"
+    },
+    "ExceptionCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "text_only",
+            "predicate"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "predicate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Predicate"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "text"
+      ],
+      "title": "ExceptionCondition",
+      "type": "object"
+    },
+    "Goal": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "moral",
+            "pref",
+            "policy",
+            "valence"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "statement"
+      ],
+      "title": "Goal",
+      "type": "object"
+    },
+    "JsonPatchOp": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "From"
+        },
+        "op": {
+          "enum": [
+            "add",
+            "remove",
+            "replace",
+            "move",
+            "copy",
+            "test"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "op",
+        "path"
+      ],
+      "title": "JsonPatchOp",
+      "type": "object"
+    },
+    "NormCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "text_only",
+            "predicate"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "predicate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Predicate"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "text"
+      ],
+      "title": "NormCondition",
+      "type": "object"
+    },
+    "NormStatement": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/Action"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NormCondition"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "obligation",
+            "prohibition",
+            "permission"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/ProvenanceRef"
+        },
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "subject": {
+          "discriminator": {
+            "mapping": {
+              "def": "#/$defs/DefinitionRef",
+              "doc": "#/$defs/DocRef",
+              "entity": "#/$defs/EntityRef",
+              "text": "#/$defs/TextRef"
+            },
+            "propertyName": "ref_type"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/EntityRef"
+            },
+            {
+              "$ref": "#/$defs/DefinitionRef"
+            },
+            {
+              "$ref": "#/$defs/DocRef"
+            },
+            {
+              "$ref": "#/$defs/TextRef"
+            }
+          ],
+          "title": "Subject"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "subject",
+        "action",
+        "scope",
+        "provenance"
+      ],
+      "title": "NormStatement",
+      "type": "object"
+    },
+    "OChannel": {
+      "additionalProperties": false,
+      "properties": {
+        "definitions": {
+          "items": {
+            "$ref": "#/$defs/Definition"
+          },
+          "title": "Definitions",
+          "type": "array"
+        },
+        "entities": {
+          "items": {
+            "$ref": "#/$defs/Entity"
+          },
+          "title": "Entities",
+          "type": "array"
+        }
+      },
+      "title": "OChannel",
+      "type": "object"
+    },
+    "ProvenanceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "E.g., 'MSA-2026#\u00a73.2' or 'doc123#clause17'",
+          "title": "Doc Ref"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "span": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceSpan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "ProvenanceRef",
+      "type": "object"
+    },
+    "Scope": {
+      "additionalProperties": false,
+      "properties": {
+        "jurisdiction": {
+          "title": "Jurisdiction",
+          "type": "string"
+        },
+        "time_about": {
+          "$ref": "#/$defs/TimeScope"
+        }
+      },
+      "required": [
+        "jurisdiction",
+        "time_about"
+      ],
+      "title": "Scope",
+      "type": "object"
+    },
+    "SourceSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "SourceSpan",
+      "type": "object"
+    },
+    "TextRef": {
+      "additionalProperties": false,
+      "properties": {
+        "ref_type": {
+          "const": "text",
+          "default": "text",
+          "title": "Ref Type",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "TextRef",
+      "type": "object"
+    },
+    "TimeScope": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End"
+        },
+        "kind": {
+          "enum": [
+            "between",
+            "before",
+            "after",
+            "at",
+            "during",
+            "unspecified"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "TimeScope",
+      "type": "object"
+    },
+    "UChannel": {
+      "additionalProperties": false,
+      "properties": {
+        "goals": {
+          "items": {
+            "$ref": "#/$defs/Goal"
+          },
+          "title": "Goals",
+          "type": "array"
+        }
+      },
+      "title": "UChannel",
+      "type": "object"
+    },
+    "ValidatorRef": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "authority_doc",
+            "calibration",
+            "experiment_log",
+            "policy"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "ref": {
+          "title": "Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "ref"
+      ],
+      "title": "ValidatorRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "D_norm": {
+      "$ref": "#/$defs/DNormChannel"
+    },
+    "D_phys": {
+      "$ref": "#/$defs/DPhysChannel"
+    },
+    "E": {
+      "$ref": "#/$defs/EChannel"
+    },
+    "O": {
+      "$ref": "#/$defs/OChannel"
+    },
+    "U": {
+      "$ref": "#/$defs/UChannel"
+    },
+    "ambiguity": {
+      "items": {
+        "$ref": "#/$defs/Ambiguity"
+      },
+      "title": "Ambiguity",
+      "type": "array"
+    },
+    "bridges": {
+      "items": {
+        "$ref": "#/$defs/Bridge"
+      },
+      "title": "Bridges",
+      "type": "array"
+    },
+    "context": {
+      "$ref": "#/$defs/Context"
+    },
+    "ir_id": {
+      "title": "Ir Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "adeu.ir.v0",
+      "default": "adeu.ir.v0",
+      "title": "Schema Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ir_id",
+    "context"
+  ],
+  "title": "AdeuIR",
+  "type": "object"
+}

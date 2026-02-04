@@ -17,3 +17,21 @@ make test
 make lint
 ```
 
+## Run API (mock proposer)
+
+```bash
+make bootstrap
+.venv/bin/pip install -e apps/api
+.venv/bin/python -m uvicorn adeu_api.main:app --reload --port 8000
+```
+
+`POST /propose` returns fixture-backed candidates when the input clause text matches one of
+`examples/fixtures/*/clause.txt`.
+
+## Run Web
+
+```bash
+cd apps/web
+npm install
+NEXT_PUBLIC_ADEU_API_URL=http://localhost:8000 npm run dev
+```

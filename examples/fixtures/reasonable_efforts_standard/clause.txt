@@ -1,0 +1,2 @@
+Provider shall use commercially reasonable efforts to maintain 99.9% uptime.
+
