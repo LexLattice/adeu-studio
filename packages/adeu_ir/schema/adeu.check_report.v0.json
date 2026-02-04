@@ -1,0 +1,271 @@
+{
+  "$defs": {
+    "CheckMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "num_ambiguities": {
+          "title": "Num Ambiguities",
+          "type": "integer"
+        },
+        "num_bridges": {
+          "title": "Num Bridges",
+          "type": "integer"
+        },
+        "num_exceptions": {
+          "title": "Num Exceptions",
+          "type": "integer"
+        },
+        "num_statements": {
+          "title": "Num Statements",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "num_statements",
+        "num_exceptions",
+        "num_bridges",
+        "num_ambiguities"
+      ],
+      "title": "CheckMetrics",
+      "type": "object"
+    },
+    "CheckReason": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ReasonCode"
+        },
+        "json_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Path"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Id"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "severity": {
+          "$ref": "#/$defs/ReasonSeverity"
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "title": "CheckReason",
+      "type": "object"
+    },
+    "ProvenanceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "E.g., 'MSA-2026#\u00a73.2' or 'doc123#clause17'",
+          "title": "Doc Ref"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "span": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceSpan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "ProvenanceRef",
+      "type": "object"
+    },
+    "ReasonCode": {
+      "enum": [
+        "SCHEMA_INVALID",
+        "UNSUPPORTED_SCHEMA_VERSION",
+        "AMBIGUITY_OPTION_INVALID",
+        "MODALITY_AMBIGUOUS_UNRESOLVED",
+        "BRIDGE_REQUIRED_MISSING",
+        "BRIDGE_INVALID_CHANNEL_PAIR",
+        "BRIDGE_TYPE_UNSUPPORTED",
+        "BRIDGE_U_TO_DNORM_AUTHORITY_MISSING",
+        "BRIDGE_U_TO_E_CALIBRATION_MISSING",
+        "BRIDGE_CERTIFIED_VALIDATOR_MISSING",
+        "SCOPE_JURISDICTION_MISSING",
+        "SCOPE_TIME_MISSING",
+        "SCOPE_TIME_INVALID",
+        "PROVENANCE_MISSING",
+        "AUTHORITY_REF_MISSING",
+        "AUTHORITY_REF_UNPARSABLE",
+        "AUTHORITY_OUT_OF_SCOPE",
+        "NORM_SUBJECT_MISSING",
+        "NORM_ACTION_MISSING",
+        "NORM_SCOPE_MISSING",
+        "CONDITION_UNDISCHARGED",
+        "DEF_TERM_UNRESOLVED",
+        "DEF_ENTITY_UNRESOLVED",
+        "CONFLICT_OBLIGATION_VS_PROHIBITION",
+        "CONFLICT_OVERLAPPING_SCOPE_UNRESOLVED",
+        "EXCEPTION_ORPHANED",
+        "EXCEPTION_PRECEDENCE_UNDETERMINED"
+      ],
+      "title": "ReasonCode",
+      "type": "string"
+    },
+    "ReasonSeverity": {
+      "enum": [
+        "ERROR",
+        "WARN",
+        "INFO"
+      ],
+      "title": "ReasonSeverity",
+      "type": "string"
+    },
+    "SourceSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "SourceSpan",
+      "type": "object"
+    },
+    "TraceItem": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Affected Ids",
+          "type": "array"
+        },
+        "because": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Because",
+          "type": "array"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id"
+      ],
+      "title": "TraceItem",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "metrics": {
+      "$ref": "#/$defs/CheckMetrics"
+    },
+    "reason_codes": {
+      "items": {
+        "$ref": "#/$defs/CheckReason"
+      },
+      "title": "Reason Codes",
+      "type": "array"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "WARN",
+        "REFUSE"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "trace": {
+      "items": {
+        "$ref": "#/$defs/TraceItem"
+      },
+      "title": "Trace",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status",
+    "metrics"
+  ],
+  "title": "CheckReport",
+  "type": "object"
+}
