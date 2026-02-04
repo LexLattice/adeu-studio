@@ -1,0 +1,53 @@
+{
+  "schema_version": "adeu.ir.v0",
+  "ir_id": "ir_exception_precedence_priority_v1",
+  "context": {
+    "doc_id": "fixture:exception_precedence_priority",
+    "jurisdiction": "US-CA",
+    "time_eval": "2026-02-04T00:00:00Z"
+  },
+  "D_norm": {
+    "statements": [
+      {
+        "id": "dn_deliver_1",
+        "kind": "obligation",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": { "verb": "deliver", "object": { "ref_type": "text", "text": "the goods" } },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": {
+            "kind": "during",
+            "start": "2026-02-04T00:00:00Z",
+            "end": "2026-12-31T00:00:00Z"
+          }
+        },
+        "provenance": {
+          "doc_ref": "fixture:exception_precedence_priority",
+          "span": { "start": 0, "end": 93 }
+        }
+      }
+    ],
+    "exceptions": [
+      {
+        "id": "ex_force_majeure",
+        "applies_to": ["dn_deliver_1"],
+        "condition": { "kind": "text_only", "text": "if force majeure occurs" },
+        "effect": "defeats",
+        "provenance": {
+          "doc_ref": "fixture:exception_precedence_priority",
+          "span": { "start": 35, "end": 59 }
+        }
+      },
+      {
+        "id": "ex_payment_overdue",
+        "applies_to": ["dn_deliver_1"],
+        "condition": { "kind": "text_only", "text": "if payment is overdue" },
+        "effect": "defeats",
+        "provenance": {
+          "doc_ref": "fixture:exception_precedence_priority",
+          "span": { "start": 63, "end": 84 }
+        }
+      }
+    ]
+  }
+}

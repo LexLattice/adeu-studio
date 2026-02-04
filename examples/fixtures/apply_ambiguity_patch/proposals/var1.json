@@ -1,0 +1,61 @@
+{
+  "schema_version": "adeu.ir.v0",
+  "ir_id": "ir_apply_ambiguity_patch_before",
+  "context": {
+    "doc_id": "fixture:apply_ambiguity_patch",
+    "jurisdiction": "US-CA",
+    "time_eval": "2026-02-04T00:00:00Z"
+  },
+  "D_norm": {
+    "statements": [
+      {
+        "id": "dn_deliver_1",
+        "kind": "obligation",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": {
+          "verb": "deliver",
+          "object": { "ref_type": "text", "text": "the goods" }
+        },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": { "kind": "unspecified" }
+        },
+        "provenance": {
+          "doc_ref": "fixture:apply_ambiguity_patch",
+          "span": { "start": 0, "end": 31 }
+        }
+      }
+    ]
+  },
+  "ambiguity": [
+    {
+      "id": "amb_time_1",
+      "span": { "start": 0, "end": 31 },
+      "issue": "time_vagueness",
+      "options": [
+        {
+          "option_id": "opt_set_time",
+          "label": "Specify time scope",
+          "effect": "Set a concrete time_about interval",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/D_norm/statements/0/scope/time_about/kind",
+              "value": "during"
+            },
+            {
+              "op": "add",
+              "path": "/D_norm/statements/0/scope/time_about/start",
+              "value": "2026-02-04T00:00:00Z"
+            },
+            {
+              "op": "add",
+              "path": "/D_norm/statements/0/scope/time_about/end",
+              "value": "2026-12-31T00:00:00Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
