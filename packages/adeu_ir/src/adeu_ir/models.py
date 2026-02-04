@@ -289,6 +289,14 @@ class AdeuIR(BaseModel):
     bridges: list[Bridge] = Field(default_factory=list)
     ambiguity: list[Ambiguity] = Field(default_factory=list)
 
+    def calculate_metrics(self) -> "CheckMetrics":
+        return CheckMetrics(
+            num_statements=len(self.D_norm.statements),
+            num_exceptions=len(self.D_norm.exceptions),
+            num_bridges=len(self.bridges),
+            num_ambiguities=len(self.ambiguity),
+        )
+
 
 CheckStatus = Literal["PASS", "WARN", "REFUSE"]
 

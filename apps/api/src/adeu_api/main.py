@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from adeu_ir import AdeuIR, CheckMetrics, CheckReport, TraceItem
+from adeu_ir import AdeuIR, CheckReport, TraceItem
 from adeu_kernel import KernelMode, PatchValidationError, apply_ambiguity_option, check
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -91,12 +91,7 @@ def apply_ambiguity_option_endpoint(
         )
     except PatchValidationError as e:
         ir = req.ir
-        metrics = CheckMetrics(
-            num_statements=len(ir.D_norm.statements),
-            num_exceptions=len(ir.D_norm.exceptions),
-            num_bridges=len(ir.bridges),
-            num_ambiguities=len(ir.ambiguity),
-        )
+        metrics = ir.calculate_metrics()
         report = CheckReport(
             status="REFUSE",
             reason_codes=[e.reason],

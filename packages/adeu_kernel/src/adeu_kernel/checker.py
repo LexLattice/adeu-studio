@@ -31,12 +31,60 @@ def _zero_metrics() -> CheckMetrics:
 
 
 def _metrics(ir: AdeuIR) -> CheckMetrics:
-    return CheckMetrics(
-        num_statements=len(ir.D_norm.statements),
-        num_exceptions=len(ir.D_norm.exceptions),
-        num_bridges=len(ir.bridges),
-        num_ambiguities=len(ir.ambiguity),
-    )
+    return ir.calculate_metrics()
+
+
+def _validate_predicate_condition(
+    *,
+    condition_kind: str,
+    condition_predicate: str | None,
+    owner_id: str,
+    missing_predicate_message: str,
+    def_ids: set[str],
+    mode: KernelMode,
+) -> list[CheckReason]:
+    if condition_kind != "predicate":
+        return []
+
+    reasons: list[CheckReason] = []
+    if not (condition_predicate and condition_predicate.strip()):
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.CONDITION_UNDISCHARGED,
+                severity=ReasonSeverity.ERROR,
+                message=missing_predicate_message,
+                object_id=owner_id,
+            )
+        )
+        return reasons
+
+    try:
+        predicate = parse_predicate(condition_predicate)
+    except PredicateParseError as e:
+        pred_severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.CONDITION_PREDICATE_INVALID,
+                severity=pred_severity,
+                message=str(e),
+                object_id=owner_id,
+            )
+        )
+        return reasons
+
+    pred_def_severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+    for def_id in sorted(referenced_def_ids(predicate)):
+        if def_id not in def_ids:
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.DEF_TERM_UNRESOLVED,
+                    severity=pred_def_severity,
+                    message=f"Predicate references unknown def_id: {def_id!r}",
+                    object_id=owner_id,
+                )
+            )
+
+    return reasons
 
 
 def _finalize_report(
@@ -318,48 +366,18 @@ def _check_norm_completeness(
                         object_id=stmt.id,
                     )
                 )
-            if stmt.condition.kind == "predicate" and not (
-                stmt.condition.predicate and stmt.condition.predicate.strip()
-            ):
-                reasons.append(
-                    CheckReason(
-                        code=ReasonCode.CONDITION_UNDISCHARGED,
-                        severity=ReasonSeverity.ERROR,
-                        message="condition.kind='predicate' requires condition.predicate",
-                        object_id=stmt.id,
-                    )
+            reasons.extend(
+                _validate_predicate_condition(
+                    condition_kind=stmt.condition.kind,
+                    condition_predicate=stmt.condition.predicate,
+                    owner_id=stmt.id,
+                    missing_predicate_message=(
+                        "condition.kind='predicate' requires condition.predicate"
+                    ),
+                    def_ids=def_ids,
+                    mode=mode,
                 )
-            if stmt.condition.kind == "predicate" and (
-                stmt.condition.predicate and stmt.condition.predicate.strip()
-            ):
-                try:
-                    predicate = parse_predicate(stmt.condition.predicate)
-                except PredicateParseError as e:
-                    pred_severity = (
-                        ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
-                    )
-                    reasons.append(
-                        CheckReason(
-                            code=ReasonCode.CONDITION_PREDICATE_INVALID,
-                            severity=pred_severity,
-                            message=str(e),
-                            object_id=stmt.id,
-                        )
-                    )
-                else:
-                    pred_def_severity = (
-                        ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
-                    )
-                    for def_id in sorted(referenced_def_ids(predicate)):
-                        if def_id not in def_ids:
-                            reasons.append(
-                                CheckReason(
-                                    code=ReasonCode.DEF_TERM_UNRESOLVED,
-                                    severity=pred_def_severity,
-                                    message=f"Predicate references unknown def_id: {def_id!r}",
-                                    object_id=stmt.id,
-                                )
-                            )
+            )
 
     return reasons, TraceItem(
         rule_id="dnorm/completeness",
@@ -404,52 +422,18 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
             )
             continue
 
-        if ex.condition.kind == "predicate" and not (
-            ex.condition.predicate and ex.condition.predicate.strip()
-        ):
-            reasons.append(
-                CheckReason(
-                    code=ReasonCode.CONDITION_UNDISCHARGED,
-                    severity=ReasonSeverity.ERROR,
-                    message=(
-                        "exception.condition.kind='predicate' requires "
-                        "exception.condition.predicate"
-                    ),
-                    object_id=ex.id,
-                )
+        reasons.extend(
+            _validate_predicate_condition(
+                condition_kind=ex.condition.kind,
+                condition_predicate=ex.condition.predicate,
+                owner_id=ex.id,
+                missing_predicate_message=(
+                    "exception.condition.kind='predicate' requires exception.condition.predicate"
+                ),
+                def_ids=def_ids,
+                mode=mode,
             )
-
-        if ex.condition.kind == "predicate" and (
-            ex.condition.predicate and ex.condition.predicate.strip()
-        ):
-            try:
-                predicate = parse_predicate(ex.condition.predicate)
-            except PredicateParseError as e:
-                pred_severity = (
-                    ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
-                )
-                reasons.append(
-                    CheckReason(
-                        code=ReasonCode.CONDITION_PREDICATE_INVALID,
-                        severity=pred_severity,
-                        message=str(e),
-                        object_id=ex.id,
-                    )
-                )
-            else:
-                pred_def_severity = (
-                    ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
-                )
-                for def_id in sorted(referenced_def_ids(predicate)):
-                    if def_id not in def_ids:
-                        reasons.append(
-                            CheckReason(
-                                code=ReasonCode.DEF_TERM_UNRESOLVED,
-                                severity=pred_def_severity,
-                                message=f"Predicate references unknown def_id: {def_id!r}",
-                                object_id=ex.id,
-                            )
-                        )
+        )
 
         for target_id in ex.applies_to:
             if target_id not in statement_ids:
