@@ -3,11 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode, check
 
 
-def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+def _repo_root_path() -> Path:
+    return repo_root(anchor=Path(__file__))
 
 
 def _load_json(path: Path) -> object:
@@ -15,8 +16,8 @@ def _load_json(path: Path) -> object:
 
 
 def test_golden_fixtures_lax_mode() -> None:
-    repo_root = _repo_root()
-    fixtures_root = repo_root / "examples" / "fixtures"
+    root = _repo_root_path()
+    fixtures_root = root / "examples" / "fixtures"
 
     fixture_dirs = sorted([p for p in fixtures_root.iterdir() if p.is_dir()])
     assert fixture_dirs, f"No fixtures found under {fixtures_root}"

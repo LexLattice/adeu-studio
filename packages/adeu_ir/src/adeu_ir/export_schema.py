@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from .models import AdeuIR, CheckReport
+from .repo import repo_root
 
 
 def _write_schema(path: Path, schema: dict) -> None:
@@ -12,8 +13,8 @@ def _write_schema(path: Path, schema: dict) -> None:
 
 
 def main() -> None:
-    repo_root = Path(__file__).resolve().parents[4]
-    schema_dir = repo_root / "packages" / "adeu_ir" / "schema"
+    root = repo_root(anchor=Path(__file__))
+    schema_dir = root / "packages" / "adeu_ir" / "schema"
 
     _write_schema(schema_dir / "adeu.ir.v0.json", AdeuIR.model_json_schema())
     _write_schema(schema_dir / "adeu.check_report.v0.json", CheckReport.model_json_schema())

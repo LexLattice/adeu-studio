@@ -28,6 +28,12 @@ class SourceSpan(BaseModel):
     start: int = Field(ge=0)
     end: int = Field(gt=0)
 
+    @model_validator(mode="after")
+    def _check_span_order(self) -> "SourceSpan":
+        if self.start >= self.end:
+            raise ValueError("end must be greater than start")
+        return self
+
 
 class ProvenanceRef(BaseModel):
     model_config = ConfigDict(extra="forbid")
