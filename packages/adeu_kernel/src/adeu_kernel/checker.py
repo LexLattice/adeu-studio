@@ -17,6 +17,7 @@ from pydantic import ValidationError
 from .mode import KernelMode
 
 SUPPORTED_SCHEMA_VERSION = "adeu.ir.v0"
+MODALITY_AMBIGUITY_ISSUES = frozenset({"modality_ambiguity"})
 
 
 def _zero_metrics() -> CheckMetrics:
@@ -621,6 +622,30 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     metrics = _metrics(ir)
     reasons: list[CheckReason] = []
     trace: list[TraceItem] = [TraceItem(rule_id="parse/ok")]
+
+    if ir.context.source_features.modals:
+        has_marker = any(a.issue in MODALITY_AMBIGUITY_ISSUES for a in ir.ambiguity)
+        if not has_marker:
+            severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.MODALITY_AMBIGUOUS_UNRESOLVED,
+                    severity=severity,
+                    message=(
+                        "context.source_features.modals is non-empty but no ambiguity.issue indicates "
+                        "modality ambiguity"
+                    ),
+                    object_id=ir.ir_id,
+                    json_path="/context/source_features/modals",
+                )
+            )
+        trace.append(
+            TraceItem(
+                rule_id="source_features/modality_ambiguity",
+                because=[r.code for r in reasons if r.code == ReasonCode.MODALITY_AMBIGUOUS_UNRESOLVED],
+                affected_ids=[ir.ir_id],
+            )
+        )
 
     time_reasons, time_trace = _check_time_scope(ir, mode=mode)
     reasons.extend(time_reasons)
