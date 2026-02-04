@@ -523,6 +523,45 @@ def _check_conflicts(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
     )
 
 
+def _check_resolution(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
+    reasons: list[CheckReason] = []
+
+    entity_ids = {e.id for e in ir.O.entities}
+    def_ids = {d.id for d in ir.O.definitions}
+
+    def check_ref(ref, *, owner_id: str) -> None:
+        if ref.ref_type == "entity" and ref.entity_id not in entity_ids:
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.DEF_ENTITY_UNRESOLVED,
+                    severity=ReasonSeverity.WARN,
+                    message=f"Unresolved EntityRef: {ref.entity_id!r}",
+                    object_id=owner_id,
+                )
+            )
+        if ref.ref_type == "def" and ref.def_id not in def_ids:
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.DEF_TERM_UNRESOLVED,
+                    severity=ReasonSeverity.WARN,
+                    message=f"Unresolved DefinitionRef: {ref.def_id!r}",
+                    object_id=owner_id,
+                )
+            )
+
+    for stmt in ir.D_norm.statements:
+        check_ref(stmt.subject, owner_id=stmt.id)
+        if stmt.action.object is not None:
+            check_ref(stmt.action.object, owner_id=stmt.id)
+
+    return reasons, TraceItem(
+        rule_id="refs/resolve",
+        because=[r.code for r in reasons],
+        affected_ids=[s.id for s in ir.D_norm.statements],
+        notes="Flags unresolved EntityRef/DefinitionRef usages.",
+    )
+
+
 def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     if isinstance(raw, dict):
         schema_version = raw.get("schema_version")
@@ -580,5 +619,9 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     conflict_reasons, conflict_trace = _check_conflicts(ir)
     reasons.extend(conflict_reasons)
     trace.append(conflict_trace)
+
+    resolution_reasons, resolution_trace = _check_resolution(ir)
+    reasons.extend(resolution_reasons)
+    trace.append(resolution_trace)
 
     return _finalize_report(metrics=metrics, reasons=reasons, trace=trace)

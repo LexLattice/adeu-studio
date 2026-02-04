@@ -55,6 +55,14 @@
       "because": [],
       "notes": "Detects obligation vs prohibition conflicts in overlapping scope.",
       "rule_id": "dnorm/conflicts"
+    },
+    {
+      "affected_ids": [
+        "dn_efforts_1"
+      ],
+      "because": [],
+      "notes": "Flags unresolved EntityRef/DefinitionRef usages.",
+      "rule_id": "refs/resolve"
     }
   ]
 }
