@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import copy
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Iterable
 
 from adeu_ir import AdeuIR, CheckReason, ReasonCode, ReasonSeverity
-from adeu_ir.models import AmbiguityOption, JsonPatchOp
+from adeu_ir.models import Ambiguity, AmbiguityOption, JsonPatchOp
 from pydantic import ValidationError
 
 DEFAULT_ALLOWED_PREFIXES = (
@@ -218,3 +219,40 @@ def apply_ambiguity_option_patch(ir: AdeuIR, *, option: AmbiguityOption) -> Adeu
     if not option.patch:
         raise _err("patch option must include at least one op", json_path=None)
     return apply_json_patch(ir, option.patch)
+
+
+def apply_ambiguity_option(
+    ir: AdeuIR,
+    *,
+    ambiguity_id: str,
+    option_id: str,
+    variants_by_id: Mapping[str, AdeuIR] | None = None,
+) -> AdeuIR:
+    ambiguity: Ambiguity | None = next((a for a in ir.ambiguity if a.id == ambiguity_id), None)
+    if ambiguity is None:
+        raise _err(f"unknown ambiguity id: {ambiguity_id!r}", json_path="/ambiguity")
+
+    option: AmbiguityOption | None = next(
+        (o for o in ambiguity.options if o.option_id == option_id), None
+    )
+    if option is None:
+        raise _err(
+            f"unknown ambiguity option id: {option_id!r}",
+            json_path=f"/ambiguity/{ambiguity_id}/options",
+        )
+
+    if option.variant_ir_id is not None:
+        if variants_by_id is None:
+            raise _err(
+                f"missing variants_by_id mapping for variant_ir_id: {option.variant_ir_id!r}",
+                json_path="/ambiguity",
+            )
+        variant = variants_by_id.get(option.variant_ir_id)
+        if variant is None:
+            raise _err(
+                f"unknown variant_ir_id: {option.variant_ir_id!r}",
+                json_path="/ambiguity",
+            )
+        return variant
+
+    return apply_ambiguity_option_patch(ir, option=option)

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Literal
 
-from adeu_ir import AdeuIR, CheckReport
-from adeu_kernel import KernelMode, check
+from adeu_ir import AdeuIR, CheckMetrics, CheckReport, TraceItem
+from adeu_kernel import KernelMode, PatchValidationError, apply_ambiguity_option, check
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
@@ -24,6 +24,19 @@ class ProposeResponse(BaseModel):
 class CheckRequest(BaseModel):
     ir: AdeuIR
     mode: KernelMode = KernelMode.LAX
+
+
+class ApplyAmbiguityOptionRequest(BaseModel):
+    ir: AdeuIR
+    ambiguity_id: str = Field(min_length=1)
+    option_id: str = Field(min_length=1)
+    variants_by_id: dict[str, AdeuIR] | None = None
+    mode: KernelMode = KernelMode.LAX
+
+
+class ApplyAmbiguityOptionResponse(BaseModel):
+    patched_ir: AdeuIR
+    check_report: CheckReport
 
 
 class ArtifactCreateRequest(BaseModel):
@@ -63,6 +76,41 @@ def propose(req: ProposeRequest) -> ProposeResponse:
 @app.post("/check", response_model=CheckReport)
 def check_variant(req: CheckRequest) -> CheckReport:
     return check(req.ir, mode=req.mode)
+
+
+@app.post("/apply_ambiguity_option", response_model=ApplyAmbiguityOptionResponse)
+def apply_ambiguity_option_endpoint(req: ApplyAmbiguityOptionRequest) -> ApplyAmbiguityOptionResponse:
+    try:
+        patched = apply_ambiguity_option(
+            req.ir,
+            ambiguity_id=req.ambiguity_id,
+            option_id=req.option_id,
+            variants_by_id=req.variants_by_id,
+        )
+    except PatchValidationError as e:
+        ir = req.ir
+        metrics = CheckMetrics(
+            num_statements=len(ir.D_norm.statements),
+            num_exceptions=len(ir.D_norm.exceptions),
+            num_bridges=len(ir.bridges),
+            num_ambiguities=len(ir.ambiguity),
+        )
+        report = CheckReport(
+            status="REFUSE",
+            reason_codes=[e.reason],
+            trace=[
+                TraceItem(
+                    rule_id="ambiguity/apply_option",
+                    because=[e.reason.code],
+                    affected_ids=[ir.ir_id],
+                )
+            ],
+            metrics=metrics,
+        )
+        return ApplyAmbiguityOptionResponse(patched_ir=ir, check_report=report)
+
+    report = check(patched, mode=req.mode)
+    return ApplyAmbiguityOptionResponse(patched_ir=patched, check_report=report)
 
 
 @app.post("/artifacts", response_model=ArtifactCreateResponse)
