@@ -569,6 +569,11 @@
           "title": "Id",
           "type": "string"
         },
+        "priority": {
+          "default": 0,
+          "title": "Priority",
+          "type": "integer"
+        },
         "provenance": {
           "$ref": "#/$defs/ProvenanceRef"
         }

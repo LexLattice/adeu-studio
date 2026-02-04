@@ -337,12 +337,10 @@ def _check_norm_completeness(
 
 
 def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason], TraceItem]:
-    del mode  # reserved for future: predicate validation and strict exception reasoning.
-
     reasons: list[CheckReason] = []
     statement_ids = {s.id for s in ir.D_norm.statements}
 
-    applies_index: dict[str, list[str]] = {sid: [] for sid in statement_ids}
+    applies_index: dict[str, list[object]] = {sid: [] for sid in statement_ids}
 
     for ex in ir.D_norm.exceptions:
         prov = ex.provenance
@@ -383,15 +381,23 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                     )
                 )
                 continue
-            applies_index[target_id].append(ex.id)
+            applies_index[target_id].append(ex)
 
-    for stmt_id, ex_ids in applies_index.items():
-        if len(ex_ids) > 1:
+    for stmt_id, ex_list in applies_index.items():
+        if len(ex_list) <= 1:
+            continue
+
+        priorities = [getattr(ex, "priority", 0) for ex in ex_list]
+        has_strict_order = len(set(priorities)) == len(priorities)
+        if not has_strict_order:
+            precedence_severity = (
+                ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+            )
             reasons.append(
                 CheckReason(
                     code=ReasonCode.EXCEPTION_PRECEDENCE_UNDETERMINED,
-                    severity=ReasonSeverity.WARN,
-                    message="multiple exceptions apply; precedence is not determined in v0",
+                    severity=precedence_severity,
+                    message="multiple exceptions apply; precedence requires strict priority ordering",
                     object_id=stmt_id,
                 )
             )

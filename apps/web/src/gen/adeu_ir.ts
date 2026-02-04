@@ -15,6 +15,7 @@ export type Predicate = string | null;
 export type Text = string;
 export type Effect = "defeats" | "narrows" | "clarifies";
 export type Id = string;
+export type Priority = number;
 /**
  * E.g., 'MSA-2026#§3.2' or 'doc123#clause17'
  */
@@ -121,6 +122,7 @@ export interface ExceptionClause {
   condition: ExceptionCondition;
   effect: Effect;
   id: Id;
+  priority?: Priority;
   provenance: ProvenanceRef;
 }
 export interface ExceptionCondition {

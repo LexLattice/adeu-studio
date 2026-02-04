@@ -163,6 +163,7 @@ class ExceptionClause(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: str
     applies_to: list[str] = Field(description="NormStatement.id targets")
+    priority: int = 0
     condition: ExceptionCondition
     effect: ExceptionEffect
     provenance: ProvenanceRef
