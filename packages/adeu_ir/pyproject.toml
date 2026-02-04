@@ -1,0 +1,15 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "adeu-ir"
+version = "0.0.0"
+description = "Typed ADEU IR (Pydantic) + JSON Schema export."
+readme = "../../README.md"
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.6,<3"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/adeu_ir"]
+
