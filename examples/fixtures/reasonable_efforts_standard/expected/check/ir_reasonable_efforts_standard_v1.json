@@ -33,6 +33,14 @@
       "affected_ids": [],
       "because": [],
       "rule_id": "bridges/gating"
+    },
+    {
+      "affected_ids": [
+        "dn_efforts_1"
+      ],
+      "because": [],
+      "notes": "Checks required fields and provenance for D_norm statements.",
+      "rule_id": "dnorm/completeness"
     }
   ]
 }

@@ -11,6 +11,12 @@
       "message": "scope.time_about.kind='unspecified'",
       "object_id": "dn_suspend_1",
       "severity": "WARN"
+    },
+    {
+      "code": "CONDITION_UNDISCHARGED",
+      "message": "condition.kind='text_only' is not machine-checkable",
+      "object_id": "dn_suspend_1",
+      "severity": "WARN"
     }
   ],
   "status": "WARN",
@@ -33,6 +39,16 @@
       "affected_ids": [],
       "because": [],
       "rule_id": "bridges/gating"
+    },
+    {
+      "affected_ids": [
+        "dn_suspend_1"
+      ],
+      "because": [
+        "CONDITION_UNDISCHARGED"
+      ],
+      "notes": "Checks required fields and provenance for D_norm statements.",
+      "rule_id": "dnorm/completeness"
     }
   ]
 }

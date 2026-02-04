@@ -259,6 +259,81 @@ def _check_bridges(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
     )
 
 
+def _check_norm_completeness(
+    ir: AdeuIR, *, mode: KernelMode
+) -> tuple[list[CheckReason], TraceItem]:
+    reasons: list[CheckReason] = []
+
+    for stmt in ir.D_norm.statements:
+        if stmt.subject.ref_type == "text" and not stmt.subject.text.strip():
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.NORM_SUBJECT_MISSING,
+                    severity=ReasonSeverity.ERROR,
+                    message="subject must not be empty",
+                    object_id=stmt.id,
+                )
+            )
+
+        if not stmt.action.verb.strip():
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.NORM_ACTION_MISSING,
+                    severity=ReasonSeverity.ERROR,
+                    message="action.verb is required",
+                    object_id=stmt.id,
+                )
+            )
+
+        prov = stmt.provenance
+        has_prov = bool(
+            (prov.doc_ref and prov.doc_ref.strip())
+            or prov.span
+            or (prov.quote and prov.quote.strip())
+        )
+        if not has_prov:
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.PROVENANCE_MISSING,
+                    severity=ReasonSeverity.ERROR,
+                    message="provenance requires doc_ref and/or span and/or quote",
+                    object_id=stmt.id,
+                )
+            )
+
+        if stmt.condition is not None:
+            if stmt.condition.kind == "text_only":
+                condition_severity = (
+                    ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+                )
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.CONDITION_UNDISCHARGED,
+                        severity=condition_severity,
+                        message="condition.kind='text_only' is not machine-checkable",
+                        object_id=stmt.id,
+                    )
+                )
+            if stmt.condition.kind == "predicate" and not (
+                stmt.condition.predicate and stmt.condition.predicate.strip()
+            ):
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.CONDITION_UNDISCHARGED,
+                        severity=ReasonSeverity.ERROR,
+                        message="condition.kind='predicate' requires condition.predicate",
+                        object_id=stmt.id,
+                    )
+                )
+
+    return reasons, TraceItem(
+        rule_id="dnorm/completeness",
+        because=[r.code for r in reasons],
+        affected_ids=[s.id for s in ir.D_norm.statements],
+        notes="Checks required fields and provenance for D_norm statements.",
+    )
+
+
 def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     if isinstance(raw, dict):
         schema_version = raw.get("schema_version")
@@ -304,5 +379,9 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     bridge_reasons, bridge_trace = _check_bridges(ir)
     reasons.extend(bridge_reasons)
     trace.append(bridge_trace)
+
+    completeness_reasons, completeness_trace = _check_norm_completeness(ir, mode=mode)
+    reasons.extend(completeness_reasons)
+    trace.append(completeness_trace)
 
     return _finalize_report(metrics=metrics, reasons=reasons, trace=trace)
