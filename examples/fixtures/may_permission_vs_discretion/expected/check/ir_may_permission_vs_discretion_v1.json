@@ -41,6 +41,12 @@
       "because": [],
       "notes": "Checks required fields and provenance for D_norm statements.",
       "rule_id": "dnorm/completeness"
+    },
+    {
+      "affected_ids": [],
+      "because": [],
+      "notes": "Validates exception attachment and basic precedence flags.",
+      "rule_id": "dnorm/exceptions"
     }
   ]
 }

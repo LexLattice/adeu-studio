@@ -334,6 +334,74 @@ def _check_norm_completeness(
     )
 
 
+def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason], TraceItem]:
+    del mode  # reserved for future: predicate validation and strict exception reasoning.
+
+    reasons: list[CheckReason] = []
+    statement_ids = {s.id for s in ir.D_norm.statements}
+
+    applies_index: dict[str, list[str]] = {sid: [] for sid in statement_ids}
+
+    for ex in ir.D_norm.exceptions:
+        prov = ex.provenance
+        has_prov = bool(
+            (prov.doc_ref and prov.doc_ref.strip())
+            or prov.span
+            or (prov.quote and prov.quote.strip())
+        )
+        if not has_prov:
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.PROVENANCE_MISSING,
+                    severity=ReasonSeverity.ERROR,
+                    message="exception provenance requires doc_ref and/or span and/or quote",
+                    object_id=ex.id,
+                )
+            )
+
+        if not ex.applies_to:
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.EXCEPTION_ORPHANED,
+                    severity=ReasonSeverity.ERROR,
+                    message="exception.applies_to must not be empty",
+                    object_id=ex.id,
+                )
+            )
+            continue
+
+        for target_id in ex.applies_to:
+            if target_id not in statement_ids:
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.EXCEPTION_ORPHANED,
+                        severity=ReasonSeverity.ERROR,
+                        message=f"exception references unknown statement id: {target_id!r}",
+                        object_id=ex.id,
+                    )
+                )
+                continue
+            applies_index[target_id].append(ex.id)
+
+    for stmt_id, ex_ids in applies_index.items():
+        if len(ex_ids) > 1:
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.EXCEPTION_PRECEDENCE_UNDETERMINED,
+                    severity=ReasonSeverity.WARN,
+                    message="multiple exceptions apply; precedence is not determined in v0",
+                    object_id=stmt_id,
+                )
+            )
+
+    return reasons, TraceItem(
+        rule_id="dnorm/exceptions",
+        because=[r.code for r in reasons],
+        affected_ids=[e.id for e in ir.D_norm.exceptions],
+        notes="Validates exception attachment and basic precedence flags.",
+    )
+
+
 def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     if isinstance(raw, dict):
         schema_version = raw.get("schema_version")
@@ -383,5 +451,9 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     completeness_reasons, completeness_trace = _check_norm_completeness(ir, mode=mode)
     reasons.extend(completeness_reasons)
     trace.append(completeness_trace)
+
+    exception_reasons, exception_trace = _check_exceptions(ir, mode=mode)
+    reasons.extend(exception_reasons)
+    trace.append(exception_trace)
 
     return _finalize_report(metrics=metrics, reasons=reasons, trace=trace)
