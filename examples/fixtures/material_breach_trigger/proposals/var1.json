@@ -1,0 +1,52 @@
+{
+  "schema_version": "adeu.ir.v0",
+  "ir_id": "ir_material_breach_trigger_v1",
+  "context": {
+    "doc_id": "fixture:material_breach_trigger",
+    "jurisdiction": "US-CA",
+    "time_eval": "2026-02-04T00:00:00Z"
+  },
+  "D_norm": {
+    "statements": [
+      {
+        "id": "dn_suspend_1",
+        "kind": "permission",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": {
+          "verb": "suspend",
+          "object": { "ref_type": "text", "text": "services" }
+        },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": { "kind": "unspecified" }
+        },
+        "provenance": {
+          "doc_ref": "fixture:material_breach_trigger",
+          "span": { "start": 0, "end": 66 }
+        },
+        "condition": {
+          "kind": "text_only",
+          "text": "If Customer commits a material breach"
+        }
+      }
+    ]
+  },
+  "ambiguity": [
+    {
+      "id": "amb_material_1",
+      "span": { "start": 25, "end": 39 },
+      "issue": "material_breach_term",
+      "options": [
+        {
+          "option_id": "opt_undefined",
+          "label": "Undefined term",
+          "effect": "Treat 'material breach' as unresolved definition",
+          "patch": [
+            { "op": "add", "path": "/O/definitions/0", "value": { "id": "def_material_breach", "term": "material breach", "meaning": "UNRESOLVED" } }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

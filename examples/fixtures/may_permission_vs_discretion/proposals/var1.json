@@ -1,0 +1,56 @@
+{
+  "schema_version": "adeu.ir.v0",
+  "ir_id": "ir_may_permission_vs_discretion_v1",
+  "context": {
+    "doc_id": "fixture:may_permission_vs_discretion",
+    "jurisdiction": "US-CA",
+    "time_eval": "2026-02-04T00:00:00Z"
+  },
+  "D_norm": {
+    "statements": [
+      {
+        "id": "dn_may_1",
+        "kind": "permission",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": {
+          "verb": "terminate",
+          "object": { "ref_type": "text", "text": "this Agreement" }
+        },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": { "kind": "unspecified" }
+        },
+        "provenance": {
+          "doc_ref": "fixture:may_permission_vs_discretion",
+          "span": { "start": 0, "end": 67 }
+        }
+      }
+    ]
+  },
+  "ambiguity": [
+    {
+      "id": "amb_may_1",
+      "span": { "start": 9, "end": 12 },
+      "issue": "modal_verb_may",
+      "options": [
+        {
+          "option_id": "opt_permission",
+          "label": "Permission",
+          "effect": "Interpret 'may' as permission",
+          "patch": [
+            { "op": "replace", "path": "/D_norm/statements/0/kind", "value": "permission" }
+          ]
+        },
+        {
+          "option_id": "opt_obligation",
+          "label": "Obligation",
+          "effect": "Interpret 'may' as obligation",
+          "patch": [
+            { "op": "replace", "path": "/D_norm/statements/0/kind", "value": "obligation" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

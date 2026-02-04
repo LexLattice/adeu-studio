@@ -1,0 +1,38 @@
+{
+  "metrics": {
+    "num_ambiguities": 1,
+    "num_bridges": 0,
+    "num_exceptions": 0,
+    "num_statements": 1
+  },
+  "reason_codes": [
+    {
+      "code": "SCOPE_TIME_MISSING",
+      "message": "scope.time_about.kind='unspecified'",
+      "object_id": "dn_may_1",
+      "severity": "WARN"
+    }
+  ],
+  "status": "WARN",
+  "trace": [
+    {
+      "affected_ids": [],
+      "because": [],
+      "rule_id": "parse/ok"
+    },
+    {
+      "affected_ids": [
+        "dn_may_1"
+      ],
+      "because": [
+        "SCOPE_TIME_MISSING"
+      ],
+      "rule_id": "time_scope/validate"
+    },
+    {
+      "affected_ids": [],
+      "because": [],
+      "rule_id": "bridges/gating"
+    }
+  ]
+}
