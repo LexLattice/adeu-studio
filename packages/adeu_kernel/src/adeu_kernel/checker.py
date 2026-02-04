@@ -402,6 +402,127 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
     )
 
 
+def _ref_key(ref: object) -> tuple:
+    ref_type = getattr(ref, "ref_type", None)
+    if ref_type == "text":
+        return ("text", ref.text)  # type: ignore[attr-defined]
+    if ref_type == "entity":
+        return ("entity", ref.entity_id)  # type: ignore[attr-defined]
+    if ref_type == "def":
+        return ("def", ref.def_id)  # type: ignore[attr-defined]
+    if ref_type == "doc":
+        return ("doc", ref.doc_ref)  # type: ignore[attr-defined]
+    return ("unknown",)
+
+
+def _time_interval(ts) -> tuple[object | None, object | None, bool]:
+    """
+    Returns (start, end, unknown). None start means -inf, None end means +inf.
+    """
+    if ts.kind == "unspecified":
+        return None, None, True
+
+    if ts.kind in ("between", "during"):
+        if ts.start is None or ts.end is None:
+            return None, None, True
+        return ts.start, ts.end, False
+
+    if ts.kind == "at":
+        if ts.start is None:
+            return None, None, True
+        return ts.start, ts.start, False
+
+    if ts.kind == "before":
+        if ts.start is None:
+            return None, None, True
+        return None, ts.start, False
+
+    if ts.kind == "after":
+        if ts.start is None:
+            return None, None, True
+        return ts.start, None, False
+
+    return None, None, True
+
+
+def _intervals_overlap(a_start, a_end, b_start, b_end) -> bool:
+    def max_start(x, y):
+        if x is None:
+            return y
+        if y is None:
+            return x
+        return max(x, y)
+
+    def min_end(x, y):
+        if x is None:
+            return y
+        if y is None:
+            return x
+        return min(x, y)
+
+    latest_start = max_start(a_start, b_start)
+    earliest_end = min_end(a_end, b_end)
+
+    if earliest_end is None or latest_start is None:
+        return True
+    return latest_start <= earliest_end
+
+
+def _check_conflicts(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
+    reasons: list[CheckReason] = []
+    statements = ir.D_norm.statements
+
+    for i in range(len(statements)):
+        a = statements[i]
+        for j in range(i + 1, len(statements)):
+            b = statements[j]
+
+            kinds = {a.kind, b.kind}
+            if kinds != {"obligation", "prohibition"}:
+                continue
+
+            if (a.scope.jurisdiction or "").strip() != (b.scope.jurisdiction or "").strip():
+                continue
+
+            if _ref_key(a.subject) != _ref_key(b.subject):
+                continue
+
+            a_obj = _ref_key(a.action.object) if a.action.object is not None else None
+            b_obj = _ref_key(b.action.object) if b.action.object is not None else None
+            if (a.action.verb, a_obj) != (b.action.verb, b_obj):
+                continue
+
+            a_start, a_end, a_unknown = _time_interval(a.scope.time_about)
+            b_start, b_end, b_unknown = _time_interval(b.scope.time_about)
+            if a_unknown or b_unknown:
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.CONFLICT_OVERLAPPING_SCOPE_UNRESOLVED,
+                        severity=ReasonSeverity.WARN,
+                        message="Potential conflict, but scope overlap is unresolved (time_about).",
+                        object_id=a.id,
+                    )
+                )
+                continue
+
+            if _intervals_overlap(a_start, a_end, b_start, b_end):
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.CONFLICT_OBLIGATION_VS_PROHIBITION,
+                        severity=ReasonSeverity.ERROR,
+                        message=f"Conflict between {a.id!r} and {b.id!r} in overlapping scope.",
+                        object_id=a.id,
+                    )
+                )
+
+    return reasons, TraceItem(
+        rule_id="dnorm/conflicts",
+        because=[r.code for r in reasons],
+        affected_ids=[s.id for s in statements],
+        notes="Detects obligation vs prohibition conflicts in overlapping scope.",
+    )
+
+
 def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     if isinstance(raw, dict):
         schema_version = raw.get("schema_version")
@@ -455,5 +576,9 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     exception_reasons, exception_trace = _check_exceptions(ir, mode=mode)
     reasons.extend(exception_reasons)
     trace.append(exception_trace)
+
+    conflict_reasons, conflict_trace = _check_conflicts(ir)
+    reasons.extend(conflict_reasons)
+    trace.append(conflict_trace)
 
     return _finalize_report(metrics=metrics, reasons=reasons, trace=trace)

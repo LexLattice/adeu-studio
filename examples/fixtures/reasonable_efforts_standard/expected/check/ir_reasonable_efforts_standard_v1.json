@@ -47,6 +47,14 @@
       "because": [],
       "notes": "Validates exception attachment and basic precedence flags.",
       "rule_id": "dnorm/exceptions"
+    },
+    {
+      "affected_ids": [
+        "dn_efforts_1"
+      ],
+      "because": [],
+      "notes": "Detects obligation vs prohibition conflicts in overlapping scope.",
+      "rule_id": "dnorm/conflicts"
     }
   ]
 }
