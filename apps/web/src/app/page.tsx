@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import type { AdeuIR } from "../gen/adeu_ir";
@@ -124,6 +125,9 @@ export default function HomePage() {
           <button onClick={propose} disabled={!clauseText.trim()}>
             Propose variants (mock)
           </button>
+          <Link href="/artifacts" className="muted" style={{ marginLeft: "auto" }}>
+            Artifacts
+          </Link>
           <span className="muted">Try pasting one of the fixture clauses.</span>
         </div>
         {error ? <div className="muted">Error: {error}</div> : null}
