@@ -1,0 +1,61 @@
+{
+  "schema_version": "adeu.ir.v0",
+  "ir_id": "ir_text_only_exception_does_not_suppress_conflict_v1",
+  "context": {
+    "doc_id": "fixture:text_only_exception_does_not_suppress_conflict",
+    "jurisdiction": "US-CA",
+    "time_eval": "2026-02-04T00:00:00Z"
+  },
+  "D_norm": {
+    "statements": [
+      {
+        "id": "dn_deliver_ob_1",
+        "kind": "obligation",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": { "verb": "deliver", "object": { "ref_type": "text", "text": "the Goods" } },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": {
+            "kind": "during",
+            "start": "2026-02-04T00:00:00Z",
+            "end": "2026-12-31T00:00:00Z"
+          }
+        },
+        "provenance": {
+          "doc_ref": "fixture:text_only_exception_does_not_suppress_conflict",
+          "span": { "start": 0, "end": 92 }
+        }
+      },
+      {
+        "id": "dn_deliver_proh_1",
+        "kind": "prohibition",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": { "verb": "deliver", "object": { "ref_type": "text", "text": "the Goods" } },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": {
+            "kind": "during",
+            "start": "2026-02-04T00:00:00Z",
+            "end": "2026-12-31T00:00:00Z"
+          }
+        },
+        "provenance": {
+          "doc_ref": "fixture:text_only_exception_does_not_suppress_conflict",
+          "span": { "start": 0, "end": 92 }
+        }
+      }
+    ],
+    "exceptions": [
+      {
+        "id": "ex_text_only_defeat_1",
+        "applies_to": ["dn_deliver_proh_1"],
+        "condition": { "kind": "text_only", "text": "except as provided" },
+        "effect": "defeats",
+        "provenance": {
+          "doc_ref": "fixture:text_only_exception_does_not_suppress_conflict",
+          "span": { "start": 64, "end": 92 }
+        }
+      }
+    ]
+  }
+}

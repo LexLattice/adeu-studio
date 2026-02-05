@@ -1,0 +1,49 @@
+{
+  "schema_version": "adeu.ir.v0",
+  "ir_id": "ir_variant_backed_ambiguity_base_v1",
+  "context": {
+    "doc_id": "fixture:variant_backed_ambiguity_option",
+    "jurisdiction": "US-CA",
+    "time_eval": "2026-02-04T00:00:00Z"
+  },
+  "D_norm": {
+    "statements": [
+      {
+        "id": "dn_term_1",
+        "kind": "permission",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": {
+          "verb": "terminate",
+          "object": { "ref_type": "text", "text": "this Agreement" }
+        },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": {
+            "kind": "during",
+            "start": "2026-02-04T00:00:00Z",
+            "end": "2026-12-31T00:00:00Z"
+          }
+        },
+        "provenance": {
+          "doc_ref": "fixture:variant_backed_ambiguity_option",
+          "span": { "start": 0, "end": 36 }
+        }
+      }
+    ]
+  },
+  "ambiguity": [
+    {
+      "id": "amb_variant_1",
+      "span": { "start": 9, "end": 12 },
+      "issue": "variant_choice",
+      "options": [
+        {
+          "option_id": "opt_use_variant",
+          "label": "Use alternative variant",
+          "effect": "Replace current IR with a precomputed alternative variant",
+          "variant_ir_id": "ir_variant_backed_ambiguity_variant_v1"
+        }
+      ]
+    }
+  ]
+}

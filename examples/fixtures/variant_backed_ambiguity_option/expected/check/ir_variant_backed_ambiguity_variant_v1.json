@@ -1,0 +1,66 @@
+{
+  "metrics": {
+    "num_ambiguities": 0,
+    "num_bridges": 0,
+    "num_exceptions": 0,
+    "num_statements": 1
+  },
+  "reason_codes": [],
+  "status": "PASS",
+  "trace": [
+    {
+      "affected_ids": [],
+      "because": [],
+      "rule_id": "parse/ok"
+    },
+    {
+      "affected_ids": [
+        "dn_term_1"
+      ],
+      "because": [],
+      "rule_id": "time_scope/validate"
+    },
+    {
+      "affected_ids": [],
+      "because": [],
+      "rule_id": "bridges/gating"
+    },
+    {
+      "affected_ids": [
+        "dn_term_1"
+      ],
+      "because": [],
+      "notes": "Checks required fields and provenance for D_norm statements.",
+      "rule_id": "dnorm/completeness"
+    },
+    {
+      "affected_ids": [],
+      "because": [],
+      "notes": "Validates exception attachment and predicate shape.",
+      "rule_id": "dnorm/exceptions"
+    },
+    {
+      "affected_ids": [
+        "dn_term_1"
+      ],
+      "because": [],
+      "rule_id": "effective_norms"
+    },
+    {
+      "affected_ids": [
+        "dn_term_1"
+      ],
+      "because": [],
+      "notes": "Detects obligation vs prohibition conflicts in overlapping scope.",
+      "rule_id": "dnorm/conflicts"
+    },
+    {
+      "affected_ids": [
+        "dn_term_1"
+      ],
+      "because": [],
+      "notes": "Flags unresolved EntityRef/DefinitionRef usages.",
+      "rule_id": "refs/resolve"
+    }
+  ]
+}
