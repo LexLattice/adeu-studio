@@ -11,6 +11,8 @@ from adeu_ir import AdeuIR, CheckReport, Context, ReasonSeverity
 from adeu_kernel import KernelMode, check
 from pydantic import ValidationError
 
+from .id_canonicalization import canonicalize_ir_ids
+
 DEFAULT_OPENAI_MODEL = "gpt-5.2"
 DEFAULT_MAX_CANDIDATES = 5
 DEFAULT_MAX_REPAIRS = 3
@@ -276,6 +278,7 @@ def propose_openai(
 
             # Fail-closed but enforce deterministic context/source_features.
             ir = ir.model_copy(update={"context": context})
+            ir = canonicalize_ir_ids(ir)
             report = check(ir, mode=mode)
             key = _score_reason_tuple(report)
             attempt_logs.append(
