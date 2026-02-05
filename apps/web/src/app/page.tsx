@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import type { AdeuIR, SourceSpan } from "../gen/adeu_ir";
-import type { CheckReport } from "../gen/check_report";
+import type { CheckReason, CheckReport } from "../gen/check_report";
 
 type KernelMode = "STRICT" | "LAX";
 
@@ -118,6 +118,55 @@ function clampSpan(text: string, span: SourceSpan): SourceSpan | null {
   const end = Math.max(0, Math.min(text.length, span.end));
   if (start >= end) return null;
   return { start, end };
+}
+
+function _firstSpan(span: SourceSpan | null | undefined): SourceSpan | null {
+  return span ? span : null;
+}
+
+function spanFromReason(ir: AdeuIR, reason: CheckReason): SourceSpan | null {
+  const provSpan = _firstSpan(reason.provenance?.span);
+  if (provSpan) return provSpan;
+
+  const objectId = reason.object_id ?? null;
+  if (objectId) {
+    const stmt = ir.D_norm?.statements?.find((s) => s.id === objectId);
+    const stmtSpan = _firstSpan(stmt?.provenance?.span);
+    if (stmtSpan) return stmtSpan;
+
+    const ex = ir.D_norm?.exceptions?.find((e) => e.id === objectId);
+    const exSpan = _firstSpan(ex?.provenance?.span);
+    if (exSpan) return exSpan;
+
+    const amb = ir.ambiguity?.find((a) => a.id === objectId);
+    const ambSpan = _firstSpan(amb?.span);
+    if (ambSpan) return ambSpan;
+
+    const bridge = ir.bridges?.find((b) => b.id === objectId);
+    const bridgeSpan = _firstSpan(bridge?.provenance?.span);
+    if (bridgeSpan) return bridgeSpan;
+  }
+
+  const path = reason.json_path ?? "";
+  const stmtPrefix = "/D_norm/statements/";
+  if (path.startsWith(stmtPrefix)) {
+    const seg = path.slice(stmtPrefix.length).split("/")[0];
+    const idx = Number.parseInt(seg, 10);
+    const stmt = Number.isFinite(idx) ? ir.D_norm?.statements?.[idx] : undefined;
+    const span = _firstSpan(stmt?.provenance?.span);
+    if (span) return span;
+  }
+
+  const exPrefix = "/D_norm/exceptions/";
+  if (path.startsWith(exPrefix)) {
+    const seg = path.slice(exPrefix.length).split("/")[0];
+    const idx = Number.parseInt(seg, 10);
+    const ex = Number.isFinite(idx) ? ir.D_norm?.exceptions?.[idx] : undefined;
+    const span = _firstSpan(ex?.provenance?.span);
+    if (span) return span;
+  }
+
+  return null;
 }
 
 export default function HomePage() {
@@ -421,6 +470,51 @@ export default function HomePage() {
                 </span>
               </div>
             ))}
+          </div>
+        ) : null}
+        {selectedReport?.reason_codes?.length ? (
+          <div style={{ marginTop: 8, overflow: "auto" }}>
+            <div className="muted">Reasons ({selectedReport.reason_codes.length})</div>
+            <table className="table" style={{ marginTop: 8 }}>
+              <thead>
+                <tr>
+                  <th>sev</th>
+                  <th>code</th>
+                  <th>json_path</th>
+                  <th>object_id</th>
+                  <th>message</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedReport.reason_codes.map((r, idx) => {
+                  const span = selectedIr ? spanFromReason(selectedIr, r) : null;
+                  return (
+                    <tr key={idx}>
+                      <td className="mono">{r.severity}</td>
+                      <td className="mono">{r.code}</td>
+                      <td className="mono">{r.json_path ?? ""}</td>
+                      <td className="mono">{r.object_id ?? ""}</td>
+                      <td>{r.message}</td>
+                      <td>
+                        <button
+                          onClick={() => {
+                            if (!span) return;
+                            setHighlight({
+                              span,
+                              label: `reason:${r.code} ${r.json_path ?? ""}`.trim()
+                            });
+                          }}
+                          disabled={!span}
+                        >
+                          Highlight
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         ) : null}
         {selectedIr?.ambiguity?.length ? (
