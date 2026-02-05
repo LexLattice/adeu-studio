@@ -132,6 +132,19 @@ def _score_report(report: CheckReport) -> tuple[int, int, int, int]:
     return (status_score, num_errors, num_warns, len(report.reason_codes))
 
 
+def _score_and_rank_proposals(
+    proposals: list[tuple[AdeuIR, CheckReport]],
+) -> list[ProposeCandidate]:
+    scored: list[tuple[tuple[int, int, int, int], str, AdeuIR, CheckReport]] = [
+        (_score_report(report), ir.ir_id, ir, report) for ir, report in proposals
+    ]
+    scored.sort(key=lambda item: (item[0], item[1]))
+    return [
+        ProposeCandidate(ir=ir, check_report=report, rank=rank)
+        for rank, (_, _, ir, report) in enumerate(scored)
+    ]
+
+
 @app.post("/propose", response_model=ProposeResponse)
 def propose(req: ProposeRequest) -> ProposeResponse:
     bundles = load_fixture_bundles()
@@ -160,15 +173,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
         except RuntimeError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-        scored: list[tuple[tuple[int, int, int, int], str, AdeuIR, CheckReport]] = []
-        for ir, report in proposed:
-            scored.append((_score_report(report), ir.ir_id, ir, report))
-
-        scored.sort(key=lambda item: (item[0], item[1]))
-        candidates = [
-            ProposeCandidate(ir=ir, check_report=report, rank=rank)
-            for rank, (_, _, ir, report) in enumerate(scored)
-        ]
+        candidates = _score_and_rank_proposals(proposed)
         return ProposeResponse(
             provider=ProviderInfo(kind="openai", model=model),
             candidates=candidates,
@@ -201,7 +206,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
             ),
         )
 
-    scored: list[tuple[tuple[int, int, int, int], str, AdeuIR, CheckReport]] = []
+    scored: list[tuple[AdeuIR, CheckReport]] = []
     for ir in bundle.proposals:
         ir_with_features = ir.model_copy(
             update={
@@ -209,13 +214,9 @@ def propose(req: ProposeRequest) -> ProposeResponse:
             }
         )
         report = check(ir_with_features, mode=req.mode)
-        scored.append((_score_report(report), ir_with_features.ir_id, ir_with_features, report))
+        scored.append((ir_with_features, report))
 
-    scored.sort(key=lambda item: (item[0], item[1]))
-    candidates = [
-        ProposeCandidate(ir=ir, check_report=report, rank=rank)
-        for rank, (_, _, ir, report) in enumerate(scored)
-    ]
+    candidates = _score_and_rank_proposals(scored)
     return ProposeResponse(
         provider=ProviderInfo(kind="mock"),
         candidates=candidates,
