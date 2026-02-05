@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type CheckStatus = "PASS" | "WARN" | "REFUSE";
 
@@ -38,7 +38,7 @@ export default function ArtifactsPage() {
     return params.toString();
   }, [docId, status]);
 
-  async function load() {
+  const load = useCallback(async () => {
     setError(null);
     setLoading(true);
     try {
@@ -54,12 +54,11 @@ export default function ArtifactsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [query]);
 
   useEffect(() => {
     void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+  }, [load]);
 
   return (
     <div style={{ padding: 12 }}>

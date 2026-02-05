@@ -97,6 +97,22 @@ def _ensure_schema(con: sqlite3.Connection) -> None:
     _ensure_indexes(con)
 
 
+def _normalize_datetime_filter(value: str) -> str:
+    try:
+        normalized = value.strip()
+        if normalized.endswith("Z"):
+            normalized = normalized[:-1] + "+00:00"
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError as exc:
+        raise ValueError(f"invalid datetime filter: {value!r}") from exc
+
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    else:
+        parsed = parsed.astimezone(timezone.utc)
+    return parsed.isoformat()
+
+
 def create_artifact(
     *,
     clause_text: str,
@@ -167,6 +183,7 @@ def get_artifact(*, artifact_id: str, db_path: Path | None = None) -> ArtifactRo
 
     with sqlite3.connect(db_path) as con:
         _ensure_schema(con)
+        con.row_factory = sqlite3.Row
         row = con.execute(
             "SELECT artifact_id, created_at, clause_text, doc_id, jurisdiction, status, "
             "num_errors, num_warns, ir_json, check_report_json "
@@ -177,16 +194,16 @@ def get_artifact(*, artifact_id: str, db_path: Path | None = None) -> ArtifactRo
             return None
 
     return ArtifactRow(
-        artifact_id=row[0],
-        created_at=row[1],
-        clause_text=row[2],
-        doc_id=row[3],
-        jurisdiction=row[4],
-        status=row[5],
-        num_errors=row[6],
-        num_warns=row[7],
-        ir_json=json.loads(row[8]),
-        check_report_json=json.loads(row[9]),
+        artifact_id=row["artifact_id"],
+        created_at=row["created_at"],
+        clause_text=row["clause_text"],
+        doc_id=row["doc_id"],
+        jurisdiction=row["jurisdiction"],
+        status=row["status"],
+        num_errors=row["num_errors"],
+        num_warns=row["num_warns"],
+        ir_json=json.loads(row["ir_json"]),
+        check_report_json=json.loads(row["check_report_json"]),
     )
 
 
@@ -216,11 +233,11 @@ def list_artifacts(
 
     if created_after is not None:
         where.append("created_at >= ?")
-        params.append(created_after)
+        params.append(_normalize_datetime_filter(created_after))
 
     if created_before is not None:
         where.append("created_at <= ?")
-        params.append(created_before)
+        params.append(_normalize_datetime_filter(created_before))
 
     sql = (
         "SELECT artifact_id, created_at, doc_id, jurisdiction, status, num_errors, num_warns "
@@ -233,19 +250,20 @@ def list_artifacts(
 
     with sqlite3.connect(db_path) as con:
         _ensure_schema(con)
+        con.row_factory = sqlite3.Row
         rows = con.execute(sql, params).fetchall()
 
     summaries: list[ArtifactSummaryRow] = []
     for row in rows:
         summaries.append(
             ArtifactSummaryRow(
-                artifact_id=row[0],
-                created_at=row[1],
-                doc_id=row[2],
-                jurisdiction=row[3],
-                status=row[4],
-                num_errors=row[5],
-                num_warns=row[6],
+                artifact_id=row["artifact_id"],
+                created_at=row["created_at"],
+                doc_id=row["doc_id"],
+                jurisdiction=row["jurisdiction"],
+                status=row["status"],
+                num_errors=row["num_errors"],
+                num_warns=row["num_warns"],
             )
         )
     return summaries

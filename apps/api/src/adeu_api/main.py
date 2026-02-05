@@ -159,14 +159,17 @@ def list_artifacts_endpoint(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0, le=50_000),
 ) -> ArtifactListResponse:
-    items = list_artifacts(
-        doc_id=doc_id,
-        status=status,
-        created_after=created_after,
-        created_before=created_before,
-        limit=limit,
-        offset=offset,
-    )
+    try:
+        items = list_artifacts(
+            doc_id=doc_id,
+            status=status,
+            created_after=created_after,
+            created_before=created_before,
+            limit=limit,
+            offset=offset,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return ArtifactListResponse(
         items=[
             ArtifactSummary(
