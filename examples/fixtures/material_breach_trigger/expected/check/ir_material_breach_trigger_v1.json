@@ -8,12 +8,14 @@
   "reason_codes": [
     {
       "code": "SCOPE_TIME_MISSING",
+      "json_path": "/D_norm/statements/0/scope/time_about/kind",
       "message": "scope.time_about.kind='unspecified'",
       "object_id": "dn_suspend_1",
       "severity": "WARN"
     },
     {
       "code": "CONDITION_UNDISCHARGED",
+      "json_path": "/D_norm/statements/0/condition/kind",
       "message": "condition.kind='text_only' is not machine-checkable",
       "object_id": "dn_suspend_1",
       "severity": "WARN"

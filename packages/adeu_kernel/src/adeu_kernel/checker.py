@@ -20,6 +20,9 @@ from .predicate import PredicateParseError, parse_predicate, referenced_def_ids
 SUPPORTED_SCHEMA_VERSION = "adeu.ir.v0"
 MODALITY_AMBIGUITY_ISSUES = frozenset({"modality_ambiguity"})
 
+def _path(*parts: str | int) -> str:
+    return "/" + "/".join(str(p).strip("/") for p in parts)
+
 
 def _zero_metrics() -> CheckMetrics:
     return CheckMetrics(
@@ -40,6 +43,7 @@ def _validate_predicate_condition(
     condition_predicate: str | None,
     owner_id: str,
     missing_predicate_message: str,
+    predicate_json_path: str,
     def_ids: set[str],
     mode: KernelMode,
 ) -> list[CheckReason]:
@@ -54,6 +58,7 @@ def _validate_predicate_condition(
                 severity=ReasonSeverity.ERROR,
                 message=missing_predicate_message,
                 object_id=owner_id,
+                json_path=predicate_json_path,
             )
         )
         return reasons
@@ -68,6 +73,7 @@ def _validate_predicate_condition(
                 severity=pred_severity,
                 message=str(e),
                 object_id=owner_id,
+                json_path=predicate_json_path,
             )
         )
         return reasons
@@ -81,6 +87,7 @@ def _validate_predicate_condition(
                     severity=pred_def_severity,
                     message=f"Predicate references unknown def_id: {def_id!r}",
                     object_id=owner_id,
+                    json_path=predicate_json_path,
                 )
             )
 
@@ -109,7 +116,7 @@ def _finalize_report(
 def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason], TraceItem]:
     reasons: list[CheckReason] = []
 
-    for stmt in ir.D_norm.statements:
+    for idx, stmt in enumerate(ir.D_norm.statements):
         jurisdiction = (stmt.scope.jurisdiction or "").strip()
         if not jurisdiction:
             reasons.append(
@@ -118,6 +125,7 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                     severity=ReasonSeverity.ERROR,
                     message="scope.jurisdiction is required",
                     object_id=stmt.id,
+                    json_path=_path("D_norm", "statements", idx, "scope", "jurisdiction"),
                 )
             )
 
@@ -132,6 +140,7 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                     severity=time_severity,
                     message="scope.time_about.kind='unspecified'",
                     object_id=stmt.id,
+                    json_path=_path("D_norm", "statements", idx, "scope", "time_about", "kind"),
                 )
             )
             if ts.start is not None or ts.end is not None:
@@ -141,6 +150,7 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                         severity=ReasonSeverity.ERROR,
                         message="unspecified time_about must not include start/end",
                         object_id=stmt.id,
+                        json_path=_path("D_norm", "statements", idx, "scope", "time_about"),
                     )
                 )
             continue
@@ -153,6 +163,7 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                         severity=ReasonSeverity.ERROR,
                         message=f"time_about.kind={ts.kind!r} requires start and end",
                         object_id=stmt.id,
+                        json_path=_path("D_norm", "statements", idx, "scope", "time_about"),
                     )
                 )
             elif ts.start >= ts.end:
@@ -162,6 +173,9 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                         severity=ReasonSeverity.ERROR,
                         message="time_about.start must be < time_about.end",
                         object_id=stmt.id,
+                        json_path=_path(
+                            "D_norm", "statements", idx, "scope", "time_about", "start"
+                        ),
                     )
                 )
             continue
@@ -174,6 +188,9 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                         severity=ReasonSeverity.ERROR,
                         message="time_about.kind='at' requires start",
                         object_id=stmt.id,
+                        json_path=_path(
+                            "D_norm", "statements", idx, "scope", "time_about", "start"
+                        ),
                     )
                 )
             if ts.end is not None:
@@ -183,6 +200,7 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                         severity=ReasonSeverity.ERROR,
                         message="time_about.kind='at' must not include end",
                         object_id=stmt.id,
+                        json_path=_path("D_norm", "statements", idx, "scope", "time_about", "end"),
                     )
                 )
             continue
@@ -195,6 +213,9 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                         severity=ReasonSeverity.ERROR,
                         message=f"time_about.kind={ts.kind!r} requires start reference point",
                         object_id=stmt.id,
+                        json_path=_path(
+                            "D_norm", "statements", idx, "scope", "time_about", "start"
+                        ),
                     )
                 )
             if ts.end is not None:
@@ -204,6 +225,7 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                         severity=ReasonSeverity.ERROR,
                         message=f"time_about.kind={ts.kind!r} must not include end",
                         object_id=stmt.id,
+                        json_path=_path("D_norm", "statements", idx, "scope", "time_about", "end"),
                     )
                 )
             continue
@@ -214,6 +236,7 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                 severity=ReasonSeverity.ERROR,
                 message=f"Unrecognized time_about.kind: {ts.kind!r}",
                 object_id=stmt.id,
+                json_path=_path("D_norm", "statements", idx, "scope", "time_about", "kind"),
             )
         )
 
@@ -227,7 +250,7 @@ def _check_time_scope(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
 def _check_bridges(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
     reasons: list[CheckReason] = []
 
-    for b in ir.bridges:
+    for idx, b in enumerate(ir.bridges):
         if b.status == "certified" and b.validator is None:
             reasons.append(
                 CheckReason(
@@ -235,6 +258,7 @@ def _check_bridges(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                     severity=ReasonSeverity.ERROR,
                     message="certified bridge requires validator",
                     object_id=b.id,
+                    json_path=_path("bridges", idx, "validator"),
                 )
             )
 
@@ -246,6 +270,7 @@ def _check_bridges(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                         severity=ReasonSeverity.ERROR,
                         message="u_to_dnorm requires from_channel='U' and to_channel='D_norm'",
                         object_id=b.id,
+                        json_path=_path("bridges", idx, "bridge_type"),
                     )
                 )
             if not (b.authority_ref or (b.validator and b.validator.kind == "authority_doc")):
@@ -258,6 +283,7 @@ def _check_bridges(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                             "(or validator.kind='authority_doc')"
                         ),
                         object_id=b.id,
+                        json_path=_path("bridges", idx, "authority_ref"),
                     )
                 )
 
@@ -269,6 +295,7 @@ def _check_bridges(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                         severity=ReasonSeverity.ERROR,
                         message="u_to_e requires from_channel='U' and to_channel='E'",
                         object_id=b.id,
+                        json_path=_path("bridges", idx, "bridge_type"),
                     )
                 )
             if not (b.calibration_tag or (b.validator and b.validator.kind == "calibration")):
@@ -278,6 +305,7 @@ def _check_bridges(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                         severity=ReasonSeverity.ERROR,
                         message="u_to_e requires calibration_tag (or validator.kind='calibration')",
                         object_id=b.id,
+                        json_path=_path("bridges", idx, "calibration_tag"),
                     )
                 )
 
@@ -289,6 +317,7 @@ def _check_bridges(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                         severity=ReasonSeverity.ERROR,
                         message="e_to_dnorm requires from_channel='E' and to_channel='D_norm'",
                         object_id=b.id,
+                        json_path=_path("bridges", idx, "bridge_type"),
                     )
                 )
 
@@ -300,6 +329,7 @@ def _check_bridges(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                         severity=ReasonSeverity.ERROR,
                         message="o_to_dnorm requires from_channel='O' and to_channel='D_norm'",
                         object_id=b.id,
+                        json_path=_path("bridges", idx, "bridge_type"),
                     )
                 )
 
@@ -316,7 +346,7 @@ def _check_norm_completeness(
     reasons: list[CheckReason] = []
     def_ids = {d.id for d in ir.O.definitions}
 
-    for stmt in ir.D_norm.statements:
+    for idx, stmt in enumerate(ir.D_norm.statements):
         if stmt.subject.ref_type == "text" and not stmt.subject.text.strip():
             reasons.append(
                 CheckReason(
@@ -324,6 +354,7 @@ def _check_norm_completeness(
                     severity=ReasonSeverity.ERROR,
                     message="subject must not be empty",
                     object_id=stmt.id,
+                    json_path=_path("D_norm", "statements", idx, "subject", "text"),
                 )
             )
 
@@ -334,6 +365,7 @@ def _check_norm_completeness(
                     severity=ReasonSeverity.ERROR,
                     message="action.verb is required",
                     object_id=stmt.id,
+                    json_path=_path("D_norm", "statements", idx, "action", "verb"),
                 )
             )
 
@@ -350,6 +382,7 @@ def _check_norm_completeness(
                     severity=ReasonSeverity.ERROR,
                     message="provenance requires doc_ref and/or span and/or quote",
                     object_id=stmt.id,
+                    json_path=_path("D_norm", "statements", idx, "provenance"),
                 )
             )
 
@@ -364,6 +397,7 @@ def _check_norm_completeness(
                         severity=condition_severity,
                         message="condition.kind='text_only' is not machine-checkable",
                         object_id=stmt.id,
+                        json_path=_path("D_norm", "statements", idx, "condition", "kind"),
                     )
                 )
             reasons.extend(
@@ -373,6 +407,9 @@ def _check_norm_completeness(
                     owner_id=stmt.id,
                     missing_predicate_message=(
                         "condition.kind='predicate' requires condition.predicate"
+                    ),
+                    predicate_json_path=_path(
+                        "D_norm", "statements", idx, "condition", "predicate"
                     ),
                     def_ids=def_ids,
                     mode=mode,
@@ -390,11 +427,12 @@ def _check_norm_completeness(
 def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason], TraceItem]:
     reasons: list[CheckReason] = []
     statement_ids = {s.id for s in ir.D_norm.statements}
+    stmt_idx_by_id = {s.id: i for i, s in enumerate(ir.D_norm.statements)}
     def_ids = {d.id for d in ir.O.definitions}
 
     applies_index: dict[str, list[object]] = {sid: [] for sid in statement_ids}
 
-    for ex in ir.D_norm.exceptions:
+    for ex_idx, ex in enumerate(ir.D_norm.exceptions):
         prov = ex.provenance
         has_prov = bool(
             (prov.doc_ref and prov.doc_ref.strip())
@@ -408,6 +446,7 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                     severity=ReasonSeverity.ERROR,
                     message="exception provenance requires doc_ref and/or span and/or quote",
                     object_id=ex.id,
+                    json_path=_path("D_norm", "exceptions", ex_idx, "provenance"),
                 )
             )
 
@@ -418,6 +457,7 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                     severity=ReasonSeverity.ERROR,
                     message="exception.applies_to must not be empty",
                     object_id=ex.id,
+                    json_path=_path("D_norm", "exceptions", ex_idx, "applies_to"),
                 )
             )
             continue
@@ -430,12 +470,15 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                 missing_predicate_message=(
                     "exception.condition.kind='predicate' requires exception.condition.predicate"
                 ),
+                predicate_json_path=_path(
+                    "D_norm", "exceptions", ex_idx, "condition", "predicate"
+                ),
                 def_ids=def_ids,
                 mode=mode,
             )
         )
 
-        for target_id in ex.applies_to:
+        for target_idx, target_id in enumerate(ex.applies_to):
             if target_id not in statement_ids:
                 reasons.append(
                     CheckReason(
@@ -443,6 +486,9 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                         severity=ReasonSeverity.ERROR,
                         message=f"exception references unknown statement id: {target_id!r}",
                         object_id=ex.id,
+                        json_path=_path(
+                            "D_norm", "exceptions", ex_idx, "applies_to", target_idx
+                        ),
                     )
                 )
                 continue
@@ -466,6 +512,7 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                         "multiple exceptions apply; precedence requires strict priority ordering"
                     ),
                     object_id=stmt_id,
+                    json_path=_path("D_norm", "statements", stmt_idx_by_id.get(stmt_id, 0)),
                 )
             )
 
@@ -575,6 +622,7 @@ def _check_conflicts(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                         severity=ReasonSeverity.WARN,
                         message="Potential conflict, but scope overlap is unresolved (time_about).",
                         object_id=a.id,
+                        json_path=_path("D_norm", "statements", i, "scope", "time_about"),
                     )
                 )
                 continue
@@ -586,6 +634,7 @@ def _check_conflicts(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                         severity=ReasonSeverity.ERROR,
                         message=f"Conflict between {a.id!r} and {b.id!r} in overlapping scope.",
                         object_id=a.id,
+                        json_path=_path("D_norm", "statements", i),
                     )
                 )
 
@@ -603,7 +652,7 @@ def _check_resolution(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
     entity_ids = {e.id for e in ir.O.entities}
     def_ids = {d.id for d in ir.O.definitions}
 
-    def check_ref(ref, *, owner_id: str) -> None:
+    def check_ref(ref: Ref, *, owner_id: str, json_path: str) -> None:
         if ref.ref_type == "entity" and ref.entity_id not in entity_ids:
             reasons.append(
                 CheckReason(
@@ -611,6 +660,7 @@ def _check_resolution(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                     severity=ReasonSeverity.WARN,
                     message=f"Unresolved EntityRef: {ref.entity_id!r}",
                     object_id=owner_id,
+                    json_path=json_path,
                 )
             )
         if ref.ref_type == "def" and ref.def_id not in def_ids:
@@ -620,13 +670,22 @@ def _check_resolution(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                     severity=ReasonSeverity.WARN,
                     message=f"Unresolved DefinitionRef: {ref.def_id!r}",
                     object_id=owner_id,
+                    json_path=json_path,
                 )
             )
 
-    for stmt in ir.D_norm.statements:
-        check_ref(stmt.subject, owner_id=stmt.id)
+    for idx, stmt in enumerate(ir.D_norm.statements):
+        check_ref(
+            stmt.subject,
+            owner_id=stmt.id,
+            json_path=_path("D_norm", "statements", idx, "subject"),
+        )
         if stmt.action.object is not None:
-            check_ref(stmt.action.object, owner_id=stmt.id)
+            check_ref(
+                stmt.action.object,
+                owner_id=stmt.id,
+                json_path=_path("D_norm", "statements", idx, "action", "object"),
+            )
 
     return reasons, TraceItem(
         rule_id="refs/resolve",
@@ -640,6 +699,7 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     if isinstance(raw, dict):
         schema_version = raw.get("schema_version")
         if schema_version is not None and schema_version != SUPPORTED_SCHEMA_VERSION:
+            object_id = raw.get("ir_id") if isinstance(raw.get("ir_id"), str) else None
             return CheckReport(
                 status="REFUSE",
                 reason_codes=[
@@ -647,6 +707,7 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
                         code=ReasonCode.UNSUPPORTED_SCHEMA_VERSION,
                         severity=ReasonSeverity.ERROR,
                         message=f"Unsupported schema_version: {schema_version!r}",
+                        object_id=object_id,
                         json_path="/schema_version",
                     )
                 ],
@@ -660,6 +721,9 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
         errors = e.errors()
         code = ReasonCode.SCHEMA_INVALID
         chosen = errors[0] if errors else None
+        object_id = None
+        if isinstance(raw, dict) and isinstance(raw.get("ir_id"), str):
+            object_id = raw["ir_id"]
 
         for err in errors:
             loc = err.get("loc", ())
@@ -685,6 +749,7 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
                     code=code,
                     severity=ReasonSeverity.ERROR,
                     message=message,
+                    object_id=object_id,
                     json_path=json_path,
                 )
             ],

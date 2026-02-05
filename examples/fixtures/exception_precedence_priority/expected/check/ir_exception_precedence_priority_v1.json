@@ -8,6 +8,7 @@
   "reason_codes": [
     {
       "code": "EXCEPTION_PRECEDENCE_UNDETERMINED",
+      "json_path": "/D_norm/statements/0",
       "message": "multiple exceptions apply; precedence requires strict priority ordering",
       "object_id": "dn_deliver_1",
       "severity": "WARN"

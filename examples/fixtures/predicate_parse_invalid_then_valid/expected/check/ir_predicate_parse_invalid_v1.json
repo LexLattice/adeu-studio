@@ -8,6 +8,7 @@
   "reason_codes": [
     {
       "code": "CONDITION_PREDICATE_INVALID",
+      "json_path": "/D_norm/statements/0/condition/predicate",
       "message": "expected '(' at pos 0",
       "object_id": "dn_suspend_1",
       "severity": "WARN"
