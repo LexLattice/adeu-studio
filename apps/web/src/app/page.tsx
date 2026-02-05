@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import type { AdeuIR, SourceSpan } from "../gen/adeu_ir";
-import type { CheckReport } from "../gen/check_report";
+import type { CheckReason, CheckReport } from "../gen/check_report";
 
 type KernelMode = "STRICT" | "LAX";
 
@@ -120,11 +120,63 @@ function clampSpan(text: string, span: SourceSpan): SourceSpan | null {
   return { start, end };
 }
 
+function _firstSpan(span: SourceSpan | null | undefined): SourceSpan | null {
+  return span ? span : null;
+}
+
+function spanFromReason(ir: AdeuIR, reason: CheckReason): SourceSpan | null {
+  const provSpan = _firstSpan(reason.provenance?.span);
+  if (provSpan) return provSpan;
+
+  const objectId = reason.object_id ?? null;
+  if (objectId) {
+    const stmt = ir.D_norm?.statements?.find((s) => s.id === objectId);
+    const stmtSpan = _firstSpan(stmt?.provenance?.span);
+    if (stmtSpan) return stmtSpan;
+
+    const ex = ir.D_norm?.exceptions?.find((e) => e.id === objectId);
+    const exSpan = _firstSpan(ex?.provenance?.span);
+    if (exSpan) return exSpan;
+
+    const amb = ir.ambiguity?.find((a) => a.id === objectId);
+    const ambSpan = _firstSpan(amb?.span);
+    if (ambSpan) return ambSpan;
+
+    const bridge = ir.bridges?.find((b) => b.id === objectId);
+    const bridgeSpan = _firstSpan(bridge?.provenance?.span);
+    if (bridgeSpan) return bridgeSpan;
+  }
+
+  const path = reason.json_path ?? "";
+  const stmtPrefix = "/D_norm/statements/";
+  if (path.startsWith(stmtPrefix)) {
+    const seg = path.slice(stmtPrefix.length).split("/")[0];
+    const idx = Number.parseInt(seg, 10);
+    const stmt = Number.isFinite(idx) ? ir.D_norm?.statements?.[idx] : undefined;
+    const span = _firstSpan(stmt?.provenance?.span);
+    if (span) return span;
+  }
+
+  const exPrefix = "/D_norm/exceptions/";
+  if (path.startsWith(exPrefix)) {
+    const seg = path.slice(exPrefix.length).split("/")[0];
+    const idx = Number.parseInt(seg, 10);
+    const ex = Number.isFinite(idx) ? ir.D_norm?.exceptions?.[idx] : undefined;
+    const span = _firstSpan(ex?.provenance?.span);
+    if (span) return span;
+  }
+
+  return null;
+}
+
 export default function HomePage() {
   const [clauseText, setClauseText] = useState<string>("");
   const [provider, setProvider] = useState<"mock" | "openai">("mock");
   const [proposerLog, setProposerLog] = useState<ProposerLog | null>(null);
   const [isProposing, setIsProposing] = useState<boolean>(false);
+  const [docId, setDocId] = useState<string>("web:adhoc");
+  const [jurisdiction, setJurisdiction] = useState<string>("US-CA");
+  const [timeEval, setTimeEval] = useState<string>(() => new Date().toISOString());
   const [candidates, setCandidates] = useState<ProposeCandidate[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
   const [compareIdx, setCompareIdx] = useState<number | null>(null);
@@ -156,10 +208,15 @@ export default function HomePage() {
     setProposerLog(null);
     setIsProposing(true);
     try {
+      const context = {
+        doc_id: docId.trim() || "web:adhoc",
+        jurisdiction: jurisdiction.trim() || "US-CA",
+        time_eval: timeEval.trim() || new Date().toISOString()
+      };
       const res = await fetch(`${apiBase()}/propose`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ clause_text: clauseText, provider, mode })
+        body: JSON.stringify({ clause_text: clauseText, provider, mode, context })
       });
       if (!res.ok) {
         setError(await res.text());
@@ -289,6 +346,30 @@ export default function HomePage() {
           </Link>
           <span className="muted">Try pasting one of the fixture clauses.</span>
         </div>
+        <div className="row" style={{ marginTop: 8 }}>
+          <span className="muted">Context</span>
+          <label className="muted">
+            doc_id{" "}
+            <input value={docId} onChange={(e) => setDocId(e.target.value)} placeholder="doc:..." />
+          </label>
+          <label className="muted">
+            jurisdiction{" "}
+            <input
+              value={jurisdiction}
+              onChange={(e) => setJurisdiction(e.target.value)}
+              placeholder="US-CA"
+            />
+          </label>
+          <label className="muted">
+            time_eval{" "}
+            <input
+              value={timeEval}
+              onChange={(e) => setTimeEval(e.target.value)}
+              placeholder="2026-02-05T00:00:00Z"
+            />
+          </label>
+          <button onClick={() => setTimeEval(new Date().toISOString())}>Now</button>
+        </div>
         {isProposing ? <div className="muted">Proposing…</div> : null}
         {proposerLog ? (
           <div className="muted" style={{ marginTop: 8 }}>
@@ -389,6 +470,51 @@ export default function HomePage() {
                 </span>
               </div>
             ))}
+          </div>
+        ) : null}
+        {selectedReport?.reason_codes?.length ? (
+          <div style={{ marginTop: 8, overflow: "auto" }}>
+            <div className="muted">Reasons ({selectedReport.reason_codes.length})</div>
+            <table className="table" style={{ marginTop: 8 }}>
+              <thead>
+                <tr>
+                  <th>sev</th>
+                  <th>code</th>
+                  <th>json_path</th>
+                  <th>object_id</th>
+                  <th>message</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedReport.reason_codes.map((r, idx) => {
+                  const span = selectedIr ? spanFromReason(selectedIr, r) : null;
+                  return (
+                    <tr key={idx}>
+                      <td className="mono">{r.severity}</td>
+                      <td className="mono">{r.code}</td>
+                      <td className="mono">{r.json_path ?? ""}</td>
+                      <td className="mono">{r.object_id ?? ""}</td>
+                      <td>{r.message}</td>
+                      <td>
+                        <button
+                          onClick={() => {
+                            if (!span) return;
+                            setHighlight({
+                              span,
+                              label: `reason:${r.code} ${r.json_path ?? ""}`.trim()
+                            });
+                          }}
+                          disabled={!span}
+                        >
+                          Highlight
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         ) : null}
         {selectedIr?.ambiguity?.length ? (

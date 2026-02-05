@@ -18,6 +18,7 @@ class ProposeRequest(BaseModel):
     clause_text: str = Field(min_length=1)
     provider: Literal["mock", "openai"] = "mock"
     mode: KernelMode = KernelMode.LAX
+    context: Context | None = None
     max_candidates: int | None = Field(default=None, ge=1, le=20)
     max_repairs: int | None = Field(default=None, ge=0, le=10)
 
@@ -150,17 +151,23 @@ def propose(req: ProposeRequest) -> ProposeResponse:
     bundles = load_fixture_bundles()
     clause = req.clause_text.strip()
     bundle = bundles.get(clause)
+    features = extract_source_features(clause)
+
+    base_context: Context
+    if req.context is not None:
+        base_context = req.context
+    elif bundle is not None and bundle.proposals:
+        base_context = bundle.proposals[0].context
+    else:
+        base_context = Context(
+            doc_id="api:adhoc",
+            jurisdiction="US-CA",
+            time_eval=datetime.now(tz=timezone.utc),
+        )
+
+    context = base_context.model_copy(update={"source_features": features})
     if req.provider == "openai":
         from .openai_provider import propose_openai
-
-        if bundle is not None and bundle.proposals:
-            context = bundle.proposals[0].context
-        else:
-            context = Context(
-                doc_id="api:adhoc",
-                jurisdiction="US-CA",
-                time_eval=datetime.now(tz=timezone.utc),
-            )
 
         try:
             proposed, openai_log, model = propose_openai(
@@ -194,8 +201,6 @@ def propose(req: ProposeRequest) -> ProposeResponse:
             ),
         )
 
-    features = extract_source_features(clause)
-
     if bundle is None:
         return ProposeResponse(
             provider=ProviderInfo(kind="mock"),
@@ -208,11 +213,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
 
     scored: list[tuple[AdeuIR, CheckReport]] = []
     for ir in bundle.proposals:
-        ir_with_features = ir.model_copy(
-            update={
-                "context": ir.context.model_copy(update={"source_features": features}),
-            }
-        )
+        ir_with_features = ir.model_copy(update={"context": context})
         report = check(ir_with_features, mode=req.mode)
         scored.append((ir_with_features, report))
 
