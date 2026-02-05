@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 from adeu_ir import (
@@ -7,6 +8,8 @@ from adeu_ir import (
     CheckMetrics,
     CheckReason,
     CheckReport,
+    ExceptionClause,
+    NormStatement,
     ReasonCode,
     ReasonSeverity,
     Ref,
@@ -15,7 +18,12 @@ from adeu_ir import (
 from pydantic import ValidationError
 
 from .mode import KernelMode
-from .predicate import PredicateParseError, parse_predicate, referenced_def_ids
+from .predicate import (
+    PredicateParseError,
+    evaluate_predicate,
+    parse_predicate,
+    referenced_def_ids,
+)
 
 SUPPORTED_SCHEMA_VERSION = "adeu.ir.v0"
 MODALITY_AMBIGUITY_ISSUES = frozenset({"modality_ambiguity"})
@@ -23,6 +31,64 @@ MODALITY_AMBIGUITY_ISSUES = frozenset({"modality_ambiguity"})
 def _path(*parts: str | int) -> str:
     return "/" + "/".join(str(p).strip("/") for p in parts)
 
+
+@dataclass(frozen=True)
+class EffectiveNorm:
+    statement: NormStatement
+    statement_idx: int
+    defeated_by: tuple[str, ...] = ()
+    narrowed_by: tuple[str, ...] = ()
+    clarified_by: tuple[str, ...] = ()
+
+    @property
+    def is_defeated(self) -> bool:
+        return bool(self.defeated_by)
+
+
+def _collect_doc_refs(ir: AdeuIR) -> set[str]:
+    doc_refs: set[str] = set()
+
+    doc_id = (ir.context.doc_id or "").strip()
+    if doc_id:
+        doc_refs.add(doc_id)
+
+    def add_doc_ref(value: str | None) -> None:
+        if value is None:
+            return
+        v = value.strip()
+        if v:
+            doc_refs.add(v)
+
+    for e in ir.O.entities:
+        if e.provenance is not None:
+            add_doc_ref(e.provenance.doc_ref)
+
+    for d in ir.O.definitions:
+        if d.provenance is not None:
+            add_doc_ref(d.provenance.doc_ref)
+
+    for stmt in ir.D_norm.statements:
+        add_doc_ref(stmt.provenance.doc_ref)
+
+    for ex in ir.D_norm.exceptions:
+        add_doc_ref(ex.provenance.doc_ref)
+
+    for c in ir.D_phys.constraints:
+        if c.provenance is not None:
+            add_doc_ref(c.provenance.doc_ref)
+
+    for e in ir.E.claims:
+        if e.provenance is not None:
+            add_doc_ref(e.provenance.doc_ref)
+
+    for g in ir.U.goals:
+        if g.provenance is not None:
+            add_doc_ref(g.provenance.doc_ref)
+
+    for b in ir.bridges:
+        add_doc_ref(b.provenance.doc_ref)
+
+    return doc_refs
 
 def _zero_metrics() -> CheckMetrics:
     return CheckMetrics(
@@ -427,10 +493,7 @@ def _check_norm_completeness(
 def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason], TraceItem]:
     reasons: list[CheckReason] = []
     statement_ids = {s.id for s in ir.D_norm.statements}
-    stmt_idx_by_id = {s.id: i for i, s in enumerate(ir.D_norm.statements)}
     def_ids = {d.id for d in ir.O.definitions}
-
-    applies_index: dict[str, list[object]] = {sid: [] for sid in statement_ids}
 
     for ex_idx, ex in enumerate(ir.D_norm.exceptions):
         prov = ex.provenance
@@ -492,36 +555,155 @@ def _check_exceptions(ir: AdeuIR, *, mode: KernelMode) -> tuple[list[CheckReason
                     )
                 )
                 continue
-            applies_index[target_id].append(ex)
-
-    for stmt_id, ex_list in applies_index.items():
-        if len(ex_list) <= 1:
-            continue
-
-        priorities = [getattr(ex, "priority", 0) for ex in ex_list]
-        has_strict_order = len(set(priorities)) == len(priorities)
-        if not has_strict_order:
-            precedence_severity = (
-                ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
-            )
-            reasons.append(
-                CheckReason(
-                    code=ReasonCode.EXCEPTION_PRECEDENCE_UNDETERMINED,
-                    severity=precedence_severity,
-                    message=(
-                        "multiple exceptions apply; precedence requires strict priority ordering"
-                    ),
-                    object_id=stmt_id,
-                    json_path=_path("D_norm", "statements", stmt_idx_by_id.get(stmt_id, 0)),
-                )
-            )
 
     return reasons, TraceItem(
         rule_id="dnorm/exceptions",
         because=[r.code for r in reasons],
         affected_ids=[e.id for e in ir.D_norm.exceptions],
-        notes="Validates exception attachment and basic precedence flags.",
+        notes="Validates exception attachment and predicate shape.",
     )
+
+
+def _compute_effective_norms(
+    ir: AdeuIR, *, mode: KernelMode
+) -> tuple[list[EffectiveNorm], list[CheckReason], TraceItem]:
+    reasons: list[CheckReason] = []
+
+    def_ids = {d.id for d in ir.O.definitions}
+    doc_refs = _collect_doc_refs(ir)
+
+    stmt_idx_by_id = {s.id: i for i, s in enumerate(ir.D_norm.statements)}
+    attachments: dict[str, list[tuple[int, ExceptionClause]]] = {sid: [] for sid in stmt_idx_by_id}
+
+    for ex_idx, ex in enumerate(ir.D_norm.exceptions):
+        for target_id in ex.applies_to:
+            if target_id in attachments:
+                attachments[target_id].append((ex_idx, ex))
+
+    applied_exception_ids: list[str] = []
+    effective_norms: list[EffectiveNorm] = []
+
+    uneval_severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+    precedence_severity = uneval_severity
+
+    for stmt_idx, stmt in enumerate(ir.D_norm.statements):
+        attached = attachments.get(stmt.id, [])
+
+        applicable: list[tuple[int, ExceptionClause]] = []
+        for ex_idx, ex in attached:
+            if ex.condition.kind != "predicate":
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.EXCEPTION_CONDITION_UNEVALUATED,
+                        severity=uneval_severity,
+                        message=(
+                            "exception.condition.kind is not IR-evaluatable "
+                            "(requires predicate)"
+                        ),
+                        object_id=ex.id,
+                        json_path=_path("D_norm", "exceptions", ex_idx, "condition", "kind"),
+                    )
+                )
+                continue
+
+            predicate_text = ex.condition.predicate
+            if not (predicate_text and predicate_text.strip()):
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.EXCEPTION_CONDITION_UNEVALUATED,
+                        severity=uneval_severity,
+                        message="exception.condition.predicate is missing/blank",
+                        object_id=ex.id,
+                        json_path=_path("D_norm", "exceptions", ex_idx, "condition", "predicate"),
+                    )
+                )
+                continue
+
+            try:
+                predicate = parse_predicate(predicate_text)
+            except PredicateParseError:
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.EXCEPTION_CONDITION_UNEVALUATED,
+                        severity=uneval_severity,
+                        message="exception.condition.predicate is not parseable",
+                        object_id=ex.id,
+                        json_path=_path("D_norm", "exceptions", ex_idx, "condition", "predicate"),
+                    )
+                )
+                continue
+
+            value = evaluate_predicate(predicate, def_ids=def_ids, doc_refs=doc_refs)
+            if value is None:
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.EXCEPTION_CONDITION_UNEVALUATED,
+                        severity=uneval_severity,
+                        message="exception.condition.predicate is not evaluatable from IR alone",
+                        object_id=ex.id,
+                        json_path=_path("D_norm", "exceptions", ex_idx, "condition", "predicate"),
+                    )
+                )
+                continue
+
+            if value is True:
+                applicable.append((ex_idx, ex))
+
+        applied: tuple[int, ExceptionClause] | None = None
+        if len(applicable) == 1:
+            applied = applicable[0]
+        elif len(applicable) > 1:
+            priorities = [ex.priority for _, ex in applicable]
+            has_strict_order = len(set(priorities)) == len(priorities)
+            if not has_strict_order:
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.EXCEPTION_PRECEDENCE_UNDETERMINED,
+                        severity=precedence_severity,
+                        message=(
+                            "multiple applicable exceptions; precedence requires strict priority "
+                            "ordering"
+                        ),
+                        object_id=stmt.id,
+                        json_path=_path("D_norm", "statements", stmt_idx),
+                    )
+                )
+            else:
+                applied = max(applicable, key=lambda item: item[1].priority)
+
+        if applied is None:
+            effective_norms.append(EffectiveNorm(statement=stmt, statement_idx=stmt_idx))
+            continue
+
+        ex_idx, ex = applied
+        applied_exception_ids.append(ex.id)
+
+        if ex.effect == "defeats":
+            effective_norms.append(
+                EffectiveNorm(statement=stmt, statement_idx=stmt_idx, defeated_by=(ex.id,))
+            )
+            continue
+
+        if ex.effect == "narrows":
+            effective_norms.append(
+                EffectiveNorm(statement=stmt, statement_idx=stmt_idx, narrowed_by=(ex.id,))
+            )
+            continue
+
+        if ex.effect == "clarifies":
+            effective_norms.append(
+                EffectiveNorm(statement=stmt, statement_idx=stmt_idx, clarified_by=(ex.id,))
+            )
+            continue
+
+        effective_norms.append(EffectiveNorm(statement=stmt, statement_idx=stmt_idx))
+
+    trace = TraceItem(
+        rule_id="effective_norms",
+        because=applied_exception_ids,
+        affected_ids=[s.id for s in ir.D_norm.statements],
+    )
+    return effective_norms, reasons, trace
 
 
 def _ref_key(ref: Ref) -> tuple:
@@ -589,14 +771,19 @@ def _intervals_overlap(a_start, a_end, b_start, b_end) -> bool:
     return latest_start <= earliest_end
 
 
-def _check_conflicts(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
+def _check_conflicts(
+    effective_norms: list[EffectiveNorm], *, mode: KernelMode
+) -> tuple[list[CheckReason], TraceItem]:
     reasons: list[CheckReason] = []
-    statements = ir.D_norm.statements
+    active = [n for n in effective_norms if not n.is_defeated]
 
-    for i in range(len(statements)):
-        a = statements[i]
-        for j in range(i + 1, len(statements)):
-            b = statements[j]
+    for i in range(len(active)):
+        a_norm = active[i]
+        a = a_norm.statement
+        a_idx = a_norm.statement_idx
+        for j in range(i + 1, len(active)):
+            b_norm = active[j]
+            b = b_norm.statement
 
             kinds = {a.kind, b.kind}
             if kinds != {"obligation", "prohibition"}:
@@ -622,26 +809,49 @@ def _check_conflicts(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
                         severity=ReasonSeverity.WARN,
                         message="Potential conflict, but scope overlap is unresolved (time_about).",
                         object_id=a.id,
-                        json_path=_path("D_norm", "statements", i, "scope", "time_about"),
+                        json_path=_path("D_norm", "statements", a_idx, "scope", "time_about"),
                     )
                 )
                 continue
 
             if _intervals_overlap(a_start, a_end, b_start, b_end):
-                reasons.append(
-                    CheckReason(
-                        code=ReasonCode.CONFLICT_OBLIGATION_VS_PROHIBITION,
-                        severity=ReasonSeverity.ERROR,
-                        message=f"Conflict between {a.id!r} and {b.id!r} in overlapping scope.",
-                        object_id=a.id,
-                        json_path=_path("D_norm", "statements", i),
-                    )
+                has_modifier = bool(
+                    a_norm.narrowed_by
+                    or a_norm.clarified_by
+                    or b_norm.narrowed_by
+                    or b_norm.clarified_by
                 )
+                if has_modifier:
+                    conflict_severity = (
+                        ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+                    )
+                    reasons.append(
+                        CheckReason(
+                            code=ReasonCode.CONFLICT_OVERLAPPING_SCOPE_UNRESOLVED,
+                            severity=conflict_severity,
+                            message=(
+                                "Potential conflict, but one or more norms are modified by an "
+                                "applicable exception."
+                            ),
+                            object_id=a.id,
+                            json_path=_path("D_norm", "statements", a_idx),
+                        )
+                    )
+                else:
+                    reasons.append(
+                        CheckReason(
+                            code=ReasonCode.CONFLICT_OBLIGATION_VS_PROHIBITION,
+                            severity=ReasonSeverity.ERROR,
+                            message=f"Conflict between {a.id!r} and {b.id!r} in overlapping scope.",
+                            object_id=a.id,
+                            json_path=_path("D_norm", "statements", a_idx),
+                        )
+                    )
 
     return reasons, TraceItem(
         rule_id="dnorm/conflicts",
         because=[r.code for r in reasons],
-        affected_ids=[s.id for s in statements],
+        affected_ids=[n.statement.id for n in active],
         notes="Detects obligation vs prohibition conflicts in overlapping scope.",
     )
 
@@ -805,7 +1015,11 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     reasons.extend(exception_reasons)
     trace.append(exception_trace)
 
-    conflict_reasons, conflict_trace = _check_conflicts(ir)
+    effective_norms, effective_reasons, effective_trace = _compute_effective_norms(ir, mode=mode)
+    reasons.extend(effective_reasons)
+    trace.append(effective_trace)
+
+    conflict_reasons, conflict_trace = _check_conflicts(effective_norms, mode=mode)
     reasons.extend(conflict_reasons)
     trace.append(conflict_trace)
 
