@@ -14,9 +14,24 @@ type ProposeCandidate = {
   rank: number;
 };
 
+type ProposerAttempt = {
+  attempt_idx: number;
+  status: "PASS" | "WARN" | "REFUSE" | "PARSE_ERROR";
+  reason_codes_summary: string[];
+  candidate_rank?: number | null;
+};
+
+type ProposerLog = {
+  provider: string;
+  model?: string | null;
+  created_at: string;
+  attempts: ProposerAttempt[];
+};
+
 type ProposeResponse = {
   provider: { kind: string; model?: string | null };
   candidates: ProposeCandidate[];
+  proposer_log: ProposerLog;
 };
 
 type ArtifactCreateResponse = {
@@ -107,6 +122,9 @@ function clampSpan(text: string, span: SourceSpan): SourceSpan | null {
 
 export default function HomePage() {
   const [clauseText, setClauseText] = useState<string>("");
+  const [provider, setProvider] = useState<"mock" | "openai">("mock");
+  const [proposerLog, setProposerLog] = useState<ProposerLog | null>(null);
+  const [isProposing, setIsProposing] = useState<boolean>(false);
   const [candidates, setCandidates] = useState<ProposeCandidate[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
   const [compareIdx, setCompareIdx] = useState<number | null>(null);
@@ -135,15 +153,28 @@ export default function HomePage() {
     setError(null);
     setArtifactId(null);
     setHighlight(null);
-    const res = await fetch(`${apiBase()}/propose`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ clause_text: clauseText, provider: "mock", mode })
-    });
-    const data = (await res.json()) as ProposeResponse;
-    setCandidates(data.candidates ?? []);
-    setSelectedIdx(0);
-    setCompareIdx(null);
+    setProposerLog(null);
+    setIsProposing(true);
+    try {
+      const res = await fetch(`${apiBase()}/propose`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ clause_text: clauseText, provider, mode })
+      });
+      if (!res.ok) {
+        setError(await res.text());
+        return;
+      }
+      const data = (await res.json()) as ProposeResponse;
+      setCandidates(data.candidates ?? []);
+      setProposerLog(data.proposer_log ?? null);
+      setSelectedIdx(0);
+      setCompareIdx(null);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setIsProposing(false);
+    }
   }
 
   async function runCheck() {
@@ -156,7 +187,9 @@ export default function HomePage() {
       body: JSON.stringify({ ir: selectedIr, mode })
     });
     const report = (await res.json()) as CheckReport;
-    setCandidates((prev) => prev.map((c, idx) => (idx === selectedIdx ? { ...c, check_report: report } : c)));
+    setCandidates((prev) =>
+      prev.map((c, idx) => (idx === selectedIdx ? { ...c, check_report: report } : c))
+    );
   }
 
   async function accept() {
@@ -241,14 +274,29 @@ export default function HomePage() {
           })()}
         </div>
         <div className="row" style={{ marginTop: 8 }}>
-          <button onClick={propose} disabled={!clauseText.trim()}>
-            Propose variants (mock)
+          <span className="muted">Provider</span>
+          <button onClick={() => setProvider("mock")} disabled={provider === "mock"}>
+            mock
+          </button>
+          <button onClick={() => setProvider("openai")} disabled={provider === "openai"}>
+            openai
+          </button>
+          <button onClick={propose} disabled={!clauseText.trim() || isProposing}>
+            Propose variants
           </button>
           <Link href="/artifacts" className="muted" style={{ marginLeft: "auto" }}>
             Artifacts
           </Link>
           <span className="muted">Try pasting one of the fixture clauses.</span>
         </div>
+        {isProposing ? <div className="muted">Proposing…</div> : null}
+        {proposerLog ? (
+          <div className="muted" style={{ marginTop: 8 }}>
+            Proposer: {proposerLog.provider}
+            {proposerLog.model ? ` (${proposerLog.model})` : ""} — attempts:{" "}
+            {proposerLog.attempts.length}
+          </div>
+        ) : null}
         {error ? <div className="muted">Error: {error}</div> : null}
         {artifactId ? <div className="muted">Accepted artifact: {artifactId}</div> : null}
       </div>
