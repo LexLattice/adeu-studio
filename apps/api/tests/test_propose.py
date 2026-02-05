@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 from adeu_api.main import ProposeRequest, propose
+from adeu_ir import Context
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
 
@@ -35,6 +37,31 @@ def test_propose_mock_returns_checked_candidates() -> None:
 
     assert resp.proposer_log.provider == "mock"
     assert resp.proposer_log.attempts, "Mock proposer should emit attempt summaries"
+
+
+def test_propose_mock_respects_context_but_overwrites_source_features() -> None:
+    clause = _fixture_clause(name="modality_requires_ambiguity")
+    ctx = Context(
+        doc_id="doc:custom",
+        jurisdiction="US-NY",
+        time_eval=datetime(2026, 2, 5, tzinfo=timezone.utc),
+        source_features={"modals": ["shall"]},
+    )
+    resp = propose(
+        ProposeRequest(
+            clause_text=clause,
+            provider="mock",
+            mode=KernelMode.LAX,
+            context=ctx,
+        )
+    )
+    assert resp.candidates
+    assert resp.candidates[0].ir.context.doc_id == "doc:custom"
+    assert resp.candidates[0].ir.context.jurisdiction == "US-NY"
+    assert resp.candidates[0].ir.context.time_eval == ctx.time_eval
+
+    # But source_features is deterministic from the clause text.
+    assert resp.candidates[0].ir.context.source_features.modals == ["may"]
 
 
 def test_propose_mock_unknown_clause_returns_empty() -> None:
