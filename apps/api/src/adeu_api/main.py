@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Literal
 
-from adeu_ir import AdeuIR, CheckReport, ReasonSeverity, TraceItem
+from adeu_ir import AdeuIR, CheckReport, Context, ReasonSeverity, TraceItem
 from adeu_kernel import KernelMode, PatchValidationError, apply_ambiguity_option, check
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
@@ -136,8 +136,61 @@ def _score_report(report: CheckReport) -> tuple[int, int, int, int]:
 def propose(req: ProposeRequest) -> ProposeResponse:
     bundles = load_fixture_bundles()
     clause = req.clause_text.strip()
-    features = extract_source_features(clause)
     bundle = bundles.get(clause)
+    if req.provider == "openai":
+        from .openai_provider import propose_openai
+
+        if bundle is not None and bundle.proposals:
+            context = bundle.proposals[0].context
+        else:
+            context = Context(
+                doc_id="api:adhoc",
+                jurisdiction="US-CA",
+                time_eval=datetime.now(tz=timezone.utc),
+            )
+
+        try:
+            proposed, openai_log, model = propose_openai(
+                clause_text=clause,
+                context=context,
+                mode=req.mode,
+                max_candidates=req.max_candidates,
+                max_repairs=req.max_repairs,
+            )
+        except RuntimeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        scored: list[tuple[tuple[int, int, int, int], str, AdeuIR, CheckReport]] = []
+        for ir, report in proposed:
+            scored.append((_score_report(report), ir.ir_id, ir, report))
+
+        scored.sort(key=lambda item: (item[0], item[1]))
+        candidates = [
+            ProposeCandidate(ir=ir, check_report=report, rank=rank)
+            for rank, (_, _, ir, report) in enumerate(scored)
+        ]
+        return ProposeResponse(
+            provider=ProviderInfo(kind="openai", model=model),
+            candidates=candidates,
+            proposer_log=ProposerLog(
+                provider=openai_log.provider,
+                model=openai_log.model,
+                created_at=openai_log.created_at,
+                attempts=[
+                    ProposerAttempt(
+                        attempt_idx=a.attempt_idx,
+                        status=a.status,
+                        reason_codes_summary=a.reason_codes_summary,
+                    )
+                    for a in openai_log.attempts
+                ],
+                raw_prompt=openai_log.raw_prompt,
+                raw_response=openai_log.raw_response,
+            ),
+        )
+
+    features = extract_source_features(clause)
+
     if bundle is None:
         return ProposeResponse(
             provider=ProviderInfo(kind="mock"),
