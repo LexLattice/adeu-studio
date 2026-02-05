@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from adeu_ir import SourceFeatures
+from adeu_ir.models import SourceFeatures
 
 _MODALS = ("may", "shall", "will", "should", "must")
 
@@ -39,4 +39,3 @@ def extract_source_features(text: str) -> SourceFeatures:
         connectives=detected_connectives,
         has_time_vagueness=has_time_vagueness,
     )
-
