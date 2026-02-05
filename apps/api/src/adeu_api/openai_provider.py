@@ -11,8 +11,6 @@ from adeu_ir import AdeuIR, CheckReport, Context, ReasonSeverity
 from adeu_kernel import KernelMode, check
 from pydantic import ValidationError
 
-from .source_features import extract_source_features
-
 DEFAULT_OPENAI_MODEL = "gpt-5.2"
 DEFAULT_MAX_CANDIDATES = 5
 DEFAULT_MAX_REPAIRS = 3
@@ -215,9 +213,6 @@ def propose_openai(
     attempt_logs: list[ProposerAttemptLog] = []
     raw_prompt_log: list[str] = []
     raw_response_log: list[str] = []
-
-    features = extract_source_features(clause_text)
-    context = context.model_copy(update={"source_features": features})
 
     final: list[tuple[AdeuIR, CheckReport]] = []
     attempt_idx = 0
