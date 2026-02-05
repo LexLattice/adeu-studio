@@ -38,6 +38,7 @@ export type ReasonCode =
   | "CONFLICT_OBLIGATION_VS_PROHIBITION"
   | "CONFLICT_OVERLAPPING_SCOPE_UNRESOLVED"
   | "EXCEPTION_ORPHANED"
+  | "EXCEPTION_CONDITION_UNEVALUATED"
   | "EXCEPTION_PRECEDENCE_UNDETERMINED";
 export type JsonPath = string | null;
 export type Message = string;
