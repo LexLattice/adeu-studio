@@ -75,8 +75,22 @@ button:disabled {
   opacity: 0.6;
 }
 
+input,
+select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: white;
+  font-family: inherit;
+}
+
 .muted {
   color: var(--muted);
+  font-size: 12px;
+}
+
+.mono {
+  font-family: var(--mono);
   font-size: 12px;
 }
 
@@ -92,3 +106,40 @@ pre {
   flex: 1;
 }
 
+.clause-preview {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow: auto;
+  max-height: 240px;
+}
+
+mark {
+  background: #fde68a;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border-bottom: 1px solid var(--border);
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 12px;
+}
+
+.table th {
+  color: var(--muted);
+  font-weight: 600;
+  background: #fff;
+}

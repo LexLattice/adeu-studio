@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Literal
 
-from adeu_ir import AdeuIR, CheckReport, TraceItem
+from adeu_ir import AdeuIR, CheckReport, ReasonSeverity, TraceItem
 from adeu_kernel import KernelMode, PatchValidationError, apply_ambiguity_option, check
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from .mock_provider import load_fixture_bundles
-from .storage import create_artifact, get_artifact
+from .storage import create_artifact, get_artifact, list_artifacts
 
 
 class ProposeRequest(BaseModel):
@@ -57,6 +57,20 @@ class ArtifactGetResponse(BaseModel):
     clause_text: str
     ir: AdeuIR
     check_report: CheckReport
+
+
+class ArtifactSummary(BaseModel):
+    artifact_id: str
+    created_at: str
+    doc_id: str | None
+    jurisdiction: str | None
+    status: str | None
+    num_errors: int | None
+    num_warns: int | None
+
+
+class ArtifactListResponse(BaseModel):
+    items: list[ArtifactSummary]
 
 
 app = FastAPI(title="ADEU Studio API")
@@ -116,8 +130,16 @@ def create_artifact_endpoint(req: ArtifactCreateRequest) -> ArtifactCreateRespon
     if report.status == "REFUSE":
         raise HTTPException(status_code=400, detail="refused by kernel")
 
+    num_errors = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.ERROR)
+    num_warns = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.WARN)
+
     row = create_artifact(
         clause_text=req.clause_text,
+        doc_id=req.ir.context.doc_id,
+        jurisdiction=req.ir.context.jurisdiction,
+        status=report.status,
+        num_errors=num_errors,
+        num_warns=num_warns,
         ir_json=req.ir.model_dump(mode="json", exclude_none=True),
         check_report_json=report.model_dump(mode="json", exclude_none=True),
     )
@@ -125,6 +147,42 @@ def create_artifact_endpoint(req: ArtifactCreateRequest) -> ArtifactCreateRespon
         artifact_id=row.artifact_id,
         created_at=row.created_at,
         check_report=report,
+    )
+
+
+@app.get("/artifacts", response_model=ArtifactListResponse)
+def list_artifacts_endpoint(
+    doc_id: str | None = None,
+    status: Literal["PASS", "WARN", "REFUSE"] | None = None,
+    created_after: str | None = None,
+    created_before: str | None = None,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0, le=50_000),
+) -> ArtifactListResponse:
+    try:
+        items = list_artifacts(
+            doc_id=doc_id,
+            status=status,
+            created_after=created_after,
+            created_before=created_before,
+            limit=limit,
+            offset=offset,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return ArtifactListResponse(
+        items=[
+            ArtifactSummary(
+                artifact_id=row.artifact_id,
+                created_at=row.created_at,
+                doc_id=row.doc_id,
+                jurisdiction=row.jurisdiction,
+                status=row.status,
+                num_errors=row.num_errors,
+                num_warns=row.num_warns,
+            )
+            for row in items
+        ]
     )
 
 
