@@ -18,6 +18,11 @@ type ArtifactCreateResponse = {
   check_report: CheckReport;
 };
 
+type ApplyAmbiguityOptionResponse = {
+  patched_ir: AdeuIR;
+  check_report: CheckReport;
+};
+
 function apiBase(): string {
   return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
 }
@@ -75,6 +80,37 @@ export default function HomePage() {
     setArtifactId(data.artifact_id);
   }
 
+  async function applyAmbiguityOption(ambiguityId: string, optionId: string) {
+    setError(null);
+    setArtifactId(null);
+    if (!selected) return;
+
+    const variantsById = Object.fromEntries(candidates.map((c) => [c.ir_id, c])) as Record<
+      string,
+      AdeuIR
+    >;
+
+    const res = await fetch(`${apiBase()}/apply_ambiguity_option`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        ir: selected,
+        ambiguity_id: ambiguityId,
+        option_id: optionId,
+        variants_by_id: variantsById,
+        mode: "LAX"
+      })
+    });
+    if (!res.ok) {
+      const detail = await res.text();
+      setError(detail);
+      return;
+    }
+    const data = (await res.json()) as ApplyAmbiguityOptionResponse;
+    setCandidates((prev) => prev.map((c, idx) => (idx === selectedIdx ? data.patched_ir : c)));
+    setCheckReport(data.check_report);
+  }
+
   return (
     <div className="app">
       <div className="panel">
@@ -120,6 +156,30 @@ export default function HomePage() {
             Accept (STRICT)
           </button>
         </div>
+        {selected?.ambiguity?.length ? (
+          <div style={{ marginTop: 8 }}>
+            <div className="muted">Ambiguity options</div>
+            {selected.ambiguity.map((a) => (
+              <div key={a.id} style={{ marginTop: 8 }}>
+                <div className="muted">
+                  <strong>{a.issue}</strong> ({a.id})
+                </div>
+                <div className="row" style={{ flexWrap: "wrap", gap: 8, marginTop: 4 }}>
+                  {a.options.map((opt) => (
+                    <button
+                      key={opt.option_id}
+                      onClick={() => applyAmbiguityOption(a.id, opt.option_id)}
+                      disabled={!selected}
+                      title={opt.effect}
+                    >
+                      Apply: {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <pre>{checkReport ? JSON.stringify(checkReport, null, 2) : ""}</pre>
       </div>
     </div>

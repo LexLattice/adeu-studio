@@ -1,0 +1,35 @@
+{
+  "schema_version": "adeu.ir.v0",
+  "ir_id": "ir_modality_requires_ambiguity_v1",
+  "context": {
+    "doc_id": "fixture:modality_requires_ambiguity",
+    "jurisdiction": "US-CA",
+    "time_eval": "2026-02-04T00:00:00Z",
+    "source_features": { "modals": ["may"] }
+  },
+  "D_norm": {
+    "statements": [
+      {
+        "id": "dn_may_1",
+        "kind": "permission",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": {
+          "verb": "terminate",
+          "object": { "ref_type": "text", "text": "this Agreement" }
+        },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": {
+            "kind": "during",
+            "start": "2026-02-04T00:00:00Z",
+            "end": "2026-12-31T00:00:00Z"
+          }
+        },
+        "provenance": {
+          "doc_ref": "fixture:modality_requires_ambiguity",
+          "span": { "start": 0, "end": 73 }
+        }
+      }
+    ]
+  }
+}

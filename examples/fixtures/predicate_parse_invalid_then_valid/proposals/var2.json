@@ -1,0 +1,46 @@
+{
+  "schema_version": "adeu.ir.v0",
+  "ir_id": "ir_predicate_parse_valid_v2",
+  "context": {
+    "doc_id": "fixture:predicate_parse_invalid_then_valid",
+    "jurisdiction": "US-CA",
+    "time_eval": "2026-02-04T00:00:00Z"
+  },
+  "O": {
+    "definitions": [
+      {
+        "id": "def_material_breach",
+        "term": "Material Breach",
+        "meaning": "A breach that is material under the agreement.",
+        "provenance": { "doc_ref": "fixture:predicate_parse_invalid_then_valid" }
+      }
+    ]
+  },
+  "D_norm": {
+    "statements": [
+      {
+        "id": "dn_suspend_1",
+        "kind": "obligation",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": { "verb": "suspend", "object": { "ref_type": "text", "text": "Services" } },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": {
+            "kind": "during",
+            "start": "2026-02-04T00:00:00Z",
+            "end": "2026-12-31T00:00:00Z"
+          }
+        },
+        "provenance": {
+          "doc_ref": "fixture:predicate_parse_invalid_then_valid",
+          "span": { "start": 0, "end": 64 }
+        },
+        "condition": {
+          "kind": "predicate",
+          "text": "If Material Breach is defined",
+          "predicate": "(defined def_material_breach)"
+        }
+      }
+    ]
+  }
+}

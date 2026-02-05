@@ -1,0 +1,98 @@
+{
+  "D_norm": {
+    "exceptions": [],
+    "statements": [
+      {
+        "action": {
+          "object": {
+            "ref_type": "text",
+            "text": "the goods"
+          },
+          "qualifiers": [],
+          "verb": "deliver"
+        },
+        "id": "dn_deliver_1",
+        "kind": "obligation",
+        "provenance": {
+          "doc_ref": "fixture:apply_ambiguity_patch",
+          "span": {
+            "end": 31,
+            "start": 0
+          }
+        },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": {
+            "end": "2026-12-31T00:00:00Z",
+            "kind": "during",
+            "start": "2026-02-04T00:00:00Z"
+          }
+        },
+        "subject": {
+          "ref_type": "text",
+          "text": "Supplier"
+        }
+      }
+    ]
+  },
+  "D_phys": {
+    "constraints": []
+  },
+  "E": {
+    "claims": []
+  },
+  "O": {
+    "definitions": [],
+    "entities": []
+  },
+  "U": {
+    "goals": []
+  },
+  "ambiguity": [
+    {
+      "id": "amb_time_1",
+      "issue": "time_vagueness",
+      "options": [
+        {
+          "effect": "Set a concrete time_about interval",
+          "label": "Specify time scope",
+          "option_id": "opt_set_time",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/D_norm/statements/0/scope/time_about/kind",
+              "value": "during"
+            },
+            {
+              "op": "add",
+              "path": "/D_norm/statements/0/scope/time_about/start",
+              "value": "2026-02-04T00:00:00Z"
+            },
+            {
+              "op": "add",
+              "path": "/D_norm/statements/0/scope/time_about/end",
+              "value": "2026-12-31T00:00:00Z"
+            }
+          ]
+        }
+      ],
+      "span": {
+        "end": 31,
+        "start": 0
+      }
+    }
+  ],
+  "bridges": [],
+  "context": {
+    "doc_id": "fixture:apply_ambiguity_patch",
+    "jurisdiction": "US-CA",
+    "source_features": {
+      "connectives": [],
+      "has_time_vagueness": false,
+      "modals": []
+    },
+    "time_eval": "2026-02-04T00:00:00Z"
+  },
+  "ir_id": "ir_apply_ambiguity_patch_before",
+  "schema_version": "adeu.ir.v0"
+}

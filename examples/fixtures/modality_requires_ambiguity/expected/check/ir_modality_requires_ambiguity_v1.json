@@ -1,0 +1,76 @@
+{
+  "metrics": {
+    "num_ambiguities": 0,
+    "num_bridges": 0,
+    "num_exceptions": 0,
+    "num_statements": 1
+  },
+  "reason_codes": [
+    {
+      "code": "MODALITY_AMBIGUOUS_UNRESOLVED",
+      "json_path": "/context/source_features/modals",
+      "message": "context.source_features.modals is non-empty but no ambiguity.issue indicates modality ambiguity",
+      "object_id": "ir_modality_requires_ambiguity_v1",
+      "severity": "WARN"
+    }
+  ],
+  "status": "WARN",
+  "trace": [
+    {
+      "affected_ids": [],
+      "because": [],
+      "rule_id": "parse/ok"
+    },
+    {
+      "affected_ids": [
+        "ir_modality_requires_ambiguity_v1"
+      ],
+      "because": [
+        "MODALITY_AMBIGUOUS_UNRESOLVED"
+      ],
+      "rule_id": "source_features/modality_ambiguity"
+    },
+    {
+      "affected_ids": [
+        "dn_may_1"
+      ],
+      "because": [],
+      "rule_id": "time_scope/validate"
+    },
+    {
+      "affected_ids": [],
+      "because": [],
+      "rule_id": "bridges/gating"
+    },
+    {
+      "affected_ids": [
+        "dn_may_1"
+      ],
+      "because": [],
+      "notes": "Checks required fields and provenance for D_norm statements.",
+      "rule_id": "dnorm/completeness"
+    },
+    {
+      "affected_ids": [],
+      "because": [],
+      "notes": "Validates exception attachment and basic precedence flags.",
+      "rule_id": "dnorm/exceptions"
+    },
+    {
+      "affected_ids": [
+        "dn_may_1"
+      ],
+      "because": [],
+      "notes": "Detects obligation vs prohibition conflicts in overlapping scope.",
+      "rule_id": "dnorm/conflicts"
+    },
+    {
+      "affected_ids": [
+        "dn_may_1"
+      ],
+      "because": [],
+      "notes": "Flags unresolved EntityRef/DefinitionRef usages.",
+      "rule_id": "refs/resolve"
+    }
+  ]
+}
