@@ -220,9 +220,7 @@ def evaluate_predicate(
     """
 
     if isinstance(predicate, PredDefined):
-        if predicate.def_id in def_ids:
-            return True
-        return None
+        return predicate.def_id in def_ids
 
     if isinstance(predicate, PredRefersToDoc):
         return predicate.doc_ref in doc_refs

@@ -653,7 +653,9 @@ def _compute_effective_norms(
         if len(applicable) == 1:
             applied = applicable[0]
         elif len(applicable) > 1:
-            priorities = [ex.priority for _, ex in applicable]
+            priorities = [
+                (ex.priority if ex.priority is not None else 0) for _, ex in applicable
+            ]
             has_strict_order = len(set(priorities)) == len(priorities)
             if not has_strict_order:
                 reasons.append(
@@ -669,7 +671,12 @@ def _compute_effective_norms(
                     )
                 )
             else:
-                applied = max(applicable, key=lambda item: item[1].priority)
+                applied = max(
+                    applicable,
+                    key=lambda item: (
+                        item[1].priority if item[1].priority is not None else 0
+                    ),
+                )
 
         if applied is None:
             effective_norms.append(EffectiveNorm(statement=stmt, statement_idx=stmt_idx))
