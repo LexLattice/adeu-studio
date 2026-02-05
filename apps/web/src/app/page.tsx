@@ -8,9 +8,15 @@ import type { CheckReport } from "../gen/check_report";
 
 type KernelMode = "STRICT" | "LAX";
 
+type ProposeCandidate = {
+  ir: AdeuIR;
+  check_report: CheckReport;
+  rank: number;
+};
+
 type ProposeResponse = {
-  candidates: AdeuIR[];
-  provider: string;
+  provider: { kind: string; model?: string | null };
+  candidates: ProposeCandidate[];
 };
 
 type ArtifactCreateResponse = {
@@ -101,37 +107,38 @@ function clampSpan(text: string, span: SourceSpan): SourceSpan | null {
 
 export default function HomePage() {
   const [clauseText, setClauseText] = useState<string>("");
-  const [candidates, setCandidates] = useState<AdeuIR[]>([]);
+  const [candidates, setCandidates] = useState<ProposeCandidate[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
   const [compareIdx, setCompareIdx] = useState<number | null>(null);
   const [mode, setMode] = useState<KernelMode>("LAX");
   const [highlight, setHighlight] = useState<Highlight>(null);
-  const [checkReport, setCheckReport] = useState<CheckReport | null>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const selected = useMemo(() => candidates[selectedIdx] ?? null, [candidates, selectedIdx]);
+  const selectedIr = useMemo(() => selected?.ir ?? null, [selected]);
+  const selectedReport = useMemo(() => selected?.check_report ?? null, [selected]);
   const compared = useMemo(
     () => (compareIdx === null ? null : candidates[compareIdx] ?? null),
     [candidates, compareIdx]
   );
+  const comparedIr = useMemo(() => compared?.ir ?? null, [compared]);
   const diffItems = useMemo(() => {
-    if (!selected || !compared) return [];
+    if (!selectedIr || !comparedIr) return [];
     const out: DiffItem[] = [];
-    diffJson(selected, compared, "", out, 200);
+    diffJson(selectedIr, comparedIr, "", out, 200);
     out.sort((a, b) => a.path.localeCompare(b.path));
     return out;
-  }, [selected, compared]);
+  }, [selectedIr, comparedIr]);
 
   async function propose() {
     setError(null);
     setArtifactId(null);
-    setCheckReport(null);
     setHighlight(null);
     const res = await fetch(`${apiBase()}/propose`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ clause_text: clauseText, provider: "mock" })
+      body: JSON.stringify({ clause_text: clauseText, provider: "mock", mode })
     });
     const data = (await res.json()) as ProposeResponse;
     setCandidates(data.candidates ?? []);
@@ -142,22 +149,23 @@ export default function HomePage() {
   async function runCheck() {
     setError(null);
     setArtifactId(null);
-    if (!selected) return;
+    if (!selectedIr) return;
     const res = await fetch(`${apiBase()}/check`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ir: selected, mode })
+      body: JSON.stringify({ ir: selectedIr, mode })
     });
-    setCheckReport((await res.json()) as CheckReport);
+    const report = (await res.json()) as CheckReport;
+    setCandidates((prev) => prev.map((c, idx) => (idx === selectedIdx ? { ...c, check_report: report } : c)));
   }
 
   async function accept() {
     setError(null);
-    if (!selected) return;
+    if (!selectedIr) return;
     const res = await fetch(`${apiBase()}/artifacts`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ clause_text: clauseText, ir: selected, mode: "STRICT" })
+      body: JSON.stringify({ clause_text: clauseText, ir: selectedIr, mode: "STRICT" })
     });
     if (!res.ok) {
       const detail = await res.text();
@@ -171,9 +179,9 @@ export default function HomePage() {
   async function applyAmbiguityOption(ambiguityId: string, optionId: string) {
     setError(null);
     setArtifactId(null);
-    if (!selected) return;
+    if (!selectedIr) return;
 
-    const variantsById = Object.fromEntries(candidates.map((c) => [c.ir_id, c])) as Record<
+    const variantsById = Object.fromEntries(candidates.map((c) => [c.ir.ir_id, c.ir])) as Record<
       string,
       AdeuIR
     >;
@@ -182,7 +190,7 @@ export default function HomePage() {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        ir: selected,
+        ir: selectedIr,
         ambiguity_id: ambiguityId,
         option_id: optionId,
         variants_by_id: variantsById,
@@ -195,8 +203,11 @@ export default function HomePage() {
       return;
     }
     const data = (await res.json()) as ApplyAmbiguityOptionResponse;
-    setCandidates((prev) => prev.map((c, idx) => (idx === selectedIdx ? data.patched_ir : c)));
-    setCheckReport(data.check_report);
+    setCandidates((prev) =>
+      prev.map((c, idx) =>
+        idx === selectedIdx ? { ...c, ir: data.patched_ir, check_report: data.check_report } : c
+      )
+    );
   }
 
   return (
@@ -254,7 +265,7 @@ export default function HomePage() {
               }}
               disabled={idx === selectedIdx}
             >
-              Variant {idx + 1}
+              Variant {idx + 1} ({c.check_report.status})
             </button>
           ))}
           {candidates.length === 0 ? <span className="muted">No candidates yet.</span> : null}
@@ -290,7 +301,7 @@ export default function HomePage() {
               .join("\n")}
           </pre>
         ) : null}
-        <pre>{selected ? JSON.stringify(selected, null, 2) : ""}</pre>
+        <pre>{selectedIr ? JSON.stringify(selectedIr, null, 2) : ""}</pre>
       </div>
 
       <div className="panel">
@@ -303,17 +314,17 @@ export default function HomePage() {
           <button onClick={() => setMode("STRICT")} disabled={mode === "STRICT"}>
             STRICT
           </button>
-          <button onClick={runCheck} disabled={!selected}>
+          <button onClick={runCheck} disabled={!selectedIr}>
             Check ({mode})
           </button>
-          <button onClick={accept} disabled={!selected}>
+          <button onClick={accept} disabled={!selectedIr}>
             Accept (STRICT)
           </button>
         </div>
-        {selected?.D_norm?.statements?.length ? (
+        {selectedIr?.D_norm?.statements?.length ? (
           <div style={{ marginTop: 8 }}>
             <div className="muted">Statements</div>
-            {selected.D_norm.statements.map((stmt, idx) => (
+            {selectedIr.D_norm.statements.map((stmt, idx) => (
               <div key={stmt.id} className="row" style={{ marginTop: 4 }}>
                 <button
                   onClick={() => {
@@ -332,10 +343,10 @@ export default function HomePage() {
             ))}
           </div>
         ) : null}
-        {selected?.ambiguity?.length ? (
+        {selectedIr?.ambiguity?.length ? (
           <div style={{ marginTop: 8 }}>
             <div className="muted">Ambiguity options</div>
-            {selected.ambiguity.map((a) => (
+            {selectedIr.ambiguity.map((a) => (
               <div key={a.id} style={{ marginTop: 8 }}>
                 <div className="muted">
                   <strong>{a.issue}</strong> ({a.id})
@@ -354,7 +365,7 @@ export default function HomePage() {
                     <button
                       key={opt.option_id}
                       onClick={() => applyAmbiguityOption(a.id, opt.option_id)}
-                      disabled={!selected}
+                      disabled={!selectedIr}
                       title={opt.effect}
                     >
                       Apply: {opt.label}
@@ -365,7 +376,7 @@ export default function HomePage() {
             ))}
           </div>
         ) : null}
-        <pre>{checkReport ? JSON.stringify(checkReport, null, 2) : ""}</pre>
+        <pre>{selectedReport ? JSON.stringify(selectedReport, null, 2) : ""}</pre>
       </div>
     </div>
   );

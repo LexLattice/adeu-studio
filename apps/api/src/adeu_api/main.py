@@ -1,32 +1,72 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Literal
 
 from adeu_ir import AdeuIR, CheckReport, ReasonSeverity, TraceItem
 from adeu_kernel import KernelMode, PatchValidationError, apply_ambiguity_option, check
 from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .mock_provider import load_fixture_bundles
 from .storage import create_artifact, get_artifact, list_artifacts
 
 
 class ProposeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     clause_text: str = Field(min_length=1)
-    provider: Literal["mock"] = "mock"
+    provider: Literal["mock", "openai"] = "mock"
+    mode: KernelMode = KernelMode.LAX
+    max_candidates: int | None = Field(default=None, ge=1, le=20)
+    max_repairs: int | None = Field(default=None, ge=0, le=10)
+
+
+class ProviderInfo(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["mock", "openai"]
+    model: str | None = None
+
+
+class ProposerAttempt(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    attempt_idx: int
+    status: Literal["PASS", "WARN", "REFUSE", "PARSE_ERROR"]
+    reason_codes_summary: list[str] = Field(default_factory=list)
+    candidate_rank: int | None = None
+
+
+class ProposerLog(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    provider: str
+    model: str | None = None
+    created_at: str
+    attempts: list[ProposerAttempt] = Field(default_factory=list)
+    raw_prompt: str | None = None
+    raw_response: str | None = None
+
+
+class ProposeCandidate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: AdeuIR
+    check_report: CheckReport
+    rank: int
 
 
 class ProposeResponse(BaseModel):
-    candidates: list[AdeuIR]
-    provider: str
+    model_config = ConfigDict(extra="forbid")
+    provider: ProviderInfo
+    candidates: list[ProposeCandidate]
+    proposer_log: ProposerLog
 
 
 class CheckRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     ir: AdeuIR
     mode: KernelMode = KernelMode.LAX
 
 
 class ApplyAmbiguityOptionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     ir: AdeuIR
     ambiguity_id: str = Field(min_length=1)
     option_id: str = Field(min_length=1)
@@ -35,23 +75,27 @@ class ApplyAmbiguityOptionRequest(BaseModel):
 
 
 class ApplyAmbiguityOptionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     patched_ir: AdeuIR
     check_report: CheckReport
 
 
 class ArtifactCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     clause_text: str = Field(min_length=1)
     ir: AdeuIR
     mode: KernelMode = KernelMode.STRICT
 
 
 class ArtifactCreateResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     artifact_id: str
     created_at: str
     check_report: CheckReport
 
 
 class ArtifactGetResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     artifact_id: str
     created_at: str
     clause_text: str
@@ -60,6 +104,7 @@ class ArtifactGetResponse(BaseModel):
 
 
 class ArtifactSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     artifact_id: str
     created_at: str
     doc_id: str | None
@@ -70,10 +115,20 @@ class ArtifactSummary(BaseModel):
 
 
 class ArtifactListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     items: list[ArtifactSummary]
 
 
 app = FastAPI(title="ADEU Studio API")
+
+_STATUS_SCORE = {"PASS": 0, "WARN": 1, "REFUSE": 2}
+
+
+def _score_report(report: CheckReport) -> tuple[int, int, int, int]:
+    status_score = _STATUS_SCORE.get(report.status, 99)
+    num_errors = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.ERROR)
+    num_warns = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.WARN)
+    return (status_score, num_errors, num_warns, len(report.reason_codes))
 
 
 @app.post("/propose", response_model=ProposeResponse)
@@ -82,9 +137,42 @@ def propose(req: ProposeRequest) -> ProposeResponse:
     clause = req.clause_text.strip()
     bundle = bundles.get(clause)
     if bundle is None:
-        return ProposeResponse(candidates=[], provider="mock")
+        return ProposeResponse(
+            provider=ProviderInfo(kind="mock"),
+            candidates=[],
+            proposer_log=ProposerLog(
+                provider="mock",
+                created_at=datetime.now(tz=timezone.utc).isoformat(),
+            ),
+        )
 
-    return ProposeResponse(candidates=bundle.proposals, provider="mock")
+    scored: list[tuple[tuple[int, int, int, int], str, AdeuIR, CheckReport]] = []
+    for ir in bundle.proposals:
+        report = check(ir, mode=req.mode)
+        scored.append((_score_report(report), ir.ir_id, ir, report))
+
+    scored.sort(key=lambda item: (item[0], item[1]))
+    candidates = [
+        ProposeCandidate(ir=ir, check_report=report, rank=rank)
+        for rank, (_, _, ir, report) in enumerate(scored)
+    ]
+    return ProposeResponse(
+        provider=ProviderInfo(kind="mock"),
+        candidates=candidates,
+        proposer_log=ProposerLog(
+            provider="mock",
+            created_at=datetime.now(tz=timezone.utc).isoformat(),
+            attempts=[
+                ProposerAttempt(
+                    attempt_idx=idx,
+                    status=c.check_report.status,
+                    reason_codes_summary=sorted({r.code for r in c.check_report.reason_codes}),
+                    candidate_rank=c.rank,
+                )
+                for idx, c in enumerate(candidates)
+            ],
+        ),
+    )
 
 
 @app.post("/check", response_model=CheckReport)
