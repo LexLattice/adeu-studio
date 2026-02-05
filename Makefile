@@ -7,7 +7,7 @@ PIP := $(VENV)/bin/pip
 bootstrap:
 	python -m venv $(VENV)
 	$(PIP) install -U pip
-	$(PIP) install -e packages/adeu_ir -e "packages/adeu_kernel[dev]"
+	$(PIP) install -e packages/adeu_ir -e "packages/adeu_kernel[dev]" -e apps/api
 
 test:
 	$(PY) -m pytest
