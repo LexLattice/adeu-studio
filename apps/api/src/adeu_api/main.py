@@ -9,6 +9,7 @@ from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 from .mock_provider import load_fixture_bundles
+from .source_features import extract_source_features
 from .storage import create_artifact, get_artifact, list_artifacts
 
 
@@ -135,6 +136,7 @@ def _score_report(report: CheckReport) -> tuple[int, int, int, int]:
 def propose(req: ProposeRequest) -> ProposeResponse:
     bundles = load_fixture_bundles()
     clause = req.clause_text.strip()
+    features = extract_source_features(clause)
     bundle = bundles.get(clause)
     if bundle is None:
         return ProposeResponse(
@@ -148,8 +150,13 @@ def propose(req: ProposeRequest) -> ProposeResponse:
 
     scored: list[tuple[tuple[int, int, int, int], str, AdeuIR, CheckReport]] = []
     for ir in bundle.proposals:
-        report = check(ir, mode=req.mode)
-        scored.append((_score_report(report), ir.ir_id, ir, report))
+        ir_with_features = ir.model_copy(
+            update={
+                "context": ir.context.model_copy(update={"source_features": features}),
+            }
+        )
+        report = check(ir_with_features, mode=req.mode)
+        scored.append((_score_report(report), ir_with_features.ir_id, ir_with_features, report))
 
     scored.sort(key=lambda item: (item[0], item[1]))
     candidates = [
