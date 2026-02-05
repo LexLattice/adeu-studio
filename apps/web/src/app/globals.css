@@ -106,6 +106,24 @@ pre {
   flex: 1;
 }
 
+.clause-preview {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow: auto;
+  max-height: 240px;
+}
+
+mark {
+  background: #fde68a;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;

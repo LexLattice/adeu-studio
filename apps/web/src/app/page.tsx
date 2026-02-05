@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import type { AdeuIR } from "../gen/adeu_ir";
+import type { AdeuIR, SourceSpan } from "../gen/adeu_ir";
 import type { CheckReport } from "../gen/check_report";
 
 type KernelMode = "STRICT" | "LAX";
@@ -32,6 +32,8 @@ type DiffItem = {
   before: unknown;
   after: unknown;
 };
+
+type Highlight = { span: SourceSpan; label: string } | null;
 
 function apiBase(): string {
   return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
@@ -90,12 +92,20 @@ function diffJson(
   out.push({ path, kind: "change", before, after });
 }
 
+function clampSpan(text: string, span: SourceSpan): SourceSpan | null {
+  const start = Math.max(0, Math.min(text.length, span.start));
+  const end = Math.max(0, Math.min(text.length, span.end));
+  if (start >= end) return null;
+  return { start, end };
+}
+
 export default function HomePage() {
   const [clauseText, setClauseText] = useState<string>("");
   const [candidates, setCandidates] = useState<AdeuIR[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
   const [compareIdx, setCompareIdx] = useState<number | null>(null);
   const [mode, setMode] = useState<KernelMode>("LAX");
+  const [highlight, setHighlight] = useState<Highlight>(null);
   const [checkReport, setCheckReport] = useState<CheckReport | null>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -117,6 +127,7 @@ export default function HomePage() {
     setError(null);
     setArtifactId(null);
     setCheckReport(null);
+    setHighlight(null);
     const res = await fetch(`${apiBase()}/propose`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -198,6 +209,27 @@ export default function HomePage() {
           placeholder="Paste a clause here…"
         />
         <div className="row" style={{ marginTop: 8 }}>
+          <span className="muted">Spans</span>
+          <button onClick={() => setHighlight(null)} disabled={!highlight}>
+            Clear highlight
+          </button>
+          {highlight ? <span className="muted mono">{highlight.label}</span> : null}
+        </div>
+        <div className="clause-preview" style={{ marginTop: 8 }}>
+          {(() => {
+            if (!highlight) return clauseText;
+            const clamped = clampSpan(clauseText, highlight.span);
+            if (!clamped) return clauseText;
+            return (
+              <>
+                <span>{clauseText.slice(0, clamped.start)}</span>
+                <mark>{clauseText.slice(clamped.start, clamped.end)}</mark>
+                <span>{clauseText.slice(clamped.end)}</span>
+              </>
+            );
+          })()}
+        </div>
+        <div className="row" style={{ marginTop: 8 }}>
           <button onClick={propose} disabled={!clauseText.trim()}>
             Propose variants (mock)
           </button>
@@ -278,6 +310,28 @@ export default function HomePage() {
             Accept (STRICT)
           </button>
         </div>
+        {selected?.D_norm?.statements?.length ? (
+          <div style={{ marginTop: 8 }}>
+            <div className="muted">Statements</div>
+            {selected.D_norm.statements.map((stmt, idx) => (
+              <div key={stmt.id} className="row" style={{ marginTop: 4 }}>
+                <button
+                  onClick={() => {
+                    const span = stmt.provenance?.span ?? null;
+                    if (!span) return;
+                    setHighlight({ span, label: `stmt:${stmt.id} (/D_norm/statements/${idx})` });
+                  }}
+                  disabled={!stmt.provenance?.span}
+                >
+                  Highlight
+                </button>
+                <span className="muted mono">
+                  {stmt.id} ({stmt.kind})
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
         {selected?.ambiguity?.length ? (
           <div style={{ marginTop: 8 }}>
             <div className="muted">Ambiguity options</div>
@@ -285,6 +339,15 @@ export default function HomePage() {
               <div key={a.id} style={{ marginTop: 8 }}>
                 <div className="muted">
                   <strong>{a.issue}</strong> ({a.id})
+                </div>
+                <div className="row" style={{ marginTop: 4 }}>
+                  <button
+                    onClick={() =>
+                      setHighlight({ span: a.span, label: `amb:${a.id} (issue:${a.issue})` })
+                    }
+                  >
+                    Highlight
+                  </button>
                 </div>
                 <div className="row" style={{ flexWrap: "wrap", gap: 8, marginTop: 4 }}>
                   {a.options.map((opt) => (
