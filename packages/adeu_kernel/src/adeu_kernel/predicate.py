@@ -203,3 +203,52 @@ def referenced_def_ids(predicate: Predicate) -> set[str]:
 
     walk(predicate)
     return out
+
+
+def evaluate_predicate(
+    predicate: Predicate,
+    *,
+    def_ids: set[str],
+    doc_refs: set[str],
+) -> bool | None:
+    """
+    Evaluates a predicate with IR-only semantics.
+
+    Returns:
+      - True/False when evaluatable
+      - None when unevaluatable (e.g., unknown def_id references)
+    """
+
+    if isinstance(predicate, PredDefined):
+        return predicate.def_id in def_ids
+
+    if isinstance(predicate, PredRefersToDoc):
+        return predicate.doc_ref in doc_refs
+
+    if isinstance(predicate, PredNot):
+        inner = evaluate_predicate(predicate.arg, def_ids=def_ids, doc_refs=doc_refs)
+        if inner is None:
+            return None
+        return not inner
+
+    if isinstance(predicate, PredAnd):
+        saw_none = False
+        for arg in predicate.args:
+            value = evaluate_predicate(arg, def_ids=def_ids, doc_refs=doc_refs)
+            if value is False:
+                return False
+            if value is None:
+                saw_none = True
+        return None if saw_none else True
+
+    if isinstance(predicate, PredOr):
+        saw_none = False
+        for arg in predicate.args:
+            value = evaluate_predicate(arg, def_ids=def_ids, doc_refs=doc_refs)
+            if value is True:
+                return True
+            if value is None:
+                saw_none = True
+        return None if saw_none else False
+
+    raise AssertionError(f"unknown predicate node: {predicate!r}")

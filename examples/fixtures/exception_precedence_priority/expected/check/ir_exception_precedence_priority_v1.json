@@ -7,9 +7,17 @@
   },
   "reason_codes": [
     {
-      "code": "EXCEPTION_PRECEDENCE_UNDETERMINED",
-      "message": "multiple exceptions apply; precedence requires strict priority ordering",
-      "object_id": "dn_deliver_1",
+      "code": "EXCEPTION_CONDITION_UNEVALUATED",
+      "json_path": "/D_norm/exceptions/0/condition/kind",
+      "message": "exception.condition.kind is not IR-evaluatable (requires predicate)",
+      "object_id": "ex_force_majeure",
+      "severity": "WARN"
+    },
+    {
+      "code": "EXCEPTION_CONDITION_UNEVALUATED",
+      "json_path": "/D_norm/exceptions/1/condition/kind",
+      "message": "exception.condition.kind is not IR-evaluatable (requires predicate)",
+      "object_id": "ex_payment_overdue",
       "severity": "WARN"
     }
   ],
@@ -45,11 +53,16 @@
         "ex_force_majeure",
         "ex_payment_overdue"
       ],
-      "because": [
-        "EXCEPTION_PRECEDENCE_UNDETERMINED"
-      ],
-      "notes": "Validates exception attachment and basic precedence flags.",
+      "because": [],
+      "notes": "Validates exception attachment and predicate shape.",
       "rule_id": "dnorm/exceptions"
+    },
+    {
+      "affected_ids": [
+        "dn_deliver_1"
+      ],
+      "because": [],
+      "rule_id": "effective_norms"
     },
     {
       "affected_ids": [

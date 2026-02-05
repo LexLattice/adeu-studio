@@ -8,6 +8,7 @@
   "reason_codes": [
     {
       "code": "CONDITION_PREDICATE_INVALID",
+      "json_path": "/D_norm/statements/0/condition/predicate",
       "message": "expected '(' at pos 0",
       "object_id": "dn_suspend_1",
       "severity": "WARN"
@@ -45,8 +46,15 @@
     {
       "affected_ids": [],
       "because": [],
-      "notes": "Validates exception attachment and basic precedence flags.",
+      "notes": "Validates exception attachment and predicate shape.",
       "rule_id": "dnorm/exceptions"
+    },
+    {
+      "affected_ids": [
+        "dn_suspend_1"
+      ],
+      "because": [],
+      "rule_id": "effective_norms"
     },
     {
       "affected_ids": [

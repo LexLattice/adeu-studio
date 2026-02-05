@@ -5,8 +5,23 @@
     "num_exceptions": 2,
     "num_statements": 1
   },
-  "reason_codes": [],
-  "status": "PASS",
+  "reason_codes": [
+    {
+      "code": "EXCEPTION_CONDITION_UNEVALUATED",
+      "json_path": "/D_norm/exceptions/0/condition/kind",
+      "message": "exception.condition.kind is not IR-evaluatable (requires predicate)",
+      "object_id": "ex_force_majeure",
+      "severity": "WARN"
+    },
+    {
+      "code": "EXCEPTION_CONDITION_UNEVALUATED",
+      "json_path": "/D_norm/exceptions/1/condition/kind",
+      "message": "exception.condition.kind is not IR-evaluatable (requires predicate)",
+      "object_id": "ex_payment_overdue",
+      "severity": "WARN"
+    }
+  ],
+  "status": "WARN",
   "trace": [
     {
       "affected_ids": [],
@@ -39,8 +54,15 @@
         "ex_payment_overdue"
       ],
       "because": [],
-      "notes": "Validates exception attachment and basic precedence flags.",
+      "notes": "Validates exception attachment and predicate shape.",
       "rule_id": "dnorm/exceptions"
+    },
+    {
+      "affected_ids": [
+        "dn_deliver_1"
+      ],
+      "because": [],
+      "rule_id": "effective_norms"
     },
     {
       "affected_ids": [

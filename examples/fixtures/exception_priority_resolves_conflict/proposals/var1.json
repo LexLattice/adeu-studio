@@ -1,0 +1,89 @@
+{
+  "schema_version": "adeu.ir.v0",
+  "ir_id": "ir_exception_priority_resolves_conflict_v1",
+  "context": {
+    "doc_id": "fixture:exception_priority_resolves_conflict",
+    "jurisdiction": "US-CA",
+    "time_eval": "2026-02-04T00:00:00Z"
+  },
+  "O": {
+    "definitions": [
+      {
+        "id": "def_trigger",
+        "term": "Trigger",
+        "meaning": "A dummy trigger for predicate evaluation.",
+        "provenance": { "doc_ref": "fixture:exception_priority_resolves_conflict" }
+      }
+    ]
+  },
+  "D_norm": {
+    "statements": [
+      {
+        "id": "dn_deliver_ob_1",
+        "kind": "obligation",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": { "verb": "deliver", "object": { "ref_type": "text", "text": "the Goods" } },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": {
+            "kind": "during",
+            "start": "2026-02-04T00:00:00Z",
+            "end": "2026-12-31T00:00:00Z"
+          }
+        },
+        "provenance": {
+          "doc_ref": "fixture:exception_priority_resolves_conflict",
+          "span": { "start": 0, "end": 96 }
+        }
+      },
+      {
+        "id": "dn_deliver_proh_1",
+        "kind": "prohibition",
+        "subject": { "ref_type": "text", "text": "Supplier" },
+        "action": { "verb": "deliver", "object": { "ref_type": "text", "text": "the Goods" } },
+        "scope": {
+          "jurisdiction": "US-CA",
+          "time_about": {
+            "kind": "during",
+            "start": "2026-02-04T00:00:00Z",
+            "end": "2026-12-31T00:00:00Z"
+          }
+        },
+        "provenance": {
+          "doc_ref": "fixture:exception_priority_resolves_conflict",
+          "span": { "start": 0, "end": 96 }
+        }
+      }
+    ],
+    "exceptions": [
+      {
+        "id": "ex_defeat_1",
+        "applies_to": ["dn_deliver_proh_1"],
+        "condition": {
+          "kind": "predicate",
+          "text": "If Trigger is defined",
+          "predicate": "(defined def_trigger)"
+        },
+        "effect": "defeats",
+        "provenance": {
+          "doc_ref": "fixture:exception_priority_resolves_conflict",
+          "span": { "start": 64, "end": 96 }
+        }
+      },
+      {
+        "id": "ex_clarify_1",
+        "applies_to": ["dn_deliver_proh_1"],
+        "condition": {
+          "kind": "predicate",
+          "text": "If Trigger is defined",
+          "predicate": "(defined def_trigger)"
+        },
+        "effect": "clarifies",
+        "provenance": {
+          "doc_ref": "fixture:exception_priority_resolves_conflict",
+          "span": { "start": 64, "end": 96 }
+        }
+      }
+    ]
+  }
+}

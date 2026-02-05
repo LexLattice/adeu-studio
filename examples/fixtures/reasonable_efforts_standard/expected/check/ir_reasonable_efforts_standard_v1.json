@@ -8,6 +8,7 @@
   "reason_codes": [
     {
       "code": "SCOPE_TIME_MISSING",
+      "json_path": "/D_norm/statements/0/scope/time_about/kind",
       "message": "scope.time_about.kind='unspecified'",
       "object_id": "dn_efforts_1",
       "severity": "WARN"
@@ -45,8 +46,15 @@
     {
       "affected_ids": [],
       "because": [],
-      "notes": "Validates exception attachment and basic precedence flags.",
+      "notes": "Validates exception attachment and predicate shape.",
       "rule_id": "dnorm/exceptions"
+    },
+    {
+      "affected_ids": [
+        "dn_efforts_1"
+      ],
+      "because": [],
+      "rule_id": "effective_norms"
     },
     {
       "affected_ids": [

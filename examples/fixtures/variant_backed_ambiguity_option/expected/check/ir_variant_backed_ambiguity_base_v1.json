@@ -1,6 +1,6 @@
 {
   "metrics": {
-    "num_ambiguities": 0,
+    "num_ambiguities": 1,
     "num_bridges": 0,
     "num_exceptions": 0,
     "num_statements": 1
@@ -15,7 +15,7 @@
     },
     {
       "affected_ids": [
-        "dn_suspend_1"
+        "dn_term_1"
       ],
       "because": [],
       "rule_id": "time_scope/validate"
@@ -27,7 +27,7 @@
     },
     {
       "affected_ids": [
-        "dn_suspend_1"
+        "dn_term_1"
       ],
       "because": [],
       "notes": "Checks required fields and provenance for D_norm statements.",
@@ -41,14 +41,14 @@
     },
     {
       "affected_ids": [
-        "dn_suspend_1"
+        "dn_term_1"
       ],
       "because": [],
       "rule_id": "effective_norms"
     },
     {
       "affected_ids": [
-        "dn_suspend_1"
+        "dn_term_1"
       ],
       "because": [],
       "notes": "Detects obligation vs prohibition conflicts in overlapping scope.",
@@ -56,7 +56,7 @@
     },
     {
       "affected_ids": [
-        "dn_suspend_1"
+        "dn_term_1"
       ],
       "because": [],
       "notes": "Flags unresolved EntityRef/DefinitionRef usages.",
