@@ -32,6 +32,7 @@ export default function HomePage() {
   const [clauseText, setClauseText] = useState<string>("");
   const [candidates, setCandidates] = useState<AdeuIR[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
+  const [mode, setMode] = useState<KernelMode>("LAX");
   const [checkReport, setCheckReport] = useState<CheckReport | null>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export default function HomePage() {
     setSelectedIdx(0);
   }
 
-  async function runCheck(mode: KernelMode) {
+  async function runCheck() {
     setError(null);
     setArtifactId(null);
     if (!selected) return;
@@ -99,7 +100,7 @@ export default function HomePage() {
         ambiguity_id: ambiguityId,
         option_id: optionId,
         variants_by_id: variantsById,
-        mode: "LAX"
+        mode
       })
     });
     if (!res.ok) {
@@ -150,11 +151,15 @@ export default function HomePage() {
       <div className="panel">
         <h2>Checker</h2>
         <div className="row">
-          <button onClick={() => runCheck("LAX")} disabled={!selected}>
-            Check (LAX)
+          <span className="muted">Mode</span>
+          <button onClick={() => setMode("LAX")} disabled={mode === "LAX"}>
+            LAX
           </button>
-          <button onClick={() => runCheck("STRICT")} disabled={!selected}>
-            Check (STRICT)
+          <button onClick={() => setMode("STRICT")} disabled={mode === "STRICT"}>
+            STRICT
+          </button>
+          <button onClick={runCheck} disabled={!selected}>
+            Check ({mode})
           </button>
           <button onClick={accept} disabled={!selected}>
             Accept (STRICT)
