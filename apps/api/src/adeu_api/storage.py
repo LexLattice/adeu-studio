@@ -53,6 +53,19 @@ class ValidatorRunRow:
     atom_map_json: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class ProofArtifactRow:
+    proof_id: str
+    artifact_id: str
+    created_at: str
+    backend: str
+    theorem_id: str
+    status: str
+    proof_hash: str
+    inputs_json: list[dict[str, Any]]
+    details_json: dict[str, Any]
+
+
 def _default_db_path() -> Path:
     env = os.environ.get("ADEU_API_DB_PATH")
     if env:
@@ -124,6 +137,37 @@ def _ensure_validator_indexes(con: sqlite3.Connection) -> None:
     con.execute("CREATE INDEX IF NOT EXISTS idx_validator_runs_status ON validator_runs(status)")
 
 
+def _ensure_proof_schema(con: sqlite3.Connection) -> None:
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS proof_artifacts (
+          proof_id TEXT PRIMARY KEY,
+          artifact_id TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          backend TEXT NOT NULL,
+          theorem_id TEXT NOT NULL,
+          status TEXT NOT NULL,
+          proof_hash TEXT NOT NULL,
+          inputs_json TEXT NOT NULL,
+          details_json TEXT NOT NULL,
+          FOREIGN KEY(artifact_id) REFERENCES artifacts(artifact_id)
+        )
+        """
+    )
+
+
+def _ensure_proof_indexes(con: sqlite3.Connection) -> None:
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_proof_artifacts_artifact_id ON proof_artifacts(artifact_id)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_proof_artifacts_status ON proof_artifacts(status)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_proof_artifacts_created_at ON proof_artifacts(created_at)"
+    )
+
+
 def _ensure_schema(con: sqlite3.Connection) -> None:
     con.execute(
         """
@@ -145,6 +189,8 @@ def _ensure_schema(con: sqlite3.Connection) -> None:
     _ensure_indexes(con)
     _ensure_validator_schema(con)
     _ensure_validator_indexes(con)
+    _ensure_proof_schema(con)
+    _ensure_proof_indexes(con)
 
 
 def _normalize_datetime_filter(value: str) -> str:
@@ -389,3 +435,102 @@ def create_validator_run(
         evidence_json=evidence_json,
         atom_map_json=atom_map_json,
     )
+
+
+def create_proof_artifact(
+    *,
+    proof_id: str | None = None,
+    artifact_id: str,
+    backend: str,
+    theorem_id: str,
+    status: str,
+    proof_hash: str,
+    inputs_json: list[dict[str, Any]],
+    details_json: dict[str, Any],
+    db_path: Path | None = None,
+) -> ProofArtifactRow:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    proof_id = proof_id or uuid.uuid4().hex
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.execute(
+            """
+            INSERT INTO proof_artifacts (
+              proof_id,
+              artifact_id,
+              created_at,
+              backend,
+              theorem_id,
+              status,
+              proof_hash,
+              inputs_json,
+              details_json
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                proof_id,
+                artifact_id,
+                created_at,
+                backend,
+                theorem_id,
+                status,
+                proof_hash,
+                json.dumps(inputs_json, sort_keys=True),
+                json.dumps(details_json, sort_keys=True),
+            ),
+        )
+
+    return ProofArtifactRow(
+        proof_id=proof_id,
+        artifact_id=artifact_id,
+        created_at=created_at,
+        backend=backend,
+        theorem_id=theorem_id,
+        status=status,
+        proof_hash=proof_hash,
+        inputs_json=inputs_json,
+        details_json=details_json,
+    )
+
+
+def list_proof_artifacts(
+    *,
+    artifact_id: str,
+    db_path: Path | None = None,
+) -> list[ProofArtifactRow]:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        rows = con.execute(
+            """
+            SELECT proof_id, artifact_id, created_at, backend, theorem_id, status, proof_hash,
+                   inputs_json, details_json
+            FROM proof_artifacts
+            WHERE artifact_id = ?
+            ORDER BY created_at ASC
+            """,
+            (artifact_id,),
+        ).fetchall()
+
+    return [
+        ProofArtifactRow(
+            proof_id=row["proof_id"],
+            artifact_id=row["artifact_id"],
+            created_at=row["created_at"],
+            backend=row["backend"],
+            theorem_id=row["theorem_id"],
+            status=row["status"],
+            proof_hash=row["proof_hash"],
+            inputs_json=json.loads(row["inputs_json"]),
+            details_json=json.loads(row["details_json"]),
+        )
+        for row in rows
+    ]
