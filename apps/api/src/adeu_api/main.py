@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timezone
 from typing import Literal
 
+from adeu_explain import DiffReport, ValidatorRunInput, build_diff_report
 from adeu_ir import (
     AdeuIR,
     CheckReport,
@@ -110,6 +111,16 @@ class PuzzleSolveRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     puzzle: KnightsKnavesPuzzle
     backend: Literal["z3", "mock"] = "z3"
+
+
+class DiffRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    left_ir: AdeuIR
+    right_ir: AdeuIR
+    left_validator_runs: list[ValidatorRunInput] | None = None
+    right_validator_runs: list[ValidatorRunInput] | None = None
+    left_artifact_id: str | None = None
+    right_artifact_id: str | None = None
 
 
 class ApplyAmbiguityOptionRequest(BaseModel):
@@ -442,6 +453,21 @@ def check_variant(req: CheckRequest) -> CheckReport:
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs:
         _persist_validator_runs(runs=runs, artifact_id=None)
     return report
+
+
+@app.post("/diff", response_model=DiffReport)
+def diff_endpoint(req: DiffRequest) -> DiffReport:
+    # v1 precedence lock: inline runs win and DB lookup is intentionally out of scope.
+    left_runs = req.left_validator_runs if req.left_validator_runs is not None else []
+    right_runs = req.right_validator_runs if req.right_validator_runs is not None else []
+    return build_diff_report(
+        req.left_ir,
+        req.right_ir,
+        left_id=req.left_ir.ir_id,
+        right_id=req.right_ir.ir_id,
+        left_runs=left_runs,
+        right_runs=right_runs,
+    )
 
 
 @app.post("/puzzles/solve", response_model=PuzzleSolveResult)
