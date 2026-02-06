@@ -33,6 +33,7 @@ make bootstrap
 Set `provider: "openai"` in `POST /propose` and configure:
 
 - `OPENAI_API_KEY` (or `ADEU_OPENAI_API_KEY`) for auth
+- `ADEU_OPENAI_API` backend selector (`responses` default, `chat` fallback backend)
 - optional `ADEU_OPENAI_MODEL` (default: `gpt-5.2`)
 - optional `ADEU_OPENAI_BASE_URL` (default: `https://api.openai.com/v1`)
 - optional `ADEU_LOG_RAW_LLM=1` to include raw prompt/response in proposer logs (off by default)
@@ -41,6 +42,15 @@ Request-level overrides:
 
 - `max_candidates` (default `5`)
 - `max_repairs` (default `3`)
+
+Behavior notes:
+
+- The `responses` backend uses strict `json_schema` structured outputs.
+- The `chat` backend attempts `json_schema` first and only falls back to `json_object` when schema
+  formatting is unsupported by that API mode.
+- Validation is fail-closed: output must parse as `AdeuIR`, then pass kernel checks.
+- Repair attempts use a strict gate: first valid attempt sets baseline; later attempts are accepted
+  only on strict score improvement (`status_rank`, `#ERROR`, `#WARN`, total reasons).
 
 ## Run Web
 
