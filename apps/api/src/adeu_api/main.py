@@ -207,6 +207,15 @@ def _sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def _configured_proof_backend_kind() -> Literal["mock", "lean"]:
+    value = os.environ.get("ADEU_PROOF_BACKEND", "mock").strip().lower()
+    if value == "mock":
+        return "mock"
+    if value == "lean":
+        return "lean"
+    return "mock"
+
+
 def _proof_inputs_from_validator_runs(runs: list[ValidatorRunRecord]) -> list[ProofInput]:
     inputs: list[ProofInput] = []
     seen: set[tuple[str | None, str | None, str | None]] = set()
@@ -244,6 +253,7 @@ def _persist_proof_artifact(
     theorem_id = f"{ir.ir_id}_artifact_consistency"
     theorem_src = build_trivial_theorem_source(theorem_id=theorem_id)
     inputs = _proof_inputs_from_validator_runs(runs)
+    backend_kind = _configured_proof_backend_kind()
     try:
         backend = build_proof_backend()
         proof = backend.check(
@@ -254,7 +264,7 @@ def _persist_proof_artifact(
     except RuntimeError as exc:
         proof = ProofArtifact(
             proof_id=f"proof_{_sha256(theorem_id + str(exc))[:16]}",
-            backend="mock",
+            backend=backend_kind,
             theorem_id=theorem_id,
             status="failed",
             proof_hash=_sha256(theorem_src + str(exc)),
@@ -262,15 +272,16 @@ def _persist_proof_artifact(
             details={"error": str(exc)},
         )
 
+    details = dict(proof.details)
+    details.setdefault("backend_proof_id", proof.proof_id)
     create_proof_artifact(
-        proof_id=proof.proof_id,
         artifact_id=artifact_id,
         backend=proof.backend,
         theorem_id=proof.theorem_id,
         status=proof.status,
         proof_hash=proof.proof_hash,
         inputs_json=[item.model_dump(mode="json", exclude_none=True) for item in proof.inputs],
-        details_json=proof.details,
+        details_json=details,
     )
 
 
