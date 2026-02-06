@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import os
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Any, Literal
 
 from adeu_explain import DiffReport, ValidatorRunInput, build_diff_report
 from adeu_ir import (
@@ -26,12 +26,22 @@ from adeu_kernel import (
     check,
     check_with_validator_runs,
 )
-from adeu_puzzles import KnightsKnavesPuzzle, PuzzleSolveResult, solve_knights_knaves
+from adeu_puzzles import (
+    KnightsKnavesPuzzle,
+    PuzzleSolveResult,
+    solve_knights_knaves,
+)
+from adeu_puzzles import (
+    check_with_validator_runs as check_puzzle_with_validator_runs,
+)
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
+from .puzzle_id_canonicalization import canonicalize_puzzle_ids
+from .puzzle_mock_provider import get_puzzle_fixture_bundle
+from .puzzle_source_features import extract_puzzle_source_features
 from .scoring import ranking_sort_key, score_key
 from .source_features import extract_source_features
 from .storage import (
@@ -80,6 +90,7 @@ class ProposerLog(BaseModel):
     created_at: str
     k: int | None = None
     n: int | None = None
+    source_features: dict[str, Any] | None = None
     attempts: list[ProposerAttempt] = Field(default_factory=list)
     prompt_hash: str | None = None
     response_hash: str | None = None
@@ -105,6 +116,22 @@ class CheckRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: AdeuIR
     mode: KernelMode = KernelMode.LAX
+
+
+class PuzzleCheckRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    puzzle: KnightsKnavesPuzzle
+    mode: KernelMode = KernelMode.LAX
+
+
+class PuzzleProposeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    puzzle_text: str = Field(min_length=1)
+    provider: Literal["mock", "openai"] = "mock"
+    mode: KernelMode = KernelMode.LAX
+    context_override: dict[str, Any] | None = None
+    max_candidates: int | None = Field(default=None, ge=1, le=20)
+    max_repairs: int | None = Field(default=None, ge=0, le=10)
 
 
 class PuzzleSolveRequest(BaseModel):
@@ -211,6 +238,20 @@ class ArtifactValidatorRunsResponse(BaseModel):
 
 
 app = FastAPI(title="ADEU Studio API")
+
+
+class PuzzleProposeCandidate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: KnightsKnavesPuzzle
+    check_report: CheckReport
+    rank: int
+
+
+class PuzzleProposeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    provider: ProviderInfo
+    candidates: list[PuzzleProposeCandidate]
+    proposer_log: ProposerLog
 
 
 def _env_flag(name: str) -> bool:
@@ -339,6 +380,19 @@ def _score_and_rank_proposals(
     ]
 
 
+def _score_and_rank_puzzle_proposals(
+    proposals: list[tuple[KnightsKnavesPuzzle, CheckReport]],
+) -> list[PuzzleProposeCandidate]:
+    scored: list[tuple[tuple[int, int, int, int], str, KnightsKnavesPuzzle, CheckReport]] = [
+        (score_key(report), puzzle.puzzle_id, puzzle, report) for puzzle, report in proposals
+    ]
+    scored.sort(key=lambda item: ranking_sort_key(item[0], item[1]))
+    return [
+        PuzzleProposeCandidate(ir=puzzle, check_report=report, rank=rank)
+        for rank, (_, _, puzzle, report) in enumerate(scored)
+    ]
+
+
 @app.post("/propose", response_model=ProposeResponse)
 def propose(req: ProposeRequest) -> ProposeResponse:
     bundles = load_fixture_bundles()
@@ -385,6 +439,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
                 created_at=openai_log.created_at,
                 k=openai_log.k,
                 n=openai_log.n,
+                source_features=features.model_dump(mode="json"),
                 attempts=[
                     ProposerAttempt(
                         attempt_idx=a.attempt_idx,
@@ -413,6 +468,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
                 created_at=datetime.now(tz=timezone.utc).isoformat(),
                 k=0,
                 n=0,
+                source_features=features.model_dump(mode="json"),
             ),
         )
 
@@ -432,6 +488,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
             created_at=datetime.now(tz=timezone.utc).isoformat(),
             k=len(candidates),
             n=0,
+            source_features=features.model_dump(mode="json"),
             attempts=[
                 ProposerAttempt(
                     attempt_idx=idx,
@@ -453,6 +510,132 @@ def check_variant(req: CheckRequest) -> CheckReport:
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs:
         _persist_validator_runs(runs=runs, artifact_id=None)
     return report
+
+
+@app.post("/puzzles/check", response_model=CheckReport)
+def check_puzzle_variant(req: PuzzleCheckRequest) -> CheckReport:
+    report, runs = check_puzzle_with_validator_runs(req.puzzle, mode=req.mode)
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs:
+        _persist_validator_runs(runs=runs, artifact_id=None)
+    return report
+
+
+@app.post("/puzzles/propose", response_model=PuzzleProposeResponse)
+def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
+    puzzle_text = req.puzzle_text.strip()
+    source_features = extract_puzzle_source_features(puzzle_text)
+
+    if req.provider == "openai":
+        from .openai_puzzle_provider import propose_puzzle_openai
+
+        try:
+            proposed, puzzle_log, model = propose_puzzle_openai(
+                puzzle_text=puzzle_text,
+                mode=req.mode,
+                max_candidates=req.max_candidates,
+                max_repairs=req.max_repairs,
+                source_features=source_features,
+                context_override=req.context_override,
+            )
+        except RuntimeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS"):
+            for _, _, runs in proposed:
+                if runs:
+                    _persist_validator_runs(runs=runs, artifact_id=None)
+
+        candidates = _score_and_rank_puzzle_proposals(
+            [(puzzle, report) for puzzle, report, _ in proposed]
+        )
+        rank_by_puzzle_id = {candidate.ir.puzzle_id: candidate.rank for candidate in candidates}
+        return PuzzleProposeResponse(
+            provider=ProviderInfo(kind="openai", api=puzzle_log.api, model=model),
+            candidates=candidates,
+            proposer_log=ProposerLog(
+                provider=puzzle_log.provider,
+                api=puzzle_log.api,
+                model=puzzle_log.model,
+                created_at=puzzle_log.created_at,
+                k=puzzle_log.k,
+                n=puzzle_log.n,
+                source_features=puzzle_log.source_features,
+                attempts=[
+                    ProposerAttempt(
+                        attempt_idx=attempt.attempt_idx,
+                        status=attempt.status,
+                        reason_codes_summary=attempt.reason_codes_summary,
+                        score_key=attempt.score_key,
+                        accepted_by_gate=attempt.accepted_by_gate,
+                        candidate_rank=(
+                            rank_by_puzzle_id.get(attempt.candidate_puzzle_id)
+                            if attempt.candidate_puzzle_id
+                            else None
+                        ),
+                    )
+                    for attempt in puzzle_log.attempts
+                ],
+                prompt_hash=puzzle_log.prompt_hash,
+                response_hash=puzzle_log.response_hash,
+                raw_prompt=puzzle_log.raw_prompt,
+                raw_response=puzzle_log.raw_response,
+            ),
+        )
+
+    bundle = get_puzzle_fixture_bundle(puzzle_text)
+    if bundle is None:
+        return PuzzleProposeResponse(
+            provider=ProviderInfo(kind="mock", api="mock"),
+            candidates=[],
+            proposer_log=ProposerLog(
+                provider="mock",
+                api="mock",
+                created_at=datetime.now(tz=timezone.utc).isoformat(),
+                k=0,
+                n=0,
+                source_features=source_features,
+            ),
+        )
+
+    checked: list[tuple[KnightsKnavesPuzzle, CheckReport]] = []
+    checked_runs: list[list[ValidatorRunRecord]] = []
+    for proposal in bundle.proposals:
+        puzzle = canonicalize_puzzle_ids(proposal)
+        report, runs = check_puzzle_with_validator_runs(puzzle, mode=req.mode)
+        checked.append((puzzle, report))
+        checked_runs.append(runs)
+
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS"):
+        for runs in checked_runs:
+            if runs:
+                _persist_validator_runs(runs=runs, artifact_id=None)
+
+    candidates = _score_and_rank_puzzle_proposals(checked)
+    return PuzzleProposeResponse(
+        provider=ProviderInfo(kind="mock", api="mock"),
+        candidates=candidates,
+        proposer_log=ProposerLog(
+            provider="mock",
+            api="mock",
+            created_at=datetime.now(tz=timezone.utc).isoformat(),
+            k=len(candidates),
+            n=0,
+            source_features=source_features,
+            attempts=[
+                ProposerAttempt(
+                    attempt_idx=idx,
+                    status=candidate.check_report.status,
+                    reason_codes_summary=sorted(
+                        {reason.code for reason in candidate.check_report.reason_codes}
+                    ),
+                    score_key=score_key(candidate.check_report),
+                    accepted_by_gate=True,
+                    candidate_rank=candidate.rank,
+                )
+                for idx, candidate in enumerate(candidates)
+            ],
+        ),
+    )
 
 
 @app.post("/diff", response_model=DiffReport)

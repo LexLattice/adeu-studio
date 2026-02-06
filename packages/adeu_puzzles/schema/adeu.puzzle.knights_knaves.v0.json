@@ -163,6 +163,49 @@
       "title": "ExprOr",
       "type": "object"
     },
+    "ProvenanceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "E.g., 'MSA-2026#\u00a73.2' or 'doc123#clause17'",
+          "title": "Doc Ref"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "span": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceSpan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "ProvenanceRef",
+      "type": "object"
+    },
     "PuzzleAssumption": {
       "additionalProperties": false,
       "properties": {
@@ -195,6 +238,17 @@
         "id": {
           "title": "Id",
           "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "text": {
           "anyOf": [
@@ -268,6 +322,17 @@
           "title": "Id",
           "type": "string"
         },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "speaker_id": {
           "title": "Speaker Id",
           "type": "string"
@@ -291,6 +356,27 @@
         "claim"
       ],
       "title": "PuzzleStatement",
+      "type": "object"
+    },
+    "SourceSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "SourceSpan",
       "type": "object"
     }
   },

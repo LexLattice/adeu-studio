@@ -1,0 +1,1 @@
+A says: "B is a knave." B says: "A is a knave." Assume A is a knight.
