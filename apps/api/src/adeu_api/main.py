@@ -40,6 +40,7 @@ from .storage import (
     get_artifact,
     list_artifacts,
     list_proof_artifacts,
+    list_validator_runs,
 )
 
 
@@ -175,6 +176,27 @@ class StoredProofArtifact(BaseModel):
 class ArtifactProofListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     items: list[StoredProofArtifact]
+
+
+class StoredValidatorRun(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    run_id: str
+    artifact_id: str | None
+    created_at: str
+    backend: str
+    backend_version: str | None
+    timeout_ms: int
+    options_json: dict[str, object]
+    request_hash: str
+    formula_hash: str
+    status: str
+    evidence_json: dict[str, object]
+    atom_map_json: dict[str, object]
+
+
+class ArtifactValidatorRunsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: list[StoredValidatorRun]
 
 
 app = FastAPI(title="ADEU Studio API")
@@ -567,6 +589,34 @@ def list_artifact_proofs_endpoint(artifact_id: str) -> ArtifactProofListResponse
         for row in rows
     ]
     return ArtifactProofListResponse(items=items)
+
+
+@app.get("/artifacts/{artifact_id}/validator-runs", response_model=ArtifactValidatorRunsResponse)
+def list_artifact_validator_runs_endpoint(artifact_id: str) -> ArtifactValidatorRunsResponse:
+    artifact = get_artifact(artifact_id=artifact_id)
+    if artifact is None:
+        raise HTTPException(status_code=404, detail="not found")
+
+    rows = list_validator_runs(artifact_id=artifact_id)
+    return ArtifactValidatorRunsResponse(
+        items=[
+            StoredValidatorRun(
+                run_id=row.run_id,
+                artifact_id=row.artifact_id,
+                created_at=row.created_at,
+                backend=row.backend,
+                backend_version=row.backend_version,
+                timeout_ms=row.timeout_ms,
+                options_json=row.options_json,
+                request_hash=row.request_hash,
+                formula_hash=row.formula_hash,
+                status=row.status,
+                evidence_json=row.evidence_json,
+                atom_map_json=row.atom_map_json,
+            )
+            for row in rows
+        ]
+    )
 
 
 @app.get("/healthz")

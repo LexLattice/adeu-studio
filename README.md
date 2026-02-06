@@ -76,6 +76,7 @@ Behavior notes:
 Proof retrieval endpoint:
 
 - `GET /artifacts/{artifact_id}/proofs`
+- `GET /artifacts/{artifact_id}/validator-runs`
 
 ## Run Web
 
