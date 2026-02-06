@@ -6,6 +6,7 @@ from typing import Any
 import adeu_api.openai_provider as openai_provider
 from adeu_api.main import ProposeRequest, propose
 from adeu_api.openai_backends import BackendMeta, BackendResult
+from adeu_api.scoring import is_strict_improvement, score_key
 from adeu_ir import CheckMetrics, CheckReason, CheckReport, Context, ReasonSeverity
 from adeu_ir.reason_codes import ReasonCode
 from adeu_kernel import KernelMode
@@ -135,6 +136,11 @@ def _ok_result(payload: dict[str, Any]) -> BackendResult:
 
 
 def test_propose_openai_stops_when_repair_progress_stalls(monkeypatch) -> None:
+    source_reports = [
+        _report_refuse(ReasonCode.NORM_ACTION_MISSING),
+        _report_refuse(ReasonCode.NORM_SCOPE_MISSING),
+        _report_pass(),
+    ]
     fake_backend = _FakeBackend(
         [
             _ok_result(_minimal_payload(ir_id="ir_attempt_1", verb="suspend")),
@@ -142,11 +148,7 @@ def test_propose_openai_stops_when_repair_progress_stalls(monkeypatch) -> None:
             _ok_result(_minimal_payload(ir_id="ir_attempt_3", verb="notify")),
         ]
     )
-    checks = [
-        _report_refuse(ReasonCode.NORM_ACTION_MISSING),
-        _report_refuse(ReasonCode.NORM_SCOPE_MISSING),
-        _report_pass(),
-    ]
+    checks = list(source_reports)
 
     def fake_check(*args: object, **kwargs: object) -> CheckReport:
         return checks.pop(0)
@@ -167,8 +169,17 @@ def test_propose_openai_stops_when_repair_progress_stalls(monkeypatch) -> None:
     assert fake_backend.calls == 2
     assert len(log.attempts) == 2
     assert len(proposals) == 1, "expected exactly one candidate"
-    assert log.attempts[0].accepted_by_gate is True
-    assert log.attempts[1].accepted_by_gate is False
+
+    expected_scores = [score_key(report) for report in source_reports[:2]]
+    assert [attempt.score_key for attempt in log.attempts] == expected_scores
+
+    accepted_baseline: tuple[int, int, int, int] | None = None
+    for attempt in log.attempts:
+        assert attempt.score_key is not None
+        expected_accept = is_strict_improvement(attempt.score_key, accepted_baseline)
+        assert attempt.accepted_by_gate is expected_accept
+        if expected_accept:
+            accepted_baseline = attempt.score_key
 
 
 def test_propose_openai_assigns_candidate_rank_in_attempt_log(monkeypatch) -> None:
