@@ -37,6 +37,22 @@ class ArtifactSummaryRow:
     num_warns: int | None
 
 
+@dataclass(frozen=True)
+class ValidatorRunRow:
+    run_id: str
+    artifact_id: str | None
+    created_at: str
+    backend: str
+    backend_version: str | None
+    timeout_ms: int
+    options_json: dict[str, Any]
+    request_hash: str
+    formula_hash: str
+    status: str
+    evidence_json: dict[str, Any]
+    atom_map_json: dict[str, Any]
+
+
 def _default_db_path() -> Path:
     env = os.environ.get("ADEU_API_DB_PATH")
     if env:
@@ -76,6 +92,38 @@ def _ensure_indexes(con: sqlite3.Connection) -> None:
     con.execute("CREATE INDEX IF NOT EXISTS idx_artifacts_status ON artifacts(status)")
 
 
+def _ensure_validator_schema(con: sqlite3.Connection) -> None:
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS validator_runs (
+          run_id TEXT PRIMARY KEY,
+          artifact_id TEXT,
+          created_at TEXT NOT NULL,
+          backend TEXT NOT NULL,
+          backend_version TEXT,
+          timeout_ms INTEGER NOT NULL,
+          options_json TEXT NOT NULL,
+          request_hash TEXT NOT NULL,
+          formula_hash TEXT NOT NULL,
+          status TEXT NOT NULL,
+          evidence_json TEXT NOT NULL,
+          atom_map_json TEXT NOT NULL,
+          FOREIGN KEY(artifact_id) REFERENCES artifacts(artifact_id)
+        )
+        """
+    )
+
+
+def _ensure_validator_indexes(con: sqlite3.Connection) -> None:
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_validator_runs_artifact_id ON validator_runs(artifact_id)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_validator_runs_created_at ON validator_runs(created_at)"
+    )
+    con.execute("CREATE INDEX IF NOT EXISTS idx_validator_runs_status ON validator_runs(status)")
+
+
 def _ensure_schema(con: sqlite3.Connection) -> None:
     con.execute(
         """
@@ -95,6 +143,8 @@ def _ensure_schema(con: sqlite3.Connection) -> None:
     )
     _ensure_columns(con)
     _ensure_indexes(con)
+    _ensure_validator_schema(con)
+    _ensure_validator_indexes(con)
 
 
 def _normalize_datetime_filter(value: str) -> str:
@@ -267,3 +317,75 @@ def list_artifacts(
             )
         )
     return summaries
+
+
+def create_validator_run(
+    *,
+    artifact_id: str | None,
+    backend: str,
+    backend_version: str | None,
+    timeout_ms: int,
+    options_json: dict[str, Any],
+    request_hash: str,
+    formula_hash: str,
+    status: str,
+    evidence_json: dict[str, Any],
+    atom_map_json: dict[str, Any],
+    db_path: Path | None = None,
+) -> ValidatorRunRow:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    run_id = uuid.uuid4().hex
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.execute(
+            """
+            INSERT INTO validator_runs (
+              run_id,
+              artifact_id,
+              created_at,
+              backend,
+              backend_version,
+              timeout_ms,
+              options_json,
+              request_hash,
+              formula_hash,
+              status,
+              evidence_json,
+              atom_map_json
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                run_id,
+                artifact_id,
+                created_at,
+                backend,
+                backend_version,
+                timeout_ms,
+                json.dumps(options_json, sort_keys=True),
+                request_hash,
+                formula_hash,
+                status,
+                json.dumps(evidence_json, sort_keys=True),
+                json.dumps(atom_map_json, sort_keys=True),
+            ),
+        )
+
+    return ValidatorRunRow(
+        run_id=run_id,
+        artifact_id=artifact_id,
+        created_at=created_at,
+        backend=backend,
+        backend_version=backend_version,
+        timeout_ms=timeout_ms,
+        options_json=options_json,
+        request_hash=request_hash,
+        formula_hash=formula_hash,
+        status=status,
+        evidence_json=evidence_json,
+        atom_map_json=atom_map_json,
+    )

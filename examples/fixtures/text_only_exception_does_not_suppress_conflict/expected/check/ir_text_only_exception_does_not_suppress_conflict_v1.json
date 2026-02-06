@@ -16,7 +16,7 @@
     {
       "code": "CONFLICT_OBLIGATION_VS_PROHIBITION",
       "json_path": "/D_norm/statements/0",
-      "message": "Conflict between 'dn_deliver_ob_1' and 'dn_deliver_proh_1' in overlapping scope.",
+      "message": "Conflict between 'dn_deliver_ob_1' and 'dn_deliver_proh_1' in overlapping scope (solver atom a:dn_deliver_ob_1:16c912e456d8).",
       "object_id": "dn_deliver_ob_1",
       "severity": "ERROR"
     }
@@ -72,9 +72,10 @@
         "dn_deliver_proh_1"
       ],
       "because": [
-        "CONFLICT_OBLIGATION_VS_PROHIBITION"
+        "CONFLICT_OBLIGATION_VS_PROHIBITION",
+        "solver:SAT"
       ],
-      "notes": "Detects obligation vs prohibition conflicts in overlapping scope.",
+      "notes": "Detects obligation vs prohibition conflicts in overlapping scope; solver=z3:SAT; formula_hash=7c794b0a68a9",
       "rule_id": "dnorm/conflicts"
     },
     {

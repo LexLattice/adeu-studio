@@ -299,6 +299,10 @@ class AdeuIR(BaseModel):
 
 
 CheckStatus = Literal["PASS", "WARN", "REFUSE"]
+ValidatorKind = Literal["smt_check", "sat_model", "proof_check", "puzzle_solve"]
+ValidatorLogic = Literal["QF_UF"]
+ValidatorStatus = Literal["SAT", "UNSAT", "UNKNOWN", "TIMEOUT", "INVALID_REQUEST", "ERROR"]
+AssuranceLevel = Literal["kernel_only", "solver_backed", "proof_checked"]
 
 
 class CheckReason(BaseModel):
@@ -333,3 +337,53 @@ class CheckReport(BaseModel):
     reason_codes: list[CheckReason] = Field(default_factory=list)
     trace: list[TraceItem] = Field(default_factory=list)
     metrics: CheckMetrics
+
+
+class ValidatorOrigin(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    object_id: Optional[str] = None
+    json_path: Optional[str] = None
+
+
+class ValidatorAtomRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    assertion_name: str
+    object_id: Optional[str] = None
+    json_path: Optional[str] = None
+
+
+class ValidatorPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    formula_smt2: str
+    atom_map: list[ValidatorAtomRef] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ValidatorRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    kind: ValidatorKind
+    logic: ValidatorLogic
+    payload: ValidatorPayload
+    origin: list[ValidatorOrigin] = Field(default_factory=list)
+
+
+class SolverEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    unsat_core: list[str] = Field(default_factory=list)
+    model: dict[str, str] = Field(default_factory=dict)
+    stats: dict[str, Any] = Field(default_factory=dict)
+    error: Optional[str] = None
+
+
+class ValidatorResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: ValidatorStatus
+    assurance: AssuranceLevel
+    backend: Literal["z3", "lean", "mock"]
+    backend_version: Optional[str] = None
+    timeout_ms: int = Field(ge=0)
+    options: dict[str, Any] = Field(default_factory=dict)
+    request_hash: str
+    formula_hash: str
+    evidence: SolverEvidence = Field(default_factory=SolverEvidence)
+    trace: list[ValidatorAtomRef] = Field(default_factory=list)

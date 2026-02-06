@@ -1,0 +1,163 @@
+{
+  "$defs": {
+    "SolverEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "model": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Model",
+          "type": "object"
+        },
+        "stats": {
+          "additionalProperties": true,
+          "title": "Stats",
+          "type": "object"
+        },
+        "unsat_core": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unsat Core",
+          "type": "array"
+        }
+      },
+      "title": "SolverEvidence",
+      "type": "object"
+    },
+    "ValidatorAtomRef": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion_name": {
+          "title": "Assertion Name",
+          "type": "string"
+        },
+        "json_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Path"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Id"
+        }
+      },
+      "required": [
+        "assertion_name"
+      ],
+      "title": "ValidatorAtomRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assurance": {
+      "enum": [
+        "kernel_only",
+        "solver_backed",
+        "proof_checked"
+      ],
+      "title": "Assurance",
+      "type": "string"
+    },
+    "backend": {
+      "enum": [
+        "z3",
+        "lean",
+        "mock"
+      ],
+      "title": "Backend",
+      "type": "string"
+    },
+    "backend_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Backend Version"
+    },
+    "evidence": {
+      "$ref": "#/$defs/SolverEvidence"
+    },
+    "formula_hash": {
+      "title": "Formula Hash",
+      "type": "string"
+    },
+    "options": {
+      "additionalProperties": true,
+      "title": "Options",
+      "type": "object"
+    },
+    "request_hash": {
+      "title": "Request Hash",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "SAT",
+        "UNSAT",
+        "UNKNOWN",
+        "TIMEOUT",
+        "INVALID_REQUEST",
+        "ERROR"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "timeout_ms": {
+      "minimum": 0,
+      "title": "Timeout Ms",
+      "type": "integer"
+    },
+    "trace": {
+      "items": {
+        "$ref": "#/$defs/ValidatorAtomRef"
+      },
+      "title": "Trace",
+      "type": "array"
+    }
+  },
+  "required": [
+    "status",
+    "assurance",
+    "backend",
+    "timeout_ms",
+    "request_hash",
+    "formula_hash"
+  ],
+  "title": "ValidatorResult",
+  "type": "object"
+}

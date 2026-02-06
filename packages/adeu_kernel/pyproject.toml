@@ -8,7 +8,7 @@ version = "0.0.0"
 description = "ADEU kernel: deterministic checking + traces."
 readme = "../../README.md"
 requires-python = ">=3.11"
-dependencies = ["pydantic>=2.6,<3", "adeu-ir>=0.0.0"]
+dependencies = ["pydantic>=2.6,<3", "adeu-ir>=0.0.0", "z3-solver==4.13.3.0"]
 
 [project.optional-dependencies]
 dev = [
@@ -18,4 +18,3 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/adeu_kernel"]
-

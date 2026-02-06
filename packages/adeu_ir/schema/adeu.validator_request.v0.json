@@ -1,0 +1,134 @@
+{
+  "$defs": {
+    "ValidatorAtomRef": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion_name": {
+          "title": "Assertion Name",
+          "type": "string"
+        },
+        "json_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Path"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Id"
+        }
+      },
+      "required": [
+        "assertion_name"
+      ],
+      "title": "ValidatorAtomRef",
+      "type": "object"
+    },
+    "ValidatorOrigin": {
+      "additionalProperties": false,
+      "properties": {
+        "json_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Path"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Id"
+        }
+      },
+      "title": "ValidatorOrigin",
+      "type": "object"
+    },
+    "ValidatorPayload": {
+      "additionalProperties": false,
+      "properties": {
+        "atom_map": {
+          "items": {
+            "$ref": "#/$defs/ValidatorAtomRef"
+          },
+          "title": "Atom Map",
+          "type": "array"
+        },
+        "formula_smt2": {
+          "title": "Formula Smt2",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        }
+      },
+      "required": [
+        "formula_smt2"
+      ],
+      "title": "ValidatorPayload",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "enum": [
+        "smt_check",
+        "sat_model",
+        "proof_check",
+        "puzzle_solve"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "logic": {
+      "const": "QF_UF",
+      "title": "Logic",
+      "type": "string"
+    },
+    "origin": {
+      "items": {
+        "$ref": "#/$defs/ValidatorOrigin"
+      },
+      "title": "Origin",
+      "type": "array"
+    },
+    "payload": {
+      "$ref": "#/$defs/ValidatorPayload"
+    }
+  },
+  "required": [
+    "kind",
+    "logic",
+    "payload"
+  ],
+  "title": "ValidatorRequest",
+  "type": "object"
+}

@@ -15,9 +15,15 @@ from .models import (
     ProvenanceRef,
     Ref,
     Scope,
+    SolverEvidence,
     SourceSpan,
     TimeScope,
     TraceItem,
+    ValidatorAtomRef,
+    ValidatorOrigin,
+    ValidatorPayload,
+    ValidatorRequest,
+    ValidatorResult,
 )
 from .reason_codes import ReasonCode, ReasonSeverity
 
@@ -40,10 +46,15 @@ __all__ = [
     "Ref",
     "Scope",
     "SourceSpan",
+    "SolverEvidence",
     "TimeScope",
     "TraceItem",
+    "ValidatorAtomRef",
+    "ValidatorOrigin",
+    "ValidatorPayload",
+    "ValidatorRequest",
+    "ValidatorResult",
     "stable_id",
 ]
 
 __version__ = "0.0.0"
-
