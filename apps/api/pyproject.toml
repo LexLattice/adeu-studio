@@ -13,8 +13,8 @@ dependencies = [
   "uvicorn>=0.24,<1",
   "adeu-ir>=0.0.0",
   "adeu-kernel>=0.0.0",
+  "adeu-puzzles>=0.0.0",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/adeu_api"]
-

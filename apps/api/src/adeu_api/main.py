@@ -21,9 +21,11 @@ from adeu_kernel import (
     apply_ambiguity_option,
     build_proof_backend,
     build_trivial_theorem_source,
+    build_validator_backend,
     check,
     check_with_validator_runs,
 )
+from adeu_puzzles import KnightsKnavesPuzzle, PuzzleSolveResult, solve_knights_knaves
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -101,6 +103,12 @@ class CheckRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: AdeuIR
     mode: KernelMode = KernelMode.LAX
+
+
+class PuzzleSolveRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    puzzle: KnightsKnavesPuzzle
+    backend: Literal["z3", "mock"] = "z3"
 
 
 class ApplyAmbiguityOptionRequest(BaseModel):
@@ -412,6 +420,15 @@ def check_variant(req: CheckRequest) -> CheckReport:
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs:
         _persist_validator_runs(runs=runs, artifact_id=None)
     return report
+
+
+@app.post("/puzzles/solve", response_model=PuzzleSolveResult)
+def solve_puzzle_endpoint(req: PuzzleSolveRequest) -> PuzzleSolveResult:
+    try:
+        backend = build_validator_backend(req.backend)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return solve_knights_knaves(req.puzzle, validator_backend=backend)
 
 
 @app.post("/apply_ambiguity_option", response_model=ApplyAmbiguityOptionResponse)
