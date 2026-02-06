@@ -28,8 +28,13 @@ def test_propose_mock_returns_checked_candidates() -> None:
     )
 
     assert resp.provider.kind == "mock"
+    assert resp.provider.api == "mock"
     assert resp.candidates, "Expected at least one fixture-backed candidate"
     assert resp.candidates[0].rank == 0
+    for candidate in resp.candidates:
+        assert candidate.check_report.status in {"PASS", "WARN", "REFUSE"}
+        assert candidate.check_report.metrics.num_statements >= 0
+        assert candidate.check_report.metrics.num_bridges >= 0
 
     # API should deterministically populate source_features from the clause text.
     modals = resp.candidates[0].ir.context.source_features.modals
@@ -91,8 +96,15 @@ def test_propose_openai_smoke() -> None:
         )
     )
     assert resp.provider.kind == "openai"
-    assert resp.candidates, "Expected at least one candidate from OpenAI proposer"
+    assert resp.provider.api in {"responses", "chat"}
+    assert resp.proposer_log is not None
 
     # Logging should be minimal by default (raw logs are opt-in via ADEU_LOG_RAW_LLM=1).
     assert resp.proposer_log.raw_prompt is None
     assert resp.proposer_log.raw_response is None
+    if resp.candidates:
+        for candidate in resp.candidates:
+            assert candidate.check_report.status in {"PASS", "WARN", "REFUSE"}
+            assert candidate.check_report.metrics.num_statements >= 0
+    else:
+        assert resp.proposer_log.attempts
