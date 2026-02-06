@@ -17,16 +17,8 @@ class _FixedBackend:
 
 class _ModelSelectingBackend:
     def run(self, request: ValidatorRequest) -> ValidatorResult:
-        symbol_map = request.payload.metadata.get("assertion_symbols", {})
-        symbols = sorted(str(sym) for sym in symbol_map.values())
-        model: dict[str, str] = {}
-        for sym in symbols:
-            model[sym] = "False"
-        if symbols:
-            model[symbols[-1]] = "True"
-
         return ValidatorResult(
-            status="SAT",
+            status="UNSAT",
             assurance="solver_backed",
             backend="mock",
             backend_version="0",
@@ -34,7 +26,9 @@ class _ModelSelectingBackend:
             options={},
             request_hash="r",
             formula_hash="f",
-            evidence=SolverEvidence(model=model),
+            evidence=SolverEvidence(
+                unsat_core=[a.assertion_name for a in request.payload.atom_map]
+            ),
             trace=[],
         )
 
@@ -161,8 +155,8 @@ def test_check_with_validator_runs_emits_unsat_fallback_run_for_non_conflict() -
     )
     assert report.status == "PASS"
     assert len(runs) == 1
-    assert runs[0].result.status == "UNSAT"
-    assert runs[0].request.payload.atom_map
+    assert runs[0].result.status == "SAT"
+    assert runs[0].request.payload.atom_map == []
 
 
 def test_validator_unknown_maps_to_refuse_in_strict() -> None:
@@ -229,5 +223,7 @@ def test_sat_conflicts_use_model_true_symbols_not_trace() -> None:
         validator_backend=_ModelSelectingBackend(),
     )
     conflicts = [r for r in report.reason_codes if r.code == "CONFLICT_OBLIGATION_VS_PROHIBITION"]
-    assert len(conflicts) == 1
-    assert "dn_proh_b" in conflicts[0].message
+    assert len(conflicts) == 2
+    messages = "\n".join(r.message for r in conflicts)
+    assert "dn_proh_a" in messages
+    assert "dn_proh_b" in messages

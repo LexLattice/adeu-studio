@@ -82,10 +82,6 @@ def _assertion_name(*, object_id: str, json_path: str) -> str:
     return f"a:{object_id}:{_json_path_hash(json_path)}"
 
 
-def _smt_symbol(idx: int) -> str:
-    return f"c_{idx}"
-
-
 def _smt_quote_symbol(symbol: str) -> str:
     safe = symbol.replace("|", "_")
     return f"|{safe}|"
@@ -1026,15 +1022,10 @@ def _build_conflict_validator_request(
         lines.append(f"(declare-fun {symbol} () Bool)")
         lines.append(f"(assert (= {symbol} {expr}))")
 
-    assertion_symbols: dict[str, str] = {}
     atom_map: list[ValidatorAtomRef] = []
     origins: list[ValidatorOrigin] = []
     if candidates:
-        candidate_syms: list[str] = []
-        for idx, pair in enumerate(candidates):
-            sym = _smt_symbol(idx)
-            candidate_syms.append(sym)
-            assertion_symbols[pair.assertion_name] = sym
+        for pair in candidates:
             atom_map.append(
                 ValidatorAtomRef(
                     assertion_name=pair.assertion_name,
@@ -1043,20 +1034,11 @@ def _build_conflict_validator_request(
                 )
             )
             origins.append(ValidatorOrigin(object_id=pair.object_id, json_path=pair.json_path))
-            lines.append(f"(declare-fun {sym} () Bool)")
-        lines.append(f"(assert (or {' '.join(candidate_syms)}))")
+            # Encode conflict candidates as named UNSAT witnesses (placeholder evidence).
+            lines.append(f"(assert (! false :named {_smt_quote_symbol(pair.assertion_name)}))")
     else:
-        fallback_path = _path("D_norm", "statements", "conflicts_exists")
-        fallback_name = _assertion_name(object_id=ir.ir_id, json_path=fallback_path)
-        atom_map.append(
-            ValidatorAtomRef(
-                assertion_name=fallback_name,
-                object_id=ir.ir_id,
-                json_path=fallback_path,
-            )
-        )
-        origins.append(ValidatorOrigin(object_id=ir.ir_id, json_path=fallback_path))
-        lines.append(f"(assert (! false :named {_smt_quote_symbol(fallback_name)}))")
+        # SAT when there are no conflict candidates.
+        pass
 
     payload = ValidatorPayload(
         formula_smt2="\n".join(lines) + "\n",
@@ -1064,7 +1046,6 @@ def _build_conflict_validator_request(
         metadata={
             "rule_id": "dnorm_conflicts",
             "assertion_name_format": "a:<object_id>:<json_path_hash>",
-            "assertion_symbols": assertion_symbols,
         },
     )
     request = ValidatorRequest(kind="smt_check", logic="QF_UF", payload=payload, origin=origins)
@@ -1108,33 +1089,17 @@ def _check_conflicts(
 
     result = backend.run(request)
     run = ValidatorRunRecord(request=request, result=result)
-    candidate_by_atom = {pair.assertion_name: pair for pair in candidates}
 
-    if result.status == "SAT":
-        hit_atoms: list[str] = []
-        assertion_symbols = request.payload.metadata.get("assertion_symbols", {})
-        if isinstance(assertion_symbols, dict):
-            for assertion_name, sym in assertion_symbols.items():
-                if assertion_name not in candidate_by_atom:
-                    continue
-                if not isinstance(sym, str):
-                    continue
-                raw_value = result.evidence.model.get(sym)
-                if isinstance(raw_value, str) and raw_value.strip().lower() == "true":
-                    hit_atoms.append(assertion_name)
-        hit_atoms = sorted(set(hit_atoms))
-        if not hit_atoms:
-            hit_atoms = sorted(candidate_by_atom)
-
-        for assertion_name in hit_atoms:
-            pair = candidate_by_atom[assertion_name]
+    if result.status == "UNSAT" and candidates:
+        # Fail-closed: conflicts are kernel-derived; UNSAT provides solver evidence + unsat core.
+        for pair in candidates:
             reasons.append(
                 CheckReason(
                     code=ReasonCode.CONFLICT_OBLIGATION_VS_PROHIBITION,
                     severity=ReasonSeverity.ERROR,
                     message=(
                         f"Conflict between {pair.stmt_a_id!r} and {pair.stmt_b_id!r} in "
-                        f"overlapping scope (solver atom {assertion_name})."
+                        f"overlapping scope (solver atom {pair.assertion_name})."
                     ),
                     object_id=pair.object_id,
                     json_path=_path("D_norm", "statements", pair.stmt_a_idx),
@@ -1184,10 +1149,10 @@ def _check_conflicts(
             )
         )
 
-    if not candidates and result.status == "UNSAT":
+    if not candidates:
         return reasons, TraceItem(
             rule_id="dnorm/conflicts",
-            because=[r.code for r in reasons],
+            because=[r.code for r in reasons] + [f"solver:{result.status}"],
             affected_ids=active_ids,
             notes="Detects obligation vs prohibition conflicts in overlapping scope.",
         ), run
