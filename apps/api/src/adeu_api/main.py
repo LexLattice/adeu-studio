@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
 from typing import Literal
 
 from adeu_ir import AdeuIR, CheckReport, Context, ReasonSeverity, TraceItem
-from adeu_kernel import KernelMode, PatchValidationError, apply_ambiguity_option, check
+from adeu_kernel import (
+    KernelMode,
+    PatchValidationError,
+    ValidatorRunRecord,
+    apply_ambiguity_option,
+    check,
+    check_with_validator_runs,
+)
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -12,7 +20,7 @@ from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
 from .scoring import ranking_sort_key, score_key
 from .source_features import extract_source_features
-from .storage import create_artifact, get_artifact, list_artifacts
+from .storage import create_artifact, create_validator_run, get_artifact, list_artifacts
 
 
 class ProposeRequest(BaseModel):
@@ -132,6 +140,37 @@ class ArtifactListResponse(BaseModel):
 
 
 app = FastAPI(title="ADEU Studio API")
+
+
+def _env_flag(name: str) -> bool:
+    return os.environ.get(name, "").strip() == "1"
+
+
+def _persist_validator_runs(
+    *,
+    runs: list[ValidatorRunRecord],
+    artifact_id: str | None,
+) -> None:
+    for run in runs:
+        atom_map = {
+            atom.assertion_name: {
+                "object_id": atom.object_id,
+                "json_path": atom.json_path,
+            }
+            for atom in run.request.payload.atom_map
+        }
+        create_validator_run(
+            artifact_id=artifact_id,
+            backend=run.result.backend,
+            backend_version=run.result.backend_version,
+            timeout_ms=run.result.timeout_ms,
+            options_json=run.result.options,
+            request_hash=run.result.request_hash,
+            formula_hash=run.result.formula_hash,
+            status=run.result.status,
+            evidence_json=run.result.evidence.model_dump(mode="json", exclude_none=True),
+            atom_map_json=atom_map,
+        )
 
 
 def _score_and_rank_proposals(
@@ -257,7 +296,10 @@ def propose(req: ProposeRequest) -> ProposeResponse:
 
 @app.post("/check", response_model=CheckReport)
 def check_variant(req: CheckRequest) -> CheckReport:
-    return check(req.ir, mode=req.mode)
+    report, runs = check_with_validator_runs(req.ir, mode=req.mode)
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs:
+        _persist_validator_runs(runs=runs, artifact_id=None)
+    return report
 
 
 @app.post("/apply_ambiguity_option", response_model=ApplyAmbiguityOptionResponse)
@@ -295,7 +337,7 @@ def apply_ambiguity_option_endpoint(
 
 @app.post("/artifacts", response_model=ArtifactCreateResponse)
 def create_artifact_endpoint(req: ArtifactCreateRequest) -> ArtifactCreateResponse:
-    report = check(req.ir, mode=req.mode)
+    report, runs = check_with_validator_runs(req.ir, mode=req.mode)
     if report.status == "REFUSE":
         raise HTTPException(status_code=400, detail="refused by kernel")
 
@@ -312,6 +354,8 @@ def create_artifact_endpoint(req: ArtifactCreateRequest) -> ArtifactCreateRespon
         ir_json=req.ir.model_dump(mode="json", exclude_none=True),
         check_report_json=report.model_dump(mode="json", exclude_none=True),
     )
+    if runs:
+        _persist_validator_runs(runs=runs, artifact_id=row.artifact_id)
     return ArtifactCreateResponse(
         artifact_id=row.artifact_id,
         created_at=row.created_at,

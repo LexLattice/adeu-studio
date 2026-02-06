@@ -953,9 +953,6 @@ def _build_conflict_validator_request(
                 )
             )
 
-    if not candidates:
-        return None, [], reasons, [n.statement.id for n in active]
-
     doc_refs = _collect_doc_refs(ir)
     def_ids = {d.id for d in ir.O.definitions}
     atom_values: dict[str, bool] = {}
@@ -1016,19 +1013,32 @@ def _build_conflict_validator_request(
     assertion_symbols: dict[str, str] = {}
     atom_map: list[ValidatorAtomRef] = []
     origins: list[ValidatorOrigin] = []
-    for idx, pair in enumerate(candidates):
-        sym = _smt_symbol(idx)
-        assertion_symbols[pair.assertion_name] = sym
+    if candidates:
+        for idx, pair in enumerate(candidates):
+            sym = _smt_symbol(idx)
+            assertion_symbols[pair.assertion_name] = sym
+            atom_map.append(
+                ValidatorAtomRef(
+                    assertion_name=pair.assertion_name,
+                    object_id=pair.object_id,
+                    json_path=pair.json_path,
+                )
+            )
+            origins.append(ValidatorOrigin(object_id=pair.object_id, json_path=pair.json_path))
+            lines.append(f"(declare-fun {sym} () Bool)")
+            lines.append(f"(assert (! {sym} :named {_smt_quote_symbol(pair.assertion_name)}))")
+    else:
+        fallback_path = _path("D_norm", "statements", "conflicts_exists")
+        fallback_name = _assertion_name(object_id=ir.ir_id, json_path=fallback_path)
         atom_map.append(
             ValidatorAtomRef(
-                assertion_name=pair.assertion_name,
-                object_id=pair.object_id,
-                json_path=pair.json_path,
+                assertion_name=fallback_name,
+                object_id=ir.ir_id,
+                json_path=fallback_path,
             )
         )
-        origins.append(ValidatorOrigin(object_id=pair.object_id, json_path=pair.json_path))
-        lines.append(f"(declare-fun {sym} () Bool)")
-        lines.append(f"(assert (! {sym} :named {_smt_quote_symbol(pair.assertion_name)}))")
+        origins.append(ValidatorOrigin(object_id=ir.ir_id, json_path=fallback_path))
+        lines.append(f"(assert (! false :named {_smt_quote_symbol(fallback_name)}))")
 
     payload = ValidatorPayload(
         formula_smt2="\n".join(lines) + "\n",
@@ -1055,13 +1065,6 @@ def _check_conflicts(
         effective_norms,
         mode=mode,
     )
-    if request is None:
-        return reasons, TraceItem(
-            rule_id="dnorm/conflicts",
-            because=[r.code for r in reasons],
-            affected_ids=active_ids,
-            notes="Detects obligation vs prohibition conflicts in overlapping scope.",
-        ), None
 
     backend = validator_backend
     if backend is None:
@@ -1158,13 +1161,20 @@ def _check_conflicts(
             )
         )
 
+    if not candidates and result.status == "UNSAT":
+        return reasons, TraceItem(
+            rule_id="dnorm/conflicts",
+            because=[r.code for r in reasons],
+            affected_ids=active_ids,
+            notes="Detects obligation vs prohibition conflicts in overlapping scope.",
+        ), run
+
     summary_bits = [f"solver={result.backend}:{result.status}"]
     if result.evidence.unsat_core:
         summary_bits.append(f"unsat_core={','.join(result.evidence.unsat_core)}")
     summary_bits.append(f"formula_hash={result.formula_hash[:12]}")
-    notes = (
-        "Detects obligation vs prohibition conflicts in overlapping scope; "
-        + "; ".join(summary_bits)
+    notes = "Detects obligation vs prohibition conflicts in overlapping scope; " + "; ".join(
+        summary_bits
     )
 
     return reasons, TraceItem(
