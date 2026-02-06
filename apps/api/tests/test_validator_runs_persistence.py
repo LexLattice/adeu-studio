@@ -6,9 +6,11 @@ from pathlib import Path
 
 from adeu_api.main import (
     ArtifactCreateRequest,
+    ArtifactValidatorRunsResponse,
     CheckRequest,
     check_variant,
     create_artifact_endpoint,
+    list_artifact_validator_runs_endpoint,
 )
 from adeu_ir import AdeuIR
 from adeu_kernel import KernelMode
@@ -99,3 +101,29 @@ def test_create_artifact_persists_validator_runs_with_artifact_id(
     assert rows[0]["artifact_id"] == resp.artifact_id
     assert rows[0]["backend"] == "z3"
     assert rows[0]["status"] == "UNSAT"
+
+
+def test_list_artifact_validator_runs_endpoint_returns_rows(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.delenv("ADEU_PERSIST_VALIDATOR_RUNS", raising=False)
+
+    created = create_artifact_endpoint(
+        ArtifactCreateRequest(
+            clause_text="Supplier shall deliver goods.",
+            ir=_sample_ir(),
+            mode=KernelMode.LAX,
+        )
+    )
+
+    resp: ArtifactValidatorRunsResponse = list_artifact_validator_runs_endpoint(created.artifact_id)
+    assert len(resp.items) == 1
+    run = resp.items[0]
+    assert run.artifact_id == created.artifact_id
+    assert run.backend == "z3"
+    assert run.status == "UNSAT"
+    assert isinstance(run.evidence_json.get("unsat_core"), list)
+    assert isinstance(run.atom_map_json, dict)

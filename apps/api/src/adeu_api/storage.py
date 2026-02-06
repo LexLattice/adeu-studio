@@ -498,6 +498,47 @@ def create_proof_artifact(
     )
 
 
+def list_validator_runs(
+    *,
+    artifact_id: str,
+    db_path: Path | None = None,
+) -> list[ValidatorRunRow]:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        rows = con.execute(
+            """
+            SELECT run_id, artifact_id, created_at, backend, backend_version, timeout_ms,
+                   options_json, request_hash, formula_hash, status, evidence_json, atom_map_json
+            FROM validator_runs
+            WHERE artifact_id = ?
+            ORDER BY created_at ASC
+            """,
+            (artifact_id,),
+        ).fetchall()
+
+    return [
+        ValidatorRunRow(
+            run_id=row["run_id"],
+            artifact_id=row["artifact_id"],
+            created_at=row["created_at"],
+            backend=row["backend"],
+            backend_version=row["backend_version"],
+            timeout_ms=row["timeout_ms"],
+            options_json=json.loads(row["options_json"]),
+            request_hash=row["request_hash"],
+            formula_hash=row["formula_hash"],
+            status=row["status"],
+            evidence_json=json.loads(row["evidence_json"]),
+            atom_map_json=json.loads(row["atom_map_json"]),
+        )
+        for row in rows
+    ]
+
+
 def list_proof_artifacts(
     *,
     artifact_id: str,
