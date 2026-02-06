@@ -216,7 +216,7 @@ def test_assertion_name_uses_object_and_json_path_hash() -> None:
     assert atom.assertion_name == expected_name
 
 
-def test_sat_conflicts_use_model_true_symbols_not_trace() -> None:
+def test_unsat_conflicts_report_all_kernel_candidates() -> None:
     report = check(
         _multi_conflict_ir(),
         mode=KernelMode.LAX,

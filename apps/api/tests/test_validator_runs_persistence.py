@@ -76,8 +76,8 @@ def test_check_endpoint_persists_validator_runs_when_flag_enabled(
 
     evidence = json.loads(rows[0]["evidence_json"])
     atom_map = json.loads(rows[0]["atom_map_json"])
-    assert "unsat_core" in evidence
-    assert isinstance(atom_map, dict)
+    assert evidence.get("unsat_core") == []
+    assert atom_map == {}
 
 
 def test_create_artifact_persists_validator_runs_with_artifact_id(
@@ -125,5 +125,5 @@ def test_list_artifact_validator_runs_endpoint_returns_rows(
     assert run.artifact_id == created.artifact_id
     assert run.backend == "z3"
     assert run.status == "SAT"
-    assert isinstance(run.evidence_json.get("unsat_core"), list)
-    assert isinstance(run.atom_map_json, dict)
+    assert run.evidence_json.get("unsat_core") == []
+    assert run.atom_map_json == {}
