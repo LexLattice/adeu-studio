@@ -1,0 +1,344 @@
+{
+  "$defs": {
+    "ExprAnd": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "and": "#/$defs/ExprAnd",
+                "is_role": "#/$defs/ExprIsRole",
+                "not": "#/$defs/ExprNot",
+                "or": "#/$defs/ExprOr"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ExprIsRole"
+              },
+              {
+                "$ref": "#/$defs/ExprNot"
+              },
+              {
+                "$ref": "#/$defs/ExprAnd"
+              },
+              {
+                "$ref": "#/$defs/ExprOr"
+              }
+            ]
+          },
+          "minItems": 2,
+          "title": "Args",
+          "type": "array"
+        },
+        "op": {
+          "const": "and",
+          "default": "and",
+          "title": "Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "args"
+      ],
+      "title": "ExprAnd",
+      "type": "object"
+    },
+    "ExprIsRole": {
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "const": "is_role",
+          "default": "is_role",
+          "title": "Op",
+          "type": "string"
+        },
+        "person_id": {
+          "title": "Person Id",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "knight",
+            "knave"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "person_id",
+        "role"
+      ],
+      "title": "ExprIsRole",
+      "type": "object"
+    },
+    "ExprNot": {
+      "additionalProperties": false,
+      "properties": {
+        "arg": {
+          "discriminator": {
+            "mapping": {
+              "and": "#/$defs/ExprAnd",
+              "is_role": "#/$defs/ExprIsRole",
+              "not": "#/$defs/ExprNot",
+              "or": "#/$defs/ExprOr"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ExprIsRole"
+            },
+            {
+              "$ref": "#/$defs/ExprNot"
+            },
+            {
+              "$ref": "#/$defs/ExprAnd"
+            },
+            {
+              "$ref": "#/$defs/ExprOr"
+            }
+          ],
+          "title": "Arg"
+        },
+        "op": {
+          "const": "not",
+          "default": "not",
+          "title": "Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "arg"
+      ],
+      "title": "ExprNot",
+      "type": "object"
+    },
+    "ExprOr": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "and": "#/$defs/ExprAnd",
+                "is_role": "#/$defs/ExprIsRole",
+                "not": "#/$defs/ExprNot",
+                "or": "#/$defs/ExprOr"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/ExprIsRole"
+              },
+              {
+                "$ref": "#/$defs/ExprNot"
+              },
+              {
+                "$ref": "#/$defs/ExprAnd"
+              },
+              {
+                "$ref": "#/$defs/ExprOr"
+              }
+            ]
+          },
+          "minItems": 2,
+          "title": "Args",
+          "type": "array"
+        },
+        "op": {
+          "const": "or",
+          "default": "or",
+          "title": "Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "args"
+      ],
+      "title": "ExprOr",
+      "type": "object"
+    },
+    "PuzzleAssumption": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "discriminator": {
+            "mapping": {
+              "and": "#/$defs/ExprAnd",
+              "is_role": "#/$defs/ExprIsRole",
+              "not": "#/$defs/ExprNot",
+              "or": "#/$defs/ExprOr"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ExprIsRole"
+            },
+            {
+              "$ref": "#/$defs/ExprNot"
+            },
+            {
+              "$ref": "#/$defs/ExprAnd"
+            },
+            {
+              "$ref": "#/$defs/ExprOr"
+            }
+          ],
+          "title": "Claim"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        }
+      },
+      "required": [
+        "id",
+        "claim"
+      ],
+      "title": "PuzzleAssumption",
+      "type": "object"
+    },
+    "PuzzlePerson": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "PuzzlePerson",
+      "type": "object"
+    },
+    "PuzzleStatement": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "discriminator": {
+            "mapping": {
+              "and": "#/$defs/ExprAnd",
+              "is_role": "#/$defs/ExprIsRole",
+              "not": "#/$defs/ExprNot",
+              "or": "#/$defs/ExprOr"
+            },
+            "propertyName": "op"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ExprIsRole"
+            },
+            {
+              "$ref": "#/$defs/ExprNot"
+            },
+            {
+              "$ref": "#/$defs/ExprAnd"
+            },
+            {
+              "$ref": "#/$defs/ExprOr"
+            }
+          ],
+          "title": "Claim"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "speaker_id": {
+          "title": "Speaker Id",
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        }
+      },
+      "required": [
+        "id",
+        "speaker_id",
+        "claim"
+      ],
+      "title": "PuzzleStatement",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assumptions": {
+      "items": {
+        "$ref": "#/$defs/PuzzleAssumption"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "family": {
+      "const": "knights_knaves",
+      "default": "knights_knaves",
+      "title": "Family",
+      "type": "string"
+    },
+    "people": {
+      "items": {
+        "$ref": "#/$defs/PuzzlePerson"
+      },
+      "minItems": 1,
+      "title": "People",
+      "type": "array"
+    },
+    "puzzle_id": {
+      "title": "Puzzle Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "adeu.puzzle.v0",
+      "default": "adeu.puzzle.v0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "statements": {
+      "items": {
+        "$ref": "#/$defs/PuzzleStatement"
+      },
+      "title": "Statements",
+      "type": "array"
+    }
+  },
+  "required": [
+    "puzzle_id",
+    "people"
+  ],
+  "title": "KnightsKnavesPuzzle",
+  "type": "object"
+}

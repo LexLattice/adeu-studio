@@ -1,0 +1,48 @@
+{
+  "schema_version": "adeu.puzzle.v0",
+  "puzzle_id": "example_sat_two_person",
+  "family": "knights_knaves",
+  "people": [
+    {
+      "id": "a",
+      "name": "A"
+    },
+    {
+      "id": "b",
+      "name": "B"
+    }
+  ],
+  "statements": [
+    {
+      "id": "stmt_a",
+      "speaker_id": "a",
+      "text": "B is a knave.",
+      "claim": {
+        "op": "is_role",
+        "person_id": "b",
+        "role": "knave"
+      }
+    },
+    {
+      "id": "stmt_b",
+      "speaker_id": "b",
+      "text": "A is a knave.",
+      "claim": {
+        "op": "is_role",
+        "person_id": "a",
+        "role": "knave"
+      }
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "asm_1",
+      "text": "A is a knight.",
+      "claim": {
+        "op": "is_role",
+        "person_id": "a",
+        "role": "knight"
+      }
+    }
+  ]
+}

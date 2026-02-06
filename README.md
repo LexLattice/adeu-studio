@@ -6,6 +6,7 @@ This repo is a monorepo:
 
 - `packages/adeu_ir`: Pydantic ADEU IR + JSON Schema export (single source of truth)
 - `packages/adeu_kernel`: Deterministic checker/kernel + golden fixture harness
+- `packages/adeu_puzzles`: Typed puzzle IR + solver translation (v3.2: Knights/Knaves)
 - `apps/api`: FastAPI service (scaffolded after kernel is green)
 - `apps/web`: Next.js UI (scaffolded after kernel is green)
 
