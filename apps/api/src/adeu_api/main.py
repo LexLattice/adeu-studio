@@ -27,6 +27,7 @@ class ProposeRequest(BaseModel):
 class ProviderInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
     kind: Literal["mock", "openai"]
+    api: str | None = None
     model: str | None = None
 
 
@@ -35,15 +36,22 @@ class ProposerAttempt(BaseModel):
     attempt_idx: int
     status: Literal["PASS", "WARN", "REFUSE", "PARSE_ERROR"]
     reason_codes_summary: list[str] = Field(default_factory=list)
+    score_key: tuple[int, int, int, int] | None = None
+    accepted_by_gate: bool | None = None
     candidate_rank: int | None = None
 
 
 class ProposerLog(BaseModel):
     model_config = ConfigDict(extra="forbid")
     provider: str
+    api: str | None = None
     model: str | None = None
     created_at: str
+    k: int | None = None
+    n: int | None = None
     attempts: list[ProposerAttempt] = Field(default_factory=list)
+    prompt_hash: str | None = None
+    response_hash: str | None = None
     raw_prompt: str | None = None
     raw_response: str | None = None
 
@@ -125,6 +133,7 @@ class ArtifactListResponse(BaseModel):
 app = FastAPI(title="ADEU Studio API")
 
 _STATUS_SCORE = {"PASS": 0, "WARN": 1, "REFUSE": 2}
+_STATUS_RANK = {"PASS": 2, "WARN": 1, "REFUSE": 0}
 
 
 def _score_report(report: CheckReport) -> tuple[int, int, int, int]:
@@ -132,6 +141,13 @@ def _score_report(report: CheckReport) -> tuple[int, int, int, int]:
     num_errors = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.ERROR)
     num_warns = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.WARN)
     return (status_score, num_errors, num_warns, len(report.reason_codes))
+
+
+def _attempt_score_key(report: CheckReport) -> tuple[int, int, int, int]:
+    status_rank = _STATUS_RANK.get(report.status, -1)
+    num_errors = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.ERROR)
+    num_warns = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.WARN)
+    return (status_rank, -num_errors, -num_warns, -len(report.reason_codes))
 
 
 def _score_and_rank_proposals(
@@ -184,21 +200,28 @@ def propose(req: ProposeRequest) -> ProposeResponse:
         candidates = _score_and_rank_proposals(proposed)
         rank_by_ir_id = {candidate.ir.ir_id: candidate.rank for candidate in candidates}
         return ProposeResponse(
-            provider=ProviderInfo(kind="openai", model=model),
+            provider=ProviderInfo(kind="openai", api=openai_log.api, model=model),
             candidates=candidates,
             proposer_log=ProposerLog(
                 provider=openai_log.provider,
+                api=openai_log.api,
                 model=openai_log.model,
                 created_at=openai_log.created_at,
+                k=openai_log.k,
+                n=openai_log.n,
                 attempts=[
                     ProposerAttempt(
                         attempt_idx=a.attempt_idx,
                         status=a.status,
                         reason_codes_summary=a.reason_codes_summary,
+                        score_key=a.score_key,
+                        accepted_by_gate=a.accepted_by_gate,
                         candidate_rank=rank_by_ir_id.get(a.candidate_ir_id),
                     )
                     for a in openai_log.attempts
                 ],
+                prompt_hash=openai_log.prompt_hash,
+                response_hash=openai_log.response_hash,
                 raw_prompt=openai_log.raw_prompt,
                 raw_response=openai_log.raw_response,
             ),
@@ -206,11 +229,14 @@ def propose(req: ProposeRequest) -> ProposeResponse:
 
     if bundle is None:
         return ProposeResponse(
-            provider=ProviderInfo(kind="mock"),
+            provider=ProviderInfo(kind="mock", api="mock"),
             candidates=[],
             proposer_log=ProposerLog(
                 provider="mock",
+                api="mock",
                 created_at=datetime.now(tz=timezone.utc).isoformat(),
+                k=0,
+                n=0,
             ),
         )
 
@@ -222,16 +248,21 @@ def propose(req: ProposeRequest) -> ProposeResponse:
 
     candidates = _score_and_rank_proposals(scored)
     return ProposeResponse(
-        provider=ProviderInfo(kind="mock"),
+        provider=ProviderInfo(kind="mock", api="mock"),
         candidates=candidates,
         proposer_log=ProposerLog(
             provider="mock",
+            api="mock",
             created_at=datetime.now(tz=timezone.utc).isoformat(),
+            k=len(candidates),
+            n=0,
             attempts=[
                 ProposerAttempt(
                     attempt_idx=idx,
                     status=c.check_report.status,
                     reason_codes_summary=sorted({r.code for r in c.check_report.reason_codes}),
+                    score_key=_attempt_score_key(c.check_report),
+                    accepted_by_gate=True,
                     candidate_rank=c.rank,
                 )
                 for idx, c in enumerate(candidates)

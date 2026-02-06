@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
+from typing import Any
 
 import adeu_api.openai_provider as openai_provider
 from adeu_api.main import ProposeRequest, propose
+from adeu_api.openai_backends import BackendMeta, BackendResult
 from adeu_ir import CheckMetrics, CheckReason, CheckReport, Context, ReasonSeverity
 from adeu_ir.reason_codes import ReasonCode
 from adeu_kernel import KernelMode
@@ -72,8 +73,8 @@ def _report_pass() -> CheckReport:
     )
 
 
-def _minimal_payload(*, ir_id: str, verb: str) -> str:
-    payload = {
+def _minimal_payload(*, ir_id: str, verb: str) -> dict[str, Any]:
+    return {
         "schema_version": "adeu.ir.v0",
         "ir_id": ir_id,
         "context": {
@@ -100,31 +101,59 @@ def _minimal_payload(*, ir_id: str, verb: str) -> str:
             ]
         },
     }
-    return json.dumps(payload)
+
+
+class _FakeBackend:
+    def __init__(self, results: list[BackendResult]):
+        self._results = list(results)
+        self.calls = 0
+
+    def generate_ir_json(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+        json_schema: dict[str, Any],
+        model: str,
+        temperature: float | None,
+        extra: dict[str, Any] | None = None,
+    ) -> BackendResult:
+        self.calls += 1
+        return self._results.pop(0)
+
+
+def _ok_result(payload: dict[str, Any]) -> BackendResult:
+    return BackendResult(
+        provider_meta=BackendMeta(api="responses", model="gpt-5.2", response_mode="json_schema"),
+        parsed_json=payload,
+        raw_prompt="{}",
+        raw_text="{}",
+        error=None,
+        prompt_hash="p",
+        response_hash="r",
+    )
 
 
 def test_propose_openai_stops_when_repair_progress_stalls(monkeypatch) -> None:
-    calls = 0
-    responses = [
-        _minimal_payload(ir_id="ir_attempt_1", verb="suspend"),
-        _minimal_payload(ir_id="ir_attempt_2", verb="terminate"),
-        _minimal_payload(ir_id="ir_attempt_3", verb="notify"),
-    ]
+    fake_backend = _FakeBackend(
+        [
+            _ok_result(_minimal_payload(ir_id="ir_attempt_1", verb="suspend")),
+            _ok_result(_minimal_payload(ir_id="ir_attempt_2", verb="terminate")),
+            _ok_result(_minimal_payload(ir_id="ir_attempt_3", verb="notify")),
+        ]
+    )
     checks = [
         _report_refuse(ReasonCode.NORM_ACTION_MISSING),
         _report_refuse(ReasonCode.NORM_SCOPE_MISSING),
         _report_pass(),
     ]
 
-    def fake_chat_completion_json(*, model: str, messages: list[dict[str, str]]) -> tuple[str, str]:
-        nonlocal calls
-        calls += 1
-        return "{}", responses.pop(0)
-
     def fake_check(*args: object, **kwargs: object) -> CheckReport:
         return checks.pop(0)
 
-    monkeypatch.setattr(openai_provider, "_chat_completion_json", fake_chat_completion_json)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ADEU_OPENAI_API", "responses")
+    monkeypatch.setattr(openai_provider, "build_openai_backend", lambda **kwargs: fake_backend)
     monkeypatch.setattr(openai_provider, "check", fake_check)
 
     proposals, log, _ = openai_provider.propose_openai(
@@ -135,25 +164,28 @@ def test_propose_openai_stops_when_repair_progress_stalls(monkeypatch) -> None:
         max_repairs=5,
     )
 
-    assert calls == 2
+    assert fake_backend.calls == 2
     assert len(log.attempts) == 2
     assert len(proposals) == 1, "expected exactly one candidate"
+    assert log.attempts[0].accepted_by_gate is True
+    assert log.attempts[1].accepted_by_gate is False
 
 
 def test_propose_openai_assigns_candidate_rank_in_attempt_log(monkeypatch) -> None:
-    responses = [
-        _minimal_payload(ir_id="ir_c0", verb="notify"),
-        _minimal_payload(ir_id="ir_c1", verb="cure"),
-    ]
+    fake_backend = _FakeBackend(
+        [
+            _ok_result(_minimal_payload(ir_id="ir_c0", verb="notify")),
+            _ok_result(_minimal_payload(ir_id="ir_c1", verb="cure")),
+        ]
+    )
     checks = [_report_warn(), _report_pass()]
-
-    def fake_chat_completion_json(*, model: str, messages: list[dict[str, str]]) -> tuple[str, str]:
-        return "{}", responses.pop(0)
 
     def fake_check(*args: object, **kwargs: object) -> CheckReport:
         return checks.pop(0)
 
-    monkeypatch.setattr(openai_provider, "_chat_completion_json", fake_chat_completion_json)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ADEU_OPENAI_API", "responses")
+    monkeypatch.setattr(openai_provider, "build_openai_backend", lambda **kwargs: fake_backend)
     monkeypatch.setattr(openai_provider, "check", fake_check)
 
     resp = propose(
@@ -167,6 +199,53 @@ def test_propose_openai_assigns_candidate_rank_in_attempt_log(monkeypatch) -> No
         )
     )
 
+    assert resp.provider.kind == "openai"
+    assert resp.provider.api == "responses"
     assert [candidate.check_report.status for candidate in resp.candidates] == ["PASS", "WARN"]
     assert [candidate.rank for candidate in resp.candidates] == [0, 1]
     assert [attempt.candidate_rank for attempt in resp.proposer_log.attempts] == [1, 0]
+    assert all(attempt.score_key is not None for attempt in resp.proposer_log.attempts)
+
+
+def test_propose_openai_responses_backend_error_aborts_without_chat_fallback(
+    monkeypatch,
+) -> None:
+    fake_backend = _FakeBackend(
+        [
+            BackendResult(
+                provider_meta=BackendMeta(
+                    api="responses",
+                    model="gpt-5.2",
+                    response_mode="json_schema",
+                ),
+                parsed_json=None,
+                raw_prompt="{}",
+                raw_text=None,
+                error="OpenAI responses error: HTTP 500: upstream failure",
+                prompt_hash="p",
+                response_hash=None,
+            )
+        ]
+    )
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ADEU_OPENAI_API", "responses")
+    monkeypatch.setattr(openai_provider, "build_openai_backend", lambda **kwargs: fake_backend)
+
+    resp = propose(
+        ProposeRequest(
+            clause_text="Supplier shall deliver goods.",
+            provider="openai",
+            mode=KernelMode.LAX,
+            context=_context(),
+            max_candidates=2,
+            max_repairs=2,
+        )
+    )
+
+    assert fake_backend.calls == 1
+    assert resp.provider.api == "responses"
+    assert resp.candidates == []
+    assert resp.proposer_log.attempts
+    assert resp.proposer_log.attempts[0].status == "PARSE_ERROR"
+    assert resp.proposer_log.attempts[0].accepted_by_gate is False
