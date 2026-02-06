@@ -37,11 +37,12 @@ def _build_id_map(
     *,
     prefix: str,
     key_parts_fn: Callable[[dict[str, Any], int], list[str]],
+    id_key: str = "id",
 ) -> dict[str, str]:
     mapping: dict[str, str] = {}
     used: set[str] = set()
     for idx, item in enumerate(items):
-        old_id = str(item.get("id") or "")
+        old_id = str(item.get(id_key) or "")
         parts = key_parts_fn(item, idx)
         new_id = _canonical_id(parts, prefix=prefix)
         suffix = 0
@@ -49,8 +50,9 @@ def _build_id_map(
             suffix += 1
             new_id = _canonical_id(parts + [f"dup:{suffix}"], prefix=prefix)
         used.add(new_id)
-        mapping[old_id] = new_id
-        item["id"] = new_id
+        if old_id:
+            mapping[old_id] = new_id
+        item[id_key] = new_id
     return mapping
 
 
@@ -250,35 +252,17 @@ def canonicalize_ir_ids(ir: AdeuIR) -> AdeuIR:
     )
     for amb in ambiguities:
         options = amb.get("options") or []
-        used_option_ids: set[str] = set()
-        for opt_idx, option in enumerate(options):
-            old_option_id = str(option.get("option_id") or "")
-            new_option_id = _canonical_id(
-                [
-                    str(opt_idx),
-                    str(amb.get("id") or ""),
-                    str(option.get("label") or ""),
-                    str(option.get("effect") or ""),
-                ],
-                prefix="opt",
-            )
-            suffix = 0
-            while new_option_id in used_option_ids:
-                suffix += 1
-                new_option_id = _canonical_id(
-                    [
-                        str(opt_idx),
-                        str(amb.get("id") or ""),
-                        str(option.get("label") or ""),
-                        str(option.get("effect") or ""),
-                        f"dup:{suffix}",
-                    ],
-                    prefix="opt",
-                )
-            used_option_ids.add(new_option_id)
-            option["option_id"] = new_option_id
-            if not old_option_id:
-                continue
+        _build_id_map(
+            options,
+            prefix="opt",
+            id_key="option_id",
+            key_parts_fn=lambda option, opt_idx: [
+                str(opt_idx),
+                str(amb.get("id") or ""),
+                str(option.get("label") or ""),
+                str(option.get("effect") or ""),
+            ],
+        )
 
     canonical_without_ir_id = dict(data)
     canonical_without_ir_id["ir_id"] = "__canonical__"

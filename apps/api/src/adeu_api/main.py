@@ -8,6 +8,7 @@ from adeu_kernel import KernelMode, PatchValidationError, apply_ambiguity_option
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
+from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
 from .source_features import extract_source_features
 from .storage import create_artifact, get_artifact, list_artifacts
@@ -270,6 +271,7 @@ def apply_ambiguity_option_endpoint(
         )
         return ApplyAmbiguityOptionResponse(patched_ir=ir, check_report=report)
 
+    patched = canonicalize_ir_ids(patched)
     report = check(patched, mode=req.mode)
     return ApplyAmbiguityOptionResponse(patched_ir=patched, check_report=report)
 

@@ -148,3 +148,47 @@ def test_canonicalize_ir_ids_is_idempotent() -> None:
     assert first.model_dump(mode="json", exclude_none=True) == second.model_dump(
         mode="json", exclude_none=True
     )
+
+
+def test_canonicalize_ir_ids_does_not_rewrite_empty_ref_ids() -> None:
+    ir = AdeuIR.model_validate(
+        {
+            "schema_version": "adeu.ir.v0",
+            "ir_id": "random_ir_empty",
+            "context": {
+                "doc_id": "doc:test:empty",
+                "jurisdiction": "US-CA",
+                "time_eval": "2026-02-05T00:00:00Z",
+            },
+            "O": {
+                "entities": [
+                    {
+                        "id": "",
+                        "name": "Supplier",
+                        "kind": "party",
+                        "provenance": {"doc_ref": "doc:test#sec1", "span": {"start": 0, "end": 8}},
+                    }
+                ]
+            },
+            "D_norm": {
+                "statements": [
+                    {
+                        "id": "stmt_old",
+                        "kind": "obligation",
+                        "subject": {"ref_type": "entity", "entity_id": ""},
+                        "action": {"verb": "deliver"},
+                        "scope": {"jurisdiction": "US-CA", "time_about": {"kind": "unspecified"}},
+                        "provenance": {
+                            "doc_ref": "doc:test#sec3",
+                            "span": {"start": 10, "end": 20},
+                        },
+                    }
+                ]
+            },
+        }
+    )
+
+    canonical = canonicalize_ir_ids(ir)
+    assert canonical.O.entities[0].id.startswith("ent_")
+    assert canonical.D_norm.statements[0].subject.ref_type == "entity"
+    assert canonical.D_norm.statements[0].subject.entity_id == ""
