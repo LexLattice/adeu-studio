@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from adeu_api.main import ProposeRequest, propose
+from adeu_api.scoring import ranking_sort_key, score_key
 from adeu_ir import Context
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
@@ -42,6 +43,28 @@ def test_propose_mock_returns_checked_candidates() -> None:
 
     assert resp.proposer_log.provider == "mock"
     assert resp.proposer_log.attempts, "Mock proposer should emit attempt summaries"
+
+
+def test_propose_mock_uses_canonical_score_for_ranking_and_logs() -> None:
+    clause = _fixture_clause(name="modality_requires_ambiguity")
+    resp = propose(
+        ProposeRequest(
+            clause_text=clause,
+            provider="mock",
+            mode=KernelMode.LAX,
+        )
+    )
+
+    actual_order = [(score_key(c.check_report), c.ir.ir_id) for c in resp.candidates]
+    expected_order = sorted(
+        actual_order,
+        key=lambda item: ranking_sort_key(item[0], item[1]),
+    )
+    assert actual_order == expected_order
+
+    for attempt, candidate in zip(resp.proposer_log.attempts, resp.candidates, strict=True):
+        assert attempt.score_key == score_key(candidate.check_report)
+        assert attempt.candidate_rank == candidate.rank
 
 
 def test_propose_mock_respects_context_but_overwrites_source_features() -> None:

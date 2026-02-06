@@ -9,20 +9,19 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, cast
 
-from adeu_ir import AdeuIR, CheckReport, Context, ReasonSeverity
+from adeu_ir import AdeuIR, CheckReport, Context
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode, check
 from pydantic import ValidationError
 
 from .id_canonicalization import canonicalize_ir_ids
 from .openai_backends import BackendApi, build_openai_backend
+from .scoring import is_strict_improvement, score_key
 
 DEFAULT_OPENAI_MODEL = "gpt-5.2"
 DEFAULT_OPENAI_API: BackendApi = "responses"
 DEFAULT_MAX_CANDIDATES = 5
 DEFAULT_MAX_REPAIRS = 3
-
-_STATUS_RANK = {"PASS": 2, "WARN": 1, "REFUSE": 0}
 
 
 @dataclass(frozen=True)
@@ -86,25 +85,6 @@ def _adeu_ir_json_schema() -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise RuntimeError("ADEU IR schema root must be a JSON object")
     return payload
-
-
-def _score_reason_tuple(report: CheckReport) -> tuple[int, int, int, int, tuple[str, ...]]:
-    status = getattr(report, "status", "REFUSE")
-    status_rank = _STATUS_RANK.get(status, -1)
-    reason_codes = getattr(report, "reason_codes", []) or []
-    num_errors = sum(
-        1 for r in reason_codes if getattr(r, "severity", None) == ReasonSeverity.ERROR
-    )
-    num_warns = sum(1 for r in reason_codes if getattr(r, "severity", None) == ReasonSeverity.WARN)
-    total = len(reason_codes)
-    codes = tuple(
-        sorted(
-            str(getattr(r, "code", ""))
-            for r in reason_codes
-            if getattr(r, "code", None)
-        )
-    )
-    return (status_rank, -num_errors, -num_warns, -total, codes)
 
 
 def _combine_hashes(hashes: list[str]) -> str | None:
@@ -297,18 +277,15 @@ def propose_openai(
             ir = ir.model_copy(update={"context": context})
             ir = canonicalize_ir_ids(ir)
             report = check(ir, mode=mode)
-            score = _score_reason_tuple(report)
-            score_key = (score[0], score[1], score[2], score[3])
-            accepted_by_gate = (
-                accepted_score is None or score_key > accepted_score
-            )
+            report_score = score_key(report)
+            accepted_by_gate = is_strict_improvement(report_score, accepted_score)
 
             attempt_logs.append(
                 ProposerAttemptLog(
                     attempt_idx=attempt_idx,
                     status=str(getattr(report, "status", "REFUSE")),
-                    reason_codes_summary=sorted(set(score[4])),
-                    score_key=score_key,
+                    reason_codes_summary=sorted({r.code for r in report.reason_codes}),
+                    score_key=report_score,
                     accepted_by_gate=accepted_by_gate,
                     candidate_ir_id=ir.ir_id,
                 )
@@ -324,7 +301,7 @@ def propose_openai(
             if accepted_by_gate:
                 accepted_ir = ir
                 accepted_report = report
-                accepted_score = score_key
+                accepted_score = report_score
             else:
                 break
 

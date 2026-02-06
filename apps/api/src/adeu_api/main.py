@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
+from .scoring import ranking_sort_key, score_key
 from .source_features import extract_source_features
 from .storage import create_artifact, get_artifact, list_artifacts
 
@@ -132,31 +133,14 @@ class ArtifactListResponse(BaseModel):
 
 app = FastAPI(title="ADEU Studio API")
 
-_STATUS_SCORE = {"PASS": 0, "WARN": 1, "REFUSE": 2}
-_STATUS_RANK = {"PASS": 2, "WARN": 1, "REFUSE": 0}
-
-
-def _score_report(report: CheckReport) -> tuple[int, int, int, int]:
-    status_score = _STATUS_SCORE.get(report.status, 99)
-    num_errors = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.ERROR)
-    num_warns = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.WARN)
-    return (status_score, num_errors, num_warns, len(report.reason_codes))
-
-
-def _attempt_score_key(report: CheckReport) -> tuple[int, int, int, int]:
-    status_rank = _STATUS_RANK.get(report.status, -1)
-    num_errors = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.ERROR)
-    num_warns = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.WARN)
-    return (status_rank, -num_errors, -num_warns, -len(report.reason_codes))
-
 
 def _score_and_rank_proposals(
     proposals: list[tuple[AdeuIR, CheckReport]],
 ) -> list[ProposeCandidate]:
     scored: list[tuple[tuple[int, int, int, int], str, AdeuIR, CheckReport]] = [
-        (_score_report(report), ir.ir_id, ir, report) for ir, report in proposals
+        (score_key(report), ir.ir_id, ir, report) for ir, report in proposals
     ]
-    scored.sort(key=lambda item: (item[0], item[1]))
+    scored.sort(key=lambda item: ranking_sort_key(item[0], item[1]))
     return [
         ProposeCandidate(ir=ir, check_report=report, rank=rank)
         for rank, (_, _, ir, report) in enumerate(scored)
@@ -261,7 +245,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
                     attempt_idx=idx,
                     status=c.check_report.status,
                     reason_codes_summary=sorted({r.code for r in c.check_report.reason_codes}),
-                    score_key=_attempt_score_key(c.check_report),
+                    score_key=score_key(c.check_report),
                     accepted_by_gate=True,
                     candidate_rank=c.rank,
                 )
