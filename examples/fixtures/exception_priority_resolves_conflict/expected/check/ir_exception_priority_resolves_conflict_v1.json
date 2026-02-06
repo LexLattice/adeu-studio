@@ -74,9 +74,9 @@
       ],
       "because": [
         "CONFLICT_OBLIGATION_VS_PROHIBITION",
-        "solver:SAT"
+        "solver:UNSAT"
       ],
-      "notes": "Detects obligation vs prohibition conflicts in overlapping scope; solver=z3:SAT; formula_hash=e79bb3248567",
+      "notes": "Detects obligation vs prohibition conflicts in overlapping scope; solver=z3:UNSAT; unsat_core=a:dn_deliver_ob_1:16c912e456d8; formula_hash=1ee19131ccd9",
       "rule_id": "dnorm/conflicts"
     },
     {

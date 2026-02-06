@@ -69,7 +69,9 @@
       "affected_ids": [
         "dn_suspend_1"
       ],
-      "because": [],
+      "because": [
+        "solver:SAT"
+      ],
       "notes": "Detects obligation vs prohibition conflicts in overlapping scope.",
       "rule_id": "dnorm/conflicts"
     },
