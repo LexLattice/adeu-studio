@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .models import AdeuIR, CheckReport, ValidatorRequest, ValidatorResult
+from .models import AdeuIR, CheckReport, ProofArtifact, ValidatorRequest, ValidatorResult
 from .repo import repo_root
 
 
@@ -25,6 +25,10 @@ def main() -> None:
     _write_schema(
         schema_dir / "adeu.validator_result.v0.json",
         ValidatorResult.model_json_schema(),
+    )
+    _write_schema(
+        schema_dir / "adeu.proof_artifact.v0.json",
+        ProofArtifact.model_json_schema(),
     )
 
 

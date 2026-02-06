@@ -303,6 +303,7 @@ ValidatorKind = Literal["smt_check", "sat_model", "proof_check", "puzzle_solve"]
 ValidatorLogic = Literal["QF_UF"]
 ValidatorStatus = Literal["SAT", "UNSAT", "UNKNOWN", "TIMEOUT", "INVALID_REQUEST", "ERROR"]
 AssuranceLevel = Literal["kernel_only", "solver_backed", "proof_checked"]
+ProofStatus = Literal["proved", "failed"]
 
 
 class CheckReason(BaseModel):
@@ -387,3 +388,21 @@ class ValidatorResult(BaseModel):
     formula_hash: str
     evidence: SolverEvidence = Field(default_factory=SolverEvidence)
     trace: list[ValidatorAtomRef] = Field(default_factory=list)
+
+
+class ProofInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    object_id: Optional[str] = None
+    json_path: Optional[str] = None
+    formula_hash: Optional[str] = None
+
+
+class ProofArtifact(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    proof_id: str
+    backend: Literal["lean", "mock"]
+    theorem_id: str
+    status: ProofStatus
+    proof_hash: str
+    inputs: list[ProofInput] = Field(default_factory=list)
+    details: dict[str, Any] = Field(default_factory=dict)

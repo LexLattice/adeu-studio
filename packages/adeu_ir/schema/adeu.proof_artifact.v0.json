@@ -1,0 +1,99 @@
+{
+  "$defs": {
+    "ProofInput": {
+      "additionalProperties": false,
+      "properties": {
+        "formula_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Formula Hash"
+        },
+        "json_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Json Path"
+        },
+        "object_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Object Id"
+        }
+      },
+      "title": "ProofInput",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "backend": {
+      "enum": [
+        "lean",
+        "mock"
+      ],
+      "title": "Backend",
+      "type": "string"
+    },
+    "details": {
+      "additionalProperties": true,
+      "title": "Details",
+      "type": "object"
+    },
+    "inputs": {
+      "items": {
+        "$ref": "#/$defs/ProofInput"
+      },
+      "title": "Inputs",
+      "type": "array"
+    },
+    "proof_hash": {
+      "title": "Proof Hash",
+      "type": "string"
+    },
+    "proof_id": {
+      "title": "Proof Id",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "proved",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "theorem_id": {
+      "title": "Theorem Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "proof_id",
+    "backend",
+    "theorem_id",
+    "status",
+    "proof_hash"
+  ],
+  "title": "ProofArtifact",
+  "type": "object"
+}
