@@ -182,6 +182,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
         candidates = _score_and_rank_proposals(proposed)
+        rank_by_ir_id = {candidate.ir.ir_id: candidate.rank for candidate in candidates}
         return ProposeResponse(
             provider=ProviderInfo(kind="openai", model=model),
             candidates=candidates,
@@ -194,6 +195,9 @@ def propose(req: ProposeRequest) -> ProposeResponse:
                         attempt_idx=a.attempt_idx,
                         status=a.status,
                         reason_codes_summary=a.reason_codes_summary,
+                        candidate_rank=(
+                            rank_by_ir_id.get(a.candidate_ir_id) if a.candidate_ir_id else None
+                        ),
                     )
                     for a in openai_log.attempts
                 ],
