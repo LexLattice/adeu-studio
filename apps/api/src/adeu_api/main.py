@@ -20,8 +20,8 @@ from adeu_kernel import (
     PatchValidationError,
     ValidatorRunRecord,
     apply_ambiguity_option,
+    build_adeu_core_proof_requests,
     build_proof_backend,
-    build_trivial_theorem_source,
     build_validator_backend,
     check,
     check_with_validator_runs,
@@ -332,39 +332,56 @@ def _persist_proof_artifact(
     ir: AdeuIR,
     runs: list[ValidatorRunRecord],
 ) -> None:
-    theorem_id = f"{ir.ir_id}_artifact_consistency"
-    theorem_src = build_trivial_theorem_source(theorem_id=theorem_id)
     inputs = _proof_inputs_from_validator_runs(runs)
+    obligations = build_adeu_core_proof_requests(
+        theorem_prefix=ir.ir_id,
+        inputs=inputs,
+    )
     backend_kind = _configured_proof_backend_kind()
+    backend_error: str | None = None
     try:
         backend = build_proof_backend()
-        proof = backend.check(
-            theorem_id=theorem_id,
-            theorem_src=theorem_src,
-            inputs=inputs,
-        )
     except RuntimeError as exc:
-        proof = ProofArtifact(
-            proof_id=f"proof_{_sha256(theorem_id + str(exc))[:16]}",
-            backend=backend_kind,
-            theorem_id=theorem_id,
-            status="failed",
-            proof_hash=_sha256(theorem_src + str(exc)),
-            inputs=inputs,
-            details={"error": str(exc)},
-        )
+        backend = None
+        backend_error = str(exc)
 
-    details = dict(proof.details)
-    details.setdefault("backend_proof_id", proof.proof_id)
-    create_proof_artifact(
-        artifact_id=artifact_id,
-        backend=proof.backend,
-        theorem_id=proof.theorem_id,
-        status=proof.status,
-        proof_hash=proof.proof_hash,
-        inputs_json=[item.model_dump(mode="json", exclude_none=True) for item in proof.inputs],
-        details_json=details,
-    )
+    for obligation in obligations:
+        theorem_id = obligation.theorem_id
+        theorem_src = obligation.theorem_src
+        try:
+            if backend is None:
+                raise RuntimeError(backend_error or "proof backend unavailable")
+            proof = backend.check(
+                theorem_id=theorem_id,
+                theorem_src=theorem_src,
+                inputs=obligation.inputs,
+            )
+        except RuntimeError as exc:
+            proof = ProofArtifact(
+                proof_id=f"proof_{_sha256(theorem_id + str(exc))[:16]}",
+                backend=backend_kind,
+                theorem_id=theorem_id,
+                status="failed",
+                proof_hash=_sha256(theorem_src + str(exc)),
+                inputs=obligation.inputs,
+                details={"error": str(exc)},
+            )
+
+        details = dict(proof.details)
+        details.setdefault("backend_proof_id", proof.proof_id)
+        details.setdefault("semantics_version", obligation.semantics_version)
+        details.setdefault("inputs_hash", obligation.metadata.get("inputs_hash"))
+        details.setdefault("theorem_src_hash", obligation.metadata.get("theorem_src_hash"))
+        details.setdefault("obligation_kind", obligation.obligation_kind)
+        create_proof_artifact(
+            artifact_id=artifact_id,
+            backend=proof.backend,
+            theorem_id=proof.theorem_id,
+            status=proof.status,
+            proof_hash=proof.proof_hash,
+            inputs_json=[item.model_dump(mode="json", exclude_none=True) for item in proof.inputs],
+            details_json=details,
+        )
 
 
 def _score_and_rank_proposals(

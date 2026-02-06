@@ -7,7 +7,12 @@ from dataclasses import dataclass
 from typing import Literal, Protocol
 
 from adeu_ir import ProofArtifact, ProofInput
-from adeu_lean import DEFAULT_SEMANTICS_VERSION, LeanRequest, run_lean_request
+from adeu_lean import (
+    DEFAULT_SEMANTICS_VERSION,
+    LeanRequest,
+    build_obligation_requests,
+    run_lean_request,
+)
 
 DEFAULT_LEAN_TIMEOUT_MS = 5000
 ProofBackendKind = Literal["mock", "lean"]
@@ -40,6 +45,19 @@ def sanitize_theorem_id(value: str) -> str:
 def build_trivial_theorem_source(*, theorem_id: str) -> str:
     theorem_name = sanitize_theorem_id(theorem_id)
     return f"theorem {theorem_name} : True := by\n  trivial\n"
+
+
+def build_adeu_core_proof_requests(
+    *,
+    theorem_prefix: str,
+    inputs: list[ProofInput],
+    semantics_version: str = DEFAULT_SEMANTICS_VERSION,
+) -> list[LeanRequest]:
+    return build_obligation_requests(
+        theorem_prefix=theorem_prefix,
+        inputs=inputs,
+        semantics_version=semantics_version,
+    )
 
 
 def _default_timeout_ms() -> int:
