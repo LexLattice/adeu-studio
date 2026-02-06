@@ -198,3 +198,113 @@ def test_missing_pairable_runs_are_reported_as_no_runs() -> None:
     assert report.solver.status_flip == "NO_RUNS"
     assert report.solver.unpaired_left_hashes == ["req-left:f-left"]
     assert report.solver.unpaired_right_hashes == ["req-right:f-right"]
+
+
+def test_solver_diff_handles_mixed_and_missing_timestamps_across_pairs() -> None:
+    left_runs = [
+        {
+            "request_hash": "req-a",
+            "formula_hash": "f-a",
+            "created_at": None,
+            "status": "UNSAT",
+            "evidence_json": {"unsat_core": ["atom_a"], "model": {}},
+            "atom_map_json": {
+                "atom_a": {"object_id": "stmt_a", "json_path": "/D_norm/statements/0"}
+            },
+        },
+        {
+            "request_hash": "req-b",
+            "formula_hash": "f-b",
+            "created_at": "2026-02-06T10:00:00Z",
+            "status": "SAT",
+            "evidence_json": {"unsat_core": [], "model": {"atom_b": "True"}},
+            "atom_map_json": {
+                "atom_b": {"object_id": "stmt_b", "json_path": "/D_norm/statements/1"}
+            },
+        },
+    ]
+    right_runs = [
+        {
+            "request_hash": "req-a",
+            "formula_hash": "f-a",
+            "created_at": None,
+            "status": "SAT",
+            "evidence_json": {"unsat_core": [], "model": {"atom_a": "True"}},
+            "atom_map_json": {
+                "atom_a": {"object_id": "stmt_a", "json_path": "/D_norm/statements/0"}
+            },
+        },
+        {
+            "request_hash": "req-b",
+            "formula_hash": "f-b",
+            "created_at": "2026-02-06T10:01:00Z",
+            "status": "UNSAT",
+            "evidence_json": {"unsat_core": ["atom_b"], "model": {}},
+            "atom_map_json": {
+                "atom_b": {"object_id": "stmt_b", "json_path": "/D_norm/statements/1"}
+            },
+        },
+    ]
+    report = build_diff_report(
+        _left_ir(),
+        _right_ir(),
+        left_id="left_ir",
+        right_id="right_ir",
+        left_runs=left_runs,
+        right_runs=right_runs,
+    )
+    assert report.solver.status_flip == "SAT→UNSAT"
+
+
+def test_solver_diff_handles_mixed_timestamps_within_same_pair() -> None:
+    left_runs = [
+        {
+            "request_hash": "req-c",
+            "formula_hash": "f-c",
+            "created_at": None,
+            "status": "UNSAT",
+            "evidence_json": {"unsat_core": ["atom_c"], "model": {}},
+            "atom_map_json": {
+                "atom_c": {"object_id": "stmt_a", "json_path": "/D_norm/statements/0"}
+            },
+        },
+        {
+            "request_hash": "req-c",
+            "formula_hash": "f-c",
+            "created_at": "2026-02-06T11:00:00Z",
+            "status": "SAT",
+            "evidence_json": {"unsat_core": [], "model": {"atom_c": "True"}},
+            "atom_map_json": {
+                "atom_c": {"object_id": "stmt_a", "json_path": "/D_norm/statements/0"}
+            },
+        },
+    ]
+    right_runs = [
+        {
+            "request_hash": "req-c",
+            "formula_hash": "f-c",
+            "created_at": "2026-02-06T11:01:00Z",
+            "status": "UNSAT",
+            "evidence_json": {"unsat_core": ["atom_c"], "model": {}},
+            "atom_map_json": {
+                "atom_c": {"object_id": "stmt_a", "json_path": "/D_norm/statements/0"}
+            },
+        }
+    ]
+    report = build_diff_report(
+        _left_ir(),
+        _right_ir(),
+        left_id="left_ir",
+        right_id="right_ir",
+        left_runs=left_runs,
+        right_runs=right_runs,
+    )
+    assert report.solver.status_flip == "SAT→UNSAT"
+
+
+def test_pointer_segments_keep_empty_token_for_empty_object_keys() -> None:
+    left = {"": {"id": "obj_empty", "value": 1}}
+    right = {"": {"id": "obj_empty", "value": 2}}
+    report = build_diff_report(left, right, left_id="left_empty", right_id="right_empty")
+    assert "//value" in report.structural.changed_paths
+    assert "obj_empty" in report.structural.changed_object_ids

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Iterable, Sequence
 
 from adeu_ir import ValidatorAtomRef
@@ -173,7 +173,7 @@ def _pointer_segments(path: str | None) -> tuple[str, ...]:
         return ()
     text = path if path.startswith("/") else f"/{path}"
     raw = text[1:].split("/")
-    return tuple(segment.replace("~1", "/").replace("~0", "~") for segment in raw if segment != "")
+    return tuple(segment.replace("~1", "/").replace("~0", "~") for segment in raw)
 
 
 def _get_node(doc: Any, path: str | None) -> tuple[bool, Any]:
@@ -362,10 +362,9 @@ def _pair_key(run: ValidatorRunRef) -> tuple[str, str] | None:
 
 def _latest_run(runs: Iterable[ValidatorRunRef]) -> ValidatorRunRef:
     latest = None
-    latest_key: tuple[datetime | None, str, str] | None = None
+    latest_key: tuple[tuple[int, str], str, str] | None = None
     for run in runs:
-        timestamp = _parse_timestamp(run.created_at)
-        key = (timestamp, run.created_at or "", run.run_id or "")
+        key = (_timestamp_rank(run.created_at), run.created_at or "", run.run_id or "")
         if latest is None or key > latest_key:
             latest = run
             latest_key = key
@@ -383,6 +382,17 @@ def _parse_timestamp(value: str | None) -> datetime | None:
         return datetime.fromisoformat(text)
     except ValueError:
         return None
+
+
+def _timestamp_rank(value: str | None) -> tuple[int, str]:
+    parsed = _parse_timestamp(value)
+    if parsed is None:
+        return (0, value or "")
+    if parsed.tzinfo is not None:
+        canonical = parsed.astimezone(timezone.utc).isoformat()
+    else:
+        canonical = parsed.isoformat()
+    return (1, canonical)
 
 
 def _build_solver_diff(left_runs: Sequence[Any], right_runs: Sequence[Any]) -> SolverDiff:
@@ -471,14 +481,12 @@ def _serialize_pair_key(pair_key: tuple[str, str]) -> str:
 def _choose_primary_pair_key(
     pairs: dict[tuple[str, str], tuple[ValidatorRunRef, ValidatorRunRef]]
 ) -> tuple[str, str]:
-    ranked: list[tuple[datetime | None, str, str, tuple[str, str]]] = []
+    ranked: list[tuple[tuple[int, str], str, str, tuple[str, str]]] = []
     for key, (left, right) in pairs.items():
-        left_ts = _parse_timestamp(left.created_at)
-        right_ts = _parse_timestamp(right.created_at)
-        max_ts = left_ts
-        if right_ts is not None and (max_ts is None or right_ts > max_ts):
-            max_ts = right_ts
-        ranked.append((max_ts, key[0], key[1], key))
+        left_rank = _timestamp_rank(left.created_at)
+        right_rank = _timestamp_rank(right.created_at)
+        max_rank = left_rank if left_rank >= right_rank else right_rank
+        ranked.append((max_rank, key[0], key[1], key))
     ranked.sort()
     return ranked[-1][3]
 
