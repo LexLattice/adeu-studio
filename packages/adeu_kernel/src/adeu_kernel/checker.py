@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from typing import Any
 
@@ -14,16 +15,28 @@ from adeu_ir import (
     ReasonSeverity,
     Ref,
     TraceItem,
+    ValidatorAtomRef,
+    ValidatorOrigin,
+    ValidatorPayload,
+    ValidatorRequest,
+    ValidatorResult,
 )
 from pydantic import ValidationError
 
 from .mode import KernelMode
 from .predicate import (
+    PredAnd,
+    PredDefined,
+    Predicate,
     PredicateParseError,
+    PredNot,
+    PredOr,
+    PredRefersToDoc,
     evaluate_predicate,
     parse_predicate,
     referenced_def_ids,
 )
+from .validator import ValidatorBackend, build_validator_backend
 
 SUPPORTED_SCHEMA_VERSION = "adeu.ir.v0"
 MODALITY_AMBIGUITY_ISSUES = frozenset({"modality_ambiguity"})
@@ -43,6 +56,82 @@ class EffectiveNorm:
     @property
     def is_defeated(self) -> bool:
         return bool(self.defeated_by)
+
+
+@dataclass(frozen=True)
+class ValidatorRunRecord:
+    request: ValidatorRequest
+    result: ValidatorResult
+
+
+@dataclass(frozen=True)
+class ConflictPair:
+    assertion_name: str
+    object_id: str
+    json_path: str
+    stmt_a_id: str
+    stmt_a_idx: int
+    stmt_b_id: str
+
+
+def _json_path_hash(json_path: str) -> str:
+    return hashlib.sha256(json_path.encode("utf-8")).hexdigest()[:12]
+
+
+def _assertion_name(*, object_id: str, json_path: str) -> str:
+    return f"a:{object_id}:{_json_path_hash(json_path)}"
+
+
+def _smt_symbol(idx: int) -> str:
+    return f"c_{idx}"
+
+
+def _smt_quote_symbol(symbol: str) -> str:
+    safe = symbol.replace("|", "_")
+    return f"|{safe}|"
+
+
+def _predicate_atom_symbol(*, kind: str, value: str) -> str:
+    digest = hashlib.sha256(f"{kind}:{value}".encode("utf-8")).hexdigest()[:12]
+    return f"p_{kind}_{digest}"
+
+
+def _predicate_to_smt(
+    predicate: Predicate,
+    *,
+    def_ids: set[str],
+    doc_refs: set[str],
+    atom_values: dict[str, bool],
+) -> str:
+    if isinstance(predicate, PredDefined):
+        symbol = _predicate_atom_symbol(kind="def", value=predicate.def_id)
+        atom_values[symbol] = predicate.def_id in def_ids
+        return symbol
+    if isinstance(predicate, PredRefersToDoc):
+        symbol = _predicate_atom_symbol(kind="doc", value=predicate.doc_ref)
+        atom_values[symbol] = predicate.doc_ref in doc_refs
+        return symbol
+    if isinstance(predicate, PredNot):
+        inner = _predicate_to_smt(
+            predicate.arg,
+            def_ids=def_ids,
+            doc_refs=doc_refs,
+            atom_values=atom_values,
+        )
+        return f"(not {inner})"
+    if isinstance(predicate, PredAnd):
+        args = [
+            _predicate_to_smt(arg, def_ids=def_ids, doc_refs=doc_refs, atom_values=atom_values)
+            for arg in predicate.args
+        ]
+        return f"(and {' '.join(args)})"
+    if isinstance(predicate, PredOr):
+        args = [
+            _predicate_to_smt(arg, def_ids=def_ids, doc_refs=doc_refs, atom_values=atom_values)
+            for arg in predicate.args
+        ]
+        return f"(or {' '.join(args)})"
+    raise AssertionError(f"unknown predicate node: {predicate!r}")
 
 
 def _collect_doc_refs(ir: AdeuIR) -> set[str]:
@@ -778,11 +867,15 @@ def _intervals_overlap(a_start, a_end, b_start, b_end) -> bool:
     return latest_start <= earliest_end
 
 
-def _check_conflicts(
-    effective_norms: list[EffectiveNorm], *, mode: KernelMode
-) -> tuple[list[CheckReason], TraceItem]:
+def _build_conflict_validator_request(
+    ir: AdeuIR,
+    effective_norms: list[EffectiveNorm],
+    *,
+    mode: KernelMode,
+) -> tuple[ValidatorRequest | None, list[ConflictPair], list[CheckReason], list[str]]:
     reasons: list[CheckReason] = []
     active = [n for n in effective_norms if not n.is_defeated]
+    candidates: list[ConflictPair] = []
 
     for i in range(len(active)):
         a_norm = active[i]
@@ -821,46 +914,265 @@ def _check_conflicts(
                 )
                 continue
 
-            if _intervals_overlap(a_start, a_end, b_start, b_end):
-                has_modifier = bool(
-                    a_norm.narrowed_by
-                    or a_norm.clarified_by
-                    or b_norm.narrowed_by
-                    or b_norm.clarified_by
+            if not _intervals_overlap(a_start, a_end, b_start, b_end):
+                continue
+
+            has_modifier = bool(
+                a_norm.narrowed_by
+                or a_norm.clarified_by
+                or b_norm.narrowed_by
+                or b_norm.clarified_by
+            )
+            if has_modifier:
+                conflict_severity = (
+                    ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
                 )
-                if has_modifier:
-                    conflict_severity = (
-                        ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.CONFLICT_OVERLAPPING_SCOPE_UNRESOLVED,
+                        severity=conflict_severity,
+                        message=(
+                            "Potential conflict, but one or more norms are modified by an "
+                            "applicable exception."
+                        ),
+                        object_id=a.id,
+                        json_path=_path("D_norm", "statements", a_idx),
                     )
-                    reasons.append(
-                        CheckReason(
-                            code=ReasonCode.CONFLICT_OVERLAPPING_SCOPE_UNRESOLVED,
-                            severity=conflict_severity,
-                            message=(
-                                "Potential conflict, but one or more norms are modified by an "
-                                "applicable exception."
-                            ),
-                            object_id=a.id,
-                            json_path=_path("D_norm", "statements", a_idx),
-                        )
-                    )
-                else:
-                    reasons.append(
-                        CheckReason(
-                            code=ReasonCode.CONFLICT_OBLIGATION_VS_PROHIBITION,
-                            severity=ReasonSeverity.ERROR,
-                            message=f"Conflict between {a.id!r} and {b.id!r} in overlapping scope.",
-                            object_id=a.id,
-                            json_path=_path("D_norm", "statements", a_idx),
-                        )
-                    )
+                )
+                continue
+
+            pair_path = _path("D_norm", "statements", a_idx, "conflicts", b_norm.statement_idx)
+            candidates.append(
+                ConflictPair(
+                    assertion_name=_assertion_name(object_id=a.id, json_path=pair_path),
+                    object_id=a.id,
+                    json_path=pair_path,
+                    stmt_a_id=a.id,
+                    stmt_a_idx=a_idx,
+                    stmt_b_id=b.id,
+                )
+            )
+
+    if not candidates:
+        return None, [], reasons, [n.statement.id for n in active]
+
+    doc_refs = _collect_doc_refs(ir)
+    def_ids = {d.id for d in ir.O.definitions}
+    atom_values: dict[str, bool] = {}
+    predicate_terms: list[tuple[str, str]] = []
+
+    for stmt in ir.D_norm.statements:
+        if stmt.condition is None:
+            continue
+        if stmt.condition.kind != "predicate":
+            continue
+        predicate_text = stmt.condition.predicate
+        if not (predicate_text and predicate_text.strip()):
+            continue
+        try:
+            predicate = parse_predicate(predicate_text)
+        except PredicateParseError:
+            continue
+        expr = _predicate_to_smt(
+            predicate,
+            def_ids=def_ids,
+            doc_refs=doc_refs,
+            atom_values=atom_values,
+        )
+        predicate_terms.append((f"pred_stmt_{len(predicate_terms)}", expr))
+
+    for ex in ir.D_norm.exceptions:
+        if ex.condition.kind != "predicate":
+            continue
+        predicate_text = ex.condition.predicate
+        if not (predicate_text and predicate_text.strip()):
+            continue
+        try:
+            predicate = parse_predicate(predicate_text)
+        except PredicateParseError:
+            continue
+        expr = _predicate_to_smt(
+            predicate,
+            def_ids=def_ids,
+            doc_refs=doc_refs,
+            atom_values=atom_values,
+        )
+        predicate_terms.append((f"pred_ex_{len(predicate_terms)}", expr))
+
+    lines: list[str] = [
+        "(set-logic QF_UF)",
+        "(set-option :produce-models true)",
+        "(set-option :produce-unsat-cores true)",
+    ]
+
+    for symbol, value in sorted(atom_values.items()):
+        lines.append(f"(declare-fun {symbol} () Bool)")
+        lines.append(f"(assert (= {symbol} {'true' if value else 'false'}))")
+
+    for symbol, expr in predicate_terms:
+        lines.append(f"(declare-fun {symbol} () Bool)")
+        lines.append(f"(assert (= {symbol} {expr}))")
+
+    assertion_symbols: dict[str, str] = {}
+    atom_map: list[ValidatorAtomRef] = []
+    origins: list[ValidatorOrigin] = []
+    for idx, pair in enumerate(candidates):
+        sym = _smt_symbol(idx)
+        assertion_symbols[pair.assertion_name] = sym
+        atom_map.append(
+            ValidatorAtomRef(
+                assertion_name=pair.assertion_name,
+                object_id=pair.object_id,
+                json_path=pair.json_path,
+            )
+        )
+        origins.append(ValidatorOrigin(object_id=pair.object_id, json_path=pair.json_path))
+        lines.append(f"(declare-fun {sym} () Bool)")
+        lines.append(f"(assert (! {sym} :named {_smt_quote_symbol(pair.assertion_name)}))")
+
+    payload = ValidatorPayload(
+        formula_smt2="\n".join(lines) + "\n",
+        atom_map=atom_map,
+        metadata={
+            "rule_id": "dnorm_conflicts",
+            "assertion_name_format": "a:<object_id>:<json_path_hash>",
+            "assertion_symbols": assertion_symbols,
+        },
+    )
+    request = ValidatorRequest(kind="smt_check", logic="QF_UF", payload=payload, origin=origins)
+    return request, candidates, reasons, [n.statement.id for n in active]
+
+
+def _check_conflicts(
+    ir: AdeuIR,
+    effective_norms: list[EffectiveNorm],
+    *,
+    mode: KernelMode,
+    validator_backend: ValidatorBackend | None = None,
+) -> tuple[list[CheckReason], TraceItem, ValidatorRunRecord | None]:
+    request, candidates, reasons, active_ids = _build_conflict_validator_request(
+        ir,
+        effective_norms,
+        mode=mode,
+    )
+    if request is None:
+        return reasons, TraceItem(
+            rule_id="dnorm/conflicts",
+            because=[r.code for r in reasons],
+            affected_ids=active_ids,
+            notes="Detects obligation vs prohibition conflicts in overlapping scope.",
+        ), None
+
+    backend = validator_backend
+    if backend is None:
+        try:
+            backend = build_validator_backend("z3")
+        except RuntimeError as exc:
+            severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.VALIDATOR_BACKEND_ERROR,
+                    severity=severity,
+                    message=str(exc),
+                    object_id=ir.ir_id,
+                    json_path=_path("D_norm", "statements"),
+                )
+            )
+            return reasons, TraceItem(
+                rule_id="dnorm/conflicts",
+                because=[r.code for r in reasons],
+                affected_ids=active_ids,
+                notes="Detects obligation vs prohibition conflicts in overlapping scope.",
+            ), None
+
+    result = backend.run(request)
+    run = ValidatorRunRecord(request=request, result=result)
+    candidate_by_atom = {pair.assertion_name: pair for pair in candidates}
+
+    if result.status == "SAT":
+        hit_atoms = sorted(
+            {
+                atom.assertion_name
+                for atom in result.trace
+                if atom.assertion_name in candidate_by_atom
+            }
+        )
+        if not hit_atoms:
+            hit_atoms = sorted(candidate_by_atom)
+
+        for assertion_name in hit_atoms:
+            pair = candidate_by_atom[assertion_name]
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.CONFLICT_OBLIGATION_VS_PROHIBITION,
+                    severity=ReasonSeverity.ERROR,
+                    message=(
+                        f"Conflict between {pair.stmt_a_id!r} and {pair.stmt_b_id!r} in "
+                        f"overlapping scope (solver atom {assertion_name})."
+                    ),
+                    object_id=pair.object_id,
+                    json_path=_path("D_norm", "statements", pair.stmt_a_idx),
+                )
+            )
+    elif result.status == "UNKNOWN":
+        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.VALIDATOR_UNKNOWN,
+                severity=severity,
+                message=result.evidence.error or "validator returned UNKNOWN",
+                object_id=ir.ir_id,
+                json_path=_path("D_norm", "statements"),
+            )
+        )
+    elif result.status == "TIMEOUT":
+        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.VALIDATOR_TIMEOUT,
+                severity=severity,
+                message=result.evidence.error or "validator timed out",
+                object_id=ir.ir_id,
+                json_path=_path("D_norm", "statements"),
+            )
+        )
+    elif result.status == "INVALID_REQUEST":
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.VALIDATOR_INVALID_REQUEST,
+                severity=ReasonSeverity.ERROR,
+                message=result.evidence.error or "validator request is invalid",
+                object_id=ir.ir_id,
+                json_path=_path("D_norm", "statements"),
+            )
+        )
+    elif result.status == "ERROR":
+        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.VALIDATOR_BACKEND_ERROR,
+                severity=severity,
+                message=result.evidence.error or "validator backend error",
+                object_id=ir.ir_id,
+                json_path=_path("D_norm", "statements"),
+            )
+        )
+
+    summary_bits = [f"solver={result.backend}:{result.status}"]
+    if result.evidence.unsat_core:
+        summary_bits.append(f"unsat_core={','.join(result.evidence.unsat_core)}")
+    summary_bits.append(f"formula_hash={result.formula_hash[:12]}")
+    notes = (
+        "Detects obligation vs prohibition conflicts in overlapping scope; "
+        + "; ".join(summary_bits)
+    )
 
     return reasons, TraceItem(
         rule_id="dnorm/conflicts",
-        because=[r.code for r in reasons],
-        affected_ids=[n.statement.id for n in active],
-        notes="Detects obligation vs prohibition conflicts in overlapping scope.",
-    )
+        because=[r.code for r in reasons] + [f"solver:{result.status}"],
+        affected_ids=active_ids,
+        notes=notes,
+    ), run
 
 
 def _check_resolution(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
@@ -912,24 +1224,32 @@ def _check_resolution(ir: AdeuIR) -> tuple[list[CheckReason], TraceItem]:
     )
 
 
-def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
+def check_with_validator_runs(
+    raw: Any,
+    *,
+    mode: KernelMode = KernelMode.STRICT,
+    validator_backend: ValidatorBackend | None = None,
+) -> tuple[CheckReport, list[ValidatorRunRecord]]:
     if isinstance(raw, dict):
         schema_version = raw.get("schema_version")
         if schema_version is not None and schema_version != SUPPORTED_SCHEMA_VERSION:
             object_id = raw.get("ir_id") if isinstance(raw.get("ir_id"), str) else None
-            return CheckReport(
-                status="REFUSE",
-                reason_codes=[
-                    CheckReason(
-                        code=ReasonCode.UNSUPPORTED_SCHEMA_VERSION,
-                        severity=ReasonSeverity.ERROR,
-                        message=f"Unsupported schema_version: {schema_version!r}",
-                        object_id=object_id,
-                        json_path="/schema_version",
-                    )
-                ],
-                trace=[TraceItem(rule_id="parse/schema_version")],
-                metrics=_zero_metrics(),
+            return (
+                CheckReport(
+                    status="REFUSE",
+                    reason_codes=[
+                        CheckReason(
+                            code=ReasonCode.UNSUPPORTED_SCHEMA_VERSION,
+                            severity=ReasonSeverity.ERROR,
+                            message=f"Unsupported schema_version: {schema_version!r}",
+                            object_id=object_id,
+                            json_path="/schema_version",
+                        )
+                    ],
+                    trace=[TraceItem(rule_id="parse/schema_version")],
+                    metrics=_zero_metrics(),
+                ),
+                [],
             )
 
     try:
@@ -959,24 +1279,28 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
         if chosen is not None and isinstance(chosen.get("msg"), str):
             message = chosen["msg"]
 
-        return CheckReport(
-            status="REFUSE",
-            reason_codes=[
-                CheckReason(
-                    code=code,
-                    severity=ReasonSeverity.ERROR,
-                    message=message,
-                    object_id=object_id,
-                    json_path=json_path,
-                )
-            ],
-            trace=[TraceItem(rule_id="parse/validation_error")],
-            metrics=_zero_metrics(),
+        return (
+            CheckReport(
+                status="REFUSE",
+                reason_codes=[
+                    CheckReason(
+                        code=code,
+                        severity=ReasonSeverity.ERROR,
+                        message=message,
+                        object_id=object_id,
+                        json_path=json_path,
+                    )
+                ],
+                trace=[TraceItem(rule_id="parse/validation_error")],
+                metrics=_zero_metrics(),
+            ),
+            [],
         )
 
     metrics = _metrics(ir)
     reasons: list[CheckReason] = []
     trace: list[TraceItem] = [TraceItem(rule_id="parse/ok")]
+    validator_runs: list[ValidatorRunRecord] = []
 
     if ir.context.source_features.modals:
         has_marker = any(a.issue in MODALITY_AMBIGUITY_ISSUES for a in ir.ambiguity)
@@ -1026,12 +1350,29 @@ def check(raw: Any, *, mode: KernelMode = KernelMode.STRICT) -> CheckReport:
     reasons.extend(effective_reasons)
     trace.append(effective_trace)
 
-    conflict_reasons, conflict_trace = _check_conflicts(effective_norms, mode=mode)
+    conflict_reasons, conflict_trace, conflict_run = _check_conflicts(
+        ir,
+        effective_norms,
+        mode=mode,
+        validator_backend=validator_backend,
+    )
     reasons.extend(conflict_reasons)
     trace.append(conflict_trace)
+    if conflict_run is not None:
+        validator_runs.append(conflict_run)
 
     resolution_reasons, resolution_trace = _check_resolution(ir)
     reasons.extend(resolution_reasons)
     trace.append(resolution_trace)
 
-    return _finalize_report(metrics=metrics, reasons=reasons, trace=trace)
+    return _finalize_report(metrics=metrics, reasons=reasons, trace=trace), validator_runs
+
+
+def check(
+    raw: Any,
+    *,
+    mode: KernelMode = KernelMode.STRICT,
+    validator_backend: ValidatorBackend | None = None,
+) -> CheckReport:
+    report, _ = check_with_validator_runs(raw, mode=mode, validator_backend=validator_backend)
+    return report
