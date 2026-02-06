@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Annotated, Literal, Union
 
-from adeu_ir import ValidatorResult
+from adeu_ir import ProvenanceRef, ValidatorResult
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 PuzzleSchemaVersion = Literal["adeu.puzzle.v0"]
@@ -49,6 +49,7 @@ class PuzzleStatement(BaseModel):
     id: str
     speaker_id: str
     text: str | None = None
+    provenance: ProvenanceRef | None = None
     claim: PuzzleExpr
 
 
@@ -56,6 +57,7 @@ class PuzzleAssumption(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: str
     text: str | None = None
+    provenance: ProvenanceRef | None = None
     claim: PuzzleExpr
 
 
@@ -95,6 +97,9 @@ class KnightsKnavesPuzzle(BaseModel):
             _validate_expr_people(expr=assumption.claim, known_people=known_people)
 
         return self
+
+
+PuzzleIR = KnightsKnavesPuzzle
 
 
 class PuzzleAssignment(BaseModel):

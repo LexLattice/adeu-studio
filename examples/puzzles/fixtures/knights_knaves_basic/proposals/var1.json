@@ -1,0 +1,31 @@
+{
+  "schema_version": "adeu.puzzle.v0",
+  "puzzle_id": "fixture_unsat_self_liar",
+  "family": "knights_knaves",
+  "people": [
+    {
+      "id": "alice",
+      "name": "Alice"
+    }
+  ],
+  "statements": [
+    {
+      "id": "stmt_self",
+      "speaker_id": "alice",
+      "text": "I am a knave.",
+      "provenance": {
+        "doc_ref": "puzzle://knights_knaves_basic#stmt1",
+        "span": {
+          "start": 0,
+          "end": 13
+        }
+      },
+      "claim": {
+        "op": "is_role",
+        "person_id": "alice",
+        "role": "knave"
+      }
+    }
+  ],
+  "assumptions": []
+}
