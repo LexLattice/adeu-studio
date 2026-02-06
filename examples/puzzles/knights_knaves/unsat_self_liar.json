@@ -1,0 +1,24 @@
+{
+  "schema_version": "adeu.puzzle.v0",
+  "puzzle_id": "example_unsat_self_liar",
+  "family": "knights_knaves",
+  "people": [
+    {
+      "id": "a",
+      "name": "A"
+    }
+  ],
+  "statements": [
+    {
+      "id": "stmt_self",
+      "speaker_id": "a",
+      "text": "I am a knave.",
+      "claim": {
+        "op": "is_role",
+        "person_id": "a",
+        "role": "knave"
+      }
+    }
+  ],
+  "assumptions": []
+}
