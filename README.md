@@ -66,6 +66,8 @@ Behavior notes:
 - Kernel conflict checks emit SMT `ValidatorRequest` obligations and execute the Z3 backend
   (`z3-solver==4.13.3.0`) with deterministic assertion naming
   `a:<object_id>:<sha256(json_path)[:12]>`.
+  For the current v3.0 conflict witness encoding: `UNSAT` means at least one kernel-derived
+  conflict candidate exists (unsat core returns a witness subset of named atoms); `SAT` means none.
 - SMT output is treated as **solver evidence** (model / unsat core / stats), not as proof
   certificates. Certificates are reserved for future proof-checked backends.
 - `UNKNOWN` and `TIMEOUT` map to `REFUSE` in `STRICT` mode, `WARN` in `LAX`. `INVALID_REQUEST`

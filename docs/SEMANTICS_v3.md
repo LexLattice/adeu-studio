@@ -41,6 +41,12 @@ Kernel mode mapping:
 3. Conflict checks operate on active effective norms.
 4. SMT obligation is batched per IR check for candidate obligation-vs-prohibition overlaps.
 
+Current v3.0 conflict witness encoding:
+
+- `UNSAT` means at least one kernel-derived conflict candidate exists.
+- `SAT` means no conflict candidates exist.
+- unsat core returns a witness subset of named atoms (`a:<object_id>:<json_path_hash>`).
+
 ## Deterministic assertion naming
 
 Each named SMT assertion uses:
