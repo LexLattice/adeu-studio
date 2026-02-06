@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
+import pytest
 from adeu_ir import ProofInput
 from adeu_lean import (
     DEFAULT_SEMANTICS_VERSION,
@@ -35,4 +37,22 @@ def test_run_lean_request_missing_binary_returns_failed() -> None:
     )
     assert result.status == "failed"
     assert "binary not found" in str(result.details.get("error", "")).lower()
+    assert len(result.proof_hash) == 64
+
+
+@pytest.mark.skipif(
+    not (os.environ.get("ADEU_LEAN_BIN") or os.environ.get("LEAN_BIN")),
+    reason="ADEU_LEAN_BIN/LEAN_BIN not set; skipping Lean smoke test",
+)
+def test_run_lean_request_smoke_with_env_binary() -> None:
+    lean_bin = (os.environ.get("ADEU_LEAN_BIN") or os.environ.get("LEAN_BIN") or "").strip()
+    request = build_obligation_requests(theorem_prefix="ir_smoke", inputs=[])[0]
+    result = run_lean_request(
+        request,
+        timeout_ms=3000,
+        lake_bin="/tmp/lake-not-installed",
+        lean_bin=lean_bin,
+        project_root=Path(__file__).resolve().parents[1],
+    )
+    assert result.status in {"proved", "failed"}
     assert len(result.proof_hash) == 64

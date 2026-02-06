@@ -6,6 +6,7 @@ This repo is a monorepo:
 
 - `packages/adeu_ir`: Pydantic ADEU IR + JSON Schema export (single source of truth)
 - `packages/adeu_kernel`: Deterministic checker/kernel + golden fixture harness
+- `packages/adeu_lean`: Lean core semantics + theorem runner helpers (v3.1 theorem obligations)
 - `packages/adeu_puzzles`: Typed puzzle IR + solver translation (v3.2: Knights/Knaves)
 - `apps/api`: FastAPI service (scaffolded after kernel is green)
 - `apps/web`: Next.js UI (scaffolded after kernel is green)
@@ -47,7 +48,8 @@ Set `provider: "openai"` in `POST /propose` and configure:
 - optional `ADEU_Z3_TIMEOUT_MS` (default: `3000`) for SMT validator timeout
 - optional `ADEU_PERSIST_VALIDATOR_RUNS=1` to persist solver runs for `/check` (off by default)
 - optional `ADEU_PROOF_BACKEND` (`mock` default, `lean` for CLI proof-check)
-- optional `ADEU_LEAN_BIN` (default: `lean`)
+- optional `ADEU_LEAN_BIN` (default: `lean`, canonical)
+- optional `LEAN_BIN` (alias fallback when `ADEU_LEAN_BIN` is unset)
 - optional `ADEU_LEAN_TIMEOUT_MS` (default: `5000`)
 
 Request-level overrides:
@@ -73,7 +75,10 @@ Behavior notes:
 - `UNKNOWN` and `TIMEOUT` map to `REFUSE` in `STRICT` mode, `WARN` in `LAX`. `INVALID_REQUEST`
   remains `ERROR` severity in both modes.
 - Accepted artifacts now persist one `ProofArtifact` (`proof_id`, `backend`, `theorem_id`, status,
-  `proof_hash`, inputs) via a minimal v3.1 proof-check pipeline.
+  `proof_hash`, inputs) per theorem obligation via a v3.1 proof-check pipeline:
+  `pred_closed_world`, `exception_gating`, and `conflict_soundness`.
+  The proof details include deterministic metadata (`semantics_version`, `inputs_hash`,
+  `theorem_src_hash`) and `lean_version` when available.
 
 Proof retrieval endpoint:
 
