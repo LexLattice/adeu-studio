@@ -28,6 +28,20 @@ make bootstrap
 `POST /propose` returns fixture-backed candidates when the input clause text matches one of
 `examples/fixtures/*/clause.txt`.
 
+## Run API (OpenAI proposer)
+
+Set `provider: "openai"` in `POST /propose` and configure:
+
+- `OPENAI_API_KEY` (or `ADEU_OPENAI_API_KEY`) for auth
+- optional `ADEU_OPENAI_MODEL` (default: `gpt-5.2`)
+- optional `ADEU_OPENAI_BASE_URL` (default: `https://api.openai.com/v1`)
+- optional `ADEU_LOG_RAW_LLM=1` to include raw prompt/response in proposer logs (off by default)
+
+Request-level overrides:
+
+- `max_candidates` (default `5`)
+- `max_repairs` (default `3`)
+
 ## Run Web
 
 ```bash

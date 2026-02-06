@@ -25,6 +25,7 @@ class ProposerAttemptLog:
     attempt_idx: int
     status: str
     reason_codes_summary: list[str]
+    candidate_ir_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -223,6 +224,7 @@ def propose_openai(
         best_ir: AdeuIR | None = None
         best_report: CheckReport | None = None
         best_key: tuple[int, int, int, int, tuple[str, ...]] | None = None
+        previous_progress: tuple[int, int, int] | None = None
         seen_reason_sets: set[tuple[str, ...]] = set()
 
         previous_ir: AdeuIR | None = None
@@ -254,6 +256,7 @@ def propose_openai(
                         attempt_idx=attempt_idx,
                         status="PARSE_ERROR",
                         reason_codes_summary=["SCHEMA_INVALID"],
+                        candidate_ir_id=None,
                     )
                 )
                 attempt_idx += 1
@@ -269,6 +272,7 @@ def propose_openai(
                         attempt_idx=attempt_idx,
                         status="PARSE_ERROR",
                         reason_codes_summary=["SCHEMA_INVALID"],
+                        candidate_ir_id=None,
                     )
                 )
                 attempt_idx += 1
@@ -281,11 +285,13 @@ def propose_openai(
             ir = canonicalize_ir_ids(ir)
             report = check(ir, mode=mode)
             key = _score_reason_tuple(report)
+            progress = (key[0], key[1], key[3])
             attempt_logs.append(
                 ProposerAttemptLog(
                     attempt_idx=attempt_idx,
                     status=str(getattr(report, "status", "REFUSE")),
                     reason_codes_summary=sorted(set(key[4])),
+                    candidate_ir_id=ir.ir_id,
                 )
             )
             attempt_idx += 1
@@ -306,7 +312,10 @@ def propose_openai(
             reason_set = key[4]
             if reason_set in seen_reason_sets:
                 break
+            if previous_progress is not None and progress == previous_progress:
+                break
             seen_reason_sets.add(reason_set)
+            previous_progress = progress
 
         if best_ir is not None and best_report is not None:
             final.append((best_ir, best_report))
