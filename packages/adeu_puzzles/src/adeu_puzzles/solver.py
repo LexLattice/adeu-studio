@@ -39,13 +39,25 @@ def _person_symbol(*, person_id: str, index: int) -> str:
     return f"k_{_sanitize_symbol(person_id)}_{index}"
 
 
+def _sanitize_smt_quoted_symbol_content(value: str) -> str:
+    cleaned = (
+        value.replace("\\", "_")
+        .replace("|", "_")
+        .replace("\n", "_")
+        .replace("\r", "_")
+        .replace("\t", "_")
+    )
+    return cleaned.strip() or "anon"
+
+
 def _assertion_name(*, object_id: str, json_path: str) -> str:
     path_hash = hashlib.sha256(json_path.encode("utf-8")).hexdigest()[:12]
-    return f"a:{object_id}:{path_hash}"
+    safe_object_id = _sanitize_smt_quoted_symbol_content(object_id)
+    return f"a:{safe_object_id}:{path_hash}"
 
 
 def _smt_quote_symbol(value: str) -> str:
-    return f"|{value}|"
+    return f"|{_sanitize_smt_quoted_symbol_content(value)}|"
 
 
 def _expr_to_smt(expr: PuzzleExpr, *, symbol_by_person: dict[str, str]) -> str:
