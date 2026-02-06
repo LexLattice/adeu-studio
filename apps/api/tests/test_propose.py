@@ -62,7 +62,7 @@ def test_propose_mock_uses_canonical_score_for_ranking_and_logs() -> None:
     )
     assert actual_order == expected_order
 
-    for attempt, candidate in zip(resp.proposer_log.attempts, resp.candidates, strict=False):
+    for attempt, candidate in zip(resp.proposer_log.attempts, resp.candidates, strict=True):
         assert attempt.score_key == score_key(candidate.check_report)
         assert attempt.candidate_rank == candidate.rank
 
