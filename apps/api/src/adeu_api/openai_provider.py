@@ -73,16 +73,6 @@ def _score_reason_tuple(report: CheckReport) -> tuple[int, int, int, int, tuple[
     return (status_score, num_errors, num_warns, len(reason_codes), codes)
 
 
-def _repair_progress_tuple(report: CheckReport) -> tuple[int, int, int]:
-    status = getattr(report, "status", "REFUSE")
-    status_score = _STATUS_SCORE.get(status, 99)
-    reason_codes = getattr(report, "reason_codes", []) or []
-    num_errors = sum(
-        1 for r in reason_codes if getattr(r, "severity", None) == ReasonSeverity.ERROR
-    )
-    return (status_score, num_errors, len(reason_codes))
-
-
 def _extract_json(text: str) -> object:
     try:
         return json.loads(text)
@@ -295,7 +285,7 @@ def propose_openai(
             ir = canonicalize_ir_ids(ir)
             report = check(ir, mode=mode)
             key = _score_reason_tuple(report)
-            progress = _repair_progress_tuple(report)
+            progress = (key[0], key[1], key[3])
             attempt_logs.append(
                 ProposerAttemptLog(
                     attempt_idx=attempt_idx,

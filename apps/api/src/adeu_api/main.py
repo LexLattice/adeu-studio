@@ -195,9 +195,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
                         attempt_idx=a.attempt_idx,
                         status=a.status,
                         reason_codes_summary=a.reason_codes_summary,
-                        candidate_rank=(
-                            rank_by_ir_id.get(a.candidate_ir_id) if a.candidate_ir_id else None
-                        ),
+                        candidate_rank=rank_by_ir_id.get(a.candidate_ir_id),
                     )
                     for a in openai_log.attempts
                 ],

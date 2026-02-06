@@ -137,7 +137,7 @@ def test_propose_openai_stops_when_repair_progress_stalls(monkeypatch) -> None:
 
     assert calls == 2
     assert len(log.attempts) == 2
-    assert proposals, "expected at least one candidate"
+    assert len(proposals) == 1, "expected exactly one candidate"
 
 
 def test_propose_openai_assigns_candidate_rank_in_attempt_log(monkeypatch) -> None:
