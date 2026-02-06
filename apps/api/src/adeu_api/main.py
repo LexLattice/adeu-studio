@@ -1,15 +1,26 @@
 from __future__ import annotations
 
+import hashlib
 import os
 from datetime import datetime, timezone
 from typing import Literal
 
-from adeu_ir import AdeuIR, CheckReport, Context, ReasonSeverity, TraceItem
+from adeu_ir import (
+    AdeuIR,
+    CheckReport,
+    Context,
+    ProofArtifact,
+    ProofInput,
+    ReasonSeverity,
+    TraceItem,
+)
 from adeu_kernel import (
     KernelMode,
     PatchValidationError,
     ValidatorRunRecord,
     apply_ambiguity_option,
+    build_proof_backend,
+    build_trivial_theorem_source,
     check,
     check_with_validator_runs,
 )
@@ -20,7 +31,14 @@ from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
 from .scoring import ranking_sort_key, score_key
 from .source_features import extract_source_features
-from .storage import create_artifact, create_validator_run, get_artifact, list_artifacts
+from .storage import (
+    create_artifact,
+    create_proof_artifact,
+    create_validator_run,
+    get_artifact,
+    list_artifacts,
+    list_proof_artifacts,
+)
 
 
 class ProposeRequest(BaseModel):
@@ -139,6 +157,18 @@ class ArtifactListResponse(BaseModel):
     items: list[ArtifactSummary]
 
 
+class StoredProofArtifact(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    proof: ProofArtifact
+    artifact_id: str
+    created_at: str
+
+
+class ArtifactProofListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: list[StoredProofArtifact]
+
+
 app = FastAPI(title="ADEU Studio API")
 
 
@@ -171,6 +201,77 @@ def _persist_validator_runs(
             evidence_json=run.result.evidence.model_dump(mode="json", exclude_none=True),
             atom_map_json=atom_map,
         )
+
+
+def _sha256(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _proof_inputs_from_validator_runs(runs: list[ValidatorRunRecord]) -> list[ProofInput]:
+    inputs: list[ProofInput] = []
+    seen: set[tuple[str | None, str | None, str | None]] = set()
+    for run in runs:
+        formula_hash = run.result.formula_hash
+        origins = run.request.origin or []
+        if origins:
+            for origin in origins:
+                key = (origin.object_id, origin.json_path, formula_hash)
+                if key in seen:
+                    continue
+                seen.add(key)
+                inputs.append(
+                    ProofInput(
+                        object_id=origin.object_id,
+                        json_path=origin.json_path,
+                        formula_hash=formula_hash,
+                    )
+                )
+        else:
+            key = (None, None, formula_hash)
+            if key in seen:
+                continue
+            seen.add(key)
+            inputs.append(ProofInput(formula_hash=formula_hash))
+    return inputs
+
+
+def _persist_proof_artifact(
+    *,
+    artifact_id: str,
+    ir: AdeuIR,
+    runs: list[ValidatorRunRecord],
+) -> None:
+    theorem_id = f"{ir.ir_id}_artifact_consistency"
+    theorem_src = build_trivial_theorem_source(theorem_id=theorem_id)
+    inputs = _proof_inputs_from_validator_runs(runs)
+    try:
+        backend = build_proof_backend()
+        proof = backend.check(
+            theorem_id=theorem_id,
+            theorem_src=theorem_src,
+            inputs=inputs,
+        )
+    except RuntimeError as exc:
+        proof = ProofArtifact(
+            proof_id=f"proof_{_sha256(theorem_id + str(exc))[:16]}",
+            backend="mock",
+            theorem_id=theorem_id,
+            status="failed",
+            proof_hash=_sha256(theorem_src + str(exc)),
+            inputs=inputs,
+            details={"error": str(exc)},
+        )
+
+    create_proof_artifact(
+        proof_id=proof.proof_id,
+        artifact_id=artifact_id,
+        backend=proof.backend,
+        theorem_id=proof.theorem_id,
+        status=proof.status,
+        proof_hash=proof.proof_hash,
+        inputs_json=[item.model_dump(mode="json", exclude_none=True) for item in proof.inputs],
+        details_json=proof.details,
+    )
 
 
 def _score_and_rank_proposals(
@@ -356,6 +457,7 @@ def create_artifact_endpoint(req: ArtifactCreateRequest) -> ArtifactCreateRespon
     )
     if runs:
         _persist_validator_runs(runs=runs, artifact_id=row.artifact_id)
+    _persist_proof_artifact(artifact_id=row.artifact_id, ir=req.ir, runs=runs)
     return ArtifactCreateResponse(
         artifact_id=row.artifact_id,
         created_at=row.created_at,
@@ -411,6 +513,32 @@ def get_artifact_endpoint(artifact_id: str) -> ArtifactGetResponse:
         ir=AdeuIR.model_validate(row.ir_json),
         check_report=CheckReport.model_validate(row.check_report_json),
     )
+
+
+@app.get("/artifacts/{artifact_id}/proofs", response_model=ArtifactProofListResponse)
+def list_artifact_proofs_endpoint(artifact_id: str) -> ArtifactProofListResponse:
+    artifact = get_artifact(artifact_id=artifact_id)
+    if artifact is None:
+        raise HTTPException(status_code=404, detail="not found")
+
+    rows = list_proof_artifacts(artifact_id=artifact_id)
+    items = [
+        StoredProofArtifact(
+            proof=ProofArtifact(
+                proof_id=row.proof_id,
+                backend=row.backend,  # type: ignore[arg-type]
+                theorem_id=row.theorem_id,
+                status=row.status,  # type: ignore[arg-type]
+                proof_hash=row.proof_hash,
+                inputs=[ProofInput.model_validate(item) for item in row.inputs_json],
+                details=row.details_json,
+            ),
+            artifact_id=row.artifact_id,
+            created_at=row.created_at,
+        )
+        for row in rows
+    ]
+    return ArtifactProofListResponse(items=items)
 
 
 @app.get("/healthz")

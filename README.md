@@ -39,6 +39,9 @@ Set `provider: "openai"` in `POST /propose` and configure:
 - optional `ADEU_LOG_RAW_LLM=1` to include raw prompt/response in proposer logs (off by default)
 - optional `ADEU_Z3_TIMEOUT_MS` (default: `3000`) for SMT validator timeout
 - optional `ADEU_PERSIST_VALIDATOR_RUNS=1` to persist solver runs for `/check` (off by default)
+- optional `ADEU_PROOF_BACKEND` (`mock` default, `lean` for CLI proof-check)
+- optional `ADEU_LEAN_BIN` (default: `lean`)
+- optional `ADEU_LEAN_TIMEOUT_MS` (default: `5000`)
 
 Request-level overrides:
 
@@ -60,6 +63,12 @@ Behavior notes:
   certificates. Certificates are reserved for future proof-checked backends.
 - `UNKNOWN` and `TIMEOUT` map to `REFUSE` in `STRICT` mode, `WARN` in `LAX`. `INVALID_REQUEST`
   remains `ERROR` severity in both modes.
+- Accepted artifacts now persist one `ProofArtifact` (`proof_id`, `backend`, `theorem_id`, status,
+  `proof_hash`, inputs) via a minimal v3.1 proof-check pipeline.
+
+Proof retrieval endpoint:
+
+- `GET /artifacts/{artifact_id}/proofs`
 
 ## Run Web
 
