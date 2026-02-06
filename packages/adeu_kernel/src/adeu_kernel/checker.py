@@ -177,6 +177,22 @@ def _collect_doc_refs(ir: AdeuIR) -> set[str]:
     for b in ir.bridges:
         add_doc_ref(b.provenance.doc_ref)
 
+    # Include typed DocRef values anywhere in the IR payload.
+    def walk_doc_refs(value: object) -> None:
+        if isinstance(value, dict):
+            ref_type = value.get("ref_type")
+            doc_ref = value.get("doc_ref")
+            if ref_type == "doc" and isinstance(doc_ref, str):
+                add_doc_ref(doc_ref)
+            for nested in value.values():
+                walk_doc_refs(nested)
+            return
+        if isinstance(value, list):
+            for nested in value:
+                walk_doc_refs(nested)
+
+    walk_doc_refs(ir.model_dump(mode="json", exclude_none=True))
+
     return doc_refs
 
 def _zero_metrics() -> CheckMetrics:

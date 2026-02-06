@@ -153,3 +153,73 @@ def test_bridge_u_to_dnorm_requires_authority() -> None:
     )
     assert report.status == "REFUSE"
     assert any(r.code == "BRIDGE_U_TO_DNORM_AUTHORITY_MISSING" for r in report.reason_codes)
+
+
+def test_refers_to_doc_uses_docref_refs_inside_ir() -> None:
+    report = check(
+        {
+            "schema_version": "adeu.ir.v0",
+            "ir_id": "ir_docref_predicate",
+            "context": {
+                "doc_id": "doc1",
+                "jurisdiction": "US-CA",
+                "time_eval": "2026-02-04T00:00:00Z",
+            },
+            "D_norm": {
+                "statements": [
+                    {
+                        "id": "dn_ob",
+                        "kind": "obligation",
+                        "subject": {"ref_type": "text", "text": "Supplier"},
+                        "action": {
+                            "verb": "deliver",
+                            "object": {"ref_type": "doc", "doc_ref": "doc:linked:sec1"},
+                        },
+                        "scope": {
+                            "jurisdiction": "US-CA",
+                            "time_about": {
+                                "kind": "between",
+                                "start": "2026-01-01T00:00:00Z",
+                                "end": "2026-12-31T00:00:00Z",
+                            },
+                        },
+                        "provenance": {"doc_ref": "doc1#clause1"},
+                    },
+                    {
+                        "id": "dn_pr",
+                        "kind": "prohibition",
+                        "subject": {"ref_type": "text", "text": "Supplier"},
+                        "action": {
+                            "verb": "deliver",
+                            "object": {"ref_type": "doc", "doc_ref": "doc:linked:sec1"},
+                        },
+                        "scope": {
+                            "jurisdiction": "US-CA",
+                            "time_about": {
+                                "kind": "between",
+                                "start": "2026-01-01T00:00:00Z",
+                                "end": "2026-12-31T00:00:00Z",
+                            },
+                        },
+                        "provenance": {"doc_ref": "doc1#clause2"},
+                    },
+                ],
+                "exceptions": [
+                    {
+                        "id": "ex_docref",
+                        "applies_to": ["dn_ob"],
+                        "priority": 1,
+                        "condition": {
+                            "kind": "predicate",
+                            "text": "if linked doc exists",
+                            "predicate": '(refers_to_doc "doc:linked:sec1")',
+                        },
+                        "effect": "defeats",
+                        "provenance": {"doc_ref": "doc1#clause3"},
+                    }
+                ],
+            },
+        },
+        mode=KernelMode.LAX,
+    )
+    assert not any(r.code == "CONFLICT_OBLIGATION_VS_PROHIBITION" for r in report.reason_codes)
