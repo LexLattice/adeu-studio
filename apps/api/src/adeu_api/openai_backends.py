@@ -274,7 +274,7 @@ class ChatCompletionsBackend:
         self._api_key = api_key
         self._base_url = base_url.rstrip("/")
 
-    def _chat_call(
+    def _build_payload(
         self,
         *,
         system_prompt: str,
@@ -284,7 +284,7 @@ class ChatCompletionsBackend:
         response_mode: ResponseMode,
         json_schema: dict[str, Any],
         extra: dict[str, Any] | None,
-    ) -> BackendResult:
+    ) -> tuple[dict[str, Any], str, str]:
         response_format: dict[str, Any]
         if response_mode == "json_schema":
             response_format = {
@@ -313,6 +313,28 @@ class ChatCompletionsBackend:
 
         payload_text = json.dumps(payload, sort_keys=True, ensure_ascii=False)
         prompt_hash = _hash_text(payload_text)
+        return payload, payload_text, prompt_hash
+
+    def _chat_call(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+        model: str,
+        temperature: float | None,
+        response_mode: ResponseMode,
+        json_schema: dict[str, Any],
+        extra: dict[str, Any] | None,
+    ) -> BackendResult:
+        payload, payload_text, prompt_hash = self._build_payload(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            model=model,
+            temperature=temperature,
+            response_mode=response_mode,
+            json_schema=json_schema,
+            extra=extra,
+        )
         result = _request_json(
             url=f"{self._base_url}/chat/completions",
             payload=payload,
@@ -371,6 +393,15 @@ class ChatCompletionsBackend:
         temperature: float | None,
         extra: dict[str, Any] | None = None,
     ) -> BackendResult:
+        _, schema_payload_text, schema_prompt_hash = self._build_payload(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            model=model,
+            temperature=temperature,
+            response_mode="json_schema",
+            json_schema=json_schema,
+            extra=extra,
+        )
         try:
             return self._chat_call(
                 system_prompt=system_prompt,
@@ -386,24 +417,33 @@ class ChatCompletionsBackend:
                 return BackendResult(
                     provider_meta=BackendMeta(api="chat", model=model, response_mode="json_schema"),
                     parsed_json=None,
-                    raw_prompt=None,
+                    raw_prompt=schema_payload_text,
                     raw_text=None,
                     error=f"OpenAI chat error: {e}",
-                    prompt_hash=None,
+                    prompt_hash=schema_prompt_hash,
                     response_hash=None,
                 )
         except RuntimeError as e:
             return BackendResult(
                 provider_meta=BackendMeta(api="chat", model=model, response_mode="json_schema"),
                 parsed_json=None,
-                raw_prompt=None,
+                raw_prompt=schema_payload_text,
                 raw_text=None,
                 error=str(e),
-                prompt_hash=None,
+                prompt_hash=schema_prompt_hash,
                 response_hash=None,
             )
 
         # Only fallback when json_schema is unsupported for this chat mode.
+        _, object_payload_text, object_prompt_hash = self._build_payload(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            model=model,
+            temperature=temperature,
+            response_mode="json_object",
+            json_schema=json_schema,
+            extra=extra,
+        )
         try:
             return self._chat_call(
                 system_prompt=system_prompt,
@@ -418,20 +458,20 @@ class ChatCompletionsBackend:
             return BackendResult(
                 provider_meta=BackendMeta(api="chat", model=model, response_mode="json_object"),
                 parsed_json=None,
-                raw_prompt=None,
+                raw_prompt=object_payload_text,
                 raw_text=None,
                 error=f"OpenAI chat fallback error: {e}",
-                prompt_hash=None,
+                prompt_hash=object_prompt_hash,
                 response_hash=None,
             )
         except RuntimeError as e:
             return BackendResult(
                 provider_meta=BackendMeta(api="chat", model=model, response_mode="json_object"),
                 parsed_json=None,
-                raw_prompt=None,
+                raw_prompt=object_payload_text,
                 raw_text=None,
                 error=str(e),
-                prompt_hash=None,
+                prompt_hash=object_prompt_hash,
                 response_hash=None,
             )
 
