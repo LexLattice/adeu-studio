@@ -176,6 +176,16 @@ function spanFromReason(ir: AdeuIR, reason: CheckReason): SourceSpan | null {
   return null;
 }
 
+function solverStatusFromReport(report: CheckReport | null): string | null {
+  if (!report?.trace?.length) return null;
+  for (const traceItem of report.trace) {
+    for (const because of traceItem.because ?? []) {
+      if (because.startsWith("solver:")) return because.slice("solver:".length);
+    }
+  }
+  return null;
+}
+
 export default function HomePage() {
   const [clauseText, setClauseText] = useState<string>("");
   const [provider, setProvider] = useState<"mock" | "openai">("mock");
@@ -195,11 +205,23 @@ export default function HomePage() {
   const selected = useMemo(() => candidates[selectedIdx] ?? null, [candidates, selectedIdx]);
   const selectedIr = useMemo(() => selected?.ir ?? null, [selected]);
   const selectedReport = useMemo(() => selected?.check_report ?? null, [selected]);
+  const selectedSolverStatus = useMemo(
+    () => solverStatusFromReport(selectedReport),
+    [selectedReport]
+  );
   const compared = useMemo(
     () => (compareIdx === null ? null : candidates[compareIdx] ?? null),
     [candidates, compareIdx]
   );
   const comparedIr = useMemo(() => compared?.ir ?? null, [compared]);
+  const comparedSolverStatus = useMemo(
+    () => solverStatusFromReport(compared?.check_report ?? null),
+    [compared]
+  );
+  const solverFlip = useMemo(() => {
+    if (!selectedSolverStatus || !comparedSolverStatus) return false;
+    return selectedSolverStatus !== comparedSolverStatus;
+  }, [selectedSolverStatus, comparedSolverStatus]);
   const diffItems = useMemo(() => {
     if (!selectedIr || !comparedIr) return [];
     const out: DiffItem[] = [];
@@ -402,7 +424,9 @@ export default function HomePage() {
               }}
               disabled={idx === selectedIdx}
             >
-              Variant {idx + 1} ({c.check_report.status})
+              Variant {idx + 1} ({c.check_report.status}
+              {solverStatusFromReport(c.check_report) ? `/${solverStatusFromReport(c.check_report)}` : ""}
+              )
             </button>
           ))}
           {candidates.length === 0 ? <span className="muted">No candidates yet.</span> : null}
@@ -427,6 +451,19 @@ export default function HomePage() {
             </>
           ) : null}
         </div>
+        {compared ? (
+          <div className="row" style={{ marginTop: 8 }}>
+            <span className="muted">
+              Selected: {selectedReport?.status ?? "n/a"}
+              {selectedSolverStatus ? `/${selectedSolverStatus}` : ""}
+            </span>
+            <span className="muted">
+              Compared: {compared.check_report.status}
+              {comparedSolverStatus ? `/${comparedSolverStatus}` : ""}
+            </span>
+            {solverFlip ? <span className="muted">Satisfiability flipped.</span> : null}
+          </div>
+        ) : null}
         {diffItems.length ? (
           <pre style={{ flex: "unset" }}>
             {diffItems
