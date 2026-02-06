@@ -40,6 +40,8 @@ def test_propose_mock_returns_checked_candidates() -> None:
     # API should deterministically populate source_features from the clause text.
     modals = resp.candidates[0].ir.context.source_features.modals
     assert modals == ["may"]
+    assert resp.proposer_log.source_features is not None
+    assert resp.proposer_log.source_features.get("modals") == ["may"]
 
     assert resp.proposer_log.provider == "mock"
     assert resp.proposer_log.attempts, "Mock proposer should emit attempt summaries"
@@ -90,6 +92,8 @@ def test_propose_mock_respects_context_but_overwrites_source_features() -> None:
 
     # But source_features is deterministic from the clause text.
     assert resp.candidates[0].ir.context.source_features.modals == ["may"]
+    assert resp.proposer_log.source_features is not None
+    assert resp.proposer_log.source_features.get("modals") == ["may"]
 
 
 def test_propose_mock_unknown_clause_returns_empty() -> None:

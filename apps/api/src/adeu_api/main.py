@@ -439,7 +439,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
                 created_at=openai_log.created_at,
                 k=openai_log.k,
                 n=openai_log.n,
-                source_features=None,
+                source_features=features.model_dump(mode="json"),
                 attempts=[
                     ProposerAttempt(
                         attempt_idx=a.attempt_idx,
@@ -468,7 +468,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
                 created_at=datetime.now(tz=timezone.utc).isoformat(),
                 k=0,
                 n=0,
-                source_features=None,
+                source_features=features.model_dump(mode="json"),
             ),
         )
 
@@ -488,7 +488,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
             created_at=datetime.now(tz=timezone.utc).isoformat(),
             k=len(candidates),
             n=0,
-            source_features=None,
+            source_features=features.model_dump(mode="json"),
             attempts=[
                 ProposerAttempt(
                     attempt_idx=idx,
