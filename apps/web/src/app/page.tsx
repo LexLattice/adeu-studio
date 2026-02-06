@@ -18,18 +18,25 @@ type ProposerAttempt = {
   attempt_idx: number;
   status: "PASS" | "WARN" | "REFUSE" | "PARSE_ERROR";
   reason_codes_summary: string[];
+  score_key?: [number, number, number, number] | number[] | null;
+  accepted_by_gate?: boolean | null;
   candidate_rank?: number | null;
 };
 
 type ProposerLog = {
   provider: string;
+  api?: string | null;
   model?: string | null;
   created_at: string;
+  k?: number | null;
+  n?: number | null;
   attempts: ProposerAttempt[];
+  prompt_hash?: string | null;
+  response_hash?: string | null;
 };
 
 type ProposeResponse = {
-  provider: { kind: string; model?: string | null };
+  provider: { kind: string; api?: string | null; model?: string | null };
   candidates: ProposeCandidate[];
   proposer_log: ProposerLog;
 };
@@ -374,6 +381,7 @@ export default function HomePage() {
         {proposerLog ? (
           <div className="muted" style={{ marginTop: 8 }}>
             Proposer: {proposerLog.provider}
+            {proposerLog.api ? `/${proposerLog.api}` : ""}
             {proposerLog.model ? ` (${proposerLog.model})` : ""} — attempts:{" "}
             {proposerLog.attempts.length}
           </div>
