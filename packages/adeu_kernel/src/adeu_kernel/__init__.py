@@ -6,6 +6,14 @@ from .patching import (
     apply_ambiguity_option_patch,
     apply_json_patch,
 )
+from .proof import (
+    DEFAULT_LEAN_TIMEOUT_MS,
+    LeanCliProofBackend,
+    MockProofBackend,
+    ProofBackend,
+    build_proof_backend,
+    build_trivial_theorem_source,
+)
 from .validator import (
     DEFAULT_Z3_TIMEOUT_MS,
     MockValidator,
@@ -18,7 +26,11 @@ __all__ = [
     "KernelMode",
     "PatchValidationError",
     "DEFAULT_Z3_TIMEOUT_MS",
+    "DEFAULT_LEAN_TIMEOUT_MS",
+    "LeanCliProofBackend",
     "MockValidator",
+    "MockProofBackend",
+    "ProofBackend",
     "ValidatorBackend",
     "ValidatorRunRecord",
     "Z3Validator",
@@ -26,6 +38,8 @@ __all__ = [
     "apply_ambiguity_option_patch",
     "apply_json_patch",
     "build_validator_backend",
+    "build_proof_backend",
+    "build_trivial_theorem_source",
     "check",
     "check_with_validator_runs",
 ]
