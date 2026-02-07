@@ -161,6 +161,88 @@ def _ensure_validator_schema(con: sqlite3.Connection) -> None:
     }
     if "concept_artifact_id" not in existing:
         con.execute("ALTER TABLE validator_runs ADD COLUMN concept_artifact_id TEXT")
+    if not _validator_runs_has_concept_fk(con):
+        _rebuild_validator_runs_with_concept_fk(con)
+
+
+def _validator_runs_has_concept_fk(con: sqlite3.Connection) -> bool:
+    for row in con.execute("PRAGMA foreign_key_list(validator_runs)").fetchall():
+        # PRAGMA columns: id, seq, table, from, to, on_update, on_delete, match
+        if str(row[2]) == "concept_artifacts" and str(row[3]) == "concept_artifact_id":
+            return True
+    return False
+
+
+def _rebuild_validator_runs_with_concept_fk(con: sqlite3.Connection) -> None:
+    existing = {
+        str(row[1])
+        for row in con.execute("PRAGMA table_info(validator_runs)").fetchall()
+        if row and row[1]
+    }
+    concept_expr = (
+        "CASE WHEN concept_artifact_id IS NULL OR concept_artifact_id IN "
+        "(SELECT artifact_id FROM concept_artifacts) THEN concept_artifact_id ELSE NULL END"
+        if "concept_artifact_id" in existing
+        else "NULL"
+    )
+    con.execute(
+        """
+        CREATE TABLE validator_runs_new (
+          run_id TEXT PRIMARY KEY,
+          artifact_id TEXT,
+          concept_artifact_id TEXT,
+          created_at TEXT NOT NULL,
+          backend TEXT NOT NULL,
+          backend_version TEXT,
+          timeout_ms INTEGER NOT NULL,
+          options_json TEXT NOT NULL,
+          request_hash TEXT NOT NULL,
+          formula_hash TEXT NOT NULL,
+          status TEXT NOT NULL,
+          evidence_json TEXT NOT NULL,
+          atom_map_json TEXT NOT NULL,
+          FOREIGN KEY(artifact_id) REFERENCES artifacts(artifact_id),
+          FOREIGN KEY(concept_artifact_id) REFERENCES concept_artifacts(artifact_id)
+        )
+        """
+    )
+    con.execute(
+        f"""
+        INSERT INTO validator_runs_new (
+          run_id,
+          artifact_id,
+          concept_artifact_id,
+          created_at,
+          backend,
+          backend_version,
+          timeout_ms,
+          options_json,
+          request_hash,
+          formula_hash,
+          status,
+          evidence_json,
+          atom_map_json
+        )
+        SELECT
+          run_id,
+          CASE WHEN artifact_id IS NULL OR artifact_id IN (SELECT artifact_id FROM artifacts)
+            THEN artifact_id ELSE NULL END,
+          {concept_expr},
+          created_at,
+          backend,
+          backend_version,
+          timeout_ms,
+          options_json,
+          request_hash,
+          formula_hash,
+          status,
+          evidence_json,
+          atom_map_json
+        FROM validator_runs
+        """
+    )
+    con.execute("DROP TABLE validator_runs")
+    con.execute("ALTER TABLE validator_runs_new RENAME TO validator_runs")
 
 
 def _ensure_validator_indexes(con: sqlite3.Connection) -> None:
@@ -261,12 +343,12 @@ def _ensure_schema(con: sqlite3.Connection) -> None:
     )
     _ensure_columns(con)
     _ensure_indexes(con)
+    _ensure_concept_artifact_schema(con)
+    _ensure_concept_artifact_indexes(con)
     _ensure_validator_schema(con)
     _ensure_validator_indexes(con)
     _ensure_proof_schema(con)
     _ensure_proof_indexes(con)
-    _ensure_concept_artifact_schema(con)
-    _ensure_concept_artifact_indexes(con)
 
 
 def _normalize_datetime_filter(value: str) -> str:

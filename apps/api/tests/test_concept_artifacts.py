@@ -20,6 +20,7 @@ from adeu_api.main import (
     list_concept_artifacts_endpoint,
     propose_concept,
 )
+from adeu_api.storage import create_validator_run
 from adeu_concepts import ConceptIR
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
@@ -255,3 +256,126 @@ def test_concept_artifact_list_filters_and_pagination(
     paged = list_concept_artifacts_endpoint(limit=1, offset=1)
     assert len(paged.items) == 1
     assert paged.items[0].artifact_id == warn.artifact_id
+
+
+def test_validator_runs_migration_adds_concept_fk_for_existing_db(tmp_path: Path) -> None:
+    db_path = tmp_path / "legacy.sqlite3"
+
+    with sqlite3.connect(db_path) as con:
+        con.execute(
+            """
+            CREATE TABLE artifacts (
+              artifact_id TEXT PRIMARY KEY,
+              created_at TEXT NOT NULL,
+              clause_text TEXT NOT NULL,
+              ir_json TEXT NOT NULL,
+              check_report_json TEXT NOT NULL
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE concept_artifacts (
+              artifact_id TEXT PRIMARY KEY,
+              created_at TEXT NOT NULL,
+              schema_version TEXT NOT NULL,
+              artifact_version INTEGER NOT NULL,
+              source_text TEXT NOT NULL,
+              doc_id TEXT,
+              status TEXT,
+              num_errors INTEGER,
+              num_warns INTEGER,
+              ir_json TEXT NOT NULL,
+              check_report_json TEXT NOT NULL,
+              analysis_json TEXT
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE validator_runs (
+              run_id TEXT PRIMARY KEY,
+              artifact_id TEXT,
+              created_at TEXT NOT NULL,
+              backend TEXT NOT NULL,
+              backend_version TEXT,
+              timeout_ms INTEGER NOT NULL,
+              options_json TEXT NOT NULL,
+              request_hash TEXT NOT NULL,
+              formula_hash TEXT NOT NULL,
+              status TEXT NOT NULL,
+              evidence_json TEXT NOT NULL,
+              atom_map_json TEXT NOT NULL,
+              FOREIGN KEY(artifact_id) REFERENCES artifacts(artifact_id)
+            )
+            """
+        )
+        con.execute(
+            "INSERT INTO artifacts "
+            "(artifact_id, created_at, clause_text, ir_json, check_report_json) "
+            "VALUES (?, ?, ?, ?, ?)",
+            ("art_legacy", "2026-02-07T00:00:00+00:00", "x", "{}", "{}"),
+        )
+        con.execute(
+            "INSERT INTO concept_artifacts "
+            "(artifact_id, created_at, schema_version, artifact_version, source_text, doc_id, "
+            "status, num_errors, num_warns, ir_json, check_report_json, analysis_json) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                "concept_legacy",
+                "2026-02-07T00:00:00+00:00",
+                "adeu.concepts.v0",
+                1,
+                "x",
+                None,
+                "PASS",
+                0,
+                0,
+                "{}",
+                "{}",
+                None,
+            ),
+        )
+        con.execute(
+            "INSERT INTO validator_runs "
+            "(run_id, artifact_id, created_at, backend, backend_version, timeout_ms, options_json, "
+            "request_hash, formula_hash, status, evidence_json, atom_map_json) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                "run_legacy",
+                "art_legacy",
+                "2026-02-07T00:00:00+00:00",
+                "z3",
+                "4.13.3.0",
+                3000,
+                "{}",
+                "req",
+                "frm",
+                "SAT",
+                "{}",
+                "{}",
+            ),
+        )
+
+    create_validator_run(
+        artifact_id=None,
+        concept_artifact_id="concept_legacy",
+        backend="z3",
+        backend_version="4.13.3.0",
+        timeout_ms=3000,
+        options_json={},
+        request_hash="req2",
+        formula_hash="frm2",
+        status="SAT",
+        evidence_json={},
+        atom_map_json={},
+        db_path=db_path,
+    )
+
+    with sqlite3.connect(db_path) as con:
+        fk_rows = con.execute("PRAGMA foreign_key_list(validator_runs)").fetchall()
+        has_concept_fk = any(
+            str(row[2]) == "concept_artifacts" and str(row[3]) == "concept_artifact_id"
+            for row in fk_rows
+        )
+        assert has_concept_fk
