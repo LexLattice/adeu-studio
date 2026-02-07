@@ -34,6 +34,18 @@ make bootstrap
 `POST /concepts/propose` returns fixture-backed concept composition candidates when the input
 `source_text` matches one of `examples/concepts/fixtures/*/source.txt`.
 
+Concept composition endpoints:
+
+- `POST /concepts/check` validates a `ConceptIR` and returns a shared `CheckReport`.
+- `POST /concepts/analyze` returns `CheckReport` plus structured analysis:
+  - SAT: model-conditional closure edges
+  - UNSAT: one subset-minimal MIC (or `PARTIAL`/`UNAVAILABLE`)
+- `POST /concepts/diff` returns structural + solver-aware causal diff for two concept variants.
+- `POST /concepts/artifacts` stores accepted concept artifacts (strict check on create) and persists
+  linked validator runs by default.
+- `GET /concepts/artifacts` and `GET /concepts/artifacts/{artifact_id}` retrieve concept artifacts.
+- `GET /concepts/artifacts/{artifact_id}/validator-runs` retrieves linked solver runs.
+
 `POST /puzzles/solve` accepts a strict `KnightsKnavesPuzzle` payload and returns:
 
 - solver status (`SAT`/`UNSAT`/`UNKNOWN`/...)
@@ -96,3 +108,8 @@ cd apps/web
 npm install
 NEXT_PUBLIC_ADEU_API_URL=http://localhost:8000 npm run dev
 ```
+
+Web routes:
+
+- `/` ADEU Studio
+- `/concepts` Concepts Studio (propose/check/analyze/compare with span-highlighted causal diff)

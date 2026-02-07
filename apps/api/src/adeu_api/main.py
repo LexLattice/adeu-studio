@@ -64,13 +64,19 @@ from .scoring import ranking_sort_key, score_key
 from .source_features import extract_source_features
 from .storage import (
     create_artifact,
+    create_concept_artifact,
     create_proof_artifact,
     create_validator_run,
     get_artifact,
+    get_concept_artifact,
     list_artifacts,
+    list_concept_artifacts,
+    list_concept_validator_runs,
     list_proof_artifacts,
     list_validator_runs,
 )
+
+MAX_SOURCE_TEXT_BYTES = 200_000
 
 
 class ProposeRequest(BaseModel):
@@ -157,6 +163,13 @@ class ConceptAnalyzeRequest(BaseModel):
     include_validator_runs: bool = False
     include_analysis_details: bool = True
     validator_runs: list[ValidatorRunInput] | None = None
+
+
+class ConceptArtifactCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    source_text: str = Field(min_length=1)
+    ir: ConceptIR
+    mode: KernelMode = KernelMode.STRICT
 
 
 class PuzzleProposeRequest(BaseModel):
@@ -285,6 +298,7 @@ class StoredValidatorRun(BaseModel):
     model_config = ConfigDict(extra="forbid")
     run_id: str
     artifact_id: str | None
+    concept_artifact_id: str | None = None
     created_at: str
     backend: str
     backend_version: str | None
@@ -341,14 +355,69 @@ class ConceptAnalyzeResponse(BaseModel):
     validator_runs: list[ValidatorRunInput] | None = None
 
 
+class ConceptArtifactCreateResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    artifact_id: str
+    created_at: str
+    check_report: CheckReport
+    analysis: ConceptAnalysis | None = None
+
+
+class ConceptArtifactSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    artifact_id: str
+    created_at: str
+    doc_id: str | None
+    status: str | None
+    num_errors: int | None
+    num_warns: int | None
+
+
+class ConceptArtifactListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: list[ConceptArtifactSummary]
+
+
+class ConceptArtifactGetResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    artifact_id: str
+    created_at: str
+    schema_version: str
+    artifact_version: int
+    source_text: str
+    ir: ConceptIR
+    check_report: CheckReport
+    analysis: ConceptAnalysis | None = None
+
+
 def _env_flag(name: str) -> bool:
     return os.environ.get(name, "").strip() == "1"
+
+
+def _enforce_source_text_size(source_text: str, *, field: str = "source_text") -> None:
+    size_bytes = len(source_text.encode("utf-8"))
+    if size_bytes <= MAX_SOURCE_TEXT_BYTES:
+        return
+    raise HTTPException(
+        status_code=400,
+        detail={
+            "code": "PAYLOAD_TOO_LARGE",
+            "message": (
+                f"{field} exceeds {MAX_SOURCE_TEXT_BYTES} bytes "
+                f"(got {size_bytes} bytes)"
+            ),
+            "field": field,
+            "max_bytes": MAX_SOURCE_TEXT_BYTES,
+            "actual_bytes": size_bytes,
+        },
+    )
 
 
 def _persist_validator_runs(
     *,
     runs: list[ValidatorRunRecord],
     artifact_id: str | None,
+    concept_artifact_id: str | None = None,
 ) -> None:
     for run in runs:
         atom_map = {
@@ -360,6 +429,7 @@ def _persist_validator_runs(
         }
         create_validator_run(
             artifact_id=artifact_id,
+            concept_artifact_id=concept_artifact_id,
             backend=run.result.backend,
             backend_version=run.result.backend_version,
             timeout_ms=run.result.timeout_ms,
@@ -821,6 +891,8 @@ def check_puzzle_variant(req: PuzzleCheckRequest) -> CheckReport:
 
 @app.post("/concepts/check", response_model=CheckReport)
 def check_concept_variant(req: ConceptCheckRequest) -> CheckReport:
+    if req.source_text is not None:
+        _enforce_source_text_size(req.source_text)
     report, runs = check_concept_with_validator_runs(
         req.ir,
         mode=req.mode,
@@ -833,6 +905,8 @@ def check_concept_variant(req: ConceptCheckRequest) -> CheckReport:
 
 @app.post("/concepts/analyze", response_model=ConceptAnalyzeResponse)
 def analyze_concept_variant(req: ConceptAnalyzeRequest) -> ConceptAnalyzeResponse:
+    if req.source_text is not None:
+        _enforce_source_text_size(req.source_text)
     report, concept_runs, run_inputs, recomputed_records = _resolve_concepts_analyze_runs(req)
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and recomputed_records:
         _persist_validator_runs(runs=recomputed_records, artifact_id=None)
@@ -971,6 +1045,7 @@ def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
 @app.post("/concepts/propose", response_model=ConceptProposeResponse)
 def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
     source_text = req.source_text.strip()
+    _enforce_source_text_size(source_text)
     source_features = extract_concept_source_features(source_text)
 
     if req.provider == "openai":
@@ -1084,6 +1159,139 @@ def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
                 for idx, candidate in enumerate(candidates)
             ],
         ),
+    )
+
+
+@app.post("/concepts/artifacts", response_model=ConceptArtifactCreateResponse)
+def create_concept_artifact_endpoint(
+    req: ConceptArtifactCreateRequest,
+) -> ConceptArtifactCreateResponse:
+    _enforce_source_text_size(req.source_text)
+    report, runs = check_concept_with_validator_runs(
+        req.ir,
+        mode=req.mode,
+        source_text=req.source_text,
+    )
+    if report.status == "REFUSE":
+        raise HTTPException(status_code=400, detail="refused by kernel")
+
+    num_errors = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.ERROR)
+    num_warns = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.WARN)
+    run_inputs = [_validator_run_input_from_record(record) for record in runs]
+    concept_runs = [_concept_run_ref_from_input(run) for run in run_inputs]
+    selected = pick_latest_run(concept_runs)
+    analysis = analyze_concept(req.ir, run=selected) if selected is not None else None
+
+    row = create_concept_artifact(
+        schema_version=req.ir.schema_version,
+        artifact_version=1,
+        source_text=req.source_text,
+        doc_id=req.ir.context.doc_id,
+        status=report.status,
+        num_errors=num_errors,
+        num_warns=num_warns,
+        ir_json=req.ir.model_dump(mode="json", exclude_none=True),
+        check_report_json=report.model_dump(mode="json", exclude_none=True),
+        analysis_json=analysis.model_dump(mode="json", exclude_none=True) if analysis else None,
+    )
+    if runs:
+        _persist_validator_runs(
+            runs=runs,
+            artifact_id=None,
+            concept_artifact_id=row.artifact_id,
+        )
+    return ConceptArtifactCreateResponse(
+        artifact_id=row.artifact_id,
+        created_at=row.created_at,
+        check_report=report,
+        analysis=analysis,
+    )
+
+
+@app.get("/concepts/artifacts", response_model=ConceptArtifactListResponse)
+def list_concept_artifacts_endpoint(
+    doc_id: str | None = None,
+    status: Literal["PASS", "WARN", "REFUSE"] | None = None,
+    created_after: str | None = None,
+    created_before: str | None = None,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0, le=50_000),
+) -> ConceptArtifactListResponse:
+    try:
+        rows = list_concept_artifacts(
+            doc_id=doc_id,
+            status=status,
+            created_after=created_after,
+            created_before=created_before,
+            limit=limit,
+            offset=offset,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return ConceptArtifactListResponse(
+        items=[
+            ConceptArtifactSummary(
+                artifact_id=row.artifact_id,
+                created_at=row.created_at,
+                doc_id=row.doc_id,
+                status=row.status,
+                num_errors=row.num_errors,
+                num_warns=row.num_warns,
+            )
+            for row in rows
+        ]
+    )
+
+
+@app.get("/concepts/artifacts/{artifact_id}", response_model=ConceptArtifactGetResponse)
+def get_concept_artifact_endpoint(artifact_id: str) -> ConceptArtifactGetResponse:
+    row = get_concept_artifact(artifact_id=artifact_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="not found")
+    analysis = ConceptAnalysis.model_validate(row.analysis_json) if row.analysis_json else None
+    return ConceptArtifactGetResponse(
+        artifact_id=row.artifact_id,
+        created_at=row.created_at,
+        schema_version=row.schema_version,
+        artifact_version=row.artifact_version,
+        source_text=row.source_text,
+        ir=ConceptIR.model_validate(row.ir_json),
+        check_report=CheckReport.model_validate(row.check_report_json),
+        analysis=analysis,
+    )
+
+
+@app.get(
+    "/concepts/artifacts/{artifact_id}/validator-runs",
+    response_model=ArtifactValidatorRunsResponse,
+)
+def list_concept_artifact_validator_runs_endpoint(
+    artifact_id: str,
+) -> ArtifactValidatorRunsResponse:
+    row = get_concept_artifact(artifact_id=artifact_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="not found")
+
+    rows = list_concept_validator_runs(concept_artifact_id=artifact_id)
+    return ArtifactValidatorRunsResponse(
+        items=[
+            StoredValidatorRun(
+                run_id=run.run_id,
+                artifact_id=run.artifact_id,
+                concept_artifact_id=run.concept_artifact_id,
+                created_at=run.created_at,
+                backend=run.backend,
+                backend_version=run.backend_version,
+                timeout_ms=run.timeout_ms,
+                options_json=run.options_json,
+                request_hash=run.request_hash,
+                formula_hash=run.formula_hash,
+                status=run.status,
+                evidence_json=run.evidence_json,
+                atom_map_json=run.atom_map_json,
+            )
+            for run in rows
+        ]
     )
 
 
@@ -1299,6 +1507,7 @@ def list_artifact_validator_runs_endpoint(artifact_id: str) -> ArtifactValidator
             StoredValidatorRun(
                 run_id=row.run_id,
                 artifact_id=row.artifact_id,
+                concept_artifact_id=row.concept_artifact_id,
                 created_at=row.created_at,
                 backend=row.backend,
                 backend_version=row.backend_version,

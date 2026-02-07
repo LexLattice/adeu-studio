@@ -163,6 +163,7 @@ def test_concepts_diff_endpoint_highlights_sense_flip_atom() -> None:
     assert resp.causal_slice.touched_atoms == ["atom_claim"]
     assert resp.causal_slice.touched_object_ids == ["claim_1"]
     assert resp.causal_slice.touched_json_paths == ["/claims/0/sense_id"]
+    assert resp.causal_slice.explanation_items[0].span is not None
 
 
 def test_concepts_diff_endpoint_recomputes_runs_when_inline_missing() -> None:
