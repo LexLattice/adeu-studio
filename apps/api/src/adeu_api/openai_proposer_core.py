@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Generic, Protocol, TypeVar
+from typing import Any, Generic, Protocol, TypeVar
 
 from adeu_ir import CheckReport
 from adeu_kernel import KernelMode
@@ -62,7 +61,7 @@ class ProposerAdapter(Protocol[IRT, AuxT]):
         failure_summary: str,
     ) -> tuple[str, str]: ...
 
-    def parse_ir(self, raw_json: str) -> tuple[IRT | None, str | None]: ...
+    def parse_ir(self, payload: dict[str, Any]) -> tuple[IRT | None, str | None]: ...
 
     def canonicalize(self, ir: IRT) -> IRT: ...
 
@@ -112,7 +111,6 @@ def run_openai_repair_loop(
         accepted_report: CheckReport | None = None
         accepted_aux: AuxT | None = None
         accepted_score: ScoreKey | None = None
-        accepted_any = False
         previous_ir: IRT | None = None
         last_attempt: CoreAttemptLog | None = None
         failure_summary = ""
@@ -171,12 +169,7 @@ def run_openai_repair_loop(
                     break
                 continue
 
-            raw_text = json.dumps(
-                backend_result.parsed_json,
-                ensure_ascii=False,
-                sort_keys=True,
-            )
-            parsed_ir, parse_error = adapter.parse_ir(raw_text)
+            parsed_ir, parse_error = adapter.parse_ir(backend_result.parsed_json)
             if parsed_ir is None or parse_error is not None:
                 error_text = parse_error or "domain parse returned no IR"
                 attempt = CoreAttemptLog(
@@ -220,14 +213,17 @@ def run_openai_repair_loop(
                 accepted_report = report
                 accepted_aux = aux
                 accepted_score = report_score
-                accepted_any = True
             else:
                 break
 
             if report.status == "PASS":
                 break
 
-        if accepted_any and accepted_ir is not None and accepted_report is not None:
+        if (
+            accepted_ir is not None
+            and accepted_report is not None
+            and accepted_score is not None
+        ):
             accepted_candidates.append(
                 CoreCandidate(
                     ir=accepted_ir,

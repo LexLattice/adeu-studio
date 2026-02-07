@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import json
-import os
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from adeu_ir import AdeuIR, CheckReport, Context
 from adeu_ir.repo import repo_root
@@ -14,14 +13,19 @@ from pydantic import ValidationError
 
 from .id_canonicalization import canonicalize_ir_ids
 from .openai_backends import BackendApi, build_openai_backend
+from .openai_config import (
+    env_flag,
+    openai_api,
+    openai_api_key,
+    openai_base_url,
+    openai_model,
+)
 from .openai_proposer_core import (
     CoreAttemptLog,
     ProposerAdapter,
     run_openai_repair_loop,
 )
 
-DEFAULT_OPENAI_MODEL = "gpt-5.2"
-DEFAULT_OPENAI_API: BackendApi = "responses"
 DEFAULT_MAX_CANDIDATES = 5
 DEFAULT_MAX_REPAIRS = 3
 
@@ -113,11 +117,7 @@ class _AdeuAdapter(ProposerAdapter[AdeuIR, None]):
         )
         return system_prompt, user_prompt
 
-    def parse_ir(self, raw_json: str) -> tuple[AdeuIR | None, str | None]:
-        try:
-            payload = json.loads(raw_json)
-        except json.JSONDecodeError as exc:
-            return None, f"ADEU IR JSON parse failed: {exc}"
+    def parse_ir(self, payload: dict[str, Any]) -> tuple[AdeuIR | None, str | None]:
         try:
             return AdeuIR.model_validate(payload), None
         except ValidationError as exc:
@@ -150,29 +150,6 @@ class _AdeuAdapter(ProposerAdapter[AdeuIR, None]):
         )
 
 
-def _env_flag(name: str) -> bool:
-    return os.environ.get(name, "").strip() == "1"
-
-
-def _openai_api_key() -> str | None:
-    return os.environ.get("OPENAI_API_KEY") or os.environ.get("ADEU_OPENAI_API_KEY")
-
-
-def _openai_model() -> str:
-    return os.environ.get("ADEU_OPENAI_MODEL", DEFAULT_OPENAI_MODEL).strip() or DEFAULT_OPENAI_MODEL
-
-
-def _openai_api() -> BackendApi:
-    value = os.environ.get("ADEU_OPENAI_API", DEFAULT_OPENAI_API).strip().lower()
-    if value in {"responses", "chat"}:
-        return cast(BackendApi, value)
-    raise RuntimeError("ADEU_OPENAI_API must be one of: responses, chat")
-
-
-def _openai_base_url() -> str:
-    return os.environ.get("ADEU_OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
-
-
 @lru_cache(maxsize=1)
 def _adeu_ir_json_schema() -> dict[str, Any]:
     root = repo_root(anchor=Path(__file__))
@@ -196,16 +173,16 @@ def propose_openai(
     max_candidates: int | None,
     max_repairs: int | None,
 ) -> tuple[list[tuple[AdeuIR, CheckReport]], ProposerLog, str]:
-    api_key = _openai_api_key()
+    api_key = openai_api_key()
     if not api_key:
         raise RuntimeError("OpenAI provider not configured (set OPENAI_API_KEY)")
 
-    api = _openai_api()
-    model = _openai_model()
-    base_url = _openai_base_url()
+    api = openai_api()
+    model = openai_model()
+    base_url = openai_base_url()
     schema = _adeu_ir_json_schema()
     backend = build_openai_backend(api=api, api_key=api_key, base_url=base_url)
-    want_raw = _env_flag("ADEU_LOG_RAW_LLM")
+    want_raw = env_flag("ADEU_LOG_RAW_LLM")
 
     k = DEFAULT_MAX_CANDIDATES if max_candidates is None else max_candidates
     n = DEFAULT_MAX_REPAIRS if max_repairs is None else max_repairs

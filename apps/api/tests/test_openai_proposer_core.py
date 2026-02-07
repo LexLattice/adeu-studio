@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from typing import Any
 
@@ -99,11 +98,7 @@ class _Adapter(ProposerAdapter[_FakeIR, None]):
     ) -> tuple[str, str]:
         return "system", "repair"
 
-    def parse_ir(self, raw_json: str) -> tuple[_FakeIR | None, str | None]:
-        try:
-            payload = json.loads(raw_json)
-        except json.JSONDecodeError as exc:
-            return None, str(exc)
+    def parse_ir(self, payload: dict[str, Any]) -> tuple[_FakeIR | None, str | None]:
         if not isinstance(payload, dict):
             return None, "not an object"
         candidate_id = payload.get("candidate_id")
