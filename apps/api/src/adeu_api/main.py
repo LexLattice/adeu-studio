@@ -5,6 +5,8 @@ import os
 from datetime import datetime, timezone
 from typing import Any, Literal
 
+from adeu_concepts import ConceptIR
+from adeu_concepts import check_with_validator_runs as check_concept_with_validator_runs
 from adeu_explain import DiffReport, ValidatorRunInput, build_diff_report
 from adeu_ir import (
     AdeuIR,
@@ -37,8 +39,12 @@ from adeu_puzzles import (
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
+from .concept_id_canonicalization import canonicalize_concept_ids
+from .concept_mock_provider import get_concept_fixture_bundle
+from .concept_source_features import extract_concept_source_features
 from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
+from .openai_concept_provider import propose_concept_openai
 from .puzzle_id_canonicalization import canonicalize_puzzle_ids
 from .puzzle_mock_provider import get_puzzle_fixture_bundle
 from .puzzle_source_features import extract_puzzle_source_features
@@ -124,12 +130,27 @@ class PuzzleCheckRequest(BaseModel):
     mode: KernelMode = KernelMode.LAX
 
 
+class ConceptCheckRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: ConceptIR
+    mode: KernelMode = KernelMode.LAX
+
+
 class PuzzleProposeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     puzzle_text: str = Field(min_length=1)
     provider: Literal["mock", "openai"] = "mock"
     mode: KernelMode = KernelMode.LAX
     context_override: dict[str, Any] | None = None
+    max_candidates: int | None = Field(default=None, ge=1, le=20)
+    max_repairs: int | None = Field(default=None, ge=0, le=10)
+
+
+class ConceptProposeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    source_text: str = Field(min_length=1)
+    provider: Literal["mock", "openai"] = "mock"
+    mode: KernelMode = KernelMode.LAX
     max_candidates: int | None = Field(default=None, ge=1, le=20)
     max_repairs: int | None = Field(default=None, ge=0, le=10)
 
@@ -148,6 +169,14 @@ class DiffRequest(BaseModel):
     right_validator_runs: list[ValidatorRunInput] | None = None
     left_artifact_id: str | None = None
     right_artifact_id: str | None = None
+
+
+class ConceptDiffRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    left_ir: ConceptIR
+    right_ir: ConceptIR
+    left_validator_runs: list[ValidatorRunInput] | None = None
+    right_validator_runs: list[ValidatorRunInput] | None = None
 
 
 class ApplyAmbiguityOptionRequest(BaseModel):
@@ -251,6 +280,20 @@ class PuzzleProposeResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     provider: ProviderInfo
     candidates: list[PuzzleProposeCandidate]
+    proposer_log: ProposerLog
+
+
+class ConceptProposeCandidate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: ConceptIR
+    check_report: CheckReport
+    rank: int
+
+
+class ConceptProposeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    provider: ProviderInfo
+    candidates: list[ConceptProposeCandidate]
     proposer_log: ProposerLog
 
 
@@ -410,6 +453,19 @@ def _score_and_rank_puzzle_proposals(
     ]
 
 
+def _score_and_rank_concept_proposals(
+    proposals: list[tuple[ConceptIR, CheckReport]],
+) -> list[ConceptProposeCandidate]:
+    scored: list[tuple[tuple[int, int, int, int], str, ConceptIR, CheckReport]] = [
+        (score_key(report), concept.concept_id, concept, report) for concept, report in proposals
+    ]
+    scored.sort(key=lambda item: ranking_sort_key(item[0], item[1]))
+    return [
+        ConceptProposeCandidate(ir=concept, check_report=report, rank=rank)
+        for rank, (_, _, concept, report) in enumerate(scored)
+    ]
+
+
 @app.post("/propose", response_model=ProposeResponse)
 def propose(req: ProposeRequest) -> ProposeResponse:
     bundles = load_fixture_bundles()
@@ -537,6 +593,14 @@ def check_puzzle_variant(req: PuzzleCheckRequest) -> CheckReport:
     return report
 
 
+@app.post("/concepts/check", response_model=CheckReport)
+def check_concept_variant(req: ConceptCheckRequest) -> CheckReport:
+    report, runs = check_concept_with_validator_runs(req.ir, mode=req.mode)
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs:
+        _persist_validator_runs(runs=runs, artifact_id=None)
+    return report
+
+
 @app.post("/puzzles/propose", response_model=PuzzleProposeResponse)
 def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
     puzzle_text = req.puzzle_text.strip()
@@ -655,6 +719,121 @@ def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
     )
 
 
+@app.post("/concepts/propose", response_model=ConceptProposeResponse)
+def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
+    source_text = req.source_text.strip()
+    source_features = extract_concept_source_features(source_text)
+
+    if req.provider == "openai":
+        try:
+            proposed, concept_log, model = propose_concept_openai(
+                source_text=source_text,
+                mode=req.mode,
+                max_candidates=req.max_candidates,
+                max_repairs=req.max_repairs,
+                source_features=source_features,
+            )
+        except RuntimeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS"):
+            for _, _, runs in proposed:
+                if runs:
+                    _persist_validator_runs(runs=runs, artifact_id=None)
+
+        candidates = _score_and_rank_concept_proposals(
+            [(concept, report) for concept, report, _ in proposed]
+        )
+        rank_by_concept_id = {candidate.ir.concept_id: candidate.rank for candidate in candidates}
+        return ConceptProposeResponse(
+            provider=ProviderInfo(kind="openai", api=concept_log.api, model=model),
+            candidates=candidates,
+            proposer_log=ProposerLog(
+                provider=concept_log.provider,
+                api=concept_log.api,
+                model=concept_log.model,
+                created_at=concept_log.created_at,
+                k=concept_log.k,
+                n=concept_log.n,
+                source_features=concept_log.source_features,
+                attempts=[
+                    ProposerAttempt(
+                        attempt_idx=attempt.attempt_idx,
+                        status=attempt.status,
+                        reason_codes_summary=attempt.reason_codes_summary,
+                        score_key=attempt.score_key,
+                        accepted_by_gate=attempt.accepted_by_gate,
+                        candidate_rank=(
+                            rank_by_concept_id.get(attempt.candidate_concept_id)
+                            if attempt.candidate_concept_id
+                            else None
+                        ),
+                    )
+                    for attempt in concept_log.attempts
+                ],
+                prompt_hash=concept_log.prompt_hash,
+                response_hash=concept_log.response_hash,
+                raw_prompt=concept_log.raw_prompt,
+                raw_response=concept_log.raw_response,
+            ),
+        )
+
+    bundle = get_concept_fixture_bundle(source_text)
+    if bundle is None:
+        return ConceptProposeResponse(
+            provider=ProviderInfo(kind="mock", api="mock"),
+            candidates=[],
+            proposer_log=ProposerLog(
+                provider="mock",
+                api="mock",
+                created_at=datetime.now(tz=timezone.utc).isoformat(),
+                k=0,
+                n=0,
+                source_features=source_features,
+            ),
+        )
+
+    checked: list[tuple[ConceptIR, CheckReport]] = []
+    checked_runs: list[list[ValidatorRunRecord]] = []
+    for proposal in bundle.proposals:
+        concept = canonicalize_concept_ids(proposal)
+        report, runs = check_concept_with_validator_runs(concept, mode=req.mode)
+        checked.append((concept, report))
+        checked_runs.append(runs)
+
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS"):
+        for runs in checked_runs:
+            if runs:
+                _persist_validator_runs(runs=runs, artifact_id=None)
+
+    candidates = _score_and_rank_concept_proposals(checked)
+    return ConceptProposeResponse(
+        provider=ProviderInfo(kind="mock", api="mock"),
+        candidates=candidates,
+        proposer_log=ProposerLog(
+            provider="mock",
+            api="mock",
+            created_at=datetime.now(tz=timezone.utc).isoformat(),
+            k=len(candidates),
+            n=0,
+            source_features=source_features,
+            attempts=[
+                ProposerAttempt(
+                    attempt_idx=idx,
+                    status=candidate.check_report.status,
+                    reason_codes_summary=sorted(
+                        {reason.code for reason in candidate.check_report.reason_codes}
+                    ),
+                    score_key=score_key(candidate.check_report),
+                    accepted_by_gate=True,
+                    candidate_rank=candidate.rank,
+                )
+                for idx, candidate in enumerate(candidates)
+            ],
+        ),
+    )
+
+
 @app.post("/diff", response_model=DiffReport)
 def diff_endpoint(req: DiffRequest) -> DiffReport:
     # v1 precedence lock: inline runs win and DB lookup is intentionally out of scope.
@@ -665,6 +844,20 @@ def diff_endpoint(req: DiffRequest) -> DiffReport:
         req.right_ir,
         left_id=req.left_ir.ir_id,
         right_id=req.right_ir.ir_id,
+        left_runs=left_runs,
+        right_runs=right_runs,
+    )
+
+
+@app.post("/concepts/diff", response_model=DiffReport)
+def diff_concepts_endpoint(req: ConceptDiffRequest) -> DiffReport:
+    left_runs = req.left_validator_runs if req.left_validator_runs is not None else []
+    right_runs = req.right_validator_runs if req.right_validator_runs is not None else []
+    return build_diff_report(
+        req.left_ir,
+        req.right_ir,
+        left_id=req.left_ir.concept_id,
+        right_id=req.right_ir.concept_id,
         left_runs=left_runs,
         right_runs=right_runs,
     )

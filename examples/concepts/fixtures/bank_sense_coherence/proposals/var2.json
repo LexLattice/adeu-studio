@@ -1,0 +1,71 @@
+{
+  "schema_version": "adeu.concepts.v0",
+  "concept_id": "concept_incoherent_bank",
+  "context": {
+    "doc_id": "concept://bank_sense_coherence",
+    "domain_tags": ["contracts", "terminology"]
+  },
+  "terms": [
+    {
+      "id": "t_bank",
+      "label": "bank"
+    },
+    {
+      "id": "t_credit",
+      "label": "credit"
+    }
+  ],
+  "senses": [
+    {
+      "id": "s_bank_fin",
+      "term_id": "t_bank",
+      "gloss": "financial institution"
+    },
+    {
+      "id": "s_bank_river",
+      "term_id": "t_bank",
+      "gloss": "river edge"
+    },
+    {
+      "id": "s_credit",
+      "term_id": "t_credit",
+      "gloss": "credit is available"
+    }
+  ],
+  "claims": [
+    {
+      "id": "cl_credit",
+      "sense_id": "s_credit",
+      "text": "Credit exists in this context.",
+      "provenance": {
+        "doc_ref": "concept://bank_sense_coherence#sent2",
+        "span": {
+          "start": 80,
+          "end": 110
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "ln_incompat_fin",
+      "kind": "incompatibility",
+      "src_sense_id": "s_bank_fin",
+      "dst_sense_id": "s_credit"
+    },
+    {
+      "id": "ln_incompat_river",
+      "kind": "incompatibility",
+      "src_sense_id": "s_bank_river",
+      "dst_sense_id": "s_credit"
+    }
+  ],
+  "ambiguity": [
+    {
+      "id": "amb_bank",
+      "term_id": "t_bank",
+      "options": ["s_bank_fin", "s_bank_river"]
+    }
+  ],
+  "bridges": []
+}

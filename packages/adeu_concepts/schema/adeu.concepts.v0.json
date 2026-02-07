@@ -1,0 +1,366 @@
+{
+  "$defs": {
+    "Ambiguity": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Options",
+          "type": "array"
+        },
+        "term_id": {
+          "title": "Term Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "term_id",
+        "options"
+      ],
+      "title": "Ambiguity",
+      "type": "object"
+    },
+    "Claim": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sense_id": {
+          "title": "Sense Id",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "sense_id",
+        "text"
+      ],
+      "title": "Claim",
+      "type": "object"
+    },
+    "ConceptBridge": {
+      "additionalProperties": false,
+      "properties": {
+        "dst_sense_id": {
+          "title": "Dst Sense Id",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "src_sense_id": {
+          "title": "Src Sense Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "src_sense_id",
+        "dst_sense_id"
+      ],
+      "title": "ConceptBridge",
+      "type": "object"
+    },
+    "ConceptContext": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_id": {
+          "title": "Doc Id",
+          "type": "string"
+        },
+        "domain_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Domain Tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "doc_id"
+      ],
+      "title": "ConceptContext",
+      "type": "object"
+    },
+    "InferentialLink": {
+      "additionalProperties": false,
+      "properties": {
+        "dst_sense_id": {
+          "title": "Dst Sense Id",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "commitment",
+            "incompatibility",
+            "presupposition"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "src_sense_id": {
+          "title": "Src Sense Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "src_sense_id",
+        "dst_sense_id"
+      ],
+      "title": "InferentialLink",
+      "type": "object"
+    },
+    "ProvenanceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "E.g., 'MSA-2026#\u00a73.2' or 'doc123#clause17'",
+          "title": "Doc Ref"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "span": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceSpan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "ProvenanceRef",
+      "type": "object"
+    },
+    "SourceSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "SourceSpan",
+      "type": "object"
+    },
+    "Term": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "Term",
+      "type": "object"
+    },
+    "TermSense": {
+      "additionalProperties": false,
+      "properties": {
+        "gloss": {
+          "title": "Gloss",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProvenanceRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "term_id": {
+          "title": "Term Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "term_id",
+        "gloss"
+      ],
+      "title": "TermSense",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ambiguity": {
+      "items": {
+        "$ref": "#/$defs/Ambiguity"
+      },
+      "title": "Ambiguity",
+      "type": "array"
+    },
+    "bridges": {
+      "items": {
+        "$ref": "#/$defs/ConceptBridge"
+      },
+      "title": "Bridges",
+      "type": "array"
+    },
+    "claims": {
+      "items": {
+        "$ref": "#/$defs/Claim"
+      },
+      "title": "Claims",
+      "type": "array"
+    },
+    "concept_id": {
+      "title": "Concept Id",
+      "type": "string"
+    },
+    "context": {
+      "$ref": "#/$defs/ConceptContext"
+    },
+    "links": {
+      "items": {
+        "$ref": "#/$defs/InferentialLink"
+      },
+      "title": "Links",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": "adeu.concepts.v0",
+      "default": "adeu.concepts.v0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "senses": {
+      "items": {
+        "$ref": "#/$defs/TermSense"
+      },
+      "title": "Senses",
+      "type": "array"
+    },
+    "terms": {
+      "items": {
+        "$ref": "#/$defs/Term"
+      },
+      "title": "Terms",
+      "type": "array"
+    }
+  },
+  "required": [
+    "concept_id",
+    "context"
+  ],
+  "title": "ConceptIR",
+  "type": "object"
+}
