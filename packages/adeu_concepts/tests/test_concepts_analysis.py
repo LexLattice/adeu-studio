@@ -12,6 +12,7 @@ from adeu_concepts import (
     strip_analysis_details,
     unavailable_analysis,
 )
+from adeu_concepts.analysis import _constraint_label
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
 
@@ -138,3 +139,13 @@ def test_strip_and_unavailable_analysis_contract() -> None:
     assert stripped.closure.details is None
     assert stripped.mic.constraints == []
     assert stripped.mic.details is None
+
+
+def test_constraint_label_matches_only_expected_pointer_shapes() -> None:
+    assert _constraint_label("/claims/0/active") == "claim_activation"
+    assert _constraint_label("/claims/0/sense_id") == "claim_implication"
+    assert _constraint_label("/ambiguity/0/exactly_one") == "ambiguity"
+    assert _constraint_label("/links/0") == "link"
+
+    assert _constraint_label("/claims/0/meta/active") is None
+    assert _constraint_label("/claims/0/sense_id/extra") is None

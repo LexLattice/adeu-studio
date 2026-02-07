@@ -236,17 +236,24 @@ def _build_closure(concept: ConceptIR, run: ConceptRunRef) -> ClosureResult:
 
 
 def _constraint_label(json_path: str | None) -> ConstraintLabel | None:
-    if not json_path:
-        return None
-    if json_path.startswith("/claims/") and json_path.endswith("/active"):
+    parts = _pointer_segments(json_path)
+    if len(parts) == 3 and parts[0] == "claims" and parts[2] == "active":
         return "claim_activation"
-    if json_path.startswith("/claims/") and json_path.endswith("/sense_id"):
+    if len(parts) == 3 and parts[0] == "claims" and parts[2] == "sense_id":
         return "claim_implication"
-    if json_path.startswith("/ambiguity/"):
+    if len(parts) >= 2 and parts[0] == "ambiguity":
         return "ambiguity"
-    if json_path.startswith("/links/"):
+    if len(parts) >= 2 and parts[0] == "links":
         return "link"
     return None
+
+
+def _pointer_segments(path: str | None) -> tuple[str, ...]:
+    if not path:
+        return ()
+    text = path if path.startswith("/") else f"/{path}"
+    raw = text[1:].split("/")
+    return tuple(segment.replace("~1", "/").replace("~0", "~") for segment in raw)
 
 
 def _build_mic(

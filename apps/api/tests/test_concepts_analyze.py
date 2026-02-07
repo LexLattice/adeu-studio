@@ -149,3 +149,32 @@ def test_concepts_analyze_empty_inline_runs_returns_unavailable_analysis() -> No
     assert resp.check_report.status == "PASS"
     assert resp.analysis.closure.status == "UNAVAILABLE"
     assert resp.analysis.mic.status == "UNAVAILABLE"
+
+
+def test_concepts_analyze_normalizes_inline_atom_map_list_to_map() -> None:
+    resp = analyze_concept_variant(
+        ConceptAnalyzeRequest(
+            ir=_coherent_ir(),
+            include_validator_runs=True,
+            validator_runs=[
+                {
+                    "run_id": "inline-list-map",
+                    "created_at": "2026-03-01T10:00:00Z",
+                    "request_hash": "req-inline-list",
+                    "formula_hash": "formula-inline-list",
+                    "status": "SAT",
+                    "evidence_json": {"model": {}, "unsat_core": []},
+                    "atom_map_json": [
+                        {
+                            "assertion_name": "a:claim_1:abc123def456",
+                            "object_id": "claim_1",
+                            "json_path": "/claims/0/active",
+                        }
+                    ],
+                }
+            ],
+        )
+    )
+
+    assert resp.validator_runs is not None
+    assert isinstance(resp.validator_runs[0].atom_map_json, dict)

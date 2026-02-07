@@ -394,13 +394,12 @@ def _validator_run_input_from_record(run: ValidatorRunRecord) -> ValidatorRunInp
     )
 
 
-def _concept_run_ref_from_input(run: ValidatorRunInput) -> ConceptRunRef:
-    atom_map: dict[str, dict[str, str | None]] = {}
+def _normalize_validator_run_input(run: ValidatorRunInput) -> ValidatorRunInput:
     if isinstance(run.atom_map_json, dict):
         atom_map = {
             name: {
-                "object_id": ref.object_id,
-                "json_path": ref.json_path,
+                "object_id": ref.object_id if hasattr(ref, "object_id") else ref.get("object_id"),
+                "json_path": ref.json_path if hasattr(ref, "json_path") else ref.get("json_path"),
             }
             for name, ref in run.atom_map_json.items()
         }
@@ -412,6 +411,20 @@ def _concept_run_ref_from_input(run: ValidatorRunInput) -> ConceptRunRef:
             }
             for ref in run.atom_map_json
         }
+    payload = run.model_dump(mode="python")
+    payload["atom_map_json"] = atom_map
+    return ValidatorRunInput.model_validate(payload)
+
+
+def _concept_run_ref_from_input(run: ValidatorRunInput) -> ConceptRunRef:
+    run = _normalize_validator_run_input(run)
+    atom_map: dict[str, dict[str, str | None]] = {
+        name: {
+            "object_id": ref.object_id,
+            "json_path": ref.json_path,
+        }
+        for name, ref in run.atom_map_json.items()
+    }
     evidence_json = run.evidence_json or {}
     unsat_core_raw = evidence_json.get("unsat_core")
     if isinstance(unsat_core_raw, list):
@@ -618,7 +631,8 @@ def _resolve_concepts_analyze_runs(
     req: ConceptAnalyzeRequest,
 ) -> tuple[CheckReport, list[ConceptRunRef], list[ValidatorRunInput], list[ValidatorRunRecord]]:
     if req.validator_runs is not None:
-        concept_runs = [_concept_run_ref_from_input(run) for run in req.validator_runs]
+        normalized_runs = [_normalize_validator_run_input(run) for run in req.validator_runs]
+        concept_runs = [_concept_run_ref_from_input(run) for run in normalized_runs]
         selected = pick_latest_run(concept_runs)
         report = check_concept_with_solver_status(
             req.ir,
@@ -628,7 +642,7 @@ def _resolve_concepts_analyze_runs(
             solver_error=selected.evidence_error if selected is not None else None,
             solver_unsat_core=selected.evidence_unsat_core if selected is not None else None,
         )
-        return report, concept_runs, req.validator_runs, []
+        return report, concept_runs, normalized_runs, []
 
     report, records = check_concept_with_validator_runs(
         req.ir,
