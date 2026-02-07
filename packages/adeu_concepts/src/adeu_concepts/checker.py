@@ -274,6 +274,7 @@ def check_with_validator_runs(
     raw: Any,
     *,
     mode: KernelMode = KernelMode.STRICT,
+    source_text: str | None = None,
     validator_backend: ValidatorBackend | None = None,
 ) -> tuple[CheckReport, list[ValidatorRunRecord]]:
     concept, parse_error = _parse_or_schema_error(raw)
@@ -407,7 +408,13 @@ def check(
     raw: Any,
     *,
     mode: KernelMode = KernelMode.STRICT,
+    source_text: str | None = None,
     validator_backend: ValidatorBackend | None = None,
 ) -> CheckReport:
-    report, _ = check_with_validator_runs(raw, mode=mode, validator_backend=validator_backend)
+    report, _ = check_with_validator_runs(
+        raw,
+        mode=mode,
+        source_text=source_text,
+        validator_backend=validator_backend,
+    )
     return report
