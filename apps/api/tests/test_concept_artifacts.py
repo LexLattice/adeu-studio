@@ -73,6 +73,7 @@ def test_create_concept_artifact_persists_validator_runs_by_default(
 
     assert created.check_report.status in {"PASS", "WARN"}
     assert created.analysis is not None
+    assert created.analysis.forced.status in {"COMPLETE", "PARTIAL", "UNAVAILABLE"}
 
     rows = _fetch_validator_rows(db_path)
     assert len(rows) == 1
@@ -113,6 +114,7 @@ def test_concept_artifacts_get_and_list_order(
     assert fetched.artifact_id == second.artifact_id
     assert fetched.ir.concept_id == "concept_second"
     assert fetched.analysis is not None
+    assert fetched.analysis.forced.status in {"COMPLETE", "PARTIAL", "UNAVAILABLE"}
 
 
 def test_list_concept_artifact_validator_runs_endpoint(

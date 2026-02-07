@@ -12,6 +12,7 @@ from adeu_concepts import (
     analyze_concept,
     pick_latest_run,
     strip_analysis_details,
+    strip_forced_details,
 )
 from adeu_concepts import (
     check_with_solver_status as check_concept_with_solver_status,
@@ -162,6 +163,7 @@ class ConceptAnalyzeRequest(BaseModel):
     mode: KernelMode = KernelMode.LAX
     include_validator_runs: bool = False
     include_analysis_details: bool = True
+    include_forced_details: bool = True
     validator_runs: list[ValidatorRunInput] | None = None
 
 
@@ -915,6 +917,8 @@ def analyze_concept_variant(req: ConceptAnalyzeRequest) -> ConceptAnalyzeRespons
     analysis = analyze_concept(req.ir, run=selected)
     if not req.include_analysis_details:
         analysis = strip_analysis_details(analysis)
+    elif not req.include_forced_details:
+        analysis = strip_forced_details(analysis)
 
     return ConceptAnalyzeResponse(
         ir=req.ir,
