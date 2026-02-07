@@ -133,6 +133,7 @@ class PuzzleCheckRequest(BaseModel):
 class ConceptCheckRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: ConceptIR
+    source_text: str | None = None
     mode: KernelMode = KernelMode.LAX
 
 
@@ -595,7 +596,11 @@ def check_puzzle_variant(req: PuzzleCheckRequest) -> CheckReport:
 
 @app.post("/concepts/check", response_model=CheckReport)
 def check_concept_variant(req: ConceptCheckRequest) -> CheckReport:
-    report, runs = check_concept_with_validator_runs(req.ir, mode=req.mode)
+    report, runs = check_concept_with_validator_runs(
+        req.ir,
+        mode=req.mode,
+        source_text=req.source_text,
+    )
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs:
         _persist_validator_runs(runs=runs, artifact_id=None)
     return report
@@ -797,7 +802,11 @@ def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
     checked_runs: list[list[ValidatorRunRecord]] = []
     for proposal in bundle.proposals:
         concept = canonicalize_concept_ids(proposal)
-        report, runs = check_concept_with_validator_runs(concept, mode=req.mode)
+        report, runs = check_concept_with_validator_runs(
+            concept,
+            mode=req.mode,
+            source_text=source_text,
+        )
         checked.append((concept, report))
         checked_runs.append(runs)
 

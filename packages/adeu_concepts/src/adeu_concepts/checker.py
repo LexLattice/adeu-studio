@@ -12,11 +12,8 @@ from .solver import build_concept_coherence_request
 SUPPORTED_CONCEPT_SCHEMA_VERSION = "adeu.concepts.v0"
 
 _LAX_DOWNGRADABLE_CODES = {
-    ReasonCode.CONCEPT_INCOHERENT_UNSAT,
-    ReasonCode.CONCEPT_SOLVER_TIMEOUT,
-    ReasonCode.CONCEPT_SOLVER_UNKNOWN,
+    ReasonCode.CONCEPT_PROVENANCE_MISSING,
     ReasonCode.CONCEPT_SOLVER_INVALID_REQUEST,
-    ReasonCode.CONCEPT_SOLVER_ERROR,
 }
 
 
@@ -127,7 +124,7 @@ def _parse_or_schema_error(raw: Any) -> tuple[ConceptIR | None, CheckReport | No
         )
 
 
-def _collect_hygiene_reasons(concept: ConceptIR) -> list[CheckReason]:
+def _collect_hygiene_reasons(concept: ConceptIR, *, source_text: str | None) -> list[CheckReason]:
     reasons: list[CheckReason] = []
     term_ids = {term.id for term in concept.terms}
     sense_ids = {sense.id for sense in concept.senses}
@@ -158,7 +155,8 @@ def _collect_hygiene_reasons(concept: ConceptIR) -> list[CheckReason]:
                     json_path=_path("claims", idx, "sense_id"),
                 )
             )
-        if claim.provenance is None or claim.provenance.span is None:
+        span = claim.provenance.span if claim.provenance is not None else None
+        if span is None:
             reasons.append(
                 CheckReason(
                     code=ReasonCode.CONCEPT_PROVENANCE_MISSING,
@@ -166,6 +164,32 @@ def _collect_hygiene_reasons(concept: ConceptIR) -> list[CheckReason]:
                     message="claim requires provenance span",
                     object_id=claim.id,
                     json_path=_path("claims", idx, "provenance"),
+                )
+            )
+            continue
+
+        if span.start < 0 or span.end <= span.start:
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.CONCEPT_PROVENANCE_MISSING,
+                    severity=ReasonSeverity.ERROR,
+                    message="claim provenance span must satisfy 0 <= start < end",
+                    object_id=claim.id,
+                    json_path=_path("claims", idx, "provenance", "span"),
+                )
+            )
+
+        elif source_text is not None and span.end > len(source_text):
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.CONCEPT_PROVENANCE_MISSING,
+                    severity=ReasonSeverity.ERROR,
+                    message=(
+                        "claim provenance span end is out of bounds for provided source_text "
+                        f"(end={span.end}, len={len(source_text)})"
+                    ),
+                    object_id=claim.id,
+                    json_path=_path("claims", idx, "provenance", "span"),
                 )
             )
 
@@ -274,6 +298,7 @@ def check_with_validator_runs(
     raw: Any,
     *,
     mode: KernelMode = KernelMode.STRICT,
+    source_text: str | None = None,
     validator_backend: ValidatorBackend | None = None,
 ) -> tuple[CheckReport, list[ValidatorRunRecord]]:
     concept, parse_error = _parse_or_schema_error(raw)
@@ -281,7 +306,7 @@ def check_with_validator_runs(
         return parse_error, []
     assert concept is not None
 
-    reasons = _collect_hygiene_reasons(concept)
+    reasons = _collect_hygiene_reasons(concept, source_text=source_text)
     trace: list[TraceItem] = [
         TraceItem(rule_id="concept/parse_ok", affected_ids=[concept.concept_id]),
         TraceItem(
@@ -302,11 +327,10 @@ def check_with_validator_runs(
         try:
             backend = build_validator_backend("z3")
         except RuntimeError as exc:
-            severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
             reasons.append(
                 CheckReason(
                     code=ReasonCode.CONCEPT_SOLVER_ERROR,
-                    severity=severity,
+                    severity=ReasonSeverity.ERROR,
                     message=str(exc),
                     object_id=concept.concept_id,
                     json_path=_path("links"),
@@ -327,14 +351,13 @@ def check_with_validator_runs(
 
     solver_because = [f"solver:{result.status}"]
     if result.status == "UNSAT":
-        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
         core_msg = (
             ",".join(sorted(result.evidence.unsat_core)) if result.evidence.unsat_core else ""
         )
         reasons.append(
             CheckReason(
                 code=ReasonCode.CONCEPT_INCOHERENT_UNSAT,
-                severity=severity,
+                severity=ReasonSeverity.ERROR,
                 message=(
                     "concept composition constraints are UNSAT"
                     + (f"; unsat core={core_msg}" if core_msg else "")
@@ -345,11 +368,10 @@ def check_with_validator_runs(
         )
         solver_because.append(ReasonCode.CONCEPT_INCOHERENT_UNSAT)
     elif result.status == "TIMEOUT":
-        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
         reasons.append(
             CheckReason(
                 code=ReasonCode.CONCEPT_SOLVER_TIMEOUT,
-                severity=severity,
+                severity=ReasonSeverity.ERROR,
                 message=result.evidence.error or "concept solver timed out",
                 object_id=concept.concept_id,
                 json_path=_path("links"),
@@ -357,11 +379,10 @@ def check_with_validator_runs(
         )
         solver_because.append(ReasonCode.CONCEPT_SOLVER_TIMEOUT)
     elif result.status == "UNKNOWN":
-        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
         reasons.append(
             CheckReason(
                 code=ReasonCode.CONCEPT_SOLVER_UNKNOWN,
-                severity=severity,
+                severity=ReasonSeverity.ERROR,
                 message=result.evidence.error or "concept solver returned UNKNOWN",
                 object_id=concept.concept_id,
                 json_path=_path("links"),
@@ -380,11 +401,10 @@ def check_with_validator_runs(
         )
         solver_because.append(ReasonCode.CONCEPT_SOLVER_INVALID_REQUEST)
     elif result.status == "ERROR":
-        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
         reasons.append(
             CheckReason(
                 code=ReasonCode.CONCEPT_SOLVER_ERROR,
-                severity=severity,
+                severity=ReasonSeverity.ERROR,
                 message=result.evidence.error or "concept solver backend error",
                 object_id=concept.concept_id,
                 json_path=_path("links"),
@@ -407,7 +427,13 @@ def check(
     raw: Any,
     *,
     mode: KernelMode = KernelMode.STRICT,
+    source_text: str | None = None,
     validator_backend: ValidatorBackend | None = None,
 ) -> CheckReport:
-    report, _ = check_with_validator_runs(raw, mode=mode, validator_backend=validator_backend)
+    report, _ = check_with_validator_runs(
+        raw,
+        mode=mode,
+        source_text=source_text,
+        validator_backend=validator_backend,
+    )
     return report

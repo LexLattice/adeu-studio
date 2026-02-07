@@ -41,6 +41,47 @@ def build_concept_coherence_request(concept: ConceptIR) -> ValidatorRequest:
         sense_symbol[sense.id] = symbol
         lines.append(f"(declare-fun {symbol} () Bool)")
 
+    claim_symbol: dict[str, str] = {}
+    for idx, claim in enumerate(concept.claims):
+        symbol = f"c_{_sanitize_symbol(claim.id)}_{idx}"
+        claim_symbol[claim.id] = symbol
+        lines.append(f"(declare-fun {symbol} () Bool)")
+
+        active_json_path = f"/claims/{idx}/active"
+        active_assertion_name = _assertion_name(object_id=claim.id, json_path=active_json_path)
+        lines.append(f"(assert (! {symbol} :named {_smt_quote_symbol(active_assertion_name)}))")
+        atom_map.append(
+            ValidatorAtomRef(
+                assertion_name=active_assertion_name,
+                object_id=claim.id,
+                json_path=active_json_path,
+            )
+        )
+        origin.append(ValidatorOrigin(object_id=claim.id, json_path=active_json_path))
+
+        sense_var = sense_symbol.get(claim.sense_id)
+        if sense_var is None:
+            continue
+
+        implication_json_path = f"/claims/{idx}/sense_id"
+        implication_assertion_name = _assertion_name(
+            object_id=claim.id,
+            json_path=implication_json_path,
+        )
+        lines.append(
+            "(assert (! "
+            f"(=> {symbol} {sense_var})"
+            f" :named {_smt_quote_symbol(implication_assertion_name)}))"
+        )
+        atom_map.append(
+            ValidatorAtomRef(
+                assertion_name=implication_assertion_name,
+                object_id=claim.id,
+                json_path=implication_json_path,
+            )
+        )
+        origin.append(ValidatorOrigin(object_id=claim.id, json_path=implication_json_path))
+
     ambiguous_sense_ids: set[str] = set()
     for ambiguity in concept.ambiguity:
         ambiguous_sense_ids.update(ambiguity.options)
@@ -127,6 +168,7 @@ def build_concept_coherence_request(concept: ConceptIR) -> ValidatorRequest:
         metadata={
             "family": "concept_composition",
             "sense_symbols": sense_symbol,
+            "claim_symbols": claim_symbol,
             "assertion_name_format": "a:<object_id>:<json_path_hash>",
         },
     )

@@ -1,0 +1,37 @@
+{
+  "metrics": {
+    "num_ambiguities": 0,
+    "num_bridges": 0,
+    "num_exceptions": 0,
+    "num_statements": 1
+  },
+  "reason_codes": [
+    {
+      "code": "CONCEPT_ENDPOINT_UNRESOLVED",
+      "json_path": "/claims/0/sense_id",
+      "message": "claim references unknown sense_id 's_missing'",
+      "object_id": "cl_credit",
+      "severity": "ERROR"
+    }
+  ],
+  "status": "REFUSE",
+  "trace": [
+    {
+      "affected_ids": [
+        "concept_claim_unresolved"
+      ],
+      "because": [],
+      "rule_id": "concept/parse_ok"
+    },
+    {
+      "affected_ids": [
+        "concept_claim_unresolved"
+      ],
+      "because": [
+        "CONCEPT_ENDPOINT_UNRESOLVED"
+      ],
+      "notes": "Validates provenance, endpoint references, and sense selection constraints.",
+      "rule_id": "concept/hygiene"
+    }
+  ]
+}

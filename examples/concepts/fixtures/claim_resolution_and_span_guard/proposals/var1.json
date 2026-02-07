@@ -1,0 +1,38 @@
+{
+  "schema_version": "adeu.concepts.v0",
+  "concept_id": "concept_claim_unresolved",
+  "context": {
+    "doc_id": "concept://claim_resolution_and_span_guard",
+    "domain_tags": ["test"]
+  },
+  "terms": [
+    {
+      "id": "t_credit",
+      "label": "credit"
+    }
+  ],
+  "senses": [
+    {
+      "id": "s_credit",
+      "term_id": "t_credit",
+      "gloss": "credit is present"
+    }
+  ],
+  "claims": [
+    {
+      "id": "cl_credit",
+      "sense_id": "s_missing",
+      "text": "Credit exists.",
+      "provenance": {
+        "doc_ref": "concept://claim_resolution_and_span_guard#sent1",
+        "span": {
+          "start": 0,
+          "end": 13
+        }
+      }
+    }
+  ],
+  "links": [],
+  "ambiguity": [],
+  "bridges": []
+}

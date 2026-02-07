@@ -1,0 +1,37 @@
+{
+  "metrics": {
+    "num_ambiguities": 0,
+    "num_bridges": 0,
+    "num_exceptions": 0,
+    "num_statements": 1
+  },
+  "reason_codes": [
+    {
+      "code": "CONCEPT_PROVENANCE_MISSING",
+      "json_path": "/claims/0/provenance/span",
+      "message": "claim provenance span end is out of bounds for provided source_text (end=25, len=14)",
+      "object_id": "cl_credit",
+      "severity": "ERROR"
+    }
+  ],
+  "status": "REFUSE",
+  "trace": [
+    {
+      "affected_ids": [
+        "concept_claim_span_oob"
+      ],
+      "because": [],
+      "rule_id": "concept/parse_ok"
+    },
+    {
+      "affected_ids": [
+        "concept_claim_span_oob"
+      ],
+      "because": [
+        "CONCEPT_PROVENANCE_MISSING"
+      ],
+      "notes": "Validates provenance, endpoint references, and sense selection constraints.",
+      "rule_id": "concept/hygiene"
+    }
+  ]
+}
