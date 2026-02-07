@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from adeu_ir import SourceSpan, ValidatorAtomRef
 from adeu_ir.models import JsonPatchOp
@@ -128,3 +128,85 @@ class DiffReport(BaseModel):
     solver: SolverDiff
     causal_slice: CausalSlice
     summary: DiffSummary
+
+
+class PrimaryChange(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    object_kind: str
+    object_id: str | None = None
+    changed_paths: list[str] = Field(default_factory=list)
+    patch_count: int = 0
+
+
+class EvidenceChange(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    atom_name: str
+    evidence_kind: Literal[
+        "core_added",
+        "core_removed",
+        "model_added",
+        "model_removed",
+        "model_changed",
+    ]
+    severity: Literal["ERROR", "WARN", "INFO"]
+    object_kind: str
+    object_id: str | None = None
+    json_path: str | None = None
+    left_span: SourceSpan | None = None
+    right_span: SourceSpan | None = None
+
+
+class CauseChainItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    severity: Literal["ERROR", "WARN", "INFO"]
+    object_kind: str
+    object_id: str | None = None
+    json_path: str | None = None
+    atom_name: str
+    evidence_kind: Literal[
+        "core_added",
+        "core_removed",
+        "model_added",
+        "model_removed",
+        "model_changed",
+    ]
+    message: str
+    left_span: SourceSpan | None = None
+    right_span: SourceSpan | None = None
+
+
+class RepairHint(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    object_kind: str
+    object_id: str | None = None
+    json_path: str | None = None
+    hint: str
+
+
+class FlipExplanation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    flip_kind: str
+    check_status_flip: str
+    solver_status_flip: str
+    primary_changes: list[PrimaryChange] = Field(default_factory=list)
+    evidence_changes: list[EvidenceChange] = Field(default_factory=list)
+    cause_chain: list[CauseChainItem] = Field(default_factory=list)
+    repair_hints: list[RepairHint] = Field(default_factory=list)
+
+
+class ForcedEdgeKey(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    src_sense_id: str
+    dst_sense_id: str
+    kind: str
+
+
+class ConceptAnalysisDelta(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    mic_delta_status: str | None = None
+    forced_delta_status: str | None = None
+    mic_atoms_added: list[str] = Field(default_factory=list)
+    mic_atoms_removed: list[str] = Field(default_factory=list)
+    forced_edges_added: list[ForcedEdgeKey] = Field(default_factory=list)
+    forced_edges_removed: list[ForcedEdgeKey] = Field(default_factory=list)
+    countermodel_edges_changed: list[ForcedEdgeKey] = Field(default_factory=list)

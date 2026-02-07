@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 export type KernelMode = "STRICT" | "LAX";
+export type DiffDomain = "adeu" | "concepts" | "puzzles";
 
 export type SourceSpanLike = { start: number; end: number };
 
@@ -84,34 +85,90 @@ type DiffReport = {
   summary: DiffSummary;
 };
 
+type CauseChainItem = {
+  severity: "ERROR" | "WARN" | "INFO";
+  object_kind: string;
+  object_id?: string | null;
+  json_path?: string | null;
+  atom_name: string;
+  evidence_kind: string;
+  message: string;
+  left_span?: SourceSpanLike | null;
+  right_span?: SourceSpanLike | null;
+};
+
+type FlipExplanation = {
+  flip_kind: string;
+  check_status_flip: string;
+  solver_status_flip: string;
+  cause_chain: CauseChainItem[];
+  repair_hints: Array<{
+    object_kind: string;
+    object_id?: string | null;
+    json_path?: string | null;
+    hint: string;
+  }>;
+};
+
+type ForcedEdgeKey = {
+  src_sense_id: string;
+  dst_sense_id: string;
+  kind: string;
+};
+
+type ConceptAnalysisDelta = {
+  mic_delta_status?: string | null;
+  forced_delta_status?: string | null;
+  mic_atoms_added: string[];
+  mic_atoms_removed: string[];
+  forced_edges_added: ForcedEdgeKey[];
+  forced_edges_removed: ForcedEdgeKey[];
+  countermodel_edges_changed: ForcedEdgeKey[];
+};
+
+type ExplainFlipResponse = {
+  diff_report: DiffReport;
+  flip_explanation: FlipExplanation;
+  analysis_delta?: ConceptAnalysisDelta | null;
+  run_ir_mismatch: boolean;
+  left_mismatch: boolean;
+  right_mismatch: boolean;
+};
+
 function apiBase(): string {
   return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
 }
 
 type Props = {
-  endpoint: "/diff" | "/concepts/diff" | "/puzzles/diff";
+  domain: DiffDomain;
   mode: KernelMode;
   leftIr: unknown | null;
   rightIr: unknown | null;
-  extraPayload?: Record<string, unknown>;
+  leftSourceText?: string | null;
+  rightSourceText?: string | null;
+  includeAnalysisDelta?: boolean;
+  includeForcedDetails?: boolean;
   onSelectSpan?: (span: SourceSpanLike, label: string) => void;
 };
 
 export function SolverDiffPanel({
-  endpoint,
+  domain,
   mode,
   leftIr,
   rightIr,
-  extraPayload,
+  leftSourceText,
+  rightSourceText,
+  includeAnalysisDelta = false,
+  includeForcedDetails = false,
   onSelectSpan,
 }: Props) {
-  const [report, setReport] = useState<DiffReport | null>(null);
+  const [response, setResponse] = useState<ExplainFlipResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!leftIr || !rightIr) {
-      setReport(null);
+      setResponse(null);
       setError(null);
       setIsLoading(false);
       return;
@@ -124,26 +181,35 @@ export function SolverDiffPanel({
       setError(null);
       setIsLoading(true);
       try {
-        const res = await fetch(`${apiBase()}${endpoint}`, {
+        const res = await fetch(`${apiBase()}/explain_flip`, {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ left_ir: leftIr, right_ir: rightIr, mode, ...(extraPayload ?? {}) }),
+          body: JSON.stringify({
+            domain,
+            left_ir: leftIr,
+            right_ir: rightIr,
+            mode,
+            include_analysis_delta: includeAnalysisDelta,
+            include_forced_details: includeForcedDetails,
+            left_source_text: leftSourceText ?? null,
+            right_source_text: rightSourceText ?? null,
+          }),
           signal: controller.signal,
         });
         if (!res.ok) {
           if (active) {
             setError(await res.text());
-            setReport(null);
+            setResponse(null);
           }
           return;
         }
-        const data = (await res.json()) as DiffReport;
-        if (active) setReport(data);
+        const data = (await res.json()) as ExplainFlipResponse;
+        if (active) setResponse(data);
       } catch (e) {
         if (!active) return;
         if (e instanceof Error && e.name === "AbortError") return;
         setError(String(e));
-        setReport(null);
+        setResponse(null);
       } finally {
         if (active) setIsLoading(false);
       }
@@ -154,7 +220,20 @@ export function SolverDiffPanel({
       active = false;
       controller.abort();
     };
-  }, [endpoint, leftIr, rightIr, mode, extraPayload]);
+  }, [
+    domain,
+    leftIr,
+    rightIr,
+    mode,
+    includeAnalysisDelta,
+    includeForcedDetails,
+    leftSourceText,
+    rightSourceText,
+  ]);
+
+  const report = response?.diff_report ?? null;
+  const explanation = response?.flip_explanation ?? null;
+  const analysisDelta = response?.analysis_delta ?? null;
 
   const solverFlip = useMemo(() => {
     const flip = report?.solver.status_flip ?? "";
@@ -169,14 +248,16 @@ export function SolverDiffPanel({
 
   return (
     <div style={{ marginTop: 8 }}>
-      {isLoading ? <div className="muted">Computing solver-aware diff…</div> : null}
-      {error ? <div className="muted">Diff error: {error}</div> : null}
-      {report ? (
+      {isLoading ? <div className="muted">Computing solver-aware explanation…</div> : null}
+      {error ? <div className="muted">Explain error: {error}</div> : null}
+      {report && explanation ? (
         <>
           <div className="muted">
-            Diff: {report.solver.status_flip}
-            {solverFlip ? " (satisfiability flipped)" : ""}
+            Flip: {explanation.flip_kind}
+            {solverFlip ? " (solver status flipped)" : ""}
           </div>
+          <div className="muted">Check: {explanation.check_status_flip}</div>
+          <div className="muted">Solver: {explanation.solver_status_flip}</div>
           <div className="muted">
             Run source: {report.summary.run_source ?? "unknown"}
             {report.summary.recompute_mode ? ` (${report.summary.recompute_mode})` : ""}
@@ -195,6 +276,12 @@ export function SolverDiffPanel({
               ? report.summary.right_timeout_ms
               : "n/a"}
           </div>
+          {response?.run_ir_mismatch ? (
+            <div className="muted">
+              Inline run mismatch: left={String(response.left_mismatch)} / right={String(response.right_mismatch)}
+            </div>
+          ) : null}
+
           <div className="muted">
             Solver core delta: +{report.solver.core_delta.added_atoms.length} / -
             {report.solver.core_delta.removed_atoms.length}
@@ -203,6 +290,29 @@ export function SolverDiffPanel({
             Solver model changed atoms: {report.solver.model_delta.changed_atoms.length}
           </div>
           <div className="muted">Causal atoms: {report.causal_slice.touched_atoms.length}</div>
+
+          {analysisDelta ? (
+            <div style={{ marginTop: 8 }}>
+              <div className="muted">Concepts analysis delta</div>
+              <div className="muted">
+                MIC: +{analysisDelta.mic_atoms_added.length} / -
+                {analysisDelta.mic_atoms_removed.length}
+                {analysisDelta.mic_delta_status
+                  ? ` (${analysisDelta.mic_delta_status})`
+                  : ""}
+              </div>
+              <div className="muted">
+                Forced edges: +{analysisDelta.forced_edges_added.length} / -
+                {analysisDelta.forced_edges_removed.length}
+                {analysisDelta.forced_delta_status
+                  ? ` (${analysisDelta.forced_delta_status})`
+                  : ""}
+              </div>
+              <div className="muted">
+                Countermodel edges changed: {analysisDelta.countermodel_edges_changed.length}
+              </div>
+            </div>
+          ) : null}
 
           {report.structural?.json_patches?.length ? (
             <pre style={{ flex: "unset" }}>
@@ -216,31 +326,43 @@ export function SolverDiffPanel({
             </pre>
           ) : null}
 
-          {report.causal_slice?.explanation_items?.length ? (
+          {explanation.cause_chain?.length ? (
             <div style={{ marginTop: 8 }}>
-              <div className="muted">Causal slice</div>
+              <div className="muted">Causal chain</div>
               <table className="table" style={{ marginTop: 6 }}>
                 <thead>
                   <tr>
+                    <th>sev</th>
                     <th>atom</th>
+                    <th>kind</th>
                     <th>object_id</th>
                     <th>json_path</th>
+                    <th>message</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {report.causal_slice.explanation_items.map((item) => (
-                    <tr key={`${item.atom_name}-${item.object_id ?? ""}-${item.json_path ?? ""}`}>
+                  {explanation.cause_chain.map((item) => (
+                    <tr
+                      key={`${item.severity}-${item.atom_name}-${item.object_id ?? ""}-${item.json_path ?? ""}`}
+                    >
+                      <td className="mono">{item.severity}</td>
                       <td className="mono">{item.atom_name}</td>
+                      <td className="mono">{item.evidence_kind}</td>
                       <td className="mono">{item.object_id ?? ""}</td>
                       <td className="mono">{item.json_path ?? ""}</td>
+                      <td>{item.message}</td>
                       <td>
                         <button
                           onClick={() => {
-                            if (!item.span || !onSelectSpan) return;
-                            onSelectSpan(item.span, `diff:${item.atom_name} ${item.json_path ?? ""}`.trim());
+                            const span = item.right_span ?? item.left_span;
+                            if (!span || !onSelectSpan) return;
+                            onSelectSpan(
+                              span,
+                              `flip:${item.atom_name} ${item.json_path ?? ""}`.trim(),
+                            );
                           }}
-                          disabled={!item.span || !onSelectSpan}
+                          disabled={(!item.right_span && !item.left_span) || !onSelectSpan}
                         >
                           Highlight
                         </button>
@@ -249,6 +371,21 @@ export function SolverDiffPanel({
                   ))}
                 </tbody>
               </table>
+            </div>
+          ) : null}
+
+          {explanation.repair_hints?.length ? (
+            <div style={{ marginTop: 8 }}>
+              <div className="muted">Repair hints</div>
+              <ul style={{ marginTop: 6 }}>
+                {explanation.repair_hints.map((hint, idx) => (
+                  <li key={`${hint.object_kind}-${hint.object_id ?? ""}-${hint.json_path ?? ""}-${idx}`}>
+                    <span className="mono">{hint.object_kind}</span>
+                    {hint.object_id ? ` ${hint.object_id}: ` : ": "}
+                    {hint.hint}
+                  </li>
+                ))}
+              </ul>
             </div>
           ) : null}
         </>

@@ -20,7 +20,15 @@ from adeu_concepts import (
 from adeu_concepts import (
     check_with_validator_runs as check_concept_with_validator_runs,
 )
-from adeu_explain import DiffReport, ValidatorRunInput, build_diff_report
+from adeu_explain import (
+    ConceptAnalysisDelta,
+    DiffReport,
+    FlipExplanation,
+    ForcedEdgeKey,
+    ValidatorRunInput,
+    build_diff_report,
+    build_flip_explanation,
+)
 from adeu_ir import (
     AdeuIR,
     CheckReport,
@@ -230,6 +238,39 @@ class PuzzleDiffRequest(BaseModel):
     right_validator_runs: list[ValidatorRunInput] | None = None
 
 
+class ExplainFlipBaseRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    mode: KernelMode = KernelMode.LAX
+    include_analysis_delta: bool = False
+    include_forced_details: bool = False
+    left_validator_runs: list[ValidatorRunInput] | None = None
+    right_validator_runs: list[ValidatorRunInput] | None = None
+    left_source_text: str | None = None
+    right_source_text: str | None = None
+    additional_solver_call_budget: int | None = Field(default=None, ge=0, le=200)
+
+
+class ExplainFlipAdeuRequest(ExplainFlipBaseRequest):
+    domain: Literal["adeu"]
+    left_ir: AdeuIR
+    right_ir: AdeuIR
+
+
+class ExplainFlipConceptsRequest(ExplainFlipBaseRequest):
+    domain: Literal["concepts"]
+    left_ir: ConceptIR
+    right_ir: ConceptIR
+
+
+class ExplainFlipPuzzlesRequest(ExplainFlipBaseRequest):
+    domain: Literal["puzzles"]
+    left_ir: KnightsKnavesPuzzle
+    right_ir: KnightsKnavesPuzzle
+
+
+ExplainFlipRequest = ExplainFlipAdeuRequest | ExplainFlipConceptsRequest | ExplainFlipPuzzlesRequest
+
+
 class ApplyAmbiguityOptionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: AdeuIR
@@ -355,6 +396,16 @@ class ConceptAnalyzeResponse(BaseModel):
     check_report: CheckReport
     analysis: ConceptAnalysis
     validator_runs: list[ValidatorRunInput] | None = None
+
+
+class ExplainFlipResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    diff_report: DiffReport
+    flip_explanation: FlipExplanation
+    analysis_delta: ConceptAnalysisDelta | None = None
+    run_ir_mismatch: bool = False
+    left_mismatch: bool = False
+    right_mismatch: bool = False
 
 
 class ConceptArtifactCreateResponse(BaseModel):
@@ -699,6 +750,17 @@ def _extract_backend_timeout(
     return None, None
 
 
+def _runs_to_inputs(
+    runs: list[ValidatorRunInput] | list[ValidatorRunRecord],
+) -> list[ValidatorRunInput]:
+    if not runs:
+        return []
+    first = runs[0]
+    if isinstance(first, ValidatorRunInput):
+        return [_normalize_validator_run_input(run) for run in runs]
+    return [_validator_run_input_from_record(run) for run in runs]
+
+
 def _resolve_concepts_analyze_runs(
     req: ConceptAnalyzeRequest,
 ) -> tuple[CheckReport, list[ConceptRunRef], list[ValidatorRunInput], list[ValidatorRunRecord]]:
@@ -761,6 +823,180 @@ def _build_diff_report_with_runs(
         summary_right_backend=right_backend,
         summary_left_timeout_ms=left_timeout_ms,
         summary_right_timeout_ms=right_timeout_ms,
+    )
+
+
+def _latest_run_input(runs: list[ValidatorRunInput]) -> ValidatorRunInput | None:
+    if not runs:
+        return None
+    latest = runs[-1]
+    latest_key = _run_sort_key_for_input(latest, fallback_index=len(runs) - 1)
+    for idx, run in enumerate(runs):
+        key = _run_sort_key_for_input(run, fallback_index=idx)
+        if key > latest_key:
+            latest = run
+            latest_key = key
+    return latest
+
+
+def _run_sort_key_for_input(
+    run: ValidatorRunInput,
+    *,
+    fallback_index: int,
+) -> tuple[int, datetime, int]:
+    created_at = run.created_at
+    parsed = None
+    if isinstance(created_at, str):
+        text = created_at.replace("Z", "+00:00")
+        try:
+            parsed = datetime.fromisoformat(text)
+        except ValueError:
+            parsed = None
+    if parsed is None:
+        return (0, datetime.min.replace(tzinfo=timezone.utc), fallback_index)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return (1, parsed, fallback_index)
+
+
+def _run_hash_pair(run: ValidatorRunInput | None) -> tuple[str | None, str | None]:
+    if run is None:
+        return None, None
+    return run.request_hash, run.formula_hash
+
+
+def _run_hash_mismatch(
+    *,
+    inline_runs: list[ValidatorRunInput] | None,
+    recomputed_records: list[ValidatorRunRecord],
+) -> bool:
+    if inline_runs is None:
+        return False
+    normalized_inline = [_normalize_validator_run_input(run) for run in inline_runs]
+    recomputed_inputs = [_validator_run_input_from_record(record) for record in recomputed_records]
+    inline_latest = _latest_run_input(normalized_inline)
+    recomputed_latest = _latest_run_input(recomputed_inputs)
+    inline_pair = _run_hash_pair(inline_latest)
+    recomputed_pair = _run_hash_pair(recomputed_latest)
+    if not inline_pair[0] or not inline_pair[1]:
+        return False
+    if not recomputed_pair[0] or not recomputed_pair[1]:
+        return False
+    return inline_pair != recomputed_pair
+
+
+def _resolve_explain_runs(
+    *,
+    inline_runs: list[ValidatorRunInput] | None,
+    recompute_fn: Callable[[], tuple[CheckReport, list[ValidatorRunRecord]]],
+) -> tuple[
+    list[ValidatorRunInput] | list[ValidatorRunRecord],
+    str,
+    CheckReport | None,
+    bool,
+    list[ValidatorRunInput],
+]:
+    if inline_runs is None:
+        try:
+            report, records = recompute_fn()
+            recomputed_inputs = [_validator_run_input_from_record(record) for record in records]
+            return records, "recomputed", report, False, recomputed_inputs
+        except Exception:
+            return [], "recomputed_error", None, False, []
+
+    normalized_inline = [_normalize_validator_run_input(run) for run in inline_runs]
+    mismatch = False
+    report: CheckReport | None = None
+    recomputed_inputs: list[ValidatorRunInput] = []
+    try:
+        recomputed_report, recomputed_records = recompute_fn()
+        report = recomputed_report
+        recomputed_inputs = [
+            _validator_run_input_from_record(record) for record in recomputed_records
+        ]
+        mismatch = _run_hash_mismatch(
+            inline_runs=normalized_inline,
+            recomputed_records=recomputed_records,
+        )
+    except Exception:
+        pass
+    return normalized_inline, "provided", report, mismatch, recomputed_inputs
+
+
+def _edge_key(
+    src_sense_id: str,
+    dst_sense_id: str,
+    kind: str,
+) -> tuple[str, str, str]:
+    return (src_sense_id, dst_sense_id, kind)
+
+
+def _check_status_value(report: CheckReport | None) -> str:
+    if report is None:
+        return "REFUSE"
+    return report.status
+
+
+def _build_concept_analysis_delta(
+    left_analysis: ConceptAnalysis,
+    right_analysis: ConceptAnalysis,
+) -> ConceptAnalysisDelta:
+    left_mic_atoms = {constraint.atom_name for constraint in left_analysis.mic.constraints}
+    right_mic_atoms = {constraint.atom_name for constraint in right_analysis.mic.constraints}
+    mic_available = (
+        left_analysis.mic.status != "UNAVAILABLE" and right_analysis.mic.status != "UNAVAILABLE"
+    )
+
+    left_forced_edges = {
+        _edge_key(edge.src_sense_id, edge.dst_sense_id, edge.kind)
+        for edge in left_analysis.forced.forced_edges
+    }
+    right_forced_edges = {
+        _edge_key(edge.src_sense_id, edge.dst_sense_id, edge.kind)
+        for edge in right_analysis.forced.forced_edges
+    }
+    forced_available = (
+        left_analysis.forced.status != "UNAVAILABLE"
+        and right_analysis.forced.status != "UNAVAILABLE"
+    )
+
+    left_countermodels = {
+        _edge_key(model.src_sense_id, model.dst_sense_id, model.kind): model.solver_status
+        for model in left_analysis.forced.countermodels
+    }
+    right_countermodels = {
+        _edge_key(model.src_sense_id, model.dst_sense_id, model.kind): model.solver_status
+        for model in right_analysis.forced.countermodels
+    }
+    changed_countermodel_keys = sorted(
+        key
+        for key in set(left_countermodels) | set(right_countermodels)
+        if left_countermodels.get(key) != right_countermodels.get(key)
+    )
+
+    return ConceptAnalysisDelta(
+        mic_delta_status=None if mic_available else "UNAVAILABLE_SIDE",
+        forced_delta_status=None if forced_available else "UNAVAILABLE_SIDE",
+        mic_atoms_added=sorted(right_mic_atoms - left_mic_atoms) if mic_available else [],
+        mic_atoms_removed=sorted(left_mic_atoms - right_mic_atoms) if mic_available else [],
+        forced_edges_added=[
+            ForcedEdgeKey(src_sense_id=src, dst_sense_id=dst, kind=kind)
+            for src, dst, kind in sorted(right_forced_edges - left_forced_edges)
+        ]
+        if forced_available
+        else [],
+        forced_edges_removed=[
+            ForcedEdgeKey(src_sense_id=src, dst_sense_id=dst, kind=kind)
+            for src, dst, kind in sorted(left_forced_edges - right_forced_edges)
+        ]
+        if forced_available
+        else [],
+        countermodel_edges_changed=[
+            ForcedEdgeKey(src_sense_id=src, dst_sense_id=dst, kind=kind)
+            for src, dst, kind in changed_countermodel_keys
+        ]
+        if forced_available
+        else [],
     )
 
 
@@ -1349,6 +1585,234 @@ def diff_puzzles_endpoint(req: PuzzleDiffRequest) -> DiffReport:
         right_inline_runs=req.right_validator_runs,
         left_recompute_fn=lambda: check_puzzle_with_validator_runs(req.left_ir, mode=req.mode),
         right_recompute_fn=lambda: check_puzzle_with_validator_runs(req.right_ir, mode=req.mode),
+    )
+
+
+@app.post("/explain_flip", response_model=ExplainFlipResponse)
+def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
+    if isinstance(req, ExplainFlipAdeuRequest):
+        left_runs, left_source, left_report, left_mismatch, _ = _resolve_explain_runs(
+            inline_runs=req.left_validator_runs,
+            recompute_fn=lambda: check_with_validator_runs(req.left_ir, mode=req.mode),
+        )
+        right_runs, right_source, right_report, right_mismatch, _ = _resolve_explain_runs(
+            inline_runs=req.right_validator_runs,
+            recompute_fn=lambda: check_with_validator_runs(req.right_ir, mode=req.mode),
+        )
+        if left_report is None:
+            try:
+                left_report = check(req.left_ir, mode=req.mode)
+            except Exception:
+                left_report = None
+        if right_report is None:
+            try:
+                right_report = check(req.right_ir, mode=req.mode)
+            except Exception:
+                right_report = None
+
+        left_backend, left_timeout_ms = _extract_backend_timeout(left_runs)
+        right_backend, right_timeout_ms = _extract_backend_timeout(right_runs)
+        diff_report = build_diff_report(
+            req.left_ir,
+            req.right_ir,
+            left_id=req.left_ir.ir_id,
+            right_id=req.right_ir.ir_id,
+            left_runs=left_runs,
+            right_runs=right_runs,
+            summary_run_source=_diff_run_source(left_source, right_source),
+            summary_recompute_mode=req.mode.value,
+            summary_left_backend=left_backend,
+            summary_right_backend=right_backend,
+            summary_left_timeout_ms=left_timeout_ms,
+            summary_right_timeout_ms=right_timeout_ms,
+        )
+        flip_explanation = build_flip_explanation(
+            req.left_ir,
+            req.right_ir,
+            diff_report=diff_report,
+            left_check_status=_check_status_value(left_report),
+            right_check_status=_check_status_value(right_report),
+        )
+        return ExplainFlipResponse(
+            diff_report=diff_report,
+            flip_explanation=flip_explanation,
+            analysis_delta=None,
+            left_mismatch=left_mismatch,
+            right_mismatch=right_mismatch,
+            run_ir_mismatch=(left_mismatch or right_mismatch),
+        )
+
+    if isinstance(req, ExplainFlipPuzzlesRequest):
+        left_runs, left_source, left_report, left_mismatch, _ = _resolve_explain_runs(
+            inline_runs=req.left_validator_runs,
+            recompute_fn=lambda: check_puzzle_with_validator_runs(req.left_ir, mode=req.mode),
+        )
+        right_runs, right_source, right_report, right_mismatch, _ = _resolve_explain_runs(
+            inline_runs=req.right_validator_runs,
+            recompute_fn=lambda: check_puzzle_with_validator_runs(req.right_ir, mode=req.mode),
+        )
+        if left_report is None:
+            try:
+                left_report = check_puzzle_with_validator_runs(req.left_ir, mode=req.mode)[0]
+            except Exception:
+                left_report = None
+        if right_report is None:
+            try:
+                right_report = check_puzzle_with_validator_runs(req.right_ir, mode=req.mode)[0]
+            except Exception:
+                right_report = None
+
+        left_backend, left_timeout_ms = _extract_backend_timeout(left_runs)
+        right_backend, right_timeout_ms = _extract_backend_timeout(right_runs)
+        diff_report = build_diff_report(
+            req.left_ir,
+            req.right_ir,
+            left_id=req.left_ir.puzzle_id,
+            right_id=req.right_ir.puzzle_id,
+            left_runs=left_runs,
+            right_runs=right_runs,
+            summary_run_source=_diff_run_source(left_source, right_source),
+            summary_recompute_mode=req.mode.value,
+            summary_left_backend=left_backend,
+            summary_right_backend=right_backend,
+            summary_left_timeout_ms=left_timeout_ms,
+            summary_right_timeout_ms=right_timeout_ms,
+        )
+        flip_explanation = build_flip_explanation(
+            req.left_ir,
+            req.right_ir,
+            diff_report=diff_report,
+            left_check_status=_check_status_value(left_report),
+            right_check_status=_check_status_value(right_report),
+        )
+        return ExplainFlipResponse(
+            diff_report=diff_report,
+            flip_explanation=flip_explanation,
+            analysis_delta=None,
+            left_mismatch=left_mismatch,
+            right_mismatch=right_mismatch,
+            run_ir_mismatch=(left_mismatch or right_mismatch),
+        )
+
+    left_runs, left_source, left_report, left_mismatch, _ = _resolve_explain_runs(
+        inline_runs=req.left_validator_runs,
+        recompute_fn=lambda: check_concept_with_validator_runs(
+            req.left_ir,
+            mode=req.mode,
+            source_text=req.left_source_text,
+        ),
+    )
+    right_runs, right_source, right_report, right_mismatch, _ = _resolve_explain_runs(
+        inline_runs=req.right_validator_runs,
+        recompute_fn=lambda: check_concept_with_validator_runs(
+            req.right_ir,
+            mode=req.mode,
+            source_text=req.right_source_text,
+        ),
+    )
+
+    left_inputs = _runs_to_inputs(left_runs)
+    right_inputs = _runs_to_inputs(right_runs)
+    left_selected = pick_latest_run([_concept_run_ref_from_input(run) for run in left_inputs])
+    right_selected = pick_latest_run([_concept_run_ref_from_input(run) for run in right_inputs])
+
+    if req.left_validator_runs is not None:
+        left_report = check_concept_with_solver_status(
+            req.left_ir,
+            mode=req.mode,
+            source_text=req.left_source_text,
+            solver_status=left_selected.status if left_selected is not None else None,
+            solver_error=left_selected.evidence_error if left_selected is not None else None,
+            solver_unsat_core=(
+                left_selected.evidence_unsat_core if left_selected is not None else None
+            ),
+        )
+    elif left_report is None:
+        left_report = check_concept_with_solver_status(
+            req.left_ir,
+            mode=req.mode,
+            source_text=req.left_source_text,
+            solver_status=None,
+            solver_error=None,
+            solver_unsat_core=None,
+        )
+
+    if req.right_validator_runs is not None:
+        right_report = check_concept_with_solver_status(
+            req.right_ir,
+            mode=req.mode,
+            source_text=req.right_source_text,
+            solver_status=right_selected.status if right_selected is not None else None,
+            solver_error=right_selected.evidence_error if right_selected is not None else None,
+            solver_unsat_core=(
+                right_selected.evidence_unsat_core if right_selected is not None else None
+            ),
+        )
+    elif right_report is None:
+        right_report = check_concept_with_solver_status(
+            req.right_ir,
+            mode=req.mode,
+            source_text=req.right_source_text,
+            solver_status=None,
+            solver_error=None,
+            solver_unsat_core=None,
+        )
+
+    left_backend, left_timeout_ms = _extract_backend_timeout(left_runs)
+    right_backend, right_timeout_ms = _extract_backend_timeout(right_runs)
+    diff_report = build_diff_report(
+        req.left_ir,
+        req.right_ir,
+        left_id=req.left_ir.concept_id,
+        right_id=req.right_ir.concept_id,
+        left_runs=left_runs,
+        right_runs=right_runs,
+        summary_run_source=_diff_run_source(left_source, right_source),
+        summary_recompute_mode=req.mode.value,
+        summary_left_backend=left_backend,
+        summary_right_backend=right_backend,
+        summary_left_timeout_ms=left_timeout_ms,
+        summary_right_timeout_ms=right_timeout_ms,
+    )
+    flip_explanation = build_flip_explanation(
+        req.left_ir,
+        req.right_ir,
+        diff_report=diff_report,
+        left_check_status=_check_status_value(left_report),
+        right_check_status=_check_status_value(right_report),
+    )
+
+    analysis_delta: ConceptAnalysisDelta | None = None
+    if req.include_analysis_delta:
+        budget = (
+            req.additional_solver_call_budget
+            if req.additional_solver_call_budget is not None
+            else 40
+        )
+        left_budget = budget // 2
+        right_budget = budget - left_budget
+        left_analysis = analyze_concept(
+            req.left_ir,
+            run=left_selected,
+            max_solver_calls_total=1 + max(0, left_budget),
+        )
+        right_analysis = analyze_concept(
+            req.right_ir,
+            run=right_selected,
+            max_solver_calls_total=1 + max(0, right_budget),
+        )
+        if not req.include_forced_details:
+            left_analysis = strip_forced_details(left_analysis)
+            right_analysis = strip_forced_details(right_analysis)
+        analysis_delta = _build_concept_analysis_delta(left_analysis, right_analysis)
+
+    return ExplainFlipResponse(
+        diff_report=diff_report,
+        flip_explanation=flip_explanation,
+        analysis_delta=analysis_delta,
+        left_mismatch=left_mismatch,
+        right_mismatch=right_mismatch,
+        run_ir_mismatch=(left_mismatch or right_mismatch),
     )
 
 

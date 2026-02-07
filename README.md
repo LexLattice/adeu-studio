@@ -43,6 +43,9 @@ Concept composition endpoints:
   - SAT: forced-edge analysis via entailment checks (`base_constraints ∧ ¬edge`)
     with optional countermodel witnesses for non-forced edges
 - `POST /concepts/diff` returns structural + solver-aware causal diff for two concept variants.
+- `POST /explain_flip` returns a deterministic flip narrative (`check_status_flip`,
+  `solver_status_flip`, cause chain, repair hints) plus the underlying `diff_report`.
+  It supports `domain: "adeu" | "concepts" | "puzzles"` and inline validator-run overrides.
 - `POST /concepts/artifacts` stores accepted concept artifacts (strict check on create) and persists
   linked validator runs by default.
 - `GET /concepts/artifacts` and `GET /concepts/artifacts/{artifact_id}` retrieve concept artifacts.
@@ -115,3 +118,10 @@ Web routes:
 
 - `/` ADEU Studio
 - `/concepts` Concepts Studio (propose/check/analyze/compare with span-highlighted causal diff)
+
+Compare panel notes:
+
+- The shared compare panel now calls `POST /explain_flip` (single request) instead of calling
+  `/diff` directly.
+- It remains non-blocking: explain failures fall back to structural + available solver deltas and
+  never alter checker outcomes.

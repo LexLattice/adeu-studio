@@ -1,14 +1,21 @@
-from .diffing import build_diff_report
+from .diffing import build_diff_report, build_flip_explanation
 from .models import (
     AtomRef,
     CausalSlice,
+    CauseChainItem,
+    ConceptAnalysisDelta,
     CoreDelta,
     DiffReport,
     DiffSummary,
+    EvidenceChange,
     ExplanationItem,
+    FlipExplanation,
+    ForcedEdgeKey,
     ModelAssignment,
     ModelAssignmentChange,
     ModelDelta,
+    PrimaryChange,
+    RepairHint,
     SolverDiff,
     StructuralDiff,
     ValidatorRunInput,
@@ -17,19 +24,27 @@ from .models import (
 
 __all__ = [
     "AtomRef",
+    "CauseChainItem",
     "CausalSlice",
+    "ConceptAnalysisDelta",
     "CoreDelta",
     "DiffReport",
     "DiffSummary",
+    "EvidenceChange",
     "ExplanationItem",
+    "FlipExplanation",
+    "ForcedEdgeKey",
     "ModelAssignment",
     "ModelAssignmentChange",
     "ModelDelta",
+    "PrimaryChange",
+    "RepairHint",
     "SolverDiff",
     "StructuralDiff",
     "ValidatorRunInput",
     "ValidatorRunRef",
     "build_diff_report",
+    "build_flip_explanation",
 ]
 
 __version__ = "0.0.0"

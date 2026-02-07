@@ -10,13 +10,18 @@ from adeu_ir.models import JsonPatchOp
 from .models import (
     AtomRef,
     CausalSlice,
+    CauseChainItem,
     CoreDelta,
     DiffReport,
     DiffSummary,
+    EvidenceChange,
     ExplanationItem,
+    FlipExplanation,
     ModelAssignment,
     ModelAssignmentChange,
     ModelDelta,
+    PrimaryChange,
+    RepairHint,
     SolverDiff,
     StructuralDiff,
     ValidatorRunInput,
@@ -43,6 +48,7 @@ _ID_FIELD_ALLOWLIST = {
     "person_id",
     "speaker_id",
 }
+_SEVERITY_RANK = {"ERROR": 0, "WARN": 1, "INFO": 2}
 
 
 def build_diff_report(
@@ -98,6 +104,48 @@ def build_diff_report(
         solver=solver,
         causal_slice=causal,
         summary=summary,
+    )
+
+
+def build_flip_explanation(
+    left: Any,
+    right: Any,
+    *,
+    diff_report: DiffReport,
+    left_check_status: str,
+    right_check_status: str,
+    max_hints: int = 10,
+) -> FlipExplanation:
+    left_payload = _to_jsonable(left)
+    right_payload = _to_jsonable(right)
+    left_resolver = _SpanResolver(left_payload)
+    right_resolver = _SpanResolver(right_payload)
+
+    check_status_flip = f"{left_check_status}\u2192{right_check_status}"
+    solver_status_flip = diff_report.solver.status_flip
+    flip_kind = solver_status_flip
+
+    primary_changes = _build_primary_changes(
+        diff_report=diff_report,
+        left_payload=left_payload,
+        right_payload=right_payload,
+    )
+    evidence_changes = _build_evidence_changes(
+        solver=diff_report.solver,
+        left_resolver=left_resolver,
+        right_resolver=right_resolver,
+    )
+    cause_chain = _build_cause_chain(evidence_changes)
+    repair_hints = _build_repair_hints(cause_chain, max_hints=max_hints)
+
+    return FlipExplanation(
+        flip_kind=flip_kind,
+        check_status_flip=check_status_flip,
+        solver_status_flip=solver_status_flip,
+        primary_changes=primary_changes,
+        evidence_changes=evidence_changes,
+        cause_chain=cause_chain,
+        repair_hints=repair_hints,
     )
 
 
@@ -666,6 +714,275 @@ def _build_causal_slice(
         touched_json_paths=sorted(touched_json_paths),
         explanation_items=explanation_items,
     )
+
+
+def _build_primary_changes(
+    *,
+    diff_report: DiffReport,
+    left_payload: Any,
+    right_payload: Any,
+) -> list[PrimaryChange]:
+    grouped: dict[tuple[str, str], dict[str, Any]] = {}
+    for patch in diff_report.structural.json_patches:
+        candidate_paths = [patch.path]
+        if patch.from_path:
+            candidate_paths.append(patch.from_path)
+        object_id = None
+        object_kind = "unknown"
+        for path in candidate_paths:
+            object_kind = _object_kind_for_path(path)
+            object_id = _resolve_object_id_for_path(left_payload, right_payload, path)
+            if object_id is not None:
+                break
+
+        key = (object_kind, object_id or "")
+        bucket = grouped.setdefault(
+            key,
+            {
+                "object_kind": object_kind,
+                "object_id": object_id,
+                "changed_paths": set(),
+                "patch_count": 0,
+            },
+        )
+        if patch.path:
+            bucket["changed_paths"].add(patch.path)
+        if patch.from_path:
+            bucket["changed_paths"].add(patch.from_path)
+        bucket["patch_count"] += 1
+
+    out = [
+        PrimaryChange(
+            object_kind=value["object_kind"],
+            object_id=value["object_id"],
+            changed_paths=sorted(value["changed_paths"]),
+            patch_count=value["patch_count"],
+        )
+        for value in grouped.values()
+    ]
+    out.sort(key=lambda item: (item.object_kind, item.object_id or "", item.changed_paths))
+    return out
+
+
+def _build_evidence_changes(
+    *,
+    solver: SolverDiff,
+    left_resolver: "_SpanResolver",
+    right_resolver: "_SpanResolver",
+) -> list[EvidenceChange]:
+    atom_ref_map: dict[str, AtomRef] = {}
+    for run in solver.left_runs + solver.right_runs:
+        for atom_name, atom_ref in run.atom_map_json.items():
+            atom_ref_map.setdefault(atom_name, atom_ref)
+
+    changes: list[EvidenceChange] = []
+    for atom_name in solver.core_delta.added_atoms:
+        changes.append(
+            _to_evidence_change(
+                atom_name=atom_name,
+                evidence_kind="core_added",
+                severity="ERROR",
+                atom_ref=atom_ref_map.get(atom_name),
+                left_resolver=left_resolver,
+                right_resolver=right_resolver,
+            )
+        )
+    for atom_name in solver.core_delta.removed_atoms:
+        changes.append(
+            _to_evidence_change(
+                atom_name=atom_name,
+                evidence_kind="core_removed",
+                severity="ERROR",
+                atom_ref=atom_ref_map.get(atom_name),
+                left_resolver=left_resolver,
+                right_resolver=right_resolver,
+            )
+        )
+    for assignment in solver.model_delta.added_assignments:
+        changes.append(
+            _to_evidence_change(
+                atom_name=assignment.atom,
+                evidence_kind="model_added",
+                severity="WARN",
+                atom_ref=atom_ref_map.get(assignment.atom),
+                left_resolver=left_resolver,
+                right_resolver=right_resolver,
+            )
+        )
+    for assignment in solver.model_delta.removed_assignments:
+        changes.append(
+            _to_evidence_change(
+                atom_name=assignment.atom,
+                evidence_kind="model_removed",
+                severity="WARN",
+                atom_ref=atom_ref_map.get(assignment.atom),
+                left_resolver=left_resolver,
+                right_resolver=right_resolver,
+            )
+        )
+    for assignment in solver.model_delta.changed_assignments:
+        changes.append(
+            _to_evidence_change(
+                atom_name=assignment.atom,
+                evidence_kind="model_changed",
+                severity="WARN",
+                atom_ref=atom_ref_map.get(assignment.atom),
+                left_resolver=left_resolver,
+                right_resolver=right_resolver,
+            )
+        )
+
+    changes.sort(
+        key=lambda item: (
+            _SEVERITY_RANK.get(item.severity, 99),
+            item.object_kind,
+            item.object_id or "",
+            item.json_path or "",
+            item.atom_name,
+            item.evidence_kind,
+        )
+    )
+    return changes
+
+
+def _to_evidence_change(
+    *,
+    atom_name: str,
+    evidence_kind: str,
+    severity: str,
+    atom_ref: AtomRef | None,
+    left_resolver: "_SpanResolver",
+    right_resolver: "_SpanResolver",
+) -> EvidenceChange:
+    object_id = atom_ref.object_id if atom_ref is not None else None
+    json_path = atom_ref.json_path if atom_ref is not None else None
+    return EvidenceChange(
+        atom_name=atom_name,
+        evidence_kind=evidence_kind,
+        severity=severity,
+        object_kind=_object_kind_for_path(json_path),
+        object_id=object_id,
+        json_path=json_path,
+        left_span=left_resolver.resolve_span(object_id=object_id, json_path=json_path),
+        right_span=right_resolver.resolve_span(object_id=object_id, json_path=json_path),
+    )
+
+
+def _build_cause_chain(evidence_changes: Sequence[EvidenceChange]) -> list[CauseChainItem]:
+    out = [
+        CauseChainItem(
+            severity=change.severity,
+            object_kind=change.object_kind,
+            object_id=change.object_id,
+            json_path=change.json_path,
+            atom_name=change.atom_name,
+            evidence_kind=change.evidence_kind,
+            message=_cause_message(change),
+            left_span=change.left_span,
+            right_span=change.right_span,
+        )
+        for change in evidence_changes
+    ]
+    out.sort(
+        key=lambda item: (
+            _SEVERITY_RANK.get(item.severity, 99),
+            item.object_kind,
+            item.object_id or "",
+            item.json_path or "",
+            item.atom_name,
+        )
+    )
+    return out
+
+
+def _cause_message(change: EvidenceChange) -> str:
+    if change.evidence_kind == "core_added":
+        return "Atom entered UNSAT core on the right variant."
+    if change.evidence_kind == "core_removed":
+        return "Atom left UNSAT core compared to the left variant."
+    if change.evidence_kind == "model_added":
+        return "Atom assignment exists only in the right SAT model."
+    if change.evidence_kind == "model_removed":
+        return "Atom assignment exists only in the left SAT model."
+    return "Atom assignment value changed across SAT models."
+
+
+def _build_repair_hints(
+    cause_chain: Sequence[CauseChainItem],
+    *,
+    max_hints: int,
+) -> list[RepairHint]:
+    hints: dict[tuple[str, str, str, str], RepairHint] = {}
+    for item in cause_chain:
+        hint_text = _hint_for_cause(item)
+        key = (
+            item.object_kind,
+            item.object_id or "",
+            item.json_path or "",
+            hint_text,
+        )
+        hints[key] = RepairHint(
+            object_kind=item.object_kind,
+            object_id=item.object_id,
+            json_path=item.json_path,
+            hint=hint_text,
+        )
+    out = [hints[key] for key in sorted(hints)]
+    return out[: max(0, max_hints)]
+
+
+def _hint_for_cause(item: CauseChainItem) -> str:
+    if item.object_kind == "claim":
+        return "Review claim sense selection; it drives the solver atom involved in the flip."
+    if item.object_kind == "link":
+        return (
+            "Review inferential link direction/type; "
+            "it participates directly in the solver delta."
+        )
+    if item.object_kind == "ambiguity":
+        return (
+            "Review ambiguity option choice; "
+            "it affects atom activation in the compared variants."
+        )
+    if item.object_kind == "statement":
+        return "Review norm kind/scope and attached exceptions for this statement."
+    if item.object_kind == "exception":
+        return "Review exception condition/priority; it can change active conflict atoms."
+    if item.object_kind == "sense":
+        return (
+            "Review sense assignment and linked claims; "
+            "this sense appears in changed solver evidence."
+        )
+    return "Review this node and nearby constraints; it appears in changed solver evidence."
+
+
+def _object_kind_for_path(path: str | None) -> str:
+    parts = _pointer_segments(path)
+    if not parts:
+        return "unknown"
+    if parts[0] == "D_norm":
+        if len(parts) >= 2 and parts[1] == "statements":
+            return "statement"
+        if len(parts) >= 2 and parts[1] == "exceptions":
+            return "exception"
+        return "norm"
+    if parts[0] == "bridges":
+        return "bridge"
+    if parts[0] == "ambiguity":
+        return "ambiguity"
+    if parts[0] == "claims":
+        return "claim"
+    if parts[0] == "links":
+        return "link"
+    if parts[0] == "senses":
+        return "sense"
+    if parts[0] == "terms":
+        return "term"
+    if parts[0] == "people":
+        return "person"
+    if parts[0] == "statements":
+        return "statement"
+    return "unknown"
 
 
 def _parse_span(value: Any) -> SourceSpan | None:
