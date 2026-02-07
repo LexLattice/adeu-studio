@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from adeu_api.main import (
     PuzzleCheckRequest,
+    PuzzleDiffRequest,
     PuzzleSolveRequest,
     check_puzzle_variant,
+    diff_puzzles_endpoint,
     solve_puzzle_endpoint,
 )
 from adeu_kernel import KernelMode
@@ -85,3 +87,18 @@ def test_solve_puzzle_endpoint_mock_backend_returns_invalid_request() -> None:
     resp = solve_puzzle_endpoint(PuzzleSolveRequest(puzzle=_sat_puzzle(), backend="mock"))
     assert resp.validator_result.backend == "mock"
     assert resp.validator_result.status == "INVALID_REQUEST"
+
+
+def test_diff_puzzles_endpoint_recomputes_runs_when_inline_missing() -> None:
+    resp = diff_puzzles_endpoint(
+        PuzzleDiffRequest(
+            left_ir=_unsat_puzzle(),
+            right_ir=_sat_puzzle(),
+            mode=KernelMode.LAX,
+        )
+    )
+    assert resp.solver.status_flip == "NO_RUNS"
+    assert resp.solver.unpaired_left_hashes
+    assert resp.solver.unpaired_right_hashes
+    assert resp.summary.run_source == "recomputed"
+    assert resp.summary.recompute_mode == "LAX"

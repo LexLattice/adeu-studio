@@ -159,6 +159,22 @@ def test_concepts_diff_endpoint_highlights_sense_flip_atom() -> None:
     )
 
     assert resp.solver.status_flip == "UNSAT→SAT"
+    assert resp.summary.run_source == "provided"
     assert resp.causal_slice.touched_atoms == ["atom_claim"]
     assert resp.causal_slice.touched_object_ids == ["claim_1"]
     assert resp.causal_slice.touched_json_paths == ["/claims/0/sense_id"]
+
+
+def test_concepts_diff_endpoint_recomputes_runs_when_inline_missing() -> None:
+    resp = diff_concepts_endpoint(
+        ConceptDiffRequest(
+            left_ir=_incoherent_ir(),
+            right_ir=_coherent_ir(),
+            mode=KernelMode.LAX,
+        )
+    )
+    assert resp.solver.status_flip == "NO_RUNS"
+    assert resp.solver.unpaired_left_hashes
+    assert resp.solver.unpaired_right_hashes
+    assert resp.summary.run_source == "recomputed"
+    assert resp.summary.recompute_mode == "LAX"

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { AdeuIR, SourceSpan } from "../gen/adeu_ir";
 import type { CheckReason, CheckReport } from "../gen/check_report";
@@ -52,72 +52,87 @@ type ApplyAmbiguityOptionResponse = {
   check_report: CheckReport;
 };
 
-type DiffKind = "add" | "remove" | "change";
-
-type DiffItem = {
+type JsonPatchOp = {
+  op: string;
   path: string;
-  kind: DiffKind;
-  before: unknown;
-  after: unknown;
+  from_path?: string | null;
+  value?: unknown;
+};
+
+type CoreDelta = {
+  added_atoms: string[];
+  removed_atoms: string[];
+};
+
+type ModelAssignment = {
+  atom: string;
+  value: string;
+};
+
+type ModelAssignmentChange = {
+  atom: string;
+  left_value: string;
+  right_value: string;
+};
+
+type ModelDelta = {
+  added_assignments: ModelAssignment[];
+  removed_assignments: ModelAssignment[];
+  changed_assignments: ModelAssignmentChange[];
+  changed_atoms: string[];
+};
+
+type SolverDiff = {
+  status_flip: string;
+  core_delta: CoreDelta;
+  model_delta: ModelDelta;
+  unpaired_left_hashes?: string[];
+  unpaired_right_hashes?: string[];
+};
+
+type StructuralDiff = {
+  json_patches: JsonPatchOp[];
+  changed_paths: string[];
+  changed_object_ids: string[];
+};
+
+type CausalSlice = {
+  touched_atoms: string[];
+  touched_object_ids: string[];
+  touched_json_paths: string[];
+  explanation_items: Array<{
+    atom_name: string;
+    object_id?: string | null;
+    json_path?: string | null;
+  }>;
+};
+
+type DiffSummary = {
+  status_flip: string;
+  structural_patch_count: string;
+  solver_touched_atom_count: string;
+  causal_atom_count: string;
+  run_source?: string;
+  recompute_mode?: string | null;
+  left_backend?: string | null;
+  right_backend?: string | null;
+  left_timeout_ms?: number | null;
+  right_timeout_ms?: number | null;
+};
+
+type DiffReport = {
+  left_id: string;
+  right_id: string;
+  structural: StructuralDiff;
+  solver: SolverDiff;
+  causal_slice: CausalSlice;
+  summary: DiffSummary;
 };
 
 type Highlight = { span: SourceSpan; label: string } | null;
 
 function apiBase(): string {
   return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function diffJson(
-  before: unknown,
-  after: unknown,
-  path: string,
-  out: DiffItem[],
-  limit: number
-): void {
-  if (out.length >= limit) return;
-  if (before === after) return;
-
-  if (Array.isArray(before) && Array.isArray(after)) {
-    const max = Math.max(before.length, after.length);
-    for (let i = 0; i < max; i++) {
-      if (out.length >= limit) return;
-      const nextPath = `${path}/${i}`;
-      if (i >= before.length) {
-        out.push({ path: nextPath, kind: "add", before: undefined, after: after[i] });
-        continue;
-      }
-      if (i >= after.length) {
-        out.push({ path: nextPath, kind: "remove", before: before[i], after: undefined });
-        continue;
-      }
-      diffJson(before[i], after[i], nextPath, out, limit);
-    }
-    return;
-  }
-
-  if (isRecord(before) && isRecord(after)) {
-    const keys = Array.from(new Set([...Object.keys(before), ...Object.keys(after)])).sort();
-    for (const key of keys) {
-      if (out.length >= limit) return;
-      const nextPath = `${path}/${key}`;
-      if (!(key in after)) {
-        out.push({ path: nextPath, kind: "remove", before: before[key], after: undefined });
-        continue;
-      }
-      if (!(key in before)) {
-        out.push({ path: nextPath, kind: "add", before: undefined, after: after[key] });
-        continue;
-      }
-      diffJson(before[key], after[key], nextPath, out, limit);
-    }
-    return;
-  }
-
-  out.push({ path, kind: "change", before, after });
 }
 
 function clampSpan(text: string, span: SourceSpan): SourceSpan | null {
@@ -201,6 +216,9 @@ export default function HomePage() {
   const [highlight, setHighlight] = useState<Highlight>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [diffReport, setDiffReport] = useState<DiffReport | null>(null);
+  const [isDiffing, setIsDiffing] = useState<boolean>(false);
+  const [diffError, setDiffError] = useState<string | null>(null);
 
   const selected = useMemo(() => candidates[selectedIdx] ?? null, [candidates, selectedIdx]);
   const selectedIr = useMemo(() => selected?.ir ?? null, [selected]);
@@ -219,16 +237,58 @@ export default function HomePage() {
     [compared]
   );
   const solverFlip = useMemo(() => {
-    if (!selectedSolverStatus || !comparedSolverStatus) return false;
-    return selectedSolverStatus !== comparedSolverStatus;
-  }, [selectedSolverStatus, comparedSolverStatus]);
-  const diffItems = useMemo(() => {
-    if (!selectedIr || !comparedIr) return [];
-    const out: DiffItem[] = [];
-    diffJson(selectedIr, comparedIr, "", out, 200);
-    out.sort((a, b) => a.path.localeCompare(b.path));
-    return out;
-  }, [selectedIr, comparedIr]);
+    const flip = diffReport?.solver.status_flip ?? "";
+    if (!flip.includes("→")) return false;
+    const [left, right] = flip.split("→");
+    return left !== right;
+  }, [diffReport]);
+
+  useEffect(() => {
+    if (!selectedIr || !comparedIr) {
+      setDiffReport(null);
+      setDiffError(null);
+      setIsDiffing(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    let active = true;
+
+    async function loadDiff(): Promise<void> {
+      setDiffError(null);
+      setIsDiffing(true);
+      try {
+        const res = await fetch(`${apiBase()}/diff`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ left_ir: selectedIr, right_ir: comparedIr, mode }),
+          signal: controller.signal
+        });
+        if (!res.ok) {
+          if (active) {
+            setDiffError(await res.text());
+            setDiffReport(null);
+          }
+          return;
+        }
+        const report = (await res.json()) as DiffReport;
+        if (active) setDiffReport(report);
+      } catch (e) {
+        if (!active) return;
+        if (e instanceof Error && e.name === "AbortError") return;
+        setDiffError(String(e));
+        setDiffReport(null);
+      } finally {
+        if (active) setIsDiffing(false);
+      }
+    }
+
+    void loadDiff();
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [selectedIr, comparedIr, mode]);
 
   async function propose() {
     setError(null);
@@ -461,17 +521,66 @@ export default function HomePage() {
               Compared: {compared.check_report.status}
               {comparedSolverStatus ? `/${comparedSolverStatus}` : ""}
             </span>
+            <span className="muted">
+              Diff: {diffReport?.solver.status_flip ?? (isDiffing ? "…" : "NO_RUNS")}
+            </span>
             {solverFlip ? <span className="muted">Satisfiability flipped.</span> : null}
           </div>
         ) : null}
-        {diffItems.length ? (
+        {isDiffing ? <div className="muted">Computing solver-aware diff…</div> : null}
+        {diffError ? <div className="muted">Diff error: {diffError}</div> : null}
+        {diffReport ? (
+          <div style={{ marginTop: 8 }}>
+            <div className="muted">
+              Run source: {diffReport.summary.run_source ?? "unknown"}
+              {diffReport.summary.recompute_mode ? ` (${diffReport.summary.recompute_mode})` : ""}
+            </div>
+            <div className="muted">
+              Backends: L={diffReport.summary.left_backend ?? "n/a"} / R=
+              {diffReport.summary.right_backend ?? "n/a"}
+            </div>
+            <div className="muted">
+              Timeouts: L=
+              {diffReport.summary.left_timeout_ms !== null &&
+              diffReport.summary.left_timeout_ms !== undefined
+                ? diffReport.summary.left_timeout_ms
+                : "n/a"}{" "}
+              / R=
+              {diffReport.summary.right_timeout_ms !== null &&
+              diffReport.summary.right_timeout_ms !== undefined
+                ? diffReport.summary.right_timeout_ms
+                : "n/a"}
+            </div>
+            <div className="muted">
+              Solver core delta: +{diffReport.solver.core_delta.added_atoms.length} / -
+              {diffReport.solver.core_delta.removed_atoms.length}
+            </div>
+            <div className="muted">
+              Solver model changed atoms: {diffReport.solver.model_delta.changed_atoms.length}
+            </div>
+            <div className="muted">
+              Causal atoms: {diffReport.causal_slice.touched_atoms.length}
+            </div>
+          </div>
+        ) : null}
+        {diffReport?.structural?.json_patches?.length ? (
           <pre style={{ flex: "unset" }}>
-            {diffItems
+            {diffReport.structural.json_patches
               .map((d) => {
-                const before = d.before === undefined ? "" : JSON.stringify(d.before);
-                const after = d.after === undefined ? "" : JSON.stringify(d.after);
-                return `${d.kind.toUpperCase()} ${d.path}\n  - ${before}\n  + ${after}`;
+                const fromPath = d.from_path ? ` from=${d.from_path}` : "";
+                const value = d.value === undefined ? "" : ` value=${JSON.stringify(d.value)}`;
+                return `${d.op.toUpperCase()} ${d.path}${fromPath}${value}`;
               })
+              .join("\n")}
+          </pre>
+        ) : null}
+        {diffReport?.causal_slice?.explanation_items?.length ? (
+          <pre style={{ flex: "unset" }}>
+            {diffReport.causal_slice.explanation_items
+              .map(
+                (item) =>
+                  `${item.atom_name} -> ${item.object_id ?? ""} ${item.json_path ?? ""}`.trim()
+              )
               .join("\n")}
           </pre>
         ) : null}

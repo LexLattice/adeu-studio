@@ -53,6 +53,12 @@ def build_diff_report(
     right_id: str,
     left_runs: Sequence[Any] | None = None,
     right_runs: Sequence[Any] | None = None,
+    summary_run_source: str | None = None,
+    summary_recompute_mode: str | None = None,
+    summary_left_backend: str | None = None,
+    summary_right_backend: str | None = None,
+    summary_left_timeout_ms: int | None = None,
+    summary_right_timeout_ms: int | None = None,
 ) -> DiffReport:
     left_payload = _to_jsonable(left)
     right_payload = _to_jsonable(right)
@@ -73,6 +79,12 @@ def build_diff_report(
             )
         ),
         causal_atom_count=str(len(causal.touched_atoms)),
+        run_source=summary_run_source or "unknown",
+        recompute_mode=summary_recompute_mode,
+        left_backend=summary_left_backend,
+        right_backend=summary_right_backend,
+        left_timeout_ms=summary_left_timeout_ms,
+        right_timeout_ms=summary_right_timeout_ms,
     )
     return DiffReport(
         left_id=left_id,
