@@ -5,8 +5,20 @@ import os
 from datetime import datetime, timezone
 from typing import Any, Callable, Literal
 
-from adeu_concepts import ConceptIR
-from adeu_concepts import check_with_validator_runs as check_concept_with_validator_runs
+from adeu_concepts import (
+    ConceptAnalysis,
+    ConceptIR,
+    ConceptRunRef,
+    analyze_concept,
+    pick_latest_run,
+    strip_analysis_details,
+)
+from adeu_concepts import (
+    check_with_solver_status as check_concept_with_solver_status,
+)
+from adeu_concepts import (
+    check_with_validator_runs as check_concept_with_validator_runs,
+)
 from adeu_explain import DiffReport, ValidatorRunInput, build_diff_report
 from adeu_ir import (
     AdeuIR,
@@ -135,6 +147,16 @@ class ConceptCheckRequest(BaseModel):
     ir: ConceptIR
     source_text: str | None = None
     mode: KernelMode = KernelMode.LAX
+
+
+class ConceptAnalyzeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: ConceptIR
+    source_text: str | None = None
+    mode: KernelMode = KernelMode.LAX
+    include_validator_runs: bool = False
+    include_analysis_details: bool = True
+    validator_runs: list[ValidatorRunInput] | None = None
 
 
 class PuzzleProposeRequest(BaseModel):
@@ -311,6 +333,14 @@ class ConceptProposeResponse(BaseModel):
     proposer_log: ProposerLog
 
 
+class ConceptAnalyzeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: ConceptIR
+    check_report: CheckReport
+    analysis: ConceptAnalysis
+    validator_runs: list[ValidatorRunInput] | None = None
+
+
 def _env_flag(name: str) -> bool:
     return os.environ.get(name, "").strip() == "1"
 
@@ -340,6 +370,73 @@ def _persist_validator_runs(
             evidence_json=run.result.evidence.model_dump(mode="json", exclude_none=True),
             atom_map_json=atom_map,
         )
+
+
+def _validator_run_input_from_record(run: ValidatorRunRecord) -> ValidatorRunInput:
+    return ValidatorRunInput(
+        run_id=None,
+        created_at=None,
+        backend=run.result.backend,
+        backend_version=run.result.backend_version,
+        timeout_ms=run.result.timeout_ms,
+        options_json=run.result.options,
+        request_hash=run.result.request_hash,
+        formula_hash=run.result.formula_hash,
+        status=run.result.status,
+        evidence_json=run.result.evidence.model_dump(mode="json", exclude_none=True),
+        atom_map_json={
+            atom.assertion_name: {
+                "object_id": atom.object_id,
+                "json_path": atom.json_path,
+            }
+            for atom in run.request.payload.atom_map
+        },
+    )
+
+
+def _concept_run_ref_from_input(run: ValidatorRunInput) -> ConceptRunRef:
+    atom_map: dict[str, dict[str, str | None]] = {}
+    if isinstance(run.atom_map_json, dict):
+        atom_map = {
+            name: {
+                "object_id": ref.object_id,
+                "json_path": ref.json_path,
+            }
+            for name, ref in run.atom_map_json.items()
+        }
+    else:
+        atom_map = {
+            ref.assertion_name: {
+                "object_id": ref.object_id,
+                "json_path": ref.json_path,
+            }
+            for ref in run.atom_map_json
+        }
+    evidence_json = run.evidence_json or {}
+    unsat_core_raw = evidence_json.get("unsat_core")
+    if isinstance(unsat_core_raw, list):
+        unsat_core = [str(item) for item in unsat_core_raw]
+    else:
+        unsat_core = []
+
+    model_raw = evidence_json.get("model")
+    model: dict[str, object] = {}
+    if isinstance(model_raw, dict):
+        model = {str(key): value for key, value in model_raw.items()}
+    error_raw = evidence_json.get("error")
+    error_text = str(error_raw) if isinstance(error_raw, str) else None
+
+    return ConceptRunRef(
+        run_id=run.run_id,
+        created_at=run.created_at,
+        status=run.status,
+        request_hash=run.request_hash,
+        formula_hash=run.formula_hash,
+        evidence_model=model,
+        evidence_unsat_core=unsat_core,
+        evidence_error=error_text,
+        atom_map_json=atom_map,
+    )
 
 
 def _sha256(value: str) -> str:
@@ -517,6 +614,32 @@ def _extract_backend_timeout(
     return None, None
 
 
+def _resolve_concepts_analyze_runs(
+    req: ConceptAnalyzeRequest,
+) -> tuple[CheckReport, list[ConceptRunRef], list[ValidatorRunInput], list[ValidatorRunRecord]]:
+    if req.validator_runs is not None:
+        concept_runs = [_concept_run_ref_from_input(run) for run in req.validator_runs]
+        selected = pick_latest_run(concept_runs)
+        report = check_concept_with_solver_status(
+            req.ir,
+            mode=req.mode,
+            source_text=req.source_text,
+            solver_status=selected.status if selected is not None else None,
+            solver_error=selected.evidence_error if selected is not None else None,
+            solver_unsat_core=selected.evidence_unsat_core if selected is not None else None,
+        )
+        return report, concept_runs, req.validator_runs, []
+
+    report, records = check_concept_with_validator_runs(
+        req.ir,
+        mode=req.mode,
+        source_text=req.source_text,
+    )
+    run_inputs = [_validator_run_input_from_record(record) for record in records]
+    concept_runs = [_concept_run_ref_from_input(run) for run in run_inputs]
+    return report, concept_runs, run_inputs, records
+
+
 def _build_diff_report_with_runs(
     *,
     left_ir: Any,
@@ -692,6 +815,25 @@ def check_concept_variant(req: ConceptCheckRequest) -> CheckReport:
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs:
         _persist_validator_runs(runs=runs, artifact_id=None)
     return report
+
+
+@app.post("/concepts/analyze", response_model=ConceptAnalyzeResponse)
+def analyze_concept_variant(req: ConceptAnalyzeRequest) -> ConceptAnalyzeResponse:
+    report, concept_runs, run_inputs, recomputed_records = _resolve_concepts_analyze_runs(req)
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and recomputed_records:
+        _persist_validator_runs(runs=recomputed_records, artifact_id=None)
+
+    selected = pick_latest_run(concept_runs)
+    analysis = analyze_concept(req.ir, run=selected)
+    if not req.include_analysis_details:
+        analysis = strip_analysis_details(analysis)
+
+    return ConceptAnalyzeResponse(
+        ir=req.ir,
+        check_report=report,
+        analysis=analysis,
+        validator_runs=run_inputs if req.include_validator_runs else None,
+    )
 
 
 @app.post("/puzzles/propose", response_model=PuzzleProposeResponse)
