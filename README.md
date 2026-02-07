@@ -40,6 +40,8 @@ Concept composition endpoints:
 - `POST /concepts/analyze` returns `CheckReport` plus structured analysis:
   - SAT: model-conditional closure edges
   - UNSAT: one subset-minimal MIC (or `PARTIAL`/`UNAVAILABLE`)
+  - SAT: forced-edge analysis via entailment checks (`base_constraints ∧ ¬edge`)
+    with optional countermodel witnesses for non-forced edges
 - `POST /concepts/diff` returns structural + solver-aware causal diff for two concept variants.
 - `POST /concepts/artifacts` stores accepted concept artifacts (strict check on create) and persists
   linked validator runs by default.

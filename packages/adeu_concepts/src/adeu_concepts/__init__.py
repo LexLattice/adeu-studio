@@ -4,6 +4,7 @@ from .analysis import (
     analyze_concept,
     pick_latest_run,
     strip_analysis_details,
+    strip_forced_details,
     unavailable_analysis,
 )
 from .checker import check, check_with_solver_status, check_with_validator_runs
@@ -36,6 +37,7 @@ __all__ = [
     "check_with_solver_status",
     "check_with_validator_runs",
     "pick_latest_run",
+    "strip_forced_details",
     "strip_analysis_details",
     "unavailable_analysis",
 ]

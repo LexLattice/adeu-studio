@@ -3,16 +3,19 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import adeu_concepts.analysis as concept_analysis
 from adeu_concepts import (
     ConceptIR,
     ConceptRunRef,
     analyze_concept,
+    build_concept_coherence_request,
     check_with_validator_runs,
     pick_latest_run,
     strip_analysis_details,
+    strip_forced_details,
     unavailable_analysis,
 )
-from adeu_concepts.analysis import _constraint_label
+from adeu_concepts.analysis import ClosureEdge, ClosureResult, _constraint_label
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
 
@@ -66,6 +69,9 @@ def test_analyze_concept_sat_populates_closure_and_no_mic() -> None:
     assert analysis.closure.status == "COMPLETE"
     assert analysis.closure.edge_count == len(analysis.closure.edges)
     assert analysis.mic.status == "UNAVAILABLE"
+    assert analysis.forced.status == "COMPLETE"
+    assert analysis.forced.solver_calls >= 1
+    assert analysis.forced.candidate_count >= 1
     assert any(
         edge.src_sense_id == "s_bank_fin"
         and edge.dst_sense_id == "s_credit"
@@ -90,6 +96,7 @@ def test_analyze_concept_unsat_populates_mic_and_no_closure() -> None:
     analysis = analyze_concept(concept, run=_run_ref_from_record(runs[0]))
     assert analysis.closure.status == "UNAVAILABLE"
     assert analysis.mic.status == "COMPLETE"
+    assert analysis.forced.status == "UNAVAILABLE"
     assert analysis.mic.constraint_count > 0
     assert all(item.label is not None for item in analysis.mic.constraints)
 
@@ -117,6 +124,66 @@ def test_analyze_concept_mic_reports_partial_when_shrink_caps_hit() -> None:
     assert analysis.mic.solver_calls == 0
 
 
+def test_analyze_concept_forced_reports_partial_when_forced_caps_hit() -> None:
+    concept = ConceptIR.model_validate(
+        _fixture_payload(fixture="bank_sense_coherence", name="var1.json")
+    )
+    _, runs = check_with_validator_runs(
+        concept,
+        mode=KernelMode.STRICT,
+        source_text=_fixture_source(fixture="bank_sense_coherence"),
+    )
+    assert runs
+
+    analysis = analyze_concept(
+        concept,
+        run=_run_ref_from_record(runs[0]),
+        max_forced_checks=0,
+        max_solver_calls_total=80,
+    )
+    assert analysis.forced.status == "PARTIAL"
+    assert analysis.forced.details == "max_forced_checks reached"
+    assert analysis.forced.solver_calls == 1
+
+
+def test_analyze_concept_forced_returns_countermodel_when_not_entailed(monkeypatch) -> None:
+    concept = ConceptIR.model_validate(
+        _fixture_payload(fixture="bank_sense_coherence", name="var1.json")
+    )
+    monkeypatch.setattr(
+        concept_analysis,
+        "_build_closure",
+        lambda *_args, **_kwargs: ClosureResult(
+            status="COMPLETE",
+            edge_count=1,
+            edges=[
+                ClosureEdge(
+                    src_sense_id="s_credit",
+                    dst_sense_id="s_bank_river",
+                    kind="commitment",
+                )
+            ],
+        ),
+    )
+    request = build_concept_coherence_request(concept)
+    sense_symbols = request.payload.metadata.get("sense_symbols", {})
+    assert isinstance(sense_symbols, dict)
+    run = ConceptRunRef(
+        status="SAT",
+        evidence_model={
+            str(sense_symbols["s_credit"]): "True",
+        },
+    )
+
+    analysis = analyze_concept(concept, run=run)
+    assert analysis.forced.status == "COMPLETE"
+    assert analysis.forced.countermodel_count >= 1
+    witness = analysis.forced.countermodels[0]
+    assert witness.solver_status == "SAT"
+    values = {assignment.symbol: assignment.value for assignment in witness.assignments}
+    assert values[str(sense_symbols["s_bank_river"])] == "false"
+
+
 def test_pick_latest_run_prefers_created_at_then_list_order() -> None:
     first = ConceptRunRef(run_id="r1", created_at="2026-02-10T10:00:00Z", status="SAT")
     second = ConceptRunRef(run_id="r2", created_at="2026-02-10T11:00:00Z", status="UNSAT")
@@ -139,6 +206,14 @@ def test_strip_and_unavailable_analysis_contract() -> None:
     assert stripped.closure.details is None
     assert stripped.mic.constraints == []
     assert stripped.mic.details is None
+    assert stripped.forced.forced_edges == []
+    assert stripped.forced.countermodels == []
+    assert stripped.forced.details is None
+
+    forced_stripped = strip_forced_details(empty)
+    assert forced_stripped.forced.forced_edges == []
+    assert forced_stripped.forced.countermodels == []
+    assert forced_stripped.forced.details is None
 
 
 def test_constraint_label_matches_only_expected_pointer_shapes() -> None:

@@ -61,6 +61,7 @@ def test_concepts_analyze_inline_runs_override_recompute(monkeypatch) -> None:
     assert resp.check_report.status == "PASS"
     assert resp.analysis.closure.status == "COMPLETE"
     assert resp.analysis.mic.status == "UNAVAILABLE"
+    assert resp.analysis.forced.status in {"COMPLETE", "PARTIAL"}
     assert resp.validator_runs is not None and len(resp.validator_runs) == 1
 
 
@@ -77,6 +78,7 @@ def test_concepts_analyze_recompute_populates_analysis_and_runs() -> None:
     assert resp.check_report.status == "PASS"
     assert resp.analysis.closure.status == "COMPLETE"
     assert resp.analysis.closure.edge_count >= 0
+    assert resp.analysis.forced.status in {"COMPLETE", "PARTIAL"}
     assert resp.validator_runs is not None and len(resp.validator_runs) == 1
 
 
@@ -95,6 +97,23 @@ def test_concepts_analyze_hides_details_when_requested() -> None:
     assert resp.analysis.closure.details is None
     assert resp.analysis.mic.constraints == []
     assert resp.analysis.mic.details is None
+    assert resp.analysis.forced.forced_edges == []
+    assert resp.analysis.forced.countermodels == []
+    assert resp.analysis.forced.details is None
+
+
+def test_concepts_analyze_hides_forced_details_when_requested() -> None:
+    resp = analyze_concept_variant(
+        ConceptAnalyzeRequest(
+            ir=_coherent_ir(),
+            source_text=_fixture_source(fixture="bank_sense_coherence"),
+            include_forced_details=False,
+            mode=KernelMode.LAX,
+        )
+    )
+    assert resp.analysis.forced.forced_edges == []
+    assert resp.analysis.forced.countermodels == []
+    assert resp.analysis.forced.details is None
 
 
 def test_concepts_analyze_picks_latest_inline_run_by_created_at() -> None:
