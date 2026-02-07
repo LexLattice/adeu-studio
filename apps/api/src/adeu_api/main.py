@@ -517,6 +517,44 @@ def _extract_backend_timeout(
     return None, None
 
 
+def _build_diff_report_with_runs(
+    *,
+    left_ir: Any,
+    right_ir: Any,
+    left_id: str,
+    right_id: str,
+    mode: KernelMode,
+    left_inline_runs: list[ValidatorRunInput] | None,
+    right_inline_runs: list[ValidatorRunInput] | None,
+    left_recompute_fn: Callable[[], tuple[CheckReport, list[ValidatorRunRecord]]],
+    right_recompute_fn: Callable[[], tuple[CheckReport, list[ValidatorRunRecord]]],
+) -> DiffReport:
+    left_runs, left_source = _resolve_diff_runs(
+        inline_runs=left_inline_runs,
+        recompute_fn=left_recompute_fn,
+    )
+    right_runs, right_source = _resolve_diff_runs(
+        inline_runs=right_inline_runs,
+        recompute_fn=right_recompute_fn,
+    )
+    left_backend, left_timeout_ms = _extract_backend_timeout(left_runs)
+    right_backend, right_timeout_ms = _extract_backend_timeout(right_runs)
+    return build_diff_report(
+        left_ir,
+        right_ir,
+        left_id=left_id,
+        right_id=right_id,
+        left_runs=left_runs,
+        right_runs=right_runs,
+        summary_run_source=_diff_run_source(left_source, right_source),
+        summary_recompute_mode=mode.value,
+        summary_left_backend=left_backend,
+        summary_right_backend=right_backend,
+        summary_left_timeout_ms=left_timeout_ms,
+        summary_right_timeout_ms=right_timeout_ms,
+    )
+
+
 @app.post("/propose", response_model=ProposeResponse)
 def propose(req: ProposeRequest) -> ProposeResponse:
     bundles = load_fixture_bundles()
@@ -895,94 +933,54 @@ def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
 
 @app.post("/diff", response_model=DiffReport)
 def diff_endpoint(req: DiffRequest) -> DiffReport:
-    # Inline runs win; otherwise recompute deterministically for diff-only workflows.
-    left_runs, left_source = _resolve_diff_runs(
-        inline_runs=req.left_validator_runs,
-        recompute_fn=lambda: check_with_validator_runs(req.left_ir, mode=req.mode),
-    )
-    right_runs, right_source = _resolve_diff_runs(
-        inline_runs=req.right_validator_runs,
-        recompute_fn=lambda: check_with_validator_runs(req.right_ir, mode=req.mode),
-    )
-    left_backend, left_timeout_ms = _extract_backend_timeout(left_runs)
-    right_backend, right_timeout_ms = _extract_backend_timeout(right_runs)
-    return build_diff_report(
-        req.left_ir,
-        req.right_ir,
+    return _build_diff_report_with_runs(
+        left_ir=req.left_ir,
+        right_ir=req.right_ir,
         left_id=req.left_ir.ir_id,
         right_id=req.right_ir.ir_id,
-        left_runs=left_runs,
-        right_runs=right_runs,
-        summary_run_source=_diff_run_source(left_source, right_source),
-        summary_recompute_mode=req.mode.value,
-        summary_left_backend=left_backend,
-        summary_right_backend=right_backend,
-        summary_left_timeout_ms=left_timeout_ms,
-        summary_right_timeout_ms=right_timeout_ms,
+        mode=req.mode,
+        left_inline_runs=req.left_validator_runs,
+        right_inline_runs=req.right_validator_runs,
+        left_recompute_fn=lambda: check_with_validator_runs(req.left_ir, mode=req.mode),
+        right_recompute_fn=lambda: check_with_validator_runs(req.right_ir, mode=req.mode),
     )
 
 
 @app.post("/concepts/diff", response_model=DiffReport)
 def diff_concepts_endpoint(req: ConceptDiffRequest) -> DiffReport:
-    left_runs, left_source = _resolve_diff_runs(
-        inline_runs=req.left_validator_runs,
-        recompute_fn=lambda: check_concept_with_validator_runs(
+    return _build_diff_report_with_runs(
+        left_ir=req.left_ir,
+        right_ir=req.right_ir,
+        left_id=req.left_ir.concept_id,
+        right_id=req.right_ir.concept_id,
+        mode=req.mode,
+        left_inline_runs=req.left_validator_runs,
+        right_inline_runs=req.right_validator_runs,
+        left_recompute_fn=lambda: check_concept_with_validator_runs(
             req.left_ir,
             mode=req.mode,
             source_text=req.left_source_text,
         ),
-    )
-    right_runs, right_source = _resolve_diff_runs(
-        inline_runs=req.right_validator_runs,
-        recompute_fn=lambda: check_concept_with_validator_runs(
+        right_recompute_fn=lambda: check_concept_with_validator_runs(
             req.right_ir,
             mode=req.mode,
             source_text=req.right_source_text,
         ),
     )
-    left_backend, left_timeout_ms = _extract_backend_timeout(left_runs)
-    right_backend, right_timeout_ms = _extract_backend_timeout(right_runs)
-    return build_diff_report(
-        req.left_ir,
-        req.right_ir,
-        left_id=req.left_ir.concept_id,
-        right_id=req.right_ir.concept_id,
-        left_runs=left_runs,
-        right_runs=right_runs,
-        summary_run_source=_diff_run_source(left_source, right_source),
-        summary_recompute_mode=req.mode.value,
-        summary_left_backend=left_backend,
-        summary_right_backend=right_backend,
-        summary_left_timeout_ms=left_timeout_ms,
-        summary_right_timeout_ms=right_timeout_ms,
-    )
 
 
 @app.post("/puzzles/diff", response_model=DiffReport)
 def diff_puzzles_endpoint(req: PuzzleDiffRequest) -> DiffReport:
-    left_runs, left_source = _resolve_diff_runs(
-        inline_runs=req.left_validator_runs,
-        recompute_fn=lambda: check_puzzle_with_validator_runs(req.left_ir, mode=req.mode),
-    )
-    right_runs, right_source = _resolve_diff_runs(
-        inline_runs=req.right_validator_runs,
-        recompute_fn=lambda: check_puzzle_with_validator_runs(req.right_ir, mode=req.mode),
-    )
-    left_backend, left_timeout_ms = _extract_backend_timeout(left_runs)
-    right_backend, right_timeout_ms = _extract_backend_timeout(right_runs)
-    return build_diff_report(
-        req.left_ir,
-        req.right_ir,
+    return _build_diff_report_with_runs(
+        left_ir=req.left_ir,
+        right_ir=req.right_ir,
         left_id=req.left_ir.puzzle_id,
         right_id=req.right_ir.puzzle_id,
-        left_runs=left_runs,
-        right_runs=right_runs,
-        summary_run_source=_diff_run_source(left_source, right_source),
-        summary_recompute_mode=req.mode.value,
-        summary_left_backend=left_backend,
-        summary_right_backend=right_backend,
-        summary_left_timeout_ms=left_timeout_ms,
-        summary_right_timeout_ms=right_timeout_ms,
+        mode=req.mode,
+        left_inline_runs=req.left_validator_runs,
+        right_inline_runs=req.right_validator_runs,
+        left_recompute_fn=lambda: check_puzzle_with_validator_runs(req.left_ir, mode=req.mode),
+        right_recompute_fn=lambda: check_puzzle_with_validator_runs(req.right_ir, mode=req.mode),
     )
 
 
