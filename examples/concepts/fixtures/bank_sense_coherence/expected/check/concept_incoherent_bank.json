@@ -1,0 +1,46 @@
+{
+  "metrics": {
+    "num_ambiguities": 1,
+    "num_bridges": 2,
+    "num_exceptions": 0,
+    "num_statements": 1
+  },
+  "reason_codes": [
+    {
+      "code": "CONCEPT_INCOHERENT_UNSAT",
+      "json_path": "/links",
+      "message": "concept composition constraints are UNSAT; unsat core=a:amb_bank:2222738f63ee,a:ln_incompat_fin:5d367afc6aea,a:ln_incompat_river:59e3094ac162,a:s_credit:545c1dea7293",
+      "object_id": "concept_incoherent_bank",
+      "severity": "ERROR"
+    }
+  ],
+  "status": "REFUSE",
+  "trace": [
+    {
+      "affected_ids": [
+        "concept_incoherent_bank"
+      ],
+      "because": [],
+      "rule_id": "concept/parse_ok"
+    },
+    {
+      "affected_ids": [
+        "concept_incoherent_bank"
+      ],
+      "because": [],
+      "notes": "Validates provenance, endpoint references, and sense selection constraints.",
+      "rule_id": "concept/hygiene"
+    },
+    {
+      "affected_ids": [
+        "concept_incoherent_bank"
+      ],
+      "because": [
+        "solver:UNSAT",
+        "CONCEPT_INCOHERENT_UNSAT"
+      ],
+      "notes": "Runs SMT coherence checks over sense selections and inferential links.",
+      "rule_id": "concept/solver"
+    }
+  ]
+}

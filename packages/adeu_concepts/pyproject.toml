@@ -3,20 +3,22 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "adeu-api"
+name = "adeu-concepts"
 version = "0.0.0"
-description = "FastAPI service for ADEU Studio."
+description = "Typed concept composition IR + coherence checks for ADEU Studio."
 readme = "../../README.md"
 requires-python = ">=3.11"
 dependencies = [
-  "fastapi>=0.110,<1",
-  "uvicorn>=0.24,<1",
+  "pydantic>=2.6,<3",
   "adeu-ir>=0.0.0",
   "adeu-kernel>=0.0.0",
-  "adeu-concepts>=0.0.0",
-  "adeu-puzzles>=0.0.0",
-  "adeu-explain>=0.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "ruff>=0.6,<1",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/adeu_api"]
+packages = ["src/adeu_concepts"]

@@ -7,6 +7,7 @@ This repo is a monorepo:
 - `packages/adeu_ir`: Pydantic ADEU IR + JSON Schema export (single source of truth)
 - `packages/adeu_kernel`: Deterministic checker/kernel + golden fixture harness
 - `packages/adeu_lean`: Lean core semantics + theorem runner helpers (v3.1 theorem obligations)
+- `packages/adeu_concepts`: Typed concept composition IR + coherence checker (v3.x concepts)
 - `packages/adeu_puzzles`: Typed puzzle IR + solver translation (v3.2: Knights/Knaves)
 - `apps/api`: FastAPI service (scaffolded after kernel is green)
 - `apps/web`: Next.js UI (scaffolded after kernel is green)
@@ -29,6 +30,9 @@ make bootstrap
 
 `POST /propose` returns fixture-backed candidates when the input clause text matches one of
 `examples/fixtures/*/clause.txt`.
+
+`POST /concepts/propose` returns fixture-backed concept composition candidates when the input
+`source_text` matches one of `examples/concepts/fixtures/*/source.txt`.
 
 `POST /puzzles/solve` accepts a strict `KnightsKnavesPuzzle` payload and returns:
 

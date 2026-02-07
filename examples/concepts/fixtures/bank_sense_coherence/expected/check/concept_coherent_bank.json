@@ -1,0 +1,37 @@
+{
+  "metrics": {
+    "num_ambiguities": 1,
+    "num_bridges": 2,
+    "num_exceptions": 0,
+    "num_statements": 1
+  },
+  "reason_codes": [],
+  "status": "PASS",
+  "trace": [
+    {
+      "affected_ids": [
+        "concept_coherent_bank"
+      ],
+      "because": [],
+      "rule_id": "concept/parse_ok"
+    },
+    {
+      "affected_ids": [
+        "concept_coherent_bank"
+      ],
+      "because": [],
+      "notes": "Validates provenance, endpoint references, and sense selection constraints.",
+      "rule_id": "concept/hygiene"
+    },
+    {
+      "affected_ids": [
+        "concept_coherent_bank"
+      ],
+      "because": [
+        "solver:SAT"
+      ],
+      "notes": "Runs SMT coherence checks over sense selections and inferential links.",
+      "rule_id": "concept/solver"
+    }
+  ]
+}
