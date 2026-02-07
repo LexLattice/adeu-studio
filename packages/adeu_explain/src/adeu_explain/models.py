@@ -112,6 +112,12 @@ class DiffSummary(BaseModel):
     structural_patch_count: str
     solver_touched_atom_count: str
     causal_atom_count: str
+    run_source: str = "unknown"
+    recompute_mode: str | None = None
+    left_backend: str | None = None
+    right_backend: str | None = None
+    left_timeout_ms: int | None = None
+    right_timeout_ms: int | None = None
 
 
 class DiffReport(BaseModel):

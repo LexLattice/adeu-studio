@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import adeu_api.main as api_main
 from adeu_api.main import DiffRequest, diff_endpoint
 from adeu_ir import AdeuIR
+from adeu_kernel import KernelMode
 
 
 def _left_ir() -> AdeuIR:
@@ -91,11 +93,12 @@ def test_diff_endpoint_uses_inline_runs_and_reports_solver_flip() -> None:
     assert resp.left_id == "ir_left"
     assert resp.right_id == "ir_right"
     assert resp.solver.status_flip == "UNSAT→SAT"
+    assert resp.summary.run_source == "provided"
     assert resp.solver.core_delta.removed_atoms == ["atom_stmt"]
     assert resp.causal_slice.touched_atoms == ["atom_stmt"]
 
 
-def test_diff_endpoint_ignores_artifact_ids_when_inline_runs_missing() -> None:
+def test_diff_endpoint_recomputes_runs_when_inline_runs_missing() -> None:
     req = DiffRequest(
         left_ir=_left_ir(),
         right_ir=_right_ir(),
@@ -103,6 +106,29 @@ def test_diff_endpoint_ignores_artifact_ids_when_inline_runs_missing() -> None:
         right_artifact_id="artifact-right",
     )
     resp = diff_endpoint(req)
+    assert resp.solver.status_flip == "SAT→SAT"
+    assert resp.solver.left_runs
+    assert resp.solver.right_runs
+    assert resp.summary.run_source == "recomputed"
+    assert resp.summary.recompute_mode == "LAX"
+    assert resp.summary.left_backend == "z3"
+    assert resp.summary.right_backend == "z3"
+
+
+def test_diff_endpoint_uses_requested_recompute_mode() -> None:
+    req = DiffRequest(left_ir=_left_ir(), right_ir=_right_ir(), mode=KernelMode.STRICT)
+    resp = diff_endpoint(req)
+    assert resp.summary.recompute_mode == "STRICT"
+
+
+def test_diff_endpoint_recompute_failure_is_missing_not_error(monkeypatch) -> None:
+    def _explode(*args, **kwargs):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(api_main, "check_with_validator_runs", _explode)
+    req = DiffRequest(left_ir=_left_ir(), right_ir=_right_ir())
+    resp = diff_endpoint(req)
     assert resp.solver.status_flip == "NO_RUNS"
     assert resp.solver.left_runs == []
     assert resp.solver.right_runs == []
+    assert resp.summary.run_source == "recomputed"
