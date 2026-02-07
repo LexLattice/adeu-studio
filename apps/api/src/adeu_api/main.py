@@ -757,16 +757,8 @@ def _runs_to_inputs(
         return []
     first = runs[0]
     if isinstance(first, ValidatorRunInput):
-        out: list[ValidatorRunInput] = []
-        for run in runs:
-            if isinstance(run, ValidatorRunInput):
-                out.append(_normalize_validator_run_input(run))
-        return out
-    out: list[ValidatorRunInput] = []
-    for run in runs:
-        if isinstance(run, ValidatorRunRecord):
-            out.append(_validator_run_input_from_record(run))
-    return out
+        return [_normalize_validator_run_input(run) for run in runs]
+    return [_validator_run_input_from_record(run) for run in runs]
 
 
 def _resolve_concepts_analyze_runs(

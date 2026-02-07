@@ -233,6 +233,7 @@ export function SolverDiffPanel({
 
   const report = response?.diff_report ?? null;
   const explanation = response?.flip_explanation ?? null;
+  const analysisDelta = response?.analysis_delta ?? null;
 
   const solverFlip = useMemo(() => {
     const flip = report?.solver.status_flip ?? "";
@@ -290,25 +291,25 @@ export function SolverDiffPanel({
           </div>
           <div className="muted">Causal atoms: {report.causal_slice.touched_atoms.length}</div>
 
-          {response.analysis_delta ? (
+          {analysisDelta ? (
             <div style={{ marginTop: 8 }}>
               <div className="muted">Concepts analysis delta</div>
               <div className="muted">
-                MIC: +{response.analysis_delta.mic_atoms_added.length} / -
-                {response.analysis_delta.mic_atoms_removed.length}
-                {response.analysis_delta.mic_delta_status
-                  ? ` (${response.analysis_delta.mic_delta_status})`
+                MIC: +{analysisDelta.mic_atoms_added.length} / -
+                {analysisDelta.mic_atoms_removed.length}
+                {analysisDelta.mic_delta_status
+                  ? ` (${analysisDelta.mic_delta_status})`
                   : ""}
               </div>
               <div className="muted">
-                Forced edges: +{response.analysis_delta.forced_edges_added.length} / -
-                {response.analysis_delta.forced_edges_removed.length}
-                {response.analysis_delta.forced_delta_status
-                  ? ` (${response.analysis_delta.forced_delta_status})`
+                Forced edges: +{analysisDelta.forced_edges_added.length} / -
+                {analysisDelta.forced_edges_removed.length}
+                {analysisDelta.forced_delta_status
+                  ? ` (${analysisDelta.forced_delta_status})`
                   : ""}
               </div>
               <div className="muted">
-                Countermodel edges changed: {response.analysis_delta.countermodel_edges_changed.length}
+                Countermodel edges changed: {analysisDelta.countermodel_edges_changed.length}
               </div>
             </div>
           ) : null}
