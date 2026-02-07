@@ -179,7 +179,7 @@ def _collect_hygiene_reasons(concept: ConceptIR, *, source_text: str | None) -> 
                 )
             )
 
-        if source_text is not None and span.end > len(source_text):
+        elif source_text is not None and span.end > len(source_text):
             reasons.append(
                 CheckReason(
                     code=ReasonCode.CONCEPT_PROVENANCE_MISSING,
@@ -327,11 +327,10 @@ def check_with_validator_runs(
         try:
             backend = build_validator_backend("z3")
         except RuntimeError as exc:
-            severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
             reasons.append(
                 CheckReason(
                     code=ReasonCode.CONCEPT_SOLVER_ERROR,
-                    severity=severity,
+                    severity=ReasonSeverity.ERROR,
                     message=str(exc),
                     object_id=concept.concept_id,
                     json_path=_path("links"),
@@ -352,14 +351,13 @@ def check_with_validator_runs(
 
     solver_because = [f"solver:{result.status}"]
     if result.status == "UNSAT":
-        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
         core_msg = (
             ",".join(sorted(result.evidence.unsat_core)) if result.evidence.unsat_core else ""
         )
         reasons.append(
             CheckReason(
                 code=ReasonCode.CONCEPT_INCOHERENT_UNSAT,
-                severity=severity,
+                severity=ReasonSeverity.ERROR,
                 message=(
                     "concept composition constraints are UNSAT"
                     + (f"; unsat core={core_msg}" if core_msg else "")
@@ -370,11 +368,10 @@ def check_with_validator_runs(
         )
         solver_because.append(ReasonCode.CONCEPT_INCOHERENT_UNSAT)
     elif result.status == "TIMEOUT":
-        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
         reasons.append(
             CheckReason(
                 code=ReasonCode.CONCEPT_SOLVER_TIMEOUT,
-                severity=severity,
+                severity=ReasonSeverity.ERROR,
                 message=result.evidence.error or "concept solver timed out",
                 object_id=concept.concept_id,
                 json_path=_path("links"),
@@ -382,11 +379,10 @@ def check_with_validator_runs(
         )
         solver_because.append(ReasonCode.CONCEPT_SOLVER_TIMEOUT)
     elif result.status == "UNKNOWN":
-        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
         reasons.append(
             CheckReason(
                 code=ReasonCode.CONCEPT_SOLVER_UNKNOWN,
-                severity=severity,
+                severity=ReasonSeverity.ERROR,
                 message=result.evidence.error or "concept solver returned UNKNOWN",
                 object_id=concept.concept_id,
                 json_path=_path("links"),
@@ -405,11 +401,10 @@ def check_with_validator_runs(
         )
         solver_because.append(ReasonCode.CONCEPT_SOLVER_INVALID_REQUEST)
     elif result.status == "ERROR":
-        severity = ReasonSeverity.ERROR if mode == KernelMode.STRICT else ReasonSeverity.WARN
         reasons.append(
             CheckReason(
                 code=ReasonCode.CONCEPT_SOLVER_ERROR,
-                severity=severity,
+                severity=ReasonSeverity.ERROR,
                 message=result.evidence.error or "concept solver backend error",
                 object_id=concept.concept_id,
                 json_path=_path("links"),

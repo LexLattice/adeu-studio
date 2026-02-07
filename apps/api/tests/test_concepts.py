@@ -61,9 +61,9 @@ def test_check_concept_endpoint_strict_unsat_refuses() -> None:
     assert any(reason.code == "CONCEPT_INCOHERENT_UNSAT" for reason in report.reason_codes)
 
 
-def test_check_concept_endpoint_lax_unsat_warns() -> None:
+def test_check_concept_endpoint_lax_unsat_refuses() -> None:
     report = check_concept_variant(ConceptCheckRequest(ir=_incoherent_ir(), mode=KernelMode.LAX))
-    assert report.status == "WARN"
+    assert report.status == "REFUSE"
     assert any(reason.code == "CONCEPT_INCOHERENT_UNSAT" for reason in report.reason_codes)
 
 

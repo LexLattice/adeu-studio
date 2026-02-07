@@ -51,7 +51,7 @@ def test_concept_checker_reports_sat_and_unsat_in_strict_mode() -> None:
     assert incoherent_runs and incoherent_runs[0].result.status == "UNSAT"
 
 
-def test_concept_checker_unsat_warns_in_lax_mode() -> None:
+def test_concept_checker_unsat_refuses_in_lax_mode() -> None:
     incoherent = ConceptIR.model_validate(
         _fixture_payload(fixture="bank_sense_coherence", name="var2.json")
     )
@@ -61,7 +61,7 @@ def test_concept_checker_unsat_warns_in_lax_mode() -> None:
         source_text=_fixture_source(fixture="bank_sense_coherence"),
     )
 
-    assert report.status == "WARN"
+    assert report.status == "REFUSE"
     assert any(reason.code == "CONCEPT_INCOHERENT_UNSAT" for reason in report.reason_codes)
 
 
