@@ -294,6 +294,139 @@ def _collect_hygiene_reasons(concept: ConceptIR, *, source_text: str | None) -> 
     return reasons
 
 
+def _apply_solver_result(
+    *,
+    concept: ConceptIR,
+    status: str | None,
+    error_message: str | None,
+    unsat_core: list[str] | None,
+    reasons: list[CheckReason],
+    trace: list[TraceItem],
+) -> None:
+    if status is None:
+        trace.append(
+            TraceItem(
+                rule_id="concept/solver",
+                because=["solver:UNAVAILABLE"],
+                affected_ids=[concept.concept_id],
+                notes="Uses provided solver status when available.",
+            )
+        )
+        return
+
+    normalized_status = status.upper()
+    solver_because = [f"solver:{normalized_status}"]
+    if normalized_status == "UNSAT":
+        core_msg = ",".join(sorted(unsat_core or []))
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.CONCEPT_INCOHERENT_UNSAT,
+                severity=ReasonSeverity.ERROR,
+                message=(
+                    "concept composition constraints are UNSAT"
+                    + (f"; unsat core={core_msg}" if core_msg else "")
+                ),
+                object_id=concept.concept_id,
+                json_path=_path("links"),
+            )
+        )
+        solver_because.append(ReasonCode.CONCEPT_INCOHERENT_UNSAT)
+    elif normalized_status == "TIMEOUT":
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.CONCEPT_SOLVER_TIMEOUT,
+                severity=ReasonSeverity.ERROR,
+                message=error_message or "concept solver timed out",
+                object_id=concept.concept_id,
+                json_path=_path("links"),
+            )
+        )
+        solver_because.append(ReasonCode.CONCEPT_SOLVER_TIMEOUT)
+    elif normalized_status == "UNKNOWN":
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.CONCEPT_SOLVER_UNKNOWN,
+                severity=ReasonSeverity.ERROR,
+                message=error_message or "concept solver returned UNKNOWN",
+                object_id=concept.concept_id,
+                json_path=_path("links"),
+            )
+        )
+        solver_because.append(ReasonCode.CONCEPT_SOLVER_UNKNOWN)
+    elif normalized_status == "INVALID_REQUEST":
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.CONCEPT_SOLVER_INVALID_REQUEST,
+                severity=ReasonSeverity.ERROR,
+                message=error_message or "concept solver rejected request",
+                object_id=concept.concept_id,
+                json_path=_path("links"),
+            )
+        )
+        solver_because.append(ReasonCode.CONCEPT_SOLVER_INVALID_REQUEST)
+    elif normalized_status == "ERROR":
+        reasons.append(
+            CheckReason(
+                code=ReasonCode.CONCEPT_SOLVER_ERROR,
+                severity=ReasonSeverity.ERROR,
+                message=error_message or "concept solver backend error",
+                object_id=concept.concept_id,
+                json_path=_path("links"),
+            )
+        )
+        solver_because.append(ReasonCode.CONCEPT_SOLVER_ERROR)
+
+    trace.append(
+        TraceItem(
+            rule_id="concept/solver",
+            because=solver_because,
+            affected_ids=[concept.concept_id],
+            notes="Runs SMT coherence checks over sense selections and inferential links.",
+        )
+    )
+
+
+def check_with_solver_status(
+    raw: Any,
+    *,
+    solver_status: str | None,
+    solver_error: str | None = None,
+    solver_unsat_core: list[str] | None = None,
+    mode: KernelMode = KernelMode.STRICT,
+    source_text: str | None = None,
+) -> CheckReport:
+    concept, parse_error = _parse_or_schema_error(raw)
+    if parse_error is not None:
+        return parse_error
+    assert concept is not None
+
+    reasons = _collect_hygiene_reasons(concept, source_text=source_text)
+    trace: list[TraceItem] = [
+        TraceItem(rule_id="concept/parse_ok", affected_ids=[concept.concept_id]),
+        TraceItem(
+            rule_id="concept/hygiene",
+            because=sorted({reason.code for reason in reasons}),
+            affected_ids=[concept.concept_id],
+            notes="Validates provenance, endpoint references, and sense selection constraints.",
+        ),
+    ]
+    metrics = _metrics(concept)
+
+    has_structural_error = any(reason.severity == ReasonSeverity.ERROR for reason in reasons)
+    if has_structural_error:
+        return _finalize_report(mode=mode, metrics=metrics, reasons=reasons, trace=trace)
+
+    _apply_solver_result(
+        concept=concept,
+        status=solver_status,
+        error_message=solver_error,
+        unsat_core=solver_unsat_core,
+        reasons=reasons,
+        trace=trace,
+    )
+    return _finalize_report(mode=mode, metrics=metrics, reasons=reasons, trace=trace)
+
+
 def check_with_validator_runs(
     raw: Any,
     *,
@@ -349,76 +482,13 @@ def check_with_validator_runs(
     result = backend.run(request)
     run = ValidatorRunRecord(request=request, result=result)
 
-    solver_because = [f"solver:{result.status}"]
-    if result.status == "UNSAT":
-        core_msg = (
-            ",".join(sorted(result.evidence.unsat_core)) if result.evidence.unsat_core else ""
-        )
-        reasons.append(
-            CheckReason(
-                code=ReasonCode.CONCEPT_INCOHERENT_UNSAT,
-                severity=ReasonSeverity.ERROR,
-                message=(
-                    "concept composition constraints are UNSAT"
-                    + (f"; unsat core={core_msg}" if core_msg else "")
-                ),
-                object_id=concept.concept_id,
-                json_path=_path("links"),
-            )
-        )
-        solver_because.append(ReasonCode.CONCEPT_INCOHERENT_UNSAT)
-    elif result.status == "TIMEOUT":
-        reasons.append(
-            CheckReason(
-                code=ReasonCode.CONCEPT_SOLVER_TIMEOUT,
-                severity=ReasonSeverity.ERROR,
-                message=result.evidence.error or "concept solver timed out",
-                object_id=concept.concept_id,
-                json_path=_path("links"),
-            )
-        )
-        solver_because.append(ReasonCode.CONCEPT_SOLVER_TIMEOUT)
-    elif result.status == "UNKNOWN":
-        reasons.append(
-            CheckReason(
-                code=ReasonCode.CONCEPT_SOLVER_UNKNOWN,
-                severity=ReasonSeverity.ERROR,
-                message=result.evidence.error or "concept solver returned UNKNOWN",
-                object_id=concept.concept_id,
-                json_path=_path("links"),
-            )
-        )
-        solver_because.append(ReasonCode.CONCEPT_SOLVER_UNKNOWN)
-    elif result.status == "INVALID_REQUEST":
-        reasons.append(
-            CheckReason(
-                code=ReasonCode.CONCEPT_SOLVER_INVALID_REQUEST,
-                severity=ReasonSeverity.ERROR,
-                message=result.evidence.error or "concept solver rejected request",
-                object_id=concept.concept_id,
-                json_path=_path("links"),
-            )
-        )
-        solver_because.append(ReasonCode.CONCEPT_SOLVER_INVALID_REQUEST)
-    elif result.status == "ERROR":
-        reasons.append(
-            CheckReason(
-                code=ReasonCode.CONCEPT_SOLVER_ERROR,
-                severity=ReasonSeverity.ERROR,
-                message=result.evidence.error or "concept solver backend error",
-                object_id=concept.concept_id,
-                json_path=_path("links"),
-            )
-        )
-        solver_because.append(ReasonCode.CONCEPT_SOLVER_ERROR)
-
-    trace.append(
-        TraceItem(
-            rule_id="concept/solver",
-            because=solver_because,
-            affected_ids=[concept.concept_id],
-            notes="Runs SMT coherence checks over sense selections and inferential links.",
-        )
+    _apply_solver_result(
+        concept=concept,
+        status=result.status,
+        error_message=result.evidence.error,
+        unsat_core=result.evidence.unsat_core,
+        reasons=reasons,
+        trace=trace,
     )
     return _finalize_report(mode=mode, metrics=metrics, reasons=reasons, trace=trace), [run]
 
