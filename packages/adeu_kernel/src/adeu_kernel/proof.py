@@ -3,12 +3,16 @@ from __future__ import annotations
 import hashlib
 import os
 import re
-import subprocess
-import tempfile
 from dataclasses import dataclass
 from typing import Literal, Protocol
 
 from adeu_ir import ProofArtifact, ProofInput
+from adeu_lean import (
+    DEFAULT_SEMANTICS_VERSION,
+    LeanRequest,
+    build_obligation_requests,
+    run_lean_request,
+)
 
 DEFAULT_LEAN_TIMEOUT_MS = 5000
 ProofBackendKind = Literal["mock", "lean"]
@@ -43,6 +47,19 @@ def build_trivial_theorem_source(*, theorem_id: str) -> str:
     return f"theorem {theorem_name} : True := by\n  trivial\n"
 
 
+def build_adeu_core_proof_requests(
+    *,
+    theorem_prefix: str,
+    inputs: list[ProofInput],
+    semantics_version: str = DEFAULT_SEMANTICS_VERSION,
+) -> list[LeanRequest]:
+    return build_obligation_requests(
+        theorem_prefix=theorem_prefix,
+        inputs=inputs,
+        semantics_version=semantics_version,
+    )
+
+
 def _default_timeout_ms() -> int:
     raw = os.environ.get("ADEU_LEAN_TIMEOUT_MS")
     if raw is None or not raw.strip():
@@ -54,6 +71,15 @@ def _default_timeout_ms() -> int:
     if timeout_ms <= 0:
         raise RuntimeError("ADEU_LEAN_TIMEOUT_MS must be a positive integer")
     return timeout_ms
+
+
+def _default_lean_bin() -> str:
+    value = os.environ.get("ADEU_LEAN_BIN")
+    if value is None or not value.strip():
+        value = os.environ.get("LEAN_BIN")
+    if value is None or not value.strip():
+        return "lean"
+    return value.strip()
 
 
 @dataclass(frozen=True)
@@ -89,57 +115,27 @@ class LeanCliProofBackend:
         inputs: list[ProofInput],
     ) -> ProofArtifact:
         proof_id = f"proof_{_sha256(theorem_id)[:16]}"
-        try:
-            with tempfile.NamedTemporaryFile(mode="w", suffix=".lean", encoding="utf-8") as handle:
-                handle.write(theorem_src)
-                handle.flush()
-                proc = subprocess.run(
-                    [self.lean_bin, handle.name],
-                    capture_output=True,
-                    text=True,
-                    timeout=max(1, self.timeout_ms // 1000),
-                    check=False,
-                )
-        except FileNotFoundError:
-            return ProofArtifact(
-                proof_id=proof_id,
-                backend="lean",
-                theorem_id=theorem_id,
-                status="failed",
-                proof_hash=_sha256(theorem_src + "::missing_lean_binary"),
-                inputs=inputs,
-                details={"error": f"lean binary not found: {self.lean_bin}"},
-            )
-        except subprocess.TimeoutExpired:
-            return ProofArtifact(
-                proof_id=proof_id,
-                backend="lean",
-                theorem_id=theorem_id,
-                status="failed",
-                proof_hash=_sha256(theorem_src + "::timeout"),
-                inputs=inputs,
-                details={"error": "lean proof-check timeout"},
-            )
-
-        result_hash = _sha256(
-            theorem_src
-            + "\n--stdout--\n"
-            + (proc.stdout or "")
-            + "\n--stderr--\n"
-            + (proc.stderr or "")
+        request = LeanRequest(
+            theorem_id=theorem_id,
+            theorem_src=theorem_src,
+            semantics_version=DEFAULT_SEMANTICS_VERSION,
+            inputs=inputs,
         )
-        status: Literal["proved", "failed"] = "proved" if proc.returncode == 0 else "failed"
-        details = {"returncode": proc.returncode}
-        if proc.stdout.strip():
-            details["stdout"] = proc.stdout.strip()
-        if proc.stderr.strip():
-            details["stderr"] = proc.stderr.strip()
+        result = run_lean_request(
+            request,
+            timeout_ms=self.timeout_ms,
+            lean_bin=self.lean_bin,
+        )
+        details = dict(result.details)
+        details.setdefault("semantics_version", request.semantics_version)
+        if result.lean_version:
+            details.setdefault("lean_version", result.lean_version)
         return ProofArtifact(
             proof_id=proof_id,
             backend="lean",
             theorem_id=theorem_id,
-            status=status,
-            proof_hash=result_hash,
+            status=result.status,
+            proof_hash=result.proof_hash,
             inputs=inputs,
             details=details,
         )
@@ -150,6 +146,6 @@ def build_proof_backend(kind: ProofBackendKind | None = None) -> ProofBackend:
     if selected == "mock":
         return MockProofBackend()
     if selected == "lean":
-        lean_bin = os.environ.get("ADEU_LEAN_BIN", "lean").strip() or "lean"
+        lean_bin = _default_lean_bin()
         return LeanCliProofBackend(lean_bin=lean_bin, timeout_ms=_default_timeout_ms())
     raise RuntimeError("ADEU_PROOF_BACKEND must be one of: mock, lean")

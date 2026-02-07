@@ -1,7 +1,13 @@
 from __future__ import annotations
 
 from adeu_ir import ProofInput
-from adeu_kernel import LeanCliProofBackend, MockProofBackend, build_trivial_theorem_source
+from adeu_kernel import (
+    LeanCliProofBackend,
+    MockProofBackend,
+    build_adeu_core_proof_requests,
+    build_proof_backend,
+    build_trivial_theorem_source,
+)
 
 
 def test_build_trivial_theorem_source_sanitizes_theorem_name() -> None:
@@ -33,3 +39,26 @@ def test_lean_cli_backend_reports_missing_binary_as_failed() -> None:
     assert result.backend == "lean"
     assert result.status == "failed"
     assert "binary not found" in str(result.details.get("error", "")).lower()
+
+
+def test_build_adeu_core_proof_requests_returns_three_obligations() -> None:
+    requests = build_adeu_core_proof_requests(theorem_prefix="ir_sample", inputs=[])
+    assert [request.obligation_kind for request in requests] == [
+        "pred_closed_world",
+        "exception_gating",
+        "conflict_soundness",
+    ]
+    assert [request.theorem_id for request in requests] == [
+        "ir_sample_pred_closed_world",
+        "ir_sample_exception_gating",
+        "ir_sample_conflict_soundness",
+    ]
+
+
+def test_build_proof_backend_accepts_lean_bin_alias(monkeypatch) -> None:
+    monkeypatch.setenv("ADEU_PROOF_BACKEND", "lean")
+    monkeypatch.delenv("ADEU_LEAN_BIN", raising=False)
+    monkeypatch.setenv("LEAN_BIN", "/tmp/lean-alias")
+    backend = build_proof_backend()
+    assert isinstance(backend, LeanCliProofBackend)
+    assert backend.lean_bin == "/tmp/lean-alias"
