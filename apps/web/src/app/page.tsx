@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { SolverDiffPanel } from "./components/solver-diff-panel";
 import type { AdeuIR, SourceSpan } from "../gen/adeu_ir";
 import type { CheckReason, CheckReport } from "../gen/check_report";
 
@@ -50,83 +51,6 @@ type ArtifactCreateResponse = {
 type ApplyAmbiguityOptionResponse = {
   patched_ir: AdeuIR;
   check_report: CheckReport;
-};
-
-type JsonPatchOp = {
-  op: string;
-  path: string;
-  from_path?: string | null;
-  value?: unknown;
-};
-
-type CoreDelta = {
-  added_atoms: string[];
-  removed_atoms: string[];
-};
-
-type ModelAssignment = {
-  atom: string;
-  value: string;
-};
-
-type ModelAssignmentChange = {
-  atom: string;
-  left_value: string;
-  right_value: string;
-};
-
-type ModelDelta = {
-  added_assignments: ModelAssignment[];
-  removed_assignments: ModelAssignment[];
-  changed_assignments: ModelAssignmentChange[];
-  changed_atoms: string[];
-};
-
-type SolverDiff = {
-  status_flip: string;
-  core_delta: CoreDelta;
-  model_delta: ModelDelta;
-  unpaired_left_hashes?: string[];
-  unpaired_right_hashes?: string[];
-};
-
-type StructuralDiff = {
-  json_patches: JsonPatchOp[];
-  changed_paths: string[];
-  changed_object_ids: string[];
-};
-
-type CausalSlice = {
-  touched_atoms: string[];
-  touched_object_ids: string[];
-  touched_json_paths: string[];
-  explanation_items: Array<{
-    atom_name: string;
-    object_id?: string | null;
-    json_path?: string | null;
-  }>;
-};
-
-type DiffSummary = {
-  status_flip: string;
-  structural_patch_count: string;
-  solver_touched_atom_count: string;
-  causal_atom_count: string;
-  run_source?: string;
-  recompute_mode?: string | null;
-  left_backend?: string | null;
-  right_backend?: string | null;
-  left_timeout_ms?: number | null;
-  right_timeout_ms?: number | null;
-};
-
-type DiffReport = {
-  left_id: string;
-  right_id: string;
-  structural: StructuralDiff;
-  solver: SolverDiff;
-  causal_slice: CausalSlice;
-  summary: DiffSummary;
 };
 
 type Highlight = { span: SourceSpan; label: string } | null;
@@ -216,9 +140,6 @@ export default function HomePage() {
   const [highlight, setHighlight] = useState<Highlight>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [diffReport, setDiffReport] = useState<DiffReport | null>(null);
-  const [isDiffing, setIsDiffing] = useState<boolean>(false);
-  const [diffError, setDiffError] = useState<string | null>(null);
 
   const selected = useMemo(() => candidates[selectedIdx] ?? null, [candidates, selectedIdx]);
   const selectedIr = useMemo(() => selected?.ir ?? null, [selected]);
@@ -236,59 +157,6 @@ export default function HomePage() {
     () => solverStatusFromReport(compared?.check_report ?? null),
     [compared]
   );
-  const solverFlip = useMemo(() => {
-    const flip = diffReport?.solver.status_flip ?? "";
-    if (!flip.includes("→")) return false;
-    const [left, right] = flip.split("→");
-    return left !== right;
-  }, [diffReport]);
-
-  useEffect(() => {
-    if (!selectedIr || !comparedIr) {
-      setDiffReport(null);
-      setDiffError(null);
-      setIsDiffing(false);
-      return;
-    }
-
-    const controller = new AbortController();
-    let active = true;
-
-    async function loadDiff(): Promise<void> {
-      setDiffError(null);
-      setIsDiffing(true);
-      try {
-        const res = await fetch(`${apiBase()}/diff`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ left_ir: selectedIr, right_ir: comparedIr, mode }),
-          signal: controller.signal
-        });
-        if (!res.ok) {
-          if (active) {
-            setDiffError(await res.text());
-            setDiffReport(null);
-          }
-          return;
-        }
-        const report = (await res.json()) as DiffReport;
-        if (active) setDiffReport(report);
-      } catch (e) {
-        if (!active) return;
-        if (e instanceof Error && e.name === "AbortError") return;
-        setDiffError(String(e));
-        setDiffReport(null);
-      } finally {
-        if (active) setIsDiffing(false);
-      }
-    }
-
-    void loadDiff();
-    return () => {
-      active = false;
-      controller.abort();
-    };
-  }, [selectedIr, comparedIr, mode]);
 
   async function propose() {
     setError(null);
@@ -433,6 +301,9 @@ export default function HomePage() {
           <Link href="/artifacts" className="muted" style={{ marginLeft: "auto" }}>
             Artifacts
           </Link>
+          <Link href="/concepts" className="muted">
+            Concepts
+          </Link>
           <span className="muted">Try pasting one of the fixture clauses.</span>
         </div>
         <div className="row" style={{ marginTop: 8 }}>
@@ -521,69 +392,15 @@ export default function HomePage() {
               Compared: {compared.check_report.status}
               {comparedSolverStatus ? `/${comparedSolverStatus}` : ""}
             </span>
-            <span className="muted">
-              Diff: {diffReport?.solver.status_flip ?? (isDiffing ? "…" : "NO_RUNS")}
-            </span>
-            {solverFlip ? <span className="muted">Satisfiability flipped.</span> : null}
           </div>
         ) : null}
-        {isDiffing ? <div className="muted">Computing solver-aware diff…</div> : null}
-        {diffError ? <div className="muted">Diff error: {diffError}</div> : null}
-        {diffReport ? (
-          <div style={{ marginTop: 8 }}>
-            <div className="muted">
-              Run source: {diffReport.summary.run_source ?? "unknown"}
-              {diffReport.summary.recompute_mode ? ` (${diffReport.summary.recompute_mode})` : ""}
-            </div>
-            <div className="muted">
-              Backends: L={diffReport.summary.left_backend ?? "n/a"} / R=
-              {diffReport.summary.right_backend ?? "n/a"}
-            </div>
-            <div className="muted">
-              Timeouts: L=
-              {diffReport.summary.left_timeout_ms !== null &&
-              diffReport.summary.left_timeout_ms !== undefined
-                ? diffReport.summary.left_timeout_ms
-                : "n/a"}{" "}
-              / R=
-              {diffReport.summary.right_timeout_ms !== null &&
-              diffReport.summary.right_timeout_ms !== undefined
-                ? diffReport.summary.right_timeout_ms
-                : "n/a"}
-            </div>
-            <div className="muted">
-              Solver core delta: +{diffReport.solver.core_delta.added_atoms.length} / -
-              {diffReport.solver.core_delta.removed_atoms.length}
-            </div>
-            <div className="muted">
-              Solver model changed atoms: {diffReport.solver.model_delta.changed_atoms.length}
-            </div>
-            <div className="muted">
-              Causal atoms: {diffReport.causal_slice.touched_atoms.length}
-            </div>
-          </div>
-        ) : null}
-        {diffReport?.structural?.json_patches?.length ? (
-          <pre style={{ flex: "unset" }}>
-            {diffReport.structural.json_patches
-              .map((d) => {
-                const fromPath = d.from_path ? ` from=${d.from_path}` : "";
-                const value = d.value === undefined ? "" : ` value=${JSON.stringify(d.value)}`;
-                return `${d.op.toUpperCase()} ${d.path}${fromPath}${value}`;
-              })
-              .join("\n")}
-          </pre>
-        ) : null}
-        {diffReport?.causal_slice?.explanation_items?.length ? (
-          <pre style={{ flex: "unset" }}>
-            {diffReport.causal_slice.explanation_items
-              .map(
-                (item) =>
-                  `${item.atom_name} -> ${item.object_id ?? ""} ${item.json_path ?? ""}`.trim()
-              )
-              .join("\n")}
-          </pre>
-        ) : null}
+        <SolverDiffPanel
+          endpoint="/diff"
+          mode={mode}
+          leftIr={selectedIr}
+          rightIr={comparedIr}
+          onSelectSpan={(span, label) => setHighlight({ span, label })}
+        />
         <pre>{selectedIr ? JSON.stringify(selectedIr, null, 2) : ""}</pre>
       </div>
 

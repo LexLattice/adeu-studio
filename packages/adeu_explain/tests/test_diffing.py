@@ -302,6 +302,110 @@ def test_solver_diff_handles_mixed_timestamps_within_same_pair() -> None:
     assert report.solver.status_flip == "SAT→UNSAT"
 
 
+def test_causal_slice_enriches_span_from_object_id() -> None:
+    left = _left_ir()
+    left["D_norm"]["statements"][0]["provenance"] = {
+        "doc_ref": "doc:test:diff#sec1",
+        "span": {"start": 3, "end": 12},
+    }
+    right = _right_ir()
+    right["D_norm"]["statements"][0]["provenance"] = {
+        "doc_ref": "doc:test:diff#sec1",
+        "span": {"start": 3, "end": 12},
+    }
+
+    report = build_diff_report(
+        left,
+        right,
+        left_id="left_ir",
+        right_id="right_ir",
+        left_runs=[
+            {
+                "request_hash": "req-span-id",
+                "formula_hash": "f-span-id",
+                "status": "UNSAT",
+                "evidence_json": {"unsat_core": ["atom_stmt_a"], "model": {}},
+                "atom_map_json": {
+                    "atom_stmt_a": {"object_id": "stmt_a", "json_path": "/D_norm/statements/0/kind"}
+                },
+            }
+        ],
+        right_runs=[
+            {
+                "request_hash": "req-span-id",
+                "formula_hash": "f-span-id",
+                "status": "SAT",
+                "evidence_json": {"unsat_core": [], "model": {"atom_stmt_a": "True"}},
+                "atom_map_json": {
+                    "atom_stmt_a": {"object_id": "stmt_a", "json_path": "/D_norm/statements/0/kind"}
+                },
+            }
+        ],
+    )
+
+    assert report.causal_slice.explanation_items
+    span = report.causal_slice.explanation_items[0].span
+    assert span is not None
+    assert span.start == 3
+    assert span.end == 12
+
+
+def test_causal_slice_enriches_span_from_json_path_when_object_id_missing() -> None:
+    left = {
+        "concept_id": "left_concept",
+        "claims": [
+            {
+                "id": "claim_1",
+                "sense_id": "s_a",
+                "provenance": {"doc_ref": "doc:concept#1", "span": {"start": 1, "end": 9}},
+            }
+        ],
+    }
+    right = {
+        "concept_id": "right_concept",
+        "claims": [
+            {
+                "id": "claim_1",
+                "sense_id": "s_b",
+                "provenance": {"doc_ref": "doc:concept#1", "span": {"start": 1, "end": 9}},
+            }
+        ],
+    }
+    report = build_diff_report(
+        left,
+        right,
+        left_id="left_concept",
+        right_id="right_concept",
+        left_runs=[
+            {
+                "request_hash": "req-span-path",
+                "formula_hash": "f-span-path",
+                "status": "UNSAT",
+                "evidence_json": {"unsat_core": ["atom_claim"], "model": {}},
+                "atom_map_json": {
+                    "atom_claim": {"object_id": None, "json_path": "/claims/0/sense_id"}
+                },
+            }
+        ],
+        right_runs=[
+            {
+                "request_hash": "req-span-path",
+                "formula_hash": "f-span-path",
+                "status": "SAT",
+                "evidence_json": {"unsat_core": [], "model": {"atom_claim": "True"}},
+                "atom_map_json": {
+                    "atom_claim": {"object_id": None, "json_path": "/claims/0/sense_id"}
+                },
+            }
+        ],
+    )
+    assert report.causal_slice.explanation_items
+    span = report.causal_slice.explanation_items[0].span
+    assert span is not None
+    assert span.start == 1
+    assert span.end == 9
+
+
 def test_pointer_segments_keep_empty_token_for_empty_object_keys() -> None:
     left = {"": {"id": "obj_empty", "value": 1}}
     right = {"": {"id": "obj_empty", "value": 2}}

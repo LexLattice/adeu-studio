@@ -4,7 +4,7 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Iterable, Sequence
 
-from adeu_ir import ValidatorAtomRef
+from adeu_ir import SourceSpan, ValidatorAtomRef
 from adeu_ir.models import JsonPatchOp
 
 from .models import (
@@ -65,7 +65,12 @@ def build_diff_report(
 
     structural = _build_structural_diff(left_payload, right_payload)
     solver = _build_solver_diff(left_runs=left_runs or [], right_runs=right_runs or [])
-    causal = _build_causal_slice(structural=structural, solver=solver)
+    causal = _build_causal_slice(
+        structural=structural,
+        solver=solver,
+        left_payload=left_payload,
+        right_payload=right_payload,
+    )
     summary = DiffSummary(
         status_flip=solver.status_flip,
         structural_patch_count=str(len(structural.json_patches)),
@@ -586,7 +591,13 @@ def _paths_match_or_overlap(path_a: str | None, path_b: str | None) -> bool:
     return a[: len(b)] == b
 
 
-def _build_causal_slice(structural: StructuralDiff, solver: SolverDiff) -> CausalSlice:
+def _build_causal_slice(
+    *,
+    structural: StructuralDiff,
+    solver: SolverDiff,
+    left_payload: Any,
+    right_payload: Any,
+) -> CausalSlice:
     changed_object_ids = set(structural.changed_object_ids)
     changed_paths = set(structural.changed_paths)
     touched_atoms = sorted(
@@ -601,6 +612,9 @@ def _build_causal_slice(structural: StructuralDiff, solver: SolverDiff) -> Causa
     for run in solver.left_runs + solver.right_runs:
         for atom_name, atom_ref in run.atom_map_json.items():
             atom_ref_map.setdefault(atom_name, atom_ref)
+
+    left_resolver = _SpanResolver(left_payload)
+    right_resolver = _SpanResolver(right_payload)
 
     causal_atoms: list[str] = []
     touched_object_ids: set[str] = set()
@@ -625,12 +639,21 @@ def _build_causal_slice(structural: StructuralDiff, solver: SolverDiff) -> Causa
             touched_object_ids.add(atom_ref.object_id)
         if atom_ref.json_path:
             touched_json_paths.add(atom_ref.json_path)
+        span = left_resolver.resolve_span(
+            object_id=atom_ref.object_id,
+            json_path=atom_ref.json_path,
+        )
+        if span is None:
+            span = right_resolver.resolve_span(
+                object_id=atom_ref.object_id,
+                json_path=atom_ref.json_path,
+            )
         explanation_items.append(
             ExplanationItem(
                 atom_name=atom_name,
                 object_id=atom_ref.object_id,
                 json_path=atom_ref.json_path,
-                span=None,
+                span=span,
             )
         )
 
@@ -643,3 +666,96 @@ def _build_causal_slice(structural: StructuralDiff, solver: SolverDiff) -> Causa
         touched_json_paths=sorted(touched_json_paths),
         explanation_items=explanation_items,
     )
+
+
+def _parse_span(value: Any) -> SourceSpan | None:
+    if not isinstance(value, dict):
+        return None
+    start = value.get("start")
+    end = value.get("end")
+    if not isinstance(start, int) or not isinstance(end, int):
+        return None
+    try:
+        return SourceSpan.model_validate({"start": start, "end": end})
+    except Exception:
+        return None
+
+
+def _extract_span_from_node(node: Any) -> SourceSpan | None:
+    if not isinstance(node, dict):
+        return None
+    provenance = node.get("provenance")
+    if isinstance(provenance, dict):
+        prov_span = _parse_span(provenance.get("span"))
+        if prov_span is not None:
+            return prov_span
+    node_span = _parse_span(node.get("span"))
+    if node_span is not None:
+        return node_span
+    return None
+
+
+class _SpanResolver:
+    def __init__(self, payload: Any) -> None:
+        self._payload = payload
+        self._id_to_span: dict[str, SourceSpan] = {}
+        self._index_ids(payload)
+
+    def _index_ids(self, node: Any) -> None:
+        if isinstance(node, dict):
+            object_id = node.get("id")
+            if isinstance(object_id, str) and object_id and object_id not in self._id_to_span:
+                span = _extract_span_from_node(node)
+                if span is not None:
+                    self._id_to_span[object_id] = span
+            for value in node.values():
+                self._index_ids(value)
+            return
+        if isinstance(node, list):
+            for item in node:
+                self._index_ids(item)
+
+    def resolve_span(self, *, object_id: str | None, json_path: str | None) -> SourceSpan | None:
+        if object_id and object_id in self._id_to_span:
+            return self._id_to_span[object_id]
+        if json_path:
+            node = self._resolve_path_root_node(json_path)
+            if node is not None:
+                return _extract_span_from_node(node)
+        return None
+
+    def _resolve_path_root_node(self, path: str) -> Any:
+        segments = _pointer_segments(path)
+        if len(segments) < 2:
+            return None
+        list_roots = {
+            ("D_norm", "statements"),
+            ("D_norm", "exceptions"),
+            ("ambiguity",),
+            ("bridges",),
+            ("claims",),
+            ("links",),
+        }
+        root: tuple[str, ...]
+        index_segment: str
+        if len(segments) >= 3 and (segments[0], segments[1]) in {
+            ("D_norm", "statements"),
+            ("D_norm", "exceptions"),
+        }:
+            root = (segments[0], segments[1])
+            index_segment = segments[2]
+        else:
+            root = (segments[0],)
+            index_segment = segments[1]
+        if root not in list_roots:
+            return None
+        try:
+            item_index = int(index_segment)
+        except ValueError:
+            return None
+        found, container = _get_node(self._payload, _json_pointer(root))
+        if not found or not isinstance(container, list):
+            return None
+        if item_index < 0 or item_index >= len(container):
+            return None
+        return container[item_index]

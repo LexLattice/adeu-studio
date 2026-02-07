@@ -24,7 +24,10 @@ def _left_ir() -> AdeuIR:
                         "subject": {"ref_type": "text", "text": "Supplier"},
                         "action": {"verb": "deliver"},
                         "scope": {"jurisdiction": "US-CA", "time_about": {"kind": "unspecified"}},
-                        "provenance": {"doc_ref": "doc:test:diff#sec1"},
+                        "provenance": {
+                            "doc_ref": "doc:test:diff#sec1",
+                            "span": {"start": 0, "end": 12},
+                        },
                     }
                 ]
             },
@@ -50,7 +53,10 @@ def _right_ir() -> AdeuIR:
                         "subject": {"ref_type": "text", "text": "Supplier"},
                         "action": {"verb": "deliver"},
                         "scope": {"jurisdiction": "US-CA", "time_about": {"kind": "unspecified"}},
-                        "provenance": {"doc_ref": "doc:test:diff#sec1"},
+                        "provenance": {
+                            "doc_ref": "doc:test:diff#sec1",
+                            "span": {"start": 0, "end": 12},
+                        },
                     }
                 ]
             },
@@ -96,6 +102,7 @@ def test_diff_endpoint_uses_inline_runs_and_reports_solver_flip() -> None:
     assert resp.summary.run_source == "provided"
     assert resp.solver.core_delta.removed_atoms == ["atom_stmt"]
     assert resp.causal_slice.touched_atoms == ["atom_stmt"]
+    assert resp.causal_slice.explanation_items[0].span is not None
 
 
 def test_diff_endpoint_recomputes_runs_when_inline_runs_missing() -> None:

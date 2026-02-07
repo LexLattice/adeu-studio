@@ -41,6 +41,7 @@ class ArtifactSummaryRow:
 class ValidatorRunRow:
     run_id: str
     artifact_id: str | None
+    concept_artifact_id: str | None
     created_at: str
     backend: str
     backend_version: str | None
@@ -64,6 +65,32 @@ class ProofArtifactRow:
     proof_hash: str
     inputs_json: list[dict[str, Any]]
     details_json: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class ConceptArtifactRow:
+    artifact_id: str
+    created_at: str
+    schema_version: str
+    artifact_version: int
+    source_text: str
+    doc_id: str | None
+    status: str | None
+    num_errors: int | None
+    num_warns: int | None
+    ir_json: dict[str, Any]
+    check_report_json: dict[str, Any]
+    analysis_json: dict[str, Any] | None
+
+
+@dataclass(frozen=True)
+class ConceptArtifactSummaryRow:
+    artifact_id: str
+    created_at: str
+    doc_id: str | None
+    status: str | None
+    num_errors: int | None
+    num_warns: int | None
 
 
 def _default_db_path() -> Path:
@@ -111,6 +138,7 @@ def _ensure_validator_schema(con: sqlite3.Connection) -> None:
         CREATE TABLE IF NOT EXISTS validator_runs (
           run_id TEXT PRIMARY KEY,
           artifact_id TEXT,
+          concept_artifact_id TEXT,
           created_at TEXT NOT NULL,
           backend TEXT NOT NULL,
           backend_version TEXT,
@@ -121,10 +149,18 @@ def _ensure_validator_schema(con: sqlite3.Connection) -> None:
           status TEXT NOT NULL,
           evidence_json TEXT NOT NULL,
           atom_map_json TEXT NOT NULL,
-          FOREIGN KEY(artifact_id) REFERENCES artifacts(artifact_id)
+          FOREIGN KEY(artifact_id) REFERENCES artifacts(artifact_id),
+          FOREIGN KEY(concept_artifact_id) REFERENCES concept_artifacts(artifact_id)
         )
         """
     )
+    existing = {
+        str(row[1])
+        for row in con.execute("PRAGMA table_info(validator_runs)").fetchall()
+        if row and row[1]
+    }
+    if "concept_artifact_id" not in existing:
+        con.execute("ALTER TABLE validator_runs ADD COLUMN concept_artifact_id TEXT")
 
 
 def _ensure_validator_indexes(con: sqlite3.Connection) -> None:
@@ -135,6 +171,10 @@ def _ensure_validator_indexes(con: sqlite3.Connection) -> None:
         "CREATE INDEX IF NOT EXISTS idx_validator_runs_created_at ON validator_runs(created_at)"
     )
     con.execute("CREATE INDEX IF NOT EXISTS idx_validator_runs_status ON validator_runs(status)")
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_validator_runs_concept_artifact_id "
+        "ON validator_runs(concept_artifact_id)"
+    )
 
 
 def _ensure_proof_schema(con: sqlite3.Connection) -> None:
@@ -168,6 +208,40 @@ def _ensure_proof_indexes(con: sqlite3.Connection) -> None:
     )
 
 
+def _ensure_concept_artifact_schema(con: sqlite3.Connection) -> None:
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS concept_artifacts (
+          artifact_id TEXT PRIMARY KEY,
+          created_at TEXT NOT NULL,
+          schema_version TEXT NOT NULL,
+          artifact_version INTEGER NOT NULL,
+          source_text TEXT NOT NULL,
+          doc_id TEXT,
+          status TEXT,
+          num_errors INTEGER,
+          num_warns INTEGER,
+          ir_json TEXT NOT NULL,
+          check_report_json TEXT NOT NULL,
+          analysis_json TEXT
+        )
+        """
+    )
+
+
+def _ensure_concept_artifact_indexes(con: sqlite3.Connection) -> None:
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_concept_artifacts_created_at "
+        "ON concept_artifacts(created_at)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_concept_artifacts_doc_id ON concept_artifacts(doc_id)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_concept_artifacts_status ON concept_artifacts(status)"
+    )
+
+
 def _ensure_schema(con: sqlite3.Connection) -> None:
     con.execute(
         """
@@ -191,6 +265,8 @@ def _ensure_schema(con: sqlite3.Connection) -> None:
     _ensure_validator_indexes(con)
     _ensure_proof_schema(con)
     _ensure_proof_indexes(con)
+    _ensure_concept_artifact_schema(con)
+    _ensure_concept_artifact_indexes(con)
 
 
 def _normalize_datetime_filter(value: str) -> str:
@@ -368,6 +444,7 @@ def list_artifacts(
 def create_validator_run(
     *,
     artifact_id: str | None,
+    concept_artifact_id: str | None = None,
     backend: str,
     backend_version: str | None,
     timeout_ms: int,
@@ -392,6 +469,7 @@ def create_validator_run(
             INSERT INTO validator_runs (
               run_id,
               artifact_id,
+              concept_artifact_id,
               created_at,
               backend,
               backend_version,
@@ -403,11 +481,12 @@ def create_validator_run(
               evidence_json,
               atom_map_json
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 run_id,
                 artifact_id,
+                concept_artifact_id,
                 created_at,
                 backend,
                 backend_version,
@@ -424,6 +503,7 @@ def create_validator_run(
     return ValidatorRunRow(
         run_id=run_id,
         artifact_id=artifact_id,
+        concept_artifact_id=concept_artifact_id,
         created_at=created_at,
         backend=backend,
         backend_version=backend_version,
@@ -512,7 +592,8 @@ def list_validator_runs(
         rows = con.execute(
             """
             SELECT run_id, artifact_id, created_at, backend, backend_version, timeout_ms,
-                   options_json, request_hash, formula_hash, status, evidence_json, atom_map_json
+                   concept_artifact_id, options_json, request_hash, formula_hash, status,
+                   evidence_json, atom_map_json
             FROM validator_runs
             WHERE artifact_id = ?
             ORDER BY created_at ASC
@@ -524,6 +605,50 @@ def list_validator_runs(
         ValidatorRunRow(
             run_id=row["run_id"],
             artifact_id=row["artifact_id"],
+            concept_artifact_id=row["concept_artifact_id"],
+            created_at=row["created_at"],
+            backend=row["backend"],
+            backend_version=row["backend_version"],
+            timeout_ms=row["timeout_ms"],
+            options_json=json.loads(row["options_json"]),
+            request_hash=row["request_hash"],
+            formula_hash=row["formula_hash"],
+            status=row["status"],
+            evidence_json=json.loads(row["evidence_json"]),
+            atom_map_json=json.loads(row["atom_map_json"]),
+        )
+        for row in rows
+    ]
+
+
+def list_concept_validator_runs(
+    *,
+    concept_artifact_id: str,
+    db_path: Path | None = None,
+) -> list[ValidatorRunRow]:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        rows = con.execute(
+            """
+            SELECT run_id, artifact_id, concept_artifact_id, created_at, backend, backend_version,
+                   timeout_ms, options_json, request_hash, formula_hash, status, evidence_json,
+                   atom_map_json
+            FROM validator_runs
+            WHERE concept_artifact_id = ?
+            ORDER BY created_at ASC
+            """,
+            (concept_artifact_id,),
+        ).fetchall()
+
+    return [
+        ValidatorRunRow(
+            run_id=row["run_id"],
+            artifact_id=row["artifact_id"],
+            concept_artifact_id=row["concept_artifact_id"],
             created_at=row["created_at"],
             backend=row["backend"],
             backend_version=row["backend_version"],
@@ -572,6 +697,178 @@ def list_proof_artifacts(
             proof_hash=row["proof_hash"],
             inputs_json=json.loads(row["inputs_json"]),
             details_json=json.loads(row["details_json"]),
+        )
+        for row in rows
+    ]
+
+
+def create_concept_artifact(
+    *,
+    schema_version: str,
+    artifact_version: int,
+    source_text: str,
+    doc_id: str | None,
+    status: str | None,
+    num_errors: int | None,
+    num_warns: int | None,
+    ir_json: dict[str, Any],
+    check_report_json: dict[str, Any],
+    analysis_json: dict[str, Any] | None,
+    db_path: Path | None = None,
+) -> ConceptArtifactRow:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    artifact_id = uuid.uuid4().hex
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.execute(
+            """
+            INSERT INTO concept_artifacts (
+              artifact_id,
+              created_at,
+              schema_version,
+              artifact_version,
+              source_text,
+              doc_id,
+              status,
+              num_errors,
+              num_warns,
+              ir_json,
+              check_report_json,
+              analysis_json
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                artifact_id,
+                created_at,
+                schema_version,
+                artifact_version,
+                source_text,
+                doc_id,
+                status,
+                num_errors,
+                num_warns,
+                json.dumps(ir_json, sort_keys=True),
+                json.dumps(check_report_json, sort_keys=True),
+                json.dumps(analysis_json, sort_keys=True) if analysis_json is not None else None,
+            ),
+        )
+
+    return ConceptArtifactRow(
+        artifact_id=artifact_id,
+        created_at=created_at,
+        schema_version=schema_version,
+        artifact_version=artifact_version,
+        source_text=source_text,
+        doc_id=doc_id,
+        status=status,
+        num_errors=num_errors,
+        num_warns=num_warns,
+        ir_json=ir_json,
+        check_report_json=check_report_json,
+        analysis_json=analysis_json,
+    )
+
+
+def get_concept_artifact(
+    *,
+    artifact_id: str,
+    db_path: Path | None = None,
+) -> ConceptArtifactRow | None:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        row = con.execute(
+            """
+            SELECT artifact_id, created_at, schema_version, artifact_version, source_text, doc_id,
+                   status, num_errors, num_warns, ir_json, check_report_json, analysis_json
+            FROM concept_artifacts
+            WHERE artifact_id = ?
+            """,
+            (artifact_id,),
+        ).fetchone()
+        if row is None:
+            return None
+
+    return ConceptArtifactRow(
+        artifact_id=row["artifact_id"],
+        created_at=row["created_at"],
+        schema_version=row["schema_version"],
+        artifact_version=row["artifact_version"],
+        source_text=row["source_text"],
+        doc_id=row["doc_id"],
+        status=row["status"],
+        num_errors=row["num_errors"],
+        num_warns=row["num_warns"],
+        ir_json=json.loads(row["ir_json"]),
+        check_report_json=json.loads(row["check_report_json"]),
+        analysis_json=(
+            json.loads(row["analysis_json"]) if row["analysis_json"] is not None else None
+        ),
+    )
+
+
+def list_concept_artifacts(
+    *,
+    doc_id: str | None = None,
+    status: str | None = None,
+    created_after: str | None = None,
+    created_before: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+    db_path: Path | None = None,
+) -> list[ConceptArtifactSummaryRow]:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    where: list[str] = []
+    params: list[object] = []
+
+    if doc_id is not None:
+        where.append("doc_id = ?")
+        params.append(doc_id)
+
+    if status is not None:
+        where.append("status = ?")
+        params.append(status)
+
+    if created_after is not None:
+        where.append("created_at >= ?")
+        params.append(_normalize_datetime_filter(created_after))
+
+    if created_before is not None:
+        where.append("created_at <= ?")
+        params.append(_normalize_datetime_filter(created_before))
+
+    sql = (
+        "SELECT artifact_id, created_at, doc_id, status, num_errors, num_warns "
+        "FROM concept_artifacts"
+    )
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY created_at DESC, artifact_id ASC LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        rows = con.execute(sql, params).fetchall()
+
+    return [
+        ConceptArtifactSummaryRow(
+            artifact_id=row["artifact_id"],
+            created_at=row["created_at"],
+            doc_id=row["doc_id"],
+            status=row["status"],
+            num_errors=row["num_errors"],
+            num_warns=row["num_warns"],
         )
         for row in rows
     ]
