@@ -395,7 +395,7 @@ export default function HomePage() {
           </div>
         ) : null}
         <SolverDiffPanel
-          endpoint="/diff"
+          domain="adeu"
           mode={mode}
           leftIr={selectedIr}
           rightIr={comparedIr}

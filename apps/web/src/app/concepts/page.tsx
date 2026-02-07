@@ -208,13 +208,6 @@ export default function ConceptsPage() {
     () => (compareIdx === null ? null : candidates[compareIdx] ?? null),
     [candidates, compareIdx],
   );
-  const diffPayload = useMemo(
-    () => ({
-      left_source_text: sourceText || null,
-      right_source_text: sourceText || null,
-    }),
-    [sourceText],
-  );
 
   async function propose() {
     setError(null);
@@ -419,11 +412,13 @@ export default function ConceptsPage() {
         ) : null}
 
         <SolverDiffPanel
-          endpoint="/concepts/diff"
+          domain="concepts"
           mode={mode}
           leftIr={selectedIr}
           rightIr={compared?.ir ?? null}
-          extraPayload={diffPayload}
+          leftSourceText={sourceText || null}
+          rightSourceText={sourceText || null}
+          includeAnalysisDelta
           onSelectSpan={(span, label) => setHighlight({ span, label })}
         />
 
