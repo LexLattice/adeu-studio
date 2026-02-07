@@ -802,7 +802,11 @@ def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
     checked_runs: list[list[ValidatorRunRecord]] = []
     for proposal in bundle.proposals:
         concept = canonicalize_concept_ids(proposal)
-        report, runs = check_concept_with_validator_runs(concept, mode=req.mode)
+        report, runs = check_concept_with_validator_runs(
+            concept,
+            mode=req.mode,
+            source_text=source_text,
+        )
         checked.append((concept, report))
         checked_runs.append(runs)
 

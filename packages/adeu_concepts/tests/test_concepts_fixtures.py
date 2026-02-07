@@ -26,6 +26,10 @@ def test_concept_fixtures_strict_mode() -> None:
     for fixture_dir in fixture_dirs:
         proposals_dir = fixture_dir / "proposals"
         expected_dir = fixture_dir / "expected" / "check"
+        source_path = fixture_dir / "source.txt"
+        source_text = (
+            source_path.read_text(encoding="utf-8").strip() if source_path.is_file() else None
+        )
         assert proposals_dir.is_dir(), f"Missing proposals dir: {proposals_dir}"
         assert expected_dir.is_dir(), f"Missing expected dir: {expected_dir}"
 
@@ -34,7 +38,7 @@ def test_concept_fixtures_strict_mode() -> None:
 
         for proposal_path in proposal_files:
             proposal = _load_json(proposal_path)
-            report = check(proposal, mode=KernelMode.STRICT)
+            report = check(proposal, mode=KernelMode.STRICT, source_text=source_text)
 
             assert isinstance(proposal, dict), f"Concept proposal must be object: {proposal_path}"
             concept_id = proposal.get("concept_id")

@@ -28,6 +28,33 @@ def _incoherent_ir() -> ConceptIR:
     return ConceptIR.model_validate(_fixture_payload("var2.json"))
 
 
+def _guard_fixture_payload(name: str) -> dict:
+    root = repo_root(anchor=Path(__file__))
+    path = (
+        root
+        / "examples"
+        / "concepts"
+        / "fixtures"
+        / "claim_resolution_and_span_guard"
+        / "proposals"
+        / name
+    )
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _guard_source_text() -> str:
+    root = repo_root(anchor=Path(__file__))
+    path = (
+        root
+        / "examples"
+        / "concepts"
+        / "fixtures"
+        / "claim_resolution_and_span_guard"
+        / "source.txt"
+    )
+    return path.read_text(encoding="utf-8").strip()
+
+
 def test_check_concept_endpoint_strict_unsat_refuses() -> None:
     report = check_concept_variant(ConceptCheckRequest(ir=_incoherent_ir(), mode=KernelMode.STRICT))
     assert report.status == "REFUSE"
@@ -38,6 +65,46 @@ def test_check_concept_endpoint_lax_unsat_warns() -> None:
     report = check_concept_variant(ConceptCheckRequest(ir=_incoherent_ir(), mode=KernelMode.LAX))
     assert report.status == "WARN"
     assert any(reason.code == "CONCEPT_INCOHERENT_UNSAT" for reason in report.reason_codes)
+
+
+def test_check_concept_endpoint_strict_span_oob_refuses_with_source_text() -> None:
+    report = check_concept_variant(
+        ConceptCheckRequest(
+            ir=ConceptIR.model_validate(_guard_fixture_payload("var2.json")),
+            source_text=_guard_source_text(),
+            mode=KernelMode.STRICT,
+        )
+    )
+    assert report.status == "REFUSE"
+    assert any(reason.code == "CONCEPT_PROVENANCE_MISSING" for reason in report.reason_codes)
+
+
+def test_check_concept_endpoint_lax_span_oob_warns_with_error_severity() -> None:
+    report = check_concept_variant(
+        ConceptCheckRequest(
+            ir=ConceptIR.model_validate(_guard_fixture_payload("var2.json")),
+            source_text=_guard_source_text(),
+            mode=KernelMode.LAX,
+        )
+    )
+    assert report.status == "WARN"
+    reasons = [
+        reason for reason in report.reason_codes if reason.code == "CONCEPT_PROVENANCE_MISSING"
+    ]
+    assert reasons
+    assert reasons[0].severity == "ERROR"
+
+
+def test_check_concept_endpoint_lax_unresolved_endpoint_still_refuses() -> None:
+    report = check_concept_variant(
+        ConceptCheckRequest(
+            ir=ConceptIR.model_validate(_guard_fixture_payload("var1.json")),
+            source_text=_guard_source_text(),
+            mode=KernelMode.LAX,
+        )
+    )
+    assert report.status == "REFUSE"
+    assert any(reason.code == "CONCEPT_ENDPOINT_UNRESOLVED" for reason in report.reason_codes)
 
 
 def test_concepts_diff_endpoint_highlights_sense_flip_atom() -> None:

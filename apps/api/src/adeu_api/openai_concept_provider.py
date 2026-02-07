@@ -333,7 +333,11 @@ def propose_concept_openai(
                 continue
 
             concept = canonicalize_concept_ids(parsed)
-            report, runs = concept_check_with_validator_runs(concept, mode=mode)
+            report, runs = concept_check_with_validator_runs(
+                concept,
+                mode=mode,
+                source_text=source_text,
+            )
             report_score = score_key(report)
             accepted_by_gate = is_strict_improvement(report_score, accepted_score)
             attempt_logs.append(
