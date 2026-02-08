@@ -95,6 +95,22 @@ class ConceptArtifactSummaryRow:
     num_warns: int | None
 
 
+@dataclass(frozen=True)
+class DocumentRow:
+    doc_id: str
+    domain: str
+    source_text: str
+    created_at: str
+    metadata_json: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class DocumentSummaryRow:
+    doc_id: str
+    domain: str
+    created_at: str
+
+
 def _default_db_path() -> Path:
     env = os.environ.get("ADEU_API_DB_PATH")
     if env:
@@ -350,6 +366,25 @@ def _ensure_concept_artifact_indexes(con: sqlite3.Connection) -> None:
     )
 
 
+def _ensure_documents_schema(con: sqlite3.Connection) -> None:
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS documents (
+          doc_id TEXT PRIMARY KEY,
+          domain TEXT NOT NULL,
+          source_text TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          metadata_json TEXT NOT NULL
+        )
+        """
+    )
+
+
+def _ensure_documents_indexes(con: sqlite3.Connection) -> None:
+    con.execute("CREATE INDEX IF NOT EXISTS idx_documents_created_at ON documents(created_at)")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_documents_domain ON documents(domain)")
+
+
 def _ensure_schema(con: sqlite3.Connection) -> None:
     con.execute(
         """
@@ -369,6 +404,8 @@ def _ensure_schema(con: sqlite3.Connection) -> None:
     )
     _ensure_columns(con)
     _ensure_indexes(con)
+    _ensure_documents_schema(con)
+    _ensure_documents_indexes(con)
     _ensure_concept_artifact_schema(con)
     _ensure_concept_artifact_indexes(con)
     _ensure_validator_schema(con)
@@ -900,6 +937,139 @@ def create_concept_artifact(
         check_report_json=check_report_json,
         analysis_json=analysis_json,
     )
+
+
+def create_document(
+    *,
+    doc_id: str,
+    domain: str,
+    source_text: str,
+    metadata_json: dict[str, Any] | None = None,
+    db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
+) -> DocumentRow:
+    resolved_db_path = _resolve_db_path(db_path)
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+    payload = metadata_json or {}
+
+    def _insert(con: sqlite3.Connection) -> None:
+        con.execute(
+            """
+            INSERT INTO documents (
+              doc_id,
+              domain,
+              source_text,
+              created_at,
+              metadata_json
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                doc_id,
+                domain,
+                source_text,
+                created_at,
+                json.dumps(payload, sort_keys=True),
+            ),
+        )
+
+    try:
+        if connection is not None:
+            _insert(connection)
+        else:
+            with sqlite3.connect(resolved_db_path) as con:
+                con.execute("PRAGMA foreign_keys=ON")
+                _ensure_schema(con)
+                _insert(con)
+    except sqlite3.IntegrityError as exc:
+        raise ValueError(f"document with doc_id={doc_id!r} already exists") from exc
+
+    return DocumentRow(
+        doc_id=doc_id,
+        domain=domain,
+        source_text=source_text,
+        created_at=created_at,
+        metadata_json=payload,
+    )
+
+
+def get_document(
+    *,
+    doc_id: str,
+    db_path: Path | None = None,
+) -> DocumentRow | None:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        row = con.execute(
+            """
+            SELECT doc_id, domain, source_text, created_at, metadata_json
+            FROM documents
+            WHERE doc_id = ?
+            """,
+            (doc_id,),
+        ).fetchone()
+        if row is None:
+            return None
+
+    return DocumentRow(
+        doc_id=row["doc_id"],
+        domain=row["domain"],
+        source_text=row["source_text"],
+        created_at=row["created_at"],
+        metadata_json=json.loads(row["metadata_json"]),
+    )
+
+
+def list_documents(
+    *,
+    domain: str | None = None,
+    created_after: str | None = None,
+    created_before: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+    db_path: Path | None = None,
+) -> list[DocumentSummaryRow]:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    where: list[str] = []
+    params: list[object] = []
+
+    if domain is not None:
+        where.append("domain = ?")
+        params.append(domain)
+
+    if created_after is not None:
+        where.append("created_at >= ?")
+        params.append(_normalize_datetime_filter(created_after))
+
+    if created_before is not None:
+        where.append("created_at <= ?")
+        params.append(_normalize_datetime_filter(created_before))
+
+    sql = "SELECT doc_id, domain, created_at FROM documents"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY created_at DESC, doc_id ASC LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        rows = con.execute(sql, params).fetchall()
+
+    return [
+        DocumentSummaryRow(
+            doc_id=row["doc_id"],
+            domain=row["domain"],
+            created_at=row["created_at"],
+        )
+        for row in rows
+    ]
 
 
 def get_concept_artifact(

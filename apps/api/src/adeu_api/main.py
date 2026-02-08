@@ -91,13 +91,16 @@ from .source_features import extract_source_features
 from .storage import (
     create_artifact,
     create_concept_artifact,
+    create_document,
     create_proof_artifact,
     create_validator_run,
     get_artifact,
     get_concept_artifact,
+    get_document,
     list_artifacts,
     list_concept_artifacts,
     list_concept_validator_runs,
+    list_documents,
     list_proof_artifacts,
     list_validator_runs,
 )
@@ -183,6 +186,7 @@ class ConceptCheckRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: ConceptIR
     source_text: str | None = None
+    doc_id: str | None = None
     mode: KernelMode = KernelMode.LAX
 
 
@@ -190,6 +194,7 @@ class ConceptAnalyzeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: ConceptIR
     source_text: str | None = None
+    doc_id: str | None = None
     mode: KernelMode = KernelMode.LAX
     include_validator_runs: bool = False
     include_analysis_details: bool = True
@@ -201,6 +206,7 @@ class ConceptQuestionsRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: ConceptIR
     source_text: str | None = None
+    doc_id: str | None = None
     mode: KernelMode = KernelMode.LAX
     include_forced_details: bool = False
 
@@ -209,6 +215,7 @@ class AdeuAnalyzeConceptsRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: AdeuIR
     source_text: str | None = None
+    doc_id: str | None = None
     mode: KernelMode = KernelMode.LAX
     include_validator_runs: bool = False
     include_analysis_details: bool = True
@@ -217,7 +224,8 @@ class AdeuAnalyzeConceptsRequest(BaseModel):
 
 class ConceptArtifactCreateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    source_text: str = Field(min_length=1)
+    source_text: str | None = Field(default=None, min_length=1)
+    doc_id: str | None = None
     ir: ConceptIR
     mode: KernelMode = KernelMode.STRICT
 
@@ -234,7 +242,8 @@ class PuzzleProposeRequest(BaseModel):
 
 class ConceptProposeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    source_text: str = Field(min_length=1)
+    source_text: str | None = Field(default=None, min_length=1)
+    doc_id: str | None = None
     provider: Literal["mock", "openai"] = "mock"
     mode: KernelMode = KernelMode.LAX
     max_candidates: int | None = Field(default=None, ge=1, le=20)
@@ -265,6 +274,8 @@ class ConceptDiffRequest(BaseModel):
     mode: KernelMode = KernelMode.LAX
     left_source_text: str | None = None
     right_source_text: str | None = None
+    left_doc_id: str | None = None
+    right_doc_id: str | None = None
     left_validator_runs: list[ValidatorRunInput] | None = None
     right_validator_runs: list[ValidatorRunInput] | None = None
 
@@ -287,6 +298,8 @@ class ExplainFlipBaseRequest(BaseModel):
     right_validator_runs: list[ValidatorRunInput] | None = None
     left_source_text: str | None = None
     right_source_text: str | None = None
+    left_doc_id: str | None = None
+    right_doc_id: str | None = None
     additional_solver_call_budget: int | None = Field(default=None, ge=0, le=200)
 
 
@@ -334,6 +347,7 @@ class ConceptApplyAmbiguityOptionRequest(BaseModel):
     option_id: str = Field(min_length=1)
     variants_by_id: dict[str, ConceptIR] | None = None
     source_text: str | None = None
+    doc_id: str | None = None
     mode: KernelMode = KernelMode.LAX
     dry_run: bool = False
     include_validator_runs: bool = False
@@ -345,6 +359,7 @@ class ConceptApplyPatchRequest(BaseModel):
     ir_hash: str | None = None
     patch_ops: list[JsonPatchOp]
     source_text: str | None = None
+    doc_id: str | None = None
     mode: KernelMode = KernelMode.LAX
     dry_run: bool = False
     include_validator_runs: bool = False
@@ -561,6 +576,35 @@ class ConceptArtifactGetResponse(BaseModel):
     analysis: ConceptAnalysis | None = None
 
 
+class DocumentCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    doc_id: str = Field(min_length=1)
+    domain: str = Field(min_length=1)
+    source_text: str = Field(min_length=1)
+    metadata: dict[str, Any] | None = None
+
+
+class DocumentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    doc_id: str
+    domain: str
+    source_text: str
+    created_at: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class DocumentSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    doc_id: str
+    domain: str
+    created_at: str
+
+
+class DocumentListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    items: list[DocumentSummary]
+
+
 def _env_flag(name: str) -> bool:
     return os.environ.get(name, "").strip() == "1"
 
@@ -579,6 +623,51 @@ def _enforce_source_text_size(source_text: str, *, field: str = "source_text") -
             "actual_bytes": size_bytes,
         },
     )
+
+
+def _resolve_source_text_and_doc_id(
+    *,
+    source_text: str | None,
+    doc_id: str | None,
+    require_source: bool = False,
+    source_field: str = "source_text",
+) -> tuple[str | None, str | None]:
+    if source_text is not None:
+        _enforce_source_text_size(source_text, field=source_field)
+
+    if doc_id is None:
+        if require_source and source_text is None:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "DOC_SOURCE_REQUIRED",
+                    "message": "provide source_text or doc_id",
+                },
+            )
+        return source_text, None
+
+    row = get_document(doc_id=doc_id)
+    if row is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "DOC_NOT_FOUND",
+                "message": f"document not found for doc_id={doc_id!r}",
+                "doc_id": doc_id,
+            },
+        )
+
+    if source_text is not None and source_text != row.source_text:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "DOC_TEXT_MISMATCH",
+                "message": "provided source_text does not match stored document source_text",
+                "doc_id": doc_id,
+            },
+        )
+
+    return row.source_text, doc_id
 
 
 def _map_concept_patch_error_code(raw_code: str) -> ConceptPatchErrorCode:
@@ -616,6 +705,7 @@ def _apply_concept_patch_core(
     ir_hash: str | None,
     mode: KernelMode,
     source_text: str | None,
+    doc_id: str | None,
     dry_run: bool,
     include_validator_runs: bool,
     patch_ops: list[JsonPatchOp] | None = None,
@@ -623,8 +713,11 @@ def _apply_concept_patch_core(
 ) -> ConceptApplyAmbiguityOptionResponse:
     if (patch_ops is None) == (patched_ir is None):
         raise ValueError("provide exactly one of patch_ops or patched_ir")
-    if source_text is not None:
-        _enforce_source_text_size(source_text)
+    source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=source_text,
+        doc_id=doc_id,
+        require_source=False,
+    )
     _require_ir_hash_match(ir=ir, ir_hash=ir_hash)
 
     patched = patched_ir
@@ -985,6 +1078,13 @@ def _runs_to_inputs(
 def _resolve_concepts_analyze_runs(
     req: ConceptAnalyzeRequest,
 ) -> tuple[CheckReport, list[ConceptRunRef], list[ValidatorRunInput], list[ValidatorRunRecord]]:
+    resolved_source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.source_text,
+        doc_id=req.doc_id,
+        require_source=False,
+    )
+    req = req.model_copy(update={"source_text": resolved_source_text})
+
     if req.validator_runs is not None:
         normalized_runs = [_normalize_validator_run_input(run) for run in req.validator_runs]
         concept_runs = [_concept_run_ref_from_input(run) for run in normalized_runs]
@@ -1288,6 +1388,7 @@ def _evaluate_question_answer_dry_run(
             ir_hash=None,
             mode=req.mode,
             source_text=req.source_text,
+            doc_id=req.doc_id,
             dry_run=True,
             include_validator_runs=True,
             patch_ops=patch_ops,
@@ -1728,12 +1829,15 @@ def check_puzzle_variant(req: PuzzleCheckRequest) -> CheckReport:
 
 @app.post("/concepts/check", response_model=CheckReport)
 def check_concept_variant(req: ConceptCheckRequest) -> CheckReport:
-    if req.source_text is not None:
-        _enforce_source_text_size(req.source_text)
+    source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.source_text,
+        doc_id=req.doc_id,
+        require_source=False,
+    )
     report, runs = check_concept_with_validator_runs(
         req.ir,
         mode=req.mode,
-        source_text=req.source_text,
+        source_text=source_text,
     )
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs:
         _persist_validator_runs(runs=runs, artifact_id=None)
@@ -1742,8 +1846,6 @@ def check_concept_variant(req: ConceptCheckRequest) -> CheckReport:
 
 @app.post("/concepts/analyze", response_model=ConceptAnalyzeResponse)
 def analyze_concept_variant(req: ConceptAnalyzeRequest) -> ConceptAnalyzeResponse:
-    if req.source_text is not None:
-        _enforce_source_text_size(req.source_text)
     report, concept_runs, run_inputs, recomputed_records = _resolve_concepts_analyze_runs(req)
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and recomputed_records:
         _persist_validator_runs(runs=recomputed_records, artifact_id=None)
@@ -1765,13 +1867,16 @@ def analyze_concept_variant(req: ConceptAnalyzeRequest) -> ConceptAnalyzeRespons
 
 @app.post("/concepts/questions", response_model=ConceptQuestionsResponse)
 def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestionsResponse:
-    if req.source_text is not None:
-        _enforce_source_text_size(req.source_text)
+    source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.source_text,
+        doc_id=req.doc_id,
+        require_source=False,
+    )
 
     report, records = check_concept_with_validator_runs(
         req.ir,
         mode=req.mode,
-        source_text=req.source_text,
+        source_text=source_text,
     )
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and records:
         _persist_validator_runs(runs=records, artifact_id=None)
@@ -1799,7 +1904,7 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
         ir=req.ir,
     )
     filtered_questions = _filter_question_answers_do_no_harm(
-        req=req,
+        req=req.model_copy(update={"source_text": source_text}),
         report=report,
         analysis=analysis,
         questions=ranked_questions,
@@ -1820,14 +1925,17 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
 
 @app.post("/adeu/analyze_concepts", response_model=AdeuAnalyzeConceptsResponse)
 def analyze_adeu_as_concepts(req: AdeuAnalyzeConceptsRequest) -> AdeuAnalyzeConceptsResponse:
-    if req.source_text is not None:
-        _enforce_source_text_size(req.source_text)
+    source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.source_text,
+        doc_id=req.doc_id,
+        require_source=False,
+    )
 
     lifted = lift_adeu_to_concepts(req.ir)
     report, records = check_concept_with_validator_runs(
         lifted.concept_ir,
         mode=req.mode,
-        source_text=req.source_text,
+        source_text=source_text,
     )
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and records:
         _persist_validator_runs(runs=records, artifact_id=None)
@@ -1974,8 +2082,13 @@ def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
 
 @app.post("/concepts/propose", response_model=ConceptProposeResponse)
 def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
-    source_text = req.source_text.strip()
-    _enforce_source_text_size(source_text)
+    source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.source_text,
+        doc_id=req.doc_id,
+        require_source=True,
+    )
+    assert source_text is not None
+    source_text = source_text.strip()
     source_features = extract_concept_source_features(source_text)
 
     if req.provider == "openai":
@@ -2092,15 +2205,99 @@ def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
     )
 
 
+@app.post("/documents", response_model=DocumentResponse)
+def create_document_endpoint(req: DocumentCreateRequest) -> DocumentResponse:
+    _enforce_source_text_size(req.source_text)
+    try:
+        row = create_document(
+            doc_id=req.doc_id,
+            domain=req.domain,
+            source_text=req.source_text,
+            metadata_json=req.metadata or {},
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "DOC_ALREADY_EXISTS",
+                "message": str(exc),
+                "doc_id": req.doc_id,
+            },
+        ) from exc
+    return DocumentResponse(
+        doc_id=row.doc_id,
+        domain=row.domain,
+        source_text=row.source_text,
+        created_at=row.created_at,
+        metadata=row.metadata_json,
+    )
+
+
+@app.get("/documents/{doc_id}", response_model=DocumentResponse)
+def get_document_endpoint(doc_id: str) -> DocumentResponse:
+    row = get_document(doc_id=doc_id)
+    if row is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "code": "DOC_NOT_FOUND",
+                "message": f"document not found for doc_id={doc_id!r}",
+                "doc_id": doc_id,
+            },
+        )
+    return DocumentResponse(
+        doc_id=row.doc_id,
+        domain=row.domain,
+        source_text=row.source_text,
+        created_at=row.created_at,
+        metadata=row.metadata_json,
+    )
+
+
+@app.get("/documents", response_model=DocumentListResponse)
+def list_documents_endpoint(
+    domain: str | None = None,
+    created_after: str | None = None,
+    created_before: str | None = None,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0, le=50_000),
+) -> DocumentListResponse:
+    try:
+        rows = list_documents(
+            domain=domain,
+            created_after=created_after,
+            created_before=created_before,
+            limit=limit,
+            offset=offset,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return DocumentListResponse(
+        items=[
+            DocumentSummary(
+                doc_id=row.doc_id,
+                domain=row.domain,
+                created_at=row.created_at,
+            )
+            for row in rows
+        ]
+    )
+
+
 @app.post("/concepts/artifacts", response_model=ConceptArtifactCreateResponse)
 def create_concept_artifact_endpoint(
     req: ConceptArtifactCreateRequest,
 ) -> ConceptArtifactCreateResponse:
-    _enforce_source_text_size(req.source_text)
+    source_text, resolved_doc_id = _resolve_source_text_and_doc_id(
+        source_text=req.source_text,
+        doc_id=req.doc_id,
+        require_source=True,
+    )
+    assert source_text is not None
     report, runs = check_concept_with_validator_runs(
         req.ir,
         mode=req.mode,
-        source_text=req.source_text,
+        source_text=source_text,
     )
     if report.status == "REFUSE":
         raise HTTPException(status_code=400, detail="refused by kernel")
@@ -2116,8 +2313,8 @@ def create_concept_artifact_endpoint(
         row = create_concept_artifact(
             schema_version=req.ir.schema_version,
             artifact_version=1,
-            source_text=req.source_text,
-            doc_id=req.ir.context.doc_id,
+            source_text=source_text,
+            doc_id=resolved_doc_id if resolved_doc_id is not None else req.ir.context.doc_id,
             status=report.status,
             num_errors=num_errors,
             num_warns=num_warns,
@@ -2245,6 +2442,18 @@ def diff_endpoint(req: DiffRequest) -> DiffReport:
 
 @app.post("/concepts/diff", response_model=DiffReport)
 def diff_concepts_endpoint(req: ConceptDiffRequest) -> DiffReport:
+    left_source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.left_source_text,
+        doc_id=req.left_doc_id,
+        require_source=False,
+        source_field="left_source_text",
+    )
+    right_source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.right_source_text,
+        doc_id=req.right_doc_id,
+        require_source=False,
+        source_field="right_source_text",
+    )
     return _build_diff_report_with_runs(
         left_ir=req.left_ir,
         right_ir=req.right_ir,
@@ -2256,12 +2465,12 @@ def diff_concepts_endpoint(req: ConceptDiffRequest) -> DiffReport:
         left_recompute_fn=lambda: check_concept_with_validator_runs(
             req.left_ir,
             mode=req.mode,
-            source_text=req.left_source_text,
+            source_text=left_source_text,
         ),
         right_recompute_fn=lambda: check_concept_with_validator_runs(
             req.right_ir,
             mode=req.mode,
-            source_text=req.right_source_text,
+            source_text=right_source_text,
         ),
     )
 
@@ -2387,12 +2596,25 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
             run_ir_mismatch=(left_mismatch or right_mismatch),
         )
 
+    left_source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.left_source_text,
+        doc_id=req.left_doc_id,
+        require_source=False,
+        source_field="left_source_text",
+    )
+    right_source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.right_source_text,
+        doc_id=req.right_doc_id,
+        require_source=False,
+        source_field="right_source_text",
+    )
+
     left_runs, left_source, left_report, left_mismatch, _ = _resolve_explain_runs(
         inline_runs=req.left_validator_runs,
         recompute_fn=lambda: check_concept_with_validator_runs(
             req.left_ir,
             mode=req.mode,
-            source_text=req.left_source_text,
+            source_text=left_source_text,
         ),
     )
     right_runs, right_source, right_report, right_mismatch, _ = _resolve_explain_runs(
@@ -2400,7 +2622,7 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
         recompute_fn=lambda: check_concept_with_validator_runs(
             req.right_ir,
             mode=req.mode,
-            source_text=req.right_source_text,
+            source_text=right_source_text,
         ),
     )
 
@@ -2413,7 +2635,7 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
         left_report = check_concept_with_solver_status(
             req.left_ir,
             mode=req.mode,
-            source_text=req.left_source_text,
+            source_text=left_source_text,
             solver_status=left_selected.status if left_selected is not None else None,
             solver_error=left_selected.evidence_error if left_selected is not None else None,
             solver_unsat_core=(
@@ -2424,7 +2646,7 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
         left_report = check_concept_with_solver_status(
             req.left_ir,
             mode=req.mode,
-            source_text=req.left_source_text,
+            source_text=left_source_text,
             solver_status=None,
             solver_error=None,
             solver_unsat_core=None,
@@ -2434,7 +2656,7 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
         right_report = check_concept_with_solver_status(
             req.right_ir,
             mode=req.mode,
-            source_text=req.right_source_text,
+            source_text=right_source_text,
             solver_status=right_selected.status if right_selected is not None else None,
             solver_error=right_selected.evidence_error if right_selected is not None else None,
             solver_unsat_core=(
@@ -2445,7 +2667,7 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
         right_report = check_concept_with_solver_status(
             req.right_ir,
             mode=req.mode,
-            source_text=req.right_source_text,
+            source_text=right_source_text,
             solver_status=None,
             solver_error=None,
             solver_unsat_core=None,
@@ -2576,6 +2798,7 @@ def apply_concept_ambiguity_option_endpoint(
         ir_hash=req.ir_hash,
         mode=req.mode,
         source_text=req.source_text,
+        doc_id=req.doc_id,
         dry_run=req.dry_run,
         include_validator_runs=req.include_validator_runs,
         patched_ir=patched,
@@ -2591,6 +2814,7 @@ def apply_concept_patch_endpoint(
         ir_hash=req.ir_hash,
         mode=req.mode,
         source_text=req.source_text,
+        doc_id=req.doc_id,
         dry_run=req.dry_run,
         include_validator_runs=req.include_validator_runs,
         patch_ops=req.patch_ops,
