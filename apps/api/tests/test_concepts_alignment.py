@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from adeu_api.main import (
+    MAX_ALIGNMENT_SCOPE_ARTIFACTS,
     ConceptAlignRequest,
     ConceptArtifactCreateRequest,
     align_concepts_endpoint,
@@ -267,11 +268,13 @@ def test_concepts_align_scope_too_large_error(monkeypatch, tmp_path: Path) -> No
     db_path = tmp_path / "adeu.sqlite3"
     monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
 
-    oversized_scope = [f"artifact_{idx:03d}" for idx in range(201)]
+    oversized_scope = [
+        f"artifact_{idx:03d}" for idx in range(MAX_ALIGNMENT_SCOPE_ARTIFACTS + 1)
+    ]
     with pytest.raises(HTTPException) as scope_error:
         align_concepts_endpoint(ConceptAlignRequest(artifact_ids=oversized_scope))
 
     assert scope_error.value.status_code == 400
     assert scope_error.value.detail["code"] == "ALIGNMENT_SCOPE_TOO_LARGE"
-    assert scope_error.value.detail["max_artifacts"] == 200
-    assert scope_error.value.detail["actual_artifacts"] == 201
+    assert scope_error.value.detail["max_artifacts"] == MAX_ALIGNMENT_SCOPE_ARTIFACTS
+    assert scope_error.value.detail["actual_artifacts"] == MAX_ALIGNMENT_SCOPE_ARTIFACTS + 1
