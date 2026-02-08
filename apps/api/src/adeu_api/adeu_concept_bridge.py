@@ -14,7 +14,7 @@ from adeu_concepts import (
     Term,
     TermSense,
 )
-from adeu_ir import AdeuIR, ProvenanceRef
+from adeu_ir import AdeuIR, NormStatement, ProvenanceRef
 from pydantic import BaseModel, ConfigDict, Field
 
 BridgeConfidenceTag = Literal["direct", "derived", "missing_provenance"]
@@ -174,16 +174,13 @@ def _statement_label(statement_id: str, *, verb: str, subject_text: str) -> str:
     return f"{statement_id}: {subject_text} {verb}".strip()
 
 
-def _statement_claim_text(statement: object) -> str:
-    kind = getattr(statement, "kind", "")
-    subject_text = _ref_text(getattr(statement, "subject", None))
-    action = getattr(statement, "action", None)
-    verb = getattr(action, "verb", "")
-    object_text = _ref_text(getattr(action, "object", None))
-    base = f"{kind.upper()} {subject_text} {verb} {object_text}".strip()
-    condition = getattr(statement, "condition", None)
-    condition_text = getattr(condition, "text", None)
-    if isinstance(condition_text, str) and condition_text.strip():
+def _statement_claim_text(statement: NormStatement) -> str:
+    subject_text = _ref_text(statement.subject)
+    verb = statement.action.verb
+    object_text = _ref_text(statement.action.object)
+    base = f"{statement.kind.upper()} {subject_text} {verb} {object_text}".strip()
+    condition_text = statement.condition.text if statement.condition else None
+    if condition_text and condition_text.strip():
         return f"{base} IF {condition_text.strip()}"
     return base
 
