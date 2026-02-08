@@ -1904,7 +1904,7 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
         ir=req.ir,
     )
     filtered_questions = _filter_question_answers_do_no_harm(
-        req=req.model_copy(update={"source_text": source_text}),
+        req=req.model_copy(update={"source_text": source_text, "doc_id": None}),
         report=report,
         analysis=analysis,
         questions=ranked_questions,
