@@ -16,6 +16,7 @@ from adeu_concepts import (
     ConceptRunRef,
     analyze_concept,
     apply_concept_ambiguity_option,
+    apply_concept_json_patch,
     build_concept_questions,
     pick_latest_run,
     strip_analysis_details,
@@ -45,6 +46,7 @@ from adeu_ir import (
     ReasonSeverity,
     TraceItem,
 )
+from adeu_ir.models import JsonPatchOp
 from adeu_kernel import (
     KernelMode,
     PatchValidationError,
@@ -330,11 +332,31 @@ class ConceptApplyAmbiguityOptionRequest(BaseModel):
     include_validator_runs: bool = False
 
 
+class ConceptApplyPatchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: ConceptIR
+    patch_ops: list[JsonPatchOp]
+    source_text: str | None = None
+    mode: KernelMode = KernelMode.LAX
+    dry_run: bool = False
+    include_validator_runs: bool = False
+
+
+ConceptPatchErrorCode = Literal[
+    "PATCH_INVALID_OP",
+    "PATCH_PATH_FORBIDDEN",
+    "PATCH_TEST_FAILED",
+    "PATCH_APPLY_FAILED",
+    "PATCH_REF_INTEGRITY_VIOLATION",
+    "PATCH_SIZE_LIMIT",
+]
+
+
 class ConceptApplyAmbiguityOptionError(BaseModel):
     model_config = ConfigDict(extra="forbid")
     op_index: int
     path: str
-    code: str
+    code: ConceptPatchErrorCode
     message: str
 
 
@@ -551,6 +573,83 @@ def _enforce_source_text_size(source_text: str, *, field: str = "source_text") -
             "max_bytes": MAX_SOURCE_TEXT_BYTES,
             "actual_bytes": size_bytes,
         },
+    )
+
+
+def _map_concept_patch_error_code(raw_code: str) -> ConceptPatchErrorCode:
+    if raw_code == "PATCH_OP_UNSUPPORTED":
+        return "PATCH_INVALID_OP"
+    if raw_code == "PATCH_PATH_NOT_ALLOWED":
+        return "PATCH_PATH_FORBIDDEN"
+    if raw_code == "PATCH_TEST_FAILED":
+        return "PATCH_TEST_FAILED"
+    if raw_code == "PATCH_TOO_LARGE":
+        return "PATCH_SIZE_LIMIT"
+    if raw_code == "REFERENCE_INTEGRITY":
+        return "PATCH_REF_INTEGRITY_VIOLATION"
+    return "PATCH_APPLY_FAILED"
+
+
+def _concept_patch_http_error_detail(exc: ConceptPatchValidationError) -> dict[str, Any]:
+    errors = [
+        ConceptApplyAmbiguityOptionError(
+            op_index=err.op_index,
+            path=err.path,
+            code=_map_concept_patch_error_code(err.code),
+            message=err.message,
+        ).model_dump(mode="json")
+        for err in exc.errors
+    ]
+    errors = sorted(errors, key=lambda item: (item["op_index"], item["path"], item["code"]))
+    return {
+        "code": "PATCH_INVALID",
+        "message": "concept patch application failed",
+        "errors": errors,
+    }
+
+
+def _apply_concept_patch_core(
+    *,
+    ir: ConceptIR,
+    mode: KernelMode,
+    source_text: str | None,
+    dry_run: bool,
+    include_validator_runs: bool,
+    patch_ops: list[JsonPatchOp] | None = None,
+    patched_ir: ConceptIR | None = None,
+) -> ConceptApplyAmbiguityOptionResponse:
+    if (patch_ops is None) == (patched_ir is None):
+        raise ValueError("provide exactly one of patch_ops or patched_ir")
+    if source_text is not None:
+        _enforce_source_text_size(source_text)
+
+    patched = patched_ir
+    if patch_ops is not None:
+        try:
+            patched = apply_concept_json_patch(ir, patch_ops)
+        except ConceptPatchValidationError as exc:
+            raise HTTPException(
+                status_code=400,
+                detail=_concept_patch_http_error_detail(exc),
+            ) from exc
+
+    assert patched is not None
+    report, runs = check_concept_with_validator_runs(
+        patched,
+        mode=mode,
+        source_text=source_text,
+    )
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs and not dry_run:
+        _persist_validator_runs(runs=runs, artifact_id=None)
+    run_inputs = [_validator_run_input_from_record(run) for run in runs]
+
+    return ConceptApplyAmbiguityOptionResponse(
+        patched_ir=patched,
+        check_report=report,
+        validator_runs=run_inputs if include_validator_runs else None,
+        mapping_trust=None,
+        solver_trust="solver_backed" if runs else "kernel_only",
+        proof_trust=None,
     )
 
 
@@ -2038,9 +2137,6 @@ def apply_ambiguity_option_endpoint(
 def apply_concept_ambiguity_option_endpoint(
     req: ConceptApplyAmbiguityOptionRequest,
 ) -> ConceptApplyAmbiguityOptionResponse:
-    if req.source_text is not None:
-        _enforce_source_text_size(req.source_text)
-
     try:
         patched = apply_concept_ambiguity_option(
             req.ir,
@@ -2049,41 +2145,32 @@ def apply_concept_ambiguity_option_endpoint(
             variants_by_id=req.variants_by_id,
         )
     except ConceptPatchValidationError as exc:
-        errors = sorted(exc.errors, key=lambda err: (err.op_index, err.path, err.code))
-        error_payload = [
-            ConceptApplyAmbiguityOptionError(
-                op_index=err.op_index,
-                path=err.path,
-                code=err.code,
-                message=err.message,
-            ).model_dump(mode="json")
-            for err in errors
-        ]
         raise HTTPException(
             status_code=400,
-            detail={
-                "code": "AMBIGUITY_OPTION_INVALID",
-                "message": "concept ambiguity option application failed",
-                "errors": error_payload,
-            },
+            detail=_concept_patch_http_error_detail(exc),
         ) from exc
 
-    report, runs = check_concept_with_validator_runs(
-        patched,
+    return _apply_concept_patch_core(
+        ir=req.ir,
         mode=req.mode,
         source_text=req.source_text,
-    )
-    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs and not req.dry_run:
-        _persist_validator_runs(runs=runs, artifact_id=None)
-    run_inputs = [_validator_run_input_from_record(run) for run in runs]
-
-    return ConceptApplyAmbiguityOptionResponse(
+        dry_run=req.dry_run,
+        include_validator_runs=req.include_validator_runs,
         patched_ir=patched,
-        check_report=report,
-        validator_runs=run_inputs if req.include_validator_runs else None,
-        mapping_trust=None,
-        solver_trust="solver_backed" if runs else "kernel_only",
-        proof_trust=None,
+    )
+
+
+@app.post("/concepts/apply_patch", response_model=ConceptApplyAmbiguityOptionResponse)
+def apply_concept_patch_endpoint(
+    req: ConceptApplyPatchRequest,
+) -> ConceptApplyAmbiguityOptionResponse:
+    return _apply_concept_patch_core(
+        ir=req.ir,
+        mode=req.mode,
+        source_text=req.source_text,
+        dry_run=req.dry_run,
+        include_validator_runs=req.include_validator_runs,
+        patch_ops=req.patch_ops,
     )
 
 
