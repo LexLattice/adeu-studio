@@ -7,7 +7,7 @@ import re
 import sqlite3
 from collections import deque
 from datetime import datetime, timezone
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Literal, NamedTuple
 
 from adeu_concepts import (
     DEFAULT_MAX_ANSWERS_PER_QUESTION,
@@ -112,6 +112,10 @@ from .storage import (
 MAX_SOURCE_TEXT_BYTES = 200_000
 MAX_QUESTION_DRY_RUN_EVALS_TOTAL = 20
 MAX_QUESTION_SOLVER_CALLS_TOTAL = 40
+_ALIGNMENT_KIND_RANKS: dict[str, int] = {
+    "merge_candidate": 0,
+    "conflict_candidate": 1,
+}
 
 
 class ProposeRequest(BaseModel):
@@ -805,12 +809,16 @@ def _collect_alignment_artifacts(
     return items
 
 
+class _AlignmentTermEntry(NamedTuple):
+    artifact_id: str
+    doc_id: str | None
+    concept: ConceptIR
+    term_id: str
+    label: str
+
+
 def _alignment_kind_rank(kind: str) -> int:
-    if kind == "merge_candidate":
-        return 0
-    if kind == "conflict_candidate":
-        return 1
-    return 2
+    return _ALIGNMENT_KIND_RANKS.get(kind, 2)
 
 
 def _build_alignment_suggestions(
@@ -818,55 +826,64 @@ def _build_alignment_suggestions(
     *,
     max_suggestions: int,
 ) -> list[ConceptAlignmentSuggestion]:
-    term_groups: dict[str, list[tuple[str, str | None, ConceptIR, str, str]]] = {}
+    term_groups: dict[str, list[_AlignmentTermEntry]] = {}
     for artifact_id, doc_id, concept in artifacts:
         for term in concept.terms:
             vocabulary_key = _normalize_alignment_text(term.label)
             if not vocabulary_key:
                 continue
             term_groups.setdefault(vocabulary_key, []).append(
-                (artifact_id, doc_id, concept, term.id, term.label)
+                _AlignmentTermEntry(
+                    artifact_id=artifact_id,
+                    doc_id=doc_id,
+                    concept=concept,
+                    term_id=term.id,
+                    label=term.label,
+                )
             )
 
     used_suggestion_ids: set[str] = set()
     suggestions: list[ConceptAlignmentSuggestion] = []
     for vocabulary_key in sorted(term_groups.keys()):
-        entries = sorted(term_groups[vocabulary_key], key=lambda item: (item[0], item[3], item[4]))
-        artifact_ids = sorted({item[0] for item in entries})
+        entries = sorted(
+            term_groups[vocabulary_key],
+            key=lambda item: (item.artifact_id, item.term_id, item.label),
+        )
+        artifact_ids = sorted({item.artifact_id for item in entries})
         if len(artifact_ids) < 2:
             continue
 
         term_refs = [
             ConceptAlignmentTermRef(
-                artifact_id=artifact_id,
-                doc_id=doc_id,
-                concept_id=concept.concept_id,
-                term_id=term_id,
-                label=label,
+                artifact_id=entry.artifact_id,
+                doc_id=entry.doc_id,
+                concept_id=entry.concept.concept_id,
+                term_id=entry.term_id,
+                label=entry.label,
                 normalized_label=vocabulary_key,
             )
-            for artifact_id, doc_id, concept, term_id, label in entries
+            for entry in entries
         ]
 
         sense_refs: list[ConceptAlignmentSenseRef] = []
         signatures_by_artifact: dict[str, set[str]] = {}
-        for artifact_id, doc_id, concept, term_id, _ in entries:
+        for entry in entries:
             senses = sorted(
-                (sense for sense in concept.senses if sense.term_id == term_id),
+                (sense for sense in entry.concept.senses if sense.term_id == entry.term_id),
                 key=lambda sense: sense.id,
             )
             for sense in senses:
                 gloss_signature = _normalize_alignment_text(sense.gloss)
                 if not gloss_signature:
                     gloss_signature = _normalize_alignment_text(sense.id)
-                signatures_by_artifact.setdefault(artifact_id, set()).add(gloss_signature)
+                signatures_by_artifact.setdefault(entry.artifact_id, set()).add(gloss_signature)
                 sense_refs.append(
                     ConceptAlignmentSenseRef(
-                        artifact_id=artifact_id,
-                        doc_id=doc_id,
-                        concept_id=concept.concept_id,
+                        artifact_id=entry.artifact_id,
+                        doc_id=entry.doc_id,
+                        concept_id=entry.concept.concept_id,
                         sense_id=sense.id,
-                        term_id=term_id,
+                        term_id=entry.term_id,
                         gloss=sense.gloss,
                         gloss_signature=gloss_signature,
                     )
