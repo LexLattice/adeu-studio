@@ -451,6 +451,8 @@ class ArtifactSummary(BaseModel):
     status: str | None
     num_errors: int | None
     num_warns: int | None
+    solver_trust: SolverTrustLevel = "kernel_only"
+    proof_trust: ArtifactProofTrust = "no_required_proofs"
 
 
 class ArtifactListResponse(BaseModel):
@@ -3332,8 +3334,16 @@ def list_artifacts_endpoint(
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return ArtifactListResponse(
-        items=[
+
+    summaries: list[ArtifactSummary] = []
+    for row in items:
+        validator_rows = list_validator_runs(artifact_id=row.artifact_id)
+        proof_rows = list_proof_artifacts(artifact_id=row.artifact_id)
+        solver_trust, proof_trust = _artifact_trust_labels(
+            validator_runs=validator_rows,
+            proof_rows=proof_rows,
+        )
+        summaries.append(
             ArtifactSummary(
                 artifact_id=row.artifact_id,
                 created_at=row.created_at,
@@ -3342,9 +3352,13 @@ def list_artifacts_endpoint(
                 status=row.status,
                 num_errors=row.num_errors,
                 num_warns=row.num_warns,
+                solver_trust=solver_trust,
+                proof_trust=proof_trust,
             )
-            for row in items
-        ]
+        )
+
+    return ArtifactListResponse(
+        items=summaries
     )
 
 
