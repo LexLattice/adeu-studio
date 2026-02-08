@@ -64,7 +64,53 @@
     {
       "id": "amb_bank",
       "term_id": "t_bank",
-      "options": ["s_bank_fin", "s_bank_river"]
+      "options": ["s_bank_fin", "s_bank_river"],
+      "option_details_by_id": {
+        "s_bank_fin": {
+          "option_id": "s_bank_fin",
+          "label": "Use financial sense",
+          "patch": [
+            {
+              "op": "remove",
+              "path": "/links/1"
+            },
+            {
+              "op": "remove",
+              "path": "/senses/1"
+            },
+            {
+              "op": "remove",
+              "path": "/ambiguity/0"
+            }
+          ]
+        },
+        "s_bank_river": {
+          "option_id": "s_bank_river",
+          "label": "Use river sense",
+          "patch": [
+            {
+              "op": "remove",
+              "path": "/links/1"
+            },
+            {
+              "op": "remove",
+              "path": "/links/0"
+            },
+            {
+              "op": "remove",
+              "path": "/senses/0"
+            },
+            {
+              "op": "remove",
+              "path": "/ambiguity/0"
+            }
+          ]
+        }
+      },
+      "option_labels_by_id": {
+        "s_bank_fin": "Financial bank",
+        "s_bank_river": "River bank"
+      }
     }
   ],
   "bridges": []
