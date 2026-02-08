@@ -65,6 +65,12 @@ type CausalSlice = {
 
 type DiffSummary = {
   status_flip: string;
+  solver_pairing_state?: string;
+  mapping_trust?: string | null;
+  solver_trust?: string;
+  proof_trust?: string | null;
+  unpaired_left_keys?: string[];
+  unpaired_right_keys?: string[];
   structural_patch_count: string;
   solver_touched_atom_count: string;
   causal_atom_count: string;
@@ -262,6 +268,19 @@ export function SolverDiffPanel({
             Run source: {report.summary.run_source ?? "unknown"}
             {report.summary.recompute_mode ? ` (${report.summary.recompute_mode})` : ""}
           </div>
+          <div className="muted">
+            Pairing: {report.summary.solver_pairing_state ?? "unknown"}
+          </div>
+          <div className="muted">
+            Trust: mapping={report.summary.mapping_trust ?? "n/a"} / solver=
+            {report.summary.solver_trust ?? "n/a"} / proof={report.summary.proof_trust ?? "n/a"}
+          </div>
+          {(report.summary.unpaired_left_keys?.length || report.summary.unpaired_right_keys?.length) ? (
+            <div className="muted">
+              Unpaired keys: L={report.summary.unpaired_left_keys?.length ?? 0} / R=
+              {report.summary.unpaired_right_keys?.length ?? 0}
+            </div>
+          ) : null}
           <div className="muted">
             Backends: L={report.summary.left_backend ?? "n/a"} / R={report.summary.right_backend ?? "n/a"}
           </div>

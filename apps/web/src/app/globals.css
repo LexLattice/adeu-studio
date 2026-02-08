@@ -15,6 +15,7 @@ body {
   background: var(--bg);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
     "Apple Color Emoji", "Segoe UI Emoji";
+  overflow-x: hidden;
 }
 
 * {
@@ -22,11 +23,13 @@ body {
 }
 
 .app {
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   padding: 12px;
+  overflow-x: hidden;
 }
 
 .panel {
@@ -68,6 +71,7 @@ button {
   border-radius: 8px;
   padding: 8px 10px;
   cursor: pointer;
+  max-width: 100%;
 }
 
 button:disabled {
@@ -82,6 +86,7 @@ select {
   padding: 8px 10px;
   background: white;
   font-family: inherit;
+  max-width: 100%;
 }
 
 .muted {
@@ -142,4 +147,18 @@ mark {
   color: var(--muted);
   font-weight: 600;
   background: #fff;
+}
+
+@media (max-width: 1180px) {
+  .app {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 10px;
+    gap: 10px;
+  }
 }
