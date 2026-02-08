@@ -25,7 +25,13 @@ from .patching import (
     apply_concept_ambiguity_option,
     apply_concept_json_patch,
 )
-from .questions import ConceptQuestion, ConceptQuestionAnchor, build_concept_questions
+from .questions import (
+    DEFAULT_MAX_ANSWERS_PER_QUESTION,
+    DEFAULT_MAX_QUESTIONS,
+    ConceptQuestion,
+    ConceptQuestionAnchor,
+    build_concept_questions,
+)
 from .solver import build_concept_coherence_request
 
 __all__ = [
@@ -41,6 +47,8 @@ __all__ = [
     "ConceptPatchValidationError",
     "ConceptQuestion",
     "ConceptQuestionAnchor",
+    "DEFAULT_MAX_ANSWERS_PER_QUESTION",
+    "DEFAULT_MAX_QUESTIONS",
     "InferentialLink",
     "Term",
     "TermSense",

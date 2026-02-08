@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass
 from typing import Literal
 
@@ -8,7 +9,15 @@ from adeu_ir.models import JsonPatchOp
 from pydantic import BaseModel, ConfigDict, Field
 
 from .analysis import AnalysisAtomRef, ConceptAnalysis, ForcedCountermodel
-from .models import AmbiguityOption, ConceptIR
+from .models import (
+    Ambiguity,
+    AmbiguityOption,
+    Claim,
+    ConceptIR,
+    InferentialLink,
+    Term,
+    TermSense,
+)
 
 QuestionSignal = Literal["mic", "forced_countermodel", "disconnected_clusters"]
 
@@ -36,11 +45,11 @@ class ConceptQuestion(BaseModel):
 @dataclass
 class _QuestionContext:
     concept: ConceptIR
-    term_by_id: dict[str, object]
-    sense_by_id: dict[str, object]
-    claim_by_id: dict[str, object]
-    link_by_id: dict[str, object]
-    ambiguity_by_id: dict[str, object]
+    term_by_id: dict[str, Term]
+    sense_by_id: dict[str, TermSense]
+    claim_by_id: dict[str, Claim]
+    link_by_id: dict[str, InferentialLink]
+    ambiguity_by_id: dict[str, Ambiguity]
     term_to_senses: dict[str, list[str]]
     sense_to_term: dict[str, str]
 
@@ -75,47 +84,32 @@ class _QuestionContext:
         self, *, object_id: str | None = None, json_path: str | None = None
     ) -> SourceSpan | None:
         if object_id:
-            claim = self.claim_by_id.get(object_id)
-            if claim and claim.provenance and claim.provenance.span:
-                return claim.provenance.span
-
-            link = self.link_by_id.get(object_id)
-            if link and link.provenance and link.provenance.span:
-                return link.provenance.span
-
-            sense = self.sense_by_id.get(object_id)
-            if sense and sense.provenance and sense.provenance.span:
-                return sense.provenance.span
-
-            term = self.term_by_id.get(object_id)
-            if term and term.provenance and term.provenance.span:
-                return term.provenance.span
+            for lookup in (
+                self.claim_by_id,
+                self.link_by_id,
+                self.sense_by_id,
+                self.term_by_id,
+            ):
+                candidate = lookup.get(object_id)
+                span = _span_from_candidate(candidate)
+                if span is not None:
+                    return span
 
         path = json_path or ""
-
-        claim_idx = _index_from_pointer(path, prefix="/claims/")
-        if claim_idx is not None and 0 <= claim_idx < len(self.concept.claims):
-            provenance = self.concept.claims[claim_idx].provenance
-            if provenance and provenance.span:
-                return provenance.span
-
-        link_idx = _index_from_pointer(path, prefix="/links/")
-        if link_idx is not None and 0 <= link_idx < len(self.concept.links):
-            provenance = self.concept.links[link_idx].provenance
-            if provenance and provenance.span:
-                return provenance.span
-
-        sense_idx = _index_from_pointer(path, prefix="/senses/")
-        if sense_idx is not None and 0 <= sense_idx < len(self.concept.senses):
-            provenance = self.concept.senses[sense_idx].provenance
-            if provenance and provenance.span:
-                return provenance.span
-
-        term_idx = _index_from_pointer(path, prefix="/terms/")
-        if term_idx is not None and 0 <= term_idx < len(self.concept.terms):
-            provenance = self.concept.terms[term_idx].provenance
-            if provenance and provenance.span:
-                return provenance.span
+        for prefix, entries in (
+            ("/claims/", self.concept.claims),
+            ("/links/", self.concept.links),
+            ("/senses/", self.concept.senses),
+            ("/terms/", self.concept.terms),
+        ):
+            idx = _index_from_pointer(path, prefix=prefix)
+            if idx is None:
+                continue
+            if not (0 <= idx < len(entries)):
+                continue
+            span = _span_from_candidate(entries[idx])
+            if span is not None:
+                return span
 
         return None
 
@@ -786,6 +780,17 @@ def _index_from_pointer(path: str, *, prefix: str) -> int | None:
         return None
 
 
+def _span_from_candidate(
+    candidate: Term | TermSense | Claim | InferentialLink | None,
+) -> SourceSpan | None:
+    if candidate is None:
+        return None
+    provenance = candidate.provenance
+    if provenance is None:
+        return None
+    return provenance.span
+
+
 def _term_components(context: _QuestionContext) -> list[list[str]]:
     adjacency: dict[str, set[str]] = {term.id: set() for term in context.concept.terms}
     for link in context.concept.links:
@@ -801,11 +806,11 @@ def _term_components(context: _QuestionContext) -> list[list[str]]:
     for term_id in sorted(adjacency.keys()):
         if term_id in seen:
             continue
-        frontier = [term_id]
+        frontier = deque([term_id])
         seen.add(term_id)
         component: list[str] = []
         while frontier:
-            current = frontier.pop(0)
+            current = frontier.popleft()
             component.append(current)
             for neighbor in sorted(adjacency.get(current, set())):
                 if neighbor in seen:

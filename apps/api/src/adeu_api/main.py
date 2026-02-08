@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Literal
 
 from adeu_concepts import (
+    DEFAULT_MAX_ANSWERS_PER_QUESTION,
+    DEFAULT_MAX_QUESTIONS,
     ConceptAnalysis,
     ConceptIR,
     ConceptPatchValidationError,
@@ -463,8 +465,8 @@ class ConceptQuestionsResponse(BaseModel):
     check_report: CheckReport
     questions: list[ConceptQuestion]
     question_count: int
-    max_questions: int = 10
-    max_answers_per_question: int = 4
+    max_questions: int = DEFAULT_MAX_QUESTIONS
+    max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
     mapping_trust: str | None = None
     solver_trust: Literal["kernel_only", "solver_backed", "proof_checked"] = "kernel_only"
     proof_trust: str | None = None
@@ -1275,8 +1277,8 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
     if not req.include_forced_details:
         analysis = strip_forced_details(analysis)
 
-    max_questions = 10
-    max_answers = 4
+    max_questions = DEFAULT_MAX_QUESTIONS
+    max_answers = DEFAULT_MAX_ANSWERS_PER_QUESTION
     questions = build_concept_questions(
         req.ir,
         analysis,
