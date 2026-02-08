@@ -7,8 +7,12 @@ import adeu_api.openai_provider as openai_provider
 from adeu_api.main import ProposeRequest, propose
 from adeu_api.openai_backends import BackendMeta, BackendResult
 from adeu_api.scoring import is_strict_improvement, score_key
-from adeu_ir import CheckMetrics, CheckReason, CheckReport, Context, ReasonSeverity
 from adeu_ir import (
+    CheckMetrics,
+    CheckReason,
+    CheckReport,
+    Context,
+    ReasonSeverity,
     SolverEvidence,
     ValidatorAtomRef,
     ValidatorPayload,
@@ -370,7 +374,10 @@ def test_failure_summary_includes_solver_section() -> None:
         atom_names=["atom_a"],
     )
 
-    summary = openai_provider._failure_summary(_report_refuse(ReasonCode.NORM_ACTION_MISSING), [run])
+    summary = openai_provider._failure_summary(
+        _report_refuse(ReasonCode.NORM_ACTION_MISSING),
+        [run],
+    )
     assert "Reasons:" in summary
     assert "Trace:" in summary
     assert "Solver Evidence:" in summary

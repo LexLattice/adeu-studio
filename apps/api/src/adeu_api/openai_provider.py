@@ -78,6 +78,16 @@ def _solver_evidence_summary(runs: list[ValidatorRunRecord]) -> str:
     atom_lookup = {atom.assertion_name: atom for atom in latest.request.payload.atom_map}
     evidence = latest.result.evidence
 
+    def _format_atom_details(atom_name: str, value: Any | None = None) -> str:
+        atom = atom_lookup.get(atom_name)
+        value_text = f"={value}" if value is not None else ""
+        if atom is None:
+            return f"    - {atom_name}{value_text}"
+        return (
+            f"    - {atom_name}{value_text} -> object_id={atom.object_id} "
+            f"json_path={atom.json_path}"
+        )
+
     lines: list[str] = [
         "latest_run:",
         f"  status={latest.result.status}",
@@ -92,13 +102,7 @@ def _solver_evidence_summary(runs: list[ValidatorRunRecord]) -> str:
     if core_atoms:
         lines.append("  unsat_core:")
         for atom_name in core_atoms:
-            atom = atom_lookup.get(atom_name)
-            if atom is None:
-                lines.append(f"    - {atom_name}")
-                continue
-            lines.append(
-                f"    - {atom_name} -> object_id={atom.object_id} json_path={atom.json_path}"
-            )
+            lines.append(_format_atom_details(atom_name))
         if core_extra:
             lines.append(f"    ...+{core_extra} more")
 
@@ -109,15 +113,7 @@ def _solver_evidence_summary(runs: list[ValidatorRunRecord]) -> str:
         lines.append("  sat_model:")
         for atom_name in model_atoms:
             value = evidence.model.get(atom_name)
-            atom = atom_lookup.get(atom_name)
-            if atom is None:
-                lines.append(f"    - {atom_name}={value}")
-                continue
-            lines.append(
-                "    - "
-                f"{atom_name}={value} -> object_id={atom.object_id} "
-                f"json_path={atom.json_path}"
-            )
+            lines.append(_format_atom_details(atom_name, value=value))
         if model_extra:
             lines.append(f"    ...+{model_extra} more")
 
@@ -140,7 +136,11 @@ def _failure_summary(report: CheckReport, runs: list[ValidatorRunRecord]) -> str
         f"- {item.rule_id}: {','.join(item.because)}"
         for item in sorted(
             report.trace,
-            key=lambda trace: (trace.rule_id, ",".join(trace.because), ",".join(trace.affected_ids)),
+            key=lambda trace: (
+                trace.rule_id,
+                ",".join(trace.because),
+                ",".join(trace.affected_ids),
+            ),
         )
     ]
     return (
