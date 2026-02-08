@@ -49,6 +49,8 @@ Concept composition endpoints:
   - `ir_hash` may be provided as a precondition; mismatches return `409 STALE_IR`.
 - `POST /concepts/questions` generates deterministic, capped question/answer actions from concept
   analysis signals (MIC, forced-edge countermodels, disconnected clusters).
+- `POST /concepts/align` returns deterministic cross-artifact vocabulary suggestions
+  (`merge_candidate` / `conflict_candidate`) across selected concept artifacts.
 - `POST /concepts/diff` returns structural + solver-aware causal diff for two concept variants.
 - `POST /explain_flip` returns a deterministic flip narrative (`check_status_flip`,
   `solver_status_flip`, cause chain, repair hints) plus the underlying `diff_report`.
