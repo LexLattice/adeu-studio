@@ -4,6 +4,8 @@ import json
 import sqlite3
 from pathlib import Path
 
+import adeu_api.main as api_main
+import pytest
 from adeu_api.main import (
     ArtifactCreateRequest,
     ArtifactValidatorRunsResponse,
@@ -55,6 +57,12 @@ def _fetch_validator_rows(db_path: Path) -> list[sqlite3.Row]:
             ORDER BY created_at ASC
             """
         ).fetchall()
+
+
+def _table_count(db_path: Path, table: str) -> int:
+    with sqlite3.connect(db_path) as con:
+        row = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()
+    return int(row[0]) if row is not None else 0
 
 
 def test_check_endpoint_persists_validator_runs_when_flag_enabled(
@@ -127,3 +135,30 @@ def test_list_artifact_validator_runs_endpoint_returns_rows(
     assert run.status == "SAT"
     assert run.evidence_json.get("unsat_core") == []
     assert run.atom_map_json == {}
+
+
+def test_create_artifact_rolls_back_all_rows_when_proof_insert_fails(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.delenv("ADEU_PERSIST_VALIDATOR_RUNS", raising=False)
+
+    def _explode_create_proof(*args, **kwargs):
+        raise RuntimeError("synthetic-proof-insert-failure")
+
+    monkeypatch.setattr(api_main, "create_proof_artifact", _explode_create_proof)
+
+    with pytest.raises(RuntimeError, match="synthetic-proof-insert-failure"):
+        create_artifact_endpoint(
+            ArtifactCreateRequest(
+                clause_text="Supplier shall deliver goods.",
+                ir=_sample_ir(),
+                mode=KernelMode.LAX,
+            )
+        )
+
+    assert _table_count(db_path, "artifacts") == 0
+    assert _table_count(db_path, "validator_runs") == 0
+    assert _table_count(db_path, "proof_artifacts") == 0
