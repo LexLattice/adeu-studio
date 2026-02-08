@@ -120,6 +120,8 @@ Proof retrieval endpoint:
 
 - `GET /artifacts/{artifact_id}/proofs`
 - `GET /artifacts/{artifact_id}/validator-runs`
+- `POST /artifacts`, `GET /artifacts/{artifact_id}`, and `GET /artifacts` include
+  trust-lane fields: `solver_trust` and `proof_trust`.
 
 ## Run Web
 

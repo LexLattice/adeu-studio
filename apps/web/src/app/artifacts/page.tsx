@@ -13,6 +13,8 @@ type ArtifactSummary = {
   status: CheckStatus | null;
   num_errors: number | null;
   num_warns: number | null;
+  solver_trust: "kernel_only" | "solver_backed" | "proof_checked";
+  proof_trust?: string | null;
 };
 
 type ArtifactListResponse = {
@@ -113,6 +115,8 @@ export default function ArtifactsPage() {
                   <th>jurisdiction</th>
                   <th>errors</th>
                   <th>warns</th>
+                  <th>solver_trust</th>
+                  <th>proof_trust</th>
                   <th>id</th>
                 </tr>
               </thead>
@@ -125,6 +129,8 @@ export default function ArtifactsPage() {
                     <td className="mono">{it.jurisdiction ?? ""}</td>
                     <td className="mono">{it.num_errors ?? ""}</td>
                     <td className="mono">{it.num_warns ?? ""}</td>
+                    <td className="mono">{it.solver_trust}</td>
+                    <td className="mono">{it.proof_trust ?? ""}</td>
                     <td className="mono">
                       <Link href={`/artifacts/${it.artifact_id}`}>
                         {it.artifact_id.slice(0, 12)}
