@@ -13,6 +13,13 @@ type ConceptProvenance = {
   span?: SourceSpan | null;
 };
 
+type ConceptPatchOp = {
+  op: "add" | "remove" | "replace" | "move" | "copy" | "test";
+  path: string;
+  from?: string;
+  value?: unknown;
+};
+
 type ConceptClaim = {
   id: string;
   sense_id: string;
@@ -40,12 +47,7 @@ type ConceptAmbiguityOption = {
   option_id: string;
   label: string;
   variant_ir_id?: string | null;
-  patch?: Array<{
-    op: "add" | "remove" | "replace" | "move" | "copy" | "test";
-    path: string;
-    from?: string;
-    value?: unknown;
-  }>;
+  patch?: ConceptPatchOp[];
 };
 
 type ConceptSense = {
@@ -135,9 +137,50 @@ type ConceptAnalyzeResponse = {
   analysis: ConceptAnalysis;
 };
 
-type ConceptApplyAmbiguityOptionResponse = {
+type ConceptApplyResponse = {
   patched_ir: ConceptIR;
   check_report: CheckReport;
+};
+
+type ConceptQuestionAnchor = {
+  object_id?: string | null;
+  json_path?: string | null;
+  label?: string | null;
+  span?: SourceSpan | null;
+};
+
+type ConceptQuestionAnswer = {
+  option_id: string;
+  label: string;
+  variant_ir_id?: string | null;
+  patch?: ConceptPatchOp[];
+};
+
+type ConceptQuestion = {
+  question_id: string;
+  signal: "mic" | "forced_countermodel" | "disconnected_clusters";
+  prompt: string;
+  anchors: ConceptQuestionAnchor[];
+  answers: ConceptQuestionAnswer[];
+};
+
+type ConceptQuestionsResponse = {
+  check_report: CheckReport;
+  questions: ConceptQuestion[];
+  question_count: number;
+  max_questions: number;
+  max_answers_per_question: number;
+};
+
+type QuestionLifecycleStatus = "applied" | "resolved";
+
+type QuestionLifecycleEntry = {
+  key: string;
+  signal_kind: ConceptQuestion["signal"];
+  prompt: string;
+  answer_option_id: string;
+  answer_label: string;
+  status: QuestionLifecycleStatus;
 };
 
 type ConceptArtifactCreateResponse = {
@@ -151,6 +194,87 @@ type Highlight = { span: SourceSpan; label: string } | null;
 
 function apiBase(): string {
   return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
+}
+
+function stableJson(value: unknown): string {
+  if (value === null || typeof value !== "object") {
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableJson(item)).join(",")}]`;
+  }
+  const entries = Object.entries(value as Record<string, unknown>)
+    .filter(([, item]) => item !== undefined)
+    .sort(([left], [right]) => left.localeCompare(right));
+  return `{${entries.map(([key, item]) => `${JSON.stringify(key)}:${stableJson(item)}`).join(",")}}`;
+}
+
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
+}
+
+async function conceptIrHash(ir: ConceptIR): Promise<string> {
+  return sha256Hex(stableJson(ir));
+}
+
+function questionResolutionKey(question: ConceptQuestion, optionId: string): string {
+  const anchorObjectIds = Array.from(
+    new Set(
+      question.anchors
+        .map((anchor) => anchor.object_id ?? null)
+        .filter((value): value is string => typeof value === "string" && value.length > 0),
+    ),
+  ).sort();
+  const anchorJsonPaths = Array.from(
+    new Set(
+      question.anchors
+        .map((anchor) => anchor.json_path ?? null)
+        .filter((value): value is string => typeof value === "string" && value.length > 0),
+    ),
+  ).sort();
+  return stableJson({
+    signal_kind: question.signal,
+    anchor_object_ids: anchorObjectIds,
+    anchor_json_paths: anchorJsonPaths,
+    selected_answer_option_id: optionId,
+  });
+}
+
+function questionAnswerKeys(questions: ConceptQuestion[]): Set<string> {
+  const keys = new Set<string>();
+  for (const question of questions) {
+    for (const answer of question.answers) {
+      keys.add(questionResolutionKey(question, answer.option_id));
+    }
+  }
+  return keys;
+}
+
+function conceptApiErrorMessage(raw: string): string {
+  try {
+    const parsed = JSON.parse(raw) as {
+      detail?: {
+        code?: string;
+        message?: string;
+        errors?: Array<{ code?: string; path?: string; message?: string }>;
+      };
+    };
+    const detail = parsed.detail;
+    if (detail?.errors?.length) {
+      return detail.errors
+        .map((item) => `${item.code ?? "ERROR"} ${item.path ?? ""} ${item.message ?? ""}`.trim())
+        .join("\n");
+    }
+    if (detail?.code === "STALE_IR") {
+      return `STALE_IR ${detail.message ?? ""}`.trim();
+    }
+  } catch {
+    // fall back to raw response body for non-JSON payloads
+  }
+  return raw;
 }
 
 function clampSpan(text: string, span: SourceSpan): SourceSpan | null {
@@ -208,26 +332,201 @@ export default function ConceptsPage() {
   const [provider, setProvider] = useState<"mock" | "openai">("mock");
   const [mode, setMode] = useState<KernelMode>("LAX");
   const [isProposing, setIsProposing] = useState<boolean>(false);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
   const [activeOptionKey, setActiveOptionKey] = useState<string | null>(null);
+  const [activeQuestionOptionKey, setActiveQuestionOptionKey] = useState<string | null>(null);
 
   const [proposerLog, setProposerLog] = useState<ProposerLog | null>(null);
   const [candidates, setCandidates] = useState<ProposeCandidate[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number>(0);
   const [compareIdx, setCompareIdx] = useState<number | null>(null);
   const [analyses, setAnalyses] = useState<Array<ConceptAnalysis | null>>([]);
+  const [questionsByVariant, setQuestionsByVariant] = useState<Array<ConceptQuestion[] | null>>([]);
+  const [questionHistoryByVariant, setQuestionHistoryByVariant] = useState<
+    Array<QuestionLifecycleEntry[]>
+  >([]);
   const [highlight, setHighlight] = useState<Highlight>(null);
 
   const selected = useMemo(() => candidates[selectedIdx] ?? null, [candidates, selectedIdx]);
   const selectedIr = useMemo(() => selected?.ir ?? null, [selected]);
   const selectedReport = useMemo(() => selected?.check_report ?? null, [selected]);
   const selectedAnalysis = useMemo(() => analyses[selectedIdx] ?? null, [analyses, selectedIdx]);
+  const selectedQuestions = useMemo(
+    () => questionsByVariant[selectedIdx] ?? null,
+    [questionsByVariant, selectedIdx],
+  );
+  const selectedQuestionHistory = useMemo(
+    () => questionHistoryByVariant[selectedIdx] ?? [],
+    [questionHistoryByVariant, selectedIdx],
+  );
+  const selectedQuestionHistoryMap = useMemo(
+    () => new Map(selectedQuestionHistory.map((entry) => [entry.key, entry.status])),
+    [selectedQuestionHistory],
+  );
+  const questionLifecycleSummary = useMemo(() => {
+    const totalResolved = selectedQuestionHistory.filter((entry) => entry.status === "resolved").length;
+    if (!selectedQuestions) {
+      return { open: 0, applied: 0, resolved: totalResolved };
+    }
+    let open = 0;
+    let applied = 0;
+    for (const question of selectedQuestions) {
+      for (const answer of question.answers) {
+        const key = questionResolutionKey(question, answer.option_id);
+        const status = selectedQuestionHistoryMap.get(key);
+        if (status === "applied") {
+          applied += 1;
+        } else if (status !== "resolved") {
+          open += 1;
+        }
+      }
+    }
+    return { open, applied, resolved: totalResolved };
+  }, [selectedQuestionHistory, selectedQuestionHistoryMap, selectedQuestions]);
 
   const compared = useMemo(
     () => (compareIdx === null ? null : candidates[compareIdx] ?? null),
     [candidates, compareIdx],
   );
+
+  function setQuestionHistoryForVariant(
+    variantIdx: number,
+    updater: (current: QuestionLifecycleEntry[]) => QuestionLifecycleEntry[],
+  ) {
+    setQuestionHistoryByVariant((prev) => {
+      const next = [...prev];
+      while (next.length <= variantIdx) next.push([]);
+      next[variantIdx] = updater(next[variantIdx] ?? []);
+      return next;
+    });
+  }
+
+  function setQuestionsForVariant(variantIdx: number, questions: ConceptQuestion[]) {
+    setQuestionsByVariant((prev) => {
+      const next = [...prev];
+      while (next.length <= variantIdx) next.push(null);
+      next[variantIdx] = questions;
+      return next;
+    });
+
+    const activeKeys = questionAnswerKeys(questions);
+    setQuestionHistoryForVariant(variantIdx, (current) =>
+      current.map((entry) =>
+        entry.status === "applied" && !activeKeys.has(entry.key)
+          ? { ...entry, status: "resolved" }
+          : entry,
+      ),
+    );
+  }
+
+  async function runAnalyzeForVariant(variantIdx: number, ir: ConceptIR): Promise<ConceptAnalyzeResponse | null> {
+    const res = await fetch(`${apiBase()}/concepts/analyze`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        ir,
+        source_text: sourceText || null,
+        mode,
+        include_analysis_details: true,
+      }),
+    });
+    if (!res.ok) {
+      setError(await res.text());
+      return null;
+    }
+    const data = (await res.json()) as ConceptAnalyzeResponse;
+    setCandidates((prev) =>
+      prev.map((candidate, idx) =>
+        idx === variantIdx ? { ...candidate, check_report: data.check_report } : candidate,
+      ),
+    );
+    setAnalyses((prev) => prev.map((value, idx) => (idx === variantIdx ? data.analysis : value)));
+    return data;
+  }
+
+  async function runQuestionsForVariant(
+    variantIdx: number,
+    ir: ConceptIR,
+  ): Promise<ConceptQuestionsResponse | null> {
+    setIsLoadingQuestions(true);
+    try {
+      const res = await fetch(`${apiBase()}/concepts/questions`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          ir,
+          source_text: sourceText || null,
+          mode,
+          include_forced_details: true,
+        }),
+      });
+      if (!res.ok) {
+        setError(await res.text());
+        return null;
+      }
+      const data = (await res.json()) as ConceptQuestionsResponse;
+      setCandidates((prev) =>
+        prev.map((candidate, idx) =>
+          idx === variantIdx ? { ...candidate, check_report: data.check_report } : candidate,
+        ),
+      );
+      setQuestionsForVariant(variantIdx, data.questions ?? []);
+      return data;
+    } catch (e) {
+      setError(String(e));
+      return null;
+    } finally {
+      setIsLoadingQuestions(false);
+    }
+  }
+
+  async function refreshVariantFromStaleGuard(variantIdx: number, ir: ConceptIR): Promise<void> {
+    await runAnalyzeForVariant(variantIdx, ir);
+    await runQuestionsForVariant(variantIdx, ir);
+  }
+
+  async function applyChangeAndRefresh(
+    variantIdx: number,
+    baseIr: ConceptIR,
+    endpoint: "/concepts/apply_ambiguity_option" | "/concepts/apply_patch",
+    payload: Record<string, unknown>,
+  ): Promise<boolean> {
+    const applyRes = await fetch(`${apiBase()}${endpoint}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!applyRes.ok) {
+      const detailText = conceptApiErrorMessage(await applyRes.text());
+      setError(detailText);
+      if (applyRes.status === 409 && detailText.includes("STALE_IR")) {
+        await refreshVariantFromStaleGuard(variantIdx, baseIr);
+      }
+      return false;
+    }
+
+    const applyData = (await applyRes.json()) as ConceptApplyResponse;
+    setCandidates((prev) =>
+      prev.map((candidate, idx) =>
+        idx === variantIdx
+          ? {
+              ...candidate,
+              ir: applyData.patched_ir,
+              check_report: applyData.check_report,
+            }
+          : candidate,
+      ),
+    );
+    setAnalyses((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
+    setQuestionsByVariant((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
+
+    await runAnalyzeForVariant(variantIdx, applyData.patched_ir);
+    await runQuestionsForVariant(variantIdx, applyData.patched_ir);
+    return true;
+  }
 
   async function propose() {
     setError(null);
@@ -248,6 +547,8 @@ export default function ConceptsPage() {
       const data = (await res.json()) as ProposeResponse;
       setCandidates(data.candidates ?? []);
       setAnalyses((data.candidates ?? []).map(() => null));
+      setQuestionsByVariant((data.candidates ?? []).map(() => null));
+      setQuestionHistoryByVariant((data.candidates ?? []).map(() => []));
       setSelectedIdx(0);
       setCompareIdx(null);
       setProposerLog(data.proposer_log ?? null);
@@ -283,41 +584,33 @@ export default function ConceptsPage() {
     if (!selectedIr) return;
     setError(null);
     setArtifactId(null);
-    const res = await fetch(`${apiBase()}/concepts/analyze`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        ir: selectedIr,
-        source_text: sourceText || null,
-        mode,
-        include_analysis_details: true,
-      }),
-    });
-    if (!res.ok) {
-      setError(await res.text());
-      return;
-    }
-    const data = (await res.json()) as ConceptAnalyzeResponse;
-    setCandidates((prev) =>
-      prev.map((candidate, idx) =>
-        idx === selectedIdx ? { ...candidate, check_report: data.check_report } : candidate,
-      ),
-    );
-    setAnalyses((prev) => prev.map((value, idx) => (idx === selectedIdx ? data.analysis : value)));
+    await runAnalyzeForVariant(selectedIdx, selectedIr);
+  }
+
+  async function runQuestions() {
+    if (!selectedIr) return;
+    setError(null);
+    setArtifactId(null);
+    await runQuestionsForVariant(selectedIdx, selectedIr);
   }
 
   async function applyConceptAmbiguityOption(ambiguityId: string, optionId: string) {
     if (!selectedIr) return;
+    const variantIdx = selectedIdx;
+    const baseIr = selectedIr;
     setError(null);
     setArtifactId(null);
     setActiveOptionKey(`${ambiguityId}:${optionId}`);
 
     try {
-      const applyRes = await fetch(`${apiBase()}/concepts/apply_ambiguity_option`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          ir: selectedIr,
+      const irHash = await conceptIrHash(baseIr);
+      await applyChangeAndRefresh(
+        variantIdx,
+        baseIr,
+        "/concepts/apply_ambiguity_option",
+        {
+          ir: baseIr,
+          ir_hash: irHash,
           ambiguity_id: ambiguityId,
           option_id: optionId,
           variants_by_id: Object.fromEntries(candidates.map((candidate) => [candidate.ir.concept_id, candidate.ir])),
@@ -325,69 +618,58 @@ export default function ConceptsPage() {
           mode,
           dry_run: false,
           include_validator_runs: false,
-        }),
-      });
-
-      if (!applyRes.ok) {
-        let detailText = await applyRes.text();
-        try {
-          const parsed = JSON.parse(detailText) as {
-            detail?: { errors?: Array<{ code?: string; path?: string; message?: string }> };
-          };
-          const errors = parsed.detail?.errors ?? [];
-          if (errors.length > 0) {
-            detailText = errors
-              .map((item) => `${item.code ?? "ERROR"} ${item.path ?? ""} ${item.message ?? ""}`.trim())
-              .join("\n");
-          }
-        } catch {
-          // fall back to raw text for non-JSON error payloads
-        }
-        setError(detailText);
-        return;
-      }
-
-      const applyData = (await applyRes.json()) as ConceptApplyAmbiguityOptionResponse;
-      setCandidates((prev) =>
-        prev.map((candidate, idx) =>
-          idx === selectedIdx
-            ? {
-                ...candidate,
-                ir: applyData.patched_ir,
-                check_report: applyData.check_report,
-              }
-            : candidate,
-        ),
-      );
-      setAnalyses((prev) => prev.map((value, idx) => (idx === selectedIdx ? null : value)));
-
-      const analyzeRes = await fetch(`${apiBase()}/concepts/analyze`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          ir: applyData.patched_ir,
-          source_text: sourceText || null,
-          mode,
-          include_analysis_details: true,
-        }),
-      });
-      if (!analyzeRes.ok) {
-        setError(await analyzeRes.text());
-        return;
-      }
-      const analyzeData = (await analyzeRes.json()) as ConceptAnalyzeResponse;
-      setCandidates((prev) =>
-        prev.map((candidate, idx) =>
-          idx === selectedIdx ? { ...candidate, check_report: analyzeData.check_report } : candidate,
-        ),
-      );
-      setAnalyses((prev) =>
-        prev.map((value, idx) => (idx === selectedIdx ? analyzeData.analysis : value)),
+        },
       );
     } catch (e) {
       setError(String(e));
     } finally {
       setActiveOptionKey(null);
+    }
+  }
+
+  async function applyQuestionAnswer(question: ConceptQuestion, answer: ConceptQuestionAnswer) {
+    if (!selectedIr) return;
+    const variantIdx = selectedIdx;
+    const baseIr = selectedIr;
+    if (!answer.patch?.length) {
+      setError(`Question answer ${answer.option_id} is not patch-actionable`);
+      return;
+    }
+
+    const resolutionKey = questionResolutionKey(question, answer.option_id);
+    setError(null);
+    setArtifactId(null);
+    setActiveQuestionOptionKey(resolutionKey);
+    setQuestionHistoryForVariant(variantIdx, (current) => {
+      const withoutCurrent = current.filter((entry) => entry.key !== resolutionKey);
+      return [
+        ...withoutCurrent,
+        {
+          key: resolutionKey,
+          signal_kind: question.signal,
+          prompt: question.prompt,
+          answer_option_id: answer.option_id,
+          answer_label: answer.label,
+          status: "applied",
+        },
+      ];
+    });
+
+    try {
+      const irHash = await conceptIrHash(baseIr);
+      await applyChangeAndRefresh(variantIdx, baseIr, "/concepts/apply_patch", {
+          ir: baseIr,
+          ir_hash: irHash,
+          patch_ops: answer.patch,
+          source_text: sourceText || null,
+          mode,
+          dry_run: false,
+          include_validator_runs: false,
+      });
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setActiveQuestionOptionKey(null);
     }
   }
 
@@ -552,6 +834,9 @@ export default function ConceptsPage() {
           <button onClick={runAnalyze} disabled={!selectedIr}>
             Analyze
           </button>
+          <button onClick={runQuestions} disabled={!selectedIr || isLoadingQuestions}>
+            {isLoadingQuestions ? "Generating..." : "Generate questions"}
+          </button>
           <button onClick={accept} disabled={!selectedIr}>
             Accept (STRICT)
           </button>
@@ -608,6 +893,100 @@ export default function ConceptsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : null}
+
+        {selectedQuestions ? (
+          <div style={{ marginTop: 12 }}>
+            <div className="muted">
+              Questions ({selectedQuestions.length}) open={questionLifecycleSummary.open} applied=
+              {questionLifecycleSummary.applied} resolved={questionLifecycleSummary.resolved}
+            </div>
+            {selectedQuestions.length === 0 ? (
+              <div className="muted" style={{ marginTop: 4 }}>
+                No actionable questions for current IR.
+              </div>
+            ) : null}
+            {selectedQuestions.map((question) => (
+              <div
+                key={question.question_id}
+                style={{
+                  marginTop: 8,
+                  border: "1px solid var(--border)",
+                  borderRadius: 8,
+                  background: "#fff",
+                  padding: 8,
+                }}
+              >
+                <div className="muted mono">
+                  {question.signal} · {question.question_id}
+                </div>
+                <div style={{ marginTop: 4 }}>{question.prompt}</div>
+                {question.anchors.length ? (
+                  <div className="row" style={{ marginTop: 6 }}>
+                    {question.anchors.map((anchor, idx) => {
+                      const span =
+                        anchor.span ??
+                        (selectedIr
+                          ? spanFromConceptRef(
+                              selectedIr,
+                              anchor.object_id ?? null,
+                              anchor.json_path ?? null,
+                            )
+                          : null);
+                      const label = anchor.label || anchor.json_path || anchor.object_id || `anchor_${idx + 1}`;
+                      return (
+                        <button
+                          key={`${question.question_id}:anchor:${idx}`}
+                          onClick={() => {
+                            if (!span) return;
+                            setHighlight({ span, label: `question:${label}` });
+                          }}
+                          disabled={!span}
+                        >
+                          Anchor {idx + 1}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
+                <div className="row" style={{ marginTop: 6 }}>
+                  {question.answers.map((answer) => {
+                    const resolutionKey = questionResolutionKey(question, answer.option_id);
+                    const lifecycle = selectedQuestionHistoryMap.get(resolutionKey);
+                    const statusLabel =
+                      lifecycle === "applied" ? "Applied" : lifecycle === "resolved" ? "Resolved" : "Open";
+                    const hasPatch = Boolean(answer.patch?.length);
+                    return (
+                      <button
+                        key={`${question.question_id}:${answer.option_id}`}
+                        onClick={() => applyQuestionAnswer(question, answer)}
+                        disabled={!hasPatch || (activeQuestionOptionKey !== null && activeQuestionOptionKey !== resolutionKey)}
+                        title={!hasPatch ? "Answer does not provide a patch action" : undefined}
+                      >
+                        {activeQuestionOptionKey === resolutionKey
+                          ? "Applying..."
+                          : `${statusLabel}: ${answer.label}`}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+            {selectedQuestionHistory.some((entry) => entry.status === "resolved") ? (
+              <div style={{ marginTop: 8 }}>
+                <div className="muted">Resolved answers</div>
+                <div style={{ marginTop: 4 }}>
+                  {selectedQuestionHistory
+                    .filter((entry) => entry.status === "resolved")
+                    .map((entry) => (
+                      <div key={entry.key} className="muted mono" style={{ marginTop: 2 }}>
+                        {entry.signal_kind} · {entry.answer_option_id} · {entry.answer_label}
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
 

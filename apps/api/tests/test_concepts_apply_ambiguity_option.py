@@ -124,6 +124,69 @@ def test_concepts_apply_patch_returns_patched_ir_and_validator_runs() -> None:
     assert resp.proof_trust is None
 
 
+def test_concepts_apply_patch_respects_ir_hash_precondition() -> None:
+    concept = _patchable_concept()
+    option = concept.ambiguity[0].option_details_by_id["s_bank_fin"]
+    assert option.patch
+
+    resp = apply_concept_patch_endpoint(
+        ConceptApplyPatchRequest(
+            ir=concept,
+            ir_hash=api_main._concept_ir_hash(concept),
+            patch_ops=option.patch,
+            source_text=_fixture_source_text(),
+            mode=KernelMode.LAX,
+        )
+    )
+
+    assert resp.check_report.status == "PASS"
+
+
+def test_concepts_apply_patch_rejects_stale_ir_hash() -> None:
+    concept = _patchable_concept()
+    option = concept.ambiguity[0].option_details_by_id["s_bank_fin"]
+    assert option.patch
+
+    with pytest.raises(HTTPException) as excinfo:
+        apply_concept_patch_endpoint(
+            ConceptApplyPatchRequest(
+                ir=concept,
+                ir_hash="deadbeef",
+                patch_ops=option.patch,
+                source_text=_fixture_source_text(),
+                mode=KernelMode.LAX,
+            )
+        )
+
+    assert excinfo.value.status_code == 409
+    detail = excinfo.value.detail
+    assert detail["code"] == "STALE_IR"
+    assert detail["provided_ir_hash"] == "deadbeef"
+    assert isinstance(detail["expected_ir_hash"], str)
+
+
+def test_concepts_apply_ambiguity_option_rejects_stale_ir_hash() -> None:
+    concept = _patchable_concept()
+
+    with pytest.raises(HTTPException) as excinfo:
+        apply_concept_ambiguity_option_endpoint(
+            ConceptApplyAmbiguityOptionRequest(
+                ir=concept,
+                ir_hash="deadbeef",
+                ambiguity_id="amb_bank",
+                option_id="s_bank_fin",
+                source_text=_fixture_source_text(),
+                mode=KernelMode.LAX,
+            )
+        )
+
+    assert excinfo.value.status_code == 409
+    detail = excinfo.value.detail
+    assert detail["code"] == "STALE_IR"
+    assert detail["provided_ir_hash"] == "deadbeef"
+    assert isinstance(detail["expected_ir_hash"], str)
+
+
 def test_concepts_apply_ambiguity_option_dry_run_skips_run_persistence(monkeypatch) -> None:
     concept = _patchable_concept()
 

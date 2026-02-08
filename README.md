@@ -44,6 +44,9 @@ Concept composition endpoints:
     with optional countermodel witnesses for non-forced edges
 - `POST /concepts/apply_patch` applies a sandboxed patch to `ConceptIR`, rechecks it, and returns
   the same response shape as `POST /concepts/apply_ambiguity_option`.
+  - `ir_hash` may be provided as a precondition; mismatches return `409 STALE_IR`.
+- `POST /concepts/questions` generates deterministic, capped question/answer actions from concept
+  analysis signals (MIC, forced-edge countermodels, disconnected clusters).
 - `POST /concepts/diff` returns structural + solver-aware causal diff for two concept variants.
 - `POST /explain_flip` returns a deterministic flip narrative (`check_status_flip`,
   `solver_status_flip`, cause chain, repair hints) plus the underlying `diff_report`.
