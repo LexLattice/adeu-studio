@@ -50,7 +50,10 @@ Concept composition endpoints:
 - `POST /concepts/questions` generates deterministic, capped question/answer actions from concept
   analysis signals (MIC, forced-edge countermodels, disconnected clusters).
 - `POST /concepts/align` returns deterministic cross-artifact vocabulary suggestions
-  (`merge_candidate` / `conflict_candidate`) across selected concept artifacts.
+  (`merge_candidate` / `conflict_candidate`) across selected concept artifacts, with
+  per-suggestion fingerprints and `alignment_stats` counts by kind.
+  - Effective scope is capped at 200 artifacts after normalization; larger requests return
+    `400 ALIGNMENT_SCOPE_TOO_LARGE`.
 - `POST /concepts/diff` returns structural + solver-aware causal diff for two concept variants.
 - `POST /explain_flip` returns a deterministic flip narrative (`check_status_flip`,
   `solver_status_flip`, cause chain, repair hints) plus the underlying `diff_report`.

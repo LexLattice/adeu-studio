@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from adeu_api.main import (
+    MAX_ALIGNMENT_SCOPE_ARTIFACTS,
     ConceptAlignRequest,
     ConceptArtifactCreateRequest,
     align_concepts_endpoint,
@@ -83,8 +84,12 @@ def test_concepts_align_is_deterministic_and_emits_merge_candidate(
     )
 
     assert one == two
+    assert one.alignment_stats.merge_candidate_count >= 1
+    assert one.alignment_stats.conflict_candidate_count >= 0
     merge_keys = {item.vocabulary_key for item in one.suggestions if item.kind == "merge_candidate"}
     assert "bank" in merge_keys
+    assert all(len(item.suggestion_fingerprint) == 12 for item in one.suggestions)
+    assert all(item.suggestion_fingerprint for item in one.suggestions)
 
 
 def test_concepts_align_emits_conflict_candidate_for_divergent_glosses(
@@ -143,6 +148,7 @@ def test_concepts_align_emits_conflict_candidate_for_divergent_glosses(
         item.vocabulary_key for item in aligned.suggestions if item.kind == "conflict_candidate"
     }
     assert "bank" in conflict_keys
+    assert aligned.alignment_stats.conflict_candidate_count >= 1
 
 
 def test_concepts_align_doc_scope_and_missing_errors(
@@ -256,3 +262,19 @@ def test_concepts_align_mixed_scope_uses_doc_latest_and_union(
     aligned_ids = [item.artifact_id for item in aligned.artifacts]
     assert aligned_ids == sorted([left_latest.artifact_id, explicit.artifact_id])
     assert left_old.artifact_id not in aligned_ids
+
+
+def test_concepts_align_scope_too_large_error(monkeypatch, tmp_path: Path) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+
+    oversized_scope = [
+        f"artifact_{idx:03d}" for idx in range(MAX_ALIGNMENT_SCOPE_ARTIFACTS + 1)
+    ]
+    with pytest.raises(HTTPException) as scope_error:
+        align_concepts_endpoint(ConceptAlignRequest(artifact_ids=oversized_scope))
+
+    assert scope_error.value.status_code == 400
+    assert scope_error.value.detail["code"] == "ALIGNMENT_SCOPE_TOO_LARGE"
+    assert scope_error.value.detail["max_artifacts"] == MAX_ALIGNMENT_SCOPE_ARTIFACTS
+    assert scope_error.value.detail["actual_artifacts"] == MAX_ALIGNMENT_SCOPE_ARTIFACTS + 1
