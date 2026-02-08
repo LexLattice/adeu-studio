@@ -1363,7 +1363,7 @@ def _filter_question_answers_do_no_harm(
                 continue
 
             if remaining_dry_run_evals <= 0 or remaining_solver_calls <= 0:
-                kept_answers.append(answer)
+                # Fail closed when out of budget: only keep patch answers that were verified.
                 continue
 
             keep, used_solver_calls = _evaluate_question_answer_dry_run(

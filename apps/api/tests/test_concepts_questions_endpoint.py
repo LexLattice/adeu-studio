@@ -398,5 +398,5 @@ def test_do_no_harm_filter_respects_dry_run_budget(monkeypatch) -> None:
         questions=questions,
     )
 
-    assert len(filtered) == len(questions)
+    assert len(filtered) == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
     assert calls["count"] == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
