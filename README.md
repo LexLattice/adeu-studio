@@ -36,6 +36,8 @@ make bootstrap
 
 Concept composition endpoints:
 
+- `POST /documents` ingests immutable source documents (`doc_id`, `domain`, `source_text`).
+- `GET /documents` and `GET /documents/{doc_id}` list/retrieve stored documents.
 - `POST /concepts/check` validates a `ConceptIR` and returns a shared `CheckReport`.
 - `POST /concepts/analyze` returns `CheckReport` plus structured analysis:
   - SAT: model-conditional closure edges
@@ -55,6 +57,9 @@ Concept composition endpoints:
   linked validator runs by default.
 - `GET /concepts/artifacts` and `GET /concepts/artifacts/{artifact_id}` retrieve concept artifacts.
 - `GET /concepts/artifacts/{artifact_id}/validator-runs` retrieves linked solver runs.
+
+For concept endpoints that accept source text, `doc_id` can be provided instead of `source_text`.
+If both are provided, `doc_id` is authoritative and mismatched text returns `400 DOC_TEXT_MISMATCH`.
 
 `POST /puzzles/solve` accepts a strict `KnightsKnavesPuzzle` payload and returns:
 
