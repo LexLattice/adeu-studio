@@ -137,12 +137,7 @@ type ConceptAnalyzeResponse = {
   analysis: ConceptAnalysis;
 };
 
-type ConceptApplyAmbiguityOptionResponse = {
-  patched_ir: ConceptIR;
-  check_report: CheckReport;
-};
-
-type ConceptApplyPatchResponse = {
+type ConceptApplyResponse = {
   patched_ir: ConceptIR;
   check_report: CheckReport;
 };
@@ -492,6 +487,47 @@ export default function ConceptsPage() {
     await runQuestionsForVariant(variantIdx, ir);
   }
 
+  async function applyChangeAndRefresh(
+    variantIdx: number,
+    baseIr: ConceptIR,
+    endpoint: "/concepts/apply_ambiguity_option" | "/concepts/apply_patch",
+    payload: Record<string, unknown>,
+  ): Promise<boolean> {
+    const applyRes = await fetch(`${apiBase()}${endpoint}`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!applyRes.ok) {
+      const detailText = conceptApiErrorMessage(await applyRes.text());
+      setError(detailText);
+      if (applyRes.status === 409 && detailText.includes("STALE_IR")) {
+        await refreshVariantFromStaleGuard(variantIdx, baseIr);
+      }
+      return false;
+    }
+
+    const applyData = (await applyRes.json()) as ConceptApplyResponse;
+    setCandidates((prev) =>
+      prev.map((candidate, idx) =>
+        idx === variantIdx
+          ? {
+              ...candidate,
+              ir: applyData.patched_ir,
+              check_report: applyData.check_report,
+            }
+          : candidate,
+      ),
+    );
+    setAnalyses((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
+    setQuestionsByVariant((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
+
+    await runAnalyzeForVariant(variantIdx, applyData.patched_ir);
+    await runQuestionsForVariant(variantIdx, applyData.patched_ir);
+    return true;
+  }
+
   async function propose() {
     setError(null);
     setArtifactId(null);
@@ -568,10 +604,11 @@ export default function ConceptsPage() {
 
     try {
       const irHash = await conceptIrHash(baseIr);
-      const applyRes = await fetch(`${apiBase()}/concepts/apply_ambiguity_option`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
+      await applyChangeAndRefresh(
+        variantIdx,
+        baseIr,
+        "/concepts/apply_ambiguity_option",
+        {
           ir: baseIr,
           ir_hash: irHash,
           ambiguity_id: ambiguityId,
@@ -581,35 +618,8 @@ export default function ConceptsPage() {
           mode,
           dry_run: false,
           include_validator_runs: false,
-        }),
-      });
-
-      if (!applyRes.ok) {
-        const detailText = conceptApiErrorMessage(await applyRes.text());
-        setError(detailText);
-        if (applyRes.status === 409 && detailText.includes("STALE_IR")) {
-          await refreshVariantFromStaleGuard(variantIdx, baseIr);
-        }
-        return;
-      }
-
-      const applyData = (await applyRes.json()) as ConceptApplyAmbiguityOptionResponse;
-      setCandidates((prev) =>
-        prev.map((candidate, idx) =>
-          idx === variantIdx
-            ? {
-                ...candidate,
-                ir: applyData.patched_ir,
-                check_report: applyData.check_report,
-              }
-            : candidate,
-        ),
+        },
       );
-      setAnalyses((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
-      setQuestionsByVariant((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
-
-      await runAnalyzeForVariant(variantIdx, applyData.patched_ir);
-      await runQuestionsForVariant(variantIdx, applyData.patched_ir);
     } catch (e) {
       setError(String(e));
     } finally {
@@ -647,10 +657,7 @@ export default function ConceptsPage() {
 
     try {
       const irHash = await conceptIrHash(baseIr);
-      const applyRes = await fetch(`${apiBase()}/concepts/apply_patch`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
+      await applyChangeAndRefresh(variantIdx, baseIr, "/concepts/apply_patch", {
           ir: baseIr,
           ir_hash: irHash,
           patch_ops: answer.patch,
@@ -658,35 +665,7 @@ export default function ConceptsPage() {
           mode,
           dry_run: false,
           include_validator_runs: false,
-        }),
       });
-
-      if (!applyRes.ok) {
-        const detailText = conceptApiErrorMessage(await applyRes.text());
-        setError(detailText);
-        if (applyRes.status === 409 && detailText.includes("STALE_IR")) {
-          await refreshVariantFromStaleGuard(variantIdx, baseIr);
-        }
-        return;
-      }
-
-      const applyData = (await applyRes.json()) as ConceptApplyPatchResponse;
-      setCandidates((prev) =>
-        prev.map((candidate, idx) =>
-          idx === variantIdx
-            ? {
-                ...candidate,
-                ir: applyData.patched_ir,
-                check_report: applyData.check_report,
-              }
-            : candidate,
-        ),
-      );
-      setAnalyses((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
-      setQuestionsByVariant((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
-
-      await runAnalyzeForVariant(variantIdx, applyData.patched_ir);
-      await runQuestionsForVariant(variantIdx, applyData.patched_ir);
     } catch (e) {
       setError(String(e));
     } finally {

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
+import adeu_api.main as api_main
 from adeu_api.main import (
     ConceptApplyAmbiguityOptionRequest,
     ConceptApplyPatchRequest,
@@ -28,12 +28,6 @@ def _fixture_source(*, fixture: str) -> str:
     root = repo_root(anchor=Path(__file__))
     path = root / "examples" / "concepts" / "fixtures" / fixture / "source.txt"
     return path.read_text(encoding="utf-8").strip()
-
-
-def _ir_hash(concept: ConceptIR) -> str:
-    payload = concept.model_dump(mode="json", by_alias=True, exclude_none=True)
-    encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
-    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 def _question_key(question: ConceptQuestion, option_id: str) -> str:
@@ -154,7 +148,7 @@ def test_concepts_questions_apply_patch_updates_question_space() -> None:
     applied = apply_concept_patch_endpoint(
         ConceptApplyPatchRequest(
             ir=concept,
-            ir_hash=_ir_hash(concept),
+            ir_hash=api_main._concept_ir_hash(concept),
             patch_ops=answer.patch,
             source_text=source,
             mode=KernelMode.LAX,
