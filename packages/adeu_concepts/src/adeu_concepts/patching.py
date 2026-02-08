@@ -203,6 +203,10 @@ def _raise_errors(errors: list[ConceptPatchError]) -> None:
     raise ConceptPatchValidationError(errors=_sorted_errors(errors))
 
 
+def _has_explicit_value(op: JsonPatchOp) -> bool:
+    return "value" in op.model_fields_set
+
+
 def _collect_reference_integrity_errors(concept: ConceptIR) -> list[ConceptPatchError]:
     errors: list[ConceptPatchError] = []
     term_ids = {term.id for term in concept.terms}
@@ -404,7 +408,7 @@ def apply_concept_json_patch(
             )
             continue
 
-        if op.op in ("add", "replace", "test") and op.value is None:
+        if op.op in ("add", "replace", "test") and not _has_explicit_value(op):
             errors.append(
                 _issue(
                     op_index=op_index,

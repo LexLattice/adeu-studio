@@ -105,3 +105,37 @@ def test_apply_concept_json_patch_sorts_errors_deterministically() -> None:
     errors = list(excinfo.value.errors)
     assert errors == sorted(errors, key=lambda err: (err.op_index, err.path, err.code))
     assert [err.code for err in errors] == ["PATCH_PATH_NOT_ALLOWED", "PATCH_OP_UNSUPPORTED"]
+
+
+def test_apply_concept_json_patch_accepts_explicit_null_values() -> None:
+    concept = ConceptIR.model_validate(_fixture_payload("var1.json"))
+    patch_ops = [
+        JsonPatchOp(op="add", path="/claims/0/provenance/quote", value=None),
+        JsonPatchOp(op="test", path="/claims/0/provenance/quote", value=None),
+        JsonPatchOp(op="replace", path="/claims/0/provenance/doc_ref", value=None),
+    ]
+
+    patched = apply_concept_json_patch(concept, patch_ops)
+    assert patched.claims[0].provenance is not None
+    assert patched.claims[0].provenance.quote is None
+    assert patched.claims[0].provenance.doc_ref is None
+
+
+def test_apply_concept_json_patch_rejects_missing_value_member() -> None:
+    concept = ConceptIR.model_validate(_fixture_payload("var1.json"))
+    patch_ops = [
+        JsonPatchOp.model_validate(
+            {
+                "op": "add",
+                "path": "/claims/0/provenance/quote",
+            }
+        )
+    ]
+
+    with pytest.raises(ConceptPatchValidationError) as excinfo:
+        apply_concept_json_patch(concept, patch_ops)
+
+    errors = list(excinfo.value.errors)
+    assert len(errors) == 1
+    assert errors[0].code == "PATCH_VALUE_REQUIRED"
+    assert errors[0].path == "/claims/0/provenance/quote"
