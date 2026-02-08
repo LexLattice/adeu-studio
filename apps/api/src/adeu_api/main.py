@@ -114,6 +114,7 @@ from .storage import (
 MAX_SOURCE_TEXT_BYTES = 200_000
 MAX_QUESTION_DRY_RUN_EVALS_TOTAL = 20
 MAX_QUESTION_SOLVER_CALLS_TOTAL = 40
+MAX_ALIGNMENT_SCOPE_ARTIFACTS = 200
 _ALIGNMENT_KIND_RANKS: dict[str, int] = {
     "merge_candidate": 0,
     "conflict_candidate": 1,
@@ -674,6 +675,7 @@ class ConceptAlignmentSenseRef(BaseModel):
 class ConceptAlignmentSuggestion(BaseModel):
     model_config = ConfigDict(extra="forbid")
     suggestion_id: str
+    suggestion_fingerprint: str
     kind: Literal["merge_candidate", "conflict_candidate"]
     vocabulary_key: str
     reason: str
@@ -683,11 +685,18 @@ class ConceptAlignmentSuggestion(BaseModel):
     sense_refs: list[ConceptAlignmentSenseRef] = Field(default_factory=list)
 
 
+class ConceptAlignmentStats(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    merge_candidate_count: int
+    conflict_candidate_count: int
+
+
 class ConceptAlignResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     artifacts: list[ConceptAlignmentArtifactRef]
     suggestion_count: int
     suggestions: list[ConceptAlignmentSuggestion]
+    alignment_stats: ConceptAlignmentStats
     mapping_trust: str = "derived_alignment"
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
@@ -799,6 +808,19 @@ def _resolve_alignment_artifact_ids(req: ConceptAlignRequest) -> list[str]:
                 },
             )
         artifact_ids.add(rows[0].artifact_id)
+    if len(artifact_ids) > MAX_ALIGNMENT_SCOPE_ARTIFACTS:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "ALIGNMENT_SCOPE_TOO_LARGE",
+                "message": (
+                    "alignment scope exceeds deterministic cap "
+                    f"({len(artifact_ids)} > {MAX_ALIGNMENT_SCOPE_ARTIFACTS})"
+                ),
+                "max_artifacts": MAX_ALIGNMENT_SCOPE_ARTIFACTS,
+                "actual_artifacts": len(artifact_ids),
+            },
+        )
     if artifact_ids:
         return sorted(artifact_ids)
     raise HTTPException(
@@ -839,6 +861,37 @@ class _AlignmentTermEntry(NamedTuple):
 
 def _alignment_kind_rank(kind: str) -> int:
     return _ALIGNMENT_KIND_RANKS.get(kind, 2)
+
+
+def _alignment_suggestion_fingerprint(
+    *,
+    kind: Literal["merge_candidate", "conflict_candidate"],
+    vocabulary_key: str,
+    term_refs: list[ConceptAlignmentTermRef],
+    sense_refs: list[ConceptAlignmentSenseRef],
+) -> str:
+    concept_ids = sorted(
+        {item.concept_id for item in term_refs} | {item.concept_id for item in sense_refs}
+    )
+    term_ids = sorted({item.term_id for item in term_refs} | {item.term_id for item in sense_refs})
+    sense_ids = sorted({item.sense_id for item in sense_refs})
+    payload = {
+        "kind": kind,
+        "vocabulary_key": vocabulary_key,
+        "concept_ids": concept_ids,
+        "term_ids": term_ids,
+        "sense_ids": sense_ids,
+    }
+    return _sha256(_canonical_json(payload))[:12]
+
+
+def _alignment_stats(suggestions: list[ConceptAlignmentSuggestion]) -> ConceptAlignmentStats:
+    merge_count = sum(1 for item in suggestions if item.kind == "merge_candidate")
+    conflict_count = sum(1 for item in suggestions if item.kind == "conflict_candidate")
+    return ConceptAlignmentStats(
+        merge_candidate_count=merge_count,
+        conflict_candidate_count=conflict_count,
+    )
 
 
 def _build_alignment_suggestions(
@@ -918,6 +971,12 @@ def _build_alignment_suggestions(
                     vocabulary_key=vocabulary_key,
                     used_ids=used_suggestion_ids,
                 ),
+                suggestion_fingerprint=_alignment_suggestion_fingerprint(
+                    kind="merge_candidate",
+                    vocabulary_key=vocabulary_key,
+                    term_refs=term_refs,
+                    sense_refs=sense_refs,
+                ),
                 kind="merge_candidate",
                 vocabulary_key=vocabulary_key,
                 reason=(
@@ -936,18 +995,24 @@ def _build_alignment_suggestions(
             for artifact_id in artifact_ids
         }
         if len(signature_profiles) > 1:
-            suggestions.append(
-                ConceptAlignmentSuggestion(
-                    suggestion_id=_next_alignment_suggestion_id(
+                suggestions.append(
+                    ConceptAlignmentSuggestion(
+                        suggestion_id=_next_alignment_suggestion_id(
+                            kind="conflict_candidate",
+                            vocabulary_key=vocabulary_key,
+                            used_ids=used_suggestion_ids,
+                        ),
+                        suggestion_fingerprint=_alignment_suggestion_fingerprint(
+                            kind="conflict_candidate",
+                            vocabulary_key=vocabulary_key,
+                            term_refs=term_refs,
+                            sense_refs=sense_refs,
+                        ),
                         kind="conflict_candidate",
                         vocabulary_key=vocabulary_key,
-                        used_ids=used_suggestion_ids,
-                    ),
-                    kind="conflict_candidate",
-                    vocabulary_key=vocabulary_key,
-                    reason=(
-                        f"Term '{vocabulary_key}' has divergent sense gloss signatures "
-                        "across artifacts; review before merge."
+                        reason=(
+                            f"Term '{vocabulary_key}' has divergent sense gloss signatures "
+                            "across artifacts; review before merge."
                     ),
                     artifact_ids=artifact_ids,
                     doc_ids=doc_ids,
@@ -2797,6 +2862,7 @@ def align_concepts_endpoint(req: ConceptAlignRequest) -> ConceptAlignResponse:
         ],
         suggestion_count=len(suggestions),
         suggestions=suggestions,
+        alignment_stats=_alignment_stats(suggestions),
         mapping_trust="derived_alignment",
         solver_trust="kernel_only",
         proof_trust=None,
