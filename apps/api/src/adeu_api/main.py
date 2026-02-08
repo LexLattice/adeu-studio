@@ -1592,24 +1592,27 @@ def create_concept_artifact_endpoint(
     selected = pick_latest_run(concept_runs)
     analysis = analyze_concept(req.ir, run=selected) if selected is not None else None
 
-    row = create_concept_artifact(
-        schema_version=req.ir.schema_version,
-        artifact_version=1,
-        source_text=req.source_text,
-        doc_id=req.ir.context.doc_id,
-        status=report.status,
-        num_errors=num_errors,
-        num_warns=num_warns,
-        ir_json=req.ir.model_dump(mode="json", exclude_none=True),
-        check_report_json=report.model_dump(mode="json", exclude_none=True),
-        analysis_json=analysis.model_dump(mode="json", exclude_none=True) if analysis else None,
-    )
-    if runs:
-        _persist_validator_runs(
-            runs=runs,
-            artifact_id=None,
-            concept_artifact_id=row.artifact_id,
+    with storage_transaction() as connection:
+        row = create_concept_artifact(
+            schema_version=req.ir.schema_version,
+            artifact_version=1,
+            source_text=req.source_text,
+            doc_id=req.ir.context.doc_id,
+            status=report.status,
+            num_errors=num_errors,
+            num_warns=num_warns,
+            ir_json=req.ir.model_dump(mode="json", exclude_none=True),
+            check_report_json=report.model_dump(mode="json", exclude_none=True),
+            analysis_json=analysis.model_dump(mode="json", exclude_none=True) if analysis else None,
+            connection=connection,
         )
+        if runs:
+            _persist_validator_runs(
+                runs=runs,
+                artifact_id=None,
+                concept_artifact_id=row.artifact_id,
+                connection=connection,
+            )
     return ConceptArtifactCreateResponse(
         artifact_id=row.artifact_id,
         created_at=row.created_at,
