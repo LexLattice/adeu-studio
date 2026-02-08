@@ -10,9 +10,11 @@ from adeu_concepts import (
     ConceptAnalysis,
     ConceptIR,
     ConceptPatchValidationError,
+    ConceptQuestion,
     ConceptRunRef,
     analyze_concept,
     apply_concept_ambiguity_option,
+    build_concept_questions,
     pick_latest_run,
     strip_analysis_details,
     strip_forced_details,
@@ -183,6 +185,14 @@ class ConceptAnalyzeRequest(BaseModel):
     include_analysis_details: bool = True
     include_forced_details: bool = True
     validator_runs: list[ValidatorRunInput] | None = None
+
+
+class ConceptQuestionsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: ConceptIR
+    source_text: str | None = None
+    mode: KernelMode = KernelMode.LAX
+    include_forced_details: bool = False
 
 
 class AdeuAnalyzeConceptsRequest(BaseModel):
@@ -446,6 +456,18 @@ class ConceptAnalyzeResponse(BaseModel):
     check_report: CheckReport
     analysis: ConceptAnalysis
     validator_runs: list[ValidatorRunInput] | None = None
+
+
+class ConceptQuestionsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    check_report: CheckReport
+    questions: list[ConceptQuestion]
+    question_count: int
+    max_questions: int = 10
+    max_answers_per_question: int = 4
+    mapping_trust: str | None = None
+    solver_trust: Literal["kernel_only", "solver_backed", "proof_checked"] = "kernel_only"
+    proof_trust: str | None = None
 
 
 class AdeuAnalyzeConceptsResponse(BaseModel):
@@ -1229,6 +1251,48 @@ def analyze_concept_variant(req: ConceptAnalyzeRequest) -> ConceptAnalyzeRespons
         check_report=report,
         analysis=analysis,
         validator_runs=run_inputs if req.include_validator_runs else None,
+    )
+
+
+@app.post("/concepts/questions", response_model=ConceptQuestionsResponse)
+def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestionsResponse:
+    if req.source_text is not None:
+        _enforce_source_text_size(req.source_text)
+
+    report, records = check_concept_with_validator_runs(
+        req.ir,
+        mode=req.mode,
+        source_text=req.source_text,
+    )
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and records:
+        _persist_validator_runs(runs=records, artifact_id=None)
+
+    run_inputs = [_validator_run_input_from_record(record) for record in records]
+    concept_runs = [_concept_run_ref_from_input(run) for run in run_inputs]
+    selected = pick_latest_run(concept_runs)
+
+    analysis = analyze_concept(req.ir, run=selected)
+    if not req.include_forced_details:
+        analysis = strip_forced_details(analysis)
+
+    max_questions = 10
+    max_answers = 4
+    questions = build_concept_questions(
+        req.ir,
+        analysis,
+        max_questions=max_questions,
+        max_answers_per_question=max_answers,
+    )
+
+    return ConceptQuestionsResponse(
+        check_report=report,
+        questions=questions,
+        question_count=len(questions),
+        max_questions=max_questions,
+        max_answers_per_question=max_answers,
+        mapping_trust=None,
+        solver_trust="solver_backed" if records else "kernel_only",
+        proof_trust=None,
     )
 
 
