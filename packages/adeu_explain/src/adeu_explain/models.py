@@ -109,6 +109,12 @@ class CausalSlice(BaseModel):
 class DiffSummary(BaseModel):
     model_config = ConfigDict(extra="forbid")
     status_flip: str
+    solver_pairing_state: str = "NO_RUNS"
+    mapping_trust: str | None = None
+    solver_trust: str = "kernel_only"
+    proof_trust: str | None = None
+    unpaired_left_keys: list[str] = Field(default_factory=list)
+    unpaired_right_keys: list[str] = Field(default_factory=list)
     structural_patch_count: str
     solver_touched_atom_count: str
     causal_atom_count: str

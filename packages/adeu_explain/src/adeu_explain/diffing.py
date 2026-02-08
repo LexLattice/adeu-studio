@@ -30,8 +30,10 @@ from .models import (
 
 _STATUS_VALUES = {"SAT", "UNSAT", "UNKNOWN", "TIMEOUT", "ERROR", "INVALID_REQUEST"}
 _STATUS_NO_RUNS = "NO_RUNS"
+_STATUS_UNPAIRABLE = "UNPAIRABLE"
 _STATUS_MISSING_LEFT = "MISSING_LEFT"
 _STATUS_MISSING_RIGHT = "MISSING_RIGHT"
+_STATUS_PAIRED = "PAIRED"
 _ID_FIELD_ALLOWLIST = {
     "id",
     "object_id",
@@ -71,6 +73,7 @@ def build_diff_report(
 
     structural = _build_structural_diff(left_payload, right_payload)
     solver = _build_solver_diff(left_runs=left_runs or [], right_runs=right_runs or [])
+    pairing_state = _solver_pairing_state(solver.status_flip)
     causal = _build_causal_slice(
         structural=structural,
         solver=solver,
@@ -79,6 +82,12 @@ def build_diff_report(
     )
     summary = DiffSummary(
         status_flip=solver.status_flip,
+        solver_pairing_state=pairing_state,
+        mapping_trust=None,
+        solver_trust=_solver_trust(pairing_state),
+        proof_trust=None,
+        unpaired_left_keys=list(solver.unpaired_left_hashes),
+        unpaired_right_keys=list(solver.unpaired_right_hashes),
         structural_patch_count=str(len(structural.json_patches)),
         solver_touched_atom_count=str(
             len(
@@ -532,7 +541,24 @@ def _status_for_missing_pairs(
         return _STATUS_MISSING_LEFT
     if left and not right:
         return _STATUS_MISSING_RIGHT
-    return _STATUS_NO_RUNS
+    return _STATUS_UNPAIRABLE
+
+
+def _solver_pairing_state(status_flip: str) -> str:
+    if status_flip in {
+        _STATUS_NO_RUNS,
+        _STATUS_UNPAIRABLE,
+        _STATUS_MISSING_LEFT,
+        _STATUS_MISSING_RIGHT,
+    }:
+        return status_flip
+    return _STATUS_PAIRED
+
+
+def _solver_trust(pairing_state: str) -> str:
+    if pairing_state == _STATUS_PAIRED:
+        return "solver_backed"
+    return "kernel_only"
 
 
 def _sorted_hashes(keyed_runs: dict[tuple[str, str], list[ValidatorRunRef]]) -> list[str]:

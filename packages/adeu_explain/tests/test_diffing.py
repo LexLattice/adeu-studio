@@ -109,6 +109,10 @@ def test_solver_diff_pairing_and_status_flip_are_deterministic() -> None:
         right_runs=right_runs,
     )
     assert report.solver.status_flip == "UNSAT→SAT"
+    assert report.summary.solver_pairing_state == "PAIRED"
+    assert report.summary.solver_trust == "solver_backed"
+    assert report.summary.unpaired_left_keys == []
+    assert report.summary.unpaired_right_keys == []
     assert report.solver.request_hash_changed is False
     assert report.solver.formula_hash_changed is False
     assert report.solver.core_delta.removed_atoms == ["atom_conflict"]
@@ -168,7 +172,7 @@ def test_causal_slice_intersects_structural_and_solver_deltas() -> None:
     assert report.causal_slice.touched_json_paths == ["/D_norm/statements/0"]
 
 
-def test_missing_pairable_runs_are_reported_as_no_runs() -> None:
+def test_missing_pairable_runs_are_reported_as_unpairable() -> None:
     left_runs = [
         {
             "request_hash": "req-left",
@@ -195,9 +199,29 @@ def test_missing_pairable_runs_are_reported_as_no_runs() -> None:
         left_runs=left_runs,
         right_runs=right_runs,
     )
-    assert report.solver.status_flip == "NO_RUNS"
+    assert report.solver.status_flip == "UNPAIRABLE"
     assert report.solver.unpaired_left_hashes == ["req-left:f-left"]
     assert report.solver.unpaired_right_hashes == ["req-right:f-right"]
+    assert report.summary.solver_pairing_state == "UNPAIRABLE"
+    assert report.summary.solver_trust == "kernel_only"
+    assert report.summary.unpaired_left_keys == ["req-left:f-left"]
+    assert report.summary.unpaired_right_keys == ["req-right:f-right"]
+
+
+def test_no_runs_reports_no_runs_pairing_state() -> None:
+    report = build_diff_report(
+        _left_ir(),
+        _right_ir(),
+        left_id="left_ir",
+        right_id="right_ir",
+        left_runs=[],
+        right_runs=[],
+    )
+    assert report.solver.status_flip == "NO_RUNS"
+    assert report.summary.solver_pairing_state == "NO_RUNS"
+    assert report.summary.solver_trust == "kernel_only"
+    assert report.summary.unpaired_left_keys == []
+    assert report.summary.unpaired_right_keys == []
 
 
 def test_solver_diff_handles_mixed_and_missing_timestamps_across_pairs() -> None:
