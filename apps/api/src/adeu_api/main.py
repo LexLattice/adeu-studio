@@ -1269,9 +1269,7 @@ def _artifact_trust_labels(
 
     for row in required_rows:
         semantics_version = _proof_detail_text(row.details_json, "semantics_version")
-        if semantics_version != _PROOF_SEMANTICS_VERSION_REQUIRED:
-            return fallback_solver_trust, "lean_core_v1_partial_or_failed"
-        if row.status != "proved":
+        if semantics_version != _PROOF_SEMANTICS_VERSION_REQUIRED or row.status != "proved":
             return fallback_solver_trust, "lean_core_v1_partial_or_failed"
 
     return "proof_checked", "lean_core_v1_proved"
