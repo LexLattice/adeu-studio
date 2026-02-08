@@ -4,12 +4,14 @@ import hashlib
 import json
 import os
 import sqlite3
+from collections import deque
 from datetime import datetime, timezone
 from typing import Any, Callable, Literal
 
 from adeu_concepts import (
     DEFAULT_MAX_ANSWERS_PER_QUESTION,
     DEFAULT_MAX_QUESTIONS,
+    AmbiguityOption,
     ConceptAnalysis,
     ConceptIR,
     ConceptPatchValidationError,
@@ -22,6 +24,7 @@ from adeu_concepts import (
     pick_latest_run,
     strip_analysis_details,
     strip_forced_details,
+    unavailable_analysis,
 )
 from adeu_concepts import (
     check_with_solver_status as check_concept_with_solver_status,
@@ -103,6 +106,8 @@ from .storage import (
 )
 
 MAX_SOURCE_TEXT_BYTES = 200_000
+MAX_QUESTION_DRY_RUN_EVALS_TOTAL = 20
+MAX_QUESTION_SOLVER_CALLS_TOTAL = 40
 
 
 class ProposeRequest(BaseModel):
@@ -568,10 +573,7 @@ def _enforce_source_text_size(source_text: str, *, field: str = "source_text") -
         status_code=400,
         detail={
             "code": "PAYLOAD_TOO_LARGE",
-            "message": (
-                f"{field} exceeds {MAX_SOURCE_TEXT_BYTES} bytes "
-                f"(got {size_bytes} bytes)"
-            ),
+            "message": (f"{field} exceeds {MAX_SOURCE_TEXT_BYTES} bytes (got {size_bytes} bytes)"),
             "field": field,
             "max_bytes": MAX_SOURCE_TEXT_BYTES,
             "actual_bytes": size_bytes,
@@ -1007,6 +1009,384 @@ def _resolve_concepts_analyze_runs(
     return report, concept_runs, run_inputs, records
 
 
+def _question_priority_class(signal: str) -> int:
+    if signal == "mic":
+        return 0
+    if signal == "forced_countermodel":
+        return 1
+    if signal == "disconnected_clusters":
+        return 2
+    return 3
+
+
+def _severity_rank_value(value: ReasonSeverity | str | None) -> int:
+    if isinstance(value, ReasonSeverity):
+        severity = value.value
+    else:
+        severity = str(value or "").upper()
+    if severity == ReasonSeverity.ERROR.value:
+        return 0
+    if severity == ReasonSeverity.WARN.value:
+        return 1
+    if severity == ReasonSeverity.INFO.value:
+        return 2
+    return 3
+
+
+def _question_anchor_sets(question: ConceptQuestion) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    object_ids = tuple(
+        sorted(
+            {
+                anchor.object_id
+                for anchor in question.anchors
+                if isinstance(anchor.object_id, str) and anchor.object_id
+            }
+        )
+    )
+    json_paths = tuple(
+        sorted(
+            {
+                anchor.json_path
+                for anchor in question.anchors
+                if isinstance(anchor.json_path, str) and anchor.json_path
+            }
+        )
+    )
+    return object_ids, json_paths
+
+
+def _question_anchor_key(question: ConceptQuestion) -> str:
+    pairs = sorted(
+        (
+            anchor.object_id or "",
+            anchor.json_path or "",
+        )
+        for anchor in question.anchors
+    )
+    return "|".join(f"{object_id}@{json_path}" for object_id, json_path in pairs)
+
+
+def _question_template_id(question: ConceptQuestion) -> str:
+    labels = sorted(
+        {
+            anchor.label
+            for anchor in question.anchors
+            if isinstance(anchor.label, str) and anchor.label
+        }
+    )
+    suffix = labels[0] if labels else "generic"
+    return f"{question.signal}:{suffix}"
+
+
+def _concept_term_component_sizes(ir: ConceptIR) -> dict[str, int]:
+    sense_to_term = {sense.id: sense.term_id for sense in ir.senses}
+    adjacency: dict[str, set[str]] = {term.id: set() for term in ir.terms}
+
+    for link in ir.links:
+        src_term = sense_to_term.get(link.src_sense_id)
+        dst_term = sense_to_term.get(link.dst_sense_id)
+        if src_term is None or dst_term is None:
+            continue
+        adjacency.setdefault(src_term, set()).add(dst_term)
+        adjacency.setdefault(dst_term, set()).add(src_term)
+
+    sizes: dict[str, int] = {}
+    seen: set[str] = set()
+    for term_id in sorted(adjacency.keys()):
+        if term_id in seen:
+            continue
+        frontier = deque([term_id])
+        seen.add(term_id)
+        component: list[str] = []
+        while frontier:
+            current = frontier.popleft()
+            component.append(current)
+            for neighbor in sorted(adjacency.get(current, set())):
+                if neighbor in seen:
+                    continue
+                seen.add(neighbor)
+                frontier.append(neighbor)
+        component_size = len(component)
+        for node in component:
+            sizes[node] = component_size
+
+    return sizes
+
+
+def _question_impact_score(
+    question: ConceptQuestion,
+    *,
+    analysis: ConceptAnalysis,
+    term_component_sizes: dict[str, int],
+) -> int:
+    if question.signal == "mic":
+        object_ids, json_paths = _question_anchor_sets(question)
+        object_id_set = set(object_ids)
+        json_path_set = set(json_paths)
+        matches = 0
+        for constraint in analysis.mic.constraints:
+            if constraint.object_id and constraint.object_id in object_id_set:
+                matches += 1
+                continue
+            if constraint.json_path and constraint.json_path in json_path_set:
+                matches += 1
+        return max(1, matches)
+    if question.signal == "forced_countermodel":
+        return 1
+    if question.signal == "disconnected_clusters":
+        object_ids, _ = _question_anchor_sets(question)
+        sizes = [
+            term_component_sizes[term_id]
+            for term_id in object_ids
+            if term_id in term_component_sizes
+        ]
+        if not sizes:
+            return 1
+        return max(1, min(sizes))
+    return 0
+
+
+def _question_severity_rank(question: ConceptQuestion, *, report: CheckReport) -> int:
+    object_ids, json_paths = _question_anchor_sets(question)
+    object_id_set = set(object_ids)
+    json_path_set = set(json_paths)
+
+    best: int | None = None
+    for reason in report.reason_codes:
+        reason_object_id = reason.object_id
+        reason_json_path = reason.json_path
+        matches = bool(reason_object_id and reason_object_id in object_id_set) or bool(
+            reason_json_path and reason_json_path in json_path_set
+        )
+        if not matches:
+            continue
+        rank = _severity_rank_value(reason.severity)
+        if best is None or rank < best:
+            best = rank
+
+    if best is not None:
+        return best
+    return _question_priority_class(question.signal)
+
+
+def _question_rank_tuple(
+    question: ConceptQuestion,
+    *,
+    analysis: ConceptAnalysis,
+    report: CheckReport,
+    term_component_sizes: dict[str, int],
+) -> tuple[int, int, int, str, str, str]:
+    priority_class = _question_priority_class(question.signal)
+    impact_score = _question_impact_score(
+        question,
+        analysis=analysis,
+        term_component_sizes=term_component_sizes,
+    )
+    severity_rank = _question_severity_rank(question, report=report)
+    anchor_key = _question_anchor_key(question)
+    template_id = _question_template_id(question)
+    question_text = question.prompt
+    return (
+        priority_class,
+        -impact_score,
+        severity_rank,
+        anchor_key,
+        template_id,
+        question_text,
+    )
+
+
+def _question_dedupe_key(question: ConceptQuestion) -> tuple[str, tuple[str, ...], tuple[str, ...]]:
+    object_ids, json_paths = _question_anchor_sets(question)
+    return (_question_template_id(question), object_ids, json_paths)
+
+
+def _rank_and_dedupe_questions(
+    *,
+    questions: list[ConceptQuestion],
+    analysis: ConceptAnalysis,
+    report: CheckReport,
+    ir: ConceptIR,
+) -> list[ConceptQuestion]:
+    term_component_sizes = _concept_term_component_sizes(ir)
+    sorted_questions = sorted(
+        questions,
+        key=lambda item: _question_rank_tuple(
+            item,
+            analysis=analysis,
+            report=report,
+            term_component_sizes=term_component_sizes,
+        ),
+    )
+
+    deduped: list[ConceptQuestion] = []
+    seen: set[tuple[str, tuple[str, ...], tuple[str, ...]]] = set()
+    for question in sorted_questions:
+        dedupe_key = _question_dedupe_key(question)
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        deduped.append(question)
+    return deduped
+
+
+def _analysis_mic_count(analysis: ConceptAnalysis) -> int:
+    if analysis.mic.status == "UNAVAILABLE":
+        return 0
+    return analysis.mic.constraint_count
+
+
+def _analysis_countermodel_count(analysis: ConceptAnalysis) -> int:
+    if analysis.forced.status == "UNAVAILABLE":
+        return 0
+    return analysis.forced.countermodel_count
+
+
+def _is_do_no_harm_improvement(
+    *,
+    base_report: CheckReport,
+    base_analysis: ConceptAnalysis,
+    patched_report: CheckReport,
+    patched_analysis: ConceptAnalysis,
+) -> bool:
+    if base_report.status != "PASS" and patched_report.status == "PASS":
+        return True
+
+    base_mic = _analysis_mic_count(base_analysis)
+    patched_mic = _analysis_mic_count(patched_analysis)
+    if patched_mic < base_mic:
+        return True
+
+    base_countermodels = _analysis_countermodel_count(base_analysis)
+    patched_countermodels = _analysis_countermodel_count(patched_analysis)
+    if patched_countermodels < base_countermodels:
+        return True
+
+    return False
+
+
+def _analysis_budget_split(remaining_solver_calls: int) -> tuple[int, int]:
+    forced_budget = max(1, min(10, remaining_solver_calls // 3))
+    mic_budget = max(0, remaining_solver_calls - forced_budget)
+    return mic_budget, forced_budget
+
+
+def _evaluate_question_answer_dry_run(
+    *,
+    req: ConceptQuestionsRequest,
+    base_report: CheckReport,
+    base_analysis: ConceptAnalysis,
+    patch_ops: list[JsonPatchOp],
+    remaining_solver_calls: int,
+) -> tuple[bool, int]:
+    if not patch_ops:
+        return True, 0
+
+    try:
+        applied = _apply_concept_patch_core(
+            ir=req.ir,
+            ir_hash=None,
+            mode=req.mode,
+            source_text=req.source_text,
+            dry_run=True,
+            include_validator_runs=True,
+            patch_ops=patch_ops,
+        )
+    except HTTPException:
+        return False, 0
+
+    # One check run is consumed by the dry-run apply call.
+    used_solver_calls = 1
+    remaining_after_check = max(0, remaining_solver_calls - used_solver_calls)
+
+    run_inputs = applied.validator_runs or []
+    concept_runs = [_concept_run_ref_from_input(run) for run in run_inputs]
+    selected = pick_latest_run(concept_runs)
+
+    if selected is None or remaining_after_check <= 0:
+        patched_analysis = unavailable_analysis(details="do-no-harm analysis budget exhausted")
+    else:
+        mic_budget, forced_budget = _analysis_budget_split(remaining_after_check)
+        patched_analysis = analyze_concept(
+            applied.patched_ir,
+            run=selected,
+            max_shrink_iters=max(1, min(mic_budget, 20)),
+            max_solver_calls=mic_budget,
+            max_forced_checks=max(0, forced_budget - 1),
+            max_solver_calls_total=forced_budget,
+        )
+        analysis_solver_calls = (
+            patched_analysis.mic.solver_calls + patched_analysis.forced.solver_calls
+        )
+        used_solver_calls += min(remaining_after_check, analysis_solver_calls)
+
+    keep = _is_do_no_harm_improvement(
+        base_report=base_report,
+        base_analysis=base_analysis,
+        patched_report=applied.check_report,
+        patched_analysis=patched_analysis,
+    )
+    return keep, used_solver_calls
+
+
+def _question_patch_key(patch_ops: list[JsonPatchOp]) -> str:
+    payload = [op.model_dump(mode="json", by_alias=True, exclude_none=True) for op in patch_ops]
+    return _canonical_json(payload)
+
+
+def _filter_question_answers_do_no_harm(
+    *,
+    req: ConceptQuestionsRequest,
+    report: CheckReport,
+    analysis: ConceptAnalysis,
+    questions: list[ConceptQuestion],
+) -> list[ConceptQuestion]:
+    remaining_dry_run_evals = MAX_QUESTION_DRY_RUN_EVALS_TOTAL
+    remaining_solver_calls = MAX_QUESTION_SOLVER_CALLS_TOTAL
+    patch_cache: dict[str, tuple[bool, int]] = {}
+
+    filtered_questions: list[ConceptQuestion] = []
+    for question in questions:
+        kept_answers: list[AmbiguityOption] = []
+        for answer in question.answers:
+            patch_ops = answer.patch or []
+            if not patch_ops:
+                kept_answers.append(answer)
+                continue
+
+            patch_key = _question_patch_key(patch_ops)
+            cached = patch_cache.get(patch_key)
+            if cached is not None:
+                keep, _ = cached
+                if keep:
+                    kept_answers.append(answer)
+                continue
+
+            if remaining_dry_run_evals <= 0 or remaining_solver_calls <= 0:
+                # Fail closed when out of budget: only keep patch answers that were verified.
+                continue
+
+            keep, used_solver_calls = _evaluate_question_answer_dry_run(
+                req=req,
+                base_report=report,
+                base_analysis=analysis,
+                patch_ops=patch_ops,
+                remaining_solver_calls=remaining_solver_calls,
+            )
+            patch_cache[patch_key] = (keep, used_solver_calls)
+            remaining_dry_run_evals -= 1
+            remaining_solver_calls = max(0, remaining_solver_calls - used_solver_calls)
+
+            if keep:
+                kept_answers.append(answer)
+
+        if not kept_answers:
+            continue
+        filtered_questions.append(question.model_copy(update={"answers": kept_answers}))
+
+    return filtered_questions
+
+
 def _build_diff_report_with_runs(
     *,
     left_ir: Any,
@@ -1406,12 +1786,25 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
 
     max_questions = DEFAULT_MAX_QUESTIONS
     max_answers = DEFAULT_MAX_ANSWERS_PER_QUESTION
-    questions = build_concept_questions(
+    raw_questions = build_concept_questions(
         req.ir,
         analysis,
         max_questions=max_questions,
         max_answers_per_question=max_answers,
     )
+    ranked_questions = _rank_and_dedupe_questions(
+        questions=raw_questions,
+        analysis=analysis,
+        report=report,
+        ir=req.ir,
+    )
+    filtered_questions = _filter_question_answers_do_no_harm(
+        req=req,
+        report=report,
+        analysis=analysis,
+        questions=ranked_questions,
+    )
+    questions = filtered_questions[:max_questions]
 
     return ConceptQuestionsResponse(
         check_report=report,

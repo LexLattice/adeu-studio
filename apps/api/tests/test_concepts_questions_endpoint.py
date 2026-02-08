@@ -12,8 +12,18 @@ from adeu_api.main import (
     apply_concept_patch_endpoint,
     concept_questions_endpoint,
 )
-from adeu_concepts import ConceptIR, ConceptQuestion, build_concept_questions, unavailable_analysis
+from adeu_concepts import (
+    AmbiguityOption,
+    ConceptIR,
+    ConceptQuestion,
+    ConceptQuestionAnchor,
+    analyze_concept,
+    build_concept_questions,
+    pick_latest_run,
+    unavailable_analysis,
+)
 from adeu_concepts.analysis import AnalysisAtomRef, MicResult
+from adeu_ir.models import JsonPatchOp
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
 
@@ -170,3 +180,223 @@ def test_concepts_questions_apply_patch_updates_question_space() -> None:
         for option in question.answers
     }
     assert chosen_key not in keys_after
+
+
+def test_questions_rank_and_dedupe_prefers_mic_and_is_stable() -> None:
+    concept = _fixture_ir(fixture="bank_sense_coherence", name="var2.json")
+    source = _fixture_source(fixture="bank_sense_coherence")
+    report, records = api_main.check_concept_with_validator_runs(
+        concept,
+        mode=KernelMode.LAX,
+        source_text=source,
+    )
+    run_inputs = [api_main._validator_run_input_from_record(record) for record in records]
+    concept_runs = [api_main._concept_run_ref_from_input(run) for run in run_inputs]
+    analysis = analyze_concept(concept, run=pick_latest_run(concept_runs))
+
+    answers = [
+        AmbiguityOption(
+            option_id="set_sense",
+            label="Set sense",
+            patch=[
+                JsonPatchOp(
+                    op="replace", path="/claims/0/sense_id", value=concept.claims[0].sense_id
+                )
+            ],
+        )
+    ]
+    mic = ConceptQuestion(
+        question_id="q_mic",
+        signal="mic",
+        prompt="MIC question",
+        anchors=[
+            ConceptQuestionAnchor(
+                object_id="amb_bank",
+                json_path="/ambiguity/0",
+                label="ambiguity",
+            )
+        ],
+        answers=answers,
+    )
+    mic_duplicate = ConceptQuestion(
+        question_id="q_mic_dup",
+        signal="mic",
+        prompt="MIC question duplicate text",
+        anchors=[
+            ConceptQuestionAnchor(
+                object_id="amb_bank",
+                json_path="/ambiguity/0",
+                label="ambiguity",
+            )
+        ],
+        answers=answers,
+    )
+    disconnect = ConceptQuestion(
+        question_id="q_disconnect",
+        signal="disconnected_clusters",
+        prompt="Disconnect question",
+        anchors=[
+            ConceptQuestionAnchor(object_id=concept.terms[0].id, label="disconnected_clusters")
+        ],
+        answers=answers,
+    )
+
+    ranked_left = api_main._rank_and_dedupe_questions(
+        questions=[disconnect, mic_duplicate, mic],
+        analysis=analysis,
+        report=report,
+        ir=concept,
+    )
+    ranked_right = api_main._rank_and_dedupe_questions(
+        questions=[disconnect, mic_duplicate, mic],
+        analysis=analysis,
+        report=report,
+        ir=concept,
+    )
+
+    assert ranked_left == ranked_right
+    assert [item.signal for item in ranked_left] == ["mic", "disconnected_clusters"]
+
+
+def test_do_no_harm_filter_suppresses_non_improving_answers(monkeypatch) -> None:
+    concept = _fixture_ir(fixture="bank_sense_coherence", name="var2.json")
+    source = _fixture_source(fixture="bank_sense_coherence")
+    report, records = api_main.check_concept_with_validator_runs(
+        concept,
+        mode=KernelMode.LAX,
+        source_text=source,
+    )
+    run_inputs = [api_main._validator_run_input_from_record(record) for record in records]
+    concept_runs = [api_main._concept_run_ref_from_input(run) for run in run_inputs]
+    analysis = analyze_concept(concept, run=pick_latest_run(concept_runs))
+
+    question = ConceptQuestion(
+        question_id="q_mic",
+        signal="mic",
+        prompt="MIC question",
+        anchors=[
+            ConceptQuestionAnchor(
+                object_id="amb_bank",
+                json_path="/ambiguity/0",
+                label="ambiguity",
+            )
+        ],
+        answers=[
+            AmbiguityOption(
+                option_id="keep",
+                label="keep",
+                patch=[
+                    JsonPatchOp(
+                        op="add",
+                        path="/links/-",
+                        value={
+                            "id": "q_keep",
+                            "kind": "commitment",
+                            "src_sense_id": concept.senses[0].id,
+                            "dst_sense_id": concept.senses[0].id,
+                        },
+                    )
+                ],
+            ),
+            AmbiguityOption(
+                option_id="drop",
+                label="drop",
+                patch=[
+                    JsonPatchOp(
+                        op="add",
+                        path="/links/-",
+                        value={
+                            "id": "q_drop",
+                            "kind": "commitment",
+                            "src_sense_id": concept.senses[0].id,
+                            "dst_sense_id": concept.senses[0].id,
+                        },
+                    )
+                ],
+            ),
+        ],
+    )
+
+    def _fake_eval(*, patch_ops, **kwargs):
+        link_id = str((patch_ops[0].value or {}).get("id"))
+        if link_id == "q_drop":
+            return False, 1
+        return True, 1
+
+    monkeypatch.setattr(api_main, "_evaluate_question_answer_dry_run", _fake_eval)
+
+    filtered = api_main._filter_question_answers_do_no_harm(
+        req=ConceptQuestionsRequest(ir=concept, source_text=source, mode=KernelMode.LAX),
+        report=report,
+        analysis=analysis,
+        questions=[question],
+    )
+
+    assert filtered
+    assert [answer.option_id for answer in filtered[0].answers] == ["keep"]
+
+
+def test_do_no_harm_filter_respects_dry_run_budget(monkeypatch) -> None:
+    concept = _fixture_ir(fixture="bank_sense_coherence", name="var2.json")
+    source = _fixture_source(fixture="bank_sense_coherence")
+    report, records = api_main.check_concept_with_validator_runs(
+        concept,
+        mode=KernelMode.LAX,
+        source_text=source,
+    )
+    run_inputs = [api_main._validator_run_input_from_record(record) for record in records]
+    concept_runs = [api_main._concept_run_ref_from_input(run) for run in run_inputs]
+    analysis = analyze_concept(concept, run=pick_latest_run(concept_runs))
+
+    questions: list[ConceptQuestion] = []
+    for idx in range(api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL + 5):
+        questions.append(
+            ConceptQuestion(
+                question_id=f"q_{idx}",
+                signal="mic",
+                prompt=f"q_{idx}",
+                anchors=[
+                    ConceptQuestionAnchor(
+                        object_id="amb_bank",
+                        json_path="/ambiguity/0",
+                        label="ambiguity",
+                    )
+                ],
+                answers=[
+                    AmbiguityOption(
+                        option_id=f"opt_{idx}",
+                        label=f"opt_{idx}",
+                        patch=[
+                            JsonPatchOp(
+                                op="add",
+                                path="/links/-",
+                                value={
+                                    "id": f"budget_{idx}",
+                                    "kind": "commitment",
+                                    "src_sense_id": concept.senses[0].id,
+                                    "dst_sense_id": concept.senses[0].id,
+                                },
+                            )
+                        ],
+                    )
+                ],
+            )
+        )
+
+    calls = {"count": 0}
+
+    def _fake_eval(**kwargs):
+        calls["count"] += 1
+        return True, 1
+
+    monkeypatch.setattr(api_main, "_evaluate_question_answer_dry_run", _fake_eval)
+
+    filtered = api_main._filter_question_answers_do_no_harm(
+        req=ConceptQuestionsRequest(ir=concept, source_text=source, mode=KernelMode.LAX),
+        report=report,
+        analysis=analysis,
+        questions=questions,
+    )
+
+    assert len(filtered) == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
+    assert calls["count"] == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
