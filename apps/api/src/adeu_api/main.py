@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import sqlite3
 from datetime import datetime, timezone
@@ -323,6 +324,7 @@ class ApplyAmbiguityOptionResponse(BaseModel):
 class ConceptApplyAmbiguityOptionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: ConceptIR
+    ir_hash: str | None = None
     ambiguity_id: str = Field(min_length=1)
     option_id: str = Field(min_length=1)
     variants_by_id: dict[str, ConceptIR] | None = None
@@ -335,6 +337,7 @@ class ConceptApplyAmbiguityOptionRequest(BaseModel):
 class ConceptApplyPatchRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     ir: ConceptIR
+    ir_hash: str | None = None
     patch_ops: list[JsonPatchOp]
     source_text: str | None = None
     mode: KernelMode = KernelMode.LAX
@@ -608,6 +611,7 @@ def _concept_patch_http_error_detail(exc: ConceptPatchValidationError) -> dict[s
 def _apply_concept_patch_core(
     *,
     ir: ConceptIR,
+    ir_hash: str | None,
     mode: KernelMode,
     source_text: str | None,
     dry_run: bool,
@@ -619,6 +623,7 @@ def _apply_concept_patch_core(
         raise ValueError("provide exactly one of patch_ops or patched_ir")
     if source_text is not None:
         _enforce_source_text_size(source_text)
+    _require_ir_hash_match(ir=ir, ir_hash=ir_hash)
 
     patched = patched_ir
     if patch_ops is not None:
@@ -763,6 +768,32 @@ def _concept_run_ref_from_input(run: ValidatorRunInput) -> ConceptRunRef:
 
 def _sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def _canonical_json(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+
+
+def _concept_ir_hash(ir: ConceptIR) -> str:
+    payload = ir.model_dump(mode="json", by_alias=True, exclude_none=True)
+    return _sha256(_canonical_json(payload))
+
+
+def _require_ir_hash_match(*, ir: ConceptIR, ir_hash: str | None) -> None:
+    if ir_hash is None:
+        return
+    expected = _concept_ir_hash(ir)
+    if expected == ir_hash:
+        return
+    raise HTTPException(
+        status_code=409,
+        detail={
+            "code": "STALE_IR",
+            "message": "ir_hash precondition failed; refresh IR and retry",
+            "expected_ir_hash": expected,
+            "provided_ir_hash": ir_hash,
+        },
+    )
 
 
 def _configured_proof_backend_kind() -> Literal["mock", "lean"]:
@@ -2149,6 +2180,7 @@ def apply_concept_ambiguity_option_endpoint(
 
     return _apply_concept_patch_core(
         ir=req.ir,
+        ir_hash=req.ir_hash,
         mode=req.mode,
         source_text=req.source_text,
         dry_run=req.dry_run,
@@ -2163,6 +2195,7 @@ def apply_concept_patch_endpoint(
 ) -> ConceptApplyAmbiguityOptionResponse:
     return _apply_concept_patch_core(
         ir=req.ir,
+        ir_hash=req.ir_hash,
         mode=req.mode,
         source_text=req.source_text,
         dry_run=req.dry_run,

@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
 from adeu_api.main import (
     ConceptApplyAmbiguityOptionRequest,
+    ConceptApplyPatchRequest,
     ConceptQuestionsRequest,
     apply_concept_ambiguity_option_endpoint,
+    apply_concept_patch_endpoint,
     concept_questions_endpoint,
 )
-from adeu_concepts import ConceptIR, build_concept_questions, unavailable_analysis
+from adeu_concepts import ConceptIR, ConceptQuestion, build_concept_questions, unavailable_analysis
 from adeu_concepts.analysis import AnalysisAtomRef, MicResult
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
@@ -25,6 +28,28 @@ def _fixture_source(*, fixture: str) -> str:
     root = repo_root(anchor=Path(__file__))
     path = root / "examples" / "concepts" / "fixtures" / fixture / "source.txt"
     return path.read_text(encoding="utf-8").strip()
+
+
+def _ir_hash(concept: ConceptIR) -> str:
+    payload = concept.model_dump(mode="json", by_alias=True, exclude_none=True)
+    encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
+def _question_key(question: ConceptQuestion, option_id: str) -> str:
+    anchor_object_ids = sorted(
+        {anchor.object_id for anchor in question.anchors if anchor.object_id is not None}
+    )
+    anchor_json_paths = sorted(
+        {anchor.json_path for anchor in question.anchors if anchor.json_path is not None}
+    )
+    payload = {
+        "signal_kind": question.signal,
+        "anchor_object_ids": anchor_object_ids,
+        "anchor_json_paths": anchor_json_paths,
+        "selected_answer_option_id": option_id,
+    }
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
 
 
 def test_concepts_questions_endpoint_is_deterministic_and_capped() -> None:
@@ -103,3 +128,51 @@ def test_concepts_questions_answers_are_apply_endpoint_compatible() -> None:
     )
 
     assert resp.patched_ir.model_dump(mode="json") != prepared.model_dump(mode="json")
+
+
+def test_concepts_questions_apply_patch_updates_question_space() -> None:
+    concept = _fixture_ir(fixture="bank_sense_coherence", name="var2.json")
+    source = _fixture_source(fixture="bank_sense_coherence")
+
+    before = concept_questions_endpoint(
+        ConceptQuestionsRequest(
+            ir=concept,
+            source_text=source,
+            mode=KernelMode.LAX,
+            include_forced_details=True,
+        )
+    )
+    ambiguity_question = next(
+        question
+        for question in before.questions
+        if question.question_id.startswith("mic_ambiguity_")
+    )
+    answer = ambiguity_question.answers[0]
+    assert answer.patch
+    chosen_key = _question_key(ambiguity_question, answer.option_id)
+
+    applied = apply_concept_patch_endpoint(
+        ConceptApplyPatchRequest(
+            ir=concept,
+            ir_hash=_ir_hash(concept),
+            patch_ops=answer.patch,
+            source_text=source,
+            mode=KernelMode.LAX,
+        )
+    )
+
+    after = concept_questions_endpoint(
+        ConceptQuestionsRequest(
+            ir=applied.patched_ir,
+            source_text=source,
+            mode=KernelMode.LAX,
+            include_forced_details=True,
+        )
+    )
+
+    keys_after = {
+        _question_key(question, option.option_id)
+        for question in after.questions
+        for option in question.answers
+    }
+    assert chosen_key not in keys_after
