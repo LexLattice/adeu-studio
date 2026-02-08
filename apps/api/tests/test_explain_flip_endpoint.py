@@ -179,4 +179,8 @@ def test_explain_flip_endpoint_recompute_failure_is_missing(monkeypatch) -> None
     )
     resp = explain_flip_endpoint(req)
     assert resp.diff_report.solver.status_flip == "NO_RUNS"
+    assert resp.diff_report.summary.solver_pairing_state == "NO_RUNS"
+    assert resp.diff_report.summary.solver_trust == "kernel_only"
+    assert resp.diff_report.summary.unpaired_left_keys == []
+    assert resp.diff_report.summary.unpaired_right_keys == []
     assert resp.diff_report.summary.run_source == "recomputed"

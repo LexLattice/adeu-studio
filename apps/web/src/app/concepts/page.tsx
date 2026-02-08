@@ -350,6 +350,12 @@ export default function ConceptsPage() {
           <Link href="/" className="muted" style={{ marginLeft: "auto" }}>
             ADEU Studio
           </Link>
+          <Link href="/puzzles" className="muted">
+            Puzzles
+          </Link>
+          <Link href="/artifacts" className="muted">
+            Artifacts
+          </Link>
         </div>
 
         {isProposing ? <div className="muted">Proposing…</div> : null}

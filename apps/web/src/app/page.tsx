@@ -304,6 +304,9 @@ export default function HomePage() {
           <Link href="/concepts" className="muted">
             Concepts
           </Link>
+          <Link href="/puzzles" className="muted">
+            Puzzles
+          </Link>
           <span className="muted">Try pasting one of the fixture clauses.</span>
         </div>
         <div className="row" style={{ marginTop: 8 }}>

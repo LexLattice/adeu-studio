@@ -8,7 +8,7 @@ from typing import Any
 
 from adeu_ir import AdeuIR, CheckReport, Context
 from adeu_ir.repo import repo_root
-from adeu_kernel import KernelMode, check
+from adeu_kernel import KernelMode, ValidatorRunRecord, check_with_validator_runs
 from pydantic import ValidationError
 
 from .id_canonicalization import canonicalize_ir_ids
@@ -28,6 +28,8 @@ from .openai_proposer_core import (
 
 DEFAULT_MAX_CANDIDATES = 5
 DEFAULT_MAX_REPAIRS = 3
+MAX_SOLVER_SUMMARY_LINES = 30
+MAX_SOLVER_SUMMARY_ATOMS = 50
 
 
 @dataclass(frozen=True)
@@ -55,7 +57,103 @@ class ProposerLog:
     raw_response: str | None = None
 
 
-class _AdeuAdapter(ProposerAdapter[AdeuIR, None]):
+def _truncate_sorted_atoms(atoms: list[str]) -> tuple[list[str], int]:
+    sorted_atoms = sorted({atom for atom in atoms if atom})
+    if len(sorted_atoms) <= MAX_SOLVER_SUMMARY_ATOMS:
+        return sorted_atoms, 0
+    return sorted_atoms[:MAX_SOLVER_SUMMARY_ATOMS], len(sorted_atoms) - MAX_SOLVER_SUMMARY_ATOMS
+
+
+def _truncate_lines(lines: list[str], *, max_lines: int) -> list[str]:
+    if len(lines) <= max_lines:
+        return lines
+    return [*lines[:max_lines], f"...+{len(lines) - max_lines} more"]
+
+
+def _solver_evidence_summary(runs: list[ValidatorRunRecord]) -> str:
+    if not runs:
+        return "no_solver_runs"
+
+    latest = runs[-1]
+    atom_lookup = {atom.assertion_name: atom for atom in latest.request.payload.atom_map}
+    evidence = latest.result.evidence
+
+    def _format_atom_details(atom_name: str, value: Any | None = None) -> str:
+        atom = atom_lookup.get(atom_name)
+        value_text = f"={value}" if value is not None else ""
+        if atom is None:
+            return f"    - {atom_name}{value_text}"
+        return (
+            f"    - {atom_name}{value_text} -> object_id={atom.object_id} "
+            f"json_path={atom.json_path}"
+        )
+
+    lines: list[str] = [
+        "latest_run:",
+        f"  status={latest.result.status}",
+        f"  backend={latest.result.backend}",
+        f"  request_hash={latest.result.request_hash}",
+        f"  formula_hash={latest.result.formula_hash}",
+    ]
+
+    core_atoms, core_extra = _truncate_sorted_atoms(
+        [str(atom) for atom in evidence.unsat_core],
+    )
+    if core_atoms:
+        lines.append("  unsat_core:")
+        for atom_name in core_atoms:
+            lines.append(_format_atom_details(atom_name))
+        if core_extra:
+            lines.append(f"    ...+{core_extra} more")
+
+    model_atoms, model_extra = _truncate_sorted_atoms(
+        [str(atom_name) for atom_name in evidence.model.keys()],
+    )
+    if model_atoms:
+        lines.append("  sat_model:")
+        for atom_name in model_atoms:
+            value = evidence.model.get(atom_name)
+            lines.append(_format_atom_details(atom_name, value=value))
+        if model_extra:
+            lines.append(f"    ...+{model_extra} more")
+
+    if evidence.error:
+        lines.append(f"  error={evidence.error}")
+
+    return "\n".join(_truncate_lines(lines, max_lines=MAX_SOLVER_SUMMARY_LINES))
+
+
+def _failure_summary(report: CheckReport, runs: list[ValidatorRunRecord]) -> str:
+    sorted_reasons = sorted(
+        report.reason_codes,
+        key=lambda reason: (str(reason.code), reason.json_path or "", reason.message),
+    )
+    reason_lines = [
+        f"- {reason.code} {reason.json_path or ''} {reason.message}".rstrip()
+        for reason in sorted_reasons
+    ]
+    trace_lines = [
+        f"- {item.rule_id}: {','.join(item.because)}"
+        for item in sorted(
+            report.trace,
+            key=lambda trace: (
+                trace.rule_id,
+                ",".join(trace.because),
+                ",".join(trace.affected_ids),
+            ),
+        )
+    ]
+    return (
+        "Reasons:\n"
+        + ("\n".join(reason_lines) if reason_lines else "- none")
+        + "\n\nTrace:\n"
+        + ("\n".join(trace_lines) if trace_lines else "- none")
+        + "\n\nSolver Evidence:\n"
+        + _solver_evidence_summary(runs)
+    )
+
+
+class _AdeuAdapter(ProposerAdapter[AdeuIR, list[ValidatorRunRecord]]):
     domain = "adeu"
 
     def __init__(self, *, clause_text: str, context: Context):
@@ -126,8 +224,12 @@ class _AdeuAdapter(ProposerAdapter[AdeuIR, None]):
     def canonicalize(self, ir: AdeuIR) -> AdeuIR:
         return canonicalize_ir_ids(ir.model_copy(update={"context": self._context}))
 
-    def check_with_runs(self, ir: AdeuIR, mode: KernelMode) -> tuple[CheckReport, None]:
-        return check(ir, mode=mode), None
+    def check_with_runs(
+        self,
+        ir: AdeuIR,
+        mode: KernelMode,
+    ) -> tuple[CheckReport, list[ValidatorRunRecord]]:
+        return check_with_validator_runs(ir, mode=mode)
 
     def candidate_id(self, ir: AdeuIR) -> str:
         return ir.ir_id
@@ -142,12 +244,12 @@ class _AdeuAdapter(ProposerAdapter[AdeuIR, None]):
         del parse_error_text
         return ["SCHEMA_INVALID"]
 
-    def build_failure_summary(self, report: CheckReport, aux: None) -> str:
-        del aux
-        return "\n".join(
-            f"- {getattr(reason, 'code', '')} {getattr(reason, 'json_path', '')}"
-            for reason in getattr(report, "reason_codes", []) or []
-        )
+    def build_failure_summary(
+        self,
+        report: CheckReport,
+        aux: list[ValidatorRunRecord],
+    ) -> str:
+        return _failure_summary(report, aux)
 
 
 @lru_cache(maxsize=1)

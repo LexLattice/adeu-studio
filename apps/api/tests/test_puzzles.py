@@ -97,8 +97,12 @@ def test_diff_puzzles_endpoint_recomputes_runs_when_inline_missing() -> None:
             mode=KernelMode.LAX,
         )
     )
-    assert resp.solver.status_flip == "NO_RUNS"
+    assert resp.solver.status_flip == "UNPAIRABLE"
     assert resp.solver.unpaired_left_hashes
     assert resp.solver.unpaired_right_hashes
+    assert resp.summary.solver_pairing_state == "UNPAIRABLE"
+    assert resp.summary.solver_trust == "kernel_only"
+    assert resp.summary.unpaired_left_keys == resp.solver.unpaired_left_hashes
+    assert resp.summary.unpaired_right_keys == resp.solver.unpaired_right_hashes
     assert resp.summary.run_source == "recomputed"
     assert resp.summary.recompute_mode == "LAX"

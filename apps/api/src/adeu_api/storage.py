@@ -4,6 +4,8 @@ import json
 import os
 import sqlite3
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -106,6 +108,30 @@ def _default_db_path() -> Path:
 
     var_dir.mkdir(parents=True, exist_ok=True)
     return var_dir / "adeu.sqlite3"
+
+
+def _resolve_db_path(db_path: Path | None) -> Path:
+    return _default_db_path() if db_path is None else db_path
+
+
+@contextmanager
+def transaction(*, db_path: Path | None = None) -> Iterator[sqlite3.Connection]:
+    resolved_db_path = _resolve_db_path(db_path)
+    con = sqlite3.connect(resolved_db_path)
+    try:
+        con.execute("PRAGMA foreign_keys=ON")
+        _ensure_schema(con)
+        con.commit()
+        con.execute("BEGIN IMMEDIATE")
+        try:
+            yield con
+        except Exception:
+            con.rollback()
+            raise
+        else:
+            con.commit()
+    finally:
+        con.close()
 
 
 def _ensure_columns(con: sqlite3.Connection) -> None:
@@ -378,15 +404,13 @@ def create_artifact(
     ir_json: dict[str, Any],
     check_report_json: dict[str, Any],
     db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
 ) -> ArtifactRow:
-    if db_path is None:
-        db_path = _default_db_path()
-
+    resolved_db_path = _resolve_db_path(db_path)
     artifact_id = uuid.uuid4().hex
     created_at = datetime.now(tz=timezone.utc).isoformat()
 
-    with sqlite3.connect(db_path) as con:
-        _ensure_schema(con)
+    def _insert(con: sqlite3.Connection) -> None:
         con.execute(
             """
             INSERT INTO artifacts (
@@ -416,6 +440,13 @@ def create_artifact(
                 json.dumps(check_report_json, sort_keys=True),
             ),
         )
+    if connection is not None:
+        _insert(connection)
+    else:
+        with sqlite3.connect(resolved_db_path) as con:
+            con.execute("PRAGMA foreign_keys=ON")
+            _ensure_schema(con)
+            _insert(con)
 
     return ArtifactRow(
         artifact_id=artifact_id,
@@ -537,15 +568,13 @@ def create_validator_run(
     evidence_json: dict[str, Any],
     atom_map_json: dict[str, Any],
     db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
 ) -> ValidatorRunRow:
-    if db_path is None:
-        db_path = _default_db_path()
-
+    resolved_db_path = _resolve_db_path(db_path)
     run_id = uuid.uuid4().hex
     created_at = datetime.now(tz=timezone.utc).isoformat()
 
-    with sqlite3.connect(db_path) as con:
-        _ensure_schema(con)
+    def _insert(con: sqlite3.Connection) -> None:
         con.execute(
             """
             INSERT INTO validator_runs (
@@ -581,6 +610,13 @@ def create_validator_run(
                 json.dumps(atom_map_json, sort_keys=True),
             ),
         )
+    if connection is not None:
+        _insert(connection)
+    else:
+        with sqlite3.connect(resolved_db_path) as con:
+            con.execute("PRAGMA foreign_keys=ON")
+            _ensure_schema(con)
+            _insert(con)
 
     return ValidatorRunRow(
         run_id=run_id,
@@ -610,15 +646,13 @@ def create_proof_artifact(
     inputs_json: list[dict[str, Any]],
     details_json: dict[str, Any],
     db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
 ) -> ProofArtifactRow:
-    if db_path is None:
-        db_path = _default_db_path()
-
+    resolved_db_path = _resolve_db_path(db_path)
     proof_id = proof_id or uuid.uuid4().hex
     created_at = datetime.now(tz=timezone.utc).isoformat()
 
-    with sqlite3.connect(db_path) as con:
-        _ensure_schema(con)
+    def _insert(con: sqlite3.Connection) -> None:
         con.execute(
             """
             INSERT INTO proof_artifacts (
@@ -646,6 +680,13 @@ def create_proof_artifact(
                 json.dumps(details_json, sort_keys=True),
             ),
         )
+    if connection is not None:
+        _insert(connection)
+    else:
+        with sqlite3.connect(resolved_db_path) as con:
+            con.execute("PRAGMA foreign_keys=ON")
+            _ensure_schema(con)
+            _insert(con)
 
     return ProofArtifactRow(
         proof_id=proof_id,

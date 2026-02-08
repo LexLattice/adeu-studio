@@ -7,9 +7,20 @@ import adeu_api.openai_provider as openai_provider
 from adeu_api.main import ProposeRequest, propose
 from adeu_api.openai_backends import BackendMeta, BackendResult
 from adeu_api.scoring import is_strict_improvement, score_key
-from adeu_ir import CheckMetrics, CheckReason, CheckReport, Context, ReasonSeverity
+from adeu_ir import (
+    CheckMetrics,
+    CheckReason,
+    CheckReport,
+    Context,
+    ReasonSeverity,
+    SolverEvidence,
+    ValidatorAtomRef,
+    ValidatorPayload,
+    ValidatorRequest,
+    ValidatorResult,
+)
 from adeu_ir.reason_codes import ReasonCode
-from adeu_kernel import KernelMode
+from adeu_kernel import KernelMode, ValidatorRunRecord
 
 
 def _context() -> Context:
@@ -104,6 +115,49 @@ def _minimal_payload(*, ir_id: str, verb: str) -> dict[str, Any]:
     }
 
 
+def _run_record(
+    *,
+    request_hash: str,
+    formula_hash: str,
+    status: str,
+    unsat_core: list[str],
+    model: dict[str, str],
+    atom_names: list[str],
+) -> ValidatorRunRecord:
+    return ValidatorRunRecord(
+        request=ValidatorRequest(
+            kind="smt_check",
+            logic="QF_UF",
+            payload=ValidatorPayload(
+                formula_smt2="(assert true)",
+                atom_map=[
+                    ValidatorAtomRef(
+                        assertion_name=atom_name,
+                        object_id=f"obj_{idx}",
+                        json_path=f"/path/{idx}",
+                    )
+                    for idx, atom_name in enumerate(atom_names)
+                ],
+            ),
+            origin=[],
+        ),
+        result=ValidatorResult(
+            status=status,
+            assurance="solver_backed",
+            backend="z3",
+            timeout_ms=1000,
+            options={},
+            request_hash=request_hash,
+            formula_hash=formula_hash,
+            evidence=SolverEvidence(
+                unsat_core=unsat_core,
+                model=model,
+            ),
+            trace=[],
+        ),
+    )
+
+
 class _FakeBackend:
     def __init__(self, results: list[BackendResult]):
         self._results = list(results)
@@ -150,13 +204,13 @@ def test_propose_openai_stops_when_repair_progress_stalls(monkeypatch) -> None:
     )
     checks = list(source_reports)
 
-    def fake_check(*args: object, **kwargs: object) -> CheckReport:
-        return checks.pop(0)
+    def fake_check_with_runs(*args: object, **kwargs: object) -> tuple[CheckReport, list]:
+        return checks.pop(0), []
 
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
     monkeypatch.setenv("ADEU_OPENAI_API", "responses")
     monkeypatch.setattr(openai_provider, "build_openai_backend", lambda **kwargs: fake_backend)
-    monkeypatch.setattr(openai_provider, "check", fake_check)
+    monkeypatch.setattr(openai_provider, "check_with_validator_runs", fake_check_with_runs)
 
     proposals, log, _ = openai_provider.propose_openai(
         clause_text="Supplier may suspend service.",
@@ -191,13 +245,13 @@ def test_propose_openai_assigns_candidate_rank_in_attempt_log(monkeypatch) -> No
     )
     checks = [_report_warn(), _report_pass()]
 
-    def fake_check(*args: object, **kwargs: object) -> CheckReport:
-        return checks.pop(0)
+    def fake_check_with_runs(*args: object, **kwargs: object) -> tuple[CheckReport, list]:
+        return checks.pop(0), []
 
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
     monkeypatch.setenv("ADEU_OPENAI_API", "responses")
     monkeypatch.setattr(openai_provider, "build_openai_backend", lambda **kwargs: fake_backend)
-    monkeypatch.setattr(openai_provider, "check", fake_check)
+    monkeypatch.setattr(openai_provider, "check_with_validator_runs", fake_check_with_runs)
 
     resp = propose(
         ProposeRequest(
@@ -260,3 +314,71 @@ def test_propose_openai_responses_backend_error_aborts_without_chat_fallback(
     assert resp.proposer_log.attempts
     assert resp.proposer_log.attempts[0].status == "PARSE_ERROR"
     assert resp.proposer_log.attempts[0].accepted_by_gate is False
+
+
+def test_solver_evidence_summary_uses_latest_run_and_applies_caps(monkeypatch) -> None:
+    monkeypatch.setattr(openai_provider, "MAX_SOLVER_SUMMARY_LINES", 500)
+
+    old_run = _run_record(
+        request_hash="req-old",
+        formula_hash="f-old",
+        status="UNSAT",
+        unsat_core=["old_atom"],
+        model={},
+        atom_names=["old_atom"],
+    )
+    atom_names = [f"atom_{idx:02d}" for idx in range(55)]
+    latest_run = _run_record(
+        request_hash="req-latest",
+        formula_hash="f-latest",
+        status="SAT",
+        unsat_core=atom_names,
+        model={name: "True" for name in atom_names},
+        atom_names=atom_names,
+    )
+
+    summary = openai_provider._solver_evidence_summary([old_run, latest_run])
+    lines = summary.splitlines()
+
+    assert "request_hash=req-latest" in summary
+    assert "request_hash=req-old" not in summary
+    assert "    ...+5 more" in summary
+    assert len(lines) <= openai_provider.MAX_SOLVER_SUMMARY_LINES
+
+
+def test_solver_evidence_summary_caps_total_lines(monkeypatch) -> None:
+    monkeypatch.setattr(openai_provider, "MAX_SOLVER_SUMMARY_LINES", 10)
+    atom_names = [f"atom_{idx:02d}" for idx in range(55)]
+    run = _run_record(
+        request_hash="req-overflow",
+        formula_hash="f-overflow",
+        status="SAT",
+        unsat_core=atom_names,
+        model={},
+        atom_names=atom_names,
+    )
+
+    summary = openai_provider._solver_evidence_summary([run])
+    lines = summary.splitlines()
+    assert len(lines) == 11
+    assert lines[-1].startswith("...+")
+
+
+def test_failure_summary_includes_solver_section() -> None:
+    run = _run_record(
+        request_hash="req-1",
+        formula_hash="f-1",
+        status="UNSAT",
+        unsat_core=["atom_a"],
+        model={},
+        atom_names=["atom_a"],
+    )
+
+    summary = openai_provider._failure_summary(
+        _report_refuse(ReasonCode.NORM_ACTION_MISSING),
+        [run],
+    )
+    assert "Reasons:" in summary
+    assert "Trace:" in summary
+    assert "Solver Evidence:" in summary
+    assert "request_hash=req-1" in summary

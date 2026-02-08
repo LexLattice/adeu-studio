@@ -99,6 +99,7 @@ def test_diff_endpoint_uses_inline_runs_and_reports_solver_flip() -> None:
     assert resp.left_id == "ir_left"
     assert resp.right_id == "ir_right"
     assert resp.solver.status_flip == "UNSAT→SAT"
+    assert resp.summary.solver_trust == "solver_backed"
     assert resp.summary.run_source == "provided"
     assert resp.solver.core_delta.removed_atoms == ["atom_stmt"]
     assert resp.causal_slice.touched_atoms == ["atom_stmt"]
@@ -136,6 +137,10 @@ def test_diff_endpoint_recompute_failure_is_missing_not_error(monkeypatch) -> No
     req = DiffRequest(left_ir=_left_ir(), right_ir=_right_ir())
     resp = diff_endpoint(req)
     assert resp.solver.status_flip == "NO_RUNS"
+    assert resp.summary.solver_pairing_state == "NO_RUNS"
+    assert resp.summary.solver_trust == "kernel_only"
+    assert resp.summary.unpaired_left_keys == []
+    assert resp.summary.unpaired_right_keys == []
     assert resp.solver.left_runs == []
     assert resp.solver.right_runs == []
     assert resp.summary.run_source == "recomputed"

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import sqlite3
 from datetime import datetime, timezone
 from typing import Any, Callable, Literal
 
@@ -83,6 +84,9 @@ from .storage import (
     list_concept_validator_runs,
     list_proof_artifacts,
     list_validator_runs,
+)
+from .storage import (
+    transaction as storage_transaction,
 )
 
 MAX_SOURCE_TEXT_BYTES = 200_000
@@ -471,6 +475,7 @@ def _persist_validator_runs(
     runs: list[ValidatorRunRecord],
     artifact_id: str | None,
     concept_artifact_id: str | None = None,
+    connection: sqlite3.Connection | None = None,
 ) -> None:
     for run in runs:
         atom_map = {
@@ -492,6 +497,7 @@ def _persist_validator_runs(
             status=run.result.status,
             evidence_json=run.result.evidence.model_dump(mode="json", exclude_none=True),
             atom_map_json=atom_map,
+            connection=connection,
         )
 
 
@@ -621,6 +627,7 @@ def _persist_proof_artifact(
     artifact_id: str,
     ir: AdeuIR,
     runs: list[ValidatorRunRecord],
+    connection: sqlite3.Connection | None = None,
 ) -> None:
     inputs = _proof_inputs_from_validator_runs(runs)
     obligations = build_adeu_core_proof_requests(
@@ -671,6 +678,7 @@ def _persist_proof_artifact(
             proof_hash=proof.proof_hash,
             inputs_json=[item.model_dump(mode="json", exclude_none=True) for item in proof.inputs],
             details_json=details,
+            connection=connection,
         )
 
 
@@ -1867,19 +1875,30 @@ def create_artifact_endpoint(req: ArtifactCreateRequest) -> ArtifactCreateRespon
     num_errors = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.ERROR)
     num_warns = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.WARN)
 
-    row = create_artifact(
-        clause_text=req.clause_text,
-        doc_id=req.ir.context.doc_id,
-        jurisdiction=req.ir.context.jurisdiction,
-        status=report.status,
-        num_errors=num_errors,
-        num_warns=num_warns,
-        ir_json=req.ir.model_dump(mode="json", exclude_none=True),
-        check_report_json=report.model_dump(mode="json", exclude_none=True),
-    )
-    if runs:
-        _persist_validator_runs(runs=runs, artifact_id=row.artifact_id)
-    _persist_proof_artifact(artifact_id=row.artifact_id, ir=req.ir, runs=runs)
+    with storage_transaction() as connection:
+        row = create_artifact(
+            clause_text=req.clause_text,
+            doc_id=req.ir.context.doc_id,
+            jurisdiction=req.ir.context.jurisdiction,
+            status=report.status,
+            num_errors=num_errors,
+            num_warns=num_warns,
+            ir_json=req.ir.model_dump(mode="json", exclude_none=True),
+            check_report_json=report.model_dump(mode="json", exclude_none=True),
+            connection=connection,
+        )
+        if runs:
+            _persist_validator_runs(
+                runs=runs,
+                artifact_id=row.artifact_id,
+                connection=connection,
+            )
+        _persist_proof_artifact(
+            artifact_id=row.artifact_id,
+            ir=req.ir,
+            runs=runs,
+            connection=connection,
+        )
     return ArtifactCreateResponse(
         artifact_id=row.artifact_id,
         created_at=row.created_at,
