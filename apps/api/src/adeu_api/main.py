@@ -90,6 +90,8 @@ from .puzzle_source_features import extract_puzzle_source_features
 from .scoring import ranking_sort_key, score_key
 from .source_features import extract_source_features
 from .storage import (
+    ProofArtifactRow,
+    ValidatorRunRow,
     create_artifact,
     create_concept_artifact,
     create_document,
@@ -116,6 +118,11 @@ _ALIGNMENT_KIND_RANKS: dict[str, int] = {
     "merge_candidate": 0,
     "conflict_candidate": 1,
 }
+_PROOF_SEMANTICS_VERSION_REQUIRED = "adeu.lean.core.v1"
+_PROOF_REQUIRED_OBLIGATION_KINDS: tuple[str, ...] = (
+    "conflict_soundness",
+    "pred_closed_world",
+)
 
 
 class ProposeRequest(BaseModel):
@@ -388,13 +395,22 @@ class ConceptApplyAmbiguityOptionError(BaseModel):
     message: str
 
 
+SolverTrustLevel = Literal["kernel_only", "solver_backed", "proof_checked"]
+ArtifactProofTrust = Literal[
+    "lean_core_v1_proved",
+    "lean_core_v1_partial_or_failed",
+    "mock_backend_not_proof_checked",
+    "no_required_proofs",
+]
+
+
 class ConceptApplyAmbiguityOptionResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     patched_ir: ConceptIR
     check_report: CheckReport
     validator_runs: list[ValidatorRunInput] | None = None
     mapping_trust: str | None = None
-    solver_trust: Literal["kernel_only", "solver_backed", "proof_checked"] = "kernel_only"
+    solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
 
 
@@ -410,6 +426,8 @@ class ArtifactCreateResponse(BaseModel):
     artifact_id: str
     created_at: str
     check_report: CheckReport
+    solver_trust: SolverTrustLevel = "kernel_only"
+    proof_trust: ArtifactProofTrust = "no_required_proofs"
 
 
 class ArtifactGetResponse(BaseModel):
@@ -419,6 +437,8 @@ class ArtifactGetResponse(BaseModel):
     clause_text: str
     ir: AdeuIR
     check_report: CheckReport
+    solver_trust: SolverTrustLevel = "kernel_only"
+    proof_trust: ArtifactProofTrust = "no_required_proofs"
 
 
 class ArtifactSummary(BaseModel):
@@ -518,7 +538,7 @@ class ConceptQuestionsResponse(BaseModel):
     max_questions: int = DEFAULT_MAX_QUESTIONS
     max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
     mapping_trust: str | None = None
-    solver_trust: Literal["kernel_only", "solver_backed", "proof_checked"] = "kernel_only"
+    solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
 
 
@@ -531,7 +551,7 @@ class AdeuAnalyzeConceptsResponse(BaseModel):
     bridge_mapping_version: str
     mapping_hash: str
     mapping_trust: str
-    solver_trust: Literal["kernel_only", "solver_backed", "proof_checked"] = "kernel_only"
+    solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
     validator_runs: list[ValidatorRunInput] | None = None
 
@@ -669,7 +689,7 @@ class ConceptAlignResponse(BaseModel):
     suggestion_count: int
     suggestions: list[ConceptAlignmentSuggestion]
     mapping_trust: str = "derived_alignment"
-    solver_trust: Literal["kernel_only", "solver_backed", "proof_checked"] = "kernel_only"
+    solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
 
 
@@ -1204,13 +1224,65 @@ def _proof_inputs_from_validator_runs(runs: list[ValidatorRunRecord]) -> list[Pr
     return inputs
 
 
+def _proof_detail_text(details: dict[str, Any], key: str) -> str | None:
+    value = details.get(key)
+    if isinstance(value, str) and value:
+        return value
+    return None
+
+
+def _latest_required_proof_rows(
+    proof_rows: list[ProofArtifactRow],
+) -> dict[str, ProofArtifactRow]:
+    by_kind: dict[str, ProofArtifactRow] = {}
+    sorted_rows = sorted(
+        proof_rows,
+        key=lambda row: (row.created_at, row.proof_id),
+        reverse=True,
+    )
+    for row in sorted_rows:
+        obligation_kind = _proof_detail_text(row.details_json, "obligation_kind")
+        if obligation_kind not in _PROOF_REQUIRED_OBLIGATION_KINDS:
+            continue
+        if obligation_kind in by_kind:
+            continue
+        by_kind[obligation_kind] = row
+    return by_kind
+
+
+def _artifact_trust_labels(
+    *,
+    validator_runs: list[ValidatorRunRow] | list[ValidatorRunRecord],
+    proof_rows: list[ProofArtifactRow],
+) -> tuple[SolverTrustLevel, ArtifactProofTrust]:
+    fallback_solver_trust: SolverTrustLevel = "solver_backed" if validator_runs else "kernel_only"
+    required_by_kind = _latest_required_proof_rows(proof_rows)
+    required_rows: list[ProofArtifactRow] = []
+    for obligation_kind in _PROOF_REQUIRED_OBLIGATION_KINDS:
+        row = required_by_kind.get(obligation_kind)
+        if row is None:
+            return fallback_solver_trust, "no_required_proofs"
+        required_rows.append(row)
+
+    if any(row.backend != "lean" for row in required_rows):
+        return fallback_solver_trust, "mock_backend_not_proof_checked"
+
+    for row in required_rows:
+        semantics_version = _proof_detail_text(row.details_json, "semantics_version")
+        if semantics_version != _PROOF_SEMANTICS_VERSION_REQUIRED or row.status != "proved":
+            return fallback_solver_trust, "lean_core_v1_partial_or_failed"
+
+    return "proof_checked", "lean_core_v1_proved"
+
+
 def _persist_proof_artifact(
     *,
     artifact_id: str,
     ir: AdeuIR,
     runs: list[ValidatorRunRecord],
     connection: sqlite3.Connection | None = None,
-) -> None:
+) -> list[ProofArtifactRow]:
+    persisted_rows: list[ProofArtifactRow] = []
     inputs = _proof_inputs_from_validator_runs(runs)
     obligations = build_adeu_core_proof_requests(
         theorem_prefix=ir.ir_id,
@@ -1252,16 +1324,21 @@ def _persist_proof_artifact(
         details.setdefault("inputs_hash", obligation.metadata.get("inputs_hash"))
         details.setdefault("theorem_src_hash", obligation.metadata.get("theorem_src_hash"))
         details.setdefault("obligation_kind", obligation.obligation_kind)
-        create_proof_artifact(
-            artifact_id=artifact_id,
-            backend=proof.backend,
-            theorem_id=proof.theorem_id,
-            status=proof.status,
-            proof_hash=proof.proof_hash,
-            inputs_json=[item.model_dump(mode="json", exclude_none=True) for item in proof.inputs],
-            details_json=details,
-            connection=connection,
+        persisted_rows.append(
+            create_proof_artifact(
+                artifact_id=artifact_id,
+                backend=proof.backend,
+                theorem_id=proof.theorem_id,
+                status=proof.status,
+                proof_hash=proof.proof_hash,
+                inputs_json=[
+                    item.model_dump(mode="json", exclude_none=True) for item in proof.inputs
+                ],
+                details_json=details,
+                connection=connection,
+            )
         )
+    return persisted_rows
 
 
 def _score_and_rank_proposals(
@@ -3130,6 +3207,7 @@ def create_artifact_endpoint(req: ArtifactCreateRequest) -> ArtifactCreateRespon
 
     num_errors = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.ERROR)
     num_warns = sum(1 for r in report.reason_codes if r.severity == ReasonSeverity.WARN)
+    proof_rows: list[ProofArtifactRow] = []
 
     with storage_transaction() as connection:
         row = create_artifact(
@@ -3149,16 +3227,22 @@ def create_artifact_endpoint(req: ArtifactCreateRequest) -> ArtifactCreateRespon
                 artifact_id=row.artifact_id,
                 connection=connection,
             )
-        _persist_proof_artifact(
+        proof_rows = _persist_proof_artifact(
             artifact_id=row.artifact_id,
             ir=req.ir,
             runs=runs,
             connection=connection,
         )
+    solver_trust, proof_trust = _artifact_trust_labels(
+        validator_runs=runs,
+        proof_rows=proof_rows,
+    )
     return ArtifactCreateResponse(
         artifact_id=row.artifact_id,
         created_at=row.created_at,
         check_report=report,
+        solver_trust=solver_trust,
+        proof_trust=proof_trust,
     )
 
 
@@ -3203,12 +3287,20 @@ def get_artifact_endpoint(artifact_id: str) -> ArtifactGetResponse:
     row = get_artifact(artifact_id=artifact_id)
     if row is None:
         raise HTTPException(status_code=404, detail="not found")
+    validator_rows = list_validator_runs(artifact_id=artifact_id)
+    proof_rows = list_proof_artifacts(artifact_id=artifact_id)
+    solver_trust, proof_trust = _artifact_trust_labels(
+        validator_runs=validator_rows,
+        proof_rows=proof_rows,
+    )
     return ArtifactGetResponse(
         artifact_id=row.artifact_id,
         created_at=row.created_at,
         clause_text=row.clause_text,
         ir=AdeuIR.model_validate(row.ir_json),
         check_report=CheckReport.model_validate(row.check_report_json),
+        solver_trust=solver_trust,
+        proof_trust=proof_trust,
     )
 
 

@@ -194,3 +194,65 @@ def test_concepts_align_doc_scope_and_missing_errors(
         )
     assert missing_artifact_error.value.status_code == 404
     assert missing_artifact_error.value.detail["code"] == "ALIGNMENT_ARTIFACT_NOT_FOUND"
+
+
+def test_concepts_align_mixed_scope_uses_doc_latest_and_union(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+
+    source_text = _fixture_source()
+    base = _coherent_ir()
+    left_doc_old = base.model_copy(
+        update={
+            "concept_id": "concept_align_mixed_left_old",
+            "context": base.context.model_copy(update={"doc_id": "doc:align:mixed:left"}),
+        }
+    )
+    left_doc_latest = base.model_copy(
+        update={
+            "concept_id": "concept_align_mixed_left_latest",
+            "context": base.context.model_copy(update={"doc_id": "doc:align:mixed:left"}),
+        }
+    )
+    explicit_doc = base.model_copy(
+        update={
+            "concept_id": "concept_align_mixed_explicit",
+            "context": base.context.model_copy(update={"doc_id": "doc:align:mixed:explicit"}),
+        }
+    )
+
+    left_old = create_concept_artifact_endpoint(
+        ConceptArtifactCreateRequest(
+            source_text=source_text,
+            ir=left_doc_old,
+            mode=KernelMode.LAX,
+        )
+    )
+    left_latest = create_concept_artifact_endpoint(
+        ConceptArtifactCreateRequest(
+            source_text=source_text,
+            ir=left_doc_latest,
+            mode=KernelMode.LAX,
+        )
+    )
+    explicit = create_concept_artifact_endpoint(
+        ConceptArtifactCreateRequest(
+            source_text=source_text,
+            ir=explicit_doc,
+            mode=KernelMode.LAX,
+        )
+    )
+
+    aligned = align_concepts_endpoint(
+        ConceptAlignRequest(
+            doc_ids=["doc:align:mixed:left"],
+            artifact_ids=[explicit.artifact_id],
+            max_suggestions=50,
+        )
+    )
+    aligned_ids = [item.artifact_id for item in aligned.artifacts]
+    assert aligned_ids == sorted([left_latest.artifact_id, explicit.artifact_id])
+    assert left_old.artifact_id not in aligned_ids
