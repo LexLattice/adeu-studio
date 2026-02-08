@@ -63,6 +63,10 @@ from adeu_puzzles import (
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
+from .adeu_concept_bridge import (
+    BridgeManifest,
+    lift_adeu_to_concepts,
+)
 from .concept_id_canonicalization import canonicalize_concept_ids
 from .concept_mock_provider import get_concept_fixture_bundle
 from .concept_source_features import extract_concept_source_features
@@ -179,6 +183,16 @@ class ConceptAnalyzeRequest(BaseModel):
     include_analysis_details: bool = True
     include_forced_details: bool = True
     validator_runs: list[ValidatorRunInput] | None = None
+
+
+class AdeuAnalyzeConceptsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: AdeuIR
+    source_text: str | None = None
+    mode: KernelMode = KernelMode.LAX
+    include_validator_runs: bool = False
+    include_analysis_details: bool = True
+    include_forced_details: bool = True
 
 
 class ConceptArtifactCreateRequest(BaseModel):
@@ -431,6 +445,20 @@ class ConceptAnalyzeResponse(BaseModel):
     ir: ConceptIR
     check_report: CheckReport
     analysis: ConceptAnalysis
+    validator_runs: list[ValidatorRunInput] | None = None
+
+
+class AdeuAnalyzeConceptsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    concept_ir: ConceptIR
+    check_report: CheckReport
+    analysis: ConceptAnalysis
+    bridge_manifest: BridgeManifest
+    bridge_mapping_version: str
+    mapping_hash: str
+    mapping_trust: str
+    solver_trust: Literal["kernel_only", "solver_backed", "proof_checked"] = "kernel_only"
+    proof_trust: str | None = None
     validator_runs: list[ValidatorRunInput] | None = None
 
 
@@ -1200,6 +1228,42 @@ def analyze_concept_variant(req: ConceptAnalyzeRequest) -> ConceptAnalyzeRespons
         ir=req.ir,
         check_report=report,
         analysis=analysis,
+        validator_runs=run_inputs if req.include_validator_runs else None,
+    )
+
+
+@app.post("/adeu/analyze_concepts", response_model=AdeuAnalyzeConceptsResponse)
+def analyze_adeu_as_concepts(req: AdeuAnalyzeConceptsRequest) -> AdeuAnalyzeConceptsResponse:
+    if req.source_text is not None:
+        _enforce_source_text_size(req.source_text)
+
+    lifted = lift_adeu_to_concepts(req.ir)
+    report, records = check_concept_with_validator_runs(
+        lifted.concept_ir,
+        mode=req.mode,
+        source_text=req.source_text,
+    )
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and records:
+        _persist_validator_runs(runs=records, artifact_id=None)
+    run_inputs = [_validator_run_input_from_record(record) for record in records]
+    concept_runs = [_concept_run_ref_from_input(run) for run in run_inputs]
+    selected = pick_latest_run(concept_runs)
+    analysis = analyze_concept(lifted.concept_ir, run=selected)
+    if not req.include_analysis_details:
+        analysis = strip_analysis_details(analysis)
+    elif not req.include_forced_details:
+        analysis = strip_forced_details(analysis)
+
+    return AdeuAnalyzeConceptsResponse(
+        concept_ir=lifted.concept_ir,
+        check_report=report,
+        analysis=analysis,
+        bridge_manifest=lifted.bridge_manifest,
+        bridge_mapping_version=lifted.bridge_mapping_version,
+        mapping_hash=lifted.mapping_hash,
+        mapping_trust="derived_bridge",
+        solver_trust="solver_backed" if records else "kernel_only",
+        proof_trust=None,
         validator_runs=run_inputs if req.include_validator_runs else None,
     )
 
