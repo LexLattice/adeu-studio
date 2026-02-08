@@ -4,6 +4,7 @@ import json
 import sqlite3
 from pathlib import Path
 
+import adeu_api.main as api_main
 import pytest
 from adeu_api.main import (
     ConceptAnalyzeRequest,
@@ -55,13 +56,19 @@ def _fetch_validator_rows(db_path: Path) -> list[sqlite3.Row]:
         ).fetchall()
 
 
-def test_create_concept_artifact_persists_validator_runs_by_default(
+def _table_count(db_path: Path, table: str) -> int:
+    with sqlite3.connect(db_path) as con:
+        row = con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()
+    return int(row[0]) if row is not None else 0
+
+
+def test_create_concept_artifact_persists_validator_runs_even_if_flag_disabled(
     monkeypatch,
     tmp_path: Path,
 ) -> None:
     db_path = tmp_path / "adeu.sqlite3"
     monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
-    monkeypatch.delenv("ADEU_PERSIST_VALIDATOR_RUNS", raising=False)
+    monkeypatch.setenv("ADEU_PERSIST_VALIDATOR_RUNS", "0")
 
     created: ConceptArtifactCreateResponse = create_concept_artifact_endpoint(
         ConceptArtifactCreateRequest(
@@ -80,6 +87,32 @@ def test_create_concept_artifact_persists_validator_runs_by_default(
     assert rows[0]["artifact_id"] is None
     assert rows[0]["concept_artifact_id"] == created.artifact_id
     assert rows[0]["backend"] == "z3"
+
+
+def test_create_concept_artifact_rolls_back_all_rows_when_validator_insert_fails(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.delenv("ADEU_PERSIST_VALIDATOR_RUNS", raising=False)
+
+    def _explode_persist(*args, **kwargs):
+        raise RuntimeError("synthetic-concept-run-insert-failure")
+
+    monkeypatch.setattr(api_main, "_persist_validator_runs", _explode_persist)
+
+    with pytest.raises(RuntimeError, match="synthetic-concept-run-insert-failure"):
+        create_concept_artifact_endpoint(
+            ConceptArtifactCreateRequest(
+                source_text=_fixture_source(),
+                ir=_coherent_ir(),
+                mode=KernelMode.LAX,
+            )
+        )
+
+    assert _table_count(db_path, "concept_artifacts") == 0
+    assert _table_count(db_path, "validator_runs") == 0
 
 
 def test_concept_artifacts_get_and_list_order(

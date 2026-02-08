@@ -838,15 +838,13 @@ def create_concept_artifact(
     check_report_json: dict[str, Any],
     analysis_json: dict[str, Any] | None,
     db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
 ) -> ConceptArtifactRow:
-    if db_path is None:
-        db_path = _default_db_path()
-
+    resolved_db_path = _resolve_db_path(db_path)
     artifact_id = uuid.uuid4().hex
     created_at = datetime.now(tz=timezone.utc).isoformat()
 
-    with sqlite3.connect(db_path) as con:
-        _ensure_schema(con)
+    def _insert(con: sqlite3.Connection) -> None:
         con.execute(
             """
             INSERT INTO concept_artifacts (
@@ -880,6 +878,13 @@ def create_concept_artifact(
                 json.dumps(analysis_json, sort_keys=True) if analysis_json is not None else None,
             ),
         )
+    if connection is not None:
+        _insert(connection)
+    else:
+        with sqlite3.connect(resolved_db_path) as con:
+            con.execute("PRAGMA foreign_keys=ON")
+            _ensure_schema(con)
+            _insert(con)
 
     return ConceptArtifactRow(
         artifact_id=artifact_id,
