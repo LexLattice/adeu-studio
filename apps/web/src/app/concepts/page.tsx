@@ -32,6 +32,20 @@ type ConceptAmbiguity = {
   id: string;
   term_id: string;
   options: string[];
+  option_details_by_id?: Record<string, ConceptAmbiguityOption>;
+  option_labels_by_id?: Record<string, string> | null;
+};
+
+type ConceptAmbiguityOption = {
+  option_id: string;
+  label: string;
+  variant_ir_id?: string | null;
+  patch?: Array<{
+    op: "add" | "remove" | "replace" | "move" | "copy" | "test";
+    path: string;
+    from?: string;
+    value?: unknown;
+  }>;
 };
 
 type ConceptSense = {
@@ -121,6 +135,11 @@ type ConceptAnalyzeResponse = {
   analysis: ConceptAnalysis;
 };
 
+type ConceptApplyAmbiguityOptionResponse = {
+  patched_ir: ConceptIR;
+  check_report: CheckReport;
+};
+
 type ConceptArtifactCreateResponse = {
   artifact_id: string;
   created_at: string;
@@ -191,6 +210,7 @@ export default function ConceptsPage() {
   const [isProposing, setIsProposing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
+  const [activeOptionKey, setActiveOptionKey] = useState<string | null>(null);
 
   const [proposerLog, setProposerLog] = useState<ProposerLog | null>(null);
   const [candidates, setCandidates] = useState<ProposeCandidate[]>([]);
@@ -284,6 +304,91 @@ export default function ConceptsPage() {
       ),
     );
     setAnalyses((prev) => prev.map((value, idx) => (idx === selectedIdx ? data.analysis : value)));
+  }
+
+  async function applyConceptAmbiguityOption(ambiguityId: string, optionId: string) {
+    if (!selectedIr) return;
+    setError(null);
+    setArtifactId(null);
+    setActiveOptionKey(`${ambiguityId}:${optionId}`);
+
+    try {
+      const applyRes = await fetch(`${apiBase()}/concepts/apply_ambiguity_option`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          ir: selectedIr,
+          ambiguity_id: ambiguityId,
+          option_id: optionId,
+          variants_by_id: Object.fromEntries(candidates.map((candidate) => [candidate.ir.concept_id, candidate.ir])),
+          source_text: sourceText || null,
+          mode,
+          dry_run: false,
+          include_validator_runs: false,
+        }),
+      });
+
+      if (!applyRes.ok) {
+        let detailText = await applyRes.text();
+        try {
+          const parsed = JSON.parse(detailText) as {
+            detail?: { errors?: Array<{ code?: string; path?: string; message?: string }> };
+          };
+          const errors = parsed.detail?.errors ?? [];
+          if (errors.length > 0) {
+            detailText = errors
+              .map((item) => `${item.code ?? "ERROR"} ${item.path ?? ""} ${item.message ?? ""}`.trim())
+              .join("\n");
+          }
+        } catch {
+          // fall back to raw text for non-JSON error payloads
+        }
+        setError(detailText);
+        return;
+      }
+
+      const applyData = (await applyRes.json()) as ConceptApplyAmbiguityOptionResponse;
+      setCandidates((prev) =>
+        prev.map((candidate, idx) =>
+          idx === selectedIdx
+            ? {
+                ...candidate,
+                ir: applyData.patched_ir,
+                check_report: applyData.check_report,
+              }
+            : candidate,
+        ),
+      );
+      setAnalyses((prev) => prev.map((value, idx) => (idx === selectedIdx ? null : value)));
+
+      const analyzeRes = await fetch(`${apiBase()}/concepts/analyze`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          ir: applyData.patched_ir,
+          source_text: sourceText || null,
+          mode,
+          include_analysis_details: true,
+        }),
+      });
+      if (!analyzeRes.ok) {
+        setError(await analyzeRes.text());
+        return;
+      }
+      const analyzeData = (await analyzeRes.json()) as ConceptAnalyzeResponse;
+      setCandidates((prev) =>
+        prev.map((candidate, idx) =>
+          idx === selectedIdx ? { ...candidate, check_report: analyzeData.check_report } : candidate,
+        ),
+      );
+      setAnalyses((prev) =>
+        prev.map((value, idx) => (idx === selectedIdx ? analyzeData.analysis : value)),
+      );
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setActiveOptionKey(null);
+    }
   }
 
   async function accept() {
@@ -470,6 +575,37 @@ export default function ConceptsPage() {
                 <span className="muted mono">
                   {claim.id} {"->"} {claim.sense_id}
                 </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {selectedIr?.ambiguity?.length ? (
+          <div style={{ marginTop: 10 }}>
+            <div className="muted">Ambiguity options</div>
+            {selectedIr.ambiguity.map((ambiguity) => (
+              <div key={ambiguity.id} style={{ marginTop: 8 }}>
+                <div className="muted mono">
+                  {ambiguity.id} term={ambiguity.term_id}
+                </div>
+                <div className="row" style={{ marginTop: 4 }}>
+                  {ambiguity.options.map((optionId) => {
+                    const detail = ambiguity.option_details_by_id?.[optionId];
+                    const label =
+                      ambiguity.option_labels_by_id?.[optionId] ?? detail?.label ?? optionId;
+                    const optionKey = `${ambiguity.id}:${optionId}`;
+                    return (
+                      <button
+                        key={optionId}
+                        onClick={() => applyConceptAmbiguityOption(ambiguity.id, optionId)}
+                        disabled={!detail || activeOptionKey === optionKey}
+                        title={!detail ? "No actionable patch for this option" : undefined}
+                      >
+                        {activeOptionKey === optionKey ? "Applying..." : `Apply ${label}`}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>
