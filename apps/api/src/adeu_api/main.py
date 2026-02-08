@@ -577,17 +577,14 @@ def _enforce_source_text_size(source_text: str, *, field: str = "source_text") -
 
 
 def _map_concept_patch_error_code(raw_code: str) -> ConceptPatchErrorCode:
-    if raw_code == "PATCH_OP_UNSUPPORTED":
-        return "PATCH_INVALID_OP"
-    if raw_code == "PATCH_PATH_NOT_ALLOWED":
-        return "PATCH_PATH_FORBIDDEN"
-    if raw_code == "PATCH_TEST_FAILED":
-        return "PATCH_TEST_FAILED"
-    if raw_code == "PATCH_TOO_LARGE":
-        return "PATCH_SIZE_LIMIT"
-    if raw_code == "REFERENCE_INTEGRITY":
-        return "PATCH_REF_INTEGRITY_VIOLATION"
-    return "PATCH_APPLY_FAILED"
+    error_map: dict[str, ConceptPatchErrorCode] = {
+        "PATCH_OP_UNSUPPORTED": "PATCH_INVALID_OP",
+        "PATCH_PATH_NOT_ALLOWED": "PATCH_PATH_FORBIDDEN",
+        "PATCH_TEST_FAILED": "PATCH_TEST_FAILED",
+        "PATCH_TOO_LARGE": "PATCH_SIZE_LIMIT",
+        "REFERENCE_INTEGRITY": "PATCH_REF_INTEGRITY_VIOLATION",
+    }
+    return error_map.get(raw_code, "PATCH_APPLY_FAILED")
 
 
 def _concept_patch_http_error_detail(exc: ConceptPatchValidationError) -> dict[str, Any]:

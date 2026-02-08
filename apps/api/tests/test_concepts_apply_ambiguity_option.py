@@ -284,6 +284,6 @@ def test_concepts_apply_ambiguity_option_matches_apply_patch_result() -> None:
     assert ambiguity_resp.patched_ir.model_dump(mode="json") == patch_resp.patched_ir.model_dump(
         mode="json"
     )
-    assert ambiguity_resp.check_report.model_dump(mode="json") == patch_resp.check_report.model_dump(
+    assert ambiguity_resp.check_report.model_dump(
         mode="json"
-    )
+    ) == patch_resp.check_report.model_dump(mode="json")
