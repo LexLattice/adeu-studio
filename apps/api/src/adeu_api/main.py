@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import sqlite3
 from collections import deque
 from datetime import datetime, timezone
@@ -71,7 +72,7 @@ from adeu_puzzles import (
     check_with_validator_runs as check_puzzle_with_validator_runs,
 )
 from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .adeu_concept_bridge import (
     BridgeManifest,
@@ -605,6 +606,69 @@ class DocumentListResponse(BaseModel):
     items: list[DocumentSummary]
 
 
+class ConceptAlignRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    artifact_ids: list[str] = Field(default_factory=list)
+    doc_ids: list[str] = Field(default_factory=list)
+    max_suggestions: int = Field(default=100, ge=1, le=500)
+
+    @model_validator(mode="after")
+    def _require_scope(self) -> "ConceptAlignRequest":
+        if self.artifact_ids or self.doc_ids:
+            return self
+        raise ValueError("provide artifact_ids and/or doc_ids")
+
+
+class ConceptAlignmentArtifactRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    artifact_id: str
+    doc_id: str | None
+    concept_id: str
+
+
+class ConceptAlignmentTermRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    artifact_id: str
+    doc_id: str | None
+    concept_id: str
+    term_id: str
+    label: str
+    normalized_label: str
+
+
+class ConceptAlignmentSenseRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    artifact_id: str
+    doc_id: str | None
+    concept_id: str
+    sense_id: str
+    term_id: str
+    gloss: str
+    gloss_signature: str
+
+
+class ConceptAlignmentSuggestion(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    suggestion_id: str
+    kind: Literal["merge_candidate", "conflict_candidate"]
+    vocabulary_key: str
+    reason: str
+    artifact_ids: list[str] = Field(default_factory=list)
+    doc_ids: list[str] = Field(default_factory=list)
+    term_refs: list[ConceptAlignmentTermRef] = Field(default_factory=list)
+    sense_refs: list[ConceptAlignmentSenseRef] = Field(default_factory=list)
+
+
+class ConceptAlignResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    artifacts: list[ConceptAlignmentArtifactRef]
+    suggestion_count: int
+    suggestions: list[ConceptAlignmentSuggestion]
+    mapping_trust: str = "derived_alignment"
+    solver_trust: Literal["kernel_only", "solver_backed", "proof_checked"] = "kernel_only"
+    proof_trust: str | None = None
+
+
 def _env_flag(name: str) -> bool:
     return os.environ.get(name, "").strip() == "1"
 
@@ -668,6 +732,201 @@ def _resolve_source_text_and_doc_id(
         )
 
     return row.source_text, doc_id
+
+
+def _normalize_alignment_text(value: str) -> str:
+    tokens = re.findall(r"[a-z0-9]+", value.lower())
+    return " ".join(tokens)
+
+
+def _sanitize_alignment_token(value: str) -> str:
+    cleaned = "".join(ch if (ch.isalnum() or ch == "_") else "_" for ch in value)
+    cleaned = cleaned.strip("_")
+    return cleaned or "alignment"
+
+
+def _next_alignment_suggestion_id(
+    *,
+    kind: Literal["merge_candidate", "conflict_candidate"],
+    vocabulary_key: str,
+    used_ids: set[str],
+) -> str:
+    stem = _sanitize_alignment_token(f"{kind}_{vocabulary_key}")
+    candidate = stem
+    suffix = 2
+    while candidate in used_ids:
+        candidate = f"{stem}_{suffix}"
+        suffix += 1
+    used_ids.add(candidate)
+    return candidate
+
+
+def _resolve_alignment_artifact_ids(req: ConceptAlignRequest) -> list[str]:
+    artifact_ids = {artifact_id.strip() for artifact_id in req.artifact_ids if artifact_id.strip()}
+    for doc_id in sorted({item.strip() for item in req.doc_ids if item.strip()}):
+        rows = list_concept_artifacts(doc_id=doc_id, limit=1, offset=0)
+        if not rows:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "ALIGNMENT_DOC_NO_ARTIFACT",
+                    "message": f"no concept artifacts found for doc_id={doc_id!r}",
+                    "doc_id": doc_id,
+                },
+            )
+        artifact_ids.add(rows[0].artifact_id)
+    if artifact_ids:
+        return sorted(artifact_ids)
+    raise HTTPException(
+        status_code=400,
+        detail={
+            "code": "ALIGNMENT_SCOPE_EMPTY",
+            "message": "alignment scope is empty after normalization",
+        },
+    )
+
+
+def _collect_alignment_artifacts(
+    artifact_ids: list[str],
+) -> list[tuple[str, str | None, ConceptIR]]:
+    items: list[tuple[str, str | None, ConceptIR]] = []
+    for artifact_id in artifact_ids:
+        row = get_concept_artifact(artifact_id=artifact_id)
+        if row is None:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "ALIGNMENT_ARTIFACT_NOT_FOUND",
+                    "message": f"concept artifact not found for artifact_id={artifact_id!r}",
+                    "artifact_id": artifact_id,
+                },
+            )
+        items.append((row.artifact_id, row.doc_id, ConceptIR.model_validate(row.ir_json)))
+    return items
+
+
+def _alignment_kind_rank(kind: str) -> int:
+    if kind == "merge_candidate":
+        return 0
+    if kind == "conflict_candidate":
+        return 1
+    return 2
+
+
+def _build_alignment_suggestions(
+    artifacts: list[tuple[str, str | None, ConceptIR]],
+    *,
+    max_suggestions: int,
+) -> list[ConceptAlignmentSuggestion]:
+    term_groups: dict[str, list[tuple[str, str | None, ConceptIR, str, str]]] = {}
+    for artifact_id, doc_id, concept in artifacts:
+        for term in concept.terms:
+            vocabulary_key = _normalize_alignment_text(term.label)
+            if not vocabulary_key:
+                continue
+            term_groups.setdefault(vocabulary_key, []).append(
+                (artifact_id, doc_id, concept, term.id, term.label)
+            )
+
+    used_suggestion_ids: set[str] = set()
+    suggestions: list[ConceptAlignmentSuggestion] = []
+    for vocabulary_key in sorted(term_groups.keys()):
+        entries = sorted(term_groups[vocabulary_key], key=lambda item: (item[0], item[3], item[4]))
+        artifact_ids = sorted({item[0] for item in entries})
+        if len(artifact_ids) < 2:
+            continue
+
+        term_refs = [
+            ConceptAlignmentTermRef(
+                artifact_id=artifact_id,
+                doc_id=doc_id,
+                concept_id=concept.concept_id,
+                term_id=term_id,
+                label=label,
+                normalized_label=vocabulary_key,
+            )
+            for artifact_id, doc_id, concept, term_id, label in entries
+        ]
+
+        sense_refs: list[ConceptAlignmentSenseRef] = []
+        signatures_by_artifact: dict[str, set[str]] = {}
+        for artifact_id, doc_id, concept, term_id, _ in entries:
+            senses = sorted(
+                (sense for sense in concept.senses if sense.term_id == term_id),
+                key=lambda sense: sense.id,
+            )
+            for sense in senses:
+                gloss_signature = _normalize_alignment_text(sense.gloss)
+                if not gloss_signature:
+                    gloss_signature = _normalize_alignment_text(sense.id)
+                signatures_by_artifact.setdefault(artifact_id, set()).add(gloss_signature)
+                sense_refs.append(
+                    ConceptAlignmentSenseRef(
+                        artifact_id=artifact_id,
+                        doc_id=doc_id,
+                        concept_id=concept.concept_id,
+                        sense_id=sense.id,
+                        term_id=term_id,
+                        gloss=sense.gloss,
+                        gloss_signature=gloss_signature,
+                    )
+                )
+        sense_refs.sort(key=lambda item: (item.artifact_id, item.term_id, item.sense_id))
+        doc_ids = sorted({item.doc_id for item in term_refs if item.doc_id is not None})
+
+        suggestions.append(
+            ConceptAlignmentSuggestion(
+                suggestion_id=_next_alignment_suggestion_id(
+                    kind="merge_candidate",
+                    vocabulary_key=vocabulary_key,
+                    used_ids=used_suggestion_ids,
+                ),
+                kind="merge_candidate",
+                vocabulary_key=vocabulary_key,
+                reason=(
+                    f"Term '{vocabulary_key}' appears across artifacts; "
+                    "consider a shared vocabulary mapping."
+                ),
+                artifact_ids=artifact_ids,
+                doc_ids=doc_ids,
+                term_refs=term_refs,
+                sense_refs=sense_refs,
+            )
+        )
+
+        signature_profiles = {
+            tuple(sorted(signatures_by_artifact.get(artifact_id, set())))
+            for artifact_id in artifact_ids
+        }
+        if len(signature_profiles) > 1:
+            suggestions.append(
+                ConceptAlignmentSuggestion(
+                    suggestion_id=_next_alignment_suggestion_id(
+                        kind="conflict_candidate",
+                        vocabulary_key=vocabulary_key,
+                        used_ids=used_suggestion_ids,
+                    ),
+                    kind="conflict_candidate",
+                    vocabulary_key=vocabulary_key,
+                    reason=(
+                        f"Term '{vocabulary_key}' has divergent sense gloss signatures "
+                        "across artifacts; review before merge."
+                    ),
+                    artifact_ids=artifact_ids,
+                    doc_ids=doc_ids,
+                    term_refs=term_refs,
+                    sense_refs=sense_refs,
+                )
+            )
+
+    suggestions.sort(
+        key=lambda item: (
+            _alignment_kind_rank(item.kind),
+            item.vocabulary_key,
+            item.suggestion_id,
+        )
+    )
+    return suggestions[:max_suggestions]
 
 
 def _map_concept_patch_error_code(raw_code: str) -> ConceptPatchErrorCode:
@@ -2422,6 +2681,31 @@ def list_concept_artifact_validator_runs_endpoint(
             )
             for run in rows
         ]
+    )
+
+
+@app.post("/concepts/align", response_model=ConceptAlignResponse)
+def align_concepts_endpoint(req: ConceptAlignRequest) -> ConceptAlignResponse:
+    artifact_ids = _resolve_alignment_artifact_ids(req)
+    artifacts = _collect_alignment_artifacts(artifact_ids)
+    suggestions = _build_alignment_suggestions(
+        artifacts,
+        max_suggestions=req.max_suggestions,
+    )
+    return ConceptAlignResponse(
+        artifacts=[
+            ConceptAlignmentArtifactRef(
+                artifact_id=artifact_id,
+                doc_id=doc_id,
+                concept_id=concept.concept_id,
+            )
+            for artifact_id, doc_id, concept in artifacts
+        ],
+        suggestion_count=len(suggestions),
+        suggestions=suggestions,
+        mapping_trust="derived_alignment",
+        solver_trust="kernel_only",
+        proof_trust=None,
     )
 
 
