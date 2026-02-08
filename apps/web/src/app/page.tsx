@@ -56,11 +56,24 @@ type ApplyAmbiguityOptionResponse = {
 type ConceptProvenance = {
   doc_ref?: string | null;
   span?: SourceSpan | null;
+  quote?: string | null;
+};
+
+type BridgeConceptContext = {
+  doc_id: string;
+  domain_tags: string[];
 };
 
 type BridgeConceptTerm = {
   id: string;
   label: string;
+  provenance?: ConceptProvenance | null;
+};
+
+type BridgeConceptSense = {
+  id: string;
+  term_id: string;
+  gloss: string;
   provenance?: ConceptProvenance | null;
 };
 
@@ -71,37 +84,127 @@ type BridgeConceptClaim = {
   provenance?: ConceptProvenance | null;
 };
 
+type BridgeConceptLink = {
+  id: string;
+  kind: "commitment" | "incompatibility" | "presupposition";
+  src_sense_id: string;
+  dst_sense_id: string;
+  provenance?: ConceptProvenance | null;
+};
+
+type BridgeConceptPatchOp = {
+  op: "add" | "remove" | "replace" | "move" | "copy" | "test";
+  path: string;
+  from?: string;
+  value?: unknown;
+};
+
+type BridgeConceptAmbiguityOption = {
+  option_id: string;
+  label: string;
+  variant_ir_id?: string | null;
+  patch?: BridgeConceptPatchOp[];
+};
+
+type BridgeConceptAmbiguity = {
+  id: string;
+  term_id: string;
+  options: string[];
+  option_details_by_id?: Record<string, BridgeConceptAmbiguityOption>;
+  option_labels_by_id?: Record<string, string> | null;
+};
+
+type BridgeConceptBridge = {
+  id: string;
+  kind: string;
+  src_sense_id: string;
+  dst_sense_id: string;
+  provenance?: ConceptProvenance | null;
+};
+
 type BridgeConceptIR = {
   schema_version: string;
   concept_id: string;
+  context: BridgeConceptContext;
   terms: BridgeConceptTerm[];
+  senses: BridgeConceptSense[];
   claims: BridgeConceptClaim[];
+  links: BridgeConceptLink[];
+  ambiguity: BridgeConceptAmbiguity[];
+  bridges: BridgeConceptBridge[];
+};
+
+type BridgeAnalysisAtomRef = {
+  atom_name: string;
+  object_id?: string | null;
+  json_path?: string | null;
+  label?: "claim_activation" | "claim_implication" | "ambiguity" | "link" | null;
+};
+
+type BridgeAnalysisClosureEdge = {
+  src_sense_id: string;
+  dst_sense_id: string;
+  kind: "commitment" | "presupposition";
+};
+
+type BridgeAnalysisCountermodelAssignment = {
+  symbol: string;
+  value: string;
+};
+
+type BridgeAnalysisCountermodel = {
+  src_sense_id: string;
+  dst_sense_id: string;
+  kind: "commitment" | "presupposition";
+  solver_status: "SAT" | "UNKNOWN" | "TIMEOUT" | "INVALID_REQUEST" | "ERROR";
+  assignments: BridgeAnalysisCountermodelAssignment[];
+  details?: string | null;
 };
 
 type BridgeConceptAnalysis = {
   closure: {
     status: "COMPLETE" | "PARTIAL" | "UNAVAILABLE";
     edge_count: number;
+    edges: BridgeAnalysisClosureEdge[];
+    details?: string | null;
   };
   mic: {
     status: "COMPLETE" | "PARTIAL" | "UNAVAILABLE";
     constraint_count: number;
+    constraints: BridgeAnalysisAtomRef[];
     solver_calls: number;
     shrink_iters: number;
+    details?: string | null;
   };
   forced: {
     status: "COMPLETE" | "PARTIAL" | "UNAVAILABLE";
     candidate_count: number;
     forced_count: number;
+    forced_edges: BridgeAnalysisClosureEdge[];
     countermodel_count: number;
+    countermodels: BridgeAnalysisCountermodel[];
     solver_calls: number;
+    details?: string | null;
   };
+};
+
+type BridgeManifestEntry = {
+  adeu_object_id: string;
+  concept_object_id: string;
+  concept_kind: "term" | "sense" | "claim" | "link" | "ambiguity";
+  confidence_tag: "direct" | "derived" | "missing_provenance";
+};
+
+type BridgeManifest = {
+  adeu_to_concept_ids: Record<string, string[]>;
+  entries: BridgeManifestEntry[];
 };
 
 type AdeuAnalyzeConceptsResponse = {
   concept_ir: BridgeConceptIR;
   check_report: CheckReport;
   analysis: BridgeConceptAnalysis;
+  bridge_manifest: BridgeManifest;
   bridge_mapping_version: string;
   mapping_hash: string;
   mapping_trust: string;
@@ -646,12 +749,10 @@ export default function HomePage() {
         {conceptBridge ? (
           <>
             <div className="muted" style={{ marginTop: 8 }}>
-              Trust: mapping={conceptBridge.mapping_trust} / solver={conceptBridge.solver_trust} / proof=
-              {conceptBridge.proof_trust ?? "n/a"}
+              Trust: mapping={conceptBridge.mapping_trust} / solver={conceptBridge.solver_trust} / proof={conceptBridge.proof_trust ?? "n/a"}
             </div>
             <div className="muted mono" style={{ marginTop: 4 }}>
-              Mapping: {conceptBridge.bridge_mapping_version} {conceptBridge.mapping_hash.slice(0, 16)}
-              ...
+              Mapping: {conceptBridge.bridge_mapping_version} {conceptBridge.mapping_hash.slice(0, 16)}...
             </div>
             <div className="muted" style={{ marginTop: 4 }}>
               Check status: {conceptBridge.check_report.status}
