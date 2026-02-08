@@ -68,7 +68,7 @@ test("route smoke: home, concepts, puzzles render core controls", { timeout: 120
 
     const routeExpectations = [
       { path: "/", mustInclude: "Analyze as Concepts" },
-      { path: "/concepts", mustInclude: "Concept Text" },
+      { path: "/concepts", mustInclude: "Generate questions" },
       { path: "/puzzles", mustInclude: "Puzzle Text" },
     ];
 
