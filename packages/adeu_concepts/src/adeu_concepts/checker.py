@@ -124,7 +124,12 @@ def _parse_or_schema_error(raw: Any) -> tuple[ConceptIR | None, CheckReport | No
         )
 
 
-def _collect_hygiene_reasons(concept: ConceptIR, *, source_text: str | None) -> list[CheckReason]:
+def _collect_hygiene_reasons(
+    concept: ConceptIR,
+    *,
+    source_text: str | None,
+    mode: KernelMode,
+) -> list[CheckReason]:
     reasons: list[CheckReason] = []
     term_ids = {term.id for term in concept.terms}
     sense_ids = {sense.id for sense in concept.senses}
@@ -277,6 +282,82 @@ def _collect_hygiene_reasons(concept: ConceptIR, *, source_text: str | None) -> 
                     )
                 )
 
+        option_detail_keys = set(ambiguity.option_details_by_id.keys())
+        if mode == KernelMode.STRICT and ambiguity.option_details_by_id:
+            if option_detail_keys != option_set:
+                missing = sorted(option_set - option_detail_keys)
+                extra = sorted(option_detail_keys - option_set)
+                parts: list[str] = []
+                if missing:
+                    parts.append(f"missing={missing}")
+                if extra:
+                    parts.append(f"extra={extra}")
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.CONCEPT_SENSE_SELECTION_INVALID,
+                        severity=ReasonSeverity.ERROR,
+                        message=(
+                            "option_details_by_id keys must exactly match ambiguity options in "
+                            f"STRICT mode ({'; '.join(parts)})"
+                        ),
+                        object_id=ambiguity.id,
+                        json_path=_path("ambiguity", idx, "option_details_by_id"),
+                    )
+                )
+        elif not option_detail_keys.issubset(option_set):
+            extra = sorted(option_detail_keys - option_set)
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.CONCEPT_SENSE_SELECTION_INVALID,
+                    severity=ReasonSeverity.ERROR,
+                    message=(
+                        "option_details_by_id keys must be a subset of ambiguity options "
+                        f"(extra={extra})"
+                    ),
+                    object_id=ambiguity.id,
+                    json_path=_path("ambiguity", idx, "option_details_by_id"),
+                )
+            )
+
+        for option_key in sorted(option_detail_keys):
+            option = ambiguity.option_details_by_id[option_key]
+            if option.option_id != option_key:
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.CONCEPT_SENSE_SELECTION_INVALID,
+                        severity=ReasonSeverity.ERROR,
+                        message=(
+                            "option_details_by_id key must match AmbiguityOption.option_id "
+                            f"(got key={option_key!r}, option_id={option.option_id!r})"
+                        ),
+                        object_id=ambiguity.id,
+                        json_path=_path(
+                            "ambiguity",
+                            idx,
+                            "option_details_by_id",
+                            option_key,
+                            "option_id",
+                        ),
+                    )
+                )
+
+        if ambiguity.option_labels_by_id is not None:
+            label_keys = set(ambiguity.option_labels_by_id.keys())
+            if not label_keys.issubset(option_set):
+                extra = sorted(label_keys - option_set)
+                reasons.append(
+                    CheckReason(
+                        code=ReasonCode.CONCEPT_SENSE_SELECTION_INVALID,
+                        severity=ReasonSeverity.ERROR,
+                        message=(
+                            "option_labels_by_id keys must be a subset of ambiguity options "
+                            f"(extra={extra})"
+                        ),
+                        object_id=ambiguity.id,
+                        json_path=_path("ambiguity", idx, "option_labels_by_id"),
+                    )
+                )
+
     for idx, term in enumerate(concept.terms):
         has_sense = bool(senses_by_term.get(term.id))
         is_ambiguous = term.id in ambiguous_term_ids
@@ -400,7 +481,7 @@ def check_with_solver_status(
         return parse_error
     assert concept is not None
 
-    reasons = _collect_hygiene_reasons(concept, source_text=source_text)
+    reasons = _collect_hygiene_reasons(concept, source_text=source_text, mode=mode)
     trace: list[TraceItem] = [
         TraceItem(rule_id="concept/parse_ok", affected_ids=[concept.concept_id]),
         TraceItem(
@@ -439,7 +520,7 @@ def check_with_validator_runs(
         return parse_error, []
     assert concept is not None
 
-    reasons = _collect_hygiene_reasons(concept, source_text=source_text)
+    reasons = _collect_hygiene_reasons(concept, source_text=source_text, mode=mode)
     trace: list[TraceItem] = [
         TraceItem(rule_id="concept/parse_ok", affected_ids=[concept.concept_id]),
         TraceItem(

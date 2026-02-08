@@ -10,6 +10,7 @@ from .analysis import (
 from .checker import check, check_with_solver_status, check_with_validator_runs
 from .models import (
     Ambiguity,
+    AmbiguityOption,
     Claim,
     ConceptBridge,
     ConceptContext,
@@ -18,19 +19,30 @@ from .models import (
     Term,
     TermSense,
 )
+from .patching import (
+    ConceptPatchError,
+    ConceptPatchValidationError,
+    apply_concept_ambiguity_option,
+    apply_concept_json_patch,
+)
 from .solver import build_concept_coherence_request
 
 __all__ = [
     "Ambiguity",
+    "AmbiguityOption",
     "Claim",
     "ConceptBridge",
     "ConceptAnalysis",
     "ConceptContext",
     "ConceptIR",
     "ConceptRunRef",
+    "ConceptPatchError",
+    "ConceptPatchValidationError",
     "InferentialLink",
     "Term",
     "TermSense",
+    "apply_concept_ambiguity_option",
+    "apply_concept_json_patch",
     "analyze_concept",
     "build_concept_coherence_request",
     "check",

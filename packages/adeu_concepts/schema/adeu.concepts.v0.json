@@ -7,6 +7,28 @@
           "title": "Id",
           "type": "string"
         },
+        "option_details_by_id": {
+          "additionalProperties": {
+            "$ref": "#/$defs/AmbiguityOption"
+          },
+          "title": "Option Details By Id",
+          "type": "object"
+        },
+        "option_labels_by_id": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Option Labels By Id"
+        },
         "options": {
           "items": {
             "type": "string"
@@ -26,6 +48,44 @@
         "options"
       ],
       "title": "Ambiguity",
+      "type": "object"
+    },
+    "AmbiguityOption": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "option_id": {
+          "title": "Option Id",
+          "type": "string"
+        },
+        "patch": {
+          "items": {
+            "$ref": "#/$defs/JsonPatchOp"
+          },
+          "title": "Patch",
+          "type": "array"
+        },
+        "variant_ir_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variant Ir Id"
+        }
+      },
+      "required": [
+        "option_id",
+        "label"
+      ],
+      "title": "AmbiguityOption",
       "type": "object"
     },
     "Claim": {
@@ -167,6 +227,55 @@
         "dst_sense_id"
       ],
       "title": "InferentialLink",
+      "type": "object"
+    },
+    "JsonPatchOp": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "From"
+        },
+        "op": {
+          "enum": [
+            "add",
+            "remove",
+            "replace",
+            "move",
+            "copy",
+            "test"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "op",
+        "path"
+      ],
+      "title": "JsonPatchOp",
       "type": "object"
     },
     "ProvenanceRef": {

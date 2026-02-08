@@ -9,8 +9,10 @@ from typing import Any, Callable, Literal
 from adeu_concepts import (
     ConceptAnalysis,
     ConceptIR,
+    ConceptPatchValidationError,
     ConceptRunRef,
     analyze_concept,
+    apply_concept_ambiguity_option,
     pick_latest_run,
     strip_analysis_details,
     strip_forced_details,
@@ -288,6 +290,36 @@ class ApplyAmbiguityOptionResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     patched_ir: AdeuIR
     check_report: CheckReport
+
+
+class ConceptApplyAmbiguityOptionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: ConceptIR
+    ambiguity_id: str = Field(min_length=1)
+    option_id: str = Field(min_length=1)
+    variants_by_id: dict[str, ConceptIR] | None = None
+    source_text: str | None = None
+    mode: KernelMode = KernelMode.LAX
+    dry_run: bool = False
+    include_validator_runs: bool = False
+
+
+class ConceptApplyAmbiguityOptionError(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    op_index: int
+    path: str
+    code: str
+    message: str
+
+
+class ConceptApplyAmbiguityOptionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    patched_ir: ConceptIR
+    check_report: CheckReport
+    validator_runs: list[ValidatorRunInput] | None = None
+    mapping_trust: str | None = None
+    solver_trust: Literal["kernel_only", "solver_backed", "proof_checked"] = "kernel_only"
+    proof_trust: str | None = None
 
 
 class ArtifactCreateRequest(BaseModel):
@@ -1864,6 +1896,62 @@ def apply_ambiguity_option_endpoint(
     patched = canonicalize_ir_ids(patched)
     report = check(patched, mode=req.mode)
     return ApplyAmbiguityOptionResponse(patched_ir=patched, check_report=report)
+
+
+@app.post(
+    "/concepts/apply_ambiguity_option",
+    response_model=ConceptApplyAmbiguityOptionResponse,
+)
+def apply_concept_ambiguity_option_endpoint(
+    req: ConceptApplyAmbiguityOptionRequest,
+) -> ConceptApplyAmbiguityOptionResponse:
+    if req.source_text is not None:
+        _enforce_source_text_size(req.source_text)
+
+    try:
+        patched = apply_concept_ambiguity_option(
+            req.ir,
+            ambiguity_id=req.ambiguity_id,
+            option_id=req.option_id,
+            variants_by_id=req.variants_by_id,
+        )
+    except ConceptPatchValidationError as exc:
+        errors = sorted(exc.errors, key=lambda err: (err.op_index, err.path, err.code))
+        error_payload = [
+            ConceptApplyAmbiguityOptionError(
+                op_index=err.op_index,
+                path=err.path,
+                code=err.code,
+                message=err.message,
+            ).model_dump(mode="json")
+            for err in errors
+        ]
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "AMBIGUITY_OPTION_INVALID",
+                "message": "concept ambiguity option application failed",
+                "errors": error_payload,
+            },
+        ) from exc
+
+    report, runs = check_concept_with_validator_runs(
+        patched,
+        mode=req.mode,
+        source_text=req.source_text,
+    )
+    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs and not req.dry_run:
+        _persist_validator_runs(runs=runs, artifact_id=None)
+    run_inputs = [_validator_run_input_from_record(run) for run in runs]
+
+    return ConceptApplyAmbiguityOptionResponse(
+        patched_ir=patched,
+        check_report=report,
+        validator_runs=run_inputs if req.include_validator_runs else None,
+        mapping_trust=None,
+        solver_trust="solver_backed" if runs else "kernel_only",
+        proof_trust=None,
+    )
 
 
 @app.post("/artifacts", response_model=ArtifactCreateResponse)

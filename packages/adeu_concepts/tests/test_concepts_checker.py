@@ -160,3 +160,85 @@ def test_concept_solver_skips_claim_implication_for_unresolved_sense() -> None:
 
     assert "/claims/0/active" in paths
     assert "/claims/0/sense_id" not in paths
+
+
+def test_concept_checker_lax_allows_option_details_subset_of_options() -> None:
+    coherent = ConceptIR.model_validate(
+        _fixture_payload(fixture="bank_sense_coherence", name="var1.json")
+    )
+    payload = coherent.model_dump(mode="json")
+    payload["ambiguity"][0]["option_details_by_id"] = {
+        "s_bank_fin": {
+            "option_id": "s_bank_fin",
+            "label": "financial",
+            "variant_ir_id": "variant_fin",
+        }
+    }
+    candidate = ConceptIR.model_validate(payload)
+
+    report, runs = check_with_validator_runs(
+        candidate,
+        mode=KernelMode.LAX,
+        source_text=_fixture_source(fixture="bank_sense_coherence"),
+    )
+
+    assert report.status == "PASS"
+    assert runs and runs[0].result.status == "SAT"
+
+
+def test_concept_checker_strict_requires_option_details_exact_match() -> None:
+    coherent = ConceptIR.model_validate(
+        _fixture_payload(fixture="bank_sense_coherence", name="var1.json")
+    )
+    payload = coherent.model_dump(mode="json")
+    payload["ambiguity"][0]["option_details_by_id"] = {
+        "s_bank_fin": {
+            "option_id": "s_bank_fin",
+            "label": "financial",
+            "variant_ir_id": "variant_fin",
+        }
+    }
+    candidate = ConceptIR.model_validate(payload)
+
+    report, runs = check_with_validator_runs(
+        candidate,
+        mode=KernelMode.STRICT,
+        source_text=_fixture_source(fixture="bank_sense_coherence"),
+    )
+
+    assert runs == []
+    assert report.status == "REFUSE"
+    assert any(
+        reason.code == "CONCEPT_SENSE_SELECTION_INVALID"
+        and reason.json_path == "/ambiguity/0/option_details_by_id"
+        for reason in report.reason_codes
+    )
+
+
+def test_concept_checker_lax_rejects_option_details_keys_outside_options() -> None:
+    coherent = ConceptIR.model_validate(
+        _fixture_payload(fixture="bank_sense_coherence", name="var1.json")
+    )
+    payload = coherent.model_dump(mode="json")
+    payload["ambiguity"][0]["option_details_by_id"] = {
+        "s_other": {
+            "option_id": "s_other",
+            "label": "other",
+            "variant_ir_id": "variant_other",
+        }
+    }
+    candidate = ConceptIR.model_validate(payload)
+
+    report, runs = check_with_validator_runs(
+        candidate,
+        mode=KernelMode.LAX,
+        source_text=_fixture_source(fixture="bank_sense_coherence"),
+    )
+
+    assert runs == []
+    assert report.status == "REFUSE"
+    assert any(
+        reason.code == "CONCEPT_SENSE_SELECTION_INVALID"
+        and reason.json_path == "/ambiguity/0/option_details_by_id"
+        for reason in report.reason_codes
+    )

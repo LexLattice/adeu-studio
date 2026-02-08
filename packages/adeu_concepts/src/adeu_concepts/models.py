@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Literal
 
 from adeu_ir import ProvenanceRef
-from pydantic import BaseModel, ConfigDict, Field
+from adeu_ir.models import JsonPatchOp
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 ConceptSchemaVersion = Literal["adeu.concepts.v0"]
 InferentialLinkKind = Literal["commitment", "incompatibility", "presupposition"]
@@ -52,6 +53,24 @@ class Ambiguity(BaseModel):
     id: str
     term_id: str
     options: list[str] = Field(min_length=2)
+    option_details_by_id: dict[str, "AmbiguityOption"] = Field(default_factory=dict)
+    option_labels_by_id: dict[str, str] | None = None
+
+
+class AmbiguityOption(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    option_id: str
+    label: str
+    variant_ir_id: str | None = None
+    patch: list[JsonPatchOp] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _one_of_variant_or_patch(self) -> "AmbiguityOption":
+        has_variant = bool(self.variant_ir_id)
+        has_patch = bool(self.patch)
+        if has_variant == has_patch:
+            raise ValueError("must provide exactly one of variant_ir_id or patch")
+        return self
 
 
 class ConceptBridge(BaseModel):
