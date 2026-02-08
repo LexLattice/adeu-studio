@@ -53,6 +53,62 @@ type ApplyAmbiguityOptionResponse = {
   check_report: CheckReport;
 };
 
+type ConceptProvenance = {
+  doc_ref?: string | null;
+  span?: SourceSpan | null;
+};
+
+type BridgeConceptTerm = {
+  id: string;
+  label: string;
+  provenance?: ConceptProvenance | null;
+};
+
+type BridgeConceptClaim = {
+  id: string;
+  sense_id: string;
+  text: string;
+  provenance?: ConceptProvenance | null;
+};
+
+type BridgeConceptIR = {
+  schema_version: string;
+  concept_id: string;
+  terms: BridgeConceptTerm[];
+  claims: BridgeConceptClaim[];
+};
+
+type BridgeConceptAnalysis = {
+  closure: {
+    status: "COMPLETE" | "PARTIAL" | "UNAVAILABLE";
+    edge_count: number;
+  };
+  mic: {
+    status: "COMPLETE" | "PARTIAL" | "UNAVAILABLE";
+    constraint_count: number;
+    solver_calls: number;
+    shrink_iters: number;
+  };
+  forced: {
+    status: "COMPLETE" | "PARTIAL" | "UNAVAILABLE";
+    candidate_count: number;
+    forced_count: number;
+    countermodel_count: number;
+    solver_calls: number;
+  };
+};
+
+type AdeuAnalyzeConceptsResponse = {
+  concept_ir: BridgeConceptIR;
+  check_report: CheckReport;
+  analysis: BridgeConceptAnalysis;
+  bridge_mapping_version: string;
+  mapping_hash: string;
+  mapping_trust: string;
+  solver_trust: "kernel_only" | "solver_backed" | "proof_checked";
+  proof_trust?: string | null;
+};
+
 type Highlight = { span: SourceSpan; label: string } | null;
 
 function apiBase(): string {
@@ -140,6 +196,8 @@ export default function HomePage() {
   const [highlight, setHighlight] = useState<Highlight>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isAnalyzingConcepts, setIsAnalyzingConcepts] = useState<boolean>(false);
+  const [conceptBridge, setConceptBridge] = useState<AdeuAnalyzeConceptsResponse | null>(null);
 
   const selected = useMemo(() => candidates[selectedIdx] ?? null, [candidates, selectedIdx]);
   const selectedIr = useMemo(() => selected?.ir ?? null, [selected]);
@@ -157,10 +215,26 @@ export default function HomePage() {
     () => solverStatusFromReport(compared?.check_report ?? null),
     [compared]
   );
+  const conceptTerms = useMemo(
+    () => [...(conceptBridge?.concept_ir.terms ?? [])].sort((left, right) => left.id.localeCompare(right.id)),
+    [conceptBridge]
+  );
+  const conceptClaims = useMemo(
+    () =>
+      [...(conceptBridge?.concept_ir.claims ?? [])].sort((left, right) =>
+        left.id.localeCompare(right.id)
+      ),
+    [conceptBridge]
+  );
+
+  useEffect(() => {
+    setConceptBridge(null);
+  }, [selectedIdx, mode]);
 
   async function propose() {
     setError(null);
     setArtifactId(null);
+    setConceptBridge(null);
     setHighlight(null);
     setProposerLog(null);
     setIsProposing(true);
@@ -206,6 +280,35 @@ export default function HomePage() {
     );
   }
 
+  async function analyzeAsConcepts() {
+    setError(null);
+    if (!selectedIr) return;
+    setIsAnalyzingConcepts(true);
+    try {
+      const res = await fetch(`${apiBase()}/adeu/analyze_concepts`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          ir: selectedIr,
+          source_text: clauseText || null,
+          mode,
+          include_analysis_details: true,
+          include_forced_details: true
+        })
+      });
+      if (!res.ok) {
+        setError(await res.text());
+        return;
+      }
+      const data = (await res.json()) as AdeuAnalyzeConceptsResponse;
+      setConceptBridge(data);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setIsAnalyzingConcepts(false);
+    }
+  }
+
   async function accept() {
     setError(null);
     if (!selectedIr) return;
@@ -226,6 +329,7 @@ export default function HomePage() {
   async function applyAmbiguityOption(ambiguityId: string, optionId: string) {
     setError(null);
     setArtifactId(null);
+    setConceptBridge(null);
     if (!selectedIr) return;
 
     const variantsById = Object.fromEntries(candidates.map((c) => [c.ir.ir_id, c.ir])) as Record<
@@ -420,6 +524,9 @@ export default function HomePage() {
           <button onClick={runCheck} disabled={!selectedIr}>
             Check ({mode})
           </button>
+          <button onClick={analyzeAsConcepts} disabled={!selectedIr || isAnalyzingConcepts}>
+            {isAnalyzingConcepts ? "Analyzing..." : "Analyze as Concepts"}
+          </button>
           <button onClick={accept} disabled={!selectedIr}>
             Accept (STRICT)
           </button>
@@ -525,6 +632,139 @@ export default function HomePage() {
           </div>
         ) : null}
         <pre>{selectedReport ? JSON.stringify(selectedReport, null, 2) : ""}</pre>
+      </div>
+
+      <div className="panel">
+        <h2>Concept Analysis</h2>
+        <div className="row">
+          <span className="muted">
+            {conceptBridge
+              ? `Concept ID: ${conceptBridge.concept_ir.concept_id}`
+              : "Run Analyze as Concepts on the selected variant."}
+          </span>
+        </div>
+        {conceptBridge ? (
+          <>
+            <div className="muted" style={{ marginTop: 8 }}>
+              Trust: mapping={conceptBridge.mapping_trust} / solver={conceptBridge.solver_trust} / proof=
+              {conceptBridge.proof_trust ?? "n/a"}
+            </div>
+            <div className="muted mono" style={{ marginTop: 4 }}>
+              Mapping: {conceptBridge.bridge_mapping_version} {conceptBridge.mapping_hash.slice(0, 16)}
+              ...
+            </div>
+            <div className="muted" style={{ marginTop: 4 }}>
+              Check status: {conceptBridge.check_report.status}
+            </div>
+
+            <table className="table" style={{ marginTop: 8 }}>
+              <thead>
+                <tr>
+                  <th>analysis</th>
+                  <th>status</th>
+                  <th>summary</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="mono">closure</td>
+                  <td className="mono">{conceptBridge.analysis.closure.status}</td>
+                  <td className="mono">edges={conceptBridge.analysis.closure.edge_count}</td>
+                </tr>
+                <tr>
+                  <td className="mono">mic</td>
+                  <td className="mono">{conceptBridge.analysis.mic.status}</td>
+                  <td className="mono">
+                    constraints={conceptBridge.analysis.mic.constraint_count} calls=
+                    {conceptBridge.analysis.mic.solver_calls} shrink={conceptBridge.analysis.mic.shrink_iters}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="mono">forced</td>
+                  <td className="mono">{conceptBridge.analysis.forced.status}</td>
+                  <td className="mono">
+                    candidates={conceptBridge.analysis.forced.candidate_count} forced=
+                    {conceptBridge.analysis.forced.forced_count} countermodels=
+                    {conceptBridge.analysis.forced.countermodel_count} calls=
+                    {conceptBridge.analysis.forced.solver_calls}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style={{ marginTop: 10, overflow: "auto" }}>
+              <div className="muted">Terms ({conceptTerms.length})</div>
+              <table className="table" style={{ marginTop: 6 }}>
+                <thead>
+                  <tr>
+                    <th>id</th>
+                    <th>label</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {conceptTerms.map((term) => {
+                    const span = _firstSpan(term.provenance?.span);
+                    return (
+                      <tr key={term.id}>
+                        <td className="mono">{term.id}</td>
+                        <td>{term.label}</td>
+                        <td>
+                          <button
+                            onClick={() => {
+                              if (!span) return;
+                              setHighlight({ span, label: `concept-term:${term.id}` });
+                            }}
+                            disabled={!span}
+                          >
+                            Highlight
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div style={{ marginTop: 10, overflow: "auto" }}>
+              <div className="muted">Claims ({conceptClaims.length})</div>
+              <table className="table" style={{ marginTop: 6 }}>
+                <thead>
+                  <tr>
+                    <th>id</th>
+                    <th>sense</th>
+                    <th>text</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {conceptClaims.map((claim) => {
+                    const span = _firstSpan(claim.provenance?.span);
+                    return (
+                      <tr key={claim.id}>
+                        <td className="mono">{claim.id}</td>
+                        <td className="mono">{claim.sense_id}</td>
+                        <td>{claim.text}</td>
+                        <td>
+                          <button
+                            onClick={() => {
+                              if (!span) return;
+                              setHighlight({ span, label: `concept-claim:${claim.id}` });
+                            }}
+                            disabled={!span}
+                          >
+                            Highlight
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );
