@@ -49,6 +49,9 @@ Concept composition endpoints:
   - `ir_hash` may be provided as a precondition; mismatches return `409 STALE_IR`.
 - `POST /concepts/questions` generates deterministic, capped question/answer actions from concept
   analysis signals (MIC, forced-edge countermodels, disconnected clusters).
+- `POST /concepts/tournament` ranks patch candidates in advisory mode (`replay_candidates` or
+  `live_generation`) with deterministic scoring (`concepts.tscore.v1`), strict dry-run/solver
+  budgets, and evidence bundles for top-ranked candidates.
 - `POST /concepts/align` returns deterministic cross-artifact vocabulary suggestions
   (`merge_candidate` / `conflict_candidate`) across selected concept artifacts, with
   per-suggestion fingerprints and `alignment_stats` counts by kind.
@@ -100,6 +103,13 @@ Set `provider: "openai"` in `POST /propose` and configure:
 - optional `ADEU_QUESTION_FORCED_BUDGET_MAX` (default: `10`)
 - optional `ADEU_QUESTION_FORCED_BUDGET_DIVISOR` (default: `3`)
 - optional `ADEU_QUESTION_MIC_SHRINK_ITERS_MAX` (default: `20`)
+- optional `ADEU_MAX_TOURNAMENT_DRY_RUN_EVALS_TOTAL` (default: question dry-run cap)
+- optional `ADEU_MAX_TOURNAMENT_SOLVER_CALLS_TOTAL` (default: question solver-call cap)
+- optional `ADEU_MAX_TOURNAMENT_REPLAY_CANDIDATES` (default: `20`)
+- optional `ADEU_MAX_TOURNAMENT_PATCH_OPS_PER_CANDIDATE` (default: `50`)
+- optional `ADEU_MAX_TOURNAMENT_TOTAL_PATCH_OPS` (default: `200`)
+- optional `ADEU_MAX_TOURNAMENT_REPLAY_PAYLOAD_BYTES` (default: `500000`)
+- optional `ADEU_MAX_TOURNAMENT_TOP_K` (default: `10`)
 
 Request-level overrides:
 

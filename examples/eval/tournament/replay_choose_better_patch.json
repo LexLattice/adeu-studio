@@ -1,0 +1,44 @@
+{
+  "fixture": {
+    "source_text_path": "examples/concepts/fixtures/bank_sense_coherence/source.txt",
+    "ir_path": "examples/concepts/fixtures/bank_sense_coherence/proposals/var2.json"
+  },
+  "request": {
+    "tournament_mode": "replay_candidates",
+    "provider": "mock",
+    "mode": "LAX",
+    "candidates": [
+      {
+        "question_id": "q_noop",
+        "patch_ops": [
+          {
+            "op": "test",
+            "path": "/claims/0/sense_id",
+            "value": "s_credit"
+          }
+        ]
+      },
+      {
+        "question_id": "mic_ambiguity_amb_bank",
+        "patch_ops": [
+          {
+            "op": "remove",
+            "path": "/links/1"
+          },
+          {
+            "op": "remove",
+            "path": "/links/0"
+          },
+          {
+            "op": "remove",
+            "path": "/senses/1"
+          },
+          {
+            "op": "remove",
+            "path": "/ambiguity/0"
+          }
+        ]
+      }
+    ]
+  }
+}
