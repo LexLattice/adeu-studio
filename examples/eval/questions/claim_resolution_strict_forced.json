@@ -1,0 +1,10 @@
+{
+  "fixture": {
+    "source_text_path": "examples/concepts/fixtures/claim_resolution_and_span_guard/source.txt",
+    "ir_path": "examples/concepts/fixtures/claim_resolution_and_span_guard/proposals/var2.json"
+  },
+  "request": {
+    "mode": "STRICT",
+    "include_forced_details": true
+  }
+}
