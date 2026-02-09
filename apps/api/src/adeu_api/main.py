@@ -3214,12 +3214,14 @@ def concept_tournament_endpoint(req: ConceptTournamentRequest) -> ConceptTournam
 
     for candidate in candidates:
         if remaining_dry_runs <= 0:
-            if truncation_reason is None:
-                truncation_reason = QUESTION_TRUNCATION_REASON_DRY_RUN_CAP
+            truncation_reason = (
+                truncation_reason or QUESTION_TRUNCATION_REASON_DRY_RUN_CAP
+            )
             break
         if remaining_solver_calls <= 0:
-            if truncation_reason is None:
-                truncation_reason = QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP
+            truncation_reason = (
+                truncation_reason or QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP
+            )
             break
 
         remaining_dry_runs -= 1
