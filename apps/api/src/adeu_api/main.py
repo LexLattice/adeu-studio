@@ -124,9 +124,11 @@ ALIGNMENT_MAX_SUGGESTIONS_MAX = 500
 QUESTIONS_BUDGET_VERSION = "budget.v1"
 CONCEPTS_QUESTION_RANK_VERSION = "concepts.qrank.v2"
 ADEU_QUESTION_RANK_VERSION = "adeu.qrank.v1"
+TOURNAMENT_SCORE_VERSION = "concepts.tscore.v1"
 QUESTION_TRUNCATION_REASON_DRY_RUN_CAP = "dry_run_cap_reached"
 QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP = "solver_call_cap_reached"
 QUESTION_TRUNCATION_REASON_MAX_QUESTIONS = "max_questions_reached"
+QUESTION_TRUNCATION_REASON_CANDIDATE_CAP = "candidate_cap_reached"
 
 
 def _env_int(
@@ -194,6 +196,45 @@ QUESTION_MIC_SHRINK_ITERS_MAX = _env_int(
     "ADEU_QUESTION_MIC_SHRINK_ITERS_MAX",
     20,
     minimum=1,
+)
+MAX_TOURNAMENT_DRY_RUN_EVALS_TOTAL = _env_int(
+    "ADEU_MAX_TOURNAMENT_DRY_RUN_EVALS_TOTAL",
+    MAX_QUESTION_DRY_RUN_EVALS_TOTAL,
+    minimum=1,
+)
+MAX_TOURNAMENT_SOLVER_CALLS_TOTAL = _env_int(
+    "ADEU_MAX_TOURNAMENT_SOLVER_CALLS_TOTAL",
+    MAX_QUESTION_SOLVER_CALLS_TOTAL,
+    minimum=1,
+)
+MAX_TOURNAMENT_REPLAY_CANDIDATES = _env_int(
+    "ADEU_MAX_TOURNAMENT_REPLAY_CANDIDATES",
+    20,
+    minimum=1,
+    maximum=200,
+)
+MAX_TOURNAMENT_PATCH_OPS_PER_CANDIDATE = _env_int(
+    "ADEU_MAX_TOURNAMENT_PATCH_OPS_PER_CANDIDATE",
+    50,
+    minimum=1,
+    maximum=500,
+)
+MAX_TOURNAMENT_TOTAL_PATCH_OPS = _env_int(
+    "ADEU_MAX_TOURNAMENT_TOTAL_PATCH_OPS",
+    200,
+    minimum=1,
+    maximum=5_000,
+)
+MAX_TOURNAMENT_REPLAY_PAYLOAD_BYTES = _env_int(
+    "ADEU_MAX_TOURNAMENT_REPLAY_PAYLOAD_BYTES",
+    500_000,
+    minimum=1_024,
+)
+MAX_TOURNAMENT_TOP_K = _env_int(
+    "ADEU_MAX_TOURNAMENT_TOP_K",
+    10,
+    minimum=1,
+    maximum=100,
 )
 _ALIGNMENT_KIND_RANKS: dict[str, int] = {
     "merge_candidate": 0,
@@ -303,6 +344,74 @@ class ConceptQuestionsRequest(BaseModel):
     mode: KernelMode = KernelMode.LAX
     include_forced_details: bool = False
     expected_ir_hash: str | None = None
+
+
+class ConceptTournamentCandidateInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    question_id: str = Field(min_length=1)
+    patch_ops: list[JsonPatchOp] = Field(
+        min_length=1,
+        max_length=MAX_TOURNAMENT_PATCH_OPS_PER_CANDIDATE,
+    )
+
+
+class ConceptTournamentRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: ConceptIR
+    source_text: str | None = None
+    doc_id: str | None = None
+    mode: KernelMode = KernelMode.LAX
+    tournament_mode: Literal["live_generation", "replay_candidates"] = "replay_candidates"
+    provider: Literal["mock", "openai"] = "mock"
+    candidates: list[ConceptTournamentCandidateInput] | None = Field(
+        default=None,
+        max_length=MAX_TOURNAMENT_REPLAY_CANDIDATES,
+    )
+    max_candidates: int = Field(default=MAX_TOURNAMENT_REPLAY_CANDIDATES, ge=1)
+    top_k: int = Field(default=5, ge=1, le=MAX_TOURNAMENT_TOP_K)
+    max_solver_calls: int | None = Field(
+        default=None,
+        ge=1,
+        le=MAX_TOURNAMENT_SOLVER_CALLS_TOTAL,
+    )
+    max_dry_runs: int | None = Field(
+        default=None,
+        ge=1,
+        le=MAX_TOURNAMENT_DRY_RUN_EVALS_TOTAL,
+    )
+    include_analysis_details: bool = False
+    include_forced_details: bool = False
+    expected_ir_hash: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_replay_bounds(self) -> "ConceptTournamentRequest":
+        if self.max_candidates > MAX_TOURNAMENT_REPLAY_CANDIDATES:
+            raise ValueError(
+                f"max_candidates must be <= {MAX_TOURNAMENT_REPLAY_CANDIDATES}"
+            )
+        if self.top_k > self.max_candidates:
+            raise ValueError("top_k must be <= max_candidates")
+        if self.tournament_mode == "live_generation" and self.candidates:
+            raise ValueError("candidates must be omitted for live_generation")
+        if self.candidates:
+            total_patch_ops = sum(len(candidate.patch_ops) for candidate in self.candidates)
+            if total_patch_ops > MAX_TOURNAMENT_TOTAL_PATCH_OPS:
+                raise ValueError(
+                    f"total candidate patch ops must be <= {MAX_TOURNAMENT_TOTAL_PATCH_OPS}"
+                )
+            payload = canonical_json(
+                [
+                    candidate.model_dump(mode="json", by_alias=True, exclude_none=True)
+                    for candidate in self.candidates
+                ]
+            )
+            payload_size = len(payload.encode("utf-8"))
+            if payload_size > MAX_TOURNAMENT_REPLAY_PAYLOAD_BYTES:
+                raise ValueError(
+                    "candidate payload exceeds "
+                    f"{MAX_TOURNAMENT_REPLAY_PAYLOAD_BYTES} bytes (got {payload_size})"
+                )
+        return self
 
 
 class AdeuAnalyzeConceptsRequest(BaseModel):
@@ -651,6 +760,40 @@ class QuestionsBudgetReport(BaseModel):
     used_dry_runs: int
     truncated: bool
     truncation_reason: str | None = None
+
+
+class ConceptTournamentCandidateResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    candidate_id: str
+    question_id: str
+    rank: int
+    improved: bool
+    objective_vector: list[int] = Field(default_factory=list)
+    patch_ops: list[JsonPatchOp] = Field(default_factory=list)
+    check_report: CheckReport
+    analysis: ConceptAnalysis | None = None
+    diff_report: DiffReport
+    mapping_trust: str | None = None
+    solver_trust: SolverTrustLevel = "kernel_only"
+    proof_trust: str | None = None
+
+
+class ConceptTournamentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    tournament_mode: Literal["live_generation", "replay_candidates"]
+    provider: Literal["mock", "openai"]
+    tournament_score_version: Literal["concepts.tscore.v1"] = TOURNAMENT_SCORE_VERSION
+    base_ir_hash: str
+    base_objective_vector: list[int] = Field(default_factory=list)
+    no_safe_improvement: bool
+    selected_candidate_id: str | None = None
+    candidate_count: int
+    evaluated_count: int
+    candidates: list[ConceptTournamentCandidateResult] = Field(default_factory=list)
+    budget_report: QuestionsBudgetReport
+    mapping_trust: str | None = None
+    solver_trust: SolverTrustLevel = "kernel_only"
+    proof_trust: str | None = None
 
 
 class AdeuAnalyzeConceptsResponse(BaseModel):
@@ -1275,7 +1418,21 @@ def _persist_validator_runs(
         )
 
 
+def _normalize_evidence_json_for_output(evidence_json: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(evidence_json)
+    unsat_core = payload.get("unsat_core")
+    if isinstance(unsat_core, list):
+        payload["unsat_core"] = sorted(str(item) for item in unsat_core)
+    model = payload.get("model")
+    if isinstance(model, dict):
+        payload["model"] = {str(key): model[key] for key in sorted(model.keys())}
+    return payload
+
+
 def _validator_run_input_from_record(run: ValidatorRunRecord) -> ValidatorRunInput:
+    evidence = _normalize_evidence_json_for_output(
+        run.result.evidence.model_dump(mode="json", exclude_none=True)
+    )
     return ValidatorRunInput(
         run_id=None,
         created_at=None,
@@ -1286,7 +1443,7 @@ def _validator_run_input_from_record(run: ValidatorRunRecord) -> ValidatorRunInp
         request_hash=run.result.request_hash,
         formula_hash=run.result.formula_hash,
         status=run.result.status,
-        evidence_json=run.result.evidence.model_dump(mode="json", exclude_none=True),
+        evidence_json=evidence,
         atom_map_json={
             atom.assertion_name: {
                 "object_id": atom.object_id,
@@ -1315,6 +1472,9 @@ def _normalize_validator_run_input(run: ValidatorRunInput) -> ValidatorRunInput:
             for ref in run.atom_map_json
         }
     payload = run.model_dump(mode="python")
+    evidence = payload.get("evidence_json")
+    if isinstance(evidence, dict):
+        payload["evidence_json"] = _normalize_evidence_json_for_output(evidence)
     payload["atom_map_json"] = atom_map
     return ValidatorRunInput.model_validate(payload)
 
@@ -1375,6 +1535,24 @@ def _require_ir_hash_match(*, ir: ConceptIR, ir_hash: str | None) -> None:
         status_code=409,
         detail={
             "code": "STALE_IR",
+            "message": "ir_hash precondition failed; refresh IR and retry",
+            "expected_ir_hash": expected,
+            "provided_ir_hash": ir_hash,
+        },
+    )
+
+
+def _require_tournament_ir_hash_match(*, ir: ConceptIR, ir_hash: str | None) -> None:
+    if ir_hash is None:
+        return
+    expected = _concept_ir_hash(ir)
+    if expected == ir_hash:
+        return
+    raise HTTPException(
+        status_code=409,
+        detail={
+            "code": "TOURNAMENT_STALE_IR_HASH_MISMATCH",
+            "legacy_code": "STALE_IR",
             "message": "ir_hash precondition failed; refresh IR and retry",
             "expected_ir_hash": expected,
             "provided_ir_hash": ir_hash,
@@ -1928,6 +2106,213 @@ def _is_do_no_harm_improvement(
         return True
 
     return False
+
+
+def _check_status_rank(status: str) -> int:
+    if status == "PASS":
+        return 0
+    if status == "WARN":
+        return 1
+    if status == "REFUSE":
+        return 2
+    return 3
+
+
+def _check_reason_count(report: CheckReport, *, severity: ReasonSeverity) -> int:
+    return sum(1 for reason in report.reason_codes if reason.severity == severity)
+
+
+def _tournament_objective_vector(
+    *,
+    report: CheckReport,
+    analysis: ConceptAnalysis,
+) -> tuple[int, int, int, int, int]:
+    return (
+        _check_status_rank(report.status),
+        _check_reason_count(report, severity=ReasonSeverity.ERROR),
+        _check_reason_count(report, severity=ReasonSeverity.WARN),
+        _analysis_mic_count(analysis),
+        _analysis_countermodel_count(analysis),
+    )
+
+
+def _analysis_for_response(
+    *,
+    analysis: ConceptAnalysis,
+    include_analysis_details: bool,
+    include_forced_details: bool,
+) -> ConceptAnalysis:
+    if not include_analysis_details:
+        return strip_analysis_details(analysis)
+    if not include_forced_details:
+        return strip_forced_details(analysis)
+    return analysis
+
+
+def _tournament_candidate_id(
+    *,
+    base_ir_hash: str,
+    question_id: str,
+    patch_ops: list[JsonPatchOp],
+) -> str:
+    payload = {
+        "base_ir_hash": base_ir_hash,
+        "patch_ops_canonical": _question_patch_key(patch_ops),
+        "question_id": question_id,
+        "tournament_score_version": TOURNAMENT_SCORE_VERSION,
+    }
+    return sha256_canonical_json(payload)[:12]
+
+
+class _TournamentCandidateEvaluation(NamedTuple):
+    candidate_id: str
+    question_id: str
+    patch_ops: list[JsonPatchOp]
+    objective_vector: tuple[int, int, int, int, int]
+    improved: bool
+    check_report: CheckReport
+    analysis: ConceptAnalysis
+    diff_report: DiffReport
+    solver_trust: SolverTrustLevel
+
+
+def _build_live_tournament_candidates(
+    *,
+    ir: ConceptIR,
+    analysis: ConceptAnalysis,
+    report: CheckReport,
+    max_candidates: int,
+) -> tuple[list[ConceptTournamentCandidateInput], bool]:
+    raw_questions = build_concept_questions(
+        ir,
+        analysis,
+        max_questions=DEFAULT_MAX_QUESTIONS,
+        max_answers_per_question=DEFAULT_MAX_ANSWERS_PER_QUESTION,
+    )
+    ranked_questions = _rank_and_dedupe_questions(
+        questions=raw_questions,
+        analysis=analysis,
+        report=report,
+        ir=ir,
+    )
+
+    seen: set[tuple[str, str]] = set()
+    candidates: list[ConceptTournamentCandidateInput] = []
+    for question in ranked_questions:
+        for answer in question.answers:
+            patch_ops = answer.patch or []
+            if not patch_ops:
+                continue
+            dedupe_key = (question.question_id, _question_patch_key(patch_ops))
+            if dedupe_key in seen:
+                continue
+            seen.add(dedupe_key)
+            candidates.append(
+                ConceptTournamentCandidateInput(
+                    question_id=question.question_id,
+                    patch_ops=patch_ops,
+                )
+            )
+
+    truncated = len(candidates) > max_candidates
+    return candidates[:max_candidates], truncated
+
+
+def _evaluate_tournament_candidate(
+    *,
+    ir: ConceptIR,
+    source_text: str | None,
+    mode: KernelMode,
+    base_run_inputs: list[ValidatorRunInput],
+    base_ir_hash: str,
+    base_objective: tuple[int, int, int, int, int],
+    candidate: ConceptTournamentCandidateInput,
+    include_analysis_details: bool,
+    include_forced_details: bool,
+    remaining_solver_calls: int,
+) -> tuple[_TournamentCandidateEvaluation | None, int]:
+    try:
+        applied = _apply_concept_patch_core(
+            ir=ir,
+            ir_hash=None,
+            mode=mode,
+            source_text=source_text,
+            doc_id=None,
+            dry_run=True,
+            include_validator_runs=True,
+            patch_ops=candidate.patch_ops,
+        )
+    except HTTPException:
+        return None, 0
+
+    candidate_run_inputs = applied.validator_runs or []
+    used_solver_calls = 1 if candidate_run_inputs else 0
+    remaining_after_apply = max(0, remaining_solver_calls - used_solver_calls)
+    concept_runs = [_concept_run_ref_from_input(run) for run in candidate_run_inputs]
+    selected = pick_latest_run(concept_runs)
+
+    if selected is None or remaining_after_apply <= 0:
+        patched_analysis = unavailable_analysis(details="tournament analysis budget exhausted")
+    else:
+        mic_budget, forced_budget = _analysis_budget_split(remaining_after_apply)
+        patched_analysis = analyze_concept(
+            applied.patched_ir,
+            run=selected,
+            max_shrink_iters=max(1, min(mic_budget, QUESTION_MIC_SHRINK_ITERS_MAX)),
+            max_solver_calls=mic_budget,
+            max_forced_checks=max(0, forced_budget - 1),
+            max_solver_calls_total=forced_budget,
+        )
+        analysis_solver_calls = (
+            patched_analysis.mic.solver_calls + patched_analysis.forced.solver_calls
+        )
+        used_solver_calls += min(remaining_after_apply, analysis_solver_calls)
+
+    left_backend, left_timeout_ms = _extract_backend_timeout(base_run_inputs)
+    right_backend, right_timeout_ms = _extract_backend_timeout(candidate_run_inputs)
+    diff_report = build_diff_report(
+        ir,
+        applied.patched_ir,
+        left_id=ir.concept_id,
+        right_id=applied.patched_ir.concept_id,
+        left_runs=base_run_inputs,
+        right_runs=candidate_run_inputs,
+        summary_run_source="provided",
+        summary_recompute_mode=mode.value,
+        summary_left_backend=left_backend,
+        summary_right_backend=right_backend,
+        summary_left_timeout_ms=left_timeout_ms,
+        summary_right_timeout_ms=right_timeout_ms,
+    )
+
+    objective = _tournament_objective_vector(
+        report=applied.check_report,
+        analysis=patched_analysis,
+    )
+    candidate_id = _tournament_candidate_id(
+        base_ir_hash=base_ir_hash,
+        question_id=candidate.question_id,
+        patch_ops=candidate.patch_ops,
+    )
+
+    return (
+        _TournamentCandidateEvaluation(
+            candidate_id=candidate_id,
+            question_id=candidate.question_id,
+            patch_ops=candidate.patch_ops,
+            objective_vector=objective,
+            improved=objective < base_objective,
+            check_report=applied.check_report,
+            analysis=_analysis_for_response(
+                analysis=patched_analysis,
+                include_analysis_details=include_analysis_details,
+                include_forced_details=include_forced_details,
+            ),
+            diff_report=diff_report,
+            solver_trust="solver_backed" if candidate_run_inputs else "kernel_only",
+        ),
+        used_solver_calls,
+    )
 
 
 def _analysis_budget_split(remaining_solver_calls: int) -> tuple[int, int]:
@@ -2760,6 +3145,164 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
         ),
         mapping_trust=None,
         solver_trust="solver_backed" if records else "kernel_only",
+        proof_trust=None,
+    )
+
+
+@app.post("/concepts/tournament", response_model=ConceptTournamentResponse)
+def concept_tournament_endpoint(req: ConceptTournamentRequest) -> ConceptTournamentResponse:
+    source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.source_text,
+        doc_id=req.doc_id,
+        require_source=False,
+    )
+    _require_tournament_ir_hash_match(ir=req.ir, ir_hash=req.expected_ir_hash)
+
+    report, records = check_concept_with_validator_runs(
+        req.ir,
+        mode=req.mode,
+        source_text=source_text,
+    )
+    base_run_inputs = [_validator_run_input_from_record(record) for record in records]
+    concept_runs = [_concept_run_ref_from_input(run) for run in base_run_inputs]
+    selected = pick_latest_run(concept_runs)
+    base_analysis = analyze_concept(req.ir, run=selected)
+    base_objective = _tournament_objective_vector(report=report, analysis=base_analysis)
+    base_ir_hash = _concept_ir_hash(req.ir)
+
+    generated_truncated = False
+    if req.tournament_mode == "live_generation":
+        if req.provider != "mock":
+            raise HTTPException(
+                status_code=502,
+                detail={
+                    "code": "TOURNAMENT_PROVIDER_ERROR",
+                    "message": f"live_generation provider is unsupported: {req.provider}",
+                },
+            )
+        candidates, generated_truncated = _build_live_tournament_candidates(
+            ir=req.ir,
+            analysis=base_analysis,
+            report=report,
+            max_candidates=req.max_candidates,
+        )
+    else:
+        candidates = list(req.candidates or [])
+
+    if not candidates:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "TOURNAMENT_NO_CANDIDATES",
+                "message": "no tournament candidates available for evaluation",
+            },
+        )
+
+    truncation_reason: str | None = None
+    if generated_truncated:
+        truncation_reason = QUESTION_TRUNCATION_REASON_CANDIDATE_CAP
+    if len(candidates) > req.max_candidates:
+        candidates = candidates[: req.max_candidates]
+        if truncation_reason is None:
+            truncation_reason = QUESTION_TRUNCATION_REASON_CANDIDATE_CAP
+
+    max_solver_calls = req.max_solver_calls or MAX_TOURNAMENT_SOLVER_CALLS_TOTAL
+    max_dry_runs = req.max_dry_runs or MAX_TOURNAMENT_DRY_RUN_EVALS_TOTAL
+    remaining_solver_calls = max_solver_calls
+    remaining_dry_runs = max_dry_runs
+    evaluations: list[_TournamentCandidateEvaluation] = []
+
+    for candidate in candidates:
+        if remaining_dry_runs <= 0:
+            if truncation_reason is None:
+                truncation_reason = QUESTION_TRUNCATION_REASON_DRY_RUN_CAP
+            break
+        if remaining_solver_calls <= 0:
+            if truncation_reason is None:
+                truncation_reason = QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP
+            break
+
+        remaining_dry_runs -= 1
+        evaluation, used_solver_calls = _evaluate_tournament_candidate(
+            ir=req.ir,
+            source_text=source_text,
+            mode=req.mode,
+            base_run_inputs=base_run_inputs,
+            base_ir_hash=base_ir_hash,
+            base_objective=base_objective,
+            candidate=candidate,
+            include_analysis_details=req.include_analysis_details,
+            include_forced_details=req.include_forced_details,
+            remaining_solver_calls=remaining_solver_calls,
+        )
+        remaining_solver_calls = max(0, remaining_solver_calls - used_solver_calls)
+        if evaluation is not None:
+            evaluations.append(evaluation)
+
+    if not evaluations:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "TOURNAMENT_NO_CANDIDATES",
+                "message": "no evaluable tournament candidates after validation",
+            },
+        )
+
+    ranked = sorted(
+        evaluations,
+        key=lambda item: (
+            0 if item.improved else 1,
+            item.objective_vector,
+            item.candidate_id,
+        ),
+    )
+    rank_by_id = {candidate.candidate_id: idx for idx, candidate in enumerate(ranked)}
+    selected_candidate = next((candidate for candidate in ranked if candidate.improved), None)
+    no_safe_improvement = selected_candidate is None
+    top_ranked = ranked[: min(req.top_k, len(ranked))]
+    used_solver_calls = max_solver_calls - remaining_solver_calls
+    used_dry_runs = max_dry_runs - remaining_dry_runs
+
+    return ConceptTournamentResponse(
+        tournament_mode=req.tournament_mode,
+        provider=req.provider,
+        tournament_score_version=TOURNAMENT_SCORE_VERSION,
+        base_ir_hash=base_ir_hash,
+        base_objective_vector=[*base_objective],
+        no_safe_improvement=no_safe_improvement,
+        selected_candidate_id=(
+            None if selected_candidate is None else selected_candidate.candidate_id
+        ),
+        candidate_count=len(candidates),
+        evaluated_count=len(evaluations),
+        candidates=[
+            ConceptTournamentCandidateResult(
+                candidate_id=item.candidate_id,
+                question_id=item.question_id,
+                rank=rank_by_id[item.candidate_id],
+                improved=item.improved,
+                objective_vector=[*item.objective_vector],
+                patch_ops=item.patch_ops,
+                check_report=item.check_report,
+                analysis=item.analysis,
+                diff_report=item.diff_report,
+                mapping_trust=None,
+                solver_trust=item.solver_trust,
+                proof_trust=None,
+            )
+            for item in top_ranked
+        ],
+        budget_report=QuestionsBudgetReport(
+            budget_version=QUESTIONS_BUDGET_VERSION,
+            max_solver_calls=max_solver_calls,
+            used_solver_calls=used_solver_calls,
+            max_dry_runs=max_dry_runs,
+            used_dry_runs=used_dry_runs,
+            truncated=truncation_reason is not None,
+            truncation_reason=truncation_reason,
+        ),
+        mapping_trust=None,
+        solver_trust="solver_backed" if records or used_solver_calls > 0 else "kernel_only",
         proof_trust=None,
     )
 
