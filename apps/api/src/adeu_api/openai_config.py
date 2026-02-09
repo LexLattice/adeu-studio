@@ -42,10 +42,12 @@ def openai_temperature() -> float:
     try:
         value = float(raw)
     except ValueError as exc:
-        raise RuntimeError("ADEU_OPENAI_TEMPERATURE must be a number") from exc
+        raise RuntimeError(
+            f"ADEU_OPENAI_TEMPERATURE must be a number, but got {raw!r}"
+        ) from exc
     if value < MIN_OPENAI_TEMPERATURE or value > MAX_OPENAI_TEMPERATURE:
         raise RuntimeError(
             "ADEU_OPENAI_TEMPERATURE must be between "
-            f"{MIN_OPENAI_TEMPERATURE} and {MAX_OPENAI_TEMPERATURE}"
+            f"{MIN_OPENAI_TEMPERATURE} and {MAX_OPENAI_TEMPERATURE}, but got {value}"
         )
     return value
