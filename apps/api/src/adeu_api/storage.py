@@ -761,24 +761,41 @@ def list_validator_runs(
             (artifact_id,),
         ).fetchall()
 
-    return [
-        ValidatorRunRow(
-            run_id=row["run_id"],
-            artifact_id=row["artifact_id"],
-            concept_artifact_id=row["concept_artifact_id"],
-            created_at=row["created_at"],
-            backend=row["backend"],
-            backend_version=row["backend_version"],
-            timeout_ms=row["timeout_ms"],
-            options_json=json.loads(row["options_json"]),
-            request_hash=row["request_hash"],
-            formula_hash=row["formula_hash"],
-            status=row["status"],
-            evidence_json=json.loads(row["evidence_json"]),
-            atom_map_json=json.loads(row["atom_map_json"]),
-        )
-        for row in rows
-    ]
+    return [_validator_run_from_row(row) for row in rows]
+
+
+def list_validator_runs_for_artifacts(
+    *,
+    artifact_ids: list[str],
+    db_path: Path | None = None,
+) -> dict[str, list[ValidatorRunRow]]:
+    normalized_ids = sorted({item for item in artifact_ids if item})
+    if not normalized_ids:
+        return {}
+    if db_path is None:
+        db_path = _default_db_path()
+
+    placeholders = ",".join("?" for _ in normalized_ids)
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        rows = con.execute(
+            f"""
+            SELECT run_id, artifact_id, created_at, backend, backend_version, timeout_ms,
+                   concept_artifact_id, options_json, request_hash, formula_hash, status,
+                   evidence_json, atom_map_json
+            FROM validator_runs
+            WHERE artifact_id IN ({placeholders})
+            ORDER BY artifact_id ASC, created_at ASC, run_id ASC
+            """,
+            tuple(normalized_ids),
+        ).fetchall()
+
+    grouped: dict[str, list[ValidatorRunRow]] = {artifact_id: [] for artifact_id in normalized_ids}
+    for row in rows:
+        artifact_id = str(row["artifact_id"])
+        grouped.setdefault(artifact_id, []).append(_validator_run_from_row(row))
+    return grouped
 
 
 def list_concept_validator_runs(
@@ -846,20 +863,72 @@ def list_proof_artifacts(
             (artifact_id,),
         ).fetchall()
 
-    return [
-        ProofArtifactRow(
-            proof_id=row["proof_id"],
-            artifact_id=row["artifact_id"],
-            created_at=row["created_at"],
-            backend=row["backend"],
-            theorem_id=row["theorem_id"],
-            status=row["status"],
-            proof_hash=row["proof_hash"],
-            inputs_json=json.loads(row["inputs_json"]),
-            details_json=json.loads(row["details_json"]),
-        )
-        for row in rows
-    ]
+    return [_proof_artifact_from_row(row) for row in rows]
+
+
+def list_proof_artifacts_for_artifacts(
+    *,
+    artifact_ids: list[str],
+    db_path: Path | None = None,
+) -> dict[str, list[ProofArtifactRow]]:
+    normalized_ids = sorted({item for item in artifact_ids if item})
+    if not normalized_ids:
+        return {}
+    if db_path is None:
+        db_path = _default_db_path()
+
+    placeholders = ",".join("?" for _ in normalized_ids)
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        rows = con.execute(
+            f"""
+            SELECT proof_id, artifact_id, created_at, backend, theorem_id, status, proof_hash,
+                   inputs_json, details_json
+            FROM proof_artifacts
+            WHERE artifact_id IN ({placeholders})
+            ORDER BY artifact_id ASC, created_at ASC, proof_id ASC
+            """,
+            tuple(normalized_ids),
+        ).fetchall()
+
+    grouped: dict[str, list[ProofArtifactRow]] = {artifact_id: [] for artifact_id in normalized_ids}
+    for row in rows:
+        artifact_id = str(row["artifact_id"])
+        grouped.setdefault(artifact_id, []).append(_proof_artifact_from_row(row))
+    return grouped
+
+
+def _validator_run_from_row(row: sqlite3.Row) -> ValidatorRunRow:
+    return ValidatorRunRow(
+        run_id=row["run_id"],
+        artifact_id=row["artifact_id"],
+        concept_artifact_id=row["concept_artifact_id"],
+        created_at=row["created_at"],
+        backend=row["backend"],
+        backend_version=row["backend_version"],
+        timeout_ms=row["timeout_ms"],
+        options_json=json.loads(row["options_json"]),
+        request_hash=row["request_hash"],
+        formula_hash=row["formula_hash"],
+        status=row["status"],
+        evidence_json=json.loads(row["evidence_json"]),
+        atom_map_json=json.loads(row["atom_map_json"]),
+    )
+
+
+def _proof_artifact_from_row(row: sqlite3.Row) -> ProofArtifactRow:
+    return ProofArtifactRow(
+        proof_id=row["proof_id"],
+        artifact_id=row["artifact_id"],
+        created_at=row["created_at"],
+        backend=row["backend"],
+        theorem_id=row["theorem_id"],
+        status=row["status"],
+        proof_hash=row["proof_hash"],
+        inputs_json=json.loads(row["inputs_json"]),
+        details_json=json.loads(row["details_json"]),
+    )
 
 
 def create_concept_artifact(

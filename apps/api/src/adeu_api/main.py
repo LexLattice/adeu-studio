@@ -105,7 +105,9 @@ from .storage import (
     list_concept_validator_runs,
     list_documents,
     list_proof_artifacts,
+    list_proof_artifacts_for_artifacts,
     list_validator_runs,
+    list_validator_runs_for_artifacts,
 )
 from .storage import (
     transaction as storage_transaction,
@@ -3335,10 +3337,14 @@ def list_artifacts_endpoint(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    artifact_ids = [row.artifact_id for row in items]
+    validator_rows_by_artifact = list_validator_runs_for_artifacts(artifact_ids=artifact_ids)
+    proof_rows_by_artifact = list_proof_artifacts_for_artifacts(artifact_ids=artifact_ids)
+
     summaries: list[ArtifactSummary] = []
     for row in items:
-        validator_rows = list_validator_runs(artifact_id=row.artifact_id)
-        proof_rows = list_proof_artifacts(artifact_id=row.artifact_id)
+        validator_rows = validator_rows_by_artifact.get(row.artifact_id, [])
+        proof_rows = proof_rows_by_artifact.get(row.artifact_id, [])
         solver_trust, proof_trust = _artifact_trust_labels(
             validator_runs=validator_rows,
             proof_rows=proof_rows,
