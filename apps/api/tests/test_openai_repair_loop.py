@@ -162,6 +162,7 @@ class _FakeBackend:
     def __init__(self, results: list[BackendResult]):
         self._results = list(results)
         self.calls = 0
+        self.temperatures: list[float | None] = []
 
     def generate_ir_json(
         self,
@@ -174,6 +175,7 @@ class _FakeBackend:
         extra: dict[str, Any] | None = None,
     ) -> BackendResult:
         self.calls += 1
+        self.temperatures.append(temperature)
         return self._results.pop(0)
 
 
@@ -221,6 +223,7 @@ def test_propose_openai_stops_when_repair_progress_stalls(monkeypatch) -> None:
     )
 
     assert fake_backend.calls == 2
+    assert fake_backend.temperatures == [0.3, 0.3]
     assert len(log.attempts) == 2
     assert len(proposals) == 1, "expected exactly one candidate"
 
@@ -270,6 +273,30 @@ def test_propose_openai_assigns_candidate_rank_in_attempt_log(monkeypatch) -> No
     assert [candidate.rank for candidate in resp.candidates] == [0, 1]
     assert [attempt.candidate_rank for attempt in resp.proposer_log.attempts] == [1, 0]
     assert all(attempt.score_key is not None for attempt in resp.proposer_log.attempts)
+
+
+def test_propose_openai_uses_configured_temperature(monkeypatch) -> None:
+    fake_backend = _FakeBackend([_ok_result(_minimal_payload(ir_id="ir_temp", verb="notify"))])
+
+    def fake_check_with_runs(*args: object, **kwargs: object) -> tuple[CheckReport, list]:
+        return _report_pass(), []
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ADEU_OPENAI_API", "responses")
+    monkeypatch.setenv("ADEU_OPENAI_TEMPERATURE", "0.75")
+    monkeypatch.setattr(openai_provider, "build_openai_backend", lambda **kwargs: fake_backend)
+    monkeypatch.setattr(openai_provider, "check_with_validator_runs", fake_check_with_runs)
+
+    proposals, _, _ = openai_provider.propose_openai(
+        clause_text="Supplier shall notify Customer.",
+        context=_context(),
+        mode=KernelMode.LAX,
+        max_candidates=1,
+        max_repairs=0,
+    )
+
+    assert len(proposals) == 1
+    assert fake_backend.temperatures == [0.75]
 
 
 def test_propose_openai_responses_backend_error_aborts_without_chat_fallback(
