@@ -130,12 +130,12 @@ def _env_int(
     minimum: int | None = None,
     maximum: int | None = None,
 ) -> int:
-    raw_value = os.environ.get(name)
-    if raw_value is None or not raw_value.strip():
+    raw_value = os.environ.get(name, "").strip()
+    if not raw_value:
         value = default
     else:
         try:
-            value = int(raw_value.strip())
+            value = int(raw_value)
         except ValueError as exc:
             raise RuntimeError(f"{name} must be an integer") from exc
 
