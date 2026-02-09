@@ -165,6 +165,53 @@ type ConceptQuestion = {
   answers: ConceptQuestionAnswer[];
 };
 
+type TournamentMode = "live_generation" | "replay_candidates";
+
+type ConceptTournamentCandidateInput = {
+  question_id: string;
+  patch_ops: ConceptPatchOp[];
+};
+
+type ConceptTournamentCandidateResult = {
+  candidate_id: string;
+  question_id: string;
+  rank: number;
+  improved: boolean;
+  objective_vector: number[];
+  patch_ops: ConceptPatchOp[];
+  check_report: CheckReport;
+  analysis?: ConceptAnalysis | null;
+  diff_report: {
+    summary?: {
+      status_flip?: string;
+      solver_pairing_state?: string;
+      structural_patch_count?: string;
+      solver_touched_atom_count?: string;
+      causal_atom_count?: string;
+    };
+  };
+  mapping_trust?: string | null;
+  solver_trust?: "kernel_only" | "solver_backed" | "proof_checked";
+  proof_trust?: string | null;
+};
+
+type ConceptTournamentResponse = {
+  tournament_mode: TournamentMode;
+  provider: "mock" | "openai";
+  tournament_score_version: "concepts.tscore.v1";
+  base_ir_hash: string;
+  base_objective_vector: number[];
+  no_safe_improvement: boolean;
+  selected_candidate_id?: string | null;
+  candidate_count: number;
+  evaluated_count: number;
+  candidates: ConceptTournamentCandidateResult[];
+  budget_report: ConceptQuestionsBudgetReport;
+  mapping_trust?: string | null;
+  solver_trust?: "kernel_only" | "solver_backed" | "proof_checked";
+  proof_trust?: string | null;
+};
+
 type ConceptQuestionsBudgetReport = {
   budget_version: "budget.v1";
   max_solver_calls: number;
@@ -266,6 +313,7 @@ const ALIGNMENT_MAX_SUGGESTIONS_MIN = 1;
 const ALIGNMENT_MAX_SUGGESTIONS_MAX = 500;
 const ALIGNMENT_MAX_SUGGESTIONS_DEFAULT = 100;
 const ALIGNMENT_SENSE_REFS_PREVIEW_LIMIT = 6;
+const TOURNAMENT_TOP_K_DEFAULT = 4;
 
 function stableJson(value: unknown): string {
   if (value === null || typeof value !== "object") {
@@ -339,8 +387,11 @@ function conceptApiErrorMessage(raw: string): string {
         .map((item) => `${item.code ?? "ERROR"} ${item.path ?? ""} ${item.message ?? ""}`.trim())
         .join("\n");
     }
-    if (detail?.code === "STALE_IR") {
-      return `STALE_IR ${detail.message ?? ""}`.trim();
+    if (
+      detail?.code === "STALE_IR" ||
+      detail?.code === "TOURNAMENT_STALE_IR_HASH_MISMATCH"
+    ) {
+      return `${detail.code} ${detail.message ?? ""}`.trim();
     }
   } catch {
     // fall back to raw response body for non-JSON payloads
@@ -439,6 +490,12 @@ export default function ConceptsPage() {
   const [questionHistoryByVariant, setQuestionHistoryByVariant] = useState<
     Array<QuestionLifecycleEntry[]>
   >([]);
+  const [tournamentByVariant, setTournamentByVariant] = useState<
+    Array<Record<string, ConceptTournamentResponse>>
+  >([]);
+  const [activeTournamentQuestionId, setActiveTournamentQuestionId] = useState<string | null>(
+    null,
+  );
   const [highlight, setHighlight] = useState<Highlight>(null);
 
   const selected = useMemo(() => candidates[selectedIdx] ?? null, [candidates, selectedIdx]);
@@ -456,6 +513,10 @@ export default function ConceptsPage() {
   const selectedQuestionHistory = useMemo(
     () => questionHistoryByVariant[selectedIdx] ?? [],
     [questionHistoryByVariant, selectedIdx],
+  );
+  const selectedTournamentByQuestion = useMemo(
+    () => tournamentByVariant[selectedIdx] ?? {},
+    [tournamentByVariant, selectedIdx],
   );
   const selectedQuestionHistoryMap = useMemo(
     () => new Map(selectedQuestionHistory.map((entry) => [entry.key, entry.status])),
@@ -499,6 +560,25 @@ export default function ConceptsPage() {
     });
   }
 
+  function setTournamentForVariant(
+    variantIdx: number,
+    questionId: string,
+    response: ConceptTournamentResponse | null,
+  ) {
+    setTournamentByVariant((prev) => {
+      const next = [...prev];
+      while (next.length <= variantIdx) next.push({});
+      const current = { ...(next[variantIdx] ?? {}) };
+      if (response === null) {
+        delete current[questionId];
+      } else {
+        current[questionId] = response;
+      }
+      next[variantIdx] = current;
+      return next;
+    });
+  }
+
   function setQuestionsForVariant(
     variantIdx: number,
     questions: ConceptQuestion[],
@@ -524,6 +604,16 @@ export default function ConceptsPage() {
           : entry,
       ),
     );
+    const questionIds = new Set(questions.map((question) => question.question_id));
+    setTournamentByVariant((prev) => {
+      const next = [...prev];
+      while (next.length <= variantIdx) next.push({});
+      const current = next[variantIdx] ?? {};
+      next[variantIdx] = Object.fromEntries(
+        Object.entries(current).filter(([questionId]) => questionIds.has(questionId)),
+      );
+      return next;
+    });
   }
 
   async function runAnalyzeForVariant(variantIdx: number, ir: ConceptIR): Promise<ConceptAnalyzeResponse | null> {
@@ -639,6 +729,9 @@ export default function ConceptsPage() {
     setAnalyses((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
     setQuestionsByVariant((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
     setQuestionsMetaByVariant((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
+    setTournamentByVariant((prev) =>
+      prev.map((value, idx) => (idx === variantIdx ? {} : value)),
+    );
 
     await runAnalyzeForVariant(variantIdx, applyData.patched_ir);
     await runQuestionsForVariant(variantIdx, applyData.patched_ir);
@@ -668,6 +761,7 @@ export default function ConceptsPage() {
       setQuestionsByVariant((data.candidates ?? []).map(() => null));
       setQuestionsMetaByVariant((data.candidates ?? []).map(() => null));
       setQuestionHistoryByVariant((data.candidates ?? []).map(() => []));
+      setTournamentByVariant((data.candidates ?? []).map(() => ({})));
       setSelectedIdx(0);
       setCompareIdx(null);
       setProposerLog(data.proposer_log ?? null);
@@ -768,6 +862,7 @@ export default function ConceptsPage() {
     setError(null);
     setArtifactId(null);
     setAlignmentResult(null);
+    setActiveTournamentQuestionId(null);
     setActiveOptionKey(`${ambiguityId}:${optionId}`);
 
     try {
@@ -808,7 +903,9 @@ export default function ConceptsPage() {
     setError(null);
     setArtifactId(null);
     setAlignmentResult(null);
+    setActiveTournamentQuestionId(null);
     setActiveQuestionOptionKey(resolutionKey);
+    setTournamentForVariant(variantIdx, question.question_id, null);
     setQuestionHistoryForVariant(variantIdx, (current) => {
       const withoutCurrent = current.filter((entry) => entry.key !== resolutionKey);
       return [
@@ -839,6 +936,72 @@ export default function ConceptsPage() {
       setError(String(e));
     } finally {
       setActiveQuestionOptionKey(null);
+    }
+  }
+
+  async function runQuestionTournament(question: ConceptQuestion) {
+    if (!selectedIr) return;
+    const variantIdx = selectedIdx;
+    const baseIr = selectedIr;
+    const replayCandidates: ConceptTournamentCandidateInput[] = question.answers
+      .filter(
+        (answer): answer is ConceptQuestionAnswer & { patch: ConceptPatchOp[] } =>
+          Array.isArray(answer.patch) && answer.patch.length > 0,
+      )
+      .map((answer) => ({
+        question_id: question.question_id,
+        patch_ops: answer.patch,
+      }));
+
+    if (replayCandidates.length === 0) {
+      setError(`Question ${question.question_id} has no patch-actionable answers`);
+      setTournamentForVariant(variantIdx, question.question_id, null);
+      return;
+    }
+
+    setError(null);
+    setArtifactId(null);
+    setAlignmentResult(null);
+    setActiveTournamentQuestionId(question.question_id);
+
+    try {
+      const expectedIrHash = await conceptIrHash(baseIr);
+      const topK = Math.max(1, Math.min(TOURNAMENT_TOP_K_DEFAULT, replayCandidates.length));
+      const res = await fetch(`${apiBase()}/concepts/tournament`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          ir: baseIr,
+          source_text: sourceText || null,
+          mode,
+          tournament_mode: "replay_candidates" as TournamentMode,
+          provider: "mock",
+          candidates: replayCandidates,
+          max_candidates: replayCandidates.length,
+          top_k: topK,
+          include_analysis_details: false,
+          include_forced_details: false,
+          expected_ir_hash: expectedIrHash,
+        }),
+      });
+      if (!res.ok) {
+        const detailText = conceptApiErrorMessage(await res.text());
+        setError(detailText);
+        if (
+          res.status === 409 &&
+          (detailText.includes("STALE_IR") ||
+            detailText.includes("TOURNAMENT_STALE_IR_HASH_MISMATCH"))
+        ) {
+          await refreshVariantFromStaleGuard(variantIdx, baseIr);
+        }
+        return;
+      }
+      const data = (await res.json()) as ConceptTournamentResponse;
+      setTournamentForVariant(variantIdx, question.question_id, data);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setActiveTournamentQuestionId(null);
     }
   }
 
@@ -1233,70 +1396,142 @@ export default function ConceptsPage() {
               </div>
             ) : null}
             {selectedQuestions.map((question) => (
-              <div
-                key={question.question_id}
-                style={{
-                  marginTop: 8,
-                  border: "1px solid var(--border)",
-                  borderRadius: 8,
-                  background: "#fff",
-                  padding: 8,
-                }}
-              >
-                <div className="muted mono">
-                  {question.signal} · {question.question_id}
-                </div>
-                <div style={{ marginTop: 4 }}>{question.prompt}</div>
-                {question.anchors.length ? (
-                  <div className="row" style={{ marginTop: 6 }}>
-                    {question.anchors.map((anchor, idx) => {
-                      const span =
-                        anchor.span ??
-                        (selectedIr
-                          ? spanFromConceptRef(
-                              selectedIr,
-                              anchor.object_id ?? null,
-                              anchor.json_path ?? null,
-                            )
-                          : null);
-                      const label = anchor.label || anchor.json_path || anchor.object_id || `anchor_${idx + 1}`;
-                      return (
-                        <button
-                          key={`${question.question_id}:anchor:${idx}`}
-                          onClick={() => {
-                            if (!span) return;
-                            setHighlight({ span, label: `question:${label}` });
-                          }}
-                          disabled={!span}
-                        >
-                          Anchor {idx + 1}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : null}
-                <div className="row" style={{ marginTop: 6 }}>
-                  {question.answers.map((answer) => {
-                    const resolutionKey = questionResolutionKey(question, answer.option_id);
-                    const lifecycle = selectedQuestionHistoryMap.get(resolutionKey);
-                    const statusLabel =
-                      lifecycle === "applied" ? "Applied" : lifecycle === "resolved" ? "Resolved" : "Open";
-                    const hasPatch = Boolean(answer.patch?.length);
-                    return (
+              (() => {
+                const patchAnswerCount = question.answers.filter(
+                  (answer) => Array.isArray(answer.patch) && answer.patch.length > 0,
+                ).length;
+                const tournamentResult = selectedTournamentByQuestion[question.question_id] ?? null;
+                const isRunningTournament = activeTournamentQuestionId === question.question_id;
+                return (
+                  <div
+                    key={question.question_id}
+                    style={{
+                      marginTop: 8,
+                      border: "1px solid var(--border)",
+                      borderRadius: 8,
+                      background: "#fff",
+                      padding: 8,
+                    }}
+                  >
+                    <div className="muted mono">
+                      {question.signal} · {question.question_id}
+                    </div>
+                    <div style={{ marginTop: 4 }}>{question.prompt}</div>
+                    {question.anchors.length ? (
+                      <div className="row" style={{ marginTop: 6 }}>
+                        {question.anchors.map((anchor, idx) => {
+                          const span =
+                            anchor.span ??
+                            (selectedIr
+                              ? spanFromConceptRef(
+                                  selectedIr,
+                                  anchor.object_id ?? null,
+                                  anchor.json_path ?? null,
+                                )
+                              : null);
+                          const label = anchor.label || anchor.json_path || anchor.object_id || `anchor_${idx + 1}`;
+                          return (
+                            <button
+                              key={`${question.question_id}:anchor:${idx}`}
+                              onClick={() => {
+                                if (!span) return;
+                                setHighlight({ span, label: `question:${label}` });
+                              }}
+                              disabled={!span}
+                            >
+                              Anchor {idx + 1}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+                    <div className="row" style={{ marginTop: 6 }}>
+                      {question.answers.map((answer) => {
+                        const resolutionKey = questionResolutionKey(question, answer.option_id);
+                        const lifecycle = selectedQuestionHistoryMap.get(resolutionKey);
+                        const statusLabel =
+                          lifecycle === "applied" ? "Applied" : lifecycle === "resolved" ? "Resolved" : "Open";
+                        const hasPatch = Boolean(answer.patch?.length);
+                        return (
+                          <button
+                            key={`${question.question_id}:${answer.option_id}`}
+                            onClick={() => applyQuestionAnswer(question, answer)}
+                            disabled={!hasPatch || (activeQuestionOptionKey !== null && activeQuestionOptionKey !== resolutionKey)}
+                            title={!hasPatch ? "Answer does not provide a patch action" : undefined}
+                          >
+                            {activeQuestionOptionKey === resolutionKey
+                              ? "Applying..."
+                              : `${statusLabel}: ${answer.label}`}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="row" style={{ marginTop: 6 }}>
                       <button
-                        key={`${question.question_id}:${answer.option_id}`}
-                        onClick={() => applyQuestionAnswer(question, answer)}
-                        disabled={!hasPatch || (activeQuestionOptionKey !== null && activeQuestionOptionKey !== resolutionKey)}
-                        title={!hasPatch ? "Answer does not provide a patch action" : undefined}
+                        onClick={() => runQuestionTournament(question)}
+                        disabled={
+                          patchAnswerCount === 0 ||
+                          (activeTournamentQuestionId !== null &&
+                            activeTournamentQuestionId !== question.question_id)
+                        }
+                        title={
+                          patchAnswerCount === 0
+                            ? "Need at least one patch-actionable answer"
+                            : undefined
+                        }
                       >
-                        {activeQuestionOptionKey === resolutionKey
-                          ? "Applying..."
-                          : `${statusLabel}: ${answer.label}`}
+                        {isRunningTournament
+                          ? "Running tournament..."
+                          : `Run tournament (${patchAnswerCount})`}
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
+                      <button
+                        onClick={() => setTournamentForVariant(selectedIdx, question.question_id, null)}
+                        disabled={!tournamentResult || isRunningTournament}
+                      >
+                        Clear tournament
+                      </button>
+                    </div>
+                    {tournamentResult ? (
+                      <div style={{ marginTop: 6 }}>
+                        <div className="muted mono">
+                          score={tournamentResult.tournament_score_version} mode=
+                          {tournamentResult.tournament_mode} selected=
+                          {tournamentResult.selected_candidate_id ?? "none"} safe=
+                          {tournamentResult.no_safe_improvement ? "no_safe_improvement" : "improvement_found"}
+                        </div>
+                        <div className="muted mono" style={{ marginTop: 2 }}>
+                          candidates={tournamentResult.candidate_count} evaluated=
+                          {tournamentResult.evaluated_count} top_k=
+                          {tournamentResult.candidates.length} dry_runs=
+                          {tournamentResult.budget_report.used_dry_runs}/
+                          {tournamentResult.budget_report.max_dry_runs} solver_calls=
+                          {tournamentResult.budget_report.used_solver_calls}/
+                          {tournamentResult.budget_report.max_solver_calls}
+                          {tournamentResult.budget_report.truncated
+                            ? ` truncated:${tournamentResult.budget_report.truncation_reason ?? "unknown"}`
+                            : ""}
+                        </div>
+                        <div style={{ marginTop: 4 }}>
+                          {tournamentResult.candidates.map((candidate) => (
+                            <div
+                              key={candidate.candidate_id}
+                              className="muted mono"
+                              style={{ marginTop: 2 }}
+                            >
+                              #{candidate.rank} {candidate.improved ? "improved" : "no_change"} ·{" "}
+                              {candidate.candidate_id} · status={candidate.check_report.status} · obj=
+                              [{candidate.objective_vector.join(",")}]
+                              {candidate.diff_report.summary
+                                ? ` · flip=${candidate.diff_report.summary.status_flip ?? "n/a"}`
+                                : ""}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })()
             ))}
             {selectedQuestionHistory.some((entry) => entry.status === "resolved") ? (
               <div style={{ marginTop: 8 }}>
