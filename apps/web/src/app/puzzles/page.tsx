@@ -195,6 +195,9 @@ export default function PuzzlesPage() {
           <Link href="/concepts" className="muted">
             Concepts
           </Link>
+          <Link href="/papers" className="muted">
+            Papers
+          </Link>
         </div>
 
         {isProposing ? <div className="muted">Proposing…</div> : null}

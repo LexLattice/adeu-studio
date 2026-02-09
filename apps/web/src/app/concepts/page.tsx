@@ -913,6 +913,9 @@ export default function ConceptsPage() {
           <Link href="/puzzles" className="muted">
             Puzzles
           </Link>
+          <Link href="/papers" className="muted">
+            Papers
+          </Link>
           <Link href="/artifacts" className="muted">
             Artifacts
           </Link>
