@@ -460,6 +460,183 @@ function parseScopeIds(raw: string): string[] {
   ).sort();
 }
 
+type QuestionCardProps = {
+  question: ConceptQuestion;
+  selectedIr: ConceptIR | null;
+  questionHistoryMap: ReadonlyMap<string, QuestionLifecycleStatus>;
+  activeQuestionOptionKey: string | null;
+  activeTournamentQuestionId: string | null;
+  tournamentResult: ConceptTournamentResponse | null;
+  onApplyAnswer: (
+    question: ConceptQuestion,
+    answer: ConceptQuestionAnswer,
+  ) => void | Promise<void>;
+  onRunTournament: (question: ConceptQuestion) => void | Promise<void>;
+  onClearTournament: (questionId: string) => void;
+  onAnchorHighlight: (span: SourceSpan, label: string) => void;
+};
+
+function QuestionCard({
+  question,
+  selectedIr,
+  questionHistoryMap,
+  activeQuestionOptionKey,
+  activeTournamentQuestionId,
+  tournamentResult,
+  onApplyAnswer,
+  onRunTournament,
+  onClearTournament,
+  onAnchorHighlight,
+}: QuestionCardProps) {
+  const patchAnswerCount = question.answers.filter(
+    (answer) => Array.isArray(answer.patch) && answer.patch.length > 0,
+  ).length;
+  const isRunningTournament = activeTournamentQuestionId === question.question_id;
+
+  return (
+    <div
+      style={{
+        marginTop: 8,
+        border: "1px solid var(--border)",
+        borderRadius: 8,
+        background: "#fff",
+        padding: 8,
+      }}
+    >
+      <div className="muted mono">
+        {question.signal} · {question.question_id}
+      </div>
+      <div style={{ marginTop: 4 }}>{question.prompt}</div>
+      {question.anchors.length ? (
+        <div className="row" style={{ marginTop: 6 }}>
+          {question.anchors.map((anchor, idx) => {
+            const span =
+              anchor.span ??
+              (selectedIr
+                ? spanFromConceptRef(
+                    selectedIr,
+                    anchor.object_id ?? null,
+                    anchor.json_path ?? null,
+                  )
+                : null);
+            const label =
+              anchor.label ||
+              anchor.json_path ||
+              anchor.object_id ||
+              `anchor_${idx + 1}`;
+            return (
+              <button
+                key={`${question.question_id}:anchor:${idx}`}
+                onClick={() => {
+                  if (!span) return;
+                  onAnchorHighlight(span, `question:${label}`);
+                }}
+                disabled={!span}
+              >
+                Anchor {idx + 1}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+      <div className="row" style={{ marginTop: 6 }}>
+        {question.answers.map((answer) => {
+          const resolutionKey = questionResolutionKey(question, answer.option_id);
+          const lifecycle = questionHistoryMap.get(resolutionKey);
+          const statusLabel =
+            lifecycle === "applied"
+              ? "Applied"
+              : lifecycle === "resolved"
+                ? "Resolved"
+                : "Open";
+          const hasPatch = Boolean(answer.patch?.length);
+          return (
+            <button
+              key={`${question.question_id}:${answer.option_id}`}
+              onClick={() => onApplyAnswer(question, answer)}
+              disabled={
+                !hasPatch ||
+                (activeQuestionOptionKey !== null &&
+                  activeQuestionOptionKey !== resolutionKey)
+              }
+              title={!hasPatch ? "Answer does not provide a patch action" : undefined}
+            >
+              {activeQuestionOptionKey === resolutionKey
+                ? "Applying..."
+                : `${statusLabel}: ${answer.label}`}
+            </button>
+          );
+        })}
+      </div>
+      <div className="row" style={{ marginTop: 6 }}>
+        <button
+          onClick={() => onRunTournament(question)}
+          disabled={
+            patchAnswerCount === 0 ||
+            (activeTournamentQuestionId !== null &&
+              activeTournamentQuestionId !== question.question_id)
+          }
+          title={
+            patchAnswerCount === 0
+              ? "Need at least one patch-actionable answer"
+              : undefined
+          }
+        >
+          {isRunningTournament
+            ? "Running tournament..."
+            : `Run tournament (${patchAnswerCount})`}
+        </button>
+        <button
+          onClick={() => onClearTournament(question.question_id)}
+          disabled={!tournamentResult || isRunningTournament}
+        >
+          Clear tournament
+        </button>
+      </div>
+      {tournamentResult ? (
+        <div style={{ marginTop: 6 }}>
+          <div className="muted mono">
+            score={tournamentResult.tournament_score_version} mode=
+            {tournamentResult.tournament_mode} selected=
+            {tournamentResult.selected_candidate_id ?? "none"} safe=
+            {tournamentResult.no_safe_improvement
+              ? "no_safe_improvement"
+              : "improvement_found"}
+          </div>
+          <div className="muted mono" style={{ marginTop: 2 }}>
+            candidates={tournamentResult.candidate_count} evaluated=
+            {tournamentResult.evaluated_count} top_k=
+            {tournamentResult.candidates.length} dry_runs=
+            {tournamentResult.budget_report.used_dry_runs}/
+            {tournamentResult.budget_report.max_dry_runs} solver_calls=
+            {tournamentResult.budget_report.used_solver_calls}/
+            {tournamentResult.budget_report.max_solver_calls}
+            {tournamentResult.budget_report.truncated
+              ? ` truncated:${tournamentResult.budget_report.truncation_reason ?? "unknown"}`
+              : ""}
+          </div>
+          <div style={{ marginTop: 4 }}>
+            {tournamentResult.candidates.map((candidate) => (
+              <div
+                key={candidate.candidate_id}
+                className="muted mono"
+                style={{ marginTop: 2 }}
+              >
+                #{candidate.rank} {candidate.improved ? "improved" : "no_change"} ·{" "}
+                {candidate.candidate_id} · status={candidate.check_report.status} · obj=
+                [{candidate.objective_vector.join(",")}]
+                {candidate.diff_report.summary
+                  ? ` · flip=${candidate.diff_report.summary.status_flip ?? "n/a"}`
+                  : ""}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function ConceptsPage() {
   const [sourceText, setSourceText] = useState<string>("");
   const [provider, setProvider] = useState<"mock" | "openai">("mock");
@@ -1396,142 +1573,21 @@ export default function ConceptsPage() {
               </div>
             ) : null}
             {selectedQuestions.map((question) => (
-              (() => {
-                const patchAnswerCount = question.answers.filter(
-                  (answer) => Array.isArray(answer.patch) && answer.patch.length > 0,
-                ).length;
-                const tournamentResult = selectedTournamentByQuestion[question.question_id] ?? null;
-                const isRunningTournament = activeTournamentQuestionId === question.question_id;
-                return (
-                  <div
-                    key={question.question_id}
-                    style={{
-                      marginTop: 8,
-                      border: "1px solid var(--border)",
-                      borderRadius: 8,
-                      background: "#fff",
-                      padding: 8,
-                    }}
-                  >
-                    <div className="muted mono">
-                      {question.signal} · {question.question_id}
-                    </div>
-                    <div style={{ marginTop: 4 }}>{question.prompt}</div>
-                    {question.anchors.length ? (
-                      <div className="row" style={{ marginTop: 6 }}>
-                        {question.anchors.map((anchor, idx) => {
-                          const span =
-                            anchor.span ??
-                            (selectedIr
-                              ? spanFromConceptRef(
-                                  selectedIr,
-                                  anchor.object_id ?? null,
-                                  anchor.json_path ?? null,
-                                )
-                              : null);
-                          const label = anchor.label || anchor.json_path || anchor.object_id || `anchor_${idx + 1}`;
-                          return (
-                            <button
-                              key={`${question.question_id}:anchor:${idx}`}
-                              onClick={() => {
-                                if (!span) return;
-                                setHighlight({ span, label: `question:${label}` });
-                              }}
-                              disabled={!span}
-                            >
-                              Anchor {idx + 1}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                    <div className="row" style={{ marginTop: 6 }}>
-                      {question.answers.map((answer) => {
-                        const resolutionKey = questionResolutionKey(question, answer.option_id);
-                        const lifecycle = selectedQuestionHistoryMap.get(resolutionKey);
-                        const statusLabel =
-                          lifecycle === "applied" ? "Applied" : lifecycle === "resolved" ? "Resolved" : "Open";
-                        const hasPatch = Boolean(answer.patch?.length);
-                        return (
-                          <button
-                            key={`${question.question_id}:${answer.option_id}`}
-                            onClick={() => applyQuestionAnswer(question, answer)}
-                            disabled={!hasPatch || (activeQuestionOptionKey !== null && activeQuestionOptionKey !== resolutionKey)}
-                            title={!hasPatch ? "Answer does not provide a patch action" : undefined}
-                          >
-                            {activeQuestionOptionKey === resolutionKey
-                              ? "Applying..."
-                              : `${statusLabel}: ${answer.label}`}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <div className="row" style={{ marginTop: 6 }}>
-                      <button
-                        onClick={() => runQuestionTournament(question)}
-                        disabled={
-                          patchAnswerCount === 0 ||
-                          (activeTournamentQuestionId !== null &&
-                            activeTournamentQuestionId !== question.question_id)
-                        }
-                        title={
-                          patchAnswerCount === 0
-                            ? "Need at least one patch-actionable answer"
-                            : undefined
-                        }
-                      >
-                        {isRunningTournament
-                          ? "Running tournament..."
-                          : `Run tournament (${patchAnswerCount})`}
-                      </button>
-                      <button
-                        onClick={() => setTournamentForVariant(selectedIdx, question.question_id, null)}
-                        disabled={!tournamentResult || isRunningTournament}
-                      >
-                        Clear tournament
-                      </button>
-                    </div>
-                    {tournamentResult ? (
-                      <div style={{ marginTop: 6 }}>
-                        <div className="muted mono">
-                          score={tournamentResult.tournament_score_version} mode=
-                          {tournamentResult.tournament_mode} selected=
-                          {tournamentResult.selected_candidate_id ?? "none"} safe=
-                          {tournamentResult.no_safe_improvement ? "no_safe_improvement" : "improvement_found"}
-                        </div>
-                        <div className="muted mono" style={{ marginTop: 2 }}>
-                          candidates={tournamentResult.candidate_count} evaluated=
-                          {tournamentResult.evaluated_count} top_k=
-                          {tournamentResult.candidates.length} dry_runs=
-                          {tournamentResult.budget_report.used_dry_runs}/
-                          {tournamentResult.budget_report.max_dry_runs} solver_calls=
-                          {tournamentResult.budget_report.used_solver_calls}/
-                          {tournamentResult.budget_report.max_solver_calls}
-                          {tournamentResult.budget_report.truncated
-                            ? ` truncated:${tournamentResult.budget_report.truncation_reason ?? "unknown"}`
-                            : ""}
-                        </div>
-                        <div style={{ marginTop: 4 }}>
-                          {tournamentResult.candidates.map((candidate) => (
-                            <div
-                              key={candidate.candidate_id}
-                              className="muted mono"
-                              style={{ marginTop: 2 }}
-                            >
-                              #{candidate.rank} {candidate.improved ? "improved" : "no_change"} ·{" "}
-                              {candidate.candidate_id} · status={candidate.check_report.status} · obj=
-                              [{candidate.objective_vector.join(",")}]
-                              {candidate.diff_report.summary
-                                ? ` · flip=${candidate.diff_report.summary.status_flip ?? "n/a"}`
-                                : ""}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                );
-              })()
+              <QuestionCard
+                key={question.question_id}
+                question={question}
+                selectedIr={selectedIr}
+                questionHistoryMap={selectedQuestionHistoryMap}
+                activeQuestionOptionKey={activeQuestionOptionKey}
+                activeTournamentQuestionId={activeTournamentQuestionId}
+                tournamentResult={selectedTournamentByQuestion[question.question_id] ?? null}
+                onApplyAnswer={applyQuestionAnswer}
+                onRunTournament={runQuestionTournament}
+                onClearTournament={(questionId) =>
+                  setTournamentForVariant(selectedIdx, questionId, null)
+                }
+                onAnchorHighlight={(span, label) => setHighlight({ span, label })}
+              />
             ))}
             {selectedQuestionHistory.some((entry) => entry.status === "resolved") ? (
               <div style={{ marginTop: 8 }}>
