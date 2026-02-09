@@ -63,6 +63,7 @@ class _FakeBackend:
     def __init__(self, results: list[BackendResult]):
         self._results = list(results)
         self.calls = 0
+        self.temperatures: list[float | None] = []
 
     def generate_ir_json(
         self,
@@ -75,6 +76,7 @@ class _FakeBackend:
         extra: dict[str, Any] | None = None,
     ) -> BackendResult:
         self.calls += 1
+        self.temperatures.append(temperature)
         return self._results.pop(0)
 
 
@@ -124,6 +126,7 @@ def test_propose_puzzle_openai_stops_after_non_improving_repeat(monkeypatch) -> 
     )
 
     assert fake_backend.calls == 3
+    assert fake_backend.temperatures == [0.3, 0.3, 0.3]
     assert len(log.attempts) == 3
     assert len(proposals) == 1
 
@@ -179,3 +182,30 @@ def test_propose_puzzle_openai_assigns_candidate_ranks(monkeypatch) -> None:
     assert [candidate.rank for candidate in resp.candidates] == [0, 1]
     assert [attempt.candidate_rank for attempt in resp.proposer_log.attempts] == [1, 0]
     assert all(attempt.score_key is not None for attempt in resp.proposer_log.attempts)
+
+
+def test_propose_puzzle_openai_uses_configured_temperature(monkeypatch) -> None:
+    fake_backend = _FakeBackend([_ok_result(_minimal_puzzle_payload(puzzle_id="pz_temp"))])
+
+    def fake_check(*args: object, **kwargs: object) -> tuple[CheckReport, list[Any]]:
+        return _report_pass(), []
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ADEU_OPENAI_API", "responses")
+    monkeypatch.setenv("ADEU_OPENAI_TEMPERATURE", "0.9")
+    monkeypatch.setattr(
+        openai_puzzle_provider, "build_openai_backend", lambda **kwargs: fake_backend
+    )
+    monkeypatch.setattr(openai_puzzle_provider, "puzzle_check_with_validator_runs", fake_check)
+
+    proposals, _, _ = openai_puzzle_provider.propose_puzzle_openai(
+        puzzle_text="A says: I am a knight.",
+        mode=KernelMode.LAX,
+        max_candidates=1,
+        max_repairs=0,
+        source_features={},
+        context_override=None,
+    )
+
+    assert len(proposals) == 1
+    assert fake_backend.temperatures == [0.9]
