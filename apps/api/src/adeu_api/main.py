@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import hashlib
-import json
 import os
 import re
 import sqlite3
@@ -81,6 +79,7 @@ from .adeu_concept_bridge import (
 from .concept_id_canonicalization import canonicalize_concept_ids
 from .concept_mock_provider import get_concept_fixture_bundle
 from .concept_source_features import extract_concept_source_features
+from .hashing import canonical_json, sha256_canonical_json, sha256_text
 from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
 from .openai_concept_provider import propose_concept_openai
@@ -966,7 +965,7 @@ def _alignment_suggestion_fingerprint(
         "term_ids": term_ids,
         "sense_ids": sense_ids,
     }
-    return _sha256(_canonical_json(payload))[:12]
+    return sha256_canonical_json(payload)[:12]
 
 
 def _alignment_stats(suggestions: list[ConceptAlignmentSuggestion]) -> ConceptAlignmentStats:
@@ -1306,17 +1305,9 @@ def _concept_run_ref_from_input(run: ValidatorRunInput) -> ConceptRunRef:
     )
 
 
-def _sha256(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8")).hexdigest()
-
-
-def _canonical_json(value: object) -> str:
-    return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
-
-
 def _concept_ir_hash(ir: ConceptIR) -> str:
     payload = ir.model_dump(mode="json", by_alias=True, exclude_none=True)
-    return _sha256(_canonical_json(payload))
+    return sha256_canonical_json(payload)
 
 
 def _require_ir_hash_match(*, ir: ConceptIR, ir_hash: str | None) -> None:
@@ -1458,11 +1449,11 @@ def _persist_proof_artifact(
             )
         except RuntimeError as exc:
             proof = ProofArtifact(
-                proof_id=f"proof_{_sha256(theorem_id + str(exc))[:16]}",
+                proof_id=f"proof_{sha256_text(theorem_id + str(exc))[:16]}",
                 backend=backend_kind,
                 theorem_id=theorem_id,
                 status="failed",
-                proof_hash=_sha256(theorem_src + str(exc)),
+                proof_hash=sha256_text(theorem_src + str(exc)),
                 inputs=obligation.inputs,
                 details={"error": str(exc)},
             )
@@ -1940,7 +1931,7 @@ def _evaluate_question_answer_dry_run(
 
 def _question_patch_key(patch_ops: list[JsonPatchOp]) -> str:
     payload = [op.model_dump(mode="json", by_alias=True, exclude_none=True) for op in patch_ops]
-    return _canonical_json(payload)
+    return canonical_json(payload)
 
 
 def _filter_question_answers_do_no_harm(

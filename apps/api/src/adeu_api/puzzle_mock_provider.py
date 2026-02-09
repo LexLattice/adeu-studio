@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import dataclass
 from functools import lru_cache
@@ -8,6 +7,8 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 from adeu_puzzles import KnightsKnavesPuzzle
+
+from .hashing import sha256_text
 
 
 @dataclass(frozen=True)
@@ -19,10 +20,6 @@ class PuzzleFixtureBundle:
 
 def _repo_root() -> Path:
     return repo_root(anchor=Path(__file__))
-
-
-def _hash_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 @lru_cache(maxsize=1)
@@ -51,11 +48,11 @@ def load_puzzle_fixture_bundles() -> dict[str, PuzzleFixtureBundle]:
             proposals=proposals,
         )
         bundles[puzzle_text] = bundle
-        bundles[_hash_text(puzzle_text)] = bundle
+        bundles[sha256_text(puzzle_text)] = bundle
     return bundles
 
 
 def get_puzzle_fixture_bundle(puzzle_text: str) -> PuzzleFixtureBundle | None:
     cleaned = puzzle_text.strip()
     bundles = load_puzzle_fixture_bundles()
-    return bundles.get(cleaned) or bundles.get(_hash_text(cleaned))
+    return bundles.get(cleaned) or bundles.get(sha256_text(cleaned))

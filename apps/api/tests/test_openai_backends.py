@@ -63,3 +63,35 @@ def test_chat_backend_fallback_error_keeps_fallback_prompt_metadata(monkeypatch)
     assert result.raw_prompt is not None
     assert '"json_object"' in result.raw_prompt
     assert result.prompt_hash is not None
+
+
+def test_request_json_uses_configured_timeout(monkeypatch) -> None:
+    captured_timeout: float | None = None
+
+    class _FakeResponse:
+        headers: dict[str, str] = {}
+
+        def __enter__(self) -> _FakeResponse:
+            return self
+
+        def __exit__(self, exc_type, exc, tb) -> bool:
+            return False
+
+        def read(self) -> bytes:
+            return b"{}"
+
+    def fake_urlopen(_req: object, timeout: float) -> _FakeResponse:
+        nonlocal captured_timeout
+        captured_timeout = timeout
+        return _FakeResponse()
+
+    monkeypatch.setattr(backends.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(backends, "OPENAI_HTTP_TIMEOUT_SECONDS", 12.5)
+
+    backends._request_json(
+        url="https://api.openai.com/v1/responses",
+        payload={"model": "gpt-5.2"},
+        api_key="test-key",
+    )
+
+    assert captured_timeout == 12.5

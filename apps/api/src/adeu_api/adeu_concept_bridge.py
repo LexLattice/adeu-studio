@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import hashlib
-import json
 from dataclasses import dataclass
 from typing import Literal, cast
 
@@ -16,6 +14,8 @@ from adeu_concepts import (
 )
 from adeu_ir import AdeuIR, NormStatement, ProvenanceRef
 from pydantic import BaseModel, ConfigDict, Field
+
+from .hashing import canonical_json, sha256_text
 
 BridgeConfidenceTag = Literal["direct", "derived", "missing_provenance"]
 BridgeConceptKind = Literal["term", "sense", "claim", "link", "ambiguity"]
@@ -119,17 +119,13 @@ class _IdFactory:
         return candidate
 
 
-def _canonical_json(value: object) -> str:
-    return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
-
-
 def compute_mapping_hash() -> str:
     payload = {
         "bridge_mapping_version": BRIDGE_MAPPING_VERSION,
         "mapping_rules": _MAPPING_RULES,
         "static_config": _STATIC_CONFIG,
     }
-    return hashlib.sha256(_canonical_json(payload).encode("utf-8")).hexdigest()
+    return sha256_text(canonical_json(payload))
 
 
 def _sanitize_id_token(value: str) -> str:
