@@ -141,6 +141,22 @@ export default function PapersPage() {
 
   const sortedAlignDocIds = useMemo(() => [...alignDocIds].sort(), [alignDocIds]);
 
+  const clearActionMessages = useCallback(() => {
+    setError(null);
+    setStatusMessage(null);
+  }, []);
+
+  const clearDerivedOutputs = useCallback(() => {
+    setAlignmentResult(null);
+    setAcceptedArtifactId(null);
+  }, []);
+
+  const replaceCandidates = useCallback((nextCandidates: ProposeCandidate[]) => {
+    setCandidates(nextCandidates);
+    setSelectedIdx(0);
+    setAnalysisByIdx({});
+  }, []);
+
   const loadDocumentDetail = useCallback(async (docId: string) => {
     setIsLoadingDocDetail(true);
     try {
@@ -239,8 +255,7 @@ export default function PapersPage() {
       }
     }
 
-    setError(null);
-    setStatusMessage(null);
+    clearActionMessages();
     setIsCreatingDoc(true);
     try {
       const res = await fetch(`${apiBase()}/documents`, {
@@ -260,11 +275,8 @@ export default function PapersPage() {
       const data = (await res.json()) as DocumentRecord;
       setSelectedDocId(data.doc_id);
       setStatusMessage(`Created document ${data.doc_id}`);
-      setCandidates([]);
-      setSelectedIdx(0);
-      setAnalysisByIdx({});
-      setAlignmentResult(null);
-      setAcceptedArtifactId(null);
+      clearDerivedOutputs();
+      replaceCandidates([]);
       await loadDocuments();
     } catch (e) {
       setError(String(e));
@@ -275,10 +287,8 @@ export default function PapersPage() {
 
   async function proposeConcepts() {
     if (!selectedDocId) return;
-    setError(null);
-    setStatusMessage(null);
-    setAlignmentResult(null);
-    setAcceptedArtifactId(null);
+    clearActionMessages();
+    clearDerivedOutputs();
     setIsProposing(true);
     try {
       const res = await fetch(`${apiBase()}/concepts/propose`, {
@@ -295,9 +305,7 @@ export default function PapersPage() {
         return;
       }
       const data = (await res.json()) as ProposeResponse;
-      setCandidates(data.candidates ?? []);
-      setSelectedIdx(0);
-      setAnalysisByIdx({});
+      replaceCandidates(data.candidates ?? []);
       setStatusMessage(
         `Generated ${data.candidates?.length ?? 0} concept variant(s) for ${selectedDocId}`,
       );
@@ -310,8 +318,7 @@ export default function PapersPage() {
 
   async function analyzeSelected() {
     if (!selectedDocId || !selectedCandidate) return;
-    setError(null);
-    setStatusMessage(null);
+    clearActionMessages();
     setIsAnalyzing(true);
     try {
       const res = await fetch(`${apiBase()}/concepts/analyze`, {
@@ -348,8 +355,7 @@ export default function PapersPage() {
 
   async function acceptSelected() {
     if (!selectedDocId || !selectedCandidate) return;
-    setError(null);
-    setStatusMessage(null);
+    clearActionMessages();
     setIsAccepting(true);
     try {
       const res = await fetch(`${apiBase()}/concepts/artifacts`, {
@@ -391,8 +397,7 @@ export default function PapersPage() {
       setError("Select at least one document for alignment.");
       return;
     }
-    setError(null);
-    setStatusMessage(null);
+    clearActionMessages();
     setIsAligning(true);
     try {
       const res = await fetch(`${apiBase()}/concepts/align`, {
