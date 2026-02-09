@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { apiBase } from "../lib/api-base";
 import { SolverDiffPanel, type KernelMode } from "../components/solver-diff-panel";
 import type { CheckReason, CheckReport } from "../../gen/check_report";
 
@@ -247,10 +248,6 @@ const ALIGNMENT_MAX_SUGGESTIONS_MIN = 1;
 const ALIGNMENT_MAX_SUGGESTIONS_MAX = 500;
 const ALIGNMENT_MAX_SUGGESTIONS_DEFAULT = 100;
 const ALIGNMENT_SENSE_REFS_PREVIEW_LIMIT = 6;
-
-function apiBase(): string {
-  return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
-}
 
 function stableJson(value: unknown): string {
   if (value === null || typeof value !== "object") {

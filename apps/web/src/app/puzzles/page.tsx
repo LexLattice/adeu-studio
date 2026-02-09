@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { apiBase } from "../lib/api-base";
 import { SolverDiffPanel, type KernelMode } from "../components/solver-diff-panel";
 import type { CheckReport } from "../../gen/check_report";
 
@@ -78,10 +79,6 @@ type PuzzleSolveResult = {
     backend: string;
   };
 };
-
-function apiBase(): string {
-  return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
-}
 
 export default function PuzzlesPage() {
   const [puzzleText, setPuzzleText] = useState<string>("");

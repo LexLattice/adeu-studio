@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { apiBase } from "../../lib/api-base";
 import type { AdeuIR, SourceSpan } from "../../../gen/adeu_ir";
 import type { CheckReport } from "../../../gen/check_report";
 
@@ -36,10 +37,6 @@ type ArtifactValidatorRunsResponse = {
 };
 
 type Highlight = { span: SourceSpan; label: string } | null;
-
-function apiBase(): string {
-  return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
