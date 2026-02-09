@@ -211,3 +211,30 @@ def test_propose_concept_openai_uses_configured_temperature(monkeypatch) -> None
 
     assert len(proposals) == 1
     assert fake_backend.temperatures == [0.6]
+
+
+def test_propose_concept_openai_uses_configured_default_loop_limits(monkeypatch) -> None:
+    fake_backend = _FakeBackend([_ok_result(_minimal_concept_payload(concept_id="cn_limits"))])
+
+    def fake_check(*args: object, **kwargs: object) -> tuple[CheckReport, list[Any]]:
+        return _report_pass(), []
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ADEU_OPENAI_API", "responses")
+    monkeypatch.setenv("ADEU_OPENAI_DEFAULT_MAX_CANDIDATES", "1")
+    monkeypatch.setenv("ADEU_OPENAI_DEFAULT_MAX_REPAIRS", "1")
+    monkeypatch.setattr(
+        openai_concept_provider, "build_openai_backend", lambda **kwargs: fake_backend
+    )
+    monkeypatch.setattr(openai_concept_provider, "concept_check_with_validator_runs", fake_check)
+
+    _, log, _ = openai_concept_provider.propose_concept_openai(
+        source_text="bank",
+        mode=KernelMode.LAX,
+        max_candidates=None,
+        max_repairs=None,
+        source_features={},
+    )
+
+    assert log.k == 1
+    assert log.n == 1

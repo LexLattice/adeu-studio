@@ -209,3 +209,31 @@ def test_propose_puzzle_openai_uses_configured_temperature(monkeypatch) -> None:
 
     assert len(proposals) == 1
     assert fake_backend.temperatures == [0.9]
+
+
+def test_propose_puzzle_openai_uses_configured_default_loop_limits(monkeypatch) -> None:
+    fake_backend = _FakeBackend([_ok_result(_minimal_puzzle_payload(puzzle_id="pz_limits"))])
+
+    def fake_check(*args: object, **kwargs: object) -> tuple[CheckReport, list[Any]]:
+        return _report_pass(), []
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ADEU_OPENAI_API", "responses")
+    monkeypatch.setenv("ADEU_OPENAI_DEFAULT_MAX_CANDIDATES", "1")
+    monkeypatch.setenv("ADEU_OPENAI_DEFAULT_MAX_REPAIRS", "2")
+    monkeypatch.setattr(
+        openai_puzzle_provider, "build_openai_backend", lambda **kwargs: fake_backend
+    )
+    monkeypatch.setattr(openai_puzzle_provider, "puzzle_check_with_validator_runs", fake_check)
+
+    _, log, _ = openai_puzzle_provider.propose_puzzle_openai(
+        puzzle_text="A says: I am a knight.",
+        mode=KernelMode.LAX,
+        max_candidates=None,
+        max_repairs=None,
+        source_features={},
+        context_override=None,
+    )
+
+    assert log.k == 1
+    assert log.n == 2
