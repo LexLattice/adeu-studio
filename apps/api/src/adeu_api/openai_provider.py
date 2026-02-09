@@ -19,6 +19,7 @@ from .openai_config import (
     openai_api_key,
     openai_base_url,
     openai_model,
+    openai_temperature,
 )
 from .openai_proposer_core import (
     CoreAttemptLog,
@@ -299,7 +300,7 @@ def propose_openai(
         mode=mode,
         max_candidates=k,
         max_repairs=n,
-        temperature=0.3,
+        temperature=openai_temperature(),
         want_raw=want_raw,
     )
 
