@@ -157,7 +157,7 @@ NEXT_PUBLIC_ADEU_API_URL=http://localhost:8000 npm run dev
 Web routes:
 
 - `/` ADEU Studio
-- `/concepts` Concepts Studio (propose/check/analyze/compare with span-highlighted causal diff)
+- `/concepts` Concepts Studio (propose/check/analyze/compare, question loop, and tournament ranking)
 - `/puzzles` Puzzle Studio (propose/check/solve/compare for knights/knaves)
 - `/papers` Paper Abstract Studio (documents-first concepts workflow + cross-doc alignment)
 - `/artifacts` Artifact browser
