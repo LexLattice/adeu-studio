@@ -243,6 +243,10 @@ type ConceptArtifactCreateResponse = {
 };
 
 type Highlight = { span: SourceSpan; label: string } | null;
+const ALIGNMENT_MAX_SUGGESTIONS_MIN = 1;
+const ALIGNMENT_MAX_SUGGESTIONS_MAX = 500;
+const ALIGNMENT_MAX_SUGGESTIONS_DEFAULT = 100;
+const ALIGNMENT_SENSE_REFS_PREVIEW_LIMIT = 6;
 
 function apiBase(): string {
   return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
@@ -403,7 +407,9 @@ export default function ConceptsPage() {
   const [activeQuestionOptionKey, setActiveQuestionOptionKey] = useState<string | null>(null);
   const [alignmentArtifactIdsInput, setAlignmentArtifactIdsInput] = useState<string>("");
   const [alignmentDocIdsInput, setAlignmentDocIdsInput] = useState<string>("");
-  const [alignmentMaxSuggestions, setAlignmentMaxSuggestions] = useState<number>(100);
+  const [alignmentMaxSuggestions, setAlignmentMaxSuggestions] = useState<number>(
+    ALIGNMENT_MAX_SUGGESTIONS_DEFAULT,
+  );
   const [alignmentResult, setAlignmentResult] = useState<ConceptAlignResponse | null>(null);
 
   const [proposerLog, setProposerLog] = useState<ProposerLog | null>(null);
@@ -678,8 +684,13 @@ export default function ConceptsPage() {
     setIsLoadingAlignment(true);
     try {
       const boundedMaxSuggestions = Math.max(
-        1,
-        Math.min(500, Number.isFinite(alignmentMaxSuggestions) ? Math.round(alignmentMaxSuggestions) : 100),
+        ALIGNMENT_MAX_SUGGESTIONS_MIN,
+        Math.min(
+          ALIGNMENT_MAX_SUGGESTIONS_MAX,
+          Number.isFinite(alignmentMaxSuggestions)
+            ? Math.round(alignmentMaxSuggestions)
+            : ALIGNMENT_MAX_SUGGESTIONS_DEFAULT,
+        ),
       );
       const res = await fetch(`${apiBase()}/concepts/align`, {
         method: "POST",
@@ -998,12 +1009,14 @@ export default function ConceptsPage() {
             <input
               id="alignment-max-suggestions"
               type="number"
-              min={1}
-              max={500}
+              min={ALIGNMENT_MAX_SUGGESTIONS_MIN}
+              max={ALIGNMENT_MAX_SUGGESTIONS_MAX}
               value={alignmentMaxSuggestions}
               onChange={(event) => {
                 const value = Number.parseInt(event.target.value, 10);
-                setAlignmentMaxSuggestions(Number.isFinite(value) ? value : 100);
+                setAlignmentMaxSuggestions(
+                  Number.isFinite(value) ? value : ALIGNMENT_MAX_SUGGESTIONS_DEFAULT,
+                );
               }}
             />
             <button
@@ -1081,10 +1094,12 @@ export default function ConceptsPage() {
                     <div className="muted mono" style={{ marginTop: 2 }}>
                       senses=
                       {suggestion.sense_refs
-                        .slice(0, 6)
+                        .slice(0, ALIGNMENT_SENSE_REFS_PREVIEW_LIMIT)
                         .map((sense) => `${sense.artifact_id}/${sense.sense_id}:${sense.gloss_signature}`)
                         .join(" | ")}
-                      {suggestion.sense_refs.length > 6 ? ` | +${suggestion.sense_refs.length - 6} more` : ""}
+                      {suggestion.sense_refs.length > ALIGNMENT_SENSE_REFS_PREVIEW_LIMIT
+                        ? ` | +${suggestion.sense_refs.length - ALIGNMENT_SENSE_REFS_PREVIEW_LIMIT} more`
+                        : ""}
                     </div>
                   ) : null}
                 </div>
