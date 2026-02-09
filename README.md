@@ -80,6 +80,7 @@ Set `provider: "openai"` in `POST /propose` and configure:
 - `ADEU_OPENAI_API` backend selector (`responses` default, `chat` fallback backend)
 - optional `ADEU_OPENAI_MODEL` (default: `gpt-5.2`)
 - optional `ADEU_OPENAI_BASE_URL` (default: `https://api.openai.com/v1`)
+- optional `ADEU_OPENAI_HTTP_TIMEOUT_SECONDS` (default: `60.0`)
 - optional `ADEU_LOG_RAW_LLM=1` to include raw prompt/response in proposer logs (off by default)
 - optional `ADEU_Z3_TIMEOUT_MS` (default: `3000`) for SMT validator timeout
 - optional `ADEU_PERSIST_VALIDATOR_RUNS=1` to persist solver runs for `/check` (off by default)
