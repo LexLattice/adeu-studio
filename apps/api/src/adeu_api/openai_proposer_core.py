@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Generic, Protocol, TypeVar
@@ -8,6 +7,7 @@ from typing import Any, Generic, Protocol, TypeVar
 from adeu_ir import CheckReport
 from adeu_kernel import KernelMode
 
+from .hashing import sha256_text
 from .openai_backends import BackendApi, OpenAIBackend
 from .scoring import ScoreKey, is_strict_improvement, score_key
 
@@ -79,7 +79,7 @@ class ProposerAdapter(Protocol[IRT, AuxT]):
 def _combine_hashes(hashes: list[str]) -> str | None:
     if not hashes:
         return None
-    return hashlib.sha256("|".join(hashes).encode("utf-8")).hexdigest()
+    return sha256_text("|".join(hashes))
 
 
 def run_openai_repair_loop(

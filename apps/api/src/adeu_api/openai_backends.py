@@ -1,14 +1,36 @@
 from __future__ import annotations
 
-import hashlib
 import json
+import os
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from typing import Any, Literal, Protocol
 
+from .hashing import sha256_text
+
 BackendApi = Literal["responses", "chat"]
 ResponseMode = Literal["json_schema", "json_object"]
+DEFAULT_OPENAI_HTTP_TIMEOUT_SECONDS = 60.0
+
+
+def _env_timeout_seconds(name: str, default: float) -> float:
+    raw_value = os.environ.get(name, "").strip()
+    if not raw_value:
+        return default
+    try:
+        value = float(raw_value)
+    except ValueError as exc:
+        raise RuntimeError(f"{name} must be a number") from exc
+    if value <= 0:
+        raise RuntimeError(f"{name} must be > 0")
+    return value
+
+
+OPENAI_HTTP_TIMEOUT_SECONDS = _env_timeout_seconds(
+    "ADEU_OPENAI_HTTP_TIMEOUT_SECONDS",
+    DEFAULT_OPENAI_HTTP_TIMEOUT_SECONDS,
+)
 
 
 @dataclass(frozen=True)
@@ -60,10 +82,6 @@ class _BackendHttpError(Exception):
         return f"HTTP {self.status_code}: {self.detail}"
 
 
-def _hash_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
-
-
 def _request_json(*, url: str, payload: dict[str, Any], api_key: str) -> _HttpResult:
     payload_text = json.dumps(payload, ensure_ascii=False)
     req = urllib.request.Request(
@@ -76,7 +94,10 @@ def _request_json(*, url: str, payload: dict[str, Any], api_key: str) -> _HttpRe
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310 (trusted host)
+        with urllib.request.urlopen(
+            req,
+            timeout=OPENAI_HTTP_TIMEOUT_SECONDS,
+        ) as resp:  # noqa: S310 (trusted host)
             raw_body = resp.read().decode("utf-8")
             request_id = resp.headers.get("x-request-id")
     except urllib.error.HTTPError as e:
@@ -190,7 +211,7 @@ class ResponsesBackend:
             payload.update(extra)
 
         payload_text = json.dumps(payload, sort_keys=True, ensure_ascii=False)
-        prompt_hash = _hash_text(payload_text)
+        prompt_hash = sha256_text(payload_text)
         try:
             result = _request_json(
                 url=f"{self._base_url}/responses",
@@ -247,7 +268,7 @@ class ResponsesBackend:
             )
 
         parsed_json, parse_error = _strict_json_object(text=raw_text, api="responses")
-        response_hash = _hash_text(raw_text)
+        response_hash = sha256_text(raw_text)
         return BackendResult(
             provider_meta=BackendMeta(
                 api="responses",
@@ -312,7 +333,7 @@ class ChatCompletionsBackend:
             payload.update(extra)
 
         payload_text = json.dumps(payload, sort_keys=True, ensure_ascii=False)
-        prompt_hash = _hash_text(payload_text)
+        prompt_hash = sha256_text(payload_text)
         return payload, payload_text, prompt_hash
 
     def _chat_call(
@@ -362,7 +383,7 @@ class ChatCompletionsBackend:
             )
 
         parsed_json, parse_error = _strict_json_object(text=raw_text, api="chat")
-        response_hash = _hash_text(raw_text)
+        response_hash = sha256_text(raw_text)
         return BackendResult(
             provider_meta=BackendMeta(
                 api="chat",

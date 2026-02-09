@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import dataclass
 from functools import lru_cache
@@ -8,6 +7,8 @@ from pathlib import Path
 
 from adeu_concepts import ConceptIR
 from adeu_ir.repo import repo_root
+
+from .hashing import sha256_text
 
 
 @dataclass(frozen=True)
@@ -19,10 +20,6 @@ class ConceptFixtureBundle:
 
 def _repo_root() -> Path:
     return repo_root(anchor=Path(__file__))
-
-
-def _hash_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 @lru_cache(maxsize=1)
@@ -51,11 +48,11 @@ def load_concept_fixture_bundles() -> dict[str, ConceptFixtureBundle]:
             proposals=proposals,
         )
         bundles[source_text] = bundle
-        bundles[_hash_text(source_text)] = bundle
+        bundles[sha256_text(source_text)] = bundle
     return bundles
 
 
 def get_concept_fixture_bundle(source_text: str) -> ConceptFixtureBundle | None:
     cleaned = source_text.strip()
     bundles = load_concept_fixture_bundles()
-    return bundles.get(cleaned) or bundles.get(_hash_text(cleaned))
+    return bundles.get(cleaned) or bundles.get(sha256_text(cleaned))
