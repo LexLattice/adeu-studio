@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import adeu_api.main as api_main
+import pytest
 from adeu_api.main import (
     ConceptApplyAmbiguityOptionRequest,
     ConceptApplyPatchRequest,
@@ -82,9 +83,38 @@ def test_concepts_questions_endpoint_is_deterministic_and_capped() -> None:
     assert left.question_count <= left.max_questions == 10
     assert left.max_answers_per_question == 4
     assert all(0 < len(item.answers) <= 4 for item in left.questions)
+    assert left.question_rank_version == "concepts.qrank.v2"
+    assert left.budget_report.budget_version == "budget.v1"
+    assert left.budget_report.max_solver_calls == api_main.MAX_QUESTION_SOLVER_CALLS_TOTAL
+    assert left.budget_report.max_dry_runs == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
+    assert 0 <= left.budget_report.used_solver_calls <= left.budget_report.max_solver_calls
+    assert 0 <= left.budget_report.used_dry_runs <= left.budget_report.max_dry_runs
     assert left.mapping_trust is None
     assert left.solver_trust == "solver_backed"
     assert left.proof_trust is None
+
+
+def test_concepts_questions_endpoint_enforces_expected_ir_hash() -> None:
+    concept = _fixture_ir(fixture="bank_sense_coherence", name="var2.json")
+    source = _fixture_source(fixture="bank_sense_coherence")
+
+    with pytest.raises(api_main.HTTPException) as exc_info:
+        concept_questions_endpoint(
+            ConceptQuestionsRequest(
+                ir=concept,
+                source_text=source,
+                mode=KernelMode.LAX,
+                include_forced_details=True,
+                expected_ir_hash="deadbeef",
+            )
+        )
+
+    detail = exc_info.value.detail
+    assert exc_info.value.status_code == 409
+    assert isinstance(detail, dict)
+    assert detail["code"] == "STALE_IR"
+    assert detail["provided_ir_hash"] == "deadbeef"
+    assert isinstance(detail["expected_ir_hash"], str)
 
 
 def test_concepts_questions_answers_are_apply_endpoint_compatible() -> None:
@@ -332,8 +362,8 @@ def test_do_no_harm_filter_suppresses_non_improving_answers(monkeypatch) -> None
         questions=[question],
     )
 
-    assert filtered
-    assert [answer.option_id for answer in filtered[0].answers] == ["keep"]
+    assert filtered.questions
+    assert [answer.option_id for answer in filtered.questions[0].answers] == ["keep"]
 
 
 def test_do_no_harm_filter_respects_dry_run_budget(monkeypatch) -> None:
@@ -398,5 +428,31 @@ def test_do_no_harm_filter_respects_dry_run_budget(monkeypatch) -> None:
         questions=questions,
     )
 
-    assert len(filtered) == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
+    assert len(filtered.questions) == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
     assert calls["count"] == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
+    assert filtered.truncated is True
+    assert filtered.truncation_reason == api_main.QUESTION_TRUNCATION_REASON_DRY_RUN_CAP
+
+
+def test_concepts_questions_endpoint_is_read_only(monkeypatch) -> None:
+    concept = _fixture_ir(fixture="bank_sense_coherence", name="var2.json")
+    source = _fixture_source(fixture="bank_sense_coherence")
+    monkeypatch.setenv("ADEU_PERSIST_VALIDATOR_RUNS", "1")
+    calls = {"count": 0}
+
+    def _should_not_persist(*, runs, artifact_id):
+        calls["count"] += 1
+
+    monkeypatch.setattr(api_main, "_persist_validator_runs", _should_not_persist)
+
+    response = concept_questions_endpoint(
+        ConceptQuestionsRequest(
+            ir=concept,
+            source_text=source,
+            mode=KernelMode.LAX,
+            include_forced_details=True,
+        )
+    )
+
+    assert response.question_count >= 0
+    assert calls["count"] == 0

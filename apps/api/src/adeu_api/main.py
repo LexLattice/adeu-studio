@@ -120,6 +120,11 @@ MAX_PROPOSE_REPAIRS = 10
 MAX_ADDITIONAL_SOLVER_CALL_BUDGET = 200
 ALIGNMENT_MAX_SUGGESTIONS_MIN = 1
 ALIGNMENT_MAX_SUGGESTIONS_MAX = 500
+QUESTIONS_BUDGET_VERSION = "budget.v1"
+CONCEPTS_QUESTION_RANK_VERSION = "concepts.qrank.v2"
+QUESTION_TRUNCATION_REASON_DRY_RUN_CAP = "dry_run_cap_reached"
+QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP = "solver_call_cap_reached"
+QUESTION_TRUNCATION_REASON_MAX_QUESTIONS = "max_questions_reached"
 
 
 def _env_int(
@@ -295,6 +300,7 @@ class ConceptQuestionsRequest(BaseModel):
     doc_id: str | None = None
     mode: KernelMode = KernelMode.LAX
     include_forced_details: bool = False
+    expected_ir_hash: str | None = None
 
 
 class AdeuAnalyzeConceptsRequest(BaseModel):
@@ -617,9 +623,22 @@ class ConceptQuestionsResponse(BaseModel):
     question_count: int
     max_questions: int = DEFAULT_MAX_QUESTIONS
     max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
+    question_rank_version: Literal["concepts.qrank.v2"] = CONCEPTS_QUESTION_RANK_VERSION
+    budget_report: "QuestionsBudgetReport"
     mapping_trust: str | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
+
+
+class QuestionsBudgetReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    budget_version: Literal["budget.v1"] = QUESTIONS_BUDGET_VERSION
+    max_solver_calls: int
+    used_solver_calls: int
+    max_dry_runs: int
+    used_dry_runs: int
+    truncated: bool
+    truncation_reason: str | None = None
 
 
 class AdeuAnalyzeConceptsResponse(BaseModel):
@@ -1934,16 +1953,27 @@ def _question_patch_key(patch_ops: list[JsonPatchOp]) -> str:
     return canonical_json(payload)
 
 
+class _DoNoHarmFilterResult(NamedTuple):
+    questions: list[ConceptQuestion]
+    used_dry_runs: int
+    used_solver_calls: int
+    truncated: bool
+    truncation_reason: str | None
+
+
 def _filter_question_answers_do_no_harm(
     *,
     req: ConceptQuestionsRequest,
     report: CheckReport,
     analysis: ConceptAnalysis,
     questions: list[ConceptQuestion],
-) -> list[ConceptQuestion]:
-    remaining_dry_run_evals = MAX_QUESTION_DRY_RUN_EVALS_TOTAL
-    remaining_solver_calls = MAX_QUESTION_SOLVER_CALLS_TOTAL
+) -> _DoNoHarmFilterResult:
+    max_dry_run_evals = MAX_QUESTION_DRY_RUN_EVALS_TOTAL
+    max_solver_calls = MAX_QUESTION_SOLVER_CALLS_TOTAL
+    remaining_dry_run_evals = max_dry_run_evals
+    remaining_solver_calls = max_solver_calls
     patch_cache: dict[str, tuple[bool, int]] = {}
+    truncation_reason: str | None = None
 
     filtered_questions: list[ConceptQuestion] = []
     for question in questions:
@@ -1962,8 +1992,15 @@ def _filter_question_answers_do_no_harm(
                     kept_answers.append(answer)
                 continue
 
-            if remaining_dry_run_evals <= 0 or remaining_solver_calls <= 0:
+            if remaining_dry_run_evals <= 0:
                 # Fail closed when out of budget: only keep patch answers that were verified.
+                if truncation_reason is None:
+                    truncation_reason = QUESTION_TRUNCATION_REASON_DRY_RUN_CAP
+                continue
+            if remaining_solver_calls <= 0:
+                # Fail closed when out of budget: only keep patch answers that were verified.
+                if truncation_reason is None:
+                    truncation_reason = QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP
                 continue
 
             keep, used_solver_calls = _evaluate_question_answer_dry_run(
@@ -1984,7 +2021,13 @@ def _filter_question_answers_do_no_harm(
             continue
         filtered_questions.append(question.model_copy(update={"answers": kept_answers}))
 
-    return filtered_questions
+    return _DoNoHarmFilterResult(
+        questions=filtered_questions,
+        used_dry_runs=max_dry_run_evals - remaining_dry_run_evals,
+        used_solver_calls=max_solver_calls - remaining_solver_calls,
+        truncated=truncation_reason is not None,
+        truncation_reason=truncation_reason,
+    )
 
 
 def _build_diff_report_with_runs(
@@ -2371,14 +2414,13 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
         doc_id=req.doc_id,
         require_source=False,
     )
+    _require_ir_hash_match(ir=req.ir, ir_hash=req.expected_ir_hash)
 
     report, records = check_concept_with_validator_runs(
         req.ir,
         mode=req.mode,
         source_text=source_text,
     )
-    if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and records:
-        _persist_validator_runs(runs=records, artifact_id=None)
 
     run_inputs = [_validator_run_input_from_record(record) for record in records]
     concept_runs = [_concept_run_ref_from_input(run) for run in run_inputs]
@@ -2402,13 +2444,18 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
         report=report,
         ir=req.ir,
     )
-    filtered_questions = _filter_question_answers_do_no_harm(
+    filtered_result = _filter_question_answers_do_no_harm(
         req=req.model_copy(update={"source_text": source_text, "doc_id": None}),
         report=report,
         analysis=analysis,
         questions=ranked_questions,
     )
-    questions = filtered_questions[:max_questions]
+    questions = filtered_result.questions[:max_questions]
+    truncated = filtered_result.truncated
+    truncation_reason = filtered_result.truncation_reason
+    if len(filtered_result.questions) > max_questions and truncation_reason is None:
+        truncated = True
+        truncation_reason = QUESTION_TRUNCATION_REASON_MAX_QUESTIONS
 
     return ConceptQuestionsResponse(
         check_report=report,
@@ -2416,6 +2463,16 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
         question_count=len(questions),
         max_questions=max_questions,
         max_answers_per_question=max_answers,
+        question_rank_version=CONCEPTS_QUESTION_RANK_VERSION,
+        budget_report=QuestionsBudgetReport(
+            budget_version=QUESTIONS_BUDGET_VERSION,
+            max_solver_calls=MAX_QUESTION_SOLVER_CALLS_TOTAL,
+            used_solver_calls=filtered_result.used_solver_calls,
+            max_dry_runs=MAX_QUESTION_DRY_RUN_EVALS_TOTAL,
+            used_dry_runs=filtered_result.used_dry_runs,
+            truncated=truncated,
+            truncation_reason=truncation_reason,
+        ),
         mapping_trust=None,
         solver_trust="solver_backed" if records else "kernel_only",
         proof_trust=None,
