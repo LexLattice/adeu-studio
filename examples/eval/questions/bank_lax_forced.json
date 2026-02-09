@@ -1,0 +1,10 @@
+{
+  "fixture": {
+    "source_text_path": "examples/concepts/fixtures/bank_sense_coherence/source.txt",
+    "ir_path": "examples/concepts/fixtures/bank_sense_coherence/proposals/var2.json"
+  },
+  "request": {
+    "mode": "LAX",
+    "include_forced_details": true
+  }
+}

@@ -20,6 +20,11 @@ make test
 make lint
 ```
 
+Deterministic eval fixture inputs used by roadmap quality checks live under:
+
+- `examples/eval/questions/**`
+- `examples/eval/tournament/**`
+
 ## Run API (mock proposer)
 
 ```bash
