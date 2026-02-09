@@ -46,6 +46,8 @@ type ArtifactCreateResponse = {
   artifact_id: string;
   created_at: string;
   check_report: CheckReport;
+  solver_trust: "kernel_only" | "solver_backed" | "proof_checked";
+  proof_trust?: string | null;
 };
 
 type ApplyAmbiguityOptionResponse = {
@@ -297,7 +299,11 @@ export default function HomePage() {
   const [compareIdx, setCompareIdx] = useState<number | null>(null);
   const [mode, setMode] = useState<KernelMode>("LAX");
   const [highlight, setHighlight] = useState<Highlight>(null);
-  const [artifactId, setArtifactId] = useState<string | null>(null);
+  const [acceptedArtifact, setAcceptedArtifact] = useState<{
+    artifact_id: string;
+    solver_trust: "kernel_only" | "solver_backed" | "proof_checked";
+    proof_trust?: string | null;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isAnalyzingConcepts, setIsAnalyzingConcepts] = useState<boolean>(false);
   const [conceptBridge, setConceptBridge] = useState<AdeuAnalyzeConceptsResponse | null>(null);
@@ -336,7 +342,7 @@ export default function HomePage() {
 
   async function propose() {
     setError(null);
-    setArtifactId(null);
+    setAcceptedArtifact(null);
     setConceptBridge(null);
     setHighlight(null);
     setProposerLog(null);
@@ -370,7 +376,7 @@ export default function HomePage() {
 
   async function runCheck() {
     setError(null);
-    setArtifactId(null);
+    setAcceptedArtifact(null);
     if (!selectedIr) return;
     const res = await fetch(`${apiBase()}/check`, {
       method: "POST",
@@ -426,12 +432,16 @@ export default function HomePage() {
       return;
     }
     const data = (await res.json()) as ArtifactCreateResponse;
-    setArtifactId(data.artifact_id);
+    setAcceptedArtifact({
+      artifact_id: data.artifact_id,
+      solver_trust: data.solver_trust,
+      proof_trust: data.proof_trust
+    });
   }
 
   async function applyAmbiguityOption(ambiguityId: string, optionId: string) {
     setError(null);
-    setArtifactId(null);
+    setAcceptedArtifact(null);
     setConceptBridge(null);
     if (!selectedIr) return;
 
@@ -550,7 +560,16 @@ export default function HomePage() {
           </div>
         ) : null}
         {error ? <div className="muted">Error: {error}</div> : null}
-        {artifactId ? <div className="muted">Accepted artifact: {artifactId}</div> : null}
+        {acceptedArtifact ? (
+          <div className="muted">
+            Accepted artifact:{" "}
+            <Link href={`/artifacts/${acceptedArtifact.artifact_id}`} className="mono">
+              {acceptedArtifact.artifact_id}
+            </Link>{" "}
+            — trust: solver={acceptedArtifact.solver_trust} / proof=
+            {acceptedArtifact.proof_trust ?? "n/a"}
+          </div>
+        ) : null}
       </div>
 
       <div className="panel">

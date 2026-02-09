@@ -12,6 +12,8 @@ type ArtifactGetResponse = {
   clause_text: string;
   ir: AdeuIR;
   check_report: CheckReport;
+  solver_trust: "kernel_only" | "solver_backed" | "proof_checked";
+  proof_trust?: string | null;
 };
 
 type ValidatorRun = {
@@ -151,6 +153,10 @@ export default function ArtifactDetailPage({ params }: { params: { artifact_id: 
             <div className="row" style={{ justifyContent: "space-between" }}>
               <span className="mono">{item.artifact_id}</span>
               <span className="mono">{item.created_at}</span>
+            </div>
+            <div className="row" style={{ marginTop: 4 }}>
+              <span className="mono">solver_trust={item.solver_trust}</span>
+              <span className="mono">proof_trust={item.proof_trust ?? "n/a"}</span>
             </div>
           </div>
 

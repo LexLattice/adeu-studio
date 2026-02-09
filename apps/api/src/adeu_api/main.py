@@ -105,7 +105,9 @@ from .storage import (
     list_concept_validator_runs,
     list_documents,
     list_proof_artifacts,
+    list_proof_artifacts_for_artifacts,
     list_validator_runs,
+    list_validator_runs_for_artifacts,
 )
 from .storage import (
     transaction as storage_transaction,
@@ -451,6 +453,8 @@ class ArtifactSummary(BaseModel):
     status: str | None
     num_errors: int | None
     num_warns: int | None
+    solver_trust: SolverTrustLevel = "kernel_only"
+    proof_trust: ArtifactProofTrust = "no_required_proofs"
 
 
 class ArtifactListResponse(BaseModel):
@@ -3332,8 +3336,20 @@ def list_artifacts_endpoint(
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return ArtifactListResponse(
-        items=[
+
+    artifact_ids = [row.artifact_id for row in items]
+    validator_rows_by_artifact = list_validator_runs_for_artifacts(artifact_ids=artifact_ids)
+    proof_rows_by_artifact = list_proof_artifacts_for_artifacts(artifact_ids=artifact_ids)
+
+    summaries: list[ArtifactSummary] = []
+    for row in items:
+        validator_rows = validator_rows_by_artifact.get(row.artifact_id, [])
+        proof_rows = proof_rows_by_artifact.get(row.artifact_id, [])
+        solver_trust, proof_trust = _artifact_trust_labels(
+            validator_runs=validator_rows,
+            proof_rows=proof_rows,
+        )
+        summaries.append(
             ArtifactSummary(
                 artifact_id=row.artifact_id,
                 created_at=row.created_at,
@@ -3342,9 +3358,13 @@ def list_artifacts_endpoint(
                 status=row.status,
                 num_errors=row.num_errors,
                 num_warns=row.num_warns,
+                solver_trust=solver_trust,
+                proof_trust=proof_trust,
             )
-            for row in items
-        ]
+        )
+
+    return ArtifactListResponse(
+        items=summaries
     )
 
 
