@@ -504,18 +504,17 @@ export default function ConceptsPage() {
     questions: ConceptQuestion[],
     meta: ConceptQuestionsMeta,
   ) {
-    setQuestionsByVariant((prev) => {
-      const next = [...prev];
-      while (next.length <= variantIdx) next.push(null);
-      next[variantIdx] = questions;
-      return next;
-    });
-    setQuestionsMetaByVariant((prev) => {
-      const next = [...prev];
-      while (next.length <= variantIdx) next.push(null);
-      next[variantIdx] = meta;
-      return next;
-    });
+    const updateVariantSlot =
+      <T,>(value: T) =>
+      (prev: Array<T | null>): Array<T | null> => {
+        const next = [...prev];
+        while (next.length <= variantIdx) next.push(null);
+        next[variantIdx] = value;
+        return next;
+      };
+
+    setQuestionsByVariant(updateVariantSlot(questions));
+    setQuestionsMetaByVariant(updateVariantSlot(meta));
 
     const activeKeys = questionAnswerKeys(questions);
     setQuestionHistoryForVariant(variantIdx, (current) =>
