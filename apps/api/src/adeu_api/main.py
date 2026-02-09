@@ -15,6 +15,7 @@ from adeu_concepts import (
     ConceptIR,
     ConceptPatchValidationError,
     ConceptQuestion,
+    ConceptQuestionAnchor,
     ConceptRunRef,
     analyze_concept,
     apply_concept_ambiguity_option,
@@ -122,6 +123,7 @@ ALIGNMENT_MAX_SUGGESTIONS_MIN = 1
 ALIGNMENT_MAX_SUGGESTIONS_MAX = 500
 QUESTIONS_BUDGET_VERSION = "budget.v1"
 CONCEPTS_QUESTION_RANK_VERSION = "concepts.qrank.v2"
+ADEU_QUESTION_RANK_VERSION = "adeu.qrank.v1"
 QUESTION_TRUNCATION_REASON_DRY_RUN_CAP = "dry_run_cap_reached"
 QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP = "solver_call_cap_reached"
 QUESTION_TRUNCATION_REASON_MAX_QUESTIONS = "max_questions_reached"
@@ -312,6 +314,16 @@ class AdeuAnalyzeConceptsRequest(BaseModel):
     include_validator_runs: bool = False
     include_analysis_details: bool = True
     include_forced_details: bool = True
+
+
+class AdeuQuestionsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ir: AdeuIR
+    source_text: str | None = None
+    mode: KernelMode = KernelMode.LAX
+    include_validator_runs: bool = False
+    include_analysis_details: bool = False
+    expected_ir_hash: str | None = None
 
 
 class ConceptArtifactCreateRequest(BaseModel):
@@ -653,6 +665,25 @@ class AdeuAnalyzeConceptsResponse(BaseModel):
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
     validator_runs: list[ValidatorRunInput] | None = None
+
+
+class AdeuQuestionsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    check_report: CheckReport
+    questions: list[ConceptQuestion]
+    question_count: int
+    max_questions: int = DEFAULT_MAX_QUESTIONS
+    max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
+    question_rank_version: Literal["adeu.qrank.v1"] = ADEU_QUESTION_RANK_VERSION
+    bridge_manifest: BridgeManifest
+    bridge_mapping_version: str
+    mapping_hash: str
+    budget_report: QuestionsBudgetReport
+    mapping_trust: str = "derived_bridge"
+    solver_trust: SolverTrustLevel = "kernel_only"
+    proof_trust: str | None = None
+    validator_runs: list[ValidatorRunInput] | None = None
+    analysis: ConceptAnalysis | None = None
 
 
 class ExplainFlipResponse(BaseModel):
@@ -1329,10 +1360,32 @@ def _concept_ir_hash(ir: ConceptIR) -> str:
     return sha256_canonical_json(payload)
 
 
+def _adeu_ir_hash(ir: AdeuIR) -> str:
+    payload = ir.model_dump(mode="json", by_alias=True, exclude_none=True)
+    return sha256_canonical_json(payload)
+
+
 def _require_ir_hash_match(*, ir: ConceptIR, ir_hash: str | None) -> None:
     if ir_hash is None:
         return
     expected = _concept_ir_hash(ir)
+    if expected == ir_hash:
+        return
+    raise HTTPException(
+        status_code=409,
+        detail={
+            "code": "STALE_IR",
+            "message": "ir_hash precondition failed; refresh IR and retry",
+            "expected_ir_hash": expected,
+            "provided_ir_hash": ir_hash,
+        },
+    )
+
+
+def _require_adeu_ir_hash_match(*, ir: AdeuIR, ir_hash: str | None) -> None:
+    if ir_hash is None:
+        return
+    expected = _adeu_ir_hash(ir)
     if expected == ir_hash:
         return
     raise HTTPException(
@@ -1953,6 +2006,229 @@ def _question_patch_key(patch_ops: list[JsonPatchOp]) -> str:
     return canonical_json(payload)
 
 
+class _AdeuObjectRef(NamedTuple):
+    object_id: str
+    json_path: str
+    span: Any | None
+
+
+def _json_path_index(path: str, *, prefix: str) -> int | None:
+    if not path.startswith(prefix):
+        return None
+    token = path[len(prefix) :].split("/", 1)[0]
+    if not token:
+        return None
+    try:
+        index = int(token)
+    except ValueError:
+        return None
+    if index < 0:
+        return None
+    return index
+
+
+def _concept_object_id_from_anchor(
+    *,
+    anchor: ConceptQuestionAnchor,
+    concept_ir: ConceptIR,
+) -> str | None:
+    if isinstance(anchor.object_id, str) and anchor.object_id:
+        return anchor.object_id
+
+    json_path = anchor.json_path or ""
+    for prefix, entries in (
+        ("/terms/", concept_ir.terms),
+        ("/senses/", concept_ir.senses),
+        ("/claims/", concept_ir.claims),
+        ("/links/", concept_ir.links),
+        ("/ambiguity/", concept_ir.ambiguity),
+    ):
+        idx = _json_path_index(json_path, prefix=prefix)
+        if idx is None:
+            continue
+        if 0 <= idx < len(entries):
+            return entries[idx].id
+    return None
+
+
+def _build_concept_to_adeu_map(bridge_manifest: BridgeManifest) -> dict[str, list[str]]:
+    grouped: dict[str, set[str]] = {}
+    for entry in bridge_manifest.entries:
+        grouped.setdefault(entry.concept_object_id, set()).add(entry.adeu_object_id)
+    return {concept_id: sorted(object_ids) for concept_id, object_ids in grouped.items()}
+
+
+def _build_adeu_object_refs(ir: AdeuIR) -> dict[str, _AdeuObjectRef]:
+    refs: dict[str, _AdeuObjectRef] = {}
+
+    for idx, entity in enumerate(sorted(ir.O.entities, key=lambda item: item.id)):
+        refs[f"O.entities/{entity.id}"] = _AdeuObjectRef(
+            object_id=entity.id,
+            json_path=f"/O/entities/{idx}",
+            span=entity.provenance.span if entity.provenance else None,
+        )
+    for idx, definition in enumerate(sorted(ir.O.definitions, key=lambda item: item.id)):
+        refs[f"O.definitions/{definition.id}"] = _AdeuObjectRef(
+            object_id=definition.id,
+            json_path=f"/O/definitions/{idx}",
+            span=definition.provenance.span if definition.provenance else None,
+        )
+    for idx, statement in enumerate(sorted(ir.D_norm.statements, key=lambda item: item.id)):
+        refs[f"D_norm.statements/{statement.id}"] = _AdeuObjectRef(
+            object_id=statement.id,
+            json_path=f"/D_norm/statements/{idx}",
+            span=statement.provenance.span if statement.provenance else None,
+        )
+    for idx, exception in enumerate(sorted(ir.D_norm.exceptions, key=lambda item: item.id)):
+        refs[f"D_norm.exceptions/{exception.id}"] = _AdeuObjectRef(
+            object_id=exception.id,
+            json_path=f"/D_norm/exceptions/{idx}",
+            span=exception.provenance.span if exception.provenance else None,
+        )
+
+    return refs
+
+
+def _validate_adeu_anchor_span(
+    *,
+    span: Any | None,
+    source_text: str | None,
+    question_id: str,
+    adeu_object_id: str,
+) -> Any | None:
+    if source_text is None or span is None:
+        return None
+
+    start = getattr(span, "start", None)
+    end = getattr(span, "end", None)
+    if not isinstance(start, int) or not isinstance(end, int):
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "ADEU_QUESTIONS_ANCHOR_UNRESOLVED",
+                "message": "anchor span is invalid",
+                "question_id": question_id,
+                "adeu_object_id": adeu_object_id,
+            },
+        )
+
+    if start < 0 or end > len(source_text) or start >= end:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "ADEU_QUESTIONS_ANCHOR_UNRESOLVED",
+                "message": "anchor span is out of bounds for source_text",
+                "question_id": question_id,
+                "adeu_object_id": adeu_object_id,
+                "span_start": start,
+                "span_end": end,
+                "source_text_length": len(source_text),
+            },
+        )
+    return span
+
+
+def _project_concept_questions_to_adeu(
+    *,
+    questions: list[ConceptQuestion],
+    concept_ir: ConceptIR,
+    adeu_ir: AdeuIR,
+    bridge_manifest: BridgeManifest,
+    source_text: str | None,
+) -> list[ConceptQuestion]:
+    concept_to_adeu = _build_concept_to_adeu_map(bridge_manifest)
+    adeu_refs = _build_adeu_object_refs(adeu_ir)
+
+    projected_questions: list[ConceptQuestion] = []
+    for question in questions:
+        projected_anchors: list[ConceptQuestionAnchor] = []
+        seen_keys: set[tuple[str, str, str, int, int]] = set()
+
+        for anchor in question.anchors:
+            concept_object_id = _concept_object_id_from_anchor(anchor=anchor, concept_ir=concept_ir)
+            if concept_object_id is None:
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "code": "ADEU_QUESTIONS_ANCHOR_UNRESOLVED",
+                        "message": "could not resolve concept anchor to concept object",
+                        "question_id": question.question_id,
+                        "concept_json_path": anchor.json_path,
+                    },
+                )
+
+            adeu_object_keys = concept_to_adeu.get(concept_object_id, [])
+            if not adeu_object_keys:
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "code": "ADEU_QUESTIONS_ANCHOR_UNRESOLVED",
+                        "message": "no ADEU mapping for concept anchor object",
+                        "question_id": question.question_id,
+                        "concept_object_id": concept_object_id,
+                    },
+                )
+
+            resolved_count = 0
+            for adeu_object_key in adeu_object_keys:
+                resolved = adeu_refs.get(adeu_object_key)
+                if resolved is None:
+                    continue
+
+                span = _validate_adeu_anchor_span(
+                    span=resolved.span,
+                    source_text=source_text,
+                    question_id=question.question_id,
+                    adeu_object_id=resolved.object_id,
+                )
+                start = span.start if span is not None else -1
+                end = span.end if span is not None else -1
+                dedupe_key = (
+                    resolved.object_id,
+                    resolved.json_path,
+                    anchor.label or "",
+                    start,
+                    end,
+                )
+                if dedupe_key in seen_keys:
+                    continue
+                seen_keys.add(dedupe_key)
+                projected_anchors.append(
+                    ConceptQuestionAnchor(
+                        object_id=resolved.object_id,
+                        json_path=resolved.json_path,
+                        label=anchor.label,
+                        span=span,
+                    )
+                )
+                resolved_count += 1
+
+            if resolved_count == 0:
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "code": "ADEU_QUESTIONS_ANCHOR_UNRESOLVED",
+                        "message": "ADEU anchor mapping resolved to no concrete ADEU objects",
+                        "question_id": question.question_id,
+                        "concept_object_id": concept_object_id,
+                    },
+                )
+
+        if not projected_anchors:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "ADEU_QUESTIONS_ANCHOR_UNRESOLVED",
+                    "message": "question has no resolvable ADEU anchors",
+                    "question_id": question.question_id,
+                },
+            )
+
+        projected_questions.append(question.model_copy(update={"anchors": projected_anchors}))
+
+    return projected_questions
+
+
 class _DoNoHarmFilterResult(NamedTuple):
     questions: list[ConceptQuestion]
     used_dry_runs: int
@@ -2476,6 +2752,93 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
         mapping_trust=None,
         solver_trust="solver_backed" if records else "kernel_only",
         proof_trust=None,
+    )
+
+
+@app.post("/adeu/questions", response_model=AdeuQuestionsResponse)
+def adeu_questions_endpoint(req: AdeuQuestionsRequest) -> AdeuQuestionsResponse:
+    source_text, _ = _resolve_source_text_and_doc_id(
+        source_text=req.source_text,
+        doc_id=None,
+        require_source=False,
+    )
+    _require_adeu_ir_hash_match(ir=req.ir, ir_hash=req.expected_ir_hash)
+
+    lifted = lift_adeu_to_concepts(req.ir)
+    report, records = check_concept_with_validator_runs(
+        lifted.concept_ir,
+        mode=req.mode,
+        source_text=source_text,
+    )
+    run_inputs = [_validator_run_input_from_record(record) for record in records]
+    concept_runs = [_concept_run_ref_from_input(run) for run in run_inputs]
+    selected = pick_latest_run(concept_runs)
+
+    analysis = analyze_concept(lifted.concept_ir, run=selected)
+    max_questions = DEFAULT_MAX_QUESTIONS
+    max_answers = DEFAULT_MAX_ANSWERS_PER_QUESTION
+    raw_questions = build_concept_questions(
+        lifted.concept_ir,
+        analysis,
+        max_questions=max_questions,
+        max_answers_per_question=max_answers,
+    )
+    ranked_questions = _rank_and_dedupe_questions(
+        questions=raw_questions,
+        analysis=analysis,
+        report=report,
+        ir=lifted.concept_ir,
+    )
+    filtered_result = _filter_question_answers_do_no_harm(
+        req=ConceptQuestionsRequest(
+            ir=lifted.concept_ir,
+            source_text=source_text,
+            mode=req.mode,
+            include_forced_details=True,
+        ),
+        report=report,
+        analysis=analysis,
+        questions=ranked_questions,
+    )
+    limited_questions = filtered_result.questions[:max_questions]
+    projected_questions = _project_concept_questions_to_adeu(
+        questions=limited_questions,
+        concept_ir=lifted.concept_ir,
+        adeu_ir=req.ir,
+        bridge_manifest=lifted.bridge_manifest,
+        source_text=source_text,
+    )
+
+    truncated = filtered_result.truncated
+    truncation_reason = filtered_result.truncation_reason
+    if len(filtered_result.questions) > max_questions and truncation_reason is None:
+        truncated = True
+        truncation_reason = QUESTION_TRUNCATION_REASON_MAX_QUESTIONS
+
+    return AdeuQuestionsResponse(
+        check_report=report,
+        questions=projected_questions,
+        question_count=len(projected_questions),
+        max_questions=max_questions,
+        max_answers_per_question=max_answers,
+        question_rank_version=ADEU_QUESTION_RANK_VERSION,
+        bridge_manifest=lifted.bridge_manifest,
+        bridge_mapping_version=lifted.bridge_mapping_version,
+        mapping_hash=lifted.mapping_hash,
+        budget_report=QuestionsBudgetReport(
+            budget_version=QUESTIONS_BUDGET_VERSION,
+            max_solver_calls=MAX_QUESTION_SOLVER_CALLS_TOTAL,
+            used_solver_calls=filtered_result.used_solver_calls,
+            max_dry_runs=MAX_QUESTION_DRY_RUN_EVALS_TOTAL,
+            used_dry_runs=filtered_result.used_dry_runs,
+            truncated=truncated,
+            truncation_reason=truncation_reason,
+        ),
+        mapping_trust="derived_bridge",
+        solver_trust="solver_backed" if records else "kernel_only",
+        proof_trust=None,
+        validator_runs=run_inputs if req.include_validator_runs else None,
+        analysis=analysis if req.include_analysis_details else None,
     )
 
 
