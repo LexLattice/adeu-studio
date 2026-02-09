@@ -172,6 +172,58 @@ type ConceptQuestionsResponse = {
   max_answers_per_question: number;
 };
 
+type ConceptAlignmentArtifactRef = {
+  artifact_id: string;
+  doc_id?: string | null;
+  concept_id: string;
+};
+
+type ConceptAlignmentTermRef = {
+  artifact_id: string;
+  doc_id?: string | null;
+  concept_id: string;
+  term_id: string;
+  label: string;
+  normalized_label: string;
+};
+
+type ConceptAlignmentSenseRef = {
+  artifact_id: string;
+  doc_id?: string | null;
+  concept_id: string;
+  sense_id: string;
+  term_id: string;
+  gloss: string;
+  gloss_signature: string;
+};
+
+type ConceptAlignmentSuggestion = {
+  suggestion_id: string;
+  suggestion_fingerprint: string;
+  kind: "merge_candidate" | "conflict_candidate";
+  vocabulary_key: string;
+  reason: string;
+  artifact_ids: string[];
+  doc_ids: string[];
+  term_refs: ConceptAlignmentTermRef[];
+  sense_refs: ConceptAlignmentSenseRef[];
+};
+
+type ConceptAlignmentStats = {
+  merge_candidate_count: number;
+  conflict_candidate_count: number;
+};
+
+type ConceptAlignResponse = {
+  artifacts: ConceptAlignmentArtifactRef[];
+  suggestion_count: number;
+  suggestions: ConceptAlignmentSuggestion[];
+  alignment_stats: ConceptAlignmentStats;
+  mapping_trust: string;
+  solver_trust: "kernel_only" | "solver_backed" | "proof_checked";
+  proof_trust?: string | null;
+};
+
 type QuestionLifecycleStatus = "applied" | "resolved";
 
 type QuestionLifecycleEntry = {
@@ -327,16 +379,32 @@ function spanFromReason(ir: ConceptIR, reason: CheckReason): SourceSpan | null {
   return spanFromConceptRef(ir, reason.object_id ?? null, reason.json_path ?? null);
 }
 
+function parseScopeIds(raw: string): string[] {
+  return Array.from(
+    new Set(
+      raw
+        .split(/[\n,\s]+/)
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0),
+    ),
+  ).sort();
+}
+
 export default function ConceptsPage() {
   const [sourceText, setSourceText] = useState<string>("");
   const [provider, setProvider] = useState<"mock" | "openai">("mock");
   const [mode, setMode] = useState<KernelMode>("LAX");
   const [isProposing, setIsProposing] = useState<boolean>(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState<boolean>(false);
+  const [isLoadingAlignment, setIsLoadingAlignment] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
   const [activeOptionKey, setActiveOptionKey] = useState<string | null>(null);
   const [activeQuestionOptionKey, setActiveQuestionOptionKey] = useState<string | null>(null);
+  const [alignmentArtifactIdsInput, setAlignmentArtifactIdsInput] = useState<string>("");
+  const [alignmentDocIdsInput, setAlignmentDocIdsInput] = useState<string>("");
+  const [alignmentMaxSuggestions, setAlignmentMaxSuggestions] = useState<number>(100);
+  const [alignmentResult, setAlignmentResult] = useState<ConceptAlignResponse | null>(null);
 
   const [proposerLog, setProposerLog] = useState<ProposerLog | null>(null);
   const [candidates, setCandidates] = useState<ProposeCandidate[]>([]);
@@ -532,6 +600,7 @@ export default function ConceptsPage() {
     setError(null);
     setArtifactId(null);
     setHighlight(null);
+    setAlignmentResult(null);
     setIsProposing(true);
     setProposerLog(null);
     try {
@@ -563,6 +632,7 @@ export default function ConceptsPage() {
     if (!selectedIr) return;
     setError(null);
     setArtifactId(null);
+    setAlignmentResult(null);
     const res = await fetch(`${apiBase()}/concepts/check`, {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -584,6 +654,7 @@ export default function ConceptsPage() {
     if (!selectedIr) return;
     setError(null);
     setArtifactId(null);
+    setAlignmentResult(null);
     await runAnalyzeForVariant(selectedIdx, selectedIr);
   }
 
@@ -591,7 +662,48 @@ export default function ConceptsPage() {
     if (!selectedIr) return;
     setError(null);
     setArtifactId(null);
+    setAlignmentResult(null);
     await runQuestionsForVariant(selectedIdx, selectedIr);
+  }
+
+  async function runAlignment() {
+    const artifactIds = parseScopeIds(alignmentArtifactIdsInput);
+    const docIds = parseScopeIds(alignmentDocIdsInput);
+    if (artifactIds.length === 0 && docIds.length === 0) {
+      setError("ALIGNMENT_SCOPE_EMPTY Provide artifact_ids and/or doc_ids.");
+      return;
+    }
+
+    setError(null);
+    setIsLoadingAlignment(true);
+    try {
+      const boundedMaxSuggestions = Math.max(
+        1,
+        Math.min(500, Number.isFinite(alignmentMaxSuggestions) ? Math.round(alignmentMaxSuggestions) : 100),
+      );
+      const res = await fetch(`${apiBase()}/concepts/align`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          artifact_ids: artifactIds,
+          doc_ids: docIds,
+          max_suggestions: boundedMaxSuggestions,
+        }),
+      });
+      if (!res.ok) {
+        setError(await res.text());
+        setAlignmentResult(null);
+        return;
+      }
+      const data = (await res.json()) as ConceptAlignResponse;
+      setAlignmentResult(data);
+      setAlignmentMaxSuggestions(boundedMaxSuggestions);
+    } catch (e) {
+      setError(String(e));
+      setAlignmentResult(null);
+    } finally {
+      setIsLoadingAlignment(false);
+    }
   }
 
   async function applyConceptAmbiguityOption(ambiguityId: string, optionId: string) {
@@ -600,6 +712,7 @@ export default function ConceptsPage() {
     const baseIr = selectedIr;
     setError(null);
     setArtifactId(null);
+    setAlignmentResult(null);
     setActiveOptionKey(`${ambiguityId}:${optionId}`);
 
     try {
@@ -639,6 +752,7 @@ export default function ConceptsPage() {
     const resolutionKey = questionResolutionKey(question, answer.option_id);
     setError(null);
     setArtifactId(null);
+    setAlignmentResult(null);
     setActiveQuestionOptionKey(resolutionKey);
     setQuestionHistoryForVariant(variantIdx, (current) => {
       const withoutCurrent = current.filter((entry) => entry.key !== resolutionKey);
@@ -687,6 +801,10 @@ export default function ConceptsPage() {
     }
     const data = (await res.json()) as ConceptArtifactCreateResponse;
     setArtifactId(data.artifact_id);
+    setAlignmentArtifactIdsInput((prev) => {
+      const merged = Array.from(new Set([...parseScopeIds(prev), data.artifact_id])).sort();
+      return merged.join("\n");
+    });
     if (data.analysis) {
       setAnalyses((prev) => prev.map((value, idx) => (idx === selectedIdx ? data.analysis ?? value : value)));
     }
@@ -837,9 +955,142 @@ export default function ConceptsPage() {
           <button onClick={runQuestions} disabled={!selectedIr || isLoadingQuestions}>
             {isLoadingQuestions ? "Generating..." : "Generate questions"}
           </button>
+          <button onClick={runAlignment} disabled={isLoadingAlignment}>
+            {isLoadingAlignment ? "Aligning..." : "Generate alignment"}
+          </button>
           <button onClick={accept} disabled={!selectedIr}>
             Accept (STRICT)
           </button>
+        </div>
+
+        <div style={{ marginTop: 10, border: "1px solid var(--border)", borderRadius: 8, padding: 8 }}>
+          <div className="muted">Alignment scope</div>
+          <div className="row" style={{ marginTop: 6 }}>
+            <label className="muted" htmlFor="alignment-artifact-ids">
+              artifact_ids
+            </label>
+            <textarea
+              id="alignment-artifact-ids"
+              rows={2}
+              style={{ minHeight: 52 }}
+              value={alignmentArtifactIdsInput}
+              onChange={(event) => setAlignmentArtifactIdsInput(event.target.value)}
+              placeholder="artifact_a, artifact_b"
+            />
+          </div>
+          <div className="row" style={{ marginTop: 6 }}>
+            <label className="muted" htmlFor="alignment-doc-ids">
+              doc_ids
+            </label>
+            <textarea
+              id="alignment-doc-ids"
+              rows={2}
+              style={{ minHeight: 52 }}
+              value={alignmentDocIdsInput}
+              onChange={(event) => setAlignmentDocIdsInput(event.target.value)}
+              placeholder="doc_1, doc_2"
+            />
+          </div>
+          <div className="row" style={{ marginTop: 6 }}>
+            <label className="muted" htmlFor="alignment-max-suggestions">
+              max_suggestions
+            </label>
+            <input
+              id="alignment-max-suggestions"
+              type="number"
+              min={1}
+              max={500}
+              value={alignmentMaxSuggestions}
+              onChange={(event) => {
+                const value = Number.parseInt(event.target.value, 10);
+                setAlignmentMaxSuggestions(Number.isFinite(value) ? value : 100);
+              }}
+            />
+            <button
+              onClick={() =>
+                setAlignmentArtifactIdsInput((prev) => {
+                  if (!artifactId) return prev;
+                  const merged = Array.from(new Set([...parseScopeIds(prev), artifactId])).sort();
+                  return merged.join("\n");
+                })
+              }
+              disabled={!artifactId}
+            >
+              Add accepted artifact
+            </button>
+            <button onClick={runAlignment} disabled={isLoadingAlignment}>
+              {isLoadingAlignment ? "Aligning..." : "Run alignment"}
+            </button>
+            <button onClick={() => setAlignmentResult(null)} disabled={!alignmentResult}>
+              Clear
+            </button>
+          </div>
+          {alignmentResult ? (
+            <div style={{ marginTop: 8 }}>
+              <div className="muted">
+                Alignment suggestions ({alignmentResult.suggestion_count}) merge=
+                {alignmentResult.alignment_stats.merge_candidate_count} conflict=
+                {alignmentResult.alignment_stats.conflict_candidate_count}
+              </div>
+              <div className="muted mono" style={{ marginTop: 2 }}>
+                trust mapping={alignmentResult.mapping_trust} solver={alignmentResult.solver_trust}
+                {" "}proof={alignmentResult.proof_trust ?? "none"}
+              </div>
+              {alignmentResult.artifacts.length ? (
+                <div className="muted mono" style={{ marginTop: 4 }}>
+                  Scope artifacts:{" "}
+                  {alignmentResult.artifacts
+                    .map((item) => `${item.artifact_id}${item.doc_id ? `@${item.doc_id}` : ""}`)
+                    .join(", ")}
+                </div>
+              ) : null}
+              {alignmentResult.suggestions.length === 0 ? (
+                <div className="muted" style={{ marginTop: 4 }}>
+                  No merge/conflict candidates in current scope.
+                </div>
+              ) : null}
+              {alignmentResult.suggestions.map((suggestion) => (
+                <div
+                  key={suggestion.suggestion_id}
+                  style={{
+                    marginTop: 8,
+                    border: "1px solid var(--border)",
+                    borderRadius: 8,
+                    background: "#fff",
+                    padding: 8,
+                  }}
+                >
+                  <div className="muted mono">
+                    {suggestion.kind} · {suggestion.suggestion_id} · fp={suggestion.suggestion_fingerprint}
+                  </div>
+                  <div className="muted mono" style={{ marginTop: 2 }}>
+                    vocabulary_key={suggestion.vocabulary_key}
+                  </div>
+                  <div style={{ marginTop: 4 }}>{suggestion.reason}</div>
+                  <div className="muted mono" style={{ marginTop: 4 }}>
+                    artifacts={suggestion.artifact_ids.join(", ") || "(none)"} docs=
+                    {suggestion.doc_ids.join(", ") || "(none)"}
+                  </div>
+                  <div className="muted mono" style={{ marginTop: 2 }}>
+                    terms=
+                    {suggestion.term_refs
+                      .map((term) => `${term.artifact_id}/${term.term_id}:${term.normalized_label}`)
+                      .join(" | ")}
+                  </div>
+                  {suggestion.sense_refs.length ? (
+                    <div className="muted mono" style={{ marginTop: 2 }}>
+                      senses=
+                      {suggestion.sense_refs
+                        .slice(0, 6)
+                        .map((sense) => `${sense.artifact_id}/${sense.sense_id}:${sense.gloss_signature}`)
+                        .join(" | ")}
+                      {suggestion.sense_refs.length > 6 ? ` | +${suggestion.sense_refs.length - 6} more` : ""}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         {selectedIr?.claims?.length ? (
