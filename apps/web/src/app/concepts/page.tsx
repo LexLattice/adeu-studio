@@ -165,13 +165,31 @@ type ConceptQuestion = {
   answers: ConceptQuestionAnswer[];
 };
 
-type ConceptQuestionsResponse = {
-  check_report: CheckReport;
-  questions: ConceptQuestion[];
+type ConceptQuestionsBudgetReport = {
+  budget_version: "budget.v1";
+  max_solver_calls: number;
+  used_solver_calls: number;
+  max_dry_runs: number;
+  used_dry_runs: number;
+  truncated: boolean;
+  truncation_reason?: string | null;
+};
+
+type ConceptQuestionsMeta = {
   question_count: number;
   max_questions: number;
   max_answers_per_question: number;
+  question_rank_version: "concepts.qrank.v2";
+  budget_report: ConceptQuestionsBudgetReport;
+  mapping_trust?: string | null;
+  solver_trust?: "kernel_only" | "solver_backed" | "proof_checked";
+  proof_trust?: string | null;
 };
+
+type ConceptQuestionsResponse = {
+  check_report: CheckReport;
+  questions: ConceptQuestion[];
+} & ConceptQuestionsMeta;
 
 type ConceptAlignmentArtifactRef = {
   artifact_id: string;
@@ -415,6 +433,9 @@ export default function ConceptsPage() {
   const [compareIdx, setCompareIdx] = useState<number | null>(null);
   const [analyses, setAnalyses] = useState<Array<ConceptAnalysis | null>>([]);
   const [questionsByVariant, setQuestionsByVariant] = useState<Array<ConceptQuestion[] | null>>([]);
+  const [questionsMetaByVariant, setQuestionsMetaByVariant] = useState<
+    Array<ConceptQuestionsMeta | null>
+  >([]);
   const [questionHistoryByVariant, setQuestionHistoryByVariant] = useState<
     Array<QuestionLifecycleEntry[]>
   >([]);
@@ -427,6 +448,10 @@ export default function ConceptsPage() {
   const selectedQuestions = useMemo(
     () => questionsByVariant[selectedIdx] ?? null,
     [questionsByVariant, selectedIdx],
+  );
+  const selectedQuestionsMeta = useMemo(
+    () => questionsMetaByVariant[selectedIdx] ?? null,
+    [questionsMetaByVariant, selectedIdx],
   );
   const selectedQuestionHistory = useMemo(
     () => questionHistoryByVariant[selectedIdx] ?? [],
@@ -474,11 +499,21 @@ export default function ConceptsPage() {
     });
   }
 
-  function setQuestionsForVariant(variantIdx: number, questions: ConceptQuestion[]) {
+  function setQuestionsForVariant(
+    variantIdx: number,
+    questions: ConceptQuestion[],
+    meta: ConceptQuestionsMeta,
+  ) {
     setQuestionsByVariant((prev) => {
       const next = [...prev];
       while (next.length <= variantIdx) next.push(null);
       next[variantIdx] = questions;
+      return next;
+    });
+    setQuestionsMetaByVariant((prev) => {
+      const next = [...prev];
+      while (next.length <= variantIdx) next.push(null);
+      next[variantIdx] = meta;
       return next;
     });
 
@@ -523,6 +558,7 @@ export default function ConceptsPage() {
   ): Promise<ConceptQuestionsResponse | null> {
     setIsLoadingQuestions(true);
     try {
+      const expectedIrHash = await conceptIrHash(ir);
       const res = await fetch(`${apiBase()}/concepts/questions`, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -531,6 +567,7 @@ export default function ConceptsPage() {
           source_text: sourceText || null,
           mode,
           include_forced_details: true,
+          expected_ir_hash: expectedIrHash,
         }),
       });
       if (!res.ok) {
@@ -543,7 +580,16 @@ export default function ConceptsPage() {
           idx === variantIdx ? { ...candidate, check_report: data.check_report } : candidate,
         ),
       );
-      setQuestionsForVariant(variantIdx, data.questions ?? []);
+      setQuestionsForVariant(variantIdx, data.questions ?? [], {
+        question_count: data.question_count,
+        max_questions: data.max_questions,
+        max_answers_per_question: data.max_answers_per_question,
+        question_rank_version: data.question_rank_version,
+        budget_report: data.budget_report,
+        mapping_trust: data.mapping_trust ?? null,
+        solver_trust: data.solver_trust,
+        proof_trust: data.proof_trust ?? null,
+      });
       return data;
     } catch (e) {
       setError(String(e));
@@ -593,6 +639,7 @@ export default function ConceptsPage() {
     );
     setAnalyses((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
     setQuestionsByVariant((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
+    setQuestionsMetaByVariant((prev) => prev.map((value, idx) => (idx === variantIdx ? null : value)));
 
     await runAnalyzeForVariant(variantIdx, applyData.patched_ir);
     await runQuestionsForVariant(variantIdx, applyData.patched_ir);
@@ -620,6 +667,7 @@ export default function ConceptsPage() {
       setCandidates(data.candidates ?? []);
       setAnalyses((data.candidates ?? []).map(() => null));
       setQuestionsByVariant((data.candidates ?? []).map(() => null));
+      setQuestionsMetaByVariant((data.candidates ?? []).map(() => null));
       setQuestionHistoryByVariant((data.candidates ?? []).map(() => []));
       setSelectedIdx(0);
       setCompareIdx(null);
@@ -1165,6 +1213,18 @@ export default function ConceptsPage() {
               Questions ({selectedQuestions.length}) open={questionLifecycleSummary.open} applied=
               {questionLifecycleSummary.applied} resolved={questionLifecycleSummary.resolved}
             </div>
+            {selectedQuestionsMeta ? (
+              <div className="muted mono" style={{ marginTop: 4 }}>
+                rank={selectedQuestionsMeta.question_rank_version} dry_runs=
+                {selectedQuestionsMeta.budget_report.used_dry_runs}/
+                {selectedQuestionsMeta.budget_report.max_dry_runs} solver_calls=
+                {selectedQuestionsMeta.budget_report.used_solver_calls}/
+                {selectedQuestionsMeta.budget_report.max_solver_calls}
+                {selectedQuestionsMeta.budget_report.truncated
+                  ? ` truncated:${selectedQuestionsMeta.budget_report.truncation_reason ?? "unknown"}`
+                  : ""}
+              </div>
+            ) : null}
             {selectedQuestions.length === 0 ? (
               <div className="muted" style={{ marginTop: 4 }}>
                 No actionable questions for current IR.
