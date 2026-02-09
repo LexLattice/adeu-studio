@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { apiBase } from "./lib/api-base";
 import { SolverDiffPanel } from "./components/solver-diff-panel";
 import type { AdeuIR, SourceSpan } from "../gen/adeu_ir";
 import type { CheckReason, CheckReport } from "../gen/check_report";
@@ -215,10 +216,6 @@ type AdeuAnalyzeConceptsResponse = {
 };
 
 type Highlight = { span: SourceSpan; label: string } | null;
-
-function apiBase(): string {
-  return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
-}
 
 function clampSpan(text: string, span: SourceSpan): SourceSpan | null {
   const start = Math.max(0, Math.min(text.length, span.start));

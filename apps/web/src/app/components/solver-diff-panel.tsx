@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { apiBase } from "../lib/api-base";
+
 export type KernelMode = "STRICT" | "LAX";
 export type DiffDomain = "adeu" | "concepts" | "puzzles";
 
@@ -140,10 +142,6 @@ type ExplainFlipResponse = {
   left_mismatch: boolean;
   right_mismatch: boolean;
 };
-
-function apiBase(): string {
-  return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
-}
 
 type Props = {
   domain: DiffDomain;

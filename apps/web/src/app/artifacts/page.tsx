@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { apiBase } from "../lib/api-base";
+
 type CheckStatus = "PASS" | "WARN" | "REFUSE";
 
 type ArtifactSummary = {
@@ -20,10 +22,6 @@ type ArtifactSummary = {
 type ArtifactListResponse = {
   items: ArtifactSummary[];
 };
-
-function apiBase(): string {
-  return process.env.NEXT_PUBLIC_ADEU_API_URL || "http://localhost:8000";
-}
 
 export default function ArtifactsPage() {
   const [docId, setDocId] = useState<string>("");
