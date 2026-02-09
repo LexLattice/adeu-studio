@@ -19,6 +19,8 @@ from .openai_config import (
     openai_api,
     openai_api_key,
     openai_base_url,
+    openai_default_max_candidates,
+    openai_default_max_repairs,
     openai_model,
     openai_temperature,
 )
@@ -28,9 +30,6 @@ from .openai_proposer_core import (
     run_openai_repair_loop,
 )
 from .puzzle_id_canonicalization import canonicalize_puzzle_ids
-
-DEFAULT_MAX_CANDIDATES = 5
-DEFAULT_MAX_REPAIRS = 3
 
 PuzzleProposal = tuple[KnightsKnavesPuzzle, CheckReport, list[ValidatorRunRecord]]
 
@@ -255,8 +254,8 @@ def propose_puzzle_openai(
     backend = build_openai_backend(api=api, api_key=api_key, base_url=base_url)
     want_raw = env_flag("ADEU_LOG_RAW_LLM")
 
-    k = DEFAULT_MAX_CANDIDATES if max_candidates is None else max_candidates
-    n = DEFAULT_MAX_REPAIRS if max_repairs is None else max_repairs
+    k = openai_default_max_candidates() if max_candidates is None else max_candidates
+    n = openai_default_max_repairs() if max_repairs is None else max_repairs
 
     adapter = _PuzzleAdapter(
         puzzle_text=puzzle_text,
