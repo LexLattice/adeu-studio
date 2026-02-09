@@ -518,6 +518,9 @@ export default function HomePage() {
           <Link href="/concepts" className="muted">
             Concepts
           </Link>
+          <Link href="/papers" className="muted">
+            Papers
+          </Link>
           <Link href="/puzzles" className="muted">
             Puzzles
           </Link>

@@ -64,9 +64,17 @@ export default function ArtifactsPage() {
     <div style={{ padding: 12 }}>
       <div className="row" style={{ justifyContent: "space-between" }}>
         <h2 style={{ margin: 0 }}>Artifacts</h2>
-        <Link href="/" className="muted">
-          Back to studio
-        </Link>
+        <div className="row">
+          <Link href="/" className="muted">
+            ADEU Studio
+          </Link>
+          <Link href="/concepts" className="muted">
+            Concepts
+          </Link>
+          <Link href="/papers" className="muted">
+            Papers
+          </Link>
+        </div>
       </div>
 
       <div className="panel" style={{ marginTop: 12 }}>

@@ -148,6 +148,9 @@ Web routes:
 
 - `/` ADEU Studio
 - `/concepts` Concepts Studio (propose/check/analyze/compare with span-highlighted causal diff)
+- `/puzzles` Puzzle Studio (propose/check/solve/compare for knights/knaves)
+- `/papers` Paper Abstract Studio (documents-first concepts workflow + cross-doc alignment)
+- `/artifacts` Artifact browser
 
 Compare panel notes:
 
