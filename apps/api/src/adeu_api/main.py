@@ -113,10 +113,82 @@ from .storage import (
     transaction as storage_transaction,
 )
 
-MAX_SOURCE_TEXT_BYTES = 200_000
-MAX_QUESTION_DRY_RUN_EVALS_TOTAL = 20
-MAX_QUESTION_SOLVER_CALLS_TOTAL = 40
-MAX_ALIGNMENT_SCOPE_ARTIFACTS = 200
+DEFAULT_LIST_LIMIT = 50
+MAX_LIST_LIMIT = 200
+MAX_LIST_OFFSET = 50_000
+MAX_PROPOSE_CANDIDATES = 20
+MAX_PROPOSE_REPAIRS = 10
+MAX_ADDITIONAL_SOLVER_CALL_BUDGET = 200
+ALIGNMENT_MAX_SUGGESTIONS_MIN = 1
+ALIGNMENT_MAX_SUGGESTIONS_MAX = 500
+
+
+def _env_int(
+    name: str,
+    default: int,
+    *,
+    minimum: int | None = None,
+    maximum: int | None = None,
+) -> int:
+    raw_value = os.environ.get(name, "").strip()
+    if not raw_value:
+        value = default
+    else:
+        try:
+            value = int(raw_value)
+        except ValueError as exc:
+            raise RuntimeError(f"{name} must be an integer") from exc
+
+    if minimum is not None and value < minimum:
+        raise RuntimeError(f"{name} must be >= {minimum}")
+    if maximum is not None and value > maximum:
+        raise RuntimeError(f"{name} must be <= {maximum}")
+    return value
+
+
+ALIGNMENT_MAX_SUGGESTIONS_DEFAULT = _env_int(
+    "ADEU_ALIGNMENT_MAX_SUGGESTIONS_DEFAULT",
+    100,
+    minimum=ALIGNMENT_MAX_SUGGESTIONS_MIN,
+    maximum=ALIGNMENT_MAX_SUGGESTIONS_MAX,
+)
+MAX_SOURCE_TEXT_BYTES = _env_int("ADEU_MAX_SOURCE_TEXT_BYTES", 200_000, minimum=1)
+MAX_QUESTION_DRY_RUN_EVALS_TOTAL = _env_int(
+    "ADEU_MAX_QUESTION_DRY_RUN_EVALS_TOTAL",
+    20,
+    minimum=1,
+)
+MAX_QUESTION_SOLVER_CALLS_TOTAL = _env_int(
+    "ADEU_MAX_QUESTION_SOLVER_CALLS_TOTAL",
+    40,
+    minimum=1,
+)
+MAX_ALIGNMENT_SCOPE_ARTIFACTS = _env_int(
+    "ADEU_MAX_ALIGNMENT_SCOPE_ARTIFACTS",
+    200,
+    minimum=1,
+)
+DEFAULT_EXPLAIN_ANALYSIS_BUDGET = _env_int(
+    "ADEU_EXPLAIN_ANALYSIS_BUDGET_DEFAULT",
+    40,
+    minimum=0,
+    maximum=MAX_ADDITIONAL_SOLVER_CALL_BUDGET,
+)
+QUESTION_FORCED_BUDGET_MAX = _env_int(
+    "ADEU_QUESTION_FORCED_BUDGET_MAX",
+    10,
+    minimum=1,
+)
+QUESTION_FORCED_BUDGET_DIVISOR = _env_int(
+    "ADEU_QUESTION_FORCED_BUDGET_DIVISOR",
+    3,
+    minimum=1,
+)
+QUESTION_MIC_SHRINK_ITERS_MAX = _env_int(
+    "ADEU_QUESTION_MIC_SHRINK_ITERS_MAX",
+    20,
+    minimum=1,
+)
 _ALIGNMENT_KIND_RANKS: dict[str, int] = {
     "merge_candidate": 0,
     "conflict_candidate": 1,
@@ -134,8 +206,8 @@ class ProposeRequest(BaseModel):
     provider: Literal["mock", "openai"] = "mock"
     mode: KernelMode = KernelMode.LAX
     context: Context | None = None
-    max_candidates: int | None = Field(default=None, ge=1, le=20)
-    max_repairs: int | None = Field(default=None, ge=0, le=10)
+    max_candidates: int | None = Field(default=None, ge=1, le=MAX_PROPOSE_CANDIDATES)
+    max_repairs: int | None = Field(default=None, ge=0, le=MAX_PROPOSE_REPAIRS)
 
 
 class ProviderInfo(BaseModel):
@@ -251,8 +323,8 @@ class PuzzleProposeRequest(BaseModel):
     provider: Literal["mock", "openai"] = "mock"
     mode: KernelMode = KernelMode.LAX
     context_override: dict[str, Any] | None = None
-    max_candidates: int | None = Field(default=None, ge=1, le=20)
-    max_repairs: int | None = Field(default=None, ge=0, le=10)
+    max_candidates: int | None = Field(default=None, ge=1, le=MAX_PROPOSE_CANDIDATES)
+    max_repairs: int | None = Field(default=None, ge=0, le=MAX_PROPOSE_REPAIRS)
 
 
 class ConceptProposeRequest(BaseModel):
@@ -261,8 +333,8 @@ class ConceptProposeRequest(BaseModel):
     doc_id: str | None = None
     provider: Literal["mock", "openai"] = "mock"
     mode: KernelMode = KernelMode.LAX
-    max_candidates: int | None = Field(default=None, ge=1, le=20)
-    max_repairs: int | None = Field(default=None, ge=0, le=10)
+    max_candidates: int | None = Field(default=None, ge=1, le=MAX_PROPOSE_CANDIDATES)
+    max_repairs: int | None = Field(default=None, ge=0, le=MAX_PROPOSE_REPAIRS)
 
 
 class PuzzleSolveRequest(BaseModel):
@@ -315,7 +387,11 @@ class ExplainFlipBaseRequest(BaseModel):
     right_source_text: str | None = None
     left_doc_id: str | None = None
     right_doc_id: str | None = None
-    additional_solver_call_budget: int | None = Field(default=None, ge=0, le=200)
+    additional_solver_call_budget: int | None = Field(
+        default=None,
+        ge=0,
+        le=MAX_ADDITIONAL_SOLVER_CALL_BUDGET,
+    )
 
 
 class ExplainFlipAdeuRequest(ExplainFlipBaseRequest):
@@ -639,7 +715,11 @@ class ConceptAlignRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     artifact_ids: list[str] = Field(default_factory=list)
     doc_ids: list[str] = Field(default_factory=list)
-    max_suggestions: int = Field(default=100, ge=1, le=500)
+    max_suggestions: int = Field(
+        default=ALIGNMENT_MAX_SUGGESTIONS_DEFAULT,
+        ge=ALIGNMENT_MAX_SUGGESTIONS_MIN,
+        le=ALIGNMENT_MAX_SUGGESTIONS_MAX,
+    )
 
     @model_validator(mode="after")
     def _require_scope(self) -> "ConceptAlignRequest":
@@ -1788,7 +1868,13 @@ def _is_do_no_harm_improvement(
 
 
 def _analysis_budget_split(remaining_solver_calls: int) -> tuple[int, int]:
-    forced_budget = max(1, min(10, remaining_solver_calls // 3))
+    forced_budget = max(
+        1,
+        min(
+            QUESTION_FORCED_BUDGET_MAX,
+            remaining_solver_calls // QUESTION_FORCED_BUDGET_DIVISOR,
+        ),
+    )
     mic_budget = max(0, remaining_solver_calls - forced_budget)
     return mic_budget, forced_budget
 
@@ -1833,7 +1919,7 @@ def _evaluate_question_answer_dry_run(
         patched_analysis = analyze_concept(
             applied.patched_ir,
             run=selected,
-            max_shrink_iters=max(1, min(mic_budget, 20)),
+            max_shrink_iters=max(1, min(mic_budget, QUESTION_MIC_SHRINK_ITERS_MAX)),
             max_solver_calls=mic_budget,
             max_forced_checks=max(0, forced_budget - 1),
             max_solver_calls_total=forced_budget,
@@ -2681,8 +2767,8 @@ def list_documents_endpoint(
     domain: str | None = None,
     created_after: str | None = None,
     created_before: str | None = None,
-    limit: int = Query(50, ge=1, le=200),
-    offset: int = Query(0, ge=0, le=50_000),
+    limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
+    offset: int = Query(0, ge=0, le=MAX_LIST_OFFSET),
 ) -> DocumentListResponse:
     try:
         rows = list_documents(
@@ -2766,8 +2852,8 @@ def list_concept_artifacts_endpoint(
     status: Literal["PASS", "WARN", "REFUSE"] | None = None,
     created_after: str | None = None,
     created_before: str | None = None,
-    limit: int = Query(50, ge=1, le=200),
-    offset: int = Query(0, ge=0, le=50_000),
+    limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
+    offset: int = Query(0, ge=0, le=MAX_LIST_OFFSET),
 ) -> ConceptArtifactListResponse:
     try:
         rows = list_concept_artifacts(
@@ -3150,7 +3236,7 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
         budget = (
             req.additional_solver_call_budget
             if req.additional_solver_call_budget is not None
-            else 40
+            else DEFAULT_EXPLAIN_ANALYSIS_BUDGET
         )
         left_budget = budget // 2
         right_budget = budget - left_budget
@@ -3322,8 +3408,8 @@ def list_artifacts_endpoint(
     status: Literal["PASS", "WARN", "REFUSE"] | None = None,
     created_after: str | None = None,
     created_before: str | None = None,
-    limit: int = Query(50, ge=1, le=200),
-    offset: int = Query(0, ge=0, le=50_000),
+    limit: int = Query(DEFAULT_LIST_LIMIT, ge=1, le=MAX_LIST_LIMIT),
+    offset: int = Query(0, ge=0, le=MAX_LIST_OFFSET),
 ) -> ArtifactListResponse:
     try:
         items = list_artifacts(

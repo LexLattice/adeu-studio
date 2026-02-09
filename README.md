@@ -87,6 +87,15 @@ Set `provider: "openai"` in `POST /propose` and configure:
 - optional `ADEU_LEAN_BIN` (default: `lean`, canonical)
 - optional `LEAN_BIN` (alias fallback when `ADEU_LEAN_BIN` is unset)
 - optional `ADEU_LEAN_TIMEOUT_MS` (default: `5000`)
+- optional `ADEU_MAX_SOURCE_TEXT_BYTES` (default: `200000`)
+- optional `ADEU_MAX_QUESTION_DRY_RUN_EVALS_TOTAL` (default: `20`)
+- optional `ADEU_MAX_QUESTION_SOLVER_CALLS_TOTAL` (default: `40`)
+- optional `ADEU_MAX_ALIGNMENT_SCOPE_ARTIFACTS` (default: `200`)
+- optional `ADEU_ALIGNMENT_MAX_SUGGESTIONS_DEFAULT` (default: `100`, bounded by API lock `1..500`)
+- optional `ADEU_EXPLAIN_ANALYSIS_BUDGET_DEFAULT` (default: `40`, bounded `0..200`)
+- optional `ADEU_QUESTION_FORCED_BUDGET_MAX` (default: `10`)
+- optional `ADEU_QUESTION_FORCED_BUDGET_DIVISOR` (default: `3`)
+- optional `ADEU_QUESTION_MIC_SHRINK_ITERS_MAX` (default: `20`)
 
 Request-level overrides:
 
