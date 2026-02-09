@@ -80,6 +80,8 @@ Set `provider: "openai"` in `POST /propose` and configure:
 - `ADEU_OPENAI_API` backend selector (`responses` default, `chat` fallback backend)
 - optional `ADEU_OPENAI_MODEL` (default: `gpt-5.2`)
 - optional `ADEU_OPENAI_TEMPERATURE` (default: `0.3`, bounded `0.0..2.0`)
+- optional `ADEU_OPENAI_DEFAULT_MAX_CANDIDATES` (default: `5`, bounded `1..20`)
+- optional `ADEU_OPENAI_DEFAULT_MAX_REPAIRS` (default: `3`, bounded `0..10`)
 - optional `ADEU_OPENAI_BASE_URL` (default: `https://api.openai.com/v1`)
 - optional `ADEU_OPENAI_HTTP_TIMEOUT_SECONDS` (default: `60.0`)
 - optional `ADEU_LOG_RAW_LLM=1` to include raw prompt/response in proposer logs (off by default)

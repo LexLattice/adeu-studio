@@ -299,6 +299,31 @@ def test_propose_openai_uses_configured_temperature(monkeypatch) -> None:
     assert fake_backend.temperatures == [0.75]
 
 
+def test_propose_openai_uses_configured_default_loop_limits(monkeypatch) -> None:
+    fake_backend = _FakeBackend([_ok_result(_minimal_payload(ir_id="ir_limits", verb="notify"))])
+
+    def fake_check_with_runs(*args: object, **kwargs: object) -> tuple[CheckReport, list]:
+        return _report_pass(), []
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("ADEU_OPENAI_API", "responses")
+    monkeypatch.setenv("ADEU_OPENAI_DEFAULT_MAX_CANDIDATES", "1")
+    monkeypatch.setenv("ADEU_OPENAI_DEFAULT_MAX_REPAIRS", "2")
+    monkeypatch.setattr(openai_provider, "build_openai_backend", lambda **kwargs: fake_backend)
+    monkeypatch.setattr(openai_provider, "check_with_validator_runs", fake_check_with_runs)
+
+    _, log, _ = openai_provider.propose_openai(
+        clause_text="Supplier shall notify Customer.",
+        context=_context(),
+        mode=KernelMode.LAX,
+        max_candidates=None,
+        max_repairs=None,
+    )
+
+    assert log.k == 1
+    assert log.n == 2
+
+
 def test_propose_openai_responses_backend_error_aborts_without_chat_fallback(
     monkeypatch,
 ) -> None:
