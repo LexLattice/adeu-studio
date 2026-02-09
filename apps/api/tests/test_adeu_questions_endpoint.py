@@ -102,8 +102,8 @@ def test_adeu_questions_endpoint_is_deterministic_and_emits_trust_metadata() -> 
     assert left.solver_trust in {"kernel_only", "solver_backed"}
     assert left.proof_trust is None
     assert left.question_count == len(left.questions)
-    assert left.max_questions == 10
-    assert left.max_answers_per_question == 4
+    assert left.max_questions == api_main.DEFAULT_MAX_QUESTIONS
+    assert left.max_answers_per_question == api_main.DEFAULT_MAX_ANSWERS_PER_QUESTION
     if left.validator_runs:
         assert left.solver_trust == "solver_backed"
     else:

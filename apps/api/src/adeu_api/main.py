@@ -2061,30 +2061,39 @@ def _build_concept_to_adeu_map(bridge_manifest: BridgeManifest) -> dict[str, lis
 def _build_adeu_object_refs(ir: AdeuIR) -> dict[str, _AdeuObjectRef]:
     refs: dict[str, _AdeuObjectRef] = {}
 
-    for idx, entity in enumerate(sorted(ir.O.entities, key=lambda item: item.id)):
-        refs[f"O.entities/{entity.id}"] = _AdeuObjectRef(
-            object_id=entity.id,
-            json_path=f"/O/entities/{idx}",
-            span=entity.provenance.span if entity.provenance else None,
-        )
-    for idx, definition in enumerate(sorted(ir.O.definitions, key=lambda item: item.id)):
-        refs[f"O.definitions/{definition.id}"] = _AdeuObjectRef(
-            object_id=definition.id,
-            json_path=f"/O/definitions/{idx}",
-            span=definition.provenance.span if definition.provenance else None,
-        )
-    for idx, statement in enumerate(sorted(ir.D_norm.statements, key=lambda item: item.id)):
-        refs[f"D_norm.statements/{statement.id}"] = _AdeuObjectRef(
-            object_id=statement.id,
-            json_path=f"/D_norm/statements/{idx}",
-            span=statement.provenance.span if statement.provenance else None,
-        )
-    for idx, exception in enumerate(sorted(ir.D_norm.exceptions, key=lambda item: item.id)):
-        refs[f"D_norm.exceptions/{exception.id}"] = _AdeuObjectRef(
-            object_id=exception.id,
-            json_path=f"/D_norm/exceptions/{idx}",
-            span=exception.provenance.span if exception.provenance else None,
-        )
+    def _add_refs_from_items(
+        *,
+        items: list[Any],
+        key_prefix: str,
+        json_path_prefix: str,
+    ) -> None:
+        for idx, item in enumerate(sorted(items, key=lambda entry: entry.id)):
+            refs[f"{key_prefix}/{item.id}"] = _AdeuObjectRef(
+                object_id=item.id,
+                json_path=f"/{json_path_prefix}/{idx}",
+                span=item.provenance.span if item.provenance else None,
+            )
+
+    _add_refs_from_items(
+        items=ir.O.entities,
+        key_prefix="O.entities",
+        json_path_prefix="O/entities",
+    )
+    _add_refs_from_items(
+        items=ir.O.definitions,
+        key_prefix="O.definitions",
+        json_path_prefix="O/definitions",
+    )
+    _add_refs_from_items(
+        items=ir.D_norm.statements,
+        key_prefix="D_norm.statements",
+        json_path_prefix="D_norm/statements",
+    )
+    _add_refs_from_items(
+        items=ir.D_norm.exceptions,
+        key_prefix="D_norm.exceptions",
+        json_path_prefix="D_norm/exceptions",
+    )
 
     return refs
 
