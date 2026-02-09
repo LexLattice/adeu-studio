@@ -54,6 +54,22 @@ def test_openai_default_max_candidates_parse_error_includes_bad_value(
         openai_default_max_candidates()
 
 
+def test_openai_default_max_candidates_range_error_includes_bad_value(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_OPENAI_DEFAULT_MAX_CANDIDATES", "99")
+    with pytest.raises(RuntimeError, match=r"must be between 1 and 20, but got 99"):
+        openai_default_max_candidates()
+
+
+def test_openai_default_max_repairs_parse_error_includes_bad_value(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_OPENAI_DEFAULT_MAX_REPAIRS", "xyz")
+    with pytest.raises(RuntimeError, match=r"must be an integer, but got 'xyz'"):
+        openai_default_max_repairs()
+
+
 def test_openai_default_max_repairs_range_error_includes_bad_value(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
