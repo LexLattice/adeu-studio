@@ -18,6 +18,14 @@ jobs:
         run: make lint
       - name: Test
         run: make test
+      - name: Build quality dashboard
+        run: .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
+      - name: Upload quality dashboard artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-dashboard
+          path: artifacts/quality_dashboard.json
+          if-no-files-found: error
 
   web:
     runs-on: ubuntu-latest

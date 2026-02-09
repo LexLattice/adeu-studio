@@ -25,6 +25,12 @@ Deterministic eval fixture inputs used by roadmap quality checks live under:
 - `examples/eval/questions/**`
 - `examples/eval/tournament/**`
 
+Generate a local quality dashboard artifact (same script used in CI):
+
+```bash
+.venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
+```
+
 ## Run API (mock proposer)
 
 ```bash
