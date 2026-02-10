@@ -10,7 +10,16 @@ from .config import (
     URMRuntimeConfig,
 )
 from .copilot import URMCopilotManager
-from .errors import URMError, URMErrorDetail, error_envelope
+from .errors import (
+    ApprovalError,
+    ApprovalExpiredError,
+    ApprovalInvalidStateError,
+    ApprovalMismatchError,
+    ApprovalNotFoundError,
+    URMError,
+    URMErrorDetail,
+    error_envelope,
+)
 from .models import (
     ApprovalIssueRequest,
     ApprovalIssueResponse,
@@ -48,8 +57,13 @@ __all__ = [
     "ROLE_REGISTRY",
     "CodexExecWorkerRunner",
     "EvidenceRetentionStats",
+    "ApprovalError",
+    "ApprovalExpiredError",
     "ApprovalIssueRequest",
     "ApprovalIssueResponse",
+    "ApprovalInvalidStateError",
+    "ApprovalMismatchError",
+    "ApprovalNotFoundError",
     "ApprovalRevokeRequest",
     "ApprovalRevokeResponse",
     "CopilotModeRequest",

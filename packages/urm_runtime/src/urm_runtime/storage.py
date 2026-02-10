@@ -11,6 +11,12 @@ from pathlib import Path
 from typing import Any
 
 from .config import URMRuntimeConfig
+from .errors import (
+    ApprovalExpiredError,
+    ApprovalInvalidStateError,
+    ApprovalMismatchError,
+    ApprovalNotFoundError,
+)
 
 URM_SCHEMA_VERSION = 1
 
@@ -924,15 +930,15 @@ def consume_approval(
 ) -> ApprovalRow:
     approval = get_approval(con=con, approval_id=approval_id)
     if approval is None:
-        raise KeyError("approval_not_found")
+        raise ApprovalNotFoundError("approval_not_found")
     if approval.action_kind != action_kind or approval.action_hash != action_hash:
-        raise ValueError("approval_mismatch")
+        raise ApprovalMismatchError("approval_mismatch")
     if approval.revoked_at is not None or approval.consumed_at is not None:
-        raise ValueError("approval_invalid")
+        raise ApprovalInvalidStateError("approval_invalid")
     now = datetime.now(tz=timezone.utc)
     expires_at = datetime.fromisoformat(approval.expires_at)
     if expires_at <= now:
-        raise ValueError("approval_expired")
+        raise ApprovalExpiredError("approval_expired")
     consumed_at = now.isoformat()
     cursor = con.execute(
         """
@@ -944,7 +950,7 @@ def consume_approval(
         (consumed_at, consumed_by_evidence_id, approval_id),
     )
     if int(cursor.rowcount) != 1:
-        raise ValueError("approval_invalid")
+        raise ApprovalInvalidStateError("approval_invalid")
     resolved = get_approval(con=con, approval_id=approval_id)
     if resolved is None:
         raise RuntimeError("approval missing after consumption")

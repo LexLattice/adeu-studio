@@ -11,7 +11,12 @@ from typing import Any, Literal
 
 from .app_server import CodexAppServerHost
 from .config import URMRuntimeConfig
-from .errors import URMError
+from .errors import (
+    ApprovalError,
+    ApprovalExpiredError,
+    ApprovalNotFoundError,
+    URMError,
+)
 from .evidence import EvidenceFileLimitExceeded, EvidenceFileWriter
 from .hashing import sha256_canonical_json
 from .models import (
@@ -289,24 +294,23 @@ class URMCopilotManager:
                     action_hash=action_hash,
                     consumed_by_evidence_id=None,
                 )
-            except KeyError as exc:
+            except ApprovalNotFoundError as exc:
                 raise URMError(
                     code="URM_APPROVAL_INVALID",
                     message="approval not found",
                     context={"approval_id": approval_id},
                 ) from exc
-            except ValueError as exc:
-                code = str(exc)
-                if code == "approval_expired":
-                    raise URMError(
-                        code="URM_APPROVAL_EXPIRED",
-                        message="approval expired",
-                        context={"approval_id": approval_id},
-                    ) from exc
+            except ApprovalExpiredError as exc:
+                raise URMError(
+                    code="URM_APPROVAL_EXPIRED",
+                    message="approval expired",
+                    context={"approval_id": approval_id},
+                ) from exc
+            except ApprovalError as exc:
                 raise URMError(
                     code="URM_APPROVAL_INVALID",
                     message="approval invalid",
-                    context={"approval_id": approval_id, "reason": code},
+                    context={"approval_id": approval_id, "reason": exc.__class__.__name__},
                 ) from exc
 
         runtime = self._sessions.get(session_id)

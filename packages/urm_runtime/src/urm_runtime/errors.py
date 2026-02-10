@@ -31,6 +31,26 @@ class URMError(Exception):
         )
 
 
+class ApprovalError(ValueError):
+    """Base class for approval domain errors."""
+
+
+class ApprovalNotFoundError(ApprovalError, KeyError):
+    """Approval does not exist."""
+
+
+class ApprovalMismatchError(ApprovalError):
+    """Approval action kind/hash does not match expected payload."""
+
+
+class ApprovalInvalidStateError(ApprovalError):
+    """Approval was already revoked or consumed."""
+
+
+class ApprovalExpiredError(ApprovalError):
+    """Approval has expired."""
+
+
 def error_envelope(
     *,
     code: str,
