@@ -11,10 +11,10 @@ class TaskEnvelope(BaseModel):
 
     role: str = Field(min_length=1)
     template_id: str = Field(min_length=1)
-    template_version: str | None = None
-    schema_version: str | None = None
-    domain_pack_id: str | None = None
-    domain_pack_version: str | None = None
+    template_version: str = Field(min_length=1)
+    schema_version: str = Field(min_length=1)
+    domain_pack_id: str = Field(min_length=1)
+    domain_pack_version: str = Field(min_length=1)
     inputs: dict[str, Any] = Field(default_factory=dict)
     constraints: dict[str, Any] = Field(default_factory=dict)
 
@@ -29,11 +29,11 @@ class WorkerRunRequest(BaseModel):
     output_schema_path: str | None = None
     cwd: str | None = None
     timeout_secs: int = Field(default=120, ge=1, le=6 * 60 * 60)
-    template_id: str | None = None
-    template_version: str | None = None
-    schema_version: str | None = None
-    domain_pack_id: str | None = None
-    domain_pack_version: str | None = None
+    template_id: str = Field(min_length=1)
+    template_version: str = Field(min_length=1)
+    schema_version: str = Field(min_length=1)
+    domain_pack_id: str = Field(min_length=1)
+    domain_pack_version: str = Field(min_length=1)
 
     def idempotency_payload(self) -> dict[str, Any]:
         payload = self.model_dump(mode="json", exclude={"client_request_id"})
@@ -62,6 +62,8 @@ class WorkerRunResult(BaseModel):
     normalized_event_count: int
     artifact_candidate: Any | None = None
     parse_degraded: bool = False
+    invalid_schema: bool = False
+    schema_validation_errors: list[str] = Field(default_factory=list)
     error: dict[str, Any] | None = None
     idempotent_replay: bool = False
 

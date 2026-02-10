@@ -9,6 +9,8 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
+import jsonschema
+
 from .config import URMRuntimeConfig
 from .errors import URMError
 from .evidence import EvidenceFileLimitExceeded, EvidenceFileWriter
@@ -32,6 +34,7 @@ from .storage import (
 WORKER_RUN_ENDPOINT_NAME = "urm.worker.run"
 WORKER_GRACE_SECS = 5
 WORKER_CANCEL_WAIT_SECS = 6
+WORKER_EXEC_HELP_TIMEOUT_SECS = 5
 _TERMINAL_WORKER_STATUSES = {"ok", "failed", "cancelled"}
 
 
@@ -41,8 +44,14 @@ class CodexExecWorkerRunner:
         self._process_lock = threading.RLock()
         self._active_processes: dict[str, subprocess.Popen[str]] = {}
         self._cancel_requested: set[str] = set()
+        self._exec_help_supports_output_schema: bool | None = None
 
-    def _build_command(self, request: WorkerRunRequest) -> list[str]:
+    def _build_command(
+        self,
+        request: WorkerRunRequest,
+        *,
+        include_output_schema_flag: bool,
+    ) -> list[str]:
         command = [
             self.config.codex_bin,
             "exec",
@@ -52,10 +61,82 @@ class CodexExecWorkerRunner:
             "--ask-for-approval",
             "never",
         ]
-        if request.output_schema_path:
+        if request.output_schema_path and include_output_schema_flag:
             command.extend(["--output-schema", request.output_schema_path])
         command.append(request.prompt)
         return command
+
+    def _supports_output_schema_flag(self) -> bool:
+        if self._exec_help_supports_output_schema is not None:
+            return self._exec_help_supports_output_schema
+        try:
+            completed = subprocess.run(
+                [self.config.codex_bin, "exec", "--help"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=WORKER_EXEC_HELP_TIMEOUT_SECS,
+                check=False,
+            )
+            output = (completed.stdout or "") + "\n" + (completed.stderr or "")
+            supports = completed.returncode == 0 and "--output-schema" in output
+        except (OSError, subprocess.TimeoutExpired):
+            supports = False
+        self._exec_help_supports_output_schema = supports
+        return supports
+
+    def _resolve_output_schema_path(
+        self,
+        *,
+        output_schema_path: str,
+        cwd: str | None,
+    ) -> Path:
+        path = Path(output_schema_path)
+        if path.is_absolute():
+            return path
+        base = Path(cwd) if cwd else Path.cwd()
+        return (base / path).resolve()
+
+    def _validate_artifact_candidate(
+        self,
+        *,
+        artifact_candidate: object,
+        output_schema_path: str,
+        cwd: str | None,
+    ) -> list[str]:
+        resolved_schema_path = self._resolve_output_schema_path(
+            output_schema_path=output_schema_path,
+            cwd=cwd,
+        )
+        try:
+            schema = json.loads(resolved_schema_path.read_text(encoding="utf-8"))
+        except OSError as exc:
+            return [f"output schema read failed: {exc}"]
+        except json.JSONDecodeError as exc:
+            return [f"output schema parse failed: {exc}"]
+
+        if artifact_candidate is None:
+            return ["artifact candidate missing"]
+
+        try:
+            validator_cls = jsonschema.validators.validator_for(schema)
+            validator_cls.check_schema(schema)
+            validator = validator_cls(schema)
+        except Exception as exc:
+            return [f"output schema invalid: {exc}"]
+
+        errors: list[str] = []
+        validation_errors = sorted(
+            validator.iter_errors(artifact_candidate),
+            key=lambda err: list(err.path),
+        )
+        for error in validation_errors:
+            path = "$"
+            if error.path:
+                path = "$." + ".".join(str(part) for part in error.path)
+            errors.append(f"{path}: {error.message}")
+        return errors
 
     def _build_subprocess_env(self) -> dict[str, str]:
         allowed_exact = {
@@ -132,26 +213,43 @@ class CodexExecWorkerRunner:
             return get_worker_run(con=con, worker_id=worker_id)
 
     def cancel(self, *, worker_id: str) -> WorkerCancelResponse:
+        row = self._load_worker_row(worker_id=worker_id)
+
+        if row is None:
+            raise URMError(
+                code="URM_NOT_FOUND",
+                message="worker run not found",
+                status_code=404,
+                context={"worker_id": worker_id},
+            )
+        if row.status != "running":
+            return WorkerCancelResponse(
+                worker_id=worker_id,
+                status=row.status,  # type: ignore[arg-type]
+                idempotent_replay=True,
+                error=(
+                    {"code": row.error_code, "message": row.error_message}
+                    if row.error_code is not None and row.error_message is not None
+                    else None
+                ),
+            )
+
         process: subprocess.Popen[str] | None = None
         was_running = False
         with self._process_lock:
             process = self._active_processes.get(worker_id)
-            if process is not None and process.poll() is None:
-                was_running = True
-                self._cancel_requested.add(worker_id)
+            self._cancel_requested.add(worker_id)
+            was_running = process is not None and process.poll() is None
+
         if was_running and process is not None:
             self._terminate_process(process)
 
         deadline = time.monotonic() + WORKER_CANCEL_WAIT_SECS
-        row = self._load_worker_row(worker_id=worker_id)
-        while (
-            row is not None
-            and row.status == "running"
-            and was_running
-            and time.monotonic() < deadline
-        ):
+        while row.status == "running" and time.monotonic() < deadline:
             time.sleep(0.05)
             row = self._load_worker_row(worker_id=worker_id)
+            if row is None:
+                break
 
         if row is None:
             raise URMError(
@@ -171,7 +269,7 @@ class CodexExecWorkerRunner:
         return WorkerCancelResponse(
             worker_id=worker_id,
             status=row.status,  # type: ignore[arg-type]
-            idempotent_replay=not was_running,
+            idempotent_replay=False,
             error=(
                 {"code": row.error_code, "message": row.error_message}
                 if row.error_code is not None and row.error_message is not None
@@ -262,7 +360,14 @@ class CodexExecWorkerRunner:
                 raw_jsonl_path=raw_jsonl_rel_path,
             )
 
-        command = self._build_command(request)
+        supports_output_schema_flag = self._supports_output_schema_flag()
+        use_output_schema_flag = bool(
+            request.output_schema_path and supports_output_schema_flag
+        )
+        command = self._build_command(
+            request,
+            include_output_schema_flag=use_output_schema_flag,
+        )
         started_at = datetime.now(tz=timezone.utc).isoformat()
         events = []
         parse_degraded = False
@@ -370,10 +475,24 @@ class CodexExecWorkerRunner:
                 self._clear_cancel_requested(worker_id=worker_id)
 
         artifact_candidate = extract_artifact_candidate(events)
+        schema_validation_errors: list[str] = []
+        invalid_schema = False
+        if request.output_schema_path:
+            schema_validation_errors = self._validate_artifact_candidate(
+                artifact_candidate=artifact_candidate,
+                output_schema_path=request.output_schema_path,
+                cwd=request.cwd,
+            )
+            invalid_schema = len(schema_validation_errors) > 0
         ended_at = datetime.now(tz=timezone.utc).isoformat()
         metadata_json = {
             "normalized_event_count": len(events),
             "parse_degraded": parse_degraded,
+            "output_schema_requested": bool(request.output_schema_path),
+            "output_schema_cli_supported": supports_output_schema_flag,
+            "output_schema_via_cli_flag": use_output_schema_flag,
+            "invalid_schema": invalid_schema,
+            "schema_validation_errors": schema_validation_errors,
         }
         error_json = (
             {"code": error_code, "message": error_message}
@@ -390,6 +509,8 @@ class CodexExecWorkerRunner:
             normalized_event_count=len(events),
             artifact_candidate=artifact_candidate,
             parse_degraded=parse_degraded,
+            invalid_schema=invalid_schema,
+            schema_validation_errors=schema_validation_errors,
             error=error_json,
             idempotent_replay=False,
         )

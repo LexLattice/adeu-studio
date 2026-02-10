@@ -1,14 +1,18 @@
 # Locked URM + Codex Integration (Local/Self-Hosted Solo)
 
-Status: frozen for implementation.
+Status: implemented on `main` (February 10, 2026). This doc is now a baseline contract reference.
 
-Implementation boundary for the next build phase: steps 1-3 only.
+Initial implementation sequence completed:
 
 - Step 1: `packages/urm_runtime` skeleton + models + role registry
 - Step 2: storage/evidence tables + raw JSONL file writer (disk-first)
 - Step 3: worker runner (`codex exec --json ...`) + fixtures + tests
+- Step 4: app-server host + event bus + SSE + replay
+- Step 5: `packages/urm_domain_adeu` tool adapters
+- Step 6: `/copilot` route + evidence viewer
+- Step 7: hardening (limits, approvals, drift handling, security)
 
-No implementation beyond step 3 without updating this spec.
+New behavior beyond these locks should be introduced via a new locked roadmap doc.
 
 ---
 
@@ -440,7 +444,9 @@ If app-server is unavailable, UI explicitly shows worker-only mode.
 6. `/copilot` route + evidence viewer
 7. hardening (limits, approvals, drift handling, security)
 
-Current go-ahead is restricted to steps 1-3.
+Completion note:
+- All steps above are implemented on `main`.
+- This section remains as sequence history, not as a pending go-ahead gate.
 
 ---
 
