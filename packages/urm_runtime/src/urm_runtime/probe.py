@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import subprocess
 import threading
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -86,6 +87,46 @@ def _app_server_smoke(config: URMRuntimeConfig) -> tuple[bool, dict[str, Any]]:
     return ok, {"ready_line": ready_line, "exit_code": process.returncode}
 
 
+def _exec_smoke(config: URMRuntimeConfig) -> tuple[bool, dict[str, Any]]:
+    started = time.monotonic()
+    try:
+        completed = subprocess.run(
+            [
+                config.codex_bin,
+                "exec",
+                "--json",
+                "--sandbox",
+                "read-only",
+                "--ask-for-approval",
+                "never",
+                "urm capability smoke probe",
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=SMOKE_TIMEOUT_SECS,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        elapsed_ms = int((time.monotonic() - started) * 1000)
+        return False, {
+            "error": str(exc),
+            "elapsed_ms": elapsed_ms,
+        }
+
+    elapsed_ms = int((time.monotonic() - started) * 1000)
+    output = ((completed.stdout or "") + "\n" + (completed.stderr or "")).strip()
+    return (
+        completed.returncode == 0,
+        {
+            "exit_code": completed.returncode,
+            "elapsed_ms": elapsed_ms,
+            "output_head": output[:400],
+        },
+    )
+
+
 def run_and_persist_capability_probe(
     *,
     config: URMRuntimeConfig,
@@ -102,8 +143,13 @@ def run_and_persist_capability_probe(
         else None
     )
 
-    exec_ok, exec_help, exec_error = _run_help(config, "exec", "--help")
+    exec_help_ok, exec_help, exec_error = _run_help(config, "exec", "--help")
     app_help_ok, app_help, app_help_error = _run_help(config, "app-server", "--help")
+    exec_smoke_ok = False
+    exec_smoke_meta: dict[str, Any] = {}
+    if exec_help_ok:
+        exec_smoke_ok, exec_smoke_meta = _exec_smoke(config)
+    exec_ok = exec_help_ok and exec_smoke_ok
     output_schema_available = "--output-schema" in exec_help
     app_smoke_ok = False
     app_smoke_meta: dict[str, Any] = {}
@@ -117,8 +163,10 @@ def run_and_persist_capability_probe(
         "version_ok": version_ok,
         "version_output": version_output.strip(),
         "version_error": version_error,
-        "exec_help_ok": exec_ok,
+        "exec_help_ok": exec_help_ok,
         "exec_help_error": exec_error,
+        "exec_smoke_ok": exec_smoke_ok,
+        "exec_smoke": exec_smoke_meta,
         "exec_help_contains_json": "--json" in exec_help,
         "exec_help_contains_output_schema": output_schema_available,
         "app_server_help_ok": app_help_ok,

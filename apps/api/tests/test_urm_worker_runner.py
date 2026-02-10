@@ -50,6 +50,26 @@ def _prepare_fake_codex(*, tmp_path: Path) -> Path:
     return target
 
 
+def _worker_request(
+    *,
+    client_request_id: str,
+    role: str,
+    prompt: str,
+    output_schema_path: str | None = None,
+) -> WorkerRunRequest:
+    return WorkerRunRequest(
+        client_request_id=client_request_id,
+        role=role,
+        prompt=prompt,
+        output_schema_path=output_schema_path,
+        template_id="adeu.workflow.pipeline_worker.v0",
+        template_version="v0",
+        schema_version="urm.workflow.v0",
+        domain_pack_id="urm_domain_adeu",
+        domain_pack_version="0.0.0",
+    )
+
+
 def test_worker_runner_persists_evidence_and_idempotent_replay(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -63,15 +83,10 @@ def test_worker_runner_persists_evidence_and_idempotent_replay(
     monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
 
     runner = CodexExecWorkerRunner(config=config)
-    request = WorkerRunRequest(
+    request = _worker_request(
         client_request_id="req-1",
         role="pipeline_worker",
         prompt="demo prompt",
-        template_id="demo_template",
-        template_version="v1",
-        schema_version="schema.v1",
-        domain_pack_id="urm_domain_adeu",
-        domain_pack_version="0.0.0",
     )
 
     first = runner.run(request)
@@ -120,7 +135,7 @@ def test_worker_runner_rejects_disallowed_role(tmp_path: Path) -> None:
 
     with pytest.raises(URMError) as exc_info:
         runner.run(
-            WorkerRunRequest(
+            _worker_request(
                 client_request_id="req-role",
                 role="copilot",
                 prompt="should fail",
@@ -142,7 +157,7 @@ def test_worker_runner_idempotency_conflict(
 
     runner = CodexExecWorkerRunner(config=config)
     runner.run(
-        WorkerRunRequest(
+        _worker_request(
             client_request_id="req-conflict",
             role="pipeline_worker",
             prompt="first prompt",
@@ -151,7 +166,7 @@ def test_worker_runner_idempotency_conflict(
 
     with pytest.raises(URMError) as exc_info:
         runner.run(
-            WorkerRunRequest(
+            _worker_request(
                 client_request_id="req-conflict",
                 role="pipeline_worker",
                 prompt="second prompt",
@@ -176,7 +191,7 @@ def test_worker_runner_marks_parse_degraded_nonfatal(
 
     runner = CodexExecWorkerRunner(config=config)
     result = runner.run(
-        WorkerRunRequest(
+        _worker_request(
             client_request_id="req-parse",
             role="pipeline_worker",
             prompt="parse fixture",
@@ -209,7 +224,7 @@ def test_worker_runner_cancel_is_idempotent(
     monkeypatch.setenv("FAKE_CODEX_SLEEP_SECS", "4")
 
     runner = CodexExecWorkerRunner(config=config)
-    request = WorkerRunRequest(
+    request = _worker_request(
         client_request_id="req-cancel-1",
         role="pipeline_worker",
         prompt="cancel me",
@@ -274,15 +289,15 @@ def test_worker_runner_enforces_max_concurrency(
     fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
     monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
     monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
-    monkeypatch.setenv("FAKE_CODEX_SLEEP_SECS", "3")
+    monkeypatch.setenv("FAKE_CODEX_SLEEP_SECS", "6")
 
     runner = CodexExecWorkerRunner(config=config)
-    first_request = WorkerRunRequest(
+    first_request = _worker_request(
         client_request_id="req-limit-1",
         role="pipeline_worker",
         prompt="hold lock",
     )
-    second_request = WorkerRunRequest(
+    second_request = _worker_request(
         client_request_id="req-limit-2",
         role="pipeline_worker",
         prompt="second worker",
@@ -356,7 +371,7 @@ def test_worker_runner_retention_preflight_purges_old_evidence(
 
     runner = CodexExecWorkerRunner(config=config)
     first = runner.run(
-        WorkerRunRequest(
+        _worker_request(
             client_request_id="req-retention-1",
             role="pipeline_worker",
             prompt="first",
@@ -366,7 +381,7 @@ def test_worker_runner_retention_preflight_purges_old_evidence(
     assert first_path.exists()
 
     runner.run(
-        WorkerRunRequest(
+        _worker_request(
             client_request_id="req-retention-2",
             role="pipeline_worker",
             prompt="second",
@@ -387,3 +402,85 @@ def test_worker_runner_retention_preflight_purges_old_evidence(
     assert row[1] == "size_budget_exceeded"
     assert str(row[2]).startswith("__purged__/")
     assert not first_path.exists()
+
+
+def test_worker_runner_output_schema_fallback_without_flag(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    schema_path = tmp_path / "output.schema.json"
+    schema_path.write_text(
+        """
+{
+  "type": "object",
+  "required": ["artifact"],
+  "properties": {
+    "artifact": {
+      "type": "object",
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": {"type": "string"},
+        "value": {"type": "integer"}
+      }
+    }
+  }
+}
+        """.strip(),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+    monkeypatch.setenv("FAKE_CODEX_EXEC_HELP_NO_OUTPUT_SCHEMA", "1")
+
+    runner = CodexExecWorkerRunner(config=config)
+    result = runner.run(
+        _worker_request(
+            client_request_id="req-schema-fallback-1",
+            role="pipeline_worker",
+            prompt="schema fallback",
+            output_schema_path=str(schema_path),
+        )
+    )
+
+    assert result.status == "ok"
+    assert result.invalid_schema is False
+    assert result.schema_validation_errors == []
+
+
+def test_worker_runner_marks_invalid_schema_with_errors(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    schema_path = tmp_path / "output.invalid.schema.json"
+    schema_path.write_text(
+        """
+{
+  "type": "object",
+  "required": ["must_not_exist"]
+}
+        """.strip(),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+    monkeypatch.setenv("FAKE_CODEX_EXEC_HELP_NO_OUTPUT_SCHEMA", "1")
+
+    runner = CodexExecWorkerRunner(config=config)
+    result = runner.run(
+        _worker_request(
+            client_request_id="req-schema-fallback-2",
+            role="pipeline_worker",
+            prompt="schema invalid",
+            output_schema_path=str(schema_path),
+        )
+    )
+
+    assert result.status == "ok"
+    assert result.invalid_schema is True
+    assert result.schema_validation_errors

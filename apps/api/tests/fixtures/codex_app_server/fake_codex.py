@@ -7,8 +7,12 @@ import sys
 
 
 def _print_exec_help() -> int:
-    print("Usage: codex exec --json --sandbox <mode> [--output-schema <file>] [PROMPT]")
-    print("Options: --json --output-schema --sandbox --ask-for-approval")
+    if os.environ.get("FAKE_CODEX_EXEC_HELP_NO_OUTPUT_SCHEMA") == "1":
+        print("Usage: codex exec --json --sandbox <mode> [PROMPT]")
+        print("Options: --json --sandbox --ask-for-approval")
+    else:
+        print("Usage: codex exec --json --sandbox <mode> [--output-schema <file>] [PROMPT]")
+        print("Options: --json --output-schema --sandbox --ask-for-approval")
     return 0
 
 
@@ -30,11 +34,17 @@ def _run_app_server() -> int:
 
 
 def _run_exec(argv: list[str]) -> int:
+    if os.environ.get("FAKE_CODEX_EXEC_FAIL") == "1":
+        print("forced exec failure", file=sys.stderr)
+        return 42
     required = ["--json", "--sandbox", "read-only", "--ask-for-approval", "never"]
     for token in required:
         if token not in argv:
             print(f"missing required token: {token}", file=sys.stderr)
             return 22
+    if os.environ.get("FAKE_CODEX_EXEC_HELP_NO_OUTPUT_SCHEMA") == "1" and "--output-schema" in argv:
+        print("output-schema flag unsupported", file=sys.stderr)
+        return 24
     print(json.dumps({"event": "result", "final_output": {"artifact": {"kind": "ok"}}}))
     return 0
 
