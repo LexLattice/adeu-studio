@@ -66,6 +66,21 @@ class WorkerRunResult(BaseModel):
     idempotent_replay: bool = False
 
 
+class WorkerCancelResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    worker_id: str
+    status: Literal["running", "ok", "failed", "cancelled"]
+    idempotent_replay: bool = False
+    error: dict[str, Any] | None = None
+
+
+class WorkerCancelRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+
+
 class CopilotSessionStartRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -95,6 +110,7 @@ class CopilotModeRequest(BaseModel):
     provider: Literal["codex"] = "codex"
     session_id: str = Field(min_length=1)
     writes_allowed: bool
+    approval_id: str | None = None
 
 
 class CopilotStopRequest(BaseModel):
@@ -119,6 +135,7 @@ class ToolCallRequest(BaseModel):
     provider: Literal["codex"] = "codex"
     role: str = Field(default="copilot", min_length=1)
     session_id: str | None = None
+    approval_id: str | None = None
     tool_name: str = Field(min_length=1)
     arguments: dict[str, Any] = Field(default_factory=dict)
 
@@ -129,3 +146,38 @@ class ToolCallResponse(BaseModel):
     tool_name: str
     warrant: Literal["observed", "derived", "checked", "hypothesis", "unknown"]
     result: Any
+
+
+class ApprovalIssueRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    session_id: str = Field(min_length=1)
+    action_kind: str = Field(min_length=1)
+    action_payload: dict[str, Any] = Field(default_factory=dict)
+    expires_in_secs: int | None = Field(default=None, ge=1, le=24 * 60 * 60)
+
+
+class ApprovalIssueResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    approval_id: str
+    session_id: str
+    action_kind: str
+    action_hash: str
+    expires_at: datetime
+
+
+class ApprovalRevokeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    approval_id: str = Field(min_length=1)
+
+
+class ApprovalRevokeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    approval_id: str
+    revoked: bool
+    idempotent_replay: bool = False

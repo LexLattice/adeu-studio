@@ -5,16 +5,23 @@ import threading
 import uuid
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Literal
 
 from .app_server import CodexAppServerHost
 from .config import URMRuntimeConfig
-from .errors import URMError
+from .errors import (
+    ApprovalError,
+    ApprovalExpiredError,
+    ApprovalNotFoundError,
+    URMError,
+)
 from .evidence import EvidenceFileLimitExceeded, EvidenceFileWriter
 from .hashing import sha256_canonical_json
 from .models import (
+    ApprovalIssueResponse,
+    ApprovalRevokeResponse,
     CopilotModeRequest,
     CopilotSessionResponse,
     CopilotSessionSendRequest,
@@ -24,13 +31,19 @@ from .models import (
 )
 from .normalization import normalize_app_server_line
 from .probe import CodexCapabilityProbeResult, run_and_persist_capability_probe
+from .retention import run_evidence_retention_gc
 from .storage import (
     CopilotSessionRow,
+    consume_approval,
+    create_approval,
+    get_approval,
     get_copilot_session,
+    mark_running_sessions_terminated,
     persist_copilot_session_start,
     persist_evidence_record,
     persist_idempotency_response,
     reserve_request_idempotency,
+    revoke_approval,
     set_copilot_writes_allowed,
     transaction,
     update_copilot_session_last_seq,
@@ -72,10 +85,20 @@ class URMCopilotManager:
         self._sessions: dict[str, CopilotSessionRuntime] = {}
         self._active_session_id: str | None = None
         self._lock = threading.RLock()
+        self._recover_terminated_sessions()
 
     @property
     def probe(self) -> CodexCapabilityProbeResult:
         return self._probe
+
+    def _recover_terminated_sessions(self) -> None:
+        with transaction(db_path=self.config.db_path) as con:
+            mark_running_sessions_terminated(
+                con=con,
+                error_code="URM_CODEX_SESSION_TERMINATED",
+                error_message="session terminated during API restart",
+                terminal_status="stopped",
+            )
 
     def _raw_jsonl_path_for_session(self, session_id: str) -> Path:
         path = self.config.evidence_root / "copilot" / f"{session_id}.jsonl"
@@ -90,9 +113,21 @@ class URMCopilotManager:
 
     def _resolve_raw_path(self, raw_jsonl_path: str) -> Path:
         path = Path(raw_jsonl_path)
-        if not path.is_absolute():
-            path = self.config.var_root / path
-        return path.resolve()
+        if path.is_absolute():
+            raise URMError(
+                code="URM_CODEX_SSE_REPLAY_FAILED",
+                message="raw evidence path must be relative",
+                context={"raw_jsonl_path": raw_jsonl_path},
+            )
+        resolved = (self.config.var_root / path).resolve()
+        root = self.config.evidence_root.resolve()
+        if not resolved.is_relative_to(root):
+            raise URMError(
+                code="URM_CODEX_SSE_REPLAY_FAILED",
+                message="raw evidence path escapes evidence root",
+                context={"raw_jsonl_path": raw_jsonl_path},
+            )
+        return resolved
 
     def _record_event_line(self, *, runtime: CopilotSessionRuntime, raw_line: str) -> None:
         with runtime.condition:
@@ -138,7 +173,6 @@ class URMCopilotManager:
             except Exception:
                 # Best-effort only; the session is already force-stopped in memory.
                 pass
-            return
 
     def _record_internal_event(
         self,
@@ -198,7 +232,11 @@ class URMCopilotManager:
         self._record_internal_event(
             runtime=runtime,
             event_kind="process_terminated",
-            payload={"reason": reason, "exit_code": exit_code},
+            payload={
+                "reason": reason,
+                "method": "terminate_then_kill_if_needed",
+                "exit_code": exit_code,
+            },
         )
         runtime.writer.close()
         with runtime.condition:
@@ -210,6 +248,155 @@ class URMCopilotManager:
             app_server_unavailable=self._probe.app_server_unavailable,
             idempotent_replay=False,
         )
+
+    def _action_hash(self, *, action_kind: str, action_payload: dict[str, Any]) -> str:
+        return sha256_canonical_json(
+            {
+                "action_kind": action_kind,
+                "action_payload": action_payload,
+            }
+        )
+
+    def _consume_approval_unlocked(
+        self,
+        *,
+        session_id: str,
+        approval_id: str | None,
+        action_kind: str,
+        action_payload: dict[str, Any],
+    ) -> str:
+        if not approval_id:
+            raise URMError(
+                code="URM_APPROVAL_REQUIRED",
+                message="approval is required for this action",
+                context={"action_kind": action_kind},
+            )
+        action_hash = self._action_hash(action_kind=action_kind, action_payload=action_payload)
+        with transaction(db_path=self.config.db_path) as con:
+            approval = get_approval(con=con, approval_id=approval_id)
+            if approval is None:
+                raise URMError(
+                    code="URM_APPROVAL_INVALID",
+                    message="approval not found",
+                    context={"approval_id": approval_id},
+                )
+            if approval.copilot_session_id != session_id:
+                raise URMError(
+                    code="URM_APPROVAL_INVALID",
+                    message="approval does not belong to this session",
+                    context={"approval_id": approval_id, "session_id": session_id},
+                )
+            try:
+                consume_approval(
+                    con=con,
+                    approval_id=approval_id,
+                    action_kind=action_kind,
+                    action_hash=action_hash,
+                    consumed_by_evidence_id=None,
+                )
+            except ApprovalNotFoundError as exc:
+                raise URMError(
+                    code="URM_APPROVAL_INVALID",
+                    message="approval not found",
+                    context={"approval_id": approval_id},
+                ) from exc
+            except ApprovalExpiredError as exc:
+                raise URMError(
+                    code="URM_APPROVAL_EXPIRED",
+                    message="approval expired",
+                    context={"approval_id": approval_id},
+                ) from exc
+            except ApprovalError as exc:
+                raise URMError(
+                    code="URM_APPROVAL_INVALID",
+                    message="approval invalid",
+                    context={"approval_id": approval_id, "reason": exc.__class__.__name__},
+                ) from exc
+
+        runtime = self._sessions.get(session_id)
+        if runtime is not None:
+            self._record_internal_event(
+                runtime=runtime,
+                event_kind="approval_consumed",
+                payload={"approval_id": approval_id, "action_kind": action_kind},
+            )
+        return action_hash
+
+    def issue_approval(
+        self,
+        *,
+        session_id: str,
+        action_kind: str,
+        action_payload: dict[str, Any],
+        expires_in_secs: int | None,
+    ) -> ApprovalIssueResponse:
+        with self._lock:
+            runtime = self._sessions.get(session_id)
+            if runtime is None:
+                raise URMError(
+                    code="URM_NOT_FOUND",
+                    message="copilot session not found",
+                    status_code=404,
+                    context={"session_id": session_id},
+                )
+            ttl = expires_in_secs if expires_in_secs is not None else self.config.approval_ttl_secs
+            ttl = max(1, min(ttl, self.config.approval_ttl_secs))
+            expires_at = datetime.now(tz=timezone.utc) + timedelta(seconds=ttl)
+            action_hash = self._action_hash(action_kind=action_kind, action_payload=action_payload)
+            with transaction(db_path=self.config.db_path) as con:
+                approval_id = create_approval(
+                    con=con,
+                    action_kind=action_kind,
+                    action_hash=action_hash,
+                    expires_at=expires_at.isoformat(),
+                    copilot_session_id=session_id,
+                    granted_by_user=True,
+                )
+            self._record_internal_event(
+                runtime=runtime,
+                event_kind="approval_issued",
+                payload={
+                    "approval_id": approval_id,
+                    "action_kind": action_kind,
+                    "expires_at": expires_at.isoformat(),
+                },
+            )
+            return ApprovalIssueResponse(
+                approval_id=approval_id,
+                session_id=session_id,
+                action_kind=action_kind,
+                action_hash=action_hash,
+                expires_at=expires_at,
+            )
+
+    def revoke_approval(self, *, approval_id: str) -> ApprovalRevokeResponse:
+        with self._lock:
+            with transaction(db_path=self.config.db_path) as con:
+                approval = get_approval(con=con, approval_id=approval_id)
+                if approval is None:
+                    raise URMError(
+                        code="URM_NOT_FOUND",
+                        message="approval not found",
+                        status_code=404,
+                        context={"approval_id": approval_id},
+                    )
+                revoked = revoke_approval(con=con, approval_id=approval_id)
+            runtime = (
+                self._sessions.get(approval.copilot_session_id)
+                if approval.copilot_session_id is not None
+                else None
+            )
+            if runtime is not None and revoked:
+                self._record_internal_event(
+                    runtime=runtime,
+                    event_kind="approval_revoked",
+                    payload={"approval_id": approval_id},
+                )
+            return ApprovalRevokeResponse(
+                approval_id=approval_id,
+                revoked=True,
+                idempotent_replay=not revoked,
+            )
 
     def start_session(self, request: CopilotSessionStartRequest) -> CopilotSessionResponse:
         if request.provider != "codex":
@@ -224,6 +411,8 @@ class URMCopilotManager:
                 message="codex app-server unavailable; worker-only mode",
                 context={"app_server_unavailable": True},
             )
+
+        run_evidence_retention_gc(config=self.config)
 
         payload_hash = sha256_canonical_json(request.idempotency_payload())
         with self._lock:
@@ -350,6 +539,7 @@ class URMCopilotManager:
                     status_code=404,
                     context={"session_id": request.session_id},
                 )
+            self._enforce_session_duration_unlocked(runtime=runtime)
             with transaction(db_path=self.config.db_path) as con:
                 try:
                     reservation = reserve_request_idempotency(
@@ -422,6 +612,16 @@ class URMCopilotManager:
                     status_code=404,
                     context={"session_id": request.session_id},
                 )
+            self._enforce_session_duration_unlocked(runtime=runtime)
+
+            if request.writes_allowed:
+                self._consume_approval_unlocked(
+                    session_id=request.session_id,
+                    approval_id=request.approval_id,
+                    action_kind="urm.set_mode.enable_writes",
+                    action_payload={"writes_allowed": True},
+                )
+
             with transaction(db_path=self.config.db_path) as con:
                 set_copilot_writes_allowed(
                     con=con,
@@ -451,6 +651,23 @@ class URMCopilotManager:
                 self._sessions.pop(session_id, None)
             self._active_session_id = None
 
+    def _enforce_session_duration_unlocked(self, *, runtime: CopilotSessionRuntime) -> None:
+        if runtime.status not in {"starting", "running"}:
+            return
+        started = datetime.fromisoformat(runtime.started_at)
+        elapsed = datetime.now(tz=timezone.utc) - started
+        if elapsed.total_seconds() <= self.config.max_session_duration_secs:
+            return
+        runtime.status = "failed"
+        runtime.error_code = "URM_CODEX_SESSION_LIMIT_EXCEEDED"
+        runtime.error_message = (
+            f"copilot session exceeded {self.config.max_session_duration_secs} seconds"
+        )
+        self._stop_runtime(runtime=runtime, reason="session_duration_exceeded")
+        self._sessions.pop(runtime.session_id, None)
+        if self._active_session_id == runtime.session_id:
+            self._active_session_id = None
+
     def _replay_events_from_file(
         self,
         *,
@@ -477,6 +694,8 @@ class URMCopilotManager:
     def iter_events(self, *, session_id: str, after_seq: int) -> tuple[list[NormalizedEvent], str]:
         with self._lock:
             runtime = self._sessions.get(session_id)
+            if runtime is not None:
+                self._enforce_session_duration_unlocked(runtime=runtime)
         if runtime is None:
             with transaction(db_path=self.config.db_path) as con:
                 row = get_copilot_session(con=con, copilot_session_id=session_id)

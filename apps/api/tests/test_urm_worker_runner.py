@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import shutil
 import sqlite3
+import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -12,7 +14,14 @@ from urm_runtime.normalization import normalize_exec_line
 from urm_runtime.worker import CodexExecWorkerRunner
 
 
-def _runtime_config(*, tmp_path: Path, codex_bin: Path) -> URMRuntimeConfig:
+def _runtime_config(
+    *,
+    tmp_path: Path,
+    codex_bin: Path,
+    max_concurrent_workers: int = 2,
+    retention_days: int = 14,
+    max_total_evidence_bytes: int = 2_000_000_000,
+) -> URMRuntimeConfig:
     var_root = tmp_path / "var"
     evidence_root = var_root / "evidence" / "codex"
     var_root.mkdir(parents=True, exist_ok=True)
@@ -25,11 +34,11 @@ def _runtime_config(*, tmp_path: Path, codex_bin: Path) -> URMRuntimeConfig:
         max_line_bytes=1_000_000,
         max_evidence_file_bytes=200_000_000,
         max_session_duration_secs=6 * 60 * 60,
-        max_concurrent_workers=2,
+        max_concurrent_workers=max_concurrent_workers,
         max_replay_events=10_000,
         approval_ttl_secs=120,
-        retention_days=14,
-        max_total_evidence_bytes=2_000_000_000,
+        retention_days=retention_days,
+        max_total_evidence_bytes=max_total_evidence_bytes,
     )
 
 
@@ -186,3 +195,195 @@ def test_normalize_exec_line_tolerates_unknown_and_parse_errors() -> None:
 
     assert unknown.event_kind == "unknown_event"
     assert malformed.event_kind == "parse_error"
+
+
+def test_worker_runner_cancel_is_idempotent(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+    monkeypatch.setenv("FAKE_CODEX_SLEEP_SECS", "4")
+
+    runner = CodexExecWorkerRunner(config=config)
+    request = WorkerRunRequest(
+        client_request_id="req-cancel-1",
+        role="pipeline_worker",
+        prompt="cancel me",
+    )
+    run_error: dict[str, URMError] = {}
+
+    def _run_worker() -> None:
+        try:
+            runner.run(request)
+        except URMError as exc:
+            run_error["error"] = exc
+
+    thread = threading.Thread(target=_run_worker, daemon=True)
+    thread.start()
+
+    worker_id: str | None = None
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline and worker_id is None:
+        try:
+            with sqlite3.connect(config.db_path) as con:
+                row = con.execute(
+                    """
+                    SELECT resource_id
+                    FROM urm_idempotency_key
+                    WHERE endpoint_name = ? AND client_request_id = ?
+                    """,
+                    ("urm.worker.run", "req-cancel-1"),
+                ).fetchone()
+                if row is not None:
+                    worker_id = str(row[0])
+        except sqlite3.OperationalError:
+            pass
+        if worker_id is None:
+            time.sleep(0.05)
+
+    assert worker_id is not None
+    first_cancel = runner.cancel(worker_id=worker_id)
+    assert first_cancel.status in {"cancelled", "running"}
+    assert first_cancel.idempotent_replay is False
+
+    thread.join(timeout=10)
+    assert not thread.is_alive()
+    err = run_error.get("error")
+    assert err is not None
+    assert err.detail.code == "URM_WORKER_CANCELLED"
+
+    second_cancel = runner.cancel(worker_id=worker_id)
+    assert second_cancel.status == "cancelled"
+    assert second_cancel.idempotent_replay is True
+
+
+def test_worker_runner_enforces_max_concurrency(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(
+        tmp_path=tmp_path,
+        codex_bin=codex_bin,
+        max_concurrent_workers=1,
+    )
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+    monkeypatch.setenv("FAKE_CODEX_SLEEP_SECS", "3")
+
+    runner = CodexExecWorkerRunner(config=config)
+    first_request = WorkerRunRequest(
+        client_request_id="req-limit-1",
+        role="pipeline_worker",
+        prompt="hold lock",
+    )
+    second_request = WorkerRunRequest(
+        client_request_id="req-limit-2",
+        role="pipeline_worker",
+        prompt="second worker",
+    )
+    first_error: dict[str, URMError] = {}
+
+    def _run_first() -> None:
+        try:
+            runner.run(first_request)
+        except URMError as exc:
+            first_error["error"] = exc
+
+    thread = threading.Thread(target=_run_first, daemon=True)
+    thread.start()
+
+    running_seen = False
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline:
+        count = 0
+        try:
+            with sqlite3.connect(config.db_path) as con:
+                row = con.execute(
+                    "SELECT COUNT(*) FROM urm_worker_run WHERE status = 'running'"
+                ).fetchone()
+                count = int(row[0]) if row is not None else 0
+        except sqlite3.OperationalError:
+            pass
+        if count >= 1:
+            running_seen = True
+            break
+        time.sleep(0.05)
+    assert running_seen
+
+    with pytest.raises(URMError) as exc_info:
+        runner.run(second_request)
+    assert exc_info.value.detail.code == "URM_WORKER_START_FAILED"
+    assert exc_info.value.detail.context["max_concurrent_workers"] == 1
+
+    with sqlite3.connect(config.db_path) as con:
+        row = con.execute(
+            """
+            SELECT resource_id
+            FROM urm_idempotency_key
+            WHERE endpoint_name = ? AND client_request_id = ?
+            """,
+            ("urm.worker.run", "req-limit-1"),
+        ).fetchone()
+    assert row is not None
+    worker_id = str(row[0])
+    runner.cancel(worker_id=worker_id)
+    thread.join(timeout=10)
+    assert not thread.is_alive()
+    assert first_error.get("error") is not None
+    assert first_error["error"].detail.code == "URM_WORKER_CANCELLED"
+
+
+def test_worker_runner_retention_preflight_purges_old_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(
+        tmp_path=tmp_path,
+        codex_bin=codex_bin,
+        max_total_evidence_bytes=1,
+    )
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+    monkeypatch.delenv("FAKE_CODEX_SLEEP_SECS", raising=False)
+
+    runner = CodexExecWorkerRunner(config=config)
+    first = runner.run(
+        WorkerRunRequest(
+            client_request_id="req-retention-1",
+            role="pipeline_worker",
+            prompt="first",
+        )
+    )
+    first_path = config.var_root / first.raw_jsonl_path
+    assert first_path.exists()
+
+    runner.run(
+        WorkerRunRequest(
+            client_request_id="req-retention-2",
+            role="pipeline_worker",
+            prompt="second",
+        )
+    )
+
+    with sqlite3.connect(config.db_path) as con:
+        row = con.execute(
+            """
+            SELECT purged_at, purge_reason, raw_jsonl_path
+            FROM urm_evidence_record
+            WHERE evidence_id = ?
+            """,
+            (first.evidence_id,),
+        ).fetchone()
+    assert row is not None
+    assert row[0] is not None
+    assert row[1] == "size_budget_exceeded"
+    assert str(row[2]).startswith("__purged__/")
+    assert not first_path.exists()
