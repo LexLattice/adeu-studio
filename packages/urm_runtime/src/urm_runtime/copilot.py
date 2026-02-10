@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import json
 import threading
 import uuid
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from .app_server import CodexAppServerHost
 from .config import URMRuntimeConfig
@@ -51,7 +52,7 @@ class CopilotSessionRuntime:
     raw_jsonl_path: str
     started_at: str
     last_seq: int = 0
-    status: str = "starting"
+    status: Literal["starting", "running", "stopped", "failed"] = "starting"
     ended_at: str | None = None
     error_code: str | None = None
     error_message: str | None = None
@@ -112,12 +113,32 @@ class URMCopilotManager:
             runtime.buffer.append(event)
             runtime.condition.notify_all()
 
-        with transaction(db_path=self.config.db_path) as con:
-            update_copilot_session_last_seq(
-                con=con,
-                copilot_session_id=runtime.session_id,
-                last_seq=runtime.last_seq,
-            )
+        try:
+            with transaction(db_path=self.config.db_path) as con:
+                update_copilot_session_last_seq(
+                    con=con,
+                    copilot_session_id=runtime.session_id,
+                    last_seq=runtime.last_seq,
+                )
+        except Exception as exc:
+            runtime.error_code = "URM_DB_TX_FAILED"
+            runtime.error_message = f"failed to persist copilot event seq: {exc}"
+            runtime.status = "failed"
+            runtime.ended_at = datetime.now(tz=timezone.utc).isoformat()
+            with runtime.condition:
+                runtime.condition.notify_all()
+            runtime.host.stop()
+            runtime.writer.close()
+            with self._lock:
+                self._sessions.pop(runtime.session_id, None)
+                if self._active_session_id == runtime.session_id:
+                    self._active_session_id = None
+            try:
+                self._persist_terminal_state(runtime=runtime)
+            except Exception:
+                # Best-effort only; the session is already force-stopped in memory.
+                pass
+            return
 
     def _record_internal_event(
         self,
@@ -126,8 +147,6 @@ class URMCopilotManager:
         event_kind: str,
         payload: dict[str, Any],
     ) -> None:
-        import json
-
         self._record_event_line(
             runtime=runtime,
             raw_line=json.dumps({"event": event_kind, **payload}),

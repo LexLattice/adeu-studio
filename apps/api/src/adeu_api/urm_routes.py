@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import threading
+from collections.abc import Iterator
 from datetime import datetime, timezone
 from typing import Literal
 
@@ -109,7 +110,7 @@ def urm_copilot_events_endpoint(
     del provider
     manager = _get_manager()
 
-    def _stream() -> str:
+    def _stream() -> Iterator[str]:
         next_seq = after_seq
         emitted = 0
         while True:
