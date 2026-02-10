@@ -148,7 +148,11 @@ class ADEUDomainTools:
     def spawn_worker(self, arguments: dict[str, Any]) -> WorkerRunResult:
         task_raw = arguments.get("task_envelope")
         if task_raw is None:
-            task_raw = arguments
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="'task_envelope' is required for urm.spawn_worker",
+                context={"tool_name": "urm.spawn_worker"},
+            )
         envelope = TaskEnvelope.model_validate(task_raw)
         prompt = _extract_prompt(envelope.inputs)
         client_request_id = str(arguments.get("client_request_id") or uuid.uuid4().hex)

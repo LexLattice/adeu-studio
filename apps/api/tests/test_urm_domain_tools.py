@@ -193,3 +193,26 @@ def test_urm_tool_call_denies_disallowed_role(
     assert exc_info.value.status_code == 400
     assert exc_info.value.detail["code"] == "URM_POLICY_DENIED"
     _reset_manager_for_tests()
+
+
+def test_urm_tool_call_spawn_worker_requires_task_envelope(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex_exec(tmp_path=tmp_path)
+    _configure_exec_fixture(monkeypatch=monkeypatch, tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    _reset_manager_for_tests()
+
+    with pytest.raises(HTTPException) as exc_info:
+        urm_tool_call_endpoint(
+            ToolCallRequest(
+                provider="codex",
+                role="copilot",
+                tool_name="urm.spawn_worker",
+                arguments={"client_request_id": "spawn-no-envelope"},
+            )
+        )
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_POLICY_DENIED"
+    _reset_manager_for_tests()

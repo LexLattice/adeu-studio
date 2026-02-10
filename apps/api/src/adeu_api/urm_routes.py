@@ -71,10 +71,9 @@ def _get_runtime_components() -> tuple[URMCopilotManager, CodexExecWorkerRunner,
             _WORKER_RUNNER = CodexExecWorkerRunner(config=config)
             _DOMAIN_TOOLS = ADEUDomainTools(config=config, worker_runner=_WORKER_RUNNER)
             _MANAGER_ENV_KEY = key
-        if _WORKER_RUNNER is None or _DOMAIN_TOOLS is None:
-            config = URMRuntimeConfig.from_env()
-            _WORKER_RUNNER = CodexExecWorkerRunner(config=config)
-            _DOMAIN_TOOLS = ADEUDomainTools(config=config, worker_runner=_WORKER_RUNNER)
+        assert _MANAGER is not None, "URMCopilotManager should be initialized"
+        assert _WORKER_RUNNER is not None, "CodexExecWorkerRunner should be initialized"
+        assert _DOMAIN_TOOLS is not None, "ADEUDomainTools should be initialized"
         return (_MANAGER, _WORKER_RUNNER, _DOMAIN_TOOLS)
 
 
