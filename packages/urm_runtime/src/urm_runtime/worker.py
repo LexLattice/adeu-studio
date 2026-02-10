@@ -214,14 +214,6 @@ class CodexExecWorkerRunner:
 
     def cancel(self, *, worker_id: str) -> WorkerCancelResponse:
         row = self._load_worker_row(worker_id=worker_id)
-        process: subprocess.Popen[str] | None = None
-        was_running = False
-
-        if row is not None and row.status == "running":
-            with self._process_lock:
-                process = self._active_processes.get(worker_id)
-                self._cancel_requested.add(worker_id)
-                was_running = process is not None and process.poll() is None
 
         if row is None:
             raise URMError(
@@ -241,6 +233,13 @@ class CodexExecWorkerRunner:
                     else None
                 ),
             )
+
+        process: subprocess.Popen[str] | None = None
+        was_running = False
+        with self._process_lock:
+            process = self._active_processes.get(worker_id)
+            self._cancel_requested.add(worker_id)
+            was_running = process is not None and process.poll() is None
 
         if was_running and process is not None:
             self._terminate_process(process)
