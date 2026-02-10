@@ -185,6 +185,7 @@ Web routes:
 - `/puzzles` Puzzle Studio (propose/check/solve/compare for knights/knaves)
 - `/papers` Paper Abstract Studio (documents-first concepts workflow + cross-doc alignment)
 - `/artifacts` Artifact browser
+- `/copilot` Copilot runtime console (session controls, SSE timeline, tool actions, evidence viewer)
 
 Compare panel notes:
 

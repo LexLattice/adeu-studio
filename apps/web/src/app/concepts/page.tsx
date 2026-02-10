@@ -1259,6 +1259,9 @@ export default function ConceptsPage() {
           <Link href="/artifacts" className="muted">
             Artifacts
           </Link>
+          <Link href="/copilot" className="muted">
+            Copilot
+          </Link>
         </div>
 
         {isProposing ? <div className="muted">Proposing…</div> : null}

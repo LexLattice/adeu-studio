@@ -61,7 +61,7 @@ async function stopProcess(proc) {
   }
 }
 
-test("route smoke: home, concepts, puzzles, papers render core controls", { timeout: 120_000 }, async () => {
+test("route smoke: home, concepts, puzzles, papers, copilot render core controls", { timeout: 120_000 }, async () => {
   const proc = startWebServer();
   try {
     await waitForServerReady(proc);
@@ -71,6 +71,7 @@ test("route smoke: home, concepts, puzzles, papers render core controls", { time
       { path: "/concepts", mustInclude: "Generate alignment" },
       { path: "/puzzles", mustInclude: "Puzzle Text" },
       { path: "/papers", mustInclude: "Paper Abstract Studio" },
+      { path: "/copilot", mustInclude: "Copilot Runtime" },
     ];
 
     for (const route of routeExpectations) {
