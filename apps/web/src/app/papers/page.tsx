@@ -441,6 +441,9 @@ export default function PapersPage() {
           <Link href="/artifacts" className="muted">
             Artifacts
           </Link>
+          <Link href="/copilot" className="muted">
+            Copilot
+          </Link>
         </div>
         <div className="row">
           <label className="muted">

@@ -74,6 +74,9 @@ export default function ArtifactsPage() {
           <Link href="/papers" className="muted">
             Papers
           </Link>
+          <Link href="/copilot" className="muted">
+            Copilot
+          </Link>
         </div>
       </div>
 
