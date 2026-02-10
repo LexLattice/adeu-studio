@@ -31,6 +31,12 @@ class EvidenceFileWriter:
     def close(self) -> None:
         self._handle.close()
 
+    def __enter__(self) -> "EvidenceFileWriter":
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        self.close()
+
     def _write_bytes(self, data: bytes) -> None:
         next_size = self._bytes_written + len(data)
         if next_size > self.max_file_bytes:

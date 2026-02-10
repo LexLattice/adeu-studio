@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import uuid
 from datetime import datetime, timezone
@@ -141,12 +142,11 @@ class CodexExecWorkerRunner:
         error_message: str | None = None
         exit_code: int | None = None
 
-        writer = EvidenceFileWriter(
+        with EvidenceFileWriter(
             path=raw_path,
             max_line_bytes=self.config.max_line_bytes,
             max_file_bytes=self.config.max_evidence_file_bytes,
-        )
-        try:
+        ) as writer:
             try:
                 process = subprocess.Popen(
                     command,
@@ -164,10 +164,12 @@ class CodexExecWorkerRunner:
                 events.append(
                     normalize_exec_line(
                         seq=1,
-                        raw_line=(
-                            '{"event":"worker_error","code":"URM_CODEX_BIN_NOT_FOUND","error":"'
-                            + str(exc).replace('"', "'")
-                            + '"}'
+                        raw_line=json.dumps(
+                            {
+                                "event": "worker_error",
+                                "code": "URM_CODEX_BIN_NOT_FOUND",
+                                "error": str(exc),
+                            }
                         ),
                     )
                 )
@@ -179,10 +181,12 @@ class CodexExecWorkerRunner:
                 events.append(
                     normalize_exec_line(
                         seq=1,
-                        raw_line=(
-                            '{"event":"worker_error","code":"URM_WORKER_START_FAILED","error":"'
-                            + str(exc).replace('"', "'")
-                            + '"}'
+                        raw_line=json.dumps(
+                            {
+                                "event": "worker_error",
+                                "code": "URM_WORKER_START_FAILED",
+                                "error": str(exc),
+                            }
                         ),
                     )
                 )
@@ -224,8 +228,6 @@ class CodexExecWorkerRunner:
                         error_message = f"worker exited with code {exit_code}"
                 else:
                     status = "failed"
-        finally:
-            writer.close()
 
         artifact_candidate = extract_artifact_candidate(events)
         ended_at = datetime.now(tz=timezone.utc).isoformat()
