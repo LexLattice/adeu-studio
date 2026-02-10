@@ -17,9 +17,27 @@ URM_SCHEMA_VERSION = 1
 
 @dataclass(frozen=True)
 class IdempotencyReservation:
-    worker_id: str
+    resource_id: str
     response_json: dict[str, Any] | None
     replay: bool
+
+
+@dataclass(frozen=True)
+class CopilotSessionRow:
+    copilot_session_id: str
+    role: str
+    status: str
+    started_at: str
+    ended_at: str | None
+    codex_version: str | None
+    capability_probe_id: str | None
+    pid: int | None
+    bin_path: str | None
+    raw_jsonl_path: str | None
+    last_seq: int
+    writes_allowed: bool
+    error_code: str | None
+    error_message: str | None
 
 
 @contextmanager
@@ -154,7 +172,7 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
           endpoint_name TEXT NOT NULL,
           client_request_id TEXT NOT NULL,
           payload_hash TEXT NOT NULL,
-          worker_id TEXT NOT NULL,
+          resource_id TEXT NOT NULL,
           created_at TEXT NOT NULL,
           response_json TEXT,
           PRIMARY KEY(endpoint_name, client_request_id)
@@ -173,10 +191,20 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
         ON urm_evidence_record(worker_id)
         """
     )
+    idempotency_columns = {
+        str(row[1])
+        for row in con.execute("PRAGMA table_info(urm_idempotency_key)").fetchall()
+        if row and row[1]
+    }
+    if "resource_id" not in idempotency_columns and "worker_id" in idempotency_columns:
+        con.execute("ALTER TABLE urm_idempotency_key ADD COLUMN resource_id TEXT")
+        con.execute(
+            "UPDATE urm_idempotency_key SET resource_id = worker_id WHERE resource_id IS NULL"
+        )
     con.execute(
         """
-        CREATE INDEX IF NOT EXISTS idx_urm_idempotency_worker_id
-        ON urm_idempotency_key(worker_id)
+        CREATE INDEX IF NOT EXISTS idx_urm_idempotency_resource_id
+        ON urm_idempotency_key(resource_id)
         """
     )
     if (
@@ -199,13 +227,13 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
         )
 
 
-def reserve_worker_idempotency(
+def reserve_request_idempotency(
     *,
     con: sqlite3.Connection,
     endpoint_name: str,
     client_request_id: str,
     payload_hash: str,
-    worker_id: str,
+    resource_id: str,
 ) -> IdempotencyReservation:
     now = datetime.now(tz=timezone.utc).isoformat()
     try:
@@ -215,19 +243,23 @@ def reserve_worker_idempotency(
               endpoint_name,
               client_request_id,
               payload_hash,
-              worker_id,
+              resource_id,
               created_at,
               response_json
             )
             VALUES (?, ?, ?, ?, ?, NULL)
             """,
-            (endpoint_name, client_request_id, payload_hash, worker_id, now),
+            (endpoint_name, client_request_id, payload_hash, resource_id, now),
         )
-        return IdempotencyReservation(worker_id=worker_id, response_json=None, replay=False)
+        return IdempotencyReservation(
+            resource_id=resource_id,
+            response_json=None,
+            replay=False,
+        )
     except sqlite3.IntegrityError:
         row = con.execute(
             """
-            SELECT payload_hash, worker_id, response_json
+            SELECT payload_hash, resource_id, response_json
             FROM urm_idempotency_key
             WHERE endpoint_name = ? AND client_request_id = ?
             """,
@@ -242,10 +274,27 @@ def reserve_worker_idempotency(
             raise ValueError("idempotency payload hash mismatch")
         response_json = json.loads(stored_response) if stored_response is not None else None
         return IdempotencyReservation(
-            worker_id=stored_worker_id,
+            resource_id=stored_worker_id,
             response_json=response_json,
             replay=response_json is not None,
         )
+
+
+def reserve_worker_idempotency(
+    *,
+    con: sqlite3.Connection,
+    endpoint_name: str,
+    client_request_id: str,
+    payload_hash: str,
+    worker_id: str,
+) -> IdempotencyReservation:
+    return reserve_request_idempotency(
+        con=con,
+        endpoint_name=endpoint_name,
+        client_request_id=client_request_id,
+        payload_hash=payload_hash,
+        resource_id=worker_id,
+    )
 
 
 def persist_worker_run_start(
@@ -292,6 +341,212 @@ def persist_worker_run_start(
             domain_pack_version,
             raw_jsonl_path,
         ),
+    )
+
+
+def persist_capability_probe(
+    *,
+    con: sqlite3.Connection,
+    codex_version: str | None,
+    exec_available: bool,
+    app_server_available: bool,
+    output_schema_available: bool,
+    probe_json: dict[str, Any],
+) -> str:
+    probe_id = uuid.uuid4().hex
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        INSERT INTO urm_codex_capability_probe (
+          probe_id,
+          created_at,
+          codex_version,
+          exec_available,
+          app_server_available,
+          output_schema_available,
+          probe_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            probe_id,
+            created_at,
+            codex_version,
+            1 if exec_available else 0,
+            1 if app_server_available else 0,
+            1 if output_schema_available else 0,
+            json.dumps(probe_json, sort_keys=True),
+        ),
+    )
+    return probe_id
+
+
+def persist_copilot_session_start(
+    *,
+    con: sqlite3.Connection,
+    copilot_session_id: str,
+    role: str,
+    status: str,
+    codex_version: str | None,
+    capability_probe_id: str | None,
+    pid: int | None,
+    bin_path: str,
+    raw_jsonl_path: str,
+) -> None:
+    started_at = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        INSERT INTO urm_copilot_session (
+          copilot_session_id,
+          role,
+          status,
+          started_at,
+          codex_version,
+          capability_probe_id,
+          pid,
+          bin_path,
+          raw_jsonl_path,
+          last_seq,
+          writes_allowed
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
+        """,
+        (
+            copilot_session_id,
+            role,
+            status,
+            started_at,
+            codex_version,
+            capability_probe_id,
+            pid,
+            bin_path,
+            raw_jsonl_path,
+        ),
+    )
+
+
+def update_copilot_session_status(
+    *,
+    con: sqlite3.Connection,
+    copilot_session_id: str,
+    status: str,
+    error_code: str | None = None,
+    error_message: str | None = None,
+    ended: bool = False,
+) -> None:
+    ended_at = datetime.now(tz=timezone.utc).isoformat() if ended else None
+    if ended:
+        con.execute(
+            """
+            UPDATE urm_copilot_session
+            SET status = ?, error_code = ?, error_message = ?, ended_at = ?
+            WHERE copilot_session_id = ?
+            """,
+            (status, error_code, error_message, ended_at, copilot_session_id),
+        )
+    else:
+        con.execute(
+            """
+            UPDATE urm_copilot_session
+            SET status = ?, error_code = ?, error_message = ?
+            WHERE copilot_session_id = ?
+            """,
+            (status, error_code, error_message, copilot_session_id),
+        )
+
+
+def update_copilot_session_pid(
+    *,
+    con: sqlite3.Connection,
+    copilot_session_id: str,
+    pid: int | None,
+) -> None:
+    con.execute(
+        """
+        UPDATE urm_copilot_session
+        SET pid = ?
+        WHERE copilot_session_id = ?
+        """,
+        (pid, copilot_session_id),
+    )
+
+
+def update_copilot_session_last_seq(
+    *,
+    con: sqlite3.Connection,
+    copilot_session_id: str,
+    last_seq: int,
+) -> None:
+    con.execute(
+        """
+        UPDATE urm_copilot_session
+        SET last_seq = ?
+        WHERE copilot_session_id = ?
+        """,
+        (last_seq, copilot_session_id),
+    )
+
+
+def set_copilot_writes_allowed(
+    *,
+    con: sqlite3.Connection,
+    copilot_session_id: str,
+    writes_allowed: bool,
+) -> None:
+    con.execute(
+        """
+        UPDATE urm_copilot_session
+        SET writes_allowed = ?
+        WHERE copilot_session_id = ?
+        """,
+        (1 if writes_allowed else 0, copilot_session_id),
+    )
+
+
+def get_copilot_session(
+    *,
+    con: sqlite3.Connection,
+    copilot_session_id: str,
+) -> CopilotSessionRow | None:
+    row = con.execute(
+        """
+        SELECT
+          copilot_session_id,
+          role,
+          status,
+          started_at,
+          ended_at,
+          codex_version,
+          capability_probe_id,
+          pid,
+          bin_path,
+          raw_jsonl_path,
+          last_seq,
+          writes_allowed,
+          error_code,
+          error_message
+        FROM urm_copilot_session
+        WHERE copilot_session_id = ?
+        """,
+        (copilot_session_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    return CopilotSessionRow(
+        copilot_session_id=str(row[0]),
+        role=str(row[1]),
+        status=str(row[2]),
+        started_at=str(row[3]),
+        ended_at=str(row[4]) if row[4] is not None else None,
+        codex_version=str(row[5]) if row[5] is not None else None,
+        capability_probe_id=str(row[6]) if row[6] is not None else None,
+        pid=int(row[7]) if row[7] is not None else None,
+        bin_path=str(row[8]) if row[8] is not None else None,
+        raw_jsonl_path=str(row[9]) if row[9] is not None else None,
+        last_seq=int(row[10]),
+        writes_allowed=bool(row[11]),
+        error_code=str(row[12]) if row[12] is not None else None,
+        error_message=str(row[13]) if row[13] is not None else None,
     )
 
 

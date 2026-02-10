@@ -3,12 +3,17 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from json import JSONDecodeError
-from typing import Any
+from typing import Any, Literal
 
 from .models import NormalizedEvent
 
 
-def normalize_exec_line(*, seq: int, raw_line: str) -> NormalizedEvent:
+def _normalize_line(
+    *,
+    seq: int,
+    raw_line: str,
+    source: Literal["worker_exec", "copilot_app_server"],
+) -> NormalizedEvent:
     timestamp = datetime.now(tz=timezone.utc)
     stripped = raw_line.rstrip("\n")
     try:
@@ -17,7 +22,7 @@ def normalize_exec_line(*, seq: int, raw_line: str) -> NormalizedEvent:
         return NormalizedEvent(
             seq=seq,
             ts=timestamp,
-            source="worker_exec",
+            source=source,
             event_kind="parse_error",
             payload={"error": str(exc)},
             raw_line=stripped,
@@ -32,11 +37,19 @@ def normalize_exec_line(*, seq: int, raw_line: str) -> NormalizedEvent:
     return NormalizedEvent(
         seq=seq,
         ts=timestamp,
-        source="worker_exec",
+        source=source,
         event_kind=event_kind,
         payload=payload,
         raw_line=stripped,
     )
+
+
+def normalize_exec_line(*, seq: int, raw_line: str) -> NormalizedEvent:
+    return _normalize_line(seq=seq, raw_line=raw_line, source="worker_exec")
+
+
+def normalize_app_server_line(*, seq: int, raw_line: str) -> NormalizedEvent:
+    return _normalize_line(seq=seq, raw_line=raw_line, source="copilot_app_server")
 
 
 def extract_artifact_candidate(events: list[NormalizedEvent]) -> Any | None:

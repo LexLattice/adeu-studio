@@ -112,6 +112,7 @@ from .storage import (
 from .storage import (
     transaction as storage_transaction,
 )
+from .urm_routes import router as urm_router
 
 DEFAULT_LIST_LIMIT = 50
 MAX_LIST_LIMIT = 200
@@ -699,6 +700,7 @@ class ArtifactValidatorRunsResponse(BaseModel):
 
 
 app = FastAPI(title="ADEU Studio API")
+app.include_router(urm_router)
 
 
 class PuzzleProposeCandidate(BaseModel):

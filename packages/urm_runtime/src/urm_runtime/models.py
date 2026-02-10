@@ -64,3 +64,50 @@ class WorkerRunResult(BaseModel):
     parse_degraded: bool = False
     error: dict[str, Any] | None = None
     idempotent_replay: bool = False
+
+
+class CopilotSessionStartRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    client_request_id: str = Field(min_length=1)
+    cwd: str | None = None
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(mode="json", exclude={"client_request_id"})
+
+
+class CopilotSessionSendRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    session_id: str = Field(min_length=1)
+    client_request_id: str = Field(min_length=1)
+    message: dict[str, Any]
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(mode="json", exclude={"client_request_id"})
+
+
+class CopilotModeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    session_id: str = Field(min_length=1)
+    writes_allowed: bool
+
+
+class CopilotStopRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    session_id: str = Field(min_length=1)
+
+
+class CopilotSessionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: str
+    status: Literal["starting", "running", "stopped", "failed"]
+    app_server_unavailable: bool = False
+    idempotent_replay: bool = False

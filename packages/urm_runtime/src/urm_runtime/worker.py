@@ -114,7 +114,7 @@ class CodexExecWorkerRunner:
             if reservation.replay:
                 replay = WorkerRunResult.model_validate(reservation.response_json or {})
                 return replay.model_copy(update={"idempotent_replay": True})
-            worker_id = reservation.worker_id
+            worker_id = reservation.resource_id
             raw_path = self._raw_jsonl_path_for_worker(worker_id)
             try:
                 raw_jsonl_rel_path = str(raw_path.relative_to(self.config.var_root))

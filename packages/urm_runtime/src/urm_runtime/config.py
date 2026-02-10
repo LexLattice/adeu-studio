@@ -8,6 +8,7 @@ DEFAULT_MAX_LINE_BYTES = 1_000_000
 DEFAULT_MAX_EVIDENCE_FILE_BYTES = 200_000_000
 DEFAULT_MAX_SESSION_DURATION_SECS = 6 * 60 * 60
 DEFAULT_MAX_CONCURRENT_WORKERS = 2
+DEFAULT_MAX_REPLAY_EVENTS = 10_000
 DEFAULT_APPROVAL_TTL_SECS = 120
 DEFAULT_RETENTION_DAYS = 14
 DEFAULT_MAX_TOTAL_EVIDENCE_BYTES = 2_000_000_000
@@ -73,6 +74,7 @@ class URMRuntimeConfig:
     max_evidence_file_bytes: int
     max_session_duration_secs: int
     max_concurrent_workers: int
+    max_replay_events: int
     approval_ttl_secs: int
     retention_days: int
     max_total_evidence_bytes: int
@@ -109,6 +111,11 @@ class URMRuntimeConfig:
             max_concurrent_workers=_env_int(
                 "URM_MAX_CONCURRENT_WORKERS",
                 DEFAULT_MAX_CONCURRENT_WORKERS,
+                minimum=1,
+            ),
+            max_replay_events=_env_int(
+                "URM_MAX_REPLAY_EVENTS",
+                DEFAULT_MAX_REPLAY_EVENTS,
                 minimum=1,
             ),
             approval_ttl_secs=_env_int(
