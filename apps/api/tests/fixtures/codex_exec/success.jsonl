@@ -1,0 +1,3 @@
+{"type":"message","text":"booting worker"}
+{"type":"log","level":"info","msg":"running checks"}
+{"type":"result","final_output":{"artifact":{"kind":"demo","value":1}}}
