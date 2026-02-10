@@ -14,6 +14,10 @@ from urm_runtime.copilot import URMCopilotManager
 from urm_runtime.errors import URMError
 from urm_runtime.hashing import canonical_json
 from urm_runtime.models import (
+    ApprovalIssueRequest,
+    ApprovalIssueResponse,
+    ApprovalRevokeRequest,
+    ApprovalRevokeResponse,
     CopilotModeRequest,
     CopilotSessionResponse,
     CopilotSessionSendRequest,
@@ -21,6 +25,8 @@ from urm_runtime.models import (
     CopilotStopRequest,
     ToolCallRequest,
     ToolCallResponse,
+    WorkerCancelRequest,
+    WorkerCancelResponse,
     WorkerRunRequest,
     WorkerRunResult,
 )
@@ -124,11 +130,54 @@ def urm_copilot_mode_endpoint(request: CopilotModeRequest) -> CopilotSessionResp
         raise _to_http_exception(exc) from exc
 
 
+@router.post("/approval/issue", response_model=ApprovalIssueResponse)
+def urm_approval_issue_endpoint(request: ApprovalIssueRequest) -> ApprovalIssueResponse:
+    manager = _get_manager()
+    try:
+        return manager.issue_approval(
+            session_id=request.session_id,
+            action_kind=request.action_kind,
+            action_payload=request.action_payload,
+            expires_in_secs=request.expires_in_secs,
+        )
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/approval/revoke", response_model=ApprovalRevokeResponse)
+def urm_approval_revoke_endpoint(request: ApprovalRevokeRequest) -> ApprovalRevokeResponse:
+    manager = _get_manager()
+    try:
+        return manager.revoke_approval(approval_id=request.approval_id)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
 @router.post("/worker/run", response_model=WorkerRunResult)
 def urm_worker_run_endpoint(request: WorkerRunRequest) -> WorkerRunResult:
     runner = _get_worker_runner()
     try:
         return runner.run(request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/worker/{worker_id}/cancel", response_model=WorkerCancelResponse)
+def urm_worker_cancel_endpoint(
+    worker_id: str,
+    request: WorkerCancelRequest,
+) -> WorkerCancelResponse:
+    if request.provider != "codex":
+        raise _to_http_exception(
+            URMError(
+                code="URM_POLICY_DENIED",
+                message="unsupported provider",
+                context={"provider": request.provider},
+            )
+        )
+    runner = _get_worker_runner()
+    try:
+        return runner.cancel(worker_id=worker_id)
     except URMError as exc:
         raise _to_http_exception(exc) from exc
 
@@ -185,6 +234,7 @@ def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
                     provider="codex",
                     session_id=request.session_id,
                     writes_allowed=writes_allowed,
+                    approval_id=request.approval_id,
                 )
             )
             return ToolCallResponse(

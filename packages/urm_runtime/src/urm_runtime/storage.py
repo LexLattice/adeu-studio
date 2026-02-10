@@ -59,6 +59,43 @@ class EvidenceRecordRow:
     purge_reason: str | None
 
 
+@dataclass(frozen=True)
+class WorkerRunRow:
+    worker_id: str
+    created_at: str
+    ended_at: str | None
+    role: str
+    provider: str
+    status: str
+    template_id: str | None
+    template_version: str | None
+    schema_version: str | None
+    domain_pack_id: str | None
+    domain_pack_version: str | None
+    raw_jsonl_path: str | None
+    exit_code: int | None
+    error_code: str | None
+    error_message: str | None
+    result_json: dict[str, Any] | None
+
+
+@dataclass(frozen=True)
+class ApprovalRow:
+    approval_id: str
+    action_kind: str
+    action_hash: str
+    created_at: str
+    expires_at: str
+    granted_by_user: bool
+    revoked_at: str | None
+    consumed_at: str | None
+    consumed_by_evidence_id: str | None
+    copilot_session_id: str | None
+
+
+PURGED_PATH_PREFIX = "__purged__"
+
+
 @contextmanager
 def transaction(*, db_path: Path) -> Iterator[sqlite3.Connection]:
     con = sqlite3.connect(db_path)
@@ -618,6 +655,300 @@ def get_evidence_record(
         purged_at=str(row[13]) if row[13] is not None else None,
         purge_reason=str(row[14]) if row[14] is not None else None,
     )
+
+
+def list_unpurged_evidence_records(
+    *,
+    con: sqlite3.Connection,
+) -> list[EvidenceRecordRow]:
+    rows = con.execute(
+        """
+        SELECT
+          evidence_id,
+          created_at,
+          source,
+          role,
+          copilot_session_id,
+          worker_id,
+          template_id,
+          started_at,
+          ended_at,
+          raw_jsonl_path,
+          status,
+          error_json,
+          metadata_json,
+          purged_at,
+          purge_reason
+        FROM urm_evidence_record
+        WHERE purged_at IS NULL
+        ORDER BY created_at ASC, evidence_id ASC
+        """
+    ).fetchall()
+    records: list[EvidenceRecordRow] = []
+    for row in rows:
+        error_json_raw = str(row[11]) if row[11] is not None else None
+        metadata_json_raw = str(row[12]) if row[12] is not None else "{}"
+        records.append(
+            EvidenceRecordRow(
+                evidence_id=str(row[0]),
+                created_at=str(row[1]),
+                source=str(row[2]),
+                role=str(row[3]),
+                copilot_session_id=str(row[4]) if row[4] is not None else None,
+                worker_id=str(row[5]) if row[5] is not None else None,
+                template_id=str(row[6]) if row[6] is not None else None,
+                started_at=str(row[7]),
+                ended_at=str(row[8]) if row[8] is not None else None,
+                raw_jsonl_path=str(row[9]),
+                status=str(row[10]),
+                error_json=json.loads(error_json_raw) if error_json_raw is not None else None,
+                metadata_json=json.loads(metadata_json_raw),
+                purged_at=str(row[13]) if row[13] is not None else None,
+                purge_reason=str(row[14]) if row[14] is not None else None,
+            )
+        )
+    return records
+
+
+def mark_evidence_record_purged(
+    *,
+    con: sqlite3.Connection,
+    evidence_id: str,
+    purge_reason: str,
+) -> None:
+    purged_at = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        UPDATE urm_evidence_record
+        SET purged_at = ?,
+            purge_reason = ?,
+            raw_jsonl_path = ?
+        WHERE evidence_id = ?
+        """,
+        (
+            purged_at,
+            purge_reason,
+            f"{PURGED_PATH_PREFIX}/{evidence_id}.jsonl",
+            evidence_id,
+        ),
+    )
+
+
+def get_worker_run(
+    *,
+    con: sqlite3.Connection,
+    worker_id: str,
+) -> WorkerRunRow | None:
+    row = con.execute(
+        """
+        SELECT
+          worker_id,
+          created_at,
+          ended_at,
+          role,
+          provider,
+          status,
+          template_id,
+          template_version,
+          schema_version,
+          domain_pack_id,
+          domain_pack_version,
+          raw_jsonl_path,
+          exit_code,
+          error_code,
+          error_message,
+          result_json
+        FROM urm_worker_run
+        WHERE worker_id = ?
+        """,
+        (worker_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    return WorkerRunRow(
+        worker_id=str(row[0]),
+        created_at=str(row[1]),
+        ended_at=str(row[2]) if row[2] is not None else None,
+        role=str(row[3]),
+        provider=str(row[4]),
+        status=str(row[5]),
+        template_id=str(row[6]) if row[6] is not None else None,
+        template_version=str(row[7]) if row[7] is not None else None,
+        schema_version=str(row[8]) if row[8] is not None else None,
+        domain_pack_id=str(row[9]) if row[9] is not None else None,
+        domain_pack_version=str(row[10]) if row[10] is not None else None,
+        raw_jsonl_path=str(row[11]) if row[11] is not None else None,
+        exit_code=int(row[12]) if row[12] is not None else None,
+        error_code=str(row[13]) if row[13] is not None else None,
+        error_message=str(row[14]) if row[14] is not None else None,
+        result_json=json.loads(str(row[15])) if row[15] is not None else None,
+    )
+
+
+def count_running_worker_runs(*, con: sqlite3.Connection) -> int:
+    row = con.execute(
+        """
+        SELECT COUNT(*)
+        FROM urm_worker_run
+        WHERE status = 'running'
+        """
+    ).fetchone()
+    return int(row[0]) if row is not None else 0
+
+
+def mark_running_sessions_terminated(
+    *,
+    con: sqlite3.Connection,
+    error_code: str,
+    error_message: str,
+    terminal_status: str = "stopped",
+) -> int:
+    ended_at = datetime.now(tz=timezone.utc).isoformat()
+    cursor = con.execute(
+        """
+        UPDATE urm_copilot_session
+        SET status = ?,
+            error_code = ?,
+            error_message = ?,
+            ended_at = ?
+        WHERE status IN ('starting', 'running')
+        """,
+        (terminal_status, error_code, error_message, ended_at),
+    )
+    return int(cursor.rowcount)
+
+
+def create_approval(
+    *,
+    con: sqlite3.Connection,
+    action_kind: str,
+    action_hash: str,
+    expires_at: str,
+    copilot_session_id: str,
+    granted_by_user: bool = True,
+) -> str:
+    approval_id = uuid.uuid4().hex
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        INSERT INTO urm_approval (
+          approval_id,
+          action_kind,
+          action_hash,
+          created_at,
+          expires_at,
+          granted_by_user,
+          revoked_at,
+          consumed_at,
+          consumed_by_evidence_id,
+          copilot_session_id
+        )
+        VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, NULL, ?)
+        """,
+        (
+            approval_id,
+            action_kind,
+            action_hash,
+            created_at,
+            expires_at,
+            1 if granted_by_user else 0,
+            copilot_session_id,
+        ),
+    )
+    return approval_id
+
+
+def get_approval(
+    *,
+    con: sqlite3.Connection,
+    approval_id: str,
+) -> ApprovalRow | None:
+    row = con.execute(
+        """
+        SELECT
+          approval_id,
+          action_kind,
+          action_hash,
+          created_at,
+          expires_at,
+          granted_by_user,
+          revoked_at,
+          consumed_at,
+          consumed_by_evidence_id,
+          copilot_session_id
+        FROM urm_approval
+        WHERE approval_id = ?
+        """,
+        (approval_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    return ApprovalRow(
+        approval_id=str(row[0]),
+        action_kind=str(row[1]),
+        action_hash=str(row[2]),
+        created_at=str(row[3]),
+        expires_at=str(row[4]),
+        granted_by_user=bool(row[5]),
+        revoked_at=str(row[6]) if row[6] is not None else None,
+        consumed_at=str(row[7]) if row[7] is not None else None,
+        consumed_by_evidence_id=str(row[8]) if row[8] is not None else None,
+        copilot_session_id=str(row[9]) if row[9] is not None else None,
+    )
+
+
+def revoke_approval(
+    *,
+    con: sqlite3.Connection,
+    approval_id: str,
+) -> bool:
+    revoked_at = datetime.now(tz=timezone.utc).isoformat()
+    cursor = con.execute(
+        """
+        UPDATE urm_approval
+        SET revoked_at = ?
+        WHERE approval_id = ? AND revoked_at IS NULL
+        """,
+        (revoked_at, approval_id),
+    )
+    return int(cursor.rowcount) > 0
+
+
+def consume_approval(
+    *,
+    con: sqlite3.Connection,
+    approval_id: str,
+    action_kind: str,
+    action_hash: str,
+    consumed_by_evidence_id: str | None = None,
+) -> ApprovalRow:
+    approval = get_approval(con=con, approval_id=approval_id)
+    if approval is None:
+        raise KeyError("approval_not_found")
+    if approval.action_kind != action_kind or approval.action_hash != action_hash:
+        raise ValueError("approval_mismatch")
+    if approval.revoked_at is not None or approval.consumed_at is not None:
+        raise ValueError("approval_invalid")
+    now = datetime.now(tz=timezone.utc)
+    expires_at = datetime.fromisoformat(approval.expires_at)
+    if expires_at <= now:
+        raise ValueError("approval_expired")
+    consumed_at = now.isoformat()
+    cursor = con.execute(
+        """
+        UPDATE urm_approval
+        SET consumed_at = ?,
+            consumed_by_evidence_id = ?
+        WHERE approval_id = ? AND consumed_at IS NULL AND revoked_at IS NULL
+        """,
+        (consumed_at, consumed_by_evidence_id, approval_id),
+    )
+    if int(cursor.rowcount) != 1:
+        raise ValueError("approval_invalid")
+    resolved = get_approval(con=con, approval_id=approval_id)
+    if resolved is None:
+        raise RuntimeError("approval missing after consumption")
+    return resolved
 
 
 def persist_worker_run_end(

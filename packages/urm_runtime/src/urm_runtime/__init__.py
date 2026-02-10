@@ -12,6 +12,10 @@ from .config import (
 from .copilot import URMCopilotManager
 from .errors import URMError, URMErrorDetail, error_envelope
 from .models import (
+    ApprovalIssueRequest,
+    ApprovalIssueResponse,
+    ApprovalRevokeRequest,
+    ApprovalRevokeResponse,
     CopilotModeRequest,
     CopilotSessionResponse,
     CopilotSessionSendRequest,
@@ -21,10 +25,13 @@ from .models import (
     TaskEnvelope,
     ToolCallRequest,
     ToolCallResponse,
+    WorkerCancelRequest,
+    WorkerCancelResponse,
     WorkerRunRequest,
     WorkerRunResult,
 )
 from .probe import CodexCapabilityProbeResult, run_and_persist_capability_probe
+from .retention import EvidenceRetentionStats, run_evidence_retention_gc
 from .roles import ROLE_REGISTRY, RolePolicy, get_role_policy
 from .worker import CodexExecWorkerRunner
 
@@ -40,6 +47,11 @@ __all__ = [
     "CodexCapabilityProbeResult",
     "ROLE_REGISTRY",
     "CodexExecWorkerRunner",
+    "EvidenceRetentionStats",
+    "ApprovalIssueRequest",
+    "ApprovalIssueResponse",
+    "ApprovalRevokeRequest",
+    "ApprovalRevokeResponse",
     "CopilotModeRequest",
     "CopilotSessionResponse",
     "CopilotSessionSendRequest",
@@ -50,6 +62,8 @@ __all__ = [
     "TaskEnvelope",
     "ToolCallRequest",
     "ToolCallResponse",
+    "WorkerCancelRequest",
+    "WorkerCancelResponse",
     "URMCopilotManager",
     "URMError",
     "URMErrorDetail",
@@ -59,6 +73,7 @@ __all__ = [
     "error_envelope",
     "get_role_policy",
     "run_and_persist_capability_probe",
+    "run_evidence_retention_gc",
 ]
 
 __version__ = "0.0.0"
