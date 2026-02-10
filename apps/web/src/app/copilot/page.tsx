@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { apiBase } from "../lib/api-base";
 
@@ -145,7 +145,7 @@ export default function CopilotPage() {
   const [lastHeartbeatAt, setLastHeartbeatAt] = useState<string | null>(null);
   const lastSeqRef = useRef<number>(0);
 
-  function pushTimeline(entry: Omit<TimelineEntry, "id" | "at">): void {
+  const pushTimeline = useCallback((entry: Omit<TimelineEntry, "id" | "at">): void => {
     const full: TimelineEntry = {
       id: requestId(),
       at: new Date().toISOString(),
@@ -156,7 +156,7 @@ export default function CopilotPage() {
       if (next.length <= TIMELINE_LIMIT) return next;
       return next.slice(next.length - TIMELINE_LIMIT);
     });
-  }
+  }, []);
 
   async function startSession(): Promise<void> {
     setError(null);
@@ -293,7 +293,7 @@ export default function CopilotPage() {
     }
   }
 
-  async function callTool(toolName: string, argumentsValue: Record<string, unknown>): Promise<unknown> {
+  const callTool = useCallback(async (toolName: string, argumentsValue: Record<string, unknown>): Promise<unknown> => {
     setError(null);
     const response = await fetch(`${apiBase()}/urm/tools/call`, {
       method: "POST",
@@ -317,9 +317,9 @@ export default function CopilotPage() {
       payload: body.result,
     });
     return body.result;
-  }
+  }, [sessionId, pushTimeline]);
 
-  async function refreshAppState(): Promise<void> {
+  const refreshAppState = useCallback(async (): Promise<void> => {
     setIsBusy(true);
     try {
       const result = (await callTool("adeu.get_app_state", {})) as AppStateSnapshot;
@@ -329,25 +329,46 @@ export default function CopilotPage() {
     } finally {
       setIsBusy(false);
     }
-  }
+  }, [callTool]);
 
-  async function refreshTemplates(): Promise<void> {
+  const refreshTemplates = useCallback(async (): Promise<void> => {
     setIsBusy(true);
     try {
       const result = (await callTool("adeu.list_templates", {})) as { templates?: TemplateMeta[] };
       const nextTemplates = result.templates ?? [];
       setTemplates(nextTemplates);
-      if (nextTemplates.length > 0 && !nextTemplates.some((item) => item.template_id === templateId)) {
-        setTemplateId(nextTemplates[0].template_id);
-      }
+      setTemplateId((currentTemplateId) => {
+        if (nextTemplates.length === 0) return currentTemplateId;
+        if (nextTemplates.some((item) => item.template_id === currentTemplateId)) {
+          return currentTemplateId;
+        }
+        return nextTemplates[0].template_id;
+      });
     } catch (exc) {
       setError(String(exc));
     } finally {
       setIsBusy(false);
     }
-  }
+  }, [callTool]);
 
-  async function runWorkflow(): Promise<void> {
+  const loadEvidence = useCallback(async (requestedEvidenceId?: string): Promise<void> => {
+    const targetEvidenceId = requestedEvidenceId ?? evidenceId.trim();
+    if (!targetEvidenceId) return;
+    setIsBusy(true);
+    try {
+      const result = (await callTool("adeu.read_evidence", {
+        evidence_id: targetEvidenceId,
+        max_bytes: 200_000,
+      })) as EvidenceBundle;
+      setEvidence(result);
+    } catch (exc) {
+      setError(String(exc));
+    } finally {
+      setIsBusy(false);
+    }
+  }, [callTool, evidenceId]);
+
+  const runWorkflow = useCallback(async (): Promise<void> => {
     if (!workerPrompt.trim()) return;
     setIsBusy(true);
     try {
@@ -367,24 +388,7 @@ export default function CopilotPage() {
     } finally {
       setIsBusy(false);
     }
-  }
-
-  async function loadEvidence(requestedEvidenceId?: string): Promise<void> {
-    const targetEvidenceId = requestedEvidenceId ?? evidenceId.trim();
-    if (!targetEvidenceId) return;
-    setIsBusy(true);
-    try {
-      const result = (await callTool("adeu.read_evidence", {
-        evidence_id: targetEvidenceId,
-        max_bytes: 200_000,
-      })) as EvidenceBundle;
-      setEvidence(result);
-    } catch (exc) {
-      setError(String(exc));
-    } finally {
-      setIsBusy(false);
-    }
-  }
+  }, [workerPrompt, callTool, templateId, loadEvidence]);
 
   useEffect(() => {
     if (!sessionId) {
@@ -449,13 +453,12 @@ export default function CopilotPage() {
       stream.close();
       setConnection("disconnected");
     };
-  }, [sessionId]);
+  }, [sessionId, pushTimeline]);
 
   useEffect(() => {
     void refreshTemplates();
     void refreshAppState();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshTemplates, refreshAppState]);
 
   const parsedEvidenceLines = useMemo(() => {
     const raw = evidence?.raw_jsonl ?? "";
@@ -576,12 +579,16 @@ export default function CopilotPage() {
           <label className="muted">
             template_id{" "}
             <select value={templateId} onChange={(event) => setTemplateId(event.target.value)}>
-              {(templates.length > 0 ? templates : [{ template_id: DEFAULT_TEMPLATE_ID } as TemplateMeta]).map(
-                (item) => (
+              {templates.length > 0 ? (
+                templates.map((item) => (
                   <option key={item.template_id} value={item.template_id}>
                     {item.template_id}
                   </option>
-                )
+                ))
+              ) : (
+                <option key={DEFAULT_TEMPLATE_ID} value={DEFAULT_TEMPLATE_ID}>
+                  {DEFAULT_TEMPLATE_ID}
+                </option>
               )}
             </select>
           </label>
