@@ -18,8 +18,8 @@ build/
 node_modules/
 .next/
 out/
+apps/api/var/
 
 # Editors
 .idea/
 .vscode/
-
