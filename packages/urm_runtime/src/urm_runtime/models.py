@@ -111,3 +111,21 @@ class CopilotSessionResponse(BaseModel):
     status: Literal["starting", "running", "stopped", "failed"]
     app_server_unavailable: bool = False
     idempotent_replay: bool = False
+
+
+class ToolCallRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    role: str = Field(default="copilot", min_length=1)
+    session_id: str | None = None
+    tool_name: str = Field(min_length=1)
+    arguments: dict[str, Any] = Field(default_factory=dict)
+
+
+class ToolCallResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    tool_name: str
+    warrant: Literal["observed", "derived", "checked", "hypothesis", "unknown"]
+    result: Any

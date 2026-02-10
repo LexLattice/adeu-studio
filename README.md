@@ -85,6 +85,10 @@ URM runtime endpoints (v0 backend slices):
 - `POST /urm/copilot/mode` toggles server-authoritative `writes_allowed` for a session.
 - `GET /urm/copilot/events` streams SSE frames (`codex_event`, `heartbeat`, `session_status`)
   with replay support via `after_seq`.
+- `POST /urm/worker/run` executes a short-lived Codex worker run (`codex exec --json`) with
+  idempotency keys.
+- `POST /urm/tools/call` dispatches role-gated URM tools (`adeu.*`, `urm.spawn_worker`,
+  `urm.set_mode`).
 
 For concept endpoints that accept source text, `doc_id` can be provided instead of `source_text`.
 If both are provided, `doc_id` is authoritative and mismatched text returns `400 DOC_TEXT_MISMATCH`.

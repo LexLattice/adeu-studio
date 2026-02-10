@@ -19,6 +19,8 @@ from .models import (
     CopilotStopRequest,
     NormalizedEvent,
     TaskEnvelope,
+    ToolCallRequest,
+    ToolCallResponse,
     WorkerRunRequest,
     WorkerRunResult,
 )
@@ -46,6 +48,8 @@ __all__ = [
     "NormalizedEvent",
     "RolePolicy",
     "TaskEnvelope",
+    "ToolCallRequest",
+    "ToolCallResponse",
     "URMCopilotManager",
     "URMError",
     "URMErrorDetail",

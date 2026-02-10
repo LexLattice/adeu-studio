@@ -4,10 +4,11 @@ import os
 import threading
 from collections.abc import Iterator
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Literal, cast
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
+from urm_domain_adeu import ADEUDomainTools
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.copilot import URMCopilotManager
 from urm_runtime.errors import URMError
@@ -18,12 +19,20 @@ from urm_runtime.models import (
     CopilotSessionSendRequest,
     CopilotSessionStartRequest,
     CopilotStopRequest,
+    ToolCallRequest,
+    ToolCallResponse,
+    WorkerRunRequest,
+    WorkerRunResult,
 )
+from urm_runtime.roles import get_role_policy
+from urm_runtime.worker import CodexExecWorkerRunner
 
 router = APIRouter(prefix="/urm", tags=["urm"])
 
 _MANAGER_LOCK = threading.Lock()
 _MANAGER: URMCopilotManager | None = None
+_WORKER_RUNNER: CodexExecWorkerRunner | None = None
+_DOMAIN_TOOLS: ADEUDomainTools | None = None
 _MANAGER_ENV_KEY: tuple[str, str] | None = None
 
 
@@ -39,23 +48,43 @@ def _to_http_exception(error: URMError) -> HTTPException:
 
 
 def _get_manager() -> URMCopilotManager:
-    global _MANAGER, _MANAGER_ENV_KEY
+    return _get_runtime_components()[0]
+
+
+def _get_worker_runner() -> CodexExecWorkerRunner:
+    return _get_runtime_components()[1]
+
+
+def _get_domain_tools() -> ADEUDomainTools:
+    return _get_runtime_components()[2]
+
+
+def _get_runtime_components() -> tuple[URMCopilotManager, CodexExecWorkerRunner, ADEUDomainTools]:
+    global _MANAGER, _WORKER_RUNNER, _DOMAIN_TOOLS, _MANAGER_ENV_KEY
     key = _manager_env_key()
     with _MANAGER_LOCK:
         if _MANAGER is None or _MANAGER_ENV_KEY != key:
             if _MANAGER is not None:
                 _MANAGER.shutdown()
-            _MANAGER = URMCopilotManager(config=URMRuntimeConfig.from_env())
+            config = URMRuntimeConfig.from_env()
+            _MANAGER = URMCopilotManager(config=config)
+            _WORKER_RUNNER = CodexExecWorkerRunner(config=config)
+            _DOMAIN_TOOLS = ADEUDomainTools(config=config, worker_runner=_WORKER_RUNNER)
             _MANAGER_ENV_KEY = key
-        return _MANAGER
+        assert _MANAGER is not None, "URMCopilotManager should be initialized"
+        assert _WORKER_RUNNER is not None, "CodexExecWorkerRunner should be initialized"
+        assert _DOMAIN_TOOLS is not None, "ADEUDomainTools should be initialized"
+        return (_MANAGER, _WORKER_RUNNER, _DOMAIN_TOOLS)
 
 
 def _reset_manager_for_tests() -> None:
-    global _MANAGER, _MANAGER_ENV_KEY
+    global _MANAGER, _WORKER_RUNNER, _DOMAIN_TOOLS, _MANAGER_ENV_KEY
     with _MANAGER_LOCK:
         if _MANAGER is not None:
             _MANAGER.shutdown()
         _MANAGER = None
+        _WORKER_RUNNER = None
+        _DOMAIN_TOOLS = None
         _MANAGER_ENV_KEY = None
 
 
@@ -91,6 +120,92 @@ def urm_copilot_mode_endpoint(request: CopilotModeRequest) -> CopilotSessionResp
     manager = _get_manager()
     try:
         return manager.set_mode(request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/worker/run", response_model=WorkerRunResult)
+def urm_worker_run_endpoint(request: WorkerRunRequest) -> WorkerRunResult:
+    runner = _get_worker_runner()
+    try:
+        return runner.run(request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/tools/call", response_model=ToolCallResponse)
+def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
+    if request.provider != "codex":
+        raise _to_http_exception(
+            URMError(
+                code="URM_POLICY_DENIED",
+                message="unsupported provider",
+                context={"provider": request.provider},
+            )
+        )
+
+    try:
+        role_policy = get_role_policy(request.role)
+    except KeyError:
+        raise _to_http_exception(
+            URMError(
+                code="URM_POLICY_DENIED",
+                message="unknown role",
+                context={"role": request.role},
+            )
+        ) from None
+
+    if request.tool_name not in role_policy.allowed_tools:
+        raise _to_http_exception(
+            URMError(
+                code="URM_POLICY_DENIED",
+                message="tool not allowed for role",
+                context={"role": request.role, "tool_name": request.tool_name},
+            )
+        )
+
+    try:
+        if request.tool_name == "urm.set_mode":
+            if request.session_id is None:
+                raise URMError(
+                    code="URM_POLICY_DENIED",
+                    message="session_id is required for urm.set_mode",
+                    context={"tool_name": request.tool_name},
+                )
+            writes_allowed = request.arguments.get("writes_allowed")
+            if not isinstance(writes_allowed, bool):
+                raise URMError(
+                    code="URM_POLICY_DENIED",
+                    message="writes_allowed must be a boolean",
+                    context={"tool_name": request.tool_name},
+                )
+            manager = _get_manager()
+            mode_response = manager.set_mode(
+                CopilotModeRequest(
+                    provider="codex",
+                    session_id=request.session_id,
+                    writes_allowed=writes_allowed,
+                )
+            )
+            return ToolCallResponse(
+                tool_name=request.tool_name,
+                warrant="observed",
+                result=mode_response.model_dump(mode="json"),
+            )
+
+        tools = _get_domain_tools()
+        result, warrant = tools.call_tool(
+            tool_name=request.tool_name,
+            arguments=request.arguments,
+        )
+        return ToolCallResponse(
+            tool_name=request.tool_name,
+            warrant=cast(
+                Literal["observed", "derived", "checked", "hypothesis", "unknown"],
+                warrant,
+            ),
+            result=result,
+        )
     except URMError as exc:
         raise _to_http_exception(exc) from exc
 
