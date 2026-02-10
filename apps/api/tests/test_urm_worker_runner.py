@@ -26,6 +26,7 @@ def _runtime_config(*, tmp_path: Path, codex_bin: Path) -> URMRuntimeConfig:
         max_evidence_file_bytes=200_000_000,
         max_session_duration_secs=6 * 60 * 60,
         max_concurrent_workers=2,
+        max_replay_events=10_000,
         approval_ttl_secs=120,
         retention_days=14,
         max_total_evidence_bytes=2_000_000_000,
