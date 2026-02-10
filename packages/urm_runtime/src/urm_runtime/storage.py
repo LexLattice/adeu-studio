@@ -40,6 +40,25 @@ class CopilotSessionRow:
     error_message: str | None
 
 
+@dataclass(frozen=True)
+class EvidenceRecordRow:
+    evidence_id: str
+    created_at: str
+    source: str
+    role: str
+    copilot_session_id: str | None
+    worker_id: str | None
+    template_id: str | None
+    started_at: str
+    ended_at: str | None
+    raw_jsonl_path: str
+    status: str
+    error_json: dict[str, Any] | None
+    metadata_json: dict[str, Any]
+    purged_at: str | None
+    purge_reason: str | None
+
+
 @contextmanager
 def transaction(*, db_path: Path) -> Iterator[sqlite3.Connection]:
     con = sqlite3.connect(db_path)
@@ -547,6 +566,57 @@ def get_copilot_session(
         writes_allowed=bool(row[11]),
         error_code=str(row[12]) if row[12] is not None else None,
         error_message=str(row[13]) if row[13] is not None else None,
+    )
+
+
+def get_evidence_record(
+    *,
+    con: sqlite3.Connection,
+    evidence_id: str,
+) -> EvidenceRecordRow | None:
+    row = con.execute(
+        """
+        SELECT
+          evidence_id,
+          created_at,
+          source,
+          role,
+          copilot_session_id,
+          worker_id,
+          template_id,
+          started_at,
+          ended_at,
+          raw_jsonl_path,
+          status,
+          error_json,
+          metadata_json,
+          purged_at,
+          purge_reason
+        FROM urm_evidence_record
+        WHERE evidence_id = ?
+        """,
+        (evidence_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    error_json_raw = str(row[11]) if row[11] is not None else None
+    metadata_json_raw = str(row[12]) if row[12] is not None else "{}"
+    return EvidenceRecordRow(
+        evidence_id=str(row[0]),
+        created_at=str(row[1]),
+        source=str(row[2]),
+        role=str(row[3]),
+        copilot_session_id=str(row[4]) if row[4] is not None else None,
+        worker_id=str(row[5]) if row[5] is not None else None,
+        template_id=str(row[6]) if row[6] is not None else None,
+        started_at=str(row[7]),
+        ended_at=str(row[8]) if row[8] is not None else None,
+        raw_jsonl_path=str(row[9]),
+        status=str(row[10]),
+        error_json=json.loads(error_json_raw) if error_json_raw is not None else None,
+        metadata_json=json.loads(metadata_json_raw),
+        purged_at=str(row[13]) if row[13] is not None else None,
+        purge_reason=str(row[14]) if row[14] is not None else None,
     )
 
 
