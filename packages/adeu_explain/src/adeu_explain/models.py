@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from adeu_ir import SourceSpan, ValidatorAtomRef
+from adeu_ir import MappingTrust, SourceSpan, ValidatorAtomRef
 from adeu_ir.models import JsonPatchOp
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -110,7 +110,7 @@ class DiffSummary(BaseModel):
     model_config = ConfigDict(extra="forbid")
     status_flip: str
     solver_pairing_state: str = "NO_RUNS"
-    mapping_trust: str | None = None
+    mapping_trust: MappingTrust | None = None
     solver_trust: str = "kernel_only"
     proof_trust: str | None = None
     unpaired_left_keys: list[str] = Field(default_factory=list)

@@ -14,6 +14,7 @@ Channel = Literal["O", "D_phys", "D_norm", "E", "U"]
 NormKind = Literal["obligation", "prohibition", "permission"]
 EvidenceKind = Literal["obs", "def", "testimony", "infer"]
 GoalKind = Literal["moral", "pref", "policy", "valence"]
+MappingTrust = Literal["derived_bridge", "derived_alignment"]
 
 BridgeType = Literal["interpretation", "u_to_dnorm", "u_to_e", "e_to_dnorm", "o_to_dnorm"]
 BridgeStatus = Literal["provisional", "certified", "revoked"]

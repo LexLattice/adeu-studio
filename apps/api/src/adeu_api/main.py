@@ -45,6 +45,7 @@ from adeu_ir import (
     AdeuIR,
     CheckReport,
     Context,
+    MappingTrust,
     ProofArtifact,
     ProofInput,
     ReasonSeverity,
@@ -629,7 +630,7 @@ class ConceptApplyAmbiguityOptionResponse(BaseModel):
     patched_ir: ConceptIR
     check_report: CheckReport
     validator_runs: list[ValidatorRunInput] | None = None
-    mapping_trust: str | None = None
+    mapping_trust: MappingTrust | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
 
@@ -770,7 +771,7 @@ class ConceptQuestionsResponse(BaseModel):
     max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
     question_rank_version: Literal["concepts.qrank.v2"] = CONCEPTS_QUESTION_RANK_VERSION
     budget_report: "QuestionsBudgetReport"
-    mapping_trust: str | None = None
+    mapping_trust: MappingTrust | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
 
@@ -797,7 +798,7 @@ class ConceptTournamentCandidateResult(BaseModel):
     check_report: CheckReport
     analysis: ConceptAnalysis | None = None
     diff_report: DiffReport
-    mapping_trust: str | None = None
+    mapping_trust: MappingTrust | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
 
@@ -815,7 +816,7 @@ class ConceptTournamentResponse(BaseModel):
     evaluated_count: int
     candidates: list[ConceptTournamentCandidateResult] = Field(default_factory=list)
     budget_report: QuestionsBudgetReport
-    mapping_trust: str | None = None
+    mapping_trust: MappingTrust | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
 
@@ -828,7 +829,7 @@ class AdeuAnalyzeConceptsResponse(BaseModel):
     bridge_manifest: BridgeManifest
     bridge_mapping_version: str
     mapping_hash: str
-    mapping_trust: str
+    mapping_trust: MappingTrust
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
     validator_runs: list[ValidatorRunInput] | None = None
@@ -846,7 +847,7 @@ class AdeuQuestionsResponse(BaseModel):
     bridge_mapping_version: str
     mapping_hash: str
     budget_report: QuestionsBudgetReport
-    mapping_trust: str = "derived_bridge"
+    mapping_trust: MappingTrust = "derived_bridge"
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
     validator_runs: list[ValidatorRunInput] | None = None
@@ -997,7 +998,7 @@ class ConceptAlignResponse(BaseModel):
     suggestion_count: int
     suggestions: list[ConceptAlignmentSuggestion]
     alignment_stats: ConceptAlignmentStats
-    mapping_trust: str = "derived_alignment"
+    mapping_trust: MappingTrust = "derived_alignment"
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
 
