@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import copy
-import json
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
 from adeu_ir.models import JsonPatchOp
+from adeu_patch_core import PatchCoreValidationError, apply_patch_ops, encode_patch_size_bytes
 from pydantic import ValidationError
 
 from .models import ConceptIR
@@ -67,127 +67,6 @@ def _raise_issue(
     )
 
 
-def _encode_patch_size_bytes(patch_ops: Iterable[JsonPatchOp]) -> int:
-    payload = [
-        op.model_dump(mode="json", by_alias=True, exclude_none=True) for op in patch_ops
-    ]
-    return len(json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8"))
-
-
-def _allowed_path(path: str, *, allowed_prefixes: tuple[str, ...]) -> bool:
-    for prefix in allowed_prefixes:
-        if path == prefix or path.startswith(prefix + "/"):
-            return True
-    return False
-
-
-def _parse_pointer(path: str, *, op_index: int) -> list[str]:
-    if not path.startswith("/"):
-        _raise_issue(
-            op_index=op_index,
-            path=path,
-            code="PATCH_PATH_INVALID",
-            message="json pointer path must start with '/'",
-        )
-    parts = path.split("/")[1:]
-    return [part.replace("~1", "/").replace("~0", "~") for part in parts]
-
-
-def _resolve_parent(doc: Any, path: str, *, op_index: int) -> tuple[Any, str]:
-    parts = _parse_pointer(path, op_index=op_index)
-    if not parts:
-        _raise_issue(
-            op_index=op_index,
-            path=path,
-            code="PATCH_PATH_INVALID",
-            message="patching the document root is not allowed",
-        )
-
-    cur: Any = doc
-    for seg in parts[:-1]:
-        if isinstance(cur, dict):
-            if seg not in cur:
-                _raise_issue(
-                    op_index=op_index,
-                    path=path,
-                    code="PATCH_TARGET_MISSING",
-                    message="path does not exist",
-                )
-            cur = cur[seg]
-            continue
-        if isinstance(cur, list):
-            try:
-                idx = int(seg)
-            except ValueError as exc:
-                _raise_issue(
-                    op_index=op_index,
-                    path=path,
-                    code="PATCH_PATH_INVALID",
-                    message="list segment must be an int index",
-                )
-                raise AssertionError("unreachable") from exc
-            if idx < 0 or idx >= len(cur):
-                _raise_issue(
-                    op_index=op_index,
-                    path=path,
-                    code="PATCH_TARGET_MISSING",
-                    message="list index out of range",
-                )
-            cur = cur[idx]
-            continue
-        _raise_issue(
-            op_index=op_index,
-            path=path,
-            code="PATCH_PATH_INVALID",
-            message="path traversal hit a non-container",
-        )
-
-    return cur, parts[-1]
-
-
-def _get_value(doc: Any, path: str, *, op_index: int) -> Any:
-    parts = _parse_pointer(path, op_index=op_index)
-    cur: Any = doc
-    for seg in parts:
-        if isinstance(cur, dict):
-            if seg not in cur:
-                _raise_issue(
-                    op_index=op_index,
-                    path=path,
-                    code="PATCH_TARGET_MISSING",
-                    message="path does not exist",
-                )
-            cur = cur[seg]
-            continue
-        if isinstance(cur, list):
-            try:
-                idx = int(seg)
-            except ValueError as exc:
-                _raise_issue(
-                    op_index=op_index,
-                    path=path,
-                    code="PATCH_PATH_INVALID",
-                    message="list segment must be an int index",
-                )
-                raise AssertionError("unreachable") from exc
-            if idx < 0 or idx >= len(cur):
-                _raise_issue(
-                    op_index=op_index,
-                    path=path,
-                    code="PATCH_TARGET_MISSING",
-                    message="list index out of range",
-                )
-            cur = cur[idx]
-            continue
-        _raise_issue(
-            op_index=op_index,
-            path=path,
-            code="PATCH_PATH_INVALID",
-            message="path traversal hit a non-container",
-        )
-    return cur
-
-
 def _sorted_errors(errors: list[ConceptPatchError]) -> tuple[ConceptPatchError, ...]:
     return tuple(
         sorted(
@@ -201,10 +80,6 @@ def _raise_errors(errors: list[ConceptPatchError]) -> None:
     if not errors:
         return
     raise ConceptPatchValidationError(errors=_sorted_errors(errors))
-
-
-def _has_explicit_value(op: JsonPatchOp) -> bool:
-    return "value" in op.model_fields_set
 
 
 def _collect_reference_integrity_errors(concept: ConceptIR) -> list[ConceptPatchError]:
@@ -351,6 +226,18 @@ def _collect_reference_integrity_errors(concept: ConceptIR) -> list[ConceptPatch
     return errors
 
 
+def _core_errors_to_concept_errors(errors: tuple[Any, ...]) -> list[ConceptPatchError]:
+    return [
+        _issue(
+            op_index=error.op_index,
+            path=error.path,
+            code=error.code,
+            message=error.message,
+        )
+        for error in errors
+    ]
+
+
 def apply_concept_json_patch(
     concept: ConceptIR,
     patch_ops: list[JsonPatchOp],
@@ -371,7 +258,7 @@ def apply_concept_json_patch(
         )
         _raise_errors(errors)
 
-    size_bytes = _encode_patch_size_bytes(patch_ops)
+    size_bytes = encode_patch_size_bytes(patch_ops)
     if size_bytes > max_bytes:
         errors.append(
             _issue(
@@ -385,211 +272,17 @@ def apply_concept_json_patch(
 
     doc = copy.deepcopy(concept.model_dump(mode="json", by_alias=True))
 
-    for op_index, op in enumerate(patch_ops):
-        if op.op in ("move", "copy"):
-            errors.append(
-                _issue(
-                    op_index=op_index,
-                    path=op.path,
-                    code="PATCH_OP_UNSUPPORTED",
-                    message=f"op {op.op!r} is not allowed",
-                )
-            )
-            continue
-
-        if not _allowed_path(op.path, allowed_prefixes=allowed_prefixes):
-            errors.append(
-                _issue(
-                    op_index=op_index,
-                    path=op.path,
-                    code="PATCH_PATH_NOT_ALLOWED",
-                    message="path is not allowed by sandbox",
-                )
-            )
-            continue
-
-        if op.op in ("add", "replace", "test") and not _has_explicit_value(op):
-            errors.append(
-                _issue(
-                    op_index=op_index,
-                    path=op.path,
-                    code="PATCH_VALUE_REQUIRED",
-                    message=f"op {op.op!r} requires value",
-                )
-            )
-            continue
-
-        try:
-            if op.op in ("remove", "replace", "test"):
-                _get_value(doc, op.path, op_index=op_index)
-
-            if op.op == "test":
-                cur = _get_value(doc, op.path, op_index=op_index)
-                if cur != op.value:
-                    errors.append(
-                        _issue(
-                            op_index=op_index,
-                            path=op.path,
-                            code="PATCH_TEST_FAILED",
-                            message="test op failed (value mismatch)",
-                        )
-                    )
-                continue
-
-            parent, last = _resolve_parent(doc, op.path, op_index=op_index)
-
-            if op.op == "add":
-                if isinstance(parent, dict):
-                    parent[last] = op.value
-                    continue
-                if isinstance(parent, list):
-                    if last == "-":
-                        parent.append(op.value)
-                        continue
-                    try:
-                        idx = int(last)
-                    except ValueError:
-                        errors.append(
-                            _issue(
-                                op_index=op_index,
-                                path=op.path,
-                                code="PATCH_PATH_INVALID",
-                                message="list segment must be an int index or '-'",
-                            )
-                        )
-                        continue
-                    if idx < 0 or idx > len(parent):
-                        errors.append(
-                            _issue(
-                                op_index=op_index,
-                                path=op.path,
-                                code="PATCH_TARGET_MISSING",
-                                message="list index out of range for add",
-                            )
-                        )
-                        continue
-                    parent.insert(idx, op.value)
-                    continue
-                errors.append(
-                    _issue(
-                        op_index=op_index,
-                        path=op.path,
-                        code="PATCH_PATH_INVALID",
-                        message="add parent is not a container",
-                    )
-                )
-                continue
-
-            if op.op == "replace":
-                if isinstance(parent, dict):
-                    if last not in parent:
-                        errors.append(
-                            _issue(
-                                op_index=op_index,
-                                path=op.path,
-                                code="PATCH_TARGET_MISSING",
-                                message="replace target does not exist",
-                            )
-                        )
-                        continue
-                    parent[last] = op.value
-                    continue
-                if isinstance(parent, list):
-                    try:
-                        idx = int(last)
-                    except ValueError:
-                        errors.append(
-                            _issue(
-                                op_index=op_index,
-                                path=op.path,
-                                code="PATCH_PATH_INVALID",
-                                message="list segment must be an int index",
-                            )
-                        )
-                        continue
-                    if idx < 0 or idx >= len(parent):
-                        errors.append(
-                            _issue(
-                                op_index=op_index,
-                                path=op.path,
-                                code="PATCH_TARGET_MISSING",
-                                message="list index out of range",
-                            )
-                        )
-                        continue
-                    parent[idx] = op.value
-                    continue
-                errors.append(
-                    _issue(
-                        op_index=op_index,
-                        path=op.path,
-                        code="PATCH_PATH_INVALID",
-                        message="replace parent is not a container",
-                    )
-                )
-                continue
-
-            if op.op == "remove":
-                if isinstance(parent, dict):
-                    if last not in parent:
-                        errors.append(
-                            _issue(
-                                op_index=op_index,
-                                path=op.path,
-                                code="PATCH_TARGET_MISSING",
-                                message="remove target does not exist",
-                            )
-                        )
-                        continue
-                    del parent[last]
-                    continue
-                if isinstance(parent, list):
-                    try:
-                        idx = int(last)
-                    except ValueError:
-                        errors.append(
-                            _issue(
-                                op_index=op_index,
-                                path=op.path,
-                                code="PATCH_PATH_INVALID",
-                                message="list segment must be an int index",
-                            )
-                        )
-                        continue
-                    if idx < 0 or idx >= len(parent):
-                        errors.append(
-                            _issue(
-                                op_index=op_index,
-                                path=op.path,
-                                code="PATCH_TARGET_MISSING",
-                                message="list index out of range",
-                            )
-                        )
-                        continue
-                    parent.pop(idx)
-                    continue
-                errors.append(
-                    _issue(
-                        op_index=op_index,
-                        path=op.path,
-                        code="PATCH_PATH_INVALID",
-                        message="remove parent is not a container",
-                    )
-                )
-                continue
-
-            errors.append(
-                _issue(
-                    op_index=op_index,
-                    path=op.path,
-                    code="PATCH_OP_UNSUPPORTED",
-                    message=f"unsupported op: {op.op!r}",
-                )
-            )
-        except ConceptPatchValidationError as exc:
-            errors.extend(exc.errors)
-
-    _raise_errors(errors)
+    try:
+        apply_patch_ops(
+            doc,
+            patch_ops,
+            allowed_prefixes=allowed_prefixes,
+            disallowed_ops=frozenset({"move", "copy"}),
+            value_policy="explicit_member",
+            collect_errors=True,
+        )
+    except PatchCoreValidationError as exc:
+        _raise_errors(_core_errors_to_concept_errors(exc.errors))
 
     try:
         patched = ConceptIR.model_validate(doc)

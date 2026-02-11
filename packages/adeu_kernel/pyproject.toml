@@ -11,6 +11,7 @@ requires-python = ">=3.11"
 dependencies = [
   "pydantic>=2.6,<3",
   "adeu-ir>=0.0.0",
+  "adeu-patch-core>=0.0.0",
   "adeu-lean>=0.0.0",
   "z3-solver==4.13.3.0",
 ]
