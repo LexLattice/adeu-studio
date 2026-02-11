@@ -20,6 +20,8 @@ jobs:
         run: make test
       - name: Build quality dashboard
         run: .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
+      - name: Run determinism oracles
+        run: .venv/bin/python apps/api/scripts/run_determinism_oracles.py --out artifacts/determinism_oracles.json
       - name: Build URM events diagnostics
         run: |
           mkdir -p artifacts/urm_events
@@ -31,6 +33,12 @@ jobs:
         with:
           name: quality-dashboard
           path: artifacts/quality_dashboard.json
+          if-no-files-found: error
+      - name: Upload determinism oracles artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: determinism-oracles
+          path: artifacts/determinism_oracles.json
           if-no-files-found: error
       - name: Upload URM events diagnostics artifact
         uses: actions/upload-artifact@v4
