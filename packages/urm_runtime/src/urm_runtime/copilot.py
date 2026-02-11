@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import threading
+import time
 import uuid
 from collections import deque
 from dataclasses import dataclass, field
@@ -69,6 +70,9 @@ class CopilotSessionRuntime:
     ended_at: str | None = None
     error_code: str | None = None
     error_message: str | None = None
+    thread_id: str | None = None
+    initialized: bool = False
+    cwd: str | None = None
     buffer: deque[NormalizedEvent] = field(default_factory=lambda: deque(maxlen=COPILOT_BUFFER_MAX))
     condition: threading.Condition = field(default_factory=threading.Condition)
 
@@ -185,6 +189,129 @@ class URMCopilotManager:
             runtime=runtime,
             raw_line=json.dumps({"event": event_kind, **payload}),
         )
+
+    def _wait_for_response(
+        self,
+        *,
+        runtime: CopilotSessionRuntime,
+        request_id: str,
+        timeout_secs: float = 10.0,
+    ) -> dict[str, Any]:
+        deadline = time.monotonic() + timeout_secs
+        with runtime.condition:
+            while True:
+                for event in runtime.buffer:
+                    payload = event.payload
+                    if not isinstance(payload, dict):
+                        continue
+                    if payload.get("id") != request_id:
+                        continue
+                    if "result" in payload or "error" in payload:
+                        return payload
+
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                runtime.condition.wait(timeout=min(remaining, 0.5))
+
+        raise URMError(
+            code="URM_CODEX_START_FAILED",
+            message="timed out waiting for app-server response",
+            context={"request_id": request_id, "timeout_secs": timeout_secs},
+        )
+
+    def _send_jsonrpc_and_wait(
+        self,
+        *,
+        runtime: CopilotSessionRuntime,
+        method: str,
+        params: dict[str, Any],
+        timeout_secs: float = 10.0,
+    ) -> dict[str, Any]:
+        request_id = uuid.uuid4().hex
+        request_payload: dict[str, Any] = {
+            "id": request_id,
+            "method": method,
+            "params": params,
+        }
+        line = runtime.host.send(request_payload)
+        self._record_event_line(runtime=runtime, raw_line=line)
+        response = self._wait_for_response(
+            runtime=runtime,
+            request_id=request_id,
+            timeout_secs=timeout_secs,
+        )
+        if "error" in response:
+            raise URMError(
+                code="URM_CODEX_START_FAILED",
+                message=f"app-server returned error for {method}",
+                context={"method": method, "error": response.get("error")},
+            )
+        return response
+
+    def _bootstrap_runtime(self, *, runtime: CopilotSessionRuntime) -> None:
+        if runtime.initialized and runtime.thread_id:
+            return
+
+        self._send_jsonrpc_and_wait(
+            runtime=runtime,
+            method="initialize",
+            params={
+                "clientInfo": {
+                    "name": "adeu-copilot",
+                    "version": "0.1.0",
+                },
+                "capabilities": {"experimentalApi": True},
+            },
+        )
+
+        thread_start_params: dict[str, Any] = {
+            "approvalPolicy": "never",
+            "sandbox": "read-only",
+        }
+        if runtime.cwd:
+            thread_start_params["cwd"] = runtime.cwd
+
+        thread_response = self._send_jsonrpc_and_wait(
+            runtime=runtime,
+            method="thread/start",
+            params=thread_start_params,
+        )
+        thread_id = thread_response.get("result", {}).get("thread", {}).get("id")
+        if not isinstance(thread_id, str) or not thread_id:
+            raise URMError(
+                code="URM_CODEX_START_FAILED",
+                message="thread/start response missing thread id",
+                context={"response": thread_response},
+            )
+
+        runtime.thread_id = thread_id
+        runtime.initialized = True
+        self._record_internal_event(
+            runtime=runtime,
+            event_kind="protocol_bootstrap_complete",
+            payload={"thread_id": thread_id},
+        )
+
+    def _send_user_message(self, *, runtime: CopilotSessionRuntime, text: str) -> None:
+        self._bootstrap_runtime(runtime=runtime)
+        if runtime.thread_id is None:
+            raise URMError(
+                code="URM_CODEX_START_FAILED",
+                message="missing copilot thread id after bootstrap",
+            )
+        line = runtime.host.send(
+            {
+                "id": uuid.uuid4().hex,
+                "method": "turn/start",
+                "params": {
+                    "threadId": runtime.thread_id,
+                    "approvalPolicy": "never",
+                    "input": [{"type": "text", "text": text}],
+                },
+            }
+        )
+        self._record_event_line(runtime=runtime, raw_line=line)
 
     def _persist_terminal_state(self, *, runtime: CopilotSessionRuntime) -> None:
         status = runtime.status
@@ -461,6 +588,7 @@ class URMCopilotManager:
                 writer=writer,
                 raw_jsonl_path=raw_rel_path,
                 started_at=datetime.now(tz=timezone.utc).isoformat(),
+                cwd=request.cwd,
             )
 
             with transaction(db_path=self.config.db_path) as con:
@@ -560,8 +688,19 @@ class URMCopilotManager:
                     replay = CopilotSessionResponse.model_validate(reservation.response_json or {})
                     return replay.model_copy(update={"idempotent_replay": True})
 
-            line = runtime.host.send(request.message)
-            self._record_event_line(runtime=runtime, raw_line=line)
+            if request.message.get("method") == "copilot.user_message":
+                params = request.message.get("params")
+                text = params.get("text") if isinstance(params, dict) else None
+                if not isinstance(text, str) or not text.strip():
+                    raise URMError(
+                        code="URM_POLICY_DENIED",
+                        message="copilot.user_message requires non-empty params.text",
+                        status_code=400,
+                    )
+                self._send_user_message(runtime=runtime, text=text)
+            else:
+                line = runtime.host.send(request.message)
+                self._record_event_line(runtime=runtime, raw_line=line)
             response = CopilotSessionResponse(
                 session_id=request.session_id,
                 status=runtime.status,  # type: ignore[arg-type]

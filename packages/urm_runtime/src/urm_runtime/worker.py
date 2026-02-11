@@ -44,13 +44,14 @@ class CodexExecWorkerRunner:
         self._process_lock = threading.RLock()
         self._active_processes: dict[str, subprocess.Popen[str]] = {}
         self._cancel_requested: set[str] = set()
-        self._exec_help_supports_output_schema: bool | None = None
+        self._exec_help_text: str | None = None
 
     def _build_command(
         self,
         request: WorkerRunRequest,
         *,
         include_output_schema_flag: bool,
+        include_ask_for_approval_flag: bool,
     ) -> list[str]:
         command = [
             self.config.codex_bin,
@@ -58,17 +59,17 @@ class CodexExecWorkerRunner:
             "--json",
             "--sandbox",
             "read-only",
-            "--ask-for-approval",
-            "never",
         ]
+        if include_ask_for_approval_flag:
+            command.extend(["--ask-for-approval", "never"])
         if request.output_schema_path and include_output_schema_flag:
             command.extend(["--output-schema", request.output_schema_path])
         command.append(request.prompt)
         return command
 
-    def _supports_output_schema_flag(self) -> bool:
-        if self._exec_help_supports_output_schema is not None:
-            return self._exec_help_supports_output_schema
+    def _exec_help(self) -> str:
+        if self._exec_help_text is not None:
+            return self._exec_help_text
         try:
             completed = subprocess.run(
                 [self.config.codex_bin, "exec", "--help"],
@@ -80,11 +81,15 @@ class CodexExecWorkerRunner:
                 check=False,
             )
             output = (completed.stdout or "") + "\n" + (completed.stderr or "")
-            supports = completed.returncode == 0 and "--output-schema" in output
+            if completed.returncode != 0:
+                output = ""
         except (OSError, subprocess.TimeoutExpired):
-            supports = False
-        self._exec_help_supports_output_schema = supports
-        return supports
+            output = ""
+        self._exec_help_text = output
+        return output
+
+    def _supports_exec_flag(self, flag: str) -> bool:
+        return flag in self._exec_help()
 
     def _resolve_output_schema_path(
         self,
@@ -360,13 +365,16 @@ class CodexExecWorkerRunner:
                 raw_jsonl_path=raw_jsonl_rel_path,
             )
 
-        supports_output_schema_flag = self._supports_output_schema_flag()
+        supports_output_schema_flag = self._supports_exec_flag("--output-schema")
+        supports_ask_for_approval_flag = self._supports_exec_flag("--ask-for-approval")
         use_output_schema_flag = bool(
             request.output_schema_path and supports_output_schema_flag
         )
+        use_ask_for_approval_flag = supports_ask_for_approval_flag
         command = self._build_command(
             request,
             include_output_schema_flag=use_output_schema_flag,
+            include_ask_for_approval_flag=use_ask_for_approval_flag,
         )
         started_at = datetime.now(tz=timezone.utc).isoformat()
         events = []
@@ -491,6 +499,8 @@ class CodexExecWorkerRunner:
             "output_schema_requested": bool(request.output_schema_path),
             "output_schema_cli_supported": supports_output_schema_flag,
             "output_schema_via_cli_flag": use_output_schema_flag,
+            "ask_for_approval_cli_supported": supports_ask_for_approval_flag,
+            "ask_for_approval_via_cli_flag": use_ask_for_approval_flag,
             "invalid_schema": invalid_schema,
             "schema_validation_errors": schema_validation_errors,
         }

@@ -71,6 +71,7 @@ from adeu_puzzles import (
     check_with_validator_runs as check_puzzle_with_validator_runs,
 )
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .adeu_concept_bridge import (
@@ -153,6 +154,13 @@ def _env_int(
     if maximum is not None and value > maximum:
         raise RuntimeError(f"{name} must be <= {maximum}")
     return value
+
+
+def _env_csv(name: str) -> list[str]:
+    raw_value = os.environ.get(name, "").strip()
+    if not raw_value:
+        return []
+    return [item.strip() for item in raw_value.split(",") if item.strip()]
 
 
 ALIGNMENT_MAX_SUGGESTIONS_DEFAULT = _env_int(
@@ -246,6 +254,12 @@ _PROOF_REQUIRED_OBLIGATION_KINDS: tuple[str, ...] = (
     "conflict_soundness",
     "pred_closed_world",
 )
+DEFAULT_CORS_ALLOW_ORIGINS: tuple[str, ...] = (
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+)
+CORS_ALLOW_ORIGINS = _env_csv("ADEU_CORS_ALLOW_ORIGINS") or list(DEFAULT_CORS_ALLOW_ORIGINS)
+LOCALHOST_CORS_ORIGIN_REGEX = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
 
 
 class ProposeRequest(BaseModel):
@@ -700,6 +714,14 @@ class ArtifactValidatorRunsResponse(BaseModel):
 
 
 app = FastAPI(title="ADEU Studio API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ALLOW_ORIGINS,
+    allow_origin_regex=LOCALHOST_CORS_ORIGIN_REGEX,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(urm_router)
 
 

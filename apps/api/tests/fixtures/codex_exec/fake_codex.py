@@ -18,12 +18,21 @@ def _append_counter(path: str | None) -> None:
 
 def main() -> int:
     if len(sys.argv) >= 3 and sys.argv[1] == "exec" and sys.argv[2] == "--help":
+        ask_supported = os.environ.get("FAKE_CODEX_EXEC_HELP_NO_ASK_FOR_APPROVAL") != "1"
         if os.environ.get("FAKE_CODEX_EXEC_HELP_NO_OUTPUT_SCHEMA") != "1":
-            print("Usage: codex exec --json --sandbox <mode> [--output-schema <file>] [PROMPT]")
-            print("Options: --json --sandbox --ask-for-approval --output-schema")
+            print(
+                "Usage: codex exec --json --sandbox <mode> [--output-schema <file>] [PROMPT]"
+            )
+            if ask_supported:
+                print("Options: --json --sandbox --ask-for-approval --output-schema")
+            else:
+                print("Options: --json --sandbox --output-schema")
         else:
             print("Usage: codex exec --json --sandbox <mode> [PROMPT]")
-            print("Options: --json --sandbox --ask-for-approval")
+            if ask_supported:
+                print("Options: --json --sandbox --ask-for-approval")
+            else:
+                print("Options: --json --sandbox")
         return 0
     if len(sys.argv) < 2 or sys.argv[1] != "exec":
         print("expected exec subcommand", file=sys.stderr)
@@ -36,13 +45,17 @@ def main() -> int:
         "--json",
         "--sandbox",
         "read-only",
-        "--ask-for-approval",
-        "never",
     ]
+    ask_supported = os.environ.get("FAKE_CODEX_EXEC_HELP_NO_ASK_FOR_APPROVAL") != "1"
+    if ask_supported:
+        required.extend(["--ask-for-approval", "never"])
     for token in required:
         if token not in argv:
             print(f"missing required token: {token}", file=sys.stderr)
             return 22
+    if not ask_supported and "--ask-for-approval" in argv:
+        print("ask-for-approval flag unsupported", file=sys.stderr)
+        return 25
     if os.environ.get("FAKE_CODEX_EXEC_HELP_NO_OUTPUT_SCHEMA") == "1" and "--output-schema" in argv:
         print("output-schema flag unsupported", file=sys.stderr)
         return 24

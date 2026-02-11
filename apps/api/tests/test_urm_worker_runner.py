@@ -484,3 +484,26 @@ def test_worker_runner_marks_invalid_schema_with_errors(
     assert result.status == "ok"
     assert result.invalid_schema is True
     assert result.schema_validation_errors
+
+
+def test_worker_runner_omits_ask_for_approval_when_flag_unsupported(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+    monkeypatch.setenv("FAKE_CODEX_EXEC_HELP_NO_ASK_FOR_APPROVAL", "1")
+
+    runner = CodexExecWorkerRunner(config=config)
+    result = runner.run(
+        _worker_request(
+            client_request_id="req-no-ask-flag-1",
+            role="pipeline_worker",
+            prompt="run without ask-for-approval",
+        )
+    )
+
+    assert result.status == "ok"

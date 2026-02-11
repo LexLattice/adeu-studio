@@ -81,6 +81,10 @@ class CodexAppServerHost:
         try:
             self._ready_queue.get(timeout=APP_SERVER_READY_SECS)
         except Empty:
+            # Newer codex app-server builds can be healthy-but-silent at startup.
+            # Treat a still-running process as ready even without a startup line.
+            if process.poll() is None:
+                return
             self.stop()
             raise URMError(
                 code="URM_CODEX_APP_SERVER_UNAVAILABLE",

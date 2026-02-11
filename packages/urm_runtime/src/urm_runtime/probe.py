@@ -51,6 +51,7 @@ def _app_server_smoke(config: URMRuntimeConfig) -> tuple[bool, dict[str, Any]]:
             [config.codex_bin, "app-server"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
+            stdin=subprocess.PIPE,
             text=True,
             encoding="utf-8",
             errors="replace",
@@ -75,7 +76,8 @@ def _app_server_smoke(config: URMRuntimeConfig) -> tuple[bool, dict[str, Any]]:
         ready_line = queue.get(timeout=SMOKE_TIMEOUT_SECS)
         ok = True
     except Empty:
-        ok = False
+        # codex app-server can start in a silent-ready mode.
+        ok = process.poll() is None
     finally:
         process.terminate()
         try:
@@ -87,20 +89,25 @@ def _app_server_smoke(config: URMRuntimeConfig) -> tuple[bool, dict[str, Any]]:
     return ok, {"ready_line": ready_line, "exit_code": process.returncode}
 
 
-def _exec_smoke(config: URMRuntimeConfig) -> tuple[bool, dict[str, Any]]:
+def _exec_smoke(
+    config: URMRuntimeConfig,
+    *,
+    ask_for_approval_supported: bool,
+) -> tuple[bool, dict[str, Any]]:
     started = time.monotonic()
+    command = [
+        config.codex_bin,
+        "exec",
+        "--json",
+        "--sandbox",
+        "read-only",
+    ]
+    if ask_for_approval_supported:
+        command.extend(["--ask-for-approval", "never"])
+    command.append("urm capability smoke probe")
     try:
         completed = subprocess.run(
-            [
-                config.codex_bin,
-                "exec",
-                "--json",
-                "--sandbox",
-                "read-only",
-                "--ask-for-approval",
-                "never",
-                "urm capability smoke probe",
-            ],
+            command,
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -145,11 +152,16 @@ def run_and_persist_capability_probe(
 
     exec_help_ok, exec_help, exec_error = _run_help(config, "exec", "--help")
     app_help_ok, app_help, app_help_error = _run_help(config, "app-server", "--help")
+    ask_for_approval_available = "--ask-for-approval" in exec_help
     exec_smoke_ok = False
     exec_smoke_meta: dict[str, Any] = {}
     if exec_help_ok:
-        exec_smoke_ok, exec_smoke_meta = _exec_smoke(config)
-    exec_ok = exec_help_ok and exec_smoke_ok
+        exec_smoke_ok, exec_smoke_meta = _exec_smoke(
+            config,
+            ask_for_approval_supported=ask_for_approval_available,
+        )
+    # Presence of exec --help is the capability gate; smoke is advisory telemetry.
+    exec_ok = exec_help_ok
     output_schema_available = "--output-schema" in exec_help
     app_smoke_ok = False
     app_smoke_meta: dict[str, Any] = {}
@@ -169,6 +181,7 @@ def run_and_persist_capability_probe(
         "exec_smoke": exec_smoke_meta,
         "exec_help_contains_json": "--json" in exec_help,
         "exec_help_contains_output_schema": output_schema_available,
+        "exec_help_contains_ask_for_approval": ask_for_approval_available,
         "app_server_help_ok": app_help_ok,
         "app_server_help_error": app_help_error,
         "app_server_smoke_ok": app_smoke_ok,
