@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 import sqlite3
+import time
 from pathlib import Path
 
 import pytest
@@ -134,7 +135,16 @@ def test_copilot_user_message_bootstraps_protocol_and_emits_agent_delta(
         ).fetchone()
     assert row is not None
     raw_path = tmp_path / row[0]
-    text = raw_path.read_text(encoding="utf-8", errors="replace")
+    deadline = time.monotonic() + 2.0
+    text = ""
+    while True:
+        text = raw_path.read_text(encoding="utf-8", errors="replace")
+        if "agent_message_delta" in text:
+            break
+        if time.monotonic() >= deadline:
+            break
+        time.sleep(0.05)
+
     assert '"method":"turn/start"' in text
     assert "agent_message_delta" in text
     _reset_manager_for_tests()

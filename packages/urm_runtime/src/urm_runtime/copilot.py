@@ -200,7 +200,7 @@ class URMCopilotManager:
         deadline = time.monotonic() + timeout_secs
         with runtime.condition:
             while True:
-                for event in runtime.buffer:
+                for event in reversed(runtime.buffer):
                     payload = event.payload
                     if not isinstance(payload, dict):
                         continue
