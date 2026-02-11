@@ -1,0 +1,15 @@
+{
+  "schema": "urm.allow.v1",
+  "roles": {
+    "copilot": [
+      "read_state",
+      "run_analysis_check",
+      "spawn_worker",
+      "mutate_apply_patch",
+      "approve_write",
+      "manage_session_lifecycle"
+    ],
+    "pipeline_worker": [],
+    "auditor": []
+  }
+}

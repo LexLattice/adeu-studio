@@ -1,3 +1,8 @@
+from .capability_policy import (
+    authorize_action,
+    load_capability_policy,
+    reset_capability_policy_cache,
+)
 from .config import (
     DEFAULT_APPROVAL_TTL_SECS,
     DEFAULT_MAX_CONCURRENT_WORKERS,
@@ -86,6 +91,9 @@ __all__ = [
     "WorkerRunRequest",
     "WorkerRunResult",
     "error_envelope",
+    "authorize_action",
+    "load_capability_policy",
+    "reset_capability_policy_cache",
     "replay_events",
     "summarize_events",
     "summary_markdown",

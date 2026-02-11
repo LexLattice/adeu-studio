@@ -1,0 +1,53 @@
+{
+  "schema": "urm.capability.lattice.v1",
+  "capabilities": [
+    "read_state",
+    "run_analysis_check",
+    "spawn_worker",
+    "mutate_apply_patch",
+    "approve_write",
+    "manage_session_lifecycle"
+  ],
+  "actions": {
+    "adeu.get_app_state": {
+      "capability": "read_state",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "adeu.list_templates": {
+      "capability": "read_state",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "adeu.read_evidence": {
+      "capability": "read_state",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "adeu.run_workflow": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "urm.spawn_worker": {
+      "capability": "spawn_worker",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "adeu.apply_patch": {
+      "capability": "mutate_apply_patch",
+      "requires_writes_allowed": true,
+      "requires_approval": true
+    },
+    "urm.set_mode.disable_writes": {
+      "capability": "manage_session_lifecycle",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "urm.set_mode.enable_writes": {
+      "capability": "approve_write",
+      "requires_writes_allowed": false,
+      "requires_approval": true
+    }
+  }
+}
