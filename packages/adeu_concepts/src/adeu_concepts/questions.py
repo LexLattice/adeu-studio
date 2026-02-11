@@ -20,6 +20,32 @@ from .models import (
 )
 
 QuestionSignal = Literal["mic", "forced_countermodel", "disconnected_clusters"]
+QuestionRationaleCode = Literal[
+    "mic_conflict",
+    "forced_nonentailment",
+    "disconnected_cluster",
+]
+
+_RATIONALE_CODE_BY_SIGNAL: dict[QuestionSignal, QuestionRationaleCode] = {
+    "mic": "mic_conflict",
+    "forced_countermodel": "forced_nonentailment",
+    "disconnected_clusters": "disconnected_cluster",
+}
+
+_RATIONALE_TEXT_BY_CODE: dict[QuestionRationaleCode, str] = {
+    "mic_conflict": (
+        "This question targets a minimal inconsistent core. Choosing an answer should reduce "
+        "or eliminate the conflict set."
+    ),
+    "forced_nonentailment": (
+        "This question targets an edge that is not forced by current constraints. Choosing an "
+        "answer should make the intended relation explicit."
+    ),
+    "disconnected_cluster": (
+        "This question targets disconnected term clusters. Choosing an answer should add an "
+        "explicit inferential connection."
+    ),
+}
 
 DEFAULT_MAX_QUESTIONS = 10
 DEFAULT_MAX_ANSWERS_PER_QUESTION = 4
@@ -37,6 +63,8 @@ class ConceptQuestion(BaseModel):
     model_config = ConfigDict(extra="forbid")
     question_id: str
     signal: QuestionSignal
+    rationale_code: QuestionRationaleCode
+    rationale: str
     prompt: str
     anchors: list[ConceptQuestionAnchor] = Field(default_factory=list)
     answers: list[AmbiguityOption] = Field(default_factory=list)
@@ -716,9 +744,12 @@ def _build_question(
         return None
 
     question_id = _next_question_id(question_id_base, used_question_ids)
+    rationale_code = _RATIONALE_CODE_BY_SIGNAL[signal]
     return ConceptQuestion(
         question_id=question_id,
         signal=signal,
+        rationale_code=rationale_code,
+        rationale=_RATIONALE_TEXT_BY_CODE[rationale_code],
         prompt=prompt,
         anchors=anchors,
         answers=trimmed,
