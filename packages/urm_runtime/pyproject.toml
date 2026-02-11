@@ -13,6 +13,9 @@ dependencies = [
   "jsonschema>=4.20,<5",
 ]
 
+[project.scripts]
+events = "urm_runtime.events_tools:main"
+
 [project.optional-dependencies]
 dev = [
   "pytest>=8,<9",

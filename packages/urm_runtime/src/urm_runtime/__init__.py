@@ -20,6 +20,7 @@ from .errors import (
     URMErrorDetail,
     error_envelope,
 )
+from .events_tools import replay_events, summarize_events, summary_markdown, validate_events
 from .models import (
     ApprovalIssueRequest,
     ApprovalIssueResponse,
@@ -85,6 +86,10 @@ __all__ = [
     "WorkerRunRequest",
     "WorkerRunResult",
     "error_envelope",
+    "replay_events",
+    "summarize_events",
+    "summary_markdown",
+    "validate_events",
     "get_role_policy",
     "run_and_persist_capability_probe",
     "run_evidence_retention_gc",
