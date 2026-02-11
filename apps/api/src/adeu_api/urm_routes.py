@@ -296,7 +296,10 @@ def urm_copilot_events_endpoint(
                 for event in events:
                     next_seq = max(next_seq, event.seq)
                     emitted += 1
-                    yield _sse_frame("codex_event", event.model_dump(mode="json"))
+                    yield _sse_frame(
+                        "codex_event",
+                        event.model_dump(mode="json", by_alias=True),
+                    )
                     if max_events is not None and emitted >= max_events:
                         return
                 continue

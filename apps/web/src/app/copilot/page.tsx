@@ -64,9 +64,13 @@ type TemplateMeta = {
 };
 
 type SSECodexEvent = {
+  schema?: string;
+  event?: string;
   seq?: number;
   ts?: string;
+  stream_id?: string;
   event_kind?: string;
+  detail?: Record<string, unknown>;
   payload?: Record<string, unknown>;
   raw_line?: string;
 };
@@ -422,8 +426,8 @@ export default function CopilotPage() {
       }
       pushTimeline({
         channel: "sse",
-        event: payload.event_kind ?? "codex_event",
-        summary: `seq=${seq ?? "?"} ${payload.event_kind ?? "event"}`,
+        event: payload.event ?? payload.event_kind ?? "codex_event",
+        summary: `seq=${seq ?? "?"} ${payload.event ?? payload.event_kind ?? "event"}`,
         payload,
       });
     });

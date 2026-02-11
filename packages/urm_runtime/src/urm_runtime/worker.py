@@ -16,7 +16,7 @@ from .errors import URMError
 from .evidence import EvidenceFileLimitExceeded, EvidenceFileWriter
 from .hashing import sha256_canonical_json
 from .models import WorkerCancelResponse, WorkerRunRequest, WorkerRunResult
-from .normalization import extract_artifact_candidate, normalize_exec_line
+from .normalization import build_internal_event, extract_artifact_candidate, normalize_exec_line
 from .retention import run_evidence_retention_gc
 from .roles import get_role_policy
 from .storage import (
@@ -175,7 +175,12 @@ class CodexExecWorkerRunner:
         return env
 
     def _raw_jsonl_path_for_worker(self, worker_id: str) -> Path:
-        path = self.config.evidence_root / "worker" / f"{worker_id}.jsonl"
+        path = self.config.evidence_root / "worker" / worker_id / "codex_raw.ndjson"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _urm_events_path_for_worker(self, worker_id: str) -> Path:
+        path = self.config.evidence_root / "worker" / worker_id / "urm_events.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -312,10 +317,15 @@ class CodexExecWorkerRunner:
         db_path = db_path_from_config(self.config)
         worker_id = uuid.uuid4().hex
         raw_path = self._raw_jsonl_path_for_worker(worker_id)
+        events_path = self._urm_events_path_for_worker(worker_id)
         try:
             raw_jsonl_rel_path = str(raw_path.relative_to(self.config.var_root))
         except ValueError:
             raw_jsonl_rel_path = str(raw_path)
+        try:
+            events_jsonl_rel_path = str(events_path.relative_to(self.config.var_root))
+        except ValueError:
+            events_jsonl_rel_path = str(events_path)
 
         with transaction(db_path=db_path) as con:
             try:
@@ -348,10 +358,15 @@ class CodexExecWorkerRunner:
                     },
                 )
             raw_path = self._raw_jsonl_path_for_worker(worker_id)
+            events_path = self._urm_events_path_for_worker(worker_id)
             try:
                 raw_jsonl_rel_path = str(raw_path.relative_to(self.config.var_root))
             except ValueError:
                 raw_jsonl_rel_path = str(raw_path)
+            try:
+                events_jsonl_rel_path = str(events_path.relative_to(self.config.var_root))
+            except ValueError:
+                events_jsonl_rel_path = str(events_path)
             persist_worker_run_start(
                 con=con,
                 worker_id=worker_id,
@@ -383,12 +398,56 @@ class CodexExecWorkerRunner:
         error_code: str | None = None
         error_message: str | None = None
         exit_code: int | None = None
+        stream_id = f"worker:{worker_id}"
+        seq = 0
 
         with EvidenceFileWriter(
             path=raw_path,
             max_line_bytes=self.config.max_line_bytes,
             max_file_bytes=self.config.max_evidence_file_bytes,
-        ) as writer:
+        ) as raw_writer, EvidenceFileWriter(
+            path=events_path,
+            max_line_bytes=self.config.max_line_bytes,
+            max_file_bytes=self.config.max_evidence_file_bytes,
+        ) as events_writer:
+            def _emit_internal_event(
+                *,
+                event: str,
+                detail: dict[str, object],
+            ) -> None:
+                nonlocal seq, error_code, error_message
+                seq += 1
+                normalized = build_internal_event(
+                    seq=seq,
+                    event=event,
+                    stream_id=stream_id,
+                    source_component="urm_worker_runner",
+                    context={
+                        "run_id": worker_id,
+                        "role": request.role,
+                        "endpoint": WORKER_RUN_ENDPOINT_NAME,
+                    },
+                    detail=detail,
+                )
+                events.append(normalized)
+                try:
+                    events_writer.write_json_line(
+                        normalized.model_dump(mode="json", by_alias=True)
+                    )
+                except EvidenceFileLimitExceeded as exc:
+                    if error_code is None:
+                        error_code = "URM_WORKER_OUTPUT_LIMIT_EXCEEDED"
+                        error_message = str(exc)
+
+            _emit_internal_event(
+                event="WORKER_START",
+                detail={
+                    "worker_id": worker_id,
+                    "status": "running",
+                    "endpoint": WORKER_RUN_ENDPOINT_NAME,
+                },
+            )
+
             process: subprocess.Popen[str] | None = None
             try:
                 process = subprocess.Popen(
@@ -406,45 +465,48 @@ class CodexExecWorkerRunner:
                 error_code = "URM_CODEX_BIN_NOT_FOUND"
                 error_message = f"codex executable not found: {self.config.codex_bin}"
                 status = "failed"
-                events.append(
-                    normalize_exec_line(
-                        seq=1,
-                        raw_line=json.dumps(
-                            {
-                                "event": "worker_error",
-                                "code": "URM_CODEX_BIN_NOT_FOUND",
-                                "error": str(exc),
-                            }
-                        ),
-                    )
+                _emit_internal_event(
+                    event="WORKER_FAIL",
+                    detail={
+                        "worker_id": worker_id,
+                        "status": "failed",
+                        "code": "URM_CODEX_BIN_NOT_FOUND",
+                        "error": str(exc),
+                    },
                 )
                 process = None
             except OSError as exc:
                 error_code = "URM_WORKER_START_FAILED"
                 error_message = f"failed to start worker: {exc}"
                 status = "failed"
-                events.append(
-                    normalize_exec_line(
-                        seq=1,
-                        raw_line=json.dumps(
-                            {
-                                "event": "worker_error",
-                                "code": "URM_WORKER_START_FAILED",
-                                "error": str(exc),
-                            }
-                        ),
-                    )
+                _emit_internal_event(
+                    event="WORKER_FAIL",
+                    detail={
+                        "worker_id": worker_id,
+                        "status": "failed",
+                        "code": "URM_WORKER_START_FAILED",
+                        "error": str(exc),
+                    },
                 )
                 process = None
 
             if process is not None:
                 assert process.stdout is not None
                 try:
-                    seq = 0
                     for line in process.stdout:
                         seq += 1
-                        writer.write_raw_line(line)
-                        event = normalize_exec_line(seq=seq, raw_line=line)
+                        raw_writer.write_raw_line(line)
+                        event = normalize_exec_line(
+                            seq=seq,
+                            raw_line=line,
+                            stream_id=stream_id,
+                            run_id=worker_id,
+                            role=request.role,
+                            endpoint=WORKER_RUN_ENDPOINT_NAME,
+                        )
+                        events_writer.write_json_line(
+                            event.model_dump(mode="json", by_alias=True)
+                        )
                         if event.event_kind == "parse_error":
                             parse_degraded = True
                         events.append(event)
@@ -482,6 +544,21 @@ class CodexExecWorkerRunner:
 
                 self._clear_cancel_requested(worker_id=worker_id)
 
+            terminal_event = "WORKER_FAIL"
+            if status == "ok":
+                terminal_event = "WORKER_PASS"
+            elif status == "cancelled":
+                terminal_event = "WORKER_CANCEL"
+            _emit_internal_event(
+                event=terminal_event,
+                detail={
+                    "worker_id": worker_id,
+                    "status": status,
+                    "exit_code": exit_code,
+                    "error_code": error_code,
+                },
+            )
+
         artifact_candidate = extract_artifact_candidate(events)
         schema_validation_errors: list[str] = []
         invalid_schema = False
@@ -503,6 +580,7 @@ class CodexExecWorkerRunner:
             "ask_for_approval_via_cli_flag": use_ask_for_approval_flag,
             "invalid_schema": invalid_schema,
             "schema_validation_errors": schema_validation_errors,
+            "urm_events_path": events_jsonl_rel_path,
         }
         error_json = (
             {"code": error_code, "message": error_message}
@@ -516,6 +594,7 @@ class CodexExecWorkerRunner:
             exit_code=exit_code,
             evidence_id="",
             raw_jsonl_path=raw_jsonl_rel_path,
+            urm_events_path=events_jsonl_rel_path,
             normalized_event_count=len(events),
             artifact_candidate=artifact_candidate,
             parse_degraded=parse_degraded,
