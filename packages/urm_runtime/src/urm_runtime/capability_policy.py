@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.resources as resources
 import json
 import os
 from dataclasses import dataclass
@@ -27,24 +28,14 @@ class CapabilityPolicy:
     capabilities: frozenset[str]
     role_capabilities: dict[str, frozenset[str]]
     actions: dict[str, ActionPolicy]
-    policy_root: Path
+    policy_root: str
 
 
 def _discover_repo_root(anchor: Path) -> Path | None:
     for parent in anchor.parents:
-        if (parent / ".git").exists() and (parent / "apps" / "api").is_dir():
+        if (parent / ".git").exists():
             return parent
     return None
-
-
-def _default_policy_root() -> Path:
-    env = os.environ.get("URM_POLICY_ROOT", "").strip()
-    if env:
-        return Path(env).expanduser().resolve()
-    repo_root = _discover_repo_root(Path(__file__).resolve())
-    if repo_root is not None:
-        return repo_root / "policy"
-    return Path.cwd() / "policy"
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -62,6 +53,53 @@ def _coerce_bool(*, value: Any, field_name: str, action_name: str) -> bool:
     raise RuntimeError(
         f"invalid action policy for '{action_name}': '{field_name}' must be a boolean"
     )
+
+
+def _load_json_from_package(*, filename: str) -> dict[str, Any]:
+    resource = resources.files("urm_runtime.policy").joinpath(filename)
+    try:
+        text = resource.read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise RuntimeError(f"missing packaged policy file: {filename}") from exc
+    except OSError as exc:
+        raise RuntimeError(f"failed reading packaged policy file: {filename}") from exc
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"failed parsing packaged policy file: {filename}") from exc
+
+
+def _load_policy_json_pair() -> tuple[dict[str, Any], dict[str, Any], str]:
+    errors: list[str] = []
+    env = os.environ.get("URM_POLICY_ROOT", "").strip()
+    if env:
+        policy_root = Path(env).expanduser().resolve()
+        try:
+            lattice = _load_json(policy_root / CAPABILITY_LATTICE_FILE)
+            allow = _load_json(policy_root / ALLOW_POLICY_FILE)
+            return lattice, allow, str(policy_root)
+        except RuntimeError as exc:
+            errors.append(f"env:{policy_root} -> {exc}")
+
+    repo_root = _discover_repo_root(Path(__file__).resolve())
+    if repo_root is not None:
+        policy_root = repo_root / "policy"
+        try:
+            lattice = _load_json(policy_root / CAPABILITY_LATTICE_FILE)
+            allow = _load_json(policy_root / ALLOW_POLICY_FILE)
+            return lattice, allow, str(policy_root)
+        except RuntimeError as exc:
+            errors.append(f"repo:{policy_root} -> {exc}")
+
+    try:
+        lattice = _load_json_from_package(filename=CAPABILITY_LATTICE_FILE)
+        allow = _load_json_from_package(filename=ALLOW_POLICY_FILE)
+        return lattice, allow, "package:urm_runtime.policy"
+    except RuntimeError as exc:
+        errors.append(f"package:urm_runtime.policy -> {exc}")
+
+    reasons = "; ".join(errors) if errors else "no policy sources available"
+    raise RuntimeError(f"unable to load capability policies ({reasons})")
 
 
 def _parse_action_policy(*, action_name: str, payload: Any) -> ActionPolicy:
@@ -92,11 +130,7 @@ def _parse_action_policy(*, action_name: str, payload: Any) -> ActionPolicy:
 
 
 def _load_policy() -> CapabilityPolicy:
-    policy_root = _default_policy_root()
-    lattice_path = policy_root / CAPABILITY_LATTICE_FILE
-    allow_path = policy_root / ALLOW_POLICY_FILE
-    lattice = _load_json(lattice_path)
-    allow = _load_json(allow_path)
+    lattice, allow, policy_root = _load_policy_json_pair()
 
     lattice_schema = lattice.get("schema")
     if lattice_schema != CAPABILITY_LATTICE_SCHEMA:
@@ -167,7 +201,7 @@ def _load_policy() -> CapabilityPolicy:
         capabilities=frozenset(capabilities),
         role_capabilities=role_capabilities,
         actions=actions,
-        policy_root=policy_root,
+        policy_root=str(policy_root),
     )
 
 

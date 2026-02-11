@@ -111,8 +111,8 @@ def _resolve_tool_policy_action(request: ToolCallRequest) -> str:
 def _load_session_writes_allowed(session_id: str | None) -> bool:
     if session_id is None:
         return False
-    config = URMRuntimeConfig.from_env()
-    with transaction(db_path=db_path_from_config(config)) as con:
+    manager = _get_manager()
+    with transaction(db_path=db_path_from_config(manager.config)) as con:
         row = get_copilot_session(con=con, copilot_session_id=session_id)
     if row is None:
         return False

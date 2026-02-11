@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import pytest
-from urm_runtime.capability_policy import authorize_action, reset_capability_policy_cache
+import urm_runtime.capability_policy as capability_policy
+from urm_runtime.capability_policy import (
+    authorize_action,
+    load_capability_policy,
+    reset_capability_policy_cache,
+)
 from urm_runtime.errors import URMError
 
 
@@ -81,3 +86,13 @@ def test_policy_requires_approval_when_action_demands_it() -> None:
             approval_provided=False,
         )
     assert exc_info.value.detail.code == "URM_APPROVAL_REQUIRED"
+
+
+def test_policy_loads_packaged_fallback_when_env_and_repo_are_unavailable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("URM_POLICY_ROOT", "/tmp/does-not-exist-urm-policy")
+    monkeypatch.setattr(capability_policy, "_discover_repo_root", lambda anchor: None)
+    policy = load_capability_policy()
+    assert policy.policy_root == "package:urm_runtime.policy"
+    assert "read_state" in policy.capabilities

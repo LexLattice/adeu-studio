@@ -1,3 +1,8 @@
+from .capability_policy import (
+    authorize_action,
+    load_capability_policy,
+    reset_capability_policy_cache,
+)
 from .config import (
     DEFAULT_APPROVAL_TTL_SECS,
     DEFAULT_MAX_CONCURRENT_WORKERS,
@@ -9,7 +14,6 @@ from .config import (
     DEFAULT_RETENTION_DAYS,
     URMRuntimeConfig,
 )
-from .capability_policy import authorize_action, load_capability_policy, reset_capability_policy_cache
 from .copilot import URMCopilotManager
 from .errors import (
     ApprovalError,
