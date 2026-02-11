@@ -94,6 +94,9 @@ def test_concepts_apply_ambiguity_option_returns_patched_ir_and_validator_runs()
     assert [sense.id for sense in resp.patched_ir.senses] == ["s_bank_fin", "s_credit"]
     assert resp.validator_runs is not None
     assert resp.validator_runs[0].status == "SAT"
+    assert resp.evidence_refs
+    assert any(ref.kind == "event" for ref in resp.evidence_refs)
+    assert any(ref.kind in {"validator", "artifact"} for ref in resp.evidence_refs)
     assert resp.solver_trust == "solver_backed"
     assert resp.mapping_trust is None
     assert resp.proof_trust is None
@@ -119,6 +122,9 @@ def test_concepts_apply_patch_returns_patched_ir_and_validator_runs() -> None:
     assert [sense.id for sense in resp.patched_ir.senses] == ["s_bank_fin", "s_credit"]
     assert resp.validator_runs is not None
     assert resp.validator_runs[0].status == "SAT"
+    assert resp.evidence_refs
+    assert any(ref.kind == "event" for ref in resp.evidence_refs)
+    assert any(ref.kind in {"validator", "artifact"} for ref in resp.evidence_refs)
     assert resp.solver_trust == "solver_backed"
     assert resp.mapping_trust is None
     assert resp.proof_trust is None
@@ -217,6 +223,8 @@ def test_concepts_apply_ambiguity_option_dry_run_skips_run_persistence(monkeypat
 
     assert resp.check_report.status == "PASS"
     assert resp.validator_runs is None
+    assert any(ref.kind == "event" for ref in resp.evidence_refs)
+    assert any(ref.kind in {"validator", "artifact"} for ref in resp.evidence_refs)
 
 
 def test_concepts_apply_patch_dry_run_skips_run_persistence(monkeypatch) -> None:
@@ -250,6 +258,8 @@ def test_concepts_apply_patch_dry_run_skips_run_persistence(monkeypatch) -> None
 
     assert resp.check_report.status == "PASS"
     assert resp.validator_runs is None
+    assert any(ref.kind == "event" for ref in resp.evidence_refs)
+    assert any(ref.kind in {"validator", "artifact"} for ref in resp.evidence_refs)
 
 
 def test_concepts_apply_ambiguity_option_patch_errors_are_sorted() -> None:

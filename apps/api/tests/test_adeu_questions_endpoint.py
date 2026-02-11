@@ -117,6 +117,8 @@ def test_adeu_questions_endpoint_is_deterministic_and_emits_trust_metadata() -> 
     assert left.budget_report.max_dry_runs == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
     assert 0 <= left.budget_report.used_solver_calls <= left.budget_report.max_solver_calls
     assert 0 <= left.budget_report.used_dry_runs <= left.budget_report.max_dry_runs
+    assert left.evidence_refs
+    assert any(ref.kind == "event" for ref in left.evidence_refs)
 
     for question in left.questions:
         assert question.rationale_code in {

@@ -90,6 +90,8 @@ def test_concepts_questions_endpoint_is_deterministic_and_capped() -> None:
     assert left.budget_report.max_dry_runs == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
     assert 0 <= left.budget_report.used_solver_calls <= left.budget_report.max_solver_calls
     assert 0 <= left.budget_report.used_dry_runs <= left.budget_report.max_dry_runs
+    assert left.evidence_refs
+    assert any(ref.kind == "event" for ref in left.evidence_refs)
     assert left.mapping_trust is None
     assert left.solver_trust == "solver_backed"
     assert left.proof_trust is None
