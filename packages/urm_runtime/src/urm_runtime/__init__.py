@@ -9,6 +9,7 @@ from .config import (
     DEFAULT_RETENTION_DAYS,
     URMRuntimeConfig,
 )
+from .capability_policy import authorize_action, load_capability_policy, reset_capability_policy_cache
 from .copilot import URMCopilotManager
 from .errors import (
     ApprovalError,
@@ -86,6 +87,9 @@ __all__ = [
     "WorkerRunRequest",
     "WorkerRunResult",
     "error_envelope",
+    "authorize_action",
+    "load_capability_policy",
+    "reset_capability_policy_cache",
     "replay_events",
     "summarize_events",
     "summary_markdown",
