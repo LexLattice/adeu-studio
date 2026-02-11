@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 
 from adeu_api.adeu_concept_bridge import (
-    BRIDGE_MAPPING_VERSION,
     BRIDGE_LOSS_VERSION,
+    BRIDGE_MAPPING_VERSION,
     build_bridge_loss_report,
     compute_mapping_hash,
     lift_adeu_to_concepts,

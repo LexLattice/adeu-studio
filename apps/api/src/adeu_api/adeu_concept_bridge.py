@@ -296,25 +296,18 @@ def _json_pointer(*tokens: object) -> str:
 
 
 def _build_bridge_loss_summary(entries: list[BridgeLossEntry]) -> BridgeLossSummary:
-    preserved_count = 0
-    projected_count = 0
-    not_modeled_count = 0
-    for entry in entries:
-        if entry.status == "preserved":
-            preserved_count += 1
-        elif entry.status == "projected":
-            projected_count += 1
-        else:
-            not_modeled_count += 1
+    statuses = [entry.status for entry in entries]
     return BridgeLossSummary(
-        preserved_count=preserved_count,
-        projected_count=projected_count,
-        not_modeled_count=not_modeled_count,
+        preserved_count=statuses.count("preserved"),
+        projected_count=statuses.count("projected"),
+        not_modeled_count=statuses.count("not_modeled"),
     )
 
 
 def build_bridge_loss_report(ir: AdeuIR) -> BridgeLossReport:
-    entries: list[BridgeLossEntry] = [entry.model_copy(deep=True) for entry in _BRIDGE_LOSS_STRUCTURAL_ENTRIES]
+    entries: list[BridgeLossEntry] = [
+        entry.model_copy(deep=True) for entry in _BRIDGE_LOSS_STRUCTURAL_ENTRIES
+    ]
 
     instance_paths_by_key: dict[tuple[BridgeLossFeature, BridgeLossStatus], set[str]] = {
         ("norm_modality", "projected"): set(),
@@ -335,9 +328,10 @@ def build_bridge_loss_report(ir: AdeuIR) -> BridgeLossReport:
             _json_pointer("D_norm", "statements", stmt_idx, "scope", "jurisdiction")
         )
         if (
-            statement.condition is not None
+            statement.condition
             and statement.condition.kind == "predicate"
-            and bool(statement.condition.predicate and statement.condition.predicate.strip())
+            and statement.condition.predicate
+            and statement.condition.predicate.strip()
         ):
             instance_paths_by_key[("condition_predicate", "projected")].add(
                 _json_pointer("D_norm", "statements", stmt_idx, "condition", "predicate")
@@ -349,7 +343,8 @@ def build_bridge_loss_report(ir: AdeuIR) -> BridgeLossReport:
         )
         if (
             exception.condition.kind == "predicate"
-            and bool(exception.condition.predicate and exception.condition.predicate.strip())
+            and exception.condition.predicate
+            and exception.condition.predicate.strip()
         ):
             instance_paths_by_key[("condition_predicate", "projected")].add(
                 _json_pointer("D_norm", "exceptions", ex_idx, "condition", "predicate")
