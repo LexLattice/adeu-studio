@@ -1,0 +1,9 @@
+{
+  "case_id": "bridge_exception_priority_lax",
+  "ir_path": "examples/fixtures/exception_priority_resolves_conflict/proposals/var2.json",
+  "request": {
+    "mode": "LAX",
+    "include_analysis_details": true,
+    "include_forced_details": true
+  }
+}

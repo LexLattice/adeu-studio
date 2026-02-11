@@ -31,6 +31,12 @@ Generate a local quality dashboard artifact (same script used in CI):
 .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
 ```
 
+Run deterministic oracle checks (bridge/questions/patch) and emit a machine-readable report:
+
+```bash
+.venv/bin/python apps/api/scripts/run_determinism_oracles.py --out artifacts/determinism_oracles.json
+```
+
 URM event stream diagnostics (validate/replay/summary):
 
 ```bash
