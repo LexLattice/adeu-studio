@@ -1,0 +1,38 @@
+{
+  "case_id": "patch_bank_apply_financial_and_invalid",
+  "source_text_path": "examples/concepts/fixtures/bank_sense_coherence/source.txt",
+  "ir_path": "examples/concepts/fixtures/bank_sense_coherence/proposals/var2.json",
+  "request": {
+    "mode": "LAX"
+  },
+  "success_patch_ops": [
+    {
+      "op": "remove",
+      "path": "/links/1"
+    },
+    {
+      "op": "remove",
+      "path": "/links/0"
+    },
+    {
+      "op": "remove",
+      "path": "/senses/1"
+    },
+    {
+      "op": "remove",
+      "path": "/ambiguity/0"
+    }
+  ],
+  "failure_patch_ops": [
+    {
+      "op": "replace",
+      "path": "/forbidden/0",
+      "value": "x"
+    },
+    {
+      "op": "move",
+      "path": "/claims/0",
+      "from": "/claims/1"
+    }
+  ]
+}
