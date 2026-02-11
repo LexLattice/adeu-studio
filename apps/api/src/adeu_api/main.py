@@ -127,6 +127,8 @@ ALIGNMENT_MAX_SUGGESTIONS_MAX = 500
 QUESTIONS_BUDGET_VERSION = "budget.v1"
 CONCEPTS_QUESTION_RANK_VERSION = "concepts.qrank.v2"
 ADEU_QUESTION_RANK_VERSION = "adeu.qrank.v1"
+CONCEPTS_RATIONALE_VERSION = "concepts.rationale.v1"
+ADEU_RATIONALE_VERSION = "adeu.rationale.v1"
 TOURNAMENT_SCORE_VERSION = "concepts.tscore.v1"
 QUESTION_TRUNCATION_REASON_DRY_RUN_CAP = "dry_run_cap_reached"
 QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP = "solver_call_cap_reached"
@@ -770,6 +772,7 @@ class ConceptQuestionsResponse(BaseModel):
     max_questions: int = DEFAULT_MAX_QUESTIONS
     max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
     question_rank_version: Literal["concepts.qrank.v2"] = CONCEPTS_QUESTION_RANK_VERSION
+    rationale_version: Literal["concepts.rationale.v1"] = CONCEPTS_RATIONALE_VERSION
     budget_report: "QuestionsBudgetReport"
     mapping_trust: MappingTrust | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
@@ -843,6 +846,7 @@ class AdeuQuestionsResponse(BaseModel):
     max_questions: int = DEFAULT_MAX_QUESTIONS
     max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
     question_rank_version: Literal["adeu.qrank.v1"] = ADEU_QUESTION_RANK_VERSION
+    rationale_version: Literal["adeu.rationale.v1"] = ADEU_RATIONALE_VERSION
     bridge_manifest: BridgeManifest
     bridge_mapping_version: str
     mapping_hash: str
@@ -3159,6 +3163,7 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
         max_questions=max_questions,
         max_answers_per_question=max_answers,
         question_rank_version=CONCEPTS_QUESTION_RANK_VERSION,
+        rationale_version=CONCEPTS_RATIONALE_VERSION,
         budget_report=QuestionsBudgetReport(
             budget_version=QUESTIONS_BUDGET_VERSION,
             max_solver_calls=MAX_QUESTION_SOLVER_CALLS_TOTAL,
@@ -3401,6 +3406,7 @@ def adeu_questions_endpoint(req: AdeuQuestionsRequest) -> AdeuQuestionsResponse:
         max_questions=max_questions,
         max_answers_per_question=max_answers,
         question_rank_version=ADEU_QUESTION_RANK_VERSION,
+        rationale_version=ADEU_RATIONALE_VERSION,
         bridge_manifest=lifted.bridge_manifest,
         bridge_mapping_version=lifted.bridge_mapping_version,
         mapping_hash=lifted.mapping_hash,

@@ -54,6 +54,8 @@ def _synthetic_build_questions(concept_ir, analysis, *, max_questions, max_answe
         ConceptQuestion(
             question_id="q_adeu_anchor",
             signal="mic",
+            rationale_code="mic_conflict",
+            rationale="MIC rationale",
             prompt="Resolve the legal claim anchor",
             anchors=[
                 ConceptQuestionAnchor(
@@ -96,6 +98,7 @@ def test_adeu_questions_endpoint_is_deterministic_and_emits_trust_metadata() -> 
 
     assert left == right
     assert left.question_rank_version == "adeu.qrank.v1"
+    assert left.rationale_version == "adeu.rationale.v1"
     assert left.bridge_mapping_version == BRIDGE_MAPPING_VERSION
     assert left.mapping_hash == compute_mapping_hash()
     assert left.mapping_trust == "derived_bridge"
@@ -116,6 +119,12 @@ def test_adeu_questions_endpoint_is_deterministic_and_emits_trust_metadata() -> 
     assert 0 <= left.budget_report.used_dry_runs <= left.budget_report.max_dry_runs
 
     for question in left.questions:
+        assert question.rationale_code in {
+            "mic_conflict",
+            "forced_nonentailment",
+            "disconnected_cluster",
+        }
+        assert question.rationale.strip()
         assert question.anchors
         for anchor in question.anchors:
             assert isinstance(anchor.object_id, str)

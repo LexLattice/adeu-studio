@@ -84,6 +84,7 @@ def test_concepts_questions_endpoint_is_deterministic_and_capped() -> None:
     assert left.max_answers_per_question == 4
     assert all(0 < len(item.answers) <= 4 for item in left.questions)
     assert left.question_rank_version == "concepts.qrank.v2"
+    assert left.rationale_version == "concepts.rationale.v1"
     assert left.budget_report.budget_version == "budget.v1"
     assert left.budget_report.max_solver_calls == api_main.MAX_QUESTION_SOLVER_CALLS_TOTAL
     assert left.budget_report.max_dry_runs == api_main.MAX_QUESTION_DRY_RUN_EVALS_TOTAL
@@ -92,6 +93,13 @@ def test_concepts_questions_endpoint_is_deterministic_and_capped() -> None:
     assert left.mapping_trust is None
     assert left.solver_trust == "solver_backed"
     assert left.proof_trust is None
+    for question in left.questions:
+        assert question.rationale_code in {
+            "mic_conflict",
+            "forced_nonentailment",
+            "disconnected_cluster",
+        }
+        assert question.rationale.strip()
 
 
 def test_concepts_questions_endpoint_enforces_expected_ir_hash() -> None:
@@ -238,6 +246,8 @@ def test_questions_rank_and_dedupe_prefers_mic_and_is_stable() -> None:
     mic = ConceptQuestion(
         question_id="q_mic",
         signal="mic",
+        rationale_code="mic_conflict",
+        rationale="MIC rationale",
         prompt="MIC question",
         anchors=[
             ConceptQuestionAnchor(
@@ -251,6 +261,8 @@ def test_questions_rank_and_dedupe_prefers_mic_and_is_stable() -> None:
     mic_duplicate = ConceptQuestion(
         question_id="q_mic_dup",
         signal="mic",
+        rationale_code="mic_conflict",
+        rationale="MIC rationale",
         prompt="MIC question duplicate text",
         anchors=[
             ConceptQuestionAnchor(
@@ -264,6 +276,8 @@ def test_questions_rank_and_dedupe_prefers_mic_and_is_stable() -> None:
     disconnect = ConceptQuestion(
         question_id="q_disconnect",
         signal="disconnected_clusters",
+        rationale_code="disconnected_cluster",
+        rationale="Disconnect rationale",
         prompt="Disconnect question",
         anchors=[
             ConceptQuestionAnchor(object_id=concept.terms[0].id, label="disconnected_clusters")
@@ -303,6 +317,8 @@ def test_do_no_harm_filter_suppresses_non_improving_answers(monkeypatch) -> None
     question = ConceptQuestion(
         question_id="q_mic",
         signal="mic",
+        rationale_code="mic_conflict",
+        rationale="MIC rationale",
         prompt="MIC question",
         anchors=[
             ConceptQuestionAnchor(
@@ -384,6 +400,8 @@ def test_do_no_harm_filter_respects_dry_run_budget(monkeypatch) -> None:
             ConceptQuestion(
                 question_id=f"q_{idx}",
                 signal="mic",
+                rationale_code="mic_conflict",
+                rationale="MIC rationale",
                 prompt=f"q_{idx}",
                 anchors=[
                     ConceptQuestionAnchor(
