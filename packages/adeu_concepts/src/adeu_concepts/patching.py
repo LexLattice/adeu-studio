@@ -3,10 +3,14 @@ from __future__ import annotations
 import copy
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any
 
 from adeu_ir.models import JsonPatchOp
-from adeu_patch_core import PatchCoreValidationError, apply_patch_ops, encode_patch_size_bytes
+from adeu_patch_core import (
+    PatchCoreError,
+    PatchCoreValidationError,
+    apply_patch_ops,
+    encode_patch_size_bytes,
+)
 from pydantic import ValidationError
 
 from .models import ConceptIR
@@ -226,7 +230,9 @@ def _collect_reference_integrity_errors(concept: ConceptIR) -> list[ConceptPatch
     return errors
 
 
-def _core_errors_to_concept_errors(errors: tuple[Any, ...]) -> list[ConceptPatchError]:
+def _core_errors_to_concept_errors(
+    errors: tuple[PatchCoreError, ...],
+) -> list[ConceptPatchError]:
     return [
         _issue(
             op_index=error.op_index,

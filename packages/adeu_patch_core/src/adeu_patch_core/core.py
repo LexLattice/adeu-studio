@@ -494,10 +494,11 @@ def apply_patch_ops(
                 continue
 
             if op.op == "copy":
+                assert op.from_path is not None
                 copied = copy.deepcopy(
                     get_value(
                         doc,
-                        op.from_path or "",
+                        op.from_path,
                         op_index=op_index,
                         path_invalid_code=path_invalid_code,
                         target_missing_code=target_missing_code,
@@ -514,9 +515,10 @@ def apply_patch_ops(
                 continue
 
             if op.op == "move":
+                assert op.from_path is not None
                 moved = _remove_at_path(
                     doc,
-                    op.from_path or "",
+                    op.from_path,
                     op_index=op_index,
                     path_invalid_code=path_invalid_code,
                     target_missing_code=target_missing_code,
