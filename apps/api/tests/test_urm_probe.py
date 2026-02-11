@@ -71,7 +71,7 @@ def test_probe_records_exec_and_app_server_smoke_success(
     assert row == (1, 1, 1)
 
 
-def test_probe_exec_smoke_failure_disables_exec(
+def test_probe_exec_smoke_failure_is_reported_but_exec_stays_available(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -83,7 +83,7 @@ def test_probe_exec_smoke_failure_disables_exec(
 
     result = run_and_persist_capability_probe(config=config)
 
-    assert result.exec_available is False
+    assert result.exec_available is True
     assert result.details["exec_help_ok"] is True
     assert result.details["exec_smoke_ok"] is False
     assert result.app_server_available is True
@@ -104,3 +104,33 @@ def test_probe_detects_missing_output_schema_flag(
     assert result.exec_available is True
     assert result.output_schema_available is False
     assert result.details["exec_help_contains_output_schema"] is False
+
+
+def test_probe_detects_missing_ask_for_approval_flag(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    monkeypatch.setenv("FAKE_CODEX_EXEC_HELP_NO_ASK_FOR_APPROVAL", "1")
+    monkeypatch.delenv("FAKE_CODEX_EXEC_FAIL", raising=False)
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+
+    result = run_and_persist_capability_probe(config=config)
+
+    assert result.exec_available is True
+    assert result.details["exec_help_contains_ask_for_approval"] is False
+
+
+def test_probe_accepts_silent_app_server_startup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    monkeypatch.setenv("FAKE_APP_SERVER_SILENT_READY", "1")
+    monkeypatch.delenv("FAKE_CODEX_EXEC_FAIL", raising=False)
+
+    result = run_and_persist_capability_probe(config=config)
+
+    assert result.app_server_available is True

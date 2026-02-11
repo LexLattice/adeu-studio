@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 import sqlite3
+import time
 from pathlib import Path
 
 import pytest
@@ -87,6 +88,68 @@ def test_copilot_start_send_stop_and_sse_replay(
     _reset_manager_for_tests()
 
 
+def test_copilot_user_message_bootstraps_protocol_and_emits_agent_delta(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-user-msg-1")
+    )
+    session_id = start.session_id
+    assert start.status == "running"
+
+    send = urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-user-msg-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-user-msg-1",
+                "method": "copilot.user_message",
+                "params": {"text": "hello world"},
+            },
+        )
+    )
+    assert send.status == "running"
+
+    manager = _get_manager()
+    events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    assert any(event.event_kind == "protocol_bootstrap_complete" for event in events)
+
+    db_path = tmp_path / "adeu.sqlite3"
+    with sqlite3.connect(db_path) as con:
+        row = con.execute(
+            """
+            SELECT raw_jsonl_path
+            FROM urm_copilot_session
+            WHERE copilot_session_id = ?
+            """,
+            (session_id,),
+        ).fetchone()
+    assert row is not None
+    raw_path = tmp_path / row[0]
+    deadline = time.monotonic() + 2.0
+    text = ""
+    while True:
+        text = raw_path.read_text(encoding="utf-8", errors="replace")
+        if "agent_message_delta" in text:
+            break
+        if time.monotonic() >= deadline:
+            break
+        time.sleep(0.05)
+
+    assert '"method":"turn/start"' in text
+    assert "agent_message_delta" in text
+    _reset_manager_for_tests()
+
+
 def test_copilot_start_idempotency_conflict_and_replay(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -137,6 +200,25 @@ def test_copilot_start_worker_only_mode_when_app_server_unavailable(
     detail = exc_info.value.detail
     assert exc_info.value.status_code == 400
     assert detail["code"] == "URM_CODEX_APP_SERVER_UNAVAILABLE"
+    _reset_manager_for_tests()
+
+
+def test_copilot_start_accepts_silent_app_server(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("FAKE_APP_SERVER_SILENT_READY", "1")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-silent-ready")
+    )
+    assert start.status == "running"
+    assert start.app_server_unavailable is False
     _reset_manager_for_tests()
 
 
