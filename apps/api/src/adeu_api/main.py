@@ -627,12 +627,21 @@ ArtifactProofTrust = Literal[
     "mock_backend_not_proof_checked",
     "no_required_proofs",
 ]
+EvidenceRefKind = Literal["event", "run", "validator", "proof", "artifact"]
+
+
+class EvidenceRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    kind: EvidenceRefKind
+    ref: str = Field(min_length=1)
+    note: str | None = None
 
 
 class ConceptApplyAmbiguityOptionResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     patched_ir: ConceptIR
     check_report: CheckReport
+    evidence_refs: list[EvidenceRef] = Field(default_factory=list)
     validator_runs: list[ValidatorRunInput] | None = None
     mapping_trust: MappingTrust | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
@@ -770,6 +779,7 @@ class ConceptQuestionsResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     check_report: CheckReport
     questions: list[ConceptQuestion]
+    evidence_refs: list[EvidenceRef] = Field(default_factory=list)
     question_count: int
     max_questions: int = DEFAULT_MAX_QUESTIONS
     max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
@@ -845,6 +855,7 @@ class AdeuQuestionsResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     check_report: CheckReport
     questions: list[ConceptQuestion]
+    evidence_refs: list[EvidenceRef] = Field(default_factory=list)
     question_count: int
     max_questions: int = DEFAULT_MAX_QUESTIONS
     max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
@@ -1370,6 +1381,7 @@ def _concept_patch_http_error_detail(exc: ConceptPatchValidationError) -> dict[s
 
 def _apply_concept_patch_core(
     *,
+    decision_endpoint: str,
     ir: ConceptIR,
     ir_hash: str | None,
     mode: KernelMode,
@@ -1408,10 +1420,17 @@ def _apply_concept_patch_core(
     if _env_flag("ADEU_PERSIST_VALIDATOR_RUNS") and runs and not dry_run:
         _persist_validator_runs(runs=runs, artifact_id=None)
     run_inputs = [_validator_run_input_from_record(run) for run in runs]
+    evidence_refs = _build_patch_evidence_refs(
+        endpoint=decision_endpoint,
+        base_ir_hash=_concept_ir_hash(ir),
+        runs=run_inputs,
+    )
+    _require_patch_evidence_bindings(evidence_refs)
 
     return ConceptApplyAmbiguityOptionResponse(
         patched_ir=patched,
         check_report=report,
+        evidence_refs=evidence_refs,
         validator_runs=run_inputs if include_validator_runs else None,
         mapping_trust=None,
         solver_trust="solver_backed" if runs else "kernel_only",
@@ -1555,6 +1574,89 @@ def _concept_ir_hash(ir: ConceptIR) -> str:
 def _adeu_ir_hash(ir: AdeuIR) -> str:
     payload = ir.model_dump(mode="json", by_alias=True, exclude_none=True)
     return sha256_canonical_json(payload)
+
+
+def _decision_stream_id(*, endpoint: str, ir_hash: str) -> str:
+    cleaned_endpoint = endpoint.strip(" /") or "root"
+    endpoint_key = cleaned_endpoint.replace("/", ":")
+    digest = sha256_text(f"{cleaned_endpoint}:{ir_hash}")[:12]
+    return f"decision:{endpoint_key}:{digest}"
+
+
+def _sorted_unique_evidence_refs(refs: list[EvidenceRef]) -> list[EvidenceRef]:
+    deduped: dict[tuple[str, str, str], EvidenceRef] = {}
+    for ref in refs:
+        deduped[(ref.kind, ref.ref, ref.note or "")] = ref
+    return sorted(
+        deduped.values(),
+        key=lambda item: (item.kind, item.ref, item.note or ""),
+    )
+
+
+def _event_evidence_ref(*, endpoint: str, ir_hash: str, note: str | None = None) -> EvidenceRef:
+    stream_id = _decision_stream_id(endpoint=endpoint, ir_hash=ir_hash)
+    return EvidenceRef(kind="event", ref=f"event:{stream_id}#1", note=note)
+
+
+def _validator_ref_id(run: ValidatorRunInput) -> str:
+    if run.run_id:
+        return run.run_id
+    return f"{run.request_hash}:{run.formula_hash}"
+
+
+def _validator_evidence_refs_from_runs(runs: list[ValidatorRunInput]) -> list[EvidenceRef]:
+    refs = {f"validator:{_validator_ref_id(run)}" for run in runs}
+    return [EvidenceRef(kind="validator", ref=ref) for ref in sorted(refs)]
+
+
+def _build_patch_evidence_refs(
+    *,
+    endpoint: str,
+    base_ir_hash: str,
+    runs: list[ValidatorRunInput],
+) -> list[EvidenceRef]:
+    refs: list[EvidenceRef] = [
+        _event_evidence_ref(
+            endpoint=endpoint,
+            ir_hash=base_ir_hash,
+            note="patch_apply",
+        ),
+    ]
+    refs.extend(_validator_evidence_refs_from_runs(runs))
+    return _sorted_unique_evidence_refs(refs)
+
+
+def _build_question_evidence_refs(
+    *,
+    endpoint: str,
+    ir_hash: str,
+    runs: list[ValidatorRunInput],
+) -> list[EvidenceRef]:
+    refs: list[EvidenceRef] = [
+        _event_evidence_ref(
+            endpoint=endpoint,
+            ir_hash=ir_hash,
+            note="question_generation",
+        )
+    ]
+    refs.extend(_validator_evidence_refs_from_runs(runs))
+    return _sorted_unique_evidence_refs(refs)
+
+
+def _require_patch_evidence_bindings(evidence_refs: list[EvidenceRef]) -> None:
+    has_event = any(ref.kind == "event" for ref in evidence_refs)
+    has_validation_or_artifact = any(
+        ref.kind in {"validator", "artifact"} for ref in evidence_refs
+    )
+    if has_event and has_validation_or_artifact:
+        return
+    raise HTTPException(
+        status_code=500,
+        detail={
+            "code": "EVIDENCE_BINDING_MISSING",
+            "message": "patch apply response is missing required evidence bindings",
+        },
+    )
 
 
 def _require_ir_hash_match(*, ir: ConceptIR, ir_hash: str | None) -> None:
@@ -2265,6 +2367,7 @@ def _evaluate_tournament_candidate(
 ) -> tuple[_TournamentCandidateEvaluation | None, int]:
     try:
         applied = _apply_concept_patch_core(
+            decision_endpoint="/concepts/tournament",
             ir=ir,
             ir_hash=None,
             mode=mode,
@@ -2372,6 +2475,7 @@ def _evaluate_question_answer_dry_run(
 
     try:
         applied = _apply_concept_patch_core(
+            decision_endpoint="/concepts/questions",
             ir=req.ir,
             ir_hash=None,
             mode=req.mode,
@@ -3162,6 +3266,11 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
     return ConceptQuestionsResponse(
         check_report=report,
         questions=questions,
+        evidence_refs=_build_question_evidence_refs(
+            endpoint="/concepts/questions",
+            ir_hash=_concept_ir_hash(req.ir),
+            runs=run_inputs,
+        ),
         question_count=len(questions),
         max_questions=max_questions,
         max_answers_per_question=max_answers,
@@ -3405,6 +3514,11 @@ def adeu_questions_endpoint(req: AdeuQuestionsRequest) -> AdeuQuestionsResponse:
     return AdeuQuestionsResponse(
         check_report=report,
         questions=projected_questions,
+        evidence_refs=_build_question_evidence_refs(
+            endpoint="/adeu/questions",
+            ir_hash=_adeu_ir_hash(req.ir),
+            runs=run_inputs,
+        ),
         question_count=len(projected_questions),
         max_questions=max_questions,
         max_answers_per_question=max_answers,
@@ -4328,6 +4442,7 @@ def apply_concept_ambiguity_option_endpoint(
         ) from exc
 
     return _apply_concept_patch_core(
+        decision_endpoint="/concepts/apply_ambiguity_option",
         ir=req.ir,
         ir_hash=req.ir_hash,
         mode=req.mode,
@@ -4344,6 +4459,7 @@ def apply_concept_patch_endpoint(
     req: ConceptApplyPatchRequest,
 ) -> ConceptApplyAmbiguityOptionResponse:
     return _apply_concept_patch_core(
+        decision_endpoint="/concepts/apply_patch",
         ir=req.ir,
         ir_hash=req.ir_hash,
         mode=req.mode,
