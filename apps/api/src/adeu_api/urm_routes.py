@@ -9,6 +9,7 @@ from typing import Literal, cast
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from urm_domain_adeu import ADEUDomainTools
+from urm_runtime.capability_policy import authorize_action
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.copilot import URMCopilotManager
 from urm_runtime.errors import URMError
@@ -30,7 +31,7 @@ from urm_runtime.models import (
     WorkerRunRequest,
     WorkerRunResult,
 )
-from urm_runtime.roles import get_role_policy
+from urm_runtime.storage import db_path_from_config, get_copilot_session, transaction
 from urm_runtime.worker import CodexExecWorkerRunner
 
 router = APIRouter(prefix="/urm", tags=["urm"])
@@ -92,6 +93,30 @@ def _reset_manager_for_tests() -> None:
         _WORKER_RUNNER = None
         _DOMAIN_TOOLS = None
         _MANAGER_ENV_KEY = None
+
+
+def _resolve_tool_policy_action(request: ToolCallRequest) -> str:
+    if request.tool_name != "urm.set_mode":
+        return request.tool_name
+    writes_allowed = request.arguments.get("writes_allowed")
+    if not isinstance(writes_allowed, bool):
+        raise URMError(
+            code="URM_POLICY_DENIED",
+            message="writes_allowed must be a boolean",
+            context={"tool_name": request.tool_name},
+        )
+    return "urm.set_mode.enable_writes" if writes_allowed else "urm.set_mode.disable_writes"
+
+
+def _load_session_writes_allowed(session_id: str | None) -> bool:
+    if session_id is None:
+        return False
+    config = URMRuntimeConfig.from_env()
+    with transaction(db_path=db_path_from_config(config)) as con:
+        row = get_copilot_session(con=con, copilot_session_id=session_id)
+    if row is None:
+        return False
+    return row.writes_allowed
 
 
 @router.post("/copilot/start", response_model=CopilotSessionResponse)
@@ -194,24 +219,16 @@ def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
         )
 
     try:
-        role_policy = get_role_policy(request.role)
-    except KeyError:
-        raise _to_http_exception(
-            URMError(
-                code="URM_POLICY_DENIED",
-                message="unknown role",
-                context={"role": request.role},
-            )
-        ) from None
-
-    if request.tool_name not in role_policy.allowed_tools:
-        raise _to_http_exception(
-            URMError(
-                code="URM_POLICY_DENIED",
-                message="tool not allowed for role",
-                context={"role": request.role, "tool_name": request.tool_name},
-            )
+        action = _resolve_tool_policy_action(request)
+        session_writes_allowed = _load_session_writes_allowed(request.session_id)
+        authorize_action(
+            role=request.role,
+            action=action,
+            writes_allowed=session_writes_allowed,
+            approval_provided=bool(request.approval_id),
         )
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
 
     try:
         if request.tool_name == "urm.set_mode":
@@ -221,13 +238,7 @@ def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
                     message="session_id is required for urm.set_mode",
                     context={"tool_name": request.tool_name},
                 )
-            writes_allowed = request.arguments.get("writes_allowed")
-            if not isinstance(writes_allowed, bool):
-                raise URMError(
-                    code="URM_POLICY_DENIED",
-                    message="writes_allowed must be a boolean",
-                    context={"tool_name": request.tool_name},
-                )
+            writes_allowed = action == "urm.set_mode.enable_writes"
             manager = _get_manager()
             mode_response = manager.set_mode(
                 CopilotModeRequest(
