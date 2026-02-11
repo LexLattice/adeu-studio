@@ -35,6 +35,7 @@ jobs:
           path: artifacts/quality_dashboard.json
           if-no-files-found: error
       - name: Upload determinism oracles artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: determinism-oracles

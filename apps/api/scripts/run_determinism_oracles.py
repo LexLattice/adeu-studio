@@ -25,12 +25,9 @@ def main() -> None:
     summary = report["summary"]
     print(f"wrote {args.out}")
     print(
-        "total=",
-        summary["total"],
-        "passed=",
-        summary["passed"],
-        "failed=",
-        summary["failed"],
+        f"total={summary['total']} "
+        f"passed={summary['passed']} "
+        f"failed={summary['failed']}"
     )
 
 

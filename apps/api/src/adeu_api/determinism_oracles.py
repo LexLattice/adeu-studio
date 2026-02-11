@@ -400,6 +400,16 @@ def _questions_case_results(path: Path) -> list[OracleCaseResult]:
             )
         )
     else:
+        conservation_detail = {
+            "question_count_ok": left.question_count == len(left.questions),
+            "question_ids_unique": len(set(question_ids)) == len(question_ids),
+            "all_questions_pass_invariants": all(
+                _map_signal_to_rationale(question.signal) == question.rationale_code
+                and bool(question.rationale.strip())
+                and 0 < len(question.answers) <= left.max_answers_per_question
+                for question in left.questions
+            ),
+        }
         results.append(
             OracleCaseResult(
                 domain="questions",
@@ -407,6 +417,12 @@ def _questions_case_results(path: Path) -> list[OracleCaseResult]:
                 family="conservation",
                 status="FAIL",
                 message="question invariants failed",
+                diff=_unified_json_diff(
+                    conservation_detail,
+                    {key: True for key in conservation_detail},
+                    left_name="actual",
+                    right_name="expected",
+                ),
             )
         )
     return results
@@ -479,8 +495,10 @@ def _patch_case_results(path: Path) -> list[OracleCaseResult]:
         failure_detail: dict[str, Any] = {"errors": [], "code": "expected failure but succeeded"}
     except HTTPException as exc:
         detail = exc.detail if isinstance(exc.detail, dict) else {"detail": exc.detail}
-        errors = detail.get("errors", [])
-        ordering_ok = errors == sorted(
+        raw_errors = detail.get("errors")
+        errors = raw_errors if isinstance(raw_errors, list) else []
+        has_error_payload = isinstance(raw_errors, list) and len(errors) > 0
+        ordering_ok = has_error_payload and errors == sorted(
             errors,
             key=lambda item: (item.get("op_index"), item.get("path"), item.get("code")),
         )
