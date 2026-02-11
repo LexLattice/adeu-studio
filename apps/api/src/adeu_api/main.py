@@ -1423,7 +1423,6 @@ def _apply_concept_patch_core(
     evidence_refs = _build_patch_evidence_refs(
         endpoint=decision_endpoint,
         base_ir_hash=_concept_ir_hash(ir),
-        patched_ir=patched,
         runs=run_inputs,
     )
     _require_patch_evidence_bindings(evidence_refs)
@@ -1578,9 +1577,9 @@ def _adeu_ir_hash(ir: AdeuIR) -> str:
 
 
 def _decision_stream_id(*, endpoint: str, ir_hash: str) -> str:
-    endpoint_key = endpoint.strip().strip("/") or "root"
-    endpoint_key = endpoint_key.replace("/", ":")
-    digest = sha256_text(f"{endpoint}:{ir_hash}")[:12]
+    cleaned_endpoint = endpoint.strip(" /") or "root"
+    endpoint_key = cleaned_endpoint.replace("/", ":")
+    digest = sha256_text(f"{cleaned_endpoint}:{ir_hash}")[:12]
     return f"decision:{endpoint_key}:{digest}"
 
 
@@ -1614,7 +1613,6 @@ def _build_patch_evidence_refs(
     *,
     endpoint: str,
     base_ir_hash: str,
-    patched_ir: ConceptIR,
     runs: list[ValidatorRunInput],
 ) -> list[EvidenceRef]:
     refs: list[EvidenceRef] = [
@@ -1622,11 +1620,6 @@ def _build_patch_evidence_refs(
             endpoint=endpoint,
             ir_hash=base_ir_hash,
             note="patch_apply",
-        ),
-        EvidenceRef(
-            kind="artifact",
-            ref=f"artifact:{_concept_ir_hash(patched_ir)}",
-            note="patched_ir",
         ),
     ]
     refs.extend(_validator_evidence_refs_from_runs(runs))
