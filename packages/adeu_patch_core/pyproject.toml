@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "adeu-patch-core"
+version = "0.0.0"
+description = "Shared deterministic JSON Patch primitives for ADEU packages."
+readme = "../../README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "adeu-ir>=0.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "ruff>=0.6,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/adeu_patch_core"]
