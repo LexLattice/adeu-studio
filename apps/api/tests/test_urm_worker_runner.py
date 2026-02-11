@@ -19,6 +19,7 @@ def _runtime_config(
     tmp_path: Path,
     codex_bin: Path,
     max_concurrent_workers: int = 2,
+    max_evidence_file_bytes: int = 200_000_000,
     retention_days: int = 14,
     max_total_evidence_bytes: int = 2_000_000_000,
 ) -> URMRuntimeConfig:
@@ -32,7 +33,7 @@ def _runtime_config(
         var_root=var_root,
         evidence_root=evidence_root,
         max_line_bytes=1_000_000,
-        max_evidence_file_bytes=200_000_000,
+        max_evidence_file_bytes=max_evidence_file_bytes,
         max_session_duration_secs=6 * 60 * 60,
         max_concurrent_workers=max_concurrent_workers,
         max_replay_events=10_000,
@@ -205,6 +206,8 @@ def test_worker_runner_marks_parse_degraded_nonfatal(
     )
 
     assert result.status == "ok"
+    assert result.invalid_schema is False
+    assert result.schema_validation_errors == []
     assert result.parse_degraded is True
     assert result.normalized_event_count == 5
     assert result.artifact_candidate == {"kind": "fallback"}
@@ -398,7 +401,8 @@ def test_worker_runner_retention_preflight_purges_old_evidence(
         )
     )
     first_path = config.var_root / first.raw_jsonl_path
-    first_events_path = config.var_root / (first.urm_events_path or "")
+    assert first.urm_events_path is not None
+    first_events_path = config.var_root / first.urm_events_path
     assert first_path.exists()
     assert first_events_path.exists()
 
@@ -469,8 +473,34 @@ def test_worker_runner_output_schema_fallback_without_flag(
     )
 
     assert result.status == "ok"
-    assert result.invalid_schema is False
-    assert result.schema_validation_errors == []
+
+
+def test_worker_runner_returns_structured_error_when_events_stream_hits_cap(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(
+        tmp_path=tmp_path,
+        codex_bin=codex_bin,
+        max_evidence_file_bytes=350,
+    )
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+
+    runner = CodexExecWorkerRunner(config=config)
+
+    with pytest.raises(URMError) as exc_info:
+        runner.run(
+            _worker_request(
+                client_request_id="req-events-cap-1",
+                role="pipeline_worker",
+                prompt="cap envelope stream",
+            )
+        )
+
+    assert exc_info.value.detail.code == "URM_WORKER_OUTPUT_LIMIT_EXCEEDED"
 
 
 def test_worker_runner_marks_invalid_schema_with_errors(

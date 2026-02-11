@@ -927,10 +927,7 @@ class URMCopilotManager:
         raw_path = self._resolve_raw_path(row.raw_jsonl_path)
         events_rel_path: str
         raw_rel = Path(row.raw_jsonl_path)
-        if raw_rel.name == "codex_raw.ndjson":
-            events_rel_path = str(raw_rel.with_name("urm_events.ndjson"))
-        else:
-            events_rel_path = str(raw_rel.with_name("urm_events.ndjson"))
+        events_rel_path = str(raw_rel.with_name("urm_events.ndjson"))
         events_path = self._resolve_urm_events_path(events_rel_path)
 
         events: list[NormalizedEvent] = []

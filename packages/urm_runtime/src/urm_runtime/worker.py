@@ -415,7 +415,7 @@ class CodexExecWorkerRunner:
                 event: str,
                 detail: dict[str, object],
             ) -> None:
-                nonlocal seq
+                nonlocal seq, error_code, error_message
                 seq += 1
                 normalized = build_internal_event(
                     seq=seq,
@@ -430,9 +430,14 @@ class CodexExecWorkerRunner:
                     detail=detail,
                 )
                 events.append(normalized)
-                events_writer.write_json_line(
-                    normalized.model_dump(mode="json", by_alias=True)
-                )
+                try:
+                    events_writer.write_json_line(
+                        normalized.model_dump(mode="json", by_alias=True)
+                    )
+                except EvidenceFileLimitExceeded as exc:
+                    if error_code is None:
+                        error_code = "URM_WORKER_OUTPUT_LIMIT_EXCEEDED"
+                        error_message = str(exc)
 
             _emit_internal_event(
                 event="WORKER_START",
