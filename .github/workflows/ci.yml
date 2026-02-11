@@ -20,11 +20,23 @@ jobs:
         run: make test
       - name: Build quality dashboard
         run: .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
+      - name: Build URM events diagnostics
+        run: |
+          mkdir -p artifacts/urm_events
+          .venv/bin/events validate --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --strict
+          .venv/bin/events replay --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out artifacts/urm_events/replay.ndjson
+          .venv/bin/events summary --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out-json artifacts/urm_events/summary.json --out-md artifacts/urm_events/summary.md
       - name: Upload quality dashboard artifact
         uses: actions/upload-artifact@v4
         with:
           name: quality-dashboard
           path: artifacts/quality_dashboard.json
+          if-no-files-found: error
+      - name: Upload URM events diagnostics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: urm-events-diagnostics
+          path: artifacts/urm_events
           if-no-files-found: error
 
   web:

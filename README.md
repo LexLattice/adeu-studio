@@ -31,6 +31,14 @@ Generate a local quality dashboard artifact (same script used in CI):
 .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
 ```
 
+URM event stream diagnostics (validate/replay/summary):
+
+```bash
+.venv/bin/events validate --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --strict
+.venv/bin/events replay --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out artifacts/urm_events/replay.ndjson
+.venv/bin/events summary --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out-json artifacts/urm_events/summary.json --out-md artifacts/urm_events/summary.md
+```
+
 ## Run API (mock proposer)
 
 ```bash
