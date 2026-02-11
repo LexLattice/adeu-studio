@@ -19,8 +19,18 @@ from .hashing import canonical_json, sha256_text
 
 BridgeConfidenceTag = Literal["direct", "derived", "missing_provenance"]
 BridgeConceptKind = Literal["term", "sense", "claim", "link", "ambiguity"]
+BridgeLossFeature = Literal[
+    "norm_modality",
+    "exception_effect",
+    "scope_time",
+    "scope_jurisdiction",
+    "condition_predicate",
+]
+BridgeLossScope = Literal["structural", "instance"]
+BridgeLossStatus = Literal["preserved", "projected", "not_modeled"]
 
 BRIDGE_MAPPING_VERSION = "adeu_to_concepts.v1"
+BRIDGE_LOSS_VERSION = "adeu.bridge.loss.v1"
 
 _EXCEPTION_EFFECT_TO_LINK_KIND: dict[str, str] = {
     "defeats": "incompatibility",
@@ -93,6 +103,30 @@ class BridgeManifest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     adeu_to_concept_ids: dict[str, list[str]] = Field(default_factory=dict)
     entries: list[BridgeManifestEntry] = Field(default_factory=list)
+
+
+class BridgeLossEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    feature_key: BridgeLossFeature
+    scope: BridgeLossScope
+    status: BridgeLossStatus
+    detail: str
+    source_paths: list[str] = Field(default_factory=list)
+    notes: str | None = None
+
+
+class BridgeLossSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    preserved_count: int
+    projected_count: int
+    not_modeled_count: int
+
+
+class BridgeLossReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    version: Literal["adeu.bridge.loss.v1"] = BRIDGE_LOSS_VERSION
+    entries: list[BridgeLossEntry] = Field(default_factory=list)
+    summary: BridgeLossSummary
 
 
 @dataclass(frozen=True)
@@ -202,6 +236,152 @@ def _sort_bridge_manifest(entries: list[BridgeManifestEntry]) -> BridgeManifest:
     return BridgeManifest(
         adeu_to_concept_ids=adeu_to_concept_ids,
         entries=sorted_entries,
+    )
+
+
+_BRIDGE_LOSS_STRUCTURAL_ENTRIES: tuple[BridgeLossEntry, ...] = (
+    BridgeLossEntry(
+        feature_key="norm_modality",
+        scope="structural",
+        status="projected",
+        detail=(
+            "Norm kind is projected into claim/sense text labels; it is not preserved as a "
+            "typed modality field in ConceptIR."
+        ),
+        source_paths=[],
+    ),
+    BridgeLossEntry(
+        feature_key="exception_effect",
+        scope="structural",
+        status="projected",
+        detail=(
+            "Exception effects are projected into inferential link kinds and active/inactive "
+            "ambiguity options."
+        ),
+        source_paths=[],
+    ),
+    BridgeLossEntry(
+        feature_key="scope_time",
+        scope="structural",
+        status="not_modeled",
+        detail="Time scope constraints are not modeled as typed constraints in ConceptIR.",
+        source_paths=[],
+    ),
+    BridgeLossEntry(
+        feature_key="scope_jurisdiction",
+        scope="structural",
+        status="projected",
+        detail=(
+            "Jurisdiction is projected to concept context tags, not preserved as per-claim "
+            "typed scope constraints."
+        ),
+        source_paths=[],
+    ),
+    BridgeLossEntry(
+        feature_key="condition_predicate",
+        scope="structural",
+        status="projected",
+        detail=(
+            "Predicate conditions are projected to text-level representations; predicate "
+            "semantics are not preserved as typed logic constraints in ConceptIR."
+        ),
+        source_paths=[],
+    ),
+)
+
+
+def _json_pointer(*tokens: object) -> str:
+    escaped = [str(token).replace("~", "~0").replace("/", "~1") for token in tokens]
+    return "/" + "/".join(escaped)
+
+
+def _build_bridge_loss_summary(entries: list[BridgeLossEntry]) -> BridgeLossSummary:
+    statuses = [entry.status for entry in entries]
+    return BridgeLossSummary(
+        preserved_count=statuses.count("preserved"),
+        projected_count=statuses.count("projected"),
+        not_modeled_count=statuses.count("not_modeled"),
+    )
+
+
+def build_bridge_loss_report(ir: AdeuIR) -> BridgeLossReport:
+    entries: list[BridgeLossEntry] = [
+        entry.model_copy(deep=True) for entry in _BRIDGE_LOSS_STRUCTURAL_ENTRIES
+    ]
+
+    instance_paths_by_key: dict[tuple[BridgeLossFeature, BridgeLossStatus], set[str]] = {
+        ("norm_modality", "projected"): set(),
+        ("exception_effect", "projected"): set(),
+        ("scope_time", "not_modeled"): set(),
+        ("scope_jurisdiction", "projected"): set(),
+        ("condition_predicate", "projected"): set(),
+    }
+
+    for stmt_idx, statement in enumerate(sorted(ir.D_norm.statements, key=lambda item: item.id)):
+        instance_paths_by_key[("norm_modality", "projected")].add(
+            _json_pointer("D_norm", "statements", stmt_idx, "kind")
+        )
+        instance_paths_by_key[("scope_time", "not_modeled")].add(
+            _json_pointer("D_norm", "statements", stmt_idx, "scope", "time_about")
+        )
+        instance_paths_by_key[("scope_jurisdiction", "projected")].add(
+            _json_pointer("D_norm", "statements", stmt_idx, "scope", "jurisdiction")
+        )
+        if (
+            statement.condition
+            and statement.condition.kind == "predicate"
+            and statement.condition.predicate
+            and statement.condition.predicate.strip()
+        ):
+            instance_paths_by_key[("condition_predicate", "projected")].add(
+                _json_pointer("D_norm", "statements", stmt_idx, "condition", "predicate")
+            )
+
+    for ex_idx, exception in enumerate(sorted(ir.D_norm.exceptions, key=lambda item: item.id)):
+        instance_paths_by_key[("exception_effect", "projected")].add(
+            _json_pointer("D_norm", "exceptions", ex_idx, "effect")
+        )
+        if (
+            exception.condition.kind == "predicate"
+            and exception.condition.predicate
+            and exception.condition.predicate.strip()
+        ):
+            instance_paths_by_key[("condition_predicate", "projected")].add(
+                _json_pointer("D_norm", "exceptions", ex_idx, "condition", "predicate")
+            )
+
+    for (feature_key, status), source_paths in instance_paths_by_key.items():
+        if not source_paths:
+            continue
+        structural_entry = next(
+            entry
+            for entry in _BRIDGE_LOSS_STRUCTURAL_ENTRIES
+            if entry.feature_key == feature_key and entry.status == status
+        )
+        entries.append(
+            BridgeLossEntry(
+                feature_key=feature_key,
+                scope="instance",
+                status=status,
+                detail=structural_entry.detail,
+                source_paths=sorted(source_paths),
+                notes=None,
+            )
+        )
+
+    sorted_entries = sorted(
+        entries,
+        key=lambda item: (
+            item.feature_key,
+            item.scope,
+            item.status,
+        ),
+    )
+
+    return BridgeLossReport(
+        version=BRIDGE_LOSS_VERSION,
+        entries=sorted_entries,
+        summary=_build_bridge_loss_summary(sorted_entries),
     )
 
 
