@@ -8,6 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from .hashing import canonical_json
 from .models import NormalizedEvent
 
@@ -22,6 +24,38 @@ APPROVAL_EVENTS = {
 }
 TOOL_EVENTS = {"TOOL_CALL_START", "TOOL_CALL_PASS", "TOOL_CALL_FAIL"}
 EVIDENCE_EVENTS = {"EVIDENCE_WRITTEN"}
+FAILURE_CATEGORIES: dict[str, str] = {
+    "SESSION_FAIL": "session",
+    "WORKER_FAIL": "worker",
+    "TOOL_CALL_FAIL": "tool",
+    "POLICY_DENIED": "policy",
+    "PROVIDER_PARSE_ERROR": "provider",
+}
+TOOL_CALL_EVENT_TO_COUNTER: dict[str, str] = {
+    "TOOL_CALL_START": "start",
+    "TOOL_CALL_PASS": "pass",
+    "TOOL_CALL_FAIL": "fail",
+}
+DETAIL_MINIMA_RULES: list[tuple[set[str], tuple[str, ...], str]] = [
+    (SESSION_EVENTS, ("status",), "{event_name} detail must include status"),
+    (
+        WORKER_EVENTS,
+        ("worker_id", "status"),
+        "{event_name} detail must include worker_id and status",
+    ),
+    ({"MODE_CHANGED"}, ("writes_allowed",), "MODE_CHANGED detail must include writes_allowed"),
+    (
+        {"APPROVAL_ISSUED", "APPROVAL_CONSUMED", "APPROVAL_REVOKED"},
+        ("approval_id", "action_kind"),
+        "{event_name} detail must include approval_id and action_kind",
+    ),
+    (TOOL_EVENTS, ("tool_name",), "{event_name} detail must include tool_name"),
+    (
+        EVIDENCE_EVENTS,
+        ("evidence_id", "path"),
+        "{event_name} detail must include evidence_id and path",
+    ),
+]
 
 
 @dataclass(frozen=True)
@@ -41,6 +75,7 @@ class ValidationIssue:
 @dataclass(frozen=True)
 class ParsedEvent:
     line: int
+    raw_line: str
     event: NormalizedEvent
 
 
@@ -67,7 +102,7 @@ def _parse_events(path: Path) -> tuple[list[ParsedEvent], list[ValidationIssue]]
             continue
         try:
             event = NormalizedEvent.model_validate(payload)
-        except Exception as exc:  # noqa: BLE001
+        except ValidationError as exc:
             issues.append(
                 ValidationIssue(
                     line=line_no,
@@ -76,7 +111,7 @@ def _parse_events(path: Path) -> tuple[list[ParsedEvent], list[ValidationIssue]]
                 )
             )
             continue
-        events.append(ParsedEvent(line=line_no, event=event))
+        events.append(ParsedEvent(line=line_no, raw_line=line, event=event))
     return events, issues
 
 
@@ -110,60 +145,19 @@ def _validate_detail_minima(events: list[ParsedEvent]) -> list[ValidationIssue]:
     for parsed in events:
         event = parsed.event
         detail = event.detail
-        if event.event in SESSION_EVENTS:
-            if not _has_keys(detail, ("status",)):
-                issues.append(
-                    ValidationIssue(
-                        line=parsed.line,
-                        code="DETAIL_MINIMUM_MISSING",
-                        message=f"{event.event} detail must include status",
-                    )
+        for event_set, required_keys, message_template in DETAIL_MINIMA_RULES:
+            if event.event not in event_set:
+                continue
+            if _has_keys(detail, required_keys):
+                break
+            issues.append(
+                ValidationIssue(
+                    line=parsed.line,
+                    code="DETAIL_MINIMUM_MISSING",
+                    message=message_template.format(event_name=event.event),
                 )
-        elif event.event in WORKER_EVENTS:
-            if not _has_keys(detail, ("worker_id", "status")):
-                issues.append(
-                    ValidationIssue(
-                        line=parsed.line,
-                        code="DETAIL_MINIMUM_MISSING",
-                        message=f"{event.event} detail must include worker_id and status",
-                    )
-                )
-        elif event.event == "MODE_CHANGED":
-            if not _has_keys(detail, ("writes_allowed",)):
-                issues.append(
-                    ValidationIssue(
-                        line=parsed.line,
-                        code="DETAIL_MINIMUM_MISSING",
-                        message="MODE_CHANGED detail must include writes_allowed",
-                    )
-                )
-        elif event.event in {"APPROVAL_ISSUED", "APPROVAL_CONSUMED", "APPROVAL_REVOKED"}:
-            if not _has_keys(detail, ("approval_id", "action_kind")):
-                issues.append(
-                    ValidationIssue(
-                        line=parsed.line,
-                        code="DETAIL_MINIMUM_MISSING",
-                        message=f"{event.event} detail must include approval_id and action_kind",
-                    )
-                )
-        elif event.event in TOOL_EVENTS:
-            if not _has_keys(detail, ("tool_name",)):
-                issues.append(
-                    ValidationIssue(
-                        line=parsed.line,
-                        code="DETAIL_MINIMUM_MISSING",
-                        message=f"{event.event} detail must include tool_name",
-                    )
-                )
-        elif event.event in EVIDENCE_EVENTS:
-            if not _has_keys(detail, ("evidence_id", "path")):
-                issues.append(
-                    ValidationIssue(
-                        line=parsed.line,
-                        code="DETAIL_MINIMUM_MISSING",
-                        message=f"{event.event} detail must include evidence_id and path",
-                    )
-                )
+            )
+            break
     return issues
 
 
@@ -192,26 +186,14 @@ def replay_events(path: Path) -> list[str]:
     if issues:
         first = sorted(issues, key=lambda item: (item.line, item.code, item.message))[0]
         raise ValueError(f"{first.code} at line {first.line}: {first.message}")
-    return [
-        canonical_json(item.event.model_dump(mode="json", by_alias=True))
-        for item in parsed
-    ]
+    # Replay preserves original NDJSON line bytes (including timestamp literal formatting).
+    return [item.raw_line for item in parsed]
 
 
 def _first_failure(events: list[ParsedEvent]) -> dict[str, Any] | None:
     for parsed in events:
         event = parsed.event
-        category: str | None = None
-        if event.event == "SESSION_FAIL":
-            category = "session"
-        elif event.event == "WORKER_FAIL":
-            category = "worker"
-        elif event.event == "TOOL_CALL_FAIL":
-            category = "tool"
-        elif event.event == "POLICY_DENIED":
-            category = "policy"
-        elif event.event == "PROVIDER_PARSE_ERROR":
-            category = "provider"
+        category = FAILURE_CATEGORIES.get(event.event)
         if category is None:
             continue
         return {
@@ -264,12 +246,9 @@ def summarize_events(path: Path) -> dict[str, Any]:
     for parsed_event in parsed:
         event = parsed_event.event
         event_counts[event.event] = event_counts.get(event.event, 0) + 1
-        if event.event == "TOOL_CALL_START":
-            tool_call_counts["start"] += 1
-        elif event.event == "TOOL_CALL_PASS":
-            tool_call_counts["pass"] += 1
-        elif event.event == "TOOL_CALL_FAIL":
-            tool_call_counts["fail"] += 1
+        tool_counter_key = TOOL_CALL_EVENT_TO_COUNTER.get(event.event)
+        if tool_counter_key is not None:
+            tool_call_counts[tool_counter_key] += 1
         error_code = event.detail.get("error_code")
         if not isinstance(error_code, str):
             error_code = event.detail.get("code")

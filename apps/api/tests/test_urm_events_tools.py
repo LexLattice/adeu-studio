@@ -43,6 +43,13 @@ def test_replay_events_is_stable_for_same_input() -> None:
     assert len(first) == 6
 
 
+def test_replay_events_preserves_original_line_literal() -> None:
+    path = _fixture_path("sample_valid.ndjson")
+    original_lines = path.read_text(encoding="utf-8").splitlines()
+    replay_lines = replay_events(path)
+    assert replay_lines == original_lines
+
+
 def test_summarize_events_has_stable_schema_and_fields() -> None:
     path = _fixture_path("sample_valid.ndjson")
     summary = summarize_events(path)
