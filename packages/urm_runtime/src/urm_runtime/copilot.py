@@ -30,7 +30,7 @@ from .models import (
     CopilotStopRequest,
     NormalizedEvent,
 )
-from .normalization import normalize_app_server_line
+from .normalization import build_internal_event, normalize_app_server_line
 from .probe import CodexCapabilityProbeResult, run_and_persist_capability_probe
 from .retention import run_evidence_retention_gc
 from .storage import (
@@ -62,8 +62,10 @@ COPILOT_BUFFER_MAX = 20_000
 class CopilotSessionRuntime:
     session_id: str
     host: CodexAppServerHost
-    writer: EvidenceFileWriter
+    raw_writer: EvidenceFileWriter
+    events_writer: EvidenceFileWriter
     raw_jsonl_path: str
+    urm_events_path: str
     started_at: str
     last_seq: int = 0
     status: Literal["starting", "running", "stopped", "failed"] = "starting"
@@ -105,7 +107,12 @@ class URMCopilotManager:
             )
 
     def _raw_jsonl_path_for_session(self, session_id: str) -> Path:
-        path = self.config.evidence_root / "copilot" / f"{session_id}.jsonl"
+        path = self.config.evidence_root / "copilot" / session_id / "codex_raw.ndjson"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _urm_events_path_for_session(self, session_id: str) -> Path:
+        path = self.config.evidence_root / "copilot" / session_id / "urm_events.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -133,13 +140,42 @@ class URMCopilotManager:
             )
         return resolved
 
+    def _resolve_urm_events_path(self, urm_events_path: str) -> Path:
+        path = Path(urm_events_path)
+        if path.is_absolute():
+            raise URMError(
+                code="URM_CODEX_SSE_REPLAY_FAILED",
+                message="urm events path must be relative",
+                context={"urm_events_path": urm_events_path},
+            )
+        resolved = (self.config.var_root / path).resolve()
+        root = self.config.evidence_root.resolve()
+        if not resolved.is_relative_to(root):
+            raise URMError(
+                code="URM_CODEX_SSE_REPLAY_FAILED",
+                message="urm events path escapes evidence root",
+                context={"urm_events_path": urm_events_path},
+            )
+        return resolved
+
     def _record_event_line(self, *, runtime: CopilotSessionRuntime, raw_line: str) -> None:
         with runtime.condition:
             runtime.last_seq += 1
             seq = runtime.last_seq
             try:
                 line = raw_line if raw_line.endswith("\n") else raw_line + "\n"
-                runtime.writer.write_raw_line(line)
+                runtime.raw_writer.write_raw_line(line)
+                event = normalize_app_server_line(
+                    seq=seq,
+                    raw_line=raw_line,
+                    stream_id=f"copilot:{runtime.session_id}",
+                    session_id=runtime.session_id,
+                    role="copilot",
+                    endpoint="urm.copilot.events",
+                )
+                runtime.events_writer.write_json_line(
+                    event.model_dump(mode="json", by_alias=True)
+                )
             except (EvidenceFileLimitExceeded, ValueError) as exc:
                 runtime.error_code = "URM_CODEX_SESSION_LIMIT_EXCEEDED"
                 runtime.error_message = str(exc)
@@ -147,8 +183,9 @@ class URMCopilotManager:
                 runtime.ended_at = datetime.now(tz=timezone.utc).isoformat()
                 runtime.condition.notify_all()
                 runtime.host.stop()
+                runtime.raw_writer.close()
+                runtime.events_writer.close()
                 return
-            event = normalize_app_server_line(seq=seq, raw_line=raw_line)
             runtime.buffer.append(event)
             runtime.condition.notify_all()
 
@@ -167,7 +204,8 @@ class URMCopilotManager:
             with runtime.condition:
                 runtime.condition.notify_all()
             runtime.host.stop()
-            runtime.writer.close()
+            runtime.raw_writer.close()
+            runtime.events_writer.close()
             with self._lock:
                 self._sessions.pop(runtime.session_id, None)
                 if self._active_session_id == runtime.session_id:
@@ -185,10 +223,48 @@ class URMCopilotManager:
         event_kind: str,
         payload: dict[str, Any],
     ) -> None:
-        self._record_event_line(
-            runtime=runtime,
-            raw_line=json.dumps({"event": event_kind, **payload}),
-        )
+        with runtime.condition:
+            runtime.last_seq += 1
+            seq = runtime.last_seq
+            event = build_internal_event(
+                seq=seq,
+                event=event_kind,
+                stream_id=f"copilot:{runtime.session_id}",
+                source_component="urm_copilot_manager",
+                context={
+                    "session_id": runtime.session_id,
+                    "role": "copilot",
+                    "endpoint": "urm.copilot.events",
+                },
+                detail=payload,
+            )
+            try:
+                runtime.events_writer.write_json_line(
+                    event.model_dump(mode="json", by_alias=True)
+                )
+            except (EvidenceFileLimitExceeded, ValueError) as exc:
+                runtime.error_code = "URM_CODEX_SESSION_LIMIT_EXCEEDED"
+                runtime.error_message = str(exc)
+                runtime.status = "failed"
+                runtime.ended_at = datetime.now(tz=timezone.utc).isoformat()
+                runtime.condition.notify_all()
+                runtime.host.stop()
+                runtime.raw_writer.close()
+                runtime.events_writer.close()
+                return
+            runtime.buffer.append(event)
+            runtime.condition.notify_all()
+
+        try:
+            with transaction(db_path=self.config.db_path) as con:
+                update_copilot_session_last_seq(
+                    con=con,
+                    copilot_session_id=runtime.session_id,
+                    last_seq=runtime.last_seq,
+                )
+        except Exception:
+            # Best-effort update only for internal events.
+            pass
 
     def _wait_for_response(
         self,
@@ -289,8 +365,8 @@ class URMCopilotManager:
         runtime.initialized = True
         self._record_internal_event(
             runtime=runtime,
-            event_kind="protocol_bootstrap_complete",
-            payload={"thread_id": thread_id},
+            event_kind="SESSION_READY",
+            payload={"status": "running", "thread_id": thread_id},
         )
 
     def _send_user_message(self, *, runtime: CopilotSessionRuntime, text: str) -> None:
@@ -343,7 +419,10 @@ class URMCopilotManager:
                 raw_jsonl_path=runtime.raw_jsonl_path,
                 status=status,
                 error_json=error_json,
-                metadata_json={"last_seq": runtime.last_seq},
+                metadata_json={
+                    "last_seq": runtime.last_seq,
+                    "urm_events_path": runtime.urm_events_path,
+                },
             )
 
     def _stop_runtime(
@@ -356,16 +435,19 @@ class URMCopilotManager:
         if runtime.status not in {"failed", "stopped"}:
             runtime.status = "stopped"
         runtime.ended_at = datetime.now(tz=timezone.utc).isoformat()
+        terminal_event = "SESSION_FAIL" if runtime.status == "failed" else "SESSION_STOP"
         self._record_internal_event(
             runtime=runtime,
-            event_kind="process_terminated",
+            event_kind=terminal_event,
             payload={
+                "status": runtime.status,
                 "reason": reason,
                 "method": "terminate_then_kill_if_needed",
                 "exit_code": exit_code,
             },
         )
-        runtime.writer.close()
+        runtime.raw_writer.close()
+        runtime.events_writer.close()
         with runtime.condition:
             runtime.condition.notify_all()
         self._persist_terminal_state(runtime=runtime)
@@ -444,7 +526,7 @@ class URMCopilotManager:
         if runtime is not None:
             self._record_internal_event(
                 runtime=runtime,
-                event_kind="approval_consumed",
+                event_kind="APPROVAL_CONSUMED",
                 payload={"approval_id": approval_id, "action_kind": action_kind},
             )
         return action_hash
@@ -481,7 +563,7 @@ class URMCopilotManager:
                 )
             self._record_internal_event(
                 runtime=runtime,
-                event_kind="approval_issued",
+                event_kind="APPROVAL_ISSUED",
                 payload={
                     "approval_id": approval_id,
                     "action_kind": action_kind,
@@ -516,8 +598,11 @@ class URMCopilotManager:
             if runtime is not None and revoked:
                 self._record_internal_event(
                     runtime=runtime,
-                    event_kind="approval_revoked",
-                    payload={"approval_id": approval_id},
+                    event_kind="APPROVAL_REVOKED",
+                    payload={
+                        "approval_id": approval_id,
+                        "action_kind": approval.action_kind,
+                    },
                 )
             return ApprovalRevokeResponse(
                 approval_id=approval_id,
@@ -573,9 +658,16 @@ class URMCopilotManager:
                 self._active_session_id = None
 
             raw_path = self._raw_jsonl_path_for_session(session_id)
+            events_path = self._urm_events_path_for_session(session_id)
             raw_rel_path = self._relative_path(raw_path)
-            writer = EvidenceFileWriter(
+            events_rel_path = self._relative_path(events_path)
+            raw_writer = EvidenceFileWriter(
                 path=raw_path,
+                max_line_bytes=self.config.max_line_bytes,
+                max_file_bytes=self.config.max_evidence_file_bytes,
+            )
+            events_writer = EvidenceFileWriter(
+                path=events_path,
                 max_line_bytes=self.config.max_line_bytes,
                 max_file_bytes=self.config.max_evidence_file_bytes,
             )
@@ -585,8 +677,10 @@ class URMCopilotManager:
                     config=self.config,
                     on_line=lambda line: self._record_event_line(runtime=runtime, raw_line=line),
                 ),
-                writer=writer,
+                raw_writer=raw_writer,
+                events_writer=events_writer,
                 raw_jsonl_path=raw_rel_path,
+                urm_events_path=events_rel_path,
                 started_at=datetime.now(tz=timezone.utc).isoformat(),
                 cwd=request.cwd,
             )
@@ -610,7 +704,17 @@ class URMCopilotManager:
                 runtime.error_code = exc.detail.code
                 runtime.error_message = exc.detail.message
                 runtime.ended_at = datetime.now(tz=timezone.utc).isoformat()
-                writer.close()
+                self._record_internal_event(
+                    runtime=runtime,
+                    event_kind="SESSION_FAIL",
+                    payload={
+                        "status": "failed",
+                        "code": runtime.error_code,
+                        "message": runtime.error_message,
+                    },
+                )
+                raw_writer.close()
+                events_writer.close()
                 self._persist_terminal_state(runtime=runtime)
                 response = CopilotSessionResponse(
                     session_id=session_id,
@@ -630,6 +734,11 @@ class URMCopilotManager:
             runtime.status = "running"
             self._sessions[session_id] = runtime
             self._active_session_id = session_id
+            self._record_internal_event(
+                runtime=runtime,
+                event_kind="SESSION_START",
+                payload={"status": "running"},
+            )
             with transaction(db_path=self.config.db_path) as con:
                 update_copilot_session_pid(
                     con=con,
@@ -769,7 +878,7 @@ class URMCopilotManager:
                 )
             self._record_internal_event(
                 runtime=runtime,
-                event_kind="mode_changed",
+                event_kind="MODE_CHANGED",
                 payload={"writes_allowed": request.writes_allowed},
             )
             return CopilotSessionResponse(
@@ -816,16 +925,48 @@ class URMCopilotManager:
         if row.raw_jsonl_path is None:
             return []
         raw_path = self._resolve_raw_path(row.raw_jsonl_path)
+        events_rel_path: str
+        raw_rel = Path(row.raw_jsonl_path)
+        if raw_rel.name == "codex_raw.ndjson":
+            events_rel_path = str(raw_rel.with_name("urm_events.ndjson"))
+        else:
+            events_rel_path = str(raw_rel.with_name("urm_events.ndjson"))
+        events_path = self._resolve_urm_events_path(events_rel_path)
+
+        events: list[NormalizedEvent] = []
+        if events_path.exists():
+            with events_path.open("r", encoding="utf-8", errors="replace") as handle:
+                for line in handle:
+                    try:
+                        parsed = json.loads(line)
+                        event = NormalizedEvent.model_validate(parsed)
+                    except (json.JSONDecodeError, ValueError):
+                        continue
+                    if event.seq <= after_seq:
+                        continue
+                    events.append(event)
+                    if len(events) >= self.config.max_replay_events:
+                        break
+            return events
+
         if not raw_path.exists():
             return []
-        events: list[NormalizedEvent] = []
         with raw_path.open("r", encoding="utf-8", errors="replace") as handle:
             seq = 0
             for line in handle:
                 seq += 1
                 if seq <= after_seq:
                     continue
-                events.append(normalize_app_server_line(seq=seq, raw_line=line))
+                events.append(
+                    normalize_app_server_line(
+                        seq=seq,
+                        raw_line=line,
+                        stream_id=f"copilot:{row.copilot_session_id}",
+                        session_id=row.copilot_session_id,
+                        role=row.role,
+                        endpoint="urm.copilot.events",
+                    )
+                )
                 if len(events) >= self.config.max_replay_events:
                     break
         return events

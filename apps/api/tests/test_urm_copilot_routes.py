@@ -121,7 +121,7 @@ def test_copilot_user_message_bootstraps_protocol_and_emits_agent_delta(
 
     manager = _get_manager()
     events, _ = manager.iter_events(session_id=session_id, after_seq=0)
-    assert any(event.event_kind == "protocol_bootstrap_complete" for event in events)
+    assert any(event.event_kind == "SESSION_READY" for event in events)
 
     db_path = tmp_path / "adeu.sqlite3"
     with sqlite3.connect(db_path) as con:

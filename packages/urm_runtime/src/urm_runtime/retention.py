@@ -40,24 +40,40 @@ def run_evidence_retention_gc(*, config: URMRuntimeConfig) -> EvidenceRetentionS
 
     with transaction(db_path=db_path) as con:
         records = list_unpurged_evidence_records(con=con)
-        entries: list[tuple[str, datetime, Path | None, int]] = []
+        entries: list[tuple[str, datetime, list[Path], int]] = []
         for record in records:
             created_at = datetime.fromisoformat(record.created_at)
-            resolved = _resolve_evidence_path(
+            resolved_paths: list[Path] = []
+            seen_paths: set[Path] = set()
+            primary = _resolve_evidence_path(
                 config=config,
                 relative_path=record.raw_jsonl_path,
             )
+            if primary is not None and primary not in seen_paths:
+                resolved_paths.append(primary)
+                seen_paths.add(primary)
+            metadata_path = record.metadata_json.get("urm_events_path")
+            if isinstance(metadata_path, str):
+                secondary = _resolve_evidence_path(
+                    config=config,
+                    relative_path=metadata_path,
+                )
+                if secondary is not None and secondary not in seen_paths:
+                    resolved_paths.append(secondary)
+                    seen_paths.add(secondary)
             size = 0
-            if resolved is not None and resolved.exists():
-                size = resolved.stat().st_size
-            entries.append((record.evidence_id, created_at, resolved, size))
+            for resolved in resolved_paths:
+                if resolved.exists():
+                    size += resolved.stat().st_size
+            entries.append((record.evidence_id, created_at, resolved_paths, size))
 
-        for evidence_id, created_at, resolved, size in entries:
+        for evidence_id, created_at, resolved_paths, size in entries:
             if created_at >= expiry_cutoff:
                 continue
-            if resolved is not None and resolved.exists():
-                resolved.unlink(missing_ok=True)
-                purged_bytes += size
+            for resolved in resolved_paths:
+                if resolved.exists():
+                    resolved.unlink(missing_ok=True)
+            purged_bytes += size
             mark_evidence_record_purged(
                 con=con,
                 evidence_id=evidence_id,
@@ -69,14 +85,15 @@ def run_evidence_retention_gc(*, config: URMRuntimeConfig) -> EvidenceRetentionS
         remaining_bytes = sum(entry[3] for entry in remaining_entries)
 
         if remaining_bytes > config.max_total_evidence_bytes:
-            for evidence_id, _created_at, resolved, size in sorted(
+            for evidence_id, _created_at, resolved_paths, size in sorted(
                 remaining_entries,
                 key=lambda item: (item[1], item[0]),
             ):
                 if remaining_bytes <= config.max_total_evidence_bytes:
                     break
-                if resolved is not None and resolved.exists():
-                    resolved.unlink(missing_ok=True)
+                for resolved in resolved_paths:
+                    if resolved.exists():
+                        resolved.unlink(missing_ok=True)
                 mark_evidence_record_purged(
                     con=con,
                     evidence_id=evidence_id,

@@ -100,9 +100,15 @@ def test_worker_runner_persists_evidence_and_idempotent_replay(
 
     raw_path = config.var_root / first.raw_jsonl_path
     assert raw_path.is_file()
+    assert raw_path.name == "codex_raw.ndjson"
+    assert first.urm_events_path is not None
+    events_path = config.var_root / first.urm_events_path
+    assert events_path.is_file()
     raw_payload = raw_path.read_text(encoding="utf-8")
     assert '"type":"message"' in raw_payload
     assert '"type":"result"' in raw_payload
+    events_payload = events_path.read_text(encoding="utf-8")
+    assert '"schema":"urm-events@1"' in events_payload
 
     with sqlite3.connect(config.db_path) as con:
         schema_row = con.execute(
@@ -200,13 +206,27 @@ def test_worker_runner_marks_parse_degraded_nonfatal(
 
     assert result.status == "ok"
     assert result.parse_degraded is True
-    assert result.normalized_event_count == 3
+    assert result.normalized_event_count == 5
     assert result.artifact_candidate == {"kind": "fallback"}
 
 
 def test_normalize_exec_line_tolerates_unknown_and_parse_errors() -> None:
-    unknown = normalize_exec_line(seq=1, raw_line='{"custom":"shape"}\n')
-    malformed = normalize_exec_line(seq=2, raw_line="not-json\n")
+    unknown = normalize_exec_line(
+        seq=1,
+        raw_line='{"custom":"shape"}\n',
+        stream_id="worker:test",
+        run_id="test-run",
+        role="pipeline_worker",
+        endpoint="urm.worker.run",
+    )
+    malformed = normalize_exec_line(
+        seq=2,
+        raw_line="not-json\n",
+        stream_id="worker:test",
+        run_id="test-run",
+        role="pipeline_worker",
+        endpoint="urm.worker.run",
+    )
 
     assert unknown.event_kind == "unknown_event"
     assert malformed.event_kind == "parse_error"
@@ -378,7 +398,9 @@ def test_worker_runner_retention_preflight_purges_old_evidence(
         )
     )
     first_path = config.var_root / first.raw_jsonl_path
+    first_events_path = config.var_root / (first.urm_events_path or "")
     assert first_path.exists()
+    assert first_events_path.exists()
 
     runner.run(
         _worker_request(
@@ -402,6 +424,7 @@ def test_worker_runner_retention_preflight_purges_old_evidence(
     assert row[1] == "size_budget_exceeded"
     assert str(row[2]).startswith("__purged__/")
     assert not first_path.exists()
+    assert not first_events_path.exists()
 
 
 def test_worker_runner_output_schema_fallback_without_flag(

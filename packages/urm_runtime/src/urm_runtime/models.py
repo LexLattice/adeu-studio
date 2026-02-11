@@ -40,15 +40,39 @@ class WorkerRunRequest(BaseModel):
         return payload
 
 
-class NormalizedEvent(BaseModel):
+class URMEventSource(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    component: str = Field(min_length=1)
+    version: str = Field(min_length=1)
+    provider: str = Field(min_length=1)
+
+
+class URMEventContext(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: str | None = None
+    run_id: str | None = None
+    role: str = Field(min_length=1)
+    endpoint: str = Field(min_length=1)
+    ir_hash: str | None = None
+
+
+class NormalizedEvent(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: Literal["urm-events@1"] = Field(default="urm-events@1", alias="schema")
+    event: str = Field(min_length=1)
+    stream_id: str = Field(min_length=1)
     seq: int
     ts: datetime
-    source: Literal["worker_exec", "copilot_app_server"]
-    event_kind: str
+    source: URMEventSource
+    context: URMEventContext
+    detail: dict[str, Any] = Field(default_factory=dict)
+    # Backward-compatible projection used by existing SSE/UI callers.
+    event_kind: str | None = None
     payload: dict[str, Any] = Field(default_factory=dict)
-    raw_line: str
+    raw_line: str | None = None
 
 
 class WorkerRunResult(BaseModel):
@@ -59,6 +83,7 @@ class WorkerRunResult(BaseModel):
     exit_code: int | None = None
     evidence_id: str
     raw_jsonl_path: str
+    urm_events_path: str | None = None
     normalized_event_count: int
     artifact_candidate: Any | None = None
     parse_degraded: bool = False
