@@ -76,7 +76,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .adeu_concept_bridge import (
+    BridgeLossReport,
     BridgeManifest,
+    build_bridge_loss_report,
     lift_adeu_to_concepts,
 )
 from .concept_id_canonicalization import canonicalize_concept_ids
@@ -830,6 +832,7 @@ class AdeuAnalyzeConceptsResponse(BaseModel):
     check_report: CheckReport
     analysis: ConceptAnalysis
     bridge_manifest: BridgeManifest
+    bridge_loss_report: BridgeLossReport
     bridge_mapping_version: str
     mapping_hash: str
     mapping_trust: MappingTrust
@@ -3457,6 +3460,7 @@ def analyze_adeu_as_concepts(req: AdeuAnalyzeConceptsRequest) -> AdeuAnalyzeConc
         check_report=report,
         analysis=analysis,
         bridge_manifest=lifted.bridge_manifest,
+        bridge_loss_report=build_bridge_loss_report(req.ir),
         bridge_mapping_version=lifted.bridge_mapping_version,
         mapping_hash=lifted.mapping_hash,
         mapping_trust="derived_bridge",

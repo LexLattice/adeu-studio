@@ -31,6 +31,10 @@ def test_adeu_analyze_concepts_endpoint_returns_bridge_and_solver_lanes() -> Non
     assert resp.bridge_mapping_version == BRIDGE_MAPPING_VERSION
     assert resp.mapping_hash == compute_mapping_hash()
     assert len(resp.mapping_hash) == 64
+    assert resp.bridge_loss_report.version == "adeu.bridge.loss.v1"
+    assert resp.bridge_loss_report.entries
+    assert resp.bridge_loss_report.summary.projected_count >= 1
+    assert resp.bridge_loss_report.summary.not_modeled_count >= 1
     assert resp.mapping_trust == "derived_bridge"
     assert resp.solver_trust == "solver_backed"
     assert resp.proof_trust is None
