@@ -172,6 +172,24 @@ type ConceptTournamentCandidateInput = {
   patch_ops: ConceptPatchOp[];
 };
 
+type BridgeLossSignal = {
+  signal_kind: string;
+  affected_anchors: string[];
+  severity: "low" | "medium" | "high";
+};
+
+type TournamentScoreMetadata = {
+  score_version: "concepts.tscore.v2";
+  objective_dimensions: string[];
+  tie_break_order: "objective_vector_desc_then_stable_id_asc";
+};
+
+type TournamentTieBreakProvenance = {
+  stable_id: string;
+  objective_dimensions: string[];
+  tie_break_order: "objective_vector_desc_then_stable_id_asc";
+};
+
 type ConceptTournamentCandidateResult = {
   candidate_id: string;
   question_id: string;
@@ -190,6 +208,9 @@ type ConceptTournamentCandidateResult = {
       causal_atom_count?: string;
     };
   };
+  score_version: "concepts.tscore.v2";
+  tie_break_provenance: TournamentTieBreakProvenance;
+  bridge_loss_signals: BridgeLossSignal[];
   mapping_trust?: string | null;
   solver_trust?: "kernel_only" | "solver_backed" | "proof_checked";
   proof_trust?: string | null;
@@ -198,15 +219,17 @@ type ConceptTournamentCandidateResult = {
 type ConceptTournamentResponse = {
   tournament_mode: TournamentMode;
   provider: "mock" | "openai";
-  tournament_score_version: "concepts.tscore.v1";
+  tournament_score_version: "concepts.tscore.v2";
   base_ir_hash: string;
   base_objective_vector: number[];
+  score_metadata: TournamentScoreMetadata;
   no_safe_improvement: boolean;
   selected_candidate_id?: string | null;
   candidate_count: number;
   evaluated_count: number;
   candidates: ConceptTournamentCandidateResult[];
   budget_report: ConceptQuestionsBudgetReport;
+  bridge_loss_signals: BridgeLossSignal[];
   mapping_trust?: string | null;
   solver_trust?: "kernel_only" | "solver_backed" | "proof_checked";
   proof_trust?: string | null;
@@ -228,6 +251,7 @@ type ConceptQuestionsMeta = {
   max_answers_per_question: number;
   question_rank_version: "concepts.qrank.v2";
   budget_report: ConceptQuestionsBudgetReport;
+  bridge_loss_signals: BridgeLossSignal[];
   mapping_trust?: string | null;
   solver_trust?: "kernel_only" | "solver_backed" | "proof_checked";
   proof_trust?: string | null;
@@ -280,11 +304,18 @@ type ConceptAlignmentStats = {
   conflict_candidate_count: number;
 };
 
+type ConceptAlignmentCoherenceDiagnostics = {
+  vocabulary_drift_count: number;
+  suggestion_stability_count: number;
+  term_use_consistency_count: number;
+};
+
 type ConceptAlignResponse = {
   artifacts: ConceptAlignmentArtifactRef[];
   suggestion_count: number;
   suggestions: ConceptAlignmentSuggestion[];
   alignment_stats: ConceptAlignmentStats;
+  coherence_diagnostics: ConceptAlignmentCoherenceDiagnostics;
   mapping_trust: string;
   solver_trust: "kernel_only" | "solver_backed" | "proof_checked";
   proof_trust?: string | null;
@@ -852,6 +883,7 @@ export default function ConceptsPage() {
         max_answers_per_question: data.max_answers_per_question,
         question_rank_version: data.question_rank_version,
         budget_report: data.budget_report,
+        bridge_loss_signals: data.bridge_loss_signals ?? [],
         mapping_trust: data.mapping_trust ?? null,
         solver_trust: data.solver_trust,
         proof_trust: data.proof_trust ?? null,

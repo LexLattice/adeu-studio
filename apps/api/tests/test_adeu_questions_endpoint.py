@@ -102,6 +102,9 @@ def test_adeu_questions_endpoint_is_deterministic_and_emits_trust_metadata() -> 
     assert left.bridge_mapping_version == BRIDGE_MAPPING_VERSION
     assert left.mapping_hash == compute_mapping_hash()
     assert left.mapping_trust == "derived_bridge"
+    assert left.bridge_loss_signals
+    assert all(item.signal_kind for item in left.bridge_loss_signals)
+    assert all(item.severity in {"medium", "high"} for item in left.bridge_loss_signals)
     assert left.solver_trust in {"kernel_only", "solver_backed"}
     assert left.proof_trust is None
     assert left.question_count == len(left.questions)
@@ -151,6 +154,7 @@ def test_adeu_questions_endpoint_is_invariant_to_adeu_input_order() -> None:
 
     assert left.questions == right.questions
     assert left.bridge_manifest == right.bridge_manifest
+    assert left.bridge_loss_signals == right.bridge_loss_signals
     assert left.mapping_hash == right.mapping_hash
     assert left.question_count == right.question_count
     assert left.budget_report == right.budget_report

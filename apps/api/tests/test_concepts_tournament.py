@@ -85,14 +85,29 @@ def test_tournament_replay_is_deterministic_and_picks_improvement() -> None:
     right = concept_tournament_endpoint(req)
 
     assert left == right
-    assert left.tournament_score_version == "concepts.tscore.v1"
+    assert left.tournament_score_version == "concepts.tscore.v2"
+    assert left.score_metadata.score_version == "concepts.tscore.v2"
+    assert (
+        left.score_metadata.tie_break_order
+        == "objective_vector_desc_then_stable_id_asc"
+    )
+    assert left.score_metadata.objective_dimensions
     assert left.no_safe_improvement is False
     assert left.selected_candidate_id is not None
     assert left.candidates
     top = left.candidates[0]
     assert top.candidate_id == left.selected_candidate_id
     assert top.improved is True
-    assert tuple(top.objective_vector) < tuple(left.base_objective_vector)
+    assert tuple(top.objective_vector) > tuple(left.base_objective_vector)
+    assert top.score_version == "concepts.tscore.v2"
+    assert top.tie_break_provenance.stable_id == top.candidate_id
+    assert (
+        top.tie_break_provenance.tie_break_order
+        == "objective_vector_desc_then_stable_id_asc"
+    )
+    assert top.tie_break_provenance.objective_dimensions
+    assert top.bridge_loss_signals == []
+    assert left.bridge_loss_signals == []
     assert left.budget_report.budget_version == "budget.v1"
     assert left.budget_report.max_solver_calls == api_main.MAX_TOURNAMENT_SOLVER_CALLS_TOTAL
     assert left.budget_report.max_dry_runs == api_main.MAX_TOURNAMENT_DRY_RUN_EVALS_TOTAL

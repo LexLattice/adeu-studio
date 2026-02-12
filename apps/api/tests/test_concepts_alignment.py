@@ -86,6 +86,9 @@ def test_concepts_align_is_deterministic_and_emits_merge_candidate(
     assert one == two
     assert one.alignment_stats.merge_candidate_count >= 1
     assert one.alignment_stats.conflict_candidate_count >= 0
+    assert one.coherence_diagnostics.suggestion_stability_count == len(one.suggestions)
+    assert one.coherence_diagnostics.vocabulary_drift_count >= 0
+    assert one.coherence_diagnostics.term_use_consistency_count >= 0
     merge_keys = {item.vocabulary_key for item in one.suggestions if item.kind == "merge_candidate"}
     assert "bank" in merge_keys
     assert all(len(item.suggestion_fingerprint) == 12 for item in one.suggestions)
@@ -149,6 +152,7 @@ def test_concepts_align_emits_conflict_candidate_for_divergent_glosses(
     }
     assert "bank" in conflict_keys
     assert aligned.alignment_stats.conflict_candidate_count >= 1
+    assert aligned.coherence_diagnostics.vocabulary_drift_count >= 1
 
 
 def test_concepts_align_doc_scope_and_missing_errors(
