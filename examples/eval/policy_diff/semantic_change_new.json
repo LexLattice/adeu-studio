@@ -1,0 +1,23 @@
+{
+  "schema": "odeu.instructions.v1",
+  "rules": [
+    {
+      "rule_id": "allow_read",
+      "rule_version": 1,
+      "priority": 5,
+      "kind": "allow",
+      "when": {
+        "atom": "mode_is",
+        "args": [
+          "read_only"
+        ]
+      },
+      "then": {
+        "effect": "allow_action",
+        "params": {}
+      },
+      "message": "Allow read mode revised",
+      "code": "ALLOW_READ_V2"
+    }
+  ]
+}
