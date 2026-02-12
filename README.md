@@ -75,7 +75,7 @@ Concept composition endpoints:
 - `POST /concepts/questions` generates deterministic, capped question/answer actions from concept
   analysis signals (MIC, forced-edge countermodels, disconnected clusters).
 - `POST /concepts/tournament` ranks patch candidates in advisory mode (`replay_candidates` or
-  `live_generation`) with deterministic scoring (`concepts.tscore.v1`), strict dry-run/solver
+  `live_generation`) with deterministic scoring (`concepts.tscore.v2`), strict dry-run/solver
   budgets, and evidence bundles for top-ranked candidates.
 - `POST /concepts/align` returns deterministic cross-artifact vocabulary suggestions
   (`merge_candidate` / `conflict_candidate`) across selected concept artifacts, with

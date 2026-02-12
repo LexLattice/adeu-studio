@@ -95,6 +95,7 @@ def test_concepts_questions_endpoint_is_deterministic_and_capped() -> None:
     assert left.mapping_trust is None
     assert left.solver_trust == "solver_backed"
     assert left.proof_trust is None
+    assert left.bridge_loss_signals == []
     for question in left.questions:
         assert question.rationale_code in {
             "mic_conflict",

@@ -131,11 +131,19 @@ CONCEPTS_QUESTION_RANK_VERSION = "concepts.qrank.v2"
 ADEU_QUESTION_RANK_VERSION = "adeu.qrank.v1"
 CONCEPTS_RATIONALE_VERSION = "concepts.rationale.v1"
 ADEU_RATIONALE_VERSION = "adeu.rationale.v1"
-TOURNAMENT_SCORE_VERSION = "concepts.tscore.v1"
+TOURNAMENT_SCORE_VERSION = "concepts.tscore.v2"
 QUESTION_TRUNCATION_REASON_DRY_RUN_CAP = "dry_run_cap_reached"
 QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP = "solver_call_cap_reached"
 QUESTION_TRUNCATION_REASON_MAX_QUESTIONS = "max_questions_reached"
 QUESTION_TRUNCATION_REASON_CANDIDATE_CAP = "candidate_cap_reached"
+TOURNAMENT_TIE_BREAK_ORDER = "objective_vector_desc_then_stable_id_asc"
+TOURNAMENT_OBJECTIVE_DIMENSIONS: tuple[str, ...] = (
+    "status_score",
+    "neg_error_count",
+    "neg_warn_count",
+    "neg_mic_count",
+    "neg_countermodel_count",
+)
 
 
 def _env_int(
@@ -786,6 +794,7 @@ class ConceptQuestionsResponse(BaseModel):
     question_rank_version: Literal["concepts.qrank.v2"] = CONCEPTS_QUESTION_RANK_VERSION
     rationale_version: Literal["concepts.rationale.v1"] = CONCEPTS_RATIONALE_VERSION
     budget_report: "QuestionsBudgetReport"
+    bridge_loss_signals: list["BridgeLossSignal"] = Field(default_factory=list)
     mapping_trust: MappingTrust | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
@@ -802,6 +811,35 @@ class QuestionsBudgetReport(BaseModel):
     truncation_reason: str | None = None
 
 
+class BridgeLossSignal(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    signal_kind: str
+    affected_anchors: list[str] = Field(default_factory=list)
+    severity: Literal["low", "medium", "high"]
+
+
+class TournamentScoreMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    score_version: Literal["concepts.tscore.v2"] = TOURNAMENT_SCORE_VERSION
+    objective_dimensions: list[str] = Field(
+        default_factory=lambda: list(TOURNAMENT_OBJECTIVE_DIMENSIONS)
+    )
+    tie_break_order: Literal["objective_vector_desc_then_stable_id_asc"] = (
+        TOURNAMENT_TIE_BREAK_ORDER
+    )
+
+
+class TournamentTieBreakProvenance(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    stable_id: str
+    objective_dimensions: list[str] = Field(
+        default_factory=lambda: list(TOURNAMENT_OBJECTIVE_DIMENSIONS)
+    )
+    tie_break_order: Literal["objective_vector_desc_then_stable_id_asc"] = (
+        TOURNAMENT_TIE_BREAK_ORDER
+    )
+
+
 class ConceptTournamentCandidateResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
     candidate_id: str
@@ -813,6 +851,9 @@ class ConceptTournamentCandidateResult(BaseModel):
     check_report: CheckReport
     analysis: ConceptAnalysis | None = None
     diff_report: DiffReport
+    score_version: Literal["concepts.tscore.v2"] = TOURNAMENT_SCORE_VERSION
+    tie_break_provenance: TournamentTieBreakProvenance
+    bridge_loss_signals: list[BridgeLossSignal] = Field(default_factory=list)
     mapping_trust: MappingTrust | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
@@ -822,15 +863,17 @@ class ConceptTournamentResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     tournament_mode: Literal["live_generation", "replay_candidates"]
     provider: Literal["mock", "openai"]
-    tournament_score_version: Literal["concepts.tscore.v1"] = TOURNAMENT_SCORE_VERSION
+    tournament_score_version: Literal["concepts.tscore.v2"] = TOURNAMENT_SCORE_VERSION
     base_ir_hash: str
     base_objective_vector: list[int] = Field(default_factory=list)
+    score_metadata: TournamentScoreMetadata = Field(default_factory=TournamentScoreMetadata)
     no_safe_improvement: bool
     selected_candidate_id: str | None = None
     candidate_count: int
     evaluated_count: int
     candidates: list[ConceptTournamentCandidateResult] = Field(default_factory=list)
     budget_report: QuestionsBudgetReport
+    bridge_loss_signals: list[BridgeLossSignal] = Field(default_factory=list)
     mapping_trust: MappingTrust | None = None
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
@@ -864,6 +907,7 @@ class AdeuQuestionsResponse(BaseModel):
     bridge_manifest: BridgeManifest
     bridge_mapping_version: str
     mapping_hash: str
+    bridge_loss_signals: list[BridgeLossSignal] = Field(default_factory=list)
     budget_report: QuestionsBudgetReport
     mapping_trust: MappingTrust = "derived_bridge"
     solver_trust: SolverTrustLevel = "kernel_only"
@@ -1010,12 +1054,20 @@ class ConceptAlignmentStats(BaseModel):
     conflict_candidate_count: int
 
 
+class ConceptAlignmentCoherenceDiagnostics(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    vocabulary_drift_count: int
+    suggestion_stability_count: int
+    term_use_consistency_count: int
+
+
 class ConceptAlignResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     artifacts: list[ConceptAlignmentArtifactRef]
     suggestion_count: int
     suggestions: list[ConceptAlignmentSuggestion]
     alignment_stats: ConceptAlignmentStats
+    coherence_diagnostics: ConceptAlignmentCoherenceDiagnostics
     mapping_trust: MappingTrust = "derived_alignment"
     solver_trust: SolverTrustLevel = "kernel_only"
     proof_trust: str | None = None
@@ -1210,6 +1262,54 @@ def _alignment_stats(suggestions: list[ConceptAlignmentSuggestion]) -> ConceptAl
     return ConceptAlignmentStats(
         merge_candidate_count=merge_count,
         conflict_candidate_count=conflict_count,
+    )
+
+
+def _alignment_coherence_diagnostics(
+    suggestions: list[ConceptAlignmentSuggestion],
+) -> ConceptAlignmentCoherenceDiagnostics:
+    kinds_by_vocabulary: dict[str, set[str]] = {}
+    fingerprints: set[str] = set()
+    for suggestion in suggestions:
+        kinds_by_vocabulary.setdefault(suggestion.vocabulary_key, set()).add(suggestion.kind)
+        if suggestion.suggestion_fingerprint:
+            fingerprints.add(suggestion.suggestion_fingerprint)
+
+    vocabulary_drift_count = sum(
+        1 for kinds in kinds_by_vocabulary.values() if "conflict_candidate" in kinds
+    )
+    term_use_consistency_count = sum(
+        1
+        for kinds in kinds_by_vocabulary.values()
+        if "merge_candidate" in kinds and "conflict_candidate" not in kinds
+    )
+    return ConceptAlignmentCoherenceDiagnostics(
+        vocabulary_drift_count=vocabulary_drift_count,
+        suggestion_stability_count=len(fingerprints),
+        term_use_consistency_count=term_use_consistency_count,
+    )
+
+
+def _bridge_loss_signals(report: BridgeLossReport) -> list[BridgeLossSignal]:
+    signals: list[BridgeLossSignal] = []
+    for entry in report.entries:
+        if entry.scope != "instance":
+            continue
+        if entry.status == "preserved":
+            continue
+        severity: Literal["low", "medium", "high"] = (
+            "high" if entry.status == "not_modeled" else "medium"
+        )
+        signals.append(
+            BridgeLossSignal(
+                signal_kind=f"{entry.feature_key}:{entry.status}",
+                affected_anchors=sorted(entry.source_paths),
+                severity=severity,
+            )
+        )
+    return sorted(
+        signals,
+        key=lambda item: (item.signal_kind, tuple(item.affected_anchors), item.severity),
     )
 
 
@@ -2242,14 +2342,14 @@ def _is_do_no_harm_improvement(
     return False
 
 
-def _check_status_rank(status: str) -> int:
+def _check_status_score(status: str) -> int:
     if status == "PASS":
-        return 0
+        return 3
     if status == "WARN":
-        return 1
-    if status == "REFUSE":
         return 2
-    return 3
+    if status == "REFUSE":
+        return 1
+    return 0
 
 
 def _check_reason_count(report: CheckReport, *, severity: ReasonSeverity) -> int:
@@ -2262,11 +2362,25 @@ def _tournament_objective_vector(
     analysis: ConceptAnalysis,
 ) -> tuple[int, int, int, int, int]:
     return (
-        _check_status_rank(report.status),
-        _check_reason_count(report, severity=ReasonSeverity.ERROR),
-        _check_reason_count(report, severity=ReasonSeverity.WARN),
-        _analysis_mic_count(analysis),
-        _analysis_countermodel_count(analysis),
+        _check_status_score(report.status),
+        -_check_reason_count(report, severity=ReasonSeverity.ERROR),
+        -_check_reason_count(report, severity=ReasonSeverity.WARN),
+        -_analysis_mic_count(analysis),
+        -_analysis_countermodel_count(analysis),
+    )
+
+
+def _tournament_rank_key(
+    candidate: _TournamentCandidateEvaluation,
+) -> tuple[int, int, int, int, int, str]:
+    objective = candidate.objective_vector
+    return (
+        -objective[0],
+        -objective[1],
+        -objective[2],
+        -objective[3],
+        -objective[4],
+        candidate.candidate_id,
     )
 
 
@@ -2436,7 +2550,7 @@ def _evaluate_tournament_candidate(
             question_id=candidate.question_id,
             patch_ops=candidate.patch_ops,
             objective_vector=objective,
-            improved=objective < base_objective,
+            improved=objective > base_objective,
             check_report=applied.check_report,
             analysis=_analysis_for_response(
                 analysis=patched_analysis,
@@ -3285,6 +3399,7 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
             truncated=truncated,
             truncation_reason=truncation_reason,
         ),
+        bridge_loss_signals=[],
         mapping_trust=None,
         solver_trust="solver_backed" if records else "kernel_only",
         proof_trust=None,
@@ -3392,14 +3507,7 @@ def concept_tournament_endpoint(req: ConceptTournamentRequest) -> ConceptTournam
             },
         )
 
-    ranked = sorted(
-        evaluations,
-        key=lambda item: (
-            0 if item.improved else 1,
-            item.objective_vector,
-            item.candidate_id,
-        ),
-    )
+    ranked = sorted(evaluations, key=_tournament_rank_key)
     rank_by_id = {candidate.candidate_id: idx for idx, candidate in enumerate(ranked)}
     selected_candidate = next((candidate for candidate in ranked if candidate.improved), None)
     no_safe_improvement = selected_candidate is None
@@ -3413,6 +3521,11 @@ def concept_tournament_endpoint(req: ConceptTournamentRequest) -> ConceptTournam
         tournament_score_version=TOURNAMENT_SCORE_VERSION,
         base_ir_hash=base_ir_hash,
         base_objective_vector=[*base_objective],
+        score_metadata=TournamentScoreMetadata(
+            score_version=TOURNAMENT_SCORE_VERSION,
+            objective_dimensions=list(TOURNAMENT_OBJECTIVE_DIMENSIONS),
+            tie_break_order=TOURNAMENT_TIE_BREAK_ORDER,
+        ),
         no_safe_improvement=no_safe_improvement,
         selected_candidate_id=(
             None if selected_candidate is None else selected_candidate.candidate_id
@@ -3430,6 +3543,13 @@ def concept_tournament_endpoint(req: ConceptTournamentRequest) -> ConceptTournam
                 check_report=item.check_report,
                 analysis=item.analysis,
                 diff_report=item.diff_report,
+                score_version=TOURNAMENT_SCORE_VERSION,
+                tie_break_provenance=TournamentTieBreakProvenance(
+                    stable_id=item.candidate_id,
+                    objective_dimensions=list(TOURNAMENT_OBJECTIVE_DIMENSIONS),
+                    tie_break_order=TOURNAMENT_TIE_BREAK_ORDER,
+                ),
+                bridge_loss_signals=[],
                 mapping_trust=None,
                 solver_trust=item.solver_trust,
                 proof_trust=None,
@@ -3445,6 +3565,7 @@ def concept_tournament_endpoint(req: ConceptTournamentRequest) -> ConceptTournam
             truncated=truncation_reason is not None,
             truncation_reason=truncation_reason,
         ),
+        bridge_loss_signals=[],
         mapping_trust=None,
         solver_trust="solver_backed" if records or used_solver_calls > 0 else "kernel_only",
         proof_trust=None,
@@ -3461,6 +3582,8 @@ def adeu_questions_endpoint(req: AdeuQuestionsRequest) -> AdeuQuestionsResponse:
     _require_adeu_ir_hash_match(ir=req.ir, ir_hash=req.expected_ir_hash)
 
     lifted = lift_adeu_to_concepts(req.ir)
+    bridge_loss_report = build_bridge_loss_report(req.ir)
+    bridge_loss_signals = _bridge_loss_signals(bridge_loss_report)
     report, records = check_concept_with_validator_runs(
         lifted.concept_ir,
         mode=req.mode,
@@ -3527,6 +3650,7 @@ def adeu_questions_endpoint(req: AdeuQuestionsRequest) -> AdeuQuestionsResponse:
         bridge_manifest=lifted.bridge_manifest,
         bridge_mapping_version=lifted.bridge_mapping_version,
         mapping_hash=lifted.mapping_hash,
+        bridge_loss_signals=bridge_loss_signals,
         budget_report=QuestionsBudgetReport(
             budget_version=QUESTIONS_BUDGET_VERSION,
             max_solver_calls=MAX_QUESTION_SOLVER_CALLS_TOTAL,
@@ -4067,6 +4191,7 @@ def align_concepts_endpoint(req: ConceptAlignRequest) -> ConceptAlignResponse:
         suggestion_count=len(suggestions),
         suggestions=suggestions,
         alignment_stats=_alignment_stats(suggestions),
+        coherence_diagnostics=_alignment_coherence_diagnostics(suggestions),
         mapping_trust="derived_alignment",
         solver_trust="kernel_only",
         proof_trust=None,
