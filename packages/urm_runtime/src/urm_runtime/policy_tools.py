@@ -63,6 +63,54 @@ def _now_utc_z() -> str:
     return datetime.now(tz=timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _resolve_evaluation_ts(
+    *,
+    context_doc: dict[str, Any],
+    evaluation_ts: str | None,
+    use_now: bool,
+    invalid_input_code: str,
+) -> str:
+    if use_now and evaluation_ts is not None:
+        raise URMError(
+            code=invalid_input_code,
+            message="cannot combine --use-now with --evaluation-ts",
+        )
+    if use_now:
+        return _now_utc_z()
+    if evaluation_ts is not None:
+        return evaluation_ts
+    if "evaluation_ts" in context_doc:
+        return str(context_doc["evaluation_ts"])
+    return DEFAULT_EVALUATION_TS
+
+
+def _evaluate_policy_with_context(
+    *,
+    policy_path: Path,
+    context_path: Path,
+    strict: bool,
+    schema_path: Path | None,
+    evaluation_ts: str | None,
+    use_now: bool,
+    invalid_input_code: str,
+) -> tuple[InstructionPolicy, PolicyContext, PolicyDecision]:
+    policy = load_instruction_policy(
+        policy_path=policy_path,
+        schema_path=schema_path,
+        strict=strict,
+    )
+    context_doc = _load_json_from_path(context_path, description="policy context")
+    context_doc["evaluation_ts"] = _resolve_evaluation_ts(
+        context_doc=context_doc,
+        evaluation_ts=evaluation_ts,
+        use_now=use_now,
+        invalid_input_code=invalid_input_code,
+    )
+    context = PolicyContext.model_validate(context_doc)
+    decision = evaluate_instruction_policy(policy=policy, context=context)
+    return policy, context, decision
+
+
 def validate_policy(
     path: Path,
     *,
@@ -101,28 +149,15 @@ def eval_policy(
     use_now: bool = False,
 ) -> dict[str, Any]:
     try:
-        if use_now and evaluation_ts is not None:
-            raise URMError(
-                code="URM_POLICY_INVALID_SCHEMA",
-                message="cannot combine --use-now with --evaluation-ts",
-            )
-        policy = load_instruction_policy(
+        _, context, decision = _evaluate_policy_with_context(
             policy_path=policy_path,
-            schema_path=schema_path,
+            context_path=context_path,
             strict=strict,
+            schema_path=schema_path,
+            evaluation_ts=evaluation_ts,
+            use_now=use_now,
+            invalid_input_code="URM_POLICY_INVALID_SCHEMA",
         )
-        context_doc = _load_json_from_path(context_path, description="policy context")
-        if use_now:
-            resolved_evaluation_ts = _now_utc_z()
-        elif evaluation_ts is not None:
-            resolved_evaluation_ts = evaluation_ts
-        elif "evaluation_ts" in context_doc:
-            resolved_evaluation_ts = str(context_doc["evaluation_ts"])
-        else:
-            resolved_evaluation_ts = DEFAULT_EVALUATION_TS
-        context_doc["evaluation_ts"] = resolved_evaluation_ts
-        context = PolicyContext.model_validate(context_doc)
-        decision = evaluate_instruction_policy(policy=policy, context=context)
     except URMError as exc:
         return {
             "schema": POLICY_EVAL_SCHEMA,
@@ -200,28 +235,15 @@ def explain_policy(
     use_now: bool = False,
 ) -> dict[str, Any]:
     try:
-        if use_now and evaluation_ts is not None:
-            raise URMError(
-                code="URM_POLICY_EXPLAIN_INVALID_INPUT",
-                message="cannot combine --use-now with --evaluation-ts",
-            )
-        policy = load_instruction_policy(
+        policy, context, decision = _evaluate_policy_with_context(
             policy_path=policy_path,
-            schema_path=schema_path,
+            context_path=context_path,
             strict=strict,
+            schema_path=schema_path,
+            evaluation_ts=evaluation_ts,
+            use_now=use_now,
+            invalid_input_code="URM_POLICY_EXPLAIN_INVALID_INPUT",
         )
-        context_doc = _load_json_from_path(context_path, description="policy context")
-        if use_now:
-            resolved_evaluation_ts = _now_utc_z()
-        elif evaluation_ts is not None:
-            resolved_evaluation_ts = evaluation_ts
-        elif "evaluation_ts" in context_doc:
-            resolved_evaluation_ts = str(context_doc["evaluation_ts"])
-        else:
-            resolved_evaluation_ts = DEFAULT_EVALUATION_TS
-        context_doc["evaluation_ts"] = resolved_evaluation_ts
-        context = PolicyContext.model_validate(context_doc)
-        decision = evaluate_instruction_policy(policy=policy, context=context)
     except URMError as exc:
         return {
             "schema": POLICY_EXPLAIN_SCHEMA,
@@ -391,6 +413,15 @@ def _write_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def _emit_report(report: dict[str, Any], *, out_path: Path | None) -> int:
+    out_text = canonical_json(report)
+    if out_path is not None:
+        _write_text(out_path, out_text + "\n")
+    else:
+        print(out_text)
+    return 0 if bool(report.get("valid")) else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if args.command == "validate":
@@ -399,9 +430,7 @@ def main(argv: list[str] | None = None) -> int:
             strict=bool(args.strict),
             schema_path=args.schema_path,
         )
-        out_text = canonical_json(report)
-        print(out_text)
-        return 0 if report["valid"] else 1
+        return _emit_report(report, out_path=None)
     if args.command == "eval":
         report = eval_policy(
             policy_path=args.policy_path,
@@ -411,12 +440,7 @@ def main(argv: list[str] | None = None) -> int:
             evaluation_ts=args.evaluation_ts,
             use_now=bool(args.use_now),
         )
-        out_text = canonical_json(report)
-        if args.out_path is not None:
-            _write_text(args.out_path, out_text + "\n")
-        else:
-            print(out_text)
-        return 0 if report["valid"] else 1
+        return _emit_report(report, out_path=args.out_path)
     if args.command == "explain":
         report = explain_policy(
             policy_path=args.policy_path,
@@ -426,12 +450,7 @@ def main(argv: list[str] | None = None) -> int:
             evaluation_ts=args.evaluation_ts,
             use_now=bool(args.use_now),
         )
-        out_text = canonical_json(report)
-        if args.out_path is not None:
-            _write_text(args.out_path, out_text + "\n")
-        else:
-            print(out_text)
-        return 0 if report["valid"] else 1
+        return _emit_report(report, out_path=args.out_path)
     if args.command == "diff":
         report = diff_policy(
             old_policy_path=args.old_policy_path,
@@ -439,12 +458,7 @@ def main(argv: list[str] | None = None) -> int:
             strict=bool(args.strict),
             schema_path=args.schema_path,
         )
-        out_text = canonical_json(report)
-        if args.out_path is not None:
-            _write_text(args.out_path, out_text + "\n")
-        else:
-            print(out_text)
-        return 0 if report["valid"] else 1
+        return _emit_report(report, out_path=args.out_path)
     return 1  # pragma: no cover
 
 
