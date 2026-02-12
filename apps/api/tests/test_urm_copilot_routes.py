@@ -37,7 +37,9 @@ from urm_runtime.models import (
     ToolCallRequest,
 )
 from urm_runtime.storage import (
+    get_worker_run,
     persist_copilot_session_start,
+    persist_worker_run_start,
     transaction,
     update_copilot_session_status,
 )
@@ -372,7 +374,7 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
                 use_last_turn=False,
                 profile_id="unknown_profile",
             )
-        )
+    )
     assert bad_profile_exc.value.status_code == 400
     assert bad_profile_exc.value.detail["code"] == "URM_POLICY_PROFILE_NOT_FOUND"
     events_after_denial, _ = manager.iter_events(session_id=session_id, after_seq=0)
@@ -381,6 +383,174 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
         and event.payload.get("profile_id") == "unknown_profile"
         for event in events_after_denial
     )
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_queue_mode_v2_enforces_fifo_and_queue_limit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.6")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-child-v2-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-child-v2-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-child-v2-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    spawn1 = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-v2-1",
+            prompt="first child",
+            target_turn_id="turn-bootstrap-1",
+        )
+    )
+    spawn2 = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-v2-2",
+            prompt="second child",
+            target_turn_id="turn-bootstrap-1",
+        )
+    )
+    assert spawn1.status == "running"
+    assert spawn2.status in {"queued", "running"}
+    with pytest.raises(HTTPException) as exc_info:
+        urm_agent_spawn_endpoint(
+            AgentSpawnRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id="spawn-child-v2-3",
+                prompt="third child",
+                target_turn_id="turn-bootstrap-1",
+            )
+        )
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_CHILD_QUEUE_LIMIT_EXCEEDED"
+
+    manager = _get_manager()
+    deadline = time.monotonic() + 5.0
+    while time.monotonic() < deadline:
+        child1 = manager._child_runs.get(spawn1.child_id)  # type: ignore[attr-defined]
+        child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
+        if child1 is not None and child2 is not None and child1.status in {
+            "completed",
+            "failed",
+            "cancelled",
+        } and child2.status in {"completed", "failed", "cancelled"}:
+            break
+        time.sleep(0.05)
+    child1 = manager._child_runs.get(spawn1.child_id)  # type: ignore[attr-defined]
+    child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
+    assert child1 is not None and child2 is not None
+    assert child1.queue_seq == 1
+    assert child2.queue_seq == 2
+
+    child2_events_path = (
+        tmp_path / "evidence" / "codex" / "agent" / spawn2.child_id / "urm_events.ndjson"
+    )
+    child2_payload = child2_events_path.read_text(encoding="utf-8", errors="replace")
+    assert '"status":"queued"' in child2_payload
+    assert '"status":"running"' in child2_payload
+    _reset_manager_for_tests()
+
+
+def test_manager_marks_stale_running_child_runs_on_startup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "stale-child-run-1"
+    parent_session_id = "stale-parent-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    events_path.write_text("", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="running",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-stale-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "budget_snapshot": {
+                    "budget_version": "budget.v1",
+                    "max_solver_calls": 10,
+                    "max_token_budget": 20_000,
+                    "max_duration_secs": 300,
+                },
+                "inherited_policy_hash": "policy-hash-stale-1",
+                "capabilities_allowed": ["urm.agent.spawn"],
+                "queue_seq": 1,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+
+    _get_manager()
+
+    with transaction(db_path=config.db_path) as con:
+        row = get_worker_run(con=con, worker_id=child_id)
+    assert row is not None
+    assert row.status == "failed"
+    assert row.error_code == "URM_CHILD_TERMINATED_ON_RESTART"
+
+    child_events_payload = events_path.read_text(encoding="utf-8", errors="replace")
+    assert "WORKER_FAIL" in child_events_payload
+    assert "URM_CHILD_TERMINATED_ON_RESTART" in child_events_payload
+
+    audit_path = config.evidence_root / "audit" / parent_session_id / "urm_events.ndjson"
+    assert audit_path.is_file()
+    audit_payload = audit_path.read_text(encoding="utf-8", errors="replace")
+    assert "WORKER_FAIL" in audit_payload
+    assert "URM_CHILD_TERMINATED_ON_RESTART" in audit_payload
     _reset_manager_for_tests()
 
 

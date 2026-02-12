@@ -204,7 +204,7 @@ class AgentSpawnResponse(BaseModel):
 
     child_id: str
     parent_session_id: str
-    status: Literal["running", "completed", "failed", "cancelled"]
+    status: Literal["queued", "running", "completed", "failed", "cancelled"]
     parent_stream_id: str
     child_stream_id: str
     target_turn_id: str
@@ -230,7 +230,7 @@ class AgentCancelResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     child_id: str
-    status: Literal["running", "completed", "failed", "cancelled"]
+    status: Literal["queued", "running", "completed", "failed", "cancelled"]
     idempotent_replay: bool = False
     error: dict[str, Any] | None = None
 

@@ -393,6 +393,8 @@ def persist_worker_run_start(
     domain_pack_id: str | None,
     domain_pack_version: str | None,
     raw_jsonl_path: str,
+    status: str = "running",
+    result_json: dict[str, Any] | None = None,
 ) -> None:
     created_at = datetime.now(tz=timezone.utc).isoformat()
     con.execute(
@@ -408,22 +410,52 @@ def persist_worker_run_start(
           schema_version,
           domain_pack_id,
           domain_pack_version,
-          raw_jsonl_path
+          raw_jsonl_path,
+          result_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             worker_id,
             created_at,
             role,
             provider,
-            "running",
+            status,
             template_id,
             template_version,
             schema_version,
             domain_pack_id,
             domain_pack_version,
             raw_jsonl_path,
+            json.dumps(result_json, sort_keys=True) if result_json is not None else None,
+        ),
+    )
+
+
+def update_worker_run_status(
+    *,
+    con: sqlite3.Connection,
+    worker_id: str,
+    status: str,
+    error_code: str | None = None,
+    error_message: str | None = None,
+    result_json: dict[str, Any] | None = None,
+) -> None:
+    con.execute(
+        """
+        UPDATE urm_worker_run
+        SET status = ?,
+            error_code = ?,
+            error_message = ?,
+            result_json = ?
+        WHERE worker_id = ?
+        """,
+        (
+            status,
+            error_code,
+            error_message,
+            json.dumps(result_json, sort_keys=True) if result_json is not None else None,
+            worker_id,
         ),
     )
 
@@ -834,9 +866,61 @@ def count_running_worker_runs(*, con: sqlite3.Connection) -> int:
         SELECT COUNT(*)
         FROM urm_worker_run
         WHERE status = 'running'
+          AND role != 'copilot_child'
         """
     ).fetchone()
     return int(row[0]) if row is not None else 0
+
+
+def list_active_copilot_child_runs(*, con: sqlite3.Connection) -> list[WorkerRunRow]:
+    rows = con.execute(
+        """
+        SELECT
+          worker_id,
+          created_at,
+          ended_at,
+          role,
+          provider,
+          status,
+          template_id,
+          template_version,
+          schema_version,
+          domain_pack_id,
+          domain_pack_version,
+          raw_jsonl_path,
+          exit_code,
+          error_code,
+          error_message,
+          result_json
+        FROM urm_worker_run
+        WHERE role = 'copilot_child'
+          AND status IN ('queued', 'running')
+        ORDER BY created_at ASC, worker_id ASC
+        """
+    ).fetchall()
+    active: list[WorkerRunRow] = []
+    for row in rows:
+        active.append(
+            WorkerRunRow(
+                worker_id=str(row[0]),
+                created_at=str(row[1]),
+                ended_at=str(row[2]) if row[2] is not None else None,
+                role=str(row[3]),
+                provider=str(row[4]),
+                status=str(row[5]),
+                template_id=str(row[6]) if row[6] is not None else None,
+                template_version=str(row[7]) if row[7] is not None else None,
+                schema_version=str(row[8]) if row[8] is not None else None,
+                domain_pack_id=str(row[9]) if row[9] is not None else None,
+                domain_pack_version=str(row[10]) if row[10] is not None else None,
+                raw_jsonl_path=str(row[11]) if row[11] is not None else None,
+                exit_code=int(row[12]) if row[12] is not None else None,
+                error_code=str(row[13]) if row[13] is not None else None,
+                error_message=str(row[14]) if row[14] is not None else None,
+                result_json=json.loads(str(row[15])) if row[15] is not None else None,
+            )
+        )
+    return active
 
 
 def mark_running_sessions_terminated(
