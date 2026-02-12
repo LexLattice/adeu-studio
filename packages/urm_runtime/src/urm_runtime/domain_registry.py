@@ -61,12 +61,20 @@ class DomainToolRegistry:
         for pack in ordered:
             tool_names = tuple(sorted(pack.list_tools()))
             if len(set(tool_names)) != len(tool_names):
+                seen: set[str] = set()
+                duplicate_tools: set[str] = set()
+                for tool_name in tool_names:
+                    if tool_name in seen:
+                        duplicate_tools.add(tool_name)
+                    else:
+                        seen.add(tool_name)
                 raise URMError(
                     code="URM_POLICY_DENIED",
                     message="duplicate tool names inside domain pack",
                     context={
                         "domain_pack_id": pack.domain_pack_id,
                         "domain_pack_version": pack.domain_pack_version,
+                        "duplicate_tools": sorted(duplicate_tools),
                     },
                 )
             for tool_name in tool_names:

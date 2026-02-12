@@ -100,3 +100,4 @@ def test_domain_registry_rejects_duplicate_tool_name_inside_pack() -> None:
 
     assert exc_info.value.detail.code == "URM_POLICY_DENIED"
     assert exc_info.value.detail.context["domain_pack_id"] == "dup_pack"
+    assert exc_info.value.detail.context["duplicate_tools"] == ["tool.one"]
