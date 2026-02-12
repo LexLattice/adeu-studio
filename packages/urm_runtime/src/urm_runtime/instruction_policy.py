@@ -4,6 +4,7 @@ import importlib.resources as resources
 import json
 import os
 import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Literal
 
@@ -29,23 +30,7 @@ MAX_EXPR_NODES = 2_000
 
 UTC_Z_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
-BASE_ATOMS: frozenset[str] = frozenset(
-    {
-        "role_is",
-        "mode_is",
-        "session_active",
-        "capability_present",
-        "capability_allowed",
-        "action_kind_is",
-        "action_hash_matches",
-        "approval_present",
-        "approval_valid",
-        "approval_unexpired",
-        "approval_unused",
-        "has_evidence_kind",
-        "warrant_is",
-    }
-)
+AtomHandler = Callable[["PolicyContext", list[Any]], bool]
 
 
 class RuleEffect(BaseModel):
@@ -170,6 +155,83 @@ class PolicyDecision(BaseModel):
     warrant_invalid: bool = False
 
 
+def _eval_role_is(context: PolicyContext, args: list[Any]) -> bool:
+    return context.role == str(args[0])
+
+
+def _eval_mode_is(context: PolicyContext, args: list[Any]) -> bool:
+    return context.mode == str(args[0])
+
+
+def _eval_session_active(context: PolicyContext, args: list[Any]) -> bool:
+    del args
+    return context.session_active
+
+
+def _eval_capability_present(context: PolicyContext, args: list[Any]) -> bool:
+    return str(args[0]) in context.capabilities_present
+
+
+def _eval_capability_allowed(context: PolicyContext, args: list[Any]) -> bool:
+    return str(args[0]) in context.capabilities_allowed
+
+
+def _eval_action_kind_is(context: PolicyContext, args: list[Any]) -> bool:
+    return context.action_kind == str(args[0])
+
+
+def _eval_action_hash_matches(context: PolicyContext, args: list[Any]) -> bool:
+    return context.action_hash == str(args[0])
+
+
+def _eval_approval_present(context: PolicyContext, args: list[Any]) -> bool:
+    del args
+    return context.approval_present
+
+
+def _eval_approval_valid(context: PolicyContext, args: list[Any]) -> bool:
+    del args
+    return context.approval_valid
+
+
+def _eval_approval_unexpired(context: PolicyContext, args: list[Any]) -> bool:
+    del args
+    return context.approval_unexpired
+
+
+def _eval_approval_unused(context: PolicyContext, args: list[Any]) -> bool:
+    del args
+    return context.approval_unused
+
+
+def _eval_has_evidence_kind(context: PolicyContext, args: list[Any]) -> bool:
+    return str(args[0]) in context.evidence_kinds
+
+
+def _eval_warrant_is(context: PolicyContext, args: list[Any]) -> bool:
+    return context.warrant == str(args[0])
+
+
+ATOM_HANDLERS: dict[str, tuple[int, AtomHandler]] = {
+    "role_is": (1, _eval_role_is),
+    "mode_is": (1, _eval_mode_is),
+    "session_active": (0, _eval_session_active),
+    "capability_present": (1, _eval_capability_present),
+    "capability_allowed": (1, _eval_capability_allowed),
+    "action_kind_is": (1, _eval_action_kind_is),
+    "action_hash_matches": (1, _eval_action_hash_matches),
+    "approval_present": (0, _eval_approval_present),
+    "approval_valid": (0, _eval_approval_valid),
+    "approval_unexpired": (0, _eval_approval_unexpired),
+    "approval_unused": (0, _eval_approval_unused),
+    "has_evidence_kind": (1, _eval_has_evidence_kind),
+    "warrant_is": (1, _eval_warrant_is),
+}
+
+
+BASE_ATOMS: frozenset[str] = frozenset(ATOM_HANDLERS)
+
+
 def _discover_repo_root(anchor: Path) -> Path | None:
     for parent in anchor.parents:
         if (parent / ".git").exists():
@@ -177,30 +239,11 @@ def _discover_repo_root(anchor: Path) -> Path | None:
     return None
 
 
-def _policy_path_from_env_or_repo() -> Path:
-    env_path = os.environ.get("URM_INSTRUCTION_POLICY_PATH", "").strip()
-    if env_path:
-        return Path(env_path).expanduser().resolve()
+def _repo_relative_path(*parts: str) -> Path | None:
     repo_root = _discover_repo_root(Path(__file__).resolve())
     if repo_root is None:
-        raise URMError(
-            code="URM_POLICY_INVALID_SCHEMA",
-            message="unable to locate repository root for instruction policy",
-        )
-    return (repo_root / "policy" / INSTRUCTION_POLICY_FILE).resolve()
-
-
-def _schema_path_from_env_or_repo() -> Path:
-    env_path = os.environ.get("URM_INSTRUCTION_POLICY_SCHEMA_PATH", "").strip()
-    if env_path:
-        return Path(env_path).expanduser().resolve()
-    repo_root = _discover_repo_root(Path(__file__).resolve())
-    if repo_root is None:
-        raise URMError(
-            code="URM_POLICY_INVALID_SCHEMA",
-            message="unable to locate repository root for instruction policy schema",
-        )
-    return (repo_root / "spec" / INSTRUCTION_POLICY_SCHEMA_FILE).resolve()
+        return None
+    return (repo_root.joinpath(*parts)).resolve()
 
 
 def _load_json_from_path(path: Path, *, description: str) -> dict[str, Any]:
@@ -244,25 +287,70 @@ def _load_packaged_policy() -> dict[str, Any]:
         ) from exc
 
 
-def _scan_for_derive_firewall_violation(
+def _load_packaged_schema() -> dict[str, Any]:
+    resource = resources.files("urm_runtime.policy").joinpath(INSTRUCTION_POLICY_SCHEMA_FILE)
+    try:
+        return json.loads(resource.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise URMError(
+            code="URM_POLICY_INVALID_SCHEMA",
+            message="packaged instruction policy schema is missing",
+            context={"resource": INSTRUCTION_POLICY_SCHEMA_FILE},
+        ) from exc
+    except json.JSONDecodeError as exc:
+        raise URMError(
+            code="URM_POLICY_INVALID_SCHEMA",
+            message="packaged instruction policy schema is invalid JSON",
+            context={"resource": INSTRUCTION_POLICY_SCHEMA_FILE, "error": str(exc)},
+        ) from exc
+
+
+def _scan_expr_for_derive_firewall_violation(
     value: Any,
     *,
-    path: tuple[str, ...] = (),
+    path: tuple[str, ...],
 ) -> tuple[str, ...] | None:
     if isinstance(value, dict):
         atom = value.get("atom")
         if isinstance(atom, str) and (atom.startswith("derived_") or atom.startswith("derived.")):
             return path + ("atom",)
         for key in sorted(value):
-            match = _scan_for_derive_firewall_violation(value[key], path=path + (str(key),))
+            match = _scan_expr_for_derive_firewall_violation(
+                value[key],
+                path=path + (str(key),),
+            )
             if match is not None:
                 return match
         return None
     if isinstance(value, list):
         for idx, item in enumerate(value):
-            match = _scan_for_derive_firewall_violation(item, path=path + (str(idx),))
+            match = _scan_expr_for_derive_firewall_violation(
+                item,
+                path=path + (str(idx),),
+            )
             if match is not None:
                 return match
+    return None
+
+
+def _scan_rule_whens_for_derive_firewall_violation(
+    document: dict[str, Any],
+) -> tuple[str, ...] | None:
+    rules = document.get("rules")
+    if not isinstance(rules, list):
+        return None
+    for idx, candidate_rule in enumerate(rules):
+        if not isinstance(candidate_rule, dict):
+            continue
+        when_expr = candidate_rule.get("when")
+        if not isinstance(when_expr, dict):
+            continue
+        match = _scan_expr_for_derive_firewall_violation(
+            when_expr,
+            path=("rules", str(idx), "when"),
+        )
+        if match is not None:
+            return match
     return None
 
 
@@ -357,9 +445,19 @@ def _validate_with_schema(document: dict[str, Any], schema: dict[str, Any]) -> N
 
 
 def load_instruction_policy_schema(*, schema_path: Path | None = None) -> dict[str, Any]:
-    if schema_path is None:
-        schema_path = _schema_path_from_env_or_repo()
-    return _load_json_from_path(schema_path, description="instruction policy schema")
+    if schema_path is not None:
+        return _load_json_from_path(schema_path, description="instruction policy schema")
+
+    env_path = os.environ.get("URM_INSTRUCTION_POLICY_SCHEMA_PATH", "").strip()
+    if env_path:
+        resolved_env = Path(env_path).expanduser().resolve()
+        return _load_json_from_path(resolved_env, description="instruction policy schema")
+
+    repo_schema_path = _repo_relative_path("spec", INSTRUCTION_POLICY_SCHEMA_FILE)
+    if repo_schema_path is not None and repo_schema_path.exists():
+        return _load_json_from_path(repo_schema_path, description="instruction policy schema")
+
+    return _load_packaged_schema()
 
 
 def validate_instruction_policy_document(
@@ -376,7 +474,7 @@ def validate_instruction_policy_document(
             context={"max_rules": MAX_RULES, "rule_count": len(rules_candidate)},
         )
     if strict:
-        violation_path = _scan_for_derive_firewall_violation(document)
+        violation_path = _scan_rule_whens_for_derive_firewall_violation(document)
         if violation_path is not None:
             pointer = "/" + "/".join(violation_path)
             raise URMError(
@@ -405,11 +503,21 @@ def load_instruction_policy(
     strict: bool = True,
 ) -> InstructionPolicy:
     schema = load_instruction_policy_schema(schema_path=schema_path)
-    if policy_path is None:
-        policy_path = _policy_path_from_env_or_repo()
-    if policy_path.exists():
+    if policy_path is not None:
         doc = _load_json_from_path(policy_path, description="instruction policy")
         return validate_instruction_policy_document(doc, strict=strict, schema=schema)
+
+    env_path = os.environ.get("URM_INSTRUCTION_POLICY_PATH", "").strip()
+    if env_path:
+        resolved_env = Path(env_path).expanduser().resolve()
+        doc = _load_json_from_path(resolved_env, description="instruction policy")
+        return validate_instruction_policy_document(doc, strict=strict, schema=schema)
+
+    repo_policy_path = _repo_relative_path("policy", INSTRUCTION_POLICY_FILE)
+    if repo_policy_path is not None and repo_policy_path.exists():
+        doc = _load_json_from_path(repo_policy_path, description="instruction policy")
+        return validate_instruction_policy_document(doc, strict=strict, schema=schema)
+
     packaged = _load_packaged_policy()
     return validate_instruction_policy_document(packaged, strict=strict, schema=schema)
 
@@ -511,56 +619,16 @@ def _ensure_arg_count(*, atom: str, args: list[Any], expected: int) -> None:
 
 
 def _evaluate_atom(*, atom: str, args: list[Any], context: PolicyContext) -> bool:
-    if atom not in BASE_ATOMS:
+    handler_spec = ATOM_HANDLERS.get(atom)
+    if handler_spec is None:
         raise URMError(
             code="URM_POLICY_INVALID_SCHEMA",
             message="unknown predicate atom",
             context={"atom": atom},
         )
-    if atom == "role_is":
-        _ensure_arg_count(atom=atom, args=args, expected=1)
-        return context.role == str(args[0])
-    if atom == "mode_is":
-        _ensure_arg_count(atom=atom, args=args, expected=1)
-        return context.mode == str(args[0])
-    if atom == "session_active":
-        _ensure_arg_count(atom=atom, args=args, expected=0)
-        return context.session_active
-    if atom == "capability_present":
-        _ensure_arg_count(atom=atom, args=args, expected=1)
-        return str(args[0]) in context.capabilities_present
-    if atom == "capability_allowed":
-        _ensure_arg_count(atom=atom, args=args, expected=1)
-        return str(args[0]) in context.capabilities_allowed
-    if atom == "action_kind_is":
-        _ensure_arg_count(atom=atom, args=args, expected=1)
-        return context.action_kind == str(args[0])
-    if atom == "action_hash_matches":
-        _ensure_arg_count(atom=atom, args=args, expected=1)
-        return context.action_hash == str(args[0])
-    if atom == "approval_present":
-        _ensure_arg_count(atom=atom, args=args, expected=0)
-        return context.approval_present
-    if atom == "approval_valid":
-        _ensure_arg_count(atom=atom, args=args, expected=0)
-        return context.approval_valid
-    if atom == "approval_unexpired":
-        _ensure_arg_count(atom=atom, args=args, expected=0)
-        return context.approval_unexpired
-    if atom == "approval_unused":
-        _ensure_arg_count(atom=atom, args=args, expected=0)
-        return context.approval_unused
-    if atom == "has_evidence_kind":
-        _ensure_arg_count(atom=atom, args=args, expected=1)
-        return str(args[0]) in context.evidence_kinds
-    if atom == "warrant_is":
-        _ensure_arg_count(atom=atom, args=args, expected=1)
-        return context.warrant == str(args[0])
-    raise URMError(
-        code="URM_POLICY_INVALID_SCHEMA",
-        message="unknown predicate atom",
-        context={"atom": atom},
-    )
+    expected_args, handler = handler_spec
+    _ensure_arg_count(atom=atom, args=args, expected=expected_args)
+    return handler(context, args)
 
 
 def _evaluate_expr(expr: dict[str, Any], context: PolicyContext) -> bool:

@@ -7,6 +7,8 @@ from urm_runtime.instruction_policy import (
     PolicyContext,
     compute_policy_hash,
     evaluate_instruction_policy,
+    load_instruction_policy,
+    load_instruction_policy_schema,
     validate_instruction_policy_document,
 )
 
@@ -235,6 +237,55 @@ def test_validate_instruction_policy_document_rejects_derive_firewall_atoms() ->
             strict=True,
         )
     assert exc_info.value.detail.code == "URM_POLICY_DERIVE_FIREWALL_VIOLATION"
+
+
+def test_derive_firewall_only_checks_rule_when_expression() -> None:
+    validate_instruction_policy_document(
+        {
+            "schema": "odeu.instructions.v1",
+            "rules": [
+                {
+                    **_make_rule(
+                        rule_id="derive_meta_payload_ok",
+                        priority=1,
+                        kind="derive",
+                        effect="emit_advisory",
+                        when={"atom": "session_active", "args": []},
+                        code="META_OK",
+                    ),
+                    "then": {
+                        "effect": "emit_advisory",
+                        "params": {"atom": "derived_output_payload"},
+                    },
+                }
+            ],
+        },
+        strict=True,
+    )
+
+
+def test_load_instruction_policy_schema_falls_back_to_packaged(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("URM_INSTRUCTION_POLICY_SCHEMA_PATH", raising=False)
+    monkeypatch.setattr(
+        "urm_runtime.instruction_policy._repo_relative_path",
+        lambda *_parts: None,
+    )
+    schema = load_instruction_policy_schema()
+    assert schema["$id"] == "https://lexlattice.local/spec/instruction_policy.schema.json"
+
+
+def test_load_instruction_policy_falls_back_to_packaged(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("URM_INSTRUCTION_POLICY_SCHEMA_PATH", raising=False)
+    monkeypatch.delenv("URM_INSTRUCTION_POLICY_PATH", raising=False)
+    monkeypatch.setattr(
+        "urm_runtime.instruction_policy._repo_relative_path",
+        lambda *_parts: None,
+    )
+    policy = load_instruction_policy()
+    assert policy.schema_id == "odeu.instructions.v1"
+    assert policy.rules == []
 
 
 def test_policy_context_requires_utc_z_timestamp() -> None:

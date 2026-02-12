@@ -24,3 +24,7 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/urm_runtime"]
+include = ["src/urm_runtime/policy/*.json"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/urm_runtime/policy/*.json"]
