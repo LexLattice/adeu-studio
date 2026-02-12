@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/instruction_policy.schema.json",
+  "title": "ODEU Instruction Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "rules"
+  ],
+  "properties": {
+    "schema": {
+      "const": "odeu.instructions.v1"
+    },
+    "rules": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    }
+  },
+  "$defs": {
+    "rule_effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "effect"
+      ],
+      "properties": {
+        "effect": {
+          "type": "string",
+          "enum": [
+            "deny_action",
+            "allow_action",
+            "require_approval",
+            "set_warrant_invalid",
+            "emit_advisory"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "default": {}
+        }
+      }
+    },
+    "predicate_expr": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/predicate_atom"
+        },
+        {
+          "$ref": "#/$defs/predicate_not"
+        },
+        {
+          "$ref": "#/$defs/predicate_bool"
+        }
+      ]
+    },
+    "predicate_atom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "atom",
+        "args"
+      ],
+      "properties": {
+        "atom": {
+          "type": "string",
+          "enum": [
+            "role_is",
+            "mode_is",
+            "session_active",
+            "capability_present",
+            "capability_allowed",
+            "action_kind_is",
+            "action_hash_matches",
+            "approval_present",
+            "approval_valid",
+            "approval_unexpired",
+            "approval_unused",
+            "has_evidence_kind",
+            "warrant_is"
+          ]
+        },
+        "args": {
+          "type": "array"
+        }
+      }
+    },
+    "predicate_not": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "arg"
+      ],
+      "properties": {
+        "op": {
+          "const": "not"
+        },
+        "arg": {
+          "$ref": "#/$defs/predicate_expr"
+        }
+      }
+    },
+    "predicate_bool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "op",
+        "args"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "and",
+            "or"
+          ]
+        },
+        "args": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/predicate_expr"
+          }
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_id",
+        "rule_version",
+        "priority",
+        "kind",
+        "when",
+        "then",
+        "message",
+        "code"
+      ],
+      "properties": {
+        "rule_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rule_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "priority": {
+          "type": "integer"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "deny",
+            "allow",
+            "require",
+            "derive"
+          ]
+        },
+        "when": {
+          "$ref": "#/$defs/predicate_expr"
+        },
+        "then": {
+          "$ref": "#/$defs/rule_effect"
+        },
+        "message": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "deny"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "then": {
+                "properties": {
+                  "effect": {
+                    "const": "deny_action"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "allow"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "then": {
+                "properties": {
+                  "effect": {
+                    "const": "allow_action"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "require"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "then": {
+                "properties": {
+                  "effect": {
+                    "const": "require_approval"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "derive"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "then": {
+                "properties": {
+                  "effect": {
+                    "enum": [
+                      "set_warrant_invalid",
+                      "emit_advisory"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

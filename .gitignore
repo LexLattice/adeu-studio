@@ -19,6 +19,8 @@ node_modules/
 .next/
 out/
 apps/api/var/
+artifacts/*
+!artifacts/.gitkeep
 
 # Editors
 .idea/
