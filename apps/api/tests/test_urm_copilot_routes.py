@@ -3,6 +3,7 @@ from __future__ import annotations
 import shutil
 import sqlite3
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -13,6 +14,8 @@ from adeu_api.urm_routes import (
     urm_agent_spawn_endpoint,
     urm_approval_issue_endpoint,
     urm_approval_revoke_endpoint,
+    urm_connector_snapshot_create_endpoint,
+    urm_connector_snapshot_get_endpoint,
     urm_copilot_events_endpoint,
     urm_copilot_mode_endpoint,
     urm_copilot_send_endpoint,
@@ -29,6 +32,7 @@ from urm_runtime.models import (
     AgentSpawnRequest,
     ApprovalIssueRequest,
     ApprovalRevokeRequest,
+    ConnectorSnapshotCreateRequest,
     CopilotModeRequest,
     CopilotSessionSendRequest,
     CopilotSessionStartRequest,
@@ -383,6 +387,110 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
         and event.payload.get("profile_id") == "unknown_profile"
         for event in events_after_denial
     )
+    _reset_manager_for_tests()
+
+
+def test_connector_snapshot_create_get_and_idempotency(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv(
+        "FAKE_APP_SERVER_APPS_JSON",
+        '[{"id":"zeta","name":"Zeta"},{"id":"alpha","name":"Alpha"}]',
+    )
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-connector-1")
+    )
+    session_id = start.session_id
+    first = urm_connector_snapshot_create_endpoint(
+        ConnectorSnapshotCreateRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="connector-snapshot-1",
+        )
+    )
+    assert first.snapshot_id
+    assert first.session_id == session_id
+    assert len(first.connector_snapshot_hash) == 64
+    assert [item.get("id") for item in first.connectors] == ["alpha", "zeta"]
+
+    replay = urm_connector_snapshot_create_endpoint(
+        ConnectorSnapshotCreateRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="connector-snapshot-1",
+        )
+    )
+    assert replay.snapshot_id == first.snapshot_id
+    assert replay.idempotent_replay is True
+
+    fetched = urm_connector_snapshot_get_endpoint(
+        first.snapshot_id,
+        session_id=session_id,
+        provider="codex",
+    )
+    assert fetched.snapshot_id == first.snapshot_id
+    assert fetched.connector_snapshot_hash == first.connector_snapshot_hash
+    assert fetched.connectors == first.connectors
+    _reset_manager_for_tests()
+
+
+def test_connector_snapshot_get_stale_and_not_found(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-connector-2")
+    )
+    session_id = start.session_id
+    created = urm_connector_snapshot_create_endpoint(
+        ConnectorSnapshotCreateRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="connector-snapshot-2",
+        )
+    )
+
+    with pytest.raises(HTTPException) as stale_cap_exc:
+        urm_connector_snapshot_get_endpoint(
+            created.snapshot_id,
+            session_id=session_id,
+            provider="codex",
+            requested_capability_snapshot_id="different-capability-snapshot-id",
+        )
+    assert stale_cap_exc.value.status_code == 400
+    assert stale_cap_exc.value.detail["code"] == "URM_CONNECTOR_SNAPSHOT_STALE"
+
+    with pytest.raises(HTTPException) as stale_ts_exc:
+        urm_connector_snapshot_get_endpoint(
+            created.snapshot_id,
+            session_id=session_id,
+            provider="codex",
+            min_acceptable_ts=datetime.now(tz=timezone.utc) + timedelta(minutes=1),
+        )
+    assert stale_ts_exc.value.status_code == 400
+    assert stale_ts_exc.value.detail["code"] == "URM_CONNECTOR_SNAPSHOT_STALE"
+
+    with pytest.raises(HTTPException) as missing_exc:
+        urm_connector_snapshot_get_endpoint(
+            "missing-snapshot-id",
+            session_id=session_id,
+            provider="codex",
+        )
+    assert missing_exc.value.status_code == 404
+    assert missing_exc.value.detail["code"] == "URM_CONNECTOR_SNAPSHOT_NOT_FOUND"
     _reset_manager_for_tests()
 
 

@@ -31,6 +31,8 @@ from urm_runtime.models import (
     ApprovalIssueResponse,
     ApprovalRevokeRequest,
     ApprovalRevokeResponse,
+    ConnectorSnapshotCreateRequest,
+    ConnectorSnapshotResponse,
     CopilotModeRequest,
     CopilotSessionResponse,
     CopilotSessionSendRequest,
@@ -158,6 +160,14 @@ def _resolve_spawn_policy_action() -> str:
 
 def _resolve_cancel_policy_action() -> str:
     return "urm.agent.cancel"
+
+
+def _resolve_connector_snapshot_create_policy_action() -> str:
+    return "urm.connectors.snapshot.create"
+
+
+def _resolve_connector_snapshot_get_policy_action() -> str:
+    return "urm.connectors.snapshot.get"
 
 
 def _load_session_writes_allowed(session_id: str | None) -> bool:
@@ -362,6 +372,74 @@ def urm_agent_cancel_endpoint(child_id: str, request: AgentCancelRequest) -> Age
             emit_policy_event=_policy_event_emitter(session_id=parent_session_id),
         )
         return manager.cancel_child(child_id=child_id, request=request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/connectors/snapshot", response_model=ConnectorSnapshotResponse)
+def urm_connector_snapshot_create_endpoint(
+    request: ConnectorSnapshotCreateRequest,
+) -> ConnectorSnapshotResponse:
+    _require_codex_provider(request.provider)
+    manager = _get_manager()
+    try:
+        session_writes_allowed, session_active = _load_session_access_state(request.session_id)
+        _ = authorize_action(
+            role="copilot",
+            action=_resolve_connector_snapshot_create_policy_action(),
+            writes_allowed=session_writes_allowed,
+            approval_provided=False,
+            action_payload={
+                "requested_capability_snapshot_id": request.requested_capability_snapshot_id,
+                "min_acceptable_ts": (
+                    request.min_acceptable_ts.isoformat()
+                    if request.min_acceptable_ts is not None
+                    else None
+                ),
+            },
+            session_active=session_active,
+            emit_policy_event=_policy_event_emitter(session_id=request.session_id),
+        )
+        return manager.create_connector_snapshot(request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.get("/connectors/snapshot/{snapshot_id}", response_model=ConnectorSnapshotResponse)
+def urm_connector_snapshot_get_endpoint(
+    snapshot_id: str,
+    *,
+    session_id: str,
+    provider: str = "codex",
+    requested_capability_snapshot_id: str | None = None,
+    min_acceptable_ts: datetime | None = None,
+) -> ConnectorSnapshotResponse:
+    _require_codex_provider(provider)
+    manager = _get_manager()
+    try:
+        session_writes_allowed, session_active = _load_session_access_state(session_id)
+        _ = authorize_action(
+            role="copilot",
+            action=_resolve_connector_snapshot_get_policy_action(),
+            writes_allowed=session_writes_allowed,
+            approval_provided=False,
+            action_payload={
+                "snapshot_id": snapshot_id,
+                "requested_capability_snapshot_id": requested_capability_snapshot_id,
+                "min_acceptable_ts": (
+                    min_acceptable_ts.isoformat() if min_acceptable_ts is not None else None
+                ),
+            },
+            session_active=session_active,
+            emit_policy_event=_policy_event_emitter(session_id=session_id),
+        )
+        return manager.get_connector_snapshot(
+            snapshot_id=snapshot_id,
+            session_id=session_id,
+            provider=provider,
+            requested_capability_snapshot_id=requested_capability_snapshot_id,
+            min_acceptable_ts=min_acceptable_ts,
+        )
     except URMError as exc:
         raise _to_http_exception(exc) from exc
 

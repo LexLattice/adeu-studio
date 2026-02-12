@@ -33,6 +33,8 @@ def _reset_policy_cache() -> None:
         ("urm.turn.steer", False, False),
         ("urm.agent.spawn", False, False),
         ("urm.agent.cancel", False, False),
+        ("urm.connectors.snapshot.create", False, False),
+        ("urm.connectors.snapshot.get", False, False),
         ("urm.set_mode.disable_writes", False, False),
         ("urm.set_mode.enable_writes", False, True),
         ("adeu.apply_patch", True, True),

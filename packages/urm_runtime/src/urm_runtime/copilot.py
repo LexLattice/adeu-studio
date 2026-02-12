@@ -20,7 +20,7 @@ from .errors import (
 )
 from .evidence import EvidenceFileLimitExceeded, EvidenceFileWriter
 from .hashing import action_hash as compute_action_hash
-from .hashing import sha256_canonical_json
+from .hashing import canonical_json, sha256_canonical_json
 from .instruction_policy import compute_policy_hash, load_instruction_policy
 from .models import (
     AgentCancelRequest,
@@ -29,6 +29,8 @@ from .models import (
     AgentSpawnResponse,
     ApprovalIssueResponse,
     ApprovalRevokeResponse,
+    ConnectorSnapshotCreateRequest,
+    ConnectorSnapshotResponse,
     CopilotModeRequest,
     CopilotSessionResponse,
     CopilotSessionSendRequest,
@@ -46,9 +48,11 @@ from .storage import (
     consume_approval,
     create_approval,
     get_approval,
+    get_connector_snapshot,
     get_copilot_session,
     list_active_copilot_child_runs,
     mark_running_sessions_terminated,
+    persist_connector_snapshot,
     persist_copilot_session_start,
     persist_evidence_record,
     persist_idempotency_response,
@@ -69,6 +73,7 @@ COPILOT_SEND_ENDPOINT = "urm.copilot.send"
 COPILOT_STEER_ENDPOINT = "urm.copilot.steer"
 AGENT_SPAWN_ENDPOINT = "urm.agent.spawn"
 AGENT_CANCEL_ENDPOINT = "urm.agent.cancel"
+CONNECTOR_SNAPSHOT_CREATE_ENDPOINT = "urm.connectors.snapshot.create"
 HEARTBEAT_SECS = 10
 COPILOT_BUFFER_MAX = 20_000
 MAX_STEER_PER_TURN = 5
@@ -277,6 +282,11 @@ class URMCopilotManager:
 
     def _audit_events_path_for_session(self, session_id: str) -> Path:
         path = self.config.evidence_root / "audit" / session_id / "urm_events.ndjson"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _connector_snapshot_path(self, snapshot_id: str) -> Path:
+        path = self.config.evidence_root / "connectors" / f"{snapshot_id}.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -1336,6 +1346,263 @@ class URMCopilotManager:
         with self._lock:
             child = self._child_runs.get(child_id)
             return child.parent_session_id if child is not None else None
+
+    def _normalize_connectors(self, *, raw_connectors: Any) -> list[dict[str, Any]]:
+        if not isinstance(raw_connectors, list):
+            return []
+        normalized_with_keys: list[tuple[tuple[str, str, str], dict[str, Any]]] = []
+        seen: set[str] = set()
+        for item in raw_connectors:
+            if not isinstance(item, dict):
+                continue
+            try:
+                normalized = json.loads(canonical_json(item))
+            except (TypeError, ValueError):
+                continue
+            if not isinstance(normalized, dict):
+                continue
+            connector_hash = sha256_canonical_json(normalized)
+            if connector_hash in seen:
+                continue
+            seen.add(connector_hash)
+            connector_id = normalized.get("id")
+            connector_name = normalized.get("name")
+            key = (
+                str(connector_id) if connector_id is not None else "",
+                str(connector_name) if connector_name is not None else "",
+                connector_hash,
+            )
+            normalized_with_keys.append((key, normalized))
+        normalized_with_keys.sort(key=lambda pair: pair[0])
+        return [item for _, item in normalized_with_keys]
+
+    def _extract_app_list(self, *, response: dict[str, Any]) -> list[dict[str, Any]]:
+        result = response.get("result")
+        if isinstance(result, dict):
+            apps = result.get("apps")
+            if isinstance(apps, list):
+                return self._normalize_connectors(raw_connectors=apps)
+            connectors = result.get("connectors")
+            if isinstance(connectors, list):
+                return self._normalize_connectors(raw_connectors=connectors)
+        if isinstance(result, list):
+            return self._normalize_connectors(raw_connectors=result)
+        return []
+
+    def _capability_snapshot_id(self) -> str:
+        return self._probe.probe_id
+
+    def create_connector_snapshot(
+        self,
+        request: ConnectorSnapshotCreateRequest,
+    ) -> ConnectorSnapshotResponse:
+        payload_hash = sha256_canonical_json(request.idempotency_payload())
+        with self._lock:
+            runtime = self._sessions.get(request.session_id)
+            if runtime is None:
+                raise URMError(
+                    code="URM_NOT_FOUND",
+                    message="copilot session not found",
+                    status_code=404,
+                    context={"session_id": request.session_id},
+                )
+            self._enforce_session_duration_unlocked(runtime=runtime)
+            capability_snapshot_id = self._capability_snapshot_id()
+            if (
+                request.requested_capability_snapshot_id is not None
+                and request.requested_capability_snapshot_id != capability_snapshot_id
+            ):
+                raise URMError(
+                    code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    message="requested capability snapshot id does not match active snapshot",
+                    context={
+                        "requested_capability_snapshot_id": (
+                            request.requested_capability_snapshot_id
+                        ),
+                        "capability_snapshot_id": capability_snapshot_id,
+                    },
+                )
+            now = datetime.now(tz=timezone.utc)
+            min_acceptable_ts = request.min_acceptable_ts
+            if min_acceptable_ts is not None and min_acceptable_ts.tzinfo is None:
+                min_acceptable_ts = min_acceptable_ts.replace(tzinfo=timezone.utc)
+            if min_acceptable_ts is not None and now < min_acceptable_ts:
+                raise URMError(
+                    code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    message="snapshot creation time precedes requested minimum timestamp",
+                    context={
+                        "min_acceptable_ts": min_acceptable_ts.isoformat(),
+                    },
+                )
+            with transaction(db_path=self.config.db_path) as con:
+                snapshot_id = uuid.uuid4().hex
+                try:
+                    reservation = reserve_request_idempotency(
+                        con=con,
+                        endpoint_name=CONNECTOR_SNAPSHOT_CREATE_ENDPOINT,
+                        client_request_id=request.client_request_id,
+                        payload_hash=payload_hash,
+                        resource_id=snapshot_id,
+                    )
+                except ValueError as exc:
+                    raise URMError(
+                        code="URM_IDEMPOTENCY_KEY_CONFLICT",
+                        message="client_request_id already used with a different payload",
+                        status_code=409,
+                        context={"client_request_id": request.client_request_id},
+                    ) from exc
+                if reservation.replay:
+                    replay = ConnectorSnapshotResponse.model_validate(
+                        reservation.response_json or {}
+                    )
+                    return replay.model_copy(update={"idempotent_replay": True})
+                snapshot_id = reservation.resource_id
+
+            self._bootstrap_runtime(runtime=runtime)
+            try:
+                app_list_response = self._send_jsonrpc_and_wait(
+                    runtime=runtime,
+                    method="app/list",
+                    params={},
+                    timeout_secs=10.0,
+                )
+            except URMError as exc:
+                raise URMError(
+                    code="URM_CAPABILITY_MISSING",
+                    message="connector discovery capability is unavailable",
+                    context={"reason": exc.detail.message},
+                ) from exc
+
+            connectors = self._extract_app_list(response=app_list_response)
+            connector_snapshot_hash = sha256_canonical_json(connectors)
+            artifact_path = self._connector_snapshot_path(snapshot_id)
+            artifact_rel_path = self._relative_path(artifact_path)
+            with transaction(db_path=self.config.db_path) as con:
+                created_at = persist_connector_snapshot(
+                    con=con,
+                    snapshot_id=snapshot_id,
+                    session_id=request.session_id,
+                    provider=request.provider,
+                    capability_snapshot_id=capability_snapshot_id,
+                    connector_snapshot_hash=connector_snapshot_hash,
+                    connectors=connectors,
+                    artifact_path=artifact_rel_path,
+                )
+            artifact_payload = {
+                "schema": "connector_snapshot@1",
+                "snapshot_id": snapshot_id,
+                "session_id": request.session_id,
+                "provider": request.provider,
+                "capability_snapshot_id": capability_snapshot_id,
+                "connector_snapshot_hash": connector_snapshot_hash,
+                "created_at": created_at,
+                "connectors": connectors,
+            }
+            artifact_path.write_text(
+                canonical_json(artifact_payload) + "\n",
+                encoding="utf-8",
+            )
+            self._record_internal_event(
+                runtime=runtime,
+                event_kind="EVIDENCE_WRITTEN",
+                payload={
+                    "evidence_id": snapshot_id,
+                    "path": artifact_rel_path,
+                },
+            )
+            response_model = ConnectorSnapshotResponse(
+                snapshot_id=snapshot_id,
+                session_id=request.session_id,
+                provider=request.provider,
+                capability_snapshot_id=capability_snapshot_id,
+                connector_snapshot_hash=connector_snapshot_hash,
+                created_at=datetime.fromisoformat(created_at),
+                connectors=connectors,
+                idempotent_replay=False,
+            )
+            with transaction(db_path=self.config.db_path) as con:
+                persist_idempotency_response(
+                    con=con,
+                    endpoint_name=CONNECTOR_SNAPSHOT_CREATE_ENDPOINT,
+                    client_request_id=request.client_request_id,
+                    response_json=response_model.model_dump(mode="json"),
+                )
+            return response_model
+
+    def get_connector_snapshot(
+        self,
+        *,
+        snapshot_id: str,
+        session_id: str,
+        provider: str,
+        requested_capability_snapshot_id: str | None = None,
+        min_acceptable_ts: datetime | None = None,
+    ) -> ConnectorSnapshotResponse:
+        with self._lock:
+            with transaction(db_path=self.config.db_path) as con:
+                row = get_connector_snapshot(con=con, snapshot_id=snapshot_id)
+            if row is None:
+                raise URMError(
+                    code="URM_CONNECTOR_SNAPSHOT_NOT_FOUND",
+                    message="connector snapshot not found",
+                    status_code=404,
+                    context={"snapshot_id": snapshot_id},
+                )
+            if row.session_id != session_id:
+                raise URMError(
+                    code="URM_POLICY_DENIED",
+                    message="session is not authorized for this connector snapshot",
+                    context={"snapshot_id": snapshot_id, "session_id": session_id},
+                )
+            if row.provider != provider:
+                raise URMError(
+                    code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    message="connector snapshot provider mismatch",
+                    context={
+                        "snapshot_id": snapshot_id,
+                        "snapshot_provider": row.provider,
+                        "requested_provider": provider,
+                    },
+                )
+            if (
+                requested_capability_snapshot_id is not None
+                and requested_capability_snapshot_id != row.capability_snapshot_id
+            ):
+                raise URMError(
+                    code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    message="connector snapshot capability snapshot mismatch",
+                    context={
+                        "snapshot_id": snapshot_id,
+                        "capability_snapshot_id": row.capability_snapshot_id,
+                        "requested_capability_snapshot_id": requested_capability_snapshot_id,
+                    },
+                )
+            created_at = datetime.fromisoformat(row.created_at)
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+            normalized_min_ts = min_acceptable_ts
+            if normalized_min_ts is not None and normalized_min_ts.tzinfo is None:
+                normalized_min_ts = normalized_min_ts.replace(tzinfo=timezone.utc)
+            if normalized_min_ts is not None and created_at < normalized_min_ts:
+                raise URMError(
+                    code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    message="connector snapshot is older than min_acceptable_ts",
+                    context={
+                        "snapshot_id": snapshot_id,
+                        "created_at": created_at.isoformat(),
+                        "min_acceptable_ts": normalized_min_ts.isoformat(),
+                    },
+                )
+            return ConnectorSnapshotResponse(
+                snapshot_id=row.snapshot_id,
+                session_id=row.session_id,
+                provider=row.provider,
+                capability_snapshot_id=row.capability_snapshot_id,
+                connector_snapshot_hash=row.connector_snapshot_hash,
+                created_at=created_at,
+                connectors=row.connectors,
+                idempotent_replay=False,
+            )
 
     def steer(self, request: CopilotSteerRequest) -> CopilotSteerResponse:
         payload_hash = sha256_canonical_json(request.idempotency_payload())
