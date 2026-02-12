@@ -9,12 +9,15 @@ import pytest
 from adeu_api.urm_routes import (
     _get_manager,
     _reset_manager_for_tests,
+    urm_agent_cancel_endpoint,
+    urm_agent_spawn_endpoint,
     urm_approval_issue_endpoint,
     urm_approval_revoke_endpoint,
     urm_copilot_events_endpoint,
     urm_copilot_mode_endpoint,
     urm_copilot_send_endpoint,
     urm_copilot_start_endpoint,
+    urm_copilot_steer_endpoint,
     urm_copilot_stop_endpoint,
     urm_tool_call_endpoint,
 )
@@ -22,11 +25,14 @@ from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.models import (
+    AgentCancelRequest,
+    AgentSpawnRequest,
     ApprovalIssueRequest,
     ApprovalRevokeRequest,
     CopilotModeRequest,
     CopilotSessionSendRequest,
     CopilotSessionStartRequest,
+    CopilotSteerRequest,
     CopilotStopRequest,
     ToolCallRequest,
 )
@@ -149,6 +155,170 @@ def test_copilot_user_message_bootstraps_protocol_and_emits_agent_delta(
 
     assert '"method":"turn/start"' in text
     assert "agent_message_delta" in text
+    _reset_manager_for_tests()
+
+
+def test_copilot_steer_endpoint_is_idempotent_and_rate_limited(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-steer-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-steer-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-steer-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    steer = urm_copilot_steer_endpoint(
+        CopilotSteerRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="steer-1",
+            text="focus on tests first",
+            steer_intent_class="reprioritize",
+            target_turn_id="1",
+        )
+    )
+    assert steer.target_turn_id == "1"
+    assert steer.accepted_turn_id == "1"
+    assert steer.idempotent_replay is False
+
+    replay = urm_copilot_steer_endpoint(
+        CopilotSteerRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="steer-1",
+            text="focus on tests first",
+            steer_intent_class="reprioritize",
+            target_turn_id="1",
+        )
+    )
+    assert replay.accepted_turn_id == steer.accepted_turn_id
+    assert replay.idempotent_replay is True
+
+    for idx in range(2, 7):
+        if idx < 6:
+            response = urm_copilot_steer_endpoint(
+                CopilotSteerRequest(
+                    provider="codex",
+                    session_id=session_id,
+                    client_request_id=f"steer-{idx}",
+                    text=f"steer-{idx}",
+                    target_turn_id="1",
+                )
+            )
+            assert response.accepted_turn_id == "1"
+            continue
+        with pytest.raises(HTTPException) as exc_info:
+            urm_copilot_steer_endpoint(
+                CopilotSteerRequest(
+                    provider="codex",
+                    session_id=session_id,
+                    client_request_id=f"steer-{idx}",
+                    text=f"steer-{idx}",
+                    target_turn_id="1",
+                )
+            )
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail["code"] == "URM_STEER_DENIED"
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_and_cancel_terminal_idempotent(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-child-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-child-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-child-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-1",
+            prompt="summarize this module",
+            target_turn_id="turn-bootstrap-1",
+            use_last_turn=False,
+        )
+    )
+    assert spawn.parent_session_id == session_id
+    assert spawn.status in {"completed", "failed"}
+    assert spawn.child_id
+    assert spawn.parent_stream_id == f"copilot:{session_id}"
+    assert spawn.child_stream_id.startswith("child:")
+    spawn_replay = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-1",
+            prompt="summarize this module",
+            target_turn_id="turn-bootstrap-1",
+            use_last_turn=False,
+        )
+    )
+    assert spawn_replay.child_id == spawn.child_id
+    assert spawn_replay.idempotent_replay is True
+
+    cancel = urm_agent_cancel_endpoint(
+        spawn.child_id,
+        AgentCancelRequest(
+            provider="codex",
+            client_request_id="cancel-child-1",
+        ),
+    )
+    assert cancel.child_id == spawn.child_id
+    assert cancel.status in {"completed", "failed", "cancelled"}
+    assert cancel.idempotent_replay is True
+    assert cancel.error is not None
+    assert cancel.error["code"] == "URM_CHILD_CANCEL_ALREADY_TERMINAL"
+
+    cancel_replay = urm_agent_cancel_endpoint(
+        spawn.child_id,
+        AgentCancelRequest(
+            provider="codex",
+            client_request_id="cancel-child-1",
+        ),
+    )
+    assert cancel_replay.child_id == spawn.child_id
+    assert cancel_replay.idempotent_replay is True
     _reset_manager_for_tests()
 
 

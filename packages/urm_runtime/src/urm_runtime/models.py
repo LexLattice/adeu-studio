@@ -156,6 +156,79 @@ class CopilotSessionResponse(BaseModel):
     idempotent_replay: bool = False
 
 
+class CopilotSteerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    session_id: str = Field(min_length=1)
+    client_request_id: str = Field(min_length=1)
+    text: str = Field(min_length=1)
+    steer_intent_class: Literal["clarify", "reprioritize", "constraint", "other"] = "other"
+    target_turn_id: str | None = Field(default=None, min_length=1)
+    use_last_turn: bool = False
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(mode="json", exclude={"client_request_id"})
+
+
+class CopilotSteerResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: str
+    status: Literal["starting", "running", "stopped", "failed"]
+    target_turn_id: str
+    accepted_turn_id: str
+    idempotent_replay: bool = False
+
+
+class AgentSpawnRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    session_id: str = Field(min_length=1)
+    client_request_id: str = Field(min_length=1)
+    prompt: str = Field(min_length=1)
+    target_turn_id: str | None = Field(default=None, min_length=1)
+    use_last_turn: bool = False
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(mode="json", exclude={"client_request_id"})
+
+
+class AgentSpawnResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    child_id: str
+    parent_session_id: str
+    status: Literal["running", "completed", "failed", "cancelled"]
+    parent_stream_id: str
+    child_stream_id: str
+    target_turn_id: str
+    idempotent_replay: bool = False
+    error: dict[str, Any] | None = None
+    budget_snapshot: dict[str, int] = Field(default_factory=dict)
+    inherited_policy_hash: str | None = None
+
+
+class AgentCancelRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    client_request_id: str = Field(min_length=1)
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(mode="json", exclude={"client_request_id"})
+
+
+class AgentCancelResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    child_id: str
+    status: Literal["running", "completed", "failed", "cancelled"]
+    idempotent_replay: bool = False
+    error: dict[str, Any] | None = None
+
+
 class ToolCallRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
