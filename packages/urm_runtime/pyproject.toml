@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 events = "urm_runtime.events_tools:main"
+policy = "urm_runtime.policy_tools:main"
 
 [project.optional-dependencies]
 dev = [
