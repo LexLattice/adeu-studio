@@ -115,7 +115,7 @@ def test_worker_runner_persists_evidence_and_idempotent_replay(
         schema_row = con.execute(
             "SELECT schema_version FROM urm_schema_ledger ORDER BY schema_version ASC LIMIT 1"
         ).fetchone()
-        assert schema_row == (2,)
+        assert schema_row == (3,)
         idempotency_row = con.execute(
             """
             SELECT response_json

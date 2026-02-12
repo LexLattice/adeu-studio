@@ -235,6 +235,32 @@ class AgentCancelResponse(BaseModel):
     error: dict[str, Any] | None = None
 
 
+class ConnectorSnapshotCreateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    session_id: str = Field(min_length=1)
+    client_request_id: str = Field(min_length=1)
+    requested_capability_snapshot_id: str | None = Field(default=None, min_length=1)
+    min_acceptable_ts: datetime | None = None
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(mode="json", exclude={"client_request_id"})
+
+
+class ConnectorSnapshotResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    snapshot_id: str
+    session_id: str
+    provider: Literal["codex"] = "codex"
+    capability_snapshot_id: str
+    connector_snapshot_hash: str
+    created_at: datetime
+    connectors: list[dict[str, Any]] = Field(default_factory=list)
+    idempotent_replay: bool = False
+
+
 class ToolCallRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

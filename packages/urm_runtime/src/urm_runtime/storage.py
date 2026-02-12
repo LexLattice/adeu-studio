@@ -18,7 +18,7 @@ from .errors import (
     ApprovalNotFoundError,
 )
 
-URM_SCHEMA_VERSION = 2
+URM_SCHEMA_VERSION = 3
 
 
 @dataclass(frozen=True)
@@ -86,6 +86,18 @@ class WorkerRunRow:
     error_code: str | None
     error_message: str | None
     result_json: dict[str, Any] | None
+
+
+@dataclass(frozen=True)
+class ConnectorSnapshotRow:
+    snapshot_id: str
+    created_at: str
+    session_id: str
+    provider: str
+    capability_snapshot_id: str
+    connector_snapshot_hash: str
+    connectors: list[dict[str, Any]]
+    artifact_path: str
 
 
 @dataclass(frozen=True)
@@ -211,6 +223,21 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
     )
     con.execute(
         """
+        CREATE TABLE IF NOT EXISTS urm_connector_snapshot (
+          snapshot_id TEXT PRIMARY KEY,
+          created_at TEXT NOT NULL,
+          session_id TEXT NOT NULL,
+          provider TEXT NOT NULL,
+          capability_snapshot_id TEXT NOT NULL,
+          connector_snapshot_hash TEXT NOT NULL,
+          connectors_json TEXT NOT NULL,
+          artifact_path TEXT NOT NULL,
+          FOREIGN KEY(session_id) REFERENCES urm_copilot_session(copilot_session_id)
+        )
+        """
+    )
+    con.execute(
+        """
         CREATE TABLE IF NOT EXISTS urm_evidence_record (
           evidence_id TEXT PRIMARY KEY,
           created_at TEXT NOT NULL,
@@ -275,6 +302,12 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
         ON urm_evidence_record(worker_id)
         """
     )
+    con.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_urm_connector_snapshot_session
+        ON urm_connector_snapshot(session_id, created_at)
+        """
+    )
     idempotency_columns = {
         str(row[1])
         for row in con.execute("PRAGMA table_info(urm_idempotency_key)").fetchall()
@@ -306,7 +339,7 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
             (
                 URM_SCHEMA_VERSION,
                 datetime.now(tz=timezone.utc).isoformat(),
-                "urm runtime schema v2 profile persistence",
+                "urm runtime schema v3 connector snapshots",
             ),
         )
 
@@ -430,6 +463,46 @@ def persist_worker_run_start(
             json.dumps(result_json, sort_keys=True) if result_json is not None else None,
         ),
     )
+
+
+def persist_connector_snapshot(
+    *,
+    con: sqlite3.Connection,
+    snapshot_id: str,
+    session_id: str,
+    provider: str,
+    capability_snapshot_id: str,
+    connector_snapshot_hash: str,
+    connectors: list[dict[str, Any]],
+    artifact_path: str,
+) -> str:
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        INSERT INTO urm_connector_snapshot (
+          snapshot_id,
+          created_at,
+          session_id,
+          provider,
+          capability_snapshot_id,
+          connector_snapshot_hash,
+          connectors_json,
+          artifact_path
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            snapshot_id,
+            created_at,
+            session_id,
+            provider,
+            capability_snapshot_id,
+            connector_snapshot_hash,
+            json.dumps(connectors, sort_keys=True, separators=(",", ":")),
+            artifact_path,
+        ),
+    )
+    return created_at
 
 
 def update_worker_run_status(
@@ -857,6 +930,48 @@ def get_worker_run(
         error_code=str(row[13]) if row[13] is not None else None,
         error_message=str(row[14]) if row[14] is not None else None,
         result_json=json.loads(str(row[15])) if row[15] is not None else None,
+    )
+
+
+def get_connector_snapshot(
+    *,
+    con: sqlite3.Connection,
+    snapshot_id: str,
+) -> ConnectorSnapshotRow | None:
+    row = con.execute(
+        """
+        SELECT
+          snapshot_id,
+          created_at,
+          session_id,
+          provider,
+          capability_snapshot_id,
+          connector_snapshot_hash,
+          connectors_json,
+          artifact_path
+        FROM urm_connector_snapshot
+        WHERE snapshot_id = ?
+        """,
+        (snapshot_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    connectors_raw = str(row[6]) if row[6] is not None else "[]"
+    parsed_connectors = json.loads(connectors_raw)
+    connectors: list[dict[str, Any]] = []
+    if isinstance(parsed_connectors, list):
+        for item in parsed_connectors:
+            if isinstance(item, dict):
+                connectors.append(item)
+    return ConnectorSnapshotRow(
+        snapshot_id=str(row[0]),
+        created_at=str(row[1]),
+        session_id=str(row[2]),
+        provider=str(row[3]),
+        capability_snapshot_id=str(row[4]),
+        connector_snapshot_hash=str(row[5]),
+        connectors=connectors,
+        artifact_path=str(row[7]),
     )
 
 

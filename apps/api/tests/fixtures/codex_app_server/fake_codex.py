@@ -42,6 +42,36 @@ def _emit_jsonrpc_error(request_id: str | None, message: str) -> None:
     )
 
 
+def _fake_apps() -> list[dict[str, object]]:
+    raw = os.environ.get("FAKE_APP_SERVER_APPS_JSON", "").strip()
+    if raw:
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            parsed = None
+        if isinstance(parsed, list):
+            apps: list[dict[str, object]] = []
+            for item in parsed:
+                if isinstance(item, dict):
+                    apps.append(item)
+            if apps:
+                return apps
+    return [
+        {
+            "id": "calendar",
+            "name": "Calendar",
+            "description": "Calendar connector",
+            "status": "ready",
+        },
+        {
+            "id": "drive",
+            "name": "Drive",
+            "description": "Drive connector",
+            "status": "ready",
+        },
+    ]
+
+
 def _run_app_server() -> int:
     if os.environ.get("FAKE_APP_SERVER_DISABLE_READY") == "1":
         return 3
@@ -233,6 +263,35 @@ def _run_app_server() -> int:
             print(
                 json.dumps(
                     {"id": request_id, "result": {"receiverThreadId": receiver, "closed": True}}
+                ),
+                flush=True,
+            )
+            continue
+        if method == "app/list":
+            print(
+                json.dumps(
+                    {
+                        "id": request_id,
+                        "result": {
+                            "apps": _fake_apps(),
+                            "cursor": "cursor-1",
+                        },
+                    }
+                ),
+                flush=True,
+            )
+            continue
+        if method == "app/list/updated":
+            print(
+                json.dumps(
+                    {
+                        "id": request_id,
+                        "result": {
+                            "apps": _fake_apps(),
+                            "cursor": params.get("cursor"),
+                            "updated": False,
+                        },
+                    }
                 ),
                 flush=True,
             )

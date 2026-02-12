@@ -83,6 +83,16 @@
       "capability": "manage_session_lifecycle",
       "requires_writes_allowed": false,
       "requires_approval": false
+    },
+    "urm.connectors.snapshot.create": {
+      "capability": "manage_session_lifecycle",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "urm.connectors.snapshot.get": {
+      "capability": "read_state",
+      "requires_writes_allowed": false,
+      "requires_approval": false
     }
   }
 }
