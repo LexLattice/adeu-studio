@@ -62,10 +62,16 @@ def test_copilot_start_send_stop_and_sse_replay(
     _reset_manager_for_tests()
 
     start = urm_copilot_start_endpoint(
-        CopilotSessionStartRequest(provider="codex", client_request_id="start-1")
+        CopilotSessionStartRequest(
+            provider="codex",
+            client_request_id="start-1",
+            profile_id="safe_mode",
+        )
     )
     session_id = start.session_id
     assert start.status == "running"
+    assert start.profile_id == "safe_mode"
+    assert start.profile_version == "profile.v1"
     assert start.idempotent_replay is False
 
     send = urm_copilot_send_endpoint(
@@ -93,6 +99,30 @@ def test_copilot_start_send_stop_and_sse_replay(
     events, status = manager.iter_events(session_id=session_id, after_seq=0)
     assert status in {"stopped", "failed"}
     assert events
+    assert any(event.event_kind == "PROFILE_SELECTED" for event in events)
+    _reset_manager_for_tests()
+
+
+def test_copilot_start_rejects_unknown_profile(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    with pytest.raises(HTTPException) as exc_info:
+        urm_copilot_start_endpoint(
+            CopilotSessionStartRequest(
+                provider="codex",
+                client_request_id="start-invalid-profile-1",
+                profile_id="unknown_profile",
+            )
+        )
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_POLICY_PROFILE_NOT_FOUND"
     _reset_manager_for_tests()
 
 
@@ -277,6 +307,7 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
             prompt="summarize this module",
             target_turn_id="turn-bootstrap-1",
             use_last_turn=False,
+            profile_id="experimental",
         )
     )
     assert spawn.parent_session_id == session_id
@@ -284,6 +315,8 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
     assert spawn.child_id
     assert spawn.parent_stream_id == f"copilot:{session_id}"
     assert spawn.child_stream_id.startswith("child:")
+    assert spawn.profile_id == "experimental"
+    assert spawn.profile_version == "profile.v1"
     spawn_replay = urm_agent_spawn_endpoint(
         AgentSpawnRequest(
             provider="codex",
@@ -292,6 +325,7 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
             prompt="summarize this module",
             target_turn_id="turn-bootstrap-1",
             use_last_turn=False,
+            profile_id="experimental",
         )
     )
     assert spawn_replay.child_id == spawn.child_id
@@ -319,6 +353,34 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
     )
     assert cancel_replay.child_id == spawn.child_id
     assert cancel_replay.idempotent_replay is True
+    manager = _get_manager()
+    events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    assert any(
+        event.event_kind == "PROFILE_SELECTED"
+        and event.payload.get("scope") == "run"
+        and event.payload.get("profile_id") == "experimental"
+        for event in events
+    )
+    with pytest.raises(HTTPException) as bad_profile_exc:
+        urm_agent_spawn_endpoint(
+            AgentSpawnRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id="spawn-child-2-bad-profile",
+                prompt="summarize this module",
+                target_turn_id="turn-bootstrap-1",
+                use_last_turn=False,
+                profile_id="unknown_profile",
+            )
+        )
+    assert bad_profile_exc.value.status_code == 400
+    assert bad_profile_exc.value.detail["code"] == "URM_POLICY_PROFILE_NOT_FOUND"
+    events_after_denial, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    assert any(
+        event.event_kind == "PROFILE_DENIED"
+        and event.payload.get("profile_id") == "unknown_profile"
+        for event in events_after_denial
+    )
     _reset_manager_for_tests()
 
 
@@ -520,6 +582,9 @@ def test_manager_marks_stale_running_sessions_on_startup(
             pid=1234,
             bin_path=str(codex_bin),
             raw_jsonl_path="evidence/codex/copilot/stale-session-1.jsonl",
+            profile_id="default",
+            profile_version="profile.v1",
+            profile_policy_hash=None,
         )
         update_copilot_session_status(
             con=con,
