@@ -35,23 +35,47 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional baseline quality dashboard JSON path",
     )
+    parser.add_argument(
+        "--incident-packet",
+        dest="incident_packet_paths",
+        action="append",
+        type=Path,
+        default=[
+            Path("examples/eval/stop_gate/incident_packet_case_a_1.json"),
+            Path("examples/eval/stop_gate/incident_packet_case_a_2.json"),
+        ],
+        help="Incident packet artifact path (repeatable)",
+    )
+    parser.add_argument(
+        "--event-stream",
+        dest="event_stream_paths",
+        action="append",
+        type=Path,
+        default=[
+            Path("apps/api/tests/fixtures/urm_events/sample_valid.ndjson"),
+        ],
+        help="URM event stream NDJSON path (repeatable)",
+    )
+    parser.add_argument(
+        "--connector-snapshot",
+        dest="connector_snapshot_paths",
+        action="append",
+        type=Path,
+        default=[
+            Path("examples/eval/stop_gate/connector_snapshot_case_a_1.json"),
+            Path("examples/eval/stop_gate/connector_snapshot_case_a_2.json"),
+        ],
+        help="Connector snapshot artifact path (repeatable)",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     report = build_stop_gate_metrics(
-        incident_packet_paths=[
-            Path("examples/eval/stop_gate/incident_packet_case_a_1.json"),
-            Path("examples/eval/stop_gate/incident_packet_case_a_2.json"),
-        ],
-        event_stream_paths=[
-            Path("apps/api/tests/fixtures/urm_events/sample_valid.ndjson"),
-        ],
-        connector_snapshot_paths=[
-            Path("examples/eval/stop_gate/connector_snapshot_case_a_1.json"),
-            Path("examples/eval/stop_gate/connector_snapshot_case_a_2.json"),
-        ],
+        incident_packet_paths=list(args.incident_packet_paths),
+        event_stream_paths=list(args.event_stream_paths),
+        connector_snapshot_paths=list(args.connector_snapshot_paths),
         quality_current_path=args.quality_current,
         quality_baseline_path=args.quality_baseline,
     )
