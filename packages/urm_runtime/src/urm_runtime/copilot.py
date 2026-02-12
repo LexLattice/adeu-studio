@@ -19,6 +19,7 @@ from .errors import (
     URMError,
 )
 from .evidence import EvidenceFileLimitExceeded, EvidenceFileWriter
+from .hashing import action_hash as compute_action_hash
 from .hashing import sha256_canonical_json
 from .models import (
     ApprovalIssueResponse,
@@ -266,6 +267,25 @@ class URMCopilotManager:
             # Best-effort update only for internal events.
             pass
 
+    def record_policy_eval_event(
+        self,
+        *,
+        session_id: str | None,
+        event_kind: Literal["POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"],
+        detail: dict[str, Any],
+    ) -> None:
+        if not session_id:
+            return
+        with self._lock:
+            runtime = self._sessions.get(session_id)
+            if runtime is None:
+                return
+            self._record_internal_event(
+                runtime=runtime,
+                event_kind=event_kind,
+                payload=detail,
+            )
+
     def _wait_for_response(
         self,
         *,
@@ -459,12 +479,7 @@ class URMCopilotManager:
         )
 
     def _action_hash(self, *, action_kind: str, action_payload: dict[str, Any]) -> str:
-        return sha256_canonical_json(
-            {
-                "action_kind": action_kind,
-                "action_payload": action_payload,
-            }
-        )
+        return compute_action_hash(action_kind=action_kind, action_payload=action_payload)
 
     def _consume_approval_unlocked(
         self,

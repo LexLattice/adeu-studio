@@ -3,17 +3,29 @@ from __future__ import annotations
 import importlib.resources as resources
 import json
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, NoReturn
 
 from .errors import URMError
+from .hashing import action_hash as compute_action_hash
+from .instruction_policy import (
+    PolicyContext,
+    PolicyDecision,
+    evaluate_instruction_policy,
+    load_instruction_policy,
+)
 
 CAPABILITY_LATTICE_SCHEMA = "urm.capability.lattice.v1"
 ALLOW_POLICY_SCHEMA = "urm.allow.v1"
 CAPABILITY_LATTICE_FILE = "urm.capability.lattice.v1.json"
 ALLOW_POLICY_FILE = "urm.allow.v1.json"
+HARD_GATE_TRACE_VERSION = "urm.hard-gate.v1"
+PolicyEvalEventName = Literal["POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"]
+PolicyEvalEventCallback = Callable[[PolicyEvalEventName, dict[str, Any]], None]
 
 
 @dataclass(frozen=True)
@@ -29,6 +41,13 @@ class CapabilityPolicy:
     role_capabilities: dict[str, frozenset[str]]
     actions: dict[str, ActionPolicy]
     policy_root: str
+
+
+@dataclass(frozen=True)
+class AuthorizationDecision:
+    action: str
+    hard_gate_trace_version: str
+    policy_decision: PolicyDecision
 
 
 def _discover_repo_root(anchor: Path) -> Path | None:
@@ -214,56 +233,199 @@ def reset_capability_policy_cache() -> None:
     load_capability_policy.cache_clear()
 
 
+def _now_utc_z() -> str:
+    return datetime.now(tz=timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _raise_policy_denied(
+    *,
+    action: str,
+    role: str,
+    message: str,
+    context: dict[str, Any],
+) -> NoReturn:
+    raise URMError(
+        code="URM_POLICY_DENIED",
+        message=message,
+        context={"role": role, "action": action, **context},
+    )
+
+
+def _emit_policy_event(
+    *,
+    callback: PolicyEvalEventCallback | None,
+    event_name: PolicyEvalEventName,
+    detail: dict[str, Any],
+) -> None:
+    if callback is None:
+        return
+    callback(event_name, detail)
+
+
 def authorize_action(
     *,
     role: str,
     action: str,
     writes_allowed: bool,
     approval_provided: bool,
-) -> None:
+    action_payload: dict[str, Any] | None = None,
+    approval_valid: bool | None = None,
+    approval_unexpired: bool | None = None,
+    approval_unused: bool | None = None,
+    session_active: bool = False,
+    evidence_kinds: list[str] | None = None,
+    warrant: str | None = None,
+    evaluation_ts: str | None = None,
+    emit_policy_event: PolicyEvalEventCallback | None = None,
+) -> AuthorizationDecision:
     try:
         policy = load_capability_policy()
     except RuntimeError as exc:
-        raise URMError(
-            code="URM_POLICY_DENIED",
+        _raise_policy_denied(
+            action=action,
+            role=role,
             message="capability policy unavailable",
-            context={"action": action, "reason": str(exc)},
-        ) from exc
+            context={"reason": str(exc)},
+        )
 
     action_policy = policy.actions.get(action)
     if action_policy is None:
-        raise URMError(
-            code="URM_POLICY_DENIED",
+        _raise_policy_denied(
+            action=action,
+            role=role,
             message="action is not defined in capability lattice",
-            context={"action": action, "policy_root": str(policy.policy_root)},
+            context={"policy_root": str(policy.policy_root)},
         )
 
     role_caps = policy.role_capabilities.get(role)
     if role_caps is None:
-        raise URMError(
-            code="URM_POLICY_DENIED",
+        _raise_policy_denied(
+            action=action,
+            role=role,
             message="unknown role",
-            context={"role": role, "action": action},
+            context={},
         )
     if action_policy.capability not in role_caps:
-        raise URMError(
-            code="URM_POLICY_DENIED",
+        _raise_policy_denied(
+            action=action,
+            role=role,
             message="capability not allowed for role",
-            context={
-                "role": role,
-                "action": action,
-                "required_capability": action_policy.capability,
-            },
+            context={"required_capability": action_policy.capability},
         )
     if action_policy.requires_writes_allowed and not writes_allowed:
-        raise URMError(
-            code="URM_POLICY_DENIED",
+        _raise_policy_denied(
+            action=action,
+            role=role,
             message="runtime mode does not permit action",
-            context={"role": role, "action": action, "writes_allowed": writes_allowed},
+            context={"writes_allowed": writes_allowed},
         )
+    action_payload_resolved = action_payload or {}
+    action_hash = compute_action_hash(action_kind=action, action_payload=action_payload_resolved)
+    approval_valid_resolved = approval_valid if approval_valid is not None else approval_provided
+    approval_unexpired_resolved = (
+        approval_unexpired if approval_unexpired is not None else approval_provided
+    )
+    approval_unused_resolved = approval_unused if approval_unused is not None else approval_provided
+    approval_is_valid = (
+        approval_provided
+        and approval_valid_resolved
+        and approval_unexpired_resolved
+        and approval_unused_resolved
+    )
     if action_policy.requires_approval and not approval_provided:
         raise URMError(
             code="URM_APPROVAL_REQUIRED",
             message="approval is required for this action",
             context={"role": role, "action": action},
         )
+    if action_policy.requires_approval and not approval_is_valid:
+        if not approval_unexpired_resolved:
+            raise URMError(
+                code="URM_APPROVAL_EXPIRED",
+                message="approval expired",
+                context={"role": role, "action": action},
+            )
+        raise URMError(
+            code="URM_APPROVAL_INVALID",
+            message="approval invalid",
+            context={"role": role, "action": action},
+        )
+
+    instruction_policy = load_instruction_policy()
+    policy_decision = evaluate_instruction_policy(
+        policy=instruction_policy,
+        context=PolicyContext.model_validate(
+            {
+                "role": role,
+                "mode": "writes_allowed" if writes_allowed else "read_only",
+                "action_kind": action,
+                "action_hash": action_hash,
+                "session_active": session_active,
+                "capabilities_present": sorted(policy.capabilities),
+                "capabilities_allowed": sorted(role_caps),
+                "approval_present": approval_provided,
+                "approval_valid": approval_valid_resolved,
+                "approval_unexpired": approval_unexpired_resolved,
+                "approval_unused": approval_unused_resolved,
+                "evidence_kinds": sorted(evidence_kinds or []),
+                "warrant": warrant,
+                "evaluation_ts": evaluation_ts or _now_utc_z(),
+            }
+        ),
+    )
+    start_detail = {
+        "policy_hash": policy_decision.policy_hash,
+        "decision_code": "PENDING",
+        "matched_rule_ids": [],
+        "action": action,
+        "trace_version": policy_decision.trace_version,
+        "hard_gate_trace_version": HARD_GATE_TRACE_VERSION,
+    }
+    _emit_policy_event(
+        callback=emit_policy_event,
+        event_name="POLICY_EVAL_START",
+        detail=start_detail,
+    )
+
+    decision_detail = {
+        "policy_hash": policy_decision.policy_hash,
+        "decision_code": policy_decision.decision_code,
+        "matched_rule_ids": policy_decision.matched_rule_ids,
+        "action": action,
+        "trace_version": policy_decision.trace_version,
+        "hard_gate_trace_version": HARD_GATE_TRACE_VERSION,
+    }
+    if policy_decision.decision == "deny":
+        _emit_policy_event(
+            callback=emit_policy_event,
+            event_name="POLICY_DENIED",
+            detail=decision_detail,
+        )
+        denial_message = (
+            "approval is required for this action"
+            if policy_decision.decision_code == "URM_APPROVAL_REQUIRED"
+            else "instruction policy denied action"
+        )
+        raise URMError(
+            code=policy_decision.decision_code,
+            message=denial_message,
+            context={
+                "role": role,
+                "action": action,
+                "policy_hash": policy_decision.policy_hash,
+                "matched_rule_ids": policy_decision.matched_rule_ids,
+                "trace_version": policy_decision.trace_version,
+                "input_context_hash": policy_decision.input_context_hash,
+            },
+        )
+
+    _emit_policy_event(
+        callback=emit_policy_event,
+        event_name="POLICY_EVAL_PASS",
+        detail=decision_detail,
+    )
+    return AuthorizationDecision(
+        action=action,
+        hard_gate_trace_version=HARD_GATE_TRACE_VERSION,
+        policy_decision=policy_decision,
+    )

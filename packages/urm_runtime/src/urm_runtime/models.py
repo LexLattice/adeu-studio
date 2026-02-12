@@ -173,6 +173,7 @@ class ToolCallResponse(BaseModel):
     tool_name: str
     warrant: Literal["observed", "derived", "checked", "hypothesis", "unknown"]
     result: Any
+    policy_trace: dict[str, Any] | None = None
 
 
 class ApprovalIssueRequest(BaseModel):

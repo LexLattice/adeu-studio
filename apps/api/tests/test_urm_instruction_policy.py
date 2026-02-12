@@ -285,7 +285,8 @@ def test_load_instruction_policy_falls_back_to_packaged(monkeypatch: pytest.Monk
     )
     policy = load_instruction_policy()
     assert policy.schema_id == "odeu.instructions.v1"
-    assert policy.rules == []
+    assert len(policy.rules) == 1
+    assert policy.rules[0].rule_id == "default_allow_after_hard_gates"
 
 
 def test_policy_context_requires_utc_z_timestamp() -> None:

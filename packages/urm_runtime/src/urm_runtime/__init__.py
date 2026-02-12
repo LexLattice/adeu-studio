@@ -1,4 +1,5 @@
 from .capability_policy import (
+    AuthorizationDecision,
     authorize_action,
     load_capability_policy,
     reset_capability_policy_cache,
@@ -81,6 +82,7 @@ __all__ = [
     "ROLE_REGISTRY",
     "CodexExecWorkerRunner",
     "EvidenceRetentionStats",
+    "AuthorizationDecision",
     "INSTRUCTION_EVALUATOR_VERSION",
     "INSTRUCTION_POLICY_IR_VERSION",
     "INSTRUCTION_POLICY_SCHEMA",
