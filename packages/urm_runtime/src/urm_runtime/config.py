@@ -79,7 +79,7 @@ class URMRuntimeConfig:
     approval_ttl_secs: int
     retention_days: int
     max_total_evidence_bytes: int
-    child_queue_mode: str
+    child_queue_mode: str = DEFAULT_CHILD_QUEUE_MODE
 
     @classmethod
     def from_env(cls) -> "URMRuntimeConfig":
