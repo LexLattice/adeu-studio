@@ -30,6 +30,16 @@ class _FakePack:
         return ({"tool_name": tool_name, "arguments": arguments}, "observed")
 
 
+@dataclass
+class _InconsistentPack(_FakePack):
+    unsupported_tools: frozenset[str]
+
+    def supports_tool(self, *, tool_name: str) -> bool:
+        if tool_name in self.unsupported_tools:
+            return False
+        return super().supports_tool(tool_name=tool_name)
+
+
 def test_domain_registry_metadata_and_tool_listing_are_deterministic() -> None:
     pack_b = _FakePack(
         domain_pack_id="z_pack",
@@ -69,6 +79,21 @@ def test_domain_registry_metadata_and_tool_listing_are_deterministic() -> None:
     assert result == {"tool_name": "tool.m", "arguments": {"k": "v"}}
 
 
+def test_domain_registry_rejects_unknown_tool_with_stable_context() -> None:
+    pack = _FakePack(
+        domain_pack_id="a_pack",
+        domain_pack_version="1.0.0",
+        tools=["tool.a"],
+    )
+    registry = DomainToolRegistry.build(tool_packs=[pack])
+
+    with pytest.raises(URMError) as exc_info:
+        registry.call_tool(tool_name="tool.missing", arguments={})
+
+    assert exc_info.value.detail.code == "URM_POLICY_DENIED"
+    assert exc_info.value.detail.context == {"tool_name": "tool.missing"}
+
+
 def test_domain_registry_rejects_duplicate_tool_name_across_packs() -> None:
     pack_a = _FakePack(
         domain_pack_id="a_pack",
@@ -101,3 +126,22 @@ def test_domain_registry_rejects_duplicate_tool_name_inside_pack() -> None:
     assert exc_info.value.detail.code == "URM_POLICY_DENIED"
     assert exc_info.value.detail.context["domain_pack_id"] == "dup_pack"
     assert exc_info.value.detail.context["duplicate_tools"] == ["tool.one"]
+
+
+def test_domain_registry_rejects_pack_listing_unsupported_tool() -> None:
+    inconsistent_pack = _InconsistentPack(
+        domain_pack_id="a_pack",
+        domain_pack_version="1.0.0",
+        tools=["tool.a", "tool.b"],
+        unsupported_tools=frozenset({"tool.b"}),
+    )
+
+    with pytest.raises(URMError) as exc_info:
+        DomainToolRegistry.build(tool_packs=[inconsistent_pack])
+
+    assert exc_info.value.detail.code == "URM_POLICY_DENIED"
+    assert exc_info.value.detail.context == {
+        "tool_name": "tool.b",
+        "domain_pack_id": "a_pack",
+        "domain_pack_version": "1.0.0",
+    }

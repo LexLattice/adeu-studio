@@ -78,6 +78,16 @@ class DomainToolRegistry:
                     },
                 )
             for tool_name in tool_names:
+                if not pack.supports_tool(tool_name=tool_name):
+                    raise URMError(
+                        code="URM_POLICY_DENIED",
+                        message="domain pack listed unsupported tool name",
+                        context={
+                            "tool_name": tool_name,
+                            "domain_pack_id": pack.domain_pack_id,
+                            "domain_pack_version": pack.domain_pack_version,
+                        },
+                    )
                 existing = tool_to_pack.get(tool_name)
                 if existing is not None:
                     raise URMError(

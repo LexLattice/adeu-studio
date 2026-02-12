@@ -49,8 +49,11 @@ Strengthen cross-domain runtime contracts without introducing ADEU coupling.
 
 - Tool-pack registry ordering is deterministic:
   - sort by `(domain_pack_id, domain_pack_version)`.
+- `domain_pack_version` ordering is lexicographic over opaque version strings in vNext+2 (no semver precedence parsing in this arc).
 - Tool metadata/list output ordering is deterministic:
   - sort by `tool_name` ascending.
+- Tool names are a global namespace across packs and must be unique; collisions fail registry build.
+- Tool names should follow `<domain>.<tool>` naming form to reduce cross-pack collision risk.
 - Runtime must not require domain-specific imports in `urm_runtime`.
 - Existing tool call response contract remains unchanged (`ToolCallResponse` additive-only).
 
@@ -83,9 +86,20 @@ Pressure-test portability with a second non-ADEU domain pack beyond `paper`.
   - no web fetch
   - no connector discovery dependency
   - no external knowledge retrieval
+- Deterministic/offline baseline must not depend on model availability:
+  - fixture/conformance paths must run without live model calls
+  - any optional model-assisted path is explicitly non-conformance in this arc
 - Domain pack cannot import ADEU internals.
 - Any new generic runtime primitive introduced in this arc must be justified by at least two domain packs.
 - Output artifact shape is versioned and deterministic (`digest.artifact.v1`).
+- `digest.artifact.v1` minimum fields are frozen:
+  - `input_hash`
+  - `policy_hash`
+  - `domain_pack_id`
+  - `domain_pack_version`
+  - `schema_version`
+  - `evidence_refs`
+- Digest tool executions must emit `urm-events@1` events so replay/conformance checks need no domain-specific exception paths.
 
 ### Acceptance
 
@@ -118,6 +132,12 @@ Prove portability claims with deterministic, CI-safe conformance checks.
   - fixture/snapshot-driven inputs only
 - Conformance outputs are deterministic and machine-readable.
 - Failures must be diff-friendly and identify offending domain/tool/check.
+- Conformance runner must include deterministic registry-order checks:
+  - permuting domain-pack registration order yields byte-identical registry metadata outputs.
+- Conformance runner must include error-envelope/taxonomy checks per domain for:
+  - unknown tool
+  - policy denied
+  - invalid argument/schema input
 
 ### Acceptance
 
@@ -145,6 +165,9 @@ Publish evidence-backed portability deltas after C1-C3.
 
 - Report claims must be evidence-backed from generated artifacts.
 - Report must not claim semantic portability beyond tested scope.
+- Report must anchor portability claims to `artifacts/domain_conformance.json` (or CI-uploaded equivalent) as primary evidence.
+- Report must explicitly state tested scope boundaries (offline, fixture-driven, closed-world inputs).
+- Any new generic runtime primitive added in this arc must list at least two domain packs that require it.
 
 ### Acceptance
 
@@ -187,4 +210,3 @@ Publish evidence-backed portability deltas after C1-C3.
 - No new ADEU coupling detected in `urm_runtime`.
 - Portability transfer report v2 published with evidence refs.
 - Follow-on arc decision prepared for `Semantic Depth v2.1` lock.
-
