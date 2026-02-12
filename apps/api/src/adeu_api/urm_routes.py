@@ -436,7 +436,7 @@ def urm_connector_snapshot_get_endpoint(
         return manager.get_connector_snapshot(
             snapshot_id=snapshot_id,
             session_id=session_id,
-            provider="codex",
+            provider=provider,
             requested_capability_snapshot_id=requested_capability_snapshot_id,
             min_acceptable_ts=min_acceptable_ts,
         )

@@ -1596,7 +1596,7 @@ class URMCopilotManager:
             return ConnectorSnapshotResponse(
                 snapshot_id=row.snapshot_id,
                 session_id=row.session_id,
-                provider="codex",
+                provider=row.provider,
                 capability_snapshot_id=row.capability_snapshot_id,
                 connector_snapshot_hash=row.connector_snapshot_hash,
                 created_at=created_at,
