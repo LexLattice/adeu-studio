@@ -28,6 +28,8 @@ jobs:
           .venv/bin/events validate --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --strict
           .venv/bin/events replay --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out artifacts/urm_events/replay.ndjson
           .venv/bin/events summary --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out-json artifacts/urm_events/summary.json --out-md artifacts/urm_events/summary.md
+      - name: Verify generated instruction policy docs are up to date
+        run: .venv/bin/python apps/api/scripts/generate_instruction_policy_views.py --check
       - name: Upload quality dashboard artifact
         uses: actions/upload-artifact@v4
         with:
