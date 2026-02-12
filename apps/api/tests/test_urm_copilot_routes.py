@@ -560,7 +560,7 @@ def test_tool_call_emits_policy_eval_events_on_allow(
         ) -> None:
             self.events.append((event_kind, detail))
 
-    class _FakeTools:
+    class _FakeRegistry:
         def call_tool(
             self,
             *,
@@ -573,7 +573,7 @@ def test_tool_call_emits_policy_eval_events_on_allow(
 
     fake_manager = _FakeManager()
     monkeypatch.setattr("adeu_api.urm_routes._get_manager", lambda: fake_manager)
-    monkeypatch.setattr("adeu_api.urm_routes._get_domain_tools", lambda: _FakeTools())
+    monkeypatch.setattr("adeu_api.urm_routes._get_domain_registry", lambda: _FakeRegistry())
     monkeypatch.setattr(
         "adeu_api.urm_routes._load_session_access_state",
         lambda _sid: (False, False),
@@ -617,7 +617,7 @@ def test_tool_call_emits_policy_denied_event_on_instruction_deny(
         ) -> None:
             self.events.append((event_kind, detail))
 
-    class _FakeTools:
+    class _FakeRegistry:
         def call_tool(
             self,
             *,
@@ -650,7 +650,7 @@ def test_tool_call_emits_policy_denied_event_on_instruction_deny(
     fake_manager = _FakeManager()
     monkeypatch.setenv("URM_INSTRUCTION_POLICY_PATH", str(deny_policy_path))
     monkeypatch.setattr("adeu_api.urm_routes._get_manager", lambda: fake_manager)
-    monkeypatch.setattr("adeu_api.urm_routes._get_domain_tools", lambda: _FakeTools())
+    monkeypatch.setattr("adeu_api.urm_routes._get_domain_registry", lambda: _FakeRegistry())
     monkeypatch.setattr(
         "adeu_api.urm_routes._load_session_access_state",
         lambda _sid: (False, False),
