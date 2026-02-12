@@ -3,8 +3,9 @@ from __future__ import annotations
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
+from urm_runtime.domain_registry import WarrantTag as DomainWarrantTag
 
-WarrantTag = Literal["observed", "derived", "checked", "hypothesis", "unknown"]
+WarrantTag = DomainWarrantTag
 
 
 class TemplateMeta(BaseModel):

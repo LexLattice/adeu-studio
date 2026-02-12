@@ -172,6 +172,74 @@ def test_urm_tool_call_run_workflow(
     _reset_manager_for_tests()
 
 
+def test_urm_tool_call_paper_domain_closed_world_flow(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex_exec(tmp_path=tmp_path)
+    _configure_exec_fixture(monkeypatch=monkeypatch, tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    _reset_manager_for_tests()
+
+    source_text = (
+        "We introduce an evidence-first orchestration runtime for local assistants. "
+        "The runtime captures replayable event streams and deterministic policy traces.\n\n"
+        "The second paragraph is intentionally ignored for candidate extraction."
+    )
+
+    ingest = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.ingest_text",
+            arguments={"title": "Paper A", "source_text": source_text},
+        )
+    )
+    assert ingest.warrant == "observed"
+    assert ingest.result["title"] == "Paper A"
+
+    extract = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.extract_abstract_candidate",
+            arguments={"source_text": source_text},
+        )
+    )
+    assert extract.warrant == "derived"
+    candidate = extract.result["abstract_text"]
+    assert "second paragraph" not in candidate.lower()
+    assert extract.result["word_count"] > 0
+
+    check = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.check_constraints",
+            arguments={"abstract_text": candidate, "min_words": 5, "max_words": 80},
+        )
+    )
+    assert check.warrant == "checked"
+    assert check.result["passes"] is True
+
+    emit = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.emit_artifact",
+            arguments={
+                "title": "Paper A",
+                "abstract_text": candidate,
+                "checks": check.result["checks"],
+            },
+        )
+    )
+    assert emit.warrant == "checked"
+    assert emit.result["status"] == "ok"
+    assert emit.result["artifact"]["domain"] == "paper.abstract"
+    _reset_manager_for_tests()
+
+
 def test_urm_tool_call_denies_disallowed_role(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

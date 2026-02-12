@@ -25,6 +25,15 @@ from .models import (
 DOMAIN_PACK_ID = "urm_domain_adeu"
 DOMAIN_PACK_VERSION = "0.0.0"
 DEFAULT_WORKFLOW_TEMPLATE_ID = "adeu.workflow.pipeline_worker.v0"
+SUPPORTED_TOOL_NAMES: frozenset[str] = frozenset(
+    {
+        "adeu.get_app_state",
+        "adeu.list_templates",
+        "adeu.run_workflow",
+        "adeu.read_evidence",
+        "urm.spawn_worker",
+    }
+)
 
 _TEMPLATES: tuple[TemplateMeta, ...] = (
     TemplateMeta(
@@ -52,6 +61,8 @@ _TABLES_FOR_APP_STATE: tuple[str, ...] = (
 class ADEUDomainTools:
     config: URMRuntimeConfig
     worker_runner: CodexExecWorkerRunner
+    domain_pack_id: str = DOMAIN_PACK_ID
+    domain_pack_version: str = DOMAIN_PACK_VERSION
 
     @classmethod
     def from_config(cls, *, config: URMRuntimeConfig | None = None) -> "ADEUDomainTools":
@@ -242,6 +253,12 @@ class ADEUDomainTools:
         )
 
     def call_tool(self, *, tool_name: str, arguments: dict[str, Any]) -> tuple[Any, WarrantTag]:
+        if not self.supports_tool(tool_name=tool_name):
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="unsupported tool name",
+                context={"tool_name": tool_name},
+            )
         if tool_name == "adeu.get_app_state":
             return self.get_app_state().model_dump(mode="json"), "observed"
         if tool_name == "adeu.list_templates":
@@ -254,11 +271,10 @@ class ADEUDomainTools:
         if tool_name == "urm.spawn_worker":
             result = self.spawn_worker(arguments)
             return result.model_dump(mode="json"), "checked"
-        raise URMError(
-            code="URM_POLICY_DENIED",
-            message="unsupported tool name",
-            context={"tool_name": tool_name},
-        )
+        raise AssertionError("unreachable: tool name validated via supports_tool")
+
+    def supports_tool(self, *, tool_name: str) -> bool:
+        return tool_name in SUPPORTED_TOOL_NAMES
 
     def _require_template(self, template_id: str) -> TemplateMeta:
         for template in _TEMPLATES:

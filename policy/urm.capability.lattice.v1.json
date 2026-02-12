@@ -29,6 +29,26 @@
       "requires_writes_allowed": false,
       "requires_approval": false
     },
+    "paper.ingest_text": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "paper.extract_abstract_candidate": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "paper.check_constraints": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "paper.emit_artifact": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
     "urm.spawn_worker": {
       "capability": "spawn_worker",
       "requires_writes_allowed": false,

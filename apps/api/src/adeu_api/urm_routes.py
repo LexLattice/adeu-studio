@@ -9,6 +9,7 @@ from typing import Any, Literal, cast
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from urm_domain_adeu import ADEUDomainTools
+from urm_domain_paper import PaperDomainTools
 from urm_runtime.capability_policy import (
     PolicyEvalEventCallback,
     PolicyEvalEventName,
@@ -17,6 +18,7 @@ from urm_runtime.capability_policy import (
 )
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.copilot import URMCopilotManager
+from urm_runtime.domain_registry import DomainToolRegistry
 from urm_runtime.errors import URMError
 from urm_runtime.hashing import action_hash as compute_action_hash
 from urm_runtime.hashing import canonical_json
@@ -57,7 +59,7 @@ router = APIRouter(prefix="/urm", tags=["urm"])
 _MANAGER_LOCK = threading.Lock()
 _MANAGER: URMCopilotManager | None = None
 _WORKER_RUNNER: CodexExecWorkerRunner | None = None
-_DOMAIN_TOOLS: ADEUDomainTools | None = None
+_DOMAIN_REGISTRY: DomainToolRegistry | None = None
 _MANAGER_ENV_KEY: tuple[str, str] | None = None
 
 
@@ -91,12 +93,16 @@ def _get_worker_runner() -> CodexExecWorkerRunner:
     return _get_runtime_components()[1]
 
 
-def _get_domain_tools() -> ADEUDomainTools:
+def _get_domain_registry() -> DomainToolRegistry:
     return _get_runtime_components()[2]
 
 
-def _get_runtime_components() -> tuple[URMCopilotManager, CodexExecWorkerRunner, ADEUDomainTools]:
-    global _MANAGER, _WORKER_RUNNER, _DOMAIN_TOOLS, _MANAGER_ENV_KEY
+def _get_runtime_components() -> tuple[
+    URMCopilotManager,
+    CodexExecWorkerRunner,
+    DomainToolRegistry,
+]:
+    global _MANAGER, _WORKER_RUNNER, _DOMAIN_REGISTRY, _MANAGER_ENV_KEY
     key = _manager_env_key()
     with _MANAGER_LOCK:
         if _MANAGER is None or _MANAGER_ENV_KEY != key:
@@ -105,22 +111,27 @@ def _get_runtime_components() -> tuple[URMCopilotManager, CodexExecWorkerRunner,
             config = URMRuntimeConfig.from_env()
             _MANAGER = URMCopilotManager(config=config)
             _WORKER_RUNNER = CodexExecWorkerRunner(config=config)
-            _DOMAIN_TOOLS = ADEUDomainTools(config=config, worker_runner=_WORKER_RUNNER)
+            _DOMAIN_REGISTRY = DomainToolRegistry.build(
+                tool_packs=[
+                    ADEUDomainTools(config=config, worker_runner=_WORKER_RUNNER),
+                    PaperDomainTools(),
+                ]
+            )
             _MANAGER_ENV_KEY = key
         assert _MANAGER is not None, "URMCopilotManager should be initialized"
         assert _WORKER_RUNNER is not None, "CodexExecWorkerRunner should be initialized"
-        assert _DOMAIN_TOOLS is not None, "ADEUDomainTools should be initialized"
-        return (_MANAGER, _WORKER_RUNNER, _DOMAIN_TOOLS)
+        assert _DOMAIN_REGISTRY is not None, "DomainToolRegistry should be initialized"
+        return (_MANAGER, _WORKER_RUNNER, _DOMAIN_REGISTRY)
 
 
 def _reset_manager_for_tests() -> None:
-    global _MANAGER, _WORKER_RUNNER, _DOMAIN_TOOLS, _MANAGER_ENV_KEY
+    global _MANAGER, _WORKER_RUNNER, _DOMAIN_REGISTRY, _MANAGER_ENV_KEY
     with _MANAGER_LOCK:
         if _MANAGER is not None:
             _MANAGER.shutdown()
         _MANAGER = None
         _WORKER_RUNNER = None
-        _DOMAIN_TOOLS = None
+        _DOMAIN_REGISTRY = None
         _MANAGER_ENV_KEY = None
 
 
@@ -453,8 +464,8 @@ def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
                 policy_trace=decision.policy_decision.model_dump(mode="json"),
             )
 
-        tools = _get_domain_tools()
-        result, warrant = tools.call_tool(
+        domain_registry = _get_domain_registry()
+        result, warrant = domain_registry.call_tool(
             tool_name=request.tool_name,
             arguments=request.arguments,
         )
