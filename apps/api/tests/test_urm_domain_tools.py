@@ -240,6 +240,102 @@ def test_urm_tool_call_paper_domain_closed_world_flow(
     _reset_manager_for_tests()
 
 
+def test_urm_tool_call_digest_domain_closed_world_flow(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex_exec(tmp_path=tmp_path)
+    _configure_exec_fixture(monkeypatch=monkeypatch, tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    _reset_manager_for_tests()
+
+    source_text = (
+        "ODEU uses evidence-first runtime controls for safe orchestration. "
+        "Deterministic events improve replayability and incident analysis. "
+        "This final sentence should be excluded when max_sentences is two."
+    )
+
+    ingest = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="digest.ingest_text",
+            arguments={"title": "Digest A", "source_text": source_text},
+        )
+    )
+    assert ingest.warrant == "observed"
+    assert ingest.result["title"] == "Digest A"
+    assert ingest.result["word_count"] > 0
+    assert isinstance(ingest.result["input_hash"], str)
+
+    extract = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="digest.extract_digest_candidate",
+            arguments={
+                "source_text": source_text,
+                "max_sentences": 2,
+                "max_words": 30,
+            },
+        )
+    )
+    assert extract.warrant == "derived"
+    digest_text = extract.result["digest_text"]
+    assert "excluded" not in digest_text.lower()
+    assert extract.result["sentence_count"] <= 2
+    assert extract.result["word_count"] <= 30
+
+    check = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="digest.check_constraints",
+            arguments={
+                "digest_text": digest_text,
+                "min_words": 5,
+                "max_words": 60,
+                "max_sentences": 3,
+            },
+        )
+    )
+    assert check.warrant == "checked"
+    assert check.result["passes"] is True
+
+    emit = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="digest.emit_artifact",
+            arguments={
+                "title": "Digest A",
+                "input_hash": ingest.result["input_hash"],
+                "digest_text": digest_text,
+                "policy_hash": "policy:test.v1",
+                "checks": check.result["checks"],
+                "evidence_refs": [
+                    {"kind": "event", "ref": "event:stream#2"},
+                    {"kind": "artifact", "ref": "artifact:abc"},
+                ],
+            },
+        )
+    )
+    assert emit.warrant == "checked"
+    assert emit.result["status"] == "ok"
+    artifact = emit.result["artifact"]
+    assert artifact["domain"] == "doc.digest"
+    assert artifact["schema_version"] == "digest.artifact.v1"
+    assert artifact["domain_pack_id"] == "urm_domain_digest"
+    assert artifact["domain_pack_version"] == "0.0.0"
+    assert artifact["input_hash"] == ingest.result["input_hash"]
+    assert artifact["policy_hash"] == "policy:test.v1"
+    assert artifact["evidence_refs"] == [
+        {"kind": "artifact", "ref": "artifact:abc", "note": None},
+        {"kind": "event", "ref": "event:stream#2", "note": None},
+    ]
+    _reset_manager_for_tests()
+
+
 def test_urm_tool_call_denies_disallowed_role(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

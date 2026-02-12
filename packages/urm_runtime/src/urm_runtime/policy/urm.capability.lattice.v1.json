@@ -49,6 +49,26 @@
       "requires_writes_allowed": false,
       "requires_approval": false
     },
+    "digest.ingest_text": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "digest.extract_digest_candidate": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "digest.check_constraints": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
+    "digest.emit_artifact": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
     "urm.spawn_worker": {
       "capability": "spawn_worker",
       "requires_writes_allowed": false,
