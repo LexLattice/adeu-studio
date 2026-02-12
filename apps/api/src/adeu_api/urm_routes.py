@@ -9,6 +9,7 @@ from typing import Any, Literal, cast
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from urm_domain_adeu import ADEUDomainTools
+from urm_domain_digest import DigestDomainTools
 from urm_domain_paper import PaperDomainTools
 from urm_runtime.capability_policy import (
     PolicyEvalEventCallback,
@@ -116,6 +117,7 @@ def _get_runtime_components() -> tuple[
             _DOMAIN_REGISTRY = DomainToolRegistry.build(
                 tool_packs=[
                     ADEUDomainTools(config=config, worker_runner=_WORKER_RUNNER),
+                    DigestDomainTools(),
                     PaperDomainTools(),
                 ]
             )
