@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, NoReturn
 
 from .errors import URMError
 from .hashing import action_hash as compute_action_hash
@@ -24,6 +24,8 @@ ALLOW_POLICY_SCHEMA = "urm.allow.v1"
 CAPABILITY_LATTICE_FILE = "urm.capability.lattice.v1.json"
 ALLOW_POLICY_FILE = "urm.allow.v1.json"
 HARD_GATE_TRACE_VERSION = "urm.hard-gate.v1"
+PolicyEvalEventName = Literal["POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"]
+PolicyEvalEventCallback = Callable[[PolicyEvalEventName, dict[str, Any]], None]
 
 
 @dataclass(frozen=True)
@@ -241,7 +243,7 @@ def _raise_policy_denied(
     role: str,
     message: str,
     context: dict[str, Any],
-) -> None:
+) -> NoReturn:
     raise URMError(
         code="URM_POLICY_DENIED",
         message=message,
@@ -251,8 +253,8 @@ def _raise_policy_denied(
 
 def _emit_policy_event(
     *,
-    callback: Callable[[str, dict[str, Any]], None] | None,
-    event_name: str,
+    callback: PolicyEvalEventCallback | None,
+    event_name: PolicyEvalEventName,
     detail: dict[str, Any],
 ) -> None:
     if callback is None:
@@ -274,7 +276,7 @@ def authorize_action(
     evidence_kinds: list[str] | None = None,
     warrant: str | None = None,
     evaluation_ts: str | None = None,
-    emit_policy_event: Callable[[str, dict[str, Any]], None] | None = None,
+    emit_policy_event: PolicyEvalEventCallback | None = None,
 ) -> AuthorizationDecision:
     try:
         policy = load_capability_policy()

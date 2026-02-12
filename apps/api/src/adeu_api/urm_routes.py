@@ -4,12 +4,16 @@ import os
 import threading
 from collections.abc import Iterator
 from datetime import datetime, timezone
-from typing import Callable, Literal, cast
+from typing import Any, Literal, cast
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from urm_domain_adeu import ADEUDomainTools
-from urm_runtime.capability_policy import authorize_action
+from urm_runtime.capability_policy import (
+    PolicyEvalEventCallback,
+    PolicyEvalEventName,
+    authorize_action,
+)
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.copilot import URMCopilotManager
 from urm_runtime.errors import URMError
@@ -116,14 +120,19 @@ def _resolve_tool_policy_action(request: ToolCallRequest) -> str:
 
 
 def _load_session_writes_allowed(session_id: str | None) -> bool:
+    writes_allowed, _ = _load_session_access_state(session_id)
+    return writes_allowed
+
+
+def _load_session_access_state(session_id: str | None) -> tuple[bool, bool]:
     if session_id is None:
-        return False
+        return (False, False)
     manager = _get_manager()
     with transaction(db_path=db_path_from_config(manager.config)) as con:
         row = get_copilot_session(con=con, copilot_session_id=session_id)
     if row is None:
-        return False
-    return row.writes_allowed
+        return (False, False)
+    return (row.writes_allowed, row.status in {"starting", "running"})
 
 
 def _parse_db_timestamp(value: str) -> datetime:
@@ -190,16 +199,13 @@ def _resolve_approval_precheck(
     return (True, True, True)
 
 
-def _policy_event_emitter(*, session_id: str | None) -> Callable[[str, dict[str, object]], None]:
+def _policy_event_emitter(*, session_id: str | None) -> PolicyEvalEventCallback:
     manager = _get_manager()
 
-    def _emit(event_name: str, detail: dict[str, object]) -> None:
+    def _emit(event_name: PolicyEvalEventName, detail: dict[str, Any]) -> None:
         manager.record_policy_eval_event(
             session_id=session_id,
-            event_kind=cast(
-                Literal["POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"],
-                event_name,
-            ),
+            event_kind=event_name,
             detail=detail,
         )
 
@@ -307,7 +313,7 @@ def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
 
     try:
         action = _resolve_tool_policy_action(request)
-        session_writes_allowed = _load_session_writes_allowed(request.session_id)
+        session_writes_allowed, session_active = _load_session_access_state(request.session_id)
         approval_valid, approval_unexpired, approval_unused = _resolve_approval_precheck(
             session_id=request.session_id,
             approval_id=request.approval_id,
@@ -323,7 +329,7 @@ def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
             approval_valid=approval_valid,
             approval_unexpired=approval_unexpired,
             approval_unused=approval_unused,
-            session_active=bool(request.session_id),
+            session_active=session_active,
             emit_policy_event=_policy_event_emitter(session_id=request.session_id),
         )
     except URMError as exc:

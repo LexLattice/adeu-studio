@@ -404,7 +404,10 @@ def test_tool_call_emits_policy_eval_events_on_allow(
     fake_manager = _FakeManager()
     monkeypatch.setattr("adeu_api.urm_routes._get_manager", lambda: fake_manager)
     monkeypatch.setattr("adeu_api.urm_routes._get_domain_tools", lambda: _FakeTools())
-    monkeypatch.setattr("adeu_api.urm_routes._load_session_writes_allowed", lambda _sid: False)
+    monkeypatch.setattr(
+        "adeu_api.urm_routes._load_session_access_state",
+        lambda _sid: (False, False),
+    )
 
     response = urm_tool_call_endpoint(
         ToolCallRequest(
@@ -475,7 +478,10 @@ def test_tool_call_emits_policy_denied_event_on_instruction_deny(
     monkeypatch.setenv("URM_INSTRUCTION_POLICY_PATH", str(deny_policy_path))
     monkeypatch.setattr("adeu_api.urm_routes._get_manager", lambda: fake_manager)
     monkeypatch.setattr("adeu_api.urm_routes._get_domain_tools", lambda: _FakeTools())
-    monkeypatch.setattr("adeu_api.urm_routes._load_session_writes_allowed", lambda _sid: False)
+    monkeypatch.setattr(
+        "adeu_api.urm_routes._load_session_access_state",
+        lambda _sid: (False, False),
+    )
 
     with pytest.raises(HTTPException) as exc_info:
         urm_tool_call_endpoint(
