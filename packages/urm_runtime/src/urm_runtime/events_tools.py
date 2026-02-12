@@ -21,6 +21,8 @@ APPROVAL_EVENTS = {
     "APPROVAL_CONSUMED",
     "APPROVAL_REVOKED",
     "POLICY_DENIED",
+    "POLICY_EVAL_START",
+    "POLICY_EVAL_PASS",
 }
 TOOL_EVENTS = {"TOOL_CALL_START", "TOOL_CALL_PASS", "TOOL_CALL_FAIL"}
 EVIDENCE_EVENTS = {"EVIDENCE_WRITTEN"}
@@ -48,6 +50,11 @@ DETAIL_MINIMA_RULES: list[tuple[set[str], tuple[str, ...], str]] = [
         {"APPROVAL_ISSUED", "APPROVAL_CONSUMED", "APPROVAL_REVOKED"},
         ("approval_id", "action_kind"),
         "{event_name} detail must include approval_id and action_kind",
+    ),
+    (
+        {"POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"},
+        ("policy_hash", "decision_code", "matched_rule_ids"),
+        "{event_name} detail must include policy_hash, decision_code, and matched_rule_ids",
     ),
     (TOOL_EVENTS, ("tool_name",), "{event_name} detail must include tool_name"),
     (

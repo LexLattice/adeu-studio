@@ -4,7 +4,7 @@ import os
 import threading
 from collections.abc import Iterator
 from datetime import datetime, timezone
-from typing import Literal, cast
+from typing import Callable, Literal, cast
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -13,6 +13,7 @@ from urm_runtime.capability_policy import authorize_action
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.copilot import URMCopilotManager
 from urm_runtime.errors import URMError
+from urm_runtime.hashing import action_hash as compute_action_hash
 from urm_runtime.hashing import canonical_json
 from urm_runtime.models import (
     ApprovalIssueRequest,
@@ -31,7 +32,13 @@ from urm_runtime.models import (
     WorkerRunRequest,
     WorkerRunResult,
 )
-from urm_runtime.storage import db_path_from_config, get_copilot_session, transaction
+from urm_runtime.storage import (
+    ApprovalRow,
+    db_path_from_config,
+    get_approval,
+    get_copilot_session,
+    transaction,
+)
 from urm_runtime.worker import CodexExecWorkerRunner
 
 router = APIRouter(prefix="/urm", tags=["urm"])
@@ -117,6 +124,86 @@ def _load_session_writes_allowed(session_id: str | None) -> bool:
     if row is None:
         return False
     return row.writes_allowed
+
+
+def _parse_db_timestamp(value: str) -> datetime:
+    text = value.strip()
+    if text.endswith("Z"):
+        text = text[:-1] + "+00:00"
+    parsed = datetime.fromisoformat(text)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _resolve_approval_precheck(
+    *,
+    session_id: str | None,
+    approval_id: str | None,
+    action: str,
+    action_payload: dict[str, object],
+) -> tuple[bool, bool, bool]:
+    if approval_id is None:
+        return (False, False, False)
+    if session_id is None:
+        raise URMError(
+            code="URM_APPROVAL_INVALID",
+            message="approval requires session context",
+            context={"action": action},
+        )
+    manager = _get_manager()
+    with transaction(db_path=db_path_from_config(manager.config)) as con:
+        approval: ApprovalRow | None = get_approval(con=con, approval_id=approval_id)
+    if approval is None:
+        raise URMError(
+            code="URM_APPROVAL_INVALID",
+            message="approval not found",
+            context={"approval_id": approval_id, "action": action},
+        )
+    if approval.copilot_session_id != session_id:
+        raise URMError(
+            code="URM_APPROVAL_INVALID",
+            message="approval does not belong to this session",
+            context={"approval_id": approval_id, "session_id": session_id},
+        )
+    expected_hash = compute_action_hash(action_kind=action, action_payload=action_payload)
+    if approval.action_kind != action or approval.action_hash != expected_hash:
+        raise URMError(
+            code="URM_APPROVAL_INVALID",
+            message="approval action does not match request action",
+            context={"approval_id": approval_id, "action": action},
+        )
+    if approval.revoked_at is not None or approval.consumed_at is not None:
+        raise URMError(
+            code="URM_APPROVAL_INVALID",
+            message="approval is no longer usable",
+            context={"approval_id": approval_id, "action": action},
+        )
+    expires_at = _parse_db_timestamp(approval.expires_at)
+    now = datetime.now(tz=timezone.utc)
+    if now > expires_at:
+        raise URMError(
+            code="URM_APPROVAL_EXPIRED",
+            message="approval expired",
+            context={"approval_id": approval_id, "action": action},
+        )
+    return (True, True, True)
+
+
+def _policy_event_emitter(*, session_id: str | None) -> Callable[[str, dict[str, object]], None]:
+    manager = _get_manager()
+
+    def _emit(event_name: str, detail: dict[str, object]) -> None:
+        manager.record_policy_eval_event(
+            session_id=session_id,
+            event_kind=cast(
+                Literal["POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"],
+                event_name,
+            ),
+            detail=detail,
+        )
+
+    return _emit
 
 
 @router.post("/copilot/start", response_model=CopilotSessionResponse)
@@ -221,11 +308,23 @@ def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
     try:
         action = _resolve_tool_policy_action(request)
         session_writes_allowed = _load_session_writes_allowed(request.session_id)
-        authorize_action(
+        approval_valid, approval_unexpired, approval_unused = _resolve_approval_precheck(
+            session_id=request.session_id,
+            approval_id=request.approval_id,
+            action=action,
+            action_payload=request.arguments,
+        )
+        decision = authorize_action(
             role=request.role,
             action=action,
             writes_allowed=session_writes_allowed,
             approval_provided=bool(request.approval_id),
+            action_payload=request.arguments,
+            approval_valid=approval_valid,
+            approval_unexpired=approval_unexpired,
+            approval_unused=approval_unused,
+            session_active=bool(request.session_id),
+            emit_policy_event=_policy_event_emitter(session_id=request.session_id),
         )
     except URMError as exc:
         raise _to_http_exception(exc) from exc
@@ -252,6 +351,7 @@ def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
                 tool_name=request.tool_name,
                 warrant="observed",
                 result=mode_response.model_dump(mode="json"),
+                policy_trace=decision.policy_decision.model_dump(mode="json"),
             )
 
         tools = _get_domain_tools()
@@ -266,6 +366,7 @@ def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
                 warrant,
             ),
             result=result,
+            policy_trace=decision.policy_decision.model_dump(mode="json"),
         )
     except URMError as exc:
         raise _to_http_exception(exc) from exc

@@ -1,4 +1,34 @@
 {
   "schema": "odeu.instructions.v1",
-  "rules": []
+  "rules": [
+    {
+      "rule_id": "default_allow_after_hard_gates",
+      "rule_version": 1,
+      "priority": 1000,
+      "kind": "allow",
+      "when": {
+        "op": "or",
+        "args": [
+          {
+            "atom": "mode_is",
+            "args": [
+              "read_only"
+            ]
+          },
+          {
+            "atom": "mode_is",
+            "args": [
+              "writes_allowed"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "allow_action",
+        "params": {}
+      },
+      "message": "Allow actions that pass capability/mode/approval hard gates.",
+      "code": "ALLOW_HARD_GATED_ACTION"
+    }
+  ]
 }

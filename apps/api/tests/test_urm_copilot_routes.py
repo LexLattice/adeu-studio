@@ -16,6 +16,7 @@ from adeu_api.urm_routes import (
     urm_copilot_send_endpoint,
     urm_copilot_start_endpoint,
     urm_copilot_stop_endpoint,
+    urm_tool_call_endpoint,
 )
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
@@ -27,6 +28,7 @@ from urm_runtime.models import (
     CopilotSessionSendRequest,
     CopilotSessionStartRequest,
     CopilotStopRequest,
+    ToolCallRequest,
 )
 from urm_runtime.storage import (
     persist_copilot_session_start,
@@ -370,3 +372,124 @@ def test_manager_marks_stale_running_sessions_on_startup(
     assert row[0] == "stopped"
     assert row[1] == "URM_CODEX_SESSION_TERMINATED"
     _reset_manager_for_tests()
+
+
+def test_tool_call_emits_policy_eval_events_on_allow(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _FakeManager:
+        def __init__(self) -> None:
+            self.events: list[tuple[str, dict[str, object]]] = []
+
+        def record_policy_eval_event(
+            self,
+            *,
+            session_id: str | None,
+            event_kind: str,
+            detail: dict[str, object],
+        ) -> None:
+            self.events.append((event_kind, detail))
+
+    class _FakeTools:
+        def call_tool(
+            self,
+            *,
+            tool_name: str,
+            arguments: dict[str, object],
+        ) -> tuple[dict[str, object], str]:
+            assert tool_name == "adeu.get_app_state"
+            assert arguments == {}
+            return ({"ok": True}, "observed")
+
+    fake_manager = _FakeManager()
+    monkeypatch.setattr("adeu_api.urm_routes._get_manager", lambda: fake_manager)
+    monkeypatch.setattr("adeu_api.urm_routes._get_domain_tools", lambda: _FakeTools())
+    monkeypatch.setattr("adeu_api.urm_routes._load_session_writes_allowed", lambda _sid: False)
+
+    response = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            session_id="session-1",
+            tool_name="adeu.get_app_state",
+            arguments={},
+        )
+    )
+    assert response.tool_name == "adeu.get_app_state"
+    assert response.result == {"ok": True}
+    assert response.policy_trace is not None
+    assert [event for event, _detail in fake_manager.events] == [
+        "POLICY_EVAL_START",
+        "POLICY_EVAL_PASS",
+    ]
+
+
+def test_tool_call_emits_policy_denied_event_on_instruction_deny(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    class _FakeManager:
+        def __init__(self) -> None:
+            self.events: list[tuple[str, dict[str, object]]] = []
+
+        def record_policy_eval_event(
+            self,
+            *,
+            session_id: str | None,
+            event_kind: str,
+            detail: dict[str, object],
+        ) -> None:
+            self.events.append((event_kind, detail))
+
+    class _FakeTools:
+        def call_tool(
+            self,
+            *,
+            tool_name: str,
+            arguments: dict[str, object],
+        ) -> tuple[dict[str, object], str]:
+            return ({}, "observed")
+
+    deny_policy_path = tmp_path / "deny.instructions.json"
+    deny_policy_path.write_text(
+        """
+{
+  "schema":"odeu.instructions.v1",
+  "rules":[
+    {
+      "rule_id":"deny_copilot",
+      "rule_version":1,
+      "priority":1,
+      "kind":"deny",
+      "when":{"atom":"role_is","args":["copilot"]},
+      "then":{"effect":"deny_action","params":{}},
+      "message":"deny copilot in route test",
+      "code":"DENY_COPILOT_ROUTE_TEST"
+    }
+  ]
+}
+""".strip(),
+        encoding="utf-8",
+    )
+    fake_manager = _FakeManager()
+    monkeypatch.setenv("URM_INSTRUCTION_POLICY_PATH", str(deny_policy_path))
+    monkeypatch.setattr("adeu_api.urm_routes._get_manager", lambda: fake_manager)
+    monkeypatch.setattr("adeu_api.urm_routes._get_domain_tools", lambda: _FakeTools())
+    monkeypatch.setattr("adeu_api.urm_routes._load_session_writes_allowed", lambda _sid: False)
+
+    with pytest.raises(HTTPException) as exc_info:
+        urm_tool_call_endpoint(
+            ToolCallRequest(
+                provider="codex",
+                role="copilot",
+                session_id="session-1",
+                tool_name="adeu.get_app_state",
+                arguments={},
+            )
+        )
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "DENY_COPILOT_ROUTE_TEST"
+    assert [event for event, _detail in fake_manager.events] == [
+        "POLICY_EVAL_START",
+        "POLICY_DENIED",
+    ]

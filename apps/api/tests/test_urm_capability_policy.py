@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 import urm_runtime.capability_policy as capability_policy
 from urm_runtime.capability_policy import (
@@ -96,3 +99,73 @@ def test_policy_loads_packaged_fallback_when_env_and_repo_are_unavailable(
     policy = load_capability_policy()
     assert policy.policy_root == "package:urm_runtime.policy"
     assert "read_state" in policy.capabilities
+
+
+def test_authorize_action_returns_policy_decision_trace_for_allow() -> None:
+    decision = authorize_action(
+        role="copilot",
+        action="adeu.get_app_state",
+        writes_allowed=False,
+        approval_provided=False,
+        session_active=True,
+    )
+    assert decision.policy_decision.decision == "allow"
+    assert decision.policy_decision.decision_code == "ALLOW_HARD_GATED_ACTION"
+    assert decision.policy_decision.trace_version == "odeu.instruction-trace.v1"
+
+
+def test_authorize_action_emits_policy_eval_events_for_allow() -> None:
+    captured: list[tuple[str, dict[str, object]]] = []
+
+    decision = authorize_action(
+        role="copilot",
+        action="adeu.get_app_state",
+        writes_allowed=False,
+        approval_provided=False,
+        session_active=True,
+        emit_policy_event=lambda event, detail: captured.append((event, detail)),
+    )
+    assert decision.policy_decision.decision == "allow"
+    assert [item[0] for item in captured] == ["POLICY_EVAL_START", "POLICY_EVAL_PASS"]
+    assert captured[0][1]["decision_code"] == "PENDING"
+    assert isinstance(captured[1][1]["matched_rule_ids"], list)
+
+
+def test_authorize_action_emits_policy_denied_for_instruction_rule(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    policy_path = tmp_path / "policy.deny.json"
+    policy_path.write_text(
+        json.dumps(
+            {
+                "schema": "odeu.instructions.v1",
+                "rules": [
+                    {
+                        "rule_id": "deny_copilot",
+                        "rule_version": 1,
+                        "priority": 1,
+                        "kind": "deny",
+                        "when": {"atom": "role_is", "args": ["copilot"]},
+                        "then": {"effect": "deny_action", "params": {}},
+                        "message": "deny copilot for test",
+                        "code": "DENY_COPILOT_TEST",
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("URM_INSTRUCTION_POLICY_PATH", str(policy_path))
+    captured: list[tuple[str, dict[str, object]]] = []
+    with pytest.raises(URMError) as exc_info:
+        authorize_action(
+            role="copilot",
+            action="adeu.get_app_state",
+            writes_allowed=False,
+            approval_provided=False,
+            session_active=True,
+            emit_policy_event=lambda event, detail: captured.append((event, detail)),
+        )
+    assert exc_info.value.detail.code == "DENY_COPILOT_TEST"
+    assert [item[0] for item in captured] == ["POLICY_EVAL_START", "POLICY_DENIED"]
