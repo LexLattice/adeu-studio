@@ -49,6 +49,9 @@ class PaperDomainTools:
     def supports_tool(self, *, tool_name: str) -> bool:
         return tool_name in SUPPORTED_TOOL_NAMES
 
+    def list_tools(self) -> list[str]:
+        return sorted(SUPPORTED_TOOL_NAMES)
+
     def list_templates(self) -> list[PaperTemplateMeta]:
         return sorted(_TEMPLATES, key=lambda item: item.template_id)
 

@@ -72,6 +72,9 @@ class ADEUDomainTools:
     def list_templates(self) -> list[TemplateMeta]:
         return sorted(_TEMPLATES, key=lambda template: template.template_id)
 
+    def list_tools(self) -> list[str]:
+        return sorted(SUPPORTED_TOOL_NAMES)
+
     def get_app_state(self) -> AppStateSnapshot:
         db_path = db_path_from_config(self.config)
         counts: dict[str, int] = {}
