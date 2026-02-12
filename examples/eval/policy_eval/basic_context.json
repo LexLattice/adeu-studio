@@ -1,0 +1,6 @@
+{
+  "role": "copilot",
+  "mode": "read_only",
+  "action_kind": "adeu.get_app_state",
+  "action_hash": "demo_hash"
+}
