@@ -72,7 +72,7 @@ from .models import (
     WorkerRunRequest,
     WorkerRunResult,
 )
-from .policy_tools import diff_policy, eval_policy, validate_policy
+from .policy_tools import diff_policy, eval_policy, explain_policy, validate_policy
 from .probe import CodexCapabilityProbeResult, run_and_persist_capability_probe
 from .retention import EvidenceRetentionStats, run_evidence_retention_gc
 from .roles import ROLE_REGISTRY, RolePolicy, get_role_policy
@@ -149,6 +149,7 @@ __all__ = [
     "load_capability_policy",
     "diff_policy",
     "eval_policy",
+    "explain_policy",
     "validate_policy",
     "reset_capability_policy_cache",
     "replay_events",

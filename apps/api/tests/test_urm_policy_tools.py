@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
-from urm_runtime.policy_tools import diff_policy, eval_policy, main, validate_policy
+from urm_runtime.policy_tools import diff_policy, eval_policy, explain_policy, main, validate_policy
 
 
 def _repo_root() -> Path:
@@ -147,6 +147,71 @@ def test_eval_policy_rejects_conflicting_timestamp_flags(tmp_path: Path) -> None
     assert report["schema"] == "instruction-policy-eval@1"
     assert report["valid"] is False
     assert report["issues"][0]["code"] == "URM_POLICY_INVALID_SCHEMA"
+
+
+def test_explain_policy_is_deterministic_with_default_timestamp(tmp_path: Path) -> None:
+    policy_path = _repo_root() / "policy" / "odeu.instructions.v1.json"
+    context_path = tmp_path / "context.json"
+    _write_json(
+        context_path,
+        {
+            "role": "copilot",
+            "mode": "read_only",
+            "action_kind": "adeu.get_app_state",
+            "action_hash": "test_hash",
+        },
+    )
+    first = explain_policy(
+        policy_path=policy_path,
+        context_path=context_path,
+        strict=True,
+    )
+    second = explain_policy(
+        policy_path=policy_path,
+        context_path=context_path,
+        strict=True,
+    )
+    assert first == second
+    assert first["schema"] == "policy_explain@1"
+    assert first["valid"] is True
+    assert first["evaluation_ts"] == "1970-01-01T00:00:00Z"
+    assert first["decision"] == "allow"
+    assert first["matched_rule_ids"] == ["default_allow_after_hard_gates"]
+    assert first["matched_rules"] == [
+        {
+            "rule_id": "default_allow_after_hard_gates",
+            "rule_version": 1,
+            "priority": 1000,
+            "kind": "allow",
+            "code": "ALLOW_HARD_GATED_ACTION",
+            "effect": "allow_action",
+            "message": "Allow actions that pass capability/mode/approval hard gates.",
+        }
+    ]
+
+
+def test_explain_policy_rejects_conflicting_timestamp_flags(tmp_path: Path) -> None:
+    policy_path = _repo_root() / "policy" / "odeu.instructions.v1.json"
+    context_path = tmp_path / "context.json"
+    _write_json(
+        context_path,
+        {
+            "role": "copilot",
+            "mode": "read_only",
+            "action_kind": "adeu.get_app_state",
+            "action_hash": "test_hash",
+        },
+    )
+    report = explain_policy(
+        policy_path=policy_path,
+        context_path=context_path,
+        strict=True,
+        evaluation_ts="2026-02-12T00:00:00Z",
+        use_now=True,
+    )
+    assert report["schema"] == "policy_explain@1"
+    assert report["valid"] is False
+    assert report["issues"][0]["code"] == "URM_POLICY_EXPLAIN_INVALID_INPUT"
 
 
 def test_diff_policy_ignores_message_and_rule_order_changes(tmp_path: Path) -> None:
@@ -313,6 +378,25 @@ def test_policy_cli_eval_and_diff_support_out_files(
     eval_payload = json.loads(eval_out.read_text(encoding="utf-8"))
     assert eval_payload["valid"] is True
     assert eval_payload["schema"] == "instruction-policy-eval@1"
+
+    explain_out = tmp_path / "explain_report.json"
+    assert (
+        main(
+            [
+                "explain",
+                "--policy",
+                str(policy_path),
+                "--context",
+                str(context_path),
+                "--out",
+                str(explain_out),
+            ]
+        )
+        == 0
+    )
+    explain_payload = json.loads(explain_out.read_text(encoding="utf-8"))
+    assert explain_payload["valid"] is True
+    assert explain_payload["schema"] == "policy_explain@1"
 
     old_policy = tmp_path / "old.policy.json"
     new_policy = tmp_path / "new.policy.json"
