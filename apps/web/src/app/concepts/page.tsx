@@ -883,6 +883,7 @@ export default function ConceptsPage() {
         max_answers_per_question: data.max_answers_per_question,
         question_rank_version: data.question_rank_version,
         budget_report: data.budget_report,
+        bridge_loss_signals: data.bridge_loss_signals ?? [],
         mapping_trust: data.mapping_trust ?? null,
         solver_trust: data.solver_trust,
         proof_trust: data.proof_trust ?? null,
