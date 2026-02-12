@@ -12,6 +12,7 @@ DEFAULT_MAX_REPLAY_EVENTS = 10_000
 DEFAULT_APPROVAL_TTL_SECS = 120
 DEFAULT_RETENTION_DAYS = 14
 DEFAULT_MAX_TOTAL_EVIDENCE_BYTES = 2_000_000_000
+DEFAULT_CHILD_QUEUE_MODE = "v1"
 
 
 def _env_int(
@@ -78,6 +79,7 @@ class URMRuntimeConfig:
     approval_ttl_secs: int
     retention_days: int
     max_total_evidence_bytes: int
+    child_queue_mode: str = DEFAULT_CHILD_QUEUE_MODE
 
     @classmethod
     def from_env(cls) -> "URMRuntimeConfig":
@@ -133,4 +135,12 @@ class URMRuntimeConfig:
                 DEFAULT_MAX_TOTAL_EVIDENCE_BYTES,
                 minimum=1,
             ),
+            child_queue_mode=_env_child_queue_mode(),
         )
+
+
+def _env_child_queue_mode() -> str:
+    raw = os.environ.get("URM_CHILD_QUEUE_MODE", DEFAULT_CHILD_QUEUE_MODE).strip().lower()
+    if raw not in {"v1", "v2"}:
+        raise RuntimeError("URM_CHILD_QUEUE_MODE must be one of: v1, v2")
+    return raw

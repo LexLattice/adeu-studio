@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 
 
 def _print_exec_help() -> int:
@@ -207,6 +208,14 @@ def _run_app_server() -> int:
             if not isinstance(receiver, str) or receiver not in open_agents:
                 _emit_jsonrpc_error(request_id, "receiverThreadId not found")
                 continue
+            wait_secs_raw = os.environ.get("FAKE_APP_SERVER_WAIT_SECS", "").strip()
+            if wait_secs_raw:
+                try:
+                    wait_secs = float(wait_secs_raw)
+                except ValueError:
+                    wait_secs = 0.0
+                if wait_secs > 0:
+                    time.sleep(wait_secs)
             print(
                 json.dumps(
                     {
