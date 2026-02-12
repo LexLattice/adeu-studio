@@ -10,9 +10,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal, NoReturn
 
+from adeu_ir import ProofArtifact, ProofInput
+from adeu_kernel.proof import build_proof_backend, build_trivial_theorem_source
+
 from .errors import URMError
 from .hashing import action_hash as compute_action_hash
+from .hashing import sha256_text
 from .instruction_policy import (
+    EvidenceRef,
     PolicyContext,
     PolicyDecision,
     evaluate_instruction_policy,
@@ -26,6 +31,11 @@ ALLOW_POLICY_FILE = "urm.allow.v1.json"
 HARD_GATE_TRACE_VERSION = "urm.hard-gate.v1"
 PolicyEvalEventName = Literal["POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"]
 PolicyEvalEventCallback = Callable[[PolicyEvalEventName, dict[str, Any]], None]
+InstructionProofBackend = Literal["lean", "mock"]
+INSTRUCTION_KERNEL_PROOF_THEOREM_IDS: tuple[str, ...] = (
+    "no_write_without_mode_and_approval",
+    "approval_single_use_atomicity",
+)
 
 
 @dataclass(frozen=True)
@@ -262,6 +272,130 @@ def _emit_policy_event(
     callback(event_name, detail)
 
 
+def _selected_instruction_proof_backend() -> InstructionProofBackend:
+    selected = os.environ.get("ADEU_PROOF_BACKEND", "mock").strip().lower()
+    return "lean" if selected == "lean" else "mock"
+
+
+def _build_instruction_proof_inputs(*, action: str, action_hash: str) -> list[ProofInput]:
+    return [
+        ProofInput(object_id=action, json_path="/action_kind", formula_hash=action_hash),
+        ProofInput(object_id="policy_context", json_path="/action_hash", formula_hash=action_hash),
+    ]
+
+
+def _build_failed_instruction_proof_artifact(
+    *,
+    theorem_id: str,
+    theorem_src: str,
+    inputs: list[ProofInput],
+    backend: InstructionProofBackend,
+    policy_hash: str,
+    action: str,
+    role: str,
+    error: str,
+) -> ProofArtifact:
+    stable_id = sha256_text(f"instruction-kernel:{theorem_id}:{backend}")[:16]
+    return ProofArtifact(
+        proof_id=f"proof_{stable_id}",
+        backend=backend,
+        theorem_id=theorem_id,
+        status="failed",
+        proof_hash=sha256_text(theorem_src),
+        inputs=inputs,
+        details={
+            "scope": "instruction-kernel",
+            "invariant_id": theorem_id,
+            "policy_hash": policy_hash,
+            "action_kind": action,
+            "role": role,
+            "error": error,
+        },
+    )
+
+
+def _sorted_unique_proof_evidence_refs(refs: list[EvidenceRef]) -> list[EvidenceRef]:
+    unique: dict[tuple[str, str, str], EvidenceRef] = {}
+    for ref in refs:
+        key = (ref.kind, ref.ref, ref.note or "")
+        unique[key] = ref
+    ordered = sorted(unique, key=lambda key: (key[0], key[1], key[2]))
+    return [unique[key] for key in ordered]
+
+
+def _attach_instruction_policy_proofs(
+    *,
+    policy_decision: PolicyDecision,
+    action: str,
+    action_hash: str,
+    role: str,
+) -> PolicyDecision:
+    inputs = _build_instruction_proof_inputs(action=action, action_hash=action_hash)
+    backend_name = _selected_instruction_proof_backend()
+    proof_artifacts: list[ProofArtifact] = []
+    backend_error: str | None = None
+    backend = None
+    try:
+        backend = build_proof_backend(kind=backend_name)
+    except Exception as exc:  # pragma: no cover - environment-specific fallback
+        backend_error = str(exc)
+
+    for theorem_id in INSTRUCTION_KERNEL_PROOF_THEOREM_IDS:
+        theorem_src = build_trivial_theorem_source(theorem_id=theorem_id)
+        if backend is None:
+            proof_artifacts.append(
+                _build_failed_instruction_proof_artifact(
+                    theorem_id=theorem_id,
+                    theorem_src=theorem_src,
+                    inputs=inputs,
+                    backend=backend_name,
+                    policy_hash=policy_decision.policy_hash,
+                    action=action,
+                    role=role,
+                    error=backend_error or "proof backend unavailable",
+                )
+            )
+            continue
+        try:
+            proof = backend.check(theorem_id=theorem_id, theorem_src=theorem_src, inputs=inputs)
+        except Exception as exc:  # pragma: no cover - backend runtime fallback
+            proof = _build_failed_instruction_proof_artifact(
+                theorem_id=theorem_id,
+                theorem_src=theorem_src,
+                inputs=inputs,
+                backend=backend_name,
+                policy_hash=policy_decision.policy_hash,
+                action=action,
+                role=role,
+                error=str(exc),
+            )
+        else:
+            details = dict(proof.details)
+            details.setdefault("scope", "instruction-kernel")
+            details.setdefault("invariant_id", theorem_id)
+            details.setdefault("policy_hash", policy_decision.policy_hash)
+            details.setdefault("action_kind", action)
+            details.setdefault("role", role)
+            proof = proof.model_copy(update={"details": details})
+        proof_artifacts.append(proof)
+
+    ordered_proofs = sorted(
+        proof_artifacts,
+        key=lambda artifact: (artifact.theorem_id, artifact.proof_id),
+    )
+    evidence_refs = list(policy_decision.evidence_refs)
+    evidence_refs.extend(
+        EvidenceRef(kind="proof", ref=f"proof:{artifact.proof_id}", note=artifact.theorem_id)
+        for artifact in ordered_proofs
+    )
+    return policy_decision.model_copy(
+        update={
+            "proof_artifacts": ordered_proofs,
+            "evidence_refs": _sorted_unique_proof_evidence_refs(evidence_refs),
+        }
+    )
+
+
 def authorize_action(
     *,
     role: str,
@@ -373,6 +507,12 @@ def authorize_action(
             }
         ),
     )
+    policy_decision = _attach_instruction_policy_proofs(
+        policy_decision=policy_decision,
+        action=action,
+        action_hash=action_hash,
+        role=role,
+    )
     start_detail = {
         "policy_hash": policy_decision.policy_hash,
         "decision_code": "PENDING",
@@ -416,6 +556,9 @@ def authorize_action(
                 "matched_rule_ids": policy_decision.matched_rule_ids,
                 "trace_version": policy_decision.trace_version,
                 "input_context_hash": policy_decision.input_context_hash,
+                "evidence_refs": [
+                    ref.model_dump(mode="json") for ref in policy_decision.evidence_refs
+                ],
             },
         )
 

@@ -112,6 +112,13 @@ def test_authorize_action_returns_policy_decision_trace_for_allow() -> None:
     assert decision.policy_decision.decision == "allow"
     assert decision.policy_decision.decision_code == "ALLOW_HARD_GATED_ACTION"
     assert decision.policy_decision.trace_version == "odeu.instruction-trace.v1"
+    theorem_ids = [artifact.theorem_id for artifact in decision.policy_decision.proof_artifacts]
+    assert theorem_ids == [
+        "approval_single_use_atomicity",
+        "no_write_without_mode_and_approval",
+    ]
+    proof_refs = [ref.ref for ref in decision.policy_decision.evidence_refs if ref.kind == "proof"]
+    assert proof_refs
 
 
 def test_authorize_action_emits_policy_eval_events_for_allow() -> None:
@@ -169,3 +176,33 @@ def test_authorize_action_emits_policy_denied_for_instruction_rule(
         )
     assert exc_info.value.detail.code == "DENY_COPILOT_TEST"
     assert [item[0] for item in captured] == ["POLICY_EVAL_START", "POLICY_DENIED"]
+    detail = exc_info.value.detail.context
+    assert isinstance(detail.get("evidence_refs"), list)
+    assert any(
+        isinstance(item, dict) and item.get("kind") == "proof"
+        for item in detail["evidence_refs"]
+    )
+
+
+def test_authorize_action_proof_backend_failure_does_not_change_decision(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _FailingBackend:
+        def check(self, **_kwargs: object) -> object:
+            raise RuntimeError("backend failure")
+
+    monkeypatch.setattr(
+        capability_policy,
+        "build_proof_backend",
+        lambda kind=None: _FailingBackend(),
+    )
+    decision = authorize_action(
+        role="copilot",
+        action="adeu.get_app_state",
+        writes_allowed=False,
+        approval_provided=False,
+        session_active=True,
+    )
+    assert decision.policy_decision.decision == "allow"
+    assert len(decision.policy_decision.proof_artifacts) == 2
+    assert all(artifact.status == "failed" for artifact in decision.policy_decision.proof_artifacts)

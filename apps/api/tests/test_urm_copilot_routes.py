@@ -421,6 +421,9 @@ def test_tool_call_emits_policy_eval_events_on_allow(
     assert response.tool_name == "adeu.get_app_state"
     assert response.result == {"ok": True}
     assert response.policy_trace is not None
+    assert any(
+        ref.get("kind") == "proof" for ref in response.policy_trace.get("evidence_refs", [])
+    )
     assert [event for event, _detail in fake_manager.events] == [
         "POLICY_EVAL_START",
         "POLICY_EVAL_PASS",
@@ -495,6 +498,10 @@ def test_tool_call_emits_policy_denied_event_on_instruction_deny(
         )
     assert exc_info.value.status_code == 400
     assert exc_info.value.detail["code"] == "DENY_COPILOT_ROUTE_TEST"
+    assert any(
+        ref.get("kind") == "proof"
+        for ref in exc_info.value.detail.get("context", {}).get("evidence_refs", [])
+    )
     assert [event for event, _detail in fake_manager.events] == [
         "POLICY_EVAL_START",
         "POLICY_DENIED",
