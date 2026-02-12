@@ -8,6 +8,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Literal
 
+from adeu_ir import ProofArtifact
 from jsonschema import Draft202012Validator
 from jsonschema import ValidationError as JsonSchemaValidationError
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
@@ -31,6 +32,15 @@ MAX_EXPR_NODES = 2_000
 UTC_Z_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
 AtomHandler = Callable[["PolicyContext", list[Any]], bool]
+EvidenceRefKind = Literal["event", "run", "validator", "proof", "artifact"]
+
+
+class EvidenceRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: EvidenceRefKind
+    ref: str = Field(min_length=1)
+    note: str | None = None
 
 
 class RuleEffect(BaseModel):
@@ -153,6 +163,8 @@ class PolicyDecision(BaseModel):
     evaluator_version: Literal[INSTRUCTION_EVALUATOR_VERSION] = INSTRUCTION_EVALUATOR_VERSION
     advisories: list[dict[str, Any]] = Field(default_factory=list)
     warrant_invalid: bool = False
+    proof_artifacts: list[ProofArtifact] = Field(default_factory=list)
+    evidence_refs: list[EvidenceRef] = Field(default_factory=list)
 
 
 def _eval_role_is(context: PolicyContext, args: list[Any]) -> bool:
