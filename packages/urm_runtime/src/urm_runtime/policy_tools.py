@@ -11,6 +11,7 @@ from .hashing import canonical_json
 from .instruction_policy import (
     InstructionPolicy,
     PolicyContext,
+    PolicyDecision,
     compute_policy_hash,
     evaluate_instruction_policy,
     load_instruction_policy,
@@ -20,6 +21,7 @@ from .instruction_policy import (
 POLICY_VALIDATE_SCHEMA = "instruction-policy-validate@1"
 POLICY_EVAL_SCHEMA = "instruction-policy-eval@1"
 POLICY_DIFF_SCHEMA = "instruction-policy-diff@1"
+POLICY_EXPLAIN_SCHEMA = "policy_explain@1"
 DEFAULT_EVALUATION_TS = "1970-01-01T00:00:00Z"
 
 
@@ -61,6 +63,54 @@ def _now_utc_z() -> str:
     return datetime.now(tz=timezone.utc).replace(microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _resolve_evaluation_ts(
+    *,
+    context_doc: dict[str, Any],
+    evaluation_ts: str | None,
+    use_now: bool,
+    invalid_input_code: str,
+) -> str:
+    if use_now and evaluation_ts is not None:
+        raise URMError(
+            code=invalid_input_code,
+            message="cannot combine --use-now with --evaluation-ts",
+        )
+    if use_now:
+        return _now_utc_z()
+    if evaluation_ts is not None:
+        return evaluation_ts
+    if "evaluation_ts" in context_doc:
+        return str(context_doc["evaluation_ts"])
+    return DEFAULT_EVALUATION_TS
+
+
+def _evaluate_policy_with_context(
+    *,
+    policy_path: Path,
+    context_path: Path,
+    strict: bool,
+    schema_path: Path | None,
+    evaluation_ts: str | None,
+    use_now: bool,
+    invalid_input_code: str,
+) -> tuple[InstructionPolicy, PolicyContext, PolicyDecision]:
+    policy = load_instruction_policy(
+        policy_path=policy_path,
+        schema_path=schema_path,
+        strict=strict,
+    )
+    context_doc = _load_json_from_path(context_path, description="policy context")
+    context_doc["evaluation_ts"] = _resolve_evaluation_ts(
+        context_doc=context_doc,
+        evaluation_ts=evaluation_ts,
+        use_now=use_now,
+        invalid_input_code=invalid_input_code,
+    )
+    context = PolicyContext.model_validate(context_doc)
+    decision = evaluate_instruction_policy(policy=policy, context=context)
+    return policy, context, decision
+
+
 def validate_policy(
     path: Path,
     *,
@@ -99,28 +149,15 @@ def eval_policy(
     use_now: bool = False,
 ) -> dict[str, Any]:
     try:
-        if use_now and evaluation_ts is not None:
-            raise URMError(
-                code="URM_POLICY_INVALID_SCHEMA",
-                message="cannot combine --use-now with --evaluation-ts",
-            )
-        policy = load_instruction_policy(
+        _, context, decision = _evaluate_policy_with_context(
             policy_path=policy_path,
-            schema_path=schema_path,
+            context_path=context_path,
             strict=strict,
+            schema_path=schema_path,
+            evaluation_ts=evaluation_ts,
+            use_now=use_now,
+            invalid_input_code="URM_POLICY_INVALID_SCHEMA",
         )
-        context_doc = _load_json_from_path(context_path, description="policy context")
-        if use_now:
-            resolved_evaluation_ts = _now_utc_z()
-        elif evaluation_ts is not None:
-            resolved_evaluation_ts = evaluation_ts
-        elif "evaluation_ts" in context_doc:
-            resolved_evaluation_ts = str(context_doc["evaluation_ts"])
-        else:
-            resolved_evaluation_ts = DEFAULT_EVALUATION_TS
-        context_doc["evaluation_ts"] = resolved_evaluation_ts
-        context = PolicyContext.model_validate(context_doc)
-        decision = evaluate_instruction_policy(policy=policy, context=context)
     except URMError as exc:
         return {
             "schema": POLICY_EVAL_SCHEMA,
@@ -157,6 +194,91 @@ def eval_policy(
 def _semantic_rule_map(policy: InstructionPolicy) -> dict[str, dict[str, Any]]:
     semantic_rules = policy_semantic_form(policy)["rules"]
     return {str(rule["rule_id"]): rule for rule in semantic_rules}
+
+
+def _rule_index(policy: InstructionPolicy) -> dict[str, Any]:
+    return {rule.rule_id: rule for rule in policy.rules}
+
+
+def _matched_rule_summaries(
+    *,
+    policy: InstructionPolicy,
+    decision: PolicyDecision,
+) -> list[dict[str, Any]]:
+    by_id = _rule_index(policy)
+    summaries: list[dict[str, Any]] = []
+    for rule_id in decision.matched_rule_ids:
+        rule = by_id.get(rule_id)
+        if rule is None:
+            continue
+        summaries.append(
+            {
+                "rule_id": rule.rule_id,
+                "rule_version": rule.rule_version,
+                "priority": rule.priority,
+                "kind": rule.kind,
+                "code": rule.code,
+                "effect": rule.then.effect,
+                "message": rule.message,
+            }
+        )
+    return summaries
+
+
+def explain_policy(
+    *,
+    policy_path: Path,
+    context_path: Path,
+    strict: bool,
+    schema_path: Path | None = None,
+    evaluation_ts: str | None = None,
+    use_now: bool = False,
+) -> dict[str, Any]:
+    try:
+        policy, context, decision = _evaluate_policy_with_context(
+            policy_path=policy_path,
+            context_path=context_path,
+            strict=strict,
+            schema_path=schema_path,
+            evaluation_ts=evaluation_ts,
+            use_now=use_now,
+            invalid_input_code="URM_POLICY_EXPLAIN_INVALID_INPUT",
+        )
+    except URMError as exc:
+        return {
+            "schema": POLICY_EXPLAIN_SCHEMA,
+            "input_policy": str(policy_path),
+            "input_context": str(context_path),
+            "strict": strict,
+            "deterministic_mode": not use_now,
+            "valid": False,
+            "issues": [_error_issue(exc)],
+        }
+
+    return {
+        "schema": POLICY_EXPLAIN_SCHEMA,
+        "input_policy": str(policy_path),
+        "input_context": str(context_path),
+        "strict": strict,
+        "deterministic_mode": not use_now,
+        "valid": True,
+        "evaluation_ts": context.evaluation_ts,
+        "policy_hash": decision.policy_hash,
+        "input_context_hash": decision.input_context_hash,
+        "decision": decision.decision,
+        "decision_code": decision.decision_code,
+        "matched_rule_ids": list(decision.matched_rule_ids),
+        "matched_rules": _matched_rule_summaries(policy=policy, decision=decision),
+        "required_approval": decision.required_approval,
+        "evaluator_version": decision.evaluator_version,
+        "trace_version": decision.trace_version,
+        "policy_schema_version": decision.policy_schema_version,
+        "policy_ir_version": decision.policy_ir_version,
+        "advisories": list(decision.advisories),
+        "warrant_invalid": decision.warrant_invalid,
+        "evidence_refs": [ref.model_dump(mode="json") for ref in decision.evidence_refs],
+        "issues": [],
+    }
 
 
 def diff_policy(
@@ -232,7 +354,9 @@ def diff_policy(
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="policy",
-        description="Instruction policy tooling: validate, eval, and diff policy IR documents.",
+        description=(
+            "Instruction policy tooling: validate, eval, explain, and diff policy IR documents."
+        ),
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -257,6 +381,19 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     eval_parser.add_argument("--lax", dest="strict", action="store_false")
     eval_parser.set_defaults(strict=True)
 
+    explain_parser = subparsers.add_parser(
+        "explain",
+        help="Render deterministic explanation view from policy decision output.",
+    )
+    explain_parser.add_argument("--policy", dest="policy_path", type=Path, required=True)
+    explain_parser.add_argument("--context", dest="context_path", type=Path, required=True)
+    explain_parser.add_argument("--schema", dest="schema_path", type=Path, required=False)
+    explain_parser.add_argument("--evaluation-ts", dest="evaluation_ts", type=str, required=False)
+    explain_parser.add_argument("--use-now", dest="use_now", action="store_true")
+    explain_parser.add_argument("--out", dest="out_path", type=Path, required=False)
+    explain_parser.add_argument("--lax", dest="strict", action="store_false")
+    explain_parser.set_defaults(strict=True)
+
     diff_parser = subparsers.add_parser(
         "diff",
         help="Compute semantic diff between two policy documents.",
@@ -276,6 +413,15 @@ def _write_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
+def _emit_report(report: dict[str, Any], *, out_path: Path | None) -> int:
+    out_text = canonical_json(report)
+    if out_path is not None:
+        _write_text(out_path, out_text + "\n")
+    else:
+        print(out_text)
+    return 0 if bool(report.get("valid")) else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if args.command == "validate":
@@ -284,9 +430,7 @@ def main(argv: list[str] | None = None) -> int:
             strict=bool(args.strict),
             schema_path=args.schema_path,
         )
-        out_text = canonical_json(report)
-        print(out_text)
-        return 0 if report["valid"] else 1
+        return _emit_report(report, out_path=None)
     if args.command == "eval":
         report = eval_policy(
             policy_path=args.policy_path,
@@ -296,12 +440,17 @@ def main(argv: list[str] | None = None) -> int:
             evaluation_ts=args.evaluation_ts,
             use_now=bool(args.use_now),
         )
-        out_text = canonical_json(report)
-        if args.out_path is not None:
-            _write_text(args.out_path, out_text + "\n")
-        else:
-            print(out_text)
-        return 0 if report["valid"] else 1
+        return _emit_report(report, out_path=args.out_path)
+    if args.command == "explain":
+        report = explain_policy(
+            policy_path=args.policy_path,
+            context_path=args.context_path,
+            strict=bool(args.strict),
+            schema_path=args.schema_path,
+            evaluation_ts=args.evaluation_ts,
+            use_now=bool(args.use_now),
+        )
+        return _emit_report(report, out_path=args.out_path)
     if args.command == "diff":
         report = diff_policy(
             old_policy_path=args.old_policy_path,
@@ -309,12 +458,7 @@ def main(argv: list[str] | None = None) -> int:
             strict=bool(args.strict),
             schema_path=args.schema_path,
         )
-        out_text = canonical_json(report)
-        if args.out_path is not None:
-            _write_text(args.out_path, out_text + "\n")
-        else:
-            print(out_text)
-        return 0 if report["valid"] else 1
+        return _emit_report(report, out_path=args.out_path)
     return 1  # pragma: no cover
 
 
