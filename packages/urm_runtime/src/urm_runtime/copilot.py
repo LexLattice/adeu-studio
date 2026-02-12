@@ -1446,10 +1446,11 @@ class URMCopilotManager:
                     "spawn_agent",
                     {"threadId": runtime.thread_id, "turnId": target_turn_id},
                 )
+                result = spawn_response.get("result", {})
                 child_thread_id = (
-                    spawn_response.get("result", {}).get("newThreadId")
-                    or spawn_response.get("result", {}).get("receiverThreadId")
-                    or spawn_response.get("result", {}).get("threadId")
+                    result.get("newThreadId")
+                    or result.get("receiverThreadId")
+                    or result.get("threadId")
                 )
                 if not isinstance(child_thread_id, str) or not child_thread_id:
                     child_thread_id = f"child-thread:{child_id}"

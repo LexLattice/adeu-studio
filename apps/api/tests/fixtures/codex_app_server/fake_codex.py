@@ -29,6 +29,18 @@ def _print_app_server_help() -> int:
     return 0
 
 
+def _emit_jsonrpc_error(request_id: str | None, message: str) -> None:
+    print(
+        json.dumps(
+            {
+                "id": request_id,
+                "error": {"code": -32602, "message": message},
+            }
+        ),
+        flush=True,
+    )
+
+
 def _run_app_server() -> int:
     if os.environ.get("FAKE_APP_SERVER_DISABLE_READY") == "1":
         return 3
@@ -136,26 +148,10 @@ def _run_app_server() -> int:
         if method == "turn/steer":
             expected_turn_id = params.get("expectedTurnId")
             if not isinstance(expected_turn_id, str) or not expected_turn_id:
-                print(
-                    json.dumps(
-                        {
-                            "id": request_id,
-                            "error": {"code": -32602, "message": "expectedTurnId required"},
-                        }
-                    ),
-                    flush=True,
-                )
+                _emit_jsonrpc_error(request_id, "expectedTurnId required")
                 continue
             if last_turn_id and expected_turn_id != last_turn_id:
-                print(
-                    json.dumps(
-                        {
-                            "id": request_id,
-                            "error": {"code": -32602, "message": "expectedTurnId mismatch"},
-                        }
-                    ),
-                    flush=True,
-                )
+                _emit_jsonrpc_error(request_id, "expectedTurnId mismatch")
                 continue
             print(
                 json.dumps(
@@ -194,15 +190,7 @@ def _run_app_server() -> int:
         if method == "send_input":
             receiver = params.get("receiverThreadId")
             if not isinstance(receiver, str) or receiver not in open_agents:
-                print(
-                    json.dumps(
-                        {
-                            "id": request_id,
-                            "error": {"code": -32602, "message": "receiverThreadId not found"},
-                        }
-                    ),
-                    flush=True,
-                )
+                _emit_jsonrpc_error(request_id, "receiverThreadId not found")
                 continue
             print(
                 json.dumps(
@@ -217,15 +205,7 @@ def _run_app_server() -> int:
         if method == "wait":
             receiver = params.get("receiverThreadId")
             if not isinstance(receiver, str) or receiver not in open_agents:
-                print(
-                    json.dumps(
-                        {
-                            "id": request_id,
-                            "error": {"code": -32602, "message": "receiverThreadId not found"},
-                        }
-                    ),
-                    flush=True,
-                )
+                _emit_jsonrpc_error(request_id, "receiverThreadId not found")
                 continue
             print(
                 json.dumps(

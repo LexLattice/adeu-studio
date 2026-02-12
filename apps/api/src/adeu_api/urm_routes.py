@@ -72,6 +72,17 @@ def _to_http_exception(error: URMError) -> HTTPException:
     return HTTPException(status_code=error.status_code, detail=error.detail.model_dump(mode="json"))
 
 
+def _require_codex_provider(provider: str) -> None:
+    if provider != "codex":
+        raise _to_http_exception(
+            URMError(
+                code="URM_POLICY_DENIED",
+                message="unsupported provider",
+                context={"provider": provider},
+            )
+        )
+
+
 def _get_manager() -> URMCopilotManager:
     return _get_runtime_components()[0]
 
@@ -251,18 +262,11 @@ def urm_copilot_send_endpoint(request: CopilotSessionSendRequest) -> CopilotSess
 
 @router.post("/copilot/steer", response_model=CopilotSteerResponse)
 def urm_copilot_steer_endpoint(request: CopilotSteerRequest) -> CopilotSteerResponse:
-    if request.provider != "codex":
-        raise _to_http_exception(
-            URMError(
-                code="URM_POLICY_DENIED",
-                message="unsupported provider",
-                context={"provider": request.provider},
-            )
-        )
+    _require_codex_provider(request.provider)
     manager = _get_manager()
     try:
         session_writes_allowed, session_active = _load_session_access_state(request.session_id)
-        decision = authorize_action(
+        _ = authorize_action(
             role="copilot",
             action=_resolve_steer_policy_action(),
             writes_allowed=session_writes_allowed,
@@ -276,7 +280,6 @@ def urm_copilot_steer_endpoint(request: CopilotSteerRequest) -> CopilotSteerResp
             session_active=session_active,
             emit_policy_event=_policy_event_emitter(session_id=request.session_id),
         )
-        del decision
         return manager.steer(request)
     except URMError as exc:
         raise _to_http_exception(exc) from exc
@@ -302,14 +305,7 @@ def urm_copilot_mode_endpoint(request: CopilotModeRequest) -> CopilotSessionResp
 
 @router.post("/agent/spawn", response_model=AgentSpawnResponse)
 def urm_agent_spawn_endpoint(request: AgentSpawnRequest) -> AgentSpawnResponse:
-    if request.provider != "codex":
-        raise _to_http_exception(
-            URMError(
-                code="URM_POLICY_DENIED",
-                message="unsupported provider",
-                context={"provider": request.provider},
-            )
-        )
+    _require_codex_provider(request.provider)
     manager = _get_manager()
     try:
         session_writes_allowed, session_active = _load_session_access_state(request.session_id)
@@ -340,19 +336,12 @@ def urm_agent_spawn_endpoint(request: AgentSpawnRequest) -> AgentSpawnResponse:
 
 @router.post("/agent/{child_id}/cancel", response_model=AgentCancelResponse)
 def urm_agent_cancel_endpoint(child_id: str, request: AgentCancelRequest) -> AgentCancelResponse:
-    if request.provider != "codex":
-        raise _to_http_exception(
-            URMError(
-                code="URM_POLICY_DENIED",
-                message="unsupported provider",
-                context={"provider": request.provider},
-            )
-        )
+    _require_codex_provider(request.provider)
     manager = _get_manager()
     try:
         parent_session_id = manager.child_parent_session_id(child_id=child_id)
         session_writes_allowed, session_active = _load_session_access_state(parent_session_id)
-        decision = authorize_action(
+        _ = authorize_action(
             role="copilot",
             action=_resolve_cancel_policy_action(),
             writes_allowed=session_writes_allowed,
@@ -361,7 +350,6 @@ def urm_agent_cancel_endpoint(child_id: str, request: AgentCancelRequest) -> Age
             session_active=session_active,
             emit_policy_event=_policy_event_emitter(session_id=parent_session_id),
         )
-        del decision
         return manager.cancel_child(child_id=child_id, request=request)
     except URMError as exc:
         raise _to_http_exception(exc) from exc
@@ -404,14 +392,7 @@ def urm_worker_cancel_endpoint(
     worker_id: str,
     request: WorkerCancelRequest,
 ) -> WorkerCancelResponse:
-    if request.provider != "codex":
-        raise _to_http_exception(
-            URMError(
-                code="URM_POLICY_DENIED",
-                message="unsupported provider",
-                context={"provider": request.provider},
-            )
-        )
+    _require_codex_provider(request.provider)
     runner = _get_worker_runner()
     try:
         return runner.cancel(worker_id=worker_id)
@@ -421,14 +402,7 @@ def urm_worker_cancel_endpoint(
 
 @router.post("/tools/call", response_model=ToolCallResponse)
 def urm_tool_call_endpoint(request: ToolCallRequest) -> ToolCallResponse:
-    if request.provider != "codex":
-        raise _to_http_exception(
-            URMError(
-                code="URM_POLICY_DENIED",
-                message="unsupported provider",
-                context={"provider": request.provider},
-            )
-        )
+    _require_codex_provider(request.provider)
 
     try:
         action = _resolve_tool_policy_action(request)
