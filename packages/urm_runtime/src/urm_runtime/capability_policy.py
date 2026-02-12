@@ -295,7 +295,7 @@ def _build_failed_instruction_proof_artifact(
     role: str,
     error: str,
 ) -> ProofArtifact:
-    stable_id = sha256_text(f"instruction-kernel:{theorem_id}:{backend}")[:16]
+    stable_id = sha256_text(f"instruction-kernel:{theorem_id}:{backend}")[:32]
     return ProofArtifact(
         proof_id=f"proof_{stable_id}",
         backend=backend,
