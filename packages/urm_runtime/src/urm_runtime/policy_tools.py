@@ -9,6 +9,7 @@ from typing import Any
 from .errors import URMError
 from .hashing import canonical_json
 from .instruction_policy import (
+    EvidenceRefKind,
     InstructionPolicy,
     PolicyContext,
     PolicyDecision,
@@ -17,12 +18,22 @@ from .instruction_policy import (
     load_instruction_policy,
     policy_semantic_form,
 )
+from .models import NormalizedEvent
 
 POLICY_VALIDATE_SCHEMA = "instruction-policy-validate@1"
 POLICY_EVAL_SCHEMA = "instruction-policy-eval@1"
 POLICY_DIFF_SCHEMA = "instruction-policy-diff@1"
 POLICY_EXPLAIN_SCHEMA = "policy_explain@1"
+POLICY_INCIDENT_SCHEMA = "incident_packet@1"
 DEFAULT_EVALUATION_TS = "1970-01-01T00:00:00Z"
+_CANONICAL_REF_PREFIX_TO_KIND: dict[str, EvidenceRefKind] = {
+    "event:": "event",
+    "run:": "run",
+    "validator:": "validator",
+    "proof:": "proof",
+    "artifact:": "artifact",
+}
+_REDACTED_VALUE = "[REDACTED]"
 
 
 def _load_json_from_path(path: Path, *, description: str) -> dict[str, Any]:
@@ -109,6 +120,140 @@ def _evaluate_policy_with_context(
     context = PolicyContext.model_validate(context_doc)
     decision = evaluate_instruction_policy(policy=policy, context=context)
     return policy, context, decision
+
+
+def _canonical_ref_kind(ref: str) -> EvidenceRefKind | None:
+    for prefix, kind in _CANONICAL_REF_PREFIX_TO_KIND.items():
+        if ref.startswith(prefix):
+            return kind
+    return None
+
+
+def _normalize_artifact_refs(
+    *,
+    explain_report: dict[str, Any],
+    explicit_refs: list[str],
+    stream_ranges: list[dict[str, Any]],
+) -> list[dict[str, str]]:
+    refs: dict[tuple[str, str], dict[str, str]] = {}
+    decision_refs = explain_report.get("evidence_refs")
+    if isinstance(decision_refs, list):
+        for entry in decision_refs:
+            if not isinstance(entry, dict):
+                continue
+            ref_value = entry.get("ref")
+            if not isinstance(ref_value, str):
+                continue
+            kind = _canonical_ref_kind(ref_value)
+            if kind is None:
+                continue
+            refs[(kind, ref_value)] = {"kind": kind, "ref": ref_value}
+
+    for stream in stream_ranges:
+        stream_id = stream["stream_id"]
+        seq_range = stream["seq_range"]
+        start_ref = f"event:{stream_id}#{seq_range['start_seq']}"
+        end_ref = f"event:{stream_id}#{seq_range['end_seq']}"
+        refs[("event", start_ref)] = {"kind": "event", "ref": start_ref}
+        refs[("event", end_ref)] = {"kind": "event", "ref": end_ref}
+
+    for explicit_ref in explicit_refs:
+        kind = _canonical_ref_kind(explicit_ref)
+        if kind is None:
+            raise URMError(
+                code="URM_INCIDENT_PACKET_BUILD_FAILED",
+                message="artifact ref must use canonical prefix",
+                context={"artifact_ref": explicit_ref},
+            )
+        refs[(kind, explicit_ref)] = {"kind": kind, "ref": explicit_ref}
+
+    return [refs[key] for key in sorted(refs, key=lambda item: (item[0], item[1]))]
+
+
+def _parse_stream_spec(spec: str) -> tuple[str, Path]:
+    stream_id, sep, path_text = spec.partition("=")
+    if sep == "" or not stream_id.strip() or not path_text.strip():
+        raise URMError(
+            code="URM_INCIDENT_PACKET_BUILD_FAILED",
+            message="stream spec must be STREAM_ID=PATH",
+            context={"stream": spec},
+        )
+    return stream_id.strip(), Path(path_text.strip())
+
+
+def _stream_seq_range(*, stream_id: str, stream_path: Path) -> dict[str, Any]:
+    try:
+        lines = stream_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError as exc:
+        raise URMError(
+            code="URM_INCIDENT_PACKET_BUILD_FAILED",
+            message="stream file is not readable",
+            context={"stream_id": stream_id, "stream_path": str(stream_path), "error": str(exc)},
+        ) from exc
+
+    seq_values: list[int] = []
+    for idx, line in enumerate(lines, start=1):
+        if not line.strip():
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise URMError(
+                code="URM_INCIDENT_PACKET_BUILD_FAILED",
+                message="stream file contains invalid JSON",
+                context={
+                    "stream_id": stream_id,
+                    "stream_path": str(stream_path),
+                    "line": idx,
+                    "error": str(exc),
+                },
+            ) from exc
+        try:
+            event = NormalizedEvent.model_validate(payload)
+        except Exception as exc:
+            raise URMError(
+                code="URM_INCIDENT_PACKET_BUILD_FAILED",
+                message="stream file contains invalid urm-events@1 record",
+                context={
+                    "stream_id": stream_id,
+                    "stream_path": str(stream_path),
+                    "line": idx,
+                    "error": str(exc),
+                },
+            ) from exc
+        if event.stream_id == stream_id:
+            seq_values.append(event.seq)
+    if not seq_values:
+        raise URMError(
+            code="URM_INCIDENT_PACKET_BUILD_FAILED",
+            message="stream file does not contain matching stream_id events",
+            context={"stream_id": stream_id, "stream_path": str(stream_path)},
+        )
+    return {
+        "stream_id": stream_id,
+        "seq_range": {"start_seq": min(seq_values), "end_seq": max(seq_values)},
+    }
+
+
+def _collect_redaction_markers(
+    value: Any,
+    *,
+    path: tuple[str, ...] = (),
+) -> list[dict[str, str]]:
+    markers: list[dict[str, str]] = []
+    if isinstance(value, dict):
+        for key in sorted(value):
+            key_text = str(key)
+            lower_key = key_text.lower()
+            next_path = path + (key_text,)
+            if any(token in lower_key for token in ("secret", "token", "password", "api_key")):
+                markers.append({"path": ".".join(next_path), "replacement": _REDACTED_VALUE})
+                continue
+            markers.extend(_collect_redaction_markers(value[key], path=next_path))
+    elif isinstance(value, list):
+        for idx, item in enumerate(value):
+            markers.extend(_collect_redaction_markers(item, path=path + (str(idx),)))
+    return markers
 
 
 def validate_policy(
@@ -351,6 +496,83 @@ def diff_policy(
     }
 
 
+def incident_packet(
+    *,
+    decision_path: Path,
+    stream_specs: list[str],
+    artifact_refs: list[str] | None = None,
+) -> dict[str, Any]:
+    try:
+        report = _load_json_from_path(decision_path, description="policy explain report")
+        schema = report.get("schema")
+        if schema not in {POLICY_EXPLAIN_SCHEMA, POLICY_EVAL_SCHEMA}:
+            raise URMError(
+                code="URM_INCIDENT_PACKET_BUILD_FAILED",
+                message=(
+                    "incident packet input must be policy_explain@1 "
+                    "or instruction-policy-eval@1"
+                ),
+                context={"schema": schema},
+            )
+        if report.get("valid") is not True:
+            raise URMError(
+                code="URM_INCIDENT_PACKET_BUILD_FAILED",
+                message="incident packet input report must be valid",
+                context={"schema": schema},
+            )
+
+        required_keys = (
+            "policy_hash",
+            "input_context_hash",
+            "decision_code",
+            "matched_rule_ids",
+        )
+        for key in required_keys:
+            if key not in report:
+                raise URMError(
+                    code="URM_INCIDENT_PACKET_BUILD_FAILED",
+                    message="incident packet input is missing required fields",
+                    context={"missing_key": key},
+                )
+
+        parsed_streams: list[tuple[str, Path]] = [_parse_stream_spec(spec) for spec in stream_specs]
+        stream_ranges = [
+            _stream_seq_range(stream_id=stream_id, stream_path=stream_path)
+            for stream_id, stream_path in parsed_streams
+        ]
+        ordered_streams = sorted(stream_ranges, key=lambda item: item["stream_id"])
+        ordered_refs = _normalize_artifact_refs(
+            explain_report=report,
+            explicit_refs=list(artifact_refs or []),
+            stream_ranges=ordered_streams,
+        )
+        redaction_markers = sorted(
+            _collect_redaction_markers(report),
+            key=lambda marker: (marker["path"], marker["replacement"]),
+        )
+    except URMError as exc:
+        return {
+            "schema": POLICY_INCIDENT_SCHEMA,
+            "input_report": str(decision_path),
+            "valid": False,
+            "issues": [_error_issue(exc)],
+        }
+
+    return {
+        "schema": POLICY_INCIDENT_SCHEMA,
+        "input_report": str(decision_path),
+        "valid": True,
+        "policy_hash": str(report["policy_hash"]),
+        "input_context_hash": str(report["input_context_hash"]),
+        "decision_code": str(report["decision_code"]),
+        "matched_rule_ids": list(report["matched_rule_ids"]),
+        "artifact_refs": ordered_refs,
+        "streams": ordered_streams,
+        "redaction_markers": redaction_markers,
+        "issues": [],
+    }
+
+
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="policy",
@@ -405,6 +627,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     diff_parser.add_argument("--lax", dest="strict", action="store_false")
     diff_parser.set_defaults(strict=True)
 
+    incident_parser = subparsers.add_parser(
+        "incident",
+        help="Build deterministic incident packet from policy report + evidence streams.",
+    )
+    incident_parser.add_argument("--decision", dest="decision_path", type=Path, required=True)
+    incident_parser.add_argument("--stream", dest="stream_specs", action="append", required=True)
+    incident_parser.add_argument("--artifact-ref", dest="artifact_refs", action="append")
+    incident_parser.add_argument("--out", dest="out_path", type=Path, required=False)
+
     return parser.parse_args(argv)
 
 
@@ -457,6 +688,13 @@ def main(argv: list[str] | None = None) -> int:
             new_policy_path=args.new_policy_path,
             strict=bool(args.strict),
             schema_path=args.schema_path,
+        )
+        return _emit_report(report, out_path=args.out_path)
+    if args.command == "incident":
+        report = incident_packet(
+            decision_path=args.decision_path,
+            stream_specs=list(args.stream_specs),
+            artifact_refs=list(args.artifact_refs or []),
         )
         return _emit_report(report, out_path=args.out_path)
     return 1  # pragma: no cover
