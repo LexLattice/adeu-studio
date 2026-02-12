@@ -14,6 +14,8 @@ from .instruction_policy import (
 
 DEFAULT_AGENTS_VIEW_PATH = Path("docs/generated/AGENTS_POLICY_VIEW.md")
 DEFAULT_SKILLS_VIEW_PATH = Path("docs/generated/SKILLS_POLICY_VIEW.md")
+DEFAULT_SOURCE_LABEL = "policy/odeu.instructions.v1.json"
+RULE_KINDS: tuple[str, ...] = ("deny", "require", "allow", "derive")
 
 
 @dataclass(frozen=True)
@@ -59,7 +61,7 @@ def _normalize_newlines(text: str) -> str:
 def render_instruction_policy_views(
     *,
     policy: InstructionPolicy,
-    source_label: str = "policy/odeu.instructions.v1.json",
+    source_label: str = DEFAULT_SOURCE_LABEL,
 ) -> GeneratedPolicyViews:
     rules = _sorted_rules(policy)
     policy_hash = compute_policy_hash(policy)
@@ -150,7 +152,6 @@ def render_instruction_policy_views(
     if not effects:
         skills_lines.append("- _(none)_")
 
-    kinds = ["deny", "require", "allow", "derive"]
     skills_lines.extend(
         [
             "",
@@ -158,7 +159,7 @@ def render_instruction_policy_views(
             "",
         ]
     )
-    for kind in kinds:
+    for kind in RULE_KINDS:
         matches = [rule for rule in rules if rule.kind == kind]
         skills_lines.append(f"### `{kind}`")
         if not matches:
@@ -183,7 +184,7 @@ def write_instruction_policy_views(
     policy: InstructionPolicy,
     agents_out: Path = DEFAULT_AGENTS_VIEW_PATH,
     skills_out: Path = DEFAULT_SKILLS_VIEW_PATH,
-    source_label: str = "policy/odeu.instructions.v1.json",
+    source_label: str = DEFAULT_SOURCE_LABEL,
     check: bool = False,
 ) -> GeneratedPolicyViews:
     views = render_instruction_policy_views(policy=policy, source_label=source_label)
@@ -195,7 +196,12 @@ def write_instruction_policy_views(
     drifted: list[str] = []
     for out_path, rendered in expected.items():
         if check:
-            if not out_path.exists() or out_path.read_text(encoding="utf-8") != rendered:
+            current_text = (
+                _normalize_newlines(out_path.read_text(encoding="utf-8"))
+                if out_path.exists()
+                else None
+            )
+            if current_text != rendered:
                 drifted.append(str(out_path))
             continue
         out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -218,9 +224,7 @@ def generate_instruction_policy_views(
     check: bool = False,
 ) -> GeneratedPolicyViews:
     policy = load_instruction_policy(policy_path=policy_path)
-    source_label = (
-        str(policy_path) if policy_path is not None else "policy/odeu.instructions.v1.json"
-    )
+    source_label = str(policy_path) if policy_path is not None else DEFAULT_SOURCE_LABEL
     return write_instruction_policy_views(
         policy=policy,
         agents_out=agents_out,

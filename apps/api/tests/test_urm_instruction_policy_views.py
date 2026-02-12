@@ -84,3 +84,30 @@ def test_write_instruction_policy_views_check_mode_detects_drift(tmp_path: Path)
             source_label="policy/test.json",
             check=True,
         )
+
+
+def test_write_instruction_policy_views_check_mode_tolerates_crlf(tmp_path: Path) -> None:
+    policy = validate_instruction_policy_document(_sample_policy())
+    agents_out = tmp_path / "AGENTS_POLICY_VIEW.md"
+    skills_out = tmp_path / "SKILLS_POLICY_VIEW.md"
+
+    write_instruction_policy_views(
+        policy=policy,
+        agents_out=agents_out,
+        skills_out=skills_out,
+        source_label="policy/test.json",
+        check=False,
+    )
+
+    agents_crlf = agents_out.read_text(encoding="utf-8").replace("\n", "\r\n")
+    skills_crlf = skills_out.read_text(encoding="utf-8").replace("\n", "\r\n")
+    agents_out.write_text(agents_crlf, encoding="utf-8")
+    skills_out.write_text(skills_crlf, encoding="utf-8")
+
+    write_instruction_policy_views(
+        policy=policy,
+        agents_out=agents_out,
+        skills_out=skills_out,
+        source_label="policy/test.json",
+        check=True,
+    )
