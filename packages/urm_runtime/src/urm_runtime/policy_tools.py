@@ -71,7 +71,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(canonical_json(report))
         return 0 if report["valid"] else 1
-    return 1
+    return 1  # pragma: no cover
 
 
 if __name__ == "__main__":

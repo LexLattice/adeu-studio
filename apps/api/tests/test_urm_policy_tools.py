@@ -8,7 +8,11 @@ from urm_runtime.policy_tools import main, validate_policy
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    current_path = Path(__file__).resolve()
+    for parent in current_path.parents:
+        if (parent / ".git").exists():
+            return parent
+    raise FileNotFoundError("Repository root not found")
 
 
 def test_validate_policy_passes_for_repo_policy() -> None:
