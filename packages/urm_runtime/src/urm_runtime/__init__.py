@@ -76,6 +76,7 @@ from .policy_tools import diff_policy, eval_policy, explain_policy, incident_pac
 from .probe import CodexCapabilityProbeResult, run_and_persist_capability_probe
 from .retention import EvidenceRetentionStats, run_evidence_retention_gc
 from .roles import ROLE_REGISTRY, RolePolicy, get_role_policy
+from .stop_gate_tools import build_stop_gate_metrics, stop_gate_markdown
 from .worker import CodexExecWorkerRunner
 
 __all__ = [
@@ -160,6 +161,8 @@ __all__ = [
     "get_role_policy",
     "run_and_persist_capability_probe",
     "run_evidence_retention_gc",
+    "build_stop_gate_metrics",
+    "stop_gate_markdown",
 ]
 
 __version__ = "0.0.0"

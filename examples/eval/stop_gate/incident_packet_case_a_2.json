@@ -1,0 +1,35 @@
+{
+  "schema": "incident_packet@1",
+  "valid": true,
+  "policy_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "input_context_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "decision_code": "ALLOW_HARD_GATED_ACTION",
+  "matched_rule_ids": [
+    "default_allow_after_hard_gates"
+  ],
+  "artifact_refs": [
+    {
+      "kind": "artifact",
+      "ref": "artifact:artifact-a"
+    },
+    {
+      "kind": "event",
+      "ref": "event:copilot:sess-1#2"
+    },
+    {
+      "kind": "event",
+      "ref": "event:copilot:sess-1#4"
+    }
+  ],
+  "streams": [
+    {
+      "stream_id": "copilot:sess-1",
+      "seq_range": {
+        "start_seq": 2,
+        "end_seq": 4
+      }
+    }
+  ],
+  "redaction_markers": [],
+  "issues": []
+}
