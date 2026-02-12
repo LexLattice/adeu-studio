@@ -130,4 +130,4 @@ def _first_paragraph(text: str) -> str:
 def _word_count(text: str) -> int:
     if not text:
         return 0
-    return len([token for token in re.split(r"\s+", text.strip()) if token])
+    return len(text.split())

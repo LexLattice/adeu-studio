@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Literal
-
 from pydantic import BaseModel, ConfigDict, Field
+from urm_runtime.domain_registry import WarrantTag as DomainWarrantTag
 
-WarrantTag = Literal["observed", "derived", "checked", "hypothesis", "unknown"]
+WarrantTag = DomainWarrantTag
 
 
 class PaperTemplateMeta(BaseModel):
@@ -46,4 +45,3 @@ class EmitArtifactArgs(BaseModel):
     title: str | None = Field(default=None, min_length=1)
     abstract_text: str = Field(min_length=1)
     checks: dict[str, bool] = Field(default_factory=dict)
-
