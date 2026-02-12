@@ -114,6 +114,7 @@ class CopilotSessionStartRequest(BaseModel):
     provider: Literal["codex"] = "codex"
     client_request_id: str = Field(min_length=1)
     cwd: str | None = None
+    profile_id: str = Field(default="default", min_length=1)
 
     def idempotency_payload(self) -> dict[str, Any]:
         return self.model_dump(mode="json", exclude={"client_request_id"})
@@ -152,6 +153,8 @@ class CopilotSessionResponse(BaseModel):
 
     session_id: str
     status: Literal["starting", "running", "stopped", "failed"]
+    profile_id: str = Field(default="default", min_length=1)
+    profile_version: str = Field(default="profile.v1", min_length=1)
     app_server_unavailable: bool = False
     idempotent_replay: bool = False
 
@@ -190,6 +193,7 @@ class AgentSpawnRequest(BaseModel):
     prompt: str = Field(min_length=1)
     target_turn_id: str | None = Field(default=None, min_length=1)
     use_last_turn: bool = False
+    profile_id: str | None = Field(default=None, min_length=1)
 
     def idempotency_payload(self) -> dict[str, Any]:
         return self.model_dump(mode="json", exclude={"client_request_id"})
@@ -204,6 +208,8 @@ class AgentSpawnResponse(BaseModel):
     parent_stream_id: str
     child_stream_id: str
     target_turn_id: str
+    profile_id: str = Field(default="default", min_length=1)
+    profile_version: str = Field(default="profile.v1", min_length=1)
     idempotent_replay: bool = False
     error: dict[str, Any] | None = None
     budget_snapshot: dict[str, int] = Field(default_factory=dict)

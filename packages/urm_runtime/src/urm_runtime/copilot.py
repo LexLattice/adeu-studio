@@ -21,6 +21,7 @@ from .errors import (
 from .evidence import EvidenceFileLimitExceeded, EvidenceFileWriter
 from .hashing import action_hash as compute_action_hash
 from .hashing import sha256_canonical_json
+from .instruction_policy import compute_policy_hash, load_instruction_policy
 from .models import (
     AgentCancelRequest,
     AgentCancelResponse,
@@ -69,6 +70,8 @@ COPILOT_BUFFER_MAX = 20_000
 MAX_STEER_PER_TURN = 5
 MAX_CHILD_DEPTH = 1
 MAX_CHILDREN_PER_PARENT = 1
+PROFILE_VERSION = "profile.v1"
+SUPPORTED_PROFILE_IDS = frozenset({"safe_mode", "default", "experimental"})
 
 
 @dataclass
@@ -92,6 +95,8 @@ class ChildAgentRuntime:
     budget_snapshot: dict[str, int] = field(default_factory=dict)
     inherited_policy_hash: str | None = None
     capabilities_allowed: list[str] = field(default_factory=list)
+    profile_id: str = "default"
+    profile_version: str = PROFILE_VERSION
     persisted: bool = False
 
 
@@ -117,6 +122,9 @@ class CopilotSessionRuntime:
     active_turn_id: str | None = None
     last_turn_id: str | None = None
     steer_counts_by_turn: dict[str, int] = field(default_factory=dict)
+    profile_id: str = "default"
+    profile_version: str = PROFILE_VERSION
+    profile_policy_hash: str | None = None
 
 
 class URMCopilotManager:
@@ -178,6 +186,22 @@ class URMCopilotManager:
             return str(path.relative_to(self.config.var_root))
         except ValueError:
             return str(path)
+
+    def _validate_profile_id(self, profile_id: str) -> str:
+        normalized = profile_id.strip()
+        if normalized not in SUPPORTED_PROFILE_IDS:
+            raise URMError(
+                code="URM_POLICY_PROFILE_NOT_FOUND",
+                message="profile is not supported",
+                context={
+                    "profile_id": profile_id,
+                    "supported_profile_ids": sorted(SUPPORTED_PROFILE_IDS),
+                },
+            )
+        return normalized
+
+    def _current_profile_policy_hash(self) -> str:
+        return compute_policy_hash(load_instruction_policy())
 
     def _resolve_raw_path(self, raw_jsonl_path: str) -> Path:
         path = Path(raw_jsonl_path)
@@ -487,6 +511,8 @@ class URMCopilotManager:
                     "budget_snapshot": child.budget_snapshot,
                     "inherited_policy_hash": child.inherited_policy_hash,
                     "capabilities_allowed": child.capabilities_allowed,
+                    "profile_id": child.profile_id,
+                    "profile_version": child.profile_version,
                 },
             )
         child.persisted = True
@@ -666,6 +692,9 @@ class URMCopilotManager:
                 metadata_json={
                     "last_seq": runtime.last_seq,
                     "urm_events_path": runtime.urm_events_path,
+                    "profile_id": runtime.profile_id,
+                    "profile_version": runtime.profile_version,
+                    "profile_policy_hash": runtime.profile_policy_hash,
                 },
             )
 
@@ -698,6 +727,8 @@ class URMCopilotManager:
         return CopilotSessionResponse(
             session_id=runtime.session_id,
             status=runtime.status,
+            profile_id=runtime.profile_id,
+            profile_version=runtime.profile_version,
             app_server_unavailable=self._probe.app_server_unavailable,
             idempotent_replay=False,
         )
@@ -864,6 +895,8 @@ class URMCopilotManager:
             )
 
         run_evidence_retention_gc(config=self.config)
+        profile_id = self._validate_profile_id(request.profile_id)
+        profile_policy_hash = self._current_profile_policy_hash()
 
         payload_hash = sha256_canonical_json(request.idempotency_payload())
         with self._lock:
@@ -922,6 +955,9 @@ class URMCopilotManager:
                 urm_events_path=events_rel_path,
                 started_at=datetime.now(tz=timezone.utc).isoformat(),
                 cwd=request.cwd,
+                profile_id=profile_id,
+                profile_version=PROFILE_VERSION,
+                profile_policy_hash=profile_policy_hash,
             )
 
             with transaction(db_path=self.config.db_path) as con:
@@ -935,6 +971,9 @@ class URMCopilotManager:
                     pid=None,
                     bin_path=self.config.codex_bin,
                     raw_jsonl_path=raw_rel_path,
+                    profile_id=runtime.profile_id,
+                    profile_version=runtime.profile_version,
+                    profile_policy_hash=runtime.profile_policy_hash,
                 )
             try:
                 runtime.host.start(cwd=request.cwd)
@@ -958,6 +997,8 @@ class URMCopilotManager:
                 response = CopilotSessionResponse(
                     session_id=session_id,
                     status="failed",
+                    profile_id=runtime.profile_id,
+                    profile_version=runtime.profile_version,
                     app_server_unavailable=True,
                     idempotent_replay=False,
                 )
@@ -978,6 +1019,16 @@ class URMCopilotManager:
                 event_kind="SESSION_START",
                 payload={"status": "running"},
             )
+            self._record_internal_event(
+                runtime=runtime,
+                event_kind="PROFILE_SELECTED",
+                payload={
+                    "profile_id": runtime.profile_id,
+                    "profile_version": runtime.profile_version,
+                    "policy_hash": runtime.profile_policy_hash,
+                    "scope": "session",
+                },
+            )
             with transaction(db_path=self.config.db_path) as con:
                 update_copilot_session_pid(
                     con=con,
@@ -992,6 +1043,8 @@ class URMCopilotManager:
             response = CopilotSessionResponse(
                 session_id=session_id,
                 status="running",
+                profile_id=runtime.profile_id,
+                profile_version=runtime.profile_version,
                 app_server_unavailable=False,
                 idempotent_replay=False,
             )
@@ -1052,6 +1105,8 @@ class URMCopilotManager:
             response = CopilotSessionResponse(
                 session_id=request.session_id,
                 status=runtime.status,  # type: ignore[arg-type]
+                profile_id=runtime.profile_id,
+                profile_version=runtime.profile_version,
                 app_server_unavailable=self._probe.app_server_unavailable,
                 idempotent_replay=False,
             )
@@ -1080,6 +1135,8 @@ class URMCopilotManager:
                 return CopilotSessionResponse(
                     session_id=request.session_id,
                     status=row.status,  # type: ignore[arg-type]
+                    profile_id=row.profile_id,
+                    profile_version=row.profile_version,
                     app_server_unavailable=self._probe.app_server_unavailable,
                     idempotent_replay=True,
                 )
@@ -1123,6 +1180,8 @@ class URMCopilotManager:
             return CopilotSessionResponse(
                 session_id=request.session_id,
                 status=runtime.status,  # type: ignore[arg-type]
+                profile_id=runtime.profile_id,
+                profile_version=runtime.profile_version,
                 app_server_unavailable=self._probe.app_server_unavailable,
                 idempotent_replay=False,
             )
@@ -1368,6 +1427,32 @@ class URMCopilotManager:
                     return replay.model_copy(update={"idempotent_replay": True})
                 child_id = reservation.resource_id
 
+            selected_profile_id = runtime.profile_id
+            if request.profile_id is not None:
+                try:
+                    selected_profile_id = self._validate_profile_id(request.profile_id)
+                except URMError as exc:
+                    self._record_parent_or_audit_event(
+                        parent_session_id=request.session_id,
+                        event_kind="PROFILE_DENIED",
+                        payload={
+                            "profile_id": request.profile_id,
+                            "scope": "run",
+                            "reason": exc.detail.message,
+                        },
+                    )
+                    raise
+                self._record_parent_or_audit_event(
+                    parent_session_id=request.session_id,
+                    event_kind="PROFILE_SELECTED",
+                    payload={
+                        "profile_id": selected_profile_id,
+                        "profile_version": runtime.profile_version,
+                        "scope": "run",
+                        "child_id": child_id,
+                    },
+                )
+
             target_turn_id = self._resolve_turn_target(
                 runtime=runtime,
                 target_turn_id=request.target_turn_id,
@@ -1407,6 +1492,8 @@ class URMCopilotManager:
                 budget_snapshot=self._child_budget_snapshot(runtime=runtime),
                 inherited_policy_hash=inherited_policy_hash,
                 capabilities_allowed=sorted(capabilities_allowed),
+                profile_id=selected_profile_id,
+                profile_version=runtime.profile_version,
             )
             self._child_runs[child_id] = child
             self._children_by_parent.setdefault(request.session_id, set()).add(child_id)
@@ -1419,6 +1506,8 @@ class URMCopilotManager:
                     "target_turn_id": target_turn_id,
                     "budget_snapshot": child.budget_snapshot,
                     "inherited_policy_hash": inherited_policy_hash,
+                    "profile_id": child.profile_id,
+                    "profile_version": child.profile_version,
                 },
             )
             self._record_child_event(
@@ -1525,6 +1614,8 @@ class URMCopilotManager:
                 parent_stream_id=child.parent_stream_id,
                 child_stream_id=child.child_stream_id,
                 target_turn_id=child.parent_turn_id,
+                profile_id=child.profile_id,
+                profile_version=child.profile_version,
                 idempotent_replay=False,
                 error=(
                     {"code": child.error_code, "message": child.error_message}

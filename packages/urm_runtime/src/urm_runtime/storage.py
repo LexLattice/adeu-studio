@@ -18,7 +18,7 @@ from .errors import (
     ApprovalNotFoundError,
 )
 
-URM_SCHEMA_VERSION = 1
+URM_SCHEMA_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -42,6 +42,9 @@ class CopilotSessionRow:
     raw_jsonl_path: str | None
     last_seq: int
     writes_allowed: bool
+    profile_id: str
+    profile_version: str
+    profile_policy_hash: str | None
     error_code: str | None
     error_message: str | None
 
@@ -159,12 +162,31 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
           raw_jsonl_path TEXT,
           last_seq INTEGER NOT NULL DEFAULT 0,
           writes_allowed INTEGER NOT NULL DEFAULT 0,
+          profile_id TEXT NOT NULL DEFAULT 'default',
+          profile_version TEXT NOT NULL DEFAULT 'profile.v1',
+          profile_policy_hash TEXT,
           error_code TEXT,
           error_message TEXT,
           FOREIGN KEY(capability_probe_id) REFERENCES urm_codex_capability_probe(probe_id)
         )
         """
     )
+    copilot_session_columns = {
+        str(row[1])
+        for row in con.execute("PRAGMA table_info(urm_copilot_session)").fetchall()
+        if row and row[1]
+    }
+    if "profile_id" not in copilot_session_columns:
+        con.execute(
+            "ALTER TABLE urm_copilot_session ADD COLUMN profile_id TEXT NOT NULL DEFAULT 'default'"
+        )
+    if "profile_version" not in copilot_session_columns:
+        con.execute(
+            "ALTER TABLE urm_copilot_session ADD COLUMN profile_version "
+            "TEXT NOT NULL DEFAULT 'profile.v1'"
+        )
+    if "profile_policy_hash" not in copilot_session_columns:
+        con.execute("ALTER TABLE urm_copilot_session ADD COLUMN profile_policy_hash TEXT")
     con.execute(
         """
         CREATE TABLE IF NOT EXISTS urm_worker_run (
@@ -284,7 +306,7 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
             (
                 URM_SCHEMA_VERSION,
                 datetime.now(tz=timezone.utc).isoformat(),
-                "urm runtime v0 initial schema",
+                "urm runtime schema v2 profile persistence",
             ),
         )
 
@@ -454,6 +476,9 @@ def persist_copilot_session_start(
     pid: int | None,
     bin_path: str,
     raw_jsonl_path: str,
+    profile_id: str,
+    profile_version: str,
+    profile_policy_hash: str | None,
 ) -> None:
     started_at = datetime.now(tz=timezone.utc).isoformat()
     con.execute(
@@ -469,9 +494,12 @@ def persist_copilot_session_start(
           bin_path,
           raw_jsonl_path,
           last_seq,
-          writes_allowed
+          writes_allowed,
+          profile_id,
+          profile_version,
+          profile_policy_hash
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?)
         """,
         (
             copilot_session_id,
@@ -483,6 +511,9 @@ def persist_copilot_session_start(
             pid,
             bin_path,
             raw_jsonl_path,
+            profile_id,
+            profile_version,
+            profile_policy_hash,
         ),
     )
 
@@ -585,6 +616,9 @@ def get_copilot_session(
           raw_jsonl_path,
           last_seq,
           writes_allowed,
+          profile_id,
+          profile_version,
+          profile_policy_hash,
           error_code,
           error_message
         FROM urm_copilot_session
@@ -607,8 +641,11 @@ def get_copilot_session(
         raw_jsonl_path=str(row[9]) if row[9] is not None else None,
         last_seq=int(row[10]),
         writes_allowed=bool(row[11]),
-        error_code=str(row[12]) if row[12] is not None else None,
-        error_message=str(row[13]) if row[13] is not None else None,
+        profile_id=str(row[12]),
+        profile_version=str(row[13]),
+        profile_policy_hash=str(row[14]) if row[14] is not None else None,
+        error_code=str(row[15]) if row[15] is not None else None,
+        error_message=str(row[16]) if row[16] is not None else None,
     )
 
 
