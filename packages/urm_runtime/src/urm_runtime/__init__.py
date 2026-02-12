@@ -16,7 +16,12 @@ from .config import (
     URMRuntimeConfig,
 )
 from .copilot import URMCopilotManager
-from .domain_registry import DomainToolPack, DomainToolRegistry
+from .domain_registry import (
+    DomainPackMetadata,
+    DomainToolMetadata,
+    DomainToolPack,
+    DomainToolRegistry,
+)
 from .errors import (
     ApprovalError,
     ApprovalExpiredError,
@@ -131,6 +136,8 @@ __all__ = [
     "WorkerCancelResponse",
     "URMCopilotManager",
     "DomainToolPack",
+    "DomainPackMetadata",
+    "DomainToolMetadata",
     "DomainToolRegistry",
     "URMError",
     "URMErrorDetail",
