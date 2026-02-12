@@ -22,6 +22,18 @@ jobs:
         run: .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
       - name: Run determinism oracles
         run: .venv/bin/python apps/api/scripts/run_determinism_oracles.py --out artifacts/determinism_oracles.json
+      - name: Build stop-gate metrics
+        run: |
+          mkdir -p artifacts/stop_gate
+          .venv/bin/stop-gate \
+            --incident-packet examples/eval/stop_gate/incident_packet_case_a_1.json \
+            --incident-packet examples/eval/stop_gate/incident_packet_case_a_2.json \
+            --event-stream apps/api/tests/fixtures/urm_events/sample_valid.ndjson \
+            --connector-snapshot examples/eval/stop_gate/connector_snapshot_case_a_1.json \
+            --connector-snapshot examples/eval/stop_gate/connector_snapshot_case_a_2.json \
+            --quality-current artifacts/quality_dashboard.json \
+            --out-json artifacts/stop_gate/metrics.json \
+            --out-md artifacts/stop_gate/report.md
       - name: Build URM events diagnostics
         run: |
           mkdir -p artifacts/urm_events
@@ -42,6 +54,12 @@ jobs:
         with:
           name: determinism-oracles
           path: artifacts/determinism_oracles.json
+          if-no-files-found: error
+      - name: Upload stop-gate metrics artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: stop-gate-metrics
+          path: artifacts/stop_gate
           if-no-files-found: error
       - name: Upload URM events diagnostics artifact
         uses: actions/upload-artifact@v4

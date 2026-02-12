@@ -1,0 +1,19 @@
+{
+  "schema": "connector_snapshot@1",
+  "snapshot_id": "snapshot-case-a",
+  "session_id": "sess-1",
+  "provider": "codex",
+  "capability_snapshot_id": "probe-001",
+  "connector_snapshot_hash": "fd5d2686ed6bb9b85f595e81602db1fb2e223630fdcb28fd60f2fe326e1beb93",
+  "created_at": "2026-02-12T10:00:00Z",
+  "connectors": [
+    {
+      "id": "calendar",
+      "name": "Calendar"
+    },
+    {
+      "id": "drive",
+      "name": "Drive"
+    }
+  ]
+}
