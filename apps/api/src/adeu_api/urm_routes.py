@@ -13,6 +13,7 @@ from urm_runtime.capability_policy import (
     PolicyEvalEventCallback,
     PolicyEvalEventName,
     authorize_action,
+    load_capability_policy,
 )
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.copilot import URMCopilotManager
@@ -20,6 +21,10 @@ from urm_runtime.errors import URMError
 from urm_runtime.hashing import action_hash as compute_action_hash
 from urm_runtime.hashing import canonical_json
 from urm_runtime.models import (
+    AgentCancelRequest,
+    AgentCancelResponse,
+    AgentSpawnRequest,
+    AgentSpawnResponse,
     ApprovalIssueRequest,
     ApprovalIssueResponse,
     ApprovalRevokeRequest,
@@ -28,6 +33,8 @@ from urm_runtime.models import (
     CopilotSessionResponse,
     CopilotSessionSendRequest,
     CopilotSessionStartRequest,
+    CopilotSteerRequest,
+    CopilotSteerResponse,
     CopilotStopRequest,
     ToolCallRequest,
     ToolCallResponse,
@@ -117,6 +124,18 @@ def _resolve_tool_policy_action(request: ToolCallRequest) -> str:
             context={"tool_name": request.tool_name},
         )
     return "urm.set_mode.enable_writes" if writes_allowed else "urm.set_mode.disable_writes"
+
+
+def _resolve_steer_policy_action() -> str:
+    return "urm.turn.steer"
+
+
+def _resolve_spawn_policy_action() -> str:
+    return "urm.agent.spawn"
+
+
+def _resolve_cancel_policy_action() -> str:
+    return "urm.agent.cancel"
 
 
 def _load_session_writes_allowed(session_id: str | None) -> bool:
@@ -230,6 +249,39 @@ def urm_copilot_send_endpoint(request: CopilotSessionSendRequest) -> CopilotSess
         raise _to_http_exception(exc) from exc
 
 
+@router.post("/copilot/steer", response_model=CopilotSteerResponse)
+def urm_copilot_steer_endpoint(request: CopilotSteerRequest) -> CopilotSteerResponse:
+    if request.provider != "codex":
+        raise _to_http_exception(
+            URMError(
+                code="URM_POLICY_DENIED",
+                message="unsupported provider",
+                context={"provider": request.provider},
+            )
+        )
+    manager = _get_manager()
+    try:
+        session_writes_allowed, session_active = _load_session_access_state(request.session_id)
+        decision = authorize_action(
+            role="copilot",
+            action=_resolve_steer_policy_action(),
+            writes_allowed=session_writes_allowed,
+            approval_provided=False,
+            action_payload={
+                "target_turn_id": request.target_turn_id,
+                "use_last_turn": request.use_last_turn,
+                "steer_intent_class": request.steer_intent_class,
+                "text": request.text,
+            },
+            session_active=session_active,
+            emit_policy_event=_policy_event_emitter(session_id=request.session_id),
+        )
+        del decision
+        return manager.steer(request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
 @router.post("/copilot/stop", response_model=CopilotSessionResponse)
 def urm_copilot_stop_endpoint(request: CopilotStopRequest) -> CopilotSessionResponse:
     manager = _get_manager()
@@ -244,6 +296,73 @@ def urm_copilot_mode_endpoint(request: CopilotModeRequest) -> CopilotSessionResp
     manager = _get_manager()
     try:
         return manager.set_mode(request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/agent/spawn", response_model=AgentSpawnResponse)
+def urm_agent_spawn_endpoint(request: AgentSpawnRequest) -> AgentSpawnResponse:
+    if request.provider != "codex":
+        raise _to_http_exception(
+            URMError(
+                code="URM_POLICY_DENIED",
+                message="unsupported provider",
+                context={"provider": request.provider},
+            )
+        )
+    manager = _get_manager()
+    try:
+        session_writes_allowed, session_active = _load_session_access_state(request.session_id)
+        decision = authorize_action(
+            role="copilot",
+            action=_resolve_spawn_policy_action(),
+            writes_allowed=session_writes_allowed,
+            approval_provided=False,
+            action_payload={
+                "target_turn_id": request.target_turn_id,
+                "use_last_turn": request.use_last_turn,
+                "prompt": request.prompt,
+            },
+            session_active=session_active,
+            emit_policy_event=_policy_event_emitter(session_id=request.session_id),
+        )
+        policy_trace = decision.policy_decision
+        capability_policy = load_capability_policy()
+        role_caps = sorted(capability_policy.role_capabilities.get("copilot", frozenset()))
+        return manager.spawn_child(
+            request,
+            inherited_policy_hash=policy_trace.policy_hash,
+            capabilities_allowed=role_caps,
+        )
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/agent/{child_id}/cancel", response_model=AgentCancelResponse)
+def urm_agent_cancel_endpoint(child_id: str, request: AgentCancelRequest) -> AgentCancelResponse:
+    if request.provider != "codex":
+        raise _to_http_exception(
+            URMError(
+                code="URM_POLICY_DENIED",
+                message="unsupported provider",
+                context={"provider": request.provider},
+            )
+        )
+    manager = _get_manager()
+    try:
+        parent_session_id = manager.child_parent_session_id(child_id=child_id)
+        session_writes_allowed, session_active = _load_session_access_state(parent_session_id)
+        decision = authorize_action(
+            role="copilot",
+            action=_resolve_cancel_policy_action(),
+            writes_allowed=session_writes_allowed,
+            approval_provided=False,
+            action_payload={"child_id": child_id},
+            session_active=session_active,
+            emit_policy_event=_policy_event_emitter(session_id=parent_session_id),
+        )
+        del decision
+        return manager.cancel_child(child_id=child_id, request=request)
     except URMError as exc:
         raise _to_http_exception(exc) from exc
 

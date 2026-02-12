@@ -37,6 +37,9 @@ def _run_app_server() -> int:
         print(json.dumps({"event": "ready", "type": "ready"}), flush=True)
     thread_id = "thread-fake-1"
     turn_counter = 0
+    last_turn_id = ""
+    agent_counter = 0
+    open_agents: set[str] = set()
     for line in sys.stdin:
         payload = line.rstrip("\n")
         try:
@@ -74,6 +77,7 @@ def _run_app_server() -> int:
         if method == "turn/start":
             turn_counter += 1
             turn_id = str(turn_counter)
+            last_turn_id = turn_id
             input_items = params.get("input")
             text = ""
             if isinstance(input_items, list):
@@ -125,6 +129,121 @@ def _run_app_server() -> int:
                             }
                         },
                     }
+                ),
+                flush=True,
+            )
+            continue
+        if method == "turn/steer":
+            expected_turn_id = params.get("expectedTurnId")
+            if not isinstance(expected_turn_id, str) or not expected_turn_id:
+                print(
+                    json.dumps(
+                        {
+                            "id": request_id,
+                            "error": {"code": -32602, "message": "expectedTurnId required"},
+                        }
+                    ),
+                    flush=True,
+                )
+                continue
+            if last_turn_id and expected_turn_id != last_turn_id:
+                print(
+                    json.dumps(
+                        {
+                            "id": request_id,
+                            "error": {"code": -32602, "message": "expectedTurnId mismatch"},
+                        }
+                    ),
+                    flush=True,
+                )
+                continue
+            print(
+                json.dumps(
+                    {
+                        "method": "codex/event/agent_message_delta",
+                        "params": {
+                            "id": expected_turn_id,
+                            "msg": {"type": "agent_message_delta", "delta": "steered"},
+                        },
+                    }
+                ),
+                flush=True,
+            )
+            print(
+                json.dumps({"id": request_id, "result": {"turnId": expected_turn_id}}),
+                flush=True,
+            )
+            continue
+        if method == "spawn_agent":
+            agent_counter += 1
+            new_thread = f"agent-thread-{agent_counter}"
+            open_agents.add(new_thread)
+            print(
+                json.dumps(
+                    {
+                        "id": request_id,
+                        "result": {
+                            "newThreadId": new_thread,
+                            "senderThreadId": params.get("threadId"),
+                        },
+                    }
+                ),
+                flush=True,
+            )
+            continue
+        if method == "send_input":
+            receiver = params.get("receiverThreadId")
+            if not isinstance(receiver, str) or receiver not in open_agents:
+                print(
+                    json.dumps(
+                        {
+                            "id": request_id,
+                            "error": {"code": -32602, "message": "receiverThreadId not found"},
+                        }
+                    ),
+                    flush=True,
+                )
+                continue
+            print(
+                json.dumps(
+                    {
+                        "id": request_id,
+                        "result": {"receiverThreadId": receiver, "accepted": True},
+                    }
+                ),
+                flush=True,
+            )
+            continue
+        if method == "wait":
+            receiver = params.get("receiverThreadId")
+            if not isinstance(receiver, str) or receiver not in open_agents:
+                print(
+                    json.dumps(
+                        {
+                            "id": request_id,
+                            "error": {"code": -32602, "message": "receiverThreadId not found"},
+                        }
+                    ),
+                    flush=True,
+                )
+                continue
+            print(
+                json.dumps(
+                    {
+                        "id": request_id,
+                        "result": {"receiverThreadId": receiver, "status": "completed"},
+                    }
+                ),
+                flush=True,
+            )
+            continue
+        if method == "close_agent":
+            receiver = params.get("receiverThreadId")
+            if isinstance(receiver, str):
+                open_agents.discard(receiver)
+            print(
+                json.dumps(
+                    {"id": request_id, "result": {"receiverThreadId": receiver, "closed": True}}
                 ),
                 flush=True,
             )
