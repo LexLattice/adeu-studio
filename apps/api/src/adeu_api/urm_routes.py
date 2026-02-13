@@ -41,6 +41,10 @@ from urm_runtime.models import (
     CopilotSteerRequest,
     CopilotSteerResponse,
     CopilotStopRequest,
+    PolicyProfileCurrentResponse,
+    PolicyProfileListResponse,
+    PolicyProfileSelectRequest,
+    PolicyProfileSelectResponse,
     ToolCallRequest,
     ToolCallResponse,
     WorkerCancelRequest,
@@ -322,6 +326,42 @@ def urm_copilot_mode_endpoint(request: CopilotModeRequest) -> CopilotSessionResp
     manager = _get_manager()
     try:
         return manager.set_mode(request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.get("/policy/profile/list", response_model=PolicyProfileListResponse)
+def urm_policy_profile_list_endpoint(
+    *,
+    provider: Literal["codex"] = Query(default="codex"),
+) -> PolicyProfileListResponse:
+    _require_codex_provider(provider)
+    manager = _get_manager()
+    return manager.list_profiles()
+
+
+@router.get("/policy/profile/current", response_model=PolicyProfileCurrentResponse)
+def urm_policy_profile_current_endpoint(
+    *,
+    session_id: str = Query(min_length=1),
+    provider: Literal["codex"] = Query(default="codex"),
+) -> PolicyProfileCurrentResponse:
+    _require_codex_provider(provider)
+    manager = _get_manager()
+    try:
+        return manager.current_profile(session_id=session_id)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/policy/profile/select", response_model=PolicyProfileSelectResponse)
+def urm_policy_profile_select_endpoint(
+    request: PolicyProfileSelectRequest,
+) -> PolicyProfileSelectResponse:
+    _require_codex_provider(request.provider)
+    manager = _get_manager()
+    try:
+        return manager.select_profile(request)
     except URMError as exc:
         raise _to_http_exception(exc) from exc
 

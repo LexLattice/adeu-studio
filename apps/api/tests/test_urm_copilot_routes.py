@@ -22,6 +22,9 @@ from adeu_api.urm_routes import (
     urm_copilot_start_endpoint,
     urm_copilot_steer_endpoint,
     urm_copilot_stop_endpoint,
+    urm_policy_profile_current_endpoint,
+    urm_policy_profile_list_endpoint,
+    urm_policy_profile_select_endpoint,
     urm_tool_call_endpoint,
 )
 from fastapi import HTTPException
@@ -38,6 +41,7 @@ from urm_runtime.models import (
     CopilotSessionStartRequest,
     CopilotSteerRequest,
     CopilotStopRequest,
+    PolicyProfileSelectRequest,
     ToolCallRequest,
 )
 from urm_runtime.storage import (
@@ -129,6 +133,133 @@ def test_copilot_start_rejects_unknown_profile(
         )
     assert exc_info.value.status_code == 400
     assert exc_info.value.detail["code"] == "URM_POLICY_PROFILE_NOT_FOUND"
+    _reset_manager_for_tests()
+
+
+def test_policy_profile_list_current_select_surfaces(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-profile-surface-1")
+    )
+    session_id = start.session_id
+    assert start.profile_id == "default"
+
+    listing = urm_policy_profile_list_endpoint(provider="codex")
+    listed_profile_ids = [profile.profile_id for profile in listing.profiles]
+    assert listed_profile_ids == sorted(listed_profile_ids)
+    assert listed_profile_ids == ["default", "experimental", "safe_mode"]
+
+    current = urm_policy_profile_current_endpoint(session_id=session_id, provider="codex")
+    assert current.profile_id == "default"
+    assert current.profile_version == "profile.v1"
+    assert len(current.policy_hash) == 64
+
+    selected = urm_policy_profile_select_endpoint(
+        PolicyProfileSelectRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="profile-select-1",
+            profile_id="safe_mode",
+        )
+    )
+    assert selected.idempotent_replay is False
+    assert selected.profile_id == "safe_mode"
+    assert selected.profile_version == "profile.v1"
+    assert len(selected.policy_hash) == 64
+
+    selected_replay = urm_policy_profile_select_endpoint(
+        PolicyProfileSelectRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="profile-select-1",
+            profile_id="safe_mode",
+        )
+    )
+    assert selected_replay.profile_id == "safe_mode"
+    assert selected_replay.idempotent_replay is True
+
+    current_after = urm_policy_profile_current_endpoint(session_id=session_id, provider="codex")
+    assert current_after.profile_id == "safe_mode"
+
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-profile-surface-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-profile-surface-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+    spawned = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-profile-surface-1",
+            prompt="profile check",
+            target_turn_id="turn-profile-surface-1",
+            use_last_turn=False,
+        )
+    )
+    assert spawned.profile_id == "safe_mode"
+
+    manager = _get_manager()
+    events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    assert any(
+        event.event_kind == "PROFILE_SELECTED"
+        and event.payload.get("scope") == "session"
+        and event.payload.get("profile_id") == "safe_mode"
+        for event in events
+    )
+    _reset_manager_for_tests()
+
+
+def test_policy_profile_select_rejects_unknown_profile_and_emits_denial(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-profile-denied-1")
+    )
+    session_id = start.session_id
+
+    with pytest.raises(HTTPException) as exc_info:
+        urm_policy_profile_select_endpoint(
+            PolicyProfileSelectRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id="profile-select-denied-1",
+                profile_id="unknown_profile",
+            )
+        )
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_POLICY_PROFILE_NOT_FOUND"
+
+    manager = _get_manager()
+    events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    assert any(
+        event.event_kind == "PROFILE_DENIED"
+        and event.payload.get("scope") == "session"
+        and event.payload.get("profile_id") == "unknown_profile"
+        for event in events
+    )
     _reset_manager_for_tests()
 
 

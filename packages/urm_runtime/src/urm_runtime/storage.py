@@ -701,6 +701,31 @@ def set_copilot_writes_allowed(
     )
 
 
+def update_copilot_session_profile(
+    *,
+    con: sqlite3.Connection,
+    copilot_session_id: str,
+    profile_id: str,
+    profile_version: str,
+    profile_policy_hash: str | None,
+) -> None:
+    con.execute(
+        """
+        UPDATE urm_copilot_session
+        SET profile_id = ?,
+            profile_version = ?,
+            profile_policy_hash = ?
+        WHERE copilot_session_id = ?
+        """,
+        (
+            profile_id,
+            profile_version,
+            profile_policy_hash,
+            copilot_session_id,
+        ),
+    )
+
+
 def get_copilot_session(
     *,
     con: sqlite3.Connection,
