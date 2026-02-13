@@ -4,6 +4,7 @@ import json
 import shutil
 import sqlite3
 import time
+from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -114,6 +115,20 @@ def _materialize_policy_file(
         materialized_at=materialized_at,
     )
     return policy_hash
+
+
+def _wait_for(
+    predicate: Callable[[], bool],
+    *,
+    timeout_secs: float,
+    interval_secs: float = 0.02,
+) -> bool:
+    deadline = time.monotonic() + timeout_secs
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval_secs)
+    return bool(predicate())
 
 
 def test_materialize_policy_rejects_conflicting_payload_for_existing_hash(
@@ -988,17 +1003,16 @@ def test_agent_spawn_queue_mode_v2_enforces_fifo_and_queue_limit(
     assert exc_info.value.detail["code"] == "URM_CHILD_QUEUE_LIMIT_EXCEEDED"
 
     manager = _get_manager()
-    deadline = time.monotonic() + 5.0
-    while time.monotonic() < deadline:
-        child1 = manager._child_runs.get(spawn1.child_id)  # type: ignore[attr-defined]
-        child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
-        if child1 is not None and child2 is not None and child1.status in {
-            "completed",
-            "failed",
-            "cancelled",
-        } and child2.status in {"completed", "failed", "cancelled"}:
-            break
-        time.sleep(0.05)
+    _wait_for(
+        lambda: (
+            (child1 := manager._child_runs.get(spawn1.child_id)) is not None
+            and (child2 := manager._child_runs.get(spawn2.child_id)) is not None
+            and child1.status in {"completed", "failed", "cancelled"}
+            and child2.status in {"completed", "failed", "cancelled"}
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
     child1 = manager._child_runs.get(spawn1.child_id)  # type: ignore[attr-defined]
     child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
     assert child1 is not None and child2 is not None
@@ -1066,12 +1080,13 @@ def test_agent_spawn_queue_mode_v2_cancel_running_dispatches_next(
     assert spawn2.queue_seq == 2
 
     manager = _get_manager()
-    deadline = time.monotonic() + 3.0
-    while time.monotonic() < deadline:
-        child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
-        if child2 is not None and child2.status == "queued":
-            break
-        time.sleep(0.02)
+    _wait_for(
+        lambda: (
+            (child2 := manager._child_runs.get(spawn2.child_id)) is not None
+            and child2.status == "queued"
+        ),
+        timeout_secs=3.0,
+    )
     child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
     assert child2 is not None
     assert child2.status == "queued"
@@ -1086,12 +1101,13 @@ def test_agent_spawn_queue_mode_v2_cancel_running_dispatches_next(
     assert cancel.status == "cancelled"
     assert cancel.idempotent_replay is False
 
-    deadline = time.monotonic() + 5.0
-    while time.monotonic() < deadline:
-        child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
-        if child2 is not None and child2.status != "queued":
-            break
-        time.sleep(0.02)
+    _wait_for(
+        lambda: (
+            (child2 := manager._child_runs.get(spawn2.child_id)) is not None
+            and child2.status != "queued"
+        ),
+        timeout_secs=5.0,
+    )
     child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
     assert child2 is not None
     assert child2.status != "queued"
