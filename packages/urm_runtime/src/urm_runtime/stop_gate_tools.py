@@ -375,10 +375,7 @@ def build_stop_gate_metrics(
         quality_checks: list[bool] = []
         if quality_metric_rules is None:
             required_metrics = sorted(
-                {
-                    *FROZEN_QUALITY_METRIC_RULES.keys(),
-                    *LEGACY_QUALITY_METRIC_RULES.keys(),
-                }
+                FROZEN_QUALITY_METRIC_RULES.keys() | LEGACY_QUALITY_METRIC_RULES.keys()
             )
             missing_metrics = [
                 metric_name
