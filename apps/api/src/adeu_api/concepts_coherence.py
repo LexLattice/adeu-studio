@@ -227,7 +227,10 @@ def build_concepts_coherence_artifact(
 
     metadata_objective_version = _as_str(metadata.get("objective_vector_version"))
     metadata_tie_break_version = _as_str(metadata.get("tie_break_version"))
-    if metadata_objective_version and metadata_objective_version != EXPECTED_OBJECTIVE_VECTOR_VERSION:
+    if (
+        metadata_objective_version
+        and metadata_objective_version != EXPECTED_OBJECTIVE_VECTOR_VERSION
+    ):
         alerts.append(
             _alert(
                 code="objective_vector_version_mismatch",
@@ -250,12 +253,26 @@ def build_concepts_coherence_artifact(
             )
         )
 
+    candidate_versions: list[str] = []
+    candidate_objective_version_values: list[str] = []
+    candidate_tie_break_version_values: list[str] = []
+    for candidate in _tournament_candidates(tournament_artifact):
+        score_version = _as_str(candidate.get("score_version"))
+        if score_version is not None:
+            candidate_versions.append(score_version)
+
+        provenance = candidate.get("tie_break_provenance")
+        if not isinstance(provenance, Mapping):
+            continue
+        objective_version = _as_str(provenance.get("objective_vector_version"))
+        if objective_version is not None:
+            candidate_objective_version_values.append(objective_version)
+        tie_break_version = _as_str(provenance.get("tie_break_version"))
+        if tie_break_version is not None:
+            candidate_tie_break_version_values.append(tie_break_version)
+
     candidate_score_versions = _sorted_unique(
-        [
-            value
-            for value in (_as_str(item.get("score_version")) for item in _tournament_candidates(tournament_artifact))
-            if value is not None
-        ]
+        candidate_versions
     )
     if tournament_score_version and candidate_score_versions and candidate_score_versions != [
         tournament_score_version
@@ -263,7 +280,10 @@ def build_concepts_coherence_artifact(
         alerts.append(
             _alert(
                 code="candidate_score_version_mismatch",
-                message="candidate score_version values are inconsistent with tournament_score_version",
+                message=(
+                    "candidate score_version values are inconsistent with "
+                    "tournament_score_version"
+                ),
                 details={
                     "tournament_score_version": tournament_score_version,
                     "candidate_score_versions": candidate_score_versions,
@@ -271,46 +291,27 @@ def build_concepts_coherence_artifact(
             )
         )
 
-    candidate_objective_versions = _sorted_unique(
-        [
-            value
-            for candidate in _tournament_candidates(tournament_artifact)
-            for value in (
-                _as_str(
-                    (candidate.get("tie_break_provenance") or {}).get("objective_vector_version")
-                    if isinstance(candidate.get("tie_break_provenance"), Mapping)
-                    else None
-                ),
-            )
-            if value is not None
-        ]
-    )
-    candidate_tie_break_versions = _sorted_unique(
-        [
-            value
-            for candidate in _tournament_candidates(tournament_artifact)
-            for value in (
-                _as_str(
-                    (candidate.get("tie_break_provenance") or {}).get("tie_break_version")
-                    if isinstance(candidate.get("tie_break_provenance"), Mapping)
-                    else None
-                ),
-            )
-            if value is not None
-        ]
-    )
-    if candidate_objective_versions and candidate_objective_versions != [EXPECTED_OBJECTIVE_VECTOR_VERSION]:
+    candidate_objective_versions = _sorted_unique(candidate_objective_version_values)
+    candidate_tie_break_versions = _sorted_unique(candidate_tie_break_version_values)
+    if candidate_objective_versions and candidate_objective_versions != [
+        EXPECTED_OBJECTIVE_VECTOR_VERSION
+    ]:
         alerts.append(
             _alert(
                 code="candidate_objective_vector_version_mismatch",
-                message="candidate tie-break provenance objective_vector_version differs from expected",
+                message=(
+                    "candidate tie-break provenance objective_vector_version "
+                    "differs from expected"
+                ),
                 details={
                     "expected": EXPECTED_OBJECTIVE_VECTOR_VERSION,
                     "candidate_objective_vector_versions": candidate_objective_versions,
                 },
             )
         )
-    if candidate_tie_break_versions and candidate_tie_break_versions != [EXPECTED_TIE_BREAK_VERSION]:
+    if candidate_tie_break_versions and candidate_tie_break_versions != [
+        EXPECTED_TIE_BREAK_VERSION
+    ]:
         alerts.append(
             _alert(
                 code="candidate_tie_break_version_mismatch",
@@ -362,7 +363,11 @@ def build_concepts_coherence_artifact(
         declared_entity_ids = patch_apply_summary.get("entity_ids")
         if isinstance(declared_entity_ids, list):
             declared_ids = _sorted_unique(
-                [value for value in (_as_str(item) for item in declared_entity_ids) if value is not None]
+                [
+                    value
+                    for value in (_as_str(item) for item in declared_entity_ids)
+                    if value is not None
+                ]
             )
             unknown_anchor_ids = sorted(
                 set(_question_anchor_object_ids(question_artifact)) - set(declared_ids)
@@ -371,7 +376,10 @@ def build_concepts_coherence_artifact(
                 alerts.append(
                     _alert(
                         code="inconsistent_entity_id_references",
-                        message="question anchor object_ids are missing from patch_apply_summary entity_ids",
+                        message=(
+                            "question anchor object_ids are missing from "
+                            "patch_apply_summary entity_ids"
+                        ),
                         details={"unknown_anchor_ids": unknown_anchor_ids},
                     )
                 )
@@ -383,7 +391,10 @@ def build_concepts_coherence_artifact(
             alerts.append(
                 _alert(
                     code="missing_bridge_loss_references",
-                    message="bridge loss report has non-preserved entries but no bridge_loss_signals are referenced",
+                    message=(
+                        "bridge loss report has non-preserved entries but no "
+                        "bridge_loss_signals are referenced"
+                    ),
                     details={},
                 )
             )
@@ -418,4 +429,3 @@ def build_concepts_coherence_artifact(
         },
     }
     return artifact
-
