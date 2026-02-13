@@ -127,7 +127,7 @@ MAX_ADDITIONAL_SOLVER_CALL_BUDGET = 200
 ALIGNMENT_MAX_SUGGESTIONS_MIN = 1
 ALIGNMENT_MAX_SUGGESTIONS_MAX = 500
 QUESTIONS_BUDGET_VERSION = "budget.v1"
-CONCEPTS_QUESTION_RANK_VERSION = "concepts.qrank.v2"
+CONCEPTS_QUESTION_RANK_VERSION = "concepts.qrank.v3"
 ADEU_QUESTION_RANK_VERSION = "adeu.qrank.v1"
 CONCEPTS_RATIONALE_VERSION = "concepts.rationale.v1"
 ADEU_RATIONALE_VERSION = "adeu.rationale.v1"
@@ -791,7 +791,7 @@ class ConceptQuestionsResponse(BaseModel):
     question_count: int
     max_questions: int = DEFAULT_MAX_QUESTIONS
     max_answers_per_question: int = DEFAULT_MAX_ANSWERS_PER_QUESTION
-    question_rank_version: Literal["concepts.qrank.v2"] = CONCEPTS_QUESTION_RANK_VERSION
+    question_rank_version: Literal["concepts.qrank.v3"] = CONCEPTS_QUESTION_RANK_VERSION
     rationale_version: Literal["concepts.rationale.v1"] = CONCEPTS_RATIONALE_VERSION
     budget_report: "QuestionsBudgetReport"
     bridge_loss_signals: list["BridgeLossSignal"] = Field(default_factory=list)
@@ -2155,6 +2155,32 @@ def _question_template_id(question: ConceptQuestion) -> str:
     return f"{question.signal}:{suffix}"
 
 
+def _normalize_question_prompt(prompt: str) -> str:
+    normalized = re.sub(r"[^\w\s]", " ", prompt.lower())
+    return " ".join(normalized.split())
+
+
+def _question_normalized_text_hash(question: ConceptQuestion) -> str:
+    return sha256_text(_normalize_question_prompt(question.prompt))
+
+
+def _question_target_entity_ids(question: ConceptQuestion) -> tuple[str, ...]:
+    object_ids, json_paths = _question_anchor_sets(question)
+    targets = {f"obj:{object_id}" for object_id in object_ids}
+    targets.update(f"path:{json_path}" for json_path in json_paths)
+    return tuple(sorted(targets))
+
+
+def _question_polarity(question: ConceptQuestion) -> str:
+    if question.signal == "mic":
+        return "resolve_conflict"
+    if question.signal == "forced_countermodel":
+        return "resolve_nonentailment"
+    if question.signal == "disconnected_clusters":
+        return "connect_clusters"
+    return "generic"
+
+
 def _concept_term_component_sizes(ir: ConceptIR) -> dict[str, int]:
     sense_to_term = {sense.id: sense.term_id for sense in ir.senses}
     adjacency: dict[str, set[str]] = {term.id: set() for term in ir.terms}
@@ -2252,7 +2278,7 @@ def _question_rank_tuple(
     analysis: ConceptAnalysis,
     report: CheckReport,
     term_component_sizes: dict[str, int],
-) -> tuple[int, int, int, str, str, str]:
+) -> tuple[int, int, int, str, str, str, str]:
     priority_class = _question_priority_class(question.signal)
     impact_score = _question_impact_score(
         question,
@@ -2270,12 +2296,19 @@ def _question_rank_tuple(
         anchor_key,
         template_id,
         question_text,
+        question.question_id,
     )
 
 
-def _question_dedupe_key(question: ConceptQuestion) -> tuple[str, tuple[str, ...], tuple[str, ...]]:
-    object_ids, json_paths = _question_anchor_sets(question)
-    return (_question_template_id(question), object_ids, json_paths)
+def _question_dedupe_key(
+    question: ConceptQuestion,
+) -> tuple[str, tuple[str, ...], str, str]:
+    return (
+        question.signal,
+        _question_target_entity_ids(question),
+        _question_polarity(question),
+        _question_normalized_text_hash(question),
+    )
 
 
 def _rank_and_dedupe_questions(
@@ -2297,7 +2330,7 @@ def _rank_and_dedupe_questions(
     )
 
     deduped: list[ConceptQuestion] = []
-    seen: set[tuple[str, tuple[str, ...], tuple[str, ...]]] = set()
+    seen: set[tuple[str, tuple[str, ...], str, str]] = set()
     for question in sorted_questions:
         dedupe_key = _question_dedupe_key(question)
         if dedupe_key in seen:

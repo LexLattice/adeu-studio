@@ -83,7 +83,7 @@ def test_concepts_questions_endpoint_is_deterministic_and_capped() -> None:
     assert left.question_count <= left.max_questions == 10
     assert left.max_answers_per_question == 4
     assert all(0 < len(item.answers) <= 4 for item in left.questions)
-    assert left.question_rank_version == "concepts.qrank.v2"
+    assert left.question_rank_version == "concepts.qrank.v3"
     assert left.rationale_version == "concepts.rationale.v1"
     assert left.budget_report.budget_version == "budget.v1"
     assert left.budget_report.max_solver_calls == api_main.MAX_QUESTION_SOLVER_CALLS_TOTAL
@@ -247,11 +247,11 @@ def test_questions_rank_and_dedupe_prefers_mic_and_is_stable() -> None:
         )
     ]
     mic = ConceptQuestion(
-        question_id="q_mic",
+        question_id="q_mic_a",
         signal="mic",
         rationale_code="mic_conflict",
         rationale="MIC rationale",
-        prompt="MIC question",
+        prompt="MIC question?",
         anchors=[
             ConceptQuestionAnchor(
                 object_id="amb_bank",
@@ -262,11 +262,11 @@ def test_questions_rank_and_dedupe_prefers_mic_and_is_stable() -> None:
         answers=answers,
     )
     mic_duplicate = ConceptQuestion(
-        question_id="q_mic_dup",
+        question_id="q_mic_b",
         signal="mic",
         rationale_code="mic_conflict",
         rationale="MIC rationale",
-        prompt="MIC question duplicate text",
+        prompt="mic   question!!!",
         anchors=[
             ConceptQuestionAnchor(
                 object_id="amb_bank",
@@ -295,7 +295,7 @@ def test_questions_rank_and_dedupe_prefers_mic_and_is_stable() -> None:
         ir=concept,
     )
     ranked_right = api_main._rank_and_dedupe_questions(
-        questions=[disconnect, mic_duplicate, mic],
+        questions=[mic, disconnect, mic_duplicate],
         analysis=analysis,
         report=report,
         ir=concept,
@@ -303,6 +303,51 @@ def test_questions_rank_and_dedupe_prefers_mic_and_is_stable() -> None:
 
     assert ranked_left == ranked_right
     assert [item.signal for item in ranked_left] == ["mic", "disconnected_clusters"]
+    assert [item.question_id for item in ranked_left] == ["q_mic_a", "q_disconnect"]
+
+
+def test_question_dedupe_key_normalizes_prompt_text() -> None:
+    anchors = [
+        ConceptQuestionAnchor(
+            object_id="amb_bank",
+            json_path="/ambiguity/0",
+            label="ambiguity",
+        )
+    ]
+    question_a = ConceptQuestion(
+        question_id="q_a",
+        signal="mic",
+        rationale_code="mic_conflict",
+        rationale="MIC rationale",
+        prompt="Resolve THIS ambiguity?",
+        anchors=anchors,
+        answers=[],
+    )
+    question_b = ConceptQuestion(
+        question_id="q_b",
+        signal="mic",
+        rationale_code="mic_conflict",
+        rationale="MIC rationale",
+        prompt="resolve this ambiguity!!!",
+        anchors=anchors,
+        answers=[],
+    )
+    question_c = ConceptQuestion(
+        question_id="q_c",
+        signal="mic",
+        rationale_code="mic_conflict",
+        rationale="MIC rationale",
+        prompt="Resolve another ambiguity",
+        anchors=anchors,
+        answers=[],
+    )
+
+    assert api_main._question_dedupe_key(question_a) == api_main._question_dedupe_key(
+        question_b
+    )
+    assert api_main._question_dedupe_key(question_a) != api_main._question_dedupe_key(
+        question_c
+    )
 
 
 def test_do_no_harm_filter_suppresses_non_improving_answers(monkeypatch) -> None:
