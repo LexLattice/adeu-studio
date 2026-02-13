@@ -144,6 +144,11 @@ TOURNAMENT_OBJECTIVE_DIMENSIONS: tuple[str, ...] = (
     "neg_mic_count",
     "neg_countermodel_count",
 )
+QUESTION_POLARITY_BY_SIGNAL: dict[str, str] = {
+    "mic": "resolve_conflict",
+    "forced_countermodel": "resolve_nonentailment",
+    "disconnected_clusters": "connect_clusters",
+}
 
 
 def _env_int(
@@ -2172,13 +2177,7 @@ def _question_target_entity_ids(question: ConceptQuestion) -> tuple[str, ...]:
 
 
 def _question_polarity(question: ConceptQuestion) -> str:
-    if question.signal == "mic":
-        return "resolve_conflict"
-    if question.signal == "forced_countermodel":
-        return "resolve_nonentailment"
-    if question.signal == "disconnected_clusters":
-        return "connect_clusters"
-    return "generic"
+    return QUESTION_POLARITY_BY_SIGNAL.get(question.signal, "generic")
 
 
 def _concept_term_component_sizes(ir: ConceptIR) -> dict[str, int]:
