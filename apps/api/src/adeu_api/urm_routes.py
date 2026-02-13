@@ -41,10 +41,14 @@ from urm_runtime.models import (
     CopilotSteerRequest,
     CopilotSteerResponse,
     CopilotStopRequest,
+    PolicyActivationResponse,
+    PolicyActiveResponse,
     PolicyProfileCurrentResponse,
     PolicyProfileListResponse,
     PolicyProfileSelectRequest,
     PolicyProfileSelectResponse,
+    PolicyRollbackRequest,
+    PolicyRolloutRequest,
     ToolCallRequest,
     ToolCallResponse,
     WorkerCancelRequest,
@@ -362,6 +366,40 @@ def urm_policy_profile_select_endpoint(
     manager = _get_manager()
     try:
         return manager.select_profile(request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.get("/policy/active", response_model=PolicyActiveResponse)
+def urm_policy_active_endpoint(
+    *,
+    profile_id: str = Query(min_length=1),
+    provider: Literal["codex"] = Query(default="codex"),
+) -> PolicyActiveResponse:
+    _require_codex_provider(provider)
+    manager = _get_manager()
+    try:
+        return manager.policy_active(profile_id=profile_id)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/policy/rollout", response_model=PolicyActivationResponse)
+def urm_policy_rollout_endpoint(request: PolicyRolloutRequest) -> PolicyActivationResponse:
+    _require_codex_provider(request.provider)
+    manager = _get_manager()
+    try:
+        return manager.policy_rollout(request)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.post("/policy/rollback", response_model=PolicyActivationResponse)
+def urm_policy_rollback_endpoint(request: PolicyRollbackRequest) -> PolicyActivationResponse:
+    _require_codex_provider(request.provider)
+    manager = _get_manager()
+    try:
+        return manager.policy_rollback(request)
     except URMError as exc:
         raise _to_http_exception(exc) from exc
 

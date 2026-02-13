@@ -38,13 +38,23 @@ from .models import (
     CopilotSteerResponse,
     CopilotStopRequest,
     NormalizedEvent,
+    PolicyActivationResponse,
+    PolicyActiveResponse,
     PolicyProfileCurrentResponse,
     PolicyProfileDescriptor,
     PolicyProfileListResponse,
     PolicyProfileSelectRequest,
     PolicyProfileSelectResponse,
+    PolicyRollbackRequest,
+    PolicyRolloutRequest,
 )
 from .normalization import build_internal_event, normalize_app_server_line
+from .policy_governance import (
+    POLICY_ROLLBACK_ENDPOINT,
+    POLICY_ROLLOUT_ENDPOINT,
+    apply_policy_activation,
+    resolve_active_policy_state,
+)
 from .probe import CodexCapabilityProbeResult, run_and_persist_capability_probe
 from .profile_registry import (
     PolicyProfileEntry,
@@ -323,6 +333,14 @@ class URMCopilotManager:
                 },
             )
         return profile
+
+    def _resolve_active_policy_hash_for_profile(self, *, profile: PolicyProfileEntry) -> str:
+        active_state = resolve_active_policy_state(
+            config=self.config,
+            registry=self._profile_registry,
+            profile_id=profile.profile_id,
+        )
+        return active_state.policy_hash
 
     def _resolve_raw_path(self, raw_jsonl_path: str) -> Path:
         path = Path(raw_jsonl_path)
@@ -1027,7 +1045,7 @@ class URMCopilotManager:
         run_evidence_retention_gc(config=self.config)
         profile = self._resolve_profile(request.profile_id)
         profile_id = profile.profile_id
-        profile_policy_hash = profile.default_policy_hash
+        profile_policy_hash = self._resolve_active_policy_hash_for_profile(profile=profile)
 
         payload_hash = sha256_canonical_json(request.idempotency_payload())
         with self._lock:
@@ -1209,7 +1227,9 @@ class URMCopilotManager:
         profile_policy_hash: str | None,
     ) -> PolicyProfileCurrentResponse:
         profile = self._resolve_profile(profile_id)
-        policy_hash = profile_policy_hash or profile.default_policy_hash
+        policy_hash = profile_policy_hash or self._resolve_active_policy_hash_for_profile(
+            profile=profile
+        )
         return PolicyProfileCurrentResponse(
             session_id=session_id,
             profile_id=profile.profile_id,
@@ -1290,7 +1310,9 @@ class URMCopilotManager:
 
             runtime.profile_id = profile.profile_id
             runtime.profile_version = profile.profile_version
-            runtime.profile_policy_hash = profile.default_policy_hash
+            runtime.profile_policy_hash = self._resolve_active_policy_hash_for_profile(
+                profile=profile
+            )
             self._record_internal_event(
                 runtime=runtime,
                 event_kind="PROFILE_SELECTED",
@@ -1324,6 +1346,80 @@ class URMCopilotManager:
                     response_json=response.model_dump(mode="json"),
                 )
             return response
+
+    def policy_active(self, *, profile_id: str) -> PolicyActiveResponse:
+        active_state = resolve_active_policy_state(
+            config=self.config,
+            registry=self._profile_registry,
+            profile_id=profile_id,
+        )
+        return PolicyActiveResponse(
+            profile_id=active_state.profile_id,
+            profile_version=active_state.profile_version,
+            policy_hash=active_state.policy_hash,
+            source=active_state.source,
+            activation_seq=active_state.activation_seq,
+            action=active_state.action,
+            activation_ts=active_state.activation_ts,
+            client_request_id=active_state.client_request_id,
+            prev_policy_hash=active_state.prev_policy_hash,
+        )
+
+    def policy_rollout(self, request: PolicyRolloutRequest) -> PolicyActivationResponse:
+        activation_ts = request.activation_ts or datetime.now(tz=timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        with self._lock:
+            result = apply_policy_activation(
+                config=self.config,
+                registry=self._profile_registry,
+                endpoint_name=POLICY_ROLLOUT_ENDPOINT,
+                action="rollout",
+                client_request_id=request.client_request_id,
+                profile_id=request.profile_id,
+                target_policy_hash=request.target_policy_hash,
+                activation_ts=activation_ts,
+                request_payload=request.idempotency_payload(),
+            )
+        return PolicyActivationResponse(
+            profile_id=result.profile_id,
+            profile_version=result.profile_version,
+            action=result.action,
+            target_policy_hash=result.target_policy_hash,
+            prev_policy_hash=result.prev_policy_hash,
+            activation_seq=result.activation_seq,
+            activation_ts=result.activation_ts,
+            request_payload_hash=result.request_payload_hash,
+            idempotent_replay=result.idempotent_replay,
+        )
+
+    def policy_rollback(self, request: PolicyRollbackRequest) -> PolicyActivationResponse:
+        activation_ts = request.activation_ts or datetime.now(tz=timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        with self._lock:
+            result = apply_policy_activation(
+                config=self.config,
+                registry=self._profile_registry,
+                endpoint_name=POLICY_ROLLBACK_ENDPOINT,
+                action="rollback",
+                client_request_id=request.client_request_id,
+                profile_id=request.profile_id,
+                target_policy_hash=request.target_policy_hash,
+                activation_ts=activation_ts,
+                request_payload=request.idempotency_payload(),
+            )
+        return PolicyActivationResponse(
+            profile_id=result.profile_id,
+            profile_version=result.profile_version,
+            action=result.action,
+            target_policy_hash=result.target_policy_hash,
+            prev_policy_hash=result.prev_policy_hash,
+            activation_seq=result.activation_seq,
+            activation_ts=result.activation_ts,
+            request_payload_hash=result.request_payload_hash,
+            idempotent_replay=result.idempotent_replay,
+        )
 
     def send(self, request: CopilotSessionSendRequest) -> CopilotSessionResponse:
         payload_hash = sha256_canonical_json(request.idempotency_payload())
@@ -1979,7 +2075,9 @@ class URMCopilotManager:
                     payload={
                         "profile_id": selected_profile.profile_id,
                         "profile_version": selected_profile.profile_version,
-                        "policy_hash": selected_profile.default_policy_hash,
+                        "policy_hash": self._resolve_active_policy_hash_for_profile(
+                            profile=selected_profile
+                        ),
                         "scope": "run",
                         "child_id": child_id,
                     },
@@ -2545,7 +2643,9 @@ class URMCopilotManager:
                     payload={
                         "profile_id": selected_profile.profile_id,
                         "profile_version": selected_profile.profile_version,
-                        "policy_hash": selected_profile.default_policy_hash,
+                        "policy_hash": self._resolve_active_policy_hash_for_profile(
+                            profile=selected_profile
+                        ),
                         "scope": "run",
                         "child_id": child_id,
                     },

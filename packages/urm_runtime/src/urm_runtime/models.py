@@ -206,6 +206,68 @@ class PolicyProfileSelectResponse(BaseModel):
     idempotent_replay: bool = False
 
 
+class PolicyRolloutRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    client_request_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    target_policy_hash: str = Field(min_length=1)
+    activation_ts: str | None = None
+    operator_note: str | None = None
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(
+            mode="json",
+            exclude={"client_request_id", "activation_ts", "operator_note"},
+        )
+
+
+class PolicyRollbackRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    client_request_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    target_policy_hash: str = Field(min_length=1)
+    activation_ts: str | None = None
+    operator_note: str | None = None
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(
+            mode="json",
+            exclude={"client_request_id", "activation_ts", "operator_note"},
+        )
+
+
+class PolicyActivationResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str = Field(min_length=1)
+    profile_version: str = Field(min_length=1)
+    action: Literal["rollout", "rollback"]
+    target_policy_hash: str = Field(min_length=1)
+    prev_policy_hash: str | None = None
+    activation_seq: int = Field(ge=1)
+    activation_ts: str = Field(min_length=1)
+    request_payload_hash: str = Field(min_length=1)
+    idempotent_replay: bool = False
+
+
+class PolicyActiveResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str = Field(min_length=1)
+    profile_version: str = Field(min_length=1)
+    policy_hash: str = Field(min_length=1)
+    source: Literal["activation_log", "profile_default"]
+    activation_seq: int | None = None
+    action: Literal["rollout", "rollback"] | None = None
+    activation_ts: str | None = None
+    client_request_id: str | None = None
+    prev_policy_hash: str | None = None
+
+
 class CopilotSteerRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

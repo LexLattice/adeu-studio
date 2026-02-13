@@ -10,6 +10,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
+from .config import URMRuntimeConfig
 from .errors import URMError
 from .hashing import canonical_json, sha256_canonical_json
 from .instruction_policy import (
@@ -24,12 +25,25 @@ from .instruction_policy import (
     policy_semantic_form,
 )
 from .models import NormalizedEvent
+from .policy_governance import (
+    DEFAULT_DETERMINISTIC_TS,
+    POLICY_ROLLBACK_ENDPOINT,
+    POLICY_ROLLOUT_ENDPOINT,
+    apply_policy_activation,
+    materialize_policy,
+    resolve_active_policy_state,
+    resolve_operation_ts,
+)
+from .profile_registry import load_policy_profile_registry
 
 POLICY_VALIDATE_SCHEMA = "instruction-policy-validate@1"
 POLICY_EVAL_SCHEMA = "instruction-policy-eval@1"
 POLICY_DIFF_SCHEMA = "instruction-policy-diff@1"
 POLICY_EXPLAIN_SCHEMA = "policy_explain@1"
 POLICY_INCIDENT_SCHEMA = "incident_packet@1"
+POLICY_REGISTRY_SCHEMA = "policy_registry@1"
+POLICY_ACTIVATION_SCHEMA = "policy_activation_log@1"
+POLICY_ACTIVE_SCHEMA = "policy_active@1"
 POLICY_INCIDENT_INVALID_REF = "URM_INCIDENT_PACKET_INVALID_REF"
 POLICY_EXPLAIN_INVALID_INPUT = "URM_POLICY_EXPLAIN_INVALID_INPUT"
 INCIDENT_REDACTION_ALLOWLIST_SCHEMA = "policy.incident_redaction_allowlist.v1"
@@ -1172,6 +1186,222 @@ def incident_packet(
     return payload
 
 
+def _runtime_config() -> URMRuntimeConfig:
+    return URMRuntimeConfig.from_env()
+
+
+def materialize_policy_cli(
+    *,
+    policy_path: Path,
+    strict: bool,
+    schema_path: Path | None = None,
+    claimed_policy_hash: str | None = None,
+    materialize_ts: str | None = None,
+    use_now: bool = False,
+) -> dict[str, Any]:
+    try:
+        resolved_ts = resolve_operation_ts(
+            ts=materialize_ts,
+            use_now=use_now,
+            default_ts=DEFAULT_DETERMINISTIC_TS,
+            ts_field_name="materialize-ts",
+        )
+        policy = load_instruction_policy(
+            policy_path=policy_path,
+            schema_path=schema_path,
+            strict=strict,
+        )
+        computed_hash = compute_policy_hash(policy)
+        if claimed_policy_hash is not None and claimed_policy_hash != computed_hash:
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="claimed policy hash does not match computed canonical hash",
+                context={
+                    "claimed_policy_hash": claimed_policy_hash,
+                    "computed_policy_hash": computed_hash,
+                },
+            )
+        semantic_form = policy_semantic_form(policy)
+        row = materialize_policy(
+            config=_runtime_config(),
+            policy_hash=computed_hash,
+            schema_id=policy.schema_id,
+            policy_schema_version="odeu.instructions.schema.v1",
+            policy_ir_version="odeu.instructions.v1",
+            semantic_policy_json=semantic_form,
+            source_policy_ref=str(policy_path),
+            materialized_at=resolved_ts,
+        )
+    except URMError as exc:
+        return {
+            "schema": POLICY_REGISTRY_SCHEMA,
+            "input_policy": str(policy_path),
+            "valid": False,
+            "issues": [_error_issue(exc)],
+        }
+
+    return {
+        "schema": POLICY_REGISTRY_SCHEMA,
+        "input_policy": str(policy_path),
+        "valid": True,
+        "policy_hash": row.policy_hash,
+        "schema_id": row.schema_id,
+        "policy_schema_version": row.policy_schema_version,
+        "policy_ir_version": row.policy_ir_version,
+        "semantic_policy_json": row.semantic_policy_json,
+        "materialized_at": row.materialized_at,
+        "source_policy_ref": row.source_policy_ref,
+        "issues": [],
+    }
+
+
+def rollout_policy_cli(
+    *,
+    profile_id: str,
+    target_policy_hash: str,
+    client_request_id: str,
+    activation_ts: str | None = None,
+    use_now: bool = False,
+    operator_note: str | None = None,
+) -> dict[str, Any]:
+    try:
+        resolved_ts = resolve_operation_ts(
+            ts=activation_ts,
+            use_now=use_now,
+            default_ts=DEFAULT_DETERMINISTIC_TS,
+            ts_field_name="activation-ts",
+        )
+        result = apply_policy_activation(
+            config=_runtime_config(),
+            registry=load_policy_profile_registry(),
+            endpoint_name=POLICY_ROLLOUT_ENDPOINT,
+            action="rollout",
+            client_request_id=client_request_id,
+            profile_id=profile_id,
+            target_policy_hash=target_policy_hash,
+            activation_ts=resolved_ts,
+            request_payload={
+                "profile_id": profile_id,
+                "target_policy_hash": target_policy_hash,
+            },
+        )
+    except URMError as exc:
+        return {
+            "schema": POLICY_ACTIVATION_SCHEMA,
+            "action": "rollout",
+            "profile_id": profile_id,
+            "client_request_id": client_request_id,
+            "target_policy_hash": target_policy_hash,
+            "valid": False,
+            "issues": [_error_issue(exc)],
+        }
+
+    return {
+        "schema": POLICY_ACTIVATION_SCHEMA,
+        "action": result.action,
+        "profile_id": result.profile_id,
+        "client_request_id": client_request_id,
+        "profile_version": result.profile_version,
+        "target_policy_hash": result.target_policy_hash,
+        "prev_policy_hash": result.prev_policy_hash,
+        "activation_seq": result.activation_seq,
+        "activation_ts": result.activation_ts,
+        "request_payload_hash": result.request_payload_hash,
+        "operator_note": operator_note,
+        "valid": True,
+        "issues": [],
+    }
+
+
+def rollback_policy_cli(
+    *,
+    profile_id: str,
+    target_policy_hash: str,
+    client_request_id: str,
+    activation_ts: str | None = None,
+    use_now: bool = False,
+    operator_note: str | None = None,
+) -> dict[str, Any]:
+    try:
+        resolved_ts = resolve_operation_ts(
+            ts=activation_ts,
+            use_now=use_now,
+            default_ts=DEFAULT_DETERMINISTIC_TS,
+            ts_field_name="activation-ts",
+        )
+        result = apply_policy_activation(
+            config=_runtime_config(),
+            registry=load_policy_profile_registry(),
+            endpoint_name=POLICY_ROLLBACK_ENDPOINT,
+            action="rollback",
+            client_request_id=client_request_id,
+            profile_id=profile_id,
+            target_policy_hash=target_policy_hash,
+            activation_ts=resolved_ts,
+            request_payload={
+                "profile_id": profile_id,
+                "target_policy_hash": target_policy_hash,
+            },
+        )
+    except URMError as exc:
+        return {
+            "schema": POLICY_ACTIVATION_SCHEMA,
+            "action": "rollback",
+            "profile_id": profile_id,
+            "client_request_id": client_request_id,
+            "target_policy_hash": target_policy_hash,
+            "valid": False,
+            "issues": [_error_issue(exc)],
+        }
+
+    return {
+        "schema": POLICY_ACTIVATION_SCHEMA,
+        "action": result.action,
+        "profile_id": result.profile_id,
+        "client_request_id": client_request_id,
+        "profile_version": result.profile_version,
+        "target_policy_hash": result.target_policy_hash,
+        "prev_policy_hash": result.prev_policy_hash,
+        "activation_seq": result.activation_seq,
+        "activation_ts": result.activation_ts,
+        "request_payload_hash": result.request_payload_hash,
+        "operator_note": operator_note,
+        "valid": True,
+        "issues": [],
+    }
+
+
+def active_policy_cli(*, profile_id: str) -> dict[str, Any]:
+    try:
+        state = resolve_active_policy_state(
+            config=_runtime_config(),
+            registry=load_policy_profile_registry(),
+            profile_id=profile_id,
+        )
+    except URMError as exc:
+        return {
+            "schema": POLICY_ACTIVE_SCHEMA,
+            "profile_id": profile_id,
+            "valid": False,
+            "issues": [_error_issue(exc)],
+        }
+
+    return {
+        "schema": POLICY_ACTIVE_SCHEMA,
+        "profile_id": state.profile_id,
+        "profile_version": state.profile_version,
+        "policy_hash": state.policy_hash,
+        "source": state.source,
+        "activation_seq": state.activation_seq,
+        "action": state.action,
+        "activation_ts": state.activation_ts,
+        "client_request_id": state.client_request_id,
+        "prev_policy_hash": state.prev_policy_hash,
+        "valid": True,
+        "issues": [],
+    }
+
+
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="policy",
@@ -1258,6 +1488,65 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     incident_parser.add_argument("--artifact-ref", dest="artifact_refs", action="append")
     incident_parser.add_argument("--out", dest="out_path", type=Path, required=False)
 
+    materialize_parser = subparsers.add_parser(
+        "materialize",
+        help="Materialize canonical policy payload into policy_registry@1.",
+    )
+    materialize_parser.add_argument("--policy", dest="policy_path", type=Path, required=True)
+    materialize_parser.add_argument("--schema", dest="schema_path", type=Path, required=False)
+    materialize_parser.add_argument(
+        "--claimed-policy-hash", dest="claimed_policy_hash", type=str, required=False
+    )
+    materialize_parser.add_argument(
+        "--materialize-ts",
+        dest="materialize_ts",
+        type=str,
+        required=False,
+    )
+    materialize_parser.add_argument("--use-now", dest="use_now", action="store_true")
+    materialize_parser.add_argument("--out", dest="out_path", type=Path, required=False)
+    materialize_parser.add_argument("--lax", dest="strict", action="store_false")
+    materialize_parser.set_defaults(strict=True)
+
+    rollout_parser = subparsers.add_parser(
+        "rollout",
+        help="Apply profile-scoped policy rollout by target policy hash.",
+    )
+    rollout_parser.add_argument("--profile-id", dest="profile_id", type=str, required=True)
+    rollout_parser.add_argument(
+        "--target-policy-hash", dest="target_policy_hash", type=str, required=True
+    )
+    rollout_parser.add_argument(
+        "--client-request-id", dest="client_request_id", type=str, required=True
+    )
+    rollout_parser.add_argument("--activation-ts", dest="activation_ts", type=str, required=False)
+    rollout_parser.add_argument("--operator-note", dest="operator_note", type=str, required=False)
+    rollout_parser.add_argument("--use-now", dest="use_now", action="store_true")
+    rollout_parser.add_argument("--out", dest="out_path", type=Path, required=False)
+
+    rollback_parser = subparsers.add_parser(
+        "rollback",
+        help="Apply profile-scoped rollback to explicit target policy hash.",
+    )
+    rollback_parser.add_argument("--profile-id", dest="profile_id", type=str, required=True)
+    rollback_parser.add_argument(
+        "--target-policy-hash", dest="target_policy_hash", type=str, required=True
+    )
+    rollback_parser.add_argument(
+        "--client-request-id", dest="client_request_id", type=str, required=True
+    )
+    rollback_parser.add_argument("--activation-ts", dest="activation_ts", type=str, required=False)
+    rollback_parser.add_argument("--operator-note", dest="operator_note", type=str, required=False)
+    rollback_parser.add_argument("--use-now", dest="use_now", action="store_true")
+    rollback_parser.add_argument("--out", dest="out_path", type=Path, required=False)
+
+    active_parser = subparsers.add_parser(
+        "active",
+        help="Show active policy hash state for a profile.",
+    )
+    active_parser.add_argument("--profile-id", dest="profile_id", type=str, required=True)
+    active_parser.add_argument("--out", dest="out_path", type=Path, required=False)
+
     return parser.parse_args(argv)
 
 
@@ -1329,6 +1618,39 @@ def main(argv: list[str] | None = None) -> int:
             stream_specs=list(args.stream_specs),
             artifact_refs=list(args.artifact_refs or []),
         )
+        return _emit_report(report, out_path=args.out_path)
+    if args.command == "materialize":
+        report = materialize_policy_cli(
+            policy_path=args.policy_path,
+            strict=bool(args.strict),
+            schema_path=args.schema_path,
+            claimed_policy_hash=args.claimed_policy_hash,
+            materialize_ts=args.materialize_ts,
+            use_now=bool(args.use_now),
+        )
+        return _emit_report(report, out_path=args.out_path)
+    if args.command == "rollout":
+        report = rollout_policy_cli(
+            profile_id=args.profile_id,
+            target_policy_hash=args.target_policy_hash,
+            client_request_id=args.client_request_id,
+            activation_ts=args.activation_ts,
+            use_now=bool(args.use_now),
+            operator_note=args.operator_note,
+        )
+        return _emit_report(report, out_path=args.out_path)
+    if args.command == "rollback":
+        report = rollback_policy_cli(
+            profile_id=args.profile_id,
+            target_policy_hash=args.target_policy_hash,
+            client_request_id=args.client_request_id,
+            activation_ts=args.activation_ts,
+            use_now=bool(args.use_now),
+            operator_note=args.operator_note,
+        )
+        return _emit_report(report, out_path=args.out_path)
+    if args.command == "active":
+        report = active_policy_cli(profile_id=args.profile_id)
         return _emit_report(report, out_path=args.out_path)
     return 1  # pragma: no cover
 

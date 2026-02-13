@@ -45,6 +45,16 @@ def _load_incident_redaction_allowlist_schema() -> dict[str, object]:
     return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
+def _load_policy_registry_schema() -> dict[str, object]:
+    schema_path = _repo_root() / "spec" / "policy_registry.schema.json"
+    return json.loads(schema_path.read_text(encoding="utf-8"))
+
+
+def _load_policy_activation_schema() -> dict[str, object]:
+    schema_path = _repo_root() / "spec" / "policy_activation_log.schema.json"
+    return json.loads(schema_path.read_text(encoding="utf-8"))
+
+
 def _write_json(path: Path, payload: dict[str, object]) -> None:
     path.write_text(json.dumps(payload), encoding="utf-8")
 
@@ -1170,3 +1180,312 @@ def test_policy_cli_explain_from_decision_supports_markdown_output(tmp_path: Pat
     markdown = out_md.read_text(encoding="utf-8")
     assert "Policy Explain Report" in markdown
     assert "`ALLOW_TEST`" in markdown
+
+
+def test_policy_cli_materialize_rollout_rollback_and_active(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+
+    base_policy = _repo_root() / "policy" / "odeu.instructions.v1.json"
+    alt_policy = tmp_path / "odeu.instructions.alt.v1.json"
+    payload = json.loads(base_policy.read_text(encoding="utf-8"))
+    assert isinstance(payload, dict)
+    rules = payload.get("rules")
+    assert isinstance(rules, list) and rules
+    first_rule = rules[0]
+    assert isinstance(first_rule, dict)
+    first_rule["code"] = "ALLOW_HARD_GATED_ACTION_ALT"
+    alt_policy.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+
+    base_hash = str(validate_policy(base_policy, strict=True)["policy_hash"])
+    alt_hash = str(validate_policy(alt_policy, strict=True)["policy_hash"])
+    assert base_hash != alt_hash
+
+    profile_registry = tmp_path / "profiles.v1.json"
+    _write_json(
+        profile_registry,
+        {
+            "schema": "policy.profiles.v1",
+            "profiles": [
+                {
+                    "profile_id": "default",
+                    "profile_version": "profile.v1",
+                    "default_policy_hash": base_hash,
+                    "allowed_policy_hashes": [base_hash, alt_hash],
+                    "policy_ref": str(base_policy),
+                }
+            ],
+        },
+    )
+    monkeypatch.setenv("URM_POLICY_PROFILES_PATH", str(profile_registry))
+
+    materialize_base_out = tmp_path / "materialize.base.json"
+    materialize_alt_out = tmp_path / "materialize.alt.json"
+    assert (
+        main(
+            [
+                "materialize",
+                "--policy",
+                str(base_policy),
+                "--materialize-ts",
+                "2026-02-13T10:00:00Z",
+                "--out",
+                str(materialize_base_out),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "materialize",
+                "--policy",
+                str(alt_policy),
+                "--materialize-ts",
+                "2026-02-13T10:05:00Z",
+                "--out",
+                str(materialize_alt_out),
+            ]
+        )
+        == 0
+    )
+
+    base_materialized = json.loads(materialize_base_out.read_text(encoding="utf-8"))
+    materialized_subset = {
+        "schema": "policy_registry@1",
+        "policy_hash": base_materialized["policy_hash"],
+        "schema_id": base_materialized["schema_id"],
+        "policy_schema_version": base_materialized["policy_schema_version"],
+        "policy_ir_version": base_materialized["policy_ir_version"],
+        "semantic_policy_json": base_materialized["semantic_policy_json"],
+        "source_policy_ref": base_materialized["source_policy_ref"],
+        "materialized_at": base_materialized["materialized_at"],
+    }
+    registry_validator = Draft202012Validator(_load_policy_registry_schema())
+    registry_errors = sorted(
+        registry_validator.iter_errors(materialized_subset), key=lambda err: str(err.path)
+    )
+    assert registry_errors == []
+
+    rollout_base_out = tmp_path / "rollout.base.json"
+    rollout_alt_out = tmp_path / "rollout.alt.json"
+    rollback_base_out = tmp_path / "rollback.base.json"
+    active_out = tmp_path / "active.json"
+    active_after_rollback_out = tmp_path / "active.after.rollback.json"
+    assert (
+        main(
+            [
+                "rollout",
+                "--profile-id",
+                "default",
+                "--target-policy-hash",
+                base_hash,
+                "--client-request-id",
+                "rollout-base-1",
+                "--activation-ts",
+                "2026-02-13T10:10:00Z",
+                "--out",
+                str(rollout_base_out),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "rollout",
+                "--profile-id",
+                "default",
+                "--target-policy-hash",
+                alt_hash,
+                "--client-request-id",
+                "rollout-alt-1",
+                "--activation-ts",
+                "2026-02-13T10:11:00Z",
+                "--out",
+                str(rollout_alt_out),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "active",
+                "--profile-id",
+                "default",
+                "--out",
+                str(active_out),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "rollback",
+                "--profile-id",
+                "default",
+                "--target-policy-hash",
+                base_hash,
+                "--client-request-id",
+                "rollback-base-1",
+                "--activation-ts",
+                "2026-02-13T10:12:00Z",
+                "--out",
+                str(rollback_base_out),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "active",
+                "--profile-id",
+                "default",
+                "--out",
+                str(active_after_rollback_out),
+            ]
+        )
+        == 0
+    )
+
+    rollout_payload = json.loads(rollout_alt_out.read_text(encoding="utf-8"))
+    activation_subset = {
+        "schema": "policy_activation_log@1",
+        "activation_seq": rollout_payload["activation_seq"],
+        "client_request_id": rollout_payload["client_request_id"],
+        "request_payload_hash": rollout_payload["request_payload_hash"],
+        "profile_id": rollout_payload["profile_id"],
+        "action": rollout_payload["action"],
+        "target_policy_hash": rollout_payload["target_policy_hash"],
+        "prev_policy_hash": rollout_payload["prev_policy_hash"],
+        "activation_ts": rollout_payload["activation_ts"],
+    }
+    activation_validator = Draft202012Validator(_load_policy_activation_schema())
+    activation_errors = sorted(
+        activation_validator.iter_errors(activation_subset), key=lambda err: str(err.path)
+    )
+    assert activation_errors == []
+
+    active_payload = json.loads(active_out.read_text(encoding="utf-8"))
+    assert active_payload["schema"] == "policy_active@1"
+    assert active_payload["valid"] is True
+    assert active_payload["policy_hash"] == alt_hash
+    assert active_payload["source"] == "activation_log"
+
+    active_after_rollback_payload = json.loads(
+        active_after_rollback_out.read_text(encoding="utf-8")
+    )
+    assert active_after_rollback_payload["schema"] == "policy_active@1"
+    assert active_after_rollback_payload["valid"] is True
+    assert active_after_rollback_payload["policy_hash"] == base_hash
+
+
+def test_policy_cli_rollout_idempotency_conflict(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+
+    base_policy = _repo_root() / "policy" / "odeu.instructions.v1.json"
+    alt_policy = tmp_path / "odeu.instructions.alt.v1.json"
+    payload = json.loads(base_policy.read_text(encoding="utf-8"))
+    assert isinstance(payload, dict)
+    rules = payload.get("rules")
+    assert isinstance(rules, list) and rules
+    first_rule = rules[0]
+    assert isinstance(first_rule, dict)
+    first_rule["code"] = "ALLOW_HARD_GATED_ACTION_ALT_IDEM"
+    alt_policy.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+
+    base_hash = str(validate_policy(base_policy, strict=True)["policy_hash"])
+    alt_hash = str(validate_policy(alt_policy, strict=True)["policy_hash"])
+
+    profile_registry = tmp_path / "profiles.v1.json"
+    _write_json(
+        profile_registry,
+        {
+            "schema": "policy.profiles.v1",
+            "profiles": [
+                {
+                    "profile_id": "default",
+                    "profile_version": "profile.v1",
+                    "default_policy_hash": base_hash,
+                    "allowed_policy_hashes": [base_hash, alt_hash],
+                    "policy_ref": str(base_policy),
+                }
+            ],
+        },
+    )
+    monkeypatch.setenv("URM_POLICY_PROFILES_PATH", str(profile_registry))
+
+    assert (
+        main(
+            [
+                "materialize",
+                "--policy",
+                str(base_policy),
+                "--materialize-ts",
+                "2026-02-13T10:20:00Z",
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "materialize",
+                "--policy",
+                str(alt_policy),
+                "--materialize-ts",
+                "2026-02-13T10:21:00Z",
+            ]
+        )
+        == 0
+    )
+    first_out = tmp_path / "rollout.first.json"
+    second_out = tmp_path / "rollout.second.json"
+    assert (
+        main(
+            [
+                "rollout",
+                "--profile-id",
+                "default",
+                "--target-policy-hash",
+                base_hash,
+                "--client-request-id",
+                "rollout-idem-conflict-1",
+                "--activation-ts",
+                "2026-02-13T10:22:00Z",
+                "--out",
+                str(first_out),
+            ]
+        )
+        == 0
+    )
+    assert (
+        main(
+            [
+                "rollout",
+                "--profile-id",
+                "default",
+                "--target-policy-hash",
+                alt_hash,
+                "--client-request-id",
+                "rollout-idem-conflict-1",
+                "--activation-ts",
+                "2026-02-13T10:23:00Z",
+                "--out",
+                str(second_out),
+            ]
+        )
+        == 1
+    )
+    conflict_payload = json.loads(second_out.read_text(encoding="utf-8"))
+    assert conflict_payload["schema"] == "policy_activation_log@1"
+    assert conflict_payload["valid"] is False
+    assert conflict_payload["issues"][0]["code"] == "URM_POLICY_IDEMPOTENCY_CONFLICT"
