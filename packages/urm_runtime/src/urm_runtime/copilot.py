@@ -101,6 +101,10 @@ MAX_STEER_PER_TURN = 5
 MAX_CHILD_DEPTH = 1
 MAX_CHILDREN_PER_PARENT = 2
 MAX_ACTIVE_CHILDREN_PER_PARENT = 1
+CHILD_BUDGET_VERSION = "budget.v1"
+CHILD_BUDGET_MAX_SOLVER_CALLS = 40
+CHILD_BUDGET_MAX_DURATION_SECS = 300
+CHILD_BUDGET_MAX_TOKEN_BUDGET = 20_000
 PROFILE_VERSION = "profile.v1"
 POLICY_PROFILE_SELECT_ENDPOINT = "urm.policy.profile.select"
 
@@ -125,11 +129,16 @@ class ChildAgentRuntime:
     last_seq: int = 0
     queue_seq: int = 0
     prompt: str = ""
-    budget_snapshot: dict[str, int] = field(default_factory=dict)
+    budget_snapshot: dict[str, Any] = field(default_factory=dict)
     inherited_policy_hash: str | None = None
     capabilities_allowed: list[str] = field(default_factory=list)
     profile_id: str = "default"
     profile_version: str = PROFILE_VERSION
+    solver_calls_observed: int = 0
+    duration_secs_observed: int = 0
+    token_usage_observed: int | None = None
+    token_usage_unobserved: bool = True
+    last_budget_check_ts: str | None = None
     persisted: bool = False
 
 
@@ -658,6 +667,13 @@ class URMCopilotManager:
                     "parent_turn_id": child.parent_turn_id,
                     "child_thread_id": child.child_thread_id,
                     "budget_snapshot": child.budget_snapshot,
+                    "budget_runtime": {
+                        "solver_calls_observed": child.solver_calls_observed,
+                        "duration_secs_observed": child.duration_secs_observed,
+                        "token_usage_observed": child.token_usage_observed,
+                        "token_usage_unobserved": child.token_usage_unobserved,
+                        "last_budget_check_ts": child.last_budget_check_ts,
+                    },
                     "inherited_policy_hash": child.inherited_policy_hash,
                     "capabilities_allowed": child.capabilities_allowed,
                     "profile_id": child.profile_id,
@@ -1576,14 +1592,121 @@ class URMCopilotManager:
         remaining = self.config.max_session_duration_secs - int(elapsed.total_seconds())
         return max(0, remaining)
 
-    def _child_budget_snapshot(self, *, runtime: CopilotSessionRuntime) -> dict[str, int]:
+    def _child_budget_snapshot(self, *, runtime: CopilotSessionRuntime) -> dict[str, Any]:
         remaining_parent = self._remaining_parent_duration_secs(runtime=runtime)
         return {
-            "max_solver_calls": 40,
-            "max_duration_secs": min(300, remaining_parent),
-            "max_token_budget": 20_000,
+            "budget_version": CHILD_BUDGET_VERSION,
+            "max_solver_calls": CHILD_BUDGET_MAX_SOLVER_CALLS,
+            "max_duration_secs": min(CHILD_BUDGET_MAX_DURATION_SECS, remaining_parent),
+            "max_token_budget": CHILD_BUDGET_MAX_TOKEN_BUDGET,
             "remaining_parent_duration_secs": remaining_parent,
+            # Codex app-server does not currently provide stable token usage in this runtime path.
+            "token_usage_unobserved": True,
         }
+
+    def _budget_snapshot_int_value(
+        self,
+        *,
+        budget_snapshot: dict[str, Any],
+        key: str,
+        default: int,
+    ) -> int:
+        raw_value = budget_snapshot.get(key)
+        if isinstance(raw_value, bool):
+            return default
+        if isinstance(raw_value, int):
+            return max(0, raw_value)
+        return default
+
+    def _extract_authoritative_token_usage(self, *, response: dict[str, Any]) -> int | None:
+        result = response.get("result")
+        if not isinstance(result, dict):
+            return None
+        usage = result.get("usage")
+        if isinstance(usage, dict):
+            for key in ("total_tokens", "totalTokens"):
+                value = usage.get(key)
+                if isinstance(value, int) and value >= 0:
+                    return value
+        for key in ("total_tokens", "totalTokens"):
+            value = result.get(key)
+            if isinstance(value, int) and value >= 0:
+                return value
+        return None
+
+    def _observe_child_budget_unlocked(self, *, child: ChildAgentRuntime) -> None:
+        now = datetime.now(tz=timezone.utc)
+        started_at = datetime.fromisoformat(child.started_at)
+        child.last_budget_check_ts = now.isoformat()
+        child.duration_secs_observed = max(0, int((now - started_at).total_seconds()))
+        child.token_usage_unobserved = bool(
+            child.budget_snapshot.get("token_usage_unobserved", child.token_usage_unobserved)
+        )
+
+    def _raise_child_budget_exceeded(
+        self,
+        *,
+        child: ChildAgentRuntime,
+        dimension: Literal["duration", "tokens", "solver_calls"],
+        limit: int,
+        observed: int,
+    ) -> None:
+        raise URMError(
+            code="URM_CHILD_BUDGET_EXCEEDED",
+            message=f"child budget exceeded for {dimension}",
+            context={
+                "child_id": child.child_id,
+                "session_id": child.parent_session_id,
+                "dimension": dimension,
+                "limit": limit,
+                "observed": observed,
+                "token_usage_unobserved": child.token_usage_unobserved,
+            },
+        )
+
+    def _enforce_child_budget_unlocked(self, *, child: ChildAgentRuntime) -> None:
+        self._observe_child_budget_unlocked(child=child)
+        max_duration_secs = self._budget_snapshot_int_value(
+            budget_snapshot=child.budget_snapshot,
+            key="max_duration_secs",
+            default=CHILD_BUDGET_MAX_DURATION_SECS,
+        )
+        max_solver_calls = self._budget_snapshot_int_value(
+            budget_snapshot=child.budget_snapshot,
+            key="max_solver_calls",
+            default=CHILD_BUDGET_MAX_SOLVER_CALLS,
+        )
+        max_token_budget = self._budget_snapshot_int_value(
+            budget_snapshot=child.budget_snapshot,
+            key="max_token_budget",
+            default=CHILD_BUDGET_MAX_TOKEN_BUDGET,
+        )
+
+        if child.duration_secs_observed >= max_duration_secs:
+            self._raise_child_budget_exceeded(
+                child=child,
+                dimension="duration",
+                limit=max_duration_secs,
+                observed=child.duration_secs_observed,
+            )
+        if child.solver_calls_observed >= max_solver_calls:
+            self._raise_child_budget_exceeded(
+                child=child,
+                dimension="solver_calls",
+                limit=max_solver_calls,
+                observed=child.solver_calls_observed,
+            )
+        if (
+            not child.token_usage_unobserved
+            and child.token_usage_observed is not None
+            and child.token_usage_observed >= max_token_budget
+        ):
+            self._raise_child_budget_exceeded(
+                child=child,
+                dimension="tokens",
+                limit=max_token_budget,
+                observed=child.token_usage_observed,
+            )
 
     def child_parent_session_id(self, *, child_id: str) -> str | None:
         with self._lock:
@@ -2148,12 +2271,19 @@ class URMCopilotManager:
             )
 
             def _child_call(method: str, params: dict[str, Any]) -> dict[str, Any]:
+                self._enforce_child_budget_unlocked(child=child)
+                child.solver_calls_observed += 1
                 response = self._send_jsonrpc_and_wait(
                     runtime=runtime,
                     method=method,
                     params=params,
                     timeout_secs=10.0,
                 )
+                token_usage = self._extract_authoritative_token_usage(response=response)
+                if token_usage is not None:
+                    child.token_usage_observed = token_usage
+                    child.token_usage_unobserved = False
+                self._enforce_child_budget_unlocked(child=child)
                 self._record_child_event(
                     child=child,
                     event_kind="TOOL_CALL_PASS",
@@ -2215,27 +2345,54 @@ class URMCopilotManager:
                 )
             except URMError as exc:
                 child.status = "failed"
-                child.error_code = "URM_CHILD_SPAWN_FAILED"
+                child.error_code = (
+                    exc.detail.code
+                    if exc.detail.code.startswith("URM_CHILD_")
+                    else "URM_CHILD_SPAWN_FAILED"
+                )
                 child.error_message = exc.detail.message
                 child.ended_at = datetime.now(tz=timezone.utc).isoformat()
+                fail_payload: dict[str, Any] = {
+                    "worker_id": child_id,
+                    "status": "failed",
+                    "error_code": child.error_code,
+                }
+                parent_fail_payload: dict[str, Any] = {
+                    "tool_name": "spawn_agent",
+                    "child_id": child_id,
+                    "error_code": child.error_code,
+                    "reason": exc.detail.message,
+                }
+                if child.error_code == "URM_CHILD_BUDGET_EXCEEDED":
+                    budget_dimension = exc.detail.context.get("dimension")
+                    budget_limit = exc.detail.context.get("limit")
+                    budget_observed = exc.detail.context.get("observed")
+                    token_usage_unobserved = exc.detail.context.get("token_usage_unobserved")
+                    fail_payload.update(
+                        {
+                            "budget_dimension": budget_dimension,
+                            "budget_limit": budget_limit,
+                            "budget_observed": budget_observed,
+                            "token_usage_unobserved": token_usage_unobserved,
+                        }
+                    )
+                    parent_fail_payload.update(
+                        {
+                            "budget_dimension": budget_dimension,
+                            "budget_limit": budget_limit,
+                            "budget_observed": budget_observed,
+                            "token_usage_unobserved": token_usage_unobserved,
+                        }
+                    )
                 self._record_child_event(
                     child=child,
                     event_kind="WORKER_FAIL",
-                    payload={
-                        "worker_id": child_id,
-                        "status": "failed",
-                        "error_code": child.error_code,
-                    },
+                    payload=fail_payload,
                 )
                 self._record_parent_or_audit_event(
                     parent_session_id=request.session_id,
                     event_kind="TOOL_CALL_FAIL",
-                    payload={
-                        "tool_name": "spawn_agent",
-                        "child_id": child_id,
-                        "error_code": child.error_code,
-                        "reason": exc.detail.message,
-                    },
+                    payload=parent_fail_payload,
                 )
             self._persist_child_terminal_state(child=child)
             response_model = AgentSpawnResponse(
@@ -2288,6 +2445,13 @@ class URMCopilotManager:
             "profile_id": child.profile_id,
             "profile_version": child.profile_version,
             "budget_snapshot": child.budget_snapshot,
+            "budget_runtime": {
+                "solver_calls_observed": child.solver_calls_observed,
+                "duration_secs_observed": child.duration_secs_observed,
+                "token_usage_observed": child.token_usage_observed,
+                "token_usage_unobserved": child.token_usage_unobserved,
+                "last_budget_check_ts": child.last_budget_check_ts,
+            },
             "inherited_policy_hash": child.inherited_policy_hash,
             "capabilities_allowed": child.capabilities_allowed,
             "queue_seq": child.queue_seq,
@@ -2436,12 +2600,15 @@ class URMCopilotManager:
                             message="child run cancelled",
                             context={"child_id": child_id},
                         )
+                    self._enforce_child_budget_unlocked(child=current)
+                    current.solver_calls_observed += 1
                 response = self._send_jsonrpc_and_wait(
                     runtime=runtime,
                     method=method,
                     params=params,
                     timeout_secs=10.0,
                 )
+                token_usage = self._extract_authoritative_token_usage(response=response)
                 with self._lock:
                     current = self._child_runs.get(child_id)
                     if current is None:
@@ -2456,6 +2623,10 @@ class URMCopilotManager:
                             message="child run cancelled",
                             context={"child_id": child_id},
                         )
+                    if token_usage is not None:
+                        current.token_usage_observed = token_usage
+                        current.token_usage_unobserved = False
+                    self._enforce_child_budget_unlocked(child=current)
                     self._record_child_event(
                         child=current,
                         event_kind="TOOL_CALL_PASS",
@@ -2538,24 +2709,47 @@ class URMCopilotManager:
                     )
                     current.error_message = exc.detail.message
                     current.ended_at = datetime.now(tz=timezone.utc).isoformat()
+                    fail_payload: dict[str, Any] = {
+                        "worker_id": child_id,
+                        "status": "failed",
+                        "error_code": current.error_code,
+                    }
+                    parent_fail_payload: dict[str, Any] = {
+                        "tool_name": "spawn_agent",
+                        "child_id": child_id,
+                        "error_code": current.error_code,
+                        "reason": current.error_message,
+                    }
+                    if current.error_code == "URM_CHILD_BUDGET_EXCEEDED":
+                        budget_dimension = exc.detail.context.get("dimension")
+                        budget_limit = exc.detail.context.get("limit")
+                        budget_observed = exc.detail.context.get("observed")
+                        token_usage_unobserved = exc.detail.context.get("token_usage_unobserved")
+                        fail_payload.update(
+                            {
+                                "budget_dimension": budget_dimension,
+                                "budget_limit": budget_limit,
+                                "budget_observed": budget_observed,
+                                "token_usage_unobserved": token_usage_unobserved,
+                            }
+                        )
+                        parent_fail_payload.update(
+                            {
+                                "budget_dimension": budget_dimension,
+                                "budget_limit": budget_limit,
+                                "budget_observed": budget_observed,
+                                "token_usage_unobserved": token_usage_unobserved,
+                            }
+                        )
                     self._record_child_event(
                         child=current,
                         event_kind="WORKER_FAIL",
-                        payload={
-                            "worker_id": child_id,
-                            "status": "failed",
-                            "error_code": current.error_code,
-                        },
+                        payload=fail_payload,
                     )
                     self._record_parent_or_audit_event(
                         parent_session_id=parent_session_id,
                         event_kind="TOOL_CALL_FAIL",
-                        payload={
-                            "tool_name": "spawn_agent",
-                            "child_id": child_id,
-                            "error_code": current.error_code,
-                            "reason": current.error_message,
-                        },
+                        payload=parent_fail_payload,
                     )
                 self._persist_child_terminal_state(child=current)
         finally:
