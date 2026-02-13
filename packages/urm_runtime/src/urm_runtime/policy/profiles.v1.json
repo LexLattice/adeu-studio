@@ -1,0 +1,32 @@
+{
+  "schema": "policy.profiles.v1",
+  "profiles": [
+    {
+      "profile_id": "default",
+      "profile_version": "profile.v1",
+      "default_policy_hash": "b411864e4e2d22a6c654539f3d1531bf63b80cfc9a0368bd8248d8a32f1a8845",
+      "allowed_policy_hashes": [
+        "b411864e4e2d22a6c654539f3d1531bf63b80cfc9a0368bd8248d8a32f1a8845"
+      ],
+      "policy_ref": "policy/odeu.instructions.v1.json"
+    },
+    {
+      "profile_id": "experimental",
+      "profile_version": "profile.v1",
+      "default_policy_hash": "b411864e4e2d22a6c654539f3d1531bf63b80cfc9a0368bd8248d8a32f1a8845",
+      "allowed_policy_hashes": [
+        "b411864e4e2d22a6c654539f3d1531bf63b80cfc9a0368bd8248d8a32f1a8845"
+      ],
+      "policy_ref": "policy/odeu.instructions.v1.json"
+    },
+    {
+      "profile_id": "safe_mode",
+      "profile_version": "profile.v1",
+      "default_policy_hash": "b411864e4e2d22a6c654539f3d1531bf63b80cfc9a0368bd8248d8a32f1a8845",
+      "allowed_policy_hashes": [
+        "b411864e4e2d22a6c654539f3d1531bf63b80cfc9a0368bd8248d8a32f1a8845"
+      ],
+      "policy_ref": "policy/odeu.instructions.v1.json"
+    }
+  ]
+}

@@ -69,6 +69,11 @@ from .models import (
     CopilotSteerResponse,
     CopilotStopRequest,
     NormalizedEvent,
+    PolicyProfileCurrentResponse,
+    PolicyProfileDescriptor,
+    PolicyProfileListResponse,
+    PolicyProfileSelectRequest,
+    PolicyProfileSelectResponse,
     TaskEnvelope,
     ToolCallRequest,
     ToolCallResponse,
@@ -87,6 +92,13 @@ from .policy_tools import (
     validate_policy,
 )
 from .probe import CodexCapabilityProbeResult, run_and_persist_capability_probe
+from .profile_registry import (
+    PROFILE_REGISTRY_SCHEMA,
+    PolicyProfileEntry,
+    PolicyProfileRegistry,
+    list_policy_profiles,
+    load_policy_profile_registry,
+)
 from .retention import EvidenceRetentionStats, run_evidence_retention_gc
 from .roles import ROLE_REGISTRY, RolePolicy, get_role_policy
 from .stop_gate_tools import build_stop_gate_metrics, stop_gate_markdown
@@ -135,6 +147,11 @@ __all__ = [
     "CopilotSteerRequest",
     "CopilotSteerResponse",
     "CopilotStopRequest",
+    "PolicyProfileCurrentResponse",
+    "PolicyProfileDescriptor",
+    "PolicyProfileListResponse",
+    "PolicyProfileSelectRequest",
+    "PolicyProfileSelectResponse",
     "NormalizedEvent",
     "RolePolicy",
     "TaskEnvelope",
@@ -177,6 +194,11 @@ __all__ = [
     "validate_events",
     "get_role_policy",
     "run_and_persist_capability_probe",
+    "PROFILE_REGISTRY_SCHEMA",
+    "PolicyProfileEntry",
+    "PolicyProfileRegistry",
+    "list_policy_profiles",
+    "load_policy_profile_registry",
     "run_evidence_retention_gc",
     "build_stop_gate_metrics",
     "stop_gate_markdown",

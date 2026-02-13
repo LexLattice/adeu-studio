@@ -159,6 +159,53 @@ class CopilotSessionResponse(BaseModel):
     idempotent_replay: bool = False
 
 
+class PolicyProfileDescriptor(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str = Field(min_length=1)
+    profile_version: str = Field(min_length=1)
+    default_policy_hash: str = Field(min_length=1)
+    allowed_policy_hashes: list[str] = Field(default_factory=list)
+    policy_ref: str = Field(min_length=1)
+
+
+class PolicyProfileListResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    profiles: list[PolicyProfileDescriptor] = Field(default_factory=list)
+
+
+class PolicyProfileCurrentResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    profile_version: str = Field(min_length=1)
+    policy_hash: str = Field(min_length=1)
+
+
+class PolicyProfileSelectRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["codex"] = "codex"
+    session_id: str = Field(min_length=1)
+    client_request_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(mode="json", exclude={"client_request_id"})
+
+
+class PolicyProfileSelectResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    profile_version: str = Field(min_length=1)
+    policy_hash: str = Field(min_length=1)
+    idempotent_replay: bool = False
+
+
 class CopilotSteerRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

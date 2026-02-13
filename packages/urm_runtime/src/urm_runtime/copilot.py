@@ -21,7 +21,6 @@ from .errors import (
 from .evidence import EvidenceFileLimitExceeded, EvidenceFileWriter
 from .hashing import action_hash as compute_action_hash
 from .hashing import canonical_json, sha256_canonical_json
-from .instruction_policy import compute_policy_hash, load_instruction_policy
 from .models import (
     AgentCancelRequest,
     AgentCancelResponse,
@@ -39,9 +38,19 @@ from .models import (
     CopilotSteerResponse,
     CopilotStopRequest,
     NormalizedEvent,
+    PolicyProfileCurrentResponse,
+    PolicyProfileDescriptor,
+    PolicyProfileListResponse,
+    PolicyProfileSelectRequest,
+    PolicyProfileSelectResponse,
 )
 from .normalization import build_internal_event, normalize_app_server_line
 from .probe import CodexCapabilityProbeResult, run_and_persist_capability_probe
+from .profile_registry import (
+    PolicyProfileEntry,
+    PolicyProfileRegistry,
+    load_policy_profile_registry,
+)
 from .retention import run_evidence_retention_gc
 from .storage import (
     CopilotSessionRow,
@@ -64,6 +73,7 @@ from .storage import (
     transaction,
     update_copilot_session_last_seq,
     update_copilot_session_pid,
+    update_copilot_session_profile,
     update_copilot_session_status,
     update_worker_run_status,
 )
@@ -81,7 +91,7 @@ MAX_CHILD_DEPTH = 1
 MAX_CHILDREN_PER_PARENT = 2
 MAX_ACTIVE_CHILDREN_PER_PARENT = 1
 PROFILE_VERSION = "profile.v1"
-SUPPORTED_PROFILE_IDS = frozenset({"safe_mode", "default", "experimental"})
+POLICY_PROFILE_SELECT_ENDPOINT = "urm.policy.profile.select"
 
 
 @dataclass
@@ -148,6 +158,10 @@ class URMCopilotManager:
     ) -> None:
         self.config = config or URMRuntimeConfig.from_env()
         self._probe = probe or run_and_persist_capability_probe(config=self.config)
+        self._profile_registry: PolicyProfileRegistry = load_policy_profile_registry()
+        self._profiles_by_id: dict[str, PolicyProfileEntry] = {
+            profile.profile_id: profile for profile in self._profile_registry.sorted_profiles()
+        }
         self._sessions: dict[str, CopilotSessionRuntime] = {}
         self._child_runs: dict[str, ChildAgentRuntime] = {}
         self._children_by_parent: dict[str, set[str]] = {}
@@ -296,21 +310,19 @@ class URMCopilotManager:
         except ValueError:
             return str(path)
 
-    def _validate_profile_id(self, profile_id: str) -> str:
+    def _resolve_profile(self, profile_id: str) -> PolicyProfileEntry:
         normalized = profile_id.strip()
-        if normalized not in SUPPORTED_PROFILE_IDS:
+        profile = self._profiles_by_id.get(normalized)
+        if profile is None:
             raise URMError(
                 code="URM_POLICY_PROFILE_NOT_FOUND",
-                message="profile is not supported",
+                message="profile is not defined in registry",
                 context={
                     "profile_id": profile_id,
-                    "supported_profile_ids": sorted(SUPPORTED_PROFILE_IDS),
+                    "supported_profile_ids": sorted(self._profiles_by_id),
                 },
             )
-        return normalized
-
-    def _current_profile_policy_hash(self) -> str:
-        return compute_policy_hash(load_instruction_policy())
+        return profile
 
     def _resolve_raw_path(self, raw_jsonl_path: str) -> Path:
         path = Path(raw_jsonl_path)
@@ -1013,8 +1025,9 @@ class URMCopilotManager:
             )
 
         run_evidence_retention_gc(config=self.config)
-        profile_id = self._validate_profile_id(request.profile_id)
-        profile_policy_hash = self._current_profile_policy_hash()
+        profile = self._resolve_profile(request.profile_id)
+        profile_id = profile.profile_id
+        profile_policy_hash = profile.default_policy_hash
 
         payload_hash = sha256_canonical_json(request.idempotency_payload())
         with self._lock:
@@ -1074,7 +1087,7 @@ class URMCopilotManager:
                 started_at=datetime.now(tz=timezone.utc).isoformat(),
                 cwd=request.cwd,
                 profile_id=profile_id,
-                profile_version=PROFILE_VERSION,
+                profile_version=profile.profile_version,
                 profile_policy_hash=profile_policy_hash,
             )
 
@@ -1170,6 +1183,133 @@ class URMCopilotManager:
                 persist_idempotency_response(
                     con=con,
                     endpoint_name=COPILOT_START_ENDPOINT,
+                    client_request_id=request.client_request_id,
+                    response_json=response.model_dump(mode="json"),
+                )
+            return response
+
+    def list_profiles(self) -> PolicyProfileListResponse:
+        profiles = [
+            PolicyProfileDescriptor(
+                profile_id=profile.profile_id,
+                profile_version=profile.profile_version,
+                default_policy_hash=profile.default_policy_hash,
+                allowed_policy_hashes=list(profile.allowed_policy_hashes),
+                policy_ref=profile.policy_ref,
+            )
+            for profile in self._profile_registry.sorted_profiles()
+        ]
+        return PolicyProfileListResponse(profiles=profiles)
+
+    def current_profile(self, *, session_id: str) -> PolicyProfileCurrentResponse:
+        with self._lock:
+            runtime = self._sessions.get(session_id)
+            if runtime is not None:
+                profile = self._resolve_profile(runtime.profile_id)
+                policy_hash = runtime.profile_policy_hash or profile.default_policy_hash
+                return PolicyProfileCurrentResponse(
+                    session_id=session_id,
+                    profile_id=profile.profile_id,
+                    profile_version=profile.profile_version,
+                    policy_hash=policy_hash,
+                )
+        with transaction(db_path=self.config.db_path) as con:
+            row = get_copilot_session(con=con, copilot_session_id=session_id)
+        if row is None:
+            raise URMError(
+                code="URM_NOT_FOUND",
+                message="copilot session not found",
+                status_code=404,
+                context={"session_id": session_id},
+            )
+        profile = self._resolve_profile(row.profile_id)
+        policy_hash = row.profile_policy_hash or profile.default_policy_hash
+        return PolicyProfileCurrentResponse(
+            session_id=session_id,
+            profile_id=profile.profile_id,
+            profile_version=profile.profile_version,
+            policy_hash=policy_hash,
+        )
+
+    def select_profile(self, request: PolicyProfileSelectRequest) -> PolicyProfileSelectResponse:
+        payload_hash = sha256_canonical_json(request.idempotency_payload())
+        with self._lock:
+            runtime = self._sessions.get(request.session_id)
+            if runtime is None:
+                raise URMError(
+                    code="URM_NOT_FOUND",
+                    message="copilot session not found",
+                    status_code=404,
+                    context={"session_id": request.session_id},
+                )
+            with transaction(db_path=self.config.db_path) as con:
+                try:
+                    reservation = reserve_request_idempotency(
+                        con=con,
+                        endpoint_name=POLICY_PROFILE_SELECT_ENDPOINT,
+                        client_request_id=request.client_request_id,
+                        payload_hash=payload_hash,
+                        resource_id=request.session_id,
+                    )
+                except ValueError as exc:
+                    raise URMError(
+                        code="URM_IDEMPOTENCY_KEY_CONFLICT",
+                        message="client_request_id already used with a different payload",
+                        status_code=409,
+                        context={"client_request_id": request.client_request_id},
+                    ) from exc
+                if reservation.replay:
+                    replay = PolicyProfileSelectResponse.model_validate(
+                        reservation.response_json or {}
+                    )
+                    return replay.model_copy(update={"idempotent_replay": True})
+
+            try:
+                profile = self._resolve_profile(request.profile_id)
+            except URMError as exc:
+                self._record_internal_event(
+                    runtime=runtime,
+                    event_kind="PROFILE_DENIED",
+                    payload={
+                        "profile_id": request.profile_id,
+                        "scope": "session",
+                        "reason": exc.detail.message,
+                    },
+                )
+                raise
+
+            runtime.profile_id = profile.profile_id
+            runtime.profile_version = profile.profile_version
+            runtime.profile_policy_hash = profile.default_policy_hash
+            self._record_internal_event(
+                runtime=runtime,
+                event_kind="PROFILE_SELECTED",
+                payload={
+                    "profile_id": runtime.profile_id,
+                    "profile_version": runtime.profile_version,
+                    "policy_hash": runtime.profile_policy_hash,
+                    "scope": "session",
+                },
+            )
+            with transaction(db_path=self.config.db_path) as con:
+                update_copilot_session_profile(
+                    con=con,
+                    copilot_session_id=request.session_id,
+                    profile_id=runtime.profile_id,
+                    profile_version=runtime.profile_version,
+                    profile_policy_hash=runtime.profile_policy_hash,
+                )
+            response = PolicyProfileSelectResponse(
+                session_id=request.session_id,
+                profile_id=runtime.profile_id,
+                profile_version=runtime.profile_version,
+                policy_hash=runtime.profile_policy_hash or profile.default_policy_hash,
+                idempotent_replay=False,
+            )
+            with transaction(db_path=self.config.db_path) as con:
+                persist_idempotency_response(
+                    con=con,
+                    endpoint_name=POLICY_PROFILE_SELECT_ENDPOINT,
                     client_request_id=request.client_request_id,
                     response_json=response.model_dump(mode="json"),
                 )
@@ -1808,10 +1948,10 @@ class URMCopilotManager:
                     return replay.model_copy(update={"idempotent_replay": True})
                 child_id = reservation.resource_id
 
-            selected_profile_id = runtime.profile_id
+            selected_profile = self._resolve_profile(runtime.profile_id)
             if request.profile_id is not None:
                 try:
-                    selected_profile_id = self._validate_profile_id(request.profile_id)
+                    selected_profile = self._resolve_profile(request.profile_id)
                 except URMError as exc:
                     self._record_parent_or_audit_event(
                         parent_session_id=request.session_id,
@@ -1827,8 +1967,9 @@ class URMCopilotManager:
                     parent_session_id=request.session_id,
                     event_kind="PROFILE_SELECTED",
                     payload={
-                        "profile_id": selected_profile_id,
-                        "profile_version": runtime.profile_version,
+                        "profile_id": selected_profile.profile_id,
+                        "profile_version": selected_profile.profile_version,
+                        "policy_hash": selected_profile.default_policy_hash,
                         "scope": "run",
                         "child_id": child_id,
                     },
@@ -1873,8 +2014,8 @@ class URMCopilotManager:
                 budget_snapshot=self._child_budget_snapshot(runtime=runtime),
                 inherited_policy_hash=inherited_policy_hash,
                 capabilities_allowed=sorted(capabilities_allowed),
-                profile_id=selected_profile_id,
-                profile_version=runtime.profile_version,
+                profile_id=selected_profile.profile_id,
+                profile_version=selected_profile.profile_version,
             )
             self._child_runs[child_id] = child
             self._children_by_parent.setdefault(request.session_id, set()).add(child_id)
@@ -2373,10 +2514,10 @@ class URMCopilotManager:
                     return replay.model_copy(update={"idempotent_replay": True})
                 child_id = reservation.resource_id
 
-            selected_profile_id = runtime.profile_id
+            selected_profile = self._resolve_profile(runtime.profile_id)
             if request.profile_id is not None:
                 try:
-                    selected_profile_id = self._validate_profile_id(request.profile_id)
+                    selected_profile = self._resolve_profile(request.profile_id)
                 except URMError as exc:
                     self._record_parent_or_audit_event(
                         parent_session_id=request.session_id,
@@ -2392,8 +2533,9 @@ class URMCopilotManager:
                     parent_session_id=request.session_id,
                     event_kind="PROFILE_SELECTED",
                     payload={
-                        "profile_id": selected_profile_id,
-                        "profile_version": runtime.profile_version,
+                        "profile_id": selected_profile.profile_id,
+                        "profile_version": selected_profile.profile_version,
+                        "policy_hash": selected_profile.default_policy_hash,
                         "scope": "run",
                         "child_id": child_id,
                     },
@@ -2442,8 +2584,8 @@ class URMCopilotManager:
                 budget_snapshot=self._child_budget_snapshot(runtime=runtime),
                 inherited_policy_hash=inherited_policy_hash,
                 capabilities_allowed=sorted(capabilities_allowed),
-                profile_id=selected_profile_id,
-                profile_version=runtime.profile_version,
+                profile_id=selected_profile.profile_id,
+                profile_version=selected_profile.profile_version,
             )
             self._child_runs[child_id] = child
             self._children_by_parent.setdefault(request.session_id, set()).add(child_id)
