@@ -2,7 +2,7 @@
 
 This report documents C1-C3 outcomes for:
 
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS2.md`
+- [`docs/LOCKED_CONTINUATION_vNEXT_PLUS2.md`](LOCKED_CONTINUATION_vNEXT_PLUS2.md)
 
 Status: evidence-backed, scoped portability confirmation.
 
@@ -17,12 +17,12 @@ Status: evidence-backed, scoped portability confirmation.
   - digest: `sha256:1fc7988f9e27ca063d5daa712cd439b598071da58a3cfab6261c1d9d3fa895c7`
   - contents: `domain_conformance.json` (`domain_conformance@1`)
 - Code + test refs:
-  - `apps/api/src/adeu_api/urm_domain_conformance.py`
-  - `apps/api/scripts/build_domain_conformance.py`
-  - `apps/api/tests/test_urm_domain_conformance.py`
-  - `apps/api/tests/test_urm_runtime_import_audit.py`
-  - `packages/urm_runtime/src/urm_runtime/domain_registry.py`
-  - `packages/urm_domain_digest/src/urm_domain_digest/adapters.py`
+  - [`apps/api/src/adeu_api/urm_domain_conformance.py`](../apps/api/src/adeu_api/urm_domain_conformance.py)
+  - [`apps/api/scripts/build_domain_conformance.py`](../apps/api/scripts/build_domain_conformance.py)
+  - [`apps/api/tests/test_urm_domain_conformance.py`](../apps/api/tests/test_urm_domain_conformance.py)
+  - [`apps/api/tests/test_urm_runtime_import_audit.py`](../apps/api/tests/test_urm_runtime_import_audit.py)
+  - [`packages/urm_runtime/src/urm_runtime/domain_registry.py`](../packages/urm_runtime/src/urm_runtime/domain_registry.py)
+  - [`packages/urm_domain_digest/src/urm_domain_digest/adapters.py`](../packages/urm_domain_digest/src/urm_domain_digest/adapters.py)
 
 ## Outcome Summary
 
@@ -39,38 +39,38 @@ Status: evidence-backed, scoped portability confirmation.
 ## Reused Runtime Components (Unchanged Contracts)
 
 - URM event envelope + validators/replay:
-  - `packages/urm_runtime/src/urm_runtime/models.py` (`urm-events@1`)
-  - `packages/urm_runtime/src/urm_runtime/events_tools.py`
+  - [`packages/urm_runtime/src/urm_runtime/models.py`](../packages/urm_runtime/src/urm_runtime/models.py) (`urm-events@1`)
+  - [`packages/urm_runtime/src/urm_runtime/events_tools.py`](../packages/urm_runtime/src/urm_runtime/events_tools.py)
 - Capability/policy authorization surface:
-  - `packages/urm_runtime/src/urm_runtime/capability_policy.py`
+  - [`packages/urm_runtime/src/urm_runtime/capability_policy.py`](../packages/urm_runtime/src/urm_runtime/capability_policy.py)
 - Tool call response envelope:
-  - `packages/urm_runtime/src/urm_runtime/models.py` (`ToolCallResponse`)
+  - [`packages/urm_runtime/src/urm_runtime/models.py`](../packages/urm_runtime/src/urm_runtime/models.py) (`ToolCallResponse`)
 
 These components were reused without introducing domain-specific forks.
 
 ## Coupling Points Removed/Avoided
 
 - Runtime-to-domain import coupling avoided in core runtime:
-  - conformance import-audit confirms no `urm_domain_*` imports under `packages/urm_runtime/src/urm_runtime/`.
+  - conformance import-audit confirms no `urm_domain_*` imports under [`packages/urm_runtime/src/urm_runtime/`](../packages/urm_runtime/src/urm_runtime/).
 - Domain routing remains registry-driven at API boundary:
-  - `apps/api/src/adeu_api/urm_routes.py` composes domain packs via `DomainToolRegistry`.
+  - [`apps/api/src/adeu_api/urm_routes.py`](../apps/api/src/adeu_api/urm_routes.py) composes domain packs via `DomainToolRegistry`.
 - No domain-specific event or error taxonomy forks introduced for `digest`.
 
 ## Domain-Only Additions (Boundary Confirmation)
 
 - Added domain pack:
-  - `packages/urm_domain_digest/pyproject.toml`
-  - `packages/urm_domain_digest/src/urm_domain_digest/__init__.py`
-  - `packages/urm_domain_digest/src/urm_domain_digest/models.py`
-  - `packages/urm_domain_digest/src/urm_domain_digest/adapters.py`
+  - [`packages/urm_domain_digest/pyproject.toml`](../packages/urm_domain_digest/pyproject.toml)
+  - [`packages/urm_domain_digest/src/urm_domain_digest/__init__.py`](../packages/urm_domain_digest/src/urm_domain_digest/__init__.py)
+  - [`packages/urm_domain_digest/src/urm_domain_digest/models.py`](../packages/urm_domain_digest/src/urm_domain_digest/models.py)
+  - [`packages/urm_domain_digest/src/urm_domain_digest/adapters.py`](../packages/urm_domain_digest/src/urm_domain_digest/adapters.py)
 - Added digest capability actions:
   - `digest.ingest_text`
   - `digest.extract_digest_candidate`
   - `digest.check_constraints`
   - `digest.emit_artifact`
   - policy refs:
-    - `policy/urm.capability.lattice.v1.json`
-    - `packages/urm_runtime/src/urm_runtime/policy/urm.capability.lattice.v1.json`
+    - [`policy/urm.capability.lattice.v1.json`](../policy/urm.capability.lattice.v1.json)
+    - [`packages/urm_runtime/src/urm_runtime/policy/urm.capability.lattice.v1.json`](../packages/urm_runtime/src/urm_runtime/policy/urm.capability.lattice.v1.json)
 
 Domain-specific semantics remain confined to the digest pack boundary.
 
