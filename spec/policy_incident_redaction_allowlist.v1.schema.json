@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/policy_incident_redaction_allowlist.v1.schema.json",
+  "title": "policy.incident_redaction_allowlist.v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "redaction_eligible_top_level_fields",
+    "sensitive_key_tokens"
+  ],
+  "properties": {
+    "schema": {
+      "const": "policy.incident_redaction_allowlist.v1"
+    },
+    "redaction_eligible_top_level_fields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "sensitive_key_tokens": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}

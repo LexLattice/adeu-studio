@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import importlib.resources as resources
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from .errors import URMError
 from .hashing import canonical_json, sha256_canonical_json
@@ -28,7 +30,10 @@ POLICY_EVAL_SCHEMA = "instruction-policy-eval@1"
 POLICY_DIFF_SCHEMA = "instruction-policy-diff@1"
 POLICY_EXPLAIN_SCHEMA = "policy_explain@1"
 POLICY_INCIDENT_SCHEMA = "incident_packet@1"
+POLICY_INCIDENT_INVALID_REF = "URM_INCIDENT_PACKET_INVALID_REF"
 POLICY_EXPLAIN_INVALID_INPUT = "URM_POLICY_EXPLAIN_INVALID_INPUT"
+INCIDENT_REDACTION_ALLOWLIST_SCHEMA = "policy.incident_redaction_allowlist.v1"
+INCIDENT_REDACTION_ALLOWLIST_FILE = "incident_redaction_allowlist.v1.json"
 DEFAULT_EVALUATION_TS = "1970-01-01T00:00:00Z"
 _CANONICAL_REF_PREFIX_TO_KIND: dict[str, EvidenceRefKind] = {
     "event:": "event",
@@ -38,6 +43,52 @@ _CANONICAL_REF_PREFIX_TO_KIND: dict[str, EvidenceRefKind] = {
     "artifact:": "artifact",
 }
 _REDACTED_VALUE = "[REDACTED]"
+_SECRET_VALUE_TOKENS = (
+    "sk_live_",
+    "akia",
+    "ghp_",
+    "xoxb-",
+    "xoxp-",
+    "-----begin private key-----",
+    "bearer ",
+    "aws_secret_access_key",
+    "authorization:",
+)
+
+
+class IncidentRedactionAllowlist(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: Literal[INCIDENT_REDACTION_ALLOWLIST_SCHEMA] = Field(
+        alias="schema",
+        serialization_alias="schema",
+    )
+    redaction_eligible_top_level_fields: list[str] = Field(default_factory=list)
+    sensitive_key_tokens: list[str] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _normalize_lists(self) -> "IncidentRedactionAllowlist":
+        normalized_fields = sorted(
+            {
+                value.strip()
+                for value in self.redaction_eligible_top_level_fields
+                if isinstance(value, str) and value.strip()
+            }
+        )
+        if not normalized_fields:
+            raise ValueError("redaction_eligible_top_level_fields must not be empty")
+        normalized_tokens = sorted(
+            {
+                value.strip().lower()
+                for value in self.sensitive_key_tokens
+                if isinstance(value, str) and value.strip()
+            }
+        )
+        if not normalized_tokens:
+            raise ValueError("sensitive_key_tokens must not be empty")
+        self.redaction_eligible_top_level_fields = normalized_fields
+        self.sensitive_key_tokens = normalized_tokens
+        return self
 
 
 def _load_json_from_path(path: Path, *, description: str) -> dict[str, Any]:
@@ -64,6 +115,166 @@ def _load_json_from_path(path: Path, *, description: str) -> dict[str, Any]:
             context={"path": str(path)},
         )
     return payload
+
+
+def _discover_repo_root(anchor: Path) -> Path | None:
+    for parent in anchor.parents:
+        if (parent / ".git").exists():
+            return parent
+    return None
+
+
+def _repo_relative_path(*parts: str) -> Path | None:
+    repo_root = _discover_repo_root(Path(__file__).resolve())
+    if repo_root is None:
+        return None
+    return (repo_root.joinpath(*parts)).resolve()
+
+
+def _load_packaged_policy_json(*, filename: str, description: str) -> dict[str, Any]:
+    resource = resources.files("urm_runtime.policy").joinpath(filename)
+    try:
+        payload = json.loads(resource.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise URMError(
+            code="URM_INCIDENT_PACKET_BUILD_FAILED",
+            message=f"{description} is missing",
+            context={"resource": filename},
+        ) from exc
+    except json.JSONDecodeError as exc:
+        raise URMError(
+            code="URM_INCIDENT_PACKET_BUILD_FAILED",
+            message=f"{description} is invalid JSON",
+            context={"resource": filename, "error": str(exc)},
+        ) from exc
+    if not isinstance(payload, dict):
+        raise URMError(
+            code="URM_INCIDENT_PACKET_BUILD_FAILED",
+            message=f"{description} must be a JSON object",
+            context={"resource": filename},
+        )
+    return payload
+
+
+def _load_incident_redaction_allowlist() -> IncidentRedactionAllowlist:
+    env_path = os.environ.get("URM_INCIDENT_REDACTION_ALLOWLIST_PATH", "").strip()
+    payload: dict[str, Any]
+    if env_path:
+        try:
+            payload = _load_json_from_path(
+                Path(env_path).expanduser().resolve(),
+                description="incident redaction allowlist",
+            )
+        except URMError as exc:
+            raise URMError(
+                code="URM_INCIDENT_PACKET_BUILD_FAILED",
+                message="incident redaction allowlist is unreadable or invalid",
+                context={"cause": exc.detail.context},
+            ) from exc
+    else:
+        repo_path = _repo_relative_path("policy", INCIDENT_REDACTION_ALLOWLIST_FILE)
+        if repo_path is not None and repo_path.exists():
+            try:
+                payload = _load_json_from_path(
+                    repo_path,
+                    description="incident redaction allowlist",
+                )
+            except URMError as exc:
+                raise URMError(
+                    code="URM_INCIDENT_PACKET_BUILD_FAILED",
+                    message="incident redaction allowlist is unreadable or invalid",
+                    context={"cause": exc.detail.context},
+                ) from exc
+        else:
+            payload = _load_packaged_policy_json(
+                filename=INCIDENT_REDACTION_ALLOWLIST_FILE,
+                description="incident redaction allowlist",
+            )
+    try:
+        return IncidentRedactionAllowlist.model_validate(payload)
+    except ValidationError as exc:
+        raise URMError(
+            code="URM_INCIDENT_PACKET_BUILD_FAILED",
+            message="incident redaction allowlist failed validation",
+            context={"error": str(exc)},
+        ) from exc
+
+
+def _validate_incident_allowlist_fields(
+    *,
+    report: dict[str, Any],
+    allowlist: IncidentRedactionAllowlist,
+) -> None:
+    allowed_fields = set(allowlist.redaction_eligible_top_level_fields)
+    unknown_fields = sorted(str(key) for key in report.keys() if str(key) not in allowed_fields)
+    if unknown_fields:
+        raise URMError(
+            code="URM_INCIDENT_PACKET_BUILD_FAILED",
+            message="incident packet input contains fields outside redaction allowlist",
+            context={"unknown_fields": unknown_fields},
+        )
+
+
+def _looks_like_secret_value(value: str, *, sensitive_key_tokens: tuple[str, ...]) -> bool:
+    lowered = value.lower()
+    if any(token in lowered for token in _SECRET_VALUE_TOKENS):
+        return True
+    if "=" in value:
+        key_text, _, value_text = value.partition("=")
+        key_lower = key_text.strip().lower()
+        if value_text.strip() and any(
+            token in key_lower for token in sensitive_key_tokens
+        ):
+            return True
+    return False
+
+
+def _collect_secret_like_paths(
+    value: Any,
+    *,
+    sensitive_key_tokens: tuple[str, ...],
+    path: tuple[str, ...] = (),
+) -> list[str]:
+    matches: list[str] = []
+    if isinstance(value, dict):
+        for key in sorted(value):
+            key_text = str(key)
+            matches.extend(
+                _collect_secret_like_paths(
+                    value[key],
+                    sensitive_key_tokens=sensitive_key_tokens,
+                    path=path + (key_text,),
+                )
+            )
+    elif isinstance(value, list):
+        for idx, item in enumerate(value):
+            matches.extend(
+                _collect_secret_like_paths(
+                    item,
+                    sensitive_key_tokens=sensitive_key_tokens,
+                    path=path + (str(idx),),
+                )
+            )
+    elif isinstance(value, str) and _looks_like_secret_value(
+        value, sensitive_key_tokens=sensitive_key_tokens
+    ):
+        matches.append(".".join(path))
+    return matches
+
+
+def _enforce_no_secret_like_strings(
+    payload: dict[str, Any], *, sensitive_key_tokens: tuple[str, ...]
+) -> None:
+    secret_like_paths = _collect_secret_like_paths(
+        payload,
+        sensitive_key_tokens=sensitive_key_tokens,
+    )
+    if secret_like_paths:
+        raise URMError(
+            code="URM_INCIDENT_PACKET_BUILD_FAILED",
+            message="incident packet output contains secret-like material",
+            context={"paths": secret_like_paths},
+        )
 
 
 def _error_issue(exc: URMError) -> dict[str, Any]:
@@ -327,15 +538,39 @@ def _normalize_artifact_refs(
     refs: dict[tuple[str, str], dict[str, str]] = {}
     decision_refs = explain_report.get("evidence_refs")
     if isinstance(decision_refs, list):
-        for entry in decision_refs:
+        for idx, entry in enumerate(decision_refs):
             if not isinstance(entry, dict):
-                continue
+                raise URMError(
+                    code=POLICY_INCIDENT_INVALID_REF,
+                    message="incident evidence ref entry must be an object",
+                    context={"evidence_ref_index": idx},
+                )
             ref_value = entry.get("ref")
             if not isinstance(ref_value, str):
-                continue
+                raise URMError(
+                    code=POLICY_INCIDENT_INVALID_REF,
+                    message="incident evidence ref must include string ref",
+                    context={"evidence_ref_index": idx},
+                )
             kind = _canonical_ref_kind(ref_value)
             if kind is None:
-                continue
+                raise URMError(
+                    code=POLICY_INCIDENT_INVALID_REF,
+                    message="incident evidence ref must use canonical prefix",
+                    context={"evidence_ref_index": idx, "artifact_ref": ref_value},
+                )
+            entry_kind = entry.get("kind")
+            if isinstance(entry_kind, str) and entry_kind != kind:
+                raise URMError(
+                    code=POLICY_INCIDENT_INVALID_REF,
+                    message="incident evidence ref kind must match canonical prefix",
+                    context={
+                        "evidence_ref_index": idx,
+                        "artifact_ref": ref_value,
+                        "kind": entry_kind,
+                        "derived_kind": kind,
+                    },
+                )
             refs[(kind, ref_value)] = {"kind": kind, "ref": ref_value}
 
     for stream in stream_ranges:
@@ -347,14 +582,21 @@ def _normalize_artifact_refs(
         refs[("event", end_ref)] = {"kind": "event", "ref": end_ref}
 
     for explicit_ref in explicit_refs:
-        kind = _canonical_ref_kind(explicit_ref)
-        if kind is None:
+        if not isinstance(explicit_ref, str) or not explicit_ref.strip():
             raise URMError(
-                code="URM_INCIDENT_PACKET_BUILD_FAILED",
-                message="artifact ref must use canonical prefix",
+                code=POLICY_INCIDENT_INVALID_REF,
+                message="artifact ref must be a non-empty string",
                 context={"artifact_ref": explicit_ref},
             )
-        refs[(kind, explicit_ref)] = {"kind": kind, "ref": explicit_ref}
+        canonical_ref = explicit_ref.strip()
+        kind = _canonical_ref_kind(canonical_ref)
+        if kind is None:
+            raise URMError(
+                code=POLICY_INCIDENT_INVALID_REF,
+                message="artifact ref must use canonical prefix",
+                context={"artifact_ref": canonical_ref},
+            )
+        refs[(kind, canonical_ref)] = {"kind": kind, "ref": canonical_ref}
 
     return [refs[key] for key in sorted(refs, key=lambda item: (item[0], item[1]))]
 
@@ -427,6 +669,7 @@ def _stream_seq_range(*, stream_id: str, stream_path: Path) -> dict[str, Any]:
 def _collect_redaction_markers(
     value: Any,
     *,
+    sensitive_key_tokens: tuple[str, ...],
     path: tuple[str, ...] = (),
 ) -> list[dict[str, str]]:
     markers: list[dict[str, str]] = []
@@ -435,13 +678,25 @@ def _collect_redaction_markers(
             key_text = str(key)
             lower_key = key_text.lower()
             next_path = path + (key_text,)
-            if any(token in lower_key for token in ("secret", "token", "password", "api_key")):
+            if any(token in lower_key for token in sensitive_key_tokens):
                 markers.append({"path": ".".join(next_path), "replacement": _REDACTED_VALUE})
                 continue
-            markers.extend(_collect_redaction_markers(value[key], path=next_path))
+            markers.extend(
+                _collect_redaction_markers(
+                    value[key],
+                    sensitive_key_tokens=sensitive_key_tokens,
+                    path=next_path,
+                )
+            )
     elif isinstance(value, list):
         for idx, item in enumerate(value):
-            markers.extend(_collect_redaction_markers(item, path=path + (str(idx),)))
+            markers.extend(
+                _collect_redaction_markers(
+                    item,
+                    sensitive_key_tokens=sensitive_key_tokens,
+                    path=path + (str(idx),),
+                )
+            )
     return markers
 
 
@@ -824,7 +1079,9 @@ def incident_packet(
     artifact_refs: list[str] | None = None,
 ) -> dict[str, Any]:
     try:
+        allowlist = _load_incident_redaction_allowlist()
         report = _load_json_from_path(decision_path, description="policy explain report")
+        _validate_incident_allowlist_fields(report=report, allowlist=allowlist)
         schema = report.get("schema")
         if schema not in {POLICY_EXPLAIN_SCHEMA, POLICY_EVAL_SCHEMA}:
             raise URMError(
@@ -867,8 +1124,16 @@ def incident_packet(
             explicit_refs=list(artifact_refs or []),
             stream_ranges=ordered_streams,
         )
+        redaction_source = {
+            field: report[field]
+            for field in allowlist.redaction_eligible_top_level_fields
+            if field in report
+        }
         redaction_markers = sorted(
-            _collect_redaction_markers(report),
+            _collect_redaction_markers(
+                redaction_source,
+                sensitive_key_tokens=tuple(allowlist.sensitive_key_tokens),
+            ),
             key=lambda marker: (marker["path"], marker["replacement"]),
         )
     except URMError as exc:
@@ -879,7 +1144,7 @@ def incident_packet(
             "issues": [_error_issue(exc)],
         }
 
-    return {
+    payload = {
         "schema": POLICY_INCIDENT_SCHEMA,
         "input_report": str(decision_path),
         "valid": True,
@@ -892,6 +1157,19 @@ def incident_packet(
         "redaction_markers": redaction_markers,
         "issues": [],
     }
+    try:
+        _enforce_no_secret_like_strings(
+            payload,
+            sensitive_key_tokens=tuple(allowlist.sensitive_key_tokens),
+        )
+    except URMError as exc:
+        return {
+            "schema": POLICY_INCIDENT_SCHEMA,
+            "input_report": str(decision_path),
+            "valid": False,
+            "issues": [_error_issue(exc)],
+        }
+    return payload
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
