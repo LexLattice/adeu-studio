@@ -301,8 +301,18 @@ def _error_taxonomy_checks(
 
 def _import_audit() -> dict[str, Any]:
     runtime_root = (
-        Path(__file__).resolve().parents[3] / "packages" / "urm_runtime" / "src" / "urm_runtime"
+        Path(__file__).resolve().parents[4] / "packages" / "urm_runtime" / "src" / "urm_runtime"
     )
+    if not runtime_root.exists():
+        return {
+            "valid": False,
+            "offenders": [
+                {
+                    "module": "__runtime_root__",
+                    "import": f"missing:{runtime_root}",
+                }
+            ],
+        }
     offenders: list[dict[str, str]] = []
     for path in sorted(runtime_root.rglob("*.py")):
         module_rel = path.relative_to(runtime_root).as_posix()
