@@ -122,14 +122,7 @@ class DigestDomainTools:
         digest_text = _normalize_whitespace(args.digest_text)
         checks = dict(sorted(args.checks.items()))
         evidence_refs = sorted(
-            (
-                {
-                    "kind": item.kind,
-                    "ref": item.ref,
-                    "note": item.note,
-                }
-                for item in args.evidence_refs
-            ),
+            (item.model_dump(mode="json") for item in args.evidence_refs),
             key=lambda item: (item["kind"], item["ref"], item["note"] or ""),
         )
         payload = {
@@ -161,7 +154,8 @@ def _split_sentences(text: str) -> list[str]:
     chunks = [chunk.strip() for chunk in re.split(r"(?<=[.!?])\s+", text) if chunk.strip()]
     if chunks:
         return chunks
-    return [text.strip()]
+    stripped = text.strip()
+    return [stripped] if stripped else []
 
 
 def _truncate_words(text: str, *, max_words: int) -> str:

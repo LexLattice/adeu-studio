@@ -359,6 +359,12 @@ def test_urm_tool_call_denies_disallowed_role(
     _reset_manager_for_tests()
 
 
+def test_digest_sentence_split_handles_whitespace_only() -> None:
+    from urm_domain_digest.adapters import _split_sentences
+
+    assert _split_sentences("   ") == []
+
+
 def test_urm_tool_call_spawn_worker_requires_task_envelope(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
