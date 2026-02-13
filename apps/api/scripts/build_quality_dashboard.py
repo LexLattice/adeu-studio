@@ -6,6 +6,7 @@ from pathlib import Path
 from adeu_api.quality_dashboard import (
     DEFAULT_QUESTION_REPEATS,
     DEFAULT_SESSION_STEPS,
+    DETERMINISTIC_EVALUATION_TS,
     write_quality_dashboard,
 )
 
@@ -32,6 +33,18 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_SESSION_STEPS,
         help="Maximum apply/recheck steps for resolved-session simulation",
     )
+    parser.add_argument(
+        "--baseline",
+        type=Path,
+        default=None,
+        help="Optional baseline quality dashboard for deterministic delta computation",
+    )
+    parser.add_argument(
+        "--evaluation-ts",
+        type=str,
+        default=DETERMINISTIC_EVALUATION_TS,
+        help="Deterministic evaluation timestamp to embed in generated output",
+    )
     return parser.parse_args()
 
 
@@ -46,19 +59,26 @@ def main() -> None:
         args.out,
         question_repeats=args.question_repeats,
         session_steps=args.session_steps,
+        baseline_path=args.baseline,
+        evaluation_ts=args.evaluation_ts,
     )
 
     metrics = dashboard["metrics"]
+    delta_report = dashboard["delta_report"]
     print(f"wrote {args.out}")
     print(
-        "question_stability_pct=",
-        metrics["question_stability_pct"],
-        "avg_questions_per_ir=",
-        metrics["avg_questions_per_ir"],
-        "avg_resolved_per_session=",
-        metrics["avg_resolved_per_session"],
-        "avg_solver_calls_per_action=",
-        metrics["avg_solver_calls_per_action"],
+        "redundancy_rate=",
+        metrics["redundancy_rate"],
+        "top_k_stability@10=",
+        metrics["top_k_stability@10"],
+        "evidence_coverage_rate=",
+        metrics["evidence_coverage_rate"],
+        "bridge_loss_utilization_rate=",
+        metrics["bridge_loss_utilization_rate"],
+        "coherence_alert_count=",
+        metrics["coherence_alert_count"],
+        "non_negative_quality=",
+        delta_report["non_negative_quality"],
     )
 
 
