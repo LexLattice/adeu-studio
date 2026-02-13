@@ -608,7 +608,14 @@ def explain_policy_from_decision(
     use_now: bool = False,
 ) -> dict[str, Any]:
     try:
-        payload = _load_json_from_path(decision_path, description="policy decision payload")
+        try:
+            payload = _load_json_from_path(decision_path, description="policy decision payload")
+        except URMError as exc:
+            raise URMError(
+                code=POLICY_EXPLAIN_INVALID_INPUT,
+                message="policy decision payload is unreadable or invalid",
+                context={"path": str(decision_path), "cause": exc.detail.context},
+            ) from exc
         resolved_ts = _resolve_evaluation_ts(
             context_doc=payload,
             evaluation_ts=evaluation_ts,
