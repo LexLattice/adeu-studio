@@ -179,13 +179,17 @@ type BridgeLossSignal = {
 };
 
 type TournamentScoreMetadata = {
-  score_version: "concepts.tscore.v2";
+  score_version: "concepts.tscore.v3";
+  objective_vector_version: "concepts.tobjective.v3";
+  tie_break_version: "concepts.ttiebreak.v1";
   objective_dimensions: string[];
   tie_break_order: "objective_vector_desc_then_stable_id_asc";
 };
 
 type TournamentTieBreakProvenance = {
   stable_id: string;
+  objective_vector_version: "concepts.tobjective.v3";
+  tie_break_version: "concepts.ttiebreak.v1";
   objective_dimensions: string[];
   tie_break_order: "objective_vector_desc_then_stable_id_asc";
 };
@@ -208,7 +212,7 @@ type ConceptTournamentCandidateResult = {
       causal_atom_count?: string;
     };
   };
-  score_version: "concepts.tscore.v2";
+  score_version: "concepts.tscore.v3";
   tie_break_provenance: TournamentTieBreakProvenance;
   bridge_loss_signals: BridgeLossSignal[];
   mapping_trust?: string | null;
@@ -219,7 +223,7 @@ type ConceptTournamentCandidateResult = {
 type ConceptTournamentResponse = {
   tournament_mode: TournamentMode;
   provider: "mock" | "openai";
-  tournament_score_version: "concepts.tscore.v2";
+  tournament_score_version: "concepts.tscore.v3";
   base_ir_hash: string;
   base_objective_vector: number[];
   score_metadata: TournamentScoreMetadata;

@@ -85,8 +85,10 @@ def test_tournament_replay_is_deterministic_and_picks_improvement() -> None:
     right = concept_tournament_endpoint(req)
 
     assert left == right
-    assert left.tournament_score_version == "concepts.tscore.v2"
-    assert left.score_metadata.score_version == "concepts.tscore.v2"
+    assert left.tournament_score_version == "concepts.tscore.v3"
+    assert left.score_metadata.score_version == "concepts.tscore.v3"
+    assert left.score_metadata.objective_vector_version == "concepts.tobjective.v3"
+    assert left.score_metadata.tie_break_version == "concepts.ttiebreak.v1"
     assert (
         left.score_metadata.tie_break_order
         == "objective_vector_desc_then_stable_id_asc"
@@ -99,8 +101,10 @@ def test_tournament_replay_is_deterministic_and_picks_improvement() -> None:
     assert top.candidate_id == left.selected_candidate_id
     assert top.improved is True
     assert tuple(top.objective_vector) > tuple(left.base_objective_vector)
-    assert top.score_version == "concepts.tscore.v2"
+    assert top.score_version == "concepts.tscore.v3"
     assert top.tie_break_provenance.stable_id == top.candidate_id
+    assert top.tie_break_provenance.objective_vector_version == "concepts.tobjective.v3"
+    assert top.tie_break_provenance.tie_break_version == "concepts.ttiebreak.v1"
     assert (
         top.tie_break_provenance.tie_break_order
         == "objective_vector_desc_then_stable_id_asc"
@@ -116,6 +120,40 @@ def test_tournament_replay_is_deterministic_and_picks_improvement() -> None:
     assert left.mapping_trust is None
     assert left.solver_trust == "solver_backed"
     assert left.proof_trust is None
+
+
+def test_tournament_replay_is_permutation_invariant_for_candidate_order() -> None:
+    concept = _fixture_ir(fixture="bank_sense_coherence", name="var2.json")
+    source = _fixture_source(fixture="bank_sense_coherence")
+    improving = _first_patch_candidate(concept=concept, source_text=source)
+    noop = _no_op_candidate(concept)
+
+    left = concept_tournament_endpoint(
+        ConceptTournamentRequest(
+            ir=concept,
+            source_text=source,
+            mode=KernelMode.LAX,
+            tournament_mode="replay_candidates",
+            provider="mock",
+            candidates=[noop, improving],
+        )
+    )
+    right = concept_tournament_endpoint(
+        ConceptTournamentRequest(
+            ir=concept,
+            source_text=source,
+            mode=KernelMode.LAX,
+            tournament_mode="replay_candidates",
+            provider="mock",
+            candidates=[improving, noop],
+        )
+    )
+
+    assert left.selected_candidate_id == right.selected_candidate_id
+    assert [item.candidate_id for item in left.candidates] == [
+        item.candidate_id for item in right.candidates
+    ]
+    assert [item.rank for item in left.candidates] == [item.rank for item in right.candidates]
 
 
 def test_tournament_replay_returns_no_safe_improvement() -> None:

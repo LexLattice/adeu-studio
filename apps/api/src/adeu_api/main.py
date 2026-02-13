@@ -131,7 +131,9 @@ CONCEPTS_QUESTION_RANK_VERSION = "concepts.qrank.v3"
 ADEU_QUESTION_RANK_VERSION = "adeu.qrank.v1"
 CONCEPTS_RATIONALE_VERSION = "concepts.rationale.v1"
 ADEU_RATIONALE_VERSION = "adeu.rationale.v1"
-TOURNAMENT_SCORE_VERSION = "concepts.tscore.v2"
+TOURNAMENT_SCORE_VERSION = "concepts.tscore.v3"
+TOURNAMENT_OBJECTIVE_VECTOR_VERSION = "concepts.tobjective.v3"
+TOURNAMENT_TIE_BREAK_VERSION = "concepts.ttiebreak.v1"
 QUESTION_TRUNCATION_REASON_DRY_RUN_CAP = "dry_run_cap_reached"
 QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP = "solver_call_cap_reached"
 QUESTION_TRUNCATION_REASON_MAX_QUESTIONS = "max_questions_reached"
@@ -825,7 +827,11 @@ class BridgeLossSignal(BaseModel):
 
 class TournamentScoreMetadata(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    score_version: Literal["concepts.tscore.v2"] = TOURNAMENT_SCORE_VERSION
+    score_version: Literal["concepts.tscore.v3"] = TOURNAMENT_SCORE_VERSION
+    objective_vector_version: Literal["concepts.tobjective.v3"] = (
+        TOURNAMENT_OBJECTIVE_VECTOR_VERSION
+    )
+    tie_break_version: Literal["concepts.ttiebreak.v1"] = TOURNAMENT_TIE_BREAK_VERSION
     objective_dimensions: list[str] = Field(
         default_factory=lambda: list(TOURNAMENT_OBJECTIVE_DIMENSIONS)
     )
@@ -837,6 +843,10 @@ class TournamentScoreMetadata(BaseModel):
 class TournamentTieBreakProvenance(BaseModel):
     model_config = ConfigDict(extra="forbid")
     stable_id: str
+    objective_vector_version: Literal["concepts.tobjective.v3"] = (
+        TOURNAMENT_OBJECTIVE_VECTOR_VERSION
+    )
+    tie_break_version: Literal["concepts.ttiebreak.v1"] = TOURNAMENT_TIE_BREAK_VERSION
     objective_dimensions: list[str] = Field(
         default_factory=lambda: list(TOURNAMENT_OBJECTIVE_DIMENSIONS)
     )
@@ -856,7 +866,7 @@ class ConceptTournamentCandidateResult(BaseModel):
     check_report: CheckReport
     analysis: ConceptAnalysis | None = None
     diff_report: DiffReport
-    score_version: Literal["concepts.tscore.v2"] = TOURNAMENT_SCORE_VERSION
+    score_version: Literal["concepts.tscore.v3"] = TOURNAMENT_SCORE_VERSION
     tie_break_provenance: TournamentTieBreakProvenance
     bridge_loss_signals: list[BridgeLossSignal] = Field(default_factory=list)
     mapping_trust: MappingTrust | None = None
@@ -868,7 +878,7 @@ class ConceptTournamentResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     tournament_mode: Literal["live_generation", "replay_candidates"]
     provider: Literal["mock", "openai"]
-    tournament_score_version: Literal["concepts.tscore.v2"] = TOURNAMENT_SCORE_VERSION
+    tournament_score_version: Literal["concepts.tscore.v3"] = TOURNAMENT_SCORE_VERSION
     base_ir_hash: str
     base_objective_vector: list[int] = Field(default_factory=list)
     score_metadata: TournamentScoreMetadata = Field(default_factory=TournamentScoreMetadata)
