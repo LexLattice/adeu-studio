@@ -64,6 +64,7 @@ from .profile_registry import (
 from .retention import run_evidence_retention_gc
 from .storage import (
     CopilotSessionRow,
+    IdempotencyPayloadConflict,
     consume_approval,
     create_approval,
     get_approval,
@@ -1059,12 +1060,16 @@ class URMCopilotManager:
                         payload_hash=payload_hash,
                         resource_id=new_session_id,
                     )
-                except ValueError as exc:
+                except IdempotencyPayloadConflict as exc:
                     raise URMError(
                         code="URM_IDEMPOTENCY_KEY_CONFLICT",
                         message="client_request_id already used with a different payload",
                         status_code=409,
-                        context={"client_request_id": request.client_request_id},
+                        context={
+                            "client_request_id": request.client_request_id,
+                            "stored_payload_hash": exc.stored_payload_hash,
+                            "incoming_payload_hash": exc.incoming_payload_hash,
+                        },
                     ) from exc
                 if reservation.replay:
                     replay = CopilotSessionResponse.model_validate(reservation.response_json or {})
@@ -2034,12 +2039,16 @@ class URMCopilotManager:
                         payload_hash=payload_hash,
                         resource_id=child_id,
                     )
-                except ValueError as exc:
+                except IdempotencyPayloadConflict as exc:
                     raise URMError(
                         code="URM_IDEMPOTENCY_KEY_CONFLICT",
                         message="client_request_id already used with a different payload",
                         status_code=409,
-                        context={"client_request_id": request.client_request_id},
+                        context={
+                            "client_request_id": request.client_request_id,
+                            "stored_payload_hash": exc.stored_payload_hash,
+                            "incoming_payload_hash": exc.incoming_payload_hash,
+                        },
                     ) from exc
                 if reservation.replay:
                     replay = AgentSpawnResponse.model_validate(reservation.response_json or {})
@@ -2236,6 +2245,7 @@ class URMCopilotManager:
                 parent_stream_id=child.parent_stream_id,
                 child_stream_id=child.child_stream_id,
                 target_turn_id=child.parent_turn_id,
+                queue_seq=child.queue_seq,
                 profile_id=child.profile_id,
                 profile_version=child.profile_version,
                 idempotent_replay=False,
@@ -2330,7 +2340,7 @@ class URMCopilotManager:
             return
         queued = sorted(
             (child for child in children if child.status == "queued"),
-            key=lambda child: (child.queue_seq, child.child_id),
+            key=lambda child: child.queue_seq,
         )
         if not queued:
             return
@@ -2571,6 +2581,31 @@ class URMCopilotManager:
                     context={"session_id": request.session_id},
                 )
             self._enforce_session_duration_unlocked(runtime=runtime)
+            with transaction(db_path=self.config.db_path) as con:
+                child_id = uuid.uuid4().hex
+                try:
+                    reservation = reserve_request_idempotency(
+                        con=con,
+                        endpoint_name=AGENT_SPAWN_ENDPOINT,
+                        client_request_id=request.client_request_id,
+                        payload_hash=payload_hash,
+                        resource_id=child_id,
+                    )
+                except IdempotencyPayloadConflict as exc:
+                    raise URMError(
+                        code="URM_IDEMPOTENCY_KEY_CONFLICT",
+                        message="client_request_id already used with a different payload",
+                        status_code=409,
+                        context={
+                            "client_request_id": request.client_request_id,
+                            "stored_payload_hash": exc.stored_payload_hash,
+                            "incoming_payload_hash": exc.incoming_payload_hash,
+                        },
+                    ) from exc
+                if reservation.replay:
+                    replay = AgentSpawnResponse.model_validate(reservation.response_json or {})
+                    return replay.model_copy(update={"idempotent_replay": True})
+                child_id = reservation.resource_id
             active_or_queued_children = [
                 child_id
                 for child_id in self._children_by_parent.get(request.session_id, set())
@@ -2592,27 +2627,6 @@ class URMCopilotManager:
                     message="child depth limit exceeded",
                     context={"session_id": request.session_id, "max_depth": MAX_CHILD_DEPTH},
                 )
-            with transaction(db_path=self.config.db_path) as con:
-                child_id = uuid.uuid4().hex
-                try:
-                    reservation = reserve_request_idempotency(
-                        con=con,
-                        endpoint_name=AGENT_SPAWN_ENDPOINT,
-                        client_request_id=request.client_request_id,
-                        payload_hash=payload_hash,
-                        resource_id=child_id,
-                    )
-                except ValueError as exc:
-                    raise URMError(
-                        code="URM_IDEMPOTENCY_KEY_CONFLICT",
-                        message="client_request_id already used with a different payload",
-                        status_code=409,
-                        context={"client_request_id": request.client_request_id},
-                    ) from exc
-                if reservation.replay:
-                    replay = AgentSpawnResponse.model_validate(reservation.response_json or {})
-                    return replay.model_copy(update={"idempotent_replay": True})
-                child_id = reservation.resource_id
 
             selected_profile = self._resolve_profile(runtime.profile_id)
             if request.profile_id is not None:
@@ -2737,6 +2751,7 @@ class URMCopilotManager:
                 parent_stream_id=child.parent_stream_id,
                 child_stream_id=child.child_stream_id,
                 target_turn_id=child.parent_turn_id,
+                queue_seq=child.queue_seq,
                 profile_id=child.profile_id,
                 profile_version=child.profile_version,
                 idempotent_replay=False,
@@ -2767,12 +2782,16 @@ class URMCopilotManager:
                         payload_hash=payload_hash,
                         resource_id=child_id,
                     )
-                except ValueError as exc:
+                except IdempotencyPayloadConflict as exc:
                     raise URMError(
                         code="URM_IDEMPOTENCY_KEY_CONFLICT",
                         message="client_request_id already used with a different payload",
                         status_code=409,
-                        context={"client_request_id": request.client_request_id},
+                        context={
+                            "client_request_id": request.client_request_id,
+                            "stored_payload_hash": exc.stored_payload_hash,
+                            "incoming_payload_hash": exc.incoming_payload_hash,
+                        },
                     ) from exc
                 if reservation.replay:
                     replay = AgentCancelResponse.model_validate(reservation.response_json or {})
