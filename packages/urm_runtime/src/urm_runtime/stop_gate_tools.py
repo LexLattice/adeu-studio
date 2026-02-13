@@ -15,7 +15,16 @@ STOP_GATE_SCHEMA = "stop_gate_metrics@1"
 POLICY_INCIDENT_SCHEMA = "incident_packet@1"
 CONNECTOR_SNAPSHOT_SCHEMA = "connector_snapshot@1"
 QUALITY_DASHBOARD_SCHEMA = "quality.dashboard.v1"
-PRIMARY_QUALITY_METRICS = ("question_stability_pct",)
+FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
+    "redundancy_rate": "non_increasing",
+    "top_k_stability@10": "non_decreasing",
+    "evidence_coverage_rate": "non_decreasing",
+    "bridge_loss_utilization_rate": "non_decreasing",
+    "coherence_alert_count": "non_increasing",
+}
+LEGACY_QUALITY_METRIC_RULES: dict[str, str] = {
+    "question_stability_pct": "non_decreasing",
+}
 
 THRESHOLDS = {
     "policy_incident_reproducibility_pct": 99.0,
@@ -107,6 +116,30 @@ def _pct(passed: int, total: int) -> float:
     if total <= 0:
         return 0.0
     return round((passed / total) * 100.0, 6)
+
+
+def _metric_delta_satisfies_rule(*, rule: str, delta: float) -> bool:
+    if rule == "non_decreasing":
+        return delta >= 0.0
+    if rule == "non_increasing":
+        return delta <= 0.0
+    return False
+
+
+def _resolve_quality_metric_rules(
+    *, current_metrics: dict[str, Any], baseline_metrics: dict[str, Any]
+) -> tuple[dict[str, str] | None, str]:
+    if all(
+        metric_name in current_metrics and metric_name in baseline_metrics
+        for metric_name in FROZEN_QUALITY_METRIC_RULES
+    ):
+        return FROZEN_QUALITY_METRIC_RULES, "frozen_v3"
+    if all(
+        metric_name in current_metrics and metric_name in baseline_metrics
+        for metric_name in LEGACY_QUALITY_METRIC_RULES
+    ):
+        return LEGACY_QUALITY_METRIC_RULES, "legacy_v1"
+    return None, "unresolved"
 
 
 def _failure_code_sequence(events: list[NormalizedEvent]) -> list[dict[str, str | None]]:
@@ -330,33 +363,71 @@ def build_stop_gate_metrics(
             )
         )
         quality_deltas: dict[str, float] = {}
+        quality_metric_rules: dict[str, str] = {}
+        quality_metric_ruleset = "unresolved"
         quality_delta_non_negative = False
     else:
+        quality_metric_rules, quality_metric_ruleset = _resolve_quality_metric_rules(
+            current_metrics=quality_current_metrics,
+            baseline_metrics=quality_baseline_metrics,
+        )
         quality_deltas = {}
-        for metric_name in PRIMARY_QUALITY_METRICS:
-            current_value = quality_current_metrics.get(metric_name)
-            baseline_value = quality_baseline_metrics.get(metric_name)
-            if not isinstance(current_value, (int, float)) or not isinstance(
-                baseline_value, (int, float)
-            ):
-                issues.append(
-                    _issue(
-                        "URM_STOP_GATE_INPUT_INVALID",
-                        "quality dashboard metric is missing or non-numeric",
-                        context={"metric": metric_name},
-                    )
+        quality_checks: list[bool] = []
+        if quality_metric_rules is None:
+            required_metrics = sorted(
+                {
+                    *FROZEN_QUALITY_METRIC_RULES.keys(),
+                    *LEGACY_QUALITY_METRIC_RULES.keys(),
+                }
+            )
+            missing_metrics = [
+                metric_name
+                for metric_name in required_metrics
+                if metric_name not in quality_current_metrics
+                or metric_name not in quality_baseline_metrics
+            ]
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "quality dashboard payload is missing required metrics for delta comparison",
+                    context={"missing_metrics": missing_metrics},
                 )
-                continue
-            quality_deltas[metric_name] = round(float(current_value) - float(baseline_value), 6)
-        quality_delta_non_negative = all(delta >= 0.0 for delta in quality_deltas.values())
+            )
+            quality_metric_rules = {}
+            quality_delta_non_negative = False
+        else:
+            for metric_name, rule in quality_metric_rules.items():
+                current_value = quality_current_metrics.get(metric_name)
+                baseline_value = quality_baseline_metrics.get(metric_name)
+                if not isinstance(current_value, (int, float)) or not isinstance(
+                    baseline_value, (int, float)
+                ):
+                    issues.append(
+                        _issue(
+                            "URM_STOP_GATE_INPUT_INVALID",
+                            "quality dashboard metric is missing or non-numeric",
+                            context={"metric": metric_name},
+                        )
+                    )
+                    continue
+                delta = round(float(current_value) - float(baseline_value), 6)
+                quality_deltas[metric_name] = delta
+                quality_checks.append(
+                    _metric_delta_satisfies_rule(rule=rule, delta=delta)
+                )
+            quality_delta_non_negative = bool(quality_checks) and all(quality_checks)
 
     metrics = {
         "policy_incident_reproducibility_pct": policy_incident_reproducibility_pct,
         "child_lifecycle_replay_determinism_pct": child_lifecycle_replay_determinism_pct,
         "runtime_failure_code_stability_pct": runtime_failure_code_stability_pct,
         "connector_snapshot_replay_stability_pct": connector_snapshot_replay_stability_pct,
+        "quality_metric_ruleset": quality_metric_ruleset,
         "quality_delta_non_negative": quality_delta_non_negative,
         "quality_deltas": {key: quality_deltas[key] for key in sorted(quality_deltas)},
+        "quality_delta_rules": {
+            key: quality_metric_rules[key] for key in sorted(quality_metric_rules)
+        },
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -429,6 +500,16 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
+    lines.append(
+        "- quality metric ruleset: "
+        f"`{metrics.get('quality_metric_ruleset')}`"
+    )
+    quality_delta_rules = metrics.get("quality_delta_rules", {})
+    if isinstance(quality_delta_rules, dict):
+        for metric_name in sorted(quality_delta_rules):
+            lines.append(
+                f"- quality delta rule `{metric_name}`: `{quality_delta_rules[metric_name]}`"
+            )
     quality_deltas = metrics.get("quality_deltas", {})
     if isinstance(quality_deltas, dict):
         for metric_name in sorted(quality_deltas):

@@ -1,21 +1,22 @@
 from __future__ import annotations
 
 import json
-import math
-import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 from adeu_concepts import ConceptIR, ConceptQuestion
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
 
 import adeu_api.main as api_main
+from adeu_api.concepts_coherence import build_concepts_coherence_artifact
 from adeu_api.hashing import canonical_json, sha256_canonical_json
 
 DASHBOARD_VERSION = "quality.dashboard.v1"
+DELTA_REPORT_VERSION = "quality.dashboard.delta.v1"
+INPUT_MANIFEST_VERSION = "quality.dashboard.inputs.v1"
+DETERMINISTIC_EVALUATION_TS = "1970-01-01T00:00:00Z"
 DEFAULT_QUESTION_REPEATS = 20
 DEFAULT_SESSION_STEPS = 10
 
@@ -25,6 +26,14 @@ TOURNAMENT_LIVE_ACTION = "concepts.tournament.live_generation"
 
 QUESTIONS_FIXTURE_ROOT = Path("examples/eval/questions")
 TOURNAMENT_FIXTURE_ROOT = Path("examples/eval/tournament")
+
+FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
+    "redundancy_rate": "non_increasing",
+    "top_k_stability@10": "non_decreasing",
+    "evidence_coverage_rate": "non_decreasing",
+    "bridge_loss_utilization_rate": "non_decreasing",
+    "coherence_alert_count": "non_increasing",
+}
 
 
 @dataclass(frozen=True)
@@ -76,14 +85,6 @@ def _load_fixtures(relative_dir: Path) -> list[EvalFixture]:
     return [_load_fixture(path) for path in sorted(directory.glob("*.json"))]
 
 
-def _p95(values: list[float]) -> float:
-    if not values:
-        return 0.0
-    ordered = sorted(values)
-    idx = max(0, math.ceil(0.95 * len(ordered)) - 1)
-    return float(ordered[idx])
-
-
 def _avg(values: list[float | int]) -> float:
     if not values:
         return 0.0
@@ -121,6 +122,100 @@ def _question_resolution_key(question: ConceptQuestion, option_id: str) -> str:
             "selected_option_id": option_id,
         }
     )[:12]
+
+
+def _question_dedupe_signature(question: ConceptQuestion) -> str:
+    signal, target_entity_ids, polarity, normalized_text_hash = api_main._question_dedupe_key(
+        question
+    )
+    payload = {
+        "question_type": signal,
+        "target_entity_ids_canonical": list(target_entity_ids),
+        "polarity": polarity,
+        "normalized_text_hash": normalized_text_hash,
+    }
+    return sha256_canonical_json(payload)
+
+
+def _top_k_question_ids(response: api_main.ConceptQuestionsResponse, *, k: int) -> set[str]:
+    return {
+        question.question_id
+        for question in response.questions[:k]
+        if isinstance(question.question_id, str) and question.question_id
+    }
+
+
+def _has_required_evidence_refs(refs: list[api_main.EvidenceRef]) -> bool:
+    has_event = any(ref.kind == "event" for ref in refs)
+    has_linked_ref = any(ref.kind in {"artifact", "validator"} for ref in refs)
+    return has_event and has_linked_ref
+
+
+def _read_json_object(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"baseline payload must be a JSON object: {path}")
+    return payload
+
+
+def _quality_metric_deltas(
+    *,
+    current_metrics: Mapping[str, Any],
+    baseline_metrics: Mapping[str, Any],
+) -> tuple[dict[str, float], bool]:
+    deltas: dict[str, float] = {}
+    all_passed = True
+    for metric_name, rule in FROZEN_QUALITY_METRIC_RULES.items():
+        current_value = current_metrics.get(metric_name)
+        baseline_value = baseline_metrics.get(metric_name)
+        if not isinstance(current_value, (int, float)) or not isinstance(
+            baseline_value, (int, float)
+        ):
+            raise ValueError(f"missing numeric metric for delta comparison: {metric_name}")
+        delta = round(float(current_value) - float(baseline_value), 6)
+        deltas[metric_name] = delta
+        if rule == "non_decreasing" and delta < 0.0:
+            all_passed = False
+        elif rule == "non_increasing" and delta > 0.0:
+            all_passed = False
+    return {key: deltas[key] for key in sorted(deltas)}, all_passed
+
+
+def _build_delta_report(
+    *,
+    current_dashboard: Mapping[str, Any],
+    baseline_dashboard: Mapping[str, Any],
+) -> dict[str, Any]:
+    current_metrics = current_dashboard.get("metrics")
+    baseline_metrics = baseline_dashboard.get("metrics")
+    if not isinstance(current_metrics, Mapping) or not isinstance(baseline_metrics, Mapping):
+        raise ValueError("dashboard payload missing metrics object")
+
+    deltas, non_negative_quality = _quality_metric_deltas(
+        current_metrics=current_metrics,
+        baseline_metrics=baseline_metrics,
+    )
+    baseline_hash = sha256_canonical_json(baseline_dashboard)
+    current_hash = sha256_canonical_json(current_dashboard)
+    return {
+        "schema": DELTA_REPORT_VERSION,
+        "baseline": {
+            "dashboard_version": baseline_dashboard.get("dashboard_version"),
+            "artifact_hash": baseline_hash,
+            "artifact_ref": f"artifact:quality_dashboard:{baseline_hash}",
+        },
+        "current": {
+            "dashboard_version": current_dashboard.get("dashboard_version"),
+            "artifact_hash": current_hash,
+            "artifact_ref": f"artifact:quality_dashboard:{current_hash}",
+        },
+        "metric_deltas": deltas,
+        "delta_rules": {
+            key: FROZEN_QUALITY_METRIC_RULES[key]
+            for key in sorted(FROZEN_QUALITY_METRIC_RULES)
+        },
+        "non_negative_quality": non_negative_quality,
+    }
 
 
 def _make_questions_request(
@@ -220,6 +315,7 @@ def build_quality_dashboard(
     *,
     question_repeats: int = DEFAULT_QUESTION_REPEATS,
     session_steps: int = DEFAULT_SESSION_STEPS,
+    evaluation_ts: str = DETERMINISTIC_EVALUATION_TS,
 ) -> dict[str, Any]:
     question_fixtures = _load_fixtures(QUESTIONS_FIXTURE_ROOT)
     tournament_fixtures = _load_fixtures(TOURNAMENT_FIXTURE_ROOT)
@@ -230,11 +326,6 @@ def build_quality_dashboard(
             "no tournament eval fixtures found under examples/eval/tournament"
         )
 
-    latency_by_action: dict[str, list[float]] = {
-        QUESTIONS_ACTION: [],
-        TOURNAMENT_REPLAY_ACTION: [],
-        TOURNAMENT_LIVE_ACTION: [],
-    }
     solver_calls_by_action: dict[str, list[int]] = {
         QUESTIONS_ACTION: [],
         TOURNAMENT_REPLAY_ACTION: [],
@@ -243,6 +334,13 @@ def build_quality_dashboard(
 
     stable_matches = 0
     stable_total = 0
+    top_k_stability_samples: list[float] = []
+    total_questions = 0
+    unique_questions = 0
+    evidence_covered_questions = 0
+    evidence_total_questions = 0
+    bridge_loss_present_cases = 0
+    bridge_loss_referenced_cases = 0
     question_counts: list[int] = []
     resolved_counts: list[int] = []
     question_fixture_details: list[dict[str, Any]] = []
@@ -250,16 +348,14 @@ def build_quality_dashboard(
     for fixture in question_fixtures:
         baseline_signature: str | None = None
         baseline_question_count = 0
+        baseline_top_k_ids: set[str] = set()
+        fixture_unique_questions = 0
+        fixture_redundancy_rate = 0.0
 
         for repeat_idx in range(question_repeats):
             ir = fixture.ir.model_copy(deep=True)
             request = _make_questions_request(fixture, ir)
-
-            started = time.perf_counter()
             response = api_main.concept_questions_endpoint(request)
-            elapsed_ms = (time.perf_counter() - started) * 1000.0
-
-            latency_by_action[QUESTIONS_ACTION].append(elapsed_ms)
             solver_calls_by_action[QUESTIONS_ACTION].append(
                 response.budget_report.used_solver_calls
             )
@@ -268,11 +364,39 @@ def build_quality_dashboard(
             if repeat_idx == 0:
                 baseline_signature = signature
                 baseline_question_count = response.question_count
+                baseline_top_k_ids = _top_k_question_ids(response, k=10)
                 question_counts.append(response.question_count)
+                dedupe_signatures = {
+                    _question_dedupe_signature(question) for question in response.questions
+                }
+                fixture_unique_questions = len(dedupe_signatures)
+                fixture_redundancy_rate = round(
+                    1.0
+                    - (
+                        fixture_unique_questions
+                        / max(response.question_count, 1)
+                    ),
+                    6,
+                )
+                total_questions += response.question_count
+                unique_questions += fixture_unique_questions
+                evidence_total_questions += response.question_count
+                if _has_required_evidence_refs(response.evidence_refs):
+                    evidence_covered_questions += response.question_count
+                bridge_loss_present = bool(response.bridge_loss_signals)
+                if bridge_loss_present:
+                    bridge_loss_present_cases += 1
+                    if response.bridge_loss_signals:
+                        bridge_loss_referenced_cases += 1
             else:
                 stable_total += 1
                 if signature == baseline_signature:
                     stable_matches += 1
+                overlap = len(
+                    baseline_top_k_ids
+                    & _top_k_question_ids(response, k=10)
+                )
+                top_k_stability_samples.append(overlap / 10.0)
 
         resolved = _simulate_resolved_session(
             fixture=fixture,
@@ -282,56 +406,62 @@ def build_quality_dashboard(
         question_fixture_details.append(
             {
                 "fixture": fixture.name,
+                "fixture_ref": str(QUESTIONS_FIXTURE_ROOT / fixture.name),
                 "mode": str(fixture.request.get("mode", "LAX")),
                 "include_forced_details": bool(
                     fixture.request.get("include_forced_details", False)
                 ),
                 "question_count": baseline_question_count,
+                "unique_questions": fixture_unique_questions,
+                "redundancy_rate": fixture_redundancy_rate,
                 "resolved_in_session": resolved,
             }
         )
 
+    coherence_alert_count = 0
     tournament_fixture_details: list[dict[str, Any]] = []
     for fixture in tournament_fixtures:
         ir = fixture.ir.model_copy(deep=True)
+        question_response = api_main.concept_questions_endpoint(
+            _make_questions_request(fixture, ir.model_copy(deep=True))
+        )
         request = _make_tournament_request(fixture, ir)
-
-        started = time.perf_counter()
         response = api_main.concept_tournament_endpoint(request)
-        elapsed_ms = (time.perf_counter() - started) * 1000.0
 
         action = (
             TOURNAMENT_REPLAY_ACTION
             if response.tournament_mode == "replay_candidates"
             else TOURNAMENT_LIVE_ACTION
         )
-        latency_by_action[action].append(elapsed_ms)
         solver_calls_by_action[action].append(response.budget_report.used_solver_calls)
+        coherence = build_concepts_coherence_artifact(
+            run_id=f"quality_dashboard:{fixture.name}",
+            question_artifact=question_response.model_dump(
+                mode="json", by_alias=True, exclude_none=True
+            ),
+            tournament_artifact=response.model_dump(
+                mode="json", by_alias=True, exclude_none=True
+            ),
+        )
+        fixture_coherence_alert_count = int(coherence.get("coherence_alert_count", 0))
+        coherence_alert_count += fixture_coherence_alert_count
 
         tournament_fixture_details.append(
             {
                 "fixture": fixture.name,
+                "fixture_ref": str(TOURNAMENT_FIXTURE_ROOT / fixture.name),
                 "mode": str(fixture.request.get("mode", "LAX")),
                 "tournament_mode": response.tournament_mode,
                 "candidate_count": response.candidate_count,
                 "evaluated_count": response.evaluated_count,
                 "no_safe_improvement": response.no_safe_improvement,
+                "coherence_alert_count": fixture_coherence_alert_count,
             }
         )
 
     all_solver_calls = [
         value for values in solver_calls_by_action.values() for value in values
     ]
-    p95_latency_ms = {
-        action: round(_p95(values), 3)
-        for action, values in latency_by_action.items()
-        if values
-    }
-    avg_latency_ms = {
-        action: round(_avg(values), 3)
-        for action, values in latency_by_action.items()
-        if values
-    }
     avg_solver_calls_by_action = {
         action: round(_avg(values), 3)
         for action, values in solver_calls_by_action.items()
@@ -339,10 +469,16 @@ def build_quality_dashboard(
     }
 
     stability_pct = 100.0 if stable_total == 0 else (stable_matches / stable_total) * 100.0
+    redundancy_rate = 1.0 - (unique_questions / max(total_questions, 1))
+    top_k_stability = 1.0 if not top_k_stability_samples else _avg(top_k_stability_samples)
+    evidence_coverage_rate = evidence_covered_questions / max(evidence_total_questions, 1)
+    bridge_loss_utilization_rate = bridge_loss_referenced_cases / max(
+        bridge_loss_present_cases, 1
+    )
 
     dashboard = {
         "dashboard_version": DASHBOARD_VERSION,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": evaluation_ts,
         "fixture_roots": {
             "questions": str(QUESTIONS_FIXTURE_ROOT),
             "tournament": str(TOURNAMENT_FIXTURE_ROOT),
@@ -352,29 +488,33 @@ def build_quality_dashboard(
             "tournament": len(tournament_fixtures),
         },
         "metrics": {
+            "redundancy_rate": round(redundancy_rate, 6),
+            "top_k_stability@10": round(top_k_stability, 6),
+            "evidence_coverage_rate": round(evidence_coverage_rate, 6),
+            "bridge_loss_utilization_rate": round(bridge_loss_utilization_rate, 6),
+            "coherence_alert_count": coherence_alert_count,
             "question_stability_pct": round(stability_pct, 3),
             "avg_questions_per_ir": round(_avg(question_counts), 3),
             "avg_resolved_per_session": round(_avg(resolved_counts), 3),
             "avg_solver_calls_per_action": round(_avg(all_solver_calls), 3),
-            "p95_latency_ms": p95_latency_ms,
         },
         "actions": {
             action: {
-                "sample_count": len(latency_by_action[action]),
-                "avg_latency_ms": avg_latency_ms.get(action, 0.0),
-                "p95_latency_ms": p95_latency_ms.get(action, 0.0),
+                "sample_count": len(solver_calls_by_action[action]),
                 "avg_solver_calls": avg_solver_calls_by_action.get(action, 0.0),
             }
-            for action in sorted(set(latency_by_action) | set(solver_calls_by_action))
-            if latency_by_action.get(action) or solver_calls_by_action.get(action)
+            for action in sorted(solver_calls_by_action)
+            if solver_calls_by_action.get(action)
         },
         "question_fixtures": question_fixture_details,
         "tournament_fixtures": tournament_fixture_details,
         "config": {
             "question_repeats": question_repeats,
             "session_steps": session_steps,
+            "evaluation_ts": evaluation_ts,
             "question_rank_version": api_main.CONCEPTS_QUESTION_RANK_VERSION,
             "tournament_score_version": api_main.TOURNAMENT_SCORE_VERSION,
+            "coherence_schema_version": "concepts.coherence.v1",
             "budget_version": api_main.QUESTIONS_BUDGET_VERSION,
         },
     }
@@ -386,11 +526,49 @@ def write_quality_dashboard(
     *,
     question_repeats: int = DEFAULT_QUESTION_REPEATS,
     session_steps: int = DEFAULT_SESSION_STEPS,
+    baseline_path: Path | None = None,
+    evaluation_ts: str = DETERMINISTIC_EVALUATION_TS,
 ) -> dict[str, Any]:
-    dashboard = build_quality_dashboard(
+    current_dashboard = build_quality_dashboard(
         question_repeats=question_repeats,
         session_steps=session_steps,
+        evaluation_ts=evaluation_ts,
     )
+
+    if baseline_path is None:
+        baseline_dashboard = current_dashboard
+        baseline_source = "self"
+    else:
+        baseline_dashboard = _read_json_object(baseline_path)
+        baseline_source = "file"
+
+    delta_report = _build_delta_report(
+        current_dashboard=current_dashboard,
+        baseline_dashboard=baseline_dashboard,
+    )
+    dashboard = {
+        **current_dashboard,
+        "input_manifest": {
+            "schema": INPUT_MANIFEST_VERSION,
+            "baseline": {
+                "source": baseline_source,
+                "artifact_hash": delta_report["baseline"]["artifact_hash"],
+                "artifact_ref": delta_report["baseline"]["artifact_ref"],
+            },
+            "current": {
+                "source": "generated",
+                "artifact_hash": delta_report["current"]["artifact_hash"],
+                "artifact_ref": delta_report["current"]["artifact_ref"],
+            },
+        },
+        "delta_report": delta_report,
+        "quality_metric_rules": {
+            key: FROZEN_QUALITY_METRIC_RULES[key]
+            for key in sorted(FROZEN_QUALITY_METRIC_RULES)
+        },
+    }
+
+    dashboard = json.loads(canonical_json(dashboard))
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
         json.dumps(dashboard, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
