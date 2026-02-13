@@ -4,40 +4,58 @@ import importlib.resources as resources
 import json
 import os
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from .errors import URMError
 
 PROFILE_REGISTRY_SCHEMA = "policy.profiles.v1"
 PROFILE_REGISTRY_FILE = "profiles.v1.json"
 
+NonEmptyTrimmedStr = Annotated[
+    str,
+    StringConstraints(strip_whitespace=True, min_length=1),
+]
+Sha256HexStr = Annotated[
+    str,
+    StringConstraints(strip_whitespace=True, pattern=r"^[a-f0-9]{64}$"),
+]
+
 
 class PolicyProfileEntry(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    profile_id: str = Field(min_length=1)
-    profile_version: str = Field(min_length=1)
-    default_policy_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
-    allowed_policy_hashes: list[str] = Field(default_factory=list)
-    policy_ref: str = Field(min_length=1)
+    profile_id: NonEmptyTrimmedStr
+    profile_version: NonEmptyTrimmedStr
+    default_policy_hash: Sha256HexStr
+    allowed_policy_hashes: list[Sha256HexStr] = Field(default_factory=list)
+    policy_ref: NonEmptyTrimmedStr
 
-    @field_validator("profile_id", "profile_version", "policy_ref")
+    @field_validator("allowed_policy_hashes", mode="before")
     @classmethod
-    def _normalize_strings(cls, value: str) -> str:
-        return value.strip()
-
-    @field_validator("allowed_policy_hashes")
-    @classmethod
-    def _normalize_allowed_hashes(cls, value: list[str]) -> list[str]:
-        normalized = sorted({item.strip() for item in value if item and item.strip()})
-        if not normalized:
+    def _normalize_allowed_hashes(cls, value: Any) -> list[str]:
+        if not isinstance(value, list):
+            raise ValueError("allowed_policy_hashes must be a list")
+        normalized: set[str] = set()
+        for item in value:
+            if not isinstance(item, str):
+                raise ValueError("allowed_policy_hashes must contain string hash values")
+            stripped = item.strip()
+            if stripped:
+                normalized.add(stripped)
+        normalized_list = sorted(normalized)
+        if not normalized_list:
             raise ValueError("allowed_policy_hashes must not be empty")
-        for item in normalized:
-            if len(item) != 64 or any(ch not in "0123456789abcdef" for ch in item):
-                raise ValueError("allowed_policy_hashes must contain lowercase sha256 hex values")
-        return normalized
+        return normalized_list
 
     @model_validator(mode="after")
     def _validate_default_hash_allowed(self) -> "PolicyProfileEntry":

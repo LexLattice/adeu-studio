@@ -77,6 +77,32 @@ def test_policy_profile_registry_invalid_duplicate_profile_ids(tmp_path: Path) -
     assert exc_info.value.detail.code == "URM_POLICY_PROFILE_MAPPING_INVALID"
 
 
+def test_policy_profile_registry_normalizes_allowed_hashes(tmp_path: Path) -> None:
+    profile_path = tmp_path / "profiles.v1.json"
+    canonical_hash = "a" * 64
+    _write_json(
+        profile_path,
+        {
+            "schema": "policy.profiles.v1",
+            "profiles": [
+                {
+                    "profile_id": "default",
+                    "profile_version": "profile.v1",
+                    "default_policy_hash": canonical_hash,
+                    "allowed_policy_hashes": [
+                        f"  {canonical_hash}  ",
+                        canonical_hash,
+                    ],
+                    "policy_ref": "policy/one.json",
+                }
+            ],
+        },
+    )
+    registry = load_policy_profile_registry(profile_registry_path=profile_path)
+    profile = registry.get_profile("default")
+    assert profile.allowed_policy_hashes == [canonical_hash]
+
+
 def test_policy_profile_registry_lookup_unknown_profile_raises_not_found() -> None:
     registry = load_policy_profile_registry()
     with pytest.raises(URMError) as exc_info:

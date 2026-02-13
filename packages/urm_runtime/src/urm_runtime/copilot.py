@@ -1201,17 +1201,30 @@ class URMCopilotManager:
         ]
         return PolicyProfileListResponse(profiles=profiles)
 
+    def _build_current_profile_response(
+        self,
+        *,
+        session_id: str,
+        profile_id: str,
+        profile_policy_hash: str | None,
+    ) -> PolicyProfileCurrentResponse:
+        profile = self._resolve_profile(profile_id)
+        policy_hash = profile_policy_hash or profile.default_policy_hash
+        return PolicyProfileCurrentResponse(
+            session_id=session_id,
+            profile_id=profile.profile_id,
+            profile_version=profile.profile_version,
+            policy_hash=policy_hash,
+        )
+
     def current_profile(self, *, session_id: str) -> PolicyProfileCurrentResponse:
         with self._lock:
             runtime = self._sessions.get(session_id)
             if runtime is not None:
-                profile = self._resolve_profile(runtime.profile_id)
-                policy_hash = runtime.profile_policy_hash or profile.default_policy_hash
-                return PolicyProfileCurrentResponse(
+                return self._build_current_profile_response(
                     session_id=session_id,
-                    profile_id=profile.profile_id,
-                    profile_version=profile.profile_version,
-                    policy_hash=policy_hash,
+                    profile_id=runtime.profile_id,
+                    profile_policy_hash=runtime.profile_policy_hash,
                 )
         with transaction(db_path=self.config.db_path) as con:
             row = get_copilot_session(con=con, copilot_session_id=session_id)
@@ -1222,13 +1235,10 @@ class URMCopilotManager:
                 status_code=404,
                 context={"session_id": session_id},
             )
-        profile = self._resolve_profile(row.profile_id)
-        policy_hash = row.profile_policy_hash or profile.default_policy_hash
-        return PolicyProfileCurrentResponse(
+        return self._build_current_profile_response(
             session_id=session_id,
-            profile_id=profile.profile_id,
-            profile_version=profile.profile_version,
-            policy_hash=policy_hash,
+            profile_id=row.profile_id,
+            profile_policy_hash=row.profile_policy_hash,
         )
 
     def select_profile(self, request: PolicyProfileSelectRequest) -> PolicyProfileSelectResponse:
