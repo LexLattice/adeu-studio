@@ -249,7 +249,7 @@ type ConceptQuestionsMeta = {
   question_count: number;
   max_questions: number;
   max_answers_per_question: number;
-  question_rank_version: "concepts.qrank.v2";
+  question_rank_version: "concepts.qrank.v3";
   budget_report: ConceptQuestionsBudgetReport;
   bridge_loss_signals: BridgeLossSignal[];
   mapping_trust?: string | null;
