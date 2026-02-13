@@ -1,0 +1,35 @@
+{
+  "schema": "policy.incident_redaction_allowlist.v1",
+  "redaction_eligible_top_level_fields": [
+    "advisories",
+    "decision",
+    "decision_code",
+    "deterministic_mode",
+    "evaluation_ts",
+    "evidence_refs",
+    "evaluator_version",
+    "input_context",
+    "input_context_hash",
+    "input_decision",
+    "input_manifest",
+    "input_policy",
+    "issues",
+    "matched_rule_ids",
+    "matched_rules",
+    "policy_hash",
+    "policy_ir_version",
+    "policy_schema_version",
+    "required_approval",
+    "schema",
+    "strict",
+    "trace_version",
+    "valid",
+    "warrant_invalid"
+  ],
+  "sensitive_key_tokens": [
+    "secret",
+    "token",
+    "password",
+    "api_key"
+  ]
+}

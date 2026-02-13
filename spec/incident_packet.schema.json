@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/incident_packet.schema.json",
+  "title": "incident_packet@1",
+  "type": "object",
+  "required": [
+    "schema",
+    "valid",
+    "issues"
+  ],
+  "properties": {
+    "schema": {
+      "const": "incident_packet@1"
+    },
+    "input_report": {
+      "type": "string",
+      "minLength": 1
+    },
+    "valid": {
+      "type": "boolean"
+    },
+    "policy_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "input_context_hash": {
+      "$ref": "#/$defs/hash"
+    },
+    "decision_code": {
+      "type": "string",
+      "minLength": 1
+    },
+    "matched_rule_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "artifact_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidenceRef"
+      }
+    },
+    "streams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/streamSeqRange"
+      }
+    },
+    "redaction_markers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/redactionMarker"
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/issue"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "valid": {
+            "const": true
+          }
+        },
+        "required": [
+          "valid"
+        ]
+      },
+      "then": {
+        "required": [
+          "policy_hash",
+          "input_context_hash",
+          "decision_code",
+          "matched_rule_ids",
+          "artifact_refs",
+          "streams",
+          "redaction_markers"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "evidenceRef": {
+      "type": "object",
+      "required": [
+        "kind",
+        "ref"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "event",
+            "run",
+            "validator",
+            "proof",
+            "artifact"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "streamSeqRange": {
+      "type": "object",
+      "required": [
+        "stream_id",
+        "seq_range"
+      ],
+      "properties": {
+        "stream_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seq_range": {
+          "type": "object",
+          "required": [
+            "start_seq",
+            "end_seq"
+          ],
+          "properties": {
+            "start_seq": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "end_seq": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "redactionMarker": {
+      "type": "object",
+      "required": [
+        "path",
+        "replacement"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "replacement": {
+          "const": "[REDACTED]"
+        }
+      },
+      "additionalProperties": false
+    },
+    "issue": {
+      "type": "object",
+      "required": [
+        "code",
+        "message",
+        "context"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "context": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

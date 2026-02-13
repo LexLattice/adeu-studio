@@ -35,6 +35,16 @@ def _load_policy_explain_schema() -> dict[str, object]:
     return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
+def _load_incident_packet_schema() -> dict[str, object]:
+    schema_path = _repo_root() / "spec" / "incident_packet.schema.json"
+    return json.loads(schema_path.read_text(encoding="utf-8"))
+
+
+def _load_incident_redaction_allowlist_schema() -> dict[str, object]:
+    schema_path = _repo_root() / "spec" / "policy_incident_redaction_allowlist.v1.schema.json"
+    return json.loads(schema_path.read_text(encoding="utf-8"))
+
+
 def _write_json(path: Path, payload: dict[str, object]) -> None:
     path.write_text(json.dumps(payload), encoding="utf-8")
 
@@ -613,7 +623,7 @@ def test_incident_packet_is_deterministic_and_sorted(tmp_path: Path) -> None:
                 {"kind": "proof", "ref": "proof:proof-a", "note": "n1"},
                 {"kind": "artifact", "ref": "artifact:artifact-z"},
             ],
-            "debug_secret": {"api_key": "secret-value"},
+            "advisories": [{"api_key": "secret-value"}],
         },
     )
     stream_a = tmp_path / "parent.ndjson"
@@ -738,8 +748,14 @@ def test_incident_packet_is_deterministic_and_sorted(tmp_path: Path) -> None:
         {"kind": "validator", "ref": "validator:validator-1"},
     ]
     assert first["redaction_markers"] == [
-        {"path": "debug_secret", "replacement": "[REDACTED]"}
+        {"path": "advisories.0.api_key", "replacement": "[REDACTED]"}
     ]
+    incident_schema = _load_incident_packet_schema()
+    schema_errors = sorted(
+        Draft202012Validator(incident_schema).iter_errors(first),
+        key=lambda err: str(err.path),
+    )
+    assert schema_errors == []
 
 
 def test_incident_packet_invalid_inputs_surface_error_code(tmp_path: Path) -> None:
@@ -755,6 +771,216 @@ def test_incident_packet_invalid_inputs_surface_error_code(tmp_path: Path) -> No
     assert report["schema"] == "incident_packet@1"
     assert report["valid"] is False
     assert report["issues"][0]["code"] == "URM_INCIDENT_PACKET_BUILD_FAILED"
+
+
+def test_incident_packet_unknown_fields_fail_closed(tmp_path: Path) -> None:
+    decision_path = tmp_path / "decision.json"
+    _write_json(
+        decision_path,
+        {
+            "schema": "policy_explain@1",
+            "valid": True,
+            "policy_hash": "a" * 64,
+            "input_context_hash": "b" * 64,
+            "decision_code": "ALLOW_HARD_GATED_ACTION",
+            "matched_rule_ids": ["default_allow_after_hard_gates"],
+            "evidence_refs": [],
+            "debug_secret": {"api_key": "secret-value"},
+        },
+    )
+    stream_path = tmp_path / "stream.ndjson"
+    stream_path.write_text(
+        json.dumps(
+            {
+                "schema": "urm-events@1",
+                "event": "POLICY_EVAL_PASS",
+                "stream_id": "copilot:session-a",
+                "seq": 1,
+                "ts": "2026-02-12T10:00:01Z",
+                "source": {
+                    "component": "urm_copilot_manager",
+                    "version": "0.1.0",
+                    "provider": "codex",
+                },
+                "context": {
+                    "session_id": "session-a",
+                    "run_id": None,
+                    "role": "copilot",
+                    "endpoint": "urm.tools.call",
+                    "ir_hash": None,
+                },
+                "detail": {
+                    "policy_hash": "a" * 64,
+                    "decision_code": "ALLOW_HARD_GATED_ACTION",
+                    "matched_rule_ids": ["default_allow_after_hard_gates"],
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    payload = incident_packet(
+        decision_path=decision_path,
+        stream_specs=[f"copilot:session-a={stream_path}"],
+    )
+    assert payload["valid"] is False
+    assert payload["issues"][0]["code"] == "URM_INCIDENT_PACKET_BUILD_FAILED"
+    assert payload["issues"][0]["context"]["unknown_fields"] == ["debug_secret"]
+
+
+def test_incident_packet_invalid_artifact_ref_uses_invalid_ref_code(tmp_path: Path) -> None:
+    decision_path = tmp_path / "decision.json"
+    _write_json(
+        decision_path,
+        {
+            "schema": "policy_explain@1",
+            "valid": True,
+            "policy_hash": "a" * 64,
+            "input_context_hash": "b" * 64,
+            "decision_code": "ALLOW_HARD_GATED_ACTION",
+            "matched_rule_ids": ["default_allow_after_hard_gates"],
+            "evidence_refs": [],
+        },
+    )
+    stream_path = tmp_path / "stream.ndjson"
+    stream_path.write_text(
+        json.dumps(
+            {
+                "schema": "urm-events@1",
+                "event": "POLICY_EVAL_PASS",
+                "stream_id": "copilot:session-a",
+                "seq": 1,
+                "ts": "2026-02-12T10:00:01Z",
+                "source": {
+                    "component": "urm_copilot_manager",
+                    "version": "0.1.0",
+                    "provider": "codex",
+                },
+                "context": {
+                    "session_id": "session-a",
+                    "run_id": None,
+                    "role": "copilot",
+                    "endpoint": "urm.tools.call",
+                    "ir_hash": None,
+                },
+                "detail": {
+                    "policy_hash": "a" * 64,
+                    "decision_code": "ALLOW_HARD_GATED_ACTION",
+                    "matched_rule_ids": ["default_allow_after_hard_gates"],
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    payload = incident_packet(
+        decision_path=decision_path,
+        stream_specs=[f"copilot:session-a={stream_path}"],
+        artifact_refs=["not-a-canonical-ref"],
+    )
+    assert payload["valid"] is False
+    assert payload["issues"][0]["code"] == "URM_INCIDENT_PACKET_INVALID_REF"
+
+
+def test_incident_packet_schema_and_allowlist_files_match_spec() -> None:
+    incident_schema = _load_incident_packet_schema()
+    allowlist_schema = _load_incident_redaction_allowlist_schema()
+
+    incident_fixture_path = (
+        _repo_root() / "examples" / "eval" / "stop_gate" / "incident_packet_case_a_1.json"
+    )
+    incident_payload = json.loads(
+        incident_fixture_path.read_text(encoding="utf-8")
+    )
+    allowlist_payload = json.loads(
+        (_repo_root() / "policy" / "incident_redaction_allowlist.v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    incident_errors = sorted(
+        Draft202012Validator(incident_schema).iter_errors(incident_payload),
+        key=lambda err: str(err.path),
+    )
+    allowlist_errors = sorted(
+        Draft202012Validator(allowlist_schema).iter_errors(allowlist_payload),
+        key=lambda err: str(err.path),
+    )
+    assert incident_errors == []
+    assert allowlist_errors == []
+
+
+def test_incident_redaction_allowlist_packaged_copy_matches_repo_source() -> None:
+    repo_payload = json.loads(
+        (_repo_root() / "policy" / "incident_redaction_allowlist.v1.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    packaged_payload = json.loads(
+        (
+            _repo_root()
+            / "packages"
+            / "urm_runtime"
+            / "src"
+            / "urm_runtime"
+            / "policy"
+            / "incident_redaction_allowlist.v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert repo_payload == packaged_payload
+
+
+def test_incident_packet_secret_like_output_fails_closed(tmp_path: Path) -> None:
+    decision_path = tmp_path / "decision.json"
+    _write_json(
+        decision_path,
+        {
+            "schema": "policy_explain@1",
+            "valid": True,
+            "policy_hash": "a" * 64,
+            "input_context_hash": "b" * 64,
+            "decision_code": "ALLOW_HARD_GATED_ACTION",
+            "matched_rule_ids": ["Bearer sk_live_example_secret"],
+            "evidence_refs": [],
+        },
+    )
+    stream_path = tmp_path / "stream.ndjson"
+    stream_path.write_text(
+        json.dumps(
+            {
+                "schema": "urm-events@1",
+                "event": "POLICY_EVAL_PASS",
+                "stream_id": "copilot:session-a",
+                "seq": 1,
+                "ts": "2026-02-12T10:00:01Z",
+                "source": {
+                    "component": "urm_copilot_manager",
+                    "version": "0.1.0",
+                    "provider": "codex",
+                },
+                "context": {
+                    "session_id": "session-a",
+                    "run_id": None,
+                    "role": "copilot",
+                    "endpoint": "urm.tools.call",
+                    "ir_hash": None,
+                },
+                "detail": {
+                    "policy_hash": "a" * 64,
+                    "decision_code": "ALLOW_HARD_GATED_ACTION",
+                    "matched_rule_ids": ["default_allow_after_hard_gates"],
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    payload = incident_packet(
+        decision_path=decision_path,
+        stream_specs=[f"copilot:session-a={stream_path}"],
+    )
+    assert payload["valid"] is False
+    assert payload["issues"][0]["code"] == "URM_INCIDENT_PACKET_BUILD_FAILED"
 
 
 def test_policy_cli_incident_supports_out_file(
