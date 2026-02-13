@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import shutil
 import sqlite3
 import time
@@ -22,14 +23,23 @@ from adeu_api.urm_routes import (
     urm_copilot_start_endpoint,
     urm_copilot_steer_endpoint,
     urm_copilot_stop_endpoint,
+    urm_policy_active_endpoint,
     urm_policy_profile_current_endpoint,
     urm_policy_profile_list_endpoint,
     urm_policy_profile_select_endpoint,
+    urm_policy_rollback_endpoint,
+    urm_policy_rollout_endpoint,
     urm_tool_call_endpoint,
 )
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from urm_runtime.config import URMRuntimeConfig
+from urm_runtime.errors import URMError
+from urm_runtime.instruction_policy import (
+    compute_policy_hash,
+    load_instruction_policy,
+    policy_semantic_form,
+)
 from urm_runtime.models import (
     AgentCancelRequest,
     AgentSpawnRequest,
@@ -42,8 +52,11 @@ from urm_runtime.models import (
     CopilotSteerRequest,
     CopilotStopRequest,
     PolicyProfileSelectRequest,
+    PolicyRollbackRequest,
+    PolicyRolloutRequest,
     ToolCallRequest,
 )
+from urm_runtime.policy_governance import materialize_policy
 from urm_runtime.storage import (
     get_worker_run,
     persist_copilot_session_start,
@@ -59,6 +72,88 @@ def _prepare_fake_codex(*, tmp_path: Path) -> Path:
     shutil.copy2(fixture, target)
     target.chmod(0o755)
     return target
+
+
+def _write_profile_registry(
+    *,
+    path: Path,
+    default_policy_hash: str,
+    allowed_policy_hashes: list[str],
+) -> None:
+    payload = {
+        "schema": "policy.profiles.v1",
+        "profiles": [
+            {
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "default_policy_hash": default_policy_hash,
+                "allowed_policy_hashes": sorted(allowed_policy_hashes),
+                "policy_ref": "policy/odeu.instructions.v1.json",
+            }
+        ],
+    }
+    path.write_text(json.dumps(payload, sort_keys=True, indent=2), encoding="utf-8")
+
+
+def _materialize_policy_file(
+    *,
+    config: URMRuntimeConfig,
+    policy_path: Path,
+    materialized_at: str,
+) -> str:
+    policy = load_instruction_policy(policy_path=policy_path, strict=True)
+    policy_hash = compute_policy_hash(policy)
+    materialize_policy(
+        config=config,
+        policy_hash=policy_hash,
+        schema_id=policy.schema_id,
+        policy_schema_version="odeu.instructions.schema.v1",
+        policy_ir_version="odeu.instructions.v1",
+        semantic_policy_json=policy_semantic_form(policy),
+        source_policy_ref=str(policy_path),
+        materialized_at=materialized_at,
+    )
+    return policy_hash
+
+
+def test_materialize_policy_rejects_conflicting_payload_for_existing_hash(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    config = URMRuntimeConfig.from_env()
+    base_policy_path = Path(__file__).resolve().parents[3] / "policy" / "odeu.instructions.v1.json"
+
+    policy = load_instruction_policy(policy_path=base_policy_path, strict=True)
+    policy_hash = compute_policy_hash(policy)
+    semantic = policy_semantic_form(policy)
+    materialize_policy(
+        config=config,
+        policy_hash=policy_hash,
+        schema_id=policy.schema_id,
+        policy_schema_version="odeu.instructions.schema.v1",
+        policy_ir_version="odeu.instructions.v1",
+        semantic_policy_json=semantic,
+        source_policy_ref=str(base_policy_path),
+        materialized_at="2026-02-13T10:00:00Z",
+    )
+
+    conflicting_semantic = dict(semantic)
+    conflicting_semantic["rules"] = []
+    with pytest.raises(URMError) as exc_info:
+        materialize_policy(
+            config=config,
+            policy_hash=policy_hash,
+            schema_id=policy.schema_id,
+            policy_schema_version="odeu.instructions.schema.v1",
+            policy_ir_version="odeu.instructions.v1",
+            semantic_policy_json=conflicting_semantic,
+            source_policy_ref=str(tmp_path / "conflicting.policy.json"),
+            materialized_at="2026-02-13T10:01:00Z",
+        )
+
+    assert exc_info.value.status_code == 409
+    assert exc_info.value.detail.code == "URM_POLICY_DENIED"
 
 
 def test_copilot_start_send_stop_and_sse_replay(
@@ -260,6 +355,183 @@ def test_policy_profile_select_rejects_unknown_profile_and_emits_denial(
         and event.payload.get("profile_id") == "unknown_profile"
         for event in events
     )
+    _reset_manager_for_tests()
+
+
+def test_policy_rollout_rollback_active_and_session_snapshot_behavior(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+
+    base_policy_path = Path(__file__).resolve().parents[3] / "policy" / "odeu.instructions.v1.json"
+    alt_policy_path = tmp_path / "odeu.instructions.alt.v1.json"
+    disallowed_policy_path = tmp_path / "odeu.instructions.disallowed.v1.json"
+    base_payload = json.loads(base_policy_path.read_text(encoding="utf-8"))
+    assert isinstance(base_payload, dict)
+    rules = base_payload.get("rules")
+    assert isinstance(rules, list) and rules
+    first_rule = rules[0]
+    assert isinstance(first_rule, dict)
+    first_rule["code"] = "ALLOW_HARD_GATED_ACTION_ALT"
+    alt_policy_path.write_text(json.dumps(base_payload, sort_keys=True), encoding="utf-8")
+    first_rule["code"] = "ALLOW_HARD_GATED_ACTION_DISALLOWED"
+    disallowed_policy_path.write_text(json.dumps(base_payload, sort_keys=True), encoding="utf-8")
+
+    config = URMRuntimeConfig.from_env()
+    default_hash = _materialize_policy_file(
+        config=config,
+        policy_path=base_policy_path,
+        materialized_at="2026-02-13T10:00:00Z",
+    )
+    alt_hash = _materialize_policy_file(
+        config=config,
+        policy_path=alt_policy_path,
+        materialized_at="2026-02-13T10:05:00Z",
+    )
+    disallowed_hash = _materialize_policy_file(
+        config=config,
+        policy_path=disallowed_policy_path,
+        materialized_at="2026-02-13T10:06:00Z",
+    )
+
+    registry_path = tmp_path / "profiles.v1.json"
+    _write_profile_registry(
+        path=registry_path,
+        default_policy_hash=default_hash,
+        allowed_policy_hashes=[default_hash, alt_hash],
+    )
+    monkeypatch.setenv("URM_POLICY_PROFILES_PATH", str(registry_path))
+    _reset_manager_for_tests()
+
+    active_before = urm_policy_active_endpoint(profile_id="default", provider="codex")
+    assert active_before.policy_hash == default_hash
+    assert active_before.source == "profile_default"
+
+    with pytest.raises(HTTPException) as disallowed_exc:
+        urm_policy_rollout_endpoint(
+            PolicyRolloutRequest(
+                provider="codex",
+                client_request_id="rollout-disallowed-1",
+                profile_id="default",
+                target_policy_hash=disallowed_hash,
+                activation_ts="2026-02-13T10:09:00Z",
+            )
+        )
+    assert disallowed_exc.value.status_code == 400
+    assert disallowed_exc.value.detail["code"] == "URM_POLICY_ROLLOUT_HASH_NOT_ALLOWED"
+
+    first_rollout = urm_policy_rollout_endpoint(
+        PolicyRolloutRequest(
+            provider="codex",
+            client_request_id="rollout-seed-default-1",
+            profile_id="default",
+            target_policy_hash=default_hash,
+            activation_ts="2026-02-13T10:10:00Z",
+        )
+    )
+    assert first_rollout.idempotent_replay is False
+    assert first_rollout.target_policy_hash == default_hash
+
+    first_rollout_replay = urm_policy_rollout_endpoint(
+        PolicyRolloutRequest(
+            provider="codex",
+            client_request_id="rollout-seed-default-1",
+            profile_id="default",
+            target_policy_hash=default_hash,
+            activation_ts="2026-02-13T10:11:00Z",
+        )
+    )
+    assert first_rollout_replay.idempotent_replay is True
+    assert first_rollout_replay.activation_seq == first_rollout.activation_seq
+    assert first_rollout_replay.activation_ts == first_rollout.activation_ts
+
+    rollout_alt = urm_policy_rollout_endpoint(
+        PolicyRolloutRequest(
+            provider="codex",
+            client_request_id="rollout-alt-1",
+            profile_id="default",
+            target_policy_hash=alt_hash,
+            activation_ts="2026-02-13T10:12:00Z",
+        )
+    )
+    assert rollout_alt.target_policy_hash == alt_hash
+
+    start_after_rollout = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-after-rollout-a4-1")
+    )
+    session_id = start_after_rollout.session_id
+    current_after_rollout = urm_policy_profile_current_endpoint(
+        session_id=session_id,
+        provider="codex",
+    )
+    assert current_after_rollout.policy_hash == alt_hash
+
+    with pytest.raises(HTTPException) as conflict_exc:
+        urm_policy_rollout_endpoint(
+            PolicyRolloutRequest(
+                provider="codex",
+                client_request_id="rollout-alt-conflict-1",
+                profile_id="default",
+                target_policy_hash=alt_hash,
+                activation_ts="2026-02-13T10:13:00Z",
+            )
+        )
+    assert conflict_exc.value.status_code == 409
+    assert conflict_exc.value.detail["code"] == "URM_POLICY_ROLLOUT_CONFLICT"
+
+    with pytest.raises(HTTPException) as rollback_missing_exc:
+        urm_policy_rollback_endpoint(
+            PolicyRollbackRequest(
+                provider="codex",
+                client_request_id="rollback-missing-1",
+                profile_id="default",
+                target_policy_hash="f" * 64,
+                activation_ts="2026-02-13T10:14:00Z",
+            )
+        )
+    assert rollback_missing_exc.value.status_code == 400
+    assert rollback_missing_exc.value.detail["code"] == "URM_POLICY_ROLLBACK_TARGET_NOT_FOUND"
+
+    rollback_default = urm_policy_rollback_endpoint(
+        PolicyRollbackRequest(
+            provider="codex",
+            client_request_id="rollback-default-1",
+            profile_id="default",
+            target_policy_hash=default_hash,
+            activation_ts="2026-02-13T10:15:00Z",
+        )
+    )
+    assert rollback_default.action == "rollback"
+    assert rollback_default.target_policy_hash == default_hash
+
+    active_after_rollback = urm_policy_active_endpoint(profile_id="default", provider="codex")
+    assert active_after_rollback.policy_hash == default_hash
+    assert active_after_rollback.source == "activation_log"
+    assert active_after_rollback.action == "rollback"
+
+    current_existing_session = urm_policy_profile_current_endpoint(
+        session_id=session_id,
+        provider="codex",
+    )
+    assert current_existing_session.policy_hash == alt_hash
+
+    with pytest.raises(HTTPException) as idem_conflict_exc:
+        urm_policy_rollout_endpoint(
+            PolicyRolloutRequest(
+                provider="codex",
+                client_request_id="rollout-alt-1",
+                profile_id="default",
+                target_policy_hash=default_hash,
+                activation_ts="2026-02-13T10:16:00Z",
+            )
+        )
+    assert idem_conflict_exc.value.status_code == 409
+    assert idem_conflict_exc.value.detail["code"] == "URM_POLICY_IDEMPOTENCY_CONFLICT"
+
     _reset_manager_for_tests()
 
 

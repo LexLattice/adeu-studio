@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/policy_registry.schema.json",
+  "title": "policy_registry@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "policy_hash",
+    "schema_id",
+    "policy_schema_version",
+    "policy_ir_version",
+    "semantic_policy_json",
+    "source_policy_ref",
+    "materialized_at"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "policy_registry@1"
+    },
+    "policy_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "schema_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy_ir_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "semantic_policy_json": {
+      "type": "object"
+    },
+    "source_policy_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "materialized_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

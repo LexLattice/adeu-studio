@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/policy_activation_log.schema.json",
+  "title": "policy_activation_log@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "activation_seq",
+    "client_request_id",
+    "request_payload_hash",
+    "profile_id",
+    "action",
+    "target_policy_hash",
+    "prev_policy_hash",
+    "activation_ts"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "policy_activation_log@1"
+    },
+    "activation_seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "client_request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "request_payload_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "profile_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "type": "string",
+      "enum": ["rollout", "rollback"]
+    },
+    "target_policy_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "prev_policy_hash": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "activation_ts": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

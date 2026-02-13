@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
 import uuid
@@ -18,7 +19,28 @@ from .errors import (
     ApprovalNotFoundError,
 )
 
-URM_SCHEMA_VERSION = 3
+URM_SCHEMA_VERSION = 4
+
+
+class IdempotencyPayloadConflict(ValueError):
+    def __init__(self, *, stored_payload_hash: str, incoming_payload_hash: str) -> None:
+        super().__init__("idempotency payload hash mismatch")
+        self.stored_payload_hash = stored_payload_hash
+        self.incoming_payload_hash = incoming_payload_hash
+
+
+class PolicyRegistryPayloadConflict(ValueError):
+    def __init__(
+        self,
+        *,
+        policy_hash: str,
+        existing_payload_hash: str,
+        incoming_payload_hash: str,
+    ) -> None:
+        super().__init__("policy hash already exists with a different semantic payload")
+        self.policy_hash = policy_hash
+        self.existing_payload_hash = existing_payload_hash
+        self.incoming_payload_hash = incoming_payload_hash
 
 
 @dataclass(frozen=True)
@@ -98,6 +120,30 @@ class ConnectorSnapshotRow:
     connector_snapshot_hash: str
     connectors: list[dict[str, Any]]
     artifact_path: str
+
+
+@dataclass(frozen=True)
+class PolicyRegistryRow:
+    policy_hash: str
+    schema_id: str
+    policy_schema_version: str
+    policy_ir_version: str
+    semantic_policy_json: dict[str, Any]
+    source_policy_ref: str
+    materialized_at: str
+
+
+@dataclass(frozen=True)
+class PolicyActivationRow:
+    activation_seq: int
+    client_request_id: str
+    request_payload_hash: str
+    profile_id: str
+    action: str
+    target_policy_hash: str
+    prev_policy_hash: str | None
+    activation_ts: str
+    created_at: str
 
 
 @dataclass(frozen=True)
@@ -292,6 +338,34 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
     )
     con.execute(
         """
+        CREATE TABLE IF NOT EXISTS urm_policy_registry (
+          policy_hash TEXT PRIMARY KEY,
+          schema_id TEXT NOT NULL,
+          policy_schema_version TEXT NOT NULL,
+          policy_ir_version TEXT NOT NULL,
+          semantic_policy_json TEXT NOT NULL,
+          source_policy_ref TEXT NOT NULL,
+          materialized_at TEXT NOT NULL
+        )
+        """
+    )
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS urm_policy_activation_log (
+          activation_seq INTEGER PRIMARY KEY AUTOINCREMENT,
+          client_request_id TEXT NOT NULL UNIQUE,
+          request_payload_hash TEXT NOT NULL,
+          profile_id TEXT NOT NULL,
+          action TEXT NOT NULL,
+          target_policy_hash TEXT NOT NULL,
+          prev_policy_hash TEXT,
+          activation_ts TEXT NOT NULL,
+          created_at TEXT NOT NULL
+        )
+        """
+    )
+    con.execute(
+        """
         CREATE INDEX IF NOT EXISTS idx_urm_worker_run_created_at
         ON urm_worker_run(created_at)
         """
@@ -324,6 +398,12 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
         ON urm_idempotency_key(resource_id)
         """
     )
+    con.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_urm_policy_activation_profile_seq
+        ON urm_policy_activation_log(profile_id, activation_seq)
+        """
+    )
     if (
         con.execute(
             "SELECT 1 FROM urm_schema_ledger WHERE schema_version = ?",
@@ -339,7 +419,7 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
             (
                 URM_SCHEMA_VERSION,
                 datetime.now(tz=timezone.utc).isoformat(),
-                "urm runtime schema v3 connector snapshots",
+                "urm runtime schema v4 policy registry and activation log",
             ),
         )
 
@@ -388,7 +468,10 @@ def reserve_request_idempotency(
         stored_worker_id = str(row[1])
         stored_response = str(row[2]) if row[2] is not None else None
         if stored_hash != payload_hash:
-            raise ValueError("idempotency payload hash mismatch")
+            raise IdempotencyPayloadConflict(
+                stored_payload_hash=stored_hash,
+                incoming_payload_hash=payload_hash,
+            )
         response_json = json.loads(stored_response) if stored_response is not None else None
         return IdempotencyReservation(
             resource_id=stored_worker_id,
@@ -1326,6 +1409,281 @@ def persist_idempotency_response(
             client_request_id,
         ),
     )
+
+
+def persist_policy_registry_entry(
+    *,
+    con: sqlite3.Connection,
+    policy_hash: str,
+    schema_id: str,
+    policy_schema_version: str,
+    policy_ir_version: str,
+    semantic_policy_json: dict[str, Any],
+    source_policy_ref: str,
+    materialized_at: str,
+) -> None:
+    existing = con.execute(
+        """
+        SELECT
+          schema_id,
+          policy_schema_version,
+          policy_ir_version,
+          semantic_policy_json,
+          source_policy_ref
+        FROM urm_policy_registry
+        WHERE policy_hash = ?
+        """,
+        (policy_hash,),
+    ).fetchone()
+    semantic_json = json.dumps(semantic_policy_json, sort_keys=True, separators=(",", ":"))
+    if existing is None:
+        con.execute(
+            """
+            INSERT INTO urm_policy_registry (
+              policy_hash,
+              schema_id,
+              policy_schema_version,
+              policy_ir_version,
+              semantic_policy_json,
+              source_policy_ref,
+              materialized_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                policy_hash,
+                schema_id,
+                policy_schema_version,
+                policy_ir_version,
+                semantic_json,
+                source_policy_ref,
+                materialized_at,
+            ),
+        )
+        return
+
+    existing_semantic_json = str(existing[3])
+    existing_payload_hash = _policy_registry_payload_hash(
+        schema_id=str(existing[0]),
+        policy_schema_version=str(existing[1]),
+        policy_ir_version=str(existing[2]),
+        semantic_policy_json=existing_semantic_json,
+    )
+    incoming_payload_hash = _policy_registry_payload_hash(
+        schema_id=schema_id,
+        policy_schema_version=policy_schema_version,
+        policy_ir_version=policy_ir_version,
+        semantic_policy_json=semantic_json,
+    )
+    same_payload = (
+        str(existing[0]) == schema_id
+        and str(existing[1]) == policy_schema_version
+        and str(existing[2]) == policy_ir_version
+        and existing_semantic_json == semantic_json
+    )
+    if not same_payload:
+        raise PolicyRegistryPayloadConflict(
+            policy_hash=policy_hash,
+            existing_payload_hash=existing_payload_hash,
+            incoming_payload_hash=incoming_payload_hash,
+        )
+
+    con.execute(
+        """
+        UPDATE urm_policy_registry
+        SET source_policy_ref = ?,
+            materialized_at = ?
+        WHERE policy_hash = ?
+        """,
+        (source_policy_ref, materialized_at, policy_hash),
+    )
+
+
+def _policy_registry_payload_hash(
+    *,
+    schema_id: str,
+    policy_schema_version: str,
+    policy_ir_version: str,
+    semantic_policy_json: str,
+) -> str:
+    payload = {
+        "schema_id": schema_id,
+        "policy_schema_version": policy_schema_version,
+        "policy_ir_version": policy_ir_version,
+        "semantic_policy_json": semantic_policy_json,
+    }
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def get_policy_registry_entry(
+    *,
+    con: sqlite3.Connection,
+    policy_hash: str,
+) -> PolicyRegistryRow | None:
+    row = con.execute(
+        """
+        SELECT
+          policy_hash,
+          schema_id,
+          policy_schema_version,
+          policy_ir_version,
+          semantic_policy_json,
+          source_policy_ref,
+          materialized_at
+        FROM urm_policy_registry
+        WHERE policy_hash = ?
+        """,
+        (policy_hash,),
+    ).fetchone()
+    if row is None:
+        return None
+    return PolicyRegistryRow(
+        policy_hash=str(row[0]),
+        schema_id=str(row[1]),
+        policy_schema_version=str(row[2]),
+        policy_ir_version=str(row[3]),
+        semantic_policy_json=json.loads(str(row[4])),
+        source_policy_ref=str(row[5]),
+        materialized_at=str(row[6]),
+    )
+
+
+def append_policy_activation_entry(
+    *,
+    con: sqlite3.Connection,
+    client_request_id: str,
+    request_payload_hash: str,
+    profile_id: str,
+    action: str,
+    target_policy_hash: str,
+    prev_policy_hash: str | None,
+    activation_ts: str,
+) -> int:
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+    cursor = con.execute(
+        """
+        INSERT INTO urm_policy_activation_log (
+          client_request_id,
+          request_payload_hash,
+          profile_id,
+          action,
+          target_policy_hash,
+          prev_policy_hash,
+          activation_ts,
+          created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            client_request_id,
+            request_payload_hash,
+            profile_id,
+            action,
+            target_policy_hash,
+            prev_policy_hash,
+            activation_ts,
+            created_at,
+        ),
+    )
+    activation_seq = cursor.lastrowid
+    if activation_seq is None:
+        raise RuntimeError("policy activation insert did not return activation_seq")
+    return int(activation_seq)
+
+
+def get_latest_policy_activation_for_profile(
+    *,
+    con: sqlite3.Connection,
+    profile_id: str,
+) -> PolicyActivationRow | None:
+    row = con.execute(
+        """
+        SELECT
+          activation_seq,
+          client_request_id,
+          request_payload_hash,
+          profile_id,
+          action,
+          target_policy_hash,
+          prev_policy_hash,
+          activation_ts,
+          created_at
+        FROM urm_policy_activation_log
+        WHERE profile_id = ?
+        ORDER BY activation_seq DESC
+        LIMIT 1
+        """,
+        (profile_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    return PolicyActivationRow(
+        activation_seq=int(row[0]),
+        client_request_id=str(row[1]),
+        request_payload_hash=str(row[2]),
+        profile_id=str(row[3]),
+        action=str(row[4]),
+        target_policy_hash=str(row[5]),
+        prev_policy_hash=str(row[6]) if row[6] is not None else None,
+        activation_ts=str(row[7]),
+        created_at=str(row[8]),
+    )
+
+
+def get_policy_activation_by_client_request_id(
+    *,
+    con: sqlite3.Connection,
+    client_request_id: str,
+) -> PolicyActivationRow | None:
+    row = con.execute(
+        """
+        SELECT
+          activation_seq,
+          client_request_id,
+          request_payload_hash,
+          profile_id,
+          action,
+          target_policy_hash,
+          prev_policy_hash,
+          activation_ts,
+          created_at
+        FROM urm_policy_activation_log
+        WHERE client_request_id = ?
+        LIMIT 1
+        """,
+        (client_request_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    return PolicyActivationRow(
+        activation_seq=int(row[0]),
+        client_request_id=str(row[1]),
+        request_payload_hash=str(row[2]),
+        profile_id=str(row[3]),
+        action=str(row[4]),
+        target_policy_hash=str(row[5]),
+        prev_policy_hash=str(row[6]) if row[6] is not None else None,
+        activation_ts=str(row[7]),
+        created_at=str(row[8]),
+    )
+
+
+def list_policy_activation_hashes_for_profile(
+    *,
+    con: sqlite3.Connection,
+    profile_id: str,
+) -> list[str]:
+    rows = con.execute(
+        """
+        SELECT target_policy_hash
+        FROM urm_policy_activation_log
+        WHERE profile_id = ?
+        ORDER BY activation_seq ASC
+        """,
+        (profile_id,),
+    ).fetchall()
+    return [str(row[0]) for row in rows if row and row[0] is not None]
 
 
 def db_path_from_config(config: URMRuntimeConfig) -> Path:
