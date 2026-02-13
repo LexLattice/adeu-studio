@@ -308,6 +308,7 @@ class AgentSpawnResponse(BaseModel):
     parent_stream_id: str
     child_stream_id: str
     target_turn_id: str
+    queue_seq: int = Field(default=0, ge=0)
     profile_id: str = Field(default="default", min_length=1)
     profile_version: str = Field(default="profile.v1", min_length=1)
     idempotent_replay: bool = False

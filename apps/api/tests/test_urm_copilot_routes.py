@@ -4,6 +4,7 @@ import json
 import shutil
 import sqlite3
 import time
+from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -116,6 +117,20 @@ def _materialize_policy_file(
     return policy_hash
 
 
+def _wait_for(
+    predicate: Callable[[], bool],
+    *,
+    timeout_secs: float,
+    interval_secs: float = 0.02,
+) -> bool:
+    deadline = time.monotonic() + timeout_secs
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval_secs)
+    return bool(predicate())
+
+
 def test_materialize_policy_rejects_conflicting_payload_for_existing_hash(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -154,6 +169,16 @@ def test_materialize_policy_rejects_conflicting_payload_for_existing_hash(
 
     assert exc_info.value.status_code == 409
     assert exc_info.value.detail.code == "URM_POLICY_DENIED"
+
+
+def test_runtime_config_defaults_child_queue_mode_v2(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.delenv("URM_CHILD_QUEUE_MODE", raising=False)
+    config = URMRuntimeConfig.from_env()
+    assert config.child_queue_mode == "v2"
 
 
 def test_copilot_start_send_stop_and_sse_replay(
@@ -687,6 +712,7 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
     codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
     monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
     monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v1")
     monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
     _reset_manager_for_tests()
 
@@ -726,6 +752,7 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
     assert spawn.child_stream_id.startswith("child:")
     assert spawn.profile_id == "experimental"
     assert spawn.profile_version == "profile.v1"
+    assert spawn.queue_seq == 0
     spawn_replay = urm_agent_spawn_endpoint(
         AgentSpawnRequest(
             provider="codex",
@@ -738,6 +765,7 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
         )
     )
     assert spawn_replay.child_id == spawn.child_id
+    assert spawn_replay.queue_seq == spawn.queue_seq
     assert spawn_replay.idempotent_replay is True
 
     cancel = urm_agent_cancel_endpoint(
@@ -947,6 +975,20 @@ def test_agent_spawn_queue_mode_v2_enforces_fifo_and_queue_limit(
     )
     assert spawn1.status == "running"
     assert spawn2.status in {"queued", "running"}
+    assert spawn1.queue_seq == 1
+    assert spawn2.queue_seq == 2
+    spawn2_replay = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-v2-2",
+            prompt="second child",
+            target_turn_id="turn-bootstrap-1",
+        )
+    )
+    assert spawn2_replay.child_id == spawn2.child_id
+    assert spawn2_replay.queue_seq == spawn2.queue_seq
+    assert spawn2_replay.idempotent_replay is True
     with pytest.raises(HTTPException) as exc_info:
         urm_agent_spawn_endpoint(
             AgentSpawnRequest(
@@ -961,17 +1003,16 @@ def test_agent_spawn_queue_mode_v2_enforces_fifo_and_queue_limit(
     assert exc_info.value.detail["code"] == "URM_CHILD_QUEUE_LIMIT_EXCEEDED"
 
     manager = _get_manager()
-    deadline = time.monotonic() + 5.0
-    while time.monotonic() < deadline:
-        child1 = manager._child_runs.get(spawn1.child_id)  # type: ignore[attr-defined]
-        child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
-        if child1 is not None and child2 is not None and child1.status in {
-            "completed",
-            "failed",
-            "cancelled",
-        } and child2.status in {"completed", "failed", "cancelled"}:
-            break
-        time.sleep(0.05)
+    _wait_for(
+        lambda: (
+            (child1 := manager._child_runs.get(spawn1.child_id)) is not None
+            and (child2 := manager._child_runs.get(spawn2.child_id)) is not None
+            and child1.status in {"completed", "failed", "cancelled"}
+            and child2.status in {"completed", "failed", "cancelled"}
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
     child1 = manager._child_runs.get(spawn1.child_id)  # type: ignore[attr-defined]
     child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
     assert child1 is not None and child2 is not None
@@ -984,6 +1025,183 @@ def test_agent_spawn_queue_mode_v2_enforces_fifo_and_queue_limit(
     child2_payload = child2_events_path.read_text(encoding="utf-8", errors="replace")
     assert '"status":"queued"' in child2_payload
     assert '"status":"running"' in child2_payload
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_queue_mode_v2_cancel_running_dispatches_next(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.8")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-child-v2-cancel-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-child-v2-cancel-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-child-v2-cancel-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    spawn1 = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-v2-cancel-1",
+            prompt="first child",
+            target_turn_id="turn-bootstrap-cancel-1",
+        )
+    )
+    spawn2 = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-v2-cancel-2",
+            prompt="second child",
+            target_turn_id="turn-bootstrap-cancel-1",
+        )
+    )
+    assert spawn1.queue_seq == 1
+    assert spawn2.queue_seq == 2
+
+    manager = _get_manager()
+    _wait_for(
+        lambda: (
+            (child2 := manager._child_runs.get(spawn2.child_id)) is not None
+            and child2.status == "queued"
+        ),
+        timeout_secs=3.0,
+    )
+    child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
+    assert child2 is not None
+    assert child2.status == "queued"
+
+    cancel = urm_agent_cancel_endpoint(
+        spawn1.child_id,
+        AgentCancelRequest(
+            provider="codex",
+            client_request_id="cancel-child-v2-cancel-1",
+        ),
+    )
+    assert cancel.status == "cancelled"
+    assert cancel.idempotent_replay is False
+
+    _wait_for(
+        lambda: (
+            (child2 := manager._child_runs.get(spawn2.child_id)) is not None
+            and child2.status != "queued"
+        ),
+        timeout_secs=5.0,
+    )
+    child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
+    assert child2 is not None
+    assert child2.status != "queued"
+
+    child1_events = (
+        tmp_path / "evidence" / "codex" / "agent" / spawn1.child_id / "urm_events.ndjson"
+    ).read_text(encoding="utf-8", errors="replace")
+    child2_events = (
+        tmp_path / "evidence" / "codex" / "agent" / spawn2.child_id / "urm_events.ndjson"
+    ).read_text(encoding="utf-8", errors="replace")
+    child1_records = [json.loads(line) for line in child1_events.splitlines() if line.strip()]
+    child2_records = [json.loads(line) for line in child2_events.splitlines() if line.strip()]
+    cancel_events = [event for event in child1_records if event.get("event") == "WORKER_CANCEL"]
+    running_events = [
+        event
+        for event in child2_records
+        if event.get("event") == "WORKER_START"
+        and isinstance(event.get("detail"), dict)
+        and event["detail"].get("status") == "running"
+    ]
+    assert cancel_events
+    assert running_events
+    cancel_ts = datetime.fromisoformat(str(cancel_events[0]["ts"]))
+    running_ts = datetime.fromisoformat(str(running_events[0]["ts"]))
+    assert cancel_ts <= running_ts
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_queue_mode_v2_idempotency_conflict_includes_payload_hashes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-child-v2-idem-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-child-v2-idem-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-child-v2-idem-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    first = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-v2-idem-1",
+            prompt="first payload",
+            target_turn_id="turn-bootstrap-idem-1",
+        )
+    )
+    replay = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-v2-idem-1",
+            prompt="first payload",
+            target_turn_id="turn-bootstrap-idem-1",
+        )
+    )
+    assert replay.child_id == first.child_id
+    assert replay.queue_seq == first.queue_seq
+    assert replay.idempotent_replay is True
+
+    with pytest.raises(HTTPException) as exc_info:
+        urm_agent_spawn_endpoint(
+            AgentSpawnRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id="spawn-child-v2-idem-1",
+                prompt="different payload",
+                target_turn_id="turn-bootstrap-idem-1",
+            )
+        )
+    detail = exc_info.value.detail
+    assert exc_info.value.status_code == 409
+    assert detail["code"] == "URM_IDEMPOTENCY_KEY_CONFLICT"
+    assert detail["context"]["client_request_id"] == "spawn-child-v2-idem-1"
+    assert detail["context"]["stored_payload_hash"] != detail["context"]["incoming_payload_hash"]
     _reset_manager_for_tests()
 
 
