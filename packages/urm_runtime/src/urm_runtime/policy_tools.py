@@ -215,7 +215,7 @@ def _validate_incident_allowlist_fields(
         )
 
 
-def _looks_like_secret_value(value: str) -> bool:
+def _looks_like_secret_value(value: str, *, sensitive_key_tokens: tuple[str, ...]) -> bool:
     lowered = value.lower()
     if any(token in lowered for token in _SECRET_VALUE_TOKENS):
         return True
@@ -223,28 +223,52 @@ def _looks_like_secret_value(value: str) -> bool:
         key_text, _, value_text = value.partition("=")
         key_lower = key_text.strip().lower()
         if value_text.strip() and any(
-            token in key_lower for token in ("secret", "token", "password", "api_key")
+            token in key_lower for token in sensitive_key_tokens
         ):
             return True
     return False
 
 
-def _collect_secret_like_paths(value: Any, *, path: tuple[str, ...] = ()) -> list[str]:
+def _collect_secret_like_paths(
+    value: Any,
+    *,
+    sensitive_key_tokens: tuple[str, ...],
+    path: tuple[str, ...] = (),
+) -> list[str]:
     matches: list[str] = []
     if isinstance(value, dict):
         for key in sorted(value):
             key_text = str(key)
-            matches.extend(_collect_secret_like_paths(value[key], path=path + (key_text,)))
+            matches.extend(
+                _collect_secret_like_paths(
+                    value[key],
+                    sensitive_key_tokens=sensitive_key_tokens,
+                    path=path + (key_text,),
+                )
+            )
     elif isinstance(value, list):
         for idx, item in enumerate(value):
-            matches.extend(_collect_secret_like_paths(item, path=path + (str(idx),)))
-    elif isinstance(value, str) and _looks_like_secret_value(value):
+            matches.extend(
+                _collect_secret_like_paths(
+                    item,
+                    sensitive_key_tokens=sensitive_key_tokens,
+                    path=path + (str(idx),),
+                )
+            )
+    elif isinstance(value, str) and _looks_like_secret_value(
+        value, sensitive_key_tokens=sensitive_key_tokens
+    ):
         matches.append(".".join(path))
     return matches
 
 
-def _enforce_no_secret_like_strings(payload: dict[str, Any]) -> None:
-    secret_like_paths = _collect_secret_like_paths(payload)
+def _enforce_no_secret_like_strings(
+    payload: dict[str, Any], *, sensitive_key_tokens: tuple[str, ...]
+) -> None:
+    secret_like_paths = _collect_secret_like_paths(
+        payload,
+        sensitive_key_tokens=sensitive_key_tokens,
+    )
     if secret_like_paths:
         raise URMError(
             code="URM_INCIDENT_PACKET_BUILD_FAILED",
@@ -1134,7 +1158,10 @@ def incident_packet(
         "issues": [],
     }
     try:
-        _enforce_no_secret_like_strings(payload)
+        _enforce_no_secret_like_strings(
+            payload,
+            sensitive_key_tokens=tuple(allowlist.sensitive_key_tokens),
+        )
     except URMError as exc:
         return {
             "schema": POLICY_INCIDENT_SCHEMA,

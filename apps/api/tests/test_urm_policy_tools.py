@@ -983,6 +983,80 @@ def test_incident_packet_secret_like_output_fails_closed(tmp_path: Path) -> None
     assert payload["issues"][0]["code"] == "URM_INCIDENT_PACKET_BUILD_FAILED"
 
 
+def test_incident_packet_secret_key_detection_uses_allowlist_tokens(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    custom_allowlist = tmp_path / "incident_redaction_allowlist.v1.json"
+    _write_json(
+        custom_allowlist,
+        {
+            "schema": "policy.incident_redaction_allowlist.v1",
+            "redaction_eligible_top_level_fields": [
+                "schema",
+                "valid",
+                "policy_hash",
+                "input_context_hash",
+                "decision_code",
+                "matched_rule_ids",
+                "evidence_refs",
+            ],
+            "sensitive_key_tokens": ["credential"],
+        },
+    )
+    monkeypatch.setenv("URM_INCIDENT_REDACTION_ALLOWLIST_PATH", str(custom_allowlist))
+
+    decision_path = tmp_path / "decision.json"
+    _write_json(
+        decision_path,
+        {
+            "schema": "policy_explain@1",
+            "valid": True,
+            "policy_hash": "a" * 64,
+            "input_context_hash": "b" * 64,
+            "decision_code": "ALLOW_HARD_GATED_ACTION",
+            "matched_rule_ids": ["credential=my-noncanonical-secret"],
+            "evidence_refs": [],
+        },
+    )
+    stream_path = tmp_path / "stream.ndjson"
+    stream_path.write_text(
+        json.dumps(
+            {
+                "schema": "urm-events@1",
+                "event": "POLICY_EVAL_PASS",
+                "stream_id": "copilot:session-a",
+                "seq": 1,
+                "ts": "2026-02-12T10:00:01Z",
+                "source": {
+                    "component": "urm_copilot_manager",
+                    "version": "0.1.0",
+                    "provider": "codex",
+                },
+                "context": {
+                    "session_id": "session-a",
+                    "run_id": None,
+                    "role": "copilot",
+                    "endpoint": "urm.tools.call",
+                    "ir_hash": None,
+                },
+                "detail": {
+                    "policy_hash": "a" * 64,
+                    "decision_code": "ALLOW_HARD_GATED_ACTION",
+                    "matched_rule_ids": ["default_allow_after_hard_gates"],
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    payload = incident_packet(
+        decision_path=decision_path,
+        stream_specs=[f"copilot:session-a={stream_path}"],
+    )
+    assert payload["valid"] is False
+    assert payload["issues"][0]["code"] == "URM_INCIDENT_PACKET_BUILD_FAILED"
+
+
 def test_policy_cli_incident_supports_out_file(
     capsys: pytest.CaptureFixture[str], tmp_path: Path
 ) -> None:
