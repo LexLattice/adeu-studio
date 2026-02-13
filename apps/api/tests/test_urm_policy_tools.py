@@ -320,6 +320,10 @@ def test_explain_from_decision_uses_persisted_decision_trace(tmp_path: Path) -> 
             "trace_version": "odeu.instruction-trace.v1",
             "policy_schema_version": "odeu.instructions.schema.v1",
             "policy_ir_version": "odeu.instructions.v1",
+            "evidence_refs": [
+                {"kind": "proof", "ref": "proof:z"},
+                {"kind": "artifact", "ref": "artifact:a"},
+            ],
             "issues": [],
         },
     )
@@ -335,6 +339,10 @@ def test_explain_from_decision_uses_persisted_decision_trace(tmp_path: Path) -> 
     assert report["input_manifest"]["policy_hash"] == "a" * 64
     assert report["input_manifest"]["input_context_hash"] == "b" * 64
     assert report["input_manifest"]["evaluation_ts"] == "2026-02-13T10:00:00Z"
+    assert report["evidence_refs"] == [
+        {"kind": "artifact", "ref": "artifact:a", "note": None},
+        {"kind": "proof", "ref": "proof:z", "note": None},
+    ]
 
 
 def test_diff_policy_ignores_message_and_rule_order_changes(tmp_path: Path) -> None:

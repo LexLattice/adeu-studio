@@ -246,7 +246,7 @@ def _build_policy_explain_report(
     evaluation_ts: str,
     matched_rules: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    evidence_refs = _decision_evidence_refs(decision)
+    evidence_refs = _sorted_evidence_refs(_decision_evidence_refs(decision))
     input_manifest = _build_input_manifest(
         decision=decision,
         evaluation_ts=evaluation_ts,
