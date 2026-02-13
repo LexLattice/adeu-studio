@@ -1365,7 +1365,13 @@ class URMCopilotManager:
             prev_policy_hash=active_state.prev_policy_hash,
         )
 
-    def policy_rollout(self, request: PolicyRolloutRequest) -> PolicyActivationResponse:
+    def _apply_policy_activation_request(
+        self,
+        *,
+        request: PolicyRolloutRequest | PolicyRollbackRequest,
+        endpoint_name: str,
+        action: Literal["rollout", "rollback"],
+    ) -> PolicyActivationResponse:
         activation_ts = request.activation_ts or datetime.now(tz=timezone.utc).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         )
@@ -1373,8 +1379,8 @@ class URMCopilotManager:
             result = apply_policy_activation(
                 config=self.config,
                 registry=self._profile_registry,
-                endpoint_name=POLICY_ROLLOUT_ENDPOINT,
-                action="rollout",
+                endpoint_name=endpoint_name,
+                action=action,
                 client_request_id=request.client_request_id,
                 profile_id=request.profile_id,
                 target_policy_hash=request.target_policy_hash,
@@ -1393,32 +1399,18 @@ class URMCopilotManager:
             idempotent_replay=result.idempotent_replay,
         )
 
-    def policy_rollback(self, request: PolicyRollbackRequest) -> PolicyActivationResponse:
-        activation_ts = request.activation_ts or datetime.now(tz=timezone.utc).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
+    def policy_rollout(self, request: PolicyRolloutRequest) -> PolicyActivationResponse:
+        return self._apply_policy_activation_request(
+            request=request,
+            endpoint_name=POLICY_ROLLOUT_ENDPOINT,
+            action="rollout",
         )
-        with self._lock:
-            result = apply_policy_activation(
-                config=self.config,
-                registry=self._profile_registry,
-                endpoint_name=POLICY_ROLLBACK_ENDPOINT,
-                action="rollback",
-                client_request_id=request.client_request_id,
-                profile_id=request.profile_id,
-                target_policy_hash=request.target_policy_hash,
-                activation_ts=activation_ts,
-                request_payload=request.idempotency_payload(),
-            )
-        return PolicyActivationResponse(
-            profile_id=result.profile_id,
-            profile_version=result.profile_version,
-            action=result.action,
-            target_policy_hash=result.target_policy_hash,
-            prev_policy_hash=result.prev_policy_hash,
-            activation_seq=result.activation_seq,
-            activation_ts=result.activation_ts,
-            request_payload_hash=result.request_payload_hash,
-            idempotent_replay=result.idempotent_replay,
+
+    def policy_rollback(self, request: PolicyRollbackRequest) -> PolicyActivationResponse:
+        return self._apply_policy_activation_request(
+            request=request,
+            endpoint_name=POLICY_ROLLBACK_ENDPOINT,
+            action="rollback",
         )
 
     def send(self, request: CopilotSessionSendRequest) -> CopilotSessionResponse:

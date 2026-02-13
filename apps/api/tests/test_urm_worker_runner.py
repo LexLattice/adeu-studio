@@ -11,6 +11,7 @@ from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.errors import URMError
 from urm_runtime.models import WorkerRunRequest
 from urm_runtime.normalization import normalize_exec_line
+from urm_runtime.storage import URM_SCHEMA_VERSION
 from urm_runtime.worker import CodexExecWorkerRunner
 
 
@@ -115,7 +116,7 @@ def test_worker_runner_persists_evidence_and_idempotent_replay(
         schema_row = con.execute(
             "SELECT schema_version FROM urm_schema_ledger ORDER BY schema_version ASC LIMIT 1"
         ).fetchone()
-        assert schema_row == (3,)
+        assert schema_row == (URM_SCHEMA_VERSION,)
         idempotency_row = con.execute(
             """
             SELECT response_json

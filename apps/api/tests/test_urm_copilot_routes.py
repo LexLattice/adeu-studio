@@ -34,6 +34,7 @@ from adeu_api.urm_routes import (
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from urm_runtime.config import URMRuntimeConfig
+from urm_runtime.errors import URMError
 from urm_runtime.instruction_policy import (
     compute_policy_hash,
     load_instruction_policy,
@@ -113,6 +114,46 @@ def _materialize_policy_file(
         materialized_at=materialized_at,
     )
     return policy_hash
+
+
+def test_materialize_policy_rejects_conflicting_payload_for_existing_hash(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    config = URMRuntimeConfig.from_env()
+    base_policy_path = Path(__file__).resolve().parents[3] / "policy" / "odeu.instructions.v1.json"
+
+    policy = load_instruction_policy(policy_path=base_policy_path, strict=True)
+    policy_hash = compute_policy_hash(policy)
+    semantic = policy_semantic_form(policy)
+    materialize_policy(
+        config=config,
+        policy_hash=policy_hash,
+        schema_id=policy.schema_id,
+        policy_schema_version="odeu.instructions.schema.v1",
+        policy_ir_version="odeu.instructions.v1",
+        semantic_policy_json=semantic,
+        source_policy_ref=str(base_policy_path),
+        materialized_at="2026-02-13T10:00:00Z",
+    )
+
+    conflicting_semantic = dict(semantic)
+    conflicting_semantic["rules"] = []
+    with pytest.raises(URMError) as exc_info:
+        materialize_policy(
+            config=config,
+            policy_hash=policy_hash,
+            schema_id=policy.schema_id,
+            policy_schema_version="odeu.instructions.schema.v1",
+            policy_ir_version="odeu.instructions.v1",
+            semantic_policy_json=conflicting_semantic,
+            source_policy_ref=str(tmp_path / "conflicting.policy.json"),
+            materialized_at="2026-02-13T10:01:00Z",
+        )
+
+    assert exc_info.value.status_code == 409
+    assert exc_info.value.detail.code == "URM_POLICY_DENIED"
 
 
 def test_copilot_start_send_stop_and_sse_replay(

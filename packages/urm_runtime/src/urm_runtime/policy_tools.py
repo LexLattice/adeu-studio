@@ -1255,8 +1255,10 @@ def materialize_policy_cli(
     }
 
 
-def rollout_policy_cli(
+def _activation_policy_cli(
     *,
+    action: Literal["rollout", "rollback"],
+    endpoint_name: str,
     profile_id: str,
     target_policy_hash: str,
     client_request_id: str,
@@ -1274,8 +1276,8 @@ def rollout_policy_cli(
         result = apply_policy_activation(
             config=_runtime_config(),
             registry=load_policy_profile_registry(),
-            endpoint_name=POLICY_ROLLOUT_ENDPOINT,
-            action="rollout",
+            endpoint_name=endpoint_name,
+            action=action,
             client_request_id=client_request_id,
             profile_id=profile_id,
             target_policy_hash=target_policy_hash,
@@ -1288,7 +1290,7 @@ def rollout_policy_cli(
     except URMError as exc:
         return {
             "schema": POLICY_ACTIVATION_SCHEMA,
-            "action": "rollout",
+            "action": action,
             "profile_id": profile_id,
             "client_request_id": client_request_id,
             "target_policy_hash": target_policy_hash,
@@ -1311,6 +1313,27 @@ def rollout_policy_cli(
         "valid": True,
         "issues": [],
     }
+
+
+def rollout_policy_cli(
+    *,
+    profile_id: str,
+    target_policy_hash: str,
+    client_request_id: str,
+    activation_ts: str | None = None,
+    use_now: bool = False,
+    operator_note: str | None = None,
+) -> dict[str, Any]:
+    return _activation_policy_cli(
+        action="rollout",
+        endpoint_name=POLICY_ROLLOUT_ENDPOINT,
+        profile_id=profile_id,
+        target_policy_hash=target_policy_hash,
+        client_request_id=client_request_id,
+        activation_ts=activation_ts,
+        use_now=use_now,
+        operator_note=operator_note,
+    )
 
 
 def rollback_policy_cli(
@@ -1322,53 +1345,16 @@ def rollback_policy_cli(
     use_now: bool = False,
     operator_note: str | None = None,
 ) -> dict[str, Any]:
-    try:
-        resolved_ts = resolve_operation_ts(
-            ts=activation_ts,
-            use_now=use_now,
-            default_ts=DEFAULT_DETERMINISTIC_TS,
-            ts_field_name="activation-ts",
-        )
-        result = apply_policy_activation(
-            config=_runtime_config(),
-            registry=load_policy_profile_registry(),
-            endpoint_name=POLICY_ROLLBACK_ENDPOINT,
-            action="rollback",
-            client_request_id=client_request_id,
-            profile_id=profile_id,
-            target_policy_hash=target_policy_hash,
-            activation_ts=resolved_ts,
-            request_payload={
-                "profile_id": profile_id,
-                "target_policy_hash": target_policy_hash,
-            },
-        )
-    except URMError as exc:
-        return {
-            "schema": POLICY_ACTIVATION_SCHEMA,
-            "action": "rollback",
-            "profile_id": profile_id,
-            "client_request_id": client_request_id,
-            "target_policy_hash": target_policy_hash,
-            "valid": False,
-            "issues": [_error_issue(exc)],
-        }
-
-    return {
-        "schema": POLICY_ACTIVATION_SCHEMA,
-        "action": result.action,
-        "profile_id": result.profile_id,
-        "client_request_id": client_request_id,
-        "profile_version": result.profile_version,
-        "target_policy_hash": result.target_policy_hash,
-        "prev_policy_hash": result.prev_policy_hash,
-        "activation_seq": result.activation_seq,
-        "activation_ts": result.activation_ts,
-        "request_payload_hash": result.request_payload_hash,
-        "operator_note": operator_note,
-        "valid": True,
-        "issues": [],
-    }
+    return _activation_policy_cli(
+        action="rollback",
+        endpoint_name=POLICY_ROLLBACK_ENDPOINT,
+        profile_id=profile_id,
+        target_policy_hash=target_policy_hash,
+        client_request_id=client_request_id,
+        activation_ts=activation_ts,
+        use_now=use_now,
+        operator_note=operator_note,
+    )
 
 
 def active_policy_cli(*, profile_id: str) -> dict[str, Any]:

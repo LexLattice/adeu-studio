@@ -2,10 +2,17 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
+
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - only used on non-POSIX platforms
+    fcntl = None  # type: ignore[assignment]
 
 from .config import URMRuntimeConfig
 from .errors import URMError
@@ -16,6 +23,7 @@ from .profile_registry import PolicyProfileEntry, PolicyProfileRegistry
 from .storage import (
     IdempotencyPayloadConflict,
     PolicyActivationRow,
+    PolicyRegistryPayloadConflict,
     PolicyRegistryRow,
     append_policy_activation_entry,
     get_latest_policy_activation_for_profile,
@@ -121,6 +129,20 @@ def _next_seq_for_event_file(*, path: Path) -> int:
     return last_seq + 1
 
 
+@contextmanager
+def _event_file_lock(*, path: Path) -> Iterator[None]:
+    lock_path = path.with_suffix(f"{path.suffix}.lock")
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("a+b") as handle:
+        if fcntl is not None:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            if fcntl is not None:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
 def emit_governance_event(
     *,
     config: URMRuntimeConfig,
@@ -130,27 +152,28 @@ def emit_governance_event(
     detail: dict[str, Any],
 ) -> None:
     events_path = _governance_stream_path(config=config, stream_id=stream_id)
-    writer = EvidenceFileWriter(
-        path=events_path,
-        max_line_bytes=config.max_line_bytes,
-        max_file_bytes=config.max_evidence_file_bytes,
-    )
-    try:
-        seq = _next_seq_for_event_file(path=events_path)
-        event = build_internal_event(
-            seq=seq,
-            event=event_kind,
-            stream_id=stream_id,
-            source_component="urm_policy_governance",
-            context={
-                "role": "governance",
-                "endpoint": endpoint,
-            },
-            detail=detail,
+    with _event_file_lock(path=events_path):
+        writer = EvidenceFileWriter(
+            path=events_path,
+            max_line_bytes=config.max_line_bytes,
+            max_file_bytes=config.max_evidence_file_bytes,
         )
-        writer.write_json_line(event.model_dump(mode="json", by_alias=True))
-    finally:
-        writer.close()
+        try:
+            seq = _next_seq_for_event_file(path=events_path)
+            event = build_internal_event(
+                seq=seq,
+                event=event_kind,
+                stream_id=stream_id,
+                source_component="urm_policy_governance",
+                context={
+                    "role": "governance",
+                    "endpoint": endpoint,
+                },
+                detail=detail,
+            )
+            writer.write_json_line(event.model_dump(mode="json", by_alias=True))
+        finally:
+            writer.close()
 
 
 def resolve_active_policy_state_for_profile(
@@ -273,16 +296,40 @@ def materialize_policy(
     event_endpoint: str = POLICY_MATERIALIZE_ENDPOINT,
 ) -> PolicyRegistryRow:
     with transaction(db_path=config.db_path) as con:
-        persist_policy_registry_entry(
-            con=con,
-            policy_hash=policy_hash,
-            schema_id=schema_id,
-            policy_schema_version=policy_schema_version,
-            policy_ir_version=policy_ir_version,
-            semantic_policy_json=semantic_policy_json,
-            source_policy_ref=source_policy_ref,
-            materialized_at=materialized_at,
-        )
+        try:
+            persist_policy_registry_entry(
+                con=con,
+                policy_hash=policy_hash,
+                schema_id=schema_id,
+                policy_schema_version=policy_schema_version,
+                policy_ir_version=policy_ir_version,
+                semantic_policy_json=semantic_policy_json,
+                source_policy_ref=source_policy_ref,
+                materialized_at=materialized_at,
+            )
+        except PolicyRegistryPayloadConflict as exc:
+            emit_governance_event(
+                config=config,
+                stream_id=POLICY_MATERIALIZE_STREAM_ID,
+                event_kind="POLICY_MATERIALIZE_DENIED",
+                endpoint=event_endpoint,
+                detail={
+                    "policy_hash": exc.policy_hash,
+                    "stored_payload_hash": exc.existing_payload_hash,
+                    "incoming_payload_hash": exc.incoming_payload_hash,
+                    "reason": "policy_hash_payload_conflict",
+                },
+            )
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="policy hash already exists with a different semantic payload",
+                status_code=409,
+                context={
+                    "policy_hash": exc.policy_hash,
+                    "stored_payload_hash": exc.existing_payload_hash,
+                    "incoming_payload_hash": exc.incoming_payload_hash,
+                },
+            ) from exc
         row = get_policy_registry_entry(con=con, policy_hash=policy_hash)
     if row is None:
         raise URMError(

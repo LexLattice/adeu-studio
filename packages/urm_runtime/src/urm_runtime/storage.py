@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
 import uuid
@@ -25,6 +26,20 @@ class IdempotencyPayloadConflict(ValueError):
     def __init__(self, *, stored_payload_hash: str, incoming_payload_hash: str) -> None:
         super().__init__("idempotency payload hash mismatch")
         self.stored_payload_hash = stored_payload_hash
+        self.incoming_payload_hash = incoming_payload_hash
+
+
+class PolicyRegistryPayloadConflict(ValueError):
+    def __init__(
+        self,
+        *,
+        policy_hash: str,
+        existing_payload_hash: str,
+        incoming_payload_hash: str,
+    ) -> None:
+        super().__init__("policy hash already exists with a different semantic payload")
+        self.policy_hash = policy_hash
+        self.existing_payload_hash = existing_payload_hash
         self.incoming_payload_hash = incoming_payload_hash
 
 
@@ -1448,6 +1463,18 @@ def persist_policy_registry_entry(
         return
 
     existing_semantic_json = str(existing[3])
+    existing_payload_hash = _policy_registry_payload_hash(
+        schema_id=str(existing[0]),
+        policy_schema_version=str(existing[1]),
+        policy_ir_version=str(existing[2]),
+        semantic_policy_json=existing_semantic_json,
+    )
+    incoming_payload_hash = _policy_registry_payload_hash(
+        schema_id=schema_id,
+        policy_schema_version=policy_schema_version,
+        policy_ir_version=policy_ir_version,
+        semantic_policy_json=semantic_json,
+    )
     same_payload = (
         str(existing[0]) == schema_id
         and str(existing[1]) == policy_schema_version
@@ -1455,7 +1482,11 @@ def persist_policy_registry_entry(
         and existing_semantic_json == semantic_json
     )
     if not same_payload:
-        raise ValueError("policy_hash already exists with different semantic payload")
+        raise PolicyRegistryPayloadConflict(
+            policy_hash=policy_hash,
+            existing_payload_hash=existing_payload_hash,
+            incoming_payload_hash=incoming_payload_hash,
+        )
 
     con.execute(
         """
@@ -1466,6 +1497,23 @@ def persist_policy_registry_entry(
         """,
         (source_policy_ref, materialized_at, policy_hash),
     )
+
+
+def _policy_registry_payload_hash(
+    *,
+    schema_id: str,
+    policy_schema_version: str,
+    policy_ir_version: str,
+    semantic_policy_json: str,
+) -> str:
+    payload = {
+        "schema_id": schema_id,
+        "policy_schema_version": policy_schema_version,
+        "policy_ir_version": policy_ir_version,
+        "semantic_policy_json": semantic_policy_json,
+    }
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def get_policy_registry_entry(

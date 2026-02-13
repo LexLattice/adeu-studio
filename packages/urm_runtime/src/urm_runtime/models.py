@@ -206,7 +206,7 @@ class PolicyProfileSelectResponse(BaseModel):
     idempotent_replay: bool = False
 
 
-class PolicyRolloutRequest(BaseModel):
+class _PolicyActivationRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     provider: Literal["codex"] = "codex"
@@ -223,21 +223,12 @@ class PolicyRolloutRequest(BaseModel):
         )
 
 
-class PolicyRollbackRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+class PolicyRolloutRequest(_PolicyActivationRequest):
+    pass
 
-    provider: Literal["codex"] = "codex"
-    client_request_id: str = Field(min_length=1)
-    profile_id: str = Field(min_length=1)
-    target_policy_hash: str = Field(min_length=1)
-    activation_ts: str | None = None
-    operator_note: str | None = None
 
-    def idempotency_payload(self) -> dict[str, Any]:
-        return self.model_dump(
-            mode="json",
-            exclude={"client_request_id", "activation_ts", "operator_note"},
-        )
+class PolicyRollbackRequest(_PolicyActivationRequest):
+    pass
 
 
 class PolicyActivationResponse(BaseModel):
