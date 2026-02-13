@@ -9,6 +9,15 @@ This document proposes continuation options after completing:
 Status: draft only (not frozen).  
 Goal: choose the next locked arc with clear tradeoffs.
 
+## Progress Update (Post vNext+2)
+
+- Option C (`Portability Proof v2`) has been completed and locked via:
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS2.md`
+  - `docs/PORTABILITY_TRANSFER_REPORT_NPLUS2.md`
+- The next primary arc has been selected as Option D and frozen in:
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS3.md`
+- This draft remains as decision-history/reference for option tradeoffs and secondary backlog paths.
+
 ## Baseline Snapshot
 
 Current baseline includes:
