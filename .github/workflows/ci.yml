@@ -34,6 +34,12 @@ jobs:
             --quality-current artifacts/quality_dashboard.json \
             --out-json artifacts/stop_gate/metrics.json \
             --out-md artifacts/stop_gate/report.md
+      - name: Build domain conformance report
+        run: |
+          mkdir -p artifacts/domain_conformance_events
+          .venv/bin/python apps/api/scripts/build_domain_conformance.py \
+            --out artifacts/domain_conformance.json \
+            --events-dir artifacts/domain_conformance_events
       - name: Build URM events diagnostics
         run: |
           mkdir -p artifacts/urm_events
@@ -60,6 +66,12 @@ jobs:
         with:
           name: stop-gate-metrics
           path: artifacts/stop_gate
+          if-no-files-found: error
+      - name: Upload domain conformance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: domain-conformance
+          path: artifacts/domain_conformance.json
           if-no-files-found: error
       - name: Upload URM events diagnostics artifact
         uses: actions/upload-artifact@v4
