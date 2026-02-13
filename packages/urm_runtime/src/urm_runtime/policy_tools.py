@@ -6,9 +6,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from .errors import URMError
-from .hashing import canonical_json
+from .hashing import canonical_json, sha256_canonical_json
 from .instruction_policy import (
+    EvidenceRef,
     EvidenceRefKind,
     InstructionPolicy,
     PolicyContext,
@@ -25,6 +28,7 @@ POLICY_EVAL_SCHEMA = "instruction-policy-eval@1"
 POLICY_DIFF_SCHEMA = "instruction-policy-diff@1"
 POLICY_EXPLAIN_SCHEMA = "policy_explain@1"
 POLICY_INCIDENT_SCHEMA = "incident_packet@1"
+POLICY_EXPLAIN_INVALID_INPUT = "URM_POLICY_EXPLAIN_INVALID_INPUT"
 DEFAULT_EVALUATION_TS = "1970-01-01T00:00:00Z"
 _CANONICAL_REF_PREFIX_TO_KIND: dict[str, EvidenceRefKind] = {
     "event:": "event",
@@ -93,6 +97,191 @@ def _resolve_evaluation_ts(
     if "evaluation_ts" in context_doc:
         return str(context_doc["evaluation_ts"])
     return DEFAULT_EVALUATION_TS
+
+
+def _decision_evidence_refs(decision: PolicyDecision) -> list[dict[str, Any]]:
+    return [ref.model_dump(mode="json") for ref in decision.evidence_refs]
+
+
+def _sorted_evidence_refs(evidence_refs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return sorted(
+        evidence_refs,
+        key=lambda item: (
+            str(item.get("kind", "")),
+            str(item.get("ref", "")),
+            str(item.get("note", "") or ""),
+        ),
+    )
+
+
+def _decision_trace_hash(*, decision: PolicyDecision, evidence_refs: list[dict[str, Any]]) -> str:
+    trace_payload = {
+        "decision": decision.decision,
+        "decision_code": decision.decision_code,
+        "policy_hash": decision.policy_hash,
+        "input_context_hash": decision.input_context_hash,
+        "matched_rule_ids": list(decision.matched_rule_ids),
+        "required_approval": decision.required_approval,
+        "trace_version": decision.trace_version,
+        "policy_schema_version": decision.policy_schema_version,
+        "policy_ir_version": decision.policy_ir_version,
+        "evaluator_version": decision.evaluator_version,
+        "advisories": list(decision.advisories),
+        "warrant_invalid": decision.warrant_invalid,
+        "evidence_refs": evidence_refs,
+    }
+    return sha256_canonical_json(trace_payload)
+
+
+def _build_input_manifest(
+    *,
+    decision: PolicyDecision,
+    evaluation_ts: str,
+    evidence_refs: list[dict[str, Any]],
+) -> dict[str, Any]:
+    normalized_refs = _sorted_evidence_refs(evidence_refs)
+    return {
+        "policy_hash": decision.policy_hash,
+        "input_context_hash": decision.input_context_hash,
+        "evaluation_ts": evaluation_ts,
+        "evidence_refs": normalized_refs,
+        "decision_trace_hash": _decision_trace_hash(
+            decision=decision,
+            evidence_refs=normalized_refs,
+        ),
+    }
+
+
+def _normalize_report_advisories(advisories: Any) -> list[dict[str, Any]]:
+    if not isinstance(advisories, list):
+        return []
+    normalized: list[dict[str, Any]] = []
+    for advisory in advisories:
+        if isinstance(advisory, dict):
+            normalized.append(dict(advisory))
+    return normalized
+
+
+def _normalize_report_evidence_refs(evidence_refs: Any) -> list[dict[str, Any]]:
+    if evidence_refs is None:
+        return []
+    if not isinstance(evidence_refs, list):
+        raise ValueError("evidence_refs must be a list")
+    normalized: list[dict[str, Any]] = []
+    for idx, candidate in enumerate(evidence_refs):
+        if not isinstance(candidate, dict):
+            raise ValueError(f"evidence_refs[{idx}] must be an object")
+        normalized_ref = dict(candidate)
+        if "kind" not in normalized_ref:
+            derived_kind = _canonical_ref_kind(str(normalized_ref.get("ref", "")))
+            if derived_kind is None:
+                raise ValueError(f"evidence_refs[{idx}] has unknown canonical ref prefix")
+            normalized_ref["kind"] = derived_kind
+        parsed = EvidenceRef.model_validate(normalized_ref)
+        normalized.append(parsed.model_dump(mode="json"))
+    return normalized
+
+
+def _decision_from_payload(
+    *,
+    payload: dict[str, Any],
+    invalid_input_code: str,
+) -> PolicyDecision:
+    schema = payload.get("schema")
+    if schema is not None and schema not in {POLICY_EVAL_SCHEMA, POLICY_EXPLAIN_SCHEMA}:
+        raise URMError(
+            code=invalid_input_code,
+            message="unsupported decision payload schema",
+            context={"schema": schema},
+        )
+
+    if schema is not None and payload.get("valid") is not True:
+        raise URMError(
+            code=invalid_input_code,
+            message="decision payload must be valid for explain rendering",
+            context={"schema": schema},
+        )
+
+    try:
+        raw_decision = {
+            "decision": payload.get("decision"),
+            "decision_code": payload.get("decision_code"),
+            "policy_hash": payload.get("policy_hash"),
+            "input_context_hash": payload.get("input_context_hash"),
+            "matched_rule_ids": payload.get("matched_rule_ids"),
+            "required_approval": payload.get("required_approval"),
+            "trace_version": payload.get("trace_version"),
+            "policy_schema_version": payload.get("policy_schema_version"),
+            "policy_ir_version": payload.get("policy_ir_version"),
+            "evaluator_version": payload.get("evaluator_version"),
+            "advisories": _normalize_report_advisories(payload.get("advisories")),
+            "warrant_invalid": bool(payload.get("warrant_invalid", False)),
+            "evidence_refs": _normalize_report_evidence_refs(payload.get("evidence_refs")),
+        }
+    except (ValidationError, ValueError) as exc:
+        raise URMError(
+            code=invalid_input_code,
+            message="decision payload contains invalid explain evidence refs",
+            context={"error": str(exc), "schema": schema},
+        ) from exc
+
+    try:
+        return PolicyDecision.model_validate(raw_decision)
+    except ValidationError as exc:
+        raise URMError(
+            code=invalid_input_code,
+            message="decision payload is not a valid PolicyDecision trace",
+            context={"error": str(exc), "schema": schema},
+        ) from exc
+
+
+def _build_policy_explain_report(
+    *,
+    decision: PolicyDecision,
+    input_policy: str | None,
+    input_context: str | None,
+    input_decision: str | None,
+    strict: bool,
+    deterministic_mode: bool,
+    evaluation_ts: str,
+    matched_rules: list[dict[str, Any]],
+) -> dict[str, Any]:
+    evidence_refs = _sorted_evidence_refs(_decision_evidence_refs(decision))
+    input_manifest = _build_input_manifest(
+        decision=decision,
+        evaluation_ts=evaluation_ts,
+        evidence_refs=evidence_refs,
+    )
+    report: dict[str, Any] = {
+        "schema": POLICY_EXPLAIN_SCHEMA,
+        "strict": strict,
+        "deterministic_mode": deterministic_mode,
+        "valid": True,
+        "evaluation_ts": evaluation_ts,
+        "policy_hash": decision.policy_hash,
+        "input_context_hash": decision.input_context_hash,
+        "decision": decision.decision,
+        "decision_code": decision.decision_code,
+        "matched_rule_ids": list(decision.matched_rule_ids),
+        "matched_rules": list(matched_rules),
+        "required_approval": decision.required_approval,
+        "evaluator_version": decision.evaluator_version,
+        "trace_version": decision.trace_version,
+        "policy_schema_version": decision.policy_schema_version,
+        "policy_ir_version": decision.policy_ir_version,
+        "advisories": list(decision.advisories),
+        "warrant_invalid": decision.warrant_invalid,
+        "evidence_refs": evidence_refs,
+        "input_manifest": input_manifest,
+        "issues": [],
+    }
+    if input_policy is not None:
+        report["input_policy"] = input_policy
+    if input_context is not None:
+        report["input_context"] = input_context
+    if input_decision is not None:
+        report["input_decision"] = input_decision
+    return report
 
 
 def _evaluate_policy_with_context(
@@ -387,7 +576,7 @@ def explain_policy(
             schema_path=schema_path,
             evaluation_ts=evaluation_ts,
             use_now=use_now,
-            invalid_input_code="URM_POLICY_EXPLAIN_INVALID_INPUT",
+            invalid_input_code=POLICY_EXPLAIN_INVALID_INPUT,
         )
     except URMError as exc:
         return {
@@ -400,30 +589,162 @@ def explain_policy(
             "issues": [_error_issue(exc)],
         }
 
-    return {
-        "schema": POLICY_EXPLAIN_SCHEMA,
-        "input_policy": str(policy_path),
-        "input_context": str(context_path),
-        "strict": strict,
-        "deterministic_mode": not use_now,
-        "valid": True,
-        "evaluation_ts": context.evaluation_ts,
-        "policy_hash": decision.policy_hash,
-        "input_context_hash": decision.input_context_hash,
-        "decision": decision.decision,
-        "decision_code": decision.decision_code,
-        "matched_rule_ids": list(decision.matched_rule_ids),
-        "matched_rules": _matched_rule_summaries(policy=policy, decision=decision),
-        "required_approval": decision.required_approval,
-        "evaluator_version": decision.evaluator_version,
-        "trace_version": decision.trace_version,
-        "policy_schema_version": decision.policy_schema_version,
-        "policy_ir_version": decision.policy_ir_version,
-        "advisories": list(decision.advisories),
-        "warrant_invalid": decision.warrant_invalid,
-        "evidence_refs": [ref.model_dump(mode="json") for ref in decision.evidence_refs],
-        "issues": [],
-    }
+    return _build_policy_explain_report(
+        decision=decision,
+        input_policy=str(policy_path),
+        matched_rules=_matched_rule_summaries(policy=policy, decision=decision),
+        input_context=str(context_path),
+        input_decision=None,
+        strict=strict,
+        deterministic_mode=not use_now,
+        evaluation_ts=context.evaluation_ts,
+    )
+
+
+def explain_policy_from_decision(
+    *,
+    decision_path: Path,
+    evaluation_ts: str | None = None,
+    use_now: bool = False,
+) -> dict[str, Any]:
+    try:
+        try:
+            payload = _load_json_from_path(decision_path, description="policy decision payload")
+        except URMError as exc:
+            raise URMError(
+                code=POLICY_EXPLAIN_INVALID_INPUT,
+                message="policy decision payload is unreadable or invalid",
+                context={"path": str(decision_path), "cause": exc.detail.context},
+            ) from exc
+        resolved_ts = _resolve_evaluation_ts(
+            context_doc=payload,
+            evaluation_ts=evaluation_ts,
+            use_now=use_now,
+            invalid_input_code=POLICY_EXPLAIN_INVALID_INPUT,
+        )
+        decision = _decision_from_payload(
+            payload=payload,
+            invalid_input_code=POLICY_EXPLAIN_INVALID_INPUT,
+        )
+        matched_rules = payload.get("matched_rules")
+        normalized_matched_rules = (
+            [rule for rule in matched_rules if isinstance(rule, dict)]
+            if isinstance(matched_rules, list)
+            else []
+        )
+        strict = payload.get("strict")
+        strict_value = bool(strict) if isinstance(strict, bool) else True
+    except URMError as exc:
+        return {
+            "schema": POLICY_EXPLAIN_SCHEMA,
+            "input_decision": str(decision_path),
+            "deterministic_mode": not use_now,
+            "valid": False,
+            "issues": [_error_issue(exc)],
+        }
+
+    return _build_policy_explain_report(
+        decision=decision,
+        input_policy=(
+            str(payload["input_policy"])
+            if isinstance(payload.get("input_policy"), str)
+            else None
+        ),
+        input_context=(
+            str(payload["input_context"]) if isinstance(payload.get("input_context"), str) else None
+        ),
+        input_decision=str(decision_path),
+        strict=strict_value,
+        deterministic_mode=not use_now,
+        evaluation_ts=resolved_ts,
+        matched_rules=normalized_matched_rules,
+    )
+
+
+def policy_explain_markdown(report: dict[str, Any]) -> str:
+    lines: list[str] = [
+        "# Policy Explain Report",
+        "",
+        f"- Schema: `{report.get('schema', POLICY_EXPLAIN_SCHEMA)}`",
+        f"- Valid: `{bool(report.get('valid'))}`",
+        f"- Deterministic mode: `{bool(report.get('deterministic_mode'))}`",
+    ]
+    input_policy = report.get("input_policy")
+    if isinstance(input_policy, str):
+        lines.append(f"- Input policy: `{input_policy}`")
+    input_context = report.get("input_context")
+    if isinstance(input_context, str):
+        lines.append(f"- Input context: `{input_context}`")
+    input_decision = report.get("input_decision")
+    if isinstance(input_decision, str):
+        lines.append(f"- Input decision: `{input_decision}`")
+    lines.append("")
+
+    if report.get("valid") is True:
+        lines.extend(
+            [
+                "## Decision",
+                "",
+                f"- Decision: `{report.get('decision')}`",
+                f"- Decision code: `{report.get('decision_code')}`",
+                f"- Required approval: `{bool(report.get('required_approval'))}`",
+                "",
+            ]
+        )
+        input_manifest = report.get("input_manifest")
+        if isinstance(input_manifest, dict):
+            lines.extend(
+                [
+                    "## Input Manifest",
+                    "",
+                    f"- `policy_hash`: `{input_manifest.get('policy_hash')}`",
+                    f"- `input_context_hash`: `{input_manifest.get('input_context_hash')}`",
+                    f"- `evaluation_ts`: `{input_manifest.get('evaluation_ts')}`",
+                    f"- `decision_trace_hash`: `{input_manifest.get('decision_trace_hash')}`",
+                    "",
+                ]
+            )
+        matched_rule_ids = report.get("matched_rule_ids")
+        if isinstance(matched_rule_ids, list):
+            lines.append("## Matched Rule IDs")
+            lines.append("")
+            for rule_id in matched_rule_ids:
+                lines.append(f"- `{rule_id}`")
+            if not matched_rule_ids:
+                lines.append("- _(none)_")
+            lines.append("")
+
+        evidence_refs = report.get("evidence_refs")
+        if isinstance(evidence_refs, list):
+            lines.append("## Evidence Refs")
+            lines.append("")
+            normalized_refs = _sorted_evidence_refs(
+                [ref for ref in evidence_refs if isinstance(ref, dict)]
+            )
+            if normalized_refs:
+                for ref in normalized_refs:
+                    note = ref.get("note")
+                    if isinstance(note, str) and note:
+                        lines.append(f"- `{ref.get('kind')}` `{ref.get('ref')}` ({note})")
+                    else:
+                        lines.append(f"- `{ref.get('kind')}` `{ref.get('ref')}`")
+            else:
+                lines.append("- _(none)_")
+            lines.append("")
+
+    issues = report.get("issues")
+    if isinstance(issues, list) and issues:
+        lines.extend(["## Issues", ""])
+        for issue in issues:
+            if not isinstance(issue, dict):
+                continue
+            lines.append(
+                f"- `{issue.get('code')}`: {issue.get('message')} "
+                f"({canonical_json(issue.get('context', {}))})"
+            )
+        lines.append("")
+
+    return "\n".join(lines)
 
 
 def diff_policy(
@@ -613,8 +934,31 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     explain_parser.add_argument("--evaluation-ts", dest="evaluation_ts", type=str, required=False)
     explain_parser.add_argument("--use-now", dest="use_now", action="store_true")
     explain_parser.add_argument("--out", dest="out_path", type=Path, required=False)
+    explain_parser.add_argument("--out-md", dest="out_md_path", type=Path, required=False)
     explain_parser.add_argument("--lax", dest="strict", action="store_false")
     explain_parser.set_defaults(strict=True)
+
+    explain_from_decision_parser = subparsers.add_parser(
+        "explain-from-decision",
+        help="Render deterministic explanation view from persisted decision payload.",
+    )
+    explain_from_decision_parser.add_argument(
+        "--decision",
+        dest="decision_path",
+        type=Path,
+        required=True,
+    )
+    explain_from_decision_parser.add_argument(
+        "--evaluation-ts", dest="evaluation_ts", type=str, required=False
+    )
+    explain_from_decision_parser.add_argument("--use-now", dest="use_now", action="store_true")
+    explain_from_decision_parser.add_argument("--out", dest="out_path", type=Path, required=False)
+    explain_from_decision_parser.add_argument(
+        "--out-md",
+        dest="out_md_path",
+        type=Path,
+        required=False,
+    )
 
     diff_parser = subparsers.add_parser(
         "diff",
@@ -681,6 +1025,17 @@ def main(argv: list[str] | None = None) -> int:
             evaluation_ts=args.evaluation_ts,
             use_now=bool(args.use_now),
         )
+        if args.out_md_path is not None:
+            _write_text(args.out_md_path, policy_explain_markdown(report))
+        return _emit_report(report, out_path=args.out_path)
+    if args.command == "explain-from-decision":
+        report = explain_policy_from_decision(
+            decision_path=args.decision_path,
+            evaluation_ts=args.evaluation_ts,
+            use_now=bool(args.use_now),
+        )
+        if args.out_md_path is not None:
+            _write_text(args.out_md_path, policy_explain_markdown(report))
         return _emit_report(report, out_path=args.out_path)
     if args.command == "diff":
         report = diff_policy(
