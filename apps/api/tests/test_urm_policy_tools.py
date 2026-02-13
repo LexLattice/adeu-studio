@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 from urm_runtime.policy_tools import (
     diff_policy,
     eval_policy,
     explain_policy,
+    explain_policy_from_decision,
     incident_packet,
     main,
+    policy_explain_markdown,
     validate_policy,
 )
 
@@ -24,6 +28,11 @@ def _repo_root() -> Path:
 
 def _example_eval_path(*parts: str) -> Path:
     return _repo_root() / "examples" / "eval" / Path(*parts)
+
+
+def _load_policy_explain_schema() -> dict[str, object]:
+    schema_path = _repo_root() / "spec" / "policy_explain.schema.json"
+    return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
 def _write_json(path: Path, payload: dict[str, object]) -> None:
@@ -219,6 +228,113 @@ def test_explain_policy_rejects_conflicting_timestamp_flags(tmp_path: Path) -> N
     assert report["schema"] == "policy_explain@1"
     assert report["valid"] is False
     assert report["issues"][0]["code"] == "URM_POLICY_EXPLAIN_INVALID_INPUT"
+
+
+def test_explain_policy_adds_input_manifest_and_matches_schema(tmp_path: Path) -> None:
+    policy_path = _repo_root() / "policy" / "odeu.instructions.v1.json"
+    context_path = tmp_path / "context.json"
+    _write_json(
+        context_path,
+        {
+            "role": "copilot",
+            "mode": "read_only",
+            "action_kind": "adeu.get_app_state",
+            "action_hash": "test_hash",
+        },
+    )
+
+    report = explain_policy(
+        policy_path=policy_path,
+        context_path=context_path,
+        strict=True,
+    )
+
+    validator = Draft202012Validator(_load_policy_explain_schema())
+    errors = sorted(validator.iter_errors(report), key=lambda err: str(err.path))
+    assert errors == []
+    assert report["input_manifest"]["policy_hash"] == report["policy_hash"]
+    assert report["input_manifest"]["input_context_hash"] == report["input_context_hash"]
+    assert report["input_manifest"]["evaluation_ts"] == report["evaluation_ts"]
+    assert isinstance(report["input_manifest"]["decision_trace_hash"], str)
+    assert len(report["input_manifest"]["decision_trace_hash"]) == 64
+
+
+def test_policy_explain_markdown_is_deterministic_for_identical_payload() -> None:
+    explain_payload = {
+        "schema": "policy_explain@1",
+        "valid": True,
+        "deterministic_mode": True,
+        "strict": True,
+        "evaluation_ts": "2026-02-13T10:00:00Z",
+        "policy_hash": "1" * 64,
+        "input_context_hash": "2" * 64,
+        "decision": "allow",
+        "decision_code": "ALLOW_TEST",
+        "matched_rule_ids": ["allow_rule"],
+        "matched_rules": [],
+        "required_approval": False,
+        "evaluator_version": "odeu.instruction-evaluator.v1",
+        "trace_version": "odeu.instruction-trace.v1",
+        "policy_schema_version": "odeu.instructions.schema.v1",
+        "policy_ir_version": "odeu.instructions.v1",
+        "advisories": [],
+        "warrant_invalid": False,
+        "evidence_refs": [{"kind": "artifact", "ref": "artifact:artifact-a"}],
+        "input_manifest": {
+            "policy_hash": "1" * 64,
+            "input_context_hash": "2" * 64,
+            "evaluation_ts": "2026-02-13T10:00:00Z",
+            "evidence_refs": [{"kind": "artifact", "ref": "artifact:artifact-a"}],
+            "decision_trace_hash": "3" * 64,
+        },
+        "issues": [],
+    }
+    markdown_first = policy_explain_markdown(explain_payload)
+    canonical_payload = json.loads(json.dumps(explain_payload, sort_keys=True))
+    markdown_second = policy_explain_markdown(canonical_payload)
+    assert markdown_first == markdown_second
+    assert hashlib.sha256(markdown_first.encode("utf-8")).hexdigest() == hashlib.sha256(
+        markdown_second.encode("utf-8")
+    ).hexdigest()
+
+
+def test_explain_from_decision_uses_persisted_decision_trace(tmp_path: Path) -> None:
+    decision_path = tmp_path / "eval.json"
+    _write_json(
+        decision_path,
+        {
+            "schema": "instruction-policy-eval@1",
+            "input_policy": "policy/fixture.json",
+            "input_context": "context/fixture.json",
+            "strict": True,
+            "deterministic_mode": True,
+            "valid": True,
+            "evaluation_ts": "2026-02-13T10:00:00Z",
+            "policy_hash": "a" * 64,
+            "input_context_hash": "b" * 64,
+            "decision": "deny",
+            "decision_code": "DENY_TEST",
+            "matched_rule_ids": ["deny_rule"],
+            "required_approval": False,
+            "evaluator_version": "odeu.instruction-evaluator.v1",
+            "trace_version": "odeu.instruction-trace.v1",
+            "policy_schema_version": "odeu.instructions.schema.v1",
+            "policy_ir_version": "odeu.instructions.v1",
+            "issues": [],
+        },
+    )
+
+    report = explain_policy_from_decision(decision_path=decision_path)
+    assert report["valid"] is True
+    assert report["schema"] == "policy_explain@1"
+    assert report["input_decision"] == str(decision_path)
+    assert report["decision"] == "deny"
+    assert report["decision_code"] == "DENY_TEST"
+    assert report["matched_rule_ids"] == ["deny_rule"]
+    assert report["matched_rules"] == []
+    assert report["input_manifest"]["policy_hash"] == "a" * 64
+    assert report["input_manifest"]["input_context_hash"] == "b" * 64
+    assert report["input_manifest"]["evaluation_ts"] == "2026-02-13T10:00:00Z"
 
 
 def test_diff_policy_ignores_message_and_rule_order_changes(tmp_path: Path) -> None:
@@ -699,3 +815,50 @@ def test_policy_cli_incident_supports_out_file(
     assert payload["schema"] == "incident_packet@1"
     assert payload["valid"] is True
     assert capsys.readouterr().out == ""
+
+
+def test_policy_cli_explain_from_decision_supports_markdown_output(tmp_path: Path) -> None:
+    decision_path = tmp_path / "decision.json"
+    _write_json(
+        decision_path,
+        {
+            "schema": "instruction-policy-eval@1",
+            "input_policy": "policy/fixture.json",
+            "input_context": "context/fixture.json",
+            "strict": True,
+            "deterministic_mode": True,
+            "valid": True,
+            "evaluation_ts": "2026-02-13T10:00:00Z",
+            "policy_hash": "c" * 64,
+            "input_context_hash": "d" * 64,
+            "decision": "allow",
+            "decision_code": "ALLOW_TEST",
+            "matched_rule_ids": ["allow_rule"],
+            "required_approval": False,
+            "evaluator_version": "odeu.instruction-evaluator.v1",
+            "trace_version": "odeu.instruction-trace.v1",
+            "policy_schema_version": "odeu.instructions.schema.v1",
+            "policy_ir_version": "odeu.instructions.v1",
+            "issues": [],
+        },
+    )
+    out_json = tmp_path / "explain-from-decision.json"
+    out_md = tmp_path / "explain-from-decision.md"
+    exit_code = main(
+        [
+            "explain-from-decision",
+            "--decision",
+            str(decision_path),
+            "--out",
+            str(out_json),
+            "--out-md",
+            str(out_md),
+        ]
+    )
+    assert exit_code == 0
+    payload = json.loads(out_json.read_text(encoding="utf-8"))
+    assert payload["schema"] == "policy_explain@1"
+    assert payload["valid"] is True
+    markdown = out_md.read_text(encoding="utf-8")
+    assert "Policy Explain Report" in markdown
+    assert "`ALLOW_TEST`" in markdown
