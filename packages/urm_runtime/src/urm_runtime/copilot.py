@@ -689,7 +689,13 @@ class URMCopilotManager:
         self,
         *,
         session_id: str | None,
-        event_kind: Literal["POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"],
+        event_kind: Literal[
+            "POLICY_EVAL_START",
+            "POLICY_EVAL_PASS",
+            "POLICY_DENIED",
+            "PROOF_RUN_PASS",
+            "PROOF_RUN_FAIL",
+        ],
         detail: dict[str, Any],
     ) -> None:
         if not session_id:
@@ -698,10 +704,14 @@ class URMCopilotManager:
             runtime = self._sessions.get(session_id)
             if runtime is None:
                 return
+            payload = dict(detail)
+            if event_kind in {"PROOF_RUN_PASS", "PROOF_RUN_FAIL"}:
+                payload.setdefault("parent_stream_id", f"copilot:{runtime.session_id}")
+                payload.setdefault("parent_seq", runtime.last_seq)
             self._record_internal_event(
                 runtime=runtime,
                 event_kind=event_kind,
-                payload=detail,
+                payload=payload,
             )
 
     def _wait_for_response(

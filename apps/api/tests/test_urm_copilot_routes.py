@@ -1909,6 +1909,8 @@ def test_tool_call_emits_policy_eval_events_on_allow(
     )
     assert [event for event, _detail in fake_manager.events] == [
         "POLICY_EVAL_START",
+        "PROOF_RUN_PASS",
+        "PROOF_RUN_PASS",
         "POLICY_EVAL_PASS",
     ]
 
@@ -1987,5 +1989,7 @@ def test_tool_call_emits_policy_denied_event_on_instruction_deny(
     )
     assert [event for event, _detail in fake_manager.events] == [
         "POLICY_EVAL_START",
+        "PROOF_RUN_PASS",
+        "PROOF_RUN_PASS",
         "POLICY_DENIED",
     ]

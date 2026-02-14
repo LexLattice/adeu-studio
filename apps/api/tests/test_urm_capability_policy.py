@@ -146,9 +146,16 @@ def test_authorize_action_emits_policy_eval_events_for_allow() -> None:
         emit_policy_event=lambda event, detail: captured.append((event, detail)),
     )
     assert decision.policy_decision.decision == "allow"
-    assert [item[0] for item in captured] == ["POLICY_EVAL_START", "POLICY_EVAL_PASS"]
+    assert [item[0] for item in captured] == [
+        "POLICY_EVAL_START",
+        "PROOF_RUN_PASS",
+        "PROOF_RUN_PASS",
+        "POLICY_EVAL_PASS",
+    ]
     assert captured[0][1]["decision_code"] == "PENDING"
-    assert isinstance(captured[1][1]["matched_rule_ids"], list)
+    assert isinstance(captured[-1][1]["matched_rule_ids"], list)
+    assert captured[1][1]["artifact_ref"].startswith("proof:")
+    assert isinstance(captured[1][1]["proof_id"], str)
 
 
 def test_authorize_action_emits_policy_denied_for_instruction_rule(
@@ -188,7 +195,12 @@ def test_authorize_action_emits_policy_denied_for_instruction_rule(
             emit_policy_event=lambda event, detail: captured.append((event, detail)),
         )
     assert exc_info.value.detail.code == "DENY_COPILOT_TEST"
-    assert [item[0] for item in captured] == ["POLICY_EVAL_START", "POLICY_DENIED"]
+    assert [item[0] for item in captured] == [
+        "POLICY_EVAL_START",
+        "PROOF_RUN_PASS",
+        "PROOF_RUN_PASS",
+        "POLICY_DENIED",
+    ]
     detail = exc_info.value.detail.context
     assert isinstance(detail.get("evidence_refs"), list)
     assert any(
@@ -209,13 +221,22 @@ def test_authorize_action_proof_backend_failure_does_not_change_decision(
         "build_proof_backend",
         lambda kind=None: _FailingBackend(),
     )
+    captured: list[tuple[str, dict[str, object]]] = []
     decision = authorize_action(
         role="copilot",
         action="adeu.get_app_state",
         writes_allowed=False,
         approval_provided=False,
         session_active=True,
+        emit_policy_event=lambda event, detail: captured.append((event, detail)),
     )
     assert decision.policy_decision.decision == "allow"
     assert len(decision.policy_decision.proof_artifacts) == 2
     assert all(artifact.status == "failed" for artifact in decision.policy_decision.proof_artifacts)
+    assert [item[0] for item in captured] == [
+        "POLICY_EVAL_START",
+        "PROOF_RUN_FAIL",
+        "PROOF_RUN_FAIL",
+        "POLICY_EVAL_PASS",
+    ]
+    assert all(item[1]["code"] == "URM_PROOF_BACKEND_UNAVAILABLE" for item in captured[1:3])

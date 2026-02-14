@@ -29,7 +29,15 @@ ALLOW_POLICY_SCHEMA = "urm.allow.v1"
 CAPABILITY_LATTICE_FILE = "urm.capability.lattice.v1.json"
 ALLOW_POLICY_FILE = "urm.allow.v1.json"
 HARD_GATE_TRACE_VERSION = "urm.hard-gate.v1"
-PolicyEvalEventName = Literal["POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"]
+PROOF_BACKEND_UNAVAILABLE_CODE = "URM_PROOF_BACKEND_UNAVAILABLE"
+PROOF_EVIDENCE_NOT_FOUND_CODE = "URM_PROOF_EVIDENCE_NOT_FOUND"
+PolicyEvalEventName = Literal[
+    "POLICY_EVAL_START",
+    "POLICY_EVAL_PASS",
+    "POLICY_DENIED",
+    "PROOF_RUN_PASS",
+    "PROOF_RUN_FAIL",
+]
 PolicyEvalEventCallback = Callable[[PolicyEvalEventName, dict[str, Any]], None]
 InstructionProofBackend = Literal["lean", "mock"]
 INSTRUCTION_KERNEL_PROOF_THEOREM_IDS: tuple[str, ...] = (
@@ -294,6 +302,7 @@ def _build_failed_instruction_proof_artifact(
     action: str,
     role: str,
     error: str,
+    error_code: str,
 ) -> ProofArtifact:
     stable_id = sha256_text(f"instruction-kernel:{theorem_id}:{backend}")[:32]
     return ProofArtifact(
@@ -309,6 +318,7 @@ def _build_failed_instruction_proof_artifact(
             "policy_hash": policy_hash,
             "action_kind": action,
             "role": role,
+            "error_code": error_code,
             "error": error,
         },
     )
@@ -329,6 +339,7 @@ def _attach_instruction_policy_proofs(
     action: str,
     action_hash: str,
     role: str,
+    emit_policy_event: PolicyEvalEventCallback | None,
 ) -> PolicyDecision:
     inputs = _build_instruction_proof_inputs(action=action, action_hash=action_hash)
     backend_name = _selected_instruction_proof_backend()
@@ -353,6 +364,7 @@ def _attach_instruction_policy_proofs(
                     action=action,
                     role=role,
                     error=backend_error or "proof backend unavailable",
+                    error_code=PROOF_BACKEND_UNAVAILABLE_CODE,
                 )
             )
             continue
@@ -368,6 +380,7 @@ def _attach_instruction_policy_proofs(
                 action=action,
                 role=role,
                 error=str(exc),
+                error_code=PROOF_BACKEND_UNAVAILABLE_CODE,
             )
         else:
             details = dict(proof.details)
@@ -376,6 +389,8 @@ def _attach_instruction_policy_proofs(
             details.setdefault("policy_hash", policy_decision.policy_hash)
             details.setdefault("action_kind", action)
             details.setdefault("role", role)
+            if proof.status == "failed":
+                details.setdefault("error_code", PROOF_EVIDENCE_NOT_FOUND_CODE)
             proof = proof.model_copy(update={"details": details})
         proof_artifacts.append(proof)
 
@@ -383,6 +398,31 @@ def _attach_instruction_policy_proofs(
         proof_artifacts,
         key=lambda artifact: (artifact.theorem_id, artifact.proof_id),
     )
+    for artifact in ordered_proofs:
+        detail: dict[str, Any] = {
+            "policy_hash": policy_decision.policy_hash,
+            "proof_id": artifact.proof_id,
+            "theorem_id": artifact.theorem_id,
+            "backend": artifact.backend,
+            "status": artifact.status,
+            "artifact_ref": f"proof:{artifact.proof_id}",
+        }
+        if artifact.status == "failed":
+            error_code = artifact.details.get("error_code")
+            if not isinstance(error_code, str) or not error_code:
+                error_code = PROOF_EVIDENCE_NOT_FOUND_CODE
+            detail["code"] = error_code
+            _emit_policy_event(
+                callback=emit_policy_event,
+                event_name="PROOF_RUN_FAIL",
+                detail=detail,
+            )
+            continue
+        _emit_policy_event(
+            callback=emit_policy_event,
+            event_name="PROOF_RUN_PASS",
+            detail=detail,
+        )
     evidence_refs = list(policy_decision.evidence_refs)
     evidence_refs.extend(
         EvidenceRef(kind="proof", ref=f"proof:{artifact.proof_id}", note=artifact.theorem_id)
@@ -507,12 +547,6 @@ def authorize_action(
             }
         ),
     )
-    policy_decision = _attach_instruction_policy_proofs(
-        policy_decision=policy_decision,
-        action=action,
-        action_hash=action_hash,
-        role=role,
-    )
     start_detail = {
         "policy_hash": policy_decision.policy_hash,
         "decision_code": "PENDING",
@@ -525,6 +559,13 @@ def authorize_action(
         callback=emit_policy_event,
         event_name="POLICY_EVAL_START",
         detail=start_detail,
+    )
+    policy_decision = _attach_instruction_policy_proofs(
+        policy_decision=policy_decision,
+        action=action,
+        action_hash=action_hash,
+        role=role,
+        emit_policy_event=emit_policy_event,
     )
 
     decision_detail = {

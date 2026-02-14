@@ -93,6 +93,8 @@ def test_list_artifact_proofs_returns_rows(monkeypatch, tmp_path: Path) -> None:
 
     resp = list_artifact_proofs_endpoint(created.artifact_id)
     assert len(resp.items) == 3
+    theorem_ids_ordered = [item.proof.theorem_id for item in resp.items]
+    assert theorem_ids_ordered == sorted(theorem_ids_ordered)
     theorem_ids = {item.proof.theorem_id for item in resp.items}
     assert theorem_ids == {
         "ir_proof_artifact_test_conflict_soundness",
@@ -102,6 +104,12 @@ def test_list_artifact_proofs_returns_rows(monkeypatch, tmp_path: Path) -> None:
     assert all(item.artifact_id == created.artifact_id for item in resp.items)
     assert all(item.proof.backend == "mock" for item in resp.items)
     assert all(item.proof.status == "proved" for item in resp.items)
+    assert all(item.proof_evidence_packet["schema"] == "proof_evidence@1" for item in resp.items)
+    assert all(
+        isinstance(item.proof_evidence_packet["proof_evidence_hash"], str)
+        and len(str(item.proof_evidence_packet["proof_evidence_hash"])) == 64
+        for item in resp.items
+    )
 
 
 def test_create_artifact_allows_multiple_same_ir_id_proof_rows(
@@ -184,5 +192,6 @@ def test_create_artifact_failed_proof_uses_configured_backend(
         assert row["status"] == "failed"
         details = json.loads(row["details_json"])
         assert details["error"] == "ADEU_LEAN_TIMEOUT_MS must be a positive integer"
+        assert details["error_code"] == "URM_PROOF_BACKEND_UNAVAILABLE"
         assert details["semantics_version"] == "adeu.lean.core.v1"
         assert isinstance(details["backend_proof_id"], str)
