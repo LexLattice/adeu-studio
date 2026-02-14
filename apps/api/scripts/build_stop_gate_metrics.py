@@ -75,6 +75,7 @@ def parse_args() -> argparse.Namespace:
         default=[
             Path("examples/eval/stop_gate/validator_evidence_packet_case_a_1.json"),
             Path("examples/eval/stop_gate/validator_evidence_packet_case_a_2.json"),
+            Path("examples/eval/stop_gate/validator_evidence_packet_case_a_3.json"),
         ],
         help="Validator evidence packet artifact path (repeatable)",
     )
@@ -86,6 +87,7 @@ def parse_args() -> argparse.Namespace:
         default=[
             Path("examples/eval/stop_gate/semantics_diagnostics_case_a_1.json"),
             Path("examples/eval/stop_gate/semantics_diagnostics_case_a_2.json"),
+            Path("examples/eval/stop_gate/semantics_diagnostics_case_a_3.json"),
         ],
         help="Semantics diagnostics artifact path (repeatable)",
     )

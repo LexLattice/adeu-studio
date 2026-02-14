@@ -178,7 +178,7 @@ def _normalize_options(raw_options: Mapping[str, Any] | None) -> dict[str, Any]:
     return json.loads(_canonical_json(dict(raw_options)))
 
 
-def _strip_nonsemantic_fields(value: Any) -> Any:
+def strip_nonsemantic_validator_fields(value: Any) -> Any:
     if isinstance(value, Mapping):
         normalized: dict[str, Any] = {}
         for raw_key, raw_value in sorted(value.items(), key=lambda item: str(item[0])):
@@ -187,15 +187,15 @@ def _strip_nonsemantic_fields(value: Any) -> Any:
                 continue
             if key.endswith("_raw"):
                 continue
-            normalized[key] = _strip_nonsemantic_fields(raw_value)
+            normalized[key] = strip_nonsemantic_validator_fields(raw_value)
         return normalized
     if isinstance(value, list):
-        return [_strip_nonsemantic_fields(item) for item in value]
+        return [strip_nonsemantic_validator_fields(item) for item in value]
     return value
 
 
 def _evidence_packet_hash(payload: Mapping[str, Any]) -> str:
-    hash_basis = _strip_nonsemantic_fields(payload)
+    hash_basis = strip_nonsemantic_validator_fields(payload)
     return _sha256_text(_canonical_json(hash_basis))
 
 

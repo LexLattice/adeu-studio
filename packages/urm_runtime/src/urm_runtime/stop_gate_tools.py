@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-from adeu_kernel import VALIDATOR_EVIDENCE_HASH_EXCLUDED_FIELDS
+from adeu_kernel import strip_nonsemantic_validator_fields
 from pydantic import ValidationError
 
 from .events_tools import replay_events, validate_events
@@ -52,24 +52,8 @@ _TERMINAL_CODE_EVENTS = {
 }
 
 
-def _strip_nonsemantic_validator_fields(value: Any) -> Any:
-    if isinstance(value, Mapping):
-        normalized: dict[str, Any] = {}
-        for raw_key, raw_value in sorted(value.items(), key=lambda item: str(item[0])):
-            key = str(raw_key)
-            if key in VALIDATOR_EVIDENCE_HASH_EXCLUDED_FIELDS:
-                continue
-            if key.endswith("_raw"):
-                continue
-            normalized[key] = _strip_nonsemantic_validator_fields(raw_value)
-        return normalized
-    if isinstance(value, list):
-        return [_strip_nonsemantic_validator_fields(item) for item in value]
-    return value
-
-
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
-    return sha256_canonical_json(_strip_nonsemantic_validator_fields(payload))
+    return sha256_canonical_json(strip_nonsemantic_validator_fields(payload))
 
 
 def _normalize_witness_trace(raw_trace: Any) -> list[dict[str, str | None]]:
@@ -125,9 +109,21 @@ def _semantics_diagnostics_hash(payload: Mapping[str, Any]) -> str:
     return sha256_canonical_json(basis)
 
 
-def _is_three_replay_deterministic(hash_supplier: Any) -> tuple[bool, list[str]]:
-    replay_hashes = [str(hash_supplier()) for _ in range(SEMANTICS_DETERMINISM_REPLAY_COUNT)]
-    return len(set(replay_hashes)) == 1, replay_hashes
+def _group_replay_determinism_pct(
+    *,
+    replay_groups: dict[str, set[str]],
+    replay_counts: dict[str, int],
+) -> float:
+    total = len(replay_groups)
+    if total <= 0:
+        return 0.0
+    passed = sum(
+        1
+        for replay_key, hashes in replay_groups.items()
+        if len(hashes) == 1
+        and replay_counts.get(replay_key, 0) == SEMANTICS_DETERMINISM_REPLAY_COUNT
+    )
+    return _pct(passed, total)
 
 
 def _issue(code: str, message: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -447,16 +443,27 @@ def build_stop_gate_metrics(
     connector_passed = sum(1 for hashes in connector_groups.values() if len(hashes) == 1)
     connector_snapshot_replay_stability_pct = _pct(connector_passed, connector_total)
 
-    validator_packet_total = 0
-    validator_packet_passed = 0
-    witness_total = 0
-    witness_passed = 0
+    validator_packet_groups: dict[str, set[str]] = {}
+    validator_packet_replay_counts: dict[str, int] = {}
+    witness_groups: dict[str, set[str]] = {}
+    witness_replay_counts: dict[str, int] = {}
     for payload, path in zip(validator_packet_payloads, validator_evidence_packet_paths):
         if payload.get("schema") != VALIDATOR_EVIDENCE_PACKET_SCHEMA:
             issues.append(
                 _issue(
                     "URM_STOP_GATE_INPUT_INVALID",
                     "validator evidence input must use validator_evidence_packet@1",
+                    context={"path": str(path)},
+                )
+            )
+            continue
+
+        validator_run_id = payload.get("validator_run_id")
+        if not isinstance(validator_run_id, str) or not validator_run_id:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "validator evidence input missing validator_run_id",
                     context={"path": str(path)},
                 )
             )
@@ -474,31 +481,72 @@ def build_stop_gate_metrics(
             )
             continue
 
-        validator_packet_total += 1
-        packet_deterministic, _ = _is_three_replay_deterministic(
-            lambda current_payload=payload: _validator_packet_hash(current_payload)
+        validator_packet_replay_counts[validator_run_id] = (
+            validator_packet_replay_counts.get(validator_run_id, 0) + 1
         )
-        if packet_deterministic:
-            validator_packet_passed += 1
-
-        witness_total += 1
-        witness_deterministic, _ = _is_three_replay_deterministic(
-            lambda current_payload=payload: _witness_reconstruction_hash(current_payload)
+        witness_replay_counts[validator_run_id] = witness_replay_counts.get(validator_run_id, 0) + 1
+        validator_packet_groups.setdefault(validator_run_id, set()).add(expected_packet_hash)
+        witness_groups.setdefault(validator_run_id, set()).add(
+            _witness_reconstruction_hash(payload)
         )
-        if witness_deterministic:
-            witness_passed += 1
 
-    validator_packet_determinism_pct = _pct(validator_packet_passed, validator_packet_total)
-    witness_reconstruction_determinism_pct = _pct(witness_passed, witness_total)
+    for validator_run_id in sorted(validator_packet_replay_counts):
+        replay_count = validator_packet_replay_counts[validator_run_id]
+        if replay_count != SEMANTICS_DETERMINISM_REPLAY_COUNT:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "validator evidence replay count mismatch",
+                    context={
+                        "validator_run_id": validator_run_id,
+                        "expected_replays": SEMANTICS_DETERMINISM_REPLAY_COUNT,
+                        "observed_replays": replay_count,
+                    },
+                )
+            )
+    for validator_run_id in sorted(witness_replay_counts):
+        replay_count = witness_replay_counts[validator_run_id]
+        if replay_count != SEMANTICS_DETERMINISM_REPLAY_COUNT:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "witness replay count mismatch",
+                    context={
+                        "validator_run_id": validator_run_id,
+                        "expected_replays": SEMANTICS_DETERMINISM_REPLAY_COUNT,
+                        "observed_replays": replay_count,
+                    },
+                )
+            )
 
-    semantics_diagnostics_total = 0
-    semantics_diagnostics_passed = 0
+    validator_packet_determinism_pct = _group_replay_determinism_pct(
+        replay_groups=validator_packet_groups,
+        replay_counts=validator_packet_replay_counts,
+    )
+    witness_reconstruction_determinism_pct = _group_replay_determinism_pct(
+        replay_groups=witness_groups,
+        replay_counts=witness_replay_counts,
+    )
+
+    semantics_diagnostics_groups: dict[str, set[str]] = {}
+    semantics_diagnostics_replay_counts: dict[str, int] = {}
     for payload, path in zip(semantics_diagnostics_payloads, semantics_diagnostics_paths):
         if payload.get("schema") != SEMANTICS_DIAGNOSTICS_SCHEMA:
             issues.append(
                 _issue(
                     "URM_STOP_GATE_INPUT_INVALID",
                     "semantics diagnostics input must use semantics_diagnostics@1",
+                    context={"path": str(path)},
+                )
+            )
+            continue
+
+        artifact_ref = payload.get("artifact_ref")
+        if not isinstance(artifact_ref, str) or not artifact_ref:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics diagnostics input missing artifact_ref",
                     context={"path": str(path)},
                 )
             )
@@ -518,16 +566,29 @@ def build_stop_gate_metrics(
             )
             continue
 
-        semantics_diagnostics_total += 1
-        diagnostics_deterministic, _ = _is_three_replay_deterministic(
-            lambda current_payload=payload: _semantics_diagnostics_hash(current_payload)
+        semantics_diagnostics_replay_counts[artifact_ref] = (
+            semantics_diagnostics_replay_counts.get(artifact_ref, 0) + 1
         )
-        if diagnostics_deterministic:
-            semantics_diagnostics_passed += 1
+        semantics_diagnostics_groups.setdefault(artifact_ref, set()).add(expected_diagnostics_hash)
 
-    semantics_diagnostics_determinism_pct = _pct(
-        semantics_diagnostics_passed,
-        semantics_diagnostics_total,
+    for artifact_ref in sorted(semantics_diagnostics_replay_counts):
+        replay_count = semantics_diagnostics_replay_counts[artifact_ref]
+        if replay_count != SEMANTICS_DETERMINISM_REPLAY_COUNT:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics diagnostics replay count mismatch",
+                    context={
+                        "artifact_ref": artifact_ref,
+                        "expected_replays": SEMANTICS_DETERMINISM_REPLAY_COUNT,
+                        "observed_replays": replay_count,
+                    },
+                )
+            )
+
+    semantics_diagnostics_determinism_pct = _group_replay_determinism_pct(
+        replay_groups=semantics_diagnostics_groups,
+        replay_counts=semantics_diagnostics_replay_counts,
     )
 
     quality_current_metrics = quality_current.get("metrics")
