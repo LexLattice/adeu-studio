@@ -900,6 +900,8 @@ def apply_parent_budget_debit(
         return ParentBudgetDebitResult(accepted=True, row=row, attempted_debit=0)
     max_limit = row.max_total
     next_total = row.current_total + debit
+    # R3 keeps budget limits exclusive to preserve existing child-budget behavior:
+    # a debit landing exactly on max_total is treated as exceeded.
     if next_total >= max_limit:
         return ParentBudgetDebitResult(accepted=False, row=row, attempted_debit=debit)
     now = datetime.now(tz=timezone.utc).isoformat()

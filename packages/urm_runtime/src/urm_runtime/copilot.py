@@ -3754,8 +3754,8 @@ class URMCopilotManager:
                     status_code=404,
                     context={"child_id": child_id},
                 )
+            child.cancel_request_id = cancel_request_id
             if child.status in {"completed", "failed", "cancelled"}:
-                child.cancel_request_id = cancel_request_id
                 response_model = AgentCancelResponse(
                     child_id=child_id,
                     status=child.status,
@@ -3766,7 +3766,6 @@ class URMCopilotManager:
                     },
                 )
             else:
-                child.cancel_request_id = cancel_request_id
                 child.status = "cancelled"
                 child.ended_at = datetime.now(tz=timezone.utc).isoformat()
                 child.dispatch_phase = "terminal"
