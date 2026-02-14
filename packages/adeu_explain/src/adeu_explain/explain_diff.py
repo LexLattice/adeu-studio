@@ -10,6 +10,8 @@ from .models import ConceptAnalysisDelta, DiffReport, FlipExplanation
 
 EXPLAIN_DIFF_SCHEMA = "explain_diff@1"
 EXPLAIN_BUILDER_VERSION = "odeu.explain-builder.v1"
+EXPLAIN_PACKET_INVALID_CODE = "URM_EXPLAIN_PACKET_INVALID"
+EXPLAIN_INVALID_REF_CODE = "URM_EXPLAIN_INVALID_REF"
 
 ExplainKind = Literal[
     "semantic_diff",
@@ -50,6 +52,10 @@ EXPLAIN_HASH_EXCLUDED_FIELD_LIST = tuple(sorted(EXPLAIN_HASH_EXCLUDED_FIELDS))
 class ExplainDiffError(ValueError):
     """Raised when explain packet normalization/validation fails."""
 
+    def __init__(self, message: str, *, code: str = EXPLAIN_PACKET_INVALID_CODE) -> None:
+        super().__init__(message)
+        self.code = code
+
 
 def _canonical_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
@@ -76,9 +82,12 @@ def _is_valid_ref(ref: str) -> bool:
 def validate_explain_ref(ref: str) -> str:
     value = str(ref).strip()
     if not value:
-        raise ExplainDiffError("empty explain ref")
+        raise ExplainDiffError("empty explain ref", code=EXPLAIN_INVALID_REF_CODE)
     if not _is_valid_ref(value):
-        raise ExplainDiffError(f"invalid explain ref format: {value!r}")
+        raise ExplainDiffError(
+            f"invalid explain ref format: {value!r}",
+            code=EXPLAIN_INVALID_REF_CODE,
+        )
     return value
 
 

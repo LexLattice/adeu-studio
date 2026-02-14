@@ -12,6 +12,7 @@ from adeu_api.main import (
     explain_flip_endpoint,
     explain_materialize_endpoint,
 )
+from adeu_api.storage import get_explain_artifact_by_client_request_id
 from adeu_explain import build_explain_diff_packet, validate_explain_diff_packet
 from adeu_ir import AdeuIR
 from fastapi import HTTPException
@@ -35,6 +36,10 @@ def _left_ir() -> AdeuIR:
                         "subject": {"ref_type": "text", "text": "Supplier"},
                         "action": {"verb": "deliver"},
                         "scope": {"jurisdiction": "US-CA", "time_about": {"kind": "unspecified"}},
+                        "provenance": {
+                            "doc_ref": "doc:test:explain#sec1",
+                            "span": {"start": 0, "end": 12},
+                        },
                     }
                 ]
             },
@@ -60,6 +65,10 @@ def _right_ir() -> AdeuIR:
                         "subject": {"ref_type": "text", "text": "Supplier"},
                         "action": {"verb": "deliver"},
                         "scope": {"jurisdiction": "US-CA", "time_about": {"kind": "unspecified"}},
+                        "provenance": {
+                            "doc_ref": "doc:test:explain#sec1",
+                            "span": {"start": 0, "end": 12},
+                        },
                     }
                 ]
             },
@@ -273,3 +282,41 @@ def test_explain_materialize_invalid_ref_uses_frozen_error_code(
         assert exc.status_code == 400
         assert isinstance(exc.detail, dict)
         assert exc.detail["code"] == "URM_EXPLAIN_INVALID_REF"
+
+
+def test_explain_materialize_rolls_back_artifact_when_event_emit_fails(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    evidence_root = tmp_path / "evidence"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("URM_EVIDENCE_ROOT", str(evidence_root))
+
+    packet = build_explain_diff_packet(
+        explain_kind="semantic_diff",
+        input_artifact_refs=["artifact:a"],
+        diff_report=_simple_diff_report_payload(),
+    )
+    req = ExplainMaterializeRequest(
+        client_request_id="req-event-fail",
+        explain_packet=packet,
+        parent_stream_id="urm_policy:test_profile",
+        parent_seq=7,
+    )
+
+    def _raise_emit(*, row):  # noqa: ANN001
+        raise RuntimeError("emit failed")
+
+    monkeypatch.setattr("adeu_api.main._emit_explain_materialized_event", _raise_emit)
+
+    try:
+        explain_materialize_endpoint(req)
+        assert False, "expected event emit failure"
+    except HTTPException as exc:
+        assert exc.status_code == 500
+        assert isinstance(exc.detail, dict)
+        assert exc.detail["code"] == "URM_EXPLAIN_EVENT_EMIT_FAILED"
+
+    persisted = get_explain_artifact_by_client_request_id(client_request_id=req.client_request_id)
+    assert persisted is None

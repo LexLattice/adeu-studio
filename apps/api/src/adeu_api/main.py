@@ -33,16 +33,17 @@ from adeu_concepts import (
     check_with_validator_runs as check_concept_with_validator_runs,
 )
 from adeu_explain import (
-    ConceptAnalysisDelta,
-    DiffReport,
     EXPLAIN_BUILDER_VERSION,
     EXPLAIN_DIFF_SCHEMA,
+    EXPLAIN_PACKET_INVALID_CODE,
+    ConceptAnalysisDelta,
+    DiffReport,
     ExplainDiffError,
     FlipExplanation,
     ForcedEdgeKey,
     ValidatorRunInput,
-    build_explain_diff_packet,
     build_diff_report,
+    build_explain_diff_packet,
     build_flip_explanation,
     inline_source_ref,
     validate_explain_diff_packet,
@@ -293,8 +294,6 @@ _PROOF_REQUIRED_OBLIGATION_KINDS: tuple[str, ...] = (
 _PROOF_BACKEND_UNAVAILABLE_CODE = "URM_PROOF_BACKEND_UNAVAILABLE"
 _PROOF_EVIDENCE_NOT_FOUND_CODE = "URM_PROOF_EVIDENCE_NOT_FOUND"
 _IDEMPOTENCY_CONFLICT_CODE = "URM_IDEMPOTENCY_KEY_CONFLICT"
-_EXPLAIN_INVALID_REF_CODE = "URM_EXPLAIN_INVALID_REF"
-_EXPLAIN_PACKET_INVALID_CODE = "URM_EXPLAIN_PACKET_INVALID"
 _EXPLAIN_MATERIALIZE_EVENT_KIND = "EXPLAIN_MATERIALIZED"
 _EXPLAIN_MATERIALIZE_ENDPOINT = "/urm/explain/materialize"
 DEFAULT_CORS_ALLOW_ORIGINS: tuple[str, ...] = (
@@ -3316,9 +3315,7 @@ def _build_validator_packet_refs_for_packet(diff_report: DiffReport) -> list[str
 
 def _explain_error_to_http(exc: ExplainDiffError) -> HTTPException:
     message = str(exc)
-    code = _EXPLAIN_PACKET_INVALID_CODE
-    if "invalid explain ref format" in message:
-        code = _EXPLAIN_INVALID_REF_CODE
+    code = getattr(exc, "code", EXPLAIN_PACKET_INVALID_CODE)
     return HTTPException(status_code=400, detail={"code": code, "message": message})
 
 
@@ -3354,6 +3351,38 @@ def _build_explain_packet_response(
     except ExplainDiffError as exc:
         raise _explain_error_to_http(exc) from exc
     return ExplainDiffPacketResponse.model_validate(packet)
+
+
+def _build_explain_flip_formatted_response(
+    *,
+    format: ExplainResponseFormat,
+    diff_report: DiffReport,
+    flip_explanation: FlipExplanation,
+    input_artifact_refs: list[str],
+    analysis_delta: ConceptAnalysisDelta | None = None,
+    left_mismatch: bool = False,
+    right_mismatch: bool = False,
+) -> ExplainFlipResponse | ExplainDiffPacketResponse:
+    run_ir_mismatch = left_mismatch or right_mismatch
+    if format == "legacy":
+        return ExplainFlipResponse(
+            diff_report=diff_report,
+            flip_explanation=flip_explanation,
+            analysis_delta=analysis_delta,
+            left_mismatch=left_mismatch,
+            right_mismatch=right_mismatch,
+            run_ir_mismatch=run_ir_mismatch,
+        )
+    return _build_explain_packet_response(
+        explain_kind="flip_explain",
+        diff_report=diff_report,
+        input_artifact_refs=input_artifact_refs,
+        flip_explanation=flip_explanation,
+        analysis_delta=analysis_delta,
+        run_ir_mismatch=run_ir_mismatch,
+        left_mismatch=left_mismatch,
+        right_mismatch=right_mismatch,
+    )
 
 
 def _explain_materialize_response_from_row(
@@ -4636,7 +4665,7 @@ def align_concepts_endpoint(req: ConceptAlignRequest) -> ConceptAlignResponse:
 @app.post("/diff", response_model=DiffReport | ExplainDiffPacketResponse)
 def diff_endpoint(
     req: DiffRequest,
-    format: ExplainResponseFormat = Query(default="legacy"),
+    format: ExplainResponseFormat = "legacy",
 ) -> DiffReport | ExplainDiffPacketResponse:
     diff_report = _build_diff_report_with_runs(
         left_ir=req.left_ir,
@@ -4679,7 +4708,7 @@ def diff_endpoint(
 @app.post("/concepts/diff", response_model=DiffReport | ExplainDiffPacketResponse)
 def diff_concepts_endpoint(
     req: ConceptDiffRequest,
-    format: ExplainResponseFormat = Query(default="legacy"),
+    format: ExplainResponseFormat = "legacy",
 ) -> DiffReport | ExplainDiffPacketResponse:
     left_source_text, left_doc_id = _resolve_source_text_and_doc_id(
         source_text=req.left_source_text,
@@ -4741,7 +4770,7 @@ def diff_concepts_endpoint(
 @app.post("/puzzles/diff", response_model=DiffReport | ExplainDiffPacketResponse)
 def diff_puzzles_endpoint(
     req: PuzzleDiffRequest,
-    format: ExplainResponseFormat = Query(default="legacy"),
+    format: ExplainResponseFormat = "legacy",
 ) -> DiffReport | ExplainDiffPacketResponse:
     diff_report = _build_diff_report_with_runs(
         left_ir=req.left_ir,
@@ -4779,7 +4808,7 @@ def diff_puzzles_endpoint(
 @app.post("/explain_flip", response_model=ExplainFlipResponse | ExplainDiffPacketResponse)
 def explain_flip_endpoint(
     req: ExplainFlipRequest,
-    format: ExplainResponseFormat = Query(default="legacy"),
+    format: ExplainResponseFormat = "legacy",
 ) -> ExplainFlipResponse | ExplainDiffPacketResponse:
     if isinstance(req, ExplainFlipAdeuRequest):
         left_runs, left_source, left_report, left_mismatch, _ = _resolve_explain_runs(
@@ -4824,20 +4853,10 @@ def explain_flip_endpoint(
             left_check_status=_check_status_value(left_report),
             right_check_status=_check_status_value(right_report),
         )
-        run_ir_mismatch = left_mismatch or right_mismatch
-        if format == "legacy":
-            return ExplainFlipResponse(
-                diff_report=diff_report,
-                flip_explanation=flip_explanation,
-                analysis_delta=None,
-                left_mismatch=left_mismatch,
-                right_mismatch=right_mismatch,
-                run_ir_mismatch=run_ir_mismatch,
-            )
         left_doc_id = req.left_ir.context.doc_id if req.left_ir.context is not None else None
         right_doc_id = req.right_ir.context.doc_id if req.right_ir.context is not None else None
-        return _build_explain_packet_response(
-            explain_kind="flip_explain",
+        return _build_explain_flip_formatted_response(
+            format=format,
             diff_report=diff_report,
             input_artifact_refs=[
                 _input_ref_for_side(
@@ -4856,7 +4875,6 @@ def explain_flip_endpoint(
                 ),
             ],
             flip_explanation=flip_explanation,
-            run_ir_mismatch=run_ir_mismatch,
             left_mismatch=left_mismatch,
             right_mismatch=right_mismatch,
         )
@@ -4904,18 +4922,8 @@ def explain_flip_endpoint(
             left_check_status=_check_status_value(left_report),
             right_check_status=_check_status_value(right_report),
         )
-        run_ir_mismatch = left_mismatch or right_mismatch
-        if format == "legacy":
-            return ExplainFlipResponse(
-                diff_report=diff_report,
-                flip_explanation=flip_explanation,
-                analysis_delta=None,
-                left_mismatch=left_mismatch,
-                right_mismatch=right_mismatch,
-                run_ir_mismatch=run_ir_mismatch,
-            )
-        return _build_explain_packet_response(
-            explain_kind="flip_explain",
+        return _build_explain_flip_formatted_response(
+            format=format,
             diff_report=diff_report,
             input_artifact_refs=[
                 _input_ref_for_side(
@@ -4932,7 +4940,6 @@ def explain_flip_endpoint(
                 ),
             ],
             flip_explanation=flip_explanation,
-            run_ir_mismatch=run_ir_mismatch,
             left_mismatch=left_mismatch,
             right_mismatch=right_mismatch,
         )
@@ -5062,18 +5069,8 @@ def explain_flip_endpoint(
             right_analysis = strip_forced_details(right_analysis)
         analysis_delta = _build_concept_analysis_delta(left_analysis, right_analysis)
 
-    run_ir_mismatch = left_mismatch or right_mismatch
-    if format == "legacy":
-        return ExplainFlipResponse(
-            diff_report=diff_report,
-            flip_explanation=flip_explanation,
-            analysis_delta=analysis_delta,
-            left_mismatch=left_mismatch,
-            right_mismatch=right_mismatch,
-            run_ir_mismatch=run_ir_mismatch,
-        )
-    return _build_explain_packet_response(
-        explain_kind="flip_explain",
+    return _build_explain_flip_formatted_response(
+        format=format,
         diff_report=diff_report,
         input_artifact_refs=[
             _input_ref_for_side(
@@ -5095,7 +5092,6 @@ def explain_flip_endpoint(
         ],
         flip_explanation=flip_explanation,
         analysis_delta=analysis_delta,
-        run_ir_mismatch=run_ir_mismatch,
         left_mismatch=left_mismatch,
         right_mismatch=right_mismatch,
     )
@@ -5133,7 +5129,7 @@ def explain_materialize_endpoint(req: ExplainMaterializeRequest) -> ExplainMater
             raise HTTPException(
                 status_code=400,
                 detail={
-                    "code": _EXPLAIN_PACKET_INVALID_CODE,
+                    "code": EXPLAIN_PACKET_INVALID_CODE,
                     "message": "explain_packet missing explain_kind/explain_hash",
                 },
             )
