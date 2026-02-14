@@ -1,0 +1,575 @@
+{
+  "expected_packet": {
+    "builder_version": "odeu.explain-builder.v1",
+    "diff_refs": [
+      "artifact:diff_sha256:c2bc9a6dfff0662c04f6c05f2f0a975eb8446911ca907d18b2e8b002bdc132f5"
+    ],
+    "explain_hash": "9a6d03cc88800babf8b824342326dfb914a323f65a8159d57caed086b9864b0e",
+    "explain_kind": "flip_explain",
+    "hash_excluded_fields": [
+      "client_request_id",
+      "explain_hash",
+      "generated_at",
+      "left_mismatch",
+      "materialized_at",
+      "nonsemantic_fields",
+      "operator_note",
+      "request_id",
+      "right_mismatch",
+      "run_ir_mismatch"
+    ],
+    "input_artifact_refs": [
+      "artifact:flip:l",
+      "artifact:flip:r"
+    ],
+    "left_mismatch": true,
+    "right_mismatch": false,
+    "run_ir_mismatch": true,
+    "schema": "explain_diff@1",
+    "sections": {
+      "analysis_delta": {
+        "countermodel_edges_changed": [
+          {
+            "dst_sense_id": "d3",
+            "kind": "conflicts",
+            "src_sense_id": "s3"
+          }
+        ],
+        "forced_edges_added": [
+          {
+            "dst_sense_id": "d1",
+            "kind": "supports",
+            "src_sense_id": "s1"
+          },
+          {
+            "dst_sense_id": "d2",
+            "kind": "supports",
+            "src_sense_id": "s2"
+          }
+        ],
+        "forced_edges_removed": [],
+        "mic_atoms_added": [
+          "mic-a",
+          "mic-z"
+        ],
+        "mic_atoms_removed": [
+          "mic-b",
+          "mic-c"
+        ]
+      },
+      "diff_report": {
+        "causal_slice": {
+          "explanation_items": [
+            {
+              "atom_name": "atom-a",
+              "json_path": "/a",
+              "object_id": "obj-a"
+            },
+            {
+              "atom_name": "atom-z",
+              "json_path": "/z",
+              "object_id": "obj-z"
+            }
+          ],
+          "touched_atoms": [
+            "atom-a",
+            "atom-z"
+          ],
+          "touched_json_paths": [
+            "/a",
+            "/z"
+          ],
+          "touched_object_ids": [
+            "obj-a",
+            "obj-z"
+          ]
+        },
+        "left_id": "left-x",
+        "right_id": "right-x",
+        "solver": {
+          "core_delta": {
+            "added_atoms": [
+              "atom-a",
+              "atom-z"
+            ],
+            "removed_atoms": [
+              "atom-b",
+              "atom-c"
+            ]
+          },
+          "formula_hash_changed": false,
+          "left_runs": [
+            {
+              "atom_map_json": {},
+              "created_at": "2026-02-14T00:00:00+00:00",
+              "evidence_json": {},
+              "formula_hash": "form-a",
+              "options_json": {},
+              "request_hash": "req-a",
+              "run_id": "run-a"
+            },
+            {
+              "atom_map_json": {},
+              "created_at": "2026-02-15T00:00:00+00:00",
+              "evidence_json": {},
+              "formula_hash": "form-b",
+              "options_json": {},
+              "request_hash": "req-b",
+              "run_id": "run-b"
+            }
+          ],
+          "model_delta": {
+            "added_assignments": [
+              {
+                "atom": "a",
+                "value": "false"
+              },
+              {
+                "atom": "z",
+                "value": "true"
+              }
+            ],
+            "changed_assignments": [
+              {
+                "atom": "a",
+                "left_value": "false",
+                "right_value": "true"
+              },
+              {
+                "atom": "k",
+                "left_value": "false",
+                "right_value": "true"
+              }
+            ],
+            "changed_atoms": [
+              "a",
+              "k"
+            ],
+            "removed_assignments": []
+          },
+          "request_hash_changed": false,
+          "right_runs": [
+            {
+              "atom_map_json": {},
+              "created_at": "2026-02-16T00:00:00+00:00",
+              "evidence_json": {},
+              "formula_hash": "form-r",
+              "options_json": {},
+              "request_hash": "req-r",
+              "run_id": "run-r"
+            }
+          ],
+          "status_flip": "UNSAT→SAT",
+          "unpaired_left_hashes": [
+            "a",
+            "z"
+          ],
+          "unpaired_right_hashes": [
+            "b",
+            "r"
+          ]
+        },
+        "structural": {
+          "changed_object_ids": [
+            "obj-a",
+            "obj-z"
+          ],
+          "changed_paths": [
+            "/a",
+            "/z"
+          ],
+          "json_patches": [
+            {
+              "op": "replace",
+              "path": "/a",
+              "value": 1
+            },
+            {
+              "op": "replace",
+              "path": "/b",
+              "value": 2
+            }
+          ]
+        },
+        "summary": {
+          "causal_atom_count": "2",
+          "left_backend": "z3",
+          "left_timeout_ms": 5000,
+          "mapping_trust": "derived_bridge",
+          "recompute_mode": "LAX",
+          "right_backend": "z3",
+          "right_timeout_ms": 5000,
+          "run_source": "provided",
+          "solver_pairing_state": "PAIRED",
+          "solver_touched_atom_count": "2",
+          "solver_trust": "solver_backed",
+          "status_flip": "UNSAT→SAT",
+          "structural_patch_count": "2",
+          "unpaired_left_keys": [
+            "a",
+            "z"
+          ],
+          "unpaired_right_keys": [
+            "b",
+            "r"
+          ]
+        }
+      },
+      "flip_explanation": {
+        "cause_chain": [
+          {
+            "atom_name": "atom_a",
+            "evidence_kind": "core_added",
+            "json_path": "/a",
+            "message": "a",
+            "object_id": "stmt_a",
+            "object_kind": "statement",
+            "severity": "ERROR"
+          },
+          {
+            "atom_name": "atom_z",
+            "evidence_kind": "model_added",
+            "json_path": "/z",
+            "message": "z",
+            "object_id": "stmt_z",
+            "object_kind": "statement",
+            "severity": "WARN"
+          }
+        ],
+        "check_status_flip": "REFUSE→WARN",
+        "evidence_changes": [
+          {
+            "atom_name": "atom_a",
+            "evidence_kind": "core_added",
+            "json_path": "/a",
+            "object_id": "stmt_a",
+            "object_kind": "statement",
+            "severity": "ERROR"
+          },
+          {
+            "atom_name": "atom_z",
+            "evidence_kind": "model_added",
+            "json_path": "/z",
+            "object_id": "stmt_z",
+            "object_kind": "statement",
+            "severity": "WARN"
+          }
+        ],
+        "flip_kind": "status_change",
+        "primary_changes": [
+          {
+            "changed_paths": [
+              "/z"
+            ],
+            "object_id": "stmt_a",
+            "object_kind": "statement",
+            "patch_count": 1
+          },
+          {
+            "changed_paths": [
+              "/a",
+              "/b"
+            ],
+            "object_id": "stmt_b",
+            "object_kind": "statement",
+            "patch_count": 2
+          }
+        ],
+        "repair_hints": [
+          {
+            "hint": "hint a",
+            "json_path": "/a",
+            "object_id": "stmt_a",
+            "object_kind": "statement"
+          },
+          {
+            "hint": "hint b",
+            "json_path": "/b",
+            "object_id": "stmt_b",
+            "object_kind": "statement"
+          }
+        ],
+        "solver_status_flip": "UNSAT→SAT"
+      }
+    },
+    "validator_evidence_packet_refs": [
+      "artifact:validator_evidence:req-a:form-a",
+      "artifact:validator_evidence:req-b:form-b",
+      "artifact:validator_evidence:req-r:form-r"
+    ],
+    "witness_refs": [
+      "artifact:witness_sha256:ae2b956097b6d9a982f0a9809e20ff461e526091750a8efef4990feefe3f0dc9",
+      "artifact:witness_sha256:c17601212abf622ffa9d74ca1dc997090eae39627d33cf17d1dec6e29fb7523d"
+    ]
+  },
+  "fixture_id": "flip_explain_golden_v1",
+  "input": {
+    "analysis_delta": {
+      "countermodel_edges_changed": [
+        {
+          "dst_sense_id": "d3",
+          "kind": "conflicts",
+          "src_sense_id": "s3"
+        }
+      ],
+      "forced_delta_status": null,
+      "forced_edges_added": [
+        {
+          "dst_sense_id": "d2",
+          "kind": "supports",
+          "src_sense_id": "s2"
+        },
+        {
+          "dst_sense_id": "d1",
+          "kind": "supports",
+          "src_sense_id": "s1"
+        }
+      ],
+      "forced_edges_removed": [],
+      "mic_atoms_added": [
+        "mic-z",
+        "mic-a"
+      ],
+      "mic_atoms_removed": [
+        "mic-c",
+        "mic-b"
+      ],
+      "mic_delta_status": null
+    },
+    "diff_report": {
+      "causal_slice": {
+        "explanation_items": [
+          {
+            "atom_name": "atom-z",
+            "json_path": "/z",
+            "object_id": "obj-z"
+          },
+          {
+            "atom_name": "atom-a",
+            "json_path": "/a",
+            "object_id": "obj-a"
+          }
+        ],
+        "touched_atoms": [
+          "atom-z",
+          "atom-a"
+        ],
+        "touched_json_paths": [
+          "/z",
+          "/a"
+        ],
+        "touched_object_ids": [
+          "obj-z",
+          "obj-a"
+        ]
+      },
+      "left_id": "left-x",
+      "right_id": "right-x",
+      "solver": {
+        "core_delta": {
+          "added_atoms": [
+            "atom-z",
+            "atom-a"
+          ],
+          "removed_atoms": [
+            "atom-c",
+            "atom-b"
+          ]
+        },
+        "formula_hash_changed": false,
+        "left_runs": [
+          {
+            "created_at": "2026-02-15T00:00:00+00:00",
+            "formula_hash": "form-b",
+            "request_hash": "req-b",
+            "run_id": "run-b"
+          },
+          {
+            "created_at": "2026-02-14T00:00:00+00:00",
+            "formula_hash": "form-a",
+            "request_hash": "req-a",
+            "run_id": "run-a"
+          }
+        ],
+        "model_delta": {
+          "added_assignments": [
+            {
+              "atom": "z",
+              "value": "true"
+            },
+            {
+              "atom": "a",
+              "value": "false"
+            }
+          ],
+          "changed_assignments": [
+            {
+              "atom": "k",
+              "left_value": "false",
+              "right_value": "true"
+            },
+            {
+              "atom": "a",
+              "left_value": "false",
+              "right_value": "true"
+            }
+          ],
+          "changed_atoms": [
+            "k",
+            "a"
+          ],
+          "removed_assignments": []
+        },
+        "request_hash_changed": false,
+        "right_runs": [
+          {
+            "created_at": "2026-02-16T00:00:00+00:00",
+            "formula_hash": "form-r",
+            "request_hash": "req-r",
+            "run_id": "run-r"
+          }
+        ],
+        "status_flip": "UNSAT→SAT",
+        "unpaired_left_hashes": [
+          "z",
+          "a"
+        ],
+        "unpaired_right_hashes": [
+          "r",
+          "b"
+        ]
+      },
+      "structural": {
+        "changed_object_ids": [
+          "obj-z",
+          "obj-a"
+        ],
+        "changed_paths": [
+          "/z",
+          "/a"
+        ],
+        "json_patches": [
+          {
+            "op": "replace",
+            "path": "/b",
+            "value": 2
+          },
+          {
+            "op": "replace",
+            "path": "/a",
+            "value": 1
+          }
+        ]
+      },
+      "summary": {
+        "causal_atom_count": "2",
+        "left_backend": "z3",
+        "left_timeout_ms": 5000,
+        "mapping_trust": "derived_bridge",
+        "proof_trust": null,
+        "recompute_mode": "LAX",
+        "right_backend": "z3",
+        "right_timeout_ms": 5000,
+        "run_source": "provided",
+        "solver_pairing_state": "PAIRED",
+        "solver_touched_atom_count": "2",
+        "solver_trust": "solver_backed",
+        "status_flip": "UNSAT→SAT",
+        "structural_patch_count": "2",
+        "unpaired_left_keys": [
+          "z",
+          "a"
+        ],
+        "unpaired_right_keys": [
+          "r",
+          "b"
+        ]
+      }
+    },
+    "explain_kind": "flip_explain",
+    "flip_explanation": {
+      "cause_chain": [
+        {
+          "atom_name": "atom_z",
+          "evidence_kind": "model_added",
+          "json_path": "/z",
+          "message": "z",
+          "object_id": "stmt_z",
+          "object_kind": "statement",
+          "severity": "WARN"
+        },
+        {
+          "atom_name": "atom_a",
+          "evidence_kind": "core_added",
+          "json_path": "/a",
+          "message": "a",
+          "object_id": "stmt_a",
+          "object_kind": "statement",
+          "severity": "ERROR"
+        }
+      ],
+      "check_status_flip": "REFUSE→WARN",
+      "evidence_changes": [
+        {
+          "atom_name": "atom_z",
+          "evidence_kind": "model_added",
+          "json_path": "/z",
+          "object_id": "stmt_z",
+          "object_kind": "statement",
+          "severity": "WARN"
+        },
+        {
+          "atom_name": "atom_a",
+          "evidence_kind": "core_added",
+          "json_path": "/a",
+          "object_id": "stmt_a",
+          "object_kind": "statement",
+          "severity": "ERROR"
+        }
+      ],
+      "flip_kind": "status_change",
+      "primary_changes": [
+        {
+          "changed_paths": [
+            "/b",
+            "/a"
+          ],
+          "object_id": "stmt_b",
+          "object_kind": "statement",
+          "patch_count": 2
+        },
+        {
+          "changed_paths": [
+            "/z"
+          ],
+          "object_id": "stmt_a",
+          "object_kind": "statement",
+          "patch_count": 1
+        }
+      ],
+      "repair_hints": [
+        {
+          "hint": "hint b",
+          "json_path": "/b",
+          "object_id": "stmt_b",
+          "object_kind": "statement"
+        },
+        {
+          "hint": "hint a",
+          "json_path": "/a",
+          "object_id": "stmt_a",
+          "object_kind": "statement"
+        }
+      ],
+      "solver_status_flip": "UNSAT→SAT"
+    },
+    "input_artifact_refs": [
+      "artifact:flip:r",
+      "artifact:flip:l"
+    ],
+    "left_mismatch": true,
+    "right_mismatch": false,
+    "run_ir_mismatch": true
+  },
+  "schema": "explain.parity_fixture@1"
+}

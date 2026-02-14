@@ -22,5 +22,8 @@ dependencies = [
   "urm-domain-paper>=0.0.0",
 ]
 
+[project.scripts]
+explain-tools = "adeu_api.explain_tools:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/adeu_api"]

@@ -1,0 +1,355 @@
+{
+  "expected_packet": {
+    "builder_version": "odeu.explain-builder.v1",
+    "diff_refs": [
+      "artifact:diff_sha256:1443f95a90dadb1285c656bd69168b0dee9a5a53dc10c49e4cc8d1ac82e512bd"
+    ],
+    "explain_hash": "b12d5e29285699f285aeea5b0a67d598507de01a2ebab17aafcce4ad62c744ba",
+    "explain_kind": "semantic_diff",
+    "hash_excluded_fields": [
+      "client_request_id",
+      "explain_hash",
+      "generated_at",
+      "left_mismatch",
+      "materialized_at",
+      "nonsemantic_fields",
+      "operator_note",
+      "request_id",
+      "right_mismatch",
+      "run_ir_mismatch"
+    ],
+    "input_artifact_refs": [
+      "artifact:left",
+      "artifact:right"
+    ],
+    "schema": "explain_diff@1",
+    "sections": {
+      "diff_report": {
+        "causal_slice": {
+          "explanation_items": [
+            {
+              "atom_name": "atom-a",
+              "json_path": "/a",
+              "object_id": "obj-a"
+            },
+            {
+              "atom_name": "atom-z",
+              "json_path": "/z",
+              "object_id": "obj-z"
+            }
+          ],
+          "touched_atoms": [
+            "atom-a",
+            "atom-z"
+          ],
+          "touched_json_paths": [
+            "/a",
+            "/z"
+          ],
+          "touched_object_ids": [
+            "obj-a",
+            "obj-z"
+          ]
+        },
+        "left_id": "left-x",
+        "right_id": "right-x",
+        "solver": {
+          "core_delta": {
+            "added_atoms": [
+              "atom-a",
+              "atom-z"
+            ],
+            "removed_atoms": [
+              "atom-b",
+              "atom-c"
+            ]
+          },
+          "formula_hash_changed": false,
+          "left_runs": [
+            {
+              "atom_map_json": {},
+              "created_at": "2026-02-14T00:00:00+00:00",
+              "evidence_json": {},
+              "formula_hash": "form-a",
+              "options_json": {},
+              "request_hash": "req-a",
+              "run_id": "run-a"
+            },
+            {
+              "atom_map_json": {},
+              "created_at": "2026-02-15T00:00:00+00:00",
+              "evidence_json": {},
+              "formula_hash": "form-b",
+              "options_json": {},
+              "request_hash": "req-b",
+              "run_id": "run-b"
+            }
+          ],
+          "model_delta": {
+            "added_assignments": [
+              {
+                "atom": "a",
+                "value": "false"
+              },
+              {
+                "atom": "z",
+                "value": "true"
+              }
+            ],
+            "changed_assignments": [
+              {
+                "atom": "a",
+                "left_value": "false",
+                "right_value": "true"
+              },
+              {
+                "atom": "k",
+                "left_value": "false",
+                "right_value": "true"
+              }
+            ],
+            "changed_atoms": [
+              "a",
+              "k"
+            ],
+            "removed_assignments": []
+          },
+          "request_hash_changed": false,
+          "right_runs": [
+            {
+              "atom_map_json": {},
+              "created_at": "2026-02-16T00:00:00+00:00",
+              "evidence_json": {},
+              "formula_hash": "form-r",
+              "options_json": {},
+              "request_hash": "req-r",
+              "run_id": "run-r"
+            }
+          ],
+          "status_flip": "UNSAT→SAT",
+          "unpaired_left_hashes": [
+            "a",
+            "z"
+          ],
+          "unpaired_right_hashes": [
+            "b",
+            "r"
+          ]
+        },
+        "structural": {
+          "changed_object_ids": [
+            "obj-a",
+            "obj-z"
+          ],
+          "changed_paths": [
+            "/a",
+            "/z"
+          ],
+          "json_patches": [
+            {
+              "op": "replace",
+              "path": "/a",
+              "value": 1
+            },
+            {
+              "op": "replace",
+              "path": "/b",
+              "value": 2
+            }
+          ]
+        },
+        "summary": {
+          "causal_atom_count": "2",
+          "left_backend": "z3",
+          "left_timeout_ms": 5000,
+          "mapping_trust": "derived_bridge",
+          "recompute_mode": "LAX",
+          "right_backend": "z3",
+          "right_timeout_ms": 5000,
+          "run_source": "provided",
+          "solver_pairing_state": "PAIRED",
+          "solver_touched_atom_count": "2",
+          "solver_trust": "solver_backed",
+          "status_flip": "UNSAT→SAT",
+          "structural_patch_count": "2",
+          "unpaired_left_keys": [
+            "a",
+            "z"
+          ],
+          "unpaired_right_keys": [
+            "b",
+            "r"
+          ]
+        }
+      }
+    },
+    "validator_evidence_packet_refs": [
+      "artifact:validator_evidence:req-a:form-a",
+      "artifact:validator_evidence:req-b:form-b",
+      "artifact:validator_evidence:req-r:form-r"
+    ],
+    "witness_refs": [
+      "artifact:witness_sha256:ae2b956097b6d9a982f0a9809e20ff461e526091750a8efef4990feefe3f0dc9",
+      "artifact:witness_sha256:c17601212abf622ffa9d74ca1dc997090eae39627d33cf17d1dec6e29fb7523d"
+    ]
+  },
+  "fixture_id": "semantic_diff_golden_v1",
+  "input": {
+    "diff_report": {
+      "causal_slice": {
+        "explanation_items": [
+          {
+            "atom_name": "atom-z",
+            "json_path": "/z",
+            "object_id": "obj-z"
+          },
+          {
+            "atom_name": "atom-a",
+            "json_path": "/a",
+            "object_id": "obj-a"
+          }
+        ],
+        "touched_atoms": [
+          "atom-z",
+          "atom-a"
+        ],
+        "touched_json_paths": [
+          "/z",
+          "/a"
+        ],
+        "touched_object_ids": [
+          "obj-z",
+          "obj-a"
+        ]
+      },
+      "left_id": "left-x",
+      "right_id": "right-x",
+      "solver": {
+        "core_delta": {
+          "added_atoms": [
+            "atom-z",
+            "atom-a"
+          ],
+          "removed_atoms": [
+            "atom-c",
+            "atom-b"
+          ]
+        },
+        "formula_hash_changed": false,
+        "left_runs": [
+          {
+            "created_at": "2026-02-15T00:00:00+00:00",
+            "formula_hash": "form-b",
+            "request_hash": "req-b",
+            "run_id": "run-b"
+          },
+          {
+            "created_at": "2026-02-14T00:00:00+00:00",
+            "formula_hash": "form-a",
+            "request_hash": "req-a",
+            "run_id": "run-a"
+          }
+        ],
+        "model_delta": {
+          "added_assignments": [
+            {
+              "atom": "z",
+              "value": "true"
+            },
+            {
+              "atom": "a",
+              "value": "false"
+            }
+          ],
+          "changed_assignments": [
+            {
+              "atom": "k",
+              "left_value": "false",
+              "right_value": "true"
+            },
+            {
+              "atom": "a",
+              "left_value": "false",
+              "right_value": "true"
+            }
+          ],
+          "changed_atoms": [
+            "k",
+            "a"
+          ],
+          "removed_assignments": []
+        },
+        "request_hash_changed": false,
+        "right_runs": [
+          {
+            "created_at": "2026-02-16T00:00:00+00:00",
+            "formula_hash": "form-r",
+            "request_hash": "req-r",
+            "run_id": "run-r"
+          }
+        ],
+        "status_flip": "UNSAT→SAT",
+        "unpaired_left_hashes": [
+          "z",
+          "a"
+        ],
+        "unpaired_right_hashes": [
+          "r",
+          "b"
+        ]
+      },
+      "structural": {
+        "changed_object_ids": [
+          "obj-z",
+          "obj-a"
+        ],
+        "changed_paths": [
+          "/z",
+          "/a"
+        ],
+        "json_patches": [
+          {
+            "op": "replace",
+            "path": "/b",
+            "value": 2
+          },
+          {
+            "op": "replace",
+            "path": "/a",
+            "value": 1
+          }
+        ]
+      },
+      "summary": {
+        "causal_atom_count": "2",
+        "left_backend": "z3",
+        "left_timeout_ms": 5000,
+        "mapping_trust": "derived_bridge",
+        "proof_trust": null,
+        "recompute_mode": "LAX",
+        "right_backend": "z3",
+        "right_timeout_ms": 5000,
+        "run_source": "provided",
+        "solver_pairing_state": "PAIRED",
+        "solver_touched_atom_count": "2",
+        "solver_trust": "solver_backed",
+        "status_flip": "UNSAT→SAT",
+        "structural_patch_count": "2",
+        "unpaired_left_keys": [
+          "z",
+          "a"
+        ],
+        "unpaired_right_keys": [
+          "r",
+          "b"
+        ]
+      }
+    },
+    "explain_kind": "semantic_diff",
+    "input_artifact_refs": [
+      "artifact:right",
+      "artifact:left"
+    ]
+  },
+  "schema": "explain.parity_fixture@1"
+}
