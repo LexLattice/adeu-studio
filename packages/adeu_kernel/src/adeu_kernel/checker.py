@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass
 from typing import Any
 
@@ -85,6 +86,17 @@ def _assertion_name(*, object_id: str, json_path: str) -> str:
 def _smt_quote_symbol(symbol: str) -> str:
     safe = symbol.replace("|", "_")
     return f"|{safe}|"
+
+
+def _sorted_duplicate_values(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    duplicates: set[str] = set()
+    for value in values:
+        if value in seen:
+            duplicates.add(value)
+        else:
+            seen.add(value)
+    return sorted(duplicates)
 
 
 def _predicate_atom_symbol(*, kind: str, value: str) -> str:
@@ -1025,6 +1037,21 @@ def _build_conflict_validator_request(
     atom_map: list[ValidatorAtomRef] = []
     origins: list[ValidatorOrigin] = []
     if candidates:
+        collisions = _sorted_duplicate_values([pair.assertion_name for pair in candidates])
+        if collisions:
+            reasons.append(
+                CheckReason(
+                    code=ReasonCode.VALIDATOR_INVALID_REQUEST,
+                    severity=ReasonSeverity.ERROR,
+                    message=(
+                        "assertion_name collision detected; collision_set="
+                        + json.dumps(collisions, ensure_ascii=False, separators=(",", ":"))
+                    ),
+                    object_id=ir.ir_id,
+                    json_path=_path("D_norm", "statements"),
+                )
+            )
+            return None, candidates, reasons, [n.statement.id for n in active]
         for pair in candidates:
             atom_map.append(
                 ValidatorAtomRef(
@@ -1052,6 +1079,28 @@ def _build_conflict_validator_request(
     return request, candidates, reasons, [n.statement.id for n in active]
 
 
+def _normalize_conflict_validator_result(
+    *,
+    request: ValidatorRequest,
+    result: ValidatorResult,
+) -> ValidatorResult:
+    normalized = result.model_copy(deep=True)
+    atom_map_by_name = {atom.assertion_name: atom for atom in request.payload.atom_map}
+
+    if normalized.status == "UNSAT":
+        canonical_unsat_core = sorted(normalized.evidence.unsat_core)
+        normalized.evidence.unsat_core = canonical_unsat_core
+        normalized.trace = [
+            atom_map_by_name[name]
+            for name in canonical_unsat_core
+            if name in atom_map_by_name
+        ]
+        return normalized
+
+    normalized.trace = sorted(normalized.trace, key=lambda item: item.assertion_name)
+    return normalized
+
+
 def _check_conflicts(
     ir: AdeuIR,
     effective_norms: list[EffectiveNorm],
@@ -1064,6 +1113,16 @@ def _check_conflicts(
         effective_norms,
         mode=mode,
     )
+    if request is None:
+        return reasons, TraceItem(
+            rule_id="dnorm/conflicts",
+            because=[r.code for r in reasons] + ["solver:INVALID_REQUEST"],
+            affected_ids=active_ids,
+            notes=(
+                "Detects obligation vs prohibition conflicts in overlapping scope; "
+                "request construction failed before backend execution."
+            ),
+        ), None
 
     backend = validator_backend
     if backend is None:
@@ -1087,7 +1146,7 @@ def _check_conflicts(
                 notes="Detects obligation vs prohibition conflicts in overlapping scope.",
             ), None
 
-    result = backend.run(request)
+    result = _normalize_conflict_validator_result(request=request, result=backend.run(request))
     run = ValidatorRunRecord(request=request, result=result)
 
     if result.status == "UNSAT" and candidates:

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 
+import adeu_kernel.checker as checker_module
 from adeu_ir import SolverEvidence, ValidatorRequest, ValidatorResult
 from adeu_kernel import KernelMode, check, check_with_validator_runs
 
@@ -31,6 +32,36 @@ class _ModelSelectingBackend:
             ),
             trace=[],
         )
+
+
+class _UnsortedUnsatBackend:
+    def run(self, request: ValidatorRequest) -> ValidatorResult:
+        names = [atom.assertion_name for atom in request.payload.atom_map]
+        unsorted_core = list(reversed(names))
+        return ValidatorResult(
+            status="UNSAT",
+            assurance="solver_backed",
+            backend="mock",
+            backend_version="0",
+            timeout_ms=3000,
+            options={},
+            request_hash="r",
+            formula_hash="f0123456789abcdef",
+            evidence=SolverEvidence(
+                unsat_core=unsorted_core,
+            ),
+            trace=[],
+        )
+
+
+@dataclass
+class _FailIfCalledBackend:
+    called: bool = False
+
+    def run(self, request: ValidatorRequest) -> ValidatorResult:
+        _ = request
+        self.called = True
+        raise AssertionError("backend should not execute on assertion-name collision")
 
 
 def _conflict_ir() -> dict:
@@ -227,3 +258,36 @@ def test_unsat_conflicts_report_all_kernel_candidates() -> None:
     messages = "\n".join(r.message for r in conflicts)
     assert "dn_proh_a" in messages
     assert "dn_proh_b" in messages
+
+
+def test_unsat_core_and_trace_are_canonicalized_from_atom_map() -> None:
+    report, runs = check_with_validator_runs(
+        _multi_conflict_ir(),
+        mode=KernelMode.LAX,
+        validator_backend=_UnsortedUnsatBackend(),
+    )
+    assert report.status == "REFUSE"
+    assert len(runs) == 1
+
+    run = runs[0]
+    core = run.result.evidence.unsat_core
+    assert core == sorted(core)
+    assert [item.assertion_name for item in run.result.trace] == core
+
+
+def test_assertion_name_collision_fails_closed_before_backend_execution(monkeypatch) -> None:
+    backend = _FailIfCalledBackend()
+    monkeypatch.setattr(checker_module, "_json_path_hash", lambda _: "deadbeefcafe")
+
+    report, runs = check_with_validator_runs(
+        _multi_conflict_ir(),
+        mode=KernelMode.LAX,
+        validator_backend=backend,
+    )
+
+    assert backend.called is False
+    assert report.status == "REFUSE"
+    reasons = [r for r in report.reason_codes if r.code == "VALIDATOR_INVALID_REQUEST"]
+    assert reasons
+    assert reasons[0].message.endswith('["a:dn_ob_main:deadbeefcafe"]')
+    assert runs == []
