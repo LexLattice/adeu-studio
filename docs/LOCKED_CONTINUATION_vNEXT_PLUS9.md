@@ -266,6 +266,9 @@ Reduce runtime maintenance risk while adding machine-checkable closeout gates fo
 - Dispatch failure-path consolidation lock is frozen:
   - duplicated queued-child failure handling paths in scheduler dispatch flow must be extracted to one helper in `child_dispatch.py` (for example `_fail_queued_child_unlocked`).
   - consolidation is maintainability-only and must preserve identical event/code payload semantics.
+- Recovery extraction-helper consolidation lock is frozen:
+  - repeated token/metadata fallback extraction logic inside restart recovery must be extracted to one helper in `child_recovery.py`.
+  - consolidation is maintainability-only and must preserve identical recovery classification, ordering anchors, and emitted payload fields.
 - Shared-state extraction lock is frozen:
   - thread-run registry ownership remains in runtime coordinator state.
   - extracted modules must interact through an explicit injected runtime state interface; hidden module-level mutable thread state is forbidden.

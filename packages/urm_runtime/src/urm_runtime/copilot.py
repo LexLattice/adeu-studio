@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 import threading
 import time
@@ -95,6 +96,8 @@ from .storage import (
     update_worker_run_status,
     upsert_dispatch_token_queued,
 )
+
+logger = logging.getLogger(__name__)
 
 COPILOT_START_ENDPOINT = "urm.copilot.start"
 COPILOT_SEND_ENDPOINT = "urm.copilot.send"
@@ -437,8 +440,12 @@ class URMCopilotManager:
                             child_id=row.worker_id,
                             phase="terminal",
                         )
-                    except RuntimeError:
-                        pass
+                    except RuntimeError as exc:
+                        logger.warning(
+                            "failed to mark restart-recovered dispatch token terminal: child_id=%s",
+                            row.worker_id,
+                            exc_info=exc,
+                        )
 
     def _raw_jsonl_path_for_session(self, session_id: str) -> Path:
         path = self.config.evidence_root / "copilot" / session_id / "codex_raw.ndjson"
