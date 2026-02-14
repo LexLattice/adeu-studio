@@ -60,6 +60,7 @@ from adeu_kernel import (
     build_adeu_core_proof_requests,
     build_proof_backend,
     build_validator_backend,
+    build_validator_evidence_packet,
     check,
     check_with_validator_runs,
 )
@@ -735,6 +736,7 @@ class StoredValidatorRun(BaseModel):
     status: str
     evidence_json: dict[str, object]
     atom_map_json: dict[str, object]
+    validator_evidence_packet: dict[str, object]
 
 
 class ArtifactValidatorRunsResponse(BaseModel):
@@ -1593,6 +1595,22 @@ def _normalize_evidence_json_for_output(evidence_json: dict[str, Any]) -> dict[s
     if isinstance(model, dict):
         payload["model"] = {str(key): model[key] for key in sorted(model.keys())}
     return payload
+
+
+def _validator_evidence_packet_from_row(row: ValidatorRunRow) -> dict[str, Any]:
+    packet = build_validator_evidence_packet(
+        validator_run_id=row.run_id,
+        backend=row.backend,
+        backend_version=row.backend_version,
+        timeout_ms=row.timeout_ms,
+        options=row.options_json,
+        request_hash=row.request_hash,
+        formula_hash=row.formula_hash,
+        status=row.status,
+        evidence=row.evidence_json,
+        atom_map=row.atom_map_json,
+    )
+    return packet
 
 
 def _validator_run_input_from_record(run: ValidatorRunRecord) -> ValidatorRunInput:
@@ -4207,6 +4225,7 @@ def list_concept_artifact_validator_runs_endpoint(
                 status=run.status,
                 evidence_json=run.evidence_json,
                 atom_map_json=run.atom_map_json,
+                validator_evidence_packet=_validator_evidence_packet_from_row(run),
             )
             for run in rows
         ]
@@ -4808,6 +4827,7 @@ def list_artifact_validator_runs_endpoint(artifact_id: str) -> ArtifactValidator
                 status=row.status,
                 evidence_json=row.evidence_json,
                 atom_map_json=row.atom_map_json,
+                validator_evidence_packet=_validator_evidence_packet_from_row(row),
             )
             for row in rows
         ]

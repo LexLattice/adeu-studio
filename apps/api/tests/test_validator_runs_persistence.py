@@ -135,6 +135,14 @@ def test_list_artifact_validator_runs_endpoint_returns_rows(
     assert run.status == "SAT"
     assert run.evidence_json.get("unsat_core") == []
     assert run.atom_map_json == {}
+    packet = run.validator_evidence_packet
+    assert packet["schema"] == "validator_evidence_packet@1"
+    assert packet["validator_run_id"] == run.run_id
+    assert packet["status"] == run.status
+    assert packet["request_hash"] == run.request_hash
+    assert packet["formula_hash"] == run.formula_hash
+    assert packet["evidence"]["unsat_core"] == []
+    assert len(str(packet["evidence_packet_hash"])) == 64
 
 
 def test_create_artifact_rolls_back_all_rows_when_proof_insert_fails(

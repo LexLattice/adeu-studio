@@ -9,6 +9,7 @@ from typing import Any, Literal, Protocol
 from adeu_ir import SolverEvidence, ValidatorRequest, ValidatorResult
 
 DEFAULT_Z3_TIMEOUT_MS = 3000
+TIMEOUT_REASON_MARKERS = ("timeout", "canceled", "resourceout")
 
 
 ValidatorBackendKind = Literal["z3", "mock", "lean"]
@@ -48,6 +49,27 @@ def _default_timeout_ms() -> int:
 
 def _normalize_symbol(value: str) -> str:
     return value.strip("|")
+
+
+def _is_timeout_reason(reason: str) -> bool:
+    normalized = reason.strip().lower()
+    if not normalized:
+        return False
+    return any(marker in normalized for marker in TIMEOUT_REASON_MARKERS)
+
+
+def _atom_map_by_name_with_collisions(
+    request: ValidatorRequest,
+) -> tuple[dict[str, Any], list[str]]:
+    atom_map_by_name: dict[str, Any] = {}
+    collisions: set[str] = set()
+    for atom in request.payload.atom_map:
+        key = atom.assertion_name
+        if key in atom_map_by_name:
+            collisions.add(key)
+            continue
+        atom_map_by_name[key] = atom
+    return atom_map_by_name, sorted(collisions)
 
 
 def _result(
@@ -105,6 +127,25 @@ class Z3Validator:
         request_hash = _request_hash(request)
         formula_hash = _formula_hash(request)
         options = dict(self.options or {})
+        atom_map_by_name, collisions = _atom_map_by_name_with_collisions(request)
+        if collisions:
+            return _result(
+                status="INVALID_REQUEST",
+                assurance="kernel_only",
+                backend="z3",
+                backend_version=None,
+                timeout_ms=self.timeout_ms,
+                options=options,
+                request_hash=request_hash,
+                formula_hash=formula_hash,
+                evidence=SolverEvidence(
+                    error=(
+                        "duplicate assertion_name values are not allowed: "
+                        + ", ".join(collisions)
+                    )
+                ),
+                trace=[],
+            )
         if request.logic != "QF_UF":
             return _result(
                 status="INVALID_REQUEST",
@@ -134,8 +175,6 @@ class Z3Validator:
                 evidence=SolverEvidence(error=f"z3 import failed: {exc}"),
                 trace=[],
             )
-
-        atom_map_by_name = {a.assertion_name: a for a in request.payload.atom_map}
 
         try:
             solver = z3.Solver()
@@ -175,7 +214,8 @@ class Z3Validator:
 
         if result == z3.sat:
             model = solver.model()
-            model_map = {str(d.name()): str(model[d]) for d in model.decls()}
+            model_items = [(str(d.name()), str(model[d])) for d in model.decls()]
+            model_map = {name: value for name, value in sorted(model_items)}
             sat_trace = [atom_map_by_name[name] for name in sorted(atom_map_by_name)]
             return _result(
                 status="SAT",
@@ -194,7 +234,7 @@ class Z3Validator:
             )
 
         if result == z3.unsat:
-            core = [_normalize_symbol(str(item)) for item in solver.unsat_core()]
+            core = sorted(_normalize_symbol(str(item)) for item in solver.unsat_core())
             core_trace = [atom_map_by_name[name] for name in core if name in atom_map_by_name]
             return _result(
                 status="UNSAT",
@@ -213,7 +253,7 @@ class Z3Validator:
             )
 
         reason = str(solver.reason_unknown() or "")
-        if "timeout" in reason.lower():
+        if _is_timeout_reason(reason):
             return _result(
                 status="TIMEOUT",
                 assurance="solver_backed",

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/validator_evidence_packet.schema.json",
+  "title": "validator_evidence_packet@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "validator_run_id",
+    "backend",
+    "backend_version",
+    "timeout_ms",
+    "options",
+    "request_hash",
+    "formula_hash",
+    "status",
+    "evidence",
+    "evidence_packet_hash"
+  ],
+  "properties": {
+    "schema": {
+      "const": "validator_evidence_packet@1"
+    },
+    "validator_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "backend": {
+      "type": "string",
+      "enum": [
+        "z3",
+        "lean",
+        "mock"
+      ]
+    },
+    "backend_version": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timeout_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "options": {
+      "type": "object"
+    },
+    "request_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "formula_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "SAT",
+        "UNSAT",
+        "UNKNOWN",
+        "TIMEOUT",
+        "INVALID_REQUEST",
+        "ERROR"
+      ]
+    },
+    "assurance": {
+      "type": "string",
+      "enum": [
+        "kernel_only",
+        "solver_backed",
+        "proof_checked"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "unsat_core",
+        "core_trace",
+        "stats"
+      ],
+      "properties": {
+        "model": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "unsat_core": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "core_trace": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "assertion_name",
+              "object_id",
+              "json_path"
+            ],
+            "properties": {
+              "assertion_name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "object_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "json_path": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "stats": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "error": {
+          "type": "string"
+        }
+      }
+    },
+    "evidence_packet_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}
