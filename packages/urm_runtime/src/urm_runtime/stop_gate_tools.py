@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from adeu_kernel import strip_nonsemantic_validator_fields
 from pydantic import ValidationError
 
 from .events_tools import replay_events, validate_events
@@ -14,7 +16,10 @@ from .models import NormalizedEvent
 STOP_GATE_SCHEMA = "stop_gate_metrics@1"
 POLICY_INCIDENT_SCHEMA = "incident_packet@1"
 CONNECTOR_SNAPSHOT_SCHEMA = "connector_snapshot@1"
+VALIDATOR_EVIDENCE_PACKET_SCHEMA = "validator_evidence_packet@1"
+SEMANTICS_DIAGNOSTICS_SCHEMA = "semantics_diagnostics@1"
 QUALITY_DASHBOARD_SCHEMA = "quality.dashboard.v1"
+SEMANTICS_DETERMINISM_REPLAY_COUNT = 3
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -31,6 +36,9 @@ THRESHOLDS = {
     "child_lifecycle_replay_determinism_pct": 100.0,
     "runtime_failure_code_stability_pct": 100.0,
     "connector_snapshot_replay_stability_pct": 100.0,
+    "validator_packet_determinism_pct": 100.0,
+    "witness_reconstruction_determinism_pct": 100.0,
+    "semantics_diagnostics_determinism_pct": 100.0,
     "quality_delta_non_negative": True,
 }
 
@@ -42,6 +50,80 @@ _TERMINAL_CODE_EVENTS = {
     "POLICY_DENIED",
     "STEER_DENIED",
 }
+
+
+def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
+    return sha256_canonical_json(strip_nonsemantic_validator_fields(payload))
+
+
+def _normalize_witness_trace(raw_trace: Any) -> list[dict[str, str | None]]:
+    if not isinstance(raw_trace, list):
+        return []
+    normalized: list[dict[str, str | None]] = []
+    for item in raw_trace:
+        if not isinstance(item, Mapping):
+            continue
+        raw_assertion_name = item.get("assertion_name")
+        if not isinstance(raw_assertion_name, str) or not raw_assertion_name:
+            continue
+        raw_object_id = item.get("object_id")
+        raw_json_path = item.get("json_path")
+        normalized.append(
+            {
+                "assertion_name": raw_assertion_name,
+                "object_id": None if raw_object_id is None else str(raw_object_id),
+                "json_path": None if raw_json_path is None else str(raw_json_path),
+            }
+        )
+    return sorted(
+        normalized,
+        key=lambda ref: (
+            ref["assertion_name"],
+            ref["object_id"] or "",
+            ref["json_path"] or "",
+        ),
+    )
+
+
+def _witness_reconstruction_hash(payload: Mapping[str, Any]) -> str:
+    evidence = payload.get("evidence")
+    evidence_mapping = evidence if isinstance(evidence, Mapping) else {}
+    unsat_core = evidence_mapping.get("unsat_core")
+    normalized_unsat_core = (
+        sorted(str(item) for item in unsat_core)
+        if isinstance(unsat_core, list)
+        else []
+    )
+    witness_payload = {
+        "status": str(payload.get("status", "")),
+        "formula_hash": str(payload.get("formula_hash", "")),
+        "request_hash": str(payload.get("request_hash", "")),
+        "unsat_core": normalized_unsat_core,
+        "core_trace": _normalize_witness_trace(evidence_mapping.get("core_trace")),
+    }
+    return sha256_canonical_json(witness_payload)
+
+
+def _semantics_diagnostics_hash(payload: Mapping[str, Any]) -> str:
+    basis = {k: payload[k] for k in sorted(payload.keys()) if k != "semantics_diagnostics_hash"}
+    return sha256_canonical_json(basis)
+
+
+def _group_replay_determinism_pct(
+    *,
+    replay_groups: dict[str, set[str]],
+    replay_counts: dict[str, int],
+) -> float:
+    total = len(replay_groups)
+    if total <= 0:
+        return 0.0
+    passed = sum(
+        1
+        for replay_key, hashes in replay_groups.items()
+        if len(hashes) == 1
+        and replay_counts.get(replay_key, 0) == SEMANTICS_DETERMINISM_REPLAY_COUNT
+    )
+    return _pct(passed, total)
 
 
 def _issue(code: str, message: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -173,6 +255,8 @@ def build_stop_gate_metrics(
     incident_packet_paths: list[Path],
     event_stream_paths: list[Path],
     connector_snapshot_paths: list[Path],
+    validator_evidence_packet_paths: list[Path],
+    semantics_diagnostics_paths: list[Path],
     quality_current_path: Path,
     quality_baseline_path: Path | None = None,
 ) -> dict[str, Any]:
@@ -184,6 +268,14 @@ def build_stop_gate_metrics(
         connector_payloads = [
             _read_json_object(path, description="connector snapshot")
             for path in connector_snapshot_paths
+        ]
+        validator_packet_payloads = [
+            _read_json_object(path, description="validator evidence packet")
+            for path in validator_evidence_packet_paths
+        ]
+        semantics_diagnostics_payloads = [
+            _read_json_object(path, description="semantics diagnostics")
+            for path in semantics_diagnostics_paths
         ]
         quality_current = _read_json_object(quality_current_path, description="quality dashboard")
         quality_baseline = _read_json_object(
@@ -351,6 +443,154 @@ def build_stop_gate_metrics(
     connector_passed = sum(1 for hashes in connector_groups.values() if len(hashes) == 1)
     connector_snapshot_replay_stability_pct = _pct(connector_passed, connector_total)
 
+    validator_packet_groups: dict[str, set[str]] = {}
+    validator_packet_replay_counts: dict[str, int] = {}
+    witness_groups: dict[str, set[str]] = {}
+    witness_replay_counts: dict[str, int] = {}
+    for payload, path in zip(validator_packet_payloads, validator_evidence_packet_paths):
+        if payload.get("schema") != VALIDATOR_EVIDENCE_PACKET_SCHEMA:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "validator evidence input must use validator_evidence_packet@1",
+                    context={"path": str(path)},
+                )
+            )
+            continue
+
+        validator_run_id = payload.get("validator_run_id")
+        if not isinstance(validator_run_id, str) or not validator_run_id:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "validator evidence input missing validator_run_id",
+                    context={"path": str(path)},
+                )
+            )
+            continue
+
+        expected_packet_hash = _validator_packet_hash(payload)
+        actual_packet_hash = payload.get("evidence_packet_hash")
+        if not isinstance(actual_packet_hash, str) or actual_packet_hash != expected_packet_hash:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "validator evidence packet hash mismatch",
+                    context={"path": str(path)},
+                )
+            )
+            continue
+
+        validator_packet_replay_counts[validator_run_id] = (
+            validator_packet_replay_counts.get(validator_run_id, 0) + 1
+        )
+        witness_replay_counts[validator_run_id] = witness_replay_counts.get(validator_run_id, 0) + 1
+        validator_packet_groups.setdefault(validator_run_id, set()).add(expected_packet_hash)
+        witness_groups.setdefault(validator_run_id, set()).add(
+            _witness_reconstruction_hash(payload)
+        )
+
+    for validator_run_id in sorted(validator_packet_replay_counts):
+        replay_count = validator_packet_replay_counts[validator_run_id]
+        if replay_count != SEMANTICS_DETERMINISM_REPLAY_COUNT:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "validator evidence replay count mismatch",
+                    context={
+                        "validator_run_id": validator_run_id,
+                        "expected_replays": SEMANTICS_DETERMINISM_REPLAY_COUNT,
+                        "observed_replays": replay_count,
+                    },
+                )
+            )
+    for validator_run_id in sorted(witness_replay_counts):
+        replay_count = witness_replay_counts[validator_run_id]
+        if replay_count != SEMANTICS_DETERMINISM_REPLAY_COUNT:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "witness replay count mismatch",
+                    context={
+                        "validator_run_id": validator_run_id,
+                        "expected_replays": SEMANTICS_DETERMINISM_REPLAY_COUNT,
+                        "observed_replays": replay_count,
+                    },
+                )
+            )
+
+    validator_packet_determinism_pct = _group_replay_determinism_pct(
+        replay_groups=validator_packet_groups,
+        replay_counts=validator_packet_replay_counts,
+    )
+    witness_reconstruction_determinism_pct = _group_replay_determinism_pct(
+        replay_groups=witness_groups,
+        replay_counts=witness_replay_counts,
+    )
+
+    semantics_diagnostics_groups: dict[str, set[str]] = {}
+    semantics_diagnostics_replay_counts: dict[str, int] = {}
+    for payload, path in zip(semantics_diagnostics_payloads, semantics_diagnostics_paths):
+        if payload.get("schema") != SEMANTICS_DIAGNOSTICS_SCHEMA:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics diagnostics input must use semantics_diagnostics@1",
+                    context={"path": str(path)},
+                )
+            )
+            continue
+
+        artifact_ref = payload.get("artifact_ref")
+        if not isinstance(artifact_ref, str) or not artifact_ref:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics diagnostics input missing artifact_ref",
+                    context={"path": str(path)},
+                )
+            )
+            continue
+
+        expected_diagnostics_hash = _semantics_diagnostics_hash(payload)
+        actual_diagnostics_hash = payload.get("semantics_diagnostics_hash")
+        if not isinstance(actual_diagnostics_hash, str) or (
+            actual_diagnostics_hash != expected_diagnostics_hash
+        ):
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics diagnostics hash mismatch",
+                    context={"path": str(path)},
+                )
+            )
+            continue
+
+        semantics_diagnostics_replay_counts[artifact_ref] = (
+            semantics_diagnostics_replay_counts.get(artifact_ref, 0) + 1
+        )
+        semantics_diagnostics_groups.setdefault(artifact_ref, set()).add(expected_diagnostics_hash)
+
+    for artifact_ref in sorted(semantics_diagnostics_replay_counts):
+        replay_count = semantics_diagnostics_replay_counts[artifact_ref]
+        if replay_count != SEMANTICS_DETERMINISM_REPLAY_COUNT:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics diagnostics replay count mismatch",
+                    context={
+                        "artifact_ref": artifact_ref,
+                        "expected_replays": SEMANTICS_DETERMINISM_REPLAY_COUNT,
+                        "observed_replays": replay_count,
+                    },
+                )
+            )
+
+    semantics_diagnostics_determinism_pct = _group_replay_determinism_pct(
+        replay_groups=semantics_diagnostics_groups,
+        replay_counts=semantics_diagnostics_replay_counts,
+    )
+
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
     if not isinstance(quality_current_metrics, dict) or not isinstance(
@@ -419,6 +659,9 @@ def build_stop_gate_metrics(
         "child_lifecycle_replay_determinism_pct": child_lifecycle_replay_determinism_pct,
         "runtime_failure_code_stability_pct": runtime_failure_code_stability_pct,
         "connector_snapshot_replay_stability_pct": connector_snapshot_replay_stability_pct,
+        "validator_packet_determinism_pct": validator_packet_determinism_pct,
+        "witness_reconstruction_determinism_pct": witness_reconstruction_determinism_pct,
+        "semantics_diagnostics_determinism_pct": semantics_diagnostics_determinism_pct,
         "quality_metric_ruleset": quality_metric_ruleset,
         "quality_delta_non_negative": quality_delta_non_negative,
         "quality_deltas": {key: quality_deltas[key] for key in sorted(quality_deltas)},
@@ -435,6 +678,12 @@ def build_stop_gate_metrics(
         >= THRESHOLDS["runtime_failure_code_stability_pct"],
         "connector_snapshot_replay_stability": metrics["connector_snapshot_replay_stability_pct"]
         >= THRESHOLDS["connector_snapshot_replay_stability_pct"],
+        "validator_packet_determinism": metrics["validator_packet_determinism_pct"]
+        >= THRESHOLDS["validator_packet_determinism_pct"],
+        "witness_reconstruction_determinism": metrics["witness_reconstruction_determinism_pct"]
+        >= THRESHOLDS["witness_reconstruction_determinism_pct"],
+        "semantics_diagnostics_determinism": metrics["semantics_diagnostics_determinism_pct"]
+        >= THRESHOLDS["semantics_diagnostics_determinism_pct"],
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -446,6 +695,12 @@ def build_stop_gate_metrics(
             "incident_packet_paths": [str(path) for path in sorted(incident_packet_paths)],
             "event_stream_paths": [str(path) for path in sorted(event_stream_paths)],
             "connector_snapshot_paths": [str(path) for path in sorted(connector_snapshot_paths)],
+            "validator_evidence_packet_paths": [
+                str(path) for path in sorted(validator_evidence_packet_paths)
+            ],
+            "semantics_diagnostics_paths": [
+                str(path) for path in sorted(semantics_diagnostics_paths)
+            ],
             "quality_current_path": str(quality_current_path),
             "quality_baseline_path": str(
                 quality_baseline_path if quality_baseline_path is not None else quality_current_path
@@ -492,6 +747,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(
         "- connector snapshot replay stability pct: "
         f"`{metrics.get('connector_snapshot_replay_stability_pct')}`"
+    )
+    lines.append(
+        "- validator packet determinism pct: "
+        f"`{metrics.get('validator_packet_determinism_pct')}`"
+    )
+    lines.append(
+        "- witness reconstruction determinism pct: "
+        f"`{metrics.get('witness_reconstruction_determinism_pct')}`"
+    )
+    lines.append(
+        "- semantics diagnostics determinism pct: "
+        f"`{metrics.get('semantics_diagnostics_determinism_pct')}`"
     )
     lines.append(
         "- quality delta non-negative: "
@@ -557,6 +824,18 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="append",
         type=Path,
     )
+    parser.add_argument(
+        "--validator-evidence-packet",
+        dest="validator_evidence_packet_paths",
+        action="append",
+        type=Path,
+    )
+    parser.add_argument(
+        "--semantics-diagnostics",
+        dest="semantics_diagnostics_paths",
+        action="append",
+        type=Path,
+    )
     parser.add_argument("--quality-current", dest="quality_current_path", type=Path, required=True)
     parser.add_argument("--quality-baseline", dest="quality_baseline_path", type=Path)
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
@@ -570,6 +849,8 @@ def main(argv: list[str] | None = None) -> int:
         incident_packet_paths=list(args.incident_packet_paths or []),
         event_stream_paths=list(args.event_stream_paths or []),
         connector_snapshot_paths=list(args.connector_snapshot_paths or []),
+        validator_evidence_packet_paths=list(args.validator_evidence_packet_paths or []),
+        semantics_diagnostics_paths=list(args.semantics_diagnostics_paths or []),
         quality_current_path=args.quality_current_path,
         quality_baseline_path=args.quality_baseline_path,
     )

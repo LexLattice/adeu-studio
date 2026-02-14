@@ -31,6 +31,7 @@ from .validator_evidence import (
     VALIDATOR_EVIDENCE_HASH_EXCLUDED_FIELDS,
     VALIDATOR_EVIDENCE_PACKET_SCHEMA,
     build_validator_evidence_packet,
+    strip_nonsemantic_validator_fields,
 )
 
 __all__ = [
@@ -49,6 +50,7 @@ __all__ = [
     "SEMANTICS_DIAGNOSTICS_SCHEMA",
     "derive_semantics_assurance",
     "VALIDATOR_EVIDENCE_HASH_EXCLUDED_FIELDS",
+    "strip_nonsemantic_validator_fields",
     "apply_ambiguity_option",
     "apply_ambiguity_option_patch",
     "apply_json_patch",
