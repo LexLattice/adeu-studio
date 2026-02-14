@@ -61,13 +61,14 @@ async function stopProcess(proc) {
   }
 }
 
-test("route smoke: home, concepts, puzzles, papers, copilot render core controls", { timeout: 120_000 }, async () => {
+test("route smoke: home, explain, concepts, puzzles, papers, copilot render core controls", { timeout: 120_000 }, async () => {
   const proc = startWebServer();
   try {
     await waitForServerReady(proc);
 
     const routeExpectations = [
       { path: "/", mustInclude: "Analyze as Concepts" },
+      { path: "/explain", mustInclude: "Explain Evidence Studio" },
       { path: "/concepts", mustInclude: "Generate alignment" },
       { path: "/puzzles", mustInclude: "Puzzle Text" },
       { path: "/papers", mustInclude: "Paper Abstract Studio" },
