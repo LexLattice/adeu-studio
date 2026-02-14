@@ -1348,6 +1348,7 @@ def test_agent_spawn_budget_breach_solver_calls_is_deterministic(
             lambda: (
                 (child := manager._child_runs.get(spawn.child_id)) is not None
                 and child.status in {"completed", "failed", "cancelled"}
+                and child.persisted
             ),
             timeout_secs=5.0,
         )
