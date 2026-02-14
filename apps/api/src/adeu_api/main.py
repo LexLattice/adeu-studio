@@ -59,12 +59,14 @@ from adeu_kernel import (
     apply_ambiguity_option,
     build_adeu_core_proof_requests,
     build_proof_backend,
+    build_proof_evidence_packet,
     build_semantics_diagnostics,
     build_validator_backend,
     build_validator_evidence_packet,
     check,
     check_with_validator_runs,
     derive_semantics_assurance,
+    strip_nonsemantic_proof_fields,
 )
 from adeu_puzzles import (
     KnightsKnavesPuzzle,
@@ -277,6 +279,8 @@ _PROOF_REQUIRED_OBLIGATION_KINDS: tuple[str, ...] = (
     "conflict_soundness",
     "pred_closed_world",
 )
+_PROOF_BACKEND_UNAVAILABLE_CODE = "URM_PROOF_BACKEND_UNAVAILABLE"
+_PROOF_EVIDENCE_NOT_FOUND_CODE = "URM_PROOF_EVIDENCE_NOT_FOUND"
 DEFAULT_CORS_ALLOW_ORIGINS: tuple[str, ...] = (
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -716,6 +720,7 @@ class StoredProofArtifact(BaseModel):
     proof: ProofArtifact
     artifact_id: str
     created_at: str
+    proof_evidence_packet: dict[str, object]
 
 
 class ArtifactProofListResponse(BaseModel):
@@ -1649,6 +1654,43 @@ def _validator_evidence_packet_from_row(row: ValidatorRunRow) -> dict[str, Any]:
     return packet
 
 
+def _proof_evidence_packet_from_row(row: ProofArtifactRow) -> dict[str, Any]:
+    return build_proof_evidence_packet(
+        proof_id=row.proof_id,
+        artifact_id=row.artifact_id,
+        created_at=row.created_at,
+        backend=row.backend,
+        theorem_id=row.theorem_id,
+        status=row.status,
+        proof_hash=row.proof_hash,
+        inputs=row.inputs_json,
+        details=row.details_json,
+    )
+
+
+def _proof_evidence_packets_from_rows(rows: list[ProofArtifactRow]) -> list[dict[str, Any]]:
+    keyed: dict[tuple[str, str], dict[str, Any]] = {}
+    for row in rows:
+        packet = _proof_evidence_packet_from_row(row)
+        key = (str(packet["theorem_id"]), str(packet["proof_id"]))
+        if key in keyed:
+            raise ValueError(
+                "duplicate grouped proof packet key",
+                _PROOF_EVIDENCE_NOT_FOUND_CODE,
+                key,
+            )
+        keyed[key] = packet
+    return [keyed[key] for key in sorted(keyed, key=lambda item: (item[0], item[1]))]
+
+
+def _proof_evidence_hash_recomputes(packet: dict[str, Any]) -> bool:
+    embedded = packet.get("proof_evidence_hash")
+    if not isinstance(embedded, str):
+        return False
+    recomputed = sha256_canonical_json(strip_nonsemantic_proof_fields(packet))
+    return embedded == recomputed
+
+
 def _semantics_diagnostics_from_rows(
     *,
     rows: list[ValidatorRunRow],
@@ -1961,6 +2003,13 @@ def _artifact_trust_labels(
     proof_rows: list[ProofArtifactRow],
 ) -> tuple[SolverTrustLevel, ArtifactProofTrust]:
     fallback_solver_trust: SolverTrustLevel = "solver_backed" if validator_runs else "kernel_only"
+    try:
+        proof_packets_by_id = {
+            str(packet["proof_id"]): packet
+            for packet in _proof_evidence_packets_from_rows(proof_rows)
+        }
+    except ValueError:
+        return fallback_solver_trust, "lean_core_v1_partial_or_failed"
     required_by_kind = _latest_required_proof_rows(proof_rows)
     required_rows: list[ProofArtifactRow] = []
     for obligation_kind in _PROOF_REQUIRED_OBLIGATION_KINDS:
@@ -1974,7 +2023,14 @@ def _artifact_trust_labels(
 
     for row in required_rows:
         semantics_version = _proof_detail_text(row.details_json, "semantics_version")
-        if semantics_version != _PROOF_SEMANTICS_VERSION_REQUIRED or row.status != "proved":
+        if semantics_version != _PROOF_SEMANTICS_VERSION_REQUIRED:
+            return fallback_solver_trust, "lean_core_v1_partial_or_failed"
+        packet = proof_packets_by_id.get(row.proof_id)
+        if packet is None:
+            return fallback_solver_trust, "lean_core_v1_partial_or_failed"
+        if not _proof_evidence_hash_recomputes(packet):
+            return fallback_solver_trust, "lean_core_v1_partial_or_failed"
+        if packet.get("status") != "proved":
             return fallback_solver_trust, "lean_core_v1_partial_or_failed"
 
     return "proof_checked", "lean_core_v1_proved"
@@ -2020,10 +2076,15 @@ def _persist_proof_artifact(
                 status="failed",
                 proof_hash=sha256_text(theorem_src + str(exc)),
                 inputs=obligation.inputs,
-                details={"error": str(exc)},
+                details={
+                    "error": str(exc),
+                    "error_code": _PROOF_BACKEND_UNAVAILABLE_CODE,
+                },
             )
 
         details = dict(proof.details)
+        if proof.status == "failed":
+            details.setdefault("error_code", _PROOF_EVIDENCE_NOT_FOUND_CODE)
         details.setdefault("backend_proof_id", proof.proof_id)
         details.setdefault("semantics_version", obligation.semantics_version)
         details.setdefault("inputs_hash", obligation.metadata.get("inputs_hash"))
@@ -4856,6 +4917,9 @@ def list_artifact_proofs_endpoint(artifact_id: str) -> ArtifactProofListResponse
         raise HTTPException(status_code=404, detail="not found")
 
     rows = list_proof_artifacts(artifact_id=artifact_id)
+    proof_packets = _proof_evidence_packets_from_rows(rows)
+    packets_by_id = {str(packet["proof_id"]): packet for packet in proof_packets}
+    sorted_rows = sorted(rows, key=lambda row: (row.theorem_id, row.proof_id))
     items = [
         StoredProofArtifact(
             proof=ProofArtifact(
@@ -4869,8 +4933,9 @@ def list_artifact_proofs_endpoint(artifact_id: str) -> ArtifactProofListResponse
             ),
             artifact_id=row.artifact_id,
             created_at=row.created_at,
+            proof_evidence_packet=packets_by_id[row.proof_id],
         )
-        for row in rows
+        for row in sorted_rows
     ]
     return ArtifactProofListResponse(items=items)
 

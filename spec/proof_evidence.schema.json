@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/proof_evidence.schema.json",
+  "title": "proof_evidence@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "proof_id",
+    "artifact_id",
+    "artifact_ref",
+    "backend",
+    "theorem_id",
+    "status",
+    "proof_hash",
+    "inputs",
+    "details",
+    "hash_excluded_fields",
+    "proof_evidence_hash"
+  ],
+  "properties": {
+    "schema": {
+      "const": "proof_evidence@1"
+    },
+    "proof_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifact_ref": {
+      "type": "string",
+      "pattern": "^proof:[A-Za-z0-9_\\-:.]+$"
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "backend": {
+      "type": "string",
+      "enum": [
+        "lean",
+        "mock"
+      ]
+    },
+    "theorem_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proved",
+        "failed"
+      ]
+    },
+    "proof_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "object_id",
+          "json_path",
+          "formula_hash"
+        ],
+        "properties": {
+          "object_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "json_path": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "formula_hash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "details": {
+      "type": "object"
+    },
+    "failed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "hash_excluded_fields": {
+      "const": [
+        "artifact_ref",
+        "created_at",
+        "materialized_at",
+        "observed_at",
+        "operator_message",
+        "operator_note",
+        "proof_evidence_hash",
+        "proof_id",
+        "raw_path",
+        "stderr_path"
+      ]
+    },
+    "proof_evidence_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "failed"
+        ]
+      }
+    }
+  ]
+}

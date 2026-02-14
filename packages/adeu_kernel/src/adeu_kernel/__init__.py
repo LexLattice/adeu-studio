@@ -15,6 +15,14 @@ from .proof import (
     build_proof_backend,
     build_trivial_theorem_source,
 )
+from .proof_evidence import (
+    PROOF_EVIDENCE_HASH_EXCLUDED_FIELD_LIST,
+    PROOF_EVIDENCE_HASH_EXCLUDED_FIELDS,
+    PROOF_EVIDENCE_SCHEMA,
+    build_proof_evidence_packet,
+    proof_evidence_hash,
+    strip_nonsemantic_proof_fields,
+)
 from .semantics_diagnostics import (
     SEMANTICS_DIAGNOSTICS_SCHEMA,
     build_semantics_diagnostics,
@@ -47,10 +55,14 @@ __all__ = [
     "ValidatorRunRecord",
     "Z3Validator",
     "VALIDATOR_EVIDENCE_PACKET_SCHEMA",
+    "PROOF_EVIDENCE_SCHEMA",
     "SEMANTICS_DIAGNOSTICS_SCHEMA",
     "derive_semantics_assurance",
     "VALIDATOR_EVIDENCE_HASH_EXCLUDED_FIELDS",
+    "PROOF_EVIDENCE_HASH_EXCLUDED_FIELDS",
+    "PROOF_EVIDENCE_HASH_EXCLUDED_FIELD_LIST",
     "strip_nonsemantic_validator_fields",
+    "strip_nonsemantic_proof_fields",
     "apply_ambiguity_option",
     "apply_ambiguity_option_patch",
     "apply_json_patch",
@@ -58,6 +70,8 @@ __all__ = [
     "build_validator_backend",
     "build_semantics_diagnostics",
     "build_proof_backend",
+    "build_proof_evidence_packet",
+    "proof_evidence_hash",
     "build_validator_evidence_packet",
     "build_trivial_theorem_source",
     "check",
