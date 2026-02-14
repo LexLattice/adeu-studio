@@ -22,13 +22,13 @@ def _repo_root() -> Path:
 
 
 def test_connector_exposure_mapping_file_matches_spec_schema() -> None:
-    repo_root = _repo_root()
+    root = _repo_root()
     mapping_payload = json.loads(
-        (repo_root / "policy" / "connector_exposure_mapping.v1.json").read_text(encoding="utf-8")
+        (root / "policy" / "connector_exposure_mapping.v1.json").read_text(encoding="utf-8")
     )
     schema_payload = json.loads(
         (
-            repo_root / "spec" / "policy_connector_exposure_mapping.v1.schema.json"
+            root / "spec" / "policy_connector_exposure_mapping.v1.schema.json"
         ).read_text(encoding="utf-8")
     )
     validator = Draft202012Validator(schema_payload)
@@ -37,13 +37,13 @@ def test_connector_exposure_mapping_file_matches_spec_schema() -> None:
 
 
 def test_connector_exposure_mapping_packaged_copy_matches_repo_source() -> None:
-    repo_root = _repo_root()
+    root = _repo_root()
     source_payload = json.loads(
-        (repo_root / "policy" / "connector_exposure_mapping.v1.json").read_text(encoding="utf-8")
+        (root / "policy" / "connector_exposure_mapping.v1.json").read_text(encoding="utf-8")
     )
     packaged_payload = json.loads(
         (
-            repo_root
+            root
             / "packages"
             / "urm_runtime"
             / "src"
