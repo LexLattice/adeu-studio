@@ -313,7 +313,7 @@ class AgentSpawnResponse(BaseModel):
     profile_version: str = Field(default="profile.v1", min_length=1)
     idempotent_replay: bool = False
     error: dict[str, Any] | None = None
-    budget_snapshot: dict[str, int] = Field(default_factory=dict)
+    budget_snapshot: dict[str, Any] = Field(default_factory=dict)
     inherited_policy_hash: str | None = None
 
 

@@ -131,6 +131,24 @@ def _wait_for(
     return bool(predicate())
 
 
+def _budget_snapshot_v1(
+    *,
+    max_solver_calls: int,
+    max_duration_secs: int,
+    max_token_budget: int,
+    remaining_parent_duration_secs: int,
+    token_usage_unobserved: bool = True,
+) -> dict[str, object]:
+    return {
+        "budget_version": "budget.v1",
+        "max_solver_calls": max_solver_calls,
+        "max_duration_secs": max_duration_secs,
+        "max_token_budget": max_token_budget,
+        "remaining_parent_duration_secs": remaining_parent_duration_secs,
+        "token_usage_unobserved": token_usage_unobserved,
+    }
+
+
 def test_materialize_policy_rejects_conflicting_payload_for_existing_hash(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1202,6 +1220,184 @@ def test_agent_spawn_queue_mode_v2_idempotency_conflict_includes_payload_hashes(
     assert detail["code"] == "URM_IDEMPOTENCY_KEY_CONFLICT"
     assert detail["context"]["client_request_id"] == "spawn-child-v2-idem-1"
     assert detail["context"]["stored_payload_hash"] != detail["context"]["incoming_payload_hash"]
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_budget_snapshot_v1_immutable_after_profile_switch(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.8")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-b2-immut-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-b2-immut-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-b2-immut-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-b2-immut-1",
+            prompt="budget snapshot immutability",
+            target_turn_id="turn-b2-immut-1",
+        )
+    )
+    manager = _get_manager()
+    child = manager._child_runs.get(spawn.child_id)  # type: ignore[attr-defined]
+    assert child is not None
+    snapshot_before = dict(child.budget_snapshot)
+    assert snapshot_before["budget_version"] == "budget.v1"
+    assert snapshot_before["max_solver_calls"] == 40
+    assert snapshot_before["max_duration_secs"] <= 300
+    assert snapshot_before["max_token_budget"] == 20_000
+    assert snapshot_before["token_usage_unobserved"] is True
+
+    selected = urm_policy_profile_select_endpoint(
+        PolicyProfileSelectRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="profile-select-b2-immut-1",
+            profile_id="safe_mode",
+        )
+    )
+    assert selected.profile_id == "safe_mode"
+
+    child_after = manager._child_runs.get(spawn.child_id)  # type: ignore[attr-defined]
+    assert child_after is not None
+    assert child_after.budget_snapshot == snapshot_before
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_budget_breach_solver_calls_is_deterministic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.1")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+    manager = _get_manager()
+
+    def _tight_budget_snapshot(self: object, *, runtime: object) -> dict[str, object]:
+        del self, runtime
+        return _budget_snapshot_v1(
+            max_solver_calls=1,
+            max_duration_secs=300,
+            max_token_budget=20_000,
+            remaining_parent_duration_secs=300,
+            token_usage_unobserved=True,
+        )
+
+    monkeypatch.setattr(type(manager), "_child_budget_snapshot", _tight_budget_snapshot)
+
+    failure_signatures: list[tuple[str, int, int, bool]] = []
+    for run_idx in range(2):
+        start = urm_copilot_start_endpoint(
+            CopilotSessionStartRequest(
+                provider="codex",
+                client_request_id=f"start-b2-budget-{run_idx}",
+            )
+        )
+        session_id = start.session_id
+        urm_copilot_send_endpoint(
+            CopilotSessionSendRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id=f"send-b2-budget-bootstrap-{run_idx}",
+                message={
+                    "jsonrpc": "2.0",
+                    "id": f"req-b2-budget-bootstrap-{run_idx}",
+                    "method": "copilot.user_message",
+                    "params": {"text": "bootstrap turn"},
+                },
+            )
+        )
+        spawn = urm_agent_spawn_endpoint(
+            AgentSpawnRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id=f"spawn-b2-budget-{run_idx}",
+                prompt="trigger solver-call budget breach",
+                target_turn_id=f"turn-b2-budget-{run_idx}",
+            )
+        )
+        assert _wait_for(
+            lambda: (
+                (child := manager._child_runs.get(spawn.child_id)) is not None
+                and child.status in {"completed", "failed", "cancelled"}
+                and child.persisted
+            ),
+            timeout_secs=5.0,
+        )
+        child = manager._child_runs.get(spawn.child_id)  # type: ignore[attr-defined]
+        assert child is not None
+        assert child.status == "failed"
+        assert child.error_code == "URM_CHILD_BUDGET_EXCEEDED"
+        assert child.token_usage_unobserved is True
+
+        child_events_path = (
+            tmp_path / "evidence" / "codex" / "agent" / spawn.child_id / "urm_events.ndjson"
+        )
+        events = [
+            json.loads(line)
+            for line in child_events_path.read_text(encoding="utf-8", errors="replace").splitlines()
+            if line.strip()
+        ]
+        fail_events = [
+            event
+            for event in events
+            if event.get("event") == "WORKER_FAIL"
+            and isinstance(event.get("detail"), dict)
+            and event["detail"].get("error_code") == "URM_CHILD_BUDGET_EXCEEDED"
+        ]
+        assert fail_events
+        fail_detail = fail_events[-1]["detail"]
+        signature = (
+            str(fail_detail.get("budget_dimension")),
+            int(fail_detail.get("budget_limit")),
+            int(fail_detail.get("budget_observed")),
+            bool(fail_detail.get("token_usage_unobserved")),
+        )
+        failure_signatures.append(signature)
+        assert signature == ("solver_calls", 1, 1, True)
+
+        with transaction(db_path=URMRuntimeConfig.from_env().db_path) as con:
+            row = get_worker_run(con=con, worker_id=spawn.child_id)
+        assert row is not None
+        assert row.error_code == "URM_CHILD_BUDGET_EXCEEDED"
+        assert isinstance(row.result_json, dict)
+        budget_runtime = row.result_json.get("budget_runtime")
+        assert isinstance(budget_runtime, dict)
+        assert budget_runtime.get("solver_calls_observed") == 1
+
+        urm_copilot_stop_endpoint(
+            CopilotStopRequest(provider="codex", session_id=session_id)
+        )
+
+    assert failure_signatures[0] == failure_signatures[1]
     _reset_manager_for_tests()
 
 
