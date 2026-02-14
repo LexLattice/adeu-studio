@@ -6,6 +6,7 @@ import sqlite3
 from pathlib import Path
 
 import adeu_api.main as api_main
+import pytest
 from adeu_api.main import ArtifactCreateRequest, create_artifact_endpoint, get_artifact_endpoint
 from adeu_ir import AdeuIR, ProofArtifact, ProofInput
 from adeu_kernel import KernelMode
@@ -158,6 +159,53 @@ def test_artifact_trust_promotes_on_lean_proved_required_obligations(
     fetched = get_artifact_endpoint(created.artifact_id)
     assert fetched.solver_trust == "proof_checked"
     assert fetched.proof_trust == "lean_core_v1_proved"
+
+
+def test_artifact_trust_requires_recomputable_proof_evidence_hash(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_PROOF_BACKEND", "lean")
+
+    class _StubLeanBackend:
+        def check(
+            self,
+            *,
+            theorem_id: str,
+            theorem_src: str,
+            inputs: list[ProofInput],
+        ) -> ProofArtifact:
+            return ProofArtifact(
+                proof_id=f"proof_{hashlib.sha256(theorem_id.encode('utf-8')).hexdigest()[:16]}",
+                backend="lean",
+                theorem_id=theorem_id,
+                status="proved",
+                proof_hash=hashlib.sha256(theorem_src.encode("utf-8")).hexdigest(),
+                inputs=inputs,
+                details={"mode": "stub-lean"},
+            )
+
+    monkeypatch.setattr(api_main, "build_proof_backend", lambda: _StubLeanBackend())
+    original_packet_builder = api_main._proof_evidence_packet_from_row
+
+    def _corrupt_hash(row):
+        packet = original_packet_builder(row)
+        packet["proof_evidence_hash"] = "0" * 64
+        return packet
+
+    monkeypatch.setattr(api_main, "_proof_evidence_packet_from_row", _corrupt_hash)
+
+    created = create_artifact_endpoint(
+        ArtifactCreateRequest(
+            clause_text="Supplier shall deliver goods.",
+            ir=_sample_ir(),
+            mode=KernelMode.LAX,
+        )
+    )
+    assert created.solver_trust == "solver_backed"
+    assert created.proof_trust == "lean_core_v1_partial_or_failed"
 
 
 def test_artifact_trust_missing_required_rows_is_no_required(
