@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/explain_diff.schema.json",
+  "title": "explain_diff@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "explain_kind",
+    "builder_version",
+    "explain_hash",
+    "input_artifact_refs",
+    "diff_refs",
+    "witness_refs",
+    "sections",
+    "hash_excluded_fields"
+  ],
+  "properties": {
+    "schema": {
+      "const": "explain_diff@1"
+    },
+    "explain_kind": {
+      "type": "string",
+      "enum": [
+        "semantic_diff",
+        "concepts_diff",
+        "puzzles_diff",
+        "flip_explain"
+      ]
+    },
+    "builder_version": {
+      "type": "string",
+      "pattern": "^odeu\\.explain-builder\\.v[0-9]+$"
+    },
+    "explain_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "input_artifact_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/explain_ref"
+      }
+    },
+    "diff_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/explain_ref"
+      }
+    },
+    "witness_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/explain_ref"
+      }
+    },
+    "semantics_diagnostics_ref": {
+      "$ref": "#/$defs/explain_ref"
+    },
+    "validator_evidence_packet_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/explain_ref"
+      }
+    },
+    "sections": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "diff_report": {
+          "type": "object"
+        },
+        "flip_explanation": {
+          "type": "object"
+        },
+        "analysis_delta": {
+          "type": "object"
+        }
+      }
+    },
+    "run_ir_mismatch": {
+      "type": "boolean"
+    },
+    "left_mismatch": {
+      "type": "boolean"
+    },
+    "right_mismatch": {
+      "type": "boolean"
+    },
+    "nonsemantic_fields": {
+      "type": "object"
+    },
+    "hash_excluded_fields": {
+      "const": [
+        "client_request_id",
+        "explain_hash",
+        "generated_at",
+        "left_mismatch",
+        "materialized_at",
+        "nonsemantic_fields",
+        "operator_note",
+        "request_id",
+        "right_mismatch",
+        "run_ir_mismatch"
+      ]
+    }
+  },
+  "$defs": {
+    "explain_ref": {
+      "type": "string",
+      "pattern": "^(artifact:[^\\s]+|event:[^#]+#[0-9]+)$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "explain_kind": {
+            "const": "semantic_diff"
+          }
+        },
+        "required": [
+          "explain_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "sections": {
+            "required": [
+              "diff_report"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "explain_kind": {
+            "const": "concepts_diff"
+          }
+        },
+        "required": [
+          "explain_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "sections": {
+            "required": [
+              "diff_report"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "explain_kind": {
+            "const": "puzzles_diff"
+          }
+        },
+        "required": [
+          "explain_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "sections": {
+            "required": [
+              "diff_report"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "explain_kind": {
+            "const": "flip_explain"
+          }
+        },
+        "required": [
+          "explain_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "sections": {
+            "required": [
+              "diff_report",
+              "flip_explanation"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

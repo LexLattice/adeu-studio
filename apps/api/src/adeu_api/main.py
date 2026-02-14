@@ -33,13 +33,20 @@ from adeu_concepts import (
     check_with_validator_runs as check_concept_with_validator_runs,
 )
 from adeu_explain import (
+    EXPLAIN_BUILDER_VERSION,
+    EXPLAIN_DIFF_SCHEMA,
+    EXPLAIN_PACKET_INVALID_CODE,
     ConceptAnalysisDelta,
     DiffReport,
+    ExplainDiffError,
     FlipExplanation,
     ForcedEdgeKey,
     ValidatorRunInput,
     build_diff_report,
+    build_explain_diff_packet,
     build_flip_explanation,
+    inline_source_ref,
+    validate_explain_diff_packet,
 )
 from adeu_ir import (
     AdeuIR,
@@ -79,6 +86,8 @@ from adeu_puzzles import (
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from urm_runtime.config import URMRuntimeConfig
+from urm_runtime.policy_governance import emit_governance_event
 
 from .adeu_concept_bridge import (
     BridgeLossReport,
@@ -99,16 +108,19 @@ from .puzzle_source_features import extract_puzzle_source_features
 from .scoring import ranking_sort_key, score_key
 from .source_features import extract_source_features
 from .storage import (
+    ExplainArtifactRow,
     ProofArtifactRow,
     ValidatorRunRow,
     create_artifact,
     create_concept_artifact,
     create_document,
+    create_explain_artifact,
     create_proof_artifact,
     create_validator_run,
     get_artifact,
     get_concept_artifact,
     get_document,
+    get_explain_artifact_by_client_request_id,
     list_artifacts,
     list_concept_artifacts,
     list_concept_validator_runs,
@@ -281,6 +293,9 @@ _PROOF_REQUIRED_OBLIGATION_KINDS: tuple[str, ...] = (
 )
 _PROOF_BACKEND_UNAVAILABLE_CODE = "URM_PROOF_BACKEND_UNAVAILABLE"
 _PROOF_EVIDENCE_NOT_FOUND_CODE = "URM_PROOF_EVIDENCE_NOT_FOUND"
+_IDEMPOTENCY_CONFLICT_CODE = "URM_IDEMPOTENCY_KEY_CONFLICT"
+_EXPLAIN_MATERIALIZE_EVENT_KIND = "EXPLAIN_MATERIALIZED"
+_EXPLAIN_MATERIALIZE_ENDPOINT = "/urm/explain/materialize"
 DEFAULT_CORS_ALLOW_ORIGINS: tuple[str, ...] = (
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -977,6 +992,54 @@ class ExplainFlipResponse(BaseModel):
     run_ir_mismatch: bool = False
     left_mismatch: bool = False
     right_mismatch: bool = False
+
+
+ExplainKind = Literal["semantic_diff", "concepts_diff", "puzzles_diff", "flip_explain"]
+ExplainResponseFormat = Literal["legacy", "explain_diff@1"]
+
+
+class ExplainDiffPacketResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    schema: Literal["explain_diff@1"] = EXPLAIN_DIFF_SCHEMA
+    explain_kind: ExplainKind
+    builder_version: str = EXPLAIN_BUILDER_VERSION
+    explain_hash: str = Field(min_length=64, max_length=64)
+    input_artifact_refs: list[str] = Field(default_factory=list)
+    diff_refs: list[str] = Field(default_factory=list)
+    witness_refs: list[str] = Field(default_factory=list)
+    sections: dict[str, Any] = Field(default_factory=dict)
+    semantics_diagnostics_ref: str | None = None
+    validator_evidence_packet_refs: list[str] | None = None
+    run_ir_mismatch: bool | None = None
+    left_mismatch: bool | None = None
+    right_mismatch: bool | None = None
+    nonsemantic_fields: dict[str, Any] | None = None
+    hash_excluded_fields: list[str] = Field(default_factory=list)
+
+
+class ExplainMaterializeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    provider: Literal["codex"] = "codex"
+    client_request_id: str = Field(min_length=1)
+    explain_packet: dict[str, Any]
+    parent_stream_id: str = Field(min_length=1)
+    parent_seq: int = Field(ge=0)
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        return self.model_dump(mode="json", exclude={"client_request_id"})
+
+
+class ExplainMaterializeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    explain_id: str
+    created_at: str
+    explain_kind: ExplainKind
+    explain_hash: str
+    artifact_ref: str
+    parent_stream_id: str
+    parent_seq: int
+    client_request_id: str
+    idempotent_replay: bool = False
 
 
 class ConceptArtifactCreateResponse(BaseModel):
@@ -3169,6 +3232,202 @@ def _build_diff_report_with_runs(
     )
 
 
+def _as_artifact_ref(value: str) -> str:
+    return f"artifact:{value}"
+
+
+def _as_explain_artifact_ref(explain_id: str) -> str:
+    return f"artifact:explain:{explain_id}"
+
+
+def _model_payload(value: Any) -> Any:
+    if isinstance(value, BaseModel):
+        return value.model_dump(mode="json", exclude_none=True)
+    return value
+
+
+def _input_ref_for_side(
+    *,
+    domain: str,
+    side: Literal["left", "right"],
+    artifact_id: str | None,
+    ir: Any,
+    source_text: str | None = None,
+    doc_id: str | None = None,
+) -> str:
+    if artifact_id:
+        return _as_artifact_ref(artifact_id)
+    payload: dict[str, Any] = {
+        "domain": domain,
+        "side": side,
+        "ir": _model_payload(ir),
+    }
+    if source_text is not None:
+        payload["source_text"] = source_text
+    if doc_id is not None:
+        payload["doc_id"] = doc_id
+    return inline_source_ref(payload)
+
+
+def _build_diff_refs_for_packet(
+    *,
+    diff_report: DiffReport,
+    explain_kind: str,
+) -> list[str]:
+    payload = {
+        "explain_kind": explain_kind,
+        "left_id": diff_report.left_id,
+        "right_id": diff_report.right_id,
+        "status_flip": diff_report.summary.status_flip,
+        "solver_pairing_state": diff_report.summary.solver_pairing_state,
+    }
+    digest = sha256_canonical_json(payload)
+    return [f"artifact:diff_sha256:{digest}"]
+
+
+def _build_witness_refs_for_packet(diff_report: DiffReport) -> list[str]:
+    refs: set[str] = set()
+    for item in diff_report.causal_slice.explanation_items:
+        digest = sha256_canonical_json(
+            {
+                "atom_name": item.atom_name,
+                "object_id": item.object_id,
+                "json_path": item.json_path,
+            }
+        )
+        refs.add(f"artifact:witness_sha256:{digest}")
+    return sorted(refs)
+
+
+def _build_validator_packet_refs_for_packet(diff_report: DiffReport) -> list[str]:
+    refs: set[str] = set()
+    for run in [*diff_report.solver.left_runs, *diff_report.solver.right_runs]:
+        request_hash = (run.request_hash or "").strip()
+        formula_hash = (run.formula_hash or "").strip()
+        run_id = (run.run_id or "").strip()
+        if request_hash and formula_hash:
+            refs.add(f"artifact:validator_evidence:{request_hash}:{formula_hash}")
+            continue
+        if run_id:
+            refs.add(f"artifact:validator_run:{run_id}")
+    return sorted(refs)
+
+
+def _explain_error_to_http(exc: ExplainDiffError) -> HTTPException:
+    message = str(exc)
+    code = getattr(exc, "code", EXPLAIN_PACKET_INVALID_CODE)
+    return HTTPException(status_code=400, detail={"code": code, "message": message})
+
+
+def _build_explain_packet_response(
+    *,
+    explain_kind: str,
+    diff_report: DiffReport,
+    input_artifact_refs: list[str],
+    flip_explanation: FlipExplanation | None = None,
+    analysis_delta: ConceptAnalysisDelta | None = None,
+    run_ir_mismatch: bool | None = None,
+    left_mismatch: bool | None = None,
+    right_mismatch: bool | None = None,
+) -> ExplainDiffPacketResponse:
+    try:
+        packet = build_explain_diff_packet(
+            explain_kind=explain_kind,
+            input_artifact_refs=input_artifact_refs,
+            diff_report=diff_report,
+            diff_refs=_build_diff_refs_for_packet(
+                diff_report=diff_report,
+                explain_kind=explain_kind,
+            ),
+            witness_refs=_build_witness_refs_for_packet(diff_report),
+            validator_evidence_packet_refs=_build_validator_packet_refs_for_packet(diff_report),
+            flip_explanation=flip_explanation,
+            analysis_delta=analysis_delta,
+            run_ir_mismatch=run_ir_mismatch,
+            left_mismatch=left_mismatch,
+            right_mismatch=right_mismatch,
+        )
+        validate_explain_diff_packet(packet)
+    except ExplainDiffError as exc:
+        raise _explain_error_to_http(exc) from exc
+    return ExplainDiffPacketResponse.model_validate(packet)
+
+
+def _build_explain_flip_formatted_response(
+    *,
+    format: ExplainResponseFormat,
+    diff_report: DiffReport,
+    flip_explanation: FlipExplanation,
+    input_artifact_refs: list[str],
+    analysis_delta: ConceptAnalysisDelta | None = None,
+    left_mismatch: bool = False,
+    right_mismatch: bool = False,
+) -> ExplainFlipResponse | ExplainDiffPacketResponse:
+    run_ir_mismatch = left_mismatch or right_mismatch
+    if format == "legacy":
+        return ExplainFlipResponse(
+            diff_report=diff_report,
+            flip_explanation=flip_explanation,
+            analysis_delta=analysis_delta,
+            left_mismatch=left_mismatch,
+            right_mismatch=right_mismatch,
+            run_ir_mismatch=run_ir_mismatch,
+        )
+    return _build_explain_packet_response(
+        explain_kind="flip_explain",
+        diff_report=diff_report,
+        input_artifact_refs=input_artifact_refs,
+        flip_explanation=flip_explanation,
+        analysis_delta=analysis_delta,
+        run_ir_mismatch=run_ir_mismatch,
+        left_mismatch=left_mismatch,
+        right_mismatch=right_mismatch,
+    )
+
+
+def _explain_materialize_response_from_row(
+    row: ExplainArtifactRow,
+    *,
+    idempotent_replay: bool,
+) -> ExplainMaterializeResponse:
+    return ExplainMaterializeResponse.model_validate(
+        {
+            "explain_id": row.explain_id,
+            "created_at": row.created_at,
+            "explain_kind": row.explain_kind,
+            "explain_hash": row.explain_hash,
+            "artifact_ref": _as_explain_artifact_ref(row.explain_id),
+            "parent_stream_id": row.parent_stream_id,
+            "parent_seq": row.parent_seq,
+            "client_request_id": row.client_request_id,
+            "idempotent_replay": idempotent_replay,
+        }
+    )
+
+
+def _emit_explain_materialized_event(
+    *,
+    row: ExplainArtifactRow,
+) -> None:
+    config = URMRuntimeConfig.from_env()
+    emit_governance_event(
+        config=config,
+        stream_id=row.parent_stream_id,
+        event_kind=_EXPLAIN_MATERIALIZE_EVENT_KIND,
+        endpoint=_EXPLAIN_MATERIALIZE_ENDPOINT,
+        detail={
+            "parent_stream_id": row.parent_stream_id,
+            "parent_seq": row.parent_seq,
+            "artifact_ref": _as_explain_artifact_ref(row.explain_id),
+            "client_request_id": row.client_request_id,
+            "explain_id": row.explain_id,
+            "explain_hash": row.explain_hash,
+            "explain_kind": row.explain_kind,
+            "created_at": row.created_at,
+        },
+    )
+
+
 def _latest_run_input(runs: list[ValidatorRunInput]) -> ValidatorRunInput | None:
     if not runs:
         return None
@@ -4403,9 +4662,12 @@ def align_concepts_endpoint(req: ConceptAlignRequest) -> ConceptAlignResponse:
     )
 
 
-@app.post("/diff", response_model=DiffReport)
-def diff_endpoint(req: DiffRequest) -> DiffReport:
-    return _build_diff_report_with_runs(
+@app.post("/diff", response_model=DiffReport | ExplainDiffPacketResponse)
+def diff_endpoint(
+    req: DiffRequest,
+    format: ExplainResponseFormat = "legacy",
+) -> DiffReport | ExplainDiffPacketResponse:
+    diff_report = _build_diff_report_with_runs(
         left_ir=req.left_ir,
         right_ir=req.right_ir,
         left_id=req.left_ir.ir_id,
@@ -4416,23 +4678,51 @@ def diff_endpoint(req: DiffRequest) -> DiffReport:
         left_recompute_fn=lambda: check_with_validator_runs(req.left_ir, mode=req.mode),
         right_recompute_fn=lambda: check_with_validator_runs(req.right_ir, mode=req.mode),
     )
+    if format == "legacy":
+        return diff_report
+
+    left_doc_id = req.left_ir.context.doc_id if req.left_ir.context is not None else None
+    right_doc_id = req.right_ir.context.doc_id if req.right_ir.context is not None else None
+    return _build_explain_packet_response(
+        explain_kind="semantic_diff",
+        diff_report=diff_report,
+        input_artifact_refs=[
+            _input_ref_for_side(
+                domain="adeu",
+                side="left",
+                artifact_id=req.left_artifact_id,
+                ir=req.left_ir,
+                doc_id=left_doc_id,
+            ),
+            _input_ref_for_side(
+                domain="adeu",
+                side="right",
+                artifact_id=req.right_artifact_id,
+                ir=req.right_ir,
+                doc_id=right_doc_id,
+            ),
+        ],
+    )
 
 
-@app.post("/concepts/diff", response_model=DiffReport)
-def diff_concepts_endpoint(req: ConceptDiffRequest) -> DiffReport:
-    left_source_text, _ = _resolve_source_text_and_doc_id(
+@app.post("/concepts/diff", response_model=DiffReport | ExplainDiffPacketResponse)
+def diff_concepts_endpoint(
+    req: ConceptDiffRequest,
+    format: ExplainResponseFormat = "legacy",
+) -> DiffReport | ExplainDiffPacketResponse:
+    left_source_text, left_doc_id = _resolve_source_text_and_doc_id(
         source_text=req.left_source_text,
         doc_id=req.left_doc_id,
         require_source=False,
         source_field="left_source_text",
     )
-    right_source_text, _ = _resolve_source_text_and_doc_id(
+    right_source_text, right_doc_id = _resolve_source_text_and_doc_id(
         source_text=req.right_source_text,
         doc_id=req.right_doc_id,
         require_source=False,
         source_field="right_source_text",
     )
-    return _build_diff_report_with_runs(
+    diff_report = _build_diff_report_with_runs(
         left_ir=req.left_ir,
         right_ir=req.right_ir,
         left_id=req.left_ir.concept_id,
@@ -4451,11 +4741,38 @@ def diff_concepts_endpoint(req: ConceptDiffRequest) -> DiffReport:
             source_text=right_source_text,
         ),
     )
+    if format == "legacy":
+        return diff_report
+    return _build_explain_packet_response(
+        explain_kind="concepts_diff",
+        diff_report=diff_report,
+        input_artifact_refs=[
+            _input_ref_for_side(
+                domain="concepts",
+                side="left",
+                artifact_id=None,
+                ir=req.left_ir,
+                source_text=left_source_text,
+                doc_id=left_doc_id,
+            ),
+            _input_ref_for_side(
+                domain="concepts",
+                side="right",
+                artifact_id=None,
+                ir=req.right_ir,
+                source_text=right_source_text,
+                doc_id=right_doc_id,
+            ),
+        ],
+    )
 
 
-@app.post("/puzzles/diff", response_model=DiffReport)
-def diff_puzzles_endpoint(req: PuzzleDiffRequest) -> DiffReport:
-    return _build_diff_report_with_runs(
+@app.post("/puzzles/diff", response_model=DiffReport | ExplainDiffPacketResponse)
+def diff_puzzles_endpoint(
+    req: PuzzleDiffRequest,
+    format: ExplainResponseFormat = "legacy",
+) -> DiffReport | ExplainDiffPacketResponse:
+    diff_report = _build_diff_report_with_runs(
         left_ir=req.left_ir,
         right_ir=req.right_ir,
         left_id=req.left_ir.puzzle_id,
@@ -4466,10 +4783,33 @@ def diff_puzzles_endpoint(req: PuzzleDiffRequest) -> DiffReport:
         left_recompute_fn=lambda: check_puzzle_with_validator_runs(req.left_ir, mode=req.mode),
         right_recompute_fn=lambda: check_puzzle_with_validator_runs(req.right_ir, mode=req.mode),
     )
+    if format == "legacy":
+        return diff_report
+    return _build_explain_packet_response(
+        explain_kind="puzzles_diff",
+        diff_report=diff_report,
+        input_artifact_refs=[
+            _input_ref_for_side(
+                domain="puzzles",
+                side="left",
+                artifact_id=None,
+                ir=req.left_ir,
+            ),
+            _input_ref_for_side(
+                domain="puzzles",
+                side="right",
+                artifact_id=None,
+                ir=req.right_ir,
+            ),
+        ],
+    )
 
 
-@app.post("/explain_flip", response_model=ExplainFlipResponse)
-def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
+@app.post("/explain_flip", response_model=ExplainFlipResponse | ExplainDiffPacketResponse)
+def explain_flip_endpoint(
+    req: ExplainFlipRequest,
+    format: ExplainResponseFormat = "legacy",
+) -> ExplainFlipResponse | ExplainDiffPacketResponse:
     if isinstance(req, ExplainFlipAdeuRequest):
         left_runs, left_source, left_report, left_mismatch, _ = _resolve_explain_runs(
             inline_runs=req.left_validator_runs,
@@ -4513,13 +4853,30 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
             left_check_status=_check_status_value(left_report),
             right_check_status=_check_status_value(right_report),
         )
-        return ExplainFlipResponse(
+        left_doc_id = req.left_ir.context.doc_id if req.left_ir.context is not None else None
+        right_doc_id = req.right_ir.context.doc_id if req.right_ir.context is not None else None
+        return _build_explain_flip_formatted_response(
+            format=format,
             diff_report=diff_report,
+            input_artifact_refs=[
+                _input_ref_for_side(
+                    domain="adeu",
+                    side="left",
+                    artifact_id=None,
+                    ir=req.left_ir,
+                    doc_id=left_doc_id,
+                ),
+                _input_ref_for_side(
+                    domain="adeu",
+                    side="right",
+                    artifact_id=None,
+                    ir=req.right_ir,
+                    doc_id=right_doc_id,
+                ),
+            ],
             flip_explanation=flip_explanation,
-            analysis_delta=None,
             left_mismatch=left_mismatch,
             right_mismatch=right_mismatch,
-            run_ir_mismatch=(left_mismatch or right_mismatch),
         )
 
     if isinstance(req, ExplainFlipPuzzlesRequest):
@@ -4565,22 +4922,35 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
             left_check_status=_check_status_value(left_report),
             right_check_status=_check_status_value(right_report),
         )
-        return ExplainFlipResponse(
+        return _build_explain_flip_formatted_response(
+            format=format,
             diff_report=diff_report,
+            input_artifact_refs=[
+                _input_ref_for_side(
+                    domain="puzzles",
+                    side="left",
+                    artifact_id=None,
+                    ir=req.left_ir,
+                ),
+                _input_ref_for_side(
+                    domain="puzzles",
+                    side="right",
+                    artifact_id=None,
+                    ir=req.right_ir,
+                ),
+            ],
             flip_explanation=flip_explanation,
-            analysis_delta=None,
             left_mismatch=left_mismatch,
             right_mismatch=right_mismatch,
-            run_ir_mismatch=(left_mismatch or right_mismatch),
         )
 
-    left_source_text, _ = _resolve_source_text_and_doc_id(
+    left_source_text, left_doc_id = _resolve_source_text_and_doc_id(
         source_text=req.left_source_text,
         doc_id=req.left_doc_id,
         require_source=False,
         source_field="left_source_text",
     )
-    right_source_text, _ = _resolve_source_text_and_doc_id(
+    right_source_text, right_doc_id = _resolve_source_text_and_doc_id(
         source_text=req.right_source_text,
         doc_id=req.right_doc_id,
         require_source=False,
@@ -4699,14 +5069,94 @@ def explain_flip_endpoint(req: ExplainFlipRequest) -> ExplainFlipResponse:
             right_analysis = strip_forced_details(right_analysis)
         analysis_delta = _build_concept_analysis_delta(left_analysis, right_analysis)
 
-    return ExplainFlipResponse(
+    return _build_explain_flip_formatted_response(
+        format=format,
         diff_report=diff_report,
+        input_artifact_refs=[
+            _input_ref_for_side(
+                domain="concepts",
+                side="left",
+                artifact_id=None,
+                ir=req.left_ir,
+                source_text=left_source_text,
+                doc_id=left_doc_id,
+            ),
+            _input_ref_for_side(
+                domain="concepts",
+                side="right",
+                artifact_id=None,
+                ir=req.right_ir,
+                source_text=right_source_text,
+                doc_id=right_doc_id,
+            ),
+        ],
         flip_explanation=flip_explanation,
         analysis_delta=analysis_delta,
         left_mismatch=left_mismatch,
         right_mismatch=right_mismatch,
-        run_ir_mismatch=(left_mismatch or right_mismatch),
     )
+
+
+@app.post("/urm/explain/materialize", response_model=ExplainMaterializeResponse)
+def explain_materialize_endpoint(req: ExplainMaterializeRequest) -> ExplainMaterializeResponse:
+    request_payload_hash = sha256_canonical_json(req.idempotency_payload())
+
+    with storage_transaction() as con:
+        existing = get_explain_artifact_by_client_request_id(
+            client_request_id=req.client_request_id,
+            connection=con,
+        )
+        if existing is not None:
+            if existing.request_payload_hash != request_payload_hash:
+                raise HTTPException(
+                    status_code=409,
+                    detail={
+                        "code": _IDEMPOTENCY_CONFLICT_CODE,
+                        "message": "client_request_id already used with a different payload",
+                        "context": {"client_request_id": req.client_request_id},
+                    },
+                )
+            return _explain_materialize_response_from_row(existing, idempotent_replay=True)
+
+        try:
+            validate_explain_diff_packet(req.explain_packet)
+        except ExplainDiffError as exc:
+            raise _explain_error_to_http(exc) from exc
+
+        explain_kind = req.explain_packet.get("explain_kind")
+        explain_hash = req.explain_packet.get("explain_hash")
+        if not isinstance(explain_kind, str) or not isinstance(explain_hash, str):
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": EXPLAIN_PACKET_INVALID_CODE,
+                    "message": "explain_packet missing explain_kind/explain_hash",
+                },
+            )
+
+        row = create_explain_artifact(
+            client_request_id=req.client_request_id,
+            request_payload_hash=request_payload_hash,
+            explain_kind=explain_kind,
+            explain_hash=explain_hash,
+            packet_json=req.explain_packet,
+            parent_stream_id=req.parent_stream_id,
+            parent_seq=req.parent_seq,
+            connection=con,
+        )
+
+        try:
+            _emit_explain_materialized_event(row=row)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "code": "URM_EXPLAIN_EVENT_EMIT_FAILED",
+                    "message": str(exc),
+                },
+            ) from exc
+
+    return _explain_materialize_response_from_row(row, idempotent_replay=False)
 
 
 @app.post("/puzzles/solve", response_model=PuzzleSolveResult)
