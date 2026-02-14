@@ -19,8 +19,9 @@ from .errors import (
     ApprovalNotFoundError,
 )
 
-URM_SCHEMA_VERSION = 5
+URM_SCHEMA_VERSION = 6
 DispatchPhase = Literal["queued", "leased", "started", "terminal"]
+BudgetLane = Literal["solver_calls", "duration_secs", "tokens"]
 
 
 class IdempotencyPayloadConflict(ValueError):
@@ -123,6 +124,23 @@ class DispatchTokenRow:
     phase: DispatchPhase
     created_at: str
     updated_at: str
+
+
+@dataclass(frozen=True)
+class ParentBudgetTotalRow:
+    parent_session_id: str
+    budget_lane: BudgetLane
+    current_total: int
+    max_total: int
+    created_at: str
+    updated_at: str
+
+
+@dataclass(frozen=True)
+class ParentBudgetDebitResult:
+    accepted: bool
+    row: ParentBudgetTotalRow
+    attempted_debit: int
 
 
 @dataclass(frozen=True)
@@ -301,6 +319,20 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
     )
     con.execute(
         """
+        CREATE TABLE IF NOT EXISTS urm_parent_budget_total (
+          parent_session_id TEXT NOT NULL,
+          budget_lane TEXT NOT NULL,
+          current_total INTEGER NOT NULL,
+          max_total INTEGER NOT NULL,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          PRIMARY KEY(parent_session_id, budget_lane),
+          CHECK(budget_lane IN ('solver_calls', 'duration_secs', 'tokens'))
+        )
+        """
+    )
+    con.execute(
+        """
         CREATE TABLE IF NOT EXISTS urm_connector_snapshot (
           snapshot_id TEXT PRIMARY KEY,
           created_at TEXT NOT NULL,
@@ -429,6 +461,12 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
     )
     con.execute(
         """
+        CREATE INDEX IF NOT EXISTS idx_urm_parent_budget_total_parent
+        ON urm_parent_budget_total(parent_session_id, budget_lane)
+        """
+    )
+    con.execute(
+        """
         CREATE INDEX IF NOT EXISTS idx_urm_evidence_worker_id
         ON urm_evidence_record(worker_id)
         """
@@ -476,7 +514,7 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
             (
                 URM_SCHEMA_VERSION,
                 datetime.now(tz=timezone.utc).isoformat(),
-                "urm runtime schema v5 scheduler dispatch token persistence",
+                "urm runtime schema v6 parent running budget totals",
             ),
         )
 
@@ -762,6 +800,126 @@ def set_dispatch_token_phase(
     if token is None:
         raise RuntimeError(f"dispatch token not found for child {child_id}")
     return token
+
+
+def _parent_budget_total_from_row(row: tuple[Any, ...]) -> ParentBudgetTotalRow:
+    lane_raw = str(row[1])
+    if lane_raw not in {"solver_calls", "duration_secs", "tokens"}:
+        raise RuntimeError(f"invalid budget lane in storage row: {lane_raw}")
+    return ParentBudgetTotalRow(
+        parent_session_id=str(row[0]),
+        budget_lane=cast(BudgetLane, lane_raw),
+        current_total=int(row[2]),
+        max_total=int(row[3]),
+        created_at=str(row[4]),
+        updated_at=str(row[5]),
+    )
+
+
+def get_parent_budget_total(
+    *,
+    con: sqlite3.Connection,
+    parent_session_id: str,
+    budget_lane: BudgetLane,
+) -> ParentBudgetTotalRow | None:
+    row = con.execute(
+        """
+        SELECT
+          parent_session_id,
+          budget_lane,
+          current_total,
+          max_total,
+          created_at,
+          updated_at
+        FROM urm_parent_budget_total
+        WHERE parent_session_id = ? AND budget_lane = ?
+        """,
+        (parent_session_id, budget_lane),
+    ).fetchone()
+    if row is None:
+        return None
+    return _parent_budget_total_from_row(row)
+
+
+def _ensure_parent_budget_total(
+    *,
+    con: sqlite3.Connection,
+    parent_session_id: str,
+    budget_lane: BudgetLane,
+    max_total: int,
+) -> ParentBudgetTotalRow:
+    existing = get_parent_budget_total(
+        con=con,
+        parent_session_id=parent_session_id,
+        budget_lane=budget_lane,
+    )
+    if existing is not None:
+        return existing
+    now = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        INSERT INTO urm_parent_budget_total (
+          parent_session_id,
+          budget_lane,
+          current_total,
+          max_total,
+          created_at,
+          updated_at
+        )
+        VALUES (?, ?, 0, ?, ?, ?)
+        """,
+        (parent_session_id, budget_lane, max(0, max_total), now, now),
+    )
+    row = get_parent_budget_total(
+        con=con,
+        parent_session_id=parent_session_id,
+        budget_lane=budget_lane,
+    )
+    if row is None:
+        raise RuntimeError("parent budget total missing after upsert")
+    return row
+
+
+def apply_parent_budget_debit(
+    *,
+    con: sqlite3.Connection,
+    parent_session_id: str,
+    budget_lane: BudgetLane,
+    debit: int,
+    max_total: int,
+) -> ParentBudgetDebitResult:
+    if debit < 0:
+        raise ValueError("budget debit must be non-negative")
+    row = _ensure_parent_budget_total(
+        con=con,
+        parent_session_id=parent_session_id,
+        budget_lane=budget_lane,
+        max_total=max_total,
+    )
+    if debit == 0:
+        return ParentBudgetDebitResult(accepted=True, row=row, attempted_debit=0)
+    max_limit = row.max_total
+    next_total = row.current_total + debit
+    if next_total >= max_limit:
+        return ParentBudgetDebitResult(accepted=False, row=row, attempted_debit=debit)
+    now = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        UPDATE urm_parent_budget_total
+        SET current_total = ?,
+            updated_at = ?
+        WHERE parent_session_id = ? AND budget_lane = ?
+        """,
+        (next_total, now, parent_session_id, budget_lane),
+    )
+    updated = get_parent_budget_total(
+        con=con,
+        parent_session_id=parent_session_id,
+        budget_lane=budget_lane,
+    )
+    if updated is None:
+        raise RuntimeError("parent budget total missing after debit")
+    return ParentBudgetDebitResult(accepted=True, row=updated, attempted_debit=debit)
 
 
 def persist_connector_snapshot(

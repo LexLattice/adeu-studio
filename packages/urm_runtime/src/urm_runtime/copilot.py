@@ -69,6 +69,7 @@ from .retention import run_evidence_retention_gc
 from .storage import (
     CopilotSessionRow,
     IdempotencyPayloadConflict,
+    apply_parent_budget_debit,
     consume_approval,
     create_approval,
     get_approval,
@@ -116,6 +117,7 @@ CHILD_BUDGET_VERSION = "budget.v1"
 CHILD_BUDGET_MAX_SOLVER_CALLS = 40
 CHILD_BUDGET_MAX_DURATION_SECS = 300
 CHILD_BUDGET_MAX_TOKEN_BUDGET = 20_000
+CHILD_BUDGET_ACCOUNTING_MODEL = "running_total_v1"
 PROFILE_VERSION = "profile.v1"
 POLICY_PROFILE_SELECT_ENDPOINT = "urm.policy.profile.select"
 
@@ -150,9 +152,13 @@ class ChildAgentRuntime:
     profile_id: str = "default"
     profile_version: str = PROFILE_VERSION
     solver_calls_observed: int = 0
+    solver_calls_accounted_total: int = 0
     duration_secs_observed: int = 0
+    duration_secs_accounted_total: int = 0
     token_usage_observed: int | None = None
+    token_usage_accounted_total: int = 0
     token_usage_unobserved: bool = True
+    cancel_request_id: str | None = None
     last_budget_check_ts: str | None = None
     persisted: bool = False
 
@@ -715,6 +721,8 @@ class URMCopilotManager:
             detail.setdefault("parent_stream_id", child.parent_stream_id)
             detail.setdefault("parent_seq", child.parent_seq)
             detail.setdefault("phase", child.dispatch_phase)
+            if event_kind == "WORKER_CANCEL" and child.cancel_request_id is not None:
+                detail.setdefault("cancel_request_id", child.cancel_request_id)
             if event_kind == "WORKER_FAIL":
                 code = detail.get("code")
                 if not isinstance(code, str) or not code:
@@ -861,10 +869,14 @@ class URMCopilotManager:
                     "budget_snapshot": child.budget_snapshot,
                     "budget_runtime": {
                         "solver_calls_observed": child.solver_calls_observed,
+                        "solver_calls_accounted_total": child.solver_calls_accounted_total,
                         "duration_secs_observed": child.duration_secs_observed,
+                        "duration_secs_accounted_total": child.duration_secs_accounted_total,
                         "token_usage_observed": child.token_usage_observed,
+                        "token_usage_accounted_total": child.token_usage_accounted_total,
                         "token_usage_unobserved": child.token_usage_unobserved,
                         "last_budget_check_ts": child.last_budget_check_ts,
+                        "cancel_request_id": child.cancel_request_id,
                     },
                     "inherited_policy_hash": child.inherited_policy_hash,
                     "capabilities_allowed": child.capabilities_allowed,
@@ -1955,6 +1967,7 @@ class URMCopilotManager:
         remaining_parent = self._remaining_parent_duration_secs(runtime=runtime)
         return {
             "budget_version": CHILD_BUDGET_VERSION,
+            "accounting_model": CHILD_BUDGET_ACCOUNTING_MODEL,
             "max_solver_calls": CHILD_BUDGET_MAX_SOLVER_CALLS,
             "max_duration_secs": min(CHILD_BUDGET_MAX_DURATION_SECS, remaining_parent),
             "max_token_budget": CHILD_BUDGET_MAX_TOKEN_BUDGET,
@@ -1998,9 +2011,12 @@ class URMCopilotManager:
         started_at = datetime.fromisoformat(child.started_at)
         child.last_budget_check_ts = now.isoformat()
         child.duration_secs_observed = max(0, int((now - started_at).total_seconds()))
-        child.token_usage_unobserved = bool(
-            child.budget_snapshot.get("token_usage_unobserved", child.token_usage_unobserved)
-        )
+        if child.token_usage_observed is None:
+            child.token_usage_unobserved = bool(
+                child.budget_snapshot.get("token_usage_unobserved", child.token_usage_unobserved)
+            )
+        else:
+            child.token_usage_unobserved = False
 
     def _raise_child_budget_exceeded(
         self,
@@ -2025,6 +2041,20 @@ class URMCopilotManager:
 
     def _enforce_child_budget_unlocked(self, *, child: ChildAgentRuntime) -> None:
         self._observe_child_budget_unlocked(child=child)
+        accounting_model = child.budget_snapshot.get("accounting_model")
+        if accounting_model is None:
+            accounting_model = CHILD_BUDGET_ACCOUNTING_MODEL
+        if accounting_model != CHILD_BUDGET_ACCOUNTING_MODEL:
+            raise URMError(
+                code="URM_DISPATCH_ACCOUNTING_MODE_INVALID",
+                message="unsupported child budget accounting model",
+                context={
+                    "child_id": child.child_id,
+                    "session_id": child.parent_session_id,
+                    "accounting_model": accounting_model,
+                    "expected_model": CHILD_BUDGET_ACCOUNTING_MODEL,
+                },
+            )
         max_duration_secs = self._budget_snapshot_int_value(
             budget_snapshot=child.budget_snapshot,
             key="max_duration_secs",
@@ -2041,34 +2071,70 @@ class URMCopilotManager:
             default=CHILD_BUDGET_MAX_TOKEN_BUDGET,
         )
 
-        if child.duration_secs_observed >= max_duration_secs:
-            self._raise_child_budget_exceeded(
-                child=child,
-                dimension="duration",
-                limit=max_duration_secs,
-                observed=child.duration_secs_observed,
+        solver_debit = max(0, child.solver_calls_observed - child.solver_calls_accounted_total)
+        if solver_debit > 0:
+            with transaction(db_path=self.config.db_path) as con:
+                debit_result = apply_parent_budget_debit(
+                    con=con,
+                    parent_session_id=child.parent_session_id,
+                    budget_lane="solver_calls",
+                    debit=solver_debit,
+                    max_total=max_solver_calls,
+                )
+            if not debit_result.accepted:
+                self._raise_child_budget_exceeded(
+                    child=child,
+                    dimension="solver_calls",
+                    limit=debit_result.row.max_total,
+                    observed=debit_result.row.current_total + debit_result.attempted_debit,
+                )
+            child.solver_calls_accounted_total = child.solver_calls_observed
+
+        duration_debit = max(
+            0, child.duration_secs_observed - child.duration_secs_accounted_total
+        )
+        if duration_debit > 0:
+            with transaction(db_path=self.config.db_path) as con:
+                debit_result = apply_parent_budget_debit(
+                    con=con,
+                    parent_session_id=child.parent_session_id,
+                    budget_lane="duration_secs",
+                    debit=duration_debit,
+                    max_total=max_duration_secs,
+                )
+            if not debit_result.accepted:
+                self._raise_child_budget_exceeded(
+                    child=child,
+                    dimension="duration",
+                    limit=debit_result.row.max_total,
+                    observed=debit_result.row.current_total + debit_result.attempted_debit,
+                )
+            child.duration_secs_accounted_total = child.duration_secs_observed
+
+        if not child.token_usage_unobserved and child.token_usage_observed is not None:
+            token_debit = max(
+                0, child.token_usage_observed - child.token_usage_accounted_total
             )
-        if child.solver_calls_observed >= max_solver_calls:
-            self._raise_child_budget_exceeded(
-                child=child,
-                dimension="solver_calls",
-                limit=max_solver_calls,
-                observed=child.solver_calls_observed,
-            )
-        if (
-            not child.token_usage_unobserved
-            and child.token_usage_observed is not None
-            and child.token_usage_observed >= max_token_budget
-        ):
-            self._raise_child_budget_exceeded(
-                child=child,
-                dimension="tokens",
-                limit=max_token_budget,
-                observed=child.token_usage_observed,
-            )
+            if token_debit > 0:
+                with transaction(db_path=self.config.db_path) as con:
+                    debit_result = apply_parent_budget_debit(
+                        con=con,
+                        parent_session_id=child.parent_session_id,
+                        budget_lane="tokens",
+                        debit=token_debit,
+                        max_total=max_token_budget,
+                    )
+                if not debit_result.accepted:
+                    self._raise_child_budget_exceeded(
+                        child=child,
+                        dimension="tokens",
+                        limit=debit_result.row.max_total,
+                        observed=debit_result.row.current_total + debit_result.attempted_debit,
+                    )
+                child.token_usage_accounted_total = child.token_usage_observed
 
     def _child_spawn_error_code(self, *, exc: URMError) -> str:
-        if exc.detail.code.startswith("URM_CHILD_"):
+        if exc.detail.code.startswith(("URM_CHILD_", "URM_DISPATCH_", "URM_SCHEDULER_")):
             return exc.detail.code
         return "URM_CHILD_SPAWN_FAILED"
 
@@ -3045,10 +3111,14 @@ class URMCopilotManager:
             "budget_snapshot": child.budget_snapshot,
             "budget_runtime": {
                 "solver_calls_observed": child.solver_calls_observed,
+                "solver_calls_accounted_total": child.solver_calls_accounted_total,
                 "duration_secs_observed": child.duration_secs_observed,
+                "duration_secs_accounted_total": child.duration_secs_accounted_total,
                 "token_usage_observed": child.token_usage_observed,
+                "token_usage_accounted_total": child.token_usage_accounted_total,
                 "token_usage_unobserved": child.token_usage_unobserved,
                 "last_budget_check_ts": child.last_budget_check_ts,
+                "cancel_request_id": child.cancel_request_id,
             },
             "inherited_policy_hash": child.inherited_policy_hash,
             "capabilities_allowed": child.capabilities_allowed,
@@ -3650,6 +3720,7 @@ class URMCopilotManager:
         payload_hash = sha256_canonical_json(
             {"child_id": child_id, **request.idempotency_payload()}
         )
+        cancel_request_id = request.client_request_id
         with self._lock:
             with transaction(db_path=self.config.db_path) as con:
                 try:
@@ -3684,39 +3755,29 @@ class URMCopilotManager:
                     context={"child_id": child_id},
                 )
             if child.status in {"completed", "failed", "cancelled"}:
-                self._record_parent_or_audit_event(
-                    parent_session_id=child.parent_session_id,
-                    event_kind="WORKER_CANCEL",
-                    payload={
-                        "worker_id": child_id,
-                        "status": child.status,
-                        "error_code": "URM_CHILD_CANCEL_ALREADY_TERMINAL",
-                        "dispatch_seq": child.dispatch_seq,
-                        "lease_id": child.lease_id,
-                        "parent_stream_id": child.parent_stream_id,
-                        "parent_seq": child.parent_seq,
-                        "child_id": child.child_id,
-                        "phase": child.dispatch_phase,
-                    },
-                    endpoint="urm.agent.cancel",
-                )
+                child.cancel_request_id = cancel_request_id
                 response_model = AgentCancelResponse(
                     child_id=child_id,
                     status=child.status,
-                    idempotent_replay=True,
+                    idempotent_replay=False,
                     error={
                         "code": "URM_CHILD_CANCEL_ALREADY_TERMINAL",
                         "message": "child agent already terminal",
                     },
                 )
             else:
+                child.cancel_request_id = cancel_request_id
                 child.status = "cancelled"
                 child.ended_at = datetime.now(tz=timezone.utc).isoformat()
                 child.dispatch_phase = "terminal"
                 self._record_child_event(
                     child=child,
                     event_kind="WORKER_CANCEL",
-                    payload={"worker_id": child_id, "status": "cancelled"},
+                    payload={
+                        "worker_id": child_id,
+                        "status": "cancelled",
+                        "cancel_request_id": cancel_request_id,
+                    },
                     endpoint="urm.agent.cancel",
                 )
                 self._record_parent_or_audit_event(
@@ -3731,6 +3792,7 @@ class URMCopilotManager:
                         "parent_seq": child.parent_seq,
                         "child_id": child.child_id,
                         "phase": child.dispatch_phase,
+                        "cancel_request_id": cancel_request_id,
                     },
                     endpoint="urm.agent.cancel",
                 )

@@ -61,6 +61,7 @@ from urm_runtime.models import (
 from urm_runtime.policy_governance import materialize_policy
 from urm_runtime.storage import (
     get_dispatch_token_for_child,
+    get_parent_budget_total,
     get_worker_run,
     lease_dispatch_token,
     persist_copilot_session_start,
@@ -150,10 +151,12 @@ def _budget_snapshot_v1(
     max_duration_secs: int,
     max_token_budget: int,
     remaining_parent_duration_secs: int,
+    accounting_model: str = "running_total_v1",
     token_usage_unobserved: bool = True,
 ) -> dict[str, object]:
     return {
         "budget_version": "budget.v1",
+        "accounting_model": accounting_model,
         "max_solver_calls": max_solver_calls,
         "max_duration_secs": max_duration_secs,
         "max_token_budget": max_token_budget,
@@ -864,7 +867,7 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
     )
     assert cancel.child_id == spawn.child_id
     assert cancel.status in {"completed", "failed", "cancelled"}
-    assert cancel.idempotent_replay is True
+    assert cancel.idempotent_replay is False
     assert cancel.error is not None
     assert cancel.error["code"] == "URM_CHILD_CANCEL_ALREADY_TERMINAL"
 
@@ -879,6 +882,12 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
     assert cancel_replay.idempotent_replay is True
     manager = _get_manager()
     events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    assert not any(
+        event.event_kind == "WORKER_CANCEL"
+        and isinstance(event.payload, dict)
+        and event.payload.get("worker_id") == spawn.child_id
+        for event in events
+    )
     assert any(
         event.event_kind == "PROFILE_SELECTED"
         and event.payload.get("scope") == "run"
@@ -1428,7 +1437,20 @@ def test_agent_spawn_queue_mode_v2_cancel_running_is_deterministic(
         and event["detail"].get("status") == "running"
     ]
     assert cancel_events
+    cancel_detail = cancel_events[-1].get("detail", {})
+    assert isinstance(cancel_detail, dict)
+    assert cancel_detail.get("cancel_request_id") == "cancel-child-v2-cancel-1"
     assert running_events
+    parent_events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    parent_cancel_events = [
+        event
+        for event in parent_events
+        if event.event_kind == "WORKER_CANCEL"
+        and isinstance(event.payload, dict)
+        and event.payload.get("worker_id") == spawn1.child_id
+    ]
+    assert parent_cancel_events
+    assert parent_cancel_events[-1].payload.get("cancel_request_id") == "cancel-child-v2-cancel-1"
     if child2_status_before_cancel == "queued":
         cancel_ts = datetime.fromisoformat(str(cancel_events[0]["ts"]))
         running_ts = datetime.fromisoformat(str(running_events[0]["ts"]))
@@ -1680,6 +1702,181 @@ def test_agent_spawn_budget_breach_solver_calls_is_deterministic(
         )
 
     assert failure_signatures[0] == failure_signatures[1]
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_budget_invalid_accounting_mode_fails_closed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.1")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+    manager = _get_manager()
+
+    def _invalid_budget_snapshot(self: object, *, runtime: object) -> dict[str, object]:
+        del self, runtime
+        return _budget_snapshot_v1(
+            max_solver_calls=40,
+            max_duration_secs=300,
+            max_token_budget=20_000,
+            remaining_parent_duration_secs=300,
+            accounting_model="reservation_v0",
+            token_usage_unobserved=True,
+        )
+
+    monkeypatch.setattr(type(manager), "_child_budget_snapshot", _invalid_budget_snapshot)
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-b2-accounting-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-b2-accounting-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-b2-accounting-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+    spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-b2-accounting-1",
+            prompt="trigger invalid accounting model",
+            target_turn_id="turn-b2-accounting-1",
+        )
+    )
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(spawn.child_id)) is not None
+            and child.status in {"completed", "failed", "cancelled"}
+            and child.persisted
+        ),
+        timeout_secs=5.0,
+    )
+    child = manager._child_runs.get(spawn.child_id)  # type: ignore[attr-defined]
+    assert child is not None
+    assert child.status == "failed"
+    assert child.error_code == "URM_DISPATCH_ACCOUNTING_MODE_INVALID"
+
+    events_path = tmp_path / "evidence" / "codex" / "agent" / spawn.child_id / "urm_events.ndjson"
+    events = [
+        json.loads(line)
+        for line in events_path.read_text(encoding="utf-8", errors="replace").splitlines()
+        if line.strip()
+    ]
+    fail_events = [
+        event
+        for event in events
+        if event.get("event") == "WORKER_FAIL"
+        and isinstance(event.get("detail"), dict)
+        and event["detail"].get("error_code") == "URM_DISPATCH_ACCOUNTING_MODE_INVALID"
+    ]
+    assert fail_events
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_budget_running_total_shared_parent_lane_is_deterministic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+    manager = _get_manager()
+
+    def _shared_budget_snapshot(self: object, *, runtime: object) -> dict[str, object]:
+        del self, runtime
+        return _budget_snapshot_v1(
+            max_solver_calls=2,
+            max_duration_secs=300,
+            max_token_budget=20_000,
+            remaining_parent_duration_secs=300,
+            accounting_model="running_total_v1",
+            token_usage_unobserved=True,
+        )
+
+    monkeypatch.setattr(type(manager), "_child_budget_snapshot", _shared_budget_snapshot)
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-b2-running-total-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-b2-running-total-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-b2-running-total-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+    spawn1 = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-b2-running-total-1",
+            prompt="first child",
+            target_turn_id="turn-b2-running-total-1",
+        )
+    )
+    spawn2 = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-b2-running-total-2",
+            prompt="second child",
+            target_turn_id="turn-b2-running-total-1",
+        )
+    )
+    assert _wait_for(
+        lambda: (
+            (child1 := manager._child_runs.get(spawn1.child_id)) is not None
+            and (child2 := manager._child_runs.get(spawn2.child_id)) is not None
+            and child1.status in {"completed", "failed", "cancelled"}
+            and child2.status in {"completed", "failed", "cancelled"}
+            and child1.persisted
+            and child2.persisted
+        ),
+        timeout_secs=8.0,
+        interval_secs=0.05,
+    )
+    child1 = manager._child_runs.get(spawn1.child_id)  # type: ignore[attr-defined]
+    child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
+    assert child1 is not None and child2 is not None
+    assert any(
+        child.error_code == "URM_CHILD_BUDGET_EXCEEDED" for child in (child1, child2)
+    )
+
+    with transaction(db_path=URMRuntimeConfig.from_env().db_path) as con:
+        solver_total = get_parent_budget_total(
+            con=con,
+            parent_session_id=session_id,
+            budget_lane="solver_calls",
+        )
+    assert solver_total is not None
+    assert solver_total.max_total == 2
+    # With >= enforcement and shared running totals, only the first debit is accepted.
+    assert solver_total.current_total == 1
     _reset_manager_for_tests()
 
 
