@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/semantics_diagnostics.schema.json",
+  "title": "semantics_diagnostics@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "artifact_ref",
+    "records",
+    "semantics_diagnostics_hash"
+  ],
+  "properties": {
+    "schema": {
+      "const": "semantics_diagnostics@1"
+    },
+    "artifact_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "validator_run_id",
+          "formula_hash",
+          "request_hash",
+          "status",
+          "assurance",
+          "validator_evidence_packet_ref",
+          "validator_evidence_packet_hash",
+          "witness_refs"
+        ],
+        "properties": {
+          "kind": {
+            "const": "validator_run"
+          },
+          "validator_run_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "formula_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "request_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "SAT",
+              "UNSAT",
+              "UNKNOWN",
+              "TIMEOUT",
+              "INVALID_REQUEST",
+              "ERROR"
+            ]
+          },
+          "assurance": {
+            "type": "string",
+            "enum": [
+              "kernel_only",
+              "solver_backed",
+              "proof_checked"
+            ]
+          },
+          "validator_evidence_packet_ref": {
+            "type": "string",
+            "pattern": "^validator_evidence_packet:.+$"
+          },
+          "validator_evidence_packet_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "witness_refs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "assertion_name",
+                "object_id",
+                "json_path"
+              ],
+              "properties": {
+                "assertion_name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "object_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "json_path": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "semantics_diagnostics_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}

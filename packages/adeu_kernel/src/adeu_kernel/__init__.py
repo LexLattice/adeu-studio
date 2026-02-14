@@ -15,6 +15,10 @@ from .proof import (
     build_proof_backend,
     build_trivial_theorem_source,
 )
+from .semantics_diagnostics import (
+    SEMANTICS_DIAGNOSTICS_SCHEMA,
+    build_semantics_diagnostics,
+)
 from .validator import (
     DEFAULT_Z3_TIMEOUT_MS,
     MockValidator,
@@ -41,12 +45,14 @@ __all__ = [
     "ValidatorRunRecord",
     "Z3Validator",
     "VALIDATOR_EVIDENCE_PACKET_SCHEMA",
+    "SEMANTICS_DIAGNOSTICS_SCHEMA",
     "VALIDATOR_EVIDENCE_HASH_EXCLUDED_FIELDS",
     "apply_ambiguity_option",
     "apply_ambiguity_option_patch",
     "apply_json_patch",
     "build_adeu_core_proof_requests",
     "build_validator_backend",
+    "build_semantics_diagnostics",
     "build_proof_backend",
     "build_validator_evidence_packet",
     "build_trivial_theorem_source",
