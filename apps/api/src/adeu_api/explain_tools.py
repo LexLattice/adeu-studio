@@ -61,11 +61,9 @@ def _build_packet_from_payload(payload: dict[str, Any]) -> dict[str, Any]:
         input_artifact_refs=[str(item) for item in input_artifact_refs],
         flip_explanation=flip_explanation,
         analysis_delta=analysis_delta,
-        run_ir_mismatch=(
-            bool(payload["run_ir_mismatch"]) if "run_ir_mismatch" in payload else None
-        ),
-        left_mismatch=bool(payload["left_mismatch"]) if "left_mismatch" in payload else None,
-        right_mismatch=bool(payload["right_mismatch"]) if "right_mismatch" in payload else None,
+        run_ir_mismatch=payload.get("run_ir_mismatch"),
+        left_mismatch=payload.get("left_mismatch"),
+        right_mismatch=payload.get("right_mismatch"),
     )
 
 

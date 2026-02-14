@@ -68,3 +68,40 @@ def test_explain_api_cli_parity_golden_fixtures(tmp_path: Path) -> None:
         assert cli_packet == api_packet
 
     assert seen_kinds == {"semantic_diff", "concepts_diff", "puzzles_diff", "flip_explain"}
+
+
+def test_explain_cli_treats_null_mismatch_fields_as_omitted(tmp_path: Path) -> None:
+    fixture_path = _repo_root() / "apps" / "api" / "tests" / "fixtures" / "explain_parity" / (
+        "flip_explain_golden_v1.json"
+    )
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    input_payload = dict(fixture["input"])
+    input_payload["run_ir_mismatch"] = None
+    input_payload["left_mismatch"] = None
+    input_payload["right_mismatch"] = None
+
+    api_packet = build_explain_packet_payload(
+        explain_kind=str(input_payload["explain_kind"]),
+        diff_report=DiffReport.model_validate(input_payload["diff_report"]),
+        input_artifact_refs=[str(item) for item in input_payload["input_artifact_refs"]],
+        flip_explanation=FlipExplanation.model_validate(input_payload["flip_explanation"]),
+        analysis_delta=ConceptAnalysisDelta.model_validate(input_payload["analysis_delta"]),
+        run_ir_mismatch=input_payload.get("run_ir_mismatch"),
+        left_mismatch=input_payload.get("left_mismatch"),
+        right_mismatch=input_payload.get("right_mismatch"),
+    )
+
+    cli_in = tmp_path / "flip_null_mismatch.input.json"
+    cli_out = tmp_path / "flip_null_mismatch.out.json"
+    cli_input_json = json.dumps(input_payload, ensure_ascii=False, sort_keys=True)
+    cli_in.write_text(cli_input_json, encoding="utf-8")
+    exit_code = explain_tools_main(
+        ["build", "--in", str(cli_in), "--out", str(cli_out)]
+    )
+    assert exit_code == 0
+    cli_packet = json.loads(cli_out.read_text(encoding="utf-8"))
+
+    assert "run_ir_mismatch" not in api_packet
+    assert "left_mismatch" not in api_packet
+    assert "right_mismatch" not in api_packet
+    assert cli_packet == api_packet
