@@ -1,0 +1,58 @@
+{
+  "schema": "stop_gate.vnext_plus8_manifest@1",
+  "replay_count": 3,
+  "metrics": {
+    "explain_diff_determinism_pct": [
+      {
+        "fixture_id": "explain_diff_case_a",
+        "runs": [
+          {
+            "explain_diff_path": "../../../../examples/eval/stop_gate/explain_diff_case_a_1.json"
+          },
+          {
+            "explain_diff_path": "../../../../examples/eval/stop_gate/explain_diff_case_a_2.json"
+          },
+          {
+            "explain_diff_path": "../../../../examples/eval/stop_gate/explain_diff_case_a_3.json"
+          }
+        ]
+      }
+    ],
+    "explain_api_cli_parity_pct": [
+      {
+        "fixture_id": "explain_api_cli_parity_case_a",
+        "runs": [
+          {
+            "api_explain_path": "../../../../examples/eval/stop_gate/explain_api_case_a_1.json",
+            "cli_explain_path": "../../../../examples/eval/stop_gate/explain_cli_case_a_1.json"
+          },
+          {
+            "api_explain_path": "../../../../examples/eval/stop_gate/explain_api_case_a_2.json",
+            "cli_explain_path": "../../../../examples/eval/stop_gate/explain_cli_case_a_2.json"
+          },
+          {
+            "api_explain_path": "../../../../examples/eval/stop_gate/explain_api_case_a_3.json",
+            "cli_explain_path": "../../../../examples/eval/stop_gate/explain_cli_case_a_3.json"
+          }
+        ]
+      }
+    ],
+    "explain_hash_stability_pct": [
+      {
+        "fixture_id": "explain_hash_stability_case_a",
+        "runs": [
+          {
+            "explain_diff_path": "../../../../examples/eval/stop_gate/explain_diff_case_a_1.json"
+          },
+          {
+            "explain_diff_path": "../../../../examples/eval/stop_gate/explain_diff_case_a_2.json"
+          },
+          {
+            "explain_diff_path": "../../../../examples/eval/stop_gate/explain_diff_case_a_3.json"
+          }
+        ]
+      }
+    ]
+  },
+  "manifest_hash": "4eaf96111212f0b5e9276a7e2657f2bf4bef92e14c6d8980c76085103422a397"
+}
