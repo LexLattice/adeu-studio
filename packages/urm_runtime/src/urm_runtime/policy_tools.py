@@ -30,6 +30,7 @@ from .policy_governance import (
     POLICY_ROLLBACK_ENDPOINT,
     POLICY_ROLLOUT_ENDPOINT,
     apply_policy_activation,
+    emit_governance_event,
     materialize_policy,
     resolve_active_policy_state,
     resolve_operation_ts,
@@ -44,6 +45,7 @@ POLICY_INCIDENT_SCHEMA = "incident_packet@1"
 POLICY_REGISTRY_SCHEMA = "policy_registry@1"
 POLICY_ACTIVATION_SCHEMA = "policy_activation_log@1"
 POLICY_ACTIVE_SCHEMA = "policy_active@1"
+POLICY_LINEAGE_SCHEMA = "policy_lineage@1"
 POLICY_INCIDENT_INVALID_REF = "URM_INCIDENT_PACKET_INVALID_REF"
 POLICY_EXPLAIN_INVALID_INPUT = "URM_POLICY_EXPLAIN_INVALID_INPUT"
 INCIDENT_REDACTION_ALLOWLIST_SCHEMA = "policy.incident_redaction_allowlist.v1"
@@ -68,6 +70,20 @@ _SECRET_VALUE_TOKENS = (
     "aws_secret_access_key",
     "authorization:",
 )
+_PROFILE_POLICY_STREAM_PREFIX = "urm_policy:"
+
+_LINT_SOURCE_CODE_TO_RULE_ID: dict[str, str] = {
+    "URM_POLICY_PROFILE_MAPPING_INVALID": "profile_registry_valid",
+    "URM_POLICY_UNKNOWN_HASH": "profile_policy_mapping_valid",
+    "URM_POLICY_ROLLOUT_HASH_NOT_ALLOWED": "profile_policy_mapping_valid",
+    "URM_POLICY_ROLLBACK_TARGET_NOT_FOUND": "profile_policy_mapping_valid",
+}
+_LINT_SOURCE_CODE_TO_PUBLIC_CODE: dict[str, str] = {
+    "URM_POLICY_PROFILE_MAPPING_INVALID": "URM_POLICY_PROFILE_REGISTRY_INVALID",
+    "URM_POLICY_UNKNOWN_HASH": "URM_POLICY_LINT_FAILED",
+    "URM_POLICY_ROLLOUT_HASH_NOT_ALLOWED": "URM_POLICY_LINT_FAILED",
+    "URM_POLICY_ROLLBACK_TARGET_NOT_FOUND": "URM_POLICY_LINT_FAILED",
+}
 
 
 class IncidentRedactionAllowlist(BaseModel):
@@ -296,6 +312,87 @@ def _error_issue(exc: URMError) -> dict[str, Any]:
         "code": exc.detail.code,
         "message": exc.detail.message,
         "context": exc.detail.context,
+    }
+
+
+def _policy_activation_ref(*, profile_id: str, activation_seq: int) -> str:
+    return f"event:{_PROFILE_POLICY_STREAM_PREFIX}{profile_id}#{activation_seq}"
+
+
+def _policy_lint_fallback_activation_ref(*, profile_id: str) -> str:
+    return f"event:{_PROFILE_POLICY_STREAM_PREFIX}{profile_id}#0"
+
+
+def _map_policy_lint_issue(
+    *,
+    source_error: URMError,
+    profile_id: str,
+    policy_hash: str,
+) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    source_code = source_error.detail.code
+    lint_code = _LINT_SOURCE_CODE_TO_PUBLIC_CODE.get(source_code)
+    lint_rule_id = _LINT_SOURCE_CODE_TO_RULE_ID.get(source_code)
+    if lint_code is None or lint_rule_id is None:
+        return None
+    issue = {
+        "code": lint_code,
+        "message": source_error.detail.message,
+        "context": {
+            **source_error.detail.context,
+            "source_code": source_code,
+            "lint_rule_id": lint_rule_id,
+        },
+    }
+    event_detail = {
+        "lint_rule_id": lint_rule_id,
+        "lint_code": lint_code,
+        "policy_hash": policy_hash,
+        "profile_id": profile_id,
+        "activation_ref": _policy_lint_fallback_activation_ref(profile_id=profile_id),
+        "source_code": source_code,
+    }
+    return (issue, event_detail)
+
+
+def _emit_policy_lint_failed_event(
+    *,
+    profile_id: str,
+    endpoint_name: str,
+    detail: dict[str, Any],
+) -> None:
+    emit_governance_event(
+        config=_runtime_config(),
+        stream_id=f"{_PROFILE_POLICY_STREAM_PREFIX}{profile_id}",
+        event_kind="POLICY_LINT_FAILED",
+        endpoint=f"/{endpoint_name.replace('.', '/')}",
+        detail=detail,
+    )
+
+
+def _build_policy_lineage(
+    *,
+    action: Literal["rollout", "rollback"],
+    profile_id: str,
+    profile_version: str,
+    policy_hash: str,
+    prev_policy_hash: str | None,
+    activation_seq: int,
+    activation_ts: str,
+) -> dict[str, Any]:
+    return {
+        "schema": POLICY_LINEAGE_SCHEMA,
+        "policy_hash": policy_hash,
+        "profile_id": profile_id,
+        "profile_version": profile_version,
+        "activation_ref": _policy_activation_ref(
+            profile_id=profile_id,
+            activation_seq=activation_seq,
+        ),
+        "activation_seq": activation_seq,
+        "activation_ts": activation_ts,
+        "action": action,
+        "prev_policy_hash": prev_policy_hash,
+        "lemma_pack_refs": [],
     }
 
 
@@ -1273,9 +1370,10 @@ def _activation_policy_cli(
             default_ts=DEFAULT_DETERMINISTIC_TS,
             ts_field_name="activation-ts",
         )
+        registry = load_policy_profile_registry()
         result = apply_policy_activation(
             config=_runtime_config(),
-            registry=load_policy_profile_registry(),
+            registry=registry,
             endpoint_name=endpoint_name,
             action=action,
             client_request_id=client_request_id,
@@ -1288,6 +1386,27 @@ def _activation_policy_cli(
             },
         )
     except URMError as exc:
+        mapped = _map_policy_lint_issue(
+            source_error=exc,
+            profile_id=profile_id,
+            policy_hash=target_policy_hash,
+        )
+        if mapped is not None:
+            issue, lint_detail = mapped
+            _emit_policy_lint_failed_event(
+                profile_id=profile_id,
+                endpoint_name=endpoint_name,
+                detail=lint_detail,
+            )
+            return {
+                "schema": POLICY_ACTIVATION_SCHEMA,
+                "action": action,
+                "profile_id": profile_id,
+                "client_request_id": client_request_id,
+                "target_policy_hash": target_policy_hash,
+                "valid": False,
+                "issues": [issue],
+            }
         return {
             "schema": POLICY_ACTIVATION_SCHEMA,
             "action": action,
@@ -1310,6 +1429,15 @@ def _activation_policy_cli(
         "activation_ts": result.activation_ts,
         "request_payload_hash": result.request_payload_hash,
         "operator_note": operator_note,
+        "policy_lineage": _build_policy_lineage(
+            action=result.action,
+            profile_id=result.profile_id,
+            profile_version=result.profile_version,
+            policy_hash=result.target_policy_hash,
+            prev_policy_hash=result.prev_policy_hash,
+            activation_seq=result.activation_seq,
+            activation_ts=result.activation_ts,
+        ),
         "valid": True,
         "issues": [],
     }
