@@ -1370,31 +1370,7 @@ def _activation_policy_cli(
             default_ts=DEFAULT_DETERMINISTIC_TS,
             ts_field_name="activation-ts",
         )
-        try:
-            registry = load_policy_profile_registry()
-        except URMError as exc:
-            mapped = _map_policy_lint_issue(
-                source_error=exc,
-                profile_id=profile_id,
-                policy_hash=target_policy_hash,
-            )
-            if mapped is None:
-                raise
-            issue, lint_detail = mapped
-            _emit_policy_lint_failed_event(
-                profile_id=profile_id,
-                endpoint_name=endpoint_name,
-                detail=lint_detail,
-            )
-            return {
-                "schema": POLICY_ACTIVATION_SCHEMA,
-                "action": action,
-                "profile_id": profile_id,
-                "client_request_id": client_request_id,
-                "target_policy_hash": target_policy_hash,
-                "valid": False,
-                "issues": [issue],
-            }
+        registry = load_policy_profile_registry()
         result = apply_policy_activation(
             config=_runtime_config(),
             registry=registry,

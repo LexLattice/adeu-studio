@@ -1650,7 +1650,15 @@ def test_policy_cli_rollout_maps_profile_registry_invalid_to_lint_code_and_event
     assert issue["context"]["source_code"] == "URM_POLICY_PROFILE_MAPPING_INVALID"
     assert issue["context"]["lint_rule_id"] == "profile_registry_valid"
 
-    events_path = db_path.parent / "evidence" / "codex" / "governance" / "policy" / "default" / "urm_events.ndjson"
+    events_path = (
+        db_path.parent
+        / "evidence"
+        / "codex"
+        / "governance"
+        / "policy"
+        / "default"
+        / "urm_events.ndjson"
+    )
     assert events_path.exists()
     events = _read_ndjson(events_path)
     lint_events = [event for event in events if event.get("event") == "POLICY_LINT_FAILED"]
