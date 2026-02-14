@@ -24,14 +24,11 @@ QUALITY_DASHBOARD_SCHEMA = "quality.dashboard.v1"
 SEMANTICS_DETERMINISM_REPLAY_COUNT = 3
 VNEXT_PLUS7_REPLAY_COUNT = 3
 VNEXT_PLUS7_MANIFEST_SCHEMA = "stop_gate.vnext_plus7_manifest@1"
-VNEXT_PLUS7_MANIFEST_PATH = (
-    Path(__file__).resolve().parents[4]
-    / "apps"
-    / "api"
-    / "fixtures"
-    / "stop_gate"
-    / "vnext_plus7_manifest.json"
-)
+VNEXT_PLUS7_DEFAULT_METRICS = {
+    "policy_lint_determinism_pct": 0.0,
+    "proof_replay_determinism_pct": 0.0,
+    "policy_proof_packet_hash_stability_pct": 0.0,
+}
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -65,6 +62,25 @@ _TERMINAL_CODE_EVENTS = {
     "POLICY_DENIED",
     "STEER_DENIED",
 }
+
+
+def _discover_repo_root(anchor: Path) -> Path | None:
+    resolved = anchor.resolve()
+    for parent in [resolved, *resolved.parents]:
+        if (parent / ".git").exists():
+            return parent
+    return None
+
+
+def _default_vnext_plus7_manifest_path() -> Path:
+    module_path = Path(__file__).resolve()
+    repo_root = _discover_repo_root(module_path)
+    if repo_root is not None:
+        return repo_root / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus7_manifest.json"
+    return module_path.parent / "vnext_plus7_manifest.json"
+
+
+VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -146,7 +162,7 @@ def _proof_packet_hash(payload: Mapping[str, Any]) -> str:
 
 
 def _policy_lineage_hash(payload: Mapping[str, Any]) -> str:
-    return sha256_canonical_json({key: payload[key] for key in sorted(payload.keys())})
+    return sha256_canonical_json(payload)
 
 
 def _issue(code: str, message: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -325,7 +341,8 @@ def _manifest_metric_entries(
 def _policy_lint_fixture_hash(*, policy_lint_event_path: Path) -> str:
     validation = validate_events(policy_lint_event_path, strict=True)
     if validation.get("valid") is not True:
-        first = validation.get("issues", [{}])[0]
+        issues = validation.get("issues", [])
+        first = issues[0] if issues and isinstance(issues[0], dict) else {}
         raise ValueError(
             _issue(
                 "URM_STOP_GATE_INPUT_INVALID",
@@ -531,11 +548,7 @@ def _compute_vnext_plus7_metrics(
             str(exc),
         )
         issues.append(issue)
-        return {
-            "policy_lint_determinism_pct": 0.0,
-            "proof_replay_determinism_pct": 0.0,
-            "policy_proof_packet_hash_stability_pct": 0.0,
-        }
+        return dict(VNEXT_PLUS7_DEFAULT_METRICS)
 
     metrics_doc = manifest.get("metrics")
     assert isinstance(metrics_doc, Mapping)
@@ -561,11 +574,7 @@ def _compute_vnext_plus7_metrics(
             str(exc),
         )
         issues.append(issue)
-        return {
-            "policy_lint_determinism_pct": 0.0,
-            "proof_replay_determinism_pct": 0.0,
-            "policy_proof_packet_hash_stability_pct": 0.0,
-        }
+        return dict(VNEXT_PLUS7_DEFAULT_METRICS)
 
     policy_lint_determinism_pct = _manifest_metric_pct(
         manifest_path=resolved_manifest_path,
