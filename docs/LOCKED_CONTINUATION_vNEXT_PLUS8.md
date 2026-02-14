@@ -1,13 +1,13 @@
-# Locked Continuation vNext+8 (Draft Lock)
+# Locked Continuation vNext+8 (Frozen)
 
-This document drafts the next arc after:
+This document freezes the next arc after:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS7.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS7.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v2.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: frozen.
 
 Decision basis:
 
@@ -44,7 +44,7 @@ Decision basis:
   - deterministic list ordering per each artifact lock
   - absent fields omitted (no implicit null insertion)
 
-## Arc Scope (Draft Lock)
+## Arc Scope (Frozen)
 
 This arc proposes only Path 3 thin-slice implementation:
 
@@ -278,7 +278,7 @@ Add reproducible explainability closeout metrics to decide if `vNext+9` may star
 - Stop-gate explain metrics are reproducible across reruns for identical fixture inputs.
 - Stop-gate report captures deterministic pass/fail for all frozen thresholds.
 
-## Error-Code Policy (Draft Lock)
+## Error-Code Policy (Frozen)
 
 - Reuse existing URM/common codes where applicable.
 - New codes are allowed only when needed, must be deterministic, and must be prefixed `URM_`.
@@ -290,7 +290,7 @@ Add reproducible explainability closeout metrics to decide if `vNext+9` may star
   - `URM_IDEMPOTENCY_KEY_CONFLICT`
 - Endpoint/code mapping remains explicit and additive-only.
 
-## Proposed PR Plan (Draft)
+## Commit Plan (Small Green Commits)
 
 1. `explain: add explain_diff@1 schema + canonical envelope/hashing on existing endpoints`
 2. `explain: add API/CLI shared builder and frozen parity fixtures`
@@ -298,7 +298,7 @@ Add reproducible explainability closeout metrics to decide if `vNext+9` may star
 4. `metrics: extend stop-gate metrics/reporting with explain determinism keys`
 5. `tests: add deterministic replay/hash-stability fixtures for explain path`
 
-## Proposed Exit Criteria (Draft)
+## Exit Criteria
 
 - `E1`-`E4` merged with green CI.
 - Explain replay determinism is `100%` on locked fixtures.
