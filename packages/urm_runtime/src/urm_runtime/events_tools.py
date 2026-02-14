@@ -15,6 +15,7 @@ from .models import NormalizedEvent
 
 SESSION_EVENTS = {"SESSION_START", "SESSION_READY", "SESSION_STOP", "SESSION_FAIL"}
 WORKER_EVENTS = {"WORKER_START", "WORKER_PASS", "WORKER_FAIL", "WORKER_CANCEL"}
+PROOF_EVENTS = {"PROOF_RUN_PASS", "PROOF_RUN_FAIL"}
 APPROVAL_EVENTS = {
     "MODE_CHANGED",
     "APPROVAL_ISSUED",
@@ -31,6 +32,7 @@ FAILURE_CATEGORIES: dict[str, str] = {
     "WORKER_FAIL": "worker",
     "TOOL_CALL_FAIL": "tool",
     "POLICY_DENIED": "policy",
+    "PROOF_RUN_FAIL": "proof",
     "PROVIDER_PARSE_ERROR": "provider",
 }
 TOOL_CALL_EVENT_TO_COUNTER: dict[str, str] = {
@@ -55,6 +57,19 @@ DETAIL_MINIMA_RULES: list[tuple[set[str], tuple[str, ...], str]] = [
         {"POLICY_EVAL_START", "POLICY_EVAL_PASS", "POLICY_DENIED"},
         ("policy_hash", "decision_code", "matched_rule_ids"),
         "{event_name} detail must include policy_hash, decision_code, and matched_rule_ids",
+    ),
+    (
+        {"PROOF_RUN_PASS"},
+        ("proof_id", "artifact_ref", "parent_stream_id", "parent_seq"),
+        "{event_name} detail must include proof_id, artifact_ref, parent_stream_id, and parent_seq",
+    ),
+    (
+        {"PROOF_RUN_FAIL"},
+        ("proof_id", "artifact_ref", "parent_stream_id", "parent_seq", "code"),
+        (
+            "{event_name} detail must include proof_id, artifact_ref, "
+            "parent_stream_id, parent_seq, and code"
+        ),
     ),
     (TOOL_EVENTS, ("tool_name",), "{event_name} detail must include tool_name"),
     (

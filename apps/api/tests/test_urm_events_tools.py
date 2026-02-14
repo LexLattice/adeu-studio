@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from urm_runtime.events_tools import main, replay_events, summarize_events, validate_events
@@ -33,6 +34,107 @@ def test_validate_events_detects_seq_monotonic_violation(tmp_path: Path) -> None
     result = validate_events(path, strict=True)
     assert result["valid"] is False
     assert any(issue["code"] == "SEQ_NOT_MONOTONIC" for issue in result["issues"])
+
+
+def test_validate_events_accepts_proof_run_events_with_required_linkage_fields(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "proof_events.ndjson"
+    events = [
+        {
+            "schema": "urm-events@1",
+            "event": "POLICY_EVAL_START",
+            "stream_id": "copilot:s",
+            "seq": 1,
+            "ts": "2026-02-11T10:00:00+00:00",
+            "source": {"component": "urm_copilot_manager", "version": "0.0.0", "provider": "codex"},
+            "context": {"session_id": "s", "role": "copilot", "endpoint": "urm.tools.call"},
+            "detail": {"policy_hash": "a", "decision_code": "PENDING", "matched_rule_ids": []},
+        },
+        {
+            "schema": "urm-events@1",
+            "event": "PROOF_RUN_PASS",
+            "stream_id": "copilot:s",
+            "seq": 2,
+            "ts": "2026-02-11T10:00:01+00:00",
+            "source": {"component": "urm_copilot_manager", "version": "0.0.0", "provider": "codex"},
+            "context": {"session_id": "s", "role": "copilot", "endpoint": "urm.tools.call"},
+            "detail": {
+                "proof_id": "proof_a",
+                "artifact_ref": "proof:proof_a",
+                "parent_stream_id": "copilot:s",
+                "parent_seq": 1,
+            },
+        },
+        {
+            "schema": "urm-events@1",
+            "event": "PROOF_RUN_FAIL",
+            "stream_id": "copilot:s",
+            "seq": 3,
+            "ts": "2026-02-11T10:00:02+00:00",
+            "source": {"component": "urm_copilot_manager", "version": "0.0.0", "provider": "codex"},
+            "context": {"session_id": "s", "role": "copilot", "endpoint": "urm.tools.call"},
+            "detail": {
+                "proof_id": "proof_b",
+                "artifact_ref": "proof:proof_b",
+                "parent_stream_id": "copilot:s",
+                "parent_seq": 2,
+                "code": "URM_PROOF_BACKEND_UNAVAILABLE",
+            },
+        },
+        {
+            "schema": "urm-events@1",
+            "event": "POLICY_EVAL_PASS",
+            "stream_id": "copilot:s",
+            "seq": 4,
+            "ts": "2026-02-11T10:00:03+00:00",
+            "source": {"component": "urm_copilot_manager", "version": "0.0.0", "provider": "codex"},
+            "context": {"session_id": "s", "role": "copilot", "endpoint": "urm.tools.call"},
+            "detail": {"policy_hash": "a", "decision_code": "ALLOW", "matched_rule_ids": []},
+        },
+    ]
+    path.write_text(
+        "\n".join(json.dumps(item, separators=(",", ":")) for item in events)
+        + "\n",
+        encoding="utf-8",
+    )
+    result = validate_events(path, strict=True)
+    assert result["valid"] is True
+
+
+def test_validate_events_rejects_proof_fail_without_code(tmp_path: Path) -> None:
+    path = tmp_path / "proof_events_invalid.ndjson"
+    path.write_text(
+        "\n".join(
+            json.dumps(item, separators=(",", ":"))
+            for item in [
+                {
+                    "schema": "urm-events@1",
+                    "event": "PROOF_RUN_FAIL",
+                    "stream_id": "copilot:s",
+                    "seq": 1,
+                    "ts": "2026-02-11T10:00:02+00:00",
+                    "source": {
+                        "component": "urm_copilot_manager",
+                        "version": "0.0.0",
+                        "provider": "codex",
+                    },
+                    "context": {"session_id": "s", "role": "copilot", "endpoint": "urm.tools.call"},
+                    "detail": {
+                        "proof_id": "proof_b",
+                        "artifact_ref": "proof:proof_b",
+                        "parent_stream_id": "copilot:s",
+                        "parent_seq": 0,
+                    },
+                }
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    result = validate_events(path, strict=True)
+    assert result["valid"] is False
+    assert any(issue["code"] == "DETAIL_MINIMUM_MISSING" for issue in result["issues"])
 
 
 def test_replay_events_is_stable_for_same_input() -> None:
