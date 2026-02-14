@@ -1,22 +1,23 @@
-# Locked Continuation vNext+5 (Draft Lock)
+# Locked Continuation vNext+5 (Frozen)
 
-This document drafts the next arc after:
+This document freezes the next arc after:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS4.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS4.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v1.md` (Option B reference scope)
 
-Status: draft lock (not frozen yet).
+Status: frozen.
 
 Decision basis:
 
 - vNext+4 (`A1`-`A5`) merged on `main` with green CI.
-- vNext+4 stop-gate draft currently recommends `GO_OPTION_B`.
-- This arc is reserved for **Option B deepening only**.
+- vNext+4 stop-gate draft recommended `GO_OPTION_B`.
+- This arc selected **Option B deepening only**.
+- B1-B4 implementation landed on `main` via `#99`-`#102` with green merge CI.
 
-## Assessment Integrations (GPT + Opus)
+## Assessment Integrations (Pre-Freeze)
 
-This draft incorporates the latest GPT + Opus review deltas before freeze:
+This lock incorporates GPT + Opus review deltas applied before freeze:
 
 - queue ordering key and cancel/dispatch ordering are explicitly frozen.
 - `v1` -> `v2` queue-mode migration/default behavior is explicitly frozen.
@@ -50,9 +51,9 @@ This draft incorporates the latest GPT + Opus review deltas before freeze:
   - `connector_exposure_mapping.v1.json`
   - `budget.v1` (when persisted or validated outside transient in-memory runtime state)
 
-## Arc Scope (Draft Lock)
+## Arc Scope (Frozen)
 
-This arc proposes only Option B deepening:
+This arc implements only Option B deepening:
 
 1. `B1` Controlled multi-child delegation with deterministic queueing
 2. `B2` Parent-child budget inheritance and deterministic exhaustion semantics
@@ -228,7 +229,7 @@ Strengthen steer targeting and diagnostics without introducing non-determinism.
 - Steer replay preserves target resolution and emitted outcomes.
 - Unresolved target paths emit stable deterministic failure code and event.
 
-## Error-Code Policy (Draft Lock)
+## Error-Code Policy (Frozen)
 
 - Reuse existing URM/common codes where applicable.
 - New codes are allowed only when needed, must be deterministic, and must be prefixed `URM_`.
@@ -236,20 +237,30 @@ Strengthen steer targeting and diagnostics without introducing non-determinism.
   - steer endpoint -> `URM_STEER_*` (plus common envelope compatibility)
   - spawn/cancel endpoints -> `URM_CHILD_*`
   - connector snapshot flows -> `URM_CONNECTOR_*`
-- Suggested stable additions for this arc:
+- Stable additions in this arc:
   - `URM_CHILD_BUDGET_EXCEEDED`
   - `URM_CONNECTOR_REPLAY_LIVE_READ_BLOCKED`
   - `URM_STEER_TARGET_UNRESOLVED`
 
-## Proposed Commit Plan (Draft)
+## Commit Plan (Completed on `main`)
 
-1. `runtime: harden v2 child queue ordering key, cancel/dispatch ordering, and mode migration defaults`
-2. `runtime: add budget.v1 measurement-source locks and deterministic breach enforcement`
-3. `runtime: harden connector replay-only resolution, exposure mapping registry, and stale predicate`
-4. `runtime: harden steer target alias resolution and deny-path event symmetry`
-5. `tests: add queue-cancel race and budget-breach replay fixtures plus restart/idempotency coverage`
+1. `runtime: harden B1 queue determinism and idempotency replay` (`#99`)
+2. `runtime: enforce budget.v1 child limits with deterministic breach events` (`#100`)
+3. `runtime: harden connector snapshot replay and exposure mapping` (`#101`)
+4. `runtime: harden steer target resolution and lifecycle diagnostics` (`#102`)
 
-## Proposed Exit Criteria (Draft)
+## PR Sequence (Completed)
+
+1. **PR1: Queue Hardening**
+   - B1 queue ordering key + idempotency + cancel/dispatch ordering (`#99`)
+2. **PR2: Budget Hardening**
+   - B2 `budget.v1` inheritance/exhaustion + deterministic breach events (`#100`)
+3. **PR3: Connector Replay Hardening**
+   - B3 replay-only connector resolution + exposure mapping/stale predicates (`#101`)
+4. **PR4: Steer Diagnostics Hardening**
+   - B4 deterministic target resolution + denied-event symmetry (`#102`)
+
+## Exit Criteria
 
 - B1-B4 merged with green CI.
 - Multi-child queue replay determinism is `100%` on locked fixtures.
