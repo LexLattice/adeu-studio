@@ -1708,6 +1708,64 @@ class URMCopilotManager:
                 observed=child.token_usage_observed,
             )
 
+    def _child_spawn_error_code(self, *, exc: URMError) -> str:
+        if exc.detail.code.startswith("URM_CHILD_"):
+            return exc.detail.code
+        return "URM_CHILD_SPAWN_FAILED"
+
+    def _budget_failure_detail(
+        self,
+        *,
+        error_code: str,
+        exc: URMError,
+    ) -> dict[str, Any]:
+        if error_code != "URM_CHILD_BUDGET_EXCEEDED":
+            return {}
+        return {
+            "budget_dimension": exc.detail.context.get("dimension"),
+            "budget_limit": exc.detail.context.get("limit"),
+            "budget_observed": exc.detail.context.get("observed"),
+            "token_usage_unobserved": exc.detail.context.get("token_usage_unobserved"),
+        }
+
+    def _handle_child_spawn_failure_unlocked(
+        self,
+        *,
+        child: ChildAgentRuntime,
+        parent_session_id: str,
+        exc: URMError,
+    ) -> None:
+        error_code = self._child_spawn_error_code(exc=exc)
+        child.status = "failed"
+        child.error_code = error_code
+        child.error_message = exc.detail.message
+        child.ended_at = datetime.now(tz=timezone.utc).isoformat()
+        fail_payload: dict[str, Any] = {
+            "worker_id": child.child_id,
+            "status": "failed",
+            "error_code": child.error_code,
+        }
+        parent_fail_payload: dict[str, Any] = {
+            "tool_name": "spawn_agent",
+            "child_id": child.child_id,
+            "error_code": child.error_code,
+            "reason": child.error_message,
+        }
+        budget_detail = self._budget_failure_detail(error_code=error_code, exc=exc)
+        if budget_detail:
+            fail_payload.update(budget_detail)
+            parent_fail_payload.update(budget_detail)
+        self._record_child_event(
+            child=child,
+            event_kind="WORKER_FAIL",
+            payload=fail_payload,
+        )
+        self._record_parent_or_audit_event(
+            parent_session_id=parent_session_id,
+            event_kind="TOOL_CALL_FAIL",
+            payload=parent_fail_payload,
+        )
+
     def child_parent_session_id(self, *, child_id: str) -> str | None:
         with self._lock:
             child = self._child_runs.get(child_id)
@@ -2344,55 +2402,10 @@ class URMCopilotManager:
                     },
                 )
             except URMError as exc:
-                child.status = "failed"
-                child.error_code = (
-                    exc.detail.code
-                    if exc.detail.code.startswith("URM_CHILD_")
-                    else "URM_CHILD_SPAWN_FAILED"
-                )
-                child.error_message = exc.detail.message
-                child.ended_at = datetime.now(tz=timezone.utc).isoformat()
-                fail_payload: dict[str, Any] = {
-                    "worker_id": child_id,
-                    "status": "failed",
-                    "error_code": child.error_code,
-                }
-                parent_fail_payload: dict[str, Any] = {
-                    "tool_name": "spawn_agent",
-                    "child_id": child_id,
-                    "error_code": child.error_code,
-                    "reason": exc.detail.message,
-                }
-                if child.error_code == "URM_CHILD_BUDGET_EXCEEDED":
-                    budget_dimension = exc.detail.context.get("dimension")
-                    budget_limit = exc.detail.context.get("limit")
-                    budget_observed = exc.detail.context.get("observed")
-                    token_usage_unobserved = exc.detail.context.get("token_usage_unobserved")
-                    fail_payload.update(
-                        {
-                            "budget_dimension": budget_dimension,
-                            "budget_limit": budget_limit,
-                            "budget_observed": budget_observed,
-                            "token_usage_unobserved": token_usage_unobserved,
-                        }
-                    )
-                    parent_fail_payload.update(
-                        {
-                            "budget_dimension": budget_dimension,
-                            "budget_limit": budget_limit,
-                            "budget_observed": budget_observed,
-                            "token_usage_unobserved": token_usage_unobserved,
-                        }
-                    )
-                self._record_child_event(
+                self._handle_child_spawn_failure_unlocked(
                     child=child,
-                    event_kind="WORKER_FAIL",
-                    payload=fail_payload,
-                )
-                self._record_parent_or_audit_event(
                     parent_session_id=request.session_id,
-                    event_kind="TOOL_CALL_FAIL",
-                    payload=parent_fail_payload,
+                    exc=exc,
                 )
             self._persist_child_terminal_state(child=child)
             response_model = AgentSpawnResponse(
@@ -2701,55 +2714,10 @@ class URMCopilotManager:
                 if current is None:
                     return
                 if current.status != "cancelled":
-                    current.status = "failed"
-                    current.error_code = (
-                        exc.detail.code
-                        if exc.detail.code.startswith("URM_CHILD_")
-                        else "URM_CHILD_SPAWN_FAILED"
-                    )
-                    current.error_message = exc.detail.message
-                    current.ended_at = datetime.now(tz=timezone.utc).isoformat()
-                    fail_payload: dict[str, Any] = {
-                        "worker_id": child_id,
-                        "status": "failed",
-                        "error_code": current.error_code,
-                    }
-                    parent_fail_payload: dict[str, Any] = {
-                        "tool_name": "spawn_agent",
-                        "child_id": child_id,
-                        "error_code": current.error_code,
-                        "reason": current.error_message,
-                    }
-                    if current.error_code == "URM_CHILD_BUDGET_EXCEEDED":
-                        budget_dimension = exc.detail.context.get("dimension")
-                        budget_limit = exc.detail.context.get("limit")
-                        budget_observed = exc.detail.context.get("observed")
-                        token_usage_unobserved = exc.detail.context.get("token_usage_unobserved")
-                        fail_payload.update(
-                            {
-                                "budget_dimension": budget_dimension,
-                                "budget_limit": budget_limit,
-                                "budget_observed": budget_observed,
-                                "token_usage_unobserved": token_usage_unobserved,
-                            }
-                        )
-                        parent_fail_payload.update(
-                            {
-                                "budget_dimension": budget_dimension,
-                                "budget_limit": budget_limit,
-                                "budget_observed": budget_observed,
-                                "token_usage_unobserved": token_usage_unobserved,
-                            }
-                        )
-                    self._record_child_event(
+                    self._handle_child_spawn_failure_unlocked(
                         child=current,
-                        event_kind="WORKER_FAIL",
-                        payload=fail_payload,
-                    )
-                    self._record_parent_or_audit_event(
                         parent_session_id=parent_session_id,
-                        event_kind="TOOL_CALL_FAIL",
-                        payload=parent_fail_payload,
+                        exc=exc,
                     )
                 self._persist_child_terminal_state(child=current)
         finally:
