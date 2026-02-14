@@ -67,6 +67,28 @@ def parse_args() -> argparse.Namespace:
         ],
         help="Connector snapshot artifact path (repeatable)",
     )
+    parser.add_argument(
+        "--validator-evidence-packet",
+        dest="validator_evidence_packet_paths",
+        action="append",
+        type=Path,
+        default=[
+            Path("examples/eval/stop_gate/validator_evidence_packet_case_a_1.json"),
+            Path("examples/eval/stop_gate/validator_evidence_packet_case_a_2.json"),
+        ],
+        help="Validator evidence packet artifact path (repeatable)",
+    )
+    parser.add_argument(
+        "--semantics-diagnostics",
+        dest="semantics_diagnostics_paths",
+        action="append",
+        type=Path,
+        default=[
+            Path("examples/eval/stop_gate/semantics_diagnostics_case_a_1.json"),
+            Path("examples/eval/stop_gate/semantics_diagnostics_case_a_2.json"),
+        ],
+        help="Semantics diagnostics artifact path (repeatable)",
+    )
     return parser.parse_args()
 
 
@@ -76,6 +98,8 @@ def main() -> None:
         incident_packet_paths=list(args.incident_packet_paths),
         event_stream_paths=list(args.event_stream_paths),
         connector_snapshot_paths=list(args.connector_snapshot_paths),
+        validator_evidence_packet_paths=list(args.validator_evidence_packet_paths),
+        semantics_diagnostics_paths=list(args.semantics_diagnostics_paths),
         quality_current_path=args.quality_current,
         quality_baseline_path=args.quality_baseline,
     )

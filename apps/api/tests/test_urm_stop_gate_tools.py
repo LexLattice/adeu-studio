@@ -22,6 +22,14 @@ def _event_fixture_path(name: str) -> Path:
     return _repo_root() / "apps" / "api" / "tests" / "fixtures" / "urm_events" / name
 
 
+def _validator_evidence_fixture_path(name: str) -> Path:
+    return _repo_root() / "examples" / "eval" / "stop_gate" / name
+
+
+def _semantics_diagnostics_fixture_path(name: str) -> Path:
+    return _repo_root() / "examples" / "eval" / "stop_gate" / name
+
+
 def _quality_metrics_v3(*, overrides: dict[str, float] | None = None) -> dict[str, float]:
     metrics = {
         "redundancy_rate": 0.2,
@@ -66,6 +74,14 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
             _example_stop_gate_path("connector_snapshot_case_a_1.json"),
             _example_stop_gate_path("connector_snapshot_case_a_2.json"),
         ],
+        "validator_evidence_packet_paths": [
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+        ],
+        "semantics_diagnostics_paths": [
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
+        ],
         "quality_current_path": quality_current,
         "quality_baseline_path": quality_baseline,
     }
@@ -79,6 +95,9 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["child_lifecycle_replay_determinism_pct"] == 100.0
     assert first["metrics"]["runtime_failure_code_stability_pct"] == 100.0
     assert first["metrics"]["connector_snapshot_replay_stability_pct"] == 100.0
+    assert first["metrics"]["validator_packet_determinism_pct"] == 100.0
+    assert first["metrics"]["witness_reconstruction_determinism_pct"] == 100.0
+    assert first["metrics"]["semantics_diagnostics_determinism_pct"] == 100.0
     assert first["metrics"]["quality_delta_non_negative"] is True
 
 
@@ -107,6 +126,14 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_example_stop_gate_path("connector_snapshot_case_a_1.json")),
             "--connector-snapshot",
             str(_example_stop_gate_path("connector_snapshot_case_a_2.json")),
+            "--validator-evidence-packet",
+            str(_validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json")),
+            "--validator-evidence-packet",
+            str(_validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json")),
+            "--semantics-diagnostics",
+            str(_semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json")),
+            "--semantics-diagnostics",
+            str(_semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json")),
             "--quality-current",
             str(quality_current),
             "--out-json",
@@ -162,6 +189,14 @@ def test_build_stop_gate_metrics_applies_frozen_v3_quality_rules(tmp_path: Path)
         connector_snapshot_paths=[
             _example_stop_gate_path("connector_snapshot_case_a_1.json"),
             _example_stop_gate_path("connector_snapshot_case_a_2.json"),
+        ],
+        validator_evidence_packet_paths=[
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+        ],
+        semantics_diagnostics_paths=[
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
         ],
         quality_current_path=quality_current,
         quality_baseline_path=quality_baseline,
