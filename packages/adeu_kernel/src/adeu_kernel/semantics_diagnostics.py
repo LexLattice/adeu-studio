@@ -36,7 +36,7 @@ def _normalize_sha256_hash(value: Any) -> str:
     return _sha256_text(normalized)
 
 
-def _derive_assurance(*, status: str, assurance: str | None) -> str:
+def derive_semantics_assurance(*, status: str, assurance: str | None) -> str:
     if assurance in _ASSURANCE_LEVELS:
         return assurance
     if status in {"SAT", "UNSAT", "UNKNOWN", "TIMEOUT"}:
@@ -84,7 +84,7 @@ def _normalized_record_from_packet(packet: Mapping[str, Any]) -> dict[str, Any] 
     raw_status = str(packet.get("status", "")).strip().upper()
     status = raw_status if raw_status in _VALIDATOR_STATUSES else "ERROR"
     raw_assurance = packet.get("assurance")
-    assurance = _derive_assurance(
+    assurance = derive_semantics_assurance(
         status=status,
         assurance=str(raw_assurance) if isinstance(raw_assurance, str) else None,
     )

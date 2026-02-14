@@ -57,13 +57,14 @@ from adeu_kernel import (
     PatchValidationError,
     ValidatorRunRecord,
     apply_ambiguity_option,
-    build_semantics_diagnostics,
     build_adeu_core_proof_requests,
     build_proof_backend,
+    build_semantics_diagnostics,
     build_validator_backend,
     build_validator_evidence_packet,
     check,
     check_with_validator_runs,
+    derive_semantics_assurance,
 )
 from adeu_puzzles import (
     KnightsKnavesPuzzle,
@@ -1628,14 +1629,6 @@ def _normalize_evidence_json_for_output(evidence_json: dict[str, Any]) -> dict[s
     return payload
 
 
-def _derived_validator_assurance(*, status: str, persisted_assurance: str | None) -> str:
-    if persisted_assurance in {"kernel_only", "solver_backed", "proof_checked"}:
-        return persisted_assurance
-    if status in {"SAT", "UNSAT", "UNKNOWN", "TIMEOUT"}:
-        return "solver_backed"
-    return "kernel_only"
-
-
 def _validator_evidence_packet_from_row(row: ValidatorRunRow) -> dict[str, Any]:
     packet = build_validator_evidence_packet(
         validator_run_id=row.run_id,
@@ -1648,9 +1641,9 @@ def _validator_evidence_packet_from_row(row: ValidatorRunRow) -> dict[str, Any]:
         status=row.status,
         evidence=row.evidence_json,
         atom_map=row.atom_map_json,
-        assurance=_derived_validator_assurance(
+        assurance=derive_semantics_assurance(
             status=row.status,
-            persisted_assurance=row.assurance,
+            assurance=row.assurance,
         ),
     )
     return packet
@@ -4278,9 +4271,9 @@ def list_concept_artifact_validator_runs_endpoint(
                 request_hash=run.request_hash,
                 formula_hash=run.formula_hash,
                 status=run.status,
-                assurance=_derived_validator_assurance(
+                assurance=derive_semantics_assurance(
                     status=run.status,
-                    persisted_assurance=run.assurance,
+                    assurance=run.assurance,
                 ),
                 evidence_json=run.evidence_json,
                 atom_map_json=run.atom_map_json,
@@ -4903,9 +4896,9 @@ def list_artifact_validator_runs_endpoint(artifact_id: str) -> ArtifactValidator
                 request_hash=row.request_hash,
                 formula_hash=row.formula_hash,
                 status=row.status,
-                assurance=_derived_validator_assurance(
+                assurance=derive_semantics_assurance(
                     status=row.status,
-                    persisted_assurance=row.assurance,
+                    assurance=row.assurance,
                 ),
                 evidence_json=row.evidence_json,
                 atom_map_json=row.atom_map_json,

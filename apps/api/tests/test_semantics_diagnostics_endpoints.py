@@ -148,12 +148,16 @@ def test_concept_artifact_semantics_diagnostics_endpoint_returns_deterministic_p
         atom_map_json={},
     )
 
-    payload = get_concept_artifact_semantics_diagnostics_endpoint(
+    first = get_concept_artifact_semantics_diagnostics_endpoint(
+        concept_artifact.artifact_id
+    ).model_dump(mode="json")
+    second = get_concept_artifact_semantics_diagnostics_endpoint(
         concept_artifact.artifact_id
     ).model_dump(mode="json")
 
-    assert payload["artifact_ref"] == f"concept_artifact:{concept_artifact.artifact_id}"
-    assert len(payload["records"]) == 1
-    assert payload["records"][0]["validator_run_id"] == run.run_id
-    assert payload["records"][0]["status"] == "SAT"
-    assert payload["records"][0]["assurance"] == "solver_backed"
+    assert first == second
+    assert first["artifact_ref"] == f"concept_artifact:{concept_artifact.artifact_id}"
+    assert len(first["records"]) == 1
+    assert first["records"][0]["validator_run_id"] == run.run_id
+    assert first["records"][0]["status"] == "SAT"
+    assert first["records"][0]["assurance"] == "solver_backed"

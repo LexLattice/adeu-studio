@@ -18,6 +18,7 @@ from .proof import (
 from .semantics_diagnostics import (
     SEMANTICS_DIAGNOSTICS_SCHEMA,
     build_semantics_diagnostics,
+    derive_semantics_assurance,
 )
 from .validator import (
     DEFAULT_Z3_TIMEOUT_MS,
@@ -46,6 +47,7 @@ __all__ = [
     "Z3Validator",
     "VALIDATOR_EVIDENCE_PACKET_SCHEMA",
     "SEMANTICS_DIAGNOSTICS_SCHEMA",
+    "derive_semantics_assurance",
     "VALIDATOR_EVIDENCE_HASH_EXCLUDED_FIELDS",
     "apply_ambiguity_option",
     "apply_ambiguity_option_patch",
