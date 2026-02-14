@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 import threading
 import time
 import uuid
@@ -72,6 +73,7 @@ from .storage import (
     get_approval,
     get_connector_snapshot,
     get_copilot_session,
+    lease_dispatch_token,
     list_active_copilot_child_runs,
     mark_running_sessions_terminated,
     persist_connector_snapshot,
@@ -83,12 +85,14 @@ from .storage import (
     reserve_request_idempotency,
     revoke_approval,
     set_copilot_writes_allowed,
+    set_dispatch_token_phase,
     transaction,
     update_copilot_session_last_seq,
     update_copilot_session_pid,
     update_copilot_session_profile,
     update_copilot_session_status,
     update_worker_run_status,
+    upsert_dispatch_token_queued,
 )
 
 COPILOT_START_ENDPOINT = "urm.copilot.start"
@@ -103,7 +107,7 @@ COPILOT_BUFFER_MAX = 20_000
 MAX_STEER_PER_TURN = 5
 MAX_CHILD_DEPTH = 1
 MAX_CHILDREN_PER_PARENT = 2
-MAX_ACTIVE_CHILDREN_PER_PARENT = 1
+MAX_ACTIVE_CHILDREN_PER_PARENT = 2
 CHILD_BUDGET_VERSION = "budget.v1"
 CHILD_BUDGET_MAX_SOLVER_CALLS = 40
 CHILD_BUDGET_MAX_DURATION_SECS = 300
@@ -130,7 +134,11 @@ class ChildAgentRuntime:
     error_message: str | None = None
     child_thread_id: str | None = None
     last_seq: int = 0
+    parent_seq: int = 0
     queue_seq: int = 0
+    dispatch_seq: int | None = None
+    lease_id: str | None = None
+    dispatch_phase: Literal["queued", "leased", "started", "terminal"] = "queued"
     prompt: str = ""
     budget_snapshot: dict[str, Any] = field(default_factory=dict)
     inherited_policy_hash: str | None = None
@@ -189,7 +197,6 @@ class URMCopilotManager:
         self._child_runs: dict[str, ChildAgentRuntime] = {}
         self._children_by_parent: dict[str, set[str]] = {}
         self._child_run_threads: dict[str, threading.Thread] = {}
-        self._child_queue_seq_by_parent: dict[str, int] = {}
         self._active_session_id: str | None = None
         self._lock = threading.RLock()
         self._recover_terminated_sessions()
@@ -557,6 +564,21 @@ class URMCopilotManager:
         endpoint: str = "urm.agent.spawn",
     ) -> None:
         child.last_seq += 1
+        detail = dict(payload)
+        if event_kind.startswith("WORKER_"):
+            detail.setdefault("child_id", child.child_id)
+            detail.setdefault("dispatch_seq", child.dispatch_seq)
+            detail.setdefault("lease_id", child.lease_id)
+            detail.setdefault("parent_stream_id", child.parent_stream_id)
+            detail.setdefault("parent_seq", child.parent_seq)
+            detail.setdefault("phase", child.dispatch_phase)
+            if event_kind == "WORKER_FAIL":
+                code = detail.get("code")
+                if not isinstance(code, str) or not code:
+                    error_code = detail.get("error_code")
+                    if isinstance(error_code, str) and error_code:
+                        detail["code"] = error_code
+                detail.setdefault("reason", "worker_failed")
         event = build_internal_event(
             seq=child.last_seq,
             event=event_kind,
@@ -568,7 +590,7 @@ class URMCopilotManager:
                 "role": "copilot",
                 "endpoint": endpoint,
             },
-            detail=payload,
+            detail=detail,
         )
         child.events_writer.write_json_line(event.model_dump(mode="json", by_alias=True))
 
@@ -683,6 +705,17 @@ class URMCopilotManager:
                     "profile_version": child.profile_version,
                 },
             )
+            if self._is_child_queue_v2_enabled():
+                try:
+                    token = set_dispatch_token_phase(
+                        con=con,
+                        child_id=child.child_id,
+                        phase="terminal",
+                    )
+                except RuntimeError:
+                    token = None
+                if token is not None:
+                    child.dispatch_phase = token.phase
         child.persisted = True
 
     def record_policy_eval_event(
@@ -1899,6 +1932,7 @@ class URMCopilotManager:
         child.error_code = error_code
         child.error_message = exc.detail.message
         child.ended_at = datetime.now(tz=timezone.utc).isoformat()
+        child.dispatch_phase = "terminal"
         fail_payload: dict[str, Any] = {
             "worker_id": child.child_id,
             "status": "failed",
@@ -2824,16 +2858,12 @@ class URMCopilotManager:
                 )
             return response_model
 
-    def _next_child_queue_seq_unlocked(self, *, parent_session_id: str) -> int:
-        next_seq = self._child_queue_seq_by_parent.get(parent_session_id, 0) + 1
-        self._child_queue_seq_by_parent[parent_session_id] = next_seq
-        return next_seq
-
     def _child_worker_result_json(self, *, child: ChildAgentRuntime) -> dict[str, Any]:
         return {
             "child_id": child.child_id,
             "parent_session_id": child.parent_session_id,
             "parent_stream_id": child.parent_stream_id,
+            "parent_seq": child.parent_seq,
             "child_stream_id": child.child_stream_id,
             "parent_turn_id": child.parent_turn_id,
             "child_thread_id": child.child_thread_id,
@@ -2856,6 +2886,9 @@ class URMCopilotManager:
             "inherited_policy_hash": child.inherited_policy_hash,
             "capabilities_allowed": child.capabilities_allowed,
             "queue_seq": child.queue_seq,
+            "dispatch_seq": child.dispatch_seq,
+            "lease_id": child.lease_id,
+            "phase": child.dispatch_phase,
             "raw_jsonl_path": child.raw_jsonl_path,
             "urm_events_path": child.urm_events_path,
         }
@@ -2866,7 +2899,36 @@ class URMCopilotManager:
         parent_session_id: str,
         child: ChildAgentRuntime,
     ) -> None:
+        if self._is_child_queue_v2_enabled():
+            try:
+                with transaction(db_path=self.config.db_path) as con:
+                    token = lease_dispatch_token(con=con, child_id=child.child_id)
+            except sqlite3.IntegrityError as exc:
+                raise URMError(
+                    code="URM_DISPATCH_LEASE_CONFLICT",
+                    message="scheduler dispatch lease conflict",
+                    context={
+                        "child_id": child.child_id,
+                        "session_id": parent_session_id,
+                    },
+                ) from exc
+            except RuntimeError as exc:
+                raise URMError(
+                    code="URM_SCHEDULER_REPLAY_ORDER_INVALID",
+                    message="scheduler dispatch token missing",
+                    context={
+                        "child_id": child.child_id,
+                        "session_id": parent_session_id,
+                    },
+                ) from exc
+            child.queue_seq = token.queue_seq
+            child.dispatch_seq = token.dispatch_seq
+            child.lease_id = token.worker_run_id
+            child.parent_seq = token.parent_seq
+            child.dispatch_phase = token.phase
         child.status = "running"
+        if self._is_child_queue_v2_enabled():
+            child.dispatch_phase = "started"
         self._record_child_event(
             child=child,
             event_kind="WORKER_START",
@@ -2874,6 +2936,8 @@ class URMCopilotManager:
                 "worker_id": child.child_id,
                 "status": "running",
                 "queue_seq": child.queue_seq,
+                "dispatch_seq": child.dispatch_seq,
+                "lease_id": child.lease_id,
             },
         )
         with transaction(db_path=self.config.db_path) as con:
@@ -2885,6 +2949,13 @@ class URMCopilotManager:
                 error_message=None,
                 result_json=self._child_worker_result_json(child=child),
             )
+            if self._is_child_queue_v2_enabled():
+                token = set_dispatch_token_phase(
+                    con=con,
+                    child_id=child.child_id,
+                    phase="started",
+                )
+                child.dispatch_phase = token.phase
         thread = threading.Thread(
             target=self._run_child_workflow_v2,
             kwargs={"child_id": child.child_id, "parent_session_id": parent_session_id},
@@ -2895,52 +2966,98 @@ class URMCopilotManager:
         thread.start()
 
     def _dispatch_child_queue_unlocked(self, *, parent_session_id: str) -> None:
-        children = [
-            self._child_runs[child_id]
-            for child_id in self._children_by_parent.get(parent_session_id, set())
-            if child_id in self._child_runs
-        ]
-        running_count = sum(1 for child in children if child.status == "running")
-        if running_count >= self._max_active_children_per_parent():
-            return
-        queued = sorted(
-            (child for child in children if child.status == "queued"),
-            key=lambda child: child.queue_seq,
-        )
-        if not queued:
-            return
-        next_child = queued[0]
-        runtime = self._sessions.get(parent_session_id)
-        if runtime is None or runtime.status not in {"starting", "running"}:
-            next_child.status = "failed"
-            next_child.error_code = "URM_CHILD_TERMINATED_ON_RESTART"
-            next_child.error_message = "parent session unavailable during queue dispatch"
-            next_child.ended_at = datetime.now(tz=timezone.utc).isoformat()
-            self._record_child_event(
-                child=next_child,
-                event_kind="WORKER_FAIL",
-                payload={
-                    "worker_id": next_child.child_id,
-                    "status": "failed",
-                    "error_code": next_child.error_code,
-                },
+        while True:
+            children = [
+                self._child_runs[child_id]
+                for child_id in self._children_by_parent.get(parent_session_id, set())
+                if child_id in self._child_runs
+            ]
+            running_count = sum(1 for child in children if child.status == "running")
+            if running_count >= self._max_active_children_per_parent():
+                return
+            queued = sorted(
+                (child for child in children if child.status == "queued"),
+                key=lambda child: child.queue_seq,
             )
-            self._record_parent_or_audit_event(
-                parent_session_id=parent_session_id,
-                event_kind="WORKER_FAIL",
-                payload={
-                    "worker_id": next_child.child_id,
-                    "status": "failed",
-                    "error_code": next_child.error_code,
-                },
-                endpoint="urm.agent.spawn",
-            )
-            self._persist_child_terminal_state(child=next_child)
-            return
-        self._start_child_execution_thread_unlocked(
-            parent_session_id=parent_session_id,
-            child=next_child,
-        )
+            if not queued:
+                return
+            next_child = queued[0]
+            runtime = self._sessions.get(parent_session_id)
+            if runtime is None or runtime.status not in {"starting", "running"}:
+                next_child.status = "failed"
+                next_child.error_code = "URM_CHILD_TERMINATED_ON_RESTART"
+                next_child.error_message = "parent session unavailable during queue dispatch"
+                next_child.ended_at = datetime.now(tz=timezone.utc).isoformat()
+                next_child.dispatch_phase = "terminal"
+                self._record_child_event(
+                    child=next_child,
+                    event_kind="WORKER_FAIL",
+                    payload={
+                        "worker_id": next_child.child_id,
+                        "status": "failed",
+                        "error_code": next_child.error_code,
+                        "code": next_child.error_code,
+                        "reason": "parent_session_unavailable",
+                    },
+                )
+                self._record_parent_or_audit_event(
+                    parent_session_id=parent_session_id,
+                    event_kind="WORKER_FAIL",
+                    payload={
+                        "worker_id": next_child.child_id,
+                        "status": "failed",
+                        "error_code": next_child.error_code,
+                        "dispatch_seq": next_child.dispatch_seq,
+                        "lease_id": next_child.lease_id,
+                        "parent_stream_id": next_child.parent_stream_id,
+                        "parent_seq": next_child.parent_seq,
+                        "child_id": next_child.child_id,
+                        "phase": next_child.dispatch_phase,
+                    },
+                    endpoint="urm.agent.spawn",
+                )
+                self._persist_child_terminal_state(child=next_child)
+                continue
+            try:
+                self._start_child_execution_thread_unlocked(
+                    parent_session_id=parent_session_id,
+                    child=next_child,
+                )
+            except URMError as exc:
+                next_child.status = "failed"
+                next_child.error_code = exc.detail.code
+                next_child.error_message = exc.detail.message
+                next_child.ended_at = datetime.now(tz=timezone.utc).isoformat()
+                next_child.dispatch_phase = "terminal"
+                self._record_child_event(
+                    child=next_child,
+                    event_kind="WORKER_FAIL",
+                    payload={
+                        "worker_id": next_child.child_id,
+                        "status": "failed",
+                        "error_code": next_child.error_code,
+                        "code": next_child.error_code,
+                        "reason": "dispatch_start_failed",
+                    },
+                )
+                self._record_parent_or_audit_event(
+                    parent_session_id=parent_session_id,
+                    event_kind="WORKER_FAIL",
+                    payload={
+                        "worker_id": next_child.child_id,
+                        "status": "failed",
+                        "error_code": next_child.error_code,
+                        "dispatch_seq": next_child.dispatch_seq,
+                        "lease_id": next_child.lease_id,
+                        "parent_stream_id": next_child.parent_stream_id,
+                        "parent_seq": next_child.parent_seq,
+                        "child_id": next_child.child_id,
+                        "phase": next_child.dispatch_phase,
+                    },
+                    endpoint="urm.agent.spawn",
+                )
+                self._persist_child_terminal_state(child=next_child)
+                continue
 
     def _run_child_workflow_v2(self, *, child_id: str, parent_session_id: str) -> None:
         try:
@@ -2954,6 +3071,7 @@ class URMCopilotManager:
                     child.error_code = "URM_CHILD_TERMINATED_ON_RESTART"
                     child.error_message = "parent session unavailable"
                     child.ended_at = datetime.now(tz=timezone.utc).isoformat()
+                    child.dispatch_phase = "terminal"
                     self._record_child_event(
                         child=child,
                         event_kind="WORKER_FAIL",
@@ -2970,6 +3088,12 @@ class URMCopilotManager:
                             "worker_id": child.child_id,
                             "status": "failed",
                             "error_code": child.error_code,
+                            "dispatch_seq": child.dispatch_seq,
+                            "lease_id": child.lease_id,
+                            "parent_stream_id": child.parent_stream_id,
+                            "parent_seq": child.parent_seq,
+                            "child_id": child.child_id,
+                            "phase": child.dispatch_phase,
                         },
                         endpoint="urm.agent.spawn",
                     )
@@ -3081,6 +3205,7 @@ class URMCopilotManager:
                 if current.status != "cancelled":
                     current.status = "completed"
                     current.ended_at = datetime.now(tz=timezone.utc).isoformat()
+                    current.dispatch_phase = "terminal"
                     self._record_child_event(
                         child=current,
                         event_kind="WORKER_PASS",
@@ -3224,12 +3349,41 @@ class URMCopilotManager:
             events_path = self._urm_events_path_for_child(child_id)
             raw_rel_path = self._relative_path(raw_path)
             events_rel_path = self._relative_path(events_path)
-            queue_seq = self._next_child_queue_seq_unlocked(parent_session_id=request.session_id)
+            parent_stream_id = f"copilot:{request.session_id}"
+            parent_seq_anchor = runtime.last_seq + 1
+            try:
+                with transaction(db_path=self.config.db_path) as con:
+                    token = upsert_dispatch_token_queued(
+                        con=con,
+                        child_id=child_id,
+                        parent_session_id=request.session_id,
+                        parent_stream_id=parent_stream_id,
+                        parent_seq=parent_seq_anchor,
+                        worker_run_id=child_id,
+                    )
+            except sqlite3.IntegrityError as exc:
+                raise URMError(
+                    code="URM_DISPATCH_LEASE_CONFLICT",
+                    message="scheduler token persistence conflict",
+                    context={
+                        "session_id": request.session_id,
+                        "child_id": child_id,
+                    },
+                ) from exc
+            except RuntimeError as exc:
+                raise URMError(
+                    code="URM_SCHEDULER_REPLAY_ORDER_INVALID",
+                    message="scheduler token persistence failed",
+                    context={
+                        "session_id": request.session_id,
+                        "child_id": child_id,
+                    },
+                ) from exc
             child = ChildAgentRuntime(
                 child_id=child_id,
                 parent_session_id=request.session_id,
                 parent_turn_id=target_turn_id,
-                parent_stream_id=f"copilot:{request.session_id}",
+                parent_stream_id=parent_stream_id,
                 child_stream_id=f"child:{child_id}",
                 started_at=datetime.now(tz=timezone.utc).isoformat(),
                 events_writer=EvidenceFileWriter(
@@ -3245,7 +3399,10 @@ class URMCopilotManager:
                 raw_jsonl_path=raw_rel_path,
                 urm_events_path=events_rel_path,
                 status="queued",
-                queue_seq=queue_seq,
+                parent_seq=token.parent_seq,
+                queue_seq=token.queue_seq,
+                lease_id=token.worker_run_id,
+                dispatch_phase=token.phase,
                 prompt=request.prompt,
                 budget_snapshot=self._child_budget_snapshot(runtime=runtime),
                 inherited_policy_hash=inherited_policy_hash,
@@ -3267,6 +3424,8 @@ class URMCopilotManager:
                     "profile_id": child.profile_id,
                     "profile_version": child.profile_version,
                     "queue_seq": child.queue_seq,
+                    "parent_stream_id": child.parent_stream_id,
+                    "parent_seq": child.parent_seq,
                 },
             )
             self._record_child_event(
@@ -3276,6 +3435,8 @@ class URMCopilotManager:
                     "worker_id": child_id,
                     "status": "queued",
                     "queue_seq": child.queue_seq,
+                    "dispatch_seq": child.dispatch_seq,
+                    "lease_id": child.lease_id,
                 },
             )
             with transaction(db_path=self.config.db_path) as con:
@@ -3363,6 +3524,12 @@ class URMCopilotManager:
                         "worker_id": child_id,
                         "status": child.status,
                         "error_code": "URM_CHILD_CANCEL_ALREADY_TERMINAL",
+                        "dispatch_seq": child.dispatch_seq,
+                        "lease_id": child.lease_id,
+                        "parent_stream_id": child.parent_stream_id,
+                        "parent_seq": child.parent_seq,
+                        "child_id": child.child_id,
+                        "phase": child.dispatch_phase,
                     },
                     endpoint="urm.agent.cancel",
                 )
@@ -3378,6 +3545,7 @@ class URMCopilotManager:
             else:
                 child.status = "cancelled"
                 child.ended_at = datetime.now(tz=timezone.utc).isoformat()
+                child.dispatch_phase = "terminal"
                 self._record_child_event(
                     child=child,
                     event_kind="WORKER_CANCEL",
@@ -3387,7 +3555,16 @@ class URMCopilotManager:
                 self._record_parent_or_audit_event(
                     parent_session_id=child.parent_session_id,
                     event_kind="WORKER_CANCEL",
-                    payload={"worker_id": child_id, "status": "cancelled"},
+                    payload={
+                        "worker_id": child_id,
+                        "status": "cancelled",
+                        "dispatch_seq": child.dispatch_seq,
+                        "lease_id": child.lease_id,
+                        "parent_stream_id": child.parent_stream_id,
+                        "parent_seq": child.parent_seq,
+                        "child_id": child.child_id,
+                        "phase": child.dispatch_phase,
+                    },
                     endpoint="urm.agent.cancel",
                 )
                 self._persist_child_terminal_state(child=child)
@@ -3432,7 +3609,6 @@ class URMCopilotManager:
                 self._child_runs.pop(child_id, None)
                 self._child_run_threads.pop(child_id, None)
             self._children_by_parent.clear()
-            self._child_queue_seq_by_parent.clear()
             session_ids = list(self._sessions)
             for session_id in session_ids:
                 runtime = self._sessions.get(session_id)
