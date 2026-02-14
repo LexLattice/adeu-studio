@@ -1088,7 +1088,7 @@ def _normalize_conflict_validator_result(
     atom_map_by_name = {atom.assertion_name: atom for atom in request.payload.atom_map}
 
     if normalized.status == "UNSAT":
-        canonical_unsat_core = sorted(str(item) for item in normalized.evidence.unsat_core)
+        canonical_unsat_core = sorted(normalized.evidence.unsat_core)
         normalized.evidence.unsat_core = canonical_unsat_core
         normalized.trace = [
             atom_map_by_name[name]
