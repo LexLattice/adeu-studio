@@ -9,7 +9,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, cast
 
 from .config import URMRuntimeConfig
 from .errors import (
@@ -20,6 +20,7 @@ from .errors import (
 )
 
 URM_SCHEMA_VERSION = 5
+DispatchPhase = Literal["queued", "leased", "started", "terminal"]
 
 
 class IdempotencyPayloadConflict(ValueError):
@@ -119,7 +120,7 @@ class DispatchTokenRow:
     queue_seq: int
     dispatch_seq: int | None
     worker_run_id: str
-    phase: str
+    phase: DispatchPhase
     created_at: str
     updated_at: str
 
@@ -605,6 +606,9 @@ def persist_worker_run_start(
 
 
 def _dispatch_token_from_row(row: tuple[Any, ...]) -> DispatchTokenRow:
+    phase_raw = str(row[7])
+    if phase_raw not in {"queued", "leased", "started", "terminal"}:
+        raise RuntimeError(f"invalid dispatch phase in storage row: {phase_raw}")
     return DispatchTokenRow(
         child_id=str(row[0]),
         parent_session_id=str(row[1]),
@@ -613,7 +617,7 @@ def _dispatch_token_from_row(row: tuple[Any, ...]) -> DispatchTokenRow:
         queue_seq=int(row[4]),
         dispatch_seq=int(row[5]) if row[5] is not None else None,
         worker_run_id=str(row[6]),
-        phase=str(row[7]),
+        phase=cast(DispatchPhase, phase_raw),
         created_at=str(row[8]),
         updated_at=str(row[9]),
     )
@@ -743,7 +747,7 @@ def set_dispatch_token_phase(
     *,
     con: sqlite3.Connection,
     child_id: str,
-    phase: str,
+    phase: DispatchPhase,
 ) -> DispatchTokenRow:
     now = datetime.now(tz=timezone.utc).isoformat()
     con.execute(

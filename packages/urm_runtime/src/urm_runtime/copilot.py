@@ -715,7 +715,7 @@ class URMCopilotManager:
                 except RuntimeError:
                     token = None
                 if token is not None:
-                    child.dispatch_phase = token.phase  # type: ignore[assignment]
+                    child.dispatch_phase = token.phase
         child.persisted = True
 
     def record_policy_eval_event(
@@ -2925,7 +2925,7 @@ class URMCopilotManager:
             child.dispatch_seq = token.dispatch_seq
             child.lease_id = token.worker_run_id
             child.parent_seq = token.parent_seq
-            child.dispatch_phase = token.phase  # type: ignore[assignment]
+            child.dispatch_phase = token.phase
         child.status = "running"
         if self._is_child_queue_v2_enabled():
             child.dispatch_phase = "started"
@@ -2955,7 +2955,7 @@ class URMCopilotManager:
                     child_id=child.child_id,
                     phase="started",
                 )
-                child.dispatch_phase = token.phase  # type: ignore[assignment]
+                child.dispatch_phase = token.phase
         thread = threading.Thread(
             target=self._run_child_workflow_v2,
             kwargs={"child_id": child.child_id, "parent_session_id": parent_session_id},
@@ -3402,7 +3402,7 @@ class URMCopilotManager:
                 parent_seq=token.parent_seq,
                 queue_seq=token.queue_seq,
                 lease_id=token.worker_run_id,
-                dispatch_phase=token.phase,  # type: ignore[assignment]
+                dispatch_phase=token.phase,
                 prompt=request.prompt,
                 budget_snapshot=self._child_budget_snapshot(runtime=runtime),
                 inherited_policy_hash=inherited_policy_hash,
@@ -3428,7 +3428,6 @@ class URMCopilotManager:
                     "parent_seq": child.parent_seq,
                 },
             )
-            child.parent_seq = runtime.last_seq
             self._record_child_event(
                 child=child,
                 event_kind="WORKER_START",

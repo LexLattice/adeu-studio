@@ -263,6 +263,9 @@ Reduce runtime maintenance risk while adding machine-checkable closeout gates fo
 - Behavior parity lock is frozen:
   - extracted modules must preserve pre/post behavior with deterministic parity fixtures.
   - no behavior changes are allowed from decomposition alone except those explicitly version-locked in `R1`-`R3`.
+- Dispatch failure-path consolidation lock is frozen:
+  - duplicated queued-child failure handling paths in scheduler dispatch flow must be extracted to one helper in `child_dispatch.py` (for example `_fail_queued_child_unlocked`).
+  - consolidation is maintainability-only and must preserve identical event/code payload semantics.
 - Shared-state extraction lock is frozen:
   - thread-run registry ownership remains in runtime coordinator state.
   - extracted modules must interact through an explicit injected runtime state interface; hidden module-level mutable thread state is forbidden.
