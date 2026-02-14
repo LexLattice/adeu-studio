@@ -83,20 +83,20 @@ def _discover_repo_root(anchor: Path) -> Path | None:
     return None
 
 
-def _default_vnext_plus7_manifest_path() -> Path:
+def _default_manifest_path(filename: str) -> Path:
     module_path = Path(__file__).resolve()
     repo_root = _discover_repo_root(module_path)
     if repo_root is not None:
-        return repo_root / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus7_manifest.json"
-    return module_path.parent / "vnext_plus7_manifest.json"
+        return repo_root / "apps" / "api" / "fixtures" / "stop_gate" / filename
+    return module_path.parent / filename
+
+
+def _default_vnext_plus7_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus7_manifest.json")
 
 
 def _default_vnext_plus8_manifest_path() -> Path:
-    module_path = Path(__file__).resolve()
-    repo_root = _discover_repo_root(module_path)
-    if repo_root is not None:
-        return repo_root / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus8_manifest.json"
-    return module_path.parent / "vnext_plus8_manifest.json"
+    return _default_manifest_path("vnext_plus8_manifest.json")
 
 
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
