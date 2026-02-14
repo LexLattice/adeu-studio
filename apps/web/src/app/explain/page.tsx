@@ -126,6 +126,24 @@ async function parseErrorMessage(response: Response): Promise<string> {
   return text;
 }
 
+function settledReasonMessage(reason: unknown): string {
+  return reason instanceof Error ? reason.message : String(reason);
+}
+
+function applySettledResult<T>(
+  result: PromiseSettledResult<T>,
+  setValue: (value: T | null) => void,
+  setError: (value: string | null) => void,
+): void {
+  if (result.status === "fulfilled") {
+    setValue(result.value);
+    setError(null);
+    return;
+  }
+  setValue(null);
+  setError(settledReasonMessage(result.reason));
+}
+
 async function fetchArtifact(artifactId: string): Promise<ArtifactGetResponse> {
   const response = await fetch(`${apiBase()}/artifacts/${encodeURIComponent(artifactId)}`, {
     method: "GET",
@@ -293,6 +311,13 @@ export default function ExplainPage() {
       return;
     }
 
+    setLeftArtifact(null);
+    setRightArtifact(null);
+    setPacket(null);
+    setLeftSemantics(null);
+    setRightSemantics(null);
+    setPolicyActive(null);
+
     setLoading(true);
     try {
       const [left, right] = await Promise.all([fetchArtifact(leftId), fetchArtifact(rightId)]);
@@ -308,31 +333,9 @@ export default function ExplainPage() {
         fetchPolicyActive(profileId),
       ]);
 
-      if (leftDiag.status === "fulfilled") {
-        setLeftSemantics(leftDiag.value);
-        setLeftSemanticsError(null);
-      } else {
-        setLeftSemantics(null);
-        setLeftSemanticsError(leftDiag.reason instanceof Error ? leftDiag.reason.message : String(leftDiag.reason));
-      }
-
-      if (rightDiag.status === "fulfilled") {
-        setRightSemantics(rightDiag.value);
-        setRightSemanticsError(null);
-      } else {
-        setRightSemantics(null);
-        setRightSemanticsError(
-          rightDiag.reason instanceof Error ? rightDiag.reason.message : String(rightDiag.reason),
-        );
-      }
-
-      if (policy.status === "fulfilled") {
-        setPolicyActive(policy.value);
-        setPolicyError(null);
-      } else {
-        setPolicyActive(null);
-        setPolicyError(policy.reason instanceof Error ? policy.reason.message : String(policy.reason));
-      }
+      applySettledResult(leftDiag, setLeftSemantics, setLeftSemanticsError);
+      applySettledResult(rightDiag, setRightSemantics, setRightSemanticsError);
+      applySettledResult(policy, setPolicyActive, setPolicyError);
     } catch (exc) {
       setPacket(null);
       setLeftSemantics(null);
