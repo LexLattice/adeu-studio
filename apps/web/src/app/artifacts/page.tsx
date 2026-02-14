@@ -68,6 +68,9 @@ export default function ArtifactsPage() {
           <Link href="/" className="muted">
             ADEU Studio
           </Link>
+          <Link href="/explain" className="muted">
+            Explain
+          </Link>
           <Link href="/concepts" className="muted">
             Concepts
           </Link>

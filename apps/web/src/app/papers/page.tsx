@@ -432,6 +432,9 @@ export default function PapersPage() {
           <Link href="/" className="muted" style={{ marginLeft: "auto" }}>
             ADEU Studio
           </Link>
+          <Link href="/explain" className="muted">
+            Explain
+          </Link>
           <Link href="/concepts" className="muted">
             Concepts
           </Link>

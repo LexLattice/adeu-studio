@@ -515,6 +515,9 @@ export default function HomePage() {
           <Link href="/artifacts" className="muted" style={{ marginLeft: "auto" }}>
             Artifacts
           </Link>
+          <Link href="/explain" className="muted">
+            Explain
+          </Link>
           <Link href="/concepts" className="muted">
             Concepts
           </Link>
