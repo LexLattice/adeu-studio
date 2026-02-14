@@ -71,6 +71,19 @@ class ProofArtifactRow:
 
 
 @dataclass(frozen=True)
+class ExplainArtifactRow:
+    explain_id: str
+    created_at: str
+    client_request_id: str
+    request_payload_hash: str
+    explain_kind: str
+    explain_hash: str
+    packet_json: dict[str, Any]
+    parent_stream_id: str
+    parent_seq: int
+
+
+@dataclass(frozen=True)
 class ConceptArtifactRow:
     artifact_id: str
     created_at: str
@@ -340,6 +353,39 @@ def _ensure_proof_indexes(con: sqlite3.Connection) -> None:
     )
 
 
+def _ensure_explain_artifact_schema(con: sqlite3.Connection) -> None:
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS explain_artifacts (
+          explain_id TEXT PRIMARY KEY,
+          created_at TEXT NOT NULL,
+          client_request_id TEXT NOT NULL UNIQUE,
+          request_payload_hash TEXT NOT NULL,
+          explain_kind TEXT NOT NULL,
+          explain_hash TEXT NOT NULL,
+          packet_json TEXT NOT NULL,
+          parent_stream_id TEXT NOT NULL,
+          parent_seq INTEGER NOT NULL
+        )
+        """
+    )
+
+
+def _ensure_explain_artifact_indexes(con: sqlite3.Connection) -> None:
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_explain_artifacts_created_at "
+        "ON explain_artifacts(created_at)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_explain_artifacts_explain_hash "
+        "ON explain_artifacts(explain_hash)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_explain_artifacts_parent_stream "
+        "ON explain_artifacts(parent_stream_id, parent_seq)"
+    )
+
+
 def _ensure_concept_artifact_schema(con: sqlite3.Connection) -> None:
     con.execute(
         """
@@ -420,6 +466,8 @@ def _ensure_schema(con: sqlite3.Connection) -> None:
     _ensure_validator_indexes(con)
     _ensure_proof_schema(con)
     _ensure_proof_indexes(con)
+    _ensure_explain_artifact_schema(con)
+    _ensure_explain_artifact_indexes(con)
 
 
 def _normalize_datetime_filter(value: str) -> str:
@@ -750,6 +798,137 @@ def create_proof_artifact(
     )
 
 
+def create_explain_artifact(
+    *,
+    client_request_id: str,
+    request_payload_hash: str,
+    explain_kind: str,
+    explain_hash: str,
+    packet_json: dict[str, Any],
+    parent_stream_id: str,
+    parent_seq: int,
+    explain_id: str | None = None,
+    db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
+) -> ExplainArtifactRow:
+    resolved_db_path = _resolve_db_path(db_path)
+    explain_id = explain_id or uuid.uuid4().hex
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+
+    def _insert(con: sqlite3.Connection) -> None:
+        con.execute(
+            """
+            INSERT INTO explain_artifacts (
+              explain_id,
+              created_at,
+              client_request_id,
+              request_payload_hash,
+              explain_kind,
+              explain_hash,
+              packet_json,
+              parent_stream_id,
+              parent_seq
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                explain_id,
+                created_at,
+                client_request_id,
+                request_payload_hash,
+                explain_kind,
+                explain_hash,
+                json.dumps(packet_json, sort_keys=True),
+                parent_stream_id,
+                int(parent_seq),
+            ),
+        )
+
+    if connection is not None:
+        _insert(connection)
+    else:
+        with sqlite3.connect(resolved_db_path) as con:
+            con.execute("PRAGMA foreign_keys=ON")
+            _ensure_schema(con)
+            _insert(con)
+
+    return ExplainArtifactRow(
+        explain_id=explain_id,
+        created_at=created_at,
+        client_request_id=client_request_id,
+        request_payload_hash=request_payload_hash,
+        explain_kind=explain_kind,
+        explain_hash=explain_hash,
+        packet_json=packet_json,
+        parent_stream_id=parent_stream_id,
+        parent_seq=int(parent_seq),
+    )
+
+
+def get_explain_artifact_by_client_request_id(
+    *,
+    client_request_id: str,
+    db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
+) -> ExplainArtifactRow | None:
+    if connection is not None:
+        connection.row_factory = sqlite3.Row
+        row = connection.execute(
+            """
+            SELECT explain_id, created_at, client_request_id, request_payload_hash,
+                   explain_kind, explain_hash, packet_json, parent_stream_id, parent_seq
+            FROM explain_artifacts
+            WHERE client_request_id = ?
+            """,
+            (client_request_id,),
+        ).fetchone()
+        return _explain_artifact_from_row(row) if row is not None else None
+
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        row = con.execute(
+            """
+            SELECT explain_id, created_at, client_request_id, request_payload_hash,
+                   explain_kind, explain_hash, packet_json, parent_stream_id, parent_seq
+            FROM explain_artifacts
+            WHERE client_request_id = ?
+            """,
+            (client_request_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return _explain_artifact_from_row(row)
+
+
+def get_explain_artifact(
+    *,
+    explain_id: str,
+    db_path: Path | None = None,
+) -> ExplainArtifactRow | None:
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        row = con.execute(
+            """
+            SELECT explain_id, created_at, client_request_id, request_payload_hash,
+                   explain_kind, explain_hash, packet_json, parent_stream_id, parent_seq
+            FROM explain_artifacts
+            WHERE explain_id = ?
+            """,
+            (explain_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return _explain_artifact_from_row(row)
+
+
 def list_validator_runs(
     *,
     artifact_id: str,
@@ -942,6 +1121,20 @@ def _proof_artifact_from_row(row: sqlite3.Row) -> ProofArtifactRow:
         proof_hash=row["proof_hash"],
         inputs_json=json.loads(row["inputs_json"]),
         details_json=json.loads(row["details_json"]),
+    )
+
+
+def _explain_artifact_from_row(row: sqlite3.Row) -> ExplainArtifactRow:
+    return ExplainArtifactRow(
+        explain_id=row["explain_id"],
+        created_at=row["created_at"],
+        client_request_id=row["client_request_id"],
+        request_payload_hash=row["request_payload_hash"],
+        explain_kind=row["explain_kind"],
+        explain_hash=row["explain_hash"],
+        packet_json=json.loads(row["packet_json"]),
+        parent_stream_id=row["parent_stream_id"],
+        parent_seq=int(row["parent_seq"]),
     )
 
 

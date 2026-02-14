@@ -1,4 +1,18 @@
 from .diffing import build_diff_report, build_flip_explanation
+from .explain_diff import (
+    EXPLAIN_BUILDER_VERSION,
+    EXPLAIN_DIFF_SCHEMA,
+    EXPLAIN_HASH_EXCLUDED_FIELD_LIST,
+    ExplainDiffError,
+    build_explain_diff_packet,
+    explain_diff_hash,
+    inline_source_ref,
+    normalize_diff_report_projection,
+    normalize_explain_ref_list,
+    strip_nonsemantic_explain_fields,
+    validate_explain_diff_packet,
+    validate_explain_ref,
+)
 from .models import (
     AtomRef,
     CausalSlice,
@@ -44,7 +58,19 @@ __all__ = [
     "ValidatorRunInput",
     "ValidatorRunRef",
     "build_diff_report",
+    "build_explain_diff_packet",
     "build_flip_explanation",
+    "EXPLAIN_BUILDER_VERSION",
+    "EXPLAIN_DIFF_SCHEMA",
+    "EXPLAIN_HASH_EXCLUDED_FIELD_LIST",
+    "ExplainDiffError",
+    "explain_diff_hash",
+    "inline_source_ref",
+    "normalize_diff_report_projection",
+    "normalize_explain_ref_list",
+    "strip_nonsemantic_explain_fields",
+    "validate_explain_diff_packet",
+    "validate_explain_ref",
 ]
 
 __version__ = "0.0.0"

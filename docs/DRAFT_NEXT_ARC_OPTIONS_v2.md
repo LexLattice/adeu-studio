@@ -2,9 +2,10 @@
 
 This document is the single working continuation-planning draft for the current stage after:
 
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS6.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS6.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS7.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS7.md`
 - `docs/SEMANTICS_v3.md`
+- `docs/LOCKED_INSTRUCTION_KERNEL_v0.md`
 
 Status: draft only (not frozen).  
 Goal: provide clear high-level directions for future arcs and a clean recommended order.
@@ -16,7 +17,7 @@ The consolidated predecessor drafts were removed after merge into this document 
 
 For this stage, planning should use this file only.
 
-## Baseline Snapshot (Post vNext+6)
+## Baseline Snapshot (Post vNext+7)
 
 Current baseline includes:
 
@@ -31,13 +32,22 @@ Current baseline includes:
   - deterministic witness reconstruction
   - `semantics_diagnostics@1`
   - deterministic stop-gate metrics on additive `stop_gate_metrics@1`
+- Governance/trust-lane completion thin slice complete (`vNext+7`):
+  - instruction-kernel policy thin slice + deterministic lemma-pack compilation boundary
+  - `policy_lineage@1` schema/materialization + deterministic lint/conformance codes/events
+  - `proof_evidence@1` schema/materialization + deterministic proof lifecycle codes/events
+  - additive vNext+7 stop-gate metrics on `stop_gate_metrics@1`:
+    - `policy_lint_determinism_pct`
+    - `proof_replay_determinism_pct`
+    - `policy_proof_packet_hash_stability_pct`
+  - frozen vNext+7 thresholds passed (`all_passed = true`)
 - Cross-domain conformance tooling exists and is CI-integrated:
   - `apps/api/scripts/build_domain_conformance.py`
   - `apps/api/src/adeu_api/urm_domain_conformance.py`
 - Explain/diff surfaces already exist in API today:
   - `/diff`, `/concepts/diff`, `/puzzles/diff`, `/explain_flip`
 
-Net: governance, runtime orchestration, and semantics evidence are operationally hardened; next arcs should focus on strategic depth and product leverage.
+Net: governance, runtime orchestration, semantics evidence, and proof trust-lane thin-slice hardening are operationally in place; next arcs should focus on explainability productization, scale hardening, semantic depth, and portability.
 
 ## Repo-Grounded Clarifications
 
@@ -47,8 +57,8 @@ Net: governance, runtime orchestration, and semantics evidence are operationally
    - Core endpoints exist; the gap is productization, canonical contracts, and UX.
 3. Conformance is not manual-only.
    - Deterministic domain conformance build/test path already exists in CI.
-4. Proof lane is partially activated in plumbing/tests.
-   - Trust label promotion paths exist; missing piece is a locked proof-operational arc with explicit artifacts/metrics.
+4. Proof lane thin slice is operationalized.
+   - `proof_evidence@1`, proof lifecycle code/event locks, and stop-gate proof determinism metrics are in place from `vNext+7`; remaining work is coverage/latency/toolchain broadening, not first-lane activation.
 5. Runtime maintainability pressure is real.
    - `packages/urm_runtime/src/urm_runtime/copilot.py` remains large; scale arcs should include decomposition slices.
 
@@ -396,7 +406,7 @@ Re-validate platform portability under the hardened governance/runtime/semantics
 
 ## Recommended Arc Order (Clean Sequence)
 
-1. `vNext+7`: Path 1 (thin slice) + Path 2 (thin slice)
+1. `vNext+7`: Path 1 (thin slice) + Path 2 (thin slice) `completed`
 2. `vNext+8`: Path 3 (thin slice, API/CLI first, then minimal UI)
 3. `vNext+9`: Path 4 (controlled scale/recovery)
 4. `vNext+10`: Path 5 (semantic depth v3.1)
@@ -408,25 +418,26 @@ Why this order:
 
 ## Proposed Freeze Candidate (Next Step)
 
-Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS7.md` with:
+Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS8.md` with:
 
-1. Path 1 thin slice:
-   - deny/require lemma minimal set + policy conformance/lint gate
-2. Path 2 thin slice:
-   - one scoped proof activation flow + `proof_evidence@1`
-3. Explicit stop gate for selecting `vNext+8` emphasis:
-   - productization-heavy (Path 3) vs runtime-scale-heavy (Path 4)
+1. Path 3 thin slice (`3a` API/CLI contract-first):
+   - freeze `explain_diff@1` schema + canonical hashing/order on existing explain endpoints
+   - API/CLI parity fixtures with one frozen canonical golden fixture
+2. Path 3 thin slice (`3b` minimal read-only UI):
+   - semantic diff view + conflict witness drilldown + policy/semantics evidence linkage
+3. Explicit stop gate for selecting `vNext+9` readiness focus:
+   - runtime-scale-heavy (Path 4 first) vs additional explain hardening carryover
 
 Suggested measured outcomes:
 
-- policy conformance/lint determinism = `100%` on locked fixtures.
-- scoped proof replay determinism = `100%` on locked fixtures.
-- policy/proof packet hash stability = `100%`:
+- explain replay determinism = `100%` on locked fixtures.
+- explain API/CLI parity = `100%` on locked fixtures.
+- explain packet hash stability = `100%`:
   - recomputed canonical hash must match embedded hash on all locked fixtures.
-- `vNext+7 -> vNext+8` stop-gate thresholds are frozen:
-  - `policy_lint_determinism_pct == 100.0`
-  - `proof_replay_determinism_pct == 100.0`
-  - `policy_proof_packet_hash_stability_pct == 100.0`
-  - if any threshold fails: continue Path 1/2 hardening; do not start Path 3/4.
+- `vNext+8 -> vNext+9` stop-gate thresholds should be frozen on additive `stop_gate_metrics@1` keys:
+  - `explain_diff_determinism_pct == 100.0`
+  - `explain_api_cli_parity_pct == 100.0`
+  - `explain_hash_stability_pct == 100.0`
+  - if any threshold fails: continue Path 3 hardening; do not start Path 4.
 - no solver-semantics delta and no trust-lane regression.
-- all existing `vNext+6` determinism metrics remain at threshold.
+- all existing `vNext+6` and `vNext+7` determinism metrics remain at threshold.
