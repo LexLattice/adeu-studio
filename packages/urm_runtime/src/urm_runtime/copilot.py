@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Any, Literal
 
 from .app_server import CodexAppServerHost
+from .capability_policy import load_capability_policy
 from .config import URMRuntimeConfig
+from .connector_exposure_mapping import derive_connector_exposure
 from .errors import (
     ApprovalError,
     ApprovalExpiredError,
@@ -95,6 +97,7 @@ COPILOT_STEER_ENDPOINT = "urm.copilot.steer"
 AGENT_SPAWN_ENDPOINT = "urm.agent.spawn"
 AGENT_CANCEL_ENDPOINT = "urm.agent.cancel"
 CONNECTOR_SNAPSHOT_CREATE_ENDPOINT = "urm.connectors.snapshot.create"
+CONNECTOR_SNAPSHOT_GET_ENDPOINT = "urm.connectors.snapshot.get"
 HEARTBEAT_SECS = 10
 COPILOT_BUFFER_MAX = 20_000
 MAX_STEER_PER_TURN = 5
@@ -1816,6 +1819,58 @@ class URMCopilotManager:
     def _capability_snapshot_id(self) -> str:
         return self._probe.probe_id
 
+    def _copilot_role_capabilities(self) -> frozenset[str]:
+        try:
+            capability_policy = load_capability_policy()
+        except RuntimeError as exc:
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="capability policy unavailable",
+                context={"reason": str(exc)},
+            ) from exc
+        role_capabilities = capability_policy.role_capabilities.get("copilot")
+        if role_capabilities is None:
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="copilot role is not configured in capability policy",
+                context={"role": "copilot"},
+            )
+        return role_capabilities
+
+    def _derive_connector_views(
+        self,
+        *,
+        connectors: list[dict[str, Any]],
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        role_capabilities = self._copilot_role_capabilities()
+        return derive_connector_exposure(
+            connectors=connectors,
+            role_capabilities=role_capabilities,
+        )
+
+    def _record_connector_failure_event(
+        self,
+        *,
+        session_id: str,
+        endpoint: str,
+        operation: Literal["create", "get"],
+        error_code: str,
+        reason: str,
+        context: dict[str, Any],
+    ) -> None:
+        self._record_parent_or_audit_event(
+            parent_session_id=session_id,
+            event_kind="TOOL_CALL_FAIL",
+            payload={
+                "tool_name": endpoint,
+                "operation": operation,
+                "error_code": error_code,
+                "reason": reason,
+                **context,
+            },
+            endpoint=endpoint,
+        )
+
     def create_connector_snapshot(
         self,
         request: ConnectorSnapshotCreateRequest,
@@ -1824,6 +1879,14 @@ class URMCopilotManager:
         with self._lock:
             runtime = self._sessions.get(request.session_id)
             if runtime is None:
+                self._record_connector_failure_event(
+                    session_id=request.session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_CREATE_ENDPOINT,
+                    operation="create",
+                    error_code="URM_NOT_FOUND",
+                    reason="copilot session not found",
+                    context={"session_id": request.session_id},
+                )
                 raise URMError(
                     code="URM_NOT_FOUND",
                     message="copilot session not found",
@@ -1831,11 +1894,44 @@ class URMCopilotManager:
                     context={"session_id": request.session_id},
                 )
             self._enforce_session_duration_unlocked(runtime=runtime)
+            if request.execution_mode == "replay":
+                self._record_connector_failure_event(
+                    session_id=request.session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_CREATE_ENDPOINT,
+                    operation="create",
+                    error_code="URM_CONNECTOR_REPLAY_LIVE_READ_BLOCKED",
+                    reason="connector live discovery is blocked in replay mode",
+                    context={
+                        "session_id": request.session_id,
+                        "execution_mode": request.execution_mode,
+                    },
+                )
+                raise URMError(
+                    code="URM_CONNECTOR_REPLAY_LIVE_READ_BLOCKED",
+                    message="connector live discovery is blocked in replay mode",
+                    context={
+                        "session_id": request.session_id,
+                        "execution_mode": request.execution_mode,
+                    },
+                )
             capability_snapshot_id = self._capability_snapshot_id()
             if (
                 request.requested_capability_snapshot_id is not None
                 and request.requested_capability_snapshot_id != capability_snapshot_id
             ):
+                self._record_connector_failure_event(
+                    session_id=request.session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_CREATE_ENDPOINT,
+                    operation="create",
+                    error_code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    reason="requested capability snapshot id does not match active snapshot",
+                    context={
+                        "requested_capability_snapshot_id": (
+                            request.requested_capability_snapshot_id
+                        ),
+                        "capability_snapshot_id": capability_snapshot_id,
+                    },
+                )
                 raise URMError(
                     code="URM_CONNECTOR_SNAPSHOT_STALE",
                     message="requested capability snapshot id does not match active snapshot",
@@ -1851,6 +1947,16 @@ class URMCopilotManager:
             if min_acceptable_ts is not None and min_acceptable_ts.tzinfo is None:
                 min_acceptable_ts = min_acceptable_ts.replace(tzinfo=timezone.utc)
             if min_acceptable_ts is not None and now < min_acceptable_ts:
+                self._record_connector_failure_event(
+                    session_id=request.session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_CREATE_ENDPOINT,
+                    operation="create",
+                    error_code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    reason="snapshot creation time precedes requested minimum timestamp",
+                    context={
+                        "min_acceptable_ts": min_acceptable_ts.isoformat(),
+                    },
+                )
                 raise URMError(
                     code="URM_CONNECTOR_SNAPSHOT_STALE",
                     message="snapshot creation time precedes requested minimum timestamp",
@@ -1891,6 +1997,14 @@ class URMCopilotManager:
                     timeout_secs=10.0,
                 )
             except URMError as exc:
+                self._record_connector_failure_event(
+                    session_id=request.session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_CREATE_ENDPOINT,
+                    operation="create",
+                    error_code="URM_CAPABILITY_MISSING",
+                    reason="connector discovery capability is unavailable",
+                    context={"reason": exc.detail.message},
+                )
                 raise URMError(
                     code="URM_CAPABILITY_MISSING",
                     message="connector discovery capability is unavailable",
@@ -1898,6 +2012,9 @@ class URMCopilotManager:
                 ) from exc
 
             connectors = self._extract_app_list(response=app_list_response)
+            exposed_connectors, connector_exposure = self._derive_connector_views(
+                connectors=connectors
+            )
             connector_snapshot_hash = sha256_canonical_json(connectors)
             artifact_path = self._connector_snapshot_path(snapshot_id)
             artifact_rel_path = self._relative_path(artifact_path)
@@ -1942,6 +2059,8 @@ class URMCopilotManager:
                 connector_snapshot_hash=connector_snapshot_hash,
                 created_at=datetime.fromisoformat(created_at),
                 connectors=connectors,
+                exposed_connectors=exposed_connectors,
+                connector_exposure=connector_exposure,
                 idempotent_replay=False,
             )
             with transaction(db_path=self.config.db_path) as con:
@@ -1959,6 +2078,7 @@ class URMCopilotManager:
         snapshot_id: str,
         session_id: str,
         provider: str,
+        execution_mode: Literal["live", "replay"] = "live",
         requested_capability_snapshot_id: str | None = None,
         min_acceptable_ts: datetime | None = None,
     ) -> ConnectorSnapshotResponse:
@@ -1966,6 +2086,14 @@ class URMCopilotManager:
             with transaction(db_path=self.config.db_path) as con:
                 row = get_connector_snapshot(con=con, snapshot_id=snapshot_id)
             if row is None:
+                self._record_connector_failure_event(
+                    session_id=session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_GET_ENDPOINT,
+                    operation="get",
+                    error_code="URM_CONNECTOR_SNAPSHOT_NOT_FOUND",
+                    reason="connector snapshot not found",
+                    context={"snapshot_id": snapshot_id, "execution_mode": execution_mode},
+                )
                 raise URMError(
                     code="URM_CONNECTOR_SNAPSHOT_NOT_FOUND",
                     message="connector snapshot not found",
@@ -1973,12 +2101,32 @@ class URMCopilotManager:
                     context={"snapshot_id": snapshot_id},
                 )
             if row.session_id != session_id:
+                self._record_connector_failure_event(
+                    session_id=session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_GET_ENDPOINT,
+                    operation="get",
+                    error_code="URM_POLICY_DENIED",
+                    reason="session is not authorized for this connector snapshot",
+                    context={"snapshot_id": snapshot_id, "session_id": session_id},
+                )
                 raise URMError(
                     code="URM_POLICY_DENIED",
                     message="session is not authorized for this connector snapshot",
                     context={"snapshot_id": snapshot_id, "session_id": session_id},
                 )
-            if row.provider != provider:
+            if execution_mode == "live" and row.provider != provider:
+                self._record_connector_failure_event(
+                    session_id=session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_GET_ENDPOINT,
+                    operation="get",
+                    error_code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    reason="connector snapshot provider mismatch",
+                    context={
+                        "snapshot_id": snapshot_id,
+                        "snapshot_provider": row.provider,
+                        "requested_provider": provider,
+                    },
+                )
                 raise URMError(
                     code="URM_CONNECTOR_SNAPSHOT_STALE",
                     message="connector snapshot provider mismatch",
@@ -1989,9 +2137,22 @@ class URMCopilotManager:
                     },
                 )
             if (
-                requested_capability_snapshot_id is not None
+                execution_mode == "live"
+                and requested_capability_snapshot_id is not None
                 and requested_capability_snapshot_id != row.capability_snapshot_id
             ):
+                self._record_connector_failure_event(
+                    session_id=session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_GET_ENDPOINT,
+                    operation="get",
+                    error_code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    reason="connector snapshot capability snapshot mismatch",
+                    context={
+                        "snapshot_id": snapshot_id,
+                        "capability_snapshot_id": row.capability_snapshot_id,
+                        "requested_capability_snapshot_id": requested_capability_snapshot_id,
+                    },
+                )
                 raise URMError(
                     code="URM_CONNECTOR_SNAPSHOT_STALE",
                     message="connector snapshot capability snapshot mismatch",
@@ -2007,7 +2168,23 @@ class URMCopilotManager:
             normalized_min_ts = min_acceptable_ts
             if normalized_min_ts is not None and normalized_min_ts.tzinfo is None:
                 normalized_min_ts = normalized_min_ts.replace(tzinfo=timezone.utc)
-            if normalized_min_ts is not None and created_at < normalized_min_ts:
+            if (
+                execution_mode == "live"
+                and normalized_min_ts is not None
+                and created_at < normalized_min_ts
+            ):
+                self._record_connector_failure_event(
+                    session_id=session_id,
+                    endpoint=CONNECTOR_SNAPSHOT_GET_ENDPOINT,
+                    operation="get",
+                    error_code="URM_CONNECTOR_SNAPSHOT_STALE",
+                    reason="connector snapshot is older than min_acceptable_ts",
+                    context={
+                        "snapshot_id": snapshot_id,
+                        "created_at": created_at.isoformat(),
+                        "min_acceptable_ts": normalized_min_ts.isoformat(),
+                    },
+                )
                 raise URMError(
                     code="URM_CONNECTOR_SNAPSHOT_STALE",
                     message="connector snapshot is older than min_acceptable_ts",
@@ -2017,6 +2194,9 @@ class URMCopilotManager:
                         "min_acceptable_ts": normalized_min_ts.isoformat(),
                     },
                 )
+            exposed_connectors, connector_exposure = self._derive_connector_views(
+                connectors=row.connectors
+            )
             return ConnectorSnapshotResponse(
                 snapshot_id=row.snapshot_id,
                 session_id=row.session_id,
@@ -2025,6 +2205,8 @@ class URMCopilotManager:
                 connector_snapshot_hash=row.connector_snapshot_hash,
                 created_at=created_at,
                 connectors=row.connectors,
+                exposed_connectors=exposed_connectors,
+                connector_exposure=connector_exposure,
                 idempotent_replay=False,
             )
 

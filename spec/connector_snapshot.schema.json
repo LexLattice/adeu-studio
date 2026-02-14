@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/connector_snapshot.schema.json",
+  "title": "connector_snapshot@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "snapshot_id",
+    "session_id",
+    "provider",
+    "capability_snapshot_id",
+    "connector_snapshot_hash",
+    "created_at",
+    "connectors"
+  ],
+  "properties": {
+    "schema": {
+      "const": "connector_snapshot@1"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capability_snapshot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "connector_snapshot_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "connectors": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

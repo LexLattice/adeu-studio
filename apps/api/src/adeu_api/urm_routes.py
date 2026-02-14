@@ -470,6 +470,7 @@ def urm_connector_snapshot_create_endpoint(
             writes_allowed=session_writes_allowed,
             approval_provided=False,
             action_payload={
+                "execution_mode": request.execution_mode,
                 "requested_capability_snapshot_id": request.requested_capability_snapshot_id,
                 "min_acceptable_ts": (
                     request.min_acceptable_ts.isoformat()
@@ -491,6 +492,7 @@ def urm_connector_snapshot_get_endpoint(
     *,
     session_id: str,
     provider: str = "codex",
+    execution_mode: Literal["live", "replay"] = "live",
     requested_capability_snapshot_id: str | None = None,
     min_acceptable_ts: datetime | None = None,
 ) -> ConnectorSnapshotResponse:
@@ -504,7 +506,9 @@ def urm_connector_snapshot_get_endpoint(
             writes_allowed=session_writes_allowed,
             approval_provided=False,
             action_payload={
+                "connector_snapshot_id": snapshot_id,
                 "snapshot_id": snapshot_id,
+                "execution_mode": execution_mode,
                 "requested_capability_snapshot_id": requested_capability_snapshot_id,
                 "min_acceptable_ts": (
                     min_acceptable_ts.isoformat() if min_acceptable_ts is not None else None
@@ -517,6 +521,7 @@ def urm_connector_snapshot_get_endpoint(
             snapshot_id=snapshot_id,
             session_id=session_id,
             provider=provider,
+            execution_mode=execution_mode,
             requested_capability_snapshot_id=requested_capability_snapshot_id,
             min_acceptable_ts=min_acceptable_ts,
         )

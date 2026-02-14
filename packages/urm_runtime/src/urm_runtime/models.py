@@ -108,6 +108,9 @@ class WorkerCancelRequest(BaseModel):
     provider: Literal["codex"] = "codex"
 
 
+ExecutionMode = Literal["live", "replay"]
+
+
 class CopilotSessionStartRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -342,11 +345,22 @@ class ConnectorSnapshotCreateRequest(BaseModel):
     provider: Literal["codex"] = "codex"
     session_id: str = Field(min_length=1)
     client_request_id: str = Field(min_length=1)
+    execution_mode: ExecutionMode = "live"
     requested_capability_snapshot_id: str | None = Field(default=None, min_length=1)
     min_acceptable_ts: datetime | None = None
 
     def idempotency_payload(self) -> dict[str, Any]:
         return self.model_dump(mode="json", exclude={"client_request_id"})
+
+
+class ConnectorExposureDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    connector_id: str = Field(min_length=1)
+    exposed: bool
+    deny_reason_code: str | None = None
+    matched_rule_id: str | None = None
+    missing_capabilities: list[str] = Field(default_factory=list)
 
 
 class ConnectorSnapshotResponse(BaseModel):
@@ -359,6 +373,8 @@ class ConnectorSnapshotResponse(BaseModel):
     connector_snapshot_hash: str
     created_at: datetime
     connectors: list[dict[str, Any]] = Field(default_factory=list)
+    exposed_connectors: list[dict[str, Any]] = Field(default_factory=list)
+    connector_exposure: list[ConnectorExposureDecision] = Field(default_factory=list)
     idempotent_replay: bool = False
 
 

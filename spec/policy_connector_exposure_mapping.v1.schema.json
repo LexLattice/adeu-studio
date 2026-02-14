@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/policy_connector_exposure_mapping.v1.schema.json",
+  "title": "policy.connector_exposure_mapping.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "default_deny_reason_code",
+    "rules"
+  ],
+  "properties": {
+    "schema": {
+      "const": "policy.connector_exposure_mapping.v1"
+    },
+    "default_deny_reason_code": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule_id",
+          "priority",
+          "match",
+          "expose",
+          "required_capabilities",
+          "deny_reason_code"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "match": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "properties": {
+              "connector_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "connector_name": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "expose": {
+            "type": "boolean"
+          },
+          "required_capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "deny_reason_code": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
