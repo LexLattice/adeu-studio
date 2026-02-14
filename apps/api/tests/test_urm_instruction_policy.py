@@ -35,6 +35,29 @@ def _make_rule(
     }
 
 
+def _lemma_pack(
+    *,
+    pack_id: str,
+    family: str,
+    local_id: str,
+    action_kind: str,
+    pack_version: int = 1,
+    local_priority: int = 0,
+) -> dict[str, object]:
+    return {
+        "pack_id": pack_id,
+        "pack_version": pack_version,
+        "family": family,
+        "items": [
+            {
+                "local_id": local_id,
+                "action_kind": action_kind,
+                "local_priority": local_priority,
+            }
+        ],
+    }
+
+
 def _context(**overrides: object) -> PolicyContext:
     payload: dict[str, object] = {
         "role": "copilot",
@@ -90,6 +113,117 @@ def test_policy_hash_is_stable_under_rule_reordering_and_message_changes() -> No
         strict=True,
     )
     assert compute_policy_hash(policy_one) == compute_policy_hash(policy_two)
+
+
+def test_lemma_packs_compile_deterministically_and_use_frozen_identity_conventions() -> None:
+    base_doc = {
+        "schema": "odeu.instructions.v1",
+        "rules": [
+            _make_rule(
+                rule_id="allow_default",
+                priority=900,
+                kind="allow",
+                effect="allow_action",
+                when={"atom": "mode_is", "args": ["strict"]},
+                code="ALLOW_DEFAULT",
+            )
+        ],
+        "lemma_packs": [
+            _lemma_pack(
+                pack_id="guardrails",
+                family="deny_action_kind",
+                local_id="block_delete",
+                action_kind="adeu.delete_state",
+                local_priority=2,
+            ),
+            _lemma_pack(
+                pack_id="approvals",
+                family="require_approval_action_kind",
+                local_id="patch_needs_approval",
+                action_kind="adeu.apply_patch",
+                local_priority=1,
+            ),
+        ],
+    }
+    reordered_doc = {
+        "schema": "odeu.instructions.v1",
+        "rules": list(base_doc["rules"]),
+        "lemma_packs": list(reversed(list(base_doc["lemma_packs"]))),
+    }
+
+    policy_one = validate_instruction_policy_document(base_doc, strict=True)
+    policy_two = validate_instruction_policy_document(reordered_doc, strict=True)
+    assert compute_policy_hash(policy_one) == compute_policy_hash(policy_two)
+    assert any(
+        rule.rule_id == "lemma:guardrails@1:deny_action_kind:block_delete"
+        and rule.code == "LEMMA_GUARDRAILS_DENY_ACTION_KIND_BLOCK_DELETE_DENY_ACTION"
+        and rule.priority == 102
+        for rule in policy_one.rules
+    )
+    assert any(
+        rule.rule_id == "lemma:approvals@1:require_approval_action_kind:patch_needs_approval"
+        and rule.code
+        == "LEMMA_APPROVALS_REQUIRE_APPROVAL_ACTION_KIND_PATCH_NEEDS_APPROVAL_REQUIRE_APPROVAL"
+        and rule.priority == 201
+        for rule in policy_one.rules
+    )
+
+
+def test_validate_instruction_policy_document_rejects_lemma_family_count_mismatch() -> None:
+    with pytest.raises(URMError) as exc_info:
+        validate_instruction_policy_document(
+            {
+                "schema": "odeu.instructions.v1",
+                "rules": [],
+                "lemma_packs": [
+                    _lemma_pack(
+                        pack_id="guardrails",
+                        family="deny_action_kind",
+                        local_id="block_delete",
+                        action_kind="adeu.delete_state",
+                    )
+                ],
+            },
+            strict=True,
+        )
+    assert exc_info.value.detail.code == "URM_POLICY_INVALID_SCHEMA"
+    assert "lemma_packs must include exactly one pack" in exc_info.value.detail.message
+
+
+def test_validate_instruction_policy_document_rejects_duplicate_compiled_rule_ids() -> None:
+    with pytest.raises(URMError) as exc_info:
+        validate_instruction_policy_document(
+            {
+                "schema": "odeu.instructions.v1",
+                "rules": [
+                    _make_rule(
+                        rule_id="lemma:guardrails@1:deny_action_kind:block_delete",
+                        priority=100,
+                        kind="deny",
+                        effect="deny_action",
+                        when={"atom": "action_kind_is", "args": ["adeu.delete_state"]},
+                        code="DENY_DUPLICATE",
+                    )
+                ],
+                "lemma_packs": [
+                    _lemma_pack(
+                        pack_id="guardrails",
+                        family="deny_action_kind",
+                        local_id="block_delete",
+                        action_kind="adeu.delete_state",
+                    ),
+                    _lemma_pack(
+                        pack_id="approvals",
+                        family="require_approval_action_kind",
+                        local_id="patch_needs_approval",
+                        action_kind="adeu.apply_patch",
+                    ),
+                ],
+            },
+            strict=True,
+        )
+    assert exc_info.value.detail.code == "URM_POLICY_INVALID_SCHEMA"
+    assert "duplicate rule_id" in exc_info.value.detail.message
 
 
 def test_rule_driven_deny_takes_precedence_and_uses_rule_code() -> None:

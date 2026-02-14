@@ -12,6 +12,12 @@
     "schema": {
       "const": "odeu.instructions.v1"
     },
+    "lemma_packs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/lemma_pack"
+      }
+    },
     "rules": {
       "type": "array",
       "maxItems": 500,
@@ -21,6 +27,66 @@
     }
   },
   "$defs": {
+    "lemma_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "local_id",
+        "action_kind"
+      ],
+      "properties": {
+        "local_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "action_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "local_priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 99
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "lemma_pack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pack_id",
+        "pack_version",
+        "family",
+        "items"
+      ],
+      "properties": {
+        "pack_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pack_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "family": {
+          "type": "string",
+          "enum": [
+            "deny_action_kind",
+            "require_approval_action_kind"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/lemma_item"
+          }
+        }
+      }
+    },
     "rule_effect": {
       "type": "object",
       "additionalProperties": false,
