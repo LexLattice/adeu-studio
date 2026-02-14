@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 import threading
 import time
@@ -73,6 +74,7 @@ from .storage import (
     get_approval,
     get_connector_snapshot,
     get_copilot_session,
+    get_dispatch_token_for_child,
     lease_dispatch_token,
     list_active_copilot_child_runs,
     mark_running_sessions_terminated,
@@ -94,6 +96,8 @@ from .storage import (
     update_worker_run_status,
     upsert_dispatch_token_queued,
 )
+
+logger = logging.getLogger(__name__)
 
 COPILOT_START_ENDPOINT = "urm.copilot.start"
 COPILOT_SEND_ENDPOINT = "urm.copilot.send"
@@ -231,15 +235,143 @@ class URMCopilotManager:
     def _recover_stale_child_runs(self) -> None:
         if not self._is_child_queue_v2_enabled():
             return
+        recovery_rows: list[
+            tuple[
+                str,
+                int,
+                int,
+                str,
+                Any,
+                dict[str, Any],
+                Any | None,
+            ]
+        ] = []
         with transaction(db_path=self.config.db_path) as con:
             stale_rows = list_active_copilot_child_runs(con=con)
-        if not stale_rows:
-            return
-        for row in stale_rows:
-            metadata = row.result_json if isinstance(row.result_json, dict) else {}
+            if not stale_rows:
+                return
+            for row in stale_rows:
+                metadata = row.result_json if isinstance(row.result_json, dict) else {}
+                token = get_dispatch_token_for_child(con=con, child_id=row.worker_id)
+                parent_session_id = (
+                    token.parent_session_id
+                    if token is not None
+                    else (
+                        metadata.get("parent_session_id")
+                        if isinstance(metadata.get("parent_session_id"), str)
+                        else ""
+                    )
+                )
+                dispatch_seq = (
+                    token.dispatch_seq
+                    if token is not None and token.dispatch_seq is not None
+                    else (
+                        metadata.get("dispatch_seq")
+                        if isinstance(metadata.get("dispatch_seq"), int)
+                        else 2**62
+                    )
+                )
+                queue_seq = (
+                    token.queue_seq
+                    if token is not None
+                    else (
+                        metadata.get("queue_seq")
+                        if isinstance(metadata.get("queue_seq"), int)
+                        else 2**62
+                    )
+                )
+                recovery_rows.append(
+                    (
+                        parent_session_id,
+                        int(dispatch_seq),
+                        int(queue_seq),
+                        row.worker_id,
+                        row,
+                        metadata,
+                        token,
+                    )
+                )
+        recovery_rows.sort(key=lambda item: (item[0], item[1], item[2], item[3]))
+        for _, _, _, _, row, metadata, token in recovery_rows:
             child_stream_id = metadata.get("child_stream_id")
             if not isinstance(child_stream_id, str) or not child_stream_id:
                 child_stream_id = f"child:{row.worker_id}"
+            parent_session_id = (
+                token.parent_session_id
+                if token is not None
+                else (
+                    metadata.get("parent_session_id")
+                    if isinstance(metadata.get("parent_session_id"), str)
+                    else None
+                )
+            )
+            parent_stream_id = (
+                token.parent_stream_id
+                if token is not None
+                else (
+                    metadata.get("parent_stream_id")
+                    if isinstance(metadata.get("parent_stream_id"), str)
+                    else None
+                )
+            )
+            parent_seq = (
+                token.parent_seq
+                if token is not None
+                else (
+                    metadata.get("parent_seq")
+                    if isinstance(metadata.get("parent_seq"), int)
+                    else None
+                )
+            )
+            dispatch_seq = (
+                token.dispatch_seq
+                if token is not None
+                else (
+                    metadata.get("dispatch_seq")
+                    if isinstance(metadata.get("dispatch_seq"), int)
+                    else None
+                )
+            )
+            lease_id = (
+                token.worker_run_id
+                if token is not None
+                else (
+                    metadata.get("lease_id")
+                    if isinstance(metadata.get("lease_id"), str)
+                    else row.worker_id
+                )
+            )
+            phase = (
+                token.phase
+                if token is not None
+                else (
+                    metadata.get("phase")
+                    if isinstance(metadata.get("phase"), str)
+                    else "queued"
+                )
+            )
+            started_observed = token is not None and token.phase in {"started", "terminal"}
+            if started_observed:
+                recovery_code = "URM_CHILD_TERMINATED_ON_RESTART"
+                recovery_reason = "restart_terminated"
+                recovery_message = "child run terminated during API restart"
+            else:
+                recovery_code = "URM_SCHEDULER_LEASE_ORPHANED"
+                recovery_reason = "lease_orphaned"
+                recovery_message = "orphan lease terminated during API restart"
+            detail_payload: dict[str, Any] = {
+                "worker_id": row.worker_id,
+                "status": "failed",
+                "error_code": recovery_code,
+                "code": recovery_code,
+                "reason": recovery_reason,
+                "dispatch_seq": dispatch_seq,
+                "lease_id": lease_id,
+                "parent_stream_id": parent_stream_id,
+                "parent_seq": parent_seq,
+                "child_id": row.worker_id,
+                "phase": phase,
+            }
             raw_events_path = metadata.get("urm_events_path")
             if isinstance(raw_events_path, str):
                 try:
@@ -249,6 +381,7 @@ class URMCopilotManager:
             else:
                 events_path = None
             if events_path is not None:
+                self._repair_trailing_partial_ndjson(path=events_path)
                 writer = EvidenceFileWriter(
                     path=events_path,
                     max_line_bytes=self.config.max_line_bytes,
@@ -261,29 +394,20 @@ class URMCopilotManager:
                     stream_id=child_stream_id,
                     source_component="urm_copilot_manager",
                     context={
-                        "session_id": metadata.get("parent_session_id"),
+                        "session_id": parent_session_id,
                         "run_id": row.worker_id,
                         "role": "copilot",
                         "endpoint": "urm.agent.spawn",
                     },
-                    detail={
-                        "worker_id": row.worker_id,
-                        "status": "failed",
-                        "error_code": "URM_CHILD_TERMINATED_ON_RESTART",
-                    },
+                    detail=detail_payload,
                 )
                 writer.write_json_line(event.model_dump(mode="json", by_alias=True))
                 writer.close()
-            parent_session_id = metadata.get("parent_session_id")
             if isinstance(parent_session_id, str) and parent_session_id:
                 self._record_parent_or_audit_event(
                     parent_session_id=parent_session_id,
                     event_kind="WORKER_FAIL",
-                    payload={
-                        "worker_id": row.worker_id,
-                        "status": "failed",
-                        "error_code": "URM_CHILD_TERMINATED_ON_RESTART",
-                    },
+                    payload=detail_payload,
                     endpoint="urm.agent.spawn",
                 )
             with transaction(db_path=self.config.db_path) as con:
@@ -292,17 +416,36 @@ class URMCopilotManager:
                     worker_id=row.worker_id,
                     status="failed",
                     exit_code=None,
-                    error_code="URM_CHILD_TERMINATED_ON_RESTART",
-                    error_message="child run terminated during API restart",
+                    error_code=recovery_code,
+                    error_message=recovery_message,
                     result_json={
                         **metadata,
                         "status": "failed",
                         "error": {
-                            "code": "URM_CHILD_TERMINATED_ON_RESTART",
-                            "message": "child run terminated during API restart",
+                            "code": recovery_code,
+                            "message": recovery_message,
                         },
+                        "restart_reason": recovery_reason,
+                        "dispatch_seq": dispatch_seq,
+                        "lease_id": lease_id,
+                        "parent_stream_id": parent_stream_id,
+                        "parent_seq": parent_seq,
+                        "phase": phase,
                     },
                 )
+                if token is not None:
+                    try:
+                        set_dispatch_token_phase(
+                            con=con,
+                            child_id=row.worker_id,
+                            phase="terminal",
+                        )
+                    except RuntimeError as exc:
+                        logger.warning(
+                            "failed to mark restart-recovered dispatch token terminal: child_id=%s",
+                            row.worker_id,
+                            exc_info=exc,
+                        )
 
     def _raw_jsonl_path_for_session(self, session_id: str) -> Path:
         path = self.config.evidence_root / "copilot" / session_id / "codex_raw.ndjson"
@@ -613,6 +756,29 @@ class URMCopilotManager:
             return 1
         return last_seq + 1
 
+    def _repair_trailing_partial_ndjson(self, *, path: Path) -> None:
+        if not path.exists():
+            return
+        try:
+            with path.open("rb+") as handle:
+                handle.seek(0, 2)
+                size = handle.tell()
+                if size <= 0:
+                    return
+                handle.seek(-1, 2)
+                if handle.read(1) == b"\n":
+                    return
+                pos = size - 1
+                while pos >= 0:
+                    handle.seek(pos)
+                    if handle.read(1) == b"\n":
+                        handle.truncate(pos + 1)
+                        return
+                    pos -= 1
+                handle.truncate(0)
+        except OSError:
+            return
+
     def _record_parent_or_audit_event(
         self,
         *,
@@ -631,6 +797,7 @@ class URMCopilotManager:
             return
 
         audit_path = self._audit_events_path_for_session(parent_session_id)
+        self._repair_trailing_partial_ndjson(path=audit_path)
         writer = EvidenceFileWriter(
             path=audit_path,
             max_line_bytes=self.config.max_line_bytes,

@@ -62,10 +62,13 @@ from urm_runtime.policy_governance import materialize_policy
 from urm_runtime.storage import (
     get_dispatch_token_for_child,
     get_worker_run,
+    lease_dispatch_token,
     persist_copilot_session_start,
     persist_worker_run_start,
+    set_dispatch_token_phase,
     transaction,
     update_copilot_session_status,
+    upsert_dispatch_token_queued,
 )
 
 
@@ -1733,10 +1736,24 @@ def test_manager_marks_stale_running_child_runs_on_startup(
                 "inherited_policy_hash": "policy-hash-stale-1",
                 "capabilities_allowed": ["urm.agent.spawn"],
                 "queue_seq": 1,
+                "dispatch_seq": 1,
+                "lease_id": child_id,
+                "phase": "started",
+                "parent_seq": 7,
                 "raw_jsonl_path": raw_rel_path,
                 "urm_events_path": events_rel_path,
             },
         )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=7,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+        set_dispatch_token_phase(con=con, child_id=child_id, phase="started")
 
     _get_manager()
 
@@ -1749,12 +1766,121 @@ def test_manager_marks_stale_running_child_runs_on_startup(
     child_events_payload = events_path.read_text(encoding="utf-8", errors="replace")
     assert "WORKER_FAIL" in child_events_payload
     assert "URM_CHILD_TERMINATED_ON_RESTART" in child_events_payload
+    assert '"dispatch_seq":1' in child_events_payload
+    assert '"lease_id":"stale-child-run-1"' in child_events_payload
 
     audit_path = config.evidence_root / "audit" / parent_session_id / "urm_events.ndjson"
     assert audit_path.is_file()
     audit_payload = audit_path.read_text(encoding="utf-8", errors="replace")
     assert "WORKER_FAIL" in audit_payload
     assert "URM_CHILD_TERMINATED_ON_RESTART" in audit_payload
+    assert '"dispatch_seq":1' in audit_payload
+    _reset_manager_for_tests()
+
+
+def test_manager_marks_orphaned_dispatch_tokens_on_startup(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "stale-child-orphan-1"
+    parent_session_id = "stale-parent-orphan-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    # Simulate crash-truncated NDJSON.
+    events_path.write_text("{\"schema\":\"urm-events@1\"", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="running",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-stale-orphan-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "budget_snapshot": {
+                    "budget_version": "budget.v1",
+                    "max_solver_calls": 10,
+                    "max_token_budget": 20_000,
+                    "max_duration_secs": 300,
+                },
+                "inherited_policy_hash": "policy-hash-stale-orphan-1",
+                "capabilities_allowed": ["urm.agent.spawn"],
+                "queue_seq": 1,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=11,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+
+    _get_manager()
+
+    with transaction(db_path=config.db_path) as con:
+        row = get_worker_run(con=con, worker_id=child_id)
+        token = get_dispatch_token_for_child(con=con, child_id=child_id)
+    assert row is not None
+    assert row.status == "failed"
+    assert row.error_code == "URM_SCHEDULER_LEASE_ORPHANED"
+    assert token is not None
+    assert token.phase == "terminal"
+
+    child_records = [
+        json.loads(line)
+        for line in events_path.read_text(encoding="utf-8", errors="replace").splitlines()
+        if line.strip()
+    ]
+    fail_events = [
+        event
+        for event in child_records
+        if event.get("event") == "WORKER_FAIL" and isinstance(event.get("detail"), dict)
+    ]
+    assert fail_events
+    fail_detail = fail_events[-1]["detail"]
+    assert fail_detail.get("error_code") == "URM_SCHEDULER_LEASE_ORPHANED"
+    assert fail_detail.get("reason") == "lease_orphaned"
+    assert fail_detail.get("lease_id") == child_id
+    assert fail_detail.get("dispatch_seq") == 1
+    assert fail_detail.get("parent_stream_id") == f"copilot:{parent_session_id}"
+    assert fail_detail.get("parent_seq") == 11
+
+    audit_path = config.evidence_root / "audit" / parent_session_id / "urm_events.ndjson"
+    assert audit_path.is_file()
+    audit_payload = audit_path.read_text(encoding="utf-8", errors="replace")
+    assert "URM_SCHEDULER_LEASE_ORPHANED" in audit_payload
+    assert "lease_orphaned" in audit_payload
     _reset_manager_for_tests()
 
 
