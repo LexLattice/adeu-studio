@@ -30,6 +30,27 @@ MAX_EXPR_DEPTH = 16
 MAX_EXPR_NODES = 2_000
 
 UTC_Z_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+TOKEN_FRAGMENT_RE = re.compile(r"[^A-Za-z0-9]+")
+
+LEMMA_FAMILY_DENY_ACTION_KIND = "deny_action_kind"
+LEMMA_FAMILY_REQUIRE_APPROVAL_ACTION_KIND = "require_approval_action_kind"
+
+LEMMA_FAMILY_PRIORITY_BASE: dict[str, int] = {
+    LEMMA_FAMILY_DENY_ACTION_KIND: 100,
+    LEMMA_FAMILY_REQUIRE_APPROVAL_ACTION_KIND: 200,
+}
+LEMMA_REQUIRED_FAMILIES: tuple[str, ...] = (
+    LEMMA_FAMILY_DENY_ACTION_KIND,
+    LEMMA_FAMILY_REQUIRE_APPROVAL_ACTION_KIND,
+)
+LEMMA_FAMILY_RULE_SPEC: dict[str, tuple[str, str, str]] = {
+    LEMMA_FAMILY_DENY_ACTION_KIND: ("deny", "deny_action", "DENY_ACTION"),
+    LEMMA_FAMILY_REQUIRE_APPROVAL_ACTION_KIND: (
+        "require",
+        "require_approval",
+        "REQUIRE_APPROVAL",
+    ),
+}
 
 AtomHandler = Callable[["PolicyContext", list[Any]], bool]
 EvidenceRefKind = Literal["event", "run", "validator", "proof", "artifact"]
@@ -366,6 +387,149 @@ def _scan_rule_whens_for_derive_firewall_violation(
     return None
 
 
+def _normalized_token_fragment(value: str, *, field_name: str) -> str:
+    normalized = TOKEN_FRAGMENT_RE.sub("_", value).strip("_").upper()
+    if not normalized:
+        raise URMError(
+            code="URM_POLICY_INVALID_SCHEMA",
+            message="lemma token fragment is empty after normalization",
+            context={"field": field_name, "value": value},
+        )
+    return normalized
+
+
+def _compile_lemma_rule(
+    *,
+    pack: dict[str, Any],
+    item: dict[str, Any],
+) -> dict[str, Any]:
+    family = str(pack["family"])
+    pack_id = str(pack["pack_id"])
+    pack_version = int(pack["pack_version"])
+    local_id = str(item["local_id"])
+    action_kind = str(item["action_kind"])
+    local_priority = int(item.get("local_priority", 0))
+    if local_priority < 0 or local_priority > 99:
+        raise URMError(
+            code="URM_POLICY_INVALID_SCHEMA",
+            message="lemma local_priority must be within [0, 99]",
+            context={
+                "pack_id": pack_id,
+                "family": family,
+                "local_id": local_id,
+                "local_priority": local_priority,
+            },
+        )
+    rule_kind, effect, effect_token = LEMMA_FAMILY_RULE_SPEC[family]
+    pack_token = _normalized_token_fragment(pack_id, field_name="pack_id")
+    family_token = _normalized_token_fragment(family, field_name="family")
+    local_token = _normalized_token_fragment(local_id, field_name="local_id")
+    priority = LEMMA_FAMILY_PRIORITY_BASE[family] + local_priority
+    message = str(item.get("message") or f"Compiled {family} lemma {local_id}")
+    return {
+        "rule_id": f"lemma:{pack_id}@{pack_version}:{family}:{local_id}",
+        "rule_version": 1,
+        "priority": priority,
+        "kind": rule_kind,
+        "when": {"atom": "action_kind_is", "args": [action_kind]},
+        "then": {"effect": effect, "params": {}},
+        "message": message,
+        "code": f"LEMMA_{pack_token}_{family_token}_{local_token}_{effect_token}",
+    }
+
+
+def _compile_instruction_policy_document(document: dict[str, Any]) -> dict[str, Any]:
+    rules = document.get("rules")
+    if not isinstance(rules, list):
+        raise URMError(
+            code="URM_POLICY_INVALID_SCHEMA",
+            message="instruction policy rules must be an array",
+            context={"field": "rules"},
+        )
+    compiled_rules: list[dict[str, Any]] = []
+    for candidate in rules:
+        if not isinstance(candidate, dict):
+            raise URMError(
+                code="URM_POLICY_INVALID_SCHEMA",
+                message="instruction policy rules must be objects",
+                context={"rule": candidate},
+            )
+        compiled_rules.append(dict(candidate))
+
+    lemma_packs = document.get("lemma_packs")
+    if lemma_packs is None:
+        compiled_rules.sort(key=lambda rule: (int(rule["priority"]), str(rule["rule_id"])))
+        return {"schema": document.get("schema"), "rules": compiled_rules}
+    if not isinstance(lemma_packs, list):
+        raise URMError(
+            code="URM_POLICY_INVALID_SCHEMA",
+            message="lemma_packs must be an array",
+            context={"field": "lemma_packs"},
+        )
+    family_to_count: dict[str, int] = {family: 0 for family in LEMMA_REQUIRED_FAMILIES}
+    lemma_pack_dicts: list[dict[str, Any]] = []
+    for pack in lemma_packs:
+        if not isinstance(pack, dict):
+            raise URMError(
+                code="URM_POLICY_INVALID_SCHEMA",
+                message="lemma_pack entries must be objects",
+                context={"pack": pack},
+            )
+        family = str(pack.get("family", ""))
+        if family not in LEMMA_REQUIRED_FAMILIES:
+            raise URMError(
+                code="URM_POLICY_INVALID_SCHEMA",
+                message="unknown lemma pack family",
+                context={"family": family},
+            )
+        family_to_count[family] += 1
+        lemma_pack_dicts.append(pack)
+    if any(count != 1 for count in family_to_count.values()):
+        raise URMError(
+            code="URM_POLICY_INVALID_SCHEMA",
+            message="lemma_packs must include exactly one pack for each required family",
+            context={"family_counts": family_to_count},
+        )
+
+    for pack in sorted(
+        lemma_pack_dicts,
+        key=lambda value: (
+            str(value["family"]),
+            str(value["pack_id"]),
+            int(value["pack_version"]),
+        ),
+    ):
+        items = pack.get("items")
+        if not isinstance(items, list):
+            raise URMError(
+                code="URM_POLICY_INVALID_SCHEMA",
+                message="lemma pack items must be an array",
+                context={"pack_id": pack.get("pack_id"), "family": pack.get("family")},
+            )
+        for item in sorted(
+            items,
+            key=lambda value: (int(value.get("local_priority", 0)), str(value["local_id"])),
+        ):
+            if not isinstance(item, dict):
+                raise URMError(
+                    code="URM_POLICY_INVALID_SCHEMA",
+                    message="lemma item entries must be objects",
+                    context={"pack_id": pack.get("pack_id"), "family": pack.get("family")},
+                )
+            compiled_rules.append(_compile_lemma_rule(pack=pack, item=item))
+
+    rule_ids = [str(rule["rule_id"]) for rule in compiled_rules]
+    duplicates = sorted({rule_id for rule_id in rule_ids if rule_ids.count(rule_id) > 1})
+    if duplicates:
+        raise URMError(
+            code="URM_POLICY_INVALID_SCHEMA",
+            message="compiled instruction policy contains duplicate rule_id values",
+            context={"duplicate_rule_ids": duplicates},
+        )
+    compiled_rules.sort(key=lambda rule: (int(rule["priority"]), str(rule["rule_id"])))
+    return {"schema": document.get("schema"), "rules": compiled_rules}
+
+
 def _expr_depth_and_nodes(expr: dict[str, Any]) -> tuple[int, int]:
     if "atom" in expr:
         return (1, 1)
@@ -496,8 +660,9 @@ def validate_instruction_policy_document(
             )
     resolved_schema = schema or load_instruction_policy_schema()
     _validate_with_schema(document, resolved_schema)
+    compiled_document = _compile_instruction_policy_document(document)
     try:
-        policy = InstructionPolicy.model_validate(document)
+        policy = InstructionPolicy.model_validate(compiled_document)
     except ValidationError as exc:
         raise URMError(
             code="URM_POLICY_INVALID_SCHEMA",

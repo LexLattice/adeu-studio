@@ -1385,6 +1385,102 @@ def test_policy_cli_materialize_rollout_rollback_and_active(
     assert active_after_rollback_payload["policy_hash"] == base_hash
 
 
+def test_policy_cli_materialize_is_stable_for_reordered_lemma_packs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+
+    policy_one = tmp_path / "policy.lemma.one.json"
+    policy_two = tmp_path / "policy.lemma.two.json"
+    base_rules = [
+        {
+            "rule_id": "allow_default",
+            "rule_version": 1,
+            "priority": 900,
+            "kind": "allow",
+            "when": {"atom": "mode_is", "args": ["strict"]},
+            "then": {"effect": "allow_action", "params": {}},
+            "message": "allow default",
+            "code": "ALLOW_DEFAULT",
+        }
+    ]
+    deny_pack = {
+        "pack_id": "guardrails",
+        "pack_version": 1,
+        "family": "deny_action_kind",
+        "items": [
+            {"local_id": "block_delete", "action_kind": "adeu.delete_state", "local_priority": 2}
+        ],
+    }
+    require_pack = {
+        "pack_id": "approvals",
+        "pack_version": 1,
+        "family": "require_approval_action_kind",
+        "items": [
+            {
+                "local_id": "patch_needs_approval",
+                "action_kind": "adeu.apply_patch",
+                "local_priority": 1,
+            }
+        ],
+    }
+    _write_json(
+        policy_one,
+        {
+            "schema": "odeu.instructions.v1",
+            "rules": base_rules,
+            "lemma_packs": [deny_pack, require_pack],
+        },
+    )
+    _write_json(
+        policy_two,
+        {
+            "schema": "odeu.instructions.v1",
+            "rules": base_rules,
+            "lemma_packs": [require_pack, deny_pack],
+        },
+    )
+
+    out_one = tmp_path / "materialize.one.json"
+    out_two = tmp_path / "materialize.two.json"
+    assert (
+        main(
+            [
+                "materialize",
+                "--policy",
+                str(policy_one),
+                "--materialize-ts",
+                "2026-02-15T10:00:00Z",
+                "--out",
+                str(out_one),
+            ]
+        )
+        == 0
+    )
+    first_payload = json.loads(out_one.read_text(encoding="utf-8"))
+    assert (
+        main(
+            [
+                "materialize",
+                "--policy",
+                str(policy_two),
+                "--claimed-policy-hash",
+                str(first_payload["policy_hash"]),
+                "--materialize-ts",
+                "2026-02-15T10:01:00Z",
+                "--out",
+                str(out_two),
+            ]
+        )
+        == 0
+    )
+    second_payload = json.loads(out_two.read_text(encoding="utf-8"))
+    assert first_payload["policy_hash"] == second_payload["policy_hash"]
+    assert first_payload["semantic_policy_json"] == second_payload["semantic_policy_json"]
+    assert second_payload["source_policy_ref"] == str(policy_two)
+
+
 def test_policy_cli_rollout_idempotency_conflict(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
