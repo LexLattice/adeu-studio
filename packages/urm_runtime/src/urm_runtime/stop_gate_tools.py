@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
-from adeu_kernel import strip_nonsemantic_validator_fields
+from adeu_kernel import strip_nonsemantic_proof_fields, strip_nonsemantic_validator_fields
 from pydantic import ValidationError
 
 from .events_tools import replay_events, validate_events
@@ -18,8 +18,20 @@ POLICY_INCIDENT_SCHEMA = "incident_packet@1"
 CONNECTOR_SNAPSHOT_SCHEMA = "connector_snapshot@1"
 VALIDATOR_EVIDENCE_PACKET_SCHEMA = "validator_evidence_packet@1"
 SEMANTICS_DIAGNOSTICS_SCHEMA = "semantics_diagnostics@1"
+POLICY_LINEAGE_SCHEMA = "policy_lineage@1"
+PROOF_EVIDENCE_SCHEMA = "proof_evidence@1"
 QUALITY_DASHBOARD_SCHEMA = "quality.dashboard.v1"
 SEMANTICS_DETERMINISM_REPLAY_COUNT = 3
+VNEXT_PLUS7_REPLAY_COUNT = 3
+VNEXT_PLUS7_MANIFEST_SCHEMA = "stop_gate.vnext_plus7_manifest@1"
+VNEXT_PLUS7_MANIFEST_PATH = (
+    Path(__file__).resolve().parents[4]
+    / "apps"
+    / "api"
+    / "fixtures"
+    / "stop_gate"
+    / "vnext_plus7_manifest.json"
+)
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -39,6 +51,9 @@ THRESHOLDS = {
     "validator_packet_determinism_pct": 100.0,
     "witness_reconstruction_determinism_pct": 100.0,
     "semantics_diagnostics_determinism_pct": 100.0,
+    "policy_lint_determinism_pct": 100.0,
+    "proof_replay_determinism_pct": 100.0,
+    "policy_proof_packet_hash_stability_pct": 100.0,
     "quality_delta_non_negative": True,
 }
 
@@ -126,8 +141,26 @@ def _group_replay_determinism_pct(
     return _pct(passed, total)
 
 
+def _proof_packet_hash(payload: Mapping[str, Any]) -> str:
+    return sha256_canonical_json(strip_nonsemantic_proof_fields(payload))
+
+
+def _policy_lineage_hash(payload: Mapping[str, Any]) -> str:
+    return sha256_canonical_json({key: payload[key] for key in sorted(payload.keys())})
+
+
 def _issue(code: str, message: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
     return {"code": code, "message": message, "context": dict(context or {})}
+
+
+def _issue_with_context(issue: dict[str, Any], *, context: dict[str, Any]) -> dict[str, Any]:
+    merged_context = dict(issue.get("context") or {})
+    merged_context.update(context)
+    return {
+        "code": issue.get("code"),
+        "message": issue.get("message"),
+        "context": merged_context,
+    }
 
 
 def _read_json_object(path: Path, *, description: str) -> dict[str, Any]:
@@ -200,6 +233,371 @@ def _pct(passed: int, total: int) -> float:
     return round((passed / total) * 100.0, 6)
 
 
+def _resolve_manifest_relative_path(*, manifest_path: Path, raw_path: Any) -> Path:
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "manifest run path must be a non-empty string",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    candidate = Path(raw_path)
+    if not candidate.is_absolute():
+        candidate = (manifest_path.parent / candidate).resolve()
+    return candidate
+
+
+def _load_manifest_payload(*, manifest_path: Path) -> dict[str, Any]:
+    payload = _read_json_object(manifest_path, description="vnext+7 stop-gate manifest")
+    if payload.get("schema") != VNEXT_PLUS7_MANIFEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+7 stop-gate manifest has unsupported schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    replay_count = payload.get("replay_count")
+    if replay_count != VNEXT_PLUS7_REPLAY_COUNT:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+7 replay_count must match frozen replay count",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_replay_count": VNEXT_PLUS7_REPLAY_COUNT,
+                    "observed_replay_count": replay_count,
+                },
+            )
+        )
+    metrics = payload.get("metrics")
+    if not isinstance(metrics, dict):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+7 stop-gate manifest metrics must be an object",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    return payload
+
+
+def _manifest_metric_entries(
+    *,
+    metrics: Mapping[str, Any],
+    metric_name: str,
+    manifest_path: Path,
+) -> list[dict[str, Any]]:
+    raw_entries = metrics.get(metric_name)
+    if not isinstance(raw_entries, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "manifest metric entries must be a list",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "metric": metric_name,
+                },
+            )
+        )
+    entries: list[dict[str, Any]] = []
+    for idx, entry in enumerate(raw_entries):
+        if not isinstance(entry, dict):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture entry must be an object",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_index": idx,
+                    },
+                )
+            )
+        entries.append(entry)
+    return entries
+
+
+def _policy_lint_fixture_hash(*, policy_lint_event_path: Path) -> str:
+    validation = validate_events(policy_lint_event_path, strict=True)
+    if validation.get("valid") is not True:
+        first = validation.get("issues", [{}])[0]
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "policy lint fixture event stream failed validation",
+                context={
+                    "path": str(policy_lint_event_path),
+                    "issue_code": first.get("code"),
+                    "issue_message": first.get("message"),
+                },
+            )
+        )
+    events = _load_events(policy_lint_event_path)
+    lint_events: list[dict[str, Any]] = []
+    for event in events:
+        if event.event != "POLICY_LINT_FAILED":
+            continue
+        lint_events.append(
+            {
+                "event": event.event,
+                "stream_id": event.stream_id,
+                "seq": event.seq,
+                "detail": event.detail,
+            }
+        )
+    if not lint_events:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "policy lint fixture must include POLICY_LINT_FAILED event(s)",
+                context={"path": str(policy_lint_event_path)},
+            )
+        )
+    return sha256_canonical_json(lint_events)
+
+
+def _proof_fixture_hash(*, proof_evidence_path: Path) -> str:
+    payload = _read_json_object(proof_evidence_path, description="proof evidence fixture")
+    if payload.get("schema") != PROOF_EVIDENCE_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "proof fixture input must use proof_evidence@1",
+                context={"path": str(proof_evidence_path)},
+            )
+        )
+    expected_hash = _proof_packet_hash(payload)
+    actual_hash = payload.get("proof_evidence_hash")
+    if not isinstance(actual_hash, str) or actual_hash != expected_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "proof_evidence_hash mismatch for fixture payload",
+                context={"path": str(proof_evidence_path)},
+            )
+        )
+    return expected_hash
+
+
+def _policy_proof_fixture_hash(*, policy_lineage_path: Path, proof_evidence_path: Path) -> str:
+    lineage_payload = _read_json_object(policy_lineage_path, description="policy lineage fixture")
+    if lineage_payload.get("schema") != POLICY_LINEAGE_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "policy fixture input must use policy_lineage@1",
+                context={"path": str(policy_lineage_path)},
+            )
+        )
+    proof_hash = _proof_fixture_hash(proof_evidence_path=proof_evidence_path)
+    lineage_hash = _policy_lineage_hash(lineage_payload)
+    return sha256_canonical_json(
+        {
+            "policy_lineage_hash": lineage_hash,
+            "proof_evidence_hash": proof_hash,
+        }
+    )
+
+
+def _manifest_metric_pct(
+    *,
+    manifest_path: Path,
+    metric_name: str,
+    fixtures: list[dict[str, Any]],
+    required_run_fields: tuple[str, ...],
+    run_hash_builder: Callable[..., str],
+    issues: list[dict[str, Any]],
+) -> float:
+    total = len(fixtures)
+    if total <= 0:
+        return 0.0
+
+    passed = 0
+    for fixture_index, fixture in enumerate(fixtures):
+        fixture_id = fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"{metric_name}_fixture_{fixture_index}"
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture_id must be a non-empty string",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_index": fixture_index,
+                    },
+                )
+            )
+
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture runs must be a list",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+            continue
+        if len(runs) != VNEXT_PLUS7_REPLAY_COUNT:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture run count does not match frozen replay count",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "expected_replays": VNEXT_PLUS7_REPLAY_COUNT,
+                        "observed_replays": len(runs),
+                    },
+                )
+            )
+            continue
+
+        fixture_hashes: set[str] = set()
+        fixture_ok = True
+        for run_index, run in enumerate(runs):
+            if not isinstance(run, dict):
+                issues.append(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "manifest run entry must be an object",
+                        context={
+                            "manifest_path": str(manifest_path),
+                            "metric": metric_name,
+                            "fixture_id": fixture_id,
+                            "run_index": run_index,
+                        },
+                    )
+                )
+                fixture_ok = False
+                continue
+            try:
+                resolved_paths = {
+                    key: _resolve_manifest_relative_path(
+                        manifest_path=manifest_path,
+                        raw_path=run.get(key),
+                    )
+                    for key in required_run_fields
+                }
+                run_hash = run_hash_builder(**resolved_paths)
+            except ValueError as exc:
+                issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    str(exc),
+                )
+                issues.append(
+                    _issue_with_context(
+                        issue,
+                        context={
+                            "metric": metric_name,
+                            "fixture_id": fixture_id,
+                            "run_index": run_index,
+                        },
+                    )
+                )
+                fixture_ok = False
+                continue
+            fixture_hashes.add(run_hash)
+
+        if fixture_ok and len(fixture_hashes) == 1:
+            passed += 1
+    return _pct(passed, total)
+
+
+def _compute_vnext_plus7_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, float]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS7_MANIFEST_PATH
+    )
+    try:
+        manifest = _load_manifest_payload(manifest_path=resolved_manifest_path)
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            "policy_lint_determinism_pct": 0.0,
+            "proof_replay_determinism_pct": 0.0,
+            "policy_proof_packet_hash_stability_pct": 0.0,
+        }
+
+    metrics_doc = manifest.get("metrics")
+    assert isinstance(metrics_doc, Mapping)
+    try:
+        policy_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="policy_lint_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        proof_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="proof_replay_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        policy_proof_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="policy_proof_packet_hash_stability_pct",
+            manifest_path=resolved_manifest_path,
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            "policy_lint_determinism_pct": 0.0,
+            "proof_replay_determinism_pct": 0.0,
+            "policy_proof_packet_hash_stability_pct": 0.0,
+        }
+
+    policy_lint_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="policy_lint_determinism_pct",
+        fixtures=policy_fixtures,
+        required_run_fields=("policy_lint_event_path",),
+        run_hash_builder=_policy_lint_fixture_hash,
+        issues=issues,
+    )
+    proof_replay_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="proof_replay_determinism_pct",
+        fixtures=proof_fixtures,
+        required_run_fields=("proof_evidence_path",),
+        run_hash_builder=_proof_fixture_hash,
+        issues=issues,
+    )
+    policy_proof_packet_hash_stability_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="policy_proof_packet_hash_stability_pct",
+        fixtures=policy_proof_fixtures,
+        required_run_fields=("policy_lineage_path", "proof_evidence_path"),
+        run_hash_builder=_policy_proof_fixture_hash,
+        issues=issues,
+    )
+    return {
+        "policy_lint_determinism_pct": policy_lint_determinism_pct,
+        "proof_replay_determinism_pct": proof_replay_determinism_pct,
+        "policy_proof_packet_hash_stability_pct": policy_proof_packet_hash_stability_pct,
+    }
+
+
 def _metric_delta_satisfies_rule(*, rule: str, delta: float) -> bool:
     if rule == "non_decreasing":
         return delta >= 0.0
@@ -259,6 +657,7 @@ def build_stop_gate_metrics(
     semantics_diagnostics_paths: list[Path],
     quality_current_path: Path,
     quality_baseline_path: Path | None = None,
+    vnext_plus7_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     try:
@@ -590,6 +989,10 @@ def build_stop_gate_metrics(
         replay_groups=semantics_diagnostics_groups,
         replay_counts=semantics_diagnostics_replay_counts,
     )
+    vnext_plus7_metrics = _compute_vnext_plus7_metrics(
+        manifest_path=vnext_plus7_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -668,6 +1071,11 @@ def build_stop_gate_metrics(
         "quality_delta_rules": {
             key: quality_metric_rules[key] for key in sorted(quality_metric_rules)
         },
+        "policy_lint_determinism_pct": vnext_plus7_metrics["policy_lint_determinism_pct"],
+        "proof_replay_determinism_pct": vnext_plus7_metrics["proof_replay_determinism_pct"],
+        "policy_proof_packet_hash_stability_pct": vnext_plus7_metrics[
+            "policy_proof_packet_hash_stability_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -684,6 +1092,12 @@ def build_stop_gate_metrics(
         >= THRESHOLDS["witness_reconstruction_determinism_pct"],
         "semantics_diagnostics_determinism": metrics["semantics_diagnostics_determinism_pct"]
         >= THRESHOLDS["semantics_diagnostics_determinism_pct"],
+        "policy_lint_determinism": metrics["policy_lint_determinism_pct"]
+        >= THRESHOLDS["policy_lint_determinism_pct"],
+        "proof_replay_determinism": metrics["proof_replay_determinism_pct"]
+        >= THRESHOLDS["proof_replay_determinism_pct"],
+        "policy_proof_packet_hash_stability": metrics["policy_proof_packet_hash_stability_pct"]
+        >= THRESHOLDS["policy_proof_packet_hash_stability_pct"],
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -704,6 +1118,11 @@ def build_stop_gate_metrics(
             "quality_current_path": str(quality_current_path),
             "quality_baseline_path": str(
                 quality_baseline_path if quality_baseline_path is not None else quality_current_path
+            ),
+            "vnext_plus7_manifest_path": str(
+                vnext_plus7_manifest_path
+                if vnext_plus7_manifest_path is not None
+                else VNEXT_PLUS7_MANIFEST_PATH
             ),
         },
         "thresholds": THRESHOLDS,
@@ -759,6 +1178,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(
         "- semantics diagnostics determinism pct: "
         f"`{metrics.get('semantics_diagnostics_determinism_pct')}`"
+    )
+    lines.append(
+        "- policy lint determinism pct: "
+        f"`{metrics.get('policy_lint_determinism_pct')}`"
+    )
+    lines.append(
+        "- proof replay determinism pct: "
+        f"`{metrics.get('proof_replay_determinism_pct')}`"
+    )
+    lines.append(
+        "- policy/proof packet hash stability pct: "
+        f"`{metrics.get('policy_proof_packet_hash_stability_pct')}`"
     )
     lines.append(
         "- quality delta non-negative: "
@@ -838,6 +1269,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--quality-current", dest="quality_current_path", type=Path, required=True)
     parser.add_argument("--quality-baseline", dest="quality_baseline_path", type=Path)
+    parser.add_argument(
+        "--vnext-plus7-manifest",
+        dest="vnext_plus7_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS7_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -853,6 +1290,7 @@ def main(argv: list[str] | None = None) -> int:
         semantics_diagnostics_paths=list(args.semantics_diagnostics_paths or []),
         quality_current_path=args.quality_current_path,
         quality_baseline_path=args.quality_baseline_path,
+        vnext_plus7_manifest_path=args.vnext_plus7_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
