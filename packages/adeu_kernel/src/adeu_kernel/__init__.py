@@ -22,6 +22,11 @@ from .validator import (
     Z3Validator,
     build_validator_backend,
 )
+from .validator_evidence import (
+    VALIDATOR_EVIDENCE_HASH_EXCLUDED_FIELDS,
+    VALIDATOR_EVIDENCE_PACKET_SCHEMA,
+    build_validator_evidence_packet,
+)
 
 __all__ = [
     "KernelMode",
@@ -35,12 +40,15 @@ __all__ = [
     "ValidatorBackend",
     "ValidatorRunRecord",
     "Z3Validator",
+    "VALIDATOR_EVIDENCE_PACKET_SCHEMA",
+    "VALIDATOR_EVIDENCE_HASH_EXCLUDED_FIELDS",
     "apply_ambiguity_option",
     "apply_ambiguity_option_patch",
     "apply_json_patch",
     "build_adeu_core_proof_requests",
     "build_validator_backend",
     "build_proof_backend",
+    "build_validator_evidence_packet",
     "build_trivial_theorem_source",
     "check",
     "check_with_validator_runs",
