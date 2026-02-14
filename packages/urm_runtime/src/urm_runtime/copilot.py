@@ -1589,6 +1589,152 @@ class URMCopilotManager:
             context={"session_id": runtime.session_id},
         )
 
+    def _turn_id_candidates_from_payload(
+        self,
+        *,
+        payload: dict[str, Any],
+    ) -> list[str]:
+        candidates: list[str] = []
+        method = payload.get("method")
+        if method in {"turn/started", "turn/completed"}:
+            params = payload.get("params")
+            if isinstance(params, dict):
+                turn = params.get("turn")
+                if isinstance(turn, dict):
+                    turn_id = turn.get("id")
+                    if isinstance(turn_id, str) and turn_id:
+                        candidates.append(turn_id)
+            return candidates
+        if method == "codex/event/agent_message_delta":
+            params = payload.get("params")
+            if isinstance(params, dict):
+                turn_id = params.get("id")
+                if isinstance(turn_id, str) and turn_id:
+                    candidates.append(turn_id)
+            return candidates
+        result = payload.get("result")
+        if isinstance(result, dict):
+            turn = result.get("turn")
+            if isinstance(turn, dict):
+                turn_id = turn.get("id")
+                if isinstance(turn_id, str) and turn_id:
+                    candidates.append(turn_id)
+        return candidates
+
+    def _resolve_steer_boundary_seq_unlocked(
+        self,
+        *,
+        runtime: CopilotSessionRuntime,
+        after_seq: int | None,
+    ) -> int:
+        stream_tail_seq = runtime.last_seq
+        if after_seq is None:
+            return stream_tail_seq
+        if after_seq > stream_tail_seq:
+            raise URMError(
+                code="URM_STEER_TARGET_UNRESOLVED",
+                message="after_seq exceeds current stream tail",
+                context={
+                    "session_id": runtime.session_id,
+                    "after_seq": after_seq,
+                    "stream_tail_seq": stream_tail_seq,
+                },
+            )
+        return after_seq
+
+    def _turn_ids_up_to_seq_unlocked(
+        self,
+        *,
+        runtime: CopilotSessionRuntime,
+        boundary_seq: int,
+    ) -> list[str]:
+        seen: set[str] = set()
+        ordered: list[str] = []
+        for event in runtime.buffer:
+            if event.seq > boundary_seq:
+                break
+            if not isinstance(event.payload, dict):
+                continue
+            for turn_id in self._turn_id_candidates_from_payload(payload=event.payload):
+                if turn_id in seen:
+                    continue
+                seen.add(turn_id)
+                ordered.append(turn_id)
+        return ordered
+
+    def _resolve_steer_target_unlocked(
+        self,
+        *,
+        runtime: CopilotSessionRuntime,
+        target_turn_id: str | None,
+        use_last_turn: bool,
+        after_seq: int | None,
+    ) -> tuple[str, int]:
+        resolved_against_seq = self._resolve_steer_boundary_seq_unlocked(
+            runtime=runtime,
+            after_seq=after_seq,
+        )
+        turn_ids = self._turn_ids_up_to_seq_unlocked(
+            runtime=runtime,
+            boundary_seq=resolved_against_seq,
+        )
+        if target_turn_id:
+            if target_turn_id not in turn_ids:
+                raise URMError(
+                    code="URM_STEER_TARGET_UNRESOLVED",
+                    message="target_turn_id was not observed in parent stream state",
+                    context={
+                        "session_id": runtime.session_id,
+                        "target_turn_id": target_turn_id,
+                        "resolved_against_seq": resolved_against_seq,
+                    },
+                )
+            return target_turn_id, resolved_against_seq
+        if not use_last_turn:
+            raise URMError(
+                code="URM_STEER_DENIED",
+                message="target_turn_id is required when use_last_turn is false",
+                context={
+                    "session_id": runtime.session_id,
+                    "resolved_against_seq": resolved_against_seq,
+                },
+            )
+        if not turn_ids:
+            raise URMError(
+                code="URM_STEER_TARGET_UNRESOLVED",
+                message="unable to resolve last_turn at requested boundary",
+                context={
+                    "session_id": runtime.session_id,
+                    "resolved_against_seq": resolved_against_seq,
+                },
+            )
+        return turn_ids[-1], resolved_against_seq
+
+    def _record_steer_denied_event_unlocked(
+        self,
+        *,
+        runtime: CopilotSessionRuntime,
+        request: CopilotSteerRequest,
+        target_turn_id: str | None,
+        resolved_against_seq: int,
+        error_code: str,
+        reason: str,
+        steer_payload_hash: str,
+    ) -> None:
+        self._record_internal_event(
+            runtime=runtime,
+            event_kind="STEER_DENIED",
+            payload={
+                "target_turn_id": target_turn_id,
+                "accepted_turn_id": None,
+                "resolved_against_seq": resolved_against_seq,
+                "steer_intent_class": request.steer_intent_class,
+                "steer_payload_hash": steer_payload_hash,
+                "error_code": error_code,
+                "reason": reason,
+            },
+        )
+
     def _remaining_parent_duration_secs(self, *, runtime: CopilotSessionRuntime) -> int:
         started = datetime.fromisoformat(runtime.started_at)
         elapsed = datetime.now(tz=timezone.utc) - started
@@ -2212,6 +2358,12 @@ class URMCopilotManager:
 
     def steer(self, request: CopilotSteerRequest) -> CopilotSteerResponse:
         payload_hash = sha256_canonical_json(request.idempotency_payload())
+        steer_payload_hash = sha256_canonical_json(
+            {
+                "steer_intent_class": request.steer_intent_class,
+                "text": request.text,
+            }
+        )
         with self._lock:
             runtime = self._sessions.get(request.session_id)
             if runtime is None:
@@ -2243,70 +2395,118 @@ class URMCopilotManager:
                     return replay.model_copy(update={"idempotent_replay": True})
 
             self._bootstrap_runtime(runtime=runtime)
-            target_turn_id = self._resolve_turn_target(
-                runtime=runtime,
-                target_turn_id=request.target_turn_id,
-                use_last_turn=request.use_last_turn,
-            )
-            steer_count = runtime.steer_counts_by_turn.get(target_turn_id, 0)
-            if steer_count >= MAX_STEER_PER_TURN:
-                raise URMError(
-                    code="URM_STEER_DENIED",
-                    message="steer rate limit exceeded for turn",
-                    context={
-                        "session_id": request.session_id,
-                        "target_turn_id": target_turn_id,
-                        "max_steer_per_turn": MAX_STEER_PER_TURN,
-                    },
-                )
-            if runtime.thread_id is None:
-                raise URMError(
-                    code="URM_STEER_DENIED",
-                    message="copilot thread is not initialized",
-                    context={"session_id": request.session_id},
-                )
-            request_id = uuid.uuid4().hex
+            target_turn_id: str | None = request.target_turn_id
+            resolved_against_seq = runtime.last_seq
             try:
-                line = runtime.host.send(
-                    {
-                        "id": request_id,
-                        "method": "turn/steer",
-                        "params": {
-                            "threadId": runtime.thread_id,
-                            "input": [{"type": "text", "text": request.text}],
-                            "expectedTurnId": target_turn_id,
-                        },
-                    }
-                )
-                self._record_event_line(runtime=runtime, raw_line=line)
-                response = self._wait_for_response(
+                target_turn_id, resolved_against_seq = self._resolve_steer_target_unlocked(
                     runtime=runtime,
-                    request_id=request_id,
-                    timeout_secs=10.0,
+                    target_turn_id=request.target_turn_id,
+                    use_last_turn=request.use_last_turn,
+                    after_seq=request.after_seq,
                 )
-                if "error" in response:
+                steer_count = runtime.steer_counts_by_turn.get(target_turn_id, 0)
+                if steer_count >= MAX_STEER_PER_TURN:
                     raise URMError(
                         code="URM_STEER_DENIED",
-                        message="turn/steer was rejected by app-server",
+                        message="steer rate limit exceeded for turn",
                         context={
                             "session_id": request.session_id,
                             "target_turn_id": target_turn_id,
-                            "error": response.get("error"),
+                            "max_steer_per_turn": MAX_STEER_PER_TURN,
+                            "resolved_against_seq": resolved_against_seq,
                         },
                     )
-            except URMError as exc:
-                if exc.detail.code != "URM_STEER_DENIED":
+                if runtime.thread_id is None:
+                    raise URMError(
+                        code="URM_STEER_DENIED",
+                        message="copilot thread is not initialized",
+                        context={
+                            "session_id": request.session_id,
+                            "resolved_against_seq": resolved_against_seq,
+                        },
+                    )
+                request_id = uuid.uuid4().hex
+                try:
+                    line = runtime.host.send(
+                        {
+                            "id": request_id,
+                            "method": "turn/steer",
+                            "params": {
+                                "threadId": runtime.thread_id,
+                                "input": [{"type": "text", "text": request.text}],
+                                "expectedTurnId": target_turn_id,
+                            },
+                        }
+                    )
+                    self._record_event_line(runtime=runtime, raw_line=line)
+                    response = self._wait_for_response(
+                        runtime=runtime,
+                        request_id=request_id,
+                        timeout_secs=10.0,
+                    )
+                    if "error" in response:
+                        raise URMError(
+                            code="URM_STEER_DENIED",
+                            message="turn/steer was rejected by app-server",
+                            context={
+                                "session_id": request.session_id,
+                                "target_turn_id": target_turn_id,
+                                "resolved_against_seq": resolved_against_seq,
+                                "error": response.get("error"),
+                            },
+                        )
+                except URMError as exc:
+                    if exc.detail.code in {
+                        "URM_STEER_DENIED",
+                        "URM_STEER_TARGET_UNRESOLVED",
+                    }:
+                        raise
                     raise URMError(
                         code="URM_STEER_DENIED",
                         message="turn/steer failed",
                         context={
                             "session_id": request.session_id,
                             "target_turn_id": target_turn_id,
+                            "resolved_against_seq": resolved_against_seq,
                             "reason": exc.detail.message,
                         },
                     ) from exc
-                raise
+            except URMError as exc:
+                normalized = exc
+                if exc.detail.code not in {
+                    "URM_STEER_DENIED",
+                    "URM_STEER_TARGET_UNRESOLVED",
+                }:
+                    normalized = URMError(
+                        code="URM_STEER_DENIED",
+                        message="turn/steer failed",
+                        context={
+                            "session_id": request.session_id,
+                            "target_turn_id": target_turn_id,
+                            "resolved_against_seq": resolved_against_seq,
+                            "reason": exc.detail.message,
+                        },
+                    )
+                denied_target = target_turn_id
+                context_target = normalized.detail.context.get("target_turn_id")
+                if isinstance(context_target, str) and context_target:
+                    denied_target = context_target
+                context_seq = normalized.detail.context.get("resolved_against_seq")
+                if isinstance(context_seq, int):
+                    resolved_against_seq = context_seq
+                self._record_steer_denied_event_unlocked(
+                    runtime=runtime,
+                    request=request,
+                    target_turn_id=denied_target,
+                    resolved_against_seq=resolved_against_seq,
+                    error_code=normalized.detail.code,
+                    reason=normalized.detail.message,
+                    steer_payload_hash=steer_payload_hash,
+                )
+                raise normalized
 
+            if not isinstance(target_turn_id, str) or not target_turn_id:
+                raise RuntimeError("resolved steer target_turn_id was not set")
             accepted_turn_id = response.get("result", {}).get("turnId")
             if not isinstance(accepted_turn_id, str) or not accepted_turn_id:
                 accepted_turn_id = target_turn_id
@@ -2315,18 +2515,13 @@ class URMCopilotManager:
             runtime.steer_counts_by_turn[accepted_turn_id] = (
                 runtime.steer_counts_by_turn.get(accepted_turn_id, 0) + 1
             )
-            steer_payload_hash = sha256_canonical_json(
-                {
-                    "steer_intent_class": request.steer_intent_class,
-                    "text": request.text,
-                }
-            )
             self._record_internal_event(
                 runtime=runtime,
                 event_kind="STEER_APPLIED",
                 payload={
                     "target_turn_id": target_turn_id,
                     "accepted_turn_id": accepted_turn_id,
+                    "resolved_against_seq": resolved_against_seq,
                     "steer_intent_class": request.steer_intent_class,
                     "steer_payload_hash": steer_payload_hash,
                 },
@@ -2336,6 +2531,7 @@ class URMCopilotManager:
                 status=runtime.status,
                 target_turn_id=target_turn_id,
                 accepted_turn_id=accepted_turn_id,
+                resolved_against_seq=resolved_against_seq,
                 idempotent_replay=False,
             )
             with transaction(db_path=self.config.db_path) as con:
