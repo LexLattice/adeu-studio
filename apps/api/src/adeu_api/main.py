@@ -1597,7 +1597,7 @@ def _normalize_evidence_json_for_output(evidence_json: dict[str, Any]) -> dict[s
     return payload
 
 
-def _validator_evidence_packet_from_row(row: ValidatorRunRow) -> dict[str, object]:
+def _validator_evidence_packet_from_row(row: ValidatorRunRow) -> dict[str, Any]:
     packet = build_validator_evidence_packet(
         validator_run_id=row.run_id,
         backend=row.backend,
@@ -1610,7 +1610,7 @@ def _validator_evidence_packet_from_row(row: ValidatorRunRow) -> dict[str, objec
         evidence=row.evidence_json,
         atom_map=row.atom_map_json,
     )
-    return {str(key): value for key, value in packet.items()}
+    return packet
 
 
 def _validator_run_input_from_record(run: ValidatorRunRecord) -> ValidatorRunInput:

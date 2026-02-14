@@ -101,16 +101,10 @@ def _normalize_atom_map(
                 object_id = None if raw_object_id is None else str(raw_object_id)
                 json_path = None if raw_json_path is None else str(raw_json_path)
             else:
-                object_id = (
-                    None
-                    if getattr(ref, "object_id", None) is None
-                    else str(getattr(ref, "object_id"))
-                )
-                json_path = (
-                    None
-                    if getattr(ref, "json_path", None) is None
-                    else str(getattr(ref, "json_path"))
-                )
+                raw_object_id = getattr(ref, "object_id", None)
+                object_id = None if raw_object_id is None else str(raw_object_id)
+                raw_json_path = getattr(ref, "json_path", None)
+                json_path = None if raw_json_path is None else str(raw_json_path)
             normalized[assertion_name] = {
                 "object_id": object_id,
                 "json_path": json_path,
