@@ -305,6 +305,7 @@ def urm_copilot_steer_endpoint(request: CopilotSteerRequest) -> CopilotSteerResp
             action_payload={
                 "target_turn_id": request.target_turn_id,
                 "use_last_turn": request.use_last_turn,
+                "after_seq": request.after_seq,
                 "steer_intent_class": request.steer_intent_class,
                 "text": request.text,
             },

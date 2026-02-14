@@ -272,6 +272,7 @@ class CopilotSteerRequest(BaseModel):
     steer_intent_class: Literal["clarify", "reprioritize", "constraint", "other"] = "other"
     target_turn_id: str | None = Field(default=None, min_length=1)
     use_last_turn: bool = False
+    after_seq: int | None = Field(default=None, ge=0)
 
     def idempotency_payload(self) -> dict[str, Any]:
         return self.model_dump(mode="json", exclude={"client_request_id"})
@@ -284,6 +285,7 @@ class CopilotSteerResponse(BaseModel):
     status: Literal["starting", "running", "stopped", "failed"]
     target_turn_id: str
     accepted_turn_id: str
+    resolved_against_seq: int = Field(default=0, ge=0)
     idempotent_replay: bool = False
 
 

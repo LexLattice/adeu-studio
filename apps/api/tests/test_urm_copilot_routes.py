@@ -689,6 +689,7 @@ def test_copilot_steer_endpoint_is_idempotent_and_rate_limited(
     )
     assert steer.target_turn_id == "1"
     assert steer.accepted_turn_id == "1"
+    assert steer.resolved_against_seq >= 0
     assert steer.idempotent_replay is False
 
     replay = urm_copilot_steer_endpoint(
@@ -702,6 +703,7 @@ def test_copilot_steer_endpoint_is_idempotent_and_rate_limited(
         )
     )
     assert replay.accepted_turn_id == steer.accepted_turn_id
+    assert replay.resolved_against_seq == steer.resolved_against_seq
     assert replay.idempotent_replay is True
 
     for idx in range(2, 7):
@@ -729,6 +731,60 @@ def test_copilot_steer_endpoint_is_idempotent_and_rate_limited(
             )
         assert exc_info.value.status_code == 400
         assert exc_info.value.detail["code"] == "URM_STEER_DENIED"
+    manager = _get_manager()
+    events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    assert any(
+        event.event_kind == "STEER_APPLIED"
+        and event.payload.get("accepted_turn_id") == "1"
+        and isinstance(event.payload.get("resolved_against_seq"), int)
+        for event in events
+    )
+    assert any(
+        event.event_kind == "STEER_DENIED"
+        and event.payload.get("error_code") == "URM_STEER_DENIED"
+        and event.payload.get("target_turn_id") == "1"
+        for event in events
+    )
+    _reset_manager_for_tests()
+
+
+def test_copilot_steer_last_turn_after_seq_unresolved_emits_denied_event(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-steer-after-seq-1")
+    )
+    session_id = start.session_id
+
+    with pytest.raises(HTTPException) as exc_info:
+        urm_copilot_steer_endpoint(
+            CopilotSteerRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id="steer-after-seq-unresolved-1",
+                text="reprioritize work",
+                steer_intent_class="reprioritize",
+                use_last_turn=True,
+                after_seq=0,
+            )
+        )
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_STEER_TARGET_UNRESOLVED"
+    manager = _get_manager()
+    events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    denied = [event for event in events if event.event_kind == "STEER_DENIED"]
+    assert denied
+    latest_denied = denied[-1]
+    assert latest_denied.payload.get("error_code") == "URM_STEER_TARGET_UNRESOLVED"
+    assert latest_denied.payload.get("resolved_against_seq") == 0
+    assert latest_denied.payload.get("target_turn_id") is None
     _reset_manager_for_tests()
 
 
