@@ -3,7 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from adeu_kernel import build_semantics_diagnostics, build_validator_evidence_packet
+from adeu_kernel import (
+    build_proof_evidence_packet,
+    build_semantics_diagnostics,
+    build_validator_evidence_packet,
+)
 from urm_runtime.stop_gate_tools import build_stop_gate_metrics, main
 
 
@@ -31,6 +35,10 @@ def _semantics_diagnostics_fixture_path(name: str) -> Path:
     return _repo_root() / "examples" / "eval" / "stop_gate" / name
 
 
+def _vnext_plus7_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus7_manifest.json"
+
+
 def _quality_metrics_v3(*, overrides: dict[str, float] | None = None) -> dict[str, float]:
     metrics = {
         "redundancy_rate": 0.2,
@@ -45,6 +53,109 @@ def _quality_metrics_v3(*, overrides: dict[str, float] | None = None) -> dict[st
 
 def _write_json(path: Path, payload: dict[str, object]) -> None:
     path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+
+
+def _legacy_quality_payload() -> dict[str, object]:
+    return {
+        "dashboard_version": "quality.dashboard.v1",
+        "metrics": {"question_stability_pct": 100.0},
+    }
+
+
+def _write_policy_lineage_replay_paths(tmp_path: Path) -> list[Path]:
+    policy_lineage_paths = [
+        tmp_path / "policy_lineage_1.json",
+        tmp_path / "policy_lineage_2.json",
+        tmp_path / "policy_lineage_3.json",
+    ]
+    for idx, path in enumerate(policy_lineage_paths, start=1):
+        payload = json.loads(
+            _example_stop_gate_path(f"policy_lineage_case_a_{idx}.json").read_text()
+        )
+        if idx == 2:
+            payload["profile_version"] = "profile.v2"
+        _write_json(path, payload)
+    return policy_lineage_paths
+
+
+def _write_proof_replay_paths_with_drift(tmp_path: Path) -> list[Path]:
+    base_packet = json.loads(_example_stop_gate_path("proof_evidence_case_a_1.json").read_text())
+    drift_packet = build_proof_evidence_packet(
+        proof_id="proof-stop-gate-drift",
+        artifact_id=str(base_packet["artifact_id"]),
+        created_at="1970-01-01T00:00:11Z",
+        backend=str(base_packet["backend"]),
+        theorem_id=str(base_packet["theorem_id"]),
+        status=str(base_packet["status"]),
+        proof_hash=str(base_packet["proof_hash"]),
+        inputs=list(base_packet["inputs"]),
+        details={
+            **dict(base_packet["details"]),
+            "obligation_kind": "pred_closed_world",
+        },
+    )
+    proof_paths = [
+        tmp_path / "proof_evidence_1.json",
+        tmp_path / "proof_evidence_2.json",
+        tmp_path / "proof_evidence_3.json",
+    ]
+    _write_json(proof_paths[0], base_packet)
+    _write_json(proof_paths[1], drift_packet)
+    _write_json(proof_paths[2], base_packet)
+    return proof_paths
+
+
+def _vnext_plus7_manifest_payload(
+    *,
+    policy_lint_event_paths: list[Path],
+    proof_paths: list[Path],
+    policy_lineage_paths: list[Path],
+) -> dict[str, object]:
+    return {
+        "schema": "stop_gate.vnext_plus7_manifest@1",
+        "replay_count": 3,
+        "metrics": {
+            "policy_lint_determinism_pct": [
+                {
+                    "fixture_id": "policy_lint_case_a",
+                    "runs": [
+                        {"policy_lint_event_path": str(policy_lint_event_paths[0])},
+                        {"policy_lint_event_path": str(policy_lint_event_paths[1])},
+                        {"policy_lint_event_path": str(policy_lint_event_paths[2])},
+                    ],
+                }
+            ],
+            "proof_replay_determinism_pct": [
+                {
+                    "fixture_id": "proof_case_a",
+                    "runs": [
+                        {"proof_evidence_path": str(proof_paths[0])},
+                        {"proof_evidence_path": str(proof_paths[1])},
+                        {"proof_evidence_path": str(proof_paths[2])},
+                    ],
+                }
+            ],
+            "policy_proof_packet_hash_stability_pct": [
+                {
+                    "fixture_id": "policy_proof_case_a",
+                    "runs": [
+                        {
+                            "policy_lineage_path": str(policy_lineage_paths[0]),
+                            "proof_evidence_path": str(proof_paths[0]),
+                        },
+                        {
+                            "policy_lineage_path": str(policy_lineage_paths[1]),
+                            "proof_evidence_path": str(proof_paths[1]),
+                        },
+                        {
+                            "policy_lineage_path": str(policy_lineage_paths[2]),
+                            "proof_evidence_path": str(proof_paths[2]),
+                        },
+                    ],
+                }
+            ],
+        },
+    }
 
 
 def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> None:
@@ -91,6 +202,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         ],
         "quality_current_path": quality_current,
         "quality_baseline_path": quality_baseline,
+        "vnext_plus7_manifest_path": _vnext_plus7_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -105,6 +217,9 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["validator_packet_determinism_pct"] == 100.0
     assert first["metrics"]["witness_reconstruction_determinism_pct"] == 100.0
     assert first["metrics"]["semantics_diagnostics_determinism_pct"] == 100.0
+    assert first["metrics"]["policy_lint_determinism_pct"] == 100.0
+    assert first["metrics"]["proof_replay_determinism_pct"] == 100.0
+    assert first["metrics"]["policy_proof_packet_hash_stability_pct"] == 100.0
     assert first["metrics"]["quality_delta_non_negative"] is True
 
 
@@ -113,10 +228,7 @@ def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics
 ) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_baseline = tmp_path / "quality_baseline.json"
-    quality_payload = {
-        "dashboard_version": "quality.dashboard.v1",
-        "metrics": {"question_stability_pct": 100.0},
-    }
+    quality_payload = _legacy_quality_payload()
     _write_json(quality_current, quality_payload)
     _write_json(quality_baseline, quality_payload)
 
@@ -182,6 +294,7 @@ def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics
         semantics_diagnostics_paths=diagnostics_paths,
         quality_current_path=quality_current,
         quality_baseline_path=quality_baseline,
+        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
     )
 
     assert report["valid"] is True
@@ -191,6 +304,67 @@ def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics
     assert report["gates"]["validator_packet_determinism"] is False
     assert report["gates"]["witness_reconstruction_determinism"] is False
     assert report["gates"]["semantics_diagnostics_determinism"] is False
+
+
+def test_build_stop_gate_metrics_detects_vnext_plus7_proof_replay_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    policy_lineage_paths = _write_policy_lineage_replay_paths(tmp_path)
+    proof_paths = _write_proof_replay_paths_with_drift(tmp_path)
+
+    lint_event_paths = [
+        _example_stop_gate_path("policy_lint_events_case_a_1.ndjson"),
+        _example_stop_gate_path("policy_lint_events_case_a_2.ndjson"),
+        _example_stop_gate_path("policy_lint_events_case_a_3.ndjson"),
+    ]
+    manifest_path = tmp_path / "vnext_plus7_manifest.json"
+    _write_json(
+        manifest_path,
+        _vnext_plus7_manifest_payload(
+            policy_lint_event_paths=lint_event_paths,
+            proof_paths=proof_paths,
+            policy_lineage_paths=policy_lineage_paths,
+        ),
+    )
+
+    report = build_stop_gate_metrics(
+        incident_packet_paths=[
+            _example_stop_gate_path("incident_packet_case_a_1.json"),
+            _example_stop_gate_path("incident_packet_case_a_2.json"),
+        ],
+        event_stream_paths=[_event_fixture_path("sample_valid.ndjson")],
+        connector_snapshot_paths=[
+            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
+            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
+        ],
+        validator_evidence_packet_paths=[
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
+        ],
+        semantics_diagnostics_paths=[
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
+        ],
+        quality_current_path=quality_current,
+        quality_baseline_path=quality_baseline,
+        vnext_plus7_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is True
+    assert report["metrics"]["policy_lint_determinism_pct"] == 100.0
+    assert report["metrics"]["proof_replay_determinism_pct"] == 0.0
+    assert report["metrics"]["policy_proof_packet_hash_stability_pct"] == 0.0
+    assert report["gates"]["policy_lint_determinism"] is True
+    assert report["gates"]["proof_replay_determinism"] is False
+    assert report["gates"]["policy_proof_packet_hash_stability"] is False
 
 
 def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
@@ -232,6 +406,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json")),
             "--quality-current",
             str(quality_current),
+            "--vnext-plus7-manifest",
+            str(_vnext_plus7_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",
@@ -298,6 +474,7 @@ def test_build_stop_gate_metrics_applies_frozen_v3_quality_rules(tmp_path: Path)
         ],
         quality_current_path=quality_current,
         quality_baseline_path=quality_baseline,
+        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
     )
 
     assert report["valid"] is True

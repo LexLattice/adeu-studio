@@ -91,6 +91,12 @@ def parse_args() -> argparse.Namespace:
         ],
         help="Semantics diagnostics artifact path (repeatable)",
     )
+    parser.add_argument(
+        "--vnext-plus7-manifest",
+        type=Path,
+        default=Path("apps/api/fixtures/stop_gate/vnext_plus7_manifest.json"),
+        help="vNext+7 frozen stop-gate fixture manifest path",
+    )
     return parser.parse_args()
 
 
@@ -104,6 +110,7 @@ def main() -> None:
         semantics_diagnostics_paths=list(args.semantics_diagnostics_paths),
         quality_current_path=args.quality_current,
         quality_baseline_path=args.quality_baseline,
+        vnext_plus7_manifest_path=args.vnext_plus7_manifest,
     )
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
     args.out_json.write_text(canonical_json(report) + "\n", encoding="utf-8")
