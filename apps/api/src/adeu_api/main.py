@@ -43,9 +43,7 @@ from adeu_explain import (
     ForcedEdgeKey,
     ValidatorRunInput,
     build_diff_report,
-    build_explain_diff_packet,
     build_flip_explanation,
-    inline_source_ref,
     validate_explain_diff_packet,
 )
 from adeu_ir import (
@@ -98,6 +96,11 @@ from .adeu_concept_bridge import (
 from .concept_id_canonicalization import canonicalize_concept_ids
 from .concept_mock_provider import get_concept_fixture_bundle
 from .concept_source_features import extract_concept_source_features
+from .explain_builder import (
+    as_explain_artifact_ref,
+    build_explain_packet_payload,
+    input_ref_for_side,
+)
 from .hashing import canonical_json, sha256_canonical_json, sha256_text
 from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
@@ -3232,87 +3235,6 @@ def _build_diff_report_with_runs(
     )
 
 
-def _as_artifact_ref(value: str) -> str:
-    return f"artifact:{value}"
-
-
-def _as_explain_artifact_ref(explain_id: str) -> str:
-    return f"artifact:explain:{explain_id}"
-
-
-def _model_payload(value: Any) -> Any:
-    if isinstance(value, BaseModel):
-        return value.model_dump(mode="json", exclude_none=True)
-    return value
-
-
-def _input_ref_for_side(
-    *,
-    domain: str,
-    side: Literal["left", "right"],
-    artifact_id: str | None,
-    ir: Any,
-    source_text: str | None = None,
-    doc_id: str | None = None,
-) -> str:
-    if artifact_id:
-        return _as_artifact_ref(artifact_id)
-    payload: dict[str, Any] = {
-        "domain": domain,
-        "side": side,
-        "ir": _model_payload(ir),
-    }
-    if source_text is not None:
-        payload["source_text"] = source_text
-    if doc_id is not None:
-        payload["doc_id"] = doc_id
-    return inline_source_ref(payload)
-
-
-def _build_diff_refs_for_packet(
-    *,
-    diff_report: DiffReport,
-    explain_kind: str,
-) -> list[str]:
-    payload = {
-        "explain_kind": explain_kind,
-        "left_id": diff_report.left_id,
-        "right_id": diff_report.right_id,
-        "status_flip": diff_report.summary.status_flip,
-        "solver_pairing_state": diff_report.summary.solver_pairing_state,
-    }
-    digest = sha256_canonical_json(payload)
-    return [f"artifact:diff_sha256:{digest}"]
-
-
-def _build_witness_refs_for_packet(diff_report: DiffReport) -> list[str]:
-    refs: set[str] = set()
-    for item in diff_report.causal_slice.explanation_items:
-        digest = sha256_canonical_json(
-            {
-                "atom_name": item.atom_name,
-                "object_id": item.object_id,
-                "json_path": item.json_path,
-            }
-        )
-        refs.add(f"artifact:witness_sha256:{digest}")
-    return sorted(refs)
-
-
-def _build_validator_packet_refs_for_packet(diff_report: DiffReport) -> list[str]:
-    refs: set[str] = set()
-    for run in [*diff_report.solver.left_runs, *diff_report.solver.right_runs]:
-        request_hash = (run.request_hash or "").strip()
-        formula_hash = (run.formula_hash or "").strip()
-        run_id = (run.run_id or "").strip()
-        if request_hash and formula_hash:
-            refs.add(f"artifact:validator_evidence:{request_hash}:{formula_hash}")
-            continue
-        if run_id:
-            refs.add(f"artifact:validator_run:{run_id}")
-    return sorted(refs)
-
-
 def _explain_error_to_http(exc: ExplainDiffError) -> HTTPException:
     message = str(exc)
     code = getattr(exc, "code", EXPLAIN_PACKET_INVALID_CODE)
@@ -3331,23 +3253,16 @@ def _build_explain_packet_response(
     right_mismatch: bool | None = None,
 ) -> ExplainDiffPacketResponse:
     try:
-        packet = build_explain_diff_packet(
+        packet = build_explain_packet_payload(
             explain_kind=explain_kind,
-            input_artifact_refs=input_artifact_refs,
             diff_report=diff_report,
-            diff_refs=_build_diff_refs_for_packet(
-                diff_report=diff_report,
-                explain_kind=explain_kind,
-            ),
-            witness_refs=_build_witness_refs_for_packet(diff_report),
-            validator_evidence_packet_refs=_build_validator_packet_refs_for_packet(diff_report),
+            input_artifact_refs=input_artifact_refs,
             flip_explanation=flip_explanation,
             analysis_delta=analysis_delta,
             run_ir_mismatch=run_ir_mismatch,
             left_mismatch=left_mismatch,
             right_mismatch=right_mismatch,
         )
-        validate_explain_diff_packet(packet)
     except ExplainDiffError as exc:
         raise _explain_error_to_http(exc) from exc
     return ExplainDiffPacketResponse.model_validate(packet)
@@ -3396,7 +3311,7 @@ def _explain_materialize_response_from_row(
             "created_at": row.created_at,
             "explain_kind": row.explain_kind,
             "explain_hash": row.explain_hash,
-            "artifact_ref": _as_explain_artifact_ref(row.explain_id),
+            "artifact_ref": as_explain_artifact_ref(row.explain_id),
             "parent_stream_id": row.parent_stream_id,
             "parent_seq": row.parent_seq,
             "client_request_id": row.client_request_id,
@@ -3418,7 +3333,7 @@ def _emit_explain_materialized_event(
         detail={
             "parent_stream_id": row.parent_stream_id,
             "parent_seq": row.parent_seq,
-            "artifact_ref": _as_explain_artifact_ref(row.explain_id),
+            "artifact_ref": as_explain_artifact_ref(row.explain_id),
             "client_request_id": row.client_request_id,
             "explain_id": row.explain_id,
             "explain_hash": row.explain_hash,
@@ -4687,14 +4602,14 @@ def diff_endpoint(
         explain_kind="semantic_diff",
         diff_report=diff_report,
         input_artifact_refs=[
-            _input_ref_for_side(
+            input_ref_for_side(
                 domain="adeu",
                 side="left",
                 artifact_id=req.left_artifact_id,
                 ir=req.left_ir,
                 doc_id=left_doc_id,
             ),
-            _input_ref_for_side(
+            input_ref_for_side(
                 domain="adeu",
                 side="right",
                 artifact_id=req.right_artifact_id,
@@ -4747,7 +4662,7 @@ def diff_concepts_endpoint(
         explain_kind="concepts_diff",
         diff_report=diff_report,
         input_artifact_refs=[
-            _input_ref_for_side(
+            input_ref_for_side(
                 domain="concepts",
                 side="left",
                 artifact_id=None,
@@ -4755,7 +4670,7 @@ def diff_concepts_endpoint(
                 source_text=left_source_text,
                 doc_id=left_doc_id,
             ),
-            _input_ref_for_side(
+            input_ref_for_side(
                 domain="concepts",
                 side="right",
                 artifact_id=None,
@@ -4789,13 +4704,13 @@ def diff_puzzles_endpoint(
         explain_kind="puzzles_diff",
         diff_report=diff_report,
         input_artifact_refs=[
-            _input_ref_for_side(
+            input_ref_for_side(
                 domain="puzzles",
                 side="left",
                 artifact_id=None,
                 ir=req.left_ir,
             ),
-            _input_ref_for_side(
+            input_ref_for_side(
                 domain="puzzles",
                 side="right",
                 artifact_id=None,
@@ -4859,14 +4774,14 @@ def explain_flip_endpoint(
             format=format,
             diff_report=diff_report,
             input_artifact_refs=[
-                _input_ref_for_side(
+                input_ref_for_side(
                     domain="adeu",
                     side="left",
                     artifact_id=None,
                     ir=req.left_ir,
                     doc_id=left_doc_id,
                 ),
-                _input_ref_for_side(
+                input_ref_for_side(
                     domain="adeu",
                     side="right",
                     artifact_id=None,
@@ -4926,13 +4841,13 @@ def explain_flip_endpoint(
             format=format,
             diff_report=diff_report,
             input_artifact_refs=[
-                _input_ref_for_side(
+                input_ref_for_side(
                     domain="puzzles",
                     side="left",
                     artifact_id=None,
                     ir=req.left_ir,
                 ),
-                _input_ref_for_side(
+                input_ref_for_side(
                     domain="puzzles",
                     side="right",
                     artifact_id=None,
@@ -5073,7 +4988,7 @@ def explain_flip_endpoint(
         format=format,
         diff_report=diff_report,
         input_artifact_refs=[
-            _input_ref_for_side(
+            input_ref_for_side(
                 domain="concepts",
                 side="left",
                 artifact_id=None,
@@ -5081,7 +4996,7 @@ def explain_flip_endpoint(
                 source_text=left_source_text,
                 doc_id=left_doc_id,
             ),
-            _input_ref_for_side(
+            input_ref_for_side(
                 domain="concepts",
                 side="right",
                 artifact_id=None,
