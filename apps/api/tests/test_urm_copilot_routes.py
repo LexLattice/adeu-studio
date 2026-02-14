@@ -34,6 +34,7 @@ from adeu_api.urm_routes import (
 )
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
+from jsonschema import Draft202012Validator
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.errors import URMError
 from urm_runtime.instruction_policy import (
@@ -129,6 +130,14 @@ def _wait_for(
             return True
         time.sleep(interval_secs)
     return bool(predicate())
+
+
+def _repo_root() -> Path:
+    current_path = Path(__file__).resolve()
+    for parent in current_path.parents:
+        if (parent / ".git").exists():
+            return parent
+    raise FileNotFoundError("repository root not found")
 
 
 def _budget_snapshot_v1(
@@ -868,6 +877,10 @@ def test_connector_snapshot_create_get_and_idempotency(
     assert first.session_id == session_id
     assert len(first.connector_snapshot_hash) == 64
     assert [item.get("id") for item in first.connectors] == ["alpha", "zeta"]
+    assert [item.get("id") for item in first.exposed_connectors] == ["alpha", "zeta"]
+    assert [item.connector_id for item in first.connector_exposure] == ["alpha", "zeta"]
+    assert all(item.exposed for item in first.connector_exposure)
+    assert all(item.deny_reason_code is None for item in first.connector_exposure)
 
     replay = urm_connector_snapshot_create_endpoint(
         ConnectorSnapshotCreateRequest(
@@ -878,6 +891,8 @@ def test_connector_snapshot_create_get_and_idempotency(
     )
     assert replay.snapshot_id == first.snapshot_id
     assert replay.idempotent_replay is True
+    assert replay.exposed_connectors == first.exposed_connectors
+    assert replay.connector_exposure == first.connector_exposure
 
     fetched = urm_connector_snapshot_get_endpoint(
         first.snapshot_id,
@@ -887,6 +902,18 @@ def test_connector_snapshot_create_get_and_idempotency(
     assert fetched.snapshot_id == first.snapshot_id
     assert fetched.connector_snapshot_hash == first.connector_snapshot_hash
     assert fetched.connectors == first.connectors
+    assert fetched.exposed_connectors == first.exposed_connectors
+    assert fetched.connector_exposure == first.connector_exposure
+    snapshot_artifact = tmp_path / "evidence" / "codex" / "connectors" / f"{first.snapshot_id}.json"
+    artifact_payload = json.loads(snapshot_artifact.read_text(encoding="utf-8"))
+    schema_payload = json.loads(
+        (_repo_root() / "spec" / "connector_snapshot.schema.json").read_text(encoding="utf-8")
+    )
+    schema_errors = sorted(
+        Draft202012Validator(schema_payload).iter_errors(artifact_payload),
+        key=lambda err: str(err.path),
+    )
+    assert schema_errors == []
     _reset_manager_for_tests()
 
 
@@ -940,6 +967,76 @@ def test_connector_snapshot_get_stale_and_not_found(
         )
     assert missing_exc.value.status_code == 404
     assert missing_exc.value.detail["code"] == "URM_CONNECTOR_SNAPSHOT_NOT_FOUND"
+    manager = _get_manager()
+    events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    connector_fail_codes = [
+        event.payload.get("error_code")
+        for event in events
+        if event.event_kind == "TOOL_CALL_FAIL"
+        and isinstance(event.payload, dict)
+        and event.payload.get("tool_name") == "urm.connectors.snapshot.get"
+    ]
+    assert connector_fail_codes[-3:] == [
+        "URM_CONNECTOR_SNAPSHOT_STALE",
+        "URM_CONNECTOR_SNAPSHOT_STALE",
+        "URM_CONNECTOR_SNAPSHOT_NOT_FOUND",
+    ]
+    replay_fetch = urm_connector_snapshot_get_endpoint(
+        created.snapshot_id,
+        session_id=session_id,
+        provider="codex",
+        execution_mode="replay",
+        requested_capability_snapshot_id="different-capability-snapshot-id",
+        min_acceptable_ts=datetime.now(tz=timezone.utc) + timedelta(minutes=1),
+    )
+    assert replay_fetch.snapshot_id == created.snapshot_id
+    assert replay_fetch.connectors == created.connectors
+    assert replay_fetch.exposed_connectors == created.exposed_connectors
+    assert replay_fetch.connector_exposure == created.connector_exposure
+    assert [item.connector_id for item in replay_fetch.connector_exposure] == [
+        item.connector_id for item in created.connector_exposure
+    ]
+    _reset_manager_for_tests()
+
+
+def test_connector_snapshot_create_replay_mode_blocks_live_discovery(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-connector-3")
+    )
+    session_id = start.session_id
+    with pytest.raises(HTTPException) as replay_exc:
+        urm_connector_snapshot_create_endpoint(
+            ConnectorSnapshotCreateRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id="connector-snapshot-replay-1",
+                execution_mode="replay",
+            )
+        )
+    assert replay_exc.value.status_code == 400
+    assert replay_exc.value.detail["code"] == "URM_CONNECTOR_REPLAY_LIVE_READ_BLOCKED"
+    manager = _get_manager()
+    events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    fail_events = [
+        event
+        for event in events
+        if event.event_kind == "TOOL_CALL_FAIL"
+        and isinstance(event.payload, dict)
+        and event.payload.get("tool_name") == "urm.connectors.snapshot.create"
+    ]
+    assert fail_events
+    detail = fail_events[-1].payload
+    assert detail.get("error_code") == "URM_CONNECTOR_REPLAY_LIVE_READ_BLOCKED"
+    assert detail.get("execution_mode") == "replay"
     _reset_manager_for_tests()
 
 

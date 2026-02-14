@@ -1,0 +1,30 @@
+{
+  "schema": "policy.connector_exposure_mapping.v1",
+  "default_deny_reason_code": "URM_CONNECTOR_EXPOSURE_UNMAPPED",
+  "rules": [
+    {
+      "rule_id": "allow_alpha_read_state",
+      "priority": 10,
+      "match": {
+        "connector_id": "alpha"
+      },
+      "expose": true,
+      "required_capabilities": [
+        "read_state"
+      ],
+      "deny_reason_code": "URM_CONNECTOR_EXPOSURE_DENIED"
+    },
+    {
+      "rule_id": "allow_zeta_read_state",
+      "priority": 20,
+      "match": {
+        "connector_id": "zeta"
+      },
+      "expose": true,
+      "required_capabilities": [
+        "read_state"
+      ],
+      "deny_reason_code": "URM_CONNECTOR_EXPOSURE_DENIED"
+    }
+  ]
+}
