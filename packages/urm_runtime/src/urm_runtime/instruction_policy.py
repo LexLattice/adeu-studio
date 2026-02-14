@@ -518,13 +518,19 @@ def _compile_instruction_policy_document(document: dict[str, Any]) -> dict[str, 
                 )
             compiled_rules.append(_compile_lemma_rule(pack=pack, item=item))
 
-    rule_ids = [str(rule["rule_id"]) for rule in compiled_rules]
-    duplicates = sorted({rule_id for rule_id in rule_ids if rule_ids.count(rule_id) > 1})
-    if duplicates:
+    seen_ids: set[str] = set()
+    duplicate_ids: set[str] = set()
+    for rule in compiled_rules:
+        rule_id = str(rule["rule_id"])
+        if rule_id in seen_ids:
+            duplicate_ids.add(rule_id)
+        else:
+            seen_ids.add(rule_id)
+    if duplicate_ids:
         raise URMError(
             code="URM_POLICY_INVALID_SCHEMA",
             message="compiled instruction policy contains duplicate rule_id values",
-            context={"duplicate_rule_ids": duplicates},
+            context={"duplicate_rule_ids": sorted(duplicate_ids)},
         )
     compiled_rules.sort(key=lambda rule: (int(rule["priority"]), str(rule["rule_id"])))
     return {"schema": document.get("schema"), "rules": compiled_rules}
