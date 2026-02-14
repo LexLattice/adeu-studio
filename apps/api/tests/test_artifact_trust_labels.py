@@ -208,6 +208,18 @@ def test_artifact_trust_requires_recomputable_proof_evidence_hash(
     assert created.proof_trust == "lean_core_v1_partial_or_failed"
 
 
+def test_artifact_trust_reraises_unexpected_proof_packet_value_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _raise_unexpected(_: list[object]) -> list[dict[str, object]]:
+        raise ValueError("unexpected packet error", "URM_UNEXPECTED_PACKET_ERROR")
+
+    monkeypatch.setattr(api_main, "_proof_evidence_packets_from_rows", _raise_unexpected)
+
+    with pytest.raises(ValueError, match="unexpected packet error"):
+        api_main._artifact_trust_labels(validator_runs=[], proof_rows=[])
+
+
 def test_artifact_trust_missing_required_rows_is_no_required(
     monkeypatch,
     tmp_path: Path,

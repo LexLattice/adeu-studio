@@ -1683,6 +1683,16 @@ def _proof_evidence_packets_from_rows(rows: list[ProofArtifactRow]) -> list[dict
     return [keyed[key] for key in sorted(keyed, key=lambda item: (item[0], item[1]))]
 
 
+def _is_duplicate_grouped_proof_packet_error(exc: ValueError) -> bool:
+    if len(exc.args) < 2:
+        return False
+    message, code, *_rest = exc.args
+    return (
+        message == "duplicate grouped proof packet key"
+        and code == _PROOF_EVIDENCE_NOT_FOUND_CODE
+    )
+
+
 def _proof_evidence_hash_recomputes(packet: dict[str, Any]) -> bool:
     embedded = packet.get("proof_evidence_hash")
     if not isinstance(embedded, str):
@@ -2008,8 +2018,10 @@ def _artifact_trust_labels(
             str(packet["proof_id"]): packet
             for packet in _proof_evidence_packets_from_rows(proof_rows)
         }
-    except ValueError:
-        return fallback_solver_trust, "lean_core_v1_partial_or_failed"
+    except ValueError as exc:
+        if _is_duplicate_grouped_proof_packet_error(exc):
+            return fallback_solver_trust, "lean_core_v1_partial_or_failed"
+        raise
     required_by_kind = _latest_required_proof_rows(proof_rows)
     required_rows: list[ProofArtifactRow] = []
     for obligation_kind in _PROOF_REQUIRED_OBLIGATION_KINDS:
