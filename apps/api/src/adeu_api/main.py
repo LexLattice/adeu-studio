@@ -59,10 +59,12 @@ from adeu_kernel import (
     apply_ambiguity_option,
     build_adeu_core_proof_requests,
     build_proof_backend,
+    build_semantics_diagnostics,
     build_validator_backend,
     build_validator_evidence_packet,
     check,
     check_with_validator_runs,
+    derive_semantics_assurance,
 )
 from adeu_puzzles import (
     KnightsKnavesPuzzle,
@@ -734,6 +736,7 @@ class StoredValidatorRun(BaseModel):
     request_hash: str
     formula_hash: str
     status: str
+    assurance: str | None = None
     evidence_json: dict[str, object]
     atom_map_json: dict[str, object]
     validator_evidence_packet: dict[str, object]
@@ -742,6 +745,34 @@ class StoredValidatorRun(BaseModel):
 class ArtifactValidatorRunsResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     items: list[StoredValidatorRun]
+
+
+class SemanticsWitnessRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    assertion_name: str
+    object_id: str | None = None
+    json_path: str | None = None
+
+
+class SemanticsDiagnosticsRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["validator_run"]
+    validator_run_id: str
+    formula_hash: str
+    request_hash: str
+    status: Literal["SAT", "UNSAT", "UNKNOWN", "TIMEOUT", "INVALID_REQUEST", "ERROR"]
+    assurance: Literal["kernel_only", "solver_backed", "proof_checked"]
+    validator_evidence_packet_ref: str
+    validator_evidence_packet_hash: str
+    witness_refs: list[SemanticsWitnessRef] = Field(default_factory=list)
+
+
+class SemanticsDiagnosticsResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    schema: Literal["semantics_diagnostics@1"]
+    artifact_ref: str
+    records: list[SemanticsDiagnosticsRecord] = Field(default_factory=list)
+    semantics_diagnostics_hash: str
 
 
 app = FastAPI(title="ADEU Studio API")
@@ -1580,6 +1611,7 @@ def _persist_validator_runs(
             request_hash=run.result.request_hash,
             formula_hash=run.result.formula_hash,
             status=run.result.status,
+            assurance=run.result.assurance,
             evidence_json=run.result.evidence.model_dump(mode="json", exclude_none=True),
             atom_map_json=atom_map,
             connection=connection,
@@ -1609,8 +1641,24 @@ def _validator_evidence_packet_from_row(row: ValidatorRunRow) -> dict[str, Any]:
         status=row.status,
         evidence=row.evidence_json,
         atom_map=row.atom_map_json,
+        assurance=derive_semantics_assurance(
+            status=row.status,
+            assurance=row.assurance,
+        ),
     )
     return packet
+
+
+def _semantics_diagnostics_from_rows(
+    *,
+    rows: list[ValidatorRunRow],
+    artifact_ref: str,
+) -> dict[str, Any]:
+    packets = [_validator_evidence_packet_from_row(row) for row in rows]
+    return build_semantics_diagnostics(
+        artifact_ref=artifact_ref,
+        validator_evidence_packets=packets,
+    )
 
 
 def _validator_run_input_from_record(run: ValidatorRunRecord) -> ValidatorRunInput:
@@ -4223,6 +4271,10 @@ def list_concept_artifact_validator_runs_endpoint(
                 request_hash=run.request_hash,
                 formula_hash=run.formula_hash,
                 status=run.status,
+                assurance=derive_semantics_assurance(
+                    status=run.status,
+                    assurance=run.assurance,
+                ),
                 evidence_json=run.evidence_json,
                 atom_map_json=run.atom_map_json,
                 validator_evidence_packet=_validator_evidence_packet_from_row(run),
@@ -4230,6 +4282,25 @@ def list_concept_artifact_validator_runs_endpoint(
             for run in rows
         ]
     )
+
+
+@app.get(
+    "/concepts/artifacts/{artifact_id}/semantics-diagnostics",
+    response_model=SemanticsDiagnosticsResponse,
+)
+def get_concept_artifact_semantics_diagnostics_endpoint(
+    artifact_id: str,
+) -> SemanticsDiagnosticsResponse:
+    row = get_concept_artifact(artifact_id=artifact_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="not found")
+
+    runs = list_concept_validator_runs(concept_artifact_id=artifact_id)
+    diagnostics = _semantics_diagnostics_from_rows(
+        rows=runs,
+        artifact_ref=f"concept_artifact:{artifact_id}",
+    )
+    return SemanticsDiagnosticsResponse.model_validate(diagnostics)
 
 
 @app.post("/concepts/align", response_model=ConceptAlignResponse)
@@ -4825,6 +4896,10 @@ def list_artifact_validator_runs_endpoint(artifact_id: str) -> ArtifactValidator
                 request_hash=row.request_hash,
                 formula_hash=row.formula_hash,
                 status=row.status,
+                assurance=derive_semantics_assurance(
+                    status=row.status,
+                    assurance=row.assurance,
+                ),
                 evidence_json=row.evidence_json,
                 atom_map_json=row.atom_map_json,
                 validator_evidence_packet=_validator_evidence_packet_from_row(row),
@@ -4832,6 +4907,23 @@ def list_artifact_validator_runs_endpoint(artifact_id: str) -> ArtifactValidator
             for row in rows
         ]
     )
+
+
+@app.get(
+    "/artifacts/{artifact_id}/semantics-diagnostics",
+    response_model=SemanticsDiagnosticsResponse,
+)
+def get_artifact_semantics_diagnostics_endpoint(artifact_id: str) -> SemanticsDiagnosticsResponse:
+    artifact = get_artifact(artifact_id=artifact_id)
+    if artifact is None:
+        raise HTTPException(status_code=404, detail="not found")
+
+    runs = list_validator_runs(artifact_id=artifact_id)
+    diagnostics = _semantics_diagnostics_from_rows(
+        rows=runs,
+        artifact_ref=f"artifact:{artifact_id}",
+    )
+    return SemanticsDiagnosticsResponse.model_validate(diagnostics)
 
 
 @app.get("/healthz")

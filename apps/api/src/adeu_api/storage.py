@@ -52,6 +52,7 @@ class ValidatorRunRow:
     request_hash: str
     formula_hash: str
     status: str
+    assurance: str | None
     evidence_json: dict[str, Any]
     atom_map_json: dict[str, Any]
 
@@ -189,6 +190,7 @@ def _ensure_validator_schema(con: sqlite3.Connection) -> None:
           request_hash TEXT NOT NULL,
           formula_hash TEXT NOT NULL,
           status TEXT NOT NULL,
+          assurance TEXT,
           evidence_json TEXT NOT NULL,
           atom_map_json TEXT NOT NULL,
           FOREIGN KEY(artifact_id) REFERENCES artifacts(artifact_id),
@@ -203,6 +205,8 @@ def _ensure_validator_schema(con: sqlite3.Connection) -> None:
     }
     if "concept_artifact_id" not in existing:
         con.execute("ALTER TABLE validator_runs ADD COLUMN concept_artifact_id TEXT")
+    if "assurance" not in existing:
+        con.execute("ALTER TABLE validator_runs ADD COLUMN assurance TEXT")
     if not _validator_runs_has_concept_fk(con):
         _rebuild_validator_runs_with_concept_fk(con)
 
@@ -227,6 +231,7 @@ def _rebuild_validator_runs_with_concept_fk(con: sqlite3.Connection) -> None:
         if "concept_artifact_id" in existing
         else "NULL"
     )
+    assurance_expr = "assurance" if "assurance" in existing else "NULL"
     con.execute(
         """
         CREATE TABLE validator_runs_new (
@@ -241,6 +246,7 @@ def _rebuild_validator_runs_with_concept_fk(con: sqlite3.Connection) -> None:
           request_hash TEXT NOT NULL,
           formula_hash TEXT NOT NULL,
           status TEXT NOT NULL,
+          assurance TEXT,
           evidence_json TEXT NOT NULL,
           atom_map_json TEXT NOT NULL,
           FOREIGN KEY(artifact_id) REFERENCES artifacts(artifact_id),
@@ -262,6 +268,7 @@ def _rebuild_validator_runs_with_concept_fk(con: sqlite3.Connection) -> None:
           request_hash,
           formula_hash,
           status,
+          assurance,
           evidence_json,
           atom_map_json
         )
@@ -278,6 +285,7 @@ def _rebuild_validator_runs_with_concept_fk(con: sqlite3.Connection) -> None:
           request_hash,
           formula_hash,
           status,
+          {assurance_expr},
           evidence_json,
           atom_map_json
         FROM validator_runs
@@ -602,6 +610,7 @@ def create_validator_run(
     request_hash: str,
     formula_hash: str,
     status: str,
+    assurance: str | None = None,
     evidence_json: dict[str, Any],
     atom_map_json: dict[str, Any],
     db_path: Path | None = None,
@@ -626,10 +635,11 @@ def create_validator_run(
               request_hash,
               formula_hash,
               status,
+              assurance,
               evidence_json,
               atom_map_json
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 run_id,
@@ -643,6 +653,7 @@ def create_validator_run(
                 request_hash,
                 formula_hash,
                 status,
+                assurance,
                 json.dumps(evidence_json, sort_keys=True),
                 json.dumps(atom_map_json, sort_keys=True),
             ),
@@ -667,6 +678,7 @@ def create_validator_run(
         request_hash=request_hash,
         formula_hash=formula_hash,
         status=status,
+        assurance=assurance,
         evidence_json=evidence_json,
         atom_map_json=atom_map_json,
     )
@@ -753,7 +765,7 @@ def list_validator_runs(
             """
             SELECT run_id, artifact_id, created_at, backend, backend_version, timeout_ms,
                    concept_artifact_id, options_json, request_hash, formula_hash, status,
-                   evidence_json, atom_map_json
+                   assurance, evidence_json, atom_map_json
             FROM validator_runs
             WHERE artifact_id = ?
             ORDER BY created_at ASC
@@ -783,7 +795,7 @@ def list_validator_runs_for_artifacts(
             f"""
             SELECT run_id, artifact_id, created_at, backend, backend_version, timeout_ms,
                    concept_artifact_id, options_json, request_hash, formula_hash, status,
-                   evidence_json, atom_map_json
+                   assurance, evidence_json, atom_map_json
             FROM validator_runs
             WHERE artifact_id IN ({placeholders})
             ORDER BY artifact_id ASC, created_at ASC, run_id ASC
@@ -812,8 +824,8 @@ def list_concept_validator_runs(
         rows = con.execute(
             """
             SELECT run_id, artifact_id, concept_artifact_id, created_at, backend, backend_version,
-                   timeout_ms, options_json, request_hash, formula_hash, status, evidence_json,
-                   atom_map_json
+                   timeout_ms, options_json, request_hash, formula_hash, status, assurance,
+                   evidence_json, atom_map_json
             FROM validator_runs
             WHERE concept_artifact_id = ?
             ORDER BY created_at ASC
@@ -834,6 +846,7 @@ def list_concept_validator_runs(
             request_hash=row["request_hash"],
             formula_hash=row["formula_hash"],
             status=row["status"],
+            assurance=row["assurance"],
             evidence_json=json.loads(row["evidence_json"]),
             atom_map_json=json.loads(row["atom_map_json"]),
         )
@@ -912,6 +925,7 @@ def _validator_run_from_row(row: sqlite3.Row) -> ValidatorRunRow:
         request_hash=row["request_hash"],
         formula_hash=row["formula_hash"],
         status=row["status"],
+        assurance=row["assurance"],
         evidence_json=json.loads(row["evidence_json"]),
         atom_map_json=json.loads(row["atom_map_json"]),
     )
