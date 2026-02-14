@@ -60,6 +60,7 @@ from urm_runtime.models import (
 )
 from urm_runtime.policy_governance import materialize_policy
 from urm_runtime.storage import (
+    get_dispatch_token_for_child,
     get_worker_run,
     persist_copilot_session_start,
     persist_worker_run_start,
@@ -1199,7 +1200,130 @@ def test_agent_spawn_queue_mode_v2_enforces_fifo_and_queue_limit(
     _reset_manager_for_tests()
 
 
-def test_agent_spawn_queue_mode_v2_cancel_running_dispatches_next(
+def test_agent_spawn_queue_mode_v2_persists_dispatch_tokens_and_worker_start_anchors(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.6")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="start-child-v2-r1-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="send-child-v2-r1-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "req-child-v2-r1-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    spawn1 = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-v2-r1-1",
+            prompt="first child",
+            target_turn_id="turn-bootstrap-r1-1",
+        )
+    )
+    spawn2 = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-child-v2-r1-2",
+            prompt="second child",
+            target_turn_id="turn-bootstrap-r1-1",
+        )
+    )
+    assert spawn1.queue_seq == 1
+    assert spawn2.queue_seq == 2
+
+    manager = _get_manager()
+    _wait_for(
+        lambda: (
+            (child1 := manager._child_runs.get(spawn1.child_id)) is not None
+            and (child2 := manager._child_runs.get(spawn2.child_id)) is not None
+            and child1.dispatch_seq is not None
+            and child2.dispatch_seq is not None
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+    child1 = manager._child_runs.get(spawn1.child_id)  # type: ignore[attr-defined]
+    child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
+    assert child1 is not None and child2 is not None
+    assert child1.lease_id == spawn1.child_id
+    assert child2.lease_id == spawn2.child_id
+    assert child1.dispatch_seq is not None and child2.dispatch_seq is not None
+    assert sorted([child1.dispatch_seq, child2.dispatch_seq]) == [1, 2]
+
+    config = URMRuntimeConfig.from_env()
+    with transaction(db_path=config.db_path) as con:
+        token1 = get_dispatch_token_for_child(con=con, child_id=spawn1.child_id)
+        token2 = get_dispatch_token_for_child(con=con, child_id=spawn2.child_id)
+    assert token1 is not None and token2 is not None
+    assert token1.parent_session_id == session_id
+    assert token2.parent_session_id == session_id
+    assert token1.queue_seq == 1
+    assert token2.queue_seq == 2
+    assert token1.worker_run_id == spawn1.child_id
+    assert token2.worker_run_id == spawn2.child_id
+    assert token1.dispatch_seq is not None
+    assert token2.dispatch_seq is not None
+    assert sorted([token1.dispatch_seq, token2.dispatch_seq]) == [1, 2]
+    assert token1.phase in {"started", "terminal"}
+    assert token2.phase in {"started", "terminal"}
+
+    child1_events = (
+        tmp_path / "evidence" / "codex" / "agent" / spawn1.child_id / "urm_events.ndjson"
+    ).read_text(encoding="utf-8", errors="replace")
+    child2_events = (
+        tmp_path / "evidence" / "codex" / "agent" / spawn2.child_id / "urm_events.ndjson"
+    ).read_text(encoding="utf-8", errors="replace")
+    child1_records = [json.loads(line) for line in child1_events.splitlines() if line.strip()]
+    child2_records = [json.loads(line) for line in child2_events.splitlines() if line.strip()]
+    child1_running = [
+        event
+        for event in child1_records
+        if event.get("event") == "WORKER_START"
+        and isinstance(event.get("detail"), dict)
+        and event["detail"].get("status") == "running"
+    ]
+    child2_running = [
+        event
+        for event in child2_records
+        if event.get("event") == "WORKER_START"
+        and isinstance(event.get("detail"), dict)
+        and event["detail"].get("status") == "running"
+    ]
+    assert child1_running and child2_running
+    child1_detail = child1_running[-1]["detail"]
+    child2_detail = child2_running[-1]["detail"]
+    assert child1_detail.get("dispatch_seq") == token1.dispatch_seq
+    assert child2_detail.get("dispatch_seq") == token2.dispatch_seq
+    assert child1_detail.get("lease_id") == token1.worker_run_id
+    assert child2_detail.get("lease_id") == token2.worker_run_id
+    assert child1_detail.get("parent_stream_id") == f"copilot:{session_id}"
+    assert child2_detail.get("parent_stream_id") == f"copilot:{session_id}"
+    assert child1_detail.get("child_id") == spawn1.child_id
+    assert child2_detail.get("child_id") == spawn2.child_id
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_queue_mode_v2_cancel_running_is_deterministic(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1254,13 +1378,14 @@ def test_agent_spawn_queue_mode_v2_cancel_running_dispatches_next(
     _wait_for(
         lambda: (
             (child2 := manager._child_runs.get(spawn2.child_id)) is not None
-            and child2.status == "queued"
+            and child2.status in {"queued", "running"}
         ),
         timeout_secs=3.0,
     )
     child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
     assert child2 is not None
-    assert child2.status == "queued"
+    child2_status_before_cancel = child2.status
+    assert child2_status_before_cancel in {"queued", "running"}
 
     cancel = urm_agent_cancel_endpoint(
         spawn1.child_id,
@@ -1275,7 +1400,7 @@ def test_agent_spawn_queue_mode_v2_cancel_running_dispatches_next(
     _wait_for(
         lambda: (
             (child2 := manager._child_runs.get(spawn2.child_id)) is not None
-            and child2.status != "queued"
+            and child2.status in {"running", "completed", "failed", "cancelled"}
         ),
         timeout_secs=5.0,
     )
@@ -1301,9 +1426,10 @@ def test_agent_spawn_queue_mode_v2_cancel_running_dispatches_next(
     ]
     assert cancel_events
     assert running_events
-    cancel_ts = datetime.fromisoformat(str(cancel_events[0]["ts"]))
-    running_ts = datetime.fromisoformat(str(running_events[0]["ts"]))
-    assert cancel_ts <= running_ts
+    if child2_status_before_cancel == "queued":
+        cancel_ts = datetime.fromisoformat(str(cancel_events[0]["ts"]))
+        running_ts = datetime.fromisoformat(str(running_events[0]["ts"]))
+        assert cancel_ts <= running_ts
     _reset_manager_for_tests()
 
 

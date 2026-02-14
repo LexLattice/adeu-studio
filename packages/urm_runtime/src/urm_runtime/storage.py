@@ -19,7 +19,7 @@ from .errors import (
     ApprovalNotFoundError,
 )
 
-URM_SCHEMA_VERSION = 4
+URM_SCHEMA_VERSION = 5
 
 
 class IdempotencyPayloadConflict(ValueError):
@@ -108,6 +108,20 @@ class WorkerRunRow:
     error_code: str | None
     error_message: str | None
     result_json: dict[str, Any] | None
+
+
+@dataclass(frozen=True)
+class DispatchTokenRow:
+    child_id: str
+    parent_session_id: str
+    parent_stream_id: str
+    parent_seq: int
+    queue_seq: int
+    dispatch_seq: int | None
+    worker_run_id: str
+    phase: str
+    created_at: str
+    updated_at: str
 
 
 @dataclass(frozen=True)
@@ -269,6 +283,23 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
     )
     con.execute(
         """
+        CREATE TABLE IF NOT EXISTS urm_dispatch_token (
+          child_id TEXT PRIMARY KEY,
+          parent_session_id TEXT NOT NULL,
+          parent_stream_id TEXT NOT NULL,
+          parent_seq INTEGER NOT NULL,
+          queue_seq INTEGER NOT NULL,
+          dispatch_seq INTEGER,
+          worker_run_id TEXT NOT NULL,
+          phase TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          CHECK(phase IN ('queued', 'leased', 'started', 'terminal'))
+        )
+        """
+    )
+    con.execute(
+        """
         CREATE TABLE IF NOT EXISTS urm_connector_snapshot (
           snapshot_id TEXT PRIMARY KEY,
           created_at TEXT NOT NULL,
@@ -372,6 +403,31 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
     )
     con.execute(
         """
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_urm_dispatch_token_parent_queue
+        ON urm_dispatch_token(parent_session_id, queue_seq)
+        """
+    )
+    con.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_urm_dispatch_token_parent_dispatch
+        ON urm_dispatch_token(parent_session_id, dispatch_seq)
+        WHERE dispatch_seq IS NOT NULL
+        """
+    )
+    con.execute(
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_urm_dispatch_token_parent_worker
+        ON urm_dispatch_token(parent_session_id, worker_run_id)
+        """
+    )
+    con.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_urm_dispatch_token_parent_dispatch_order
+        ON urm_dispatch_token(parent_session_id, dispatch_seq, queue_seq)
+        """
+    )
+    con.execute(
+        """
         CREATE INDEX IF NOT EXISTS idx_urm_evidence_worker_id
         ON urm_evidence_record(worker_id)
         """
@@ -419,7 +475,7 @@ def ensure_urm_schema(con: sqlite3.Connection) -> None:
             (
                 URM_SCHEMA_VERSION,
                 datetime.now(tz=timezone.utc).isoformat(),
-                "urm runtime schema v4 policy registry and activation log",
+                "urm runtime schema v5 scheduler dispatch token persistence",
             ),
         )
 
@@ -546,6 +602,162 @@ def persist_worker_run_start(
             json.dumps(result_json, sort_keys=True) if result_json is not None else None,
         ),
     )
+
+
+def _dispatch_token_from_row(row: tuple[Any, ...]) -> DispatchTokenRow:
+    return DispatchTokenRow(
+        child_id=str(row[0]),
+        parent_session_id=str(row[1]),
+        parent_stream_id=str(row[2]),
+        parent_seq=int(row[3]),
+        queue_seq=int(row[4]),
+        dispatch_seq=int(row[5]) if row[5] is not None else None,
+        worker_run_id=str(row[6]),
+        phase=str(row[7]),
+        created_at=str(row[8]),
+        updated_at=str(row[9]),
+    )
+
+
+def get_dispatch_token_for_child(
+    *,
+    con: sqlite3.Connection,
+    child_id: str,
+) -> DispatchTokenRow | None:
+    row = con.execute(
+        """
+        SELECT
+          child_id,
+          parent_session_id,
+          parent_stream_id,
+          parent_seq,
+          queue_seq,
+          dispatch_seq,
+          worker_run_id,
+          phase,
+          created_at,
+          updated_at
+        FROM urm_dispatch_token
+        WHERE child_id = ?
+        """,
+        (child_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    return _dispatch_token_from_row(row)
+
+
+def upsert_dispatch_token_queued(
+    *,
+    con: sqlite3.Connection,
+    child_id: str,
+    parent_session_id: str,
+    parent_stream_id: str,
+    parent_seq: int,
+    worker_run_id: str,
+) -> DispatchTokenRow:
+    existing = get_dispatch_token_for_child(con=con, child_id=child_id)
+    if existing is not None:
+        return existing
+    next_queue_seq_row = con.execute(
+        """
+        SELECT COALESCE(MAX(queue_seq), 0) + 1
+        FROM urm_dispatch_token
+        WHERE parent_session_id = ?
+        """,
+        (parent_session_id,),
+    ).fetchone()
+    next_queue_seq = int(next_queue_seq_row[0]) if next_queue_seq_row is not None else 1
+    now = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        INSERT INTO urm_dispatch_token (
+          child_id,
+          parent_session_id,
+          parent_stream_id,
+          parent_seq,
+          queue_seq,
+          dispatch_seq,
+          worker_run_id,
+          phase,
+          created_at,
+          updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, NULL, ?, 'queued', ?, ?)
+        """,
+        (
+            child_id,
+            parent_session_id,
+            parent_stream_id,
+            parent_seq,
+            next_queue_seq,
+            worker_run_id,
+            now,
+            now,
+        ),
+    )
+    token = get_dispatch_token_for_child(con=con, child_id=child_id)
+    if token is None:
+        raise RuntimeError("dispatch token missing after queued upsert")
+    return token
+
+
+def lease_dispatch_token(
+    *,
+    con: sqlite3.Connection,
+    child_id: str,
+) -> DispatchTokenRow:
+    token = get_dispatch_token_for_child(con=con, child_id=child_id)
+    if token is None:
+        raise RuntimeError(f"dispatch token not found for child {child_id}")
+    if token.dispatch_seq is not None and token.phase in {"leased", "started", "terminal"}:
+        return token
+    next_dispatch_seq_row = con.execute(
+        """
+        SELECT COALESCE(MAX(dispatch_seq), 0) + 1
+        FROM urm_dispatch_token
+        WHERE parent_session_id = ?
+          AND dispatch_seq IS NOT NULL
+        """,
+        (token.parent_session_id,),
+    ).fetchone()
+    next_dispatch_seq = int(next_dispatch_seq_row[0]) if next_dispatch_seq_row is not None else 1
+    now = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        UPDATE urm_dispatch_token
+        SET dispatch_seq = ?,
+            phase = 'leased',
+            updated_at = ?
+        WHERE child_id = ?
+        """,
+        (next_dispatch_seq, now, child_id),
+    )
+    leased = get_dispatch_token_for_child(con=con, child_id=child_id)
+    if leased is None:
+        raise RuntimeError("dispatch token missing after lease update")
+    return leased
+
+
+def set_dispatch_token_phase(
+    *,
+    con: sqlite3.Connection,
+    child_id: str,
+    phase: str,
+) -> DispatchTokenRow:
+    now = datetime.now(tz=timezone.utc).isoformat()
+    con.execute(
+        """
+        UPDATE urm_dispatch_token
+        SET phase = ?, updated_at = ?
+        WHERE child_id = ?
+        """,
+        (phase, now, child_id),
+    )
+    token = get_dispatch_token_for_child(con=con, child_id=child_id)
+    if token is None:
+        raise RuntimeError(f"dispatch token not found for child {child_id}")
+    return token
 
 
 def persist_connector_snapshot(
