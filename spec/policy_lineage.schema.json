@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/policy_lineage.schema.json",
+  "title": "policy_lineage@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "policy_hash",
+    "profile_id",
+    "profile_version",
+    "activation_ref",
+    "activation_seq",
+    "activation_ts",
+    "action",
+    "prev_policy_hash",
+    "lemma_pack_refs"
+  ],
+  "properties": {
+    "schema": {
+      "const": "policy_lineage@1"
+    },
+    "policy_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "profile_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profile_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "activation_ref": {
+      "type": "string",
+      "pattern": "^event:urm_policy:[^#]+#[0-9]+$"
+    },
+    "activation_seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "activation_ts": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "rollout",
+        "rollback"
+      ]
+    },
+    "prev_policy_hash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "lemma_pack_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

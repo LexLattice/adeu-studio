@@ -55,6 +55,23 @@ def _load_policy_activation_schema() -> dict[str, object]:
     return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
+def _load_policy_lineage_schema() -> dict[str, object]:
+    schema_path = _repo_root() / "spec" / "policy_lineage.schema.json"
+    return json.loads(schema_path.read_text(encoding="utf-8"))
+
+
+def _read_ndjson(path: Path) -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        payload = json.loads(line)
+        if isinstance(payload, dict):
+            rows.append(payload)
+    return rows
+
+
 def _write_json(path: Path, payload: dict[str, object]) -> None:
     path.write_text(json.dumps(payload), encoding="utf-8")
 
@@ -1370,6 +1387,16 @@ def test_policy_cli_materialize_rollout_rollback_and_active(
         activation_validator.iter_errors(activation_subset), key=lambda err: str(err.path)
     )
     assert activation_errors == []
+    lineage_subset = dict(rollout_payload["policy_lineage"])
+    lineage_validator = Draft202012Validator(_load_policy_lineage_schema())
+    lineage_errors = sorted(
+        lineage_validator.iter_errors(lineage_subset), key=lambda err: str(err.path)
+    )
+    assert lineage_errors == []
+    assert (
+        lineage_subset["activation_ref"]
+        == f"event:urm_policy:default#{rollout_payload['activation_seq']}"
+    )
 
     active_payload = json.loads(active_out.read_text(encoding="utf-8"))
     assert active_payload["schema"] == "policy_active@1"
@@ -1585,3 +1612,53 @@ def test_policy_cli_rollout_idempotency_conflict(
     assert conflict_payload["schema"] == "policy_activation_log@1"
     assert conflict_payload["valid"] is False
     assert conflict_payload["issues"][0]["code"] == "URM_POLICY_IDEMPOTENCY_CONFLICT"
+
+
+def test_policy_cli_rollout_maps_profile_registry_invalid_to_lint_code_and_event(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    broken_registry = tmp_path / "broken.profiles.v1.json"
+    broken_registry.write_text("{not_json", encoding="utf-8")
+    monkeypatch.setenv("URM_POLICY_PROFILES_PATH", str(broken_registry))
+    out_path = tmp_path / "rollout.invalid.registry.json"
+
+    assert (
+        main(
+            [
+                "rollout",
+                "--profile-id",
+                "default",
+                "--target-policy-hash",
+                "a" * 64,
+                "--client-request-id",
+                "lint-invalid-registry-1",
+                "--activation-ts",
+                "2026-02-16T10:00:00Z",
+                "--out",
+                str(out_path),
+            ]
+        )
+        == 1
+    )
+    payload = json.loads(out_path.read_text(encoding="utf-8"))
+    assert payload["valid"] is False
+    issue = payload["issues"][0]
+    assert issue["code"] == "URM_POLICY_PROFILE_REGISTRY_INVALID"
+    assert issue["context"]["source_code"] == "URM_POLICY_PROFILE_MAPPING_INVALID"
+    assert issue["context"]["lint_rule_id"] == "profile_registry_valid"
+
+    events_path = db_path.parent / "evidence" / "codex" / "governance" / "policy" / "default" / "urm_events.ndjson"
+    assert events_path.exists()
+    events = _read_ndjson(events_path)
+    lint_events = [event for event in events if event.get("event") == "POLICY_LINT_FAILED"]
+    assert lint_events
+    detail = lint_events[-1]["detail"]
+    assert isinstance(detail, dict)
+    assert detail["lint_rule_id"] == "profile_registry_valid"
+    assert detail["lint_code"] == "URM_POLICY_PROFILE_REGISTRY_INVALID"
+    assert detail["policy_hash"] == "a" * 64
+    assert detail["profile_id"] == "default"
+    assert detail["activation_ref"] == "event:urm_policy:default#0"
