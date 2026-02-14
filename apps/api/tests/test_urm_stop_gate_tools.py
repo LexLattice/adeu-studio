@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -37,6 +38,10 @@ def _semantics_diagnostics_fixture_path(name: str) -> Path:
 
 def _vnext_plus7_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus7_manifest.json"
+
+
+def _vnext_plus8_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus8_manifest.json"
 
 
 def _quality_metrics_v3(*, overrides: dict[str, float] | None = None) -> dict[str, float]:
@@ -158,6 +163,102 @@ def _vnext_plus7_manifest_payload(
     }
 
 
+def _explain_semantic_packet_fixture() -> dict[str, object]:
+    payload = json.loads(
+        (
+            _repo_root()
+            / "apps"
+            / "api"
+            / "tests"
+            / "fixtures"
+            / "explain_parity"
+            / "semantic_diff_golden_v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    return dict(payload["expected_packet"])
+
+
+def _explain_concepts_packet_fixture() -> dict[str, object]:
+    payload = json.loads(
+        (
+            _repo_root()
+            / "apps"
+            / "api"
+            / "tests"
+            / "fixtures"
+            / "explain_parity"
+            / "concepts_diff_golden_v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    return dict(payload["expected_packet"])
+
+
+def _write_explain_replay_paths(tmp_path: Path) -> tuple[list[Path], list[Path], list[Path]]:
+    packet = _explain_semantic_packet_fixture()
+    diff_paths = [tmp_path / f"explain_diff_{idx}.json" for idx in (1, 2, 3)]
+    api_paths = [tmp_path / f"explain_api_{idx}.json" for idx in (1, 2, 3)]
+    cli_paths = [tmp_path / f"explain_cli_{idx}.json" for idx in (1, 2, 3)]
+    for path in [*diff_paths, *api_paths, *cli_paths]:
+        _write_json(path, packet)
+    return diff_paths, api_paths, cli_paths
+
+
+def _vnext_plus8_manifest_payload(
+    *,
+    explain_diff_paths: list[Path],
+    api_paths: list[Path],
+    cli_paths: list[Path],
+) -> dict[str, object]:
+    payload = {
+        "schema": "stop_gate.vnext_plus8_manifest@1",
+        "replay_count": 3,
+        "metrics": {
+            "explain_diff_determinism_pct": [
+                {
+                    "fixture_id": "explain_diff_case_a",
+                    "runs": [
+                        {"explain_diff_path": str(explain_diff_paths[0])},
+                        {"explain_diff_path": str(explain_diff_paths[1])},
+                        {"explain_diff_path": str(explain_diff_paths[2])},
+                    ],
+                }
+            ],
+            "explain_api_cli_parity_pct": [
+                {
+                    "fixture_id": "explain_api_cli_parity_case_a",
+                    "runs": [
+                        {
+                            "api_explain_path": str(api_paths[0]),
+                            "cli_explain_path": str(cli_paths[0]),
+                        },
+                        {
+                            "api_explain_path": str(api_paths[1]),
+                            "cli_explain_path": str(cli_paths[1]),
+                        },
+                        {
+                            "api_explain_path": str(api_paths[2]),
+                            "cli_explain_path": str(cli_paths[2]),
+                        },
+                    ],
+                }
+            ],
+            "explain_hash_stability_pct": [
+                {
+                    "fixture_id": "explain_hash_stability_case_a",
+                    "runs": [
+                        {"explain_diff_path": str(explain_diff_paths[0])},
+                        {"explain_diff_path": str(explain_diff_paths[1])},
+                        {"explain_diff_path": str(explain_diff_paths[2])},
+                    ],
+                }
+            ],
+        },
+    }
+    manifest_blob = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    payload["manifest_hash"] = hashlib.sha256(manifest_blob.encode("utf-8")).hexdigest()
+    return payload
+
+
 def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_baseline = tmp_path / "quality_baseline.json"
@@ -203,6 +304,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "quality_current_path": quality_current,
         "quality_baseline_path": quality_baseline,
         "vnext_plus7_manifest_path": _vnext_plus7_manifest_path(),
+        "vnext_plus8_manifest_path": _vnext_plus8_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -220,7 +322,12 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["policy_lint_determinism_pct"] == 100.0
     assert first["metrics"]["proof_replay_determinism_pct"] == 100.0
     assert first["metrics"]["policy_proof_packet_hash_stability_pct"] == 100.0
+    assert first["metrics"]["explain_diff_determinism_pct"] == 100.0
+    assert first["metrics"]["explain_api_cli_parity_pct"] == 100.0
+    assert first["metrics"]["explain_hash_stability_pct"] == 100.0
     assert first["metrics"]["quality_delta_non_negative"] is True
+    assert isinstance(first["vnext_plus8_manifest_hash"], str)
+    assert len(first["vnext_plus8_manifest_hash"]) == 64
 
 
 def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics(
@@ -295,6 +402,7 @@ def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics
         quality_current_path=quality_current,
         quality_baseline_path=quality_baseline,
         vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
+        vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
     )
 
     assert report["valid"] is True
@@ -356,6 +464,7 @@ def test_build_stop_gate_metrics_detects_vnext_plus7_proof_replay_drift(
         quality_current_path=quality_current,
         quality_baseline_path=quality_baseline,
         vnext_plus7_manifest_path=manifest_path,
+        vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
     )
 
     assert report["valid"] is True
@@ -365,6 +474,120 @@ def test_build_stop_gate_metrics_detects_vnext_plus7_proof_replay_drift(
     assert report["gates"]["policy_lint_determinism"] is True
     assert report["gates"]["proof_replay_determinism"] is False
     assert report["gates"]["policy_proof_packet_hash_stability"] is False
+
+
+def test_build_stop_gate_metrics_detects_vnext_plus8_explain_api_cli_parity_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    explain_diff_paths, api_paths, cli_paths = _write_explain_replay_paths(tmp_path)
+    _write_json(cli_paths[1], _explain_concepts_packet_fixture())
+
+    manifest_path = tmp_path / "vnext_plus8_manifest.json"
+    _write_json(
+        manifest_path,
+        _vnext_plus8_manifest_payload(
+            explain_diff_paths=explain_diff_paths,
+            api_paths=api_paths,
+            cli_paths=cli_paths,
+        ),
+    )
+
+    report = build_stop_gate_metrics(
+        incident_packet_paths=[
+            _example_stop_gate_path("incident_packet_case_a_1.json"),
+            _example_stop_gate_path("incident_packet_case_a_2.json"),
+        ],
+        event_stream_paths=[_event_fixture_path("sample_valid.ndjson")],
+        connector_snapshot_paths=[
+            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
+            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
+        ],
+        validator_evidence_packet_paths=[
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
+        ],
+        semantics_diagnostics_paths=[
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
+        ],
+        quality_current_path=quality_current,
+        quality_baseline_path=quality_baseline,
+        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
+        vnext_plus8_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is True
+    assert report["metrics"]["explain_diff_determinism_pct"] == 100.0
+    assert report["metrics"]["explain_api_cli_parity_pct"] == 0.0
+    assert report["metrics"]["explain_hash_stability_pct"] == 100.0
+    assert report["gates"]["explain_diff_determinism"] is True
+    assert report["gates"]["explain_api_cli_parity"] is False
+    assert report["gates"]["explain_hash_stability"] is True
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus8_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    explain_diff_paths, api_paths, cli_paths = _write_explain_replay_paths(tmp_path)
+    manifest_payload = _vnext_plus8_manifest_payload(
+        explain_diff_paths=explain_diff_paths,
+        api_paths=api_paths,
+        cli_paths=cli_paths,
+    )
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus8_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    report = build_stop_gate_metrics(
+        incident_packet_paths=[
+            _example_stop_gate_path("incident_packet_case_a_1.json"),
+            _example_stop_gate_path("incident_packet_case_a_2.json"),
+        ],
+        event_stream_paths=[_event_fixture_path("sample_valid.ndjson")],
+        connector_snapshot_paths=[
+            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
+            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
+        ],
+        validator_evidence_packet_paths=[
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
+        ],
+        semantics_diagnostics_paths=[
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
+        ],
+        quality_current_path=quality_current,
+        quality_baseline_path=quality_baseline,
+        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
+        vnext_plus8_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["explain_diff_determinism_pct"] == 0.0
+    assert report["metrics"]["explain_api_cli_parity_pct"] == 0.0
+    assert report["metrics"]["explain_hash_stability_pct"] == 0.0
+    assert report["vnext_plus8_manifest_hash"] == ""
+    assert any(
+        issue.get("message") == "vnext+8 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
 
 
 def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
@@ -408,6 +631,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(quality_current),
             "--vnext-plus7-manifest",
             str(_vnext_plus7_manifest_path()),
+            "--vnext-plus8-manifest",
+            str(_vnext_plus8_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",
@@ -475,6 +700,7 @@ def test_build_stop_gate_metrics_applies_frozen_v3_quality_rules(tmp_path: Path)
         quality_current_path=quality_current,
         quality_baseline_path=quality_baseline,
         vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
+        vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
     )
 
     assert report["valid"] is True
