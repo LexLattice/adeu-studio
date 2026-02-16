@@ -44,6 +44,10 @@ def _vnext_plus8_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus8_manifest.json"
 
 
+def _vnext_plus9_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus9_manifest.json"
+
+
 def _quality_metrics_v3(*, overrides: dict[str, float] | None = None) -> dict[str, float]:
     metrics = {
         "redundancy_rate": 0.2,
@@ -259,6 +263,88 @@ def _vnext_plus8_manifest_payload(
     return payload
 
 
+def _write_ndjson(path: Path, records: list[dict[str, object]]) -> None:
+    payload = "\n".join(
+        json.dumps(record, sort_keys=True, separators=(",", ":")) for record in records
+    )
+    path.write_text(payload + "\n", encoding="utf-8")
+
+
+def _write_vnext_plus9_budget_cancel_paths_with_drift(tmp_path: Path) -> list[Path]:
+    base_records = [
+        json.loads(line)
+        for line in _example_stop_gate_path("concurrent_budget_cancel_events_case_a_1.ndjson")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line.strip()
+    ]
+    run1 = json.loads(json.dumps(base_records))
+    run2 = json.loads(json.dumps(base_records))
+    run3 = json.loads(json.dumps(base_records))
+
+    for record in run2:
+        if record.get("event") != "WORKER_FAIL":
+            continue
+        detail = record.get("detail")
+        if isinstance(detail, dict) and detail.get("code") == "URM_CHILD_BUDGET_EXCEEDED":
+            detail["dispatch_seq"] = int(detail.get("dispatch_seq", 0)) + 10
+            detail["lease_id"] = f"{detail.get('lease_id')}-drift"
+            break
+
+    run_paths = [tmp_path / f"budget_cancel_{idx}.ndjson" for idx in (1, 2, 3)]
+    _write_ndjson(run_paths[0], run1)
+    _write_ndjson(run_paths[1], run2)
+    _write_ndjson(run_paths[2], run3)
+    return run_paths
+
+
+def _vnext_plus9_manifest_payload(
+    *,
+    scheduler_dispatch_paths: list[Path],
+    orphan_recovery_paths: list[Path],
+    budget_cancel_paths: list[Path],
+) -> dict[str, object]:
+    payload = {
+        "schema": "stop_gate.vnext_plus9_manifest@1",
+        "replay_count": 3,
+        "metrics": {
+            "scheduler_dispatch_replay_determinism_pct": [
+                {
+                    "fixture_id": "scheduler_dispatch_case_a",
+                    "runs": [
+                        {"dispatch_token_path": str(scheduler_dispatch_paths[0])},
+                        {"dispatch_token_path": str(scheduler_dispatch_paths[1])},
+                        {"dispatch_token_path": str(scheduler_dispatch_paths[2])},
+                    ],
+                }
+            ],
+            "orphan_lease_recovery_determinism_pct": [
+                {
+                    "fixture_id": "orphan_lease_recovery_case_a",
+                    "runs": [
+                        {"orphan_recovery_event_path": str(orphan_recovery_paths[0])},
+                        {"orphan_recovery_event_path": str(orphan_recovery_paths[1])},
+                        {"orphan_recovery_event_path": str(orphan_recovery_paths[2])},
+                    ],
+                }
+            ],
+            "concurrent_budget_cancel_stability_pct": [
+                {
+                    "fixture_id": "concurrent_budget_cancel_case_a",
+                    "runs": [
+                        {"budget_cancel_event_path": str(budget_cancel_paths[0])},
+                        {"budget_cancel_event_path": str(budget_cancel_paths[1])},
+                        {"budget_cancel_event_path": str(budget_cancel_paths[2])},
+                    ],
+                }
+            ],
+        },
+    }
+    manifest_blob = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    payload["manifest_hash"] = hashlib.sha256(manifest_blob.encode("utf-8")).hexdigest()
+    return payload
+
+
 def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_baseline = tmp_path / "quality_baseline.json"
@@ -305,6 +391,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "quality_baseline_path": quality_baseline,
         "vnext_plus7_manifest_path": _vnext_plus7_manifest_path(),
         "vnext_plus8_manifest_path": _vnext_plus8_manifest_path(),
+        "vnext_plus9_manifest_path": _vnext_plus9_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -325,9 +412,14 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["explain_diff_determinism_pct"] == 100.0
     assert first["metrics"]["explain_api_cli_parity_pct"] == 100.0
     assert first["metrics"]["explain_hash_stability_pct"] == 100.0
+    assert first["metrics"]["scheduler_dispatch_replay_determinism_pct"] == 100.0
+    assert first["metrics"]["orphan_lease_recovery_determinism_pct"] == 100.0
+    assert first["metrics"]["concurrent_budget_cancel_stability_pct"] == 100.0
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
     assert len(first["vnext_plus8_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus9_manifest_hash"], str)
+    assert len(first["vnext_plus9_manifest_hash"]) == 64
 
 
 def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics(
@@ -403,6 +495,7 @@ def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics
         quality_baseline_path=quality_baseline,
         vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
         vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
+        vnext_plus9_manifest_path=_vnext_plus9_manifest_path(),
     )
 
     assert report["valid"] is True
@@ -465,6 +558,7 @@ def test_build_stop_gate_metrics_detects_vnext_plus7_proof_replay_drift(
         quality_baseline_path=quality_baseline,
         vnext_plus7_manifest_path=manifest_path,
         vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
+        vnext_plus9_manifest_path=_vnext_plus9_manifest_path(),
     )
 
     assert report["valid"] is True
@@ -522,6 +616,7 @@ def test_build_stop_gate_metrics_detects_vnext_plus8_explain_api_cli_parity_drif
         quality_baseline_path=quality_baseline,
         vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
         vnext_plus8_manifest_path=manifest_path,
+        vnext_plus9_manifest_path=_vnext_plus9_manifest_path(),
     )
 
     assert report["valid"] is True
@@ -576,6 +671,7 @@ def test_build_stop_gate_metrics_rejects_vnext_plus8_manifest_hash_mismatch(
         quality_baseline_path=quality_baseline,
         vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
         vnext_plus8_manifest_path=manifest_path,
+        vnext_plus9_manifest_path=_vnext_plus9_manifest_path(),
     )
 
     assert report["valid"] is False
@@ -585,6 +681,144 @@ def test_build_stop_gate_metrics_rejects_vnext_plus8_manifest_hash_mismatch(
     assert report["vnext_plus8_manifest_hash"] == ""
     assert any(
         issue.get("message") == "vnext+8 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_detects_vnext_plus9_budget_cancel_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    scheduler_dispatch_paths = [
+        _example_stop_gate_path("scheduler_dispatch_token_case_a_1.json"),
+        _example_stop_gate_path("scheduler_dispatch_token_case_a_2.json"),
+        _example_stop_gate_path("scheduler_dispatch_token_case_a_3.json"),
+    ]
+    orphan_recovery_paths = [
+        _example_stop_gate_path("orphan_lease_recovery_events_case_a_1.ndjson"),
+        _example_stop_gate_path("orphan_lease_recovery_events_case_a_2.ndjson"),
+        _example_stop_gate_path("orphan_lease_recovery_events_case_a_3.ndjson"),
+    ]
+    budget_cancel_paths = _write_vnext_plus9_budget_cancel_paths_with_drift(tmp_path)
+    manifest_path = tmp_path / "vnext_plus9_manifest.json"
+    _write_json(
+        manifest_path,
+        _vnext_plus9_manifest_payload(
+            scheduler_dispatch_paths=scheduler_dispatch_paths,
+            orphan_recovery_paths=orphan_recovery_paths,
+            budget_cancel_paths=budget_cancel_paths,
+        ),
+    )
+
+    report = build_stop_gate_metrics(
+        incident_packet_paths=[
+            _example_stop_gate_path("incident_packet_case_a_1.json"),
+            _example_stop_gate_path("incident_packet_case_a_2.json"),
+        ],
+        event_stream_paths=[_event_fixture_path("sample_valid.ndjson")],
+        connector_snapshot_paths=[
+            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
+            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
+        ],
+        validator_evidence_packet_paths=[
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
+        ],
+        semantics_diagnostics_paths=[
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
+        ],
+        quality_current_path=quality_current,
+        quality_baseline_path=quality_baseline,
+        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
+        vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
+        vnext_plus9_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is True
+    assert report["metrics"]["scheduler_dispatch_replay_determinism_pct"] == 100.0
+    assert report["metrics"]["orphan_lease_recovery_determinism_pct"] == 100.0
+    assert report["metrics"]["concurrent_budget_cancel_stability_pct"] == 0.0
+    assert report["gates"]["scheduler_dispatch_replay_determinism"] is True
+    assert report["gates"]["orphan_lease_recovery_determinism"] is True
+    assert report["gates"]["concurrent_budget_cancel_stability"] is False
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus9_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    scheduler_dispatch_paths = [
+        _example_stop_gate_path("scheduler_dispatch_token_case_a_1.json"),
+        _example_stop_gate_path("scheduler_dispatch_token_case_a_2.json"),
+        _example_stop_gate_path("scheduler_dispatch_token_case_a_3.json"),
+    ]
+    orphan_recovery_paths = [
+        _example_stop_gate_path("orphan_lease_recovery_events_case_a_1.ndjson"),
+        _example_stop_gate_path("orphan_lease_recovery_events_case_a_2.ndjson"),
+        _example_stop_gate_path("orphan_lease_recovery_events_case_a_3.ndjson"),
+    ]
+    budget_cancel_paths = [
+        _example_stop_gate_path("concurrent_budget_cancel_events_case_a_1.ndjson"),
+        _example_stop_gate_path("concurrent_budget_cancel_events_case_a_2.ndjson"),
+        _example_stop_gate_path("concurrent_budget_cancel_events_case_a_3.ndjson"),
+    ]
+    manifest_payload = _vnext_plus9_manifest_payload(
+        scheduler_dispatch_paths=scheduler_dispatch_paths,
+        orphan_recovery_paths=orphan_recovery_paths,
+        budget_cancel_paths=budget_cancel_paths,
+    )
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus9_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    report = build_stop_gate_metrics(
+        incident_packet_paths=[
+            _example_stop_gate_path("incident_packet_case_a_1.json"),
+            _example_stop_gate_path("incident_packet_case_a_2.json"),
+        ],
+        event_stream_paths=[_event_fixture_path("sample_valid.ndjson")],
+        connector_snapshot_paths=[
+            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
+            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
+        ],
+        validator_evidence_packet_paths=[
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
+        ],
+        semantics_diagnostics_paths=[
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
+        ],
+        quality_current_path=quality_current,
+        quality_baseline_path=quality_baseline,
+        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
+        vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
+        vnext_plus9_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["scheduler_dispatch_replay_determinism_pct"] == 0.0
+    assert report["metrics"]["orphan_lease_recovery_determinism_pct"] == 0.0
+    assert report["metrics"]["concurrent_budget_cancel_stability_pct"] == 0.0
+    assert report["vnext_plus9_manifest_hash"] == ""
+    assert any(
+        issue.get("message") == "vnext+9 manifest_hash mismatch"
         for issue in report["issues"]
         if isinstance(issue, dict)
     )
@@ -633,6 +867,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_vnext_plus7_manifest_path()),
             "--vnext-plus8-manifest",
             str(_vnext_plus8_manifest_path()),
+            "--vnext-plus9-manifest",
+            str(_vnext_plus9_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",
@@ -701,6 +937,7 @@ def test_build_stop_gate_metrics_applies_frozen_v3_quality_rules(tmp_path: Path)
         quality_baseline_path=quality_baseline,
         vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
         vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
+        vnext_plus9_manifest_path=_vnext_plus9_manifest_path(),
     )
 
     assert report["valid"] is True
