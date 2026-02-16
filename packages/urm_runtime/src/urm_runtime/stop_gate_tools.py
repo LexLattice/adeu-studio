@@ -22,6 +22,7 @@ SEMANTICS_DIAGNOSTICS_SCHEMA = "semantics_diagnostics@1"
 POLICY_LINEAGE_SCHEMA = "policy_lineage@1"
 PROOF_EVIDENCE_SCHEMA = "proof_evidence@1"
 EXPLAIN_DIFF_SCHEMA = "explain_diff@1"
+DOMAIN_CONFORMANCE_SCHEMA = "domain_conformance@1"
 QUALITY_DASHBOARD_SCHEMA = "quality.dashboard.v1"
 SEMANTICS_DETERMINISM_REPLAY_COUNT = 3
 VNEXT_PLUS7_REPLAY_COUNT = 3
@@ -57,6 +58,23 @@ VNEXT_PLUS10_DEFAULT_METRICS = {
     "concept_conflict_recall_macro_pct": 0.0,
 }
 VNEXT_PLUS10_MAX_PLATEAU_EPSILON_PCT = 0.1
+VNEXT_PLUS11_REPLAY_COUNT = 3
+VNEXT_PLUS11_MANIFEST_SCHEMA = "stop_gate.vnext_plus11_manifest@1"
+DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = frozenset(
+    {
+        "domain_conformance_hash",
+        "hash_excluded_fields",
+        "generated_at",
+        "runtime_root_path",
+        "missing_runtime_root_path",
+        "operator_note",
+    }
+)
+VNEXT_PLUS11_DEFAULT_METRICS = {
+    "domain_conformance_replay_determinism_pct": 0.0,
+    "cross_domain_artifact_parity_pct": 0.0,
+    "runtime_domain_coupling_guard_pct": 0.0,
+}
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -88,6 +106,9 @@ THRESHOLDS = {
     "concept_conflict_precision_pct": 95.0,
     "concept_conflict_recall_pct": 95.0,
     "coherence_permutation_stability_pct": 100.0,
+    "domain_conformance_replay_determinism_pct": 100.0,
+    "cross_domain_artifact_parity_pct": 100.0,
+    "runtime_domain_coupling_guard_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -134,10 +155,15 @@ def _default_vnext_plus10_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus10_manifest.json")
 
 
+def _default_vnext_plus11_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus11_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
 VNEXT_PLUS10_MANIFEST_PATH = _default_vnext_plus10_manifest_path()
+VNEXT_PLUS11_MANIFEST_PATH = _default_vnext_plus11_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -616,6 +642,102 @@ def _semantic_depth_coherence_fixture_hash(*, semantic_depth_report_path: Path) 
             )
         )
     return coherence_summary_hash
+
+
+def _strip_nonsemantic_domain_conformance_fields(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        normalized: dict[str, Any] = {}
+        for key in sorted(value.keys()):
+            key_str = str(key)
+            if key_str in DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS:
+                continue
+            normalized[key_str] = _strip_nonsemantic_domain_conformance_fields(value[key])
+        return normalized
+    if isinstance(value, list):
+        return [_strip_nonsemantic_domain_conformance_fields(item) for item in value]
+    return value
+
+
+def _domain_conformance_hash(payload: Mapping[str, Any]) -> str:
+    return sha256_canonical_json(_strip_nonsemantic_domain_conformance_fields(payload))
+
+
+def _validated_domain_conformance_payload(
+    *, domain_conformance_path: Path
+) -> tuple[dict[str, Any], str]:
+    payload = _read_json_object(
+        domain_conformance_path,
+        description="domain conformance fixture",
+    )
+    if payload.get("schema") != DOMAIN_CONFORMANCE_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "domain conformance fixture must use domain_conformance@1",
+                context={"path": str(domain_conformance_path)},
+            )
+        )
+    embedded_hash = payload.get("domain_conformance_hash")
+    recomputed_hash = _domain_conformance_hash(payload)
+    if not isinstance(embedded_hash, str) or embedded_hash != recomputed_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "domain_conformance_hash mismatch for fixture payload",
+                context={"path": str(domain_conformance_path)},
+            )
+        )
+    return payload, recomputed_hash
+
+
+def _domain_conformance_replay_fixture_hash(*, domain_conformance_path: Path) -> str:
+    _, recomputed_hash = _validated_domain_conformance_payload(
+        domain_conformance_path=domain_conformance_path
+    )
+    return recomputed_hash
+
+
+def _domain_conformance_artifact_parity_fixture_hash(
+    *, domain_conformance_path: Path
+) -> tuple[str, bool]:
+    payload, recomputed_hash = _validated_domain_conformance_payload(
+        domain_conformance_path=domain_conformance_path
+    )
+    artifact_parity = payload.get("artifact_parity")
+    if not isinstance(artifact_parity, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "domain conformance fixture missing artifact_parity",
+                context={"path": str(domain_conformance_path)},
+            )
+        )
+    return recomputed_hash, artifact_parity.get("valid") is True
+
+
+def _domain_conformance_coupling_guard_fixture_hash(
+    *, domain_conformance_path: Path
+) -> tuple[str, bool]:
+    payload, recomputed_hash = _validated_domain_conformance_payload(
+        domain_conformance_path=domain_conformance_path
+    )
+    import_audit = payload.get("import_audit")
+    registry_order_determinism = payload.get("registry_order_determinism")
+    if not isinstance(import_audit, Mapping) or not isinstance(
+        registry_order_determinism, Mapping
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "domain conformance fixture missing runtime coupling checks",
+                context={"path": str(domain_conformance_path)},
+            )
+        )
+    run_ok = (
+        import_audit.get("valid") is True
+        and registry_order_determinism.get("valid") is True
+    )
+    return recomputed_hash, run_ok
 
 
 def _issue(code: str, message: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -1838,6 +1960,158 @@ def _compute_vnext_plus10_metrics(
     }
 
 
+def _load_vnext_plus11_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    payload = _read_json_object(manifest_path, description="vnext+11 stop-gate manifest")
+    if payload.get("schema") != VNEXT_PLUS11_MANIFEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+11 stop-gate manifest has unsupported schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    replay_count = payload.get("replay_count")
+    if replay_count != VNEXT_PLUS11_REPLAY_COUNT:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+11 replay_count must match frozen replay count",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_replay_count": VNEXT_PLUS11_REPLAY_COUNT,
+                    "observed_replay_count": replay_count,
+                },
+            )
+        )
+    raw_manifest_hash = payload.get("manifest_hash")
+    if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+11 stop-gate manifest missing manifest_hash",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    metrics = payload.get("metrics")
+    if not isinstance(metrics, dict):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+11 stop-gate manifest metrics must be an object",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    hash_basis = dict(payload)
+    hash_basis.pop("manifest_hash", None)
+    recomputed_manifest_hash = sha256_canonical_json(hash_basis)
+    if raw_manifest_hash != recomputed_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_CONFORMANCE_MANIFEST_HASH_MISMATCH",
+                "vnext+11 manifest_hash mismatch",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "embedded_manifest_hash": raw_manifest_hash,
+                    "recomputed_manifest_hash": recomputed_manifest_hash,
+                },
+            )
+        )
+    return payload, recomputed_manifest_hash
+
+
+def _compute_vnext_plus11_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS11_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus11_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS11_DEFAULT_METRICS,
+            "vnext_plus11_manifest_hash": "",
+        }
+
+    metrics_doc = manifest.get("metrics")
+    assert isinstance(metrics_doc, Mapping)
+    try:
+        domain_conformance_replay_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="domain_conformance_replay_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        artifact_parity_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="cross_domain_artifact_parity_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        runtime_coupling_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="runtime_domain_coupling_guard_pct",
+            manifest_path=resolved_manifest_path,
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS11_DEFAULT_METRICS,
+            "vnext_plus11_manifest_hash": manifest_hash,
+        }
+
+    domain_conformance_replay_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="domain_conformance_replay_determinism_pct",
+        fixtures=domain_conformance_replay_fixtures,
+        replay_count=VNEXT_PLUS11_REPLAY_COUNT,
+        required_run_fields=("domain_conformance_path",),
+        run_hash_builder=_domain_conformance_replay_fixture_hash,
+        issues=issues,
+    )
+    cross_domain_artifact_parity_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="cross_domain_artifact_parity_pct",
+        fixtures=artifact_parity_fixtures,
+        replay_count=VNEXT_PLUS11_REPLAY_COUNT,
+        required_run_fields=("domain_conformance_path",),
+        run_hash_builder=_domain_conformance_artifact_parity_fixture_hash,
+        issues=issues,
+    )
+    runtime_domain_coupling_guard_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="runtime_domain_coupling_guard_pct",
+        fixtures=runtime_coupling_fixtures,
+        replay_count=VNEXT_PLUS11_REPLAY_COUNT,
+        required_run_fields=("domain_conformance_path",),
+        run_hash_builder=_domain_conformance_coupling_guard_fixture_hash,
+        issues=issues,
+    )
+    return {
+        "domain_conformance_replay_determinism_pct": domain_conformance_replay_determinism_pct,
+        "cross_domain_artifact_parity_pct": cross_domain_artifact_parity_pct,
+        "runtime_domain_coupling_guard_pct": runtime_domain_coupling_guard_pct,
+        "vnext_plus11_manifest_hash": manifest_hash,
+    }
+
+
 def _metric_delta_satisfies_rule(*, rule: str, delta: float) -> bool:
     if rule == "non_decreasing":
         return delta >= 0.0
@@ -1901,6 +2175,7 @@ def build_stop_gate_metrics(
     vnext_plus8_manifest_path: Path | None = None,
     vnext_plus9_manifest_path: Path | None = None,
     vnext_plus10_manifest_path: Path | None = None,
+    vnext_plus11_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     try:
@@ -2248,6 +2523,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus10_manifest_path,
         issues=issues,
     )
+    vnext_plus11_metrics = _compute_vnext_plus11_metrics(
+        manifest_path=vnext_plus11_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -2386,6 +2665,15 @@ def build_stop_gate_metrics(
         "recall_fixture_count_evaluated": vnext_plus10_metrics[
             "recall_fixture_count_evaluated"
         ],
+        "domain_conformance_replay_determinism_pct": vnext_plus11_metrics[
+            "domain_conformance_replay_determinism_pct"
+        ],
+        "cross_domain_artifact_parity_pct": vnext_plus11_metrics[
+            "cross_domain_artifact_parity_pct"
+        ],
+        "runtime_domain_coupling_guard_pct": vnext_plus11_metrics[
+            "runtime_domain_coupling_guard_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -2431,6 +2719,14 @@ def build_stop_gate_metrics(
         "semantic_depth_improvement_lock": metrics["semantic_depth_improvement_lock_passed"]
         is THRESHOLDS["semantic_depth_improvement_lock"],
         # Macro precision/recall are intentionally not part of stop-gate decisions.
+        "domain_conformance_replay_determinism": metrics[
+            "domain_conformance_replay_determinism_pct"
+        ]
+        >= THRESHOLDS["domain_conformance_replay_determinism_pct"],
+        "cross_domain_artifact_parity": metrics["cross_domain_artifact_parity_pct"]
+        >= THRESHOLDS["cross_domain_artifact_parity_pct"],
+        "runtime_domain_coupling_guard": metrics["runtime_domain_coupling_guard_pct"]
+        >= THRESHOLDS["runtime_domain_coupling_guard_pct"],
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -2472,10 +2768,16 @@ def build_stop_gate_metrics(
                 if vnext_plus10_manifest_path is not None
                 else VNEXT_PLUS10_MANIFEST_PATH
             ),
+            "vnext_plus11_manifest_path": str(
+                vnext_plus11_manifest_path
+                if vnext_plus11_manifest_path is not None
+                else VNEXT_PLUS11_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
         "vnext_plus10_manifest_hash": vnext_plus10_metrics["vnext_plus10_manifest_hash"],
+        "vnext_plus11_manifest_hash": vnext_plus11_metrics["vnext_plus11_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -2501,6 +2803,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+8 manifest hash: `{report.get('vnext_plus8_manifest_hash')}`")
     lines.append(f"- vnext+9 manifest hash: `{report.get('vnext_plus9_manifest_hash')}`")
     lines.append(f"- vnext+10 manifest hash: `{report.get('vnext_plus10_manifest_hash')}`")
+    lines.append(f"- vnext+11 manifest hash: `{report.get('vnext_plus11_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -2626,6 +2929,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('semantic_depth_improvement_lock_passed')}`"
     )
     lines.append(
+        "- domain conformance replay determinism pct: "
+        f"`{metrics.get('domain_conformance_replay_determinism_pct')}`"
+    )
+    lines.append(
+        "- cross-domain artifact parity pct: "
+        f"`{metrics.get('cross_domain_artifact_parity_pct')}`"
+    )
+    lines.append(
+        "- runtime domain coupling guard pct: "
+        f"`{metrics.get('runtime_domain_coupling_guard_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -2727,6 +3042,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS10_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus11-manifest",
+        dest="vnext_plus11_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS11_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -2746,6 +3067,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus8_manifest_path=args.vnext_plus8_manifest_path,
         vnext_plus9_manifest_path=args.vnext_plus9_manifest_path,
         vnext_plus10_manifest_path=args.vnext_plus10_manifest_path,
+        vnext_plus11_manifest_path=args.vnext_plus11_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:

@@ -70,7 +70,57 @@
       "surface_id": "runtime.registry_order_determinism"
     }
   ],
-  "manifest_hash": "359819aebde2f5bfc61926ad187cfdc0906b9fca41d243adcff82d6478c4eb77",
+  "manifest_hash": "a11ddda0f1faf9c039a31888b68ac7ce2780a2b81b8af94958b1227b88752ce3",
+  "metrics": {
+    "cross_domain_artifact_parity_pct": [
+      {
+        "fixture_id": "cross_domain_artifact_parity.case_a",
+        "runs": [
+          {
+            "domain_conformance_path": "../../../../examples/eval/stop_gate/domain_conformance_case_a_1.json"
+          },
+          {
+            "domain_conformance_path": "../../../../examples/eval/stop_gate/domain_conformance_case_a_2.json"
+          },
+          {
+            "domain_conformance_path": "../../../../examples/eval/stop_gate/domain_conformance_case_a_3.json"
+          }
+        ]
+      }
+    ],
+    "domain_conformance_replay_determinism_pct": [
+      {
+        "fixture_id": "domain_conformance_replay.case_a",
+        "runs": [
+          {
+            "domain_conformance_path": "../../../../examples/eval/stop_gate/domain_conformance_case_a_1.json"
+          },
+          {
+            "domain_conformance_path": "../../../../examples/eval/stop_gate/domain_conformance_case_a_2.json"
+          },
+          {
+            "domain_conformance_path": "../../../../examples/eval/stop_gate/domain_conformance_case_a_3.json"
+          }
+        ]
+      }
+    ],
+    "runtime_domain_coupling_guard_pct": [
+      {
+        "fixture_id": "runtime_domain_coupling_guard.case_a",
+        "runs": [
+          {
+            "domain_conformance_path": "../../../../examples/eval/stop_gate/domain_conformance_case_a_1.json"
+          },
+          {
+            "domain_conformance_path": "../../../../examples/eval/stop_gate/domain_conformance_case_a_2.json"
+          },
+          {
+            "domain_conformance_path": "../../../../examples/eval/stop_gate/domain_conformance_case_a_3.json"
+          }
+        ]
+      }
+    ]
+  },
   "replay_count": 3,
   "schema": "stop_gate.vnext_plus11_manifest@1"
 }
