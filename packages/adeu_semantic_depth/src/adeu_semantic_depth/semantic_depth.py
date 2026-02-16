@@ -15,6 +15,12 @@ SEMANTIC_DEPTH_SCHEMA = "semantic_depth_report@1"
 SIGNATURE_PROJECTION_VERSION = "semantic_depth.signature.v1"
 RANKING_OBJECTIVE_VERSION = "semantic_depth.rank.v1"
 RANKING_TIE_BREAK_VERSION = "semantic_depth.tie_break.v1"
+COHERENCE_SUMMARY_VERSION = "semantic_depth.coherence_summary.v1"
+COHERENCE_PAIR_STATUS_CONFLICTED = "conflicted"
+COHERENCE_PAIR_STATUS_CONSISTENT = "consistent"
+COHERENCE_DOC_STATUS_COHERENT = "coherent"
+COHERENCE_DOC_STATUS_INCOHERENT = "incoherent"
+COHERENCE_MAX_PERMUTATIONS_PER_GROUP = 6
 
 SEMANTIC_DEPTH_PACKET_INVALID_CODE = "URM_SEMANTIC_DEPTH_PACKET_INVALID"
 SEMANTIC_DEPTH_INVALID_REF_CODE = "URM_SEMANTIC_DEPTH_INVALID_REF"
@@ -59,6 +65,7 @@ _CONFLICT_KIND_DEFAULT_CONFIDENCE_MILLI: dict[str, int] = {
 _ARTIFACT_REF_RE = re.compile(r"^artifact:[^\s]+$")
 _EVENT_REF_RE = re.compile(r"^event:[^#]+#[0-9]+$")
 _EVENT_REF_PARSE_RE = re.compile(r"^event:(?P<stream_id>[^#]+)#(?P<seq>[0-9]+)$")
+_HEX_64_RE = re.compile(r"^[a-f0-9]{64}$")
 SEMANTIC_DEPTH_HASH_EXCLUDED_FIELDS = frozenset(
     {
         "semantic_depth_hash",
@@ -411,6 +418,213 @@ def _coherence_summary_hash(summary: Mapping[str, Any]) -> str:
     return _sha256_text(_canonical_json(normalized))
 
 
+def _require_hex_64(*, value: Any, field_name: str) -> str:
+    text = str(value or "")
+    if not _HEX_64_RE.match(text):
+        raise SemanticDepthError(f"{field_name} must be a lowercase 64-char hex hash")
+    return text
+
+
+def _check_no_artifact_event_refs_in_coherence_summary(
+    value: Any,
+    *,
+    field_path: str = "coherence_summary",
+) -> None:
+    if isinstance(value, str) and _is_valid_ref(value):
+        raise SemanticDepthError(
+            f"{field_path} may not include artifact/event refs in semantic fields",
+        )
+    if isinstance(value, Mapping):
+        for raw_key, raw_val in value.items():
+            child_path = f"{field_path}.{raw_key}"
+            _check_no_artifact_event_refs_in_coherence_summary(raw_val, field_path=child_path)
+    elif isinstance(value, list):
+        for idx, item in enumerate(value):
+            child_path = f"{field_path}[{idx}]"
+            _check_no_artifact_event_refs_in_coherence_summary(item, field_path=child_path)
+
+
+def _normalize_coherence_summary(summary: Mapping[str, Any]) -> dict[str, Any]:
+    _check_no_artifact_event_refs_in_coherence_summary(summary)
+
+    summary_version = str(summary.get("summary_version") or "")
+    if summary_version != COHERENCE_SUMMARY_VERSION:
+        raise SemanticDepthError(
+            f"coherence_summary.summary_version must be {COHERENCE_SUMMARY_VERSION}",
+        )
+
+    raw_documents = summary.get("documents")
+    if not isinstance(raw_documents, Sequence) or isinstance(
+        raw_documents,
+        (str, bytes, bytearray),
+    ):
+        raise SemanticDepthError("coherence_summary.documents must be an array")
+    documents = [item if isinstance(item, Mapping) else {} for item in raw_documents]
+    if len(documents) != 2:
+        raise SemanticDepthError("coherence_summary.documents must contain exactly two entries")
+
+    normalized_documents: list[dict[str, Any]] = []
+    for idx, raw_doc in enumerate(documents):
+        doc_ref = str(raw_doc.get("doc_ref") or "").strip()
+        if not doc_ref:
+            raise SemanticDepthError(
+                f"coherence_summary.documents[{idx}].doc_ref must be non-empty",
+            )
+
+        status = str(raw_doc.get("status") or "")
+        if status not in {COHERENCE_DOC_STATUS_COHERENT, COHERENCE_DOC_STATUS_INCOHERENT}:
+            raise SemanticDepthError(
+                f"coherence_summary.documents[{idx}].status must be coherent|incoherent",
+            )
+
+        issue_codes_raw = raw_doc.get("issue_codes")
+        if not isinstance(issue_codes_raw, Sequence) or isinstance(
+            issue_codes_raw,
+            (str, bytes, bytearray),
+        ):
+            raise SemanticDepthError(
+                f"coherence_summary.documents[{idx}].issue_codes must be an array",
+            )
+        issue_codes = sorted({str(code) for code in issue_codes_raw if str(code)})
+        for issue in issue_codes:
+            if _is_valid_ref(issue):
+                raise SemanticDepthError(
+                    (
+                        f"coherence_summary.documents[{idx}].issue_codes contains "
+                        "invalid ref-like value"
+                    ),
+                )
+
+        normalized_doc: dict[str, Any] = {
+            "doc_ref": doc_ref,
+            "status": status,
+            "issue_codes": issue_codes,
+            "signature_hash": _require_hex_64(
+                value=raw_doc.get("signature_hash"),
+                field_name=f"coherence_summary.documents[{idx}].signature_hash",
+            ),
+        }
+        for count_key in ("term_count", "sense_count", "claim_count", "link_count"):
+            raw_count = raw_doc.get(count_key)
+            try:
+                parsed_count = int(raw_count)
+            except (TypeError, ValueError) as exc:
+                raise SemanticDepthError(
+                    f"coherence_summary.documents[{idx}].{count_key} must be an integer",
+                ) from exc
+            if parsed_count < 0:
+                raise SemanticDepthError(
+                    f"coherence_summary.documents[{idx}].{count_key} must be >= 0",
+                )
+            normalized_doc[count_key] = parsed_count
+
+        normalized_documents.append(normalized_doc)
+
+    normalized_documents.sort(
+        key=lambda item: (str(item["doc_ref"]), str(item["signature_hash"])),
+    )
+
+    pairwise_raw = summary.get("pairwise_aggregate")
+    if not isinstance(pairwise_raw, Mapping):
+        raise SemanticDepthError("coherence_summary.pairwise_aggregate must be an object")
+
+    pair_status = str(pairwise_raw.get("status") or "")
+    if pair_status not in {COHERENCE_PAIR_STATUS_CONSISTENT, COHERENCE_PAIR_STATUS_CONFLICTED}:
+        raise SemanticDepthError(
+            "coherence_summary.pairwise_aggregate.status must be consistent|conflicted",
+        )
+
+    total_conflicts_raw = pairwise_raw.get("total_conflicts")
+    try:
+        total_conflicts = int(total_conflicts_raw)
+    except (TypeError, ValueError) as exc:
+        raise SemanticDepthError(
+            "coherence_summary.pairwise_aggregate.total_conflicts must be an integer",
+        ) from exc
+    if total_conflicts < 0:
+        raise SemanticDepthError(
+            "coherence_summary.pairwise_aggregate.total_conflicts must be >= 0",
+        )
+
+    by_kind_raw = pairwise_raw.get("conflict_kind_counts")
+    if not isinstance(by_kind_raw, Mapping):
+        raise SemanticDepthError(
+            "coherence_summary.pairwise_aggregate.conflict_kind_counts must be an object",
+        )
+    normalized_by_kind: dict[str, int] = {}
+    for kind in _CONFLICT_KINDS:
+        raw_count = by_kind_raw.get(kind, 0)
+        try:
+            parsed_count = int(raw_count)
+        except (TypeError, ValueError) as exc:
+            raise SemanticDepthError(
+                f"coherence_summary.pairwise_aggregate.conflict_kind_counts.{kind} must be integer",
+            ) from exc
+        if parsed_count < 0:
+            raise SemanticDepthError(
+                f"coherence_summary.pairwise_aggregate.conflict_kind_counts.{kind} must be >= 0",
+            )
+        normalized_by_kind[kind] = parsed_count
+    for raw_key in by_kind_raw.keys():
+        key = str(raw_key)
+        if key not in _CONFLICT_KINDS:
+            raise SemanticDepthError(
+                f"coherence_summary.pairwise_aggregate.conflict_kind_counts has unknown key: {key}",
+            )
+
+    if sum(normalized_by_kind.values()) != total_conflicts:
+        raise SemanticDepthError(
+            (
+                "coherence_summary.pairwise_aggregate.total_conflicts must equal "
+                "sum(conflict_kind_counts)"
+            ),
+        )
+
+    coherent_document_count = sum(
+        1 for item in normalized_documents if str(item["status"]) == COHERENCE_DOC_STATUS_COHERENT
+    )
+    incoherent_document_count = len(normalized_documents) - coherent_document_count
+    expected_pair_status = (
+        COHERENCE_PAIR_STATUS_CONFLICTED
+        if total_conflicts > 0
+        else COHERENCE_PAIR_STATUS_CONSISTENT
+    )
+    if pair_status != expected_pair_status:
+        raise SemanticDepthError(
+            "coherence_summary.pairwise_aggregate.status must align with total_conflicts",
+        )
+
+    normalized_summary: dict[str, Any] = {
+        "summary_version": COHERENCE_SUMMARY_VERSION,
+        "documents": normalized_documents,
+        "pairwise_aggregate": {
+            "status": pair_status,
+            "total_conflicts": total_conflicts,
+            "coherent_document_count": coherent_document_count,
+            "incoherent_document_count": incoherent_document_count,
+            "conflict_kind_counts": normalized_by_kind,
+            "ranked_conflict_ids_hash": _require_hex_64(
+                value=pairwise_raw.get("ranked_conflict_ids_hash"),
+                field_name="coherence_summary.pairwise_aggregate.ranked_conflict_ids_hash",
+            ),
+        },
+    }
+    return normalized_summary
+
+
+def _validate_coherence_summary_hash(
+    *,
+    coherence_summary: Mapping[str, Any],
+    coherence_summary_hash: Any,
+) -> None:
+    expected_summary_hash = _coherence_summary_hash(coherence_summary)
+    if (
+        not isinstance(coherence_summary_hash, str)
+        or coherence_summary_hash != expected_summary_hash
+    ):
+        raise SemanticDepthError("coherence_summary_hash mismatch")
+
+
 def _require_frozen_version(*, value: str, expected: str, field_name: str) -> None:
     if value != expected:
         raise SemanticDepthError(f"{field_name} must be {expected}")
@@ -474,7 +688,7 @@ def build_semantic_depth_report(
     if explain_diff_ref is not None:
         packet["explain_diff_ref"] = validate_semantic_depth_ref(explain_diff_ref)
     if coherence_summary is not None:
-        coherence_payload = _canonical_clone(dict(coherence_summary))
+        coherence_payload = _normalize_coherence_summary(coherence_summary)
         packet["coherence_summary"] = coherence_payload
         packet["coherence_summary_hash"] = _coherence_summary_hash(coherence_payload)
     if nonsemantic_fields:
@@ -567,12 +781,13 @@ def validate_semantic_depth_report(payload: Mapping[str, Any]) -> None:
     if coherence_summary is not None:
         if not isinstance(coherence_summary, Mapping):
             raise SemanticDepthError("coherence_summary must be an object")
-        expected_summary_hash = _coherence_summary_hash(coherence_summary)
-        if (
-            not isinstance(coherence_summary_hash, str)
-            or coherence_summary_hash != expected_summary_hash
-        ):
-            raise SemanticDepthError("coherence_summary_hash mismatch")
+        normalized_coherence = _normalize_coherence_summary(coherence_summary)
+        if _canonical_clone(coherence_summary) != normalized_coherence:
+            raise SemanticDepthError("coherence_summary must match canonical normalized shape")
+        _validate_coherence_summary_hash(
+            coherence_summary=normalized_coherence,
+            coherence_summary_hash=coherence_summary_hash,
+        )
 
     expected_hash = semantic_depth_hash(payload)
     actual_hash = payload.get("semantic_depth_hash")
@@ -733,6 +948,164 @@ def _pairwise_conflicts_for_concept_ir(
     return conflicts
 
 
+def _coherence_doc_signature_payload(ir: ConceptIR) -> dict[str, Any]:
+    return {
+        "terms": sorted((term.id, term.label.strip()) for term in ir.terms),
+        "senses": sorted((sense.id, sense.term_id, sense.gloss.strip()) for sense in ir.senses),
+        "claims": sorted((claim.sense_id, claim.text.strip()) for claim in ir.claims),
+        "links": sorted(
+            (link.src_sense_id, link.dst_sense_id, link.kind)
+            for link in ir.links
+        ),
+    }
+
+
+def _coherence_doc_issue_codes(ir: ConceptIR) -> list[str]:
+    term_ids = {term.id for term in ir.terms}
+    sense_ids = {sense.id for sense in ir.senses}
+    issues: set[str] = set()
+    for sense in ir.senses:
+        if sense.term_id not in term_ids:
+            issues.add("sense_term_missing")
+    for claim in ir.claims:
+        if claim.sense_id not in sense_ids:
+            issues.add("claim_sense_missing")
+    for link in ir.links:
+        if link.src_sense_id not in sense_ids:
+            issues.add("link_src_sense_missing")
+        if link.dst_sense_id not in sense_ids:
+            issues.add("link_dst_sense_missing")
+    return sorted(issues)
+
+
+def _coherence_doc_ref(*, ir: ConceptIR, signature_hash: str) -> str:
+    raw_doc_id = str(ir.context.doc_id or "").strip()
+    if raw_doc_id:
+        return raw_doc_id
+    return f"doc:inline:{signature_hash[:16]}"
+
+
+def _build_coherence_document_summary(ir: ConceptIR) -> dict[str, Any]:
+    signature_payload = _coherence_doc_signature_payload(ir)
+    signature_hash = _sha256_text(_canonical_json(signature_payload))
+    issue_codes = _coherence_doc_issue_codes(ir)
+    return {
+        "doc_ref": _coherence_doc_ref(ir=ir, signature_hash=signature_hash),
+        "status": (
+            COHERENCE_DOC_STATUS_COHERENT
+            if not issue_codes
+            else COHERENCE_DOC_STATUS_INCOHERENT
+        ),
+        "issue_codes": issue_codes,
+        "signature_hash": signature_hash,
+        "term_count": len(ir.terms),
+        "sense_count": len(ir.senses),
+        "claim_count": len(ir.claims),
+        "link_count": len(ir.links),
+    }
+
+
+def _build_pairwise_coherence_summary(
+    *,
+    first_ir: ConceptIR,
+    second_ir: ConceptIR,
+    conflicts: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    normalized_conflicts = _normalize_conflict_items(
+        [item if isinstance(item, Mapping) else {} for item in conflicts],
+    )
+
+    documents = [
+        _build_coherence_document_summary(first_ir),
+        _build_coherence_document_summary(second_ir),
+    ]
+    documents.sort(key=lambda item: (str(item["doc_ref"]), str(item["signature_hash"])))
+
+    conflict_kind_counts = {kind: 0 for kind in _CONFLICT_KINDS}
+    for conflict in normalized_conflicts:
+        conflict_key = conflict.get("conflict_key")
+        if not isinstance(conflict_key, Mapping):
+            continue
+        kind = str(conflict_key.get("kind") or "")
+        if kind in conflict_kind_counts:
+            conflict_kind_counts[kind] += 1
+    total_conflicts = int(sum(conflict_kind_counts.values()))
+    coherent_document_count = sum(
+        1 for item in documents if str(item["status"]) == COHERENCE_DOC_STATUS_COHERENT
+    )
+    ranked_conflict_ids = _derive_ranked_conflict_ids(normalized_conflicts)
+    pair_status = (
+        COHERENCE_PAIR_STATUS_CONFLICTED
+        if total_conflicts > 0
+        else COHERENCE_PAIR_STATUS_CONSISTENT
+    )
+
+    return {
+        "summary_version": COHERENCE_SUMMARY_VERSION,
+        "documents": documents,
+        "pairwise_aggregate": {
+            "status": pair_status,
+            "total_conflicts": total_conflicts,
+            "coherent_document_count": coherent_document_count,
+            "incoherent_document_count": len(documents) - coherent_document_count,
+            "conflict_kind_counts": conflict_kind_counts,
+            "ranked_conflict_ids_hash": _sha256_text(_canonical_json(ranked_conflict_ids)),
+        },
+    }
+
+
+def validate_coherence_summary_permutation_group(
+    *,
+    reports: Sequence[Mapping[str, Any]],
+    max_permutations_per_group: int = COHERENCE_MAX_PERMUTATIONS_PER_GROUP,
+) -> dict[str, Any]:
+    if max_permutations_per_group < 1:
+        raise SemanticDepthError("max_permutations_per_group must be >= 1")
+    report_count = len(reports)
+    if report_count < 3:
+        raise SemanticDepthError(
+            "permutation groups must include at least three variants",
+            code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
+        )
+    if report_count > max_permutations_per_group:
+        raise SemanticDepthError(
+            "permutation group exceeds max_permutations_per_group",
+            code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
+        )
+
+    baseline_hash: str | None = None
+    for idx, report in enumerate(reports):
+        validate_semantic_depth_report(report)
+        coherence_hash = report.get("coherence_summary_hash")
+        if not isinstance(coherence_hash, str):
+            raise SemanticDepthError(
+                f"report[{idx}] missing coherence_summary_hash",
+                code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
+            )
+        if baseline_hash is None:
+            baseline_hash = coherence_hash
+            continue
+        if coherence_hash != baseline_hash:
+            raise SemanticDepthError(
+                (
+                    "permutation coherence_summary_hash mismatch: "
+                    f"expected {baseline_hash}, got {coherence_hash} at variant {idx}"
+                ),
+                code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
+            )
+
+    if baseline_hash is None:
+        raise SemanticDepthError(
+            "permutation group missing baseline coherence hash",
+            code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
+        )
+    return {
+        "summary_version": COHERENCE_SUMMARY_VERSION,
+        "variant_count": report_count,
+        "coherence_summary_hash": baseline_hash,
+    }
+
+
 def build_semantic_depth_report_from_concept_pair(
     *,
     left_ir: ConceptIR,
@@ -782,6 +1155,15 @@ def build_semantic_depth_report_from_concept_pair(
         second_ir=second_ir,
         source_ref_ids=normalized_input_refs,
     )
+    normalized_coherence_summary = (
+        _build_pairwise_coherence_summary(
+            first_ir=first_ir,
+            second_ir=second_ir,
+            conflicts=conflicts,
+        )
+        if coherence_summary is None
+        else coherence_summary
+    )
     return build_semantic_depth_report(
         input_artifact_refs=normalized_input_refs,
         conflict_items=conflicts,
@@ -789,6 +1171,6 @@ def build_semantic_depth_report_from_concept_pair(
         witness_refs=witness_refs,
         semantics_diagnostics_ref=semantics_diagnostics_ref,
         explain_diff_ref=explain_diff_ref,
-        coherence_summary=coherence_summary,
+        coherence_summary=normalized_coherence_summary,
         nonsemantic_fields=nonsemantic_fields,
     )

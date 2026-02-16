@@ -71,6 +71,8 @@ def test_concepts_semantic_depth_endpoint_returns_packet() -> None:
 
     assert response.schema == "semantic_depth_report@1"
     assert len(response.input_artifact_refs) == 2
+    assert response.coherence_summary is not None
+    assert response.coherence_summary_hash is not None
     assert response.semantic_depth_hash
 
 

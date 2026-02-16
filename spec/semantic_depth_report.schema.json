@@ -50,7 +50,7 @@
       }
     },
     "coherence_summary": {
-      "type": "object"
+      "$ref": "#/$defs/coherence_summary"
     },
     "coherence_summary_hash": {
       "type": "string",
@@ -250,6 +250,155 @@
         }
       },
       "additionalProperties": true
+    },
+    "coherence_document_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "doc_ref",
+        "status",
+        "issue_codes",
+        "signature_hash",
+        "term_count",
+        "sense_count",
+        "claim_count",
+        "link_count"
+      ],
+      "properties": {
+        "doc_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "coherent",
+            "incoherent"
+          ]
+        },
+        "issue_codes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "signature_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "term_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sense_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "claim_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "link_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "coherence_pairwise_aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "total_conflicts",
+        "coherent_document_count",
+        "incoherent_document_count",
+        "conflict_kind_counts",
+        "ranked_conflict_ids_hash"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "consistent",
+            "conflicted"
+          ]
+        },
+        "total_conflicts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coherent_document_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "incoherent_document_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "conflict_kind_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status_flip",
+            "reason_code_mismatch",
+            "link_kind_conflict",
+            "claim_text_conflict",
+            "sense_gloss_conflict"
+          ],
+          "properties": {
+            "status_flip": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "reason_code_mismatch": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "link_kind_conflict": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "claim_text_conflict": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "sense_gloss_conflict": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "ranked_conflict_ids_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "coherence_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary_version",
+        "documents",
+        "pairwise_aggregate"
+      ],
+      "properties": {
+        "summary_version": {
+          "const": "semantic_depth.coherence_summary.v1"
+        },
+        "documents": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/coherence_document_summary"
+          }
+        },
+        "pairwise_aggregate": {
+          "$ref": "#/$defs/coherence_pairwise_aggregate"
+        }
+      }
     }
   },
   "x_kind_priority_map": {
