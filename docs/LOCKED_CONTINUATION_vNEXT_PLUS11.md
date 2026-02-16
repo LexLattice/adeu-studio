@@ -42,6 +42,8 @@ Decision basis:
   - domain-specific logic is confined to domain packs and explicitly scoped adapters.
 - Conformance report contract authority is frozen:
   - `domain_conformance@1` remains the authoritative conformance artifact in this arc (additive fields only).
+- Canonicalization authority lock is frozen:
+  - conformance and portability hash/replay paths in this arc use `urm_runtime.hashing.canonical_json` as authoritative canonical serializer.
 - Conformance replay boundary is frozen:
   - stop-gate conformance replay metrics are computed from persisted conformance/artifact fixtures.
   - stop-gate replay may not invoke live domain-pack runners in deterministic acceptance paths.
@@ -73,6 +75,9 @@ Freeze deterministic domain-conformance report semantics and replay boundaries.
 - Harden deterministic `domain_conformance@1` report generation under `apps/api/src/adeu_api/urm_domain_conformance.py`.
 - Add canonical report hash semantics for deterministic closeout reporting.
 - Freeze deterministic report ordering and issue sorting conventions.
+- Add deterministic runtime-root resolution for import-audit:
+  - report builder accepts explicit runtime-root override for deterministic fixture runs.
+  - default runtime-root derivation is allowed only as fallback for local convenience execution.
 
 ### Locks
 
@@ -96,13 +101,22 @@ Freeze deterministic domain-conformance report semantics and replay boundaries.
 - Import-audit lock is frozen:
   - runtime import audit remains authoritative for coupling guardrails.
   - forbidden import prefixes remain explicit and deterministic.
+- Runtime-root resolution lock is frozen:
+  - deterministic conformance fixtures must pass explicit runtime-root input to import-audit/report builder.
+  - fallback relative-path runtime-root derivation may not be relied on for deterministic acceptance fixtures.
 - Import-audit missing-root behavior lock is frozen:
   - missing runtime-root/import-audit prerequisites are deterministic hard failures.
   - environment-specific path diagnostics from missing-root failure paths are nonsemantic-only and excluded from success-hash acceptance fixtures.
 - Report-hash lock is frozen:
   - `domain_conformance_hash = sha256(canonical_json(report_without_nonsemantic_fields))`.
 - Report-hash exclusion lock is frozen:
-  - `domain_conformance_hash` exclusion set is explicit and schema-frozen (for example: `hash_excluded_fields`, transient generation metadata, and environment-specific missing-root path diagnostics).
+  - `domain_conformance_hash` exclusion set is explicit and schema-frozen:
+    - `hash_excluded_fields`
+    - `generated_at`
+    - `runtime_root_path`
+    - `missing_runtime_root_path`
+    - `operator_note`
+  - when present, `hash_excluded_fields` must equal the frozen exclusion list exactly.
 - Failure behavior lock is frozen:
   - malformed report payloads fail closed in deterministic validation paths.
 
@@ -131,11 +145,13 @@ Expand deterministic cross-domain parity coverage for artifacts introduced acros
     - `left_ref`
     - `right_ref`
     - optional `fixture_id`
+    - optional `notes`
 
 ### Locks
 
 - Parity projection lock is frozen:
   - artifact parity comparison uses semantic projections only.
+  - semantic projection for each artifact schema is derived from that artifact family's authoritative semantic/hash exclusion contract (no independent exclusion table in conformance layer).
   - artifact-specific nonsemantic exclusions remain authoritative from each artifact lock.
 - Parity pass-condition lock is frozen:
   - fixture passes only when:
@@ -143,7 +159,10 @@ Expand deterministic cross-domain parity coverage for artifacts introduced acros
   - semantic mismatch fails closed with `URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH`.
 - Parity fixture lock is frozen:
   - each parity fixture must reference persisted fixture artifacts only.
-  - unresolved artifact refs fail closed in deterministic parity paths.
+  - `left_ref`/`right_ref` are frozen to:
+    - workspace-relative fixture file paths under locked fixture roots, OR
+    - canonical `artifact:<...>` refs resolvable from persisted artifact stores.
+  - unresolved artifact refs fail closed in deterministic parity paths with `URM_CONFORMANCE_ARTIFACT_REF_INVALID`.
 - Domain-extension lock is frozen:
   - domain-specific extensions may exist only in explicit nonsemantic/raw fields and may not alter semantic parity outcomes.
 - Ordering lock is frozen:
@@ -175,12 +194,26 @@ Make conformance coverage growth measurable and reproducible.
 - Coverage manifest contract lock is frozen:
   - portability/conformance coverage accounting is carried by:
     - `apps/api/fixtures/stop_gate/vnext_plus11_manifest.json`.
-  - manifest includes an explicit `coverage` section mapping conformance surfaces to locked fixture ids/refs.
+  - manifest includes an explicit `coverage` section with frozen shape:
+    - `surface_id` (for example `domain.digest.event_envelope`, `runtime.import_audit`)
+    - `fixture_ids` (sorted list)
+    - optional `pressure_test` boolean (default omitted/false)
+  - gate-valid coverage requires every declared conformance surface to map to at least one fixture id.
 - Pressure-test scope lock is frozen:
   - at most one additional compact pressure-test domain/suite may be added in this arc.
   - addition requires explicit coverage-gap justification in report context.
 - Transfer-report reproducibility lock is frozen:
   - transfer report outputs must be reproducible from persisted fixture artifacts and deterministic computations only.
+- Transfer-report format lock is frozen:
+  - portability transfer report output path is:
+    - `docs/PORTABILITY_TRANSFER_REPORT_vNEXT_PLUS11.md`.
+  - report must contain machine-checkable fenced JSON block (`json`) with frozen top-level keys:
+    - `schema = "portability_transfer_report.vnext_plus11@1"`
+    - `vnext_plus11_manifest_hash`
+    - `domain_conformance_hash`
+    - `coverage_summary`
+    - `parity_summary`
+    - `pressure_test_justification` (optional)
 - Transfer-report provenance lock is frozen:
   - refreshed transfer report must include:
     - `vnext_plus11_manifest_hash`
@@ -228,7 +261,14 @@ Add reproducible portability closeout metrics to decide if `vNext+12` may start.
 - Manifest-hash lock is frozen:
   - stop-gate output must include `vnext_plus11_manifest_hash`.
   - hash is computed as `sha256(canonical_json(manifest_payload))`.
-  - metric computation is invalid if runtime manifest hash does not match recomputed canonical hash.
+  - metric computation is invalid if runtime manifest hash does not match recomputed canonical hash and fails closed with `URM_CONFORMANCE_MANIFEST_HASH_MISMATCH`.
+- Runtime coupling metric definition lock is frozen:
+  - `runtime_domain_coupling_guard_pct` is computed from persisted conformance fixture outcomes only:
+    - fixture passes iff both `import_audit.valid == true` and `registry_order_determinism.valid == true`.
+  - this metric is a deterministic regression guard over persisted conformance artifacts; it does not require live source rescans during stop-gate replay.
+- Stop-gate execution-order lock is frozen:
+  - fixture evaluations may execute in parallel for CI throughput.
+  - aggregation and report emission ordering remain deterministic by metric key then fixture id.
 - Metrics are computed only from locked fixtures/replay artifacts.
 - No live-run data may be mixed into deterministic stop-gate deltas.
 - `vNext+11 -> vNext+12` thresholds are frozen:
@@ -251,6 +291,9 @@ Add reproducible portability closeout metrics to decide if `vNext+12` may start.
 - Frozen additions in this arc:
   - `URM_CONFORMANCE_REPORT_INVALID`
   - `URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH`
+  - `URM_CONFORMANCE_ARTIFACT_REF_INVALID`
+  - `URM_CONFORMANCE_PROJECTION_UNSUPPORTED`
+  - `URM_CONFORMANCE_MANIFEST_HASH_MISMATCH`
   - `URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED`
   - `URM_CONFORMANCE_FIXTURE_INVALID`
 - Endpoint/code mapping remains explicit and additive-only.
