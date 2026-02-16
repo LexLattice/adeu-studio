@@ -1,13 +1,13 @@
-# Locked Continuation vNext+9 (Draft Lock)
+# Locked Continuation vNext+9 (Frozen)
 
-This document drafts the next arc after:
+This document freezes the next arc after:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS8.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS8.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v2.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: frozen.
 
 Decision basis:
 

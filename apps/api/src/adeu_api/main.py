@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import json
 import os
 import re
 import sqlite3
 from collections import deque
 from datetime import datetime, timezone
-from typing import Any, Callable, Literal, NamedTuple
+from typing import Any, Callable, Literal, Mapping, NamedTuple
 
 from adeu_concepts import (
     DEFAULT_MAX_ANSWERS_PER_QUESTION,
@@ -81,6 +82,24 @@ from adeu_puzzles import (
 from adeu_puzzles import (
     check_with_validator_runs as check_puzzle_with_validator_runs,
 )
+from adeu_semantic_depth import (
+    RANKING_OBJECTIVE_VERSION as SEMANTIC_DEPTH_RANKING_OBJECTIVE_VERSION,
+)
+from adeu_semantic_depth import (
+    RANKING_TIE_BREAK_VERSION as SEMANTIC_DEPTH_RANKING_TIE_BREAK_VERSION,
+)
+from adeu_semantic_depth import (
+    SEMANTIC_DEPTH_IDEMPOTENCY_CONFLICT_CODE,
+    SEMANTIC_DEPTH_INVALID_REF_CODE,
+    SEMANTIC_DEPTH_PACKET_INVALID_CODE,
+    SEMANTIC_DEPTH_SCHEMA,
+    SIGNATURE_PROJECTION_VERSION,
+    SemanticDepthError,
+    parse_event_ref,
+    semantic_depth_idempotency_semantic_key,
+    validate_semantic_depth_ref,
+    validate_semantic_depth_report,
+)
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -109,21 +128,28 @@ from .puzzle_id_canonicalization import canonicalize_puzzle_ids
 from .puzzle_mock_provider import get_puzzle_fixture_bundle
 from .puzzle_source_features import extract_puzzle_source_features
 from .scoring import ranking_sort_key, score_key
+from .semantic_depth_builder import (
+    as_semantic_depth_artifact_ref,
+    build_semantic_depth_report_payload,
+)
 from .source_features import extract_source_features
 from .storage import (
     ExplainArtifactRow,
     ProofArtifactRow,
+    SemanticDepthReportRow,
     ValidatorRunRow,
     create_artifact,
     create_concept_artifact,
     create_document,
     create_explain_artifact,
     create_proof_artifact,
+    create_semantic_depth_report,
     create_validator_run,
     get_artifact,
     get_concept_artifact,
     get_document,
     get_explain_artifact_by_client_request_id,
+    get_semantic_depth_report_by_client_request_id,
     list_artifacts,
     list_concept_artifacts,
     list_concept_validator_runs,
@@ -299,6 +325,8 @@ _PROOF_EVIDENCE_NOT_FOUND_CODE = "URM_PROOF_EVIDENCE_NOT_FOUND"
 _IDEMPOTENCY_CONFLICT_CODE = "URM_IDEMPOTENCY_KEY_CONFLICT"
 _EXPLAIN_MATERIALIZE_EVENT_KIND = "EXPLAIN_MATERIALIZED"
 _EXPLAIN_MATERIALIZE_ENDPOINT = "/urm/explain/materialize"
+_SEMANTIC_DEPTH_MATERIALIZE_EVENT_KIND = "SEMANTIC_DEPTH_MATERIALIZED"
+_SEMANTIC_DEPTH_MATERIALIZE_ENDPOINT = "/urm/semantic_depth/materialize"
 DEFAULT_CORS_ALLOW_ORIGINS: tuple[str, ...] = (
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -1038,6 +1066,60 @@ class ExplainMaterializeResponse(BaseModel):
     created_at: str
     explain_kind: ExplainKind
     explain_hash: str
+    artifact_ref: str
+    parent_stream_id: str
+    parent_seq: int
+    client_request_id: str
+    idempotent_replay: bool = False
+
+
+class ConceptSemanticDepthRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    left_ir: ConceptIR
+    right_ir: ConceptIR
+    input_artifact_refs: list[str] | None = None
+    diff_refs: list[str] = Field(default_factory=list)
+    witness_refs: list[str] = Field(default_factory=list)
+    semantics_diagnostics_ref: str | None = None
+    explain_diff_ref: str | None = None
+    coherence_summary: dict[str, Any] | None = None
+    nonsemantic_fields: dict[str, Any] | None = None
+
+
+class SemanticDepthReportResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    schema: Literal["semantic_depth_report@1"] = SEMANTIC_DEPTH_SCHEMA
+    input_artifact_refs: list[str] = Field(default_factory=list, min_length=2, max_length=2)
+    signature_projection_version: str = SIGNATURE_PROJECTION_VERSION
+    ranking_objective_version: str = SEMANTIC_DEPTH_RANKING_OBJECTIVE_VERSION
+    ranking_tie_break_version: str = SEMANTIC_DEPTH_RANKING_TIE_BREAK_VERSION
+    conflict_items: list[dict[str, Any]] = Field(default_factory=list)
+    ranked_conflict_ids: list[str] = Field(default_factory=list)
+    coherence_summary: dict[str, Any] | None = None
+    coherence_summary_hash: str | None = None
+    diff_refs: list[str] | None = None
+    witness_refs: list[str] | None = None
+    semantics_diagnostics_ref: str | None = None
+    explain_diff_ref: str | None = None
+    nonsemantic_fields: dict[str, Any] | None = None
+    hash_excluded_fields: list[str] = Field(default_factory=list)
+    semantic_depth_hash: str = Field(min_length=64, max_length=64)
+
+
+class SemanticDepthMaterializeRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    provider: Literal["codex"] = "codex"
+    client_request_id: str = Field(min_length=1)
+    semantic_depth_report: dict[str, Any]
+    parent_stream_id: str = Field(min_length=1)
+    parent_seq: int = Field(ge=0)
+
+
+class SemanticDepthMaterializeResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    semantic_depth_report_id: str
+    created_at: str
+    semantic_depth_hash: str
     artifact_ref: str
     parent_stream_id: str
     parent_seq: int
@@ -3268,6 +3350,207 @@ def _build_explain_packet_response(
     return ExplainDiffPacketResponse.model_validate(packet)
 
 
+def _semantic_depth_error_to_http(exc: SemanticDepthError) -> HTTPException:
+    message = str(exc)
+    code = getattr(exc, "code", SEMANTIC_DEPTH_PACKET_INVALID_CODE)
+    return HTTPException(status_code=400, detail={"code": code, "message": message})
+
+
+def _build_semantic_depth_packet_response(
+    *,
+    left_ir: ConceptIR,
+    right_ir: ConceptIR,
+    input_artifact_refs: list[str] | None = None,
+    diff_refs: list[str] | None = None,
+    witness_refs: list[str] | None = None,
+    semantics_diagnostics_ref: str | None = None,
+    explain_diff_ref: str | None = None,
+    coherence_summary: dict[str, Any] | None = None,
+    nonsemantic_fields: dict[str, Any] | None = None,
+) -> SemanticDepthReportResponse:
+    try:
+        packet = build_semantic_depth_report_payload(
+            left_ir=left_ir,
+            right_ir=right_ir,
+            input_artifact_refs=input_artifact_refs,
+            diff_refs=diff_refs,
+            witness_refs=witness_refs,
+            semantics_diagnostics_ref=semantics_diagnostics_ref,
+            explain_diff_ref=explain_diff_ref,
+            coherence_summary=coherence_summary,
+            nonsemantic_fields=nonsemantic_fields,
+        )
+    except SemanticDepthError as exc:
+        raise _semantic_depth_error_to_http(exc) from exc
+    return SemanticDepthReportResponse.model_validate(packet)
+
+
+def _semantic_depth_materialize_response_from_row(
+    row: SemanticDepthReportRow,
+    *,
+    idempotent_replay: bool,
+) -> SemanticDepthMaterializeResponse:
+    return SemanticDepthMaterializeResponse.model_validate(
+        {
+            "semantic_depth_report_id": row.semantic_depth_report_id,
+            "created_at": row.created_at,
+            "semantic_depth_hash": row.semantic_depth_hash,
+            "artifact_ref": as_semantic_depth_artifact_ref(row.semantic_depth_report_id),
+            "parent_stream_id": row.parent_stream_id,
+            "parent_seq": row.parent_seq,
+            "client_request_id": row.client_request_id,
+            "idempotent_replay": idempotent_replay,
+        }
+    )
+
+
+def _emit_semantic_depth_materialized_event(
+    *,
+    row: SemanticDepthReportRow,
+) -> None:
+    if not row.parent_stream_id:
+        raise RuntimeError("missing parent_stream_id")
+    if row.parent_seq < 0:
+        raise RuntimeError("invalid parent_seq")
+    artifact_ref = as_semantic_depth_artifact_ref(row.semantic_depth_report_id)
+    if not artifact_ref.startswith("artifact:"):
+        raise RuntimeError("invalid semantic depth artifact_ref")
+    if not row.client_request_id:
+        raise RuntimeError("missing client_request_id")
+
+    config = URMRuntimeConfig.from_env()
+    emit_governance_event(
+        config=config,
+        stream_id=row.parent_stream_id,
+        event_kind=_SEMANTIC_DEPTH_MATERIALIZE_EVENT_KIND,
+        endpoint=_SEMANTIC_DEPTH_MATERIALIZE_ENDPOINT,
+        detail={
+            "parent_stream_id": row.parent_stream_id,
+            "parent_seq": row.parent_seq,
+            "artifact_ref": artifact_ref,
+            "client_request_id": row.client_request_id,
+            "semantic_depth_report_id": row.semantic_depth_report_id,
+            "semantic_depth_hash": row.semantic_depth_hash,
+            "created_at": row.created_at,
+        },
+    )
+
+
+def _semantic_depth_event_ref_exists(*, ref: str) -> bool:
+    stream_id, seq = parse_event_ref(ref)
+    config = URMRuntimeConfig.from_env()
+    if stream_id == "urm_policy_registry":
+        path = config.evidence_root / "governance" / "policy_registry" / "urm_events.ndjson"
+    elif stream_id.startswith("urm_policy:"):
+        profile_id = stream_id.split(":", 1)[1]
+        path = config.evidence_root / "governance" / "policy" / profile_id / "urm_events.ndjson"
+    else:
+        safe_stream = stream_id.replace(":", "_")
+        path = config.evidence_root / "governance" / safe_stream / "urm_events.ndjson"
+    if not path.exists():
+        return False
+    try:
+        with path.open("r", encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    payload = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(payload, dict):
+                    continue
+                if payload.get("stream_id") == stream_id and int(payload.get("seq", -1)) == seq:
+                    return True
+    except OSError:
+        return False
+    return False
+
+
+def _semantic_depth_artifact_ref_exists(
+    *,
+    ref: str,
+    connection: sqlite3.Connection,
+) -> bool:
+    validate_semantic_depth_ref(ref)
+    if not ref.startswith("artifact:"):
+        return False
+    token = ref[len("artifact:") :]
+    if token.startswith("explain:"):
+        explain_id = token.split(":", 1)[1]
+        row = connection.execute(
+            "SELECT 1 FROM explain_artifacts WHERE explain_id = ? LIMIT 1",
+            (explain_id,),
+        ).fetchone()
+        return row is not None
+    if token.startswith("semantic_depth:"):
+        report_id = token.split(":", 1)[1]
+        row = connection.execute(
+            "SELECT 1 FROM semantic_depth_reports WHERE semantic_depth_report_id = ? LIMIT 1",
+            (report_id,),
+        ).fetchone()
+        return row is not None
+
+    for table_name, column_name in (
+        ("artifacts", "artifact_id"),
+        ("concept_artifacts", "artifact_id"),
+        ("proof_artifacts", "proof_id"),
+    ):
+        row = connection.execute(
+            f"SELECT 1 FROM {table_name} WHERE {column_name} = ? LIMIT 1",
+            (token,),
+        ).fetchone()
+        if row is not None:
+            return True
+    return False
+
+
+def _semantic_depth_ref_resolves(
+    *,
+    ref: str,
+    connection: sqlite3.Connection,
+) -> bool:
+    if ref.startswith("artifact:"):
+        return _semantic_depth_artifact_ref_exists(ref=ref, connection=connection)
+    if ref.startswith("event:"):
+        return _semantic_depth_event_ref_exists(ref=ref)
+    return False
+
+
+def _validate_semantic_depth_linkage_refs_resolve(
+    *,
+    report: Mapping[str, Any],
+    connection: sqlite3.Connection,
+) -> None:
+    refs_to_check: list[str] = []
+
+    for list_key in ("diff_refs", "witness_refs"):
+        raw = report.get(list_key)
+        if raw is None:
+            continue
+        if not isinstance(raw, list):
+            raise SemanticDepthError(
+                f"{list_key} must be an array of refs",
+                code=SEMANTIC_DEPTH_INVALID_REF_CODE,
+            )
+        refs_to_check.extend([str(item) for item in raw])
+
+    for scalar_key in ("semantics_diagnostics_ref", "explain_diff_ref"):
+        raw = report.get(scalar_key)
+        if raw is None:
+            continue
+        refs_to_check.append(str(raw))
+
+    for ref in refs_to_check:
+        validate_semantic_depth_ref(ref)
+        if not _semantic_depth_ref_resolves(ref=ref, connection=connection):
+            raise SemanticDepthError(
+                f"unresolved semantic-depth linkage ref: {ref!r}",
+                code=SEMANTIC_DEPTH_INVALID_REF_CODE,
+            )
+
+
 def _build_explain_flip_formatted_response(
     *,
     format: ExplainResponseFormat,
@@ -5010,6 +5293,94 @@ def explain_flip_endpoint(
         left_mismatch=left_mismatch,
         right_mismatch=right_mismatch,
     )
+
+
+@app.post("/concepts/semantic_depth", response_model=SemanticDepthReportResponse)
+def concepts_semantic_depth_endpoint(
+    req: ConceptSemanticDepthRequest,
+) -> SemanticDepthReportResponse:
+    return _build_semantic_depth_packet_response(
+        left_ir=req.left_ir,
+        right_ir=req.right_ir,
+        input_artifact_refs=req.input_artifact_refs,
+        diff_refs=req.diff_refs,
+        witness_refs=req.witness_refs,
+        semantics_diagnostics_ref=req.semantics_diagnostics_ref,
+        explain_diff_ref=req.explain_diff_ref,
+        coherence_summary=req.coherence_summary,
+        nonsemantic_fields=req.nonsemantic_fields,
+    )
+
+
+@app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)
+def semantic_depth_materialize_endpoint(
+    req: SemanticDepthMaterializeRequest,
+) -> SemanticDepthMaterializeResponse:
+    try:
+        validate_semantic_depth_report(req.semantic_depth_report)
+        semantic_key = semantic_depth_idempotency_semantic_key(req.semantic_depth_report)
+    except SemanticDepthError as exc:
+        raise _semantic_depth_error_to_http(exc) from exc
+
+    request_payload_hash = sha256_canonical_json(semantic_key)
+
+    with storage_transaction() as con:
+        existing = get_semantic_depth_report_by_client_request_id(
+            client_request_id=req.client_request_id,
+            connection=con,
+        )
+        if existing is not None:
+            if existing.request_payload_hash != request_payload_hash:
+                raise HTTPException(
+                    status_code=409,
+                    detail={
+                        "code": SEMANTIC_DEPTH_IDEMPOTENCY_CONFLICT_CODE,
+                        "message": "client_request_id already used with a different semantic key",
+                        "context": {"client_request_id": req.client_request_id},
+                    },
+                )
+            return _semantic_depth_materialize_response_from_row(existing, idempotent_replay=True)
+
+        try:
+            _validate_semantic_depth_linkage_refs_resolve(
+                report=req.semantic_depth_report,
+                connection=con,
+            )
+        except SemanticDepthError as exc:
+            raise _semantic_depth_error_to_http(exc) from exc
+
+        semantic_depth_hash = req.semantic_depth_report.get("semantic_depth_hash")
+        if not isinstance(semantic_depth_hash, str):
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": SEMANTIC_DEPTH_PACKET_INVALID_CODE,
+                    "message": "semantic_depth_report missing semantic_depth_hash",
+                },
+            )
+
+        row = create_semantic_depth_report(
+            client_request_id=req.client_request_id,
+            request_payload_hash=request_payload_hash,
+            semantic_depth_hash=semantic_depth_hash,
+            report_json=req.semantic_depth_report,
+            parent_stream_id=req.parent_stream_id,
+            parent_seq=req.parent_seq,
+            connection=con,
+        )
+
+        try:
+            _emit_semantic_depth_materialized_event(row=row)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "code": "URM_SEMANTIC_DEPTH_EVENT_EMIT_FAILED",
+                    "message": str(exc),
+                },
+            ) from exc
+
+    return _semantic_depth_materialize_response_from_row(row, idempotent_replay=False)
 
 
 @app.post("/urm/explain/materialize", response_model=ExplainMaterializeResponse)

@@ -1,0 +1,279 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lexlattice.local/spec/semantic_depth_report.schema.json",
+  "title": "semantic_depth_report@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "input_artifact_refs",
+    "signature_projection_version",
+    "ranking_objective_version",
+    "ranking_tie_break_version",
+    "conflict_items",
+    "ranked_conflict_ids",
+    "hash_excluded_fields",
+    "semantic_depth_hash"
+  ],
+  "properties": {
+    "schema": {
+      "const": "semantic_depth_report@1"
+    },
+    "input_artifact_refs": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "$ref": "#/$defs/semantic_depth_ref"
+      }
+    },
+    "signature_projection_version": {
+      "type": "string",
+      "pattern": "^semantic_depth\\.signature\\.v[0-9]+$"
+    },
+    "ranking_objective_version": {
+      "type": "string",
+      "pattern": "^semantic_depth\\.rank\\.v[0-9]+$"
+    },
+    "ranking_tie_break_version": {
+      "type": "string",
+      "pattern": "^semantic_depth\\.tie_break\\.v[0-9]+$"
+    },
+    "conflict_items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/conflict_item"
+      }
+    },
+    "ranked_conflict_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    },
+    "coherence_summary": {
+      "type": "object"
+    },
+    "coherence_summary_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "diff_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/semantic_depth_ref"
+      }
+    },
+    "witness_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/semantic_depth_ref"
+      }
+    },
+    "semantics_diagnostics_ref": {
+      "$ref": "#/$defs/semantic_depth_ref"
+    },
+    "explain_diff_ref": {
+      "$ref": "#/$defs/semantic_depth_ref"
+    },
+    "nonsemantic_fields": {
+      "type": "object"
+    },
+    "hash_excluded_fields": {
+      "const": [
+        "client_request_id",
+        "generated_at",
+        "materialized_at",
+        "nonsemantic_fields",
+        "operator_note",
+        "request_id",
+        "semantic_depth_hash"
+      ]
+    },
+    "semantic_depth_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "$defs": {
+    "semantic_depth_ref": {
+      "type": "string",
+      "pattern": "^(artifact:[^\\s]+|event:[^#]+#[0-9]+)$"
+    },
+    "typed_ref": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ref_type",
+            "entity_id"
+          ],
+          "properties": {
+            "ref_type": {
+              "const": "entity"
+            },
+            "entity_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ref_type",
+            "def_id"
+          ],
+          "properties": {
+            "ref_type": {
+              "const": "def"
+            },
+            "def_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ref_type",
+            "doc_ref"
+          ],
+          "properties": {
+            "ref_type": {
+              "const": "doc"
+            },
+            "doc_ref": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ref_type",
+            "text"
+          ],
+          "properties": {
+            "ref_type": {
+              "const": "text"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "conflict_item": {
+      "type": "object",
+      "required": [
+        "conflict_id",
+        "conflict_key",
+        "provenance"
+      ],
+      "properties": {
+        "conflict_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "conflict_key": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "subject_ref",
+            "object_ref"
+          ],
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "status_flip",
+                "reason_code_mismatch",
+                "link_kind_conflict",
+                "claim_text_conflict",
+                "sense_gloss_conflict"
+              ]
+            },
+            "subject_ref": {
+              "$ref": "#/$defs/typed_ref"
+            },
+            "object_ref": {
+              "$ref": "#/$defs/typed_ref"
+            },
+            "predicate_ref": {
+              "$ref": "#/$defs/typed_ref"
+            },
+            "locus_ref": {
+              "$ref": "#/$defs/typed_ref"
+            }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "priority",
+            "confidence_milli",
+            "evidence_kind",
+            "source_ref_ids"
+          ],
+          "properties": {
+            "priority": {
+              "type": "integer"
+            },
+            "confidence_milli": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            },
+            "evidence_kind": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_ref_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/semantic_depth_ref"
+              }
+            },
+            "solver_status": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "x_kind_priority_map": {
+    "status_flip": 900,
+    "reason_code_mismatch": 800,
+    "link_kind_conflict": 700,
+    "claim_text_conflict": 600,
+    "sense_gloss_conflict": 500
+  },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "coherence_summary"
+        ]
+      },
+      "then": {
+        "required": [
+          "coherence_summary_hash"
+        ]
+      }
+    }
+  ]
+}

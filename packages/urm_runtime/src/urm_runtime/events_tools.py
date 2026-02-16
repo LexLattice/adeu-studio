@@ -71,6 +71,14 @@ DETAIL_MINIMA_RULES: list[tuple[set[str], tuple[str, ...], str]] = [
             "parent_stream_id, parent_seq, and code"
         ),
     ),
+    (
+        {"SEMANTIC_DEPTH_MATERIALIZED"},
+        ("artifact_ref", "client_request_id", "parent_stream_id", "parent_seq"),
+        (
+            "{event_name} detail must include artifact_ref, client_request_id, "
+            "parent_stream_id, and parent_seq"
+        ),
+    ),
     (TOOL_EVENTS, ("tool_name",), "{event_name} detail must include tool_name"),
     (
         EVIDENCE_EVENTS,
