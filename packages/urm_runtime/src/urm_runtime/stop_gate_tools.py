@@ -52,6 +52,7 @@ VNEXT_PLUS10_DEFAULT_METRICS = {
     "concept_conflict_precision_pct": 0.0,
     "concept_conflict_recall_pct": 0.0,
     "coherence_permutation_stability_pct": 0.0,
+    # Macro precision/recall are non-gating diagnostics in this arc.
     "concept_conflict_precision_macro_pct": 0.0,
     "concept_conflict_recall_macro_pct": 0.0,
 }
@@ -2349,6 +2350,7 @@ def build_stop_gate_metrics(
         "coherence_permutation_stability_pct": vnext_plus10_metrics[
             "coherence_permutation_stability_pct"
         ],
+        # Non-gating diagnostics: rendered in reports, excluded from gates.
         "concept_conflict_precision_macro_pct": vnext_plus10_metrics[
             "concept_conflict_precision_macro_pct"
         ],
@@ -2428,6 +2430,7 @@ def build_stop_gate_metrics(
         >= THRESHOLDS["coherence_permutation_stability_pct"],
         "semantic_depth_improvement_lock": metrics["semantic_depth_improvement_lock_passed"]
         is THRESHOLDS["semantic_depth_improvement_lock"],
+        # Macro precision/recall are intentionally not part of stop-gate decisions.
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
