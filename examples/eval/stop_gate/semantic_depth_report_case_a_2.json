@@ -1,0 +1,184 @@
+{
+  "coherence_summary": {
+    "documents": [
+      {
+        "claim_count": 1,
+        "doc_ref": "doc:left",
+        "issue_codes": [],
+        "link_count": 1,
+        "sense_count": 1,
+        "signature_hash": "d6cb788da6694975f8001a17219215be46e7a81da9251ebd438fe1c895f279fb",
+        "status": "coherent",
+        "term_count": 1
+      },
+      {
+        "claim_count": 1,
+        "doc_ref": "doc:right",
+        "issue_codes": [],
+        "link_count": 1,
+        "sense_count": 1,
+        "signature_hash": "dd12b323896149dde3424a8cdd5ca41e8f1b9e5c1bdb87ac5ed7a43c51cf0644",
+        "status": "coherent",
+        "term_count": 1
+      }
+    ],
+    "pairwise_aggregate": {
+      "coherent_document_count": 2,
+      "conflict_kind_counts": {
+        "claim_text_conflict": 1,
+        "link_kind_conflict": 1,
+        "reason_code_mismatch": 0,
+        "sense_gloss_conflict": 1,
+        "status_flip": 0
+      },
+      "incoherent_document_count": 0,
+      "ranked_conflict_ids_hash": "2d325ff1760d28d4b864663317c8ba558bc115fe0a8a3086b2f99061a19cce84",
+      "status": "conflicted",
+      "total_conflicts": 3
+    },
+    "summary_version": "semantic_depth.coherence_summary.v1"
+  },
+  "coherence_summary_hash": "d801afc0ede098cfa2fc53476820f9d438994dcb5908c2749c5bea94852861a9",
+  "conflict_items": [
+    {
+      "conflict_id": "059eff807f7b93c943d2fd293e638c1af6c90b656384861e2d13e5a9e41c0dc6",
+      "conflict_key": {
+        "kind": "sense_gloss_conflict",
+        "locus_ref": {
+          "ref_type": "text",
+          "text": "sense:sense_pay"
+        },
+        "object_ref": {
+          "doc_ref": "doc:right",
+          "ref_type": "doc"
+        },
+        "predicate_ref": {
+          "ref_type": "text",
+          "text": "gloss_mismatch"
+        },
+        "subject_ref": {
+          "doc_ref": "doc:left",
+          "ref_type": "doc"
+        }
+      },
+      "details": {
+        "left_gloss": "pay within 5 days",
+        "right_gloss": "pay within 10 days",
+        "sense_id": "sense_pay"
+      },
+      "provenance": {
+        "confidence_milli": 760,
+        "evidence_kind": "sense_gloss_conflict",
+        "priority": 500,
+        "source_ref_ids": [
+          "artifact:semantic-depth-left",
+          "artifact:semantic-depth-right"
+        ]
+      }
+    },
+    {
+      "conflict_id": "5df1d52f041d1f8b67d20f07ccda28e1ebeb74d13443b61f183f5459d79b19dd",
+      "conflict_key": {
+        "kind": "link_kind_conflict",
+        "locus_ref": {
+          "ref_type": "text",
+          "text": "link:sense_pay->sense_pay"
+        },
+        "object_ref": {
+          "doc_ref": "doc:right",
+          "ref_type": "doc"
+        },
+        "predicate_ref": {
+          "ref_type": "text",
+          "text": "link_kind_set_mismatch"
+        },
+        "subject_ref": {
+          "doc_ref": "doc:left",
+          "ref_type": "doc"
+        }
+      },
+      "details": {
+        "dst_sense_id": "sense_pay",
+        "left_link_kinds": [
+          "incompatibility"
+        ],
+        "right_link_kinds": [
+          "commitment"
+        ],
+        "src_sense_id": "sense_pay"
+      },
+      "provenance": {
+        "confidence_milli": 820,
+        "evidence_kind": "link_kind_conflict",
+        "priority": 700,
+        "source_ref_ids": [
+          "artifact:semantic-depth-left",
+          "artifact:semantic-depth-right"
+        ]
+      }
+    },
+    {
+      "conflict_id": "76fab46d4ede2350660e8f6e541c9d4576a9f5fa3af7f6c3fc1f4d5db7fd6561",
+      "conflict_key": {
+        "kind": "claim_text_conflict",
+        "locus_ref": {
+          "ref_type": "text",
+          "text": "claim:sense_pay"
+        },
+        "object_ref": {
+          "doc_ref": "doc:right",
+          "ref_type": "doc"
+        },
+        "predicate_ref": {
+          "ref_type": "text",
+          "text": "claim_set_mismatch"
+        },
+        "subject_ref": {
+          "doc_ref": "doc:left",
+          "ref_type": "doc"
+        }
+      },
+      "details": {
+        "left_claim_texts": [
+          "must pay in 5 days"
+        ],
+        "right_claim_texts": [
+          "must pay in 10 days"
+        ],
+        "sense_id": "sense_pay"
+      },
+      "provenance": {
+        "confidence_milli": 780,
+        "evidence_kind": "claim_text_conflict",
+        "priority": 600,
+        "source_ref_ids": [
+          "artifact:semantic-depth-left",
+          "artifact:semantic-depth-right"
+        ]
+      }
+    }
+  ],
+  "hash_excluded_fields": [
+    "client_request_id",
+    "generated_at",
+    "materialized_at",
+    "nonsemantic_fields",
+    "operator_note",
+    "request_id",
+    "semantic_depth_hash"
+  ],
+  "input_artifact_refs": [
+    "artifact:semantic-depth-left",
+    "artifact:semantic-depth-right"
+  ],
+  "ranked_conflict_ids": [
+    "5df1d52f041d1f8b67d20f07ccda28e1ebeb74d13443b61f183f5459d79b19dd",
+    "76fab46d4ede2350660e8f6e541c9d4576a9f5fa3af7f6c3fc1f4d5db7fd6561",
+    "059eff807f7b93c943d2fd293e638c1af6c90b656384861e2d13e5a9e41c0dc6"
+  ],
+  "ranking_objective_version": "semantic_depth.rank.v1",
+  "ranking_tie_break_version": "semantic_depth.tie_break.v1",
+  "schema": "semantic_depth_report@1",
+  "semantic_depth_hash": "645c891bacf915626911c7a0ac9ee3661a86cb87bf9ddeab71ee75a8c5bf556a",
+  "signature_projection_version": "semantic_depth.signature.v1"
+}
