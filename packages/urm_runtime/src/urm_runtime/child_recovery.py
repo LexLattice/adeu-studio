@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from .errors import URMError
 from .evidence import EvidenceFileWriter
 from .normalization import build_internal_event
 from .storage import (
@@ -12,6 +13,8 @@ from .storage import (
     set_dispatch_token_phase,
     transaction,
 )
+
+_RECOVERY_ORDER_SENTINEL = 2**62
 
 
 def _metadata_str(metadata: dict[str, Any], key: str) -> str | None:
@@ -87,10 +90,12 @@ def _recovery_order_key(*, metadata: dict[str, Any], token: Any | None) -> tuple
     dispatch_seq = (
         token.dispatch_seq
         if token is not None and token.dispatch_seq is not None
-        else (_metadata_int(metadata, "dispatch_seq") or 2**62)
+        else (_metadata_int(metadata, "dispatch_seq") or _RECOVERY_ORDER_SENTINEL)
     )
     queue_seq = (
-        token.queue_seq if token is not None else (_metadata_int(metadata, "queue_seq") or 2**62)
+        token.queue_seq
+        if token is not None
+        else (_metadata_int(metadata, "queue_seq") or _RECOVERY_ORDER_SENTINEL)
     )
     return (parent_session_id, int(dispatch_seq), int(queue_seq))
 
@@ -153,7 +158,7 @@ def recover_stale_child_runs(*, manager: Any, logger: Any) -> None:
         if raw_events_path is not None:
             try:
                 events_path = manager._resolve_urm_events_path(raw_events_path)
-            except Exception:
+            except URMError:
                 events_path = None
         else:
             events_path = None

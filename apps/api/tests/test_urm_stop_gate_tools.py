@@ -287,7 +287,7 @@ def _write_vnext_plus9_budget_cancel_paths_with_drift(tmp_path: Path) -> list[Pa
             continue
         detail = record.get("detail")
         if isinstance(detail, dict) and detail.get("code") == "URM_CHILD_BUDGET_EXCEEDED":
-            detail["dispatch_seq"] = int(detail.get("dispatch_seq", 0)) + 10
+            detail["dispatch_seq"] = detail.get("dispatch_seq", 0) + 10
             detail["lease_id"] = f"{detail.get('lease_id')}-drift"
             break
 
