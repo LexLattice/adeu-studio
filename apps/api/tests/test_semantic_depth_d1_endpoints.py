@@ -176,6 +176,34 @@ def test_semantic_depth_materialize_invalid_ref_uses_frozen_error_code(
         assert exc.detail["code"] == "URM_SEMANTIC_DEPTH_INVALID_REF"
 
 
+def test_semantic_depth_materialize_rejects_path_traversal_event_ref(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    evidence_root = tmp_path / "evidence"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("URM_EVIDENCE_ROOT", str(evidence_root))
+
+    packet = _packet()
+    packet["diff_refs"] = ["event:../escape#1"]
+
+    try:
+        semantic_depth_materialize_endpoint(
+            SemanticDepthMaterializeRequest(
+                client_request_id="req-semantic-depth-traversal-ref",
+                semantic_depth_report=packet,
+                parent_stream_id="urm_policy:test_profile",
+                parent_seq=1,
+            )
+        )
+        assert False, "expected invalid ref failure"
+    except HTTPException as exc:
+        assert exc.status_code == 400
+        assert isinstance(exc.detail, dict)
+        assert exc.detail["code"] == "URM_SEMANTIC_DEPTH_INVALID_REF"
+
+
 def test_semantic_depth_materialize_rolls_back_when_event_emit_fails(
     monkeypatch,
     tmp_path: Path,

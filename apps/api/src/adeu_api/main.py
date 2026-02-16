@@ -6,6 +6,7 @@ import re
 import sqlite3
 from collections import deque
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Callable, Literal, Mapping, NamedTuple
 
 from adeu_concepts import (
@@ -3404,6 +3405,24 @@ def _semantic_depth_materialize_response_from_row(
     )
 
 
+def _governance_event_stream_path(
+    *,
+    config: URMRuntimeConfig,
+    stream_id: str,
+) -> Path | None:
+    if stream_id == "urm_policy_registry":
+        return config.evidence_root / "governance" / "policy_registry" / "urm_events.ndjson"
+    if stream_id.startswith("urm_policy:"):
+        profile_id = stream_id.split(":", 1)[1]
+        if "/" in profile_id or "\\" in profile_id or ".." in profile_id:
+            return None
+        return config.evidence_root / "governance" / "policy" / profile_id / "urm_events.ndjson"
+    safe_stream = stream_id.replace(":", "_")
+    if "/" in safe_stream or "\\" in safe_stream or ".." in safe_stream:
+        return None
+    return config.evidence_root / "governance" / safe_stream / "urm_events.ndjson"
+
+
 def _emit_semantic_depth_materialized_event(
     *,
     row: SemanticDepthReportRow,
@@ -3419,6 +3438,8 @@ def _emit_semantic_depth_materialized_event(
         raise RuntimeError("missing client_request_id")
 
     config = URMRuntimeConfig.from_env()
+    if _governance_event_stream_path(config=config, stream_id=row.parent_stream_id) is None:
+        raise RuntimeError("invalid parent_stream_id")
     emit_governance_event(
         config=config,
         stream_id=row.parent_stream_id,
@@ -3439,14 +3460,9 @@ def _emit_semantic_depth_materialized_event(
 def _semantic_depth_event_ref_exists(*, ref: str) -> bool:
     stream_id, seq = parse_event_ref(ref)
     config = URMRuntimeConfig.from_env()
-    if stream_id == "urm_policy_registry":
-        path = config.evidence_root / "governance" / "policy_registry" / "urm_events.ndjson"
-    elif stream_id.startswith("urm_policy:"):
-        profile_id = stream_id.split(":", 1)[1]
-        path = config.evidence_root / "governance" / "policy" / profile_id / "urm_events.ndjson"
-    else:
-        safe_stream = stream_id.replace(":", "_")
-        path = config.evidence_root / "governance" / safe_stream / "urm_events.ndjson"
+    path = _governance_event_stream_path(config=config, stream_id=stream_id)
+    if path is None:
+        return False
     if not path.exists():
         return False
     try:
@@ -3608,6 +3624,8 @@ def _emit_explain_materialized_event(
     row: ExplainArtifactRow,
 ) -> None:
     config = URMRuntimeConfig.from_env()
+    if _governance_event_stream_path(config=config, stream_id=row.parent_stream_id) is None:
+        raise RuntimeError("invalid parent_stream_id")
     emit_governance_event(
         config=config,
         stream_id=row.parent_stream_id,
@@ -5380,7 +5398,7 @@ def semantic_depth_materialize_endpoint(
                 },
             ) from exc
 
-    return _semantic_depth_materialize_response_from_row(row, idempotent_replay=False)
+        return _semantic_depth_materialize_response_from_row(row, idempotent_replay=False)
 
 
 @app.post("/urm/explain/materialize", response_model=ExplainMaterializeResponse)
