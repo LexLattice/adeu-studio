@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import ast
-import json
 from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -14,20 +13,139 @@ from urm_runtime.capability_policy import authorize_action
 from urm_runtime.domain_registry import DomainToolRegistry
 from urm_runtime.errors import URMError
 from urm_runtime.events_tools import replay_events, validate_events
-from urm_runtime.hashing import canonical_json
+from urm_runtime.hashing import canonical_json, sha256_canonical_json
 from urm_runtime.models import NormalizedEvent
 
 DOMAIN_CONFORMANCE_SCHEMA = "domain_conformance@1"
+URM_CONFORMANCE_REPORT_INVALID_CODE = "URM_CONFORMANCE_REPORT_INVALID"
+URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED_CODE = "URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED"
 _FIXED_TS = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 _RUNTIME_SOURCE_VERSION = "0.0.0"
 _FORBIDDEN_IMPORT_PREFIXES: tuple[str, ...] = ("urm_domain_",)
+DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = frozenset(
+    {
+        "domain_conformance_hash",
+        "hash_excluded_fields",
+        "generated_at",
+        "runtime_root_path",
+        "missing_runtime_root_path",
+        "operator_note",
+    }
+)
+DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELD_LIST = tuple(
+    sorted(DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS)
+)
 ToolRun: TypeAlias = tuple[str, dict[str, Any], dict[str, Any]]
 DomainPack: TypeAlias = PaperDomainTools | DigestDomainTools
 DomainRun: TypeAlias = tuple[str, str, DomainPack, list[ToolRun]]
 
 
-def _issue(*, code: str, message: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
-    return {"code": code, "message": message, "context": dict(context or {})}
+class DomainConformanceError(ValueError):
+    """Raised when domain conformance payloads fail deterministic validation."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str = URM_CONFORMANCE_REPORT_INVALID_CODE,
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+
+
+def _issue(
+    *,
+    code: str,
+    message: str,
+    context: dict[str, Any] | None = None,
+    urm_code: str | None = None,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {"code": code, "message": message, "context": dict(context or {})}
+    if urm_code is not None:
+        payload["urm_code"] = urm_code
+    return payload
+
+
+def _default_runtime_root() -> Path:
+    return Path(__file__).resolve().parents[4] / "packages" / "urm_runtime" / "src" / "urm_runtime"
+
+
+def _resolve_runtime_root(*, runtime_root: Path | None) -> Path:
+    if runtime_root is None:
+        return _default_runtime_root().resolve()
+    return runtime_root.resolve()
+
+
+def _issue_sort_key(issue: dict[str, Any]) -> tuple[str, str, str]:
+    raw_context = issue.get("context")
+    if isinstance(raw_context, dict):
+        context_payload: dict[str, Any] = dict(raw_context)
+    else:
+        context_payload = {}
+    return (
+        str(issue.get("code") or ""),
+        canonical_json(context_payload),
+        str(issue.get("message") or ""),
+    )
+
+
+def _sort_issues(issues: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return sorted(issues, key=_issue_sort_key)
+
+
+def strip_nonsemantic_domain_conformance_fields(value: Any) -> Any:
+    if isinstance(value, dict):
+        normalized: dict[str, Any] = {}
+        for raw_key, raw_value in sorted(value.items(), key=lambda item: str(item[0])):
+            key = str(raw_key)
+            if key in DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS:
+                continue
+            normalized[key] = strip_nonsemantic_domain_conformance_fields(raw_value)
+        return normalized
+    if isinstance(value, list):
+        return [strip_nonsemantic_domain_conformance_fields(item) for item in value]
+    return value
+
+
+def domain_conformance_hash(payload: dict[str, Any]) -> str:
+    semantic_payload = strip_nonsemantic_domain_conformance_fields(payload)
+    return sha256_canonical_json(semantic_payload)
+
+
+def validate_domain_conformance_report(payload: dict[str, Any]) -> None:
+    if payload.get("schema") != DOMAIN_CONFORMANCE_SCHEMA:
+        raise DomainConformanceError("payload schema must be domain_conformance@1")
+
+    hash_excluded_fields = payload.get("hash_excluded_fields")
+    if hash_excluded_fields is not None and hash_excluded_fields != list(
+        DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELD_LIST
+    ):
+        raise DomainConformanceError("hash_excluded_fields does not match frozen exclusion set")
+
+    domains = payload.get("domains")
+    if not isinstance(domains, list):
+        raise DomainConformanceError("domains must be an array")
+    parsed_domains = [item for item in domains if isinstance(item, dict)]
+    if len(parsed_domains) != len(domains):
+        raise DomainConformanceError("domains must be objects")
+    domain_order = [str(item.get("domain") or "") for item in parsed_domains]
+    if domain_order != sorted(domain_order):
+        raise DomainConformanceError("domains must be sorted by canonical domain key")
+
+    issues = payload.get("issues")
+    if not isinstance(issues, list):
+        raise DomainConformanceError("issues must be an array")
+    parsed_issues = [item for item in issues if isinstance(item, dict)]
+    if len(parsed_issues) != len(issues):
+        raise DomainConformanceError("issues must be objects")
+    if parsed_issues != _sort_issues(parsed_issues):
+        raise DomainConformanceError("issues must be canonical-sorted")
+
+    embedded_hash = payload.get("domain_conformance_hash")
+    if embedded_hash is not None:
+        expected_hash = domain_conformance_hash(payload)
+        if not isinstance(embedded_hash, str) or embedded_hash != expected_hash:
+            raise DomainConformanceError("domain_conformance_hash mismatch")
 
 
 def _event(
@@ -299,23 +417,23 @@ def _error_taxonomy_checks(
     }
 
 
-def _import_audit() -> dict[str, Any]:
-    runtime_root = (
-        Path(__file__).resolve().parents[4] / "packages" / "urm_runtime" / "src" / "urm_runtime"
-    )
-    if not runtime_root.exists():
+def _import_audit(*, runtime_root: Path | None = None) -> dict[str, Any]:
+    resolved_runtime_root = _resolve_runtime_root(runtime_root=runtime_root)
+    if not resolved_runtime_root.exists():
         return {
             "valid": False,
+            "runtime_root_path": str(resolved_runtime_root),
+            "missing_runtime_root_path": str(resolved_runtime_root),
             "offenders": [
                 {
                     "module": "__runtime_root__",
-                    "import": f"missing:{runtime_root}",
+                    "import": "missing_runtime_root",
                 }
             ],
         }
     offenders: list[dict[str, str]] = []
-    for path in sorted(runtime_root.rglob("*.py")):
-        module_rel = path.relative_to(runtime_root).as_posix()
+    for path in sorted(resolved_runtime_root.rglob("*.py")):
+        module_rel = path.relative_to(resolved_runtime_root).as_posix()
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
@@ -327,7 +445,11 @@ def _import_audit() -> dict[str, Any]:
                 if module.startswith(_FORBIDDEN_IMPORT_PREFIXES):
                     offenders.append({"module": module_rel, "import": module})
     offenders = sorted(offenders, key=lambda item: (item["module"], item["import"]))
-    return {"valid": offenders == [], "offenders": offenders}
+    return {
+        "valid": offenders == [],
+        "runtime_root_path": str(resolved_runtime_root),
+        "offenders": offenders,
+    }
 
 
 def _registry_determinism() -> dict[str, Any]:
@@ -355,10 +477,10 @@ def _registry_determinism() -> dict[str, Any]:
     }
 
 
-def build_domain_conformance(*, events_dir: Path) -> dict[str, Any]:
+def build_domain_conformance(*, events_dir: Path, runtime_root: Path | None = None) -> dict[str, Any]:
     events_dir.mkdir(parents=True, exist_ok=True)
     registry = _registry_determinism()
-    import_audit = _import_audit()
+    import_audit = _import_audit(runtime_root=runtime_root)
 
     domain_reports: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = []
@@ -407,6 +529,7 @@ def build_domain_conformance(*, events_dir: Path) -> dict[str, Any]:
                     code="DOMAIN_CHECK_FAILED",
                     message="domain conformance checks failed",
                     context={"domain": domain},
+                    urm_code=URM_CONFORMANCE_REPORT_INVALID_CODE,
                 )
             )
 
@@ -427,6 +550,7 @@ def build_domain_conformance(*, events_dir: Path) -> dict[str, Any]:
             _issue(
                 code="REGISTRY_ORDER_NONDETERMINISTIC",
                 message="domain tool registry metadata differs across registration permutations",
+                urm_code=URM_CONFORMANCE_REPORT_INVALID_CODE,
             )
         )
     if not import_audit["valid"]:
@@ -435,10 +559,11 @@ def build_domain_conformance(*, events_dir: Path) -> dict[str, Any]:
                 code="RUNTIME_IMPORT_AUDIT_FAILED",
                 message="urm_runtime imports domain-pack modules",
                 context={"offender_count": len(import_audit["offenders"])},
+                urm_code=URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED_CODE,
             )
         )
 
-    report = {
+    report: dict[str, Any] = {
         "schema": DOMAIN_CONFORMANCE_SCHEMA,
         "valid": registry["valid"] and import_audit["valid"] and all(
             item["valid"] for item in domain_reports
@@ -446,13 +571,9 @@ def build_domain_conformance(*, events_dir: Path) -> dict[str, Any]:
         "registry_order_determinism": registry,
         "import_audit": import_audit,
         "domains": domain_reports,
-        "issues": sorted(
-            issues,
-            key=lambda item: (
-                item.get("code", ""),
-                json.dumps(item.get("context", {}), sort_keys=True),
-                item.get("message", ""),
-            ),
-        ),
+        "issues": _sort_issues(issues),
+        "hash_excluded_fields": list(DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELD_LIST),
     }
+    report["domain_conformance_hash"] = domain_conformance_hash(report)
+    validate_domain_conformance_report(report)
     return report
