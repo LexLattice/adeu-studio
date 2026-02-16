@@ -92,6 +92,10 @@ Freeze deterministic domain-conformance report semantics and replay boundaries.
   - optional `domain_conformance_hash`
 - Domain ordering lock is frozen:
   - `domains` are ordered deterministically by canonical domain key.
+- Issue ordering lock is frozen:
+  - `issues` must be sorted before hash/replay comparison by:
+    - `(code ASC, canonical_json(context) ASC, message ASC)`.
+  - absent `context` is treated as `{}`.
 - Domain check shape lock is frozen:
   - per-domain checks must include:
     - `event_envelope`
@@ -119,6 +123,10 @@ Freeze deterministic domain-conformance report semantics and replay boundaries.
   - when present, `hash_excluded_fields` must equal the frozen exclusion list exactly.
 - Failure behavior lock is frozen:
   - malformed report payloads fail closed in deterministic validation paths.
+- Issue-code compatibility lock is frozen:
+  - conformance issues may retain existing legacy `code` values for additive compatibility.
+  - canonical URM taxonomy must be exposed via `urm_code` on new/updated issues.
+  - deterministic conformance gates consume `urm_code` when present.
 
 ### Acceptance
 
@@ -141,10 +149,10 @@ Expand deterministic cross-domain parity coverage for artifacts introduced acros
 - Freeze parity projection rules for semantic payload comparison.
 - Add parity fixture pairs for deterministic comparison:
   - each parity fixture entry contains:
+    - `fixture_id` (required)
     - `artifact_schema`
     - `left_ref`
     - `right_ref`
-    - optional `fixture_id`
     - optional `notes`
 
 ### Locks
@@ -153,6 +161,10 @@ Expand deterministic cross-domain parity coverage for artifacts introduced acros
   - artifact parity comparison uses semantic projections only.
   - semantic projection for each artifact schema is derived from that artifact family's authoritative semantic/hash exclusion contract (no independent exclusion table in conformance layer).
   - artifact-specific nonsemantic exclusions remain authoritative from each artifact lock.
+- Policy-lineage projection authority lock is frozen:
+  - `policy_lineage@1` parity requires an authoritative lineage semantic-projection/hash-exclusion contract in policy-lineage source-of-truth modules.
+  - conformance parity code may not introduce policy-lineage-specific exclusion logic outside that authoritative contract.
+  - if authoritative policy-lineage projection contract is unavailable, parity fixture evaluation fails closed with `URM_CONFORMANCE_PROJECTION_UNSUPPORTED`.
 - Parity pass-condition lock is frozen:
   - fixture passes only when:
     - `semantic_projection(left) == semantic_projection(right)`.
@@ -166,7 +178,8 @@ Expand deterministic cross-domain parity coverage for artifacts introduced acros
 - Domain-extension lock is frozen:
   - domain-specific extensions may exist only in explicit nonsemantic/raw fields and may not alter semantic parity outcomes.
 - Ordering lock is frozen:
-  - parity fixture evaluation order is deterministic by fixture id.
+  - parity fixture evaluation order is deterministic by `fixture_id ASC`.
+  - `fixture_id` values must be unique within parity fixture manifests.
 - Parity output placement lock is frozen:
   - parity-check outcomes are emitted as deterministic conformance checks (additive report field allowed) and are consumable by C4 stop-gate metrics without recomputation drift.
 
