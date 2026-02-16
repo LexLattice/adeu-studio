@@ -11,7 +11,7 @@ from adeu_api.main import (
 )
 from adeu_api.storage import get_semantic_depth_report_by_client_request_id
 from adeu_concepts import ConceptIR
-from adeu_semantic_depth import build_semantic_depth_report
+from adeu_semantic_depth import build_semantic_depth_report, semantic_depth_hash
 from fastapi import HTTPException
 
 
@@ -187,6 +187,7 @@ def test_semantic_depth_materialize_rejects_path_traversal_event_ref(
 
     packet = _packet()
     packet["diff_refs"] = ["event:../escape#1"]
+    packet["semantic_depth_hash"] = semantic_depth_hash(packet)
 
     try:
         semantic_depth_materialize_endpoint(
