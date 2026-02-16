@@ -1,0 +1,8 @@
+{
+  "expected_conflict_ids": [
+    "059eff807f7b93c943d2fd293e638c1af6c90b656384861e2d13e5a9e41c0dc6",
+    "5df1d52f041d1f8b67d20f07ccda28e1ebeb74d13443b61f183f5459d79b19dd",
+    "76fab46d4ede2350660e8f6e541c9d4576a9f5fa3af7f6c3fc1f4d5db7fd6561"
+  ],
+  "schema": "semantic_depth.expected_conflicts@1"
+}

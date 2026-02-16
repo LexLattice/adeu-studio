@@ -109,6 +109,12 @@ def parse_args() -> argparse.Namespace:
         default=Path("apps/api/fixtures/stop_gate/vnext_plus9_manifest.json"),
         help="vNext+9 frozen stop-gate fixture manifest path",
     )
+    parser.add_argument(
+        "--vnext-plus10-manifest",
+        type=Path,
+        default=Path("apps/api/fixtures/stop_gate/vnext_plus10_manifest.json"),
+        help="vNext+10 frozen stop-gate fixture manifest path",
+    )
     return parser.parse_args()
 
 
@@ -125,6 +131,7 @@ def main() -> None:
         vnext_plus7_manifest_path=args.vnext_plus7_manifest,
         vnext_plus8_manifest_path=args.vnext_plus8_manifest,
         vnext_plus9_manifest_path=args.vnext_plus9_manifest,
+        vnext_plus10_manifest_path=args.vnext_plus10_manifest,
     )
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
     args.out_json.write_text(canonical_json(report) + "\n", encoding="utf-8")

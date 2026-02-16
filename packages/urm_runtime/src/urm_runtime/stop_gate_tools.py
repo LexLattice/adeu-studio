@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from adeu_kernel import strip_nonsemantic_proof_fields, strip_nonsemantic_validator_fields
+from adeu_semantic_depth import SemanticDepthError, validate_semantic_depth_report
 from pydantic import ValidationError
 
 from .events_tools import replay_events, validate_events
@@ -44,6 +45,18 @@ VNEXT_PLUS9_DEFAULT_METRICS = {
     "orphan_lease_recovery_determinism_pct": 0.0,
     "concurrent_budget_cancel_stability_pct": 0.0,
 }
+VNEXT_PLUS10_REPLAY_COUNT = 3
+VNEXT_PLUS10_MANIFEST_SCHEMA = "stop_gate.vnext_plus10_manifest@1"
+SEMANTIC_DEPTH_EXPECTED_CONFLICTS_SCHEMA = "semantic_depth.expected_conflicts@1"
+VNEXT_PLUS10_DEFAULT_METRICS = {
+    "concept_conflict_precision_pct": 0.0,
+    "concept_conflict_recall_pct": 0.0,
+    "coherence_permutation_stability_pct": 0.0,
+    # Macro precision/recall are non-gating diagnostics in this arc.
+    "concept_conflict_precision_macro_pct": 0.0,
+    "concept_conflict_recall_macro_pct": 0.0,
+}
+VNEXT_PLUS10_MAX_PLATEAU_EPSILON_PCT = 0.1
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -72,6 +85,10 @@ THRESHOLDS = {
     "scheduler_dispatch_replay_determinism_pct": 100.0,
     "orphan_lease_recovery_determinism_pct": 100.0,
     "concurrent_budget_cancel_stability_pct": 100.0,
+    "concept_conflict_precision_pct": 95.0,
+    "concept_conflict_recall_pct": 95.0,
+    "coherence_permutation_stability_pct": 100.0,
+    "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
 
@@ -113,9 +130,14 @@ def _default_vnext_plus9_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus9_manifest.json")
 
 
+def _default_vnext_plus10_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus10_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
+VNEXT_PLUS10_MANIFEST_PATH = _default_vnext_plus10_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -467,6 +489,135 @@ def _concurrent_budget_cancel_fixture_hash(*, budget_cancel_event_path: Path) ->
     return sha256_canonical_json(projection)
 
 
+def _validated_semantic_depth_report_payload(*, semantic_depth_report_path: Path) -> dict[str, Any]:
+    payload = _read_json_object(
+        semantic_depth_report_path,
+        description="semantic-depth report fixture",
+    )
+    try:
+        validate_semantic_depth_report(payload)
+    except SemanticDepthError as exc:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantic-depth report fixture failed validation",
+                context={
+                    "path": str(semantic_depth_report_path),
+                    "error": str(exc),
+                },
+            )
+        ) from exc
+    return payload
+
+
+def _load_expected_conflict_ids(
+    *,
+    expected_conflict_ids_path: Path,
+) -> set[str]:
+    payload = _read_json_object(
+        expected_conflict_ids_path,
+        description="semantic-depth expected conflicts fixture",
+    )
+    if payload.get("schema") != SEMANTIC_DEPTH_EXPECTED_CONFLICTS_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantic-depth expected conflicts fixture has unsupported schema",
+                context={
+                    "path": str(expected_conflict_ids_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    raw_expected_ids = payload.get("expected_conflict_ids")
+    if not isinstance(raw_expected_ids, list) or not all(
+        isinstance(conflict_id, str) and conflict_id
+        for conflict_id in raw_expected_ids
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantic-depth expected conflicts fixture must include expected_conflict_ids[]",
+                context={"path": str(expected_conflict_ids_path)},
+            )
+        )
+    normalized_expected_ids = sorted(raw_expected_ids)
+    if len(normalized_expected_ids) != len(set(normalized_expected_ids)):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantic-depth expected conflicts fixture contains duplicate conflict ids",
+                context={"path": str(expected_conflict_ids_path)},
+            )
+        )
+    return set(normalized_expected_ids)
+
+
+def _semantic_depth_fixture_conflict_stats(
+    *,
+    semantic_depth_report_path: Path,
+    expected_conflict_ids_path: Path,
+) -> tuple[str, tuple[int, int, int]]:
+    payload = _validated_semantic_depth_report_payload(
+        semantic_depth_report_path=semantic_depth_report_path,
+    )
+    conflict_items = payload.get("conflict_items")
+    if not isinstance(conflict_items, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantic-depth fixture missing conflict_items",
+                context={"path": str(semantic_depth_report_path)},
+            )
+        )
+    predicted_conflict_ids = sorted(
+        str(item.get("conflict_id"))
+        for item in conflict_items
+        if isinstance(item, Mapping) and isinstance(item.get("conflict_id"), str)
+    )
+    if len(predicted_conflict_ids) != len(conflict_items):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantic-depth fixture contains invalid conflict_id entries",
+                context={"path": str(semantic_depth_report_path)},
+            )
+        )
+    predicted_ids = set(predicted_conflict_ids)
+    expected_ids = _load_expected_conflict_ids(
+        expected_conflict_ids_path=expected_conflict_ids_path,
+    )
+    tp = len(predicted_ids & expected_ids)
+    fp = len(predicted_ids - expected_ids)
+    fn = len(expected_ids - predicted_ids)
+    run_hash = sha256_canonical_json(
+        {
+            "expected_conflict_ids": sorted(expected_ids),
+            "predicted_conflict_ids": sorted(predicted_ids),
+            "tp": tp,
+            "fp": fp,
+            "fn": fn,
+        }
+    )
+    return run_hash, (tp, fp, fn)
+
+
+def _semantic_depth_coherence_fixture_hash(*, semantic_depth_report_path: Path) -> str:
+    payload = _validated_semantic_depth_report_payload(
+        semantic_depth_report_path=semantic_depth_report_path,
+    )
+    coherence_summary_hash = payload.get("coherence_summary_hash")
+    if not isinstance(coherence_summary_hash, str) or not coherence_summary_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantic-depth fixture missing coherence_summary_hash",
+                context={"path": str(semantic_depth_report_path)},
+            )
+        )
+    return coherence_summary_hash
+
+
 def _issue(code: str, message: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
     return {"code": code, "message": message, "context": dict(context or {})}
 
@@ -549,6 +700,24 @@ def _pct(passed: int, total: int) -> float:
     if total <= 0:
         return 0.0
     return round((passed / total) * 100.0, 6)
+
+
+def _semantic_depth_precision_pct(*, tp: int, fp: int, fn: int) -> float:
+    if (tp + fp) == 0:
+        return 100.0 if (tp + fn) == 0 else 0.0
+    return round((tp / (tp + fp)) * 100.0, 6)
+
+
+def _semantic_depth_recall_pct(*, tp: int, fn: int) -> float:
+    if (tp + fn) == 0:
+        return 100.0
+    return round((tp / (tp + fn)) * 100.0, 6)
+
+
+def _mean(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    return round(sum(values) / len(values), 6)
 
 
 def _resolve_manifest_relative_path(*, manifest_path: Path, raw_path: Any) -> Path:
@@ -854,6 +1023,165 @@ def _manifest_metric_pct(
         if fixture_ok and len(fixture_hashes) == 1:
             passed += 1
     return _pct(passed, total)
+
+
+def _semantic_depth_precision_recall_from_manifest(
+    *,
+    manifest_path: Path,
+    metric_name: str,
+    fixtures: list[dict[str, Any]],
+    replay_count: int,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    total_fixtures = len(fixtures)
+    if total_fixtures <= 0:
+        return {
+            "precision_pct": 0.0,
+            "recall_pct": 0.0,
+            "precision_macro_pct": 0.0,
+            "recall_macro_pct": 0.0,
+            "evaluated_fixture_count": 0,
+            "fixture_count": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 0,
+        }
+
+    total_tp = 0
+    total_fp = 0
+    total_fn = 0
+    macro_precision_values: list[float] = []
+    macro_recall_values: list[float] = []
+    evaluated_fixture_count = 0
+
+    for fixture_index, fixture in enumerate(fixtures):
+        fixture_id = fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"{metric_name}_fixture_{fixture_index}"
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture_id must be a non-empty string",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_index": fixture_index,
+                    },
+                )
+            )
+
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture runs must be a list",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+            continue
+        if len(runs) != replay_count:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture run count does not match frozen replay count",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "expected_replays": replay_count,
+                        "observed_replays": len(runs),
+                    },
+                )
+            )
+            continue
+
+        fixture_run_hashes: set[str] = set()
+        fixture_run_stats: list[tuple[int, int, int]] = []
+        fixture_ok = True
+        for run_index, run in enumerate(runs):
+            if not isinstance(run, dict):
+                issues.append(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "manifest run entry must be an object",
+                        context={
+                            "manifest_path": str(manifest_path),
+                            "metric": metric_name,
+                            "fixture_id": fixture_id,
+                            "run_index": run_index,
+                        },
+                    )
+                )
+                fixture_ok = False
+                continue
+            try:
+                report_path = _resolve_manifest_relative_path(
+                    manifest_path=manifest_path,
+                    raw_path=run.get("semantic_depth_report_path"),
+                )
+                expected_conflict_ids_path = _resolve_manifest_relative_path(
+                    manifest_path=manifest_path,
+                    raw_path=run.get("expected_conflict_ids_path"),
+                )
+                run_hash, (tp, fp, fn) = _semantic_depth_fixture_conflict_stats(
+                    semantic_depth_report_path=report_path,
+                    expected_conflict_ids_path=expected_conflict_ids_path,
+                )
+            except ValueError as exc:
+                issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    str(exc),
+                )
+                issues.append(
+                    _issue_with_context(
+                        issue,
+                        context={
+                            "metric": metric_name,
+                            "fixture_id": fixture_id,
+                            "run_index": run_index,
+                        },
+                    )
+                )
+                fixture_ok = False
+                continue
+            fixture_run_hashes.add(run_hash)
+            fixture_run_stats.append((tp, fp, fn))
+
+        if not fixture_ok:
+            continue
+        if len(fixture_run_hashes) != 1:
+            continue
+
+        tp, fp, fn = fixture_run_stats[0]
+        total_tp += tp
+        total_fp += fp
+        total_fn += fn
+        macro_precision_values.append(_semantic_depth_precision_pct(tp=tp, fp=fp, fn=fn))
+        macro_recall_values.append(_semantic_depth_recall_pct(tp=tp, fn=fn))
+        evaluated_fixture_count += 1
+
+    precision_pct = _semantic_depth_precision_pct(tp=total_tp, fp=total_fp, fn=total_fn)
+    recall_pct = _semantic_depth_recall_pct(tp=total_tp, fn=total_fn)
+    if evaluated_fixture_count != total_fixtures:
+        precision_pct = 0.0
+        recall_pct = 0.0
+
+    return {
+        "precision_pct": precision_pct,
+        "recall_pct": recall_pct,
+        "precision_macro_pct": _mean(macro_precision_values),
+        "recall_macro_pct": _mean(macro_recall_values),
+        "evaluated_fixture_count": evaluated_fixture_count,
+        "fixture_count": total_fixtures,
+        "tp": total_tp,
+        "fp": total_fp,
+        "fn": total_fn,
+    }
 
 
 def _compute_vnext_plus7_metrics(
@@ -1238,6 +1566,278 @@ def _compute_vnext_plus9_metrics(
     }
 
 
+def _load_vnext_plus10_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    payload = _read_json_object(manifest_path, description="vnext+10 stop-gate manifest")
+    if payload.get("schema") != VNEXT_PLUS10_MANIFEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+10 stop-gate manifest has unsupported schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    replay_count = payload.get("replay_count")
+    if replay_count != VNEXT_PLUS10_REPLAY_COUNT:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+10 replay_count must match frozen replay count",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_replay_count": VNEXT_PLUS10_REPLAY_COUNT,
+                    "observed_replay_count": replay_count,
+                },
+            )
+        )
+    raw_manifest_hash = payload.get("manifest_hash")
+    if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+10 stop-gate manifest missing manifest_hash",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    metrics = payload.get("metrics")
+    if not isinstance(metrics, dict):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+10 stop-gate manifest metrics must be an object",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    for baseline_key in (
+        "baseline_concept_conflict_precision_pct",
+        "baseline_concept_conflict_recall_pct",
+    ):
+        baseline_value = payload.get(baseline_key)
+        if not isinstance(baseline_value, (int, float)):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "vnext+10 manifest missing numeric baseline metric",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "field": baseline_key,
+                    },
+                )
+            )
+    plateau_epsilon_pct = payload.get(
+        "plateau_epsilon_pct",
+        VNEXT_PLUS10_MAX_PLATEAU_EPSILON_PCT,
+    )
+    if not isinstance(plateau_epsilon_pct, (int, float)) or plateau_epsilon_pct < 0.0:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+10 plateau_epsilon_pct must be a non-negative number",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    if float(plateau_epsilon_pct) > VNEXT_PLUS10_MAX_PLATEAU_EPSILON_PCT:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+10 plateau_epsilon_pct exceeds frozen maximum",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "observed_plateau_epsilon_pct": float(plateau_epsilon_pct),
+                    "max_plateau_epsilon_pct": VNEXT_PLUS10_MAX_PLATEAU_EPSILON_PCT,
+                },
+            )
+        )
+
+    hash_basis = dict(payload)
+    hash_basis.pop("manifest_hash", None)
+    recomputed_manifest_hash = sha256_canonical_json(hash_basis)
+    if raw_manifest_hash != recomputed_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+10 manifest_hash mismatch",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "embedded_manifest_hash": raw_manifest_hash,
+                    "recomputed_manifest_hash": recomputed_manifest_hash,
+                },
+            )
+        )
+    return payload, recomputed_manifest_hash
+
+
+def _compute_vnext_plus10_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS10_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus10_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS10_DEFAULT_METRICS,
+            "precision_non_regression": False,
+            "recall_non_regression": False,
+            "strict_improvement_required": True,
+            "strict_improvement_met": False,
+            "plateau_eligible": False,
+            "semantic_depth_improvement_lock_passed": False,
+            "baseline_concept_conflict_precision_pct": 0.0,
+            "baseline_concept_conflict_recall_pct": 0.0,
+            "concept_conflict_precision_delta_pct": 0.0,
+            "concept_conflict_recall_delta_pct": 0.0,
+            "plateau_epsilon_pct": VNEXT_PLUS10_MAX_PLATEAU_EPSILON_PCT,
+            "precision_fixture_count": 0,
+            "precision_fixture_count_evaluated": 0,
+            "recall_fixture_count": 0,
+            "recall_fixture_count_evaluated": 0,
+            "vnext_plus10_manifest_hash": "",
+        }
+
+    metrics_doc = manifest.get("metrics")
+    assert isinstance(metrics_doc, Mapping)
+    try:
+        precision_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="concept_conflict_precision_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        recall_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="concept_conflict_recall_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        coherence_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="coherence_permutation_stability_pct",
+            manifest_path=resolved_manifest_path,
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS10_DEFAULT_METRICS,
+            "precision_non_regression": False,
+            "recall_non_regression": False,
+            "strict_improvement_required": True,
+            "strict_improvement_met": False,
+            "plateau_eligible": False,
+            "semantic_depth_improvement_lock_passed": False,
+            "baseline_concept_conflict_precision_pct": 0.0,
+            "baseline_concept_conflict_recall_pct": 0.0,
+            "concept_conflict_precision_delta_pct": 0.0,
+            "concept_conflict_recall_delta_pct": 0.0,
+            "plateau_epsilon_pct": VNEXT_PLUS10_MAX_PLATEAU_EPSILON_PCT,
+            "precision_fixture_count": 0,
+            "precision_fixture_count_evaluated": 0,
+            "recall_fixture_count": 0,
+            "recall_fixture_count_evaluated": 0,
+            "vnext_plus10_manifest_hash": manifest_hash,
+        }
+
+    precision_eval = _semantic_depth_precision_recall_from_manifest(
+        manifest_path=resolved_manifest_path,
+        metric_name="concept_conflict_precision_pct",
+        fixtures=precision_fixtures,
+        replay_count=VNEXT_PLUS10_REPLAY_COUNT,
+        issues=issues,
+    )
+    recall_eval = _semantic_depth_precision_recall_from_manifest(
+        manifest_path=resolved_manifest_path,
+        metric_name="concept_conflict_recall_pct",
+        fixtures=recall_fixtures,
+        replay_count=VNEXT_PLUS10_REPLAY_COUNT,
+        issues=issues,
+    )
+    coherence_permutation_stability_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="coherence_permutation_stability_pct",
+        fixtures=coherence_fixtures,
+        replay_count=VNEXT_PLUS10_REPLAY_COUNT,
+        required_run_fields=("semantic_depth_report_path",),
+        run_hash_builder=_semantic_depth_coherence_fixture_hash,
+        issues=issues,
+    )
+
+    concept_conflict_precision_pct = precision_eval["precision_pct"]
+    concept_conflict_recall_pct = recall_eval["recall_pct"]
+    baseline_precision = float(manifest.get("baseline_concept_conflict_precision_pct", 0.0))
+    baseline_recall = float(manifest.get("baseline_concept_conflict_recall_pct", 0.0))
+    precision_delta = round(concept_conflict_precision_pct - baseline_precision, 6)
+    recall_delta = round(concept_conflict_recall_pct - baseline_recall, 6)
+    precision_non_regression = concept_conflict_precision_pct >= baseline_precision
+    recall_non_regression = concept_conflict_recall_pct >= baseline_recall
+    strict_improvement_required = not (baseline_precision == 100.0 and baseline_recall == 100.0)
+    strict_improvement_met = (
+        concept_conflict_precision_pct > baseline_precision
+        or concept_conflict_recall_pct > baseline_recall
+    )
+    plateau_epsilon_pct = float(
+        manifest.get("plateau_epsilon_pct", VNEXT_PLUS10_MAX_PLATEAU_EPSILON_PCT)
+    )
+    plateau_eligible = (
+        precision_non_regression
+        and recall_non_regression
+        and concept_conflict_precision_pct >= THRESHOLDS["concept_conflict_precision_pct"]
+        and concept_conflict_recall_pct >= THRESHOLDS["concept_conflict_recall_pct"]
+        and abs(precision_delta) <= plateau_epsilon_pct
+        and abs(recall_delta) <= plateau_epsilon_pct
+    )
+    if strict_improvement_required:
+        semantic_depth_improvement_lock_passed = (
+            precision_non_regression
+            and recall_non_regression
+            and (strict_improvement_met or plateau_eligible)
+        )
+    else:
+        semantic_depth_improvement_lock_passed = (
+            precision_non_regression and recall_non_regression
+        )
+
+    return {
+        "concept_conflict_precision_pct": concept_conflict_precision_pct,
+        "concept_conflict_recall_pct": concept_conflict_recall_pct,
+        "coherence_permutation_stability_pct": coherence_permutation_stability_pct,
+        "concept_conflict_precision_macro_pct": precision_eval["precision_macro_pct"],
+        "concept_conflict_recall_macro_pct": recall_eval["recall_macro_pct"],
+        "precision_non_regression": precision_non_regression,
+        "recall_non_regression": recall_non_regression,
+        "strict_improvement_required": strict_improvement_required,
+        "strict_improvement_met": strict_improvement_met,
+        "plateau_eligible": plateau_eligible,
+        "semantic_depth_improvement_lock_passed": semantic_depth_improvement_lock_passed,
+        "baseline_concept_conflict_precision_pct": baseline_precision,
+        "baseline_concept_conflict_recall_pct": baseline_recall,
+        "concept_conflict_precision_delta_pct": precision_delta,
+        "concept_conflict_recall_delta_pct": recall_delta,
+        "plateau_epsilon_pct": plateau_epsilon_pct,
+        "precision_fixture_count": precision_eval["fixture_count"],
+        "precision_fixture_count_evaluated": precision_eval["evaluated_fixture_count"],
+        "recall_fixture_count": recall_eval["fixture_count"],
+        "recall_fixture_count_evaluated": recall_eval["evaluated_fixture_count"],
+        "vnext_plus10_manifest_hash": manifest_hash,
+    }
+
+
 def _metric_delta_satisfies_rule(*, rule: str, delta: float) -> bool:
     if rule == "non_decreasing":
         return delta >= 0.0
@@ -1300,6 +1900,7 @@ def build_stop_gate_metrics(
     vnext_plus7_manifest_path: Path | None = None,
     vnext_plus8_manifest_path: Path | None = None,
     vnext_plus9_manifest_path: Path | None = None,
+    vnext_plus10_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     try:
@@ -1643,6 +2244,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus9_manifest_path,
         issues=issues,
     )
+    vnext_plus10_metrics = _compute_vnext_plus10_metrics(
+        manifest_path=vnext_plus10_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -1738,6 +2343,49 @@ def build_stop_gate_metrics(
         "concurrent_budget_cancel_stability_pct": vnext_plus9_metrics[
             "concurrent_budget_cancel_stability_pct"
         ],
+        "concept_conflict_precision_pct": vnext_plus10_metrics[
+            "concept_conflict_precision_pct"
+        ],
+        "concept_conflict_recall_pct": vnext_plus10_metrics["concept_conflict_recall_pct"],
+        "coherence_permutation_stability_pct": vnext_plus10_metrics[
+            "coherence_permutation_stability_pct"
+        ],
+        # Non-gating diagnostics: rendered in reports, excluded from gates.
+        "concept_conflict_precision_macro_pct": vnext_plus10_metrics[
+            "concept_conflict_precision_macro_pct"
+        ],
+        "concept_conflict_recall_macro_pct": vnext_plus10_metrics[
+            "concept_conflict_recall_macro_pct"
+        ],
+        "baseline_concept_conflict_precision_pct": vnext_plus10_metrics[
+            "baseline_concept_conflict_precision_pct"
+        ],
+        "baseline_concept_conflict_recall_pct": vnext_plus10_metrics[
+            "baseline_concept_conflict_recall_pct"
+        ],
+        "concept_conflict_precision_delta_pct": vnext_plus10_metrics[
+            "concept_conflict_precision_delta_pct"
+        ],
+        "concept_conflict_recall_delta_pct": vnext_plus10_metrics[
+            "concept_conflict_recall_delta_pct"
+        ],
+        "plateau_epsilon_pct": vnext_plus10_metrics["plateau_epsilon_pct"],
+        "precision_non_regression": vnext_plus10_metrics["precision_non_regression"],
+        "recall_non_regression": vnext_plus10_metrics["recall_non_regression"],
+        "strict_improvement_required": vnext_plus10_metrics["strict_improvement_required"],
+        "strict_improvement_met": vnext_plus10_metrics["strict_improvement_met"],
+        "plateau_eligible": vnext_plus10_metrics["plateau_eligible"],
+        "semantic_depth_improvement_lock_passed": vnext_plus10_metrics[
+            "semantic_depth_improvement_lock_passed"
+        ],
+        "precision_fixture_count": vnext_plus10_metrics["precision_fixture_count"],
+        "precision_fixture_count_evaluated": vnext_plus10_metrics[
+            "precision_fixture_count_evaluated"
+        ],
+        "recall_fixture_count": vnext_plus10_metrics["recall_fixture_count"],
+        "recall_fixture_count_evaluated": vnext_plus10_metrics[
+            "recall_fixture_count_evaluated"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -1774,6 +2422,15 @@ def build_stop_gate_metrics(
         >= THRESHOLDS["orphan_lease_recovery_determinism_pct"],
         "concurrent_budget_cancel_stability": metrics["concurrent_budget_cancel_stability_pct"]
         >= THRESHOLDS["concurrent_budget_cancel_stability_pct"],
+        "concept_conflict_precision": metrics["concept_conflict_precision_pct"]
+        >= THRESHOLDS["concept_conflict_precision_pct"],
+        "concept_conflict_recall": metrics["concept_conflict_recall_pct"]
+        >= THRESHOLDS["concept_conflict_recall_pct"],
+        "coherence_permutation_stability": metrics["coherence_permutation_stability_pct"]
+        >= THRESHOLDS["coherence_permutation_stability_pct"],
+        "semantic_depth_improvement_lock": metrics["semantic_depth_improvement_lock_passed"]
+        is THRESHOLDS["semantic_depth_improvement_lock"],
+        # Macro precision/recall are intentionally not part of stop-gate decisions.
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -1810,9 +2467,15 @@ def build_stop_gate_metrics(
                 if vnext_plus9_manifest_path is not None
                 else VNEXT_PLUS9_MANIFEST_PATH
             ),
+            "vnext_plus10_manifest_path": str(
+                vnext_plus10_manifest_path
+                if vnext_plus10_manifest_path is not None
+                else VNEXT_PLUS10_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
+        "vnext_plus10_manifest_hash": vnext_plus10_metrics["vnext_plus10_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -1837,6 +2500,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- All Passed: `{report.get('all_passed')}`")
     lines.append(f"- vnext+8 manifest hash: `{report.get('vnext_plus8_manifest_hash')}`")
     lines.append(f"- vnext+9 manifest hash: `{report.get('vnext_plus9_manifest_hash')}`")
+    lines.append(f"- vnext+10 manifest hash: `{report.get('vnext_plus10_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -1904,6 +2568,62 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(
         "- concurrent budget/cancel stability pct: "
         f"`{metrics.get('concurrent_budget_cancel_stability_pct')}`"
+    )
+    lines.append(
+        "- concept conflict precision pct: "
+        f"`{metrics.get('concept_conflict_precision_pct')}`"
+    )
+    lines.append(
+        "- concept conflict recall pct: "
+        f"`{metrics.get('concept_conflict_recall_pct')}`"
+    )
+    lines.append(
+        "- coherence permutation stability pct: "
+        f"`{metrics.get('coherence_permutation_stability_pct')}`"
+    )
+    lines.append(
+        "- concept conflict precision macro pct (non-gating): "
+        f"`{metrics.get('concept_conflict_precision_macro_pct')}`"
+    )
+    lines.append(
+        "- concept conflict recall macro pct (non-gating): "
+        f"`{metrics.get('concept_conflict_recall_macro_pct')}`"
+    )
+    lines.append(
+        "- baseline concept conflict precision pct: "
+        f"`{metrics.get('baseline_concept_conflict_precision_pct')}`"
+    )
+    lines.append(
+        "- baseline concept conflict recall pct: "
+        f"`{metrics.get('baseline_concept_conflict_recall_pct')}`"
+    )
+    lines.append(
+        "- concept conflict precision delta pct: "
+        f"`{metrics.get('concept_conflict_precision_delta_pct')}`"
+    )
+    lines.append(
+        "- concept conflict recall delta pct: "
+        f"`{metrics.get('concept_conflict_recall_delta_pct')}`"
+    )
+    lines.append(
+        "- semantic-depth plateau epsilon pct: "
+        f"`{metrics.get('plateau_epsilon_pct')}`"
+    )
+    lines.append(
+        "- semantic-depth strict improvement required: "
+        f"`{metrics.get('strict_improvement_required')}`"
+    )
+    lines.append(
+        "- semantic-depth strict improvement met: "
+        f"`{metrics.get('strict_improvement_met')}`"
+    )
+    lines.append(
+        "- semantic-depth plateau eligible: "
+        f"`{metrics.get('plateau_eligible')}`"
+    )
+    lines.append(
+        "- semantic-depth improvement lock passed: "
+        f"`{metrics.get('semantic_depth_improvement_lock_passed')}`"
     )
     lines.append(
         "- quality delta non-negative: "
@@ -2001,6 +2721,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS9_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus10-manifest",
+        dest="vnext_plus10_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS10_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -2019,6 +2745,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus7_manifest_path=args.vnext_plus7_manifest_path,
         vnext_plus8_manifest_path=args.vnext_plus8_manifest_path,
         vnext_plus9_manifest_path=args.vnext_plus9_manifest_path,
+        vnext_plus10_manifest_path=args.vnext_plus10_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:

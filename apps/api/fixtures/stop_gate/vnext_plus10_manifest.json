@@ -1,0 +1,64 @@
+{
+  "schema": "stop_gate.vnext_plus10_manifest@1",
+  "replay_count": 3,
+  "baseline_concept_conflict_precision_pct": 99.0,
+  "baseline_concept_conflict_recall_pct": 99.0,
+  "plateau_epsilon_pct": 0.1,
+  "metrics": {
+    "concept_conflict_precision_pct": [
+      {
+        "fixture_id": "concept_conflict_precision_case_a",
+        "runs": [
+          {
+            "semantic_depth_report_path": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_1.json",
+            "expected_conflict_ids_path": "../../../../examples/eval/stop_gate/semantic_depth_expected_conflicts_case_a.json"
+          },
+          {
+            "semantic_depth_report_path": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_2.json",
+            "expected_conflict_ids_path": "../../../../examples/eval/stop_gate/semantic_depth_expected_conflicts_case_a.json"
+          },
+          {
+            "semantic_depth_report_path": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_3.json",
+            "expected_conflict_ids_path": "../../../../examples/eval/stop_gate/semantic_depth_expected_conflicts_case_a.json"
+          }
+        ]
+      }
+    ],
+    "concept_conflict_recall_pct": [
+      {
+        "fixture_id": "concept_conflict_recall_case_a",
+        "runs": [
+          {
+            "semantic_depth_report_path": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_1.json",
+            "expected_conflict_ids_path": "../../../../examples/eval/stop_gate/semantic_depth_expected_conflicts_case_a.json"
+          },
+          {
+            "semantic_depth_report_path": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_2.json",
+            "expected_conflict_ids_path": "../../../../examples/eval/stop_gate/semantic_depth_expected_conflicts_case_a.json"
+          },
+          {
+            "semantic_depth_report_path": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_3.json",
+            "expected_conflict_ids_path": "../../../../examples/eval/stop_gate/semantic_depth_expected_conflicts_case_a.json"
+          }
+        ]
+      }
+    ],
+    "coherence_permutation_stability_pct": [
+      {
+        "fixture_id": "coherence_permutation_stability_case_a",
+        "runs": [
+          {
+            "semantic_depth_report_path": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_1.json"
+          },
+          {
+            "semantic_depth_report_path": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_2.json"
+          },
+          {
+            "semantic_depth_report_path": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_3.json"
+          }
+        ]
+      }
+    ]
+  },
+  "manifest_hash": "495e664f33281435ca8d1d162e5810631cc09e6cb195dc39dec4dcb603ae3a06"
+}
