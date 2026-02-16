@@ -128,9 +128,11 @@ def validate_domain_conformance_report(payload: dict[str, Any]) -> None:
     parsed_domains = [item for item in domains if isinstance(item, dict)]
     if len(parsed_domains) != len(domains):
         raise DomainConformanceError("domains must be objects")
-    domain_order = [str(item.get("domain") or "") for item in parsed_domains]
-    if domain_order != sorted(domain_order):
-        raise DomainConformanceError("domains must be sorted by canonical domain key")
+    for idx in range(len(parsed_domains) - 1):
+        current_domain = str(parsed_domains[idx].get("domain") or "")
+        next_domain = str(parsed_domains[idx + 1].get("domain") or "")
+        if current_domain > next_domain:
+            raise DomainConformanceError("domains must be sorted by canonical domain key")
 
     issues = payload.get("issues")
     if not isinstance(issues, list):
@@ -138,8 +140,9 @@ def validate_domain_conformance_report(payload: dict[str, Any]) -> None:
     parsed_issues = [item for item in issues if isinstance(item, dict)]
     if len(parsed_issues) != len(issues):
         raise DomainConformanceError("issues must be objects")
-    if parsed_issues != _sort_issues(parsed_issues):
-        raise DomainConformanceError("issues must be canonical-sorted")
+    for idx in range(len(parsed_issues) - 1):
+        if _issue_sort_key(parsed_issues[idx]) > _issue_sort_key(parsed_issues[idx + 1]):
+            raise DomainConformanceError("issues must be canonical-sorted")
 
     embedded_hash = payload.get("domain_conformance_hash")
     if embedded_hash is not None:
@@ -477,7 +480,11 @@ def _registry_determinism() -> dict[str, Any]:
     }
 
 
-def build_domain_conformance(*, events_dir: Path, runtime_root: Path | None = None) -> dict[str, Any]:
+def build_domain_conformance(
+    *,
+    events_dir: Path,
+    runtime_root: Path | None = None,
+) -> dict[str, Any]:
     events_dir.mkdir(parents=True, exist_ok=True)
     registry = _registry_determinism()
     import_audit = _import_audit(runtime_root=runtime_root)

@@ -7,7 +7,6 @@ import sys
 from pathlib import Path
 
 import pytest
-
 from adeu_api.urm_domain_conformance import (
     DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELD_LIST,
     DOMAIN_CONFORMANCE_SCHEMA,
@@ -26,7 +25,10 @@ def _runtime_root() -> Path:
 
 def test_build_domain_conformance_is_deterministic_and_valid(tmp_path: Path) -> None:
     runtime_root = _runtime_root()
-    first = build_domain_conformance(events_dir=tmp_path / "first_events", runtime_root=runtime_root)
+    first = build_domain_conformance(
+        events_dir=tmp_path / "first_events",
+        runtime_root=runtime_root,
+    )
     second = build_domain_conformance(
         events_dir=tmp_path / "second_events",
         runtime_root=runtime_root,
