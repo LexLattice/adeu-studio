@@ -37,6 +37,13 @@ VNEXT_PLUS8_DEFAULT_METRICS = {
     "explain_api_cli_parity_pct": 0.0,
     "explain_hash_stability_pct": 0.0,
 }
+VNEXT_PLUS9_REPLAY_COUNT = 3
+VNEXT_PLUS9_MANIFEST_SCHEMA = "stop_gate.vnext_plus9_manifest@1"
+VNEXT_PLUS9_DEFAULT_METRICS = {
+    "scheduler_dispatch_replay_determinism_pct": 0.0,
+    "orphan_lease_recovery_determinism_pct": 0.0,
+    "concurrent_budget_cancel_stability_pct": 0.0,
+}
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -62,6 +69,9 @@ THRESHOLDS = {
     "explain_diff_determinism_pct": 100.0,
     "explain_api_cli_parity_pct": 100.0,
     "explain_hash_stability_pct": 100.0,
+    "scheduler_dispatch_replay_determinism_pct": 100.0,
+    "orphan_lease_recovery_determinism_pct": 100.0,
+    "concurrent_budget_cancel_stability_pct": 100.0,
     "quality_delta_non_negative": True,
 }
 
@@ -99,8 +109,13 @@ def _default_vnext_plus8_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus8_manifest.json")
 
 
+def _default_vnext_plus9_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus9_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
+VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -291,6 +306,165 @@ def _explain_api_cli_parity_hash(
         }
     )
     return pair_hash, api_recomputed_hash == cli_recomputed_hash
+
+
+def _scheduler_dispatch_fixture_hash(*, dispatch_token_path: Path) -> str:
+    payload = _read_json_object(dispatch_token_path, description="scheduler dispatch token fixture")
+    if payload.get("schema") != "scheduler_dispatch_token@1":
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "scheduler dispatch token fixture must use scheduler_dispatch_token@1",
+                context={"path": str(dispatch_token_path)},
+            )
+        )
+    required_fields: dict[str, type] = {
+        "child_id": str,
+        "parent_session_id": str,
+        "parent_stream_id": str,
+        "parent_seq": int,
+        "queue_seq": int,
+        "dispatch_seq": int,
+        "worker_run_id": str,
+        "phase": str,
+    }
+    semantic_payload: dict[str, Any] = {}
+    for field_name, field_type in required_fields.items():
+        value = payload.get(field_name)
+        if not isinstance(value, field_type):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "scheduler dispatch token fixture is missing required fields",
+                    context={"path": str(dispatch_token_path), "field": field_name},
+                )
+            )
+        semantic_payload[field_name] = value
+    if semantic_payload["dispatch_seq"] < 1 or semantic_payload["queue_seq"] < 1:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "scheduler dispatch token fixture has invalid sequence anchors",
+                context={"path": str(dispatch_token_path)},
+            )
+        )
+    return sha256_canonical_json(semantic_payload)
+
+
+def _orphan_lease_recovery_fixture_hash(*, orphan_recovery_event_path: Path) -> str:
+    validation = validate_events(orphan_recovery_event_path, strict=True)
+    if validation.get("valid") is not True:
+        issues = validation.get("issues", [])
+        first = issues[0] if issues and isinstance(issues[0], dict) else {}
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "orphan-lease fixture event stream failed validation",
+                context={
+                    "path": str(orphan_recovery_event_path),
+                    "issue_code": first.get("code"),
+                    "issue_message": first.get("message"),
+                },
+            )
+        )
+    events = _load_events(orphan_recovery_event_path)
+    recovery_events: list[dict[str, Any]] = []
+    for event in events:
+        if event.event != "WORKER_FAIL":
+            continue
+        detail = event.detail
+        reason = detail.get("reason")
+        code = detail.get("code")
+        if not isinstance(code, str):
+            code = detail.get("error_code")
+        if (
+            reason != "lease_orphaned"
+            or not isinstance(code, str)
+            or code != "URM_SCHEDULER_LEASE_ORPHANED"
+        ):
+            continue
+        recovery_events.append(
+            {
+                "stream_id": event.stream_id,
+                "seq": event.seq,
+                "child_id": detail.get("child_id"),
+                "dispatch_seq": detail.get("dispatch_seq"),
+                "lease_id": detail.get("lease_id"),
+                "parent_stream_id": detail.get("parent_stream_id"),
+                "parent_seq": detail.get("parent_seq"),
+                "phase": detail.get("phase"),
+                "reason": reason,
+                "code": code,
+            }
+        )
+    if not recovery_events:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "orphan-lease fixture must include WORKER_FAIL lease_orphaned event(s)",
+                context={"path": str(orphan_recovery_event_path)},
+            )
+        )
+    return sha256_canonical_json(recovery_events)
+
+
+def _concurrent_budget_cancel_fixture_hash(*, budget_cancel_event_path: Path) -> str:
+    validation = validate_events(budget_cancel_event_path, strict=True)
+    if validation.get("valid") is not True:
+        issues = validation.get("issues", [])
+        first = issues[0] if issues and isinstance(issues[0], dict) else {}
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "concurrent budget/cancel fixture event stream failed validation",
+                context={
+                    "path": str(budget_cancel_event_path),
+                    "issue_code": first.get("code"),
+                    "issue_message": first.get("message"),
+                },
+            )
+        )
+    events = _load_events(budget_cancel_event_path)
+    projection: list[dict[str, Any]] = []
+    has_cancel = False
+    has_budget_fail = False
+    for event in events:
+        if event.event not in {"WORKER_CANCEL", "WORKER_FAIL", "WORKER_PASS"}:
+            continue
+        detail = event.detail
+        code = detail.get("code")
+        if not isinstance(code, str):
+            code = detail.get("error_code")
+        if event.event == "WORKER_CANCEL":
+            has_cancel = True
+        if isinstance(code, str) and code == "URM_CHILD_BUDGET_EXCEEDED":
+            has_budget_fail = True
+        projection.append(
+            {
+                "event": event.event,
+                "stream_id": event.stream_id,
+                "seq": event.seq,
+                "child_id": detail.get("child_id"),
+                "dispatch_seq": detail.get("dispatch_seq"),
+                "lease_id": detail.get("lease_id"),
+                "parent_stream_id": detail.get("parent_stream_id"),
+                "parent_seq": detail.get("parent_seq"),
+                "phase": detail.get("phase"),
+                "status": detail.get("status"),
+                "reason": detail.get("reason"),
+                "code": code,
+                "cancel_request_id": detail.get("cancel_request_id"),
+            }
+        )
+    if not has_cancel or not has_budget_fail:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "concurrent budget/cancel fixture must include cancel and budget-fail events",
+                context={"path": str(budget_cancel_event_path)},
+            )
+        )
+    return sha256_canonical_json(projection)
 
 
 def _issue(code: str, message: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -912,6 +1086,158 @@ def _compute_vnext_plus8_metrics(
     }
 
 
+def _load_vnext_plus9_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    payload = _read_json_object(manifest_path, description="vnext+9 stop-gate manifest")
+    if payload.get("schema") != VNEXT_PLUS9_MANIFEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+9 stop-gate manifest has unsupported schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    replay_count = payload.get("replay_count")
+    if replay_count != VNEXT_PLUS9_REPLAY_COUNT:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+9 replay_count must match frozen replay count",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_replay_count": VNEXT_PLUS9_REPLAY_COUNT,
+                    "observed_replay_count": replay_count,
+                },
+            )
+        )
+    raw_manifest_hash = payload.get("manifest_hash")
+    if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+9 stop-gate manifest missing manifest_hash",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    metrics = payload.get("metrics")
+    if not isinstance(metrics, dict):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+9 stop-gate manifest metrics must be an object",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    hash_basis = dict(payload)
+    hash_basis.pop("manifest_hash", None)
+    recomputed_manifest_hash = sha256_canonical_json(hash_basis)
+    if raw_manifest_hash != recomputed_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+9 manifest_hash mismatch",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "embedded_manifest_hash": raw_manifest_hash,
+                    "recomputed_manifest_hash": recomputed_manifest_hash,
+                },
+            )
+        )
+    return payload, recomputed_manifest_hash
+
+
+def _compute_vnext_plus9_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS9_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus9_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS9_DEFAULT_METRICS,
+            "vnext_plus9_manifest_hash": "",
+        }
+
+    metrics_doc = manifest.get("metrics")
+    assert isinstance(metrics_doc, Mapping)
+    try:
+        scheduler_dispatch_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="scheduler_dispatch_replay_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        orphan_lease_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="orphan_lease_recovery_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        concurrent_budget_cancel_fixtures = _manifest_metric_entries(
+            metrics=metrics_doc,
+            metric_name="concurrent_budget_cancel_stability_pct",
+            manifest_path=resolved_manifest_path,
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS9_DEFAULT_METRICS,
+            "vnext_plus9_manifest_hash": manifest_hash,
+        }
+
+    scheduler_dispatch_replay_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="scheduler_dispatch_replay_determinism_pct",
+        fixtures=scheduler_dispatch_fixtures,
+        replay_count=VNEXT_PLUS9_REPLAY_COUNT,
+        required_run_fields=("dispatch_token_path",),
+        run_hash_builder=_scheduler_dispatch_fixture_hash,
+        issues=issues,
+    )
+    orphan_lease_recovery_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="orphan_lease_recovery_determinism_pct",
+        fixtures=orphan_lease_fixtures,
+        replay_count=VNEXT_PLUS9_REPLAY_COUNT,
+        required_run_fields=("orphan_recovery_event_path",),
+        run_hash_builder=_orphan_lease_recovery_fixture_hash,
+        issues=issues,
+    )
+    concurrent_budget_cancel_stability_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="concurrent_budget_cancel_stability_pct",
+        fixtures=concurrent_budget_cancel_fixtures,
+        replay_count=VNEXT_PLUS9_REPLAY_COUNT,
+        required_run_fields=("budget_cancel_event_path",),
+        run_hash_builder=_concurrent_budget_cancel_fixture_hash,
+        issues=issues,
+    )
+    return {
+        "scheduler_dispatch_replay_determinism_pct": scheduler_dispatch_replay_determinism_pct,
+        "orphan_lease_recovery_determinism_pct": orphan_lease_recovery_determinism_pct,
+        "concurrent_budget_cancel_stability_pct": concurrent_budget_cancel_stability_pct,
+        "vnext_plus9_manifest_hash": manifest_hash,
+    }
+
+
 def _metric_delta_satisfies_rule(*, rule: str, delta: float) -> bool:
     if rule == "non_decreasing":
         return delta >= 0.0
@@ -973,6 +1299,7 @@ def build_stop_gate_metrics(
     quality_baseline_path: Path | None = None,
     vnext_plus7_manifest_path: Path | None = None,
     vnext_plus8_manifest_path: Path | None = None,
+    vnext_plus9_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     try:
@@ -1312,6 +1639,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus8_manifest_path,
         issues=issues,
     )
+    vnext_plus9_metrics = _compute_vnext_plus9_metrics(
+        manifest_path=vnext_plus9_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -1398,6 +1729,15 @@ def build_stop_gate_metrics(
         "explain_diff_determinism_pct": vnext_plus8_metrics["explain_diff_determinism_pct"],
         "explain_api_cli_parity_pct": vnext_plus8_metrics["explain_api_cli_parity_pct"],
         "explain_hash_stability_pct": vnext_plus8_metrics["explain_hash_stability_pct"],
+        "scheduler_dispatch_replay_determinism_pct": vnext_plus9_metrics[
+            "scheduler_dispatch_replay_determinism_pct"
+        ],
+        "orphan_lease_recovery_determinism_pct": vnext_plus9_metrics[
+            "orphan_lease_recovery_determinism_pct"
+        ],
+        "concurrent_budget_cancel_stability_pct": vnext_plus9_metrics[
+            "concurrent_budget_cancel_stability_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -1426,6 +1766,14 @@ def build_stop_gate_metrics(
         >= THRESHOLDS["explain_api_cli_parity_pct"],
         "explain_hash_stability": metrics["explain_hash_stability_pct"]
         >= THRESHOLDS["explain_hash_stability_pct"],
+        "scheduler_dispatch_replay_determinism": metrics[
+            "scheduler_dispatch_replay_determinism_pct"
+        ]
+        >= THRESHOLDS["scheduler_dispatch_replay_determinism_pct"],
+        "orphan_lease_recovery_determinism": metrics["orphan_lease_recovery_determinism_pct"]
+        >= THRESHOLDS["orphan_lease_recovery_determinism_pct"],
+        "concurrent_budget_cancel_stability": metrics["concurrent_budget_cancel_stability_pct"]
+        >= THRESHOLDS["concurrent_budget_cancel_stability_pct"],
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -1457,8 +1805,14 @@ def build_stop_gate_metrics(
                 if vnext_plus8_manifest_path is not None
                 else VNEXT_PLUS8_MANIFEST_PATH
             ),
+            "vnext_plus9_manifest_path": str(
+                vnext_plus9_manifest_path
+                if vnext_plus9_manifest_path is not None
+                else VNEXT_PLUS9_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
+        "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -1482,6 +1836,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- Valid: `{report.get('valid')}`")
     lines.append(f"- All Passed: `{report.get('all_passed')}`")
     lines.append(f"- vnext+8 manifest hash: `{report.get('vnext_plus8_manifest_hash')}`")
+    lines.append(f"- vnext+9 manifest hash: `{report.get('vnext_plus9_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -1537,6 +1892,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(
         "- explain hash stability pct: "
         f"`{metrics.get('explain_hash_stability_pct')}`"
+    )
+    lines.append(
+        "- scheduler dispatch replay determinism pct: "
+        f"`{metrics.get('scheduler_dispatch_replay_determinism_pct')}`"
+    )
+    lines.append(
+        "- orphan lease recovery determinism pct: "
+        f"`{metrics.get('orphan_lease_recovery_determinism_pct')}`"
+    )
+    lines.append(
+        "- concurrent budget/cancel stability pct: "
+        f"`{metrics.get('concurrent_budget_cancel_stability_pct')}`"
     )
     lines.append(
         "- quality delta non-negative: "
@@ -1628,6 +1995,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS8_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus9-manifest",
+        dest="vnext_plus9_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS9_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -1645,6 +2018,7 @@ def main(argv: list[str] | None = None) -> int:
         quality_baseline_path=args.quality_baseline_path,
         vnext_plus7_manifest_path=args.vnext_plus7_manifest_path,
         vnext_plus8_manifest_path=args.vnext_plus8_manifest_path,
+        vnext_plus9_manifest_path=args.vnext_plus9_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:

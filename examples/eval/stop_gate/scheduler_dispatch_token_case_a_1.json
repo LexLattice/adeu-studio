@@ -1,0 +1,11 @@
+{
+  "schema": "scheduler_dispatch_token@1",
+  "child_id": "child-dispatch-a1",
+  "parent_session_id": "sess-dispatch-a",
+  "parent_stream_id": "copilot:sess-dispatch-a",
+  "parent_seq": 7,
+  "queue_seq": 1,
+  "dispatch_seq": 1,
+  "worker_run_id": "child-dispatch-a1",
+  "phase": "started"
+}

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "scheduler_dispatch_token@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "child_id",
+    "parent_session_id",
+    "parent_stream_id",
+    "parent_seq",
+    "queue_seq",
+    "dispatch_seq",
+    "worker_run_id",
+    "phase"
+  ],
+  "properties": {
+    "schema": {
+      "const": "scheduler_dispatch_token@1"
+    },
+    "child_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parent_session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parent_stream_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parent_seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "queue_seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "dispatch_seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "worker_run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "leased",
+        "started",
+        "terminal"
+      ]
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "updated_at": {
+      "type": "string"
+    }
+  }
+}

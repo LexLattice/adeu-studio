@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-import sqlite3
 import threading
 import time
 import uuid
@@ -14,6 +13,28 @@ from typing import Any, Literal
 
 from .app_server import CodexAppServerHost
 from .capability_policy import load_capability_policy
+from .child_budget import (
+    budget_snapshot_int_value,
+    enforce_child_budget_unlocked,
+    extract_authoritative_token_usage,
+    observe_child_budget_unlocked,
+    raise_child_budget_exceeded,
+    remaining_parent_duration_secs,
+)
+from .child_budget import (
+    child_budget_snapshot as build_child_budget_snapshot,
+)
+from .child_dispatch import (
+    dispatch_child_queue_unlocked as dispatch_child_queue_unlocked_impl,
+)
+from .child_dispatch import (
+    spawn_child_v2 as spawn_child_v2_impl,
+)
+from .child_dispatch import (
+    start_child_execution_thread_unlocked as start_child_execution_thread_unlocked_impl,
+)
+from .child_recovery import recover_stale_child_runs as recover_stale_child_runs_impl
+from .child_workflow import run_child_workflow_v2 as run_child_workflow_v2_impl
 from .config import URMRuntimeConfig
 from .connector_exposure_mapping import derive_connector_exposure
 from .errors import (
@@ -69,22 +90,17 @@ from .retention import run_evidence_retention_gc
 from .storage import (
     CopilotSessionRow,
     IdempotencyPayloadConflict,
-    apply_parent_budget_debit,
     consume_approval,
     create_approval,
     get_approval,
     get_connector_snapshot,
     get_copilot_session,
-    get_dispatch_token_for_child,
-    lease_dispatch_token,
-    list_active_copilot_child_runs,
     mark_running_sessions_terminated,
     persist_connector_snapshot,
     persist_copilot_session_start,
     persist_evidence_record,
     persist_idempotency_response,
     persist_worker_run_end,
-    persist_worker_run_start,
     reserve_request_idempotency,
     revoke_approval,
     set_copilot_writes_allowed,
@@ -94,8 +110,6 @@ from .storage import (
     update_copilot_session_pid,
     update_copilot_session_profile,
     update_copilot_session_status,
-    update_worker_run_status,
-    upsert_dispatch_token_queued,
 )
 
 logger = logging.getLogger(__name__)
@@ -239,219 +253,7 @@ class URMCopilotManager:
         return 1
 
     def _recover_stale_child_runs(self) -> None:
-        if not self._is_child_queue_v2_enabled():
-            return
-        recovery_rows: list[
-            tuple[
-                str,
-                int,
-                int,
-                str,
-                Any,
-                dict[str, Any],
-                Any | None,
-            ]
-        ] = []
-        with transaction(db_path=self.config.db_path) as con:
-            stale_rows = list_active_copilot_child_runs(con=con)
-            if not stale_rows:
-                return
-            for row in stale_rows:
-                metadata = row.result_json if isinstance(row.result_json, dict) else {}
-                token = get_dispatch_token_for_child(con=con, child_id=row.worker_id)
-                parent_session_id = (
-                    token.parent_session_id
-                    if token is not None
-                    else (
-                        metadata.get("parent_session_id")
-                        if isinstance(metadata.get("parent_session_id"), str)
-                        else ""
-                    )
-                )
-                dispatch_seq = (
-                    token.dispatch_seq
-                    if token is not None and token.dispatch_seq is not None
-                    else (
-                        metadata.get("dispatch_seq")
-                        if isinstance(metadata.get("dispatch_seq"), int)
-                        else 2**62
-                    )
-                )
-                queue_seq = (
-                    token.queue_seq
-                    if token is not None
-                    else (
-                        metadata.get("queue_seq")
-                        if isinstance(metadata.get("queue_seq"), int)
-                        else 2**62
-                    )
-                )
-                recovery_rows.append(
-                    (
-                        parent_session_id,
-                        int(dispatch_seq),
-                        int(queue_seq),
-                        row.worker_id,
-                        row,
-                        metadata,
-                        token,
-                    )
-                )
-        recovery_rows.sort(key=lambda item: (item[0], item[1], item[2], item[3]))
-        for _, _, _, _, row, metadata, token in recovery_rows:
-            child_stream_id = metadata.get("child_stream_id")
-            if not isinstance(child_stream_id, str) or not child_stream_id:
-                child_stream_id = f"child:{row.worker_id}"
-            parent_session_id = (
-                token.parent_session_id
-                if token is not None
-                else (
-                    metadata.get("parent_session_id")
-                    if isinstance(metadata.get("parent_session_id"), str)
-                    else None
-                )
-            )
-            parent_stream_id = (
-                token.parent_stream_id
-                if token is not None
-                else (
-                    metadata.get("parent_stream_id")
-                    if isinstance(metadata.get("parent_stream_id"), str)
-                    else None
-                )
-            )
-            parent_seq = (
-                token.parent_seq
-                if token is not None
-                else (
-                    metadata.get("parent_seq")
-                    if isinstance(metadata.get("parent_seq"), int)
-                    else None
-                )
-            )
-            dispatch_seq = (
-                token.dispatch_seq
-                if token is not None
-                else (
-                    metadata.get("dispatch_seq")
-                    if isinstance(metadata.get("dispatch_seq"), int)
-                    else None
-                )
-            )
-            lease_id = (
-                token.worker_run_id
-                if token is not None
-                else (
-                    metadata.get("lease_id")
-                    if isinstance(metadata.get("lease_id"), str)
-                    else row.worker_id
-                )
-            )
-            phase = (
-                token.phase
-                if token is not None
-                else (
-                    metadata.get("phase")
-                    if isinstance(metadata.get("phase"), str)
-                    else "queued"
-                )
-            )
-            started_observed = token is not None and token.phase in {"started", "terminal"}
-            if started_observed:
-                recovery_code = "URM_CHILD_TERMINATED_ON_RESTART"
-                recovery_reason = "restart_terminated"
-                recovery_message = "child run terminated during API restart"
-            else:
-                recovery_code = "URM_SCHEDULER_LEASE_ORPHANED"
-                recovery_reason = "lease_orphaned"
-                recovery_message = "orphan lease terminated during API restart"
-            detail_payload: dict[str, Any] = {
-                "worker_id": row.worker_id,
-                "status": "failed",
-                "error_code": recovery_code,
-                "code": recovery_code,
-                "reason": recovery_reason,
-                "dispatch_seq": dispatch_seq,
-                "lease_id": lease_id,
-                "parent_stream_id": parent_stream_id,
-                "parent_seq": parent_seq,
-                "child_id": row.worker_id,
-                "phase": phase,
-            }
-            raw_events_path = metadata.get("urm_events_path")
-            if isinstance(raw_events_path, str):
-                try:
-                    events_path = self._resolve_urm_events_path(raw_events_path)
-                except URMError:
-                    events_path = None
-            else:
-                events_path = None
-            if events_path is not None:
-                self._repair_trailing_partial_ndjson(path=events_path)
-                writer = EvidenceFileWriter(
-                    path=events_path,
-                    max_line_bytes=self.config.max_line_bytes,
-                    max_file_bytes=self.config.max_evidence_file_bytes,
-                )
-                seq = self._next_seq_for_event_file(path=events_path)
-                event = build_internal_event(
-                    seq=seq,
-                    event="WORKER_FAIL",
-                    stream_id=child_stream_id,
-                    source_component="urm_copilot_manager",
-                    context={
-                        "session_id": parent_session_id,
-                        "run_id": row.worker_id,
-                        "role": "copilot",
-                        "endpoint": "urm.agent.spawn",
-                    },
-                    detail=detail_payload,
-                )
-                writer.write_json_line(event.model_dump(mode="json", by_alias=True))
-                writer.close()
-            if isinstance(parent_session_id, str) and parent_session_id:
-                self._record_parent_or_audit_event(
-                    parent_session_id=parent_session_id,
-                    event_kind="WORKER_FAIL",
-                    payload=detail_payload,
-                    endpoint="urm.agent.spawn",
-                )
-            with transaction(db_path=self.config.db_path) as con:
-                persist_worker_run_end(
-                    con=con,
-                    worker_id=row.worker_id,
-                    status="failed",
-                    exit_code=None,
-                    error_code=recovery_code,
-                    error_message=recovery_message,
-                    result_json={
-                        **metadata,
-                        "status": "failed",
-                        "error": {
-                            "code": recovery_code,
-                            "message": recovery_message,
-                        },
-                        "restart_reason": recovery_reason,
-                        "dispatch_seq": dispatch_seq,
-                        "lease_id": lease_id,
-                        "parent_stream_id": parent_stream_id,
-                        "parent_seq": parent_seq,
-                        "phase": phase,
-                    },
-                )
-                if token is not None:
-                    try:
-                        set_dispatch_token_phase(
-                            con=con,
-                            child_id=row.worker_id,
-                            phase="terminal",
-                        )
-                    except RuntimeError as exc:
-                        logger.warning(
-                            "failed to mark restart-recovered dispatch token terminal: child_id=%s",
-                            row.worker_id,
-                            exc_info=exc,
-                        )
+        recover_stale_child_runs_impl(manager=self, logger=logger)
 
     def _raw_jsonl_path_for_session(self, session_id: str) -> Path:
         path = self.config.evidence_root / "copilot" / session_id / "codex_raw.ndjson"
@@ -609,9 +411,7 @@ class URMCopilotManager:
                     role="copilot",
                     endpoint="urm.copilot.events",
                 )
-                runtime.events_writer.write_json_line(
-                    event.model_dump(mode="json", by_alias=True)
-                )
+                runtime.events_writer.write_json_line(event.model_dump(mode="json", by_alias=True))
             except (EvidenceFileLimitExceeded, ValueError) as exc:
                 runtime.error_code = "URM_CODEX_SESSION_LIMIT_EXCEEDED"
                 runtime.error_message = str(exc)
@@ -677,9 +477,7 @@ class URMCopilotManager:
                 detail=payload,
             )
             try:
-                runtime.events_writer.write_json_line(
-                    event.model_dump(mode="json", by_alias=True)
-                )
+                runtime.events_writer.write_json_line(event.model_dump(mode="json", by_alias=True))
             except (EvidenceFileLimitExceeded, ValueError) as exc:
                 runtime.error_code = "URM_CODEX_SESSION_LIMIT_EXCEEDED"
                 runtime.error_message = str(exc)
@@ -1958,23 +1756,21 @@ class URMCopilotManager:
         )
 
     def _remaining_parent_duration_secs(self, *, runtime: CopilotSessionRuntime) -> int:
-        started = datetime.fromisoformat(runtime.started_at)
-        elapsed = datetime.now(tz=timezone.utc) - started
-        remaining = self.config.max_session_duration_secs - int(elapsed.total_seconds())
-        return max(0, remaining)
+        return remaining_parent_duration_secs(
+            session_started_at=runtime.started_at,
+            max_session_duration_secs=self.config.max_session_duration_secs,
+        )
 
     def _child_budget_snapshot(self, *, runtime: CopilotSessionRuntime) -> dict[str, Any]:
-        remaining_parent = self._remaining_parent_duration_secs(runtime=runtime)
-        return {
-            "budget_version": CHILD_BUDGET_VERSION,
-            "accounting_model": CHILD_BUDGET_ACCOUNTING_MODEL,
-            "max_solver_calls": CHILD_BUDGET_MAX_SOLVER_CALLS,
-            "max_duration_secs": min(CHILD_BUDGET_MAX_DURATION_SECS, remaining_parent),
-            "max_token_budget": CHILD_BUDGET_MAX_TOKEN_BUDGET,
-            "remaining_parent_duration_secs": remaining_parent,
-            # Codex app-server does not currently provide stable token usage in this runtime path.
-            "token_usage_unobserved": True,
-        }
+        return build_child_budget_snapshot(
+            session_started_at=runtime.started_at,
+            max_session_duration_secs=self.config.max_session_duration_secs,
+            budget_version=CHILD_BUDGET_VERSION,
+            accounting_model=CHILD_BUDGET_ACCOUNTING_MODEL,
+            max_solver_calls=CHILD_BUDGET_MAX_SOLVER_CALLS,
+            max_duration_secs=CHILD_BUDGET_MAX_DURATION_SECS,
+            max_token_budget=CHILD_BUDGET_MAX_TOKEN_BUDGET,
+        )
 
     def _budget_snapshot_int_value(
         self,
@@ -1983,40 +1779,17 @@ class URMCopilotManager:
         key: str,
         default: int,
     ) -> int:
-        raw_value = budget_snapshot.get(key)
-        if isinstance(raw_value, bool):
-            return default
-        if isinstance(raw_value, int):
-            return max(0, raw_value)
-        return default
+        return budget_snapshot_int_value(
+            budget_snapshot=budget_snapshot,
+            key=key,
+            default=default,
+        )
 
     def _extract_authoritative_token_usage(self, *, response: dict[str, Any]) -> int | None:
-        result = response.get("result")
-        if not isinstance(result, dict):
-            return None
-        usage = result.get("usage")
-        if isinstance(usage, dict):
-            for key in ("total_tokens", "totalTokens"):
-                value = usage.get(key)
-                if isinstance(value, int) and value >= 0:
-                    return value
-        for key in ("total_tokens", "totalTokens"):
-            value = result.get(key)
-            if isinstance(value, int) and value >= 0:
-                return value
-        return None
+        return extract_authoritative_token_usage(response=response)
 
     def _observe_child_budget_unlocked(self, *, child: ChildAgentRuntime) -> None:
-        now = datetime.now(tz=timezone.utc)
-        started_at = datetime.fromisoformat(child.started_at)
-        child.last_budget_check_ts = now.isoformat()
-        child.duration_secs_observed = max(0, int((now - started_at).total_seconds()))
-        if child.token_usage_observed is None:
-            child.token_usage_unobserved = bool(
-                child.budget_snapshot.get("token_usage_unobserved", child.token_usage_unobserved)
-            )
-        else:
-            child.token_usage_unobserved = False
+        observe_child_budget_unlocked(child=child)
 
     def _raise_child_budget_exceeded(
         self,
@@ -2026,112 +1799,22 @@ class URMCopilotManager:
         limit: int,
         observed: int,
     ) -> None:
-        raise URMError(
-            code="URM_CHILD_BUDGET_EXCEEDED",
-            message=f"child budget exceeded for {dimension}",
-            context={
-                "child_id": child.child_id,
-                "session_id": child.parent_session_id,
-                "dimension": dimension,
-                "limit": limit,
-                "observed": observed,
-                "token_usage_unobserved": child.token_usage_unobserved,
-            },
+        raise_child_budget_exceeded(
+            child=child,
+            dimension=dimension,
+            limit=limit,
+            observed=observed,
         )
 
     def _enforce_child_budget_unlocked(self, *, child: ChildAgentRuntime) -> None:
-        self._observe_child_budget_unlocked(child=child)
-        accounting_model = child.budget_snapshot.get("accounting_model")
-        if accounting_model is None:
-            accounting_model = CHILD_BUDGET_ACCOUNTING_MODEL
-        if accounting_model != CHILD_BUDGET_ACCOUNTING_MODEL:
-            raise URMError(
-                code="URM_DISPATCH_ACCOUNTING_MODE_INVALID",
-                message="unsupported child budget accounting model",
-                context={
-                    "child_id": child.child_id,
-                    "session_id": child.parent_session_id,
-                    "accounting_model": accounting_model,
-                    "expected_model": CHILD_BUDGET_ACCOUNTING_MODEL,
-                },
-            )
-        max_duration_secs = self._budget_snapshot_int_value(
-            budget_snapshot=child.budget_snapshot,
-            key="max_duration_secs",
-            default=CHILD_BUDGET_MAX_DURATION_SECS,
+        enforce_child_budget_unlocked(
+            child=child,
+            db_path=self.config.db_path,
+            accounting_model=CHILD_BUDGET_ACCOUNTING_MODEL,
+            max_duration_default=CHILD_BUDGET_MAX_DURATION_SECS,
+            max_solver_calls_default=CHILD_BUDGET_MAX_SOLVER_CALLS,
+            max_token_budget_default=CHILD_BUDGET_MAX_TOKEN_BUDGET,
         )
-        max_solver_calls = self._budget_snapshot_int_value(
-            budget_snapshot=child.budget_snapshot,
-            key="max_solver_calls",
-            default=CHILD_BUDGET_MAX_SOLVER_CALLS,
-        )
-        max_token_budget = self._budget_snapshot_int_value(
-            budget_snapshot=child.budget_snapshot,
-            key="max_token_budget",
-            default=CHILD_BUDGET_MAX_TOKEN_BUDGET,
-        )
-
-        solver_debit = max(0, child.solver_calls_observed - child.solver_calls_accounted_total)
-        if solver_debit > 0:
-            with transaction(db_path=self.config.db_path) as con:
-                debit_result = apply_parent_budget_debit(
-                    con=con,
-                    parent_session_id=child.parent_session_id,
-                    budget_lane="solver_calls",
-                    debit=solver_debit,
-                    max_total=max_solver_calls,
-                )
-            if not debit_result.accepted:
-                self._raise_child_budget_exceeded(
-                    child=child,
-                    dimension="solver_calls",
-                    limit=debit_result.row.max_total,
-                    observed=debit_result.row.current_total + debit_result.attempted_debit,
-                )
-            child.solver_calls_accounted_total = child.solver_calls_observed
-
-        duration_debit = max(
-            0, child.duration_secs_observed - child.duration_secs_accounted_total
-        )
-        if duration_debit > 0:
-            with transaction(db_path=self.config.db_path) as con:
-                debit_result = apply_parent_budget_debit(
-                    con=con,
-                    parent_session_id=child.parent_session_id,
-                    budget_lane="duration_secs",
-                    debit=duration_debit,
-                    max_total=max_duration_secs,
-                )
-            if not debit_result.accepted:
-                self._raise_child_budget_exceeded(
-                    child=child,
-                    dimension="duration",
-                    limit=debit_result.row.max_total,
-                    observed=debit_result.row.current_total + debit_result.attempted_debit,
-                )
-            child.duration_secs_accounted_total = child.duration_secs_observed
-
-        if not child.token_usage_unobserved and child.token_usage_observed is not None:
-            token_debit = max(
-                0, child.token_usage_observed - child.token_usage_accounted_total
-            )
-            if token_debit > 0:
-                with transaction(db_path=self.config.db_path) as con:
-                    debit_result = apply_parent_budget_debit(
-                        con=con,
-                        parent_session_id=child.parent_session_id,
-                        budget_lane="tokens",
-                        debit=token_debit,
-                        max_total=max_token_budget,
-                    )
-                if not debit_result.accepted:
-                    self._raise_child_budget_exceeded(
-                        child=child,
-                        dimension="tokens",
-                        limit=debit_result.row.max_total,
-                        observed=debit_result.row.current_total + debit_result.attempted_debit,
-                    )
-                child.token_usage_accounted_total = child.token_usage_observed
 
     def _child_spawn_error_code(self, *, exc: URMError) -> str:
         if exc.detail.code.startswith(("URM_CHILD_", "URM_DISPATCH_", "URM_SCHEDULER_")):
@@ -3136,344 +2819,21 @@ class URMCopilotManager:
         parent_session_id: str,
         child: ChildAgentRuntime,
     ) -> None:
-        if self._is_child_queue_v2_enabled():
-            try:
-                with transaction(db_path=self.config.db_path) as con:
-                    token = lease_dispatch_token(con=con, child_id=child.child_id)
-            except sqlite3.IntegrityError as exc:
-                raise URMError(
-                    code="URM_DISPATCH_LEASE_CONFLICT",
-                    message="scheduler dispatch lease conflict",
-                    context={
-                        "child_id": child.child_id,
-                        "session_id": parent_session_id,
-                    },
-                ) from exc
-            except RuntimeError as exc:
-                raise URMError(
-                    code="URM_SCHEDULER_REPLAY_ORDER_INVALID",
-                    message="scheduler dispatch token missing",
-                    context={
-                        "child_id": child.child_id,
-                        "session_id": parent_session_id,
-                    },
-                ) from exc
-            child.queue_seq = token.queue_seq
-            child.dispatch_seq = token.dispatch_seq
-            child.lease_id = token.worker_run_id
-            child.parent_seq = token.parent_seq
-            child.dispatch_phase = token.phase
-        child.status = "running"
-        if self._is_child_queue_v2_enabled():
-            child.dispatch_phase = "started"
-        self._record_child_event(
+        start_child_execution_thread_unlocked_impl(
+            manager=self,
+            parent_session_id=parent_session_id,
             child=child,
-            event_kind="WORKER_START",
-            payload={
-                "worker_id": child.child_id,
-                "status": "running",
-                "queue_seq": child.queue_seq,
-                "dispatch_seq": child.dispatch_seq,
-                "lease_id": child.lease_id,
-            },
         )
-        with transaction(db_path=self.config.db_path) as con:
-            update_worker_run_status(
-                con=con,
-                worker_id=child.child_id,
-                status="running",
-                error_code=None,
-                error_message=None,
-                result_json=self._child_worker_result_json(child=child),
-            )
-            if self._is_child_queue_v2_enabled():
-                token = set_dispatch_token_phase(
-                    con=con,
-                    child_id=child.child_id,
-                    phase="started",
-                )
-                child.dispatch_phase = token.phase
-        thread = threading.Thread(
-            target=self._run_child_workflow_v2,
-            kwargs={"child_id": child.child_id, "parent_session_id": parent_session_id},
-            daemon=True,
-            name=f"urm-child-{child.child_id}",
-        )
-        self._child_run_threads[child.child_id] = thread
-        thread.start()
 
     def _dispatch_child_queue_unlocked(self, *, parent_session_id: str) -> None:
-        while True:
-            children = [
-                self._child_runs[child_id]
-                for child_id in self._children_by_parent.get(parent_session_id, set())
-                if child_id in self._child_runs
-            ]
-            running_count = sum(1 for child in children if child.status == "running")
-            if running_count >= self._max_active_children_per_parent():
-                return
-            queued = sorted(
-                (child for child in children if child.status == "queued"),
-                key=lambda child: child.queue_seq,
-            )
-            if not queued:
-                return
-            next_child = queued[0]
-            runtime = self._sessions.get(parent_session_id)
-            if runtime is None or runtime.status not in {"starting", "running"}:
-                next_child.status = "failed"
-                next_child.error_code = "URM_CHILD_TERMINATED_ON_RESTART"
-                next_child.error_message = "parent session unavailable during queue dispatch"
-                next_child.ended_at = datetime.now(tz=timezone.utc).isoformat()
-                next_child.dispatch_phase = "terminal"
-                self._record_child_event(
-                    child=next_child,
-                    event_kind="WORKER_FAIL",
-                    payload={
-                        "worker_id": next_child.child_id,
-                        "status": "failed",
-                        "error_code": next_child.error_code,
-                        "code": next_child.error_code,
-                        "reason": "parent_session_unavailable",
-                    },
-                )
-                self._record_parent_or_audit_event(
-                    parent_session_id=parent_session_id,
-                    event_kind="WORKER_FAIL",
-                    payload={
-                        "worker_id": next_child.child_id,
-                        "status": "failed",
-                        "error_code": next_child.error_code,
-                        "dispatch_seq": next_child.dispatch_seq,
-                        "lease_id": next_child.lease_id,
-                        "parent_stream_id": next_child.parent_stream_id,
-                        "parent_seq": next_child.parent_seq,
-                        "child_id": next_child.child_id,
-                        "phase": next_child.dispatch_phase,
-                    },
-                    endpoint="urm.agent.spawn",
-                )
-                self._persist_child_terminal_state(child=next_child)
-                continue
-            try:
-                self._start_child_execution_thread_unlocked(
-                    parent_session_id=parent_session_id,
-                    child=next_child,
-                )
-            except URMError as exc:
-                next_child.status = "failed"
-                next_child.error_code = exc.detail.code
-                next_child.error_message = exc.detail.message
-                next_child.ended_at = datetime.now(tz=timezone.utc).isoformat()
-                next_child.dispatch_phase = "terminal"
-                self._record_child_event(
-                    child=next_child,
-                    event_kind="WORKER_FAIL",
-                    payload={
-                        "worker_id": next_child.child_id,
-                        "status": "failed",
-                        "error_code": next_child.error_code,
-                        "code": next_child.error_code,
-                        "reason": "dispatch_start_failed",
-                    },
-                )
-                self._record_parent_or_audit_event(
-                    parent_session_id=parent_session_id,
-                    event_kind="WORKER_FAIL",
-                    payload={
-                        "worker_id": next_child.child_id,
-                        "status": "failed",
-                        "error_code": next_child.error_code,
-                        "dispatch_seq": next_child.dispatch_seq,
-                        "lease_id": next_child.lease_id,
-                        "parent_stream_id": next_child.parent_stream_id,
-                        "parent_seq": next_child.parent_seq,
-                        "child_id": next_child.child_id,
-                        "phase": next_child.dispatch_phase,
-                    },
-                    endpoint="urm.agent.spawn",
-                )
-                self._persist_child_terminal_state(child=next_child)
-                continue
+        dispatch_child_queue_unlocked_impl(manager=self, parent_session_id=parent_session_id)
 
     def _run_child_workflow_v2(self, *, child_id: str, parent_session_id: str) -> None:
-        try:
-            with self._lock:
-                child = self._child_runs.get(child_id)
-                runtime = self._sessions.get(parent_session_id)
-                if child is None:
-                    return
-                if runtime is None or runtime.status not in {"starting", "running"}:
-                    child.status = "failed"
-                    child.error_code = "URM_CHILD_TERMINATED_ON_RESTART"
-                    child.error_message = "parent session unavailable"
-                    child.ended_at = datetime.now(tz=timezone.utc).isoformat()
-                    child.dispatch_phase = "terminal"
-                    self._record_child_event(
-                        child=child,
-                        event_kind="WORKER_FAIL",
-                        payload={
-                            "worker_id": child.child_id,
-                            "status": "failed",
-                            "error_code": child.error_code,
-                        },
-                    )
-                    self._record_parent_or_audit_event(
-                        parent_session_id=parent_session_id,
-                        event_kind="WORKER_FAIL",
-                        payload={
-                            "worker_id": child.child_id,
-                            "status": "failed",
-                            "error_code": child.error_code,
-                            "dispatch_seq": child.dispatch_seq,
-                            "lease_id": child.lease_id,
-                            "parent_stream_id": child.parent_stream_id,
-                            "parent_seq": child.parent_seq,
-                            "child_id": child.child_id,
-                            "phase": child.dispatch_phase,
-                        },
-                        endpoint="urm.agent.spawn",
-                    )
-                    self._persist_child_terminal_state(child=child)
-                    return
-                self._bootstrap_runtime(runtime=runtime)
-                if runtime.thread_id is None:
-                    raise URMError(
-                        code="URM_CHILD_SPAWN_FAILED",
-                        message="copilot thread is not initialized",
-                        context={"session_id": parent_session_id},
-                    )
-                prompt = child.prompt
-                target_turn_id = child.parent_turn_id
-                parent_thread_id = runtime.thread_id
-
-            def _child_call(method: str, params: dict[str, Any]) -> dict[str, Any]:
-                with self._lock:
-                    current = self._child_runs.get(child_id)
-                    if current is None:
-                        raise URMError(
-                            code="URM_CHILD_SPAWN_FAILED",
-                            message="child run missing",
-                            context={"child_id": child_id},
-                        )
-                    if current.status == "cancelled":
-                        raise URMError(
-                            code="URM_CHILD_CANCELLED",
-                            message="child run cancelled",
-                            context={"child_id": child_id},
-                        )
-                    self._enforce_child_budget_unlocked(child=current)
-                    current.solver_calls_observed += 1
-                response = self._send_jsonrpc_and_wait(
-                    runtime=runtime,
-                    method=method,
-                    params=params,
-                    timeout_secs=10.0,
-                )
-                token_usage = self._extract_authoritative_token_usage(response=response)
-                with self._lock:
-                    current = self._child_runs.get(child_id)
-                    if current is None:
-                        raise URMError(
-                            code="URM_CHILD_SPAWN_FAILED",
-                            message="child run missing",
-                            context={"child_id": child_id},
-                        )
-                    if current.status == "cancelled":
-                        raise URMError(
-                            code="URM_CHILD_CANCELLED",
-                            message="child run cancelled",
-                            context={"child_id": child_id},
-                        )
-                    if token_usage is not None:
-                        current.token_usage_observed = token_usage
-                        current.token_usage_unobserved = False
-                    self._enforce_child_budget_unlocked(child=current)
-                    self._record_child_event(
-                        child=current,
-                        event_kind="TOOL_CALL_PASS",
-                        payload={"tool_name": method, "status": "completed"},
-                    )
-                return response
-
-            spawn_response = _child_call(
-                "spawn_agent",
-                {"threadId": parent_thread_id, "turnId": target_turn_id},
-            )
-            result = spawn_response.get("result", {})
-            child_thread_id = (
-                result.get("newThreadId")
-                or result.get("receiverThreadId")
-                or result.get("threadId")
-            )
-            if not isinstance(child_thread_id, str) or not child_thread_id:
-                child_thread_id = f"child-thread:{child_id}"
-            with self._lock:
-                current = self._child_runs.get(child_id)
-                if current is None:
-                    return
-                current.child_thread_id = child_thread_id
-            _child_call(
-                "send_input",
-                {
-                    "threadId": parent_thread_id,
-                    "receiverThreadId": child_thread_id,
-                    "prompt": prompt,
-                },
-            )
-            _child_call(
-                "wait",
-                {
-                    "threadId": parent_thread_id,
-                    "receiverThreadId": child_thread_id,
-                },
-            )
-            _child_call(
-                "close_agent",
-                {
-                    "threadId": parent_thread_id,
-                    "receiverThreadId": child_thread_id,
-                },
-            )
-            with self._lock:
-                current = self._child_runs.get(child_id)
-                if current is None:
-                    return
-                if current.status != "cancelled":
-                    current.status = "completed"
-                    current.ended_at = datetime.now(tz=timezone.utc).isoformat()
-                    current.dispatch_phase = "terminal"
-                    self._record_child_event(
-                        child=current,
-                        event_kind="WORKER_PASS",
-                        payload={"worker_id": child_id, "status": "completed"},
-                    )
-                    self._record_parent_or_audit_event(
-                        parent_session_id=parent_session_id,
-                        event_kind="TOOL_CALL_PASS",
-                        payload={
-                            "tool_name": "spawn_agent",
-                            "child_id": child_id,
-                            "status": "completed",
-                        },
-                    )
-                self._persist_child_terminal_state(child=current)
-        except URMError as exc:
-            with self._lock:
-                current = self._child_runs.get(child_id)
-                if current is None:
-                    return
-                if current.status != "cancelled":
-                    self._handle_child_spawn_failure_unlocked(
-                        child=current,
-                        parent_session_id=parent_session_id,
-                        exc=exc,
-                    )
-                self._persist_child_terminal_state(child=current)
-        finally:
-            with self._lock:
-                self._child_run_threads.pop(child_id, None)
-                self._dispatch_child_queue_unlocked(parent_session_id=parent_session_id)
+        run_child_workflow_v2_impl(
+            manager=self,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+        )
 
     def _spawn_child_v2(
         self,
@@ -3482,239 +2842,15 @@ class URMCopilotManager:
         inherited_policy_hash: str | None,
         capabilities_allowed: list[str],
     ) -> AgentSpawnResponse:
-        payload_hash = sha256_canonical_json(request.idempotency_payload())
-        with self._lock:
-            runtime = self._sessions.get(request.session_id)
-            if runtime is None:
-                raise URMError(
-                    code="URM_NOT_FOUND",
-                    message="copilot session not found",
-                    status_code=404,
-                    context={"session_id": request.session_id},
-                )
-            self._enforce_session_duration_unlocked(runtime=runtime)
-            with transaction(db_path=self.config.db_path) as con:
-                child_id = uuid.uuid4().hex
-                try:
-                    reservation = reserve_request_idempotency(
-                        con=con,
-                        endpoint_name=AGENT_SPAWN_ENDPOINT,
-                        client_request_id=request.client_request_id,
-                        payload_hash=payload_hash,
-                        resource_id=child_id,
-                    )
-                except IdempotencyPayloadConflict as exc:
-                    raise URMError(
-                        code="URM_IDEMPOTENCY_KEY_CONFLICT",
-                        message="client_request_id already used with a different payload",
-                        status_code=409,
-                        context={
-                            "client_request_id": request.client_request_id,
-                            "stored_payload_hash": exc.stored_payload_hash,
-                            "incoming_payload_hash": exc.incoming_payload_hash,
-                        },
-                    ) from exc
-                if reservation.replay:
-                    replay = AgentSpawnResponse.model_validate(reservation.response_json or {})
-                    return replay.model_copy(update={"idempotent_replay": True})
-                child_id = reservation.resource_id
-            active_or_queued_children = [
-                child_id
-                for child_id in self._children_by_parent.get(request.session_id, set())
-                if self._child_runs.get(child_id) is not None
-                and self._child_runs[child_id].status in {"queued", "running"}
-            ]
-            if len(active_or_queued_children) >= self._max_children_per_parent():
-                raise URMError(
-                    code="URM_CHILD_QUEUE_LIMIT_EXCEEDED",
-                    message="child queue limit exceeded for parent session",
-                    context={
-                        "session_id": request.session_id,
-                        "max_children": self._max_children_per_parent(),
-                    },
-                )
-            if MAX_CHILD_DEPTH < 1:
-                raise URMError(
-                    code="URM_CHILD_DEPTH_EXCEEDED",
-                    message="child depth limit exceeded",
-                    context={"session_id": request.session_id, "max_depth": MAX_CHILD_DEPTH},
-                )
-
-            selected_profile = self._resolve_profile(runtime.profile_id)
-            if request.profile_id is not None:
-                try:
-                    selected_profile = self._resolve_profile(request.profile_id)
-                except URMError as exc:
-                    self._record_parent_or_audit_event(
-                        parent_session_id=request.session_id,
-                        event_kind="PROFILE_DENIED",
-                        payload={
-                            "profile_id": request.profile_id,
-                            "scope": "run",
-                            "reason": exc.detail.message,
-                        },
-                    )
-                    raise
-                self._record_parent_or_audit_event(
-                    parent_session_id=request.session_id,
-                    event_kind="PROFILE_SELECTED",
-                    payload={
-                        "profile_id": selected_profile.profile_id,
-                        "profile_version": selected_profile.profile_version,
-                        "policy_hash": self._resolve_active_policy_hash_for_profile(
-                            profile=selected_profile
-                        ),
-                        "scope": "run",
-                        "child_id": child_id,
-                    },
-                )
-
-            target_turn_id = self._resolve_turn_target(
-                runtime=runtime,
-                target_turn_id=request.target_turn_id,
-                use_last_turn=request.use_last_turn,
-            )
-            self._bootstrap_runtime(runtime=runtime)
-            if runtime.thread_id is None:
-                raise URMError(
-                    code="URM_CHILD_SPAWN_FAILED",
-                    message="copilot thread is not initialized",
-                    context={"session_id": request.session_id},
-                )
-
-            raw_path = self._raw_jsonl_path_for_child(child_id)
-            events_path = self._urm_events_path_for_child(child_id)
-            raw_rel_path = self._relative_path(raw_path)
-            events_rel_path = self._relative_path(events_path)
-            parent_stream_id = f"copilot:{request.session_id}"
-            parent_seq_anchor = runtime.last_seq + 1
-            try:
-                with transaction(db_path=self.config.db_path) as con:
-                    token = upsert_dispatch_token_queued(
-                        con=con,
-                        child_id=child_id,
-                        parent_session_id=request.session_id,
-                        parent_stream_id=parent_stream_id,
-                        parent_seq=parent_seq_anchor,
-                        worker_run_id=child_id,
-                    )
-            except sqlite3.IntegrityError as exc:
-                raise URMError(
-                    code="URM_DISPATCH_LEASE_CONFLICT",
-                    message="scheduler token persistence conflict",
-                    context={
-                        "session_id": request.session_id,
-                        "child_id": child_id,
-                    },
-                ) from exc
-            except RuntimeError as exc:
-                raise URMError(
-                    code="URM_SCHEDULER_REPLAY_ORDER_INVALID",
-                    message="scheduler token persistence failed",
-                    context={
-                        "session_id": request.session_id,
-                        "child_id": child_id,
-                    },
-                ) from exc
-            child = ChildAgentRuntime(
-                child_id=child_id,
-                parent_session_id=request.session_id,
-                parent_turn_id=target_turn_id,
-                parent_stream_id=parent_stream_id,
-                child_stream_id=f"child:{child_id}",
-                started_at=datetime.now(tz=timezone.utc).isoformat(),
-                events_writer=EvidenceFileWriter(
-                    path=events_path,
-                    max_line_bytes=self.config.max_line_bytes,
-                    max_file_bytes=self.config.max_evidence_file_bytes,
-                ),
-                raw_writer=EvidenceFileWriter(
-                    path=raw_path,
-                    max_line_bytes=self.config.max_line_bytes,
-                    max_file_bytes=self.config.max_evidence_file_bytes,
-                ),
-                raw_jsonl_path=raw_rel_path,
-                urm_events_path=events_rel_path,
-                status="queued",
-                parent_seq=token.parent_seq,
-                queue_seq=token.queue_seq,
-                lease_id=token.worker_run_id,
-                dispatch_phase=token.phase,
-                prompt=request.prompt,
-                budget_snapshot=self._child_budget_snapshot(runtime=runtime),
-                inherited_policy_hash=inherited_policy_hash,
-                capabilities_allowed=sorted(capabilities_allowed),
-                profile_id=selected_profile.profile_id,
-                profile_version=selected_profile.profile_version,
-            )
-            self._child_runs[child_id] = child
-            self._children_by_parent.setdefault(request.session_id, set()).add(child_id)
-            self._record_parent_or_audit_event(
-                parent_session_id=request.session_id,
-                event_kind="TOOL_CALL_START",
-                payload={
-                    "tool_name": "spawn_agent",
-                    "child_id": child_id,
-                    "target_turn_id": target_turn_id,
-                    "budget_snapshot": child.budget_snapshot,
-                    "inherited_policy_hash": inherited_policy_hash,
-                    "profile_id": child.profile_id,
-                    "profile_version": child.profile_version,
-                    "queue_seq": child.queue_seq,
-                    "parent_stream_id": child.parent_stream_id,
-                    "parent_seq": child.parent_seq,
-                },
-            )
-            self._record_child_event(
-                child=child,
-                event_kind="WORKER_START",
-                payload={
-                    "worker_id": child_id,
-                    "status": "queued",
-                    "queue_seq": child.queue_seq,
-                    "dispatch_seq": child.dispatch_seq,
-                    "lease_id": child.lease_id,
-                },
-            )
-            with transaction(db_path=self.config.db_path) as con:
-                persist_worker_run_start(
-                    con=con,
-                    worker_id=child.child_id,
-                    role="copilot_child",
-                    provider="codex",
-                    template_id="urm.agent.spawn",
-                    template_version="v2",
-                    schema_version="urm.child-run.v1",
-                    domain_pack_id="urm_domain_adeu",
-                    domain_pack_version="v0",
-                    raw_jsonl_path=child.raw_jsonl_path,
-                    status="queued",
-                    result_json=self._child_worker_result_json(child=child),
-                )
-            self._dispatch_child_queue_unlocked(parent_session_id=request.session_id)
-            response_model = AgentSpawnResponse(
-                child_id=child.child_id,
-                parent_session_id=child.parent_session_id,
-                status=child.status,
-                parent_stream_id=child.parent_stream_id,
-                child_stream_id=child.child_stream_id,
-                target_turn_id=child.parent_turn_id,
-                queue_seq=child.queue_seq,
-                profile_id=child.profile_id,
-                profile_version=child.profile_version,
-                idempotent_replay=False,
-                error=None,
-                budget_snapshot=child.budget_snapshot,
-                inherited_policy_hash=child.inherited_policy_hash,
-            )
-            with transaction(db_path=self.config.db_path) as con:
-                persist_idempotency_response(
-                    con=con,
-                    endpoint_name=AGENT_SPAWN_ENDPOINT,
-                    client_request_id=request.client_request_id,
-                    response_json=response_model.model_dump(mode="json"),
-                )
-            return response_model
+        return spawn_child_v2_impl(
+            manager=self,
+            request=request,
+            inherited_policy_hash=inherited_policy_hash,
+            capabilities_allowed=capabilities_allowed,
+            child_runtime_cls=ChildAgentRuntime,
+            max_child_depth=MAX_CHILD_DEPTH,
+            spawn_endpoint_name=AGENT_SPAWN_ENDPOINT,
+        )
 
     def cancel_child(self, *, child_id: str, request: AgentCancelRequest) -> AgentCancelResponse:
         payload_hash = sha256_canonical_json(

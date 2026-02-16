@@ -1,0 +1,55 @@
+{
+  "schema": "stop_gate.vnext_plus9_manifest@1",
+  "replay_count": 3,
+  "metrics": {
+    "scheduler_dispatch_replay_determinism_pct": [
+      {
+        "fixture_id": "scheduler_dispatch_case_a",
+        "runs": [
+          {
+            "dispatch_token_path": "../../../../examples/eval/stop_gate/scheduler_dispatch_token_case_a_1.json"
+          },
+          {
+            "dispatch_token_path": "../../../../examples/eval/stop_gate/scheduler_dispatch_token_case_a_2.json"
+          },
+          {
+            "dispatch_token_path": "../../../../examples/eval/stop_gate/scheduler_dispatch_token_case_a_3.json"
+          }
+        ]
+      }
+    ],
+    "orphan_lease_recovery_determinism_pct": [
+      {
+        "fixture_id": "orphan_lease_recovery_case_a",
+        "runs": [
+          {
+            "orphan_recovery_event_path": "../../../../examples/eval/stop_gate/orphan_lease_recovery_events_case_a_1.ndjson"
+          },
+          {
+            "orphan_recovery_event_path": "../../../../examples/eval/stop_gate/orphan_lease_recovery_events_case_a_2.ndjson"
+          },
+          {
+            "orphan_recovery_event_path": "../../../../examples/eval/stop_gate/orphan_lease_recovery_events_case_a_3.ndjson"
+          }
+        ]
+      }
+    ],
+    "concurrent_budget_cancel_stability_pct": [
+      {
+        "fixture_id": "concurrent_budget_cancel_case_a",
+        "runs": [
+          {
+            "budget_cancel_event_path": "../../../../examples/eval/stop_gate/concurrent_budget_cancel_events_case_a_1.ndjson"
+          },
+          {
+            "budget_cancel_event_path": "../../../../examples/eval/stop_gate/concurrent_budget_cancel_events_case_a_2.ndjson"
+          },
+          {
+            "budget_cancel_event_path": "../../../../examples/eval/stop_gate/concurrent_budget_cancel_events_case_a_3.ndjson"
+          }
+        ]
+      }
+    ]
+  },
+  "manifest_hash": "2104ff0aebd7b45fe0e6a74c29495ec44ee62d9ea97420e008aef9541b67b4de"
+}
