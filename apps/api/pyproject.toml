@@ -16,6 +16,7 @@ dependencies = [
   "adeu-concepts>=0.0.0",
   "adeu-puzzles>=0.0.0",
   "adeu-explain>=0.0.0",
+  "adeu-semantic-depth>=0.0.0",
   "urm-runtime>=0.0.0",
   "urm-domain-adeu>=0.0.0",
   "urm-domain-digest>=0.0.0",

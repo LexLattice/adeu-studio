@@ -84,6 +84,18 @@ class ExplainArtifactRow:
 
 
 @dataclass(frozen=True)
+class SemanticDepthReportRow:
+    semantic_depth_report_id: str
+    created_at: str
+    client_request_id: str
+    request_payload_hash: str
+    semantic_depth_hash: str
+    report_json: dict[str, Any]
+    parent_stream_id: str
+    parent_seq: int
+
+
+@dataclass(frozen=True)
 class ConceptArtifactRow:
     artifact_id: str
     created_at: str
@@ -386,6 +398,38 @@ def _ensure_explain_artifact_indexes(con: sqlite3.Connection) -> None:
     )
 
 
+def _ensure_semantic_depth_report_schema(con: sqlite3.Connection) -> None:
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS semantic_depth_reports (
+          semantic_depth_report_id TEXT PRIMARY KEY,
+          created_at TEXT NOT NULL,
+          client_request_id TEXT NOT NULL UNIQUE,
+          request_payload_hash TEXT NOT NULL,
+          semantic_depth_hash TEXT NOT NULL,
+          report_json TEXT NOT NULL,
+          parent_stream_id TEXT NOT NULL,
+          parent_seq INTEGER NOT NULL
+        )
+        """
+    )
+
+
+def _ensure_semantic_depth_report_indexes(con: sqlite3.Connection) -> None:
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_semantic_depth_reports_created_at "
+        "ON semantic_depth_reports(created_at)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_semantic_depth_reports_hash "
+        "ON semantic_depth_reports(semantic_depth_hash)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_semantic_depth_reports_parent_stream "
+        "ON semantic_depth_reports(parent_stream_id, parent_seq)"
+    )
+
+
 def _ensure_concept_artifact_schema(con: sqlite3.Connection) -> None:
     con.execute(
         """
@@ -468,6 +512,8 @@ def _ensure_schema(con: sqlite3.Connection) -> None:
     _ensure_proof_indexes(con)
     _ensure_explain_artifact_schema(con)
     _ensure_explain_artifact_indexes(con)
+    _ensure_semantic_depth_report_schema(con)
+    _ensure_semantic_depth_report_indexes(con)
 
 
 def _normalize_datetime_filter(value: str) -> str:
@@ -929,6 +975,147 @@ def get_explain_artifact(
         return _explain_artifact_from_row(row)
 
 
+def create_semantic_depth_report(
+    *,
+    client_request_id: str,
+    request_payload_hash: str,
+    semantic_depth_hash: str,
+    report_json: dict[str, Any],
+    parent_stream_id: str,
+    parent_seq: int,
+    semantic_depth_report_id: str | None = None,
+    db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
+) -> SemanticDepthReportRow:
+    resolved_db_path = _resolve_db_path(db_path)
+    semantic_depth_report_id = semantic_depth_report_id or uuid.uuid4().hex
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+
+    def _insert(con: sqlite3.Connection) -> None:
+        con.execute(
+            """
+            INSERT INTO semantic_depth_reports (
+              semantic_depth_report_id,
+              created_at,
+              client_request_id,
+              request_payload_hash,
+              semantic_depth_hash,
+              report_json,
+              parent_stream_id,
+              parent_seq
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                semantic_depth_report_id,
+                created_at,
+                client_request_id,
+                request_payload_hash,
+                semantic_depth_hash,
+                json.dumps(report_json, sort_keys=True),
+                parent_stream_id,
+                int(parent_seq),
+            ),
+        )
+
+    if connection is not None:
+        _insert(connection)
+    else:
+        with sqlite3.connect(resolved_db_path) as con:
+            con.execute("PRAGMA foreign_keys=ON")
+            _ensure_schema(con)
+            _insert(con)
+
+    return SemanticDepthReportRow(
+        semantic_depth_report_id=semantic_depth_report_id,
+        created_at=created_at,
+        client_request_id=client_request_id,
+        request_payload_hash=request_payload_hash,
+        semantic_depth_hash=semantic_depth_hash,
+        report_json=report_json,
+        parent_stream_id=parent_stream_id,
+        parent_seq=int(parent_seq),
+    )
+
+
+def get_semantic_depth_report_by_client_request_id(
+    *,
+    client_request_id: str,
+    db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
+) -> SemanticDepthReportRow | None:
+    if connection is not None:
+        connection.row_factory = sqlite3.Row
+        row = connection.execute(
+            """
+            SELECT semantic_depth_report_id, created_at, client_request_id, request_payload_hash,
+                   semantic_depth_hash, report_json, parent_stream_id, parent_seq
+            FROM semantic_depth_reports
+            WHERE client_request_id = ?
+            """,
+            (client_request_id,),
+        ).fetchone()
+        return _semantic_depth_report_from_row(row) if row is not None else None
+
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        row = con.execute(
+            """
+            SELECT semantic_depth_report_id, created_at, client_request_id, request_payload_hash,
+                   semantic_depth_hash, report_json, parent_stream_id, parent_seq
+            FROM semantic_depth_reports
+            WHERE client_request_id = ?
+            """,
+            (client_request_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return _semantic_depth_report_from_row(row)
+
+
+def get_semantic_depth_report(
+    *,
+    semantic_depth_report_id: str,
+    db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
+) -> SemanticDepthReportRow | None:
+    if connection is not None:
+        connection.row_factory = sqlite3.Row
+        row = connection.execute(
+            """
+            SELECT semantic_depth_report_id, created_at, client_request_id, request_payload_hash,
+                   semantic_depth_hash, report_json, parent_stream_id, parent_seq
+            FROM semantic_depth_reports
+            WHERE semantic_depth_report_id = ?
+            """,
+            (semantic_depth_report_id,),
+        ).fetchone()
+        return _semantic_depth_report_from_row(row) if row is not None else None
+
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        row = con.execute(
+            """
+            SELECT semantic_depth_report_id, created_at, client_request_id, request_payload_hash,
+                   semantic_depth_hash, report_json, parent_stream_id, parent_seq
+            FROM semantic_depth_reports
+            WHERE semantic_depth_report_id = ?
+            """,
+            (semantic_depth_report_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return _semantic_depth_report_from_row(row)
+
+
 def list_validator_runs(
     *,
     artifact_id: str,
@@ -1133,6 +1320,19 @@ def _explain_artifact_from_row(row: sqlite3.Row) -> ExplainArtifactRow:
         explain_kind=row["explain_kind"],
         explain_hash=row["explain_hash"],
         packet_json=json.loads(row["packet_json"]),
+        parent_stream_id=row["parent_stream_id"],
+        parent_seq=int(row["parent_seq"]),
+    )
+
+
+def _semantic_depth_report_from_row(row: sqlite3.Row) -> SemanticDepthReportRow:
+    return SemanticDepthReportRow(
+        semantic_depth_report_id=row["semantic_depth_report_id"],
+        created_at=row["created_at"],
+        client_request_id=row["client_request_id"],
+        request_payload_hash=row["request_payload_hash"],
+        semantic_depth_hash=row["semantic_depth_hash"],
+        report_json=json.loads(row["report_json"]),
         parent_stream_id=row["parent_stream_id"],
         parent_seq=int(row["parent_seq"]),
     )
