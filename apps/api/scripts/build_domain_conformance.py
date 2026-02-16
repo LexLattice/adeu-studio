@@ -49,6 +49,16 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
             "Relative path refs continue to resolve from the fixture manifest directory."
         ),
     )
+    parser.add_argument(
+        "--coverage-manifest",
+        type=Path,
+        default=None,
+        help=(
+            "Optional explicit vNext+11 coverage manifest path. "
+            "If omitted, the builder auto-discovers "
+            "apps/api/fixtures/stop_gate/vnext_plus11_manifest.json."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -59,6 +69,7 @@ def main(argv: list[str] | None = None) -> int:
         runtime_root=args.runtime_root,
         artifact_parity_fixtures_path=args.artifact_parity_fixtures,
         artifact_fixture_root=args.artifact_fixture_root,
+        coverage_manifest_path=args.coverage_manifest,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(canonical_json(report) + "\n", encoding="utf-8")

@@ -36,11 +36,13 @@ from urm_runtime.policy_tools import (
 
 DOMAIN_CONFORMANCE_SCHEMA = "domain_conformance@1"
 ARTIFACT_PARITY_FIXTURES_SCHEMA = "domain_conformance.artifact_parity_fixtures@1"
+VNEXT_PLUS11_MANIFEST_SCHEMA = "stop_gate.vnext_plus11_manifest@1"
 URM_CONFORMANCE_REPORT_INVALID_CODE = "URM_CONFORMANCE_REPORT_INVALID"
 URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED_CODE = "URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED"
 URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH_CODE = "URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH"
 URM_CONFORMANCE_ARTIFACT_REF_INVALID_CODE = "URM_CONFORMANCE_ARTIFACT_REF_INVALID"
 URM_CONFORMANCE_PROJECTION_UNSUPPORTED_CODE = "URM_CONFORMANCE_PROJECTION_UNSUPPORTED"
+URM_CONFORMANCE_MANIFEST_HASH_MISMATCH_CODE = "URM_CONFORMANCE_MANIFEST_HASH_MISMATCH"
 URM_CONFORMANCE_FIXTURE_INVALID_CODE = "URM_CONFORMANCE_FIXTURE_INVALID"
 _FIXED_TS = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 _RUNTIME_SOURCE_VERSION = "0.0.0"
@@ -62,6 +64,7 @@ ToolRun: TypeAlias = tuple[str, dict[str, Any], dict[str, Any]]
 DomainPack: TypeAlias = PaperDomainTools | DigestDomainTools
 DomainRun: TypeAlias = tuple[str, str, DomainPack, list[ToolRun]]
 ArtifactParityFixture: TypeAlias = dict[str, str]
+CoverageEntry: TypeAlias = dict[str, Any]
 
 
 class DomainConformanceError(ValueError):
@@ -123,6 +126,21 @@ def _default_artifact_parity_fixtures_path() -> Path | None:
     return candidate if candidate.exists() else None
 
 
+def _default_vnext_plus11_manifest_path() -> Path | None:
+    repo_root = _discover_repo_root(Path(__file__).resolve())
+    if repo_root is None:
+        return None
+    candidate = (
+        repo_root
+        / "apps"
+        / "api"
+        / "fixtures"
+        / "stop_gate"
+        / "vnext_plus11_manifest.json"
+    )
+    return candidate if candidate.exists() else None
+
+
 def _issue_sort_key(issue: dict[str, Any]) -> tuple[str, str, str]:
     raw_context = issue.get("context")
     if isinstance(raw_context, dict):
@@ -164,6 +182,7 @@ def _legacy_issue_code_for_urm(*, urm_code: str) -> str:
         URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH_CODE: "ARTIFACT_PARITY_MISMATCH",
         URM_CONFORMANCE_ARTIFACT_REF_INVALID_CODE: "ARTIFACT_PARITY_REF_INVALID",
         URM_CONFORMANCE_PROJECTION_UNSUPPORTED_CODE: "ARTIFACT_PARITY_PROJECTION_UNSUPPORTED",
+        URM_CONFORMANCE_MANIFEST_HASH_MISMATCH_CODE: "CONFORMANCE_MANIFEST_HASH_MISMATCH",
         URM_CONFORMANCE_FIXTURE_INVALID_CODE: "ARTIFACT_PARITY_FIXTURE_INVALID",
         URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED_CODE: "RUNTIME_IMPORT_AUDIT_FAILED",
         URM_CONFORMANCE_REPORT_INVALID_CODE: "CONFORMANCE_REPORT_INVALID",
@@ -438,6 +457,252 @@ def _build_artifact_parity_checks(
     return report, issues
 
 
+def _pct(passed: int, total: int) -> float:
+    if total <= 0:
+        return 0.0
+    return round((float(passed) * 100.0) / float(total), 6)
+
+
+def _load_vnext_plus11_coverage_manifest(
+    *,
+    manifest_path: Path,
+) -> tuple[list[CoverageEntry], str]:
+    payload = _read_json_object(manifest_path, description="vnext+11 coverage manifest")
+    if payload.get("schema") != VNEXT_PLUS11_MANIFEST_SCHEMA:
+        raise DomainConformanceError(
+            "vnext+11 coverage manifest has unsupported schema",
+            code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+        )
+    raw_coverage = payload.get("coverage")
+    if not isinstance(raw_coverage, list):
+        raise DomainConformanceError(
+            "vnext+11 coverage manifest must include coverage[]",
+            code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+        )
+    coverage_entries: list[CoverageEntry] = []
+    seen_surface_ids: set[str] = set()
+    for idx, candidate in enumerate(raw_coverage):
+        if not isinstance(candidate, dict):
+            raise DomainConformanceError(
+                f"vnext+11 coverage[{idx}] must be an object",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        surface_id = str(candidate.get("surface_id") or "").strip()
+        if not surface_id:
+            raise DomainConformanceError(
+                f"vnext+11 coverage[{idx}] surface_id must be non-empty",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        if surface_id in seen_surface_ids:
+            raise DomainConformanceError(
+                f"vnext+11 coverage surface_id must be unique: {surface_id}",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        seen_surface_ids.add(surface_id)
+        raw_fixture_ids = candidate.get("fixture_ids")
+        if not isinstance(raw_fixture_ids, list) or not raw_fixture_ids:
+            raise DomainConformanceError(
+                f"vnext+11 coverage[{idx}] fixture_ids must be a non-empty array",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        fixture_ids = [str(item).strip() for item in raw_fixture_ids if str(item).strip()]
+        if len(fixture_ids) != len(raw_fixture_ids):
+            raise DomainConformanceError(
+                f"vnext+11 coverage[{idx}] fixture_ids must be non-empty strings",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        if fixture_ids != sorted(fixture_ids):
+            raise DomainConformanceError(
+                f"vnext+11 coverage[{idx}] fixture_ids must be sorted",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        if len(set(fixture_ids)) != len(fixture_ids):
+            raise DomainConformanceError(
+                f"vnext+11 coverage[{idx}] fixture_ids must be unique",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+
+        entry: CoverageEntry = {"surface_id": surface_id, "fixture_ids": fixture_ids}
+        raw_pressure_test = candidate.get("pressure_test")
+        if raw_pressure_test is not None:
+            if not isinstance(raw_pressure_test, bool):
+                raise DomainConformanceError(
+                    f"vnext+11 coverage[{idx}] pressure_test must be boolean when present",
+                    code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+                )
+            if raw_pressure_test:
+                entry["pressure_test"] = True
+        coverage_entries.append(entry)
+
+    coverage_entries = sorted(coverage_entries, key=lambda item: str(item["surface_id"]))
+
+    raw_manifest_hash = payload.get("manifest_hash")
+    if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
+        raise DomainConformanceError(
+            "vnext+11 coverage manifest missing manifest_hash",
+            code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+        )
+    hash_basis = dict(payload)
+    hash_basis.pop("manifest_hash", None)
+    recomputed_manifest_hash = sha256_canonical_json(hash_basis)
+    if raw_manifest_hash != recomputed_manifest_hash:
+        raise DomainConformanceError(
+            "vnext+11 coverage manifest_hash mismatch",
+            code=URM_CONFORMANCE_MANIFEST_HASH_MISMATCH_CODE,
+        )
+
+    return coverage_entries, recomputed_manifest_hash
+
+
+def _build_surface_fixture_statuses(
+    *,
+    registry: dict[str, Any],
+    import_audit: dict[str, Any],
+    domain_reports: list[dict[str, Any]],
+    artifact_parity: dict[str, Any] | None,
+) -> dict[str, dict[str, bool]]:
+    statuses: dict[str, dict[str, bool]] = {
+        "runtime.import_audit": {
+            "runtime.import_audit": bool(import_audit.get("valid") is True),
+        },
+        "runtime.registry_order_determinism": {
+            "runtime.registry_order_determinism": bool(registry.get("valid") is True),
+        },
+    }
+
+    for domain_report in domain_reports:
+        domain = str(domain_report.get("domain") or "").strip()
+        if not domain:
+            continue
+        fixture_id = f"domain.{domain}"
+        event_envelope = domain_report.get("event_envelope")
+        replay_determinism = domain_report.get("replay_determinism")
+        policy_gating = domain_report.get("policy_gating")
+        error_taxonomy = domain_report.get("error_taxonomy")
+        statuses[f"domain.{domain}.event_envelope"] = {
+            fixture_id: isinstance(event_envelope, dict) and event_envelope.get("valid") is True
+        }
+        statuses[f"domain.{domain}.replay_determinism"] = {
+            fixture_id: isinstance(replay_determinism, dict)
+            and replay_determinism.get("valid") is True
+        }
+        statuses[f"domain.{domain}.policy_gating"] = {
+            fixture_id: isinstance(policy_gating, dict)
+            and policy_gating.get("allow_valid") is True
+            and policy_gating.get("deny_valid") is True
+        }
+        statuses[f"domain.{domain}.error_taxonomy"] = {
+            fixture_id: isinstance(error_taxonomy, dict) and error_taxonomy.get("valid") is True
+        }
+
+    if isinstance(artifact_parity, dict):
+        parity_fixtures = artifact_parity.get("fixtures")
+        if isinstance(parity_fixtures, list):
+            parity_statuses: dict[str, bool] = {}
+            for item in parity_fixtures:
+                if not isinstance(item, dict):
+                    continue
+                fixture_id = str(item.get("fixture_id") or "").strip()
+                if not fixture_id:
+                    continue
+                parity_statuses[fixture_id] = item.get("valid") is True
+            if parity_statuses:
+                statuses["conformance.artifact_parity"] = dict(
+                    sorted(parity_statuses.items(), key=lambda item: item[0])
+                )
+    return statuses
+
+
+def _build_coverage_checks(
+    *,
+    manifest_path: Path,
+    registry: dict[str, Any],
+    import_audit: dict[str, Any],
+    domain_reports: list[dict[str, Any]],
+    artifact_parity: dict[str, Any] | None,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    coverage_entries, manifest_hash = _load_vnext_plus11_coverage_manifest(
+        manifest_path=manifest_path
+    )
+    available_statuses = _build_surface_fixture_statuses(
+        registry=registry,
+        import_audit=import_audit,
+        domain_reports=domain_reports,
+        artifact_parity=artifact_parity,
+    )
+    issues: list[dict[str, Any]] = []
+    entry_reports: list[dict[str, Any]] = []
+    for entry in coverage_entries:
+        surface_id = str(entry["surface_id"])
+        fixture_ids = [str(item) for item in entry["fixture_ids"]]
+        entry_report: dict[str, Any] = {
+            "surface_id": surface_id,
+            "fixture_ids": fixture_ids,
+        }
+        if entry.get("pressure_test") is True:
+            entry_report["pressure_test"] = True
+
+        surface_status = available_statuses.get(surface_id)
+        if surface_status is None:
+            entry_report["valid"] = False
+            entry_report["error_code"] = URM_CONFORMANCE_FIXTURE_INVALID_CODE
+            issues.append(
+                _issue(
+                    code=_legacy_issue_code_for_urm(urm_code=URM_CONFORMANCE_FIXTURE_INVALID_CODE),
+                    message="coverage surface is not available in domain conformance report",
+                    context={"surface_id": surface_id},
+                    urm_code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+                )
+            )
+            entry_reports.append(entry_report)
+            continue
+
+        missing_fixture_ids = sorted(
+            fixture_id for fixture_id in fixture_ids if fixture_id not in surface_status
+        )
+        if missing_fixture_ids:
+            entry_report["valid"] = False
+            entry_report["error_code"] = URM_CONFORMANCE_FIXTURE_INVALID_CODE
+            entry_report["missing_fixture_ids"] = missing_fixture_ids
+            issues.append(
+                _issue(
+                    code=_legacy_issue_code_for_urm(urm_code=URM_CONFORMANCE_FIXTURE_INVALID_CODE),
+                    message="coverage fixture_ids are unresolved for surface",
+                    context={
+                        "surface_id": surface_id,
+                        "missing_fixture_ids": missing_fixture_ids,
+                    },
+                    urm_code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+                )
+            )
+            entry_reports.append(entry_report)
+            continue
+
+        entry_report["valid"] = all(surface_status[fixture_id] for fixture_id in fixture_ids)
+        if entry_report["valid"] is not True:
+            issues.append(
+                _issue(
+                    code="CONFORMANCE_COVERAGE_FAILED",
+                    message="coverage entry did not satisfy fixture checks",
+                    context={"surface_id": surface_id, "fixture_ids": fixture_ids},
+                    urm_code=URM_CONFORMANCE_REPORT_INVALID_CODE,
+                )
+            )
+        entry_reports.append(entry_report)
+
+    covered_surface_count = sum(1 for entry in entry_reports if entry.get("valid") is True)
+    coverage_report = {
+        "manifest_schema": VNEXT_PLUS11_MANIFEST_SCHEMA,
+        "manifest_hash": manifest_hash,
+        "valid": all(entry.get("valid") is True for entry in entry_reports),
+        "surface_count": len(entry_reports),
+        "covered_surface_count": covered_surface_count,
+        "coverage_pct": _pct(covered_surface_count, len(entry_reports)),
+        "entries": entry_reports,
+    }
+    return coverage_report, issues
+
+
 def validate_domain_conformance_report(payload: dict[str, Any]) -> None:
     if payload.get("schema") != DOMAIN_CONFORMANCE_SCHEMA:
         raise DomainConformanceError("payload schema must be domain_conformance@1")
@@ -496,6 +761,79 @@ def validate_domain_conformance_report(payload: dict[str, Any]) -> None:
             raise DomainConformanceError("artifact_parity.fixtures must be sorted by fixture_id")
         if len(set(fixture_ids)) != len(fixture_ids):
             raise DomainConformanceError("artifact_parity.fixtures fixture_id must be unique")
+
+    coverage = payload.get("coverage")
+    if coverage is not None:
+        if not isinstance(coverage, dict):
+            raise DomainConformanceError("coverage must be an object")
+        if coverage.get("manifest_schema") != VNEXT_PLUS11_MANIFEST_SCHEMA:
+            raise DomainConformanceError("coverage.manifest_schema must match vnext+11 schema")
+        manifest_hash = coverage.get("manifest_hash")
+        if not isinstance(manifest_hash, str) or not manifest_hash:
+            raise DomainConformanceError("coverage.manifest_hash must be a non-empty string")
+        if not isinstance(coverage.get("valid"), bool):
+            raise DomainConformanceError("coverage.valid must be boolean")
+        if not isinstance(coverage.get("surface_count"), int):
+            raise DomainConformanceError("coverage.surface_count must be integer")
+        if not isinstance(coverage.get("covered_surface_count"), int):
+            raise DomainConformanceError("coverage.covered_surface_count must be integer")
+        if not isinstance(coverage.get("coverage_pct"), (float, int)):
+            raise DomainConformanceError("coverage.coverage_pct must be numeric")
+        if coverage["surface_count"] < 0:
+            raise DomainConformanceError("coverage.surface_count must be non-negative")
+        if coverage["covered_surface_count"] < 0:
+            raise DomainConformanceError("coverage.covered_surface_count must be non-negative")
+        if coverage["covered_surface_count"] > coverage["surface_count"]:
+            raise DomainConformanceError(
+                "coverage.covered_surface_count cannot exceed coverage.surface_count"
+            )
+
+        raw_entries = coverage.get("entries")
+        if not isinstance(raw_entries, list):
+            raise DomainConformanceError("coverage.entries must be an array")
+        parsed_entries = [item for item in raw_entries if isinstance(item, dict)]
+        if len(parsed_entries) != len(raw_entries):
+            raise DomainConformanceError("coverage.entries must contain objects")
+        if coverage["surface_count"] != len(parsed_entries):
+            raise DomainConformanceError("coverage.surface_count must match entries length")
+        surface_ids = [str(item.get("surface_id") or "") for item in parsed_entries]
+        if any(not surface_id for surface_id in surface_ids):
+            raise DomainConformanceError("coverage.entries surface_id must be non-empty")
+        if surface_ids != sorted(surface_ids):
+            raise DomainConformanceError("coverage.entries must be sorted by surface_id")
+        if len(set(surface_ids)) != len(surface_ids):
+            raise DomainConformanceError("coverage.entries surface_id must be unique")
+        for entry in parsed_entries:
+            fixture_ids = entry.get("fixture_ids")
+            if not isinstance(fixture_ids, list) or not fixture_ids:
+                raise DomainConformanceError(
+                    "coverage.entries fixture_ids must be a non-empty array"
+                )
+            normalized_fixture_ids = [
+                str(item).strip() for item in fixture_ids if str(item).strip()
+            ]
+            if len(normalized_fixture_ids) != len(fixture_ids):
+                raise DomainConformanceError(
+                    "coverage.entries fixture_ids must contain non-empty strings"
+                )
+            if normalized_fixture_ids != sorted(normalized_fixture_ids):
+                raise DomainConformanceError("coverage.entries fixture_ids must be sorted")
+            if len(set(normalized_fixture_ids)) != len(normalized_fixture_ids):
+                raise DomainConformanceError("coverage.entries fixture_ids must be unique")
+            if not isinstance(entry.get("valid"), bool):
+                raise DomainConformanceError("coverage.entries valid must be boolean")
+            if "pressure_test" in entry and not isinstance(entry.get("pressure_test"), bool):
+                raise DomainConformanceError("coverage.entries pressure_test must be boolean")
+        expected_covered_surface_count = sum(
+            1 for item in parsed_entries if item.get("valid") is True
+        )
+        if coverage["covered_surface_count"] != expected_covered_surface_count:
+            raise DomainConformanceError(
+                "coverage.covered_surface_count must match valid coverage entries"
+            )
+        expected_coverage_pct = _pct(expected_covered_surface_count, len(parsed_entries))
+        if round(float(coverage["coverage_pct"]), 6) != expected_coverage_pct:
+            raise DomainConformanceError("coverage.coverage_pct is inconsistent with entries")
 
     issues = payload.get("issues")
     if not isinstance(issues, list):
@@ -849,6 +1187,7 @@ def build_domain_conformance(
     runtime_root: Path | None = None,
     artifact_parity_fixtures_path: Path | None = None,
     artifact_fixture_root: Path | None = None,
+    coverage_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     events_dir.mkdir(parents=True, exist_ok=True)
     registry = _registry_determinism()
@@ -858,10 +1197,16 @@ def build_domain_conformance(
         if artifact_parity_fixtures_path is not None
         else _default_artifact_parity_fixtures_path()
     )
+    resolved_coverage_manifest_path = (
+        coverage_manifest_path.resolve()
+        if coverage_manifest_path is not None
+        else _default_vnext_plus11_manifest_path()
+    )
 
     domain_reports: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = []
     artifact_parity: dict[str, Any] | None = None
+    coverage: dict[str, Any] | None = None
 
     digest_pack = DigestDomainTools()
     paper_pack = PaperDomainTools()
@@ -962,13 +1307,42 @@ def build_domain_conformance(
                     urm_code=exc.code,
                 )
             )
+    if resolved_coverage_manifest_path is not None:
+        try:
+            coverage, coverage_issues = _build_coverage_checks(
+                manifest_path=resolved_coverage_manifest_path,
+                registry=registry,
+                import_audit=import_audit,
+                domain_reports=domain_reports,
+                artifact_parity=artifact_parity,
+            )
+            issues.extend(coverage_issues)
+        except DomainConformanceError as exc:
+            coverage = {
+                "manifest_schema": VNEXT_PLUS11_MANIFEST_SCHEMA,
+                "manifest_hash": "0" * 64,
+                "valid": False,
+                "surface_count": 0,
+                "covered_surface_count": 0,
+                "coverage_pct": 0.0,
+                "entries": [],
+            }
+            issues.append(
+                _issue(
+                    code=_legacy_issue_code_for_urm(urm_code=exc.code),
+                    message=str(exc),
+                    context={"manifest_path": str(resolved_coverage_manifest_path)},
+                    urm_code=exc.code,
+                )
+            )
 
     report: dict[str, Any] = {
         "schema": DOMAIN_CONFORMANCE_SCHEMA,
         "valid": registry["valid"] and import_audit["valid"] and all(
             item["valid"] for item in domain_reports
         )
-        and (artifact_parity is None or artifact_parity["valid"] is True),
+        and (artifact_parity is None or artifact_parity["valid"] is True)
+        and (coverage is None or coverage["valid"] is True),
         "registry_order_determinism": registry,
         "import_audit": import_audit,
         "domains": domain_reports,
@@ -977,6 +1351,8 @@ def build_domain_conformance(
     }
     if artifact_parity is not None:
         report["artifact_parity"] = artifact_parity
+    if coverage is not None:
+        report["coverage"] = coverage
     report["domain_conformance_hash"] = domain_conformance_hash(report)
     validate_domain_conformance_report(report)
     return report

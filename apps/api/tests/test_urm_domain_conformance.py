@@ -35,18 +35,33 @@ def _artifact_parity_fixtures_path() -> Path:
     ).resolve()
 
 
+def _vnext_plus11_manifest_path() -> Path:
+    repo_root = Path(__file__).resolve().parents[3]
+    return (
+        repo_root
+        / "apps"
+        / "api"
+        / "fixtures"
+        / "stop_gate"
+        / "vnext_plus11_manifest.json"
+    ).resolve()
+
+
 def test_build_domain_conformance_is_deterministic_and_valid(tmp_path: Path) -> None:
     runtime_root = _runtime_root()
     parity_fixtures = _artifact_parity_fixtures_path()
+    coverage_manifest = _vnext_plus11_manifest_path()
     first = build_domain_conformance(
         events_dir=tmp_path / "first_events",
         runtime_root=runtime_root,
         artifact_parity_fixtures_path=parity_fixtures,
+        coverage_manifest_path=coverage_manifest,
     )
     second = build_domain_conformance(
         events_dir=tmp_path / "second_events",
         runtime_root=runtime_root,
         artifact_parity_fixtures_path=parity_fixtures,
+        coverage_manifest_path=coverage_manifest,
     )
 
     assert first["schema"] == DOMAIN_CONFORMANCE_SCHEMA
@@ -76,6 +91,26 @@ def test_build_domain_conformance_is_deterministic_and_valid(tmp_path: Path) -> 
         "proof_evidence.case_a",
         "semantic_depth_report.case_a",
     ]
+    assert first["coverage"]["valid"] is True
+    assert first["coverage"]["manifest_schema"] == "stop_gate.vnext_plus11_manifest@1"
+    assert isinstance(first["coverage"]["manifest_hash"], str)
+    assert len(first["coverage"]["manifest_hash"]) == 64
+    assert first["coverage"]["surface_count"] == 11
+    assert first["coverage"]["covered_surface_count"] == 11
+    assert first["coverage"]["coverage_pct"] == 100.0
+    assert [item["surface_id"] for item in first["coverage"]["entries"]] == [
+        "conformance.artifact_parity",
+        "domain.digest.error_taxonomy",
+        "domain.digest.event_envelope",
+        "domain.digest.policy_gating",
+        "domain.digest.replay_determinism",
+        "domain.paper.error_taxonomy",
+        "domain.paper.event_envelope",
+        "domain.paper.policy_gating",
+        "domain.paper.replay_determinism",
+        "runtime.import_audit",
+        "runtime.registry_order_determinism",
+    ]
 
 
 def test_build_domain_conformance_script_writes_report(tmp_path: Path) -> None:
@@ -85,6 +120,7 @@ def test_build_domain_conformance_script_writes_report(tmp_path: Path) -> None:
     events_dir = tmp_path / "events"
     runtime_root = _runtime_root()
     parity_fixtures = _artifact_parity_fixtures_path()
+    coverage_manifest = _vnext_plus11_manifest_path()
 
     completed = subprocess.run(
         [
@@ -98,6 +134,8 @@ def test_build_domain_conformance_script_writes_report(tmp_path: Path) -> None:
             str(runtime_root),
             "--artifact-parity-fixtures",
             str(parity_fixtures),
+            "--coverage-manifest",
+            str(coverage_manifest),
         ],
         check=False,
         capture_output=True,
@@ -111,6 +149,7 @@ def test_build_domain_conformance_script_writes_report(tmp_path: Path) -> None:
     assert payload["hash_excluded_fields"] == list(DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELD_LIST)
     assert payload["domain_conformance_hash"] == domain_conformance_hash(payload)
     assert payload["artifact_parity"]["valid"] is True
+    assert payload["coverage"]["valid"] is True
     validate_domain_conformance_report(payload)
 
 
@@ -120,6 +159,7 @@ def test_build_domain_conformance_missing_runtime_root_fails_closed(tmp_path: Pa
         events_dir=tmp_path / "missing_runtime_root_events",
         runtime_root=missing_runtime_root,
         artifact_parity_fixtures_path=_artifact_parity_fixtures_path(),
+        coverage_manifest_path=_vnext_plus11_manifest_path(),
     )
 
     assert report["valid"] is False
@@ -140,6 +180,7 @@ def test_validate_domain_conformance_report_fails_on_invalid_fields(tmp_path: Pa
         events_dir=tmp_path / "validation_events",
         runtime_root=_runtime_root(),
         artifact_parity_fixtures_path=_artifact_parity_fixtures_path(),
+        coverage_manifest_path=_vnext_plus11_manifest_path(),
     )
 
     bad_hash_fields = copy.deepcopy(report)
@@ -196,6 +237,7 @@ def test_build_domain_conformance_artifact_parity_ref_invalid_fails_closed(tmp_p
         events_dir=tmp_path / "bad_parity_events",
         runtime_root=_runtime_root(),
         artifact_parity_fixtures_path=bad_manifest,
+        coverage_manifest_path=_vnext_plus11_manifest_path(),
     )
 
     assert report["valid"] is False
@@ -214,4 +256,31 @@ def test_build_domain_conformance_artifact_parity_ref_invalid_fails_closed(tmp_p
         if issue.get("urm_code") == "URM_CONFORMANCE_ARTIFACT_REF_INVALID"
     )
     assert parity_issue["code"] == "ARTIFACT_PARITY_REF_INVALID"
+    validate_domain_conformance_report(report)
+
+
+def test_build_domain_conformance_coverage_manifest_hash_mismatch_fails_closed(
+    tmp_path: Path,
+) -> None:
+    manifest_payload = json.loads(_vnext_plus11_manifest_path().read_text(encoding="utf-8"))
+    manifest_payload["manifest_hash"] = "0" * 64
+    bad_manifest = tmp_path / "vnext_plus11_bad_hash.json"
+    bad_manifest.write_text(canonical_json(manifest_payload) + "\n", encoding="utf-8")
+
+    report = build_domain_conformance(
+        events_dir=tmp_path / "bad_coverage_manifest_events",
+        runtime_root=_runtime_root(),
+        artifact_parity_fixtures_path=_artifact_parity_fixtures_path(),
+        coverage_manifest_path=bad_manifest,
+    )
+
+    assert report["valid"] is False
+    assert report["coverage"]["valid"] is False
+    assert report["coverage"]["manifest_hash"] == "0" * 64
+    manifest_issue = next(
+        issue
+        for issue in report["issues"]
+        if issue.get("urm_code") == "URM_CONFORMANCE_MANIFEST_HASH_MISMATCH"
+    )
+    assert manifest_issue["code"] == "CONFORMANCE_MANIFEST_HASH_MISMATCH"
     validate_domain_conformance_report(report)
