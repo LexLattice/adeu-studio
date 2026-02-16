@@ -230,11 +230,9 @@ def _confidence_milli_from_ratio(*, num: Any, denom: Any) -> int:
 
 
 def _normalize_confidence_milli(*, value: Any, kind: str, provenance_raw: Mapping[str, Any]) -> int:
-    has_ratio = (
-        "confidence_ratio_num" in provenance_raw
-        or "confidence_ratio_denom" in provenance_raw
-    )
-    if has_ratio:
+    has_ratio_num = "confidence_ratio_num" in provenance_raw
+    has_ratio_denom = "confidence_ratio_denom" in provenance_raw
+    if has_ratio_num or has_ratio_denom:
         if value is not None:
             raise SemanticDepthError(
                 (
@@ -243,10 +241,7 @@ def _normalize_confidence_milli(*, value: Any, kind: str, provenance_raw: Mappin
                 ),
                 code=SEMANTIC_DEPTH_CONFIDENCE_INVALID_CODE,
             )
-        if (
-            "confidence_ratio_num" not in provenance_raw
-            or "confidence_ratio_denom" not in provenance_raw
-        ):
+        if not (has_ratio_num and has_ratio_denom):
             raise SemanticDepthError(
                 (
                     "confidence_ratio_num and confidence_ratio_denom are both required "
