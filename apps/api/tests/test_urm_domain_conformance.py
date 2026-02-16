@@ -23,15 +23,30 @@ def _runtime_root() -> Path:
     return (repo_root / "packages" / "urm_runtime" / "src" / "urm_runtime").resolve()
 
 
+def _artifact_parity_fixtures_path() -> Path:
+    repo_root = Path(__file__).resolve().parents[3]
+    return (
+        repo_root
+        / "apps"
+        / "api"
+        / "fixtures"
+        / "stop_gate"
+        / "vnext_plus11_artifact_parity_fixtures.json"
+    ).resolve()
+
+
 def test_build_domain_conformance_is_deterministic_and_valid(tmp_path: Path) -> None:
     runtime_root = _runtime_root()
+    parity_fixtures = _artifact_parity_fixtures_path()
     first = build_domain_conformance(
         events_dir=tmp_path / "first_events",
         runtime_root=runtime_root,
+        artifact_parity_fixtures_path=parity_fixtures,
     )
     second = build_domain_conformance(
         events_dir=tmp_path / "second_events",
         runtime_root=runtime_root,
+        artifact_parity_fixtures_path=parity_fixtures,
     )
 
     assert first["schema"] == DOMAIN_CONFORMANCE_SCHEMA
@@ -52,6 +67,15 @@ def test_build_domain_conformance_is_deterministic_and_valid(tmp_path: Path) -> 
     assert all(item["policy_gating"]["allow_valid"] is True for item in first["domains"])
     assert all(item["policy_gating"]["deny_valid"] is True for item in first["domains"])
     assert all(item["error_taxonomy"]["valid"] is True for item in first["domains"])
+    assert first["artifact_parity"]["valid"] is True
+    assert first["artifact_parity"]["fixture_count"] == 4
+    assert first["artifact_parity"]["evaluated_count"] == 4
+    assert [item["fixture_id"] for item in first["artifact_parity"]["fixtures"]] == [
+        "explain_diff.case_a",
+        "policy_lineage.case_a",
+        "proof_evidence.case_a",
+        "semantic_depth_report.case_a",
+    ]
 
 
 def test_build_domain_conformance_script_writes_report(tmp_path: Path) -> None:
@@ -60,6 +84,7 @@ def test_build_domain_conformance_script_writes_report(tmp_path: Path) -> None:
     out_json = tmp_path / "domain_conformance.json"
     events_dir = tmp_path / "events"
     runtime_root = _runtime_root()
+    parity_fixtures = _artifact_parity_fixtures_path()
 
     completed = subprocess.run(
         [
@@ -71,6 +96,8 @@ def test_build_domain_conformance_script_writes_report(tmp_path: Path) -> None:
             str(events_dir),
             "--runtime-root",
             str(runtime_root),
+            "--artifact-parity-fixtures",
+            str(parity_fixtures),
         ],
         check=False,
         capture_output=True,
@@ -83,6 +110,7 @@ def test_build_domain_conformance_script_writes_report(tmp_path: Path) -> None:
     assert payload["valid"] is True
     assert payload["hash_excluded_fields"] == list(DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELD_LIST)
     assert payload["domain_conformance_hash"] == domain_conformance_hash(payload)
+    assert payload["artifact_parity"]["valid"] is True
     validate_domain_conformance_report(payload)
 
 
@@ -91,6 +119,7 @@ def test_build_domain_conformance_missing_runtime_root_fails_closed(tmp_path: Pa
     report = build_domain_conformance(
         events_dir=tmp_path / "missing_runtime_root_events",
         runtime_root=missing_runtime_root,
+        artifact_parity_fixtures_path=_artifact_parity_fixtures_path(),
     )
 
     assert report["valid"] is False
@@ -110,6 +139,7 @@ def test_validate_domain_conformance_report_fails_on_invalid_fields(tmp_path: Pa
     report = build_domain_conformance(
         events_dir=tmp_path / "validation_events",
         runtime_root=_runtime_root(),
+        artifact_parity_fixtures_path=_artifact_parity_fixtures_path(),
     )
 
     bad_hash_fields = copy.deepcopy(report)
@@ -140,3 +170,48 @@ def test_validate_domain_conformance_report_fails_on_invalid_fields(tmp_path: Pa
     bad_issue_order["domain_conformance_hash"] = domain_conformance_hash(bad_issue_order)
     with pytest.raises(DomainConformanceError, match="issues must be canonical-sorted"):
         validate_domain_conformance_report(bad_issue_order)
+
+
+def test_build_domain_conformance_artifact_parity_ref_invalid_fails_closed(tmp_path: Path) -> None:
+    bad_manifest = tmp_path / "bad_artifact_parity.json"
+    bad_manifest.write_text(
+        canonical_json(
+            {
+                "schema": "domain_conformance.artifact_parity_fixtures@1",
+                "fixtures": [
+                    {
+                        "fixture_id": "proof_evidence.invalid",
+                        "artifact_schema": "proof_evidence@1",
+                        "left_ref": "does-not-exist.json",
+                        "right_ref": "also-missing.json",
+                    }
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = build_domain_conformance(
+        events_dir=tmp_path / "bad_parity_events",
+        runtime_root=_runtime_root(),
+        artifact_parity_fixtures_path=bad_manifest,
+    )
+
+    assert report["valid"] is False
+    assert report["artifact_parity"]["valid"] is False
+    assert report["artifact_parity"]["fixture_count"] == 1
+    assert report["artifact_parity"]["evaluated_count"] == 1
+    assert report["artifact_parity"]["fixtures"][0]["fixture_id"] == "proof_evidence.invalid"
+    assert (
+        report["artifact_parity"]["fixtures"][0]["error_code"]
+        == "URM_CONFORMANCE_ARTIFACT_REF_INVALID"
+    )
+
+    parity_issue = next(
+        issue
+        for issue in report["issues"]
+        if issue.get("urm_code") == "URM_CONFORMANCE_ARTIFACT_REF_INVALID"
+    )
+    assert parity_issue["code"] == "ARTIFACT_PARITY_REF_INVALID"
+    validate_domain_conformance_report(report)
