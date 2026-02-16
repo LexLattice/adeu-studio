@@ -207,13 +207,15 @@ def _select_abstract_candidate(text: str) -> tuple[str, str]:
     if section_candidate and not _is_date_like(section_candidate):
         return section_candidate, "abstract_section_fallback"
 
+    first_nondatelike_paragraph: str | None = None
     for paragraph in _paragraphs(text):
         if _is_structurally_abstract_like(paragraph):
             return paragraph, "first_structural_paragraph"
+        if first_nondatelike_paragraph is None and not _is_date_like(paragraph):
+            first_nondatelike_paragraph = paragraph
 
-    for paragraph in _paragraphs(text):
-        if not _is_date_like(paragraph):
-            return paragraph, "first_nondatelike_paragraph"
+    if first_nondatelike_paragraph is not None:
+        return first_nondatelike_paragraph, "first_nondatelike_paragraph"
 
     return _normalize_whitespace(_first_paragraph(text)), "first_paragraph_fallback"
 
