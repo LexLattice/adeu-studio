@@ -1,0 +1,76 @@
+{
+  "coverage": [
+    {
+      "fixture_ids": [
+        "explain_diff.case_a",
+        "policy_lineage.case_a",
+        "proof_evidence.case_a",
+        "semantic_depth_report.case_a"
+      ],
+      "surface_id": "conformance.artifact_parity"
+    },
+    {
+      "fixture_ids": [
+        "domain.digest"
+      ],
+      "surface_id": "domain.digest.error_taxonomy"
+    },
+    {
+      "fixture_ids": [
+        "domain.digest"
+      ],
+      "surface_id": "domain.digest.event_envelope"
+    },
+    {
+      "fixture_ids": [
+        "domain.digest"
+      ],
+      "surface_id": "domain.digest.policy_gating"
+    },
+    {
+      "fixture_ids": [
+        "domain.digest"
+      ],
+      "surface_id": "domain.digest.replay_determinism"
+    },
+    {
+      "fixture_ids": [
+        "domain.paper"
+      ],
+      "surface_id": "domain.paper.error_taxonomy"
+    },
+    {
+      "fixture_ids": [
+        "domain.paper"
+      ],
+      "surface_id": "domain.paper.event_envelope"
+    },
+    {
+      "fixture_ids": [
+        "domain.paper"
+      ],
+      "surface_id": "domain.paper.policy_gating"
+    },
+    {
+      "fixture_ids": [
+        "domain.paper"
+      ],
+      "surface_id": "domain.paper.replay_determinism"
+    },
+    {
+      "fixture_ids": [
+        "runtime.import_audit"
+      ],
+      "surface_id": "runtime.import_audit"
+    },
+    {
+      "fixture_ids": [
+        "runtime.registry_order_determinism"
+      ],
+      "surface_id": "runtime.registry_order_determinism"
+    }
+  ],
+  "manifest_hash": "359819aebde2f5bfc61926ad187cfdc0906b9fca41d243adcff82d6478c4eb77",
+  "replay_count": 3,
+  "schema": "stop_gate.vnext_plus11_manifest@1"
+}
