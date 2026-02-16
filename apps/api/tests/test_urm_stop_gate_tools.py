@@ -70,9 +70,10 @@ def _strip_nonsemantic_domain_conformance_fields(value: object) -> object:
     if isinstance(value, dict):
         normalized: dict[str, object] = {}
         for key in sorted(value):
-            if key in _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS:
+            key_str = str(key)
+            if key_str in _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS:
                 continue
-            normalized[key] = _strip_nonsemantic_domain_conformance_fields(value[key])
+            normalized[key_str] = _strip_nonsemantic_domain_conformance_fields(value[key])
         return normalized
     if isinstance(value, list):
         return [_strip_nonsemantic_domain_conformance_fields(item) for item in value]
