@@ -565,12 +565,14 @@ def _normalize_coherence_summary(summary: Mapping[str, Any]) -> dict[str, Any]:
                 f"coherence_summary.pairwise_aggregate.conflict_kind_counts.{kind} must be >= 0",
             )
         normalized_by_kind[kind] = parsed_count
-    for raw_key in by_kind_raw.keys():
-        key = str(raw_key)
-        if key not in _CONFLICT_KINDS:
-            raise SemanticDepthError(
-                f"coherence_summary.pairwise_aggregate.conflict_kind_counts has unknown key: {key}",
-            )
+    known_kinds = set(_CONFLICT_KINDS)
+    provided_keys = {str(raw_key) for raw_key in by_kind_raw.keys()}
+    unknown_keys = sorted(provided_keys - known_kinds)
+    if unknown_keys:
+        raise SemanticDepthError(
+            "coherence_summary.pairwise_aggregate.conflict_kind_counts has unknown key: "
+            f"{unknown_keys[0]}",
+        )
 
     if sum(normalized_by_kind.values()) != total_conflicts:
         raise SemanticDepthError(
@@ -1073,8 +1075,16 @@ def validate_coherence_summary_permutation_group(
             code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
         )
 
-    baseline_hash: str | None = None
-    for idx, report in enumerate(reports):
+    first_report = reports[0]
+    validate_semantic_depth_report(first_report)
+    baseline_hash = first_report.get("coherence_summary_hash")
+    if not isinstance(baseline_hash, str):
+        raise SemanticDepthError(
+            "report[0] missing coherence_summary_hash",
+            code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
+        )
+
+    for idx, report in enumerate(reports[1:], start=1):
         validate_semantic_depth_report(report)
         coherence_hash = report.get("coherence_summary_hash")
         if not isinstance(coherence_hash, str):
@@ -1082,9 +1092,6 @@ def validate_coherence_summary_permutation_group(
                 f"report[{idx}] missing coherence_summary_hash",
                 code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
             )
-        if baseline_hash is None:
-            baseline_hash = coherence_hash
-            continue
         if coherence_hash != baseline_hash:
             raise SemanticDepthError(
                 (
@@ -1093,12 +1100,6 @@ def validate_coherence_summary_permutation_group(
                 ),
                 code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
             )
-
-    if baseline_hash is None:
-        raise SemanticDepthError(
-            "permutation group missing baseline coherence hash",
-            code=SEMANTIC_DEPTH_PERMUTATION_MISMATCH_CODE,
-        )
     return {
         "summary_version": COHERENCE_SUMMARY_VERSION,
         "variant_count": report_count,
