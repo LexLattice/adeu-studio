@@ -2,8 +2,8 @@
 
 This document is the single working continuation-planning draft for the current stage after:
 
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS7.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS7.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS10.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS10.md`
 - `docs/SEMANTICS_v3.md`
 - `docs/LOCKED_INSTRUCTION_KERNEL_v0.md`
 
@@ -17,7 +17,7 @@ The consolidated predecessor drafts were removed after merge into this document 
 
 For this stage, planning should use this file only.
 
-## Baseline Snapshot (Post vNext+7)
+## Baseline Snapshot (Post vNext+10)
 
 Current baseline includes:
 
@@ -41,13 +41,41 @@ Current baseline includes:
     - `proof_replay_determinism_pct`
     - `policy_proof_packet_hash_stability_pct`
   - frozen vNext+7 thresholds passed (`all_passed = true`)
+- Explainability productization thin slice complete (`vNext+8`):
+  - `explain_diff@1` deterministic contract normalization and materialization flow
+  - explain API/CLI parity with frozen golden fixtures
+  - minimal read-only explain UI evidence route
+  - additive vNext+8 stop-gate metrics:
+    - `explain_diff_determinism_pct`
+    - `explain_api_cli_parity_pct`
+    - `explain_hash_stability_pct`
+  - frozen vNext+8 thresholds passed (`all_passed = true`)
+- Runtime scale/recovery thin slice complete (`vNext+9`):
+  - deterministic dispatch-token persistence + controlled concurrency (`max_active_children = 2`)
+  - restart split-path recovery (`started` vs `lease_orphaned`) with frozen codes/linkage
+  - running-total budget accounting + cancel lineage determinism under concurrency
+  - runtime decomposition slices for dispatch/workflow/recovery/budget + stop-gate extension
+  - additive vNext+9 stop-gate metrics:
+    - `scheduler_dispatch_replay_determinism_pct`
+    - `orphan_lease_recovery_determinism_pct`
+    - `concurrent_budget_cancel_stability_pct`
+  - frozen vNext+9 thresholds passed (`all_passed = true`)
+- Semantic-depth quality thin slice complete (`vNext+10`):
+  - `semantic_depth_report@1` pairwise report/materialization contract
+  - deterministic ranking objective/tie-break + provenance versioning
+  - coherence permutation-invariance diagnostics
+  - additive vNext+10 stop-gate metrics:
+    - `concept_conflict_precision_pct`
+    - `concept_conflict_recall_pct`
+    - `coherence_permutation_stability_pct`
+  - frozen vNext+10 thresholds and improvement lock passed (`all_passed = true`)
 - Cross-domain conformance tooling exists and is CI-integrated:
   - `apps/api/scripts/build_domain_conformance.py`
   - `apps/api/src/adeu_api/urm_domain_conformance.py`
 - Explain/diff surfaces already exist in API today:
   - `/diff`, `/concepts/diff`, `/puzzles/diff`, `/explain_flip`
 
-Net: governance, runtime orchestration, semantics evidence, and proof trust-lane thin-slice hardening are operationally in place; next arcs should focus on explainability productization, scale hardening, semantic depth, and portability.
+Net: governance, runtime orchestration, explainability, semantic-depth quality, and proof trust-lane thin-slice hardening are operationally in place; next arc should focus on portability/conformance v3 closeout.
 
 ## Repo-Grounded Clarifications
 
@@ -407,10 +435,10 @@ Re-validate platform portability under the hardened governance/runtime/semantics
 ## Recommended Arc Order (Clean Sequence)
 
 1. `vNext+7`: Path 1 (thin slice) + Path 2 (thin slice) `completed`
-2. `vNext+8`: Path 3 (thin slice, API/CLI first, then minimal UI)
-3. `vNext+9`: Path 4 (controlled scale/recovery)
-4. `vNext+10`: Path 5 (semantic depth v3.1)
-5. `vNext+11`: Path 6 (portability/conformance v3 expansion)
+2. `vNext+8`: Path 3 (thin slice, API/CLI first, then minimal UI) `completed`
+3. `vNext+9`: Path 4 (controlled scale/recovery) `completed`
+4. `vNext+10`: Path 5 (semantic depth v3.1) `completed`
+5. `vNext+11`: Path 6 (portability/conformance v3 expansion) `next`
 
 Why this order:
 
@@ -418,26 +446,26 @@ Why this order:
 
 ## Proposed Freeze Candidate (Next Step)
 
-Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS8.md` with:
+Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS11.md` with:
 
-1. Path 3 thin slice (`3a` API/CLI contract-first):
-   - freeze `explain_diff@1` schema + canonical hashing/order on existing explain endpoints
-   - API/CLI parity fixtures with one frozen canonical golden fixture
-2. Path 3 thin slice (`3b` minimal read-only UI):
-   - semantic diff view + conflict witness drilldown + policy/semantics evidence linkage
-3. Explicit stop gate for selecting `vNext+9` readiness focus:
-   - runtime-scale-heavy (Path 4 first) vs additional explain hardening carryover
+1. Path 6 thin slice (`6a` conformance contract hardening):
+   - freeze deterministic `domain_conformance@1` contract normalization and canonical report hashing.
+   - freeze domain-neutral vs ADEU-scoped conformance boundaries.
+2. Path 6 thin slice (`6b` cross-domain artifact parity expansion):
+   - freeze additive parity coverage for `policy_lineage@1`, `proof_evidence@1`, `explain_diff@1`, and `semantic_depth_report@1`.
+   - freeze deterministic fixture coverage accounting and import-audit coupling checks.
+3. Path 6 stop-gate closeout:
+   - freeze additive `vNext+11` stop-gate metrics + manifest-hash lock and portability thresholds.
 
 Suggested measured outcomes:
 
-- explain replay determinism = `100%` on locked fixtures.
-- explain API/CLI parity = `100%` on locked fixtures.
-- explain packet hash stability = `100%`:
-  - recomputed canonical hash must match embedded hash on all locked fixtures.
-- `vNext+8 -> vNext+9` stop-gate thresholds should be frozen on additive `stop_gate_metrics@1` keys:
-  - `explain_diff_determinism_pct == 100.0`
-  - `explain_api_cli_parity_pct == 100.0`
-  - `explain_hash_stability_pct == 100.0`
-  - if any threshold fails: continue Path 3 hardening; do not start Path 4.
+- domain conformance replay determinism = `100%` on locked fixtures.
+- cross-domain artifact parity determinism = `100%` on locked fixtures.
+- runtime/domain coupling guard determinism = `100%` on locked fixtures.
+- `vNext+11 -> vNext+12` stop-gate thresholds should be frozen on additive `stop_gate_metrics@1` keys:
+  - `domain_conformance_replay_determinism_pct == 100.0`
+  - `cross_domain_artifact_parity_pct == 100.0`
+  - `runtime_domain_coupling_guard_pct == 100.0`
+  - if any threshold fails: continue Path 6 hardening; do not start Path 7.
 - no solver-semantics delta and no trust-lane regression.
-- all existing `vNext+6` and `vNext+7` determinism metrics remain at threshold.
+- all existing `vNext+6` through `vNext+10` determinism metrics remain at threshold.
