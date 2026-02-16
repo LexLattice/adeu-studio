@@ -1,4 +1,6 @@
 from .semantic_depth import (
+    COHERENCE_MAX_PERMUTATIONS_PER_GROUP,
+    COHERENCE_SUMMARY_VERSION,
     CONFLICT_KIND_PRIORITY,
     RANKING_OBJECTIVE_VERSION,
     RANKING_TIE_BREAK_VERSION,
@@ -20,11 +22,14 @@ from .semantic_depth import (
     semantic_depth_hash,
     semantic_depth_idempotency_semantic_key,
     strip_nonsemantic_semantic_depth_fields,
+    validate_coherence_summary_permutation_group,
     validate_semantic_depth_ref,
     validate_semantic_depth_report,
 )
 
 __all__ = [
+    "COHERENCE_MAX_PERMUTATIONS_PER_GROUP",
+    "COHERENCE_SUMMARY_VERSION",
     "CONFLICT_KIND_PRIORITY",
     "RANKING_OBJECTIVE_VERSION",
     "RANKING_TIE_BREAK_VERSION",
@@ -46,6 +51,7 @@ __all__ = [
     "semantic_depth_hash",
     "semantic_depth_idempotency_semantic_key",
     "strip_nonsemantic_semantic_depth_fields",
+    "validate_coherence_summary_permutation_group",
     "validate_semantic_depth_ref",
     "validate_semantic_depth_report",
 ]
