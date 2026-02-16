@@ -83,12 +83,14 @@ from .models import (
     WorkerRunResult,
 )
 from .policy_tools import (
+    POLICY_LINEAGE_HASH_EXCLUDED_FIELD_LIST,
     diff_policy,
     eval_policy,
     explain_policy,
     explain_policy_from_decision,
     incident_packet,
     policy_explain_markdown,
+    strip_nonsemantic_policy_lineage_fields,
     validate_policy,
 )
 from .probe import CodexCapabilityProbeResult, run_and_persist_capability_probe
@@ -186,6 +188,8 @@ __all__ = [
     "explain_policy_from_decision",
     "incident_packet",
     "policy_explain_markdown",
+    "POLICY_LINEAGE_HASH_EXCLUDED_FIELD_LIST",
+    "strip_nonsemantic_policy_lineage_fields",
     "validate_policy",
     "reset_capability_policy_cache",
     "replay_events",

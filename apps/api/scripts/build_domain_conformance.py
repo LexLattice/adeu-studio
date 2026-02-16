@@ -31,12 +31,35 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
             "If omitted, the builder uses its local fallback root resolution."
         ),
     )
+    parser.add_argument(
+        "--artifact-parity-fixtures",
+        type=Path,
+        default=None,
+        help=(
+            "Optional explicit artifact-parity fixture manifest path. "
+            "If omitted, the builder auto-discovers the vNext+11 fixture manifest."
+        ),
+    )
+    parser.add_argument(
+        "--artifact-fixture-root",
+        type=Path,
+        default=None,
+        help=(
+            "Optional root used to resolve artifact:<...> refs in parity fixtures. "
+            "Relative path refs continue to resolve from the fixture manifest directory."
+        ),
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv or sys.argv[1:])
-    report = build_domain_conformance(events_dir=args.events_dir, runtime_root=args.runtime_root)
+    report = build_domain_conformance(
+        events_dir=args.events_dir,
+        runtime_root=args.runtime_root,
+        artifact_parity_fixtures_path=args.artifact_parity_fixtures,
+        artifact_fixture_root=args.artifact_fixture_root,
+    )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(canonical_json(report) + "\n", encoding="utf-8")
     return 0 if report.get("valid") is True else 1

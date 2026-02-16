@@ -1,11 +1,25 @@
 from __future__ import annotations
 
 import ast
+import json
 from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, TypeAlias
 
+from adeu_explain import (
+    EXPLAIN_DIFF_SCHEMA,
+    ExplainDiffError,
+    strip_nonsemantic_explain_fields,
+    validate_explain_diff_packet,
+)
+from adeu_kernel import PROOF_EVIDENCE_SCHEMA, strip_nonsemantic_proof_fields
+from adeu_semantic_depth import (
+    SEMANTIC_DEPTH_SCHEMA,
+    SemanticDepthError,
+    strip_nonsemantic_semantic_depth_fields,
+    validate_semantic_depth_report,
+)
 from pydantic import ValidationError
 from urm_domain_digest import DigestDomainTools
 from urm_domain_paper import PaperDomainTools
@@ -15,10 +29,19 @@ from urm_runtime.errors import URMError
 from urm_runtime.events_tools import replay_events, validate_events
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 from urm_runtime.models import NormalizedEvent
+from urm_runtime.policy_tools import (
+    POLICY_LINEAGE_SCHEMA,
+    strip_nonsemantic_policy_lineage_fields,
+)
 
 DOMAIN_CONFORMANCE_SCHEMA = "domain_conformance@1"
+ARTIFACT_PARITY_FIXTURES_SCHEMA = "domain_conformance.artifact_parity_fixtures@1"
 URM_CONFORMANCE_REPORT_INVALID_CODE = "URM_CONFORMANCE_REPORT_INVALID"
 URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED_CODE = "URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED"
+URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH_CODE = "URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH"
+URM_CONFORMANCE_ARTIFACT_REF_INVALID_CODE = "URM_CONFORMANCE_ARTIFACT_REF_INVALID"
+URM_CONFORMANCE_PROJECTION_UNSUPPORTED_CODE = "URM_CONFORMANCE_PROJECTION_UNSUPPORTED"
+URM_CONFORMANCE_FIXTURE_INVALID_CODE = "URM_CONFORMANCE_FIXTURE_INVALID"
 _FIXED_TS = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 _RUNTIME_SOURCE_VERSION = "0.0.0"
 _FORBIDDEN_IMPORT_PREFIXES: tuple[str, ...] = ("urm_domain_",)
@@ -38,6 +61,7 @@ DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELD_LIST = tuple(
 ToolRun: TypeAlias = tuple[str, dict[str, Any], dict[str, Any]]
 DomainPack: TypeAlias = PaperDomainTools | DigestDomainTools
 DomainRun: TypeAlias = tuple[str, str, DomainPack, list[ToolRun]]
+ArtifactParityFixture: TypeAlias = dict[str, str]
 
 
 class DomainConformanceError(ValueError):
@@ -76,6 +100,29 @@ def _resolve_runtime_root(*, runtime_root: Path | None) -> Path:
     return runtime_root.resolve()
 
 
+def _discover_repo_root(anchor: Path) -> Path | None:
+    resolved = anchor.resolve()
+    for parent in [resolved, *resolved.parents]:
+        if (parent / ".git").exists():
+            return parent
+    return None
+
+
+def _default_artifact_parity_fixtures_path() -> Path | None:
+    repo_root = _discover_repo_root(Path(__file__).resolve())
+    if repo_root is None:
+        return None
+    candidate = (
+        repo_root
+        / "apps"
+        / "api"
+        / "fixtures"
+        / "stop_gate"
+        / "vnext_plus11_artifact_parity_fixtures.json"
+    )
+    return candidate if candidate.exists() else None
+
+
 def _issue_sort_key(issue: dict[str, Any]) -> tuple[str, str, str]:
     raw_context = issue.get("context")
     if isinstance(raw_context, dict):
@@ -112,6 +159,285 @@ def domain_conformance_hash(payload: dict[str, Any]) -> str:
     return sha256_canonical_json(semantic_payload)
 
 
+def _legacy_issue_code_for_urm(*, urm_code: str) -> str:
+    mapping = {
+        URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH_CODE: "ARTIFACT_PARITY_MISMATCH",
+        URM_CONFORMANCE_ARTIFACT_REF_INVALID_CODE: "ARTIFACT_PARITY_REF_INVALID",
+        URM_CONFORMANCE_PROJECTION_UNSUPPORTED_CODE: "ARTIFACT_PARITY_PROJECTION_UNSUPPORTED",
+        URM_CONFORMANCE_FIXTURE_INVALID_CODE: "ARTIFACT_PARITY_FIXTURE_INVALID",
+        URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED_CODE: "RUNTIME_IMPORT_AUDIT_FAILED",
+        URM_CONFORMANCE_REPORT_INVALID_CODE: "CONFORMANCE_REPORT_INVALID",
+    }
+    return mapping.get(urm_code, "CONFORMANCE_CHECK_FAILED")
+
+
+def _read_json_object(path: Path, *, description: str) -> dict[str, Any]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise DomainConformanceError(
+            f"{description} is not readable",
+            code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+        ) from exc
+    except json.JSONDecodeError as exc:
+        raise DomainConformanceError(
+            f"{description} is invalid JSON",
+            code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+        ) from exc
+    if not isinstance(payload, dict):
+        raise DomainConformanceError(
+            f"{description} must be a JSON object",
+            code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+        )
+    return payload
+
+
+def _load_artifact_parity_fixtures(
+    *,
+    fixtures_path: Path,
+) -> list[ArtifactParityFixture]:
+    payload = _read_json_object(fixtures_path, description="artifact parity fixtures")
+    if payload.get("schema") != ARTIFACT_PARITY_FIXTURES_SCHEMA:
+        raise DomainConformanceError(
+            "artifact parity fixtures has unsupported schema",
+            code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+        )
+    raw_fixtures = payload.get("fixtures")
+    if not isinstance(raw_fixtures, list):
+        raise DomainConformanceError(
+            "artifact parity fixtures must include fixtures[]",
+            code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+        )
+
+    fixtures: list[ArtifactParityFixture] = []
+    seen_fixture_ids: set[str] = set()
+    for idx, candidate in enumerate(raw_fixtures):
+        if not isinstance(candidate, dict):
+            raise DomainConformanceError(
+                f"artifact parity fixtures[{idx}] must be an object",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        fixture_id = str(candidate.get("fixture_id") or "").strip()
+        artifact_schema = str(candidate.get("artifact_schema") or "").strip()
+        left_ref = str(candidate.get("left_ref") or "").strip()
+        right_ref = str(candidate.get("right_ref") or "").strip()
+        if not fixture_id or not artifact_schema or not left_ref or not right_ref:
+            raise DomainConformanceError(
+                f"artifact parity fixtures[{idx}] is missing required fields",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        if fixture_id in seen_fixture_ids:
+            raise DomainConformanceError(
+                f"artifact parity fixture_id must be unique: {fixture_id}",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        seen_fixture_ids.add(fixture_id)
+        fixture: ArtifactParityFixture = {
+            "fixture_id": fixture_id,
+            "artifact_schema": artifact_schema,
+            "left_ref": left_ref,
+            "right_ref": right_ref,
+        }
+        notes = candidate.get("notes")
+        if isinstance(notes, str) and notes.strip():
+            fixture["notes"] = notes.strip()
+        fixtures.append(fixture)
+    return sorted(fixtures, key=lambda item: item["fixture_id"])
+
+
+def _resolve_parity_fixture_ref_path(
+    *,
+    raw_ref: str,
+    fixtures_path: Path,
+    artifact_fixture_root: Path | None,
+) -> Path:
+    ref = str(raw_ref).strip()
+    if not ref:
+        raise DomainConformanceError(
+            "artifact parity fixture ref must not be empty",
+            code=URM_CONFORMANCE_ARTIFACT_REF_INVALID_CODE,
+        )
+    if ref.startswith("event:"):
+        raise DomainConformanceError(
+            "event refs are unsupported for artifact parity fixture payloads",
+            code=URM_CONFORMANCE_ARTIFACT_REF_INVALID_CODE,
+        )
+    if ref.startswith("artifact:"):
+        artifact_id = ref.removeprefix("artifact:")
+        candidate_roots: list[Path] = [fixtures_path.parent.resolve()]
+        if artifact_fixture_root is not None:
+            candidate_roots.insert(0, artifact_fixture_root.resolve())
+        for root in candidate_roots:
+            for candidate in (root / artifact_id, root / f"{artifact_id}.json"):
+                if candidate.exists() and candidate.is_file():
+                    return candidate.resolve()
+        raise DomainConformanceError(
+            f"unresolved artifact fixture ref: {ref}",
+            code=URM_CONFORMANCE_ARTIFACT_REF_INVALID_CODE,
+        )
+
+    path = Path(ref)
+    if not path.is_absolute():
+        path = (fixtures_path.parent / path).resolve()
+    if not path.exists() or not path.is_file():
+        raise DomainConformanceError(
+            f"artifact parity fixture path not found: {ref}",
+            code=URM_CONFORMANCE_ARTIFACT_REF_INVALID_CODE,
+        )
+    return path
+
+
+def _semantic_projection_for_artifact_schema(
+    *,
+    artifact_schema: str,
+    payload: dict[str, Any],
+) -> Any:
+    if artifact_schema == POLICY_LINEAGE_SCHEMA:
+        if payload.get("schema") != POLICY_LINEAGE_SCHEMA:
+            raise DomainConformanceError(
+                "policy_lineage parity fixture has mismatched schema",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        return strip_nonsemantic_policy_lineage_fields(payload)
+    if artifact_schema == PROOF_EVIDENCE_SCHEMA:
+        if payload.get("schema") != PROOF_EVIDENCE_SCHEMA:
+            raise DomainConformanceError(
+                "proof_evidence parity fixture has mismatched schema",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        return strip_nonsemantic_proof_fields(payload)
+    if artifact_schema == EXPLAIN_DIFF_SCHEMA:
+        if payload.get("schema") != EXPLAIN_DIFF_SCHEMA:
+            raise DomainConformanceError(
+                "explain_diff parity fixture has mismatched schema",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        try:
+            validate_explain_diff_packet(payload)
+        except ExplainDiffError as exc:
+            raise DomainConformanceError(
+                "explain_diff parity fixture failed validation",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            ) from exc
+        return strip_nonsemantic_explain_fields(payload)
+    if artifact_schema == SEMANTIC_DEPTH_SCHEMA:
+        if payload.get("schema") != SEMANTIC_DEPTH_SCHEMA:
+            raise DomainConformanceError(
+                "semantic_depth_report parity fixture has mismatched schema",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            )
+        try:
+            validate_semantic_depth_report(payload)
+        except SemanticDepthError as exc:
+            raise DomainConformanceError(
+                "semantic_depth_report parity fixture failed validation",
+                code=URM_CONFORMANCE_FIXTURE_INVALID_CODE,
+            ) from exc
+        return strip_nonsemantic_semantic_depth_fields(payload)
+
+    raise DomainConformanceError(
+        f"artifact parity projection unsupported for schema: {artifact_schema}",
+        code=URM_CONFORMANCE_PROJECTION_UNSUPPORTED_CODE,
+    )
+
+
+def _build_artifact_parity_checks(
+    *,
+    fixtures_path: Path,
+    artifact_fixture_root: Path | None,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    fixtures = _load_artifact_parity_fixtures(fixtures_path=fixtures_path)
+    issues: list[dict[str, Any]] = []
+    fixture_results: list[dict[str, Any]] = []
+    for fixture in fixtures:
+        fixture_id = fixture["fixture_id"]
+        artifact_schema = fixture["artifact_schema"]
+        left_ref = fixture["left_ref"]
+        right_ref = fixture["right_ref"]
+        result: dict[str, Any] = {
+            "fixture_id": fixture_id,
+            "artifact_schema": artifact_schema,
+            "left_ref": left_ref,
+            "right_ref": right_ref,
+        }
+        notes = fixture.get("notes")
+        if notes is not None:
+            result["notes"] = notes
+        try:
+            left_path = _resolve_parity_fixture_ref_path(
+                raw_ref=left_ref,
+                fixtures_path=fixtures_path,
+                artifact_fixture_root=artifact_fixture_root,
+            )
+            right_path = _resolve_parity_fixture_ref_path(
+                raw_ref=right_ref,
+                fixtures_path=fixtures_path,
+                artifact_fixture_root=artifact_fixture_root,
+            )
+            left_payload = _read_json_object(
+                left_path,
+                description=f"artifact parity left payload ({fixture_id})",
+            )
+            right_payload = _read_json_object(
+                right_path,
+                description=f"artifact parity right payload ({fixture_id})",
+            )
+            left_projection = _semantic_projection_for_artifact_schema(
+                artifact_schema=artifact_schema,
+                payload=left_payload,
+            )
+            right_projection = _semantic_projection_for_artifact_schema(
+                artifact_schema=artifact_schema,
+                payload=right_payload,
+            )
+            left_hash = sha256_canonical_json(left_projection)
+            right_hash = sha256_canonical_json(right_projection)
+            result["semantic_hash_left"] = left_hash
+            result["semantic_hash_right"] = right_hash
+            result["valid"] = left_hash == right_hash
+            if result["valid"] is not True:
+                issues.append(
+                    _issue(
+                        code=_legacy_issue_code_for_urm(
+                            urm_code=URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH_CODE
+                        ),
+                        message="artifact parity semantic projection mismatch",
+                        context={
+                            "artifact_schema": artifact_schema,
+                            "fixture_id": fixture_id,
+                            "left_ref": left_ref,
+                            "right_ref": right_ref,
+                        },
+                        urm_code=URM_CONFORMANCE_ARTIFACT_PARITY_MISMATCH_CODE,
+                    )
+                )
+        except DomainConformanceError as exc:
+            result["valid"] = False
+            result["error_code"] = exc.code
+            issues.append(
+                _issue(
+                    code=_legacy_issue_code_for_urm(urm_code=exc.code),
+                    message=str(exc),
+                    context={
+                        "artifact_schema": artifact_schema,
+                        "fixture_id": fixture_id,
+                        "left_ref": left_ref,
+                        "right_ref": right_ref,
+                    },
+                    urm_code=exc.code,
+                )
+            )
+        fixture_results.append(result)
+
+    report = {
+        "valid": all(item.get("valid") is True for item in fixture_results),
+        "fixture_count": len(fixtures),
+        "evaluated_count": len(fixture_results),
+        "fixtures": fixture_results,
+    }
+    return report, issues
+
+
 def validate_domain_conformance_report(payload: dict[str, Any]) -> None:
     if payload.get("schema") != DOMAIN_CONFORMANCE_SCHEMA:
         raise DomainConformanceError("payload schema must be domain_conformance@1")
@@ -133,6 +459,43 @@ def validate_domain_conformance_report(payload: dict[str, Any]) -> None:
         next_domain = str(parsed_domains[idx + 1].get("domain") or "")
         if current_domain > next_domain:
             raise DomainConformanceError("domains must be sorted by canonical domain key")
+
+    artifact_parity = payload.get("artifact_parity")
+    if artifact_parity is not None:
+        if not isinstance(artifact_parity, dict):
+            raise DomainConformanceError("artifact_parity must be an object")
+        if not isinstance(artifact_parity.get("valid"), bool):
+            raise DomainConformanceError("artifact_parity.valid must be boolean")
+        if not isinstance(artifact_parity.get("fixture_count"), int):
+            raise DomainConformanceError("artifact_parity.fixture_count must be integer")
+        if not isinstance(artifact_parity.get("evaluated_count"), int):
+            raise DomainConformanceError("artifact_parity.evaluated_count must be integer")
+        if artifact_parity["fixture_count"] < 0:
+            raise DomainConformanceError("artifact_parity.fixture_count must be non-negative")
+        if artifact_parity["evaluated_count"] < 0:
+            raise DomainConformanceError("artifact_parity.evaluated_count must be non-negative")
+
+        raw_fixtures = artifact_parity.get("fixtures")
+        if not isinstance(raw_fixtures, list):
+            raise DomainConformanceError("artifact_parity.fixtures must be an array")
+        parsed_fixtures = [item for item in raw_fixtures if isinstance(item, dict)]
+        if len(parsed_fixtures) != len(raw_fixtures):
+            raise DomainConformanceError("artifact_parity.fixtures entries must be objects")
+        if artifact_parity["fixture_count"] != len(parsed_fixtures):
+            raise DomainConformanceError(
+                "artifact_parity.fixture_count must match fixtures length"
+            )
+        if artifact_parity["evaluated_count"] != len(parsed_fixtures):
+            raise DomainConformanceError(
+                "artifact_parity.evaluated_count must match fixtures length"
+            )
+        fixture_ids = [str(item.get("fixture_id") or "") for item in parsed_fixtures]
+        if any(not fixture_id for fixture_id in fixture_ids):
+            raise DomainConformanceError("artifact_parity.fixtures fixture_id must be non-empty")
+        if fixture_ids != sorted(fixture_ids):
+            raise DomainConformanceError("artifact_parity.fixtures must be sorted by fixture_id")
+        if len(set(fixture_ids)) != len(fixture_ids):
+            raise DomainConformanceError("artifact_parity.fixtures fixture_id must be unique")
 
     issues = payload.get("issues")
     if not isinstance(issues, list):
@@ -484,13 +847,21 @@ def build_domain_conformance(
     *,
     events_dir: Path,
     runtime_root: Path | None = None,
+    artifact_parity_fixtures_path: Path | None = None,
+    artifact_fixture_root: Path | None = None,
 ) -> dict[str, Any]:
     events_dir.mkdir(parents=True, exist_ok=True)
     registry = _registry_determinism()
     import_audit = _import_audit(runtime_root=runtime_root)
+    resolved_parity_fixtures_path = (
+        artifact_parity_fixtures_path.resolve()
+        if artifact_parity_fixtures_path is not None
+        else _default_artifact_parity_fixtures_path()
+    )
 
     domain_reports: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = []
+    artifact_parity: dict[str, Any] | None = None
 
     digest_pack = DigestDomainTools()
     paper_pack = PaperDomainTools()
@@ -569,18 +940,43 @@ def build_domain_conformance(
                 urm_code=URM_CONFORMANCE_RUNTIME_IMPORT_AUDIT_FAILED_CODE,
             )
         )
+    if resolved_parity_fixtures_path is not None:
+        try:
+            artifact_parity, parity_issues = _build_artifact_parity_checks(
+                fixtures_path=resolved_parity_fixtures_path,
+                artifact_fixture_root=artifact_fixture_root,
+            )
+            issues.extend(parity_issues)
+        except DomainConformanceError as exc:
+            artifact_parity = {
+                "valid": False,
+                "fixture_count": 0,
+                "evaluated_count": 0,
+                "fixtures": [],
+            }
+            issues.append(
+                _issue(
+                    code=_legacy_issue_code_for_urm(urm_code=exc.code),
+                    message=str(exc),
+                    context={"fixtures_path": str(resolved_parity_fixtures_path)},
+                    urm_code=exc.code,
+                )
+            )
 
     report: dict[str, Any] = {
         "schema": DOMAIN_CONFORMANCE_SCHEMA,
         "valid": registry["valid"] and import_audit["valid"] and all(
             item["valid"] for item in domain_reports
-        ),
+        )
+        and (artifact_parity is None or artifact_parity["valid"] is True),
         "registry_order_determinism": registry,
         "import_audit": import_audit,
         "domains": domain_reports,
         "issues": _sort_issues(issues),
         "hash_excluded_fields": list(DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELD_LIST),
     }
+    if artifact_parity is not None:
+        report["artifact_parity"] = artifact_parity
     report["domain_conformance_hash"] = domain_conformance_hash(report)
     validate_domain_conformance_report(report)
     return report

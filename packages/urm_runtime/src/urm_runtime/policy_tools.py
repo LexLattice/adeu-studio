@@ -46,6 +46,17 @@ POLICY_REGISTRY_SCHEMA = "policy_registry@1"
 POLICY_ACTIVATION_SCHEMA = "policy_activation_log@1"
 POLICY_ACTIVE_SCHEMA = "policy_active@1"
 POLICY_LINEAGE_SCHEMA = "policy_lineage@1"
+POLICY_LINEAGE_HASH_EXCLUDED_FIELDS = frozenset(
+    {
+        "policy_lineage_hash",
+        "hash_excluded_fields",
+        "generated_at",
+        "materialized_at",
+        "operator_note",
+        "nonsemantic_fields",
+    }
+)
+POLICY_LINEAGE_HASH_EXCLUDED_FIELD_LIST = tuple(sorted(POLICY_LINEAGE_HASH_EXCLUDED_FIELDS))
 POLICY_INCIDENT_INVALID_REF = "URM_INCIDENT_PACKET_INVALID_REF"
 POLICY_EXPLAIN_INVALID_INPUT = "URM_POLICY_EXPLAIN_INVALID_INPUT"
 INCIDENT_REDACTION_ALLOWLIST_SCHEMA = "policy.incident_redaction_allowlist.v1"
@@ -84,6 +95,22 @@ _LINT_SOURCE_CODE_TO_PUBLIC_CODE: dict[str, str] = {
     "URM_POLICY_ROLLOUT_HASH_NOT_ALLOWED": "URM_POLICY_LINT_FAILED",
     "URM_POLICY_ROLLBACK_TARGET_NOT_FOUND": "URM_POLICY_LINT_FAILED",
 }
+
+
+def strip_nonsemantic_policy_lineage_fields(value: Any) -> Any:
+    """Return the canonical semantic projection for policy_lineage payloads."""
+
+    if isinstance(value, dict):
+        normalized: dict[str, Any] = {}
+        for raw_key, raw_value in sorted(value.items(), key=lambda item: str(item[0])):
+            key = str(raw_key)
+            if key in POLICY_LINEAGE_HASH_EXCLUDED_FIELDS:
+                continue
+            normalized[key] = strip_nonsemantic_policy_lineage_fields(raw_value)
+        return normalized
+    if isinstance(value, list):
+        return [strip_nonsemantic_policy_lineage_fields(item) for item in value]
+    return value
 
 
 class IncidentRedactionAllowlist(BaseModel):

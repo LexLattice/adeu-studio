@@ -1,0 +1,29 @@
+{
+  "fixtures": [
+    {
+      "artifact_schema": "explain_diff@1",
+      "fixture_id": "explain_diff.case_a",
+      "left_ref": "../../../../examples/eval/stop_gate/explain_diff_case_a_1.json",
+      "right_ref": "../../../../examples/eval/stop_gate/explain_diff_case_a_2.json"
+    },
+    {
+      "artifact_schema": "policy_lineage@1",
+      "fixture_id": "policy_lineage.case_a",
+      "left_ref": "../../../../examples/eval/stop_gate/policy_lineage_case_a_1.json",
+      "right_ref": "../../../../examples/eval/stop_gate/policy_lineage_case_a_2.json"
+    },
+    {
+      "artifact_schema": "proof_evidence@1",
+      "fixture_id": "proof_evidence.case_a",
+      "left_ref": "../../../../examples/eval/stop_gate/proof_evidence_case_a_1.json",
+      "right_ref": "../../../../examples/eval/stop_gate/proof_evidence_case_a_2.json"
+    },
+    {
+      "artifact_schema": "semantic_depth_report@1",
+      "fixture_id": "semantic_depth_report.case_a",
+      "left_ref": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_1.json",
+      "right_ref": "../../../../examples/eval/stop_gate/semantic_depth_report_case_a_2.json"
+    }
+  ],
+  "schema": "domain_conformance.artifact_parity_fixtures@1"
+}
