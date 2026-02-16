@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime, timezone
 from importlib.metadata import PackageNotFoundError, version
 from json import JSONDecodeError
@@ -12,6 +13,31 @@ try:
     URM_RUNTIME_VERSION = version("urm-runtime")
 except PackageNotFoundError:
     URM_RUNTIME_VERSION = "0.0.0"
+
+_ANSI_ESCAPE_RE = re.compile(r"\x1b\[[0-9;]*m")
+_ROLLOUT_MISSING_PATH_RE = re.compile(
+    r".*codex_core::rollout::list.*state db missing rollout path for thread\s+([0-9a-f\-]+)",
+    re.IGNORECASE,
+)
+
+
+def _strip_ansi(text: str) -> str:
+    return _ANSI_ESCAPE_RE.sub("", text)
+
+
+def _provider_log_payload(raw_line: str) -> dict[str, Any] | None:
+    normalized = _strip_ansi(raw_line).strip()
+    if not normalized:
+        return None
+    rollout_match = _ROLLOUT_MISSING_PATH_RE.match(normalized)
+    if rollout_match is None:
+        return None
+    return {
+        "provider_log_kind": "rollout_state_db_missing_path",
+        "severity": "error",
+        "thread_id": rollout_match.group(1),
+        "message": normalized,
+    }
 
 
 def _normalize_line(
@@ -32,6 +58,20 @@ def _normalize_line(
     try:
         parsed = json.loads(stripped)
     except JSONDecodeError as exc:
+        provider_log = _provider_log_payload(stripped)
+        if provider_log is not None:
+            return NormalizedEvent(
+                event="PROVIDER_LOG",
+                stream_id=stream_id,
+                seq=seq,
+                ts=timestamp,
+                source=source,
+                context=context,
+                detail=provider_log,
+                event_kind="provider_log",
+                payload=provider_log,
+                raw_line=stripped,
+            )
         return NormalizedEvent(
             event="PROVIDER_PARSE_ERROR",
             stream_id=stream_id,

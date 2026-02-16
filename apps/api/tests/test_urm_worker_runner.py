@@ -214,6 +214,35 @@ def test_worker_runner_marks_parse_degraded_nonfatal(
     assert result.artifact_candidate == {"kind": "fallback"}
 
 
+def test_worker_runner_tolerates_known_rollout_log_without_parse_degraded(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    fixture_path = (
+        Path(__file__).resolve().parent
+        / "fixtures"
+        / "codex_exec"
+        / "rollout_missing_path_noise.jsonl"
+    )
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+
+    runner = CodexExecWorkerRunner(config=config)
+    result = runner.run(
+        _worker_request(
+            client_request_id="req-rollout-log",
+            role="pipeline_worker",
+            prompt="rollout log fixture",
+        )
+    )
+
+    assert result.status == "ok"
+    assert result.parse_degraded is False
+    assert result.artifact_candidate == {"kind": "fallback"}
+
+
 def test_normalize_exec_line_tolerates_unknown_and_parse_errors() -> None:
     unknown = normalize_exec_line(
         seq=1,
@@ -231,9 +260,23 @@ def test_normalize_exec_line_tolerates_unknown_and_parse_errors() -> None:
         role="pipeline_worker",
         endpoint="urm.worker.run",
     )
+    rollout_log = normalize_exec_line(
+        seq=3,
+        raw_line=(
+            "2026-02-16T21:18:26.543575Z ERROR codex_core::rollout::list: "
+            "state db missing rollout path for thread "
+            "019c3c2d-bbd0-7342-ace0-e6f2df948c18\n"
+        ),
+        stream_id="worker:test",
+        run_id="test-run",
+        role="pipeline_worker",
+        endpoint="urm.worker.run",
+    )
 
     assert unknown.event_kind == "unknown_event"
     assert malformed.event_kind == "parse_error"
+    assert rollout_log.event_kind == "provider_log"
+    assert rollout_log.detail["provider_log_kind"] == "rollout_state_db_missing_path"
 
 
 def test_worker_runner_cancel_is_idempotent(

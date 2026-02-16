@@ -240,6 +240,43 @@ def test_urm_tool_call_paper_domain_closed_world_flow(
     _reset_manager_for_tests()
 
 
+def test_urm_tool_call_paper_extract_prefers_abstract_section_over_date_header(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex_exec(tmp_path=tmp_path)
+    _configure_exec_fixture(monkeypatch=monkeypatch, tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    _reset_manager_for_tests()
+
+    source_text = (
+        "2026-02-12\n\n"
+        "Intelligent AI Delegation\n\n"
+        "Abstract\n"
+        "AI agents are able to tackle increasingly complex tasks. "
+        "To achieve more ambitious goals, delegation should adapt to uncertainty and failure.\n\n"
+        "Keywords: delegation, agents\n\n"
+        "1 Introduction\n"
+        "The introduction should not be selected as abstract."
+    )
+    extract = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="paper.extract_abstract_candidate",
+            arguments={"source_text": source_text},
+        )
+    )
+
+    assert extract.warrant == "derived"
+    assert extract.result["extract_strategy"] == "abstract_section_marker"
+    assert extract.result["abstract_text"].startswith("AI agents are able to tackle")
+    assert "2026-02-12" not in extract.result["abstract_text"]
+    assert "keywords" not in extract.result["abstract_text"].lower()
+    assert extract.result["sentence_count"] >= 2
+    _reset_manager_for_tests()
+
+
 def test_urm_tool_call_digest_domain_closed_world_flow(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

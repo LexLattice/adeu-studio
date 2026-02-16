@@ -1,0 +1,2 @@
+2026-02-16T21:18:26.543575Z ERROR codex_core::rollout::list: state db missing rollout path for thread 019c3c2d-bbd0-7342-ace0-e6f2df948c18
+{"type":"result","output":{"kind":"fallback"}}
