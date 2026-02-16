@@ -4,7 +4,10 @@ import json
 from pathlib import Path
 
 from adeu_concepts import ConceptIR
-from adeu_semantic_depth import build_semantic_depth_report_from_concept_pair
+from adeu_semantic_depth import (
+    CONFLICT_KIND_PRIORITY,
+    build_semantic_depth_report_from_concept_pair,
+)
 from jsonschema import Draft202012Validator
 
 
@@ -61,3 +64,10 @@ def test_semantic_depth_schema_accepts_normalized_payload() -> None:
     validator = Draft202012Validator(_load_schema())
     errors = sorted(validator.iter_errors(payload), key=lambda err: err.path)
     assert errors == []
+
+
+def test_semantic_depth_schema_priority_map_matches_runtime_constants() -> None:
+    schema = _load_schema()
+    priority_map = schema.get("x_kind_priority_map")
+    assert isinstance(priority_map, dict)
+    assert priority_map == CONFLICT_KIND_PRIORITY

@@ -28,16 +28,13 @@
       }
     },
     "signature_projection_version": {
-      "type": "string",
-      "pattern": "^semantic_depth\\.signature\\.v[0-9]+$"
+      "const": "semantic_depth.signature.v1"
     },
     "ranking_objective_version": {
-      "type": "string",
-      "pattern": "^semantic_depth\\.rank\\.v[0-9]+$"
+      "const": "semantic_depth.rank.v1"
     },
     "ranking_tie_break_version": {
-      "type": "string",
-      "pattern": "^semantic_depth\\.tie_break\\.v[0-9]+$"
+      "const": "semantic_depth.tie_break.v1"
     },
     "conflict_items": {
       "type": "array",

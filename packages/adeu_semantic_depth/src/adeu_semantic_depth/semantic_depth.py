@@ -59,8 +59,6 @@ _CONFLICT_KIND_DEFAULT_CONFIDENCE_MILLI: dict[str, int] = {
 _ARTIFACT_REF_RE = re.compile(r"^artifact:[^\s]+$")
 _EVENT_REF_RE = re.compile(r"^event:[^#]+#[0-9]+$")
 _EVENT_REF_PARSE_RE = re.compile(r"^event:(?P<stream_id>[^#]+)#(?P<seq>[0-9]+)$")
-_VERSION_RE = re.compile(r"^semantic_depth\.(signature|rank|tie_break)\.v[0-9]+$")
-
 SEMANTIC_DEPTH_HASH_EXCLUDED_FIELDS = frozenset(
     {
         "semantic_depth_hash",
@@ -195,7 +193,72 @@ def _normalize_source_ref_ids(value: Any) -> list[str]:
     return _normalize_ref_list([str(item) for item in value], field_name="source_ref_ids")
 
 
-def _normalize_confidence_milli(*, value: Any, kind: str) -> int:
+def _normalize_priority(*, value: Any, kind: str) -> int:
+    expected = CONFLICT_KIND_PRIORITY[kind]
+    if value is None:
+        return expected
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError) as exc:
+        raise SemanticDepthError("priority must be an integer") from exc
+    if parsed != expected:
+        raise SemanticDepthError("priority must match frozen kind->priority mapping")
+    return parsed
+
+
+def _confidence_milli_from_ratio(*, num: Any, denom: Any) -> int:
+    try:
+        parsed_num = int(num)
+        parsed_denom = int(denom)
+    except (TypeError, ValueError) as exc:
+        raise SemanticDepthError(
+            "confidence_ratio_num and confidence_ratio_denom must be integers",
+            code=SEMANTIC_DEPTH_CONFIDENCE_INVALID_CODE,
+        ) from exc
+    if parsed_denom <= 0:
+        raise SemanticDepthError(
+            "confidence_ratio_denom must be > 0",
+            code=SEMANTIC_DEPTH_CONFIDENCE_INVALID_CODE,
+        )
+    confidence_milli = (parsed_num * 1000 + parsed_denom // 2) // parsed_denom
+    if confidence_milli < 0 or confidence_milli > 1000:
+        raise SemanticDepthError(
+            "derived confidence_milli must be in [0, 1000]",
+            code=SEMANTIC_DEPTH_CONFIDENCE_INVALID_CODE,
+        )
+    return confidence_milli
+
+
+def _normalize_confidence_milli(*, value: Any, kind: str, provenance_raw: Mapping[str, Any]) -> int:
+    has_ratio = (
+        "confidence_ratio_num" in provenance_raw
+        or "confidence_ratio_denom" in provenance_raw
+    )
+    if has_ratio:
+        if value is not None:
+            raise SemanticDepthError(
+                (
+                    "confidence_milli is mutually exclusive with "
+                    "confidence_ratio_num/confidence_ratio_denom"
+                ),
+                code=SEMANTIC_DEPTH_CONFIDENCE_INVALID_CODE,
+            )
+        if (
+            "confidence_ratio_num" not in provenance_raw
+            or "confidence_ratio_denom" not in provenance_raw
+        ):
+            raise SemanticDepthError(
+                (
+                    "confidence_ratio_num and confidence_ratio_denom are both required "
+                    "when ratio confidence is used"
+                ),
+                code=SEMANTIC_DEPTH_CONFIDENCE_INVALID_CODE,
+            )
+        return _confidence_milli_from_ratio(
+            num=provenance_raw.get("confidence_ratio_num"),
+            denom=provenance_raw.get("confidence_ratio_denom"),
+        )
+
     if value is None:
         return _CONFLICT_KIND_DEFAULT_CONFIDENCE_MILLI.get(kind, 500)
     try:
@@ -231,10 +294,11 @@ def _normalize_conflict_item(raw_item: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(provenance_raw, Mapping):
         raise SemanticDepthError("conflict provenance must be an object")
 
-    priority = int(provenance_raw.get("priority", CONFLICT_KIND_PRIORITY[str(kind)]))
+    priority = _normalize_priority(value=provenance_raw.get("priority"), kind=str(kind))
     confidence_milli = _normalize_confidence_milli(
         value=provenance_raw.get("confidence_milli"),
         kind=str(kind),
+        provenance_raw=provenance_raw,
     )
     evidence_kind = str(provenance_raw.get("evidence_kind") or kind)
     source_ref_ids = _normalize_source_ref_ids(provenance_raw.get("source_ref_ids"))
@@ -318,7 +382,12 @@ def _normalize_ranked_conflict_ids(
         raise SemanticDepthError("ranked_conflict_ids must be unique")
     if set(ranked) != known_set:
         raise SemanticDepthError("ranked_conflict_ids must match conflict_items conflict_id set")
-    return ranked
+    expected = _derive_ranked_conflict_ids(conflicts)
+    if ranked != expected:
+        raise SemanticDepthError(
+            "ranked_conflict_ids must match deterministic objective/tie-break ordering",
+        )
+    return expected
 
 
 def strip_nonsemantic_semantic_depth_fields(value: Any) -> Any:
@@ -347,10 +416,9 @@ def _coherence_summary_hash(summary: Mapping[str, Any]) -> str:
     return _sha256_text(_canonical_json(normalized))
 
 
-def _version_matches(value: str, *, expected_prefix: str) -> bool:
-    if not _VERSION_RE.match(value):
-        return False
-    return value.startswith(expected_prefix)
+def _require_frozen_version(*, value: str, expected: str, field_name: str) -> None:
+    if value != expected:
+        raise SemanticDepthError(f"{field_name} must be {expected}")
 
 
 def build_semantic_depth_report(
@@ -368,15 +436,21 @@ def build_semantic_depth_report(
     coherence_summary: Mapping[str, Any] | None = None,
     nonsemantic_fields: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    if not _version_matches(
-        signature_projection_version,
-        expected_prefix="semantic_depth.signature.",
-    ):
-        raise SemanticDepthError("invalid signature_projection_version")
-    if not _version_matches(ranking_objective_version, expected_prefix="semantic_depth.rank."):
-        raise SemanticDepthError("invalid ranking_objective_version")
-    if not _version_matches(ranking_tie_break_version, expected_prefix="semantic_depth.tie_break."):
-        raise SemanticDepthError("invalid ranking_tie_break_version")
+    _require_frozen_version(
+        value=signature_projection_version,
+        expected=SIGNATURE_PROJECTION_VERSION,
+        field_name="signature_projection_version",
+    )
+    _require_frozen_version(
+        value=ranking_objective_version,
+        expected=RANKING_OBJECTIVE_VERSION,
+        field_name="ranking_objective_version",
+    )
+    _require_frozen_version(
+        value=ranking_tie_break_version,
+        expected=RANKING_TIE_BREAK_VERSION,
+        field_name="ranking_tie_break_version",
+    )
 
     normalized_input_refs = _normalize_input_refs(input_artifact_refs)
     normalized_conflicts = _normalize_conflict_items(conflict_items)
@@ -436,15 +510,21 @@ def validate_semantic_depth_report(payload: Mapping[str, Any]) -> None:
     signature_projection_version = str(payload.get("signature_projection_version") or "")
     ranking_objective_version = str(payload.get("ranking_objective_version") or "")
     ranking_tie_break_version = str(payload.get("ranking_tie_break_version") or "")
-    if not _version_matches(
-        signature_projection_version,
-        expected_prefix="semantic_depth.signature.",
-    ):
-        raise SemanticDepthError("invalid signature_projection_version")
-    if not _version_matches(ranking_objective_version, expected_prefix="semantic_depth.rank."):
-        raise SemanticDepthError("invalid ranking_objective_version")
-    if not _version_matches(ranking_tie_break_version, expected_prefix="semantic_depth.tie_break."):
-        raise SemanticDepthError("invalid ranking_tie_break_version")
+    _require_frozen_version(
+        value=signature_projection_version,
+        expected=SIGNATURE_PROJECTION_VERSION,
+        field_name="signature_projection_version",
+    )
+    _require_frozen_version(
+        value=ranking_objective_version,
+        expected=RANKING_OBJECTIVE_VERSION,
+        field_name="ranking_objective_version",
+    )
+    _require_frozen_version(
+        value=ranking_tie_break_version,
+        expected=RANKING_TIE_BREAK_VERSION,
+        field_name="ranking_tie_break_version",
+    )
 
     conflict_items_raw = payload.get("conflict_items")
     if not isinstance(conflict_items_raw, Sequence) or isinstance(
