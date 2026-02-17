@@ -40,6 +40,15 @@ _TEMPLATES: tuple[PaperTemplateMeta, ...] = (
     ),
 )
 
+_DATE_ONLY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_ABSTRACT_HEADER_WITH_BODY_RE = re.compile(r"^\s*abstract\s*[:\-]\s*(.+)\s*$", re.IGNORECASE)
+_ABSTRACT_HEADER_RE = re.compile(r"^\s*abstract\s*[:\-]?\s*$", re.IGNORECASE)
+_SECTION_STOP_RE = re.compile(
+    r"^\s*(keywords?|index\s+terms|introduction|[1i]+[\.\)]\s*introduction)\b",
+    re.IGNORECASE,
+)
+_SENTENCE_BOUNDARY_RE = re.compile(r"[.!?](?:\s|$)")
+
 
 @dataclass
 class PaperDomainTools:
@@ -78,11 +87,16 @@ class PaperDomainTools:
 
     def _extract_abstract_candidate(self, arguments: dict[str, Any]) -> dict[str, Any]:
         args = ExtractAbstractArgs.model_validate(arguments)
-        paragraph = _normalize_whitespace(_first_paragraph(args.source_text))
+        paragraph, strategy = _select_abstract_candidate(args.source_text)
         words = _word_count(paragraph)
+        sentence_count = _sentence_count(paragraph)
+        candidate_date_like = _is_date_like(paragraph)
         return {
             "abstract_text": paragraph,
             "word_count": words,
+            "sentence_count": sentence_count,
+            "extract_strategy": strategy,
+            "candidate_date_like": candidate_date_like,
             "candidate_hash": sha256_text(paragraph),
         }
 
@@ -128,6 +142,84 @@ def _first_paragraph(text: str) -> str:
     if paragraphs:
         return paragraphs[0]
     return text
+
+
+def _paragraphs(text: str) -> list[str]:
+    if not text:
+        return []
+    return [_normalize_whitespace(part) for part in re.split(r"\n\s*\n", text) if part.strip()]
+
+
+def _extract_abstract_section(text: str) -> str | None:
+    lines = text.splitlines()
+    collecting = False
+    collected: list[str] = []
+
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line and collecting:
+            if collected:
+                break
+            continue
+
+        inline_match = _ABSTRACT_HEADER_WITH_BODY_RE.match(line)
+        if inline_match:
+            body = _normalize_whitespace(inline_match.group(1))
+            if body:
+                collected.append(body)
+            collecting = True
+            continue
+
+        if _ABSTRACT_HEADER_RE.match(line):
+            collecting = True
+            continue
+
+        if collecting:
+            if _SECTION_STOP_RE.match(line):
+                break
+            collected.append(line)
+
+    candidate = _normalize_whitespace(" ".join(collected))
+    return candidate or None
+
+
+def _is_date_like(text: str) -> bool:
+    value = _normalize_whitespace(text)
+    return bool(_DATE_ONLY_RE.match(value))
+
+
+def _sentence_count(text: str) -> int:
+    if not text:
+        return 0
+    return len(_SENTENCE_BOUNDARY_RE.findall(text))
+
+
+def _is_structurally_abstract_like(text: str) -> bool:
+    if _is_date_like(text):
+        return False
+    if _word_count(text) < 20:
+        return False
+    return _sentence_count(text) >= 2
+
+
+def _select_abstract_candidate(text: str) -> tuple[str, str]:
+    section_candidate = _extract_abstract_section(text)
+    if section_candidate and _is_structurally_abstract_like(section_candidate):
+        return section_candidate, "abstract_section_marker"
+    if section_candidate and not _is_date_like(section_candidate):
+        return section_candidate, "abstract_section_fallback"
+
+    first_nondatelike_paragraph: str | None = None
+    for paragraph in _paragraphs(text):
+        if _is_structurally_abstract_like(paragraph):
+            return paragraph, "first_structural_paragraph"
+        if first_nondatelike_paragraph is None and not _is_date_like(paragraph):
+            first_nondatelike_paragraph = paragraph
+
+    if first_nondatelike_paragraph is not None:
+        return first_nondatelike_paragraph, "first_nondatelike_paragraph"
+
+    return _normalize_whitespace(_first_paragraph(text)), "first_paragraph_fallback"
 
 
 def _word_count(text: str) -> int:
