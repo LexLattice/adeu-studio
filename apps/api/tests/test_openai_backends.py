@@ -131,3 +131,71 @@ def test_codex_exec_backend_extracts_agent_message_json_object(monkeypatch) -> N
     assert result.error is None
     assert result.parsed_json == {"x": "ok"}
     assert result.provider_meta.api == "codex_exec"
+
+
+def test_codex_schema_normalization_requires_all_object_properties() -> None:
+    schema = {
+        "type": "object",
+        "properties": {
+            "required_field": {"type": "string"},
+            "optional_field": {"type": "integer"},
+            "already_nullable": {"anyOf": [{"type": "number"}, {"type": "null"}]},
+            "any_value": {"anyOf": [{}, {"type": "null"}]},
+            "nested": {
+                "type": "object",
+                "properties": {
+                    "inner_required": {"type": "string"},
+                    "inner_optional": {"type": "boolean"},
+                },
+                "required": ["inner_required"],
+            },
+            "subject": {
+                "oneOf": [{"$ref": "#/$defs/DocRef"}, {"$ref": "#/$defs/TextRef"}],
+                "discriminator": {
+                    "mapping": {
+                        "doc": "#/$defs/DocRef",
+                        "text": "#/$defs/TextRef",
+                    },
+                    "propertyName": "ref_type",
+                },
+            },
+        },
+        "required": ["required_field"],
+    }
+
+    normalized = backends._normalize_schema_for_codex_output(schema)
+
+    assert normalized["required"] == [
+        "required_field",
+        "optional_field",
+        "already_nullable",
+        "any_value",
+        "nested",
+        "subject",
+    ]
+    assert normalized["properties"]["optional_field"] == {
+        "anyOf": [{"type": "integer"}, {"type": "null"}]
+    }
+    assert normalized["properties"]["already_nullable"] == {
+        "anyOf": [{"type": "number"}, {"type": "null"}]
+    }
+    assert normalized["properties"]["any_value"] == {
+        "anyOf": [{"type": "string"}, {"type": "null"}]
+    }
+    nested_anyof = normalized["properties"]["nested"]["anyOf"]
+    assert isinstance(nested_anyof, list)
+    nested = nested_anyof[0]
+    assert nested["required"] == ["inner_required", "inner_optional"]
+    assert nested["properties"]["inner_optional"] == {
+        "anyOf": [{"type": "boolean"}, {"type": "null"}]
+    }
+    subject_anyof = normalized["properties"]["subject"]["anyOf"]
+    assert isinstance(subject_anyof, list)
+    subject = subject_anyof[0]
+    discriminator = subject["oneOf"]
+    assert discriminator == [{"$ref": "#/$defs/DocRef"}, {"$ref": "#/$defs/TextRef"}]
+    mapping = subject["discriminator"]["mapping"]
+    assert mapping == {
+        "doc": "#/$defs/DocRef",
+        "text": "#/$defs/TextRef",
+    }
