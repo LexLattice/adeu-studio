@@ -136,6 +136,32 @@ def test_worker_runner_persists_evidence_and_idempotent_replay(
     assert len(calls) == 1
 
 
+def test_worker_runner_extracts_agent_message_json_candidate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    fixture_path = (
+        Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "agent_message_output.jsonl"
+    )
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+
+    runner = CodexExecWorkerRunner(config=config)
+    result = runner.run(
+        _worker_request(
+            client_request_id="req-agent-message",
+            role="pipeline_worker",
+            prompt="agent message extraction",
+        )
+    )
+
+    assert result.status == "ok"
+    assert result.parse_degraded is False
+    assert result.artifact_candidate == {"artifact": {"kind": "demo", "value": 1}}
+
+
 def test_worker_runner_rejects_disallowed_role(tmp_path: Path) -> None:
     codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
     config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)

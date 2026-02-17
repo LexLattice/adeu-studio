@@ -95,3 +95,39 @@ def test_request_json_uses_configured_timeout(monkeypatch) -> None:
     )
 
     assert captured_timeout == 12.5
+
+
+def test_codex_exec_backend_extracts_agent_message_json_object(monkeypatch) -> None:
+    backend = backends.CodexExecBackend(codex_bin="/tmp/fake-codex")
+    stdout = "\n".join(
+        [
+            '{"type":"thread.started","thread_id":"thread-1"}',
+            '{"type":"turn.started"}',
+            '{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\\"x\\":\\"ok\\"}"}}',
+            '{"type":"turn.completed","usage":{"input_tokens":1,"output_tokens":1}}',
+        ]
+    )
+
+    def fake_run(*args, **kwargs):
+        del args, kwargs
+        return backends.subprocess.CompletedProcess(
+            args=["codex", "exec"],
+            returncode=0,
+            stdout=stdout,
+            stderr="",
+        )
+
+    monkeypatch.setattr(backends.subprocess, "run", fake_run)
+
+    result = backend.generate_ir_json(
+        system_prompt="system",
+        user_prompt="user",
+        json_schema=_schema(),
+        model="codex-cli-default",
+        temperature=None,
+        extra=None,
+    )
+
+    assert result.error is None
+    assert result.parsed_json == {"x": "ok"}
+    assert result.provider_meta.api == "codex_exec"
