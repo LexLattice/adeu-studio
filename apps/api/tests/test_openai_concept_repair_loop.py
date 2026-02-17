@@ -63,6 +63,35 @@ def _minimal_concept_payload(*, concept_id: str) -> dict[str, Any]:
     }
 
 
+def _codex_noisy_concept_payload(*, concept_id: str) -> dict[str, Any]:
+    payload = _minimal_concept_payload(concept_id=concept_id)
+    payload["links"] = None
+    payload["bridges"] = None
+    payload["claims"][0]["provenance"]["span"] = {"start": 8, "end": 8}
+    payload["ambiguity"] = [
+        {
+            "id": "a1",
+            "term_id": "t1",
+            "options": ["s_bank_fin", "s_bank_river"],
+            "option_details_by_id": {
+                "s_bank_fin": {
+                    "option_id": "s_bank_fin",
+                    "label": "financial institution",
+                    "variant_ir_id": None,
+                    "patch": None,
+                },
+                "s_bank_river": {
+                    "option_id": "s_bank_river",
+                    "label": "river edge",
+                    "variant_ir_id": None,
+                    "patch": None,
+                },
+            },
+        }
+    ]
+    return payload
+
+
 class _FakeBackend:
     def __init__(self, results: list[BackendResult]):
         self._results = list(results)
@@ -238,3 +267,42 @@ def test_propose_concept_openai_uses_configured_default_loop_limits(monkeypatch)
 
     assert log.k == 1
     assert log.n == 1
+
+
+def test_propose_concept_codex_normalizes_schema_noise_before_validation(monkeypatch) -> None:
+    fake_backend = _FakeBackend([_ok_result(_codex_noisy_concept_payload(concept_id="cn_codex"))])
+
+    def fake_check(*args: object, **kwargs: object) -> tuple[CheckReport, list[Any]]:
+        return _report_pass(), []
+
+    monkeypatch.setattr(
+        openai_concept_provider, "build_codex_exec_backend", lambda **kwargs: fake_backend
+    )
+    monkeypatch.setattr(openai_concept_provider, "concept_check_with_validator_runs", fake_check)
+
+    proposals, log, _ = openai_concept_provider.propose_concept_codex(
+        source_text="bank",
+        mode=KernelMode.LAX,
+        max_candidates=1,
+        max_repairs=0,
+        source_features={},
+    )
+
+    assert len(proposals) == 1
+    concept, _, _ = proposals[0]
+    assert concept.links == []
+    assert concept.bridges == []
+    assert concept.claims[0].provenance is not None
+    assert concept.claims[0].provenance.span is None
+    assert [
+        op.model_dump(mode="json", by_alias=True, exclude_none=True)
+        for op in concept.ambiguity[0].option_details_by_id["s_bank_fin"].patch
+    ] == [
+        {
+            "op": "test",
+            "path": "/schema_version",
+            "value": "adeu.concepts.v0",
+        }
+    ]
+    assert fake_backend.temperatures == [None]
+    assert [attempt.status for attempt in log.attempts] == ["PASS"]

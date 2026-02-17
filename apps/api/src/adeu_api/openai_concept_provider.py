@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -40,6 +41,7 @@ from .openai_proposer_core import (
 )
 
 ConceptProposal = tuple[ConceptIR, CheckReport, list[ValidatorRunRecord]]
+_OPTIONAL_LIST_FIELDS = ("terms", "senses", "claims", "links", "ambiguity", "bridges")
 
 
 @dataclass(frozen=True)
@@ -118,12 +120,75 @@ def _failure_summary(report: CheckReport, runs: list[ValidatorRunRecord]) -> str
     )
 
 
+def _normalize_provenance_span(provenance: dict[str, Any]) -> None:
+    span = provenance.get("span")
+    if not isinstance(span, dict):
+        return
+    start = span.get("start")
+    end = span.get("end")
+    if isinstance(start, int) and isinstance(end, int) and end <= start:
+        provenance["span"] = None
+
+
+def _normalize_concept_payload_for_parse(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = deepcopy(payload)
+
+    for field in _OPTIONAL_LIST_FIELDS:
+        if normalized.get(field) is None:
+            normalized[field] = []
+
+    for field in ("terms", "senses", "claims", "links", "bridges"):
+        rows = normalized.get(field)
+        if not isinstance(rows, list):
+            continue
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            provenance = row.get("provenance")
+            if isinstance(provenance, dict):
+                _normalize_provenance_span(provenance)
+
+    ambiguities = normalized.get("ambiguity")
+    if isinstance(ambiguities, list):
+        schema_version = normalized.get("schema_version", "adeu.concepts.v0")
+        for ambiguity in ambiguities:
+            if not isinstance(ambiguity, dict):
+                continue
+            option_details_by_id = ambiguity.get("option_details_by_id")
+            if not isinstance(option_details_by_id, dict):
+                continue
+            for option_payload in option_details_by_id.values():
+                if not isinstance(option_payload, dict):
+                    continue
+                if option_payload.get("patch") is None:
+                    option_payload["patch"] = []
+                variant_ir_id = option_payload.get("variant_ir_id")
+                patch_value = option_payload.get("patch")
+                if variant_ir_id is None and isinstance(patch_value, list) and not patch_value:
+                    option_payload["patch"] = [
+                        {
+                            "op": "test",
+                            "path": "/schema_version",
+                            "value": schema_version,
+                        }
+                    ]
+
+    return normalized
+
+
 class _ConceptAdapter(ProposerAdapter[ConceptIR, list[ValidatorRunRecord]]):
     domain = "concepts"
 
-    def __init__(self, *, source_text: str, source_features: dict[str, Any]):
+    def __init__(
+        self,
+        *,
+        source_text: str,
+        source_features: dict[str, Any],
+        normalize_parse_payload: bool = False,
+    ):
         self._source_text = source_text
         self._source_features = source_features
+        self._normalize_parse_payload = normalize_parse_payload
 
     def build_initial_prompt(self, *, candidate_idx: int) -> tuple[str, str]:
         system_prompt = (
@@ -178,8 +243,13 @@ class _ConceptAdapter(ProposerAdapter[ConceptIR, list[ValidatorRunRecord]]):
         return system_prompt, user_prompt
 
     def parse_ir(self, payload: dict[str, Any]) -> tuple[ConceptIR | None, str | None]:
+        parse_payload = (
+            _normalize_concept_payload_for_parse(payload)
+            if self._normalize_parse_payload
+            else payload
+        )
         try:
-            return ConceptIR.model_validate(payload), None
+            return ConceptIR.model_validate(parse_payload), None
         except ValidationError as exc:
             return None, f"Concept schema validation failed: {exc}"
 
@@ -296,7 +366,11 @@ def _propose_concept_with_backend(
     want_raw = env_flag("ADEU_LOG_RAW_LLM")
     k, n = _resolve_loop_limits(max_candidates=max_candidates, max_repairs=max_repairs)
 
-    adapter = _ConceptAdapter(source_text=source_text, source_features=source_features)
+    adapter = _ConceptAdapter(
+        source_text=source_text,
+        source_features=source_features,
+        normalize_parse_payload=provider_label == "codex",
+    )
     core_candidates, core_log = run_openai_repair_loop(
         adapter=adapter,
         backend=backend,
