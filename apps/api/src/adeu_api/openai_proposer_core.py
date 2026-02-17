@@ -94,6 +94,7 @@ def run_openai_repair_loop(
     max_repairs: int,
     temperature: float | None = 0.3,
     want_raw: bool = False,
+    provider: str = "openai",
 ) -> tuple[list[CoreCandidate[IRT, AuxT]], CoreProposerLog]:
     created_at = datetime.now(tz=timezone.utc).isoformat()
     attempt_logs: list[CoreAttemptLog] = []
@@ -235,7 +236,7 @@ def run_openai_repair_loop(
             break
 
     return accepted_candidates, CoreProposerLog(
-        provider="openai",
+        provider=provider,
         api=api,
         model=model,
         created_at=created_at,

@@ -285,7 +285,7 @@ function solverStatusFromReport(report: CheckReport | null): string | null {
 
 export default function HomePage() {
   const [clauseText, setClauseText] = useState<string>("");
-  const [provider, setProvider] = useState<"mock" | "openai">("mock");
+  const [provider, setProvider] = useState<"mock" | "openai" | "codex">("mock");
   const [proposerLog, setProposerLog] = useState<ProposerLog | null>(null);
   const [isProposing, setIsProposing] = useState<boolean>(false);
   const [docId, setDocId] = useState<string>("web:adhoc");
@@ -508,6 +508,9 @@ export default function HomePage() {
           </button>
           <button onClick={() => setProvider("openai")} disabled={provider === "openai"}>
             openai
+          </button>
+          <button onClick={() => setProvider("codex")} disabled={provider === "codex"}>
+            codex
           </button>
           <button onClick={propose} disabled={!clauseText.trim() || isProposing}>
             Propose variants

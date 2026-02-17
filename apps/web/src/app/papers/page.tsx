@@ -98,7 +98,7 @@ async function responseErrorText(res: Response): Promise<string> {
 }
 
 export default function PapersPage() {
-  const [provider, setProvider] = useState<"mock" | "openai">("mock");
+  const [provider, setProvider] = useState<"mock" | "openai" | "codex">("mock");
   const [mode, setMode] = useState<KernelMode>("LAX");
   const [docIdInput, setDocIdInput] = useState<string>("");
   const [sourceTextInput, setSourceTextInput] = useState<string>("");
@@ -555,6 +555,9 @@ export default function PapersPage() {
           </button>
           <button onClick={() => setProvider("openai")} disabled={provider === "openai"}>
             openai
+          </button>
+          <button onClick={() => setProvider("codex")} disabled={provider === "codex"}>
+            codex
           </button>
           <span className="muted" style={{ marginLeft: 8 }}>
             Mode

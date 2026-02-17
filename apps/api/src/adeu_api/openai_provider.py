@@ -12,8 +12,15 @@ from adeu_kernel import KernelMode, ValidatorRunRecord, check_with_validator_run
 from pydantic import ValidationError
 
 from .id_canonicalization import canonicalize_ir_ids
-from .openai_backends import BackendApi, build_openai_backend
+from .openai_backends import (
+    BackendApi,
+    OpenAIBackend,
+    build_codex_exec_backend,
+    build_openai_backend,
+)
 from .openai_config import (
+    codex_bin,
+    codex_model,
     env_flag,
     openai_api,
     openai_api_key,
@@ -25,6 +32,7 @@ from .openai_config import (
 )
 from .openai_proposer_core import (
     CoreAttemptLog,
+    CoreProposerLog,
     ProposerAdapter,
     run_openai_repair_loop,
 )
@@ -237,7 +245,12 @@ class _AdeuAdapter(ProposerAdapter[AdeuIR, list[ValidatorRunRecord]]):
 
     def classify_backend_error(self, error_text: str) -> list[str]:
         lowered = error_text.lower()
-        if "http" in lowered or "request failed" in lowered or "openai " in lowered:
+        if (
+            "http" in lowered
+            or "request failed" in lowered
+            or "openai " in lowered
+            or "codex" in lowered
+        ):
             return ["BACKEND_ERROR"]
         return ["SCHEMA_INVALID"]
 
@@ -268,44 +281,18 @@ def _adeu_ir_json_schema() -> dict[str, Any]:
     return payload
 
 
-def propose_openai(
+def _resolve_loop_limits(
     *,
-    clause_text: str,
-    context: Context,
-    mode: KernelMode,
     max_candidates: int | None,
     max_repairs: int | None,
-) -> tuple[list[tuple[AdeuIR, CheckReport]], ProposerLog, str]:
-    api_key = openai_api_key()
-    if not api_key:
-        raise RuntimeError("OpenAI provider not configured (set OPENAI_API_KEY)")
-
-    api = openai_api()
-    model = openai_model()
-    base_url = openai_base_url()
-    schema = _adeu_ir_json_schema()
-    backend = build_openai_backend(api=api, api_key=api_key, base_url=base_url)
-    want_raw = env_flag("ADEU_LOG_RAW_LLM")
-
+) -> tuple[int, int]:
     k = openai_default_max_candidates() if max_candidates is None else max_candidates
     n = openai_default_max_repairs() if max_repairs is None else max_repairs
+    return k, n
 
-    adapter = _AdeuAdapter(clause_text=clause_text, context=context)
-    core_candidates, core_log = run_openai_repair_loop(
-        adapter=adapter,
-        backend=backend,
-        schema=schema,
-        api=api,
-        model=model,
-        mode=mode,
-        max_candidates=k,
-        max_repairs=n,
-        temperature=openai_temperature(),
-        want_raw=want_raw,
-    )
 
-    proposals = [(item.ir, item.report) for item in core_candidates]
-    log = ProposerLog(
+def _build_proposer_log(*, core_log: CoreProposerLog) -> ProposerLog:
+    return ProposerLog(
         provider=core_log.provider,
         api=core_log.api,
         model=core_log.model,
@@ -328,4 +315,94 @@ def propose_openai(
         raw_prompt=core_log.raw_prompt,
         raw_response=core_log.raw_response,
     )
-    return proposals, log, model
+
+
+def _propose_with_backend(
+    *,
+    clause_text: str,
+    context: Context,
+    mode: KernelMode,
+    max_candidates: int | None,
+    max_repairs: int | None,
+    api: BackendApi,
+    model: str,
+    backend: OpenAIBackend,
+    temperature: float | None,
+    provider_label: str,
+) -> tuple[list[tuple[AdeuIR, CheckReport]], ProposerLog, str]:
+    schema = _adeu_ir_json_schema()
+    want_raw = env_flag("ADEU_LOG_RAW_LLM")
+    k, n = _resolve_loop_limits(max_candidates=max_candidates, max_repairs=max_repairs)
+
+    adapter = _AdeuAdapter(clause_text=clause_text, context=context)
+    core_candidates, core_log = run_openai_repair_loop(
+        adapter=adapter,
+        backend=backend,
+        schema=schema,
+        api=api,
+        model=model,
+        mode=mode,
+        max_candidates=k,
+        max_repairs=n,
+        temperature=temperature,
+        want_raw=want_raw,
+        provider=provider_label,
+    )
+
+    proposals = [(item.ir, item.report) for item in core_candidates]
+    return proposals, _build_proposer_log(core_log=core_log), model
+
+
+def propose_openai(
+    *,
+    clause_text: str,
+    context: Context,
+    mode: KernelMode,
+    max_candidates: int | None,
+    max_repairs: int | None,
+) -> tuple[list[tuple[AdeuIR, CheckReport]], ProposerLog, str]:
+    api_key = openai_api_key()
+    if not api_key:
+        raise RuntimeError("OpenAI provider not configured (set OPENAI_API_KEY)")
+
+    api = openai_api()
+    model = openai_model()
+    base_url = openai_base_url()
+    backend = build_openai_backend(api=api, api_key=api_key, base_url=base_url)
+    return _propose_with_backend(
+        clause_text=clause_text,
+        context=context,
+        mode=mode,
+        max_candidates=max_candidates,
+        max_repairs=max_repairs,
+        api=api,
+        model=model,
+        backend=backend,
+        temperature=openai_temperature(),
+        provider_label="openai",
+    )
+
+
+def propose_codex(
+    *,
+    clause_text: str,
+    context: Context,
+    mode: KernelMode,
+    max_candidates: int | None,
+    max_repairs: int | None,
+) -> tuple[list[tuple[AdeuIR, CheckReport]], ProposerLog, str]:
+    api: BackendApi = "codex_exec"
+    model = codex_model()
+    backend = build_codex_exec_backend(codex_bin=codex_bin())
+    return _propose_with_backend(
+        clause_text=clause_text,
+        context=context,
+        mode=mode,
+        max_candidates=max_candidates,
+        max_repairs=max_repairs,
+        api=api,
+        model=model,
+        backend=backend,
+        temperature=None,
+        provider_label="codex",
+    )

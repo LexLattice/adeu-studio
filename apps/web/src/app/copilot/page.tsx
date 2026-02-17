@@ -21,6 +21,10 @@ type ToolCallResponse = {
   result: unknown;
 };
 
+type ApprovalIssueResponse = {
+  approval_id: string;
+};
+
 type TimelineEntry = {
   id: string;
   at: string;
@@ -233,6 +237,26 @@ export default function CopilotPage() {
     setError(null);
     setIsBusy(true);
     try {
+      let approvalId: string | null = null;
+      if (nextWritesAllowed) {
+        const approvalResponse = await fetch(`${apiBase()}/urm/approval/issue`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            provider: "codex",
+            session_id: sessionId,
+            action_kind: "urm.set_mode.enable_writes",
+            action_payload: { writes_allowed: true },
+          }),
+        });
+        if (!approvalResponse.ok) {
+          setError(await parseErrorMessage(approvalResponse));
+          return;
+        }
+        const approvalBody = (await approvalResponse.json()) as ApprovalIssueResponse;
+        approvalId = approvalBody.approval_id;
+      }
+
       const response = await fetch(`${apiBase()}/urm/copilot/mode`, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -240,6 +264,7 @@ export default function CopilotPage() {
           provider: "codex",
           session_id: sessionId,
           writes_allowed: nextWritesAllowed,
+          approval_id: approvalId,
         }),
       });
       if (!response.ok) {

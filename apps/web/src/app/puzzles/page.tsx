@@ -82,7 +82,7 @@ type PuzzleSolveResult = {
 
 export default function PuzzlesPage() {
   const [puzzleText, setPuzzleText] = useState<string>("");
-  const [provider, setProvider] = useState<"mock" | "openai">("mock");
+  const [provider, setProvider] = useState<"mock" | "openai" | "codex">("mock");
   const [mode, setMode] = useState<KernelMode>("LAX");
 
   const [isProposing, setIsProposing] = useState<boolean>(false);
@@ -185,6 +185,9 @@ export default function PuzzlesPage() {
           </button>
           <button onClick={() => setProvider("openai")} disabled={provider === "openai"}>
             openai
+          </button>
+          <button onClick={() => setProvider("codex")} disabled={provider === "codex"}>
+            codex
           </button>
           <button onClick={propose} disabled={!puzzleText.trim() || isProposing}>
             Propose variants

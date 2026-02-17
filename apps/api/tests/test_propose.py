@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from adeu_api.main import ProposeRequest, propose
+from adeu_api.openai_provider import ProposerLog as OpenAIProposerLog
 from adeu_api.scoring import ranking_sort_key, score_key
 from adeu_ir import Context
 from adeu_ir.repo import repo_root
@@ -105,6 +106,41 @@ def test_propose_mock_unknown_clause_returns_empty() -> None:
         )
     )
     assert resp.candidates == []
+
+
+def test_propose_codex_provider_branch(monkeypatch: pytest.MonkeyPatch) -> None:
+    clause = _fixture_clause(name="modality_requires_ambiguity")
+
+    def _fake_propose_codex(**kwargs):
+        del kwargs
+        return (
+            [],
+            OpenAIProposerLog(
+                provider="codex",
+                api="codex_exec",
+                model="codex-cli-default",
+                created_at=datetime.now(tz=timezone.utc).isoformat(),
+                k=1,
+                n=1,
+                attempts=[],
+            ),
+            "codex-cli-default",
+        )
+
+    monkeypatch.setattr("adeu_api.openai_provider.propose_codex", _fake_propose_codex)
+    resp = propose(
+        ProposeRequest(
+            clause_text=clause,
+            provider="codex",
+            mode=KernelMode.LAX,
+            max_candidates=1,
+            max_repairs=1,
+        )
+    )
+
+    assert resp.provider.kind == "codex"
+    assert resp.provider.api == "codex_exec"
+    assert resp.provider.model == "codex-cli-default"
 
 
 @pytest.mark.skipif(

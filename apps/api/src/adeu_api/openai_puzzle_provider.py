@@ -13,8 +13,15 @@ from adeu_puzzles import KnightsKnavesPuzzle
 from adeu_puzzles import check_with_validator_runs as puzzle_check_with_validator_runs
 from pydantic import ValidationError
 
-from .openai_backends import BackendApi, build_openai_backend
+from .openai_backends import (
+    BackendApi,
+    OpenAIBackend,
+    build_codex_exec_backend,
+    build_openai_backend,
+)
 from .openai_config import (
+    codex_bin,
+    codex_model,
     env_flag,
     openai_api,
     openai_api_key,
@@ -26,6 +33,7 @@ from .openai_config import (
 )
 from .openai_proposer_core import (
     CoreAttemptLog,
+    CoreProposerLog,
     ProposerAdapter,
     run_openai_repair_loop,
 )
@@ -201,7 +209,12 @@ class _PuzzleAdapter(ProposerAdapter[KnightsKnavesPuzzle, list[ValidatorRunRecor
 
     def classify_backend_error(self, error_text: str) -> list[str]:
         lowered = error_text.lower()
-        if "http" in lowered or "request failed" in lowered or "openai " in lowered:
+        if (
+            "http" in lowered
+            or "request failed" in lowered
+            or "openai " in lowered
+            or "codex" in lowered
+        ):
             return ["BACKEND_ERROR"]
         return ["PUZZLE_SCHEMA_INVALID"]
 
@@ -234,49 +247,22 @@ def _puzzle_json_schema() -> dict[str, Any]:
     return payload
 
 
-def propose_puzzle_openai(
+def _resolve_loop_limits(
     *,
-    puzzle_text: str,
-    mode: KernelMode,
     max_candidates: int | None,
     max_repairs: int | None,
-    source_features: dict[str, Any],
-    context_override: dict[str, Any] | None,
-) -> tuple[list[PuzzleProposal], PuzzleProposerLog, str]:
-    api_key = openai_api_key()
-    if not api_key:
-        raise RuntimeError("OpenAI provider not configured (set OPENAI_API_KEY)")
-
-    api = openai_api()
-    model = openai_model()
-    base_url = openai_base_url()
-    schema = _puzzle_json_schema()
-    backend = build_openai_backend(api=api, api_key=api_key, base_url=base_url)
-    want_raw = env_flag("ADEU_LOG_RAW_LLM")
-
+) -> tuple[int, int]:
     k = openai_default_max_candidates() if max_candidates is None else max_candidates
     n = openai_default_max_repairs() if max_repairs is None else max_repairs
+    return k, n
 
-    adapter = _PuzzleAdapter(
-        puzzle_text=puzzle_text,
-        source_features=source_features,
-        context_override=context_override,
-    )
-    core_candidates, core_log = run_openai_repair_loop(
-        adapter=adapter,
-        backend=backend,
-        schema=schema,
-        api=api,
-        model=model,
-        mode=mode,
-        max_candidates=k,
-        max_repairs=n,
-        temperature=openai_temperature(),
-        want_raw=want_raw,
-    )
 
-    proposals = [(item.ir, item.report, item.aux) for item in core_candidates]
-    log = PuzzleProposerLog(
+def _build_puzzle_proposer_log(
+    *,
+    core_log: CoreProposerLog,
+    source_features: dict[str, Any],
+) -> PuzzleProposerLog:
+    return PuzzleProposerLog(
         provider=core_log.provider,
         api=core_log.api,
         model=core_log.model,
@@ -300,4 +286,107 @@ def propose_puzzle_openai(
         raw_prompt=core_log.raw_prompt,
         raw_response=core_log.raw_response,
     )
-    return proposals, log, model
+
+
+def _propose_puzzle_with_backend(
+    *,
+    puzzle_text: str,
+    mode: KernelMode,
+    max_candidates: int | None,
+    max_repairs: int | None,
+    source_features: dict[str, Any],
+    context_override: dict[str, Any] | None,
+    api: BackendApi,
+    model: str,
+    backend: OpenAIBackend,
+    temperature: float | None,
+    provider_label: str,
+) -> tuple[list[PuzzleProposal], PuzzleProposerLog, str]:
+    schema = _puzzle_json_schema()
+    want_raw = env_flag("ADEU_LOG_RAW_LLM")
+    k, n = _resolve_loop_limits(max_candidates=max_candidates, max_repairs=max_repairs)
+
+    adapter = _PuzzleAdapter(
+        puzzle_text=puzzle_text,
+        source_features=source_features,
+        context_override=context_override,
+    )
+    core_candidates, core_log = run_openai_repair_loop(
+        adapter=adapter,
+        backend=backend,
+        schema=schema,
+        api=api,
+        model=model,
+        mode=mode,
+        max_candidates=k,
+        max_repairs=n,
+        temperature=temperature,
+        want_raw=want_raw,
+        provider=provider_label,
+    )
+
+    proposals = [(item.ir, item.report, item.aux) for item in core_candidates]
+    return (
+        proposals,
+        _build_puzzle_proposer_log(core_log=core_log, source_features=source_features),
+        model,
+    )
+
+
+def propose_puzzle_openai(
+    *,
+    puzzle_text: str,
+    mode: KernelMode,
+    max_candidates: int | None,
+    max_repairs: int | None,
+    source_features: dict[str, Any],
+    context_override: dict[str, Any] | None,
+) -> tuple[list[PuzzleProposal], PuzzleProposerLog, str]:
+    api_key = openai_api_key()
+    if not api_key:
+        raise RuntimeError("OpenAI provider not configured (set OPENAI_API_KEY)")
+
+    api = openai_api()
+    model = openai_model()
+    base_url = openai_base_url()
+    backend = build_openai_backend(api=api, api_key=api_key, base_url=base_url)
+    return _propose_puzzle_with_backend(
+        puzzle_text=puzzle_text,
+        mode=mode,
+        max_candidates=max_candidates,
+        max_repairs=max_repairs,
+        source_features=source_features,
+        context_override=context_override,
+        api=api,
+        model=model,
+        backend=backend,
+        temperature=openai_temperature(),
+        provider_label="openai",
+    )
+
+
+def propose_puzzle_codex(
+    *,
+    puzzle_text: str,
+    mode: KernelMode,
+    max_candidates: int | None,
+    max_repairs: int | None,
+    source_features: dict[str, Any],
+    context_override: dict[str, Any] | None,
+) -> tuple[list[PuzzleProposal], PuzzleProposerLog, str]:
+    api: BackendApi = "codex_exec"
+    model = codex_model()
+    backend = build_codex_exec_backend(codex_bin=codex_bin())
+    return _propose_puzzle_with_backend(
+        puzzle_text=puzzle_text,
+        mode=mode,
+        max_candidates=max_candidates,
+        max_repairs=max_repairs,
+        source_features=source_features,
+        context_override=context_override,
+        api=api,
+        model=model,
+        backend=backend,
+        temperature=None,
+        provider_label="codex",
+    )

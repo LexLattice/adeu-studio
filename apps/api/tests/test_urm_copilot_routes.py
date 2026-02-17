@@ -683,6 +683,20 @@ def test_copilot_steer_endpoint_is_idempotent_and_rate_limited(
             },
         )
     )
+    manager = _get_manager()
+    assert _wait_for(
+        lambda: (
+            (runtime := manager._sessions.get(session_id)) is not None
+            and isinstance(runtime.last_turn_id, str)
+            and bool(runtime.last_turn_id)
+        ),
+        timeout_secs=2.0,
+        interval_secs=0.02,
+    )
+    runtime = manager._sessions.get(session_id)  # type: ignore[attr-defined]
+    assert runtime is not None
+    target_turn_id = runtime.last_turn_id
+    assert isinstance(target_turn_id, str) and target_turn_id
 
     steer = urm_copilot_steer_endpoint(
         CopilotSteerRequest(
@@ -691,11 +705,11 @@ def test_copilot_steer_endpoint_is_idempotent_and_rate_limited(
             client_request_id="steer-1",
             text="focus on tests first",
             steer_intent_class="reprioritize",
-            target_turn_id="1",
+            target_turn_id=target_turn_id,
         )
     )
-    assert steer.target_turn_id == "1"
-    assert steer.accepted_turn_id == "1"
+    assert steer.target_turn_id == target_turn_id
+    assert steer.accepted_turn_id == target_turn_id
     assert steer.resolved_against_seq >= 0
     assert steer.idempotent_replay is False
 
@@ -706,7 +720,7 @@ def test_copilot_steer_endpoint_is_idempotent_and_rate_limited(
             client_request_id="steer-1",
             text="focus on tests first",
             steer_intent_class="reprioritize",
-            target_turn_id="1",
+            target_turn_id=target_turn_id,
         )
     )
     assert replay.accepted_turn_id == steer.accepted_turn_id
@@ -721,10 +735,10 @@ def test_copilot_steer_endpoint_is_idempotent_and_rate_limited(
                     session_id=session_id,
                     client_request_id=f"steer-{idx}",
                     text=f"steer-{idx}",
-                    target_turn_id="1",
+                    target_turn_id=target_turn_id,
                 )
             )
-            assert response.accepted_turn_id == "1"
+            assert response.accepted_turn_id == target_turn_id
             continue
         with pytest.raises(HTTPException) as exc_info:
             urm_copilot_steer_endpoint(
@@ -733,23 +747,22 @@ def test_copilot_steer_endpoint_is_idempotent_and_rate_limited(
                     session_id=session_id,
                     client_request_id=f"steer-{idx}",
                     text=f"steer-{idx}",
-                    target_turn_id="1",
+                    target_turn_id=target_turn_id,
                 )
             )
         assert exc_info.value.status_code == 400
         assert exc_info.value.detail["code"] == "URM_STEER_DENIED"
-    manager = _get_manager()
     events, _ = manager.iter_events(session_id=session_id, after_seq=0)
     assert any(
         event.event_kind == "STEER_APPLIED"
-        and event.payload.get("accepted_turn_id") == "1"
+        and event.payload.get("accepted_turn_id") == target_turn_id
         and isinstance(event.payload.get("resolved_against_seq"), int)
         for event in events
     )
     assert any(
         event.event_kind == "STEER_DENIED"
         and event.payload.get("error_code") == "URM_STEER_DENIED"
-        and event.payload.get("target_turn_id") == "1"
+        and event.payload.get("target_turn_id") == target_turn_id
         for event in events
     )
     _reset_manager_for_tests()

@@ -226,7 +226,7 @@ type ConceptTournamentCandidateResult = {
 
 type ConceptTournamentResponse = {
   tournament_mode: TournamentMode;
-  provider: "mock" | "openai";
+  provider: "mock" | "openai" | "codex";
   tournament_score_version: typeof TOURNAMENT_SCORE_VERSION;
   base_ir_hash: string;
   base_objective_vector: number[];
@@ -678,7 +678,7 @@ function QuestionCard({
 
 export default function ConceptsPage() {
   const [sourceText, setSourceText] = useState<string>("");
-  const [provider, setProvider] = useState<"mock" | "openai">("mock");
+  const [provider, setProvider] = useState<"mock" | "openai" | "codex">("mock");
   const [mode, setMode] = useState<KernelMode>("LAX");
   const [isProposing, setIsProposing] = useState<boolean>(false);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState<boolean>(false);
@@ -1283,6 +1283,9 @@ export default function ConceptsPage() {
           </button>
           <button onClick={() => setProvider("openai")} disabled={provider === "openai"}>
             openai
+          </button>
+          <button onClick={() => setProvider("codex")} disabled={provider === "codex"}>
+            codex
           </button>
           <button onClick={propose} disabled={!sourceText.trim() || isProposing}>
             Propose variants
