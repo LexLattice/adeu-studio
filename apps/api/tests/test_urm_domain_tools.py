@@ -210,6 +210,7 @@ def test_urm_tool_call_paper_domain_closed_world_flow(
     candidate = extract.result["abstract_text"]
     assert "second paragraph" not in candidate.lower()
     assert extract.result["word_count"] > 0
+    assert extract.result["candidate_date_like"] is False
 
     check = urm_tool_call_endpoint(
         ToolCallRequest(
@@ -274,6 +275,7 @@ def test_urm_tool_call_paper_extract_prefers_abstract_section_over_date_header(
     assert "2026-02-12" not in extract.result["abstract_text"]
     assert "keywords" not in extract.result["abstract_text"].lower()
     assert extract.result["sentence_count"] >= 2
+    assert extract.result["candidate_date_like"] is False
     _reset_manager_for_tests()
 
 

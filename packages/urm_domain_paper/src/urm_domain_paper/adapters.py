@@ -90,11 +90,13 @@ class PaperDomainTools:
         paragraph, strategy = _select_abstract_candidate(args.source_text)
         words = _word_count(paragraph)
         sentence_count = _sentence_count(paragraph)
+        candidate_date_like = _is_date_like(paragraph)
         return {
             "abstract_text": paragraph,
             "word_count": words,
             "sentence_count": sentence_count,
             "extract_strategy": strategy,
+            "candidate_date_like": candidate_date_like,
             "candidate_hash": sha256_text(paragraph),
         }
 

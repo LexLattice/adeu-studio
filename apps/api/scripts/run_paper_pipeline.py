@@ -6,7 +6,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from adeu_api.paper_pipeline import derive_cleaned_source_text, select_best_flow
+from adeu_api.paper_pipeline import (
+    build_flow_gate_diagnostics,
+    classify_flow_divergence,
+    derive_cleaned_source_text,
+    select_best_flow,
+)
 from adeu_api.urm_routes import _reset_manager_for_tests, urm_tool_call_endpoint
 from urm_runtime.hashing import canonical_json
 from urm_runtime.models import ToolCallRequest
@@ -114,6 +119,10 @@ def _run_flow(
             "checks": check["result"]["checks"],
         },
     )
+    diagnostics = build_flow_gate_diagnostics(
+        extract_result=extract["result"],
+        check_result=check["result"],
+    )
     return {
         "label": label,
         "input_chars": len(source_text),
@@ -122,6 +131,9 @@ def _run_flow(
         "check": check,
         "emit": emit,
         "constraint_passes": bool(check["result"]["passes"]),
+        "structural_passes": diagnostics["structural_passes"],
+        "gate_results": diagnostics["gate_results"],
+        "fail_codes": diagnostics["fail_codes"],
     }
 
 
@@ -160,11 +172,20 @@ def _build_summary(
     selected_flow, selection_reason = select_best_flow(flows)
     selected_label = str(selected_flow["label"])
     selected_extract = selected_flow["extract"]["result"]
-    selected_check = selected_flow["check"]["result"]
+    flows_diverged, divergence_class = classify_flow_divergence(flows)
     raw_flow = _flow_by_label(flows, label="raw_pdf_text")
     raw_parse_degraded = True
     if raw_flow is not None:
-        raw_parse_degraded = not bool(raw_flow["check"]["result"]["passes"])
+        raw_parse_degraded = not bool(raw_flow.get("structural_passes"))
+    selected_structural_passes = bool(selected_flow.get("structural_passes"))
+    selected_fail_codes = selected_flow.get("fail_codes")
+    if not isinstance(selected_fail_codes, list):
+        selected_fail_codes = []
+    final_parse_quality = (
+        "ok"
+        if selected_structural_passes and divergence_class != "major"
+        else "degraded"
+    )
 
     return {
         "schema": "paper_pipeline_summary@1",
@@ -175,10 +196,19 @@ def _build_summary(
         "selected_candidate_hash": selected_extract.get("candidate_hash"),
         "selected_artifact_id": selected_flow["emit"]["result"].get("artifact_id"),
         "selection_reason": selection_reason,
+        "selected_fail_codes": selected_fail_codes,
         "fallback_used": selected_label != "raw_pdf_text",
         "parse_degraded_raw": raw_parse_degraded,
-        "final_parse_quality": "ok" if bool(selected_check.get("passes")) else "degraded",
+        "final_parse_quality": final_parse_quality,
         "selected_word_count": selected_extract.get("word_count"),
+        "flows_diverged": flows_diverged,
+        "divergence_class": divergence_class,
+        "divergence_reason_codes": (
+            ["ARTIFACT_ID_MISMATCH", f"CLASS_{divergence_class.upper()}"]
+            if flows_diverged
+            else ["ARTIFACT_ID_MATCH"]
+        ),
+        "selected_gate_results": selected_flow.get("gate_results"),
     }
 
 
