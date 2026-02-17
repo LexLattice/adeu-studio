@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 from adeu_api.main import PuzzleProposeRequest, propose_puzzle
+from adeu_api.openai_puzzle_provider import PuzzleProposerLog
 from adeu_api.scoring import ranking_sort_key, score_key
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
@@ -57,6 +59,45 @@ def test_puzzles_propose_mock_unknown_text_returns_empty() -> None:
     )
     assert resp.provider.kind == "mock"
     assert resp.candidates == []
+
+
+def test_puzzles_propose_codex_provider_branch(monkeypatch: pytest.MonkeyPatch) -> None:
+    puzzle_text = _fixture_puzzle_text(name="knights_knaves_basic")
+
+    def _fake_propose_puzzle_codex(**kwargs):
+        del kwargs
+        return (
+            [],
+            PuzzleProposerLog(
+                provider="codex",
+                api="codex_exec",
+                model="codex-cli-default",
+                created_at=datetime.now(tz=timezone.utc).isoformat(),
+                k=1,
+                n=1,
+                source_features={},
+                attempts=[],
+            ),
+            "codex-cli-default",
+        )
+
+    monkeypatch.setattr(
+        "adeu_api.openai_puzzle_provider.propose_puzzle_codex",
+        _fake_propose_puzzle_codex,
+    )
+    resp = propose_puzzle(
+        PuzzleProposeRequest(
+            puzzle_text=puzzle_text,
+            provider="codex",
+            mode=KernelMode.LAX,
+            max_candidates=1,
+            max_repairs=1,
+        )
+    )
+
+    assert resp.provider.kind == "codex"
+    assert resp.provider.api == "codex_exec"
+    assert resp.provider.model == "codex-cli-default"
 
 
 @pytest.mark.skipif(

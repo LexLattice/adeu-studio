@@ -13,8 +13,10 @@ from adeu_puzzles import KnightsKnavesPuzzle
 from adeu_puzzles import check_with_validator_runs as puzzle_check_with_validator_runs
 from pydantic import ValidationError
 
-from .openai_backends import BackendApi, build_openai_backend
+from .openai_backends import BackendApi, build_codex_exec_backend, build_openai_backend
 from .openai_config import (
+    codex_bin,
+    codex_model,
     env_flag,
     openai_api,
     openai_api_key,
@@ -201,7 +203,12 @@ class _PuzzleAdapter(ProposerAdapter[KnightsKnavesPuzzle, list[ValidatorRunRecor
 
     def classify_backend_error(self, error_text: str) -> list[str]:
         lowered = error_text.lower()
-        if "http" in lowered or "request failed" in lowered or "openai " in lowered:
+        if (
+            "http" in lowered
+            or "request failed" in lowered
+            or "openai " in lowered
+            or "codex" in lowered
+        ):
             return ["BACKEND_ERROR"]
         return ["PUZZLE_SCHEMA_INVALID"]
 
@@ -273,6 +280,71 @@ def propose_puzzle_openai(
         max_repairs=n,
         temperature=openai_temperature(),
         want_raw=want_raw,
+    )
+
+    proposals = [(item.ir, item.report, item.aux) for item in core_candidates]
+    log = PuzzleProposerLog(
+        provider=core_log.provider,
+        api=core_log.api,
+        model=core_log.model,
+        created_at=core_log.created_at,
+        k=core_log.k,
+        n=core_log.n,
+        source_features=source_features,
+        attempts=[
+            PuzzleProposerAttemptLog(
+                attempt_idx=attempt.attempt_idx,
+                status=attempt.status,
+                reason_codes_summary=attempt.reason_codes_summary,
+                score_key=attempt.score_key,
+                accepted_by_gate=attempt.accepted_by_gate,
+                candidate_puzzle_id=attempt.candidate_id,
+            )
+            for attempt in core_log.attempts
+        ],
+        prompt_hash=core_log.prompt_hash,
+        response_hash=core_log.response_hash,
+        raw_prompt=core_log.raw_prompt,
+        raw_response=core_log.raw_response,
+    )
+    return proposals, log, model
+
+
+def propose_puzzle_codex(
+    *,
+    puzzle_text: str,
+    mode: KernelMode,
+    max_candidates: int | None,
+    max_repairs: int | None,
+    source_features: dict[str, Any],
+    context_override: dict[str, Any] | None,
+) -> tuple[list[PuzzleProposal], PuzzleProposerLog, str]:
+    api: BackendApi = "codex_exec"
+    model = codex_model()
+    schema = _puzzle_json_schema()
+    backend = build_codex_exec_backend(codex_bin=codex_bin())
+    want_raw = env_flag("ADEU_LOG_RAW_LLM")
+
+    k = openai_default_max_candidates() if max_candidates is None else max_candidates
+    n = openai_default_max_repairs() if max_repairs is None else max_repairs
+
+    adapter = _PuzzleAdapter(
+        puzzle_text=puzzle_text,
+        source_features=source_features,
+        context_override=context_override,
+    )
+    core_candidates, core_log = run_openai_repair_loop(
+        adapter=adapter,
+        backend=backend,
+        schema=schema,
+        api=api,
+        model=model,
+        mode=mode,
+        max_candidates=k,
+        max_repairs=n,
+        temperature=None,
+        want_raw=want_raw,
+        provider="codex",
     )
 
     proposals = [(item.ir, item.report, item.aux) for item in core_candidates]

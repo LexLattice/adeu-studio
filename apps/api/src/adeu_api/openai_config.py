@@ -7,6 +7,8 @@ from .openai_backends import BackendApi
 
 DEFAULT_OPENAI_MODEL = "gpt-5.2"
 DEFAULT_OPENAI_API: BackendApi = "responses"
+DEFAULT_CODEX_MODEL = "codex-cli-default"
+DEFAULT_CODEX_BIN = "codex"
 DEFAULT_OPENAI_TEMPERATURE = 0.3
 MIN_OPENAI_TEMPERATURE = 0.0
 MAX_OPENAI_TEMPERATURE = 2.0
@@ -39,6 +41,14 @@ def openai_api() -> BackendApi:
 
 def openai_base_url() -> str:
     return os.environ.get("ADEU_OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+
+
+def codex_model() -> str:
+    return os.environ.get("ADEU_CODEX_MODEL", DEFAULT_CODEX_MODEL).strip() or DEFAULT_CODEX_MODEL
+
+
+def codex_bin() -> str:
+    return os.environ.get("ADEU_CODEX_BIN", DEFAULT_CODEX_BIN).strip() or DEFAULT_CODEX_BIN
 
 
 def openai_temperature() -> float:

@@ -14,8 +14,10 @@ from adeu_kernel import KernelMode, ValidatorRunRecord
 from pydantic import ValidationError
 
 from .concept_id_canonicalization import canonicalize_concept_ids
-from .openai_backends import BackendApi, build_openai_backend
+from .openai_backends import BackendApi, build_codex_exec_backend, build_openai_backend
 from .openai_config import (
+    codex_bin,
+    codex_model,
     env_flag,
     openai_api,
     openai_api_key,
@@ -194,7 +196,12 @@ class _ConceptAdapter(ProposerAdapter[ConceptIR, list[ValidatorRunRecord]]):
 
     def classify_backend_error(self, error_text: str) -> list[str]:
         lowered = error_text.lower()
-        if "http" in lowered or "request failed" in lowered or "openai " in lowered:
+        if (
+            "http" in lowered
+            or "request failed" in lowered
+            or "openai " in lowered
+            or "codex" in lowered
+        ):
             return ["BACKEND_ERROR"]
         return ["CONCEPT_SCHEMA_INVALID"]
 
@@ -259,6 +266,66 @@ def propose_concept_openai(
         max_repairs=n,
         temperature=openai_temperature(),
         want_raw=want_raw,
+    )
+
+    proposals = [(item.ir, item.report, item.aux) for item in core_candidates]
+    log = ConceptProposerLog(
+        provider=core_log.provider,
+        api=core_log.api,
+        model=core_log.model,
+        created_at=core_log.created_at,
+        k=core_log.k,
+        n=core_log.n,
+        source_features=source_features,
+        attempts=[
+            ConceptProposerAttemptLog(
+                attempt_idx=attempt.attempt_idx,
+                status=attempt.status,
+                reason_codes_summary=attempt.reason_codes_summary,
+                score_key=attempt.score_key,
+                accepted_by_gate=attempt.accepted_by_gate,
+                candidate_concept_id=attempt.candidate_id,
+            )
+            for attempt in core_log.attempts
+        ],
+        prompt_hash=core_log.prompt_hash,
+        response_hash=core_log.response_hash,
+        raw_prompt=core_log.raw_prompt,
+        raw_response=core_log.raw_response,
+    )
+    return proposals, log, model
+
+
+def propose_concept_codex(
+    *,
+    source_text: str,
+    mode: KernelMode,
+    max_candidates: int | None,
+    max_repairs: int | None,
+    source_features: dict[str, Any],
+) -> tuple[list[ConceptProposal], ConceptProposerLog, str]:
+    api: BackendApi = "codex_exec"
+    model = codex_model()
+    schema = _concept_json_schema()
+    backend = build_codex_exec_backend(codex_bin=codex_bin())
+    want_raw = env_flag("ADEU_LOG_RAW_LLM")
+
+    k = openai_default_max_candidates() if max_candidates is None else max_candidates
+    n = openai_default_max_repairs() if max_repairs is None else max_repairs
+
+    adapter = _ConceptAdapter(source_text=source_text, source_features=source_features)
+    core_candidates, core_log = run_openai_repair_loop(
+        adapter=adapter,
+        backend=backend,
+        schema=schema,
+        api=api,
+        model=model,
+        mode=mode,
+        max_candidates=k,
+        max_repairs=n,
+        temperature=None,
+        want_raw=want_raw,
+        provider="codex",
     )
 
     proposals = [(item.ir, item.report, item.aux) for item in core_candidates]

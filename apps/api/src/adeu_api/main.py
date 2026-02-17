@@ -124,7 +124,7 @@ from .explain_builder import (
 from .hashing import canonical_json, sha256_canonical_json, sha256_text
 from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
-from .openai_concept_provider import propose_concept_openai
+from .openai_concept_provider import propose_concept_codex, propose_concept_openai
 from .puzzle_id_canonicalization import canonicalize_puzzle_ids
 from .puzzle_mock_provider import get_puzzle_fixture_bundle
 from .puzzle_source_features import extract_puzzle_source_features
@@ -334,12 +334,13 @@ DEFAULT_CORS_ALLOW_ORIGINS: tuple[str, ...] = (
 )
 CORS_ALLOW_ORIGINS = _env_csv("ADEU_CORS_ALLOW_ORIGINS") or list(DEFAULT_CORS_ALLOW_ORIGINS)
 LOCALHOST_CORS_ORIGIN_REGEX = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
+ProviderKind = Literal["mock", "openai", "codex"]
 
 
 class ProposeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     clause_text: str = Field(min_length=1)
-    provider: Literal["mock", "openai"] = "mock"
+    provider: ProviderKind = "mock"
     mode: KernelMode = KernelMode.LAX
     context: Context | None = None
     max_candidates: int | None = Field(default=None, ge=1, le=MAX_PROPOSE_CANDIDATES)
@@ -348,7 +349,7 @@ class ProposeRequest(BaseModel):
 
 class ProviderInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    kind: Literal["mock", "openai"]
+    kind: ProviderKind
     api: str | None = None
     model: str | None = None
 
@@ -451,7 +452,7 @@ class ConceptTournamentRequest(BaseModel):
     doc_id: str | None = None
     mode: KernelMode = KernelMode.LAX
     tournament_mode: Literal["live_generation", "replay_candidates"] = "replay_candidates"
-    provider: Literal["mock", "openai"] = "mock"
+    provider: ProviderKind = "mock"
     candidates: list[ConceptTournamentCandidateInput] | None = Field(
         default=None,
         max_length=MAX_TOURNAMENT_REPLAY_CANDIDATES,
@@ -535,7 +536,7 @@ class ConceptArtifactCreateRequest(BaseModel):
 class PuzzleProposeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     puzzle_text: str = Field(min_length=1)
-    provider: Literal["mock", "openai"] = "mock"
+    provider: ProviderKind = "mock"
     mode: KernelMode = KernelMode.LAX
     context_override: dict[str, Any] | None = None
     max_candidates: int | None = Field(default=None, ge=1, le=MAX_PROPOSE_CANDIDATES)
@@ -546,7 +547,7 @@ class ConceptProposeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     source_text: str | None = Field(default=None, min_length=1)
     doc_id: str | None = None
-    provider: Literal["mock", "openai"] = "mock"
+    provider: ProviderKind = "mock"
     mode: KernelMode = KernelMode.LAX
     max_candidates: int | None = Field(default=None, ge=1, le=MAX_PROPOSE_CANDIDATES)
     max_repairs: int | None = Field(default=None, ge=0, le=MAX_PROPOSE_REPAIRS)
@@ -962,7 +963,7 @@ class ConceptTournamentCandidateResult(BaseModel):
 class ConceptTournamentResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     tournament_mode: Literal["live_generation", "replay_candidates"]
-    provider: Literal["mock", "openai"]
+    provider: ProviderKind
     tournament_score_version: Literal["concepts.tscore.v3"] = TOURNAMENT_SCORE_VERSION
     base_ir_hash: str
     base_objective_vector: list[int] = Field(default_factory=list)
@@ -3838,11 +3839,14 @@ def propose(req: ProposeRequest) -> ProposeResponse:
         )
 
     context = base_context.model_copy(update={"source_features": features})
-    if req.provider == "openai":
-        from .openai_provider import propose_openai
+    if req.provider in {"openai", "codex"}:
+        if req.provider == "openai":
+            from .openai_provider import propose_openai as propose_external
+        else:
+            from .openai_provider import propose_codex as propose_external
 
         try:
-            proposed, openai_log, model = propose_openai(
+            proposed, provider_log, model = propose_external(
                 clause_text=clause,
                 context=context,
                 mode=req.mode,
@@ -3855,15 +3859,15 @@ def propose(req: ProposeRequest) -> ProposeResponse:
         candidates = _score_and_rank_proposals(proposed)
         rank_by_ir_id = {candidate.ir.ir_id: candidate.rank for candidate in candidates}
         return ProposeResponse(
-            provider=ProviderInfo(kind="openai", api=openai_log.api, model=model),
+            provider=ProviderInfo(kind=req.provider, api=provider_log.api, model=model),
             candidates=candidates,
             proposer_log=ProposerLog(
-                provider=openai_log.provider,
-                api=openai_log.api,
-                model=openai_log.model,
-                created_at=openai_log.created_at,
-                k=openai_log.k,
-                n=openai_log.n,
+                provider=provider_log.provider,
+                api=provider_log.api,
+                model=provider_log.model,
+                created_at=provider_log.created_at,
+                k=provider_log.k,
+                n=provider_log.n,
                 source_features=features.model_dump(mode="json"),
                 attempts=[
                     ProposerAttempt(
@@ -3874,12 +3878,12 @@ def propose(req: ProposeRequest) -> ProposeResponse:
                         accepted_by_gate=a.accepted_by_gate,
                         candidate_rank=rank_by_ir_id.get(a.candidate_ir_id),
                     )
-                    for a in openai_log.attempts
+                    for a in provider_log.attempts
                 ],
-                prompt_hash=openai_log.prompt_hash,
-                response_hash=openai_log.response_hash,
-                raw_prompt=openai_log.raw_prompt,
-                raw_response=openai_log.raw_response,
+                prompt_hash=provider_log.prompt_hash,
+                response_hash=provider_log.response_hash,
+                raw_prompt=provider_log.raw_prompt,
+                raw_response=provider_log.raw_response,
             ),
         )
 
@@ -4369,11 +4373,14 @@ def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
     puzzle_text = req.puzzle_text.strip()
     source_features = extract_puzzle_source_features(puzzle_text)
 
-    if req.provider == "openai":
-        from .openai_puzzle_provider import propose_puzzle_openai
+    if req.provider in {"openai", "codex"}:
+        if req.provider == "openai":
+            from .openai_puzzle_provider import propose_puzzle_openai as propose_external
+        else:
+            from .openai_puzzle_provider import propose_puzzle_codex as propose_external
 
         try:
-            proposed, puzzle_log, model = propose_puzzle_openai(
+            proposed, provider_log, model = propose_external(
                 puzzle_text=puzzle_text,
                 mode=req.mode,
                 max_candidates=req.max_candidates,
@@ -4394,16 +4401,16 @@ def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
         )
         rank_by_puzzle_id = {candidate.ir.puzzle_id: candidate.rank for candidate in candidates}
         return PuzzleProposeResponse(
-            provider=ProviderInfo(kind="openai", api=puzzle_log.api, model=model),
+            provider=ProviderInfo(kind=req.provider, api=provider_log.api, model=model),
             candidates=candidates,
             proposer_log=ProposerLog(
-                provider=puzzle_log.provider,
-                api=puzzle_log.api,
-                model=puzzle_log.model,
-                created_at=puzzle_log.created_at,
-                k=puzzle_log.k,
-                n=puzzle_log.n,
-                source_features=puzzle_log.source_features,
+                provider=provider_log.provider,
+                api=provider_log.api,
+                model=provider_log.model,
+                created_at=provider_log.created_at,
+                k=provider_log.k,
+                n=provider_log.n,
+                source_features=provider_log.source_features,
                 attempts=[
                     ProposerAttempt(
                         attempt_idx=attempt.attempt_idx,
@@ -4417,12 +4424,12 @@ def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
                             else None
                         ),
                     )
-                    for attempt in puzzle_log.attempts
+                    for attempt in provider_log.attempts
                 ],
-                prompt_hash=puzzle_log.prompt_hash,
-                response_hash=puzzle_log.response_hash,
-                raw_prompt=puzzle_log.raw_prompt,
-                raw_response=puzzle_log.raw_response,
+                prompt_hash=provider_log.prompt_hash,
+                response_hash=provider_log.response_hash,
+                raw_prompt=provider_log.raw_prompt,
+                raw_response=provider_log.raw_response,
             ),
         )
 
@@ -4493,9 +4500,12 @@ def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
     source_text = source_text.strip()
     source_features = extract_concept_source_features(source_text)
 
-    if req.provider == "openai":
+    if req.provider in {"openai", "codex"}:
+        propose_external = (
+            propose_concept_openai if req.provider == "openai" else propose_concept_codex
+        )
         try:
-            proposed, concept_log, model = propose_concept_openai(
+            proposed, provider_log, model = propose_external(
                 source_text=source_text,
                 mode=req.mode,
                 max_candidates=req.max_candidates,
@@ -4515,16 +4525,16 @@ def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
         )
         rank_by_concept_id = {candidate.ir.concept_id: candidate.rank for candidate in candidates}
         return ConceptProposeResponse(
-            provider=ProviderInfo(kind="openai", api=concept_log.api, model=model),
+            provider=ProviderInfo(kind=req.provider, api=provider_log.api, model=model),
             candidates=candidates,
             proposer_log=ProposerLog(
-                provider=concept_log.provider,
-                api=concept_log.api,
-                model=concept_log.model,
-                created_at=concept_log.created_at,
-                k=concept_log.k,
-                n=concept_log.n,
-                source_features=concept_log.source_features,
+                provider=provider_log.provider,
+                api=provider_log.api,
+                model=provider_log.model,
+                created_at=provider_log.created_at,
+                k=provider_log.k,
+                n=provider_log.n,
+                source_features=provider_log.source_features,
                 attempts=[
                     ProposerAttempt(
                         attempt_idx=attempt.attempt_idx,
@@ -4538,12 +4548,12 @@ def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
                             else None
                         ),
                     )
-                    for attempt in concept_log.attempts
+                    for attempt in provider_log.attempts
                 ],
-                prompt_hash=concept_log.prompt_hash,
-                response_hash=concept_log.response_hash,
-                raw_prompt=concept_log.raw_prompt,
-                raw_response=concept_log.raw_response,
+                prompt_hash=provider_log.prompt_hash,
+                response_hash=provider_log.response_hash,
+                raw_prompt=provider_log.raw_prompt,
+                raw_response=provider_log.raw_response,
             ),
         )
 

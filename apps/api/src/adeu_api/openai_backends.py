@@ -2,16 +2,23 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+import tempfile
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Literal, Protocol
+
+from urm_runtime.normalization import extract_artifact_candidate, normalize_exec_line
 
 from .hashing import sha256_text
 
-BackendApi = Literal["responses", "chat"]
+BackendApi = Literal["responses", "chat", "codex_exec"]
 ResponseMode = Literal["json_schema", "json_object"]
 DEFAULT_OPENAI_HTTP_TIMEOUT_SECONDS = 60.0
+DEFAULT_CODEX_EXEC_TIMEOUT_SECONDS = 120.0
+CODEX_DEFAULT_MODEL_LABEL = "codex-cli-default"
 
 
 def _env_timeout_seconds(name: str, default: float) -> float:
@@ -30,6 +37,10 @@ def _env_timeout_seconds(name: str, default: float) -> float:
 OPENAI_HTTP_TIMEOUT_SECONDS = _env_timeout_seconds(
     "ADEU_OPENAI_HTTP_TIMEOUT_SECONDS",
     DEFAULT_OPENAI_HTTP_TIMEOUT_SECONDS,
+)
+CODEX_EXEC_TIMEOUT_SECONDS = _env_timeout_seconds(
+    "ADEU_CODEX_EXEC_TIMEOUT_SECONDS",
+    DEFAULT_CODEX_EXEC_TIMEOUT_SECONDS,
 )
 
 
@@ -497,9 +508,232 @@ class ChatCompletionsBackend:
             )
 
 
+class CodexExecBackend:
+    def __init__(self, *, codex_bin: str):
+        self._codex_bin = codex_bin
+
+    def _build_prompt(self, *, system_prompt: str, user_prompt: str) -> str:
+        return (
+            "SYSTEM:\n"
+            f"{system_prompt}\n\n"
+            "USER:\n"
+            f"{user_prompt}\n\n"
+            "Return only a single JSON object that matches the output schema."
+        )
+
+    def _build_command(
+        self,
+        *,
+        prompt: str,
+        schema_path: str,
+        model: str,
+    ) -> list[str]:
+        command = [
+            self._codex_bin,
+            "exec",
+            "--json",
+            "--sandbox",
+            "read-only",
+            "--output-schema",
+            schema_path,
+        ]
+        if model and model != CODEX_DEFAULT_MODEL_LABEL:
+            command.extend(["--model", model])
+        command.append(prompt)
+        return command
+
+    def generate_ir_json(
+        self,
+        *,
+        system_prompt: str,
+        user_prompt: str,
+        json_schema: dict[str, Any],
+        model: str,
+        temperature: float | None,
+        extra: dict[str, Any] | None = None,
+    ) -> BackendResult:
+        del temperature
+        del extra
+
+        prompt = self._build_prompt(system_prompt=system_prompt, user_prompt=user_prompt)
+        payload_text = json.dumps(
+            {
+                "api": "codex_exec",
+                "model": model,
+                "prompt": prompt,
+                "schema": json_schema,
+            },
+            sort_keys=True,
+            ensure_ascii=False,
+        )
+        prompt_hash = sha256_text(payload_text)
+
+        schema_path: str | None = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                suffix=".json",
+                delete=False,
+            ) as schema_file:
+                schema_file.write(json.dumps(json_schema, sort_keys=True, ensure_ascii=False))
+                schema_path = schema_file.name
+        except OSError as exc:
+            return BackendResult(
+                provider_meta=BackendMeta(
+                    api="codex_exec",
+                    model=model,
+                    response_mode="json_schema",
+                ),
+                parsed_json=None,
+                raw_prompt=payload_text,
+                raw_text=None,
+                error=f"failed to write codex output schema file: {exc}",
+                prompt_hash=prompt_hash,
+                response_hash=None,
+            )
+
+        try:
+            command = self._build_command(prompt=prompt, schema_path=schema_path, model=model)
+            completed = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=CODEX_EXEC_TIMEOUT_SECONDS,
+                check=False,
+            )
+        except FileNotFoundError:
+            return BackendResult(
+                provider_meta=BackendMeta(
+                    api="codex_exec",
+                    model=model,
+                    response_mode="json_schema",
+                ),
+                parsed_json=None,
+                raw_prompt=payload_text,
+                raw_text=None,
+                error=f"codex executable not found: {self._codex_bin}",
+                prompt_hash=prompt_hash,
+                response_hash=None,
+            )
+        except subprocess.TimeoutExpired:
+            return BackendResult(
+                provider_meta=BackendMeta(
+                    api="codex_exec",
+                    model=model,
+                    response_mode="json_schema",
+                ),
+                parsed_json=None,
+                raw_prompt=payload_text,
+                raw_text=None,
+                error=f"codex exec timed out after {CODEX_EXEC_TIMEOUT_SECONDS} seconds",
+                prompt_hash=prompt_hash,
+                response_hash=None,
+            )
+        except OSError as exc:
+            return BackendResult(
+                provider_meta=BackendMeta(
+                    api="codex_exec",
+                    model=model,
+                    response_mode="json_schema",
+                ),
+                parsed_json=None,
+                raw_prompt=payload_text,
+                raw_text=None,
+                error=f"codex exec failed to start: {exc}",
+                prompt_hash=prompt_hash,
+                response_hash=None,
+            )
+        finally:
+            if schema_path is not None:
+                Path(schema_path).unlink(missing_ok=True)
+
+        raw_lines = completed.stdout.splitlines()
+        events = []
+        for index, line in enumerate(raw_lines):
+            if not line.strip():
+                continue
+            events.append(
+                normalize_exec_line(
+                    seq=index + 1,
+                    raw_line=line,
+                    stream_id="provider:codex_exec",
+                    run_id="provider.codex_exec",
+                    role="pipeline_worker",
+                    endpoint="proposer.codex_exec",
+                )
+            )
+
+        artifact_candidate = extract_artifact_candidate(events)
+        stderr_text = completed.stderr.strip()
+        if completed.returncode != 0:
+            detail = stderr_text or (completed.stdout.strip() or "unknown error")
+            return BackendResult(
+                provider_meta=BackendMeta(
+                    api="codex_exec",
+                    model=model,
+                    response_mode="json_schema",
+                ),
+                parsed_json=None,
+                raw_prompt=payload_text,
+                raw_text=completed.stdout.strip() or None,
+                error=f"Codex exec error (exit {completed.returncode}): {detail}",
+                prompt_hash=prompt_hash,
+                response_hash=None,
+            )
+
+        if artifact_candidate is None:
+            return BackendResult(
+                provider_meta=BackendMeta(
+                    api="codex_exec",
+                    model=model,
+                    response_mode="json_schema",
+                ),
+                parsed_json=None,
+                raw_prompt=payload_text,
+                raw_text=completed.stdout.strip() or None,
+                error="codex output missing artifact candidate",
+                prompt_hash=prompt_hash,
+                response_hash=None,
+            )
+
+        parse_error: str | None = None
+        parsed_json: dict[str, Any] | None = None
+        raw_text: str | None = None
+        if isinstance(artifact_candidate, dict):
+            parsed_json = artifact_candidate
+            raw_text = json.dumps(artifact_candidate, sort_keys=True, ensure_ascii=False)
+        elif isinstance(artifact_candidate, str):
+            parsed_json, parse_error = _strict_json_object(
+                text=artifact_candidate,
+                api="codex_exec",
+            )
+            raw_text = artifact_candidate
+        else:
+            parse_error = "codex output JSON must be an object"
+            raw_text = json.dumps({"value": artifact_candidate}, sort_keys=True, ensure_ascii=False)
+
+        response_hash = sha256_text(raw_text) if raw_text is not None else None
+        return BackendResult(
+            provider_meta=BackendMeta(api="codex_exec", model=model, response_mode="json_schema"),
+            parsed_json=parsed_json,
+            raw_prompt=payload_text,
+            raw_text=raw_text,
+            error=parse_error,
+            prompt_hash=prompt_hash,
+            response_hash=response_hash,
+        )
+
+
 def build_openai_backend(*, api: BackendApi, api_key: str, base_url: str) -> OpenAIBackend:
     if api == "responses":
         return ResponsesBackend(api_key=api_key, base_url=base_url)
     if api == "chat":
         return ChatCompletionsBackend(api_key=api_key, base_url=base_url)
     raise ValueError(f"Unsupported ADEU_OPENAI_API value: {api!r}")
+
+
+def build_codex_exec_backend(*, codex_bin: str) -> OpenAIBackend:
+    return CodexExecBackend(codex_bin=codex_bin)

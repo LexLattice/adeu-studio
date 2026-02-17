@@ -113,9 +113,12 @@ If both are provided, `doc_id` is authoritative and mismatched text returns `400
 - per-person role assignments (`knight`/`knave`/`unknown`)
 - underlying `ValidatorResult` evidence (model / unsat core / stats)
 
-## Run API (OpenAI proposer)
+## Run API (LLM proposers)
 
-Set `provider: "openai"` in `POST /propose` and configure:
+Set `provider: "openai"` or `provider: "codex"` in `POST /propose`,
+`POST /concepts/propose`, and `POST /puzzles/propose`.
+
+For `provider: "openai"` configure:
 
 - `OPENAI_API_KEY` (or `ADEU_OPENAI_API_KEY`) for auth
 - `ADEU_OPENAI_API` backend selector (`responses` default, `chat` fallback backend)
@@ -149,6 +152,12 @@ Set `provider: "openai"` in `POST /propose` and configure:
 - optional `ADEU_MAX_TOURNAMENT_REPLAY_PAYLOAD_BYTES` (default: `500000`)
 - optional `ADEU_MAX_TOURNAMENT_TOP_K` (default: `10`)
 
+For `provider: "codex"` configure:
+
+- optional `ADEU_CODEX_BIN` (default: `codex`)
+- optional `ADEU_CODEX_MODEL` (default: `codex-cli-default` which uses the CLI-configured model)
+- optional `ADEU_CODEX_EXEC_TIMEOUT_SECONDS` (default: `120.0`)
+
 Request-level overrides:
 
 - `max_candidates` (default `5`)
@@ -159,6 +168,7 @@ Behavior notes:
 - The `responses` backend uses strict `json_schema` structured outputs.
 - The `chat` backend attempts `json_schema` first and only falls back to `json_object` when schema
   formatting is unsupported by that API mode.
+- The `codex` backend uses `codex exec --json --output-schema` in `read-only` sandbox mode.
 - Validation is fail-closed: output must parse as `AdeuIR`, then pass kernel checks.
 - Repair attempts use a strict gate: first valid attempt sets baseline; later attempts are accepted
   only on strict score improvement (`status_rank`, `#ERROR`, `#WARN`, total reasons).
