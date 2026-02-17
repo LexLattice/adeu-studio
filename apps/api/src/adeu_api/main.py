@@ -3819,6 +3819,22 @@ def _build_concept_analysis_delta(
     )
 
 
+ExternalProposerFn = Callable[..., tuple[Any, Any, str]]
+
+
+def _select_external_proposer(
+    *,
+    provider: ProviderKind,
+    openai_impl: ExternalProposerFn,
+    codex_impl: ExternalProposerFn,
+) -> ExternalProposerFn:
+    if provider == "openai":
+        return openai_impl
+    if provider == "codex":
+        return codex_impl
+    raise RuntimeError(f"unsupported external proposer provider: {provider}")
+
+
 @app.post("/propose", response_model=ProposeResponse)
 def propose(req: ProposeRequest) -> ProposeResponse:
     bundles = load_fixture_bundles()
@@ -3840,10 +3856,12 @@ def propose(req: ProposeRequest) -> ProposeResponse:
 
     context = base_context.model_copy(update={"source_features": features})
     if req.provider in {"openai", "codex"}:
-        if req.provider == "openai":
-            from .openai_provider import propose_openai as propose_external
-        else:
-            from .openai_provider import propose_codex as propose_external
+        from .openai_provider import propose_codex, propose_openai
+        propose_external = _select_external_proposer(
+            provider=req.provider,
+            openai_impl=propose_openai,
+            codex_impl=propose_codex,
+        )
 
         try:
             proposed, provider_log, model = propose_external(
@@ -4374,10 +4392,12 @@ def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
     source_features = extract_puzzle_source_features(puzzle_text)
 
     if req.provider in {"openai", "codex"}:
-        if req.provider == "openai":
-            from .openai_puzzle_provider import propose_puzzle_openai as propose_external
-        else:
-            from .openai_puzzle_provider import propose_puzzle_codex as propose_external
+        from .openai_puzzle_provider import propose_puzzle_codex, propose_puzzle_openai
+        propose_external = _select_external_proposer(
+            provider=req.provider,
+            openai_impl=propose_puzzle_openai,
+            codex_impl=propose_puzzle_codex,
+        )
 
         try:
             proposed, provider_log, model = propose_external(
@@ -4501,8 +4521,10 @@ def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
     source_features = extract_concept_source_features(source_text)
 
     if req.provider in {"openai", "codex"}:
-        propose_external = (
-            propose_concept_openai if req.provider == "openai" else propose_concept_codex
+        propose_external = _select_external_proposer(
+            provider=req.provider,
+            openai_impl=propose_concept_openai,
+            codex_impl=propose_concept_codex,
         )
         try:
             proposed, provider_log, model = propose_external(
