@@ -9,6 +9,7 @@ This repo is a monorepo:
 - `packages/adeu_lean`: Lean core semantics + theorem runner helpers (v3.1 theorem obligations)
 - `packages/adeu_concepts`: Typed concept composition IR + coherence checker (v3.x concepts)
 - `packages/adeu_puzzles`: Typed puzzle IR + solver translation (v3.2: Knights/Knaves)
+- `packages/adeu_core_ir`: Typed O/E/D/U core projection IR + deterministic contract validators
 - `apps/api`: FastAPI service (scaffolded after kernel is green)
 - `apps/web`: Next.js UI (scaffolded after kernel is green)
 
