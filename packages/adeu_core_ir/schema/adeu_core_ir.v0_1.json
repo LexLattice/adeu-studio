@@ -1,0 +1,467 @@
+{
+  "$defs": {
+    "CoreDNode": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        },
+        "constraint_kind": {
+          "anyOf": [
+            {
+              "enum": [
+                "mechanism",
+                "resource_limit",
+                "invariant",
+                "law",
+                "assumption"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Constraint Kind"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "PhysicalConstraint",
+            "Norm",
+            "Policy",
+            "Exception"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "layer": {
+          "const": "D",
+          "default": "D",
+          "title": "Layer",
+          "type": "string"
+        },
+        "modality": {
+          "anyOf": [
+            {
+              "enum": [
+                "obligatory",
+                "forbidden",
+                "permitted"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modality"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "label"
+      ],
+      "title": "CoreDNode",
+      "type": "object"
+    },
+    "CoreENode": {
+      "additionalProperties": false,
+      "properties": {
+        "B": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "B"
+        },
+        "B_milli": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "B Milli"
+        },
+        "R": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "R"
+        },
+        "R_milli": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "R Milli"
+        },
+        "S": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "S"
+        },
+        "S_milli": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "S Milli"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "Claim",
+            "Assumption",
+            "Question",
+            "Evidence"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "layer": {
+          "const": "E",
+          "default": "E",
+          "title": "Layer",
+          "type": "string"
+        },
+        "ledger_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ledger Version"
+        },
+        "spans": {
+          "items": {
+            "$ref": "#/$defs/SourceSpan"
+          },
+          "title": "Spans",
+          "type": "array"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "text"
+      ],
+      "title": "CoreENode",
+      "type": "object"
+    },
+    "CoreEdge": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "title": "From",
+          "type": "string"
+        },
+        "to": {
+          "title": "To",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "about",
+            "defines",
+            "supports",
+            "refutes",
+            "depends_on",
+            "justifies",
+            "gates",
+            "serves_goal",
+            "prioritizes",
+            "excepts"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "from",
+        "to"
+      ],
+      "title": "CoreEdge",
+      "type": "object"
+    },
+    "CoreONode": {
+      "additionalProperties": false,
+      "properties": {
+        "aliases": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "Entity",
+            "Concept",
+            "RelationType"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "layer": {
+          "const": "O",
+          "default": "O",
+          "title": "Layer",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "label"
+      ],
+      "title": "CoreONode",
+      "type": "object"
+    },
+    "CoreUNode": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "Goal",
+            "Metric",
+            "Preference"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "layer": {
+          "const": "U",
+          "default": "U",
+          "title": "Layer",
+          "type": "string"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weight"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "label"
+      ],
+      "title": "CoreUNode",
+      "type": "object"
+    },
+    "SourceSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "SourceSpan",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "edges": {
+      "items": {
+        "$ref": "#/$defs/CoreEdge"
+      },
+      "title": "Edges",
+      "type": "array"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metadata"
+    },
+    "nodes": {
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/CoreONode"
+          },
+          {
+            "$ref": "#/$defs/CoreENode"
+          },
+          {
+            "$ref": "#/$defs/CoreDNode"
+          },
+          {
+            "$ref": "#/$defs/CoreUNode"
+          }
+        ]
+      },
+      "title": "Nodes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_core_ir@0.1",
+      "default": "adeu_core_ir@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Text"
+    },
+    "source_text_hash": {
+      "title": "Source Text Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_text_hash"
+  ],
+  "title": "AdeuCoreIR",
+  "type": "object"
+}
