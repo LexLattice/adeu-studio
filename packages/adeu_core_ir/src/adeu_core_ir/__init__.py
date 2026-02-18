@@ -11,6 +11,13 @@ from .models import (
     canonicalize_core_ir,
     canonicalize_core_ir_payload,
 )
+from .pipeline import (
+    NormalizedCoreSourceText,
+    build_core_ir_from_source_text,
+    canonicalize_core_ir_candidates,
+    harvest_core_ir_candidates,
+    normalize_core_source_text,
+)
 
 __all__ = [
     "AdeuCoreIR",
@@ -23,6 +30,11 @@ __all__ = [
     "canonical_node_sort_key",
     "canonicalize_core_ir",
     "canonicalize_core_ir_payload",
+    "canonicalize_core_ir_candidates",
+    "build_core_ir_from_source_text",
+    "harvest_core_ir_candidates",
+    "normalize_core_source_text",
+    "NormalizedCoreSourceText",
     "stable_core_node_id",
 ]
 
