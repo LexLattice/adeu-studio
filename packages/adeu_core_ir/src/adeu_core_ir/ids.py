@@ -18,7 +18,18 @@ def _canonical_span_pairs(
     for raw_span in spans:
         span = raw_span if isinstance(raw_span, SourceSpan) else SourceSpan.model_validate(raw_span)
         pairs.add((span.start, span.end))
-    return sorted(pairs)
+    ordered_pairs = sorted(pairs)
+    merged_pairs: list[tuple[int, int]] = []
+    for start, end in ordered_pairs:
+        if not merged_pairs:
+            merged_pairs.append((start, end))
+            continue
+        prev_start, prev_end = merged_pairs[-1]
+        if start <= prev_end:
+            merged_pairs[-1] = (prev_start, max(prev_end, end))
+            continue
+        merged_pairs.append((start, end))
+    return merged_pairs
 
 
 def stable_core_node_id(

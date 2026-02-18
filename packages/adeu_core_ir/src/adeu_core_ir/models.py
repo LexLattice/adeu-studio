@@ -47,10 +47,10 @@ class CoreENode(BaseModel):
     text: str
     spans: list[SourceSpan] = Field(default_factory=list)
     confidence: float | None = None
-    ledger_version: str | None = None
-    s_milli: int | None = Field(default=None, alias="S_milli")
-    b_milli: int | None = Field(default=None, alias="B_milli")
-    r_milli: int | None = Field(default=None, alias="R_milli")
+    ledger_version: Literal["adeu.sbr.v0_1"] | None = None
+    s_milli: int | None = Field(default=None, alias="S_milli", ge=0, le=1000)
+    b_milli: int | None = Field(default=None, alias="B_milli", ge=0, le=1000)
+    r_milli: int | None = Field(default=None, alias="R_milli", ge=0, le=1000)
     s: str | None = Field(default=None, alias="S")
     b: str | None = Field(default=None, alias="B")
     r: str | None = Field(default=None, alias="R")

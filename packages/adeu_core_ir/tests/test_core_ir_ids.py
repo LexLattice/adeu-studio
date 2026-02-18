@@ -35,3 +35,21 @@ def test_stable_core_node_id_changes_with_source_hash() -> None:
         source_text_hash="hash-b",
     )
     assert node_id_a != node_id_b
+
+
+def test_stable_core_node_id_is_span_segmentation_invariant() -> None:
+    merged_span_id = stable_core_node_id(
+        layer="E",
+        kind="Claim",
+        primary_text_or_label="AI delegation improves throughput",
+        source_text_hash="hash-a",
+        spans=[{"start": 0, "end": 10}],
+    )
+    overlapping_span_id = stable_core_node_id(
+        layer="E",
+        kind="Claim",
+        primary_text_or_label="AI delegation improves throughput",
+        source_text_hash="hash-a",
+        spans=[{"start": 0, "end": 5}, {"start": 3, "end": 10}],
+    )
+    assert merged_span_id == overlapping_span_id

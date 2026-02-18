@@ -126,6 +126,8 @@
         "B_milli": {
           "anyOf": [
             {
+              "maximum": 1000,
+              "minimum": 0,
               "type": "integer"
             },
             {
@@ -150,6 +152,8 @@
         "R_milli": {
           "anyOf": [
             {
+              "maximum": 1000,
+              "minimum": 0,
               "type": "integer"
             },
             {
@@ -174,6 +178,8 @@
         "S_milli": {
           "anyOf": [
             {
+              "maximum": 1000,
+              "minimum": 0,
               "type": "integer"
             },
             {
@@ -218,6 +224,7 @@
         "ledger_version": {
           "anyOf": [
             {
+              "const": "adeu.sbr.v0_1",
               "type": "string"
             },
             {
