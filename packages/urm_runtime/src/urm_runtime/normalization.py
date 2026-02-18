@@ -19,6 +19,10 @@ _ROLLOUT_MISSING_PATH_RE = re.compile(
     r".*codex_core::rollout::list.*state db missing rollout path for thread\s+([0-9a-f\-]+)",
     re.IGNORECASE,
 )
+_MARKDOWN_JSON_FENCE_RE = re.compile(
+    r"```(?:json)?\s*(?P<body>.*?)```",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 def _strip_ansi(text: str) -> str:
@@ -191,6 +195,75 @@ def normalize_app_server_line(
     )
 
 
+def _coerce_json_object(value: Any) -> dict[str, Any] | None:
+    if isinstance(value, dict):
+        return value
+    if not isinstance(value, str):
+        return None
+    candidate = value.strip()
+    if not candidate:
+        return None
+    try:
+        parsed = json.loads(candidate)
+    except JSONDecodeError:
+        return None
+    if isinstance(parsed, dict):
+        return parsed
+    return None
+
+
+def _extract_json_object_from_text(text: str) -> dict[str, Any] | None:
+    candidate = text.strip()
+    if not candidate:
+        return None
+
+    direct = _coerce_json_object(candidate)
+    if direct is not None:
+        return direct
+
+    for match in _MARKDOWN_JSON_FENCE_RE.finditer(candidate):
+        body = match.group("body").strip()
+        parsed = _coerce_json_object(body)
+        if parsed is not None:
+            return parsed
+
+    start = candidate.find("{")
+    end = candidate.rfind("}")
+    if start != -1 and end > start:
+        inner = candidate[start : end + 1]
+        parsed = _coerce_json_object(inner)
+        if parsed is not None:
+            return parsed
+    return None
+
+
+def _extract_candidate_from_item_payload(payload: dict[str, Any]) -> Any | None:
+    item = payload.get("item")
+    if not isinstance(item, dict):
+        return None
+    item_type = item.get("type")
+    if item_type not in {"agent_message", "assistant_message", "message"}:
+        return None
+
+    text_candidates: list[str] = []
+    text = item.get("text")
+    if isinstance(text, str):
+        text_candidates.append(text)
+    content = item.get("content")
+    if isinstance(content, list):
+        for block in content:
+            if not isinstance(block, dict):
+                continue
+            block_text = block.get("text")
+            if isinstance(block_text, str):
+                text_candidates.append(block_text)
+    for candidate_text in reversed(text_candidates):
+        parsed = _extract_json_object_from_text(candidate_text)
+        if parsed is not None:
+            return parsed
+    return None
+
+
 def extract_artifact_candidate(events: list[NormalizedEvent]) -> Any | None:
     for event in reversed(events):
         payload: dict[str, Any] = {}
@@ -207,4 +280,7 @@ def extract_artifact_candidate(events: list[NormalizedEvent]) -> Any | None:
             return payload["output"]
         if "result" in payload:
             return payload["result"]
+        item_candidate = _extract_candidate_from_item_payload(payload)
+        if item_candidate is not None:
+            return item_candidate
     return None

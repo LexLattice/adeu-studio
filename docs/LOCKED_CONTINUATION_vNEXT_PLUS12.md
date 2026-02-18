@@ -199,3 +199,24 @@ Freeze reproducible evidence for practical paper pipeline behavior under the abo
 - Known rollout provider-log noise no longer causes false `parse_degraded` in worker success runs.
 - No solver semantics contract delta and no trust-lane regression introduced.
 - All existing `vNext+6` through `vNext+11` determinism metrics remain at threshold.
+
+## Addendum A) Post-Lock Intermezzo (Additive, Non-Blocking)
+
+This addendum records additive work merged immediately after the core `vNext+12` lock scope closed:
+
+- Merge PR: `#131`
+  - title: `copilot + providers: approval-backed writes toggle and codex proposer option`
+  - merge commit: `a5dbaf50f5df61c01aa9ce65677c4a1dad2c5c39`
+  - CI run: `22100028880` (green)
+
+Intermezzo scope summary:
+
+- surfaced codex as a selectable proposer provider across module UIs/routes alongside existing providers
+- added approval-backed write-mode controls for copilot route flows
+- refactored proposer/provider wiring to reduce duplicated paths while preserving policy gating
+
+Intermezzo lock interaction:
+
+- does not modify `P1`-`P4` acceptance decisions for `vNext+12` closeout
+- remains additive-only and preserves trust-lane taxonomy (`mapping_trust`, `solver_trust`, `proof_trust`)
+- should be treated as carry-forward context for `vNext+13` planning, not as a reopening of `vNext+12` scope

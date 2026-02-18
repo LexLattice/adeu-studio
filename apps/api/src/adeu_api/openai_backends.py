@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import urllib.error
 import urllib.request
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, Protocol
@@ -42,6 +43,44 @@ CODEX_EXEC_TIMEOUT_SECONDS = _env_timeout_seconds(
     "ADEU_CODEX_EXEC_TIMEOUT_SECONDS",
     DEFAULT_CODEX_EXEC_TIMEOUT_SECONDS,
 )
+
+_SCHEMA_MAP_KEYS = {
+    "$defs",
+    "definitions",
+    "properties",
+    "patternProperties",
+    "dependentSchemas",
+}
+_SCHEMA_SINGLE_KEYS = {
+    "additionalProperties",
+    "additionalItems",
+    "items",
+    "contains",
+    "propertyNames",
+    "unevaluatedProperties",
+    "unevaluatedItems",
+    "not",
+    "if",
+    "then",
+    "else",
+}
+_SCHEMA_LIST_KEYS = {
+    "allOf",
+    "anyOf",
+    "oneOf",
+    "prefixItems",
+}
+_ANY_JSON_TYPED_SCHEMA: dict[str, Any] = {
+    "anyOf": [
+        {"type": "object"},
+        {"type": "array"},
+        {"type": "string"},
+        {"type": "number"},
+        {"type": "integer"},
+        {"type": "boolean"},
+        {"type": "null"},
+    ]
+}
 
 
 @dataclass(frozen=True)
@@ -91,6 +130,113 @@ class _BackendHttpError(Exception):
 
     def __str__(self) -> str:
         return f"HTTP {self.status_code}: {self.detail}"
+
+
+def _json_type_for_python_value(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, int):
+        return "integer"
+    if isinstance(value, float):
+        return "number"
+    if isinstance(value, str):
+        return "string"
+    if isinstance(value, list):
+        return "array"
+    if isinstance(value, dict):
+        return "object"
+    return "string"
+
+
+def _ensure_typed_schema_for_codex(schema: dict[str, Any]) -> dict[str, Any]:
+    if "type" in schema or "$ref" in schema:
+        return schema
+
+    if "properties" in schema or "additionalProperties" in schema:
+        schema["type"] = "object"
+        return schema
+    if "items" in schema:
+        schema["type"] = "array"
+        return schema
+
+    enum_values = schema.get("enum")
+    if isinstance(enum_values, list) and enum_values:
+        inferred = {_json_type_for_python_value(item) for item in enum_values}
+        if len(inferred) == 1:
+            schema["type"] = inferred.pop()
+            return schema
+
+    if "const" in schema:
+        schema["type"] = _json_type_for_python_value(schema["const"])
+        return schema
+
+    if any(key in schema for key in ("anyOf", "oneOf", "allOf", "not", "if", "then", "else")):
+        return schema
+
+    # Preserve permissive `{}` semantics while keeping a typed schema node.
+    if not schema:
+        schema.update(deepcopy(_ANY_JSON_TYPED_SCHEMA))
+        return schema
+
+    # Codex schema validator rejects untyped nodes. Keep behavior stable for
+    # non-empty untyped nodes by using a conservative scalar fallback.
+    schema["type"] = "string"
+    return schema
+
+
+def _normalize_schema_for_codex_output(schema: dict[str, Any]) -> dict[str, Any]:
+    normalized = deepcopy(schema)
+
+    def _walk(node: Any, *, schema_position: bool) -> Any:
+        if isinstance(node, list):
+            return [
+                _walk(item, schema_position=schema_position)
+                for item in node
+            ]
+        if not isinstance(node, dict):
+            return node
+
+        for key, value in list(node.items()):
+            if schema_position and key in _SCHEMA_MAP_KEYS and isinstance(value, dict):
+                node[key] = {
+                    sub_key: _walk(sub_value, schema_position=True)
+                    for sub_key, sub_value in value.items()
+                }
+                continue
+            if schema_position and key in _SCHEMA_SINGLE_KEYS:
+                node[key] = _walk(value, schema_position=True)
+                continue
+            if schema_position and key in _SCHEMA_LIST_KEYS and isinstance(value, list):
+                node[key] = [_walk(item, schema_position=True) for item in value]
+                continue
+            node[key] = _walk(value, schema_position=False)
+
+        if not schema_position:
+            return node
+
+        node = _ensure_typed_schema_for_codex(node)
+
+        properties = node.get("properties")
+        if isinstance(properties, dict):
+            required_raw = node.get("required")
+            required_list = (
+                [item for item in required_raw if isinstance(item, str)]
+                if isinstance(required_raw, list)
+                else []
+            )
+            required_set = set(required_list)
+            for prop_name, prop_schema in properties.items():
+                if not isinstance(prop_schema, dict):
+                    continue
+                if prop_name not in required_set:
+                    required_list.append(prop_name)
+                    required_set.add(prop_name)
+            node["required"] = required_list
+        return node
+
+    return _walk(normalized, schema_position=True)
 
 
 def _request_json(*, url: str, payload: dict[str, Any], api_key: str) -> _HttpResult:
@@ -556,12 +702,13 @@ class CodexExecBackend:
         del extra
 
         prompt = self._build_prompt(system_prompt=system_prompt, user_prompt=user_prompt)
+        codex_schema = _normalize_schema_for_codex_output(json_schema)
         payload_text = json.dumps(
             {
                 "api": "codex_exec",
                 "model": model,
                 "prompt": prompt,
-                "schema": json_schema,
+                "schema": codex_schema,
             },
             sort_keys=True,
             ensure_ascii=False,
@@ -576,7 +723,7 @@ class CodexExecBackend:
                 suffix=".json",
                 delete=False,
             ) as schema_file:
-                schema_file.write(json.dumps(json_schema, sort_keys=True, ensure_ascii=False))
+                schema_file.write(json.dumps(codex_schema, sort_keys=True, ensure_ascii=False))
                 schema_path = schema_file.name
         except OSError as exc:
             return BackendResult(
