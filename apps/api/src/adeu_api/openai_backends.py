@@ -44,6 +44,44 @@ CODEX_EXEC_TIMEOUT_SECONDS = _env_timeout_seconds(
     DEFAULT_CODEX_EXEC_TIMEOUT_SECONDS,
 )
 
+_SCHEMA_MAP_KEYS = {
+    "$defs",
+    "definitions",
+    "properties",
+    "patternProperties",
+    "dependentSchemas",
+}
+_SCHEMA_SINGLE_KEYS = {
+    "additionalProperties",
+    "additionalItems",
+    "items",
+    "contains",
+    "propertyNames",
+    "unevaluatedProperties",
+    "unevaluatedItems",
+    "not",
+    "if",
+    "then",
+    "else",
+}
+_SCHEMA_LIST_KEYS = {
+    "allOf",
+    "anyOf",
+    "oneOf",
+    "prefixItems",
+}
+_ANY_JSON_TYPED_SCHEMA: dict[str, Any] = {
+    "anyOf": [
+        {"type": "object"},
+        {"type": "array"},
+        {"type": "string"},
+        {"type": "number"},
+        {"type": "integer"},
+        {"type": "boolean"},
+        {"type": "null"},
+    ]
+}
+
 
 @dataclass(frozen=True)
 class BackendMeta:
@@ -94,33 +132,6 @@ class _BackendHttpError(Exception):
         return f"HTTP {self.status_code}: {self.detail}"
 
 
-def _schema_allows_null(schema: dict[str, Any]) -> bool:
-    node_type = schema.get("type")
-    if node_type == "null":
-        return True
-    if isinstance(node_type, list) and "null" in node_type:
-        return True
-    for branch_key in ("anyOf", "oneOf"):
-        branch = schema.get(branch_key)
-        if not isinstance(branch, list):
-            continue
-        for option in branch:
-            if isinstance(option, dict) and option.get("type") == "null":
-                return True
-    return False
-
-
-def _ensure_nullable_schema(schema: dict[str, Any]) -> dict[str, Any]:
-    if _schema_allows_null(schema):
-        return schema
-    return {
-        "anyOf": [
-            schema,
-            {"type": "null"},
-        ]
-    }
-
-
 def _json_type_for_python_value(value: Any) -> str:
     if value is None:
         return "null"
@@ -164,39 +175,19 @@ def _ensure_typed_schema_for_codex(schema: dict[str, Any]) -> dict[str, Any]:
     if any(key in schema for key in ("anyOf", "oneOf", "allOf", "not", "if", "then", "else")):
         return schema
 
-    # Codex schema validator rejects untyped permissive nodes like {}.
+    # Preserve permissive `{}` semantics while keeping a typed schema node.
+    if not schema:
+        schema.update(deepcopy(_ANY_JSON_TYPED_SCHEMA))
+        return schema
+
+    # Codex schema validator rejects untyped nodes. Keep behavior stable for
+    # non-empty untyped nodes by using a conservative scalar fallback.
     schema["type"] = "string"
     return schema
 
 
 def _normalize_schema_for_codex_output(schema: dict[str, Any]) -> dict[str, Any]:
     normalized = deepcopy(schema)
-    schema_map_keys = {
-        "$defs",
-        "definitions",
-        "properties",
-        "patternProperties",
-        "dependentSchemas",
-    }
-    schema_single_keys = {
-        "additionalProperties",
-        "additionalItems",
-        "items",
-        "contains",
-        "propertyNames",
-        "unevaluatedProperties",
-        "unevaluatedItems",
-        "not",
-        "if",
-        "then",
-        "else",
-    }
-    schema_list_keys = {
-        "allOf",
-        "anyOf",
-        "oneOf",
-        "prefixItems",
-    }
 
     def _walk(node: Any, *, schema_position: bool) -> Any:
         if isinstance(node, list):
@@ -208,16 +199,16 @@ def _normalize_schema_for_codex_output(schema: dict[str, Any]) -> dict[str, Any]
             return node
 
         for key, value in list(node.items()):
-            if schema_position and key in schema_map_keys and isinstance(value, dict):
+            if schema_position and key in _SCHEMA_MAP_KEYS and isinstance(value, dict):
                 node[key] = {
                     sub_key: _walk(sub_value, schema_position=True)
                     for sub_key, sub_value in value.items()
                 }
                 continue
-            if schema_position and key in schema_single_keys:
+            if schema_position and key in _SCHEMA_SINGLE_KEYS:
                 node[key] = _walk(value, schema_position=True)
                 continue
-            if schema_position and key in schema_list_keys and isinstance(value, list):
+            if schema_position and key in _SCHEMA_LIST_KEYS and isinstance(value, list):
                 node[key] = [_walk(item, schema_position=True) for item in value]
                 continue
             node[key] = _walk(value, schema_position=False)
@@ -240,7 +231,6 @@ def _normalize_schema_for_codex_output(schema: dict[str, Any]) -> dict[str, Any]
                 if not isinstance(prop_schema, dict):
                     continue
                 if prop_name not in required_set:
-                    properties[prop_name] = _ensure_nullable_schema(prop_schema)
                     required_list.append(prop_name)
                     required_set.add(prop_name)
             node["required"] = required_list

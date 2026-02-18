@@ -173,25 +173,28 @@ def test_codex_schema_normalization_requires_all_object_properties() -> None:
         "nested",
         "subject",
     ]
-    assert normalized["properties"]["optional_field"] == {
-        "anyOf": [{"type": "integer"}, {"type": "null"}]
-    }
+    assert normalized["properties"]["optional_field"] == {"type": "integer"}
     assert normalized["properties"]["already_nullable"] == {
         "anyOf": [{"type": "number"}, {"type": "null"}]
     }
-    assert normalized["properties"]["any_value"] == {
-        "anyOf": [{"type": "string"}, {"type": "null"}]
-    }
-    nested_anyof = normalized["properties"]["nested"]["anyOf"]
-    assert isinstance(nested_anyof, list)
-    nested = nested_anyof[0]
+    any_value = normalized["properties"]["any_value"]["anyOf"]
+    assert isinstance(any_value, list)
+    first_branch = any_value[0]
+    assert isinstance(first_branch, dict)
+    first_branch_anyof = first_branch.get("anyOf")
+    assert isinstance(first_branch_anyof, list)
+    assert {"type": "object"} in first_branch_anyof
+    assert {"type": "array"} in first_branch_anyof
+    assert {"type": "string"} in first_branch_anyof
+    assert {"type": "number"} in first_branch_anyof
+    assert {"type": "integer"} in first_branch_anyof
+    assert {"type": "boolean"} in first_branch_anyof
+    assert {"type": "null"} in first_branch_anyof
+    assert {"type": "null"} in any_value
+    nested = normalized["properties"]["nested"]
     assert nested["required"] == ["inner_required", "inner_optional"]
-    assert nested["properties"]["inner_optional"] == {
-        "anyOf": [{"type": "boolean"}, {"type": "null"}]
-    }
-    subject_anyof = normalized["properties"]["subject"]["anyOf"]
-    assert isinstance(subject_anyof, list)
-    subject = subject_anyof[0]
+    assert nested["properties"]["inner_optional"] == {"type": "boolean"}
+    subject = normalized["properties"]["subject"]
     discriminator = subject["oneOf"]
     assert discriminator == [{"$ref": "#/$defs/DocRef"}, {"$ref": "#/$defs/TextRef"}]
     mapping = subject["discriminator"]["mapping"]
@@ -199,3 +202,20 @@ def test_codex_schema_normalization_requires_all_object_properties() -> None:
         "doc": "#/$defs/DocRef",
         "text": "#/$defs/TextRef",
     }
+
+
+def test_codex_schema_normalization_keeps_optional_fields_non_nullable_by_default() -> None:
+    schema = {
+        "type": "object",
+        "properties": {
+            "schema_version": {"type": "string"},
+            "items": {"type": "array", "items": {"type": "string"}},
+        },
+        "required": [],
+    }
+
+    normalized = backends._normalize_schema_for_codex_output(schema)
+
+    assert normalized["required"] == ["schema_version", "items"]
+    assert normalized["properties"]["schema_version"] == {"type": "string"}
+    assert normalized["properties"]["items"] == {"type": "array", "items": {"type": "string"}}
