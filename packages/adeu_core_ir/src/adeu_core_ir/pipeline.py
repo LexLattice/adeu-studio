@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -589,7 +590,8 @@ def canonicalize_core_ir_candidates(
         to_ref = id_remap.get(edge.to_ref)
         if from_ref is None or to_ref is None:
             raise ValueError(
-                f"unresolved candidate edge reference: from={edge.from_ref} to={edge.to_ref}"
+                "unresolved candidate edge reference: "
+                f"type={edge.type} from={edge.from_ref} to={edge.to_ref}"
             )
         canonical_edges.append(
             CoreEdge.model_validate({"type": edge.type, "from": from_ref, "to": to_ref})
@@ -625,9 +627,33 @@ def build_core_ir_from_source_text(
     *,
     candidates: dict[str, Any] | None = None,
     include_source_text: bool = True,
+    candidate_span_space: str = "raw",
 ) -> AdeuCoreIR:
     normalized = normalize_core_source_text(source_text)
-    harvested = candidates if candidates is not None else harvest_core_ir_candidates(normalized)
+    if candidate_span_space not in {"raw", "normalized"}:
+        raise ValueError("candidate_span_space must be 'raw' or 'normalized'")
+    if candidates is None:
+        harvested = harvest_core_ir_candidates(normalized)
+    else:
+        harvested = deepcopy(candidates)
+        if candidate_span_space == "raw":
+            raw_nodes = harvested.get("nodes", [])
+            if not isinstance(raw_nodes, list):
+                raise ValueError("candidate nodes must be a list")
+            for node in raw_nodes:
+                if not isinstance(node, dict):
+                    raise ValueError("candidate nodes must be object items")
+                if node.get("layer") != "E":
+                    continue
+                spans = node.get("spans")
+                if spans is None:
+                    continue
+                if not isinstance(spans, list):
+                    raise ValueError("E-node spans must be a list")
+                remapped_spans = [
+                    normalized.to_normalized_span(span).model_dump(mode="json") for span in spans
+                ]
+                node["spans"] = remapped_spans
     return canonicalize_core_ir_candidates(
         source_text_hash=normalized.source_text_hash,
         source_text=normalized.normalized_text if include_source_text else None,

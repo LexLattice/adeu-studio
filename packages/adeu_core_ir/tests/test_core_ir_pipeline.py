@@ -94,7 +94,10 @@ def test_canonicalize_candidates_fails_on_unresolved_edge_refs() -> None:
     try:
         canonicalize_core_ir_candidates(source_text_hash="hash-a", candidates=candidates)
     except ValueError as exc:
-        assert "unresolved candidate edge reference" in str(exc)
+        assert (
+            "unresolved candidate edge reference: type=about from=missing_id to=o_concept_1"
+            in str(exc)
+        )
     else:
         raise AssertionError("expected unresolved candidate edge reference failure")
 
@@ -149,3 +152,54 @@ def test_canonicalize_candidates_is_order_independent() -> None:
         by_alias=True,
         exclude_none=True,
     )
+
+
+def test_build_core_ir_from_source_text_remaps_raw_candidate_spans() -> None:
+    source_a = "AI   systems must provide evidence."
+    source_b = "AI systems must provide evidence."
+    claim_text = "AI systems must provide evidence."
+
+    candidates_a = {
+        "nodes": [
+            {
+                "id": "e_claim_1",
+                "layer": "E",
+                "kind": "Claim",
+                "text": claim_text,
+                "spans": [{"start": 0, "end": len(source_a)}],
+            }
+        ],
+        "edges": [],
+    }
+    candidates_b = {
+        "nodes": [
+            {
+                "id": "e_claim_1",
+                "layer": "E",
+                "kind": "Claim",
+                "text": claim_text,
+                "spans": [{"start": 0, "end": len(source_b)}],
+            }
+        ],
+        "edges": [],
+    }
+
+    ir_a = build_core_ir_from_source_text(source_a, candidates=candidates_a)
+    ir_b = build_core_ir_from_source_text(source_b, candidates=candidates_b)
+
+    dump_a = ir_a.model_dump(mode="json", by_alias=True, exclude_none=True)
+    dump_b = ir_b.model_dump(mode="json", by_alias=True, exclude_none=True)
+    assert dump_a == dump_b
+
+
+def test_build_core_ir_from_source_text_rejects_invalid_span_space() -> None:
+    try:
+        build_core_ir_from_source_text(
+            "AI systems provide evidence.",
+            candidates={"nodes": [], "edges": []},
+            candidate_span_space="unknown",
+        )
+    except ValueError as exc:
+        assert "candidate_span_space must be 'raw' or 'normalized'" in str(exc)
+    else:
+        raise AssertionError("expected invalid candidate_span_space failure")
