@@ -61,6 +61,7 @@ Status: draft decision note.
 | no trust-lane regression | required | `pass` | trust-lane taxonomy unchanged (`mapping_trust`, `solver_trust`, `proof_trust`) |
 | all existing stop-gate tracked `vNext+6` through `vNext+11` metrics remain at threshold | required | `pass` | v13 closeout metrics preserve prior tracked gates at threshold |
 | `vNext+12` closeout evidence remains green and reproducible | required | `pass` | `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS12.md` (`valid=true`, `all_passed=true`) |
+| `vNext+13` closeout evidence is reproducible | required | `pass` | reproducible closeout command emits stable artifacts (`artifacts/stop_gate/metrics_v13_closeout.json`, `artifacts/stop_gate/report_v13_closeout.md`) with `valid=true`, `all_passed=true` |
 
 Summary:
 

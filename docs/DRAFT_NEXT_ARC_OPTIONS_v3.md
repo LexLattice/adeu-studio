@@ -59,6 +59,7 @@ Net: the core O/E/D/U artifact spine is stable enough to shift focus to provider
 - Replay determinism is mandatory for acceptance paths.
 - Runtime behavior must emit evidence events in `urm-events@1`.
 - New `/urm/...` endpoints must be idempotent via `client_request_id`.
+- New artifacts must be schema-versioned under `spec/` and canonically serialized.
 - Stop-gate schema continuity remains additive on `stop_gate_metrics@1` unless explicitly re-locked.
 
 ## Path 8: Provider Reliability + Module Parity (Recommended for vNext+14)
@@ -188,3 +189,4 @@ Suggested measured outcomes for `vNext+14 -> vNext+15` gate:
 - no solver-semantics delta and no trust-lane regression
 - all existing stop-gate tracked `vNext+6` through `vNext+13` metrics remain at threshold
 - `vNext+12` closeout evidence remains green and reproducible
+- `vNext+13` closeout evidence remains green and reproducible

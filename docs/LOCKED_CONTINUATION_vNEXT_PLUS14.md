@@ -311,3 +311,5 @@ Before implementation PR1 for `vNext+14`, prepare and review:
 - `vNext+14 -> vNext+15` frozen thresholds all pass.
 - No solver semantics contract delta and no trust-lane regression introduced.
 - All existing stop-gate tracked `vNext+6` through `vNext+13` metrics remain at threshold.
+- `vNext+12` closeout evidence remains green and reproducible.
+- `vNext+13` closeout evidence remains green and reproducible.
