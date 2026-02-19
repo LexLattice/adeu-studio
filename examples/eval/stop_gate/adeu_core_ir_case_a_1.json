@@ -1,0 +1,115 @@
+{
+  "schema": "adeu_core_ir@0.1",
+  "source_text": "AI systems improve trust when evidence-backed recommendations are used.",
+  "source_text_hash": "3d956a90a9f1433816149bcb70e300afdcca6d303bdc119cea8f0657222c32aa",
+  "nodes": [
+    {
+      "id": "o1",
+      "layer": "O",
+      "kind": "Concept",
+      "label": "trust"
+    },
+    {
+      "id": "c1",
+      "layer": "E",
+      "kind": "Claim",
+      "text": "AI systems improve trust.",
+      "spans": [
+        {
+          "start": 0,
+          "end": 25
+        }
+      ],
+      "confidence": 0.8,
+      "ledger_version": "adeu.sbr.v0_1",
+      "S_milli": 600,
+      "B_milli": 800,
+      "R_milli": 200,
+      "S": "0.600",
+      "B": "0.800",
+      "R": "0.200"
+    },
+    {
+      "id": "c2",
+      "layer": "E",
+      "kind": "Claim",
+      "text": "Trust can decline.",
+      "spans": [],
+      "ledger_version": "adeu.sbr.v0_1",
+      "S_milli": 0,
+      "B_milli": 0,
+      "R_milli": 0,
+      "S": "0.000",
+      "B": "0.000",
+      "R": "0.000"
+    },
+    {
+      "id": "e1",
+      "layer": "E",
+      "kind": "Evidence",
+      "text": "Benchmark report",
+      "spans": []
+    },
+    {
+      "id": "q1",
+      "layer": "E",
+      "kind": "Question",
+      "text": "Under what conditions?",
+      "spans": []
+    },
+    {
+      "id": "d1",
+      "layer": "D",
+      "kind": "Policy",
+      "label": "verify-before-act"
+    },
+    {
+      "id": "u1",
+      "layer": "U",
+      "kind": "Goal",
+      "label": "maintain-trust"
+    }
+  ],
+  "edges": [
+    {
+      "type": "about",
+      "from": "c1",
+      "to": "o1"
+    },
+    {
+      "type": "about",
+      "from": "c2",
+      "to": "o1"
+    },
+    {
+      "type": "depends_on",
+      "from": "c1",
+      "to": "c2"
+    },
+    {
+      "type": "depends_on",
+      "from": "c1",
+      "to": "q1"
+    },
+    {
+      "type": "justifies",
+      "from": "c1",
+      "to": "d1"
+    },
+    {
+      "type": "refutes",
+      "from": "c2",
+      "to": "c1"
+    },
+    {
+      "type": "serves_goal",
+      "from": "d1",
+      "to": "u1"
+    },
+    {
+      "type": "supports",
+      "from": "e1",
+      "to": "c1"
+    }
+  ]
+}

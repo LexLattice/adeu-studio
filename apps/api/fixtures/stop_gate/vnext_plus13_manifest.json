@@ -1,0 +1,53 @@
+{
+  "schema": "stop_gate.vnext_plus13_manifest@1",
+  "replay_count": 3,
+  "core_ir_replay_fixtures": [
+    {
+      "fixture_id": "adeu_core_ir_replay.case_a",
+      "runs": [
+        {
+          "core_ir_path": "../../../../examples/eval/stop_gate/adeu_core_ir_case_a_1.json"
+        },
+        {
+          "core_ir_path": "../../../../examples/eval/stop_gate/adeu_core_ir_case_a_2.json"
+        },
+        {
+          "core_ir_path": "../../../../examples/eval/stop_gate/adeu_core_ir_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "ledger_recompute_fixtures": [
+    {
+      "fixture_id": "adeu_claim_ledger_recompute.case_a",
+      "runs": [
+        {
+          "core_ir_path": "../../../../examples/eval/stop_gate/adeu_core_ir_case_a_1.json"
+        },
+        {
+          "core_ir_path": "../../../../examples/eval/stop_gate/adeu_core_ir_case_a_2.json"
+        },
+        {
+          "core_ir_path": "../../../../examples/eval/stop_gate/adeu_core_ir_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "lane_projection_fixtures": [
+    {
+      "fixture_id": "adeu_lane_projection.case_a",
+      "runs": [
+        {
+          "core_ir_path": "../../../../examples/eval/stop_gate/adeu_core_ir_case_a_1.json"
+        },
+        {
+          "core_ir_path": "../../../../examples/eval/stop_gate/adeu_core_ir_case_a_2.json"
+        },
+        {
+          "core_ir_path": "../../../../examples/eval/stop_gate/adeu_core_ir_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "manifest_hash": "4f7cc716f1aa202cf2931937812a1cef7ceaeb675be8463ef764ef003cf83aa7"
+}
