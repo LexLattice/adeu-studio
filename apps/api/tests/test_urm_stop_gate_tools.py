@@ -56,6 +56,10 @@ def _vnext_plus11_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus11_manifest.json"
 
 
+def _vnext_plus13_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus13_manifest.json"
+
+
 _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = {
     "domain_conformance_hash",
     "hash_excluded_fields",
@@ -486,6 +490,39 @@ def _vnext_plus11_manifest_payload(
     return payload
 
 
+def _vnext_plus13_manifest_payload(
+    *,
+    replay_runs: list[dict[str, str]],
+    ledger_runs: list[dict[str, str]],
+    lane_runs: list[dict[str, str]],
+) -> dict[str, object]:
+    payload = {
+        "schema": "stop_gate.vnext_plus13_manifest@1",
+        "replay_count": 3,
+        "core_ir_replay_fixtures": [
+            {
+                "fixture_id": "adeu_core_ir_replay.case_a",
+                "runs": replay_runs,
+            }
+        ],
+        "ledger_recompute_fixtures": [
+            {
+                "fixture_id": "adeu_claim_ledger_recompute.case_a",
+                "runs": ledger_runs,
+            }
+        ],
+        "lane_projection_fixtures": [
+            {
+                "fixture_id": "adeu_lane_projection.case_a",
+                "runs": lane_runs,
+            }
+        ],
+    }
+    manifest_blob = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    payload["manifest_hash"] = hashlib.sha256(manifest_blob.encode("utf-8")).hexdigest()
+    return payload
+
+
 def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_baseline = tmp_path / "quality_baseline.json"
@@ -535,6 +572,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "vnext_plus9_manifest_path": _vnext_plus9_manifest_path(),
         "vnext_plus10_manifest_path": _vnext_plus10_manifest_path(),
         "vnext_plus11_manifest_path": _vnext_plus11_manifest_path(),
+        "vnext_plus13_manifest_path": _vnext_plus13_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -564,6 +602,9 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["domain_conformance_replay_determinism_pct"] == 100.0
     assert first["metrics"]["cross_domain_artifact_parity_pct"] == 100.0
     assert first["metrics"]["runtime_domain_coupling_guard_pct"] == 100.0
+    assert first["metrics"]["adeu_core_ir_replay_determinism_pct"] == 100.0
+    assert first["metrics"]["adeu_claim_ledger_recompute_match_pct"] == 100.0
+    assert first["metrics"]["adeu_lane_projection_determinism_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -574,6 +615,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert len(first["vnext_plus10_manifest_hash"]) == 64
     assert isinstance(first["vnext_plus11_manifest_hash"], str)
     assert len(first["vnext_plus11_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus13_manifest_hash"], str)
+    assert len(first["vnext_plus13_manifest_hash"]) == 64
 
 
 def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics(
@@ -1340,6 +1383,172 @@ def test_build_stop_gate_metrics_detects_vnext_plus11_runtime_coupling_guard_dri
     assert report["gates"]["runtime_domain_coupling_guard"] is False
 
 
+def test_build_stop_gate_metrics_rejects_vnext_plus13_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    replay_runs = [
+        {
+            "core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_1.json")),
+        },
+        {
+            "core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_2.json")),
+        },
+        {
+            "core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_3.json")),
+        },
+    ]
+    manifest_payload = _vnext_plus13_manifest_payload(
+        replay_runs=replay_runs,
+        ledger_runs=list(replay_runs),
+        lane_runs=list(replay_runs),
+    )
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus13_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    report = build_stop_gate_metrics(
+        incident_packet_paths=[
+            _example_stop_gate_path("incident_packet_case_a_1.json"),
+            _example_stop_gate_path("incident_packet_case_a_2.json"),
+        ],
+        event_stream_paths=[_event_fixture_path("sample_valid.ndjson")],
+        connector_snapshot_paths=[
+            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
+            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
+        ],
+        validator_evidence_packet_paths=[
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
+        ],
+        semantics_diagnostics_paths=[
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
+        ],
+        quality_current_path=quality_current,
+        quality_baseline_path=quality_baseline,
+        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
+        vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
+        vnext_plus9_manifest_path=_vnext_plus9_manifest_path(),
+        vnext_plus10_manifest_path=_vnext_plus10_manifest_path(),
+        vnext_plus11_manifest_path=_vnext_plus11_manifest_path(),
+        vnext_plus13_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["adeu_core_ir_replay_determinism_pct"] == 0.0
+    assert report["metrics"]["adeu_claim_ledger_recompute_match_pct"] == 0.0
+    assert report["metrics"]["adeu_lane_projection_determinism_pct"] == 0.0
+    assert report["vnext_plus13_manifest_hash"] == ""
+    assert any(
+        issue.get("code") == "URM_ADEU_CORE_MANIFEST_HASH_MISMATCH"
+        and issue.get("message") == "vnext+13 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_detects_vnext_plus13_ledger_recompute_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    drift_payload = json.loads(
+        _example_stop_gate_path("adeu_core_ir_case_a_2.json").read_text(encoding="utf-8")
+    )
+    for node in drift_payload.get("nodes", []):
+        if node.get("id") == "c1":
+            node["R_milli"] = 999
+            node["R"] = "0.999"
+            break
+    drift_path = tmp_path / "adeu_core_ir_drift_2.json"
+    _write_json(drift_path, drift_payload)
+
+    replay_runs = [
+        {
+            "core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_1.json")),
+        },
+        {
+            "core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_2.json")),
+        },
+        {
+            "core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_3.json")),
+        },
+    ]
+    ledger_runs = [
+        {
+            "core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_1.json")),
+        },
+        {"core_ir_path": str(drift_path)},
+        {
+            "core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_3.json")),
+        },
+    ]
+    manifest_path = tmp_path / "vnext_plus13_manifest.json"
+    _write_json(
+        manifest_path,
+        _vnext_plus13_manifest_payload(
+            replay_runs=replay_runs,
+            ledger_runs=ledger_runs,
+            lane_runs=replay_runs,
+        ),
+    )
+
+    report = build_stop_gate_metrics(
+        incident_packet_paths=[
+            _example_stop_gate_path("incident_packet_case_a_1.json"),
+            _example_stop_gate_path("incident_packet_case_a_2.json"),
+        ],
+        event_stream_paths=[_event_fixture_path("sample_valid.ndjson")],
+        connector_snapshot_paths=[
+            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
+            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
+        ],
+        validator_evidence_packet_paths=[
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
+        ],
+        semantics_diagnostics_paths=[
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
+        ],
+        quality_current_path=quality_current,
+        quality_baseline_path=quality_baseline,
+        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
+        vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
+        vnext_plus9_manifest_path=_vnext_plus9_manifest_path(),
+        vnext_plus10_manifest_path=_vnext_plus10_manifest_path(),
+        vnext_plus11_manifest_path=_vnext_plus11_manifest_path(),
+        vnext_plus13_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["adeu_core_ir_replay_determinism_pct"] == 100.0
+    assert report["metrics"]["adeu_claim_ledger_recompute_match_pct"] == 0.0
+    assert report["metrics"]["adeu_lane_projection_determinism_pct"] == 100.0
+    assert report["gates"]["adeu_core_ir_replay_determinism"] is True
+    assert report["gates"]["adeu_claim_ledger_recompute_match"] is False
+    assert report["gates"]["adeu_lane_projection_determinism"] is True
+    assert any(
+        issue.get("code") == "URM_ADEU_CORE_LEDGER_RECOMPUTE_MISMATCH"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_current.write_text(
@@ -1389,6 +1598,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_vnext_plus10_manifest_path()),
             "--vnext-plus11-manifest",
             str(_vnext_plus11_manifest_path()),
+            "--vnext-plus13-manifest",
+            str(_vnext_plus13_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",

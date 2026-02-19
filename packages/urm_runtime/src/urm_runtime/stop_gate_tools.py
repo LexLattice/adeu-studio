@@ -75,6 +75,15 @@ VNEXT_PLUS11_DEFAULT_METRICS = {
     "cross_domain_artifact_parity_pct": 0.0,
     "runtime_domain_coupling_guard_pct": 0.0,
 }
+ADEU_CORE_IR_SCHEMA = "adeu_core_ir@0.1"
+ADEU_LANE_PROJECTION_SCHEMA = "adeu_lane_projection@0.1"
+VNEXT_PLUS13_REPLAY_COUNT = 3
+VNEXT_PLUS13_MANIFEST_SCHEMA = "stop_gate.vnext_plus13_manifest@1"
+VNEXT_PLUS13_DEFAULT_METRICS = {
+    "adeu_core_ir_replay_determinism_pct": 0.0,
+    "adeu_claim_ledger_recompute_match_pct": 0.0,
+    "adeu_lane_projection_determinism_pct": 0.0,
+}
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -109,6 +118,9 @@ THRESHOLDS = {
     "domain_conformance_replay_determinism_pct": 100.0,
     "cross_domain_artifact_parity_pct": 100.0,
     "runtime_domain_coupling_guard_pct": 100.0,
+    "adeu_core_ir_replay_determinism_pct": 100.0,
+    "adeu_claim_ledger_recompute_match_pct": 100.0,
+    "adeu_lane_projection_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -159,11 +171,16 @@ def _default_vnext_plus11_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus11_manifest.json")
 
 
+def _default_vnext_plus13_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus13_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
 VNEXT_PLUS10_MANIFEST_PATH = _default_vnext_plus10_manifest_path()
 VNEXT_PLUS11_MANIFEST_PATH = _default_vnext_plus11_manifest_path()
+VNEXT_PLUS13_MANIFEST_PATH = _default_vnext_plus13_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -738,6 +755,541 @@ def _domain_conformance_coupling_guard_fixture_hash(
         and registry_order_determinism.get("valid") is True
     )
     return recomputed_hash, run_ok
+
+
+_ADEU_CORE_LAYER_ORDER: dict[str, int] = {"O": 0, "E": 1, "D": 2, "U": 3}
+_ADEU_CORE_ALLOWED_KINDS: dict[str, set[str]] = {
+    "O": {"Entity", "Concept", "RelationType"},
+    "E": {"Claim", "Assumption", "Question", "Evidence"},
+    "D": {"PhysicalConstraint", "Norm", "Policy", "Exception"},
+    "U": {"Goal", "Metric", "Preference"},
+}
+_ADEU_CORE_EDGE_TYPING_MATRIX: dict[str, tuple[set[str], set[str]]] = {
+    "about": (
+        {"E.Claim", "E.Assumption", "E.Question", "E.Evidence"},
+        {"O.Entity", "O.Concept", "O.RelationType"},
+    ),
+    "defines": (
+        {"E.Claim", "E.Evidence"},
+        {"O.Concept", "O.RelationType"},
+    ),
+    "supports": (
+        {"E.Evidence", "E.Claim"},
+        {"E.Claim"},
+    ),
+    "refutes": (
+        {"E.Evidence", "E.Claim"},
+        {"E.Claim"},
+    ),
+    "depends_on": (
+        {"E.Claim"},
+        {"E.Claim", "E.Assumption", "E.Question", "E.Evidence"},
+    ),
+    "justifies": (
+        {"E.Claim", "E.Evidence"},
+        {"D.Norm", "D.Policy"},
+    ),
+    "gates": (
+        {"D.Policy"},
+        {"E.Claim", "E.Assumption", "E.Question"},
+    ),
+    "serves_goal": (
+        {"D.PhysicalConstraint", "D.Norm", "D.Policy", "E.Claim"},
+        {"U.Goal", "U.Metric"},
+    ),
+    "prioritizes": (
+        {"U.Preference"},
+        {"U.Goal", "U.Metric", "D.PhysicalConstraint", "D.Norm", "D.Policy", "D.Exception"},
+    ),
+    "excepts": (
+        {"D.Exception"},
+        {"D.PhysicalConstraint", "D.Norm", "D.Policy"},
+    ),
+}
+
+
+def _core_ir_node_sort_key(node: Mapping[str, Any]) -> tuple[int, str, str]:
+    raw_layer = node.get("layer")
+    layer = raw_layer if isinstance(raw_layer, str) else ""
+    raw_kind = node.get("kind")
+    kind = raw_kind if isinstance(raw_kind, str) else ""
+    raw_id = node.get("id")
+    node_id = raw_id if isinstance(raw_id, str) else ""
+    return (_ADEU_CORE_LAYER_ORDER.get(layer, 99), kind, node_id)
+
+
+def _clamp_0_1000(value: int) -> int:
+    if value < 0:
+        return 0
+    if value > 1000:
+        return 1000
+    return value
+
+
+def _clamp01(value: float) -> float:
+    if value < 0.0:
+        return 0.0
+    if value > 1.0:
+        return 1.0
+    return value
+
+
+def _ratio_to_milli(value: float) -> int:
+    return _clamp_0_1000(round(1000 * value))
+
+
+def _display_from_milli(value: int) -> str:
+    return f"{value / 1000:.3f}"
+
+
+def _validate_claim_spans(
+    *,
+    core_ir_path: Path,
+    claim_id: str,
+    raw_spans: Any,
+) -> None:
+    if raw_spans is None:
+        return
+    if not isinstance(raw_spans, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core IR claim spans must be a list",
+                context={"path": str(core_ir_path), "claim_id": claim_id},
+            )
+        )
+    for span_idx, span in enumerate(raw_spans):
+        if not isinstance(span, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core IR claim span must be an object",
+                    context={
+                        "path": str(core_ir_path),
+                        "claim_id": claim_id,
+                        "span_index": span_idx,
+                    },
+                )
+            )
+        start = span.get("start")
+        end = span.get("end")
+        if not isinstance(start, int) or not isinstance(end, int) or start < 0 or end <= start:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core IR claim span must satisfy 0 <= start < end",
+                    context={
+                        "path": str(core_ir_path),
+                        "claim_id": claim_id,
+                        "span_index": span_idx,
+                    },
+                )
+            )
+
+
+def _validated_adeu_core_ir_payload(
+    *,
+    core_ir_path: Path,
+) -> tuple[dict[str, Any], dict[str, Mapping[str, Any]]]:
+    payload = _read_json_object(core_ir_path, description="adeu core IR fixture")
+    if payload.get("schema") != ADEU_CORE_IR_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core IR fixture input must use adeu_core_ir@0.1",
+                context={"path": str(core_ir_path)},
+            )
+        )
+    source_text_hash = payload.get("source_text_hash")
+    if not isinstance(source_text_hash, str) or not source_text_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core IR fixture missing source_text_hash",
+                context={"path": str(core_ir_path)},
+            )
+        )
+
+    raw_nodes = payload.get("nodes")
+    if not isinstance(raw_nodes, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core IR fixture nodes must be a list",
+                context={"path": str(core_ir_path)},
+            )
+        )
+    observed_node_order: list[tuple[int, str, str]] = []
+    node_index: dict[str, Mapping[str, Any]] = {}
+    for node_idx, node in enumerate(raw_nodes):
+        if not isinstance(node, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core IR node must be an object",
+                    context={"path": str(core_ir_path), "node_index": node_idx},
+                )
+            )
+        node_id = node.get("id")
+        layer = node.get("layer")
+        kind = node.get("kind")
+        if not isinstance(node_id, str) or not node_id:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core IR node id must be a non-empty string",
+                    context={"path": str(core_ir_path), "node_index": node_idx},
+                )
+            )
+        if not isinstance(layer, str) or layer not in _ADEU_CORE_ALLOWED_KINDS:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_CORE_INVALID_LAYER",
+                    "core IR node layer is invalid",
+                    context={
+                        "path": str(core_ir_path),
+                        "node_id": node_id,
+                        "layer": layer,
+                    },
+                )
+            )
+        if not isinstance(kind, str) or kind not in _ADEU_CORE_ALLOWED_KINDS[layer]:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core IR node kind is invalid for layer",
+                    context={
+                        "path": str(core_ir_path),
+                        "node_id": node_id,
+                        "layer": layer,
+                        "kind": kind,
+                    },
+                )
+            )
+        if node_id in node_index:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_CORE_DUPLICATE_NODE_ID",
+                    "core IR fixture contains duplicate node id",
+                    context={"path": str(core_ir_path), "node_id": node_id},
+                )
+            )
+        if layer == "E" and kind == "Claim":
+            _validate_claim_spans(
+                core_ir_path=core_ir_path,
+                claim_id=node_id,
+                raw_spans=node.get("spans"),
+            )
+            confidence = node.get("confidence")
+            if confidence is not None and not isinstance(confidence, (int, float)):
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "core IR claim confidence must be numeric when present",
+                        context={"path": str(core_ir_path), "claim_id": node_id},
+                    )
+                )
+        node_index[node_id] = node
+        observed_node_order.append(
+            (_ADEU_CORE_LAYER_ORDER[layer], kind, node_id)
+        )
+    if observed_node_order != sorted(observed_node_order):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core IR fixture nodes must be sorted by (layer, kind, id)",
+                context={"path": str(core_ir_path)},
+            )
+        )
+
+    raw_edges = payload.get("edges")
+    if not isinstance(raw_edges, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core IR fixture edges must be a list",
+                context={"path": str(core_ir_path)},
+            )
+        )
+    observed_edge_order: list[tuple[str, str, str]] = []
+    seen_edges: set[tuple[str, str, str]] = set()
+    for edge_idx, edge in enumerate(raw_edges):
+        if not isinstance(edge, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core IR edge must be an object",
+                    context={"path": str(core_ir_path), "edge_index": edge_idx},
+                )
+            )
+        edge_type = edge.get("type")
+        from_ref = edge.get("from")
+        to_ref = edge.get("to")
+        if not isinstance(edge_type, str) or edge_type not in _ADEU_CORE_EDGE_TYPING_MATRIX:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_CORE_INVALID_EDGE_TYPE",
+                    "core IR edge type is invalid",
+                    context={
+                        "path": str(core_ir_path),
+                        "edge_index": edge_idx,
+                        "type": edge_type,
+                    },
+                )
+            )
+        if (
+            not isinstance(from_ref, str)
+            or not from_ref
+            or not isinstance(to_ref, str)
+            or not to_ref
+        ):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core IR edge refs must be non-empty strings",
+                    context={
+                        "path": str(core_ir_path),
+                        "edge_index": edge_idx,
+                    },
+                )
+            )
+        identity = (edge_type, from_ref, to_ref)
+        if identity in seen_edges:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core IR fixture contains duplicate edge identity",
+                    context={"path": str(core_ir_path), "edge": identity},
+                )
+            )
+        seen_edges.add(identity)
+        observed_edge_order.append(identity)
+        from_node = node_index.get(from_ref)
+        to_node = node_index.get(to_ref)
+        if from_node is None or to_node is None:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_CORE_DANGLING_REF",
+                    "core IR fixture edge references unknown node id",
+                    context={
+                        "path": str(core_ir_path),
+                        "edge": identity,
+                    },
+                )
+            )
+        from_sig = f"{from_node['layer']}.{from_node['kind']}"
+        to_sig = f"{to_node['layer']}.{to_node['kind']}"
+        allowed_from, allowed_to = _ADEU_CORE_EDGE_TYPING_MATRIX[edge_type]
+        if from_sig not in allowed_from or to_sig not in allowed_to:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_CORE_EDGE_TYPING_VIOLATION",
+                    "core IR fixture edge violates frozen typing matrix",
+                    context={
+                        "path": str(core_ir_path),
+                        "edge_type": edge_type,
+                        "from": from_sig,
+                        "to": to_sig,
+                    },
+                )
+            )
+    if observed_edge_order != sorted(observed_edge_order):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core IR fixture edges must be sorted by (type, from, to)",
+                context={"path": str(core_ir_path)},
+            )
+        )
+    return payload, node_index
+
+
+def _compute_adeu_claim_scores(
+    *,
+    payload: Mapping[str, Any],
+    node_index: Mapping[str, Mapping[str, Any]],
+) -> dict[str, dict[str, Any]]:
+    claim_nodes = {
+        str(node["id"]): node
+        for node in payload.get("nodes", [])
+        if isinstance(node, Mapping)
+        and node.get("layer") == "E"
+        and node.get("kind") == "Claim"
+        and isinstance(node.get("id"), str)
+    }
+    supports_to_claim: dict[str, int] = {claim_id: 0 for claim_id in claim_nodes}
+    refutes_to_claim: dict[str, int] = {claim_id: 0 for claim_id in claim_nodes}
+    dependencies_from_claim: dict[str, list[str]] = {claim_id: [] for claim_id in claim_nodes}
+    for edge in payload.get("edges", []):
+        if not isinstance(edge, Mapping):
+            continue
+        edge_type = edge.get("type")
+        from_ref = edge.get("from")
+        to_ref = edge.get("to")
+        if not isinstance(from_ref, str) or not isinstance(to_ref, str):
+            continue
+        if edge_type == "supports" and to_ref in supports_to_claim:
+            supports_to_claim[to_ref] += 1
+        elif edge_type == "refutes" and to_ref in refutes_to_claim:
+            refutes_to_claim[to_ref] += 1
+        elif edge_type == "depends_on" and from_ref in dependencies_from_claim:
+            dependencies_from_claim[from_ref].append(to_ref)
+
+    claim_scores: dict[str, dict[str, Any]] = {}
+    for claim_id, claim_node in claim_nodes.items():
+        supports = supports_to_claim.get(claim_id, 0)
+        refutes = refutes_to_claim.get(claim_id, 0)
+        dependencies = dependencies_from_claim.get(claim_id, [])
+        total_dependencies = len(dependencies)
+        resolved_dependencies = sum(
+            1
+            for dep_id in dependencies
+            if isinstance(node_index.get(dep_id), Mapping)
+            and node_index[dep_id].get("layer") == "E"
+            and node_index[dep_id].get("kind") in {"Claim", "Evidence"}
+        )
+        evidence_support_ratio_milli = _ratio_to_milli(
+            supports / max(1, supports + refutes)
+        )
+        dependency_resolution_ratio_milli = _ratio_to_milli(
+            resolved_dependencies / max(1, total_dependencies)
+        )
+        claim_spans = claim_node.get("spans")
+        if claim_spans is None:
+            claim_spans = []
+        provenance_anchor_ratio_milli = 1000 if isinstance(claim_spans, list) and claim_spans else 0
+        s_milli = _clamp_0_1000(
+            (
+                500 * evidence_support_ratio_milli
+                + 300 * dependency_resolution_ratio_milli
+                + 200 * provenance_anchor_ratio_milli
+                + 500
+            )
+            // 1000
+        )
+        raw_confidence = claim_node.get("confidence")
+        confidence = float(raw_confidence) if isinstance(raw_confidence, (int, float)) else 0.0
+        b_milli = _clamp_0_1000(round(1000 * _clamp01(confidence)))
+        r_milli = _clamp_0_1000(b_milli - s_milli)
+        claim_scores[claim_id] = {
+            "claim_id": claim_id,
+            "ledger_version": "adeu.sbr.v0_1",
+            "S_milli": s_milli,
+            "B_milli": b_milli,
+            "R_milli": r_milli,
+            "S": _display_from_milli(s_milli),
+            "B": _display_from_milli(b_milli),
+            "R": _display_from_milli(r_milli),
+        }
+    return claim_scores
+
+
+def _assert_adeu_claim_ledger_recompute_match(
+    *,
+    payload: Mapping[str, Any],
+    node_index: Mapping[str, Mapping[str, Any]],
+    core_ir_path: Path,
+) -> dict[str, dict[str, Any]]:
+    claim_scores = _compute_adeu_claim_scores(payload=payload, node_index=node_index)
+    mismatched_claims: list[str] = []
+    for node in payload.get("nodes", []):
+        if not isinstance(node, Mapping):
+            continue
+        if node.get("layer") != "E" or node.get("kind") != "Claim":
+            continue
+        claim_id = node.get("id")
+        if not isinstance(claim_id, str):
+            continue
+        expected = claim_scores.get(claim_id)
+        if expected is None:
+            mismatched_claims.append(claim_id)
+            continue
+        display_mismatch = False
+        for display_key in ("S", "B", "R"):
+            raw_display = node.get(display_key)
+            if raw_display is not None and raw_display != expected[display_key]:
+                display_mismatch = True
+                break
+        if (
+            node.get("ledger_version") != expected["ledger_version"]
+            or node.get("S_milli") != expected["S_milli"]
+            or node.get("B_milli") != expected["B_milli"]
+            or node.get("R_milli") != expected["R_milli"]
+            or display_mismatch
+        ):
+            mismatched_claims.append(claim_id)
+    if mismatched_claims:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_CORE_LEDGER_RECOMPUTE_MISMATCH",
+                "core IR claim-ledger recompute mismatch",
+                context={
+                    "path": str(core_ir_path),
+                    "claims": sorted(mismatched_claims),
+                },
+            )
+        )
+    return claim_scores
+
+
+def _adeu_core_ir_replay_fixture_hash(*, core_ir_path: Path) -> str:
+    payload, _ = _validated_adeu_core_ir_payload(core_ir_path=core_ir_path)
+    return sha256_canonical_json(payload)
+
+
+def _adeu_claim_ledger_recompute_fixture_hash(*, core_ir_path: Path) -> str:
+    payload, node_index = _validated_adeu_core_ir_payload(core_ir_path=core_ir_path)
+    claim_scores = _assert_adeu_claim_ledger_recompute_match(
+        payload=payload,
+        node_index=node_index,
+        core_ir_path=core_ir_path,
+    )
+    return sha256_canonical_json(
+        {
+            "source_text_hash": payload.get("source_text_hash"),
+            "claims": [claim_scores[claim_id] for claim_id in sorted(claim_scores)],
+        }
+    )
+
+
+def _adeu_lane_projection_fixture_hash(*, core_ir_path: Path) -> str:
+    payload, _ = _validated_adeu_core_ir_payload(core_ir_path=core_ir_path)
+    projection = {
+        "schema": ADEU_LANE_PROJECTION_SCHEMA,
+        "source_text_hash": payload.get("source_text_hash"),
+        "lanes": {
+            "O": [
+                str(node["id"])
+                for node in payload.get("nodes", [])
+                if isinstance(node, Mapping) and node.get("layer") == "O"
+            ],
+            "E": [
+                str(node["id"])
+                for node in payload.get("nodes", [])
+                if isinstance(node, Mapping) and node.get("layer") == "E"
+            ],
+            "D": [
+                str(node["id"])
+                for node in payload.get("nodes", [])
+                if isinstance(node, Mapping) and node.get("layer") == "D"
+            ],
+            "U": [
+                str(node["id"])
+                for node in payload.get("nodes", [])
+                if isinstance(node, Mapping) and node.get("layer") == "U"
+            ],
+        },
+        "edges": [
+            {
+                "type": edge["type"],
+                "from": edge["from"],
+                "to": edge["to"],
+            }
+            for edge in payload.get("edges", [])
+            if isinstance(edge, Mapping)
+        ],
+    }
+    return sha256_canonical_json(projection)
 
 
 def _issue(code: str, message: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -2112,6 +2664,168 @@ def _compute_vnext_plus11_metrics(
     }
 
 
+def _load_vnext_plus13_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    payload = _read_json_object(manifest_path, description="vnext+13 stop-gate manifest")
+    if payload.get("schema") != VNEXT_PLUS13_MANIFEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+13 stop-gate manifest has unsupported schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    replay_count = payload.get("replay_count")
+    if replay_count != VNEXT_PLUS13_REPLAY_COUNT:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+13 replay_count must match frozen replay count",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_replay_count": VNEXT_PLUS13_REPLAY_COUNT,
+                    "observed_replay_count": replay_count,
+                },
+            )
+        )
+    for key in (
+        "core_ir_replay_fixtures",
+        "ledger_recompute_fixtures",
+        "lane_projection_fixtures",
+    ):
+        if not isinstance(payload.get(key), list):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "vnext+13 stop-gate manifest missing required fixture list",
+                    context={"manifest_path": str(manifest_path), "key": key},
+                )
+            )
+    raw_manifest_hash = payload.get("manifest_hash")
+    if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+13 stop-gate manifest missing manifest_hash",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    hash_basis = dict(payload)
+    hash_basis.pop("manifest_hash", None)
+    recomputed_manifest_hash = sha256_canonical_json(hash_basis)
+    if raw_manifest_hash != recomputed_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_CORE_MANIFEST_HASH_MISMATCH",
+                "vnext+13 manifest_hash mismatch",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "embedded_manifest_hash": raw_manifest_hash,
+                    "recomputed_manifest_hash": recomputed_manifest_hash,
+                },
+            )
+        )
+    return payload, recomputed_manifest_hash
+
+
+def _compute_vnext_plus13_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS13_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus13_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS13_DEFAULT_METRICS,
+            "vnext_plus13_manifest_hash": "",
+        }
+
+    try:
+        core_ir_replay_fixtures = _manifest_metric_entries(
+            metrics={
+                "adeu_core_ir_replay_determinism_pct": manifest.get(
+                    "core_ir_replay_fixtures"
+                )
+            },
+            metric_name="adeu_core_ir_replay_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        ledger_recompute_fixtures = _manifest_metric_entries(
+            metrics={
+                "adeu_claim_ledger_recompute_match_pct": manifest.get("ledger_recompute_fixtures")
+            },
+            metric_name="adeu_claim_ledger_recompute_match_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        lane_projection_fixtures = _manifest_metric_entries(
+            metrics={
+                "adeu_lane_projection_determinism_pct": manifest.get("lane_projection_fixtures")
+            },
+            metric_name="adeu_lane_projection_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS13_DEFAULT_METRICS,
+            "vnext_plus13_manifest_hash": manifest_hash,
+        }
+
+    adeu_core_ir_replay_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="adeu_core_ir_replay_determinism_pct",
+        fixtures=core_ir_replay_fixtures,
+        replay_count=VNEXT_PLUS13_REPLAY_COUNT,
+        required_run_fields=("core_ir_path",),
+        run_hash_builder=_adeu_core_ir_replay_fixture_hash,
+        issues=issues,
+    )
+    adeu_claim_ledger_recompute_match_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="adeu_claim_ledger_recompute_match_pct",
+        fixtures=ledger_recompute_fixtures,
+        replay_count=VNEXT_PLUS13_REPLAY_COUNT,
+        required_run_fields=("core_ir_path",),
+        run_hash_builder=_adeu_claim_ledger_recompute_fixture_hash,
+        issues=issues,
+    )
+    adeu_lane_projection_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="adeu_lane_projection_determinism_pct",
+        fixtures=lane_projection_fixtures,
+        replay_count=VNEXT_PLUS13_REPLAY_COUNT,
+        required_run_fields=("core_ir_path",),
+        run_hash_builder=_adeu_lane_projection_fixture_hash,
+        issues=issues,
+    )
+    return {
+        "adeu_core_ir_replay_determinism_pct": adeu_core_ir_replay_determinism_pct,
+        "adeu_claim_ledger_recompute_match_pct": adeu_claim_ledger_recompute_match_pct,
+        "adeu_lane_projection_determinism_pct": adeu_lane_projection_determinism_pct,
+        "vnext_plus13_manifest_hash": manifest_hash,
+    }
+
+
 def _metric_delta_satisfies_rule(*, rule: str, delta: float) -> bool:
     if rule == "non_decreasing":
         return delta >= 0.0
@@ -2176,6 +2890,7 @@ def build_stop_gate_metrics(
     vnext_plus9_manifest_path: Path | None = None,
     vnext_plus10_manifest_path: Path | None = None,
     vnext_plus11_manifest_path: Path | None = None,
+    vnext_plus13_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     try:
@@ -2527,6 +3242,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus11_manifest_path,
         issues=issues,
     )
+    vnext_plus13_metrics = _compute_vnext_plus13_metrics(
+        manifest_path=vnext_plus13_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -2674,6 +3393,15 @@ def build_stop_gate_metrics(
         "runtime_domain_coupling_guard_pct": vnext_plus11_metrics[
             "runtime_domain_coupling_guard_pct"
         ],
+        "adeu_core_ir_replay_determinism_pct": vnext_plus13_metrics[
+            "adeu_core_ir_replay_determinism_pct"
+        ],
+        "adeu_claim_ledger_recompute_match_pct": vnext_plus13_metrics[
+            "adeu_claim_ledger_recompute_match_pct"
+        ],
+        "adeu_lane_projection_determinism_pct": vnext_plus13_metrics[
+            "adeu_lane_projection_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -2727,6 +3455,12 @@ def build_stop_gate_metrics(
         >= THRESHOLDS["cross_domain_artifact_parity_pct"],
         "runtime_domain_coupling_guard": metrics["runtime_domain_coupling_guard_pct"]
         >= THRESHOLDS["runtime_domain_coupling_guard_pct"],
+        "adeu_core_ir_replay_determinism": metrics["adeu_core_ir_replay_determinism_pct"]
+        >= THRESHOLDS["adeu_core_ir_replay_determinism_pct"],
+        "adeu_claim_ledger_recompute_match": metrics["adeu_claim_ledger_recompute_match_pct"]
+        >= THRESHOLDS["adeu_claim_ledger_recompute_match_pct"],
+        "adeu_lane_projection_determinism": metrics["adeu_lane_projection_determinism_pct"]
+        >= THRESHOLDS["adeu_lane_projection_determinism_pct"],
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -2773,11 +3507,17 @@ def build_stop_gate_metrics(
                 if vnext_plus11_manifest_path is not None
                 else VNEXT_PLUS11_MANIFEST_PATH
             ),
+            "vnext_plus13_manifest_path": str(
+                vnext_plus13_manifest_path
+                if vnext_plus13_manifest_path is not None
+                else VNEXT_PLUS13_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
         "vnext_plus10_manifest_hash": vnext_plus10_metrics["vnext_plus10_manifest_hash"],
         "vnext_plus11_manifest_hash": vnext_plus11_metrics["vnext_plus11_manifest_hash"],
+        "vnext_plus13_manifest_hash": vnext_plus13_metrics["vnext_plus13_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -2804,6 +3544,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+9 manifest hash: `{report.get('vnext_plus9_manifest_hash')}`")
     lines.append(f"- vnext+10 manifest hash: `{report.get('vnext_plus10_manifest_hash')}`")
     lines.append(f"- vnext+11 manifest hash: `{report.get('vnext_plus11_manifest_hash')}`")
+    lines.append(f"- vnext+13 manifest hash: `{report.get('vnext_plus13_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -2941,6 +3682,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('runtime_domain_coupling_guard_pct')}`"
     )
     lines.append(
+        "- adeu core IR replay determinism pct: "
+        f"`{metrics.get('adeu_core_ir_replay_determinism_pct')}`"
+    )
+    lines.append(
+        "- adeu claim ledger recompute match pct: "
+        f"`{metrics.get('adeu_claim_ledger_recompute_match_pct')}`"
+    )
+    lines.append(
+        "- adeu lane projection determinism pct: "
+        f"`{metrics.get('adeu_lane_projection_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -3048,6 +3801,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS11_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus13-manifest",
+        dest="vnext_plus13_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS13_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -3068,6 +3827,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus9_manifest_path=args.vnext_plus9_manifest_path,
         vnext_plus10_manifest_path=args.vnext_plus10_manifest_path,
         vnext_plus11_manifest_path=args.vnext_plus11_manifest_path,
+        vnext_plus13_manifest_path=args.vnext_plus13_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
