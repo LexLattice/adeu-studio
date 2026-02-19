@@ -59,6 +59,10 @@ def _minimal_puzzle_payload(*, puzzle_id: str) -> dict[str, Any]:
     }
 
 
+def _codex_wrapped_puzzle_payload(*, puzzle_id: str) -> dict[str, Any]:
+    return {"output": _minimal_puzzle_payload(puzzle_id=puzzle_id)}
+
+
 class _FakeBackend:
     def __init__(self, results: list[BackendResult]):
         self._results = list(results)
@@ -237,3 +241,30 @@ def test_propose_puzzle_openai_uses_configured_default_loop_limits(monkeypatch) 
 
     assert log.k == 1
     assert log.n == 2
+
+
+def test_propose_puzzle_codex_normalizes_transport_wrapper_before_validation(monkeypatch) -> None:
+    fake_backend = _FakeBackend([_ok_result(_codex_wrapped_puzzle_payload(puzzle_id="pz_codex"))])
+
+    def fake_check(*args: object, **kwargs: object) -> tuple[CheckReport, list[Any]]:
+        return _report_pass(), []
+
+    monkeypatch.setattr(
+        openai_puzzle_provider, "build_codex_exec_backend", lambda **kwargs: fake_backend
+    )
+    monkeypatch.setattr(openai_puzzle_provider, "puzzle_check_with_validator_runs", fake_check)
+
+    proposals, log, _ = openai_puzzle_provider.propose_puzzle_codex(
+        puzzle_text="A says: I am a knight.",
+        mode=KernelMode.LAX,
+        max_candidates=1,
+        max_repairs=0,
+        source_features={},
+        context_override=None,
+    )
+
+    assert len(proposals) == 1
+    puzzle, _, _ = proposals[0]
+    assert puzzle.puzzle_id == "pz_codex"
+    assert fake_backend.temperatures == [None]
+    assert [attempt.status for attempt in log.attempts] == ["PASS"]

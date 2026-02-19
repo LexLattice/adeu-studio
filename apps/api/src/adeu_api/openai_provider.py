@@ -11,6 +11,7 @@ from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode, ValidatorRunRecord, check_with_validator_runs
 from pydantic import ValidationError
 
+from .codex_payload_normalization import normalize_codex_transport_payload
 from .id_canonicalization import canonicalize_ir_ids
 from .openai_backends import (
     BackendApi,
@@ -165,9 +166,16 @@ def _failure_summary(report: CheckReport, runs: list[ValidatorRunRecord]) -> str
 class _AdeuAdapter(ProposerAdapter[AdeuIR, list[ValidatorRunRecord]]):
     domain = "adeu"
 
-    def __init__(self, *, clause_text: str, context: Context):
+    def __init__(
+        self,
+        *,
+        clause_text: str,
+        context: Context,
+        normalize_parse_payload: bool = False,
+    ):
         self._clause_text = clause_text
         self._context = context
+        self._normalize_parse_payload = normalize_parse_payload
 
     def build_initial_prompt(self, *, candidate_idx: int) -> tuple[str, str]:
         ctx_json = self._context.model_dump(mode="json", exclude_none=True)
@@ -225,8 +233,16 @@ class _AdeuAdapter(ProposerAdapter[AdeuIR, list[ValidatorRunRecord]]):
         return system_prompt, user_prompt
 
     def parse_ir(self, payload: dict[str, Any]) -> tuple[AdeuIR | None, str | None]:
+        parse_payload = (
+            normalize_codex_transport_payload(payload)
+            if self._normalize_parse_payload
+            else payload
+        )
+        if self._normalize_parse_payload and parse_payload.get("context") is None:
+            parse_payload["context"] = self._context.model_dump(mode="json", exclude_none=True)
+
         try:
-            return AdeuIR.model_validate(payload), None
+            return AdeuIR.model_validate(parse_payload), None
         except ValidationError as exc:
             return None, f"ADEU IR schema validation failed: {exc}"
 
@@ -334,7 +350,11 @@ def _propose_with_backend(
     want_raw = env_flag("ADEU_LOG_RAW_LLM")
     k, n = _resolve_loop_limits(max_candidates=max_candidates, max_repairs=max_repairs)
 
-    adapter = _AdeuAdapter(clause_text=clause_text, context=context)
+    adapter = _AdeuAdapter(
+        clause_text=clause_text,
+        context=context,
+        normalize_parse_payload=provider_label == "codex",
+    )
     core_candidates, core_log = run_openai_repair_loop(
         adapter=adapter,
         backend=backend,

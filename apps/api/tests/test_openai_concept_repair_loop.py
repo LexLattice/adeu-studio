@@ -270,7 +270,9 @@ def test_propose_concept_openai_uses_configured_default_loop_limits(monkeypatch)
 
 
 def test_propose_concept_codex_normalizes_schema_noise_before_validation(monkeypatch) -> None:
-    fake_backend = _FakeBackend([_ok_result(_codex_noisy_concept_payload(concept_id="cn_codex"))])
+    fake_backend = _FakeBackend(
+        [_ok_result({"result": _codex_noisy_concept_payload(concept_id="cn_codex")})]
+    )
 
     def fake_check(*args: object, **kwargs: object) -> tuple[CheckReport, list[Any]]:
         return _report_pass(), []
