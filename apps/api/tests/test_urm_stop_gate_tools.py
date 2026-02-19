@@ -523,6 +523,41 @@ def _vnext_plus13_manifest_payload(
     return payload
 
 
+def _base_stop_gate_kwargs(
+    *,
+    quality_current: Path,
+    quality_baseline: Path,
+) -> dict[str, object]:
+    return {
+        "incident_packet_paths": [
+            _example_stop_gate_path("incident_packet_case_a_1.json"),
+            _example_stop_gate_path("incident_packet_case_a_2.json"),
+        ],
+        "event_stream_paths": [_event_fixture_path("sample_valid.ndjson")],
+        "connector_snapshot_paths": [
+            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
+            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
+        ],
+        "validator_evidence_packet_paths": [
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
+            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
+        ],
+        "semantics_diagnostics_paths": [
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
+            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
+        ],
+        "quality_current_path": quality_current,
+        "quality_baseline_path": quality_baseline,
+        "vnext_plus7_manifest_path": _vnext_plus7_manifest_path(),
+        "vnext_plus8_manifest_path": _vnext_plus8_manifest_path(),
+        "vnext_plus9_manifest_path": _vnext_plus9_manifest_path(),
+        "vnext_plus10_manifest_path": _vnext_plus10_manifest_path(),
+        "vnext_plus11_manifest_path": _vnext_plus11_manifest_path(),
+    }
+
+
 def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_baseline = tmp_path / "quality_baseline.json"
@@ -1413,32 +1448,10 @@ def test_build_stop_gate_metrics_rejects_vnext_plus13_manifest_hash_mismatch(
     _write_json(manifest_path, manifest_payload)
 
     report = build_stop_gate_metrics(
-        incident_packet_paths=[
-            _example_stop_gate_path("incident_packet_case_a_1.json"),
-            _example_stop_gate_path("incident_packet_case_a_2.json"),
-        ],
-        event_stream_paths=[_event_fixture_path("sample_valid.ndjson")],
-        connector_snapshot_paths=[
-            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
-            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
-        ],
-        validator_evidence_packet_paths=[
-            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
-            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
-            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
-        ],
-        semantics_diagnostics_paths=[
-            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
-            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
-            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
-        ],
-        quality_current_path=quality_current,
-        quality_baseline_path=quality_baseline,
-        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
-        vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
-        vnext_plus9_manifest_path=_vnext_plus9_manifest_path(),
-        vnext_plus10_manifest_path=_vnext_plus10_manifest_path(),
-        vnext_plus11_manifest_path=_vnext_plus11_manifest_path(),
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
         vnext_plus13_manifest_path=manifest_path,
     )
 
@@ -1506,32 +1519,10 @@ def test_build_stop_gate_metrics_detects_vnext_plus13_ledger_recompute_drift(
     )
 
     report = build_stop_gate_metrics(
-        incident_packet_paths=[
-            _example_stop_gate_path("incident_packet_case_a_1.json"),
-            _example_stop_gate_path("incident_packet_case_a_2.json"),
-        ],
-        event_stream_paths=[_event_fixture_path("sample_valid.ndjson")],
-        connector_snapshot_paths=[
-            _example_stop_gate_path("connector_snapshot_case_a_1.json"),
-            _example_stop_gate_path("connector_snapshot_case_a_2.json"),
-        ],
-        validator_evidence_packet_paths=[
-            _validator_evidence_fixture_path("validator_evidence_packet_case_a_1.json"),
-            _validator_evidence_fixture_path("validator_evidence_packet_case_a_2.json"),
-            _validator_evidence_fixture_path("validator_evidence_packet_case_a_3.json"),
-        ],
-        semantics_diagnostics_paths=[
-            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_1.json"),
-            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_2.json"),
-            _semantics_diagnostics_fixture_path("semantics_diagnostics_case_a_3.json"),
-        ],
-        quality_current_path=quality_current,
-        quality_baseline_path=quality_baseline,
-        vnext_plus7_manifest_path=_vnext_plus7_manifest_path(),
-        vnext_plus8_manifest_path=_vnext_plus8_manifest_path(),
-        vnext_plus9_manifest_path=_vnext_plus9_manifest_path(),
-        vnext_plus10_manifest_path=_vnext_plus10_manifest_path(),
-        vnext_plus11_manifest_path=_vnext_plus11_manifest_path(),
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
         vnext_plus13_manifest_path=manifest_path,
     )
 
@@ -1544,6 +1535,59 @@ def test_build_stop_gate_metrics_detects_vnext_plus13_ledger_recompute_drift(
     assert report["gates"]["adeu_lane_projection_determinism"] is True
     assert any(
         issue.get("code") == "URM_ADEU_CORE_LEDGER_RECOMPUTE_MISMATCH"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus13_invalid_core_ir_node_shape(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    invalid_payload = json.loads(
+        _example_stop_gate_path("adeu_core_ir_case_a_2.json").read_text(encoding="utf-8")
+    )
+    for node in invalid_payload.get("nodes", []):
+        if node.get("id") == "c1":
+            node.pop("text", None)
+            break
+    invalid_path = tmp_path / "adeu_core_ir_invalid_2.json"
+    _write_json(invalid_path, invalid_payload)
+
+    replay_runs = [
+        {"core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_1.json"))},
+        {"core_ir_path": str(invalid_path)},
+        {"core_ir_path": str(_example_stop_gate_path("adeu_core_ir_case_a_3.json"))},
+    ]
+    manifest_path = tmp_path / "vnext_plus13_manifest_invalid_core_ir.json"
+    _write_json(
+        manifest_path,
+        _vnext_plus13_manifest_payload(
+            replay_runs=replay_runs,
+            ledger_runs=replay_runs,
+            lane_runs=replay_runs,
+        ),
+    )
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["adeu_core_ir_replay_determinism_pct"] == 0.0
+    assert report["metrics"]["adeu_claim_ledger_recompute_match_pct"] == 0.0
+    assert report["metrics"]["adeu_lane_projection_determinism_pct"] == 0.0
+    assert any(
+        issue.get("message") == "core IR E-node must include non-empty text"
         for issue in report["issues"]
         if isinstance(issue, dict)
     )

@@ -806,6 +806,11 @@ _ADEU_CORE_EDGE_TYPING_MATRIX: dict[str, tuple[set[str], set[str]]] = {
         {"D.PhysicalConstraint", "D.Norm", "D.Policy"},
     ),
 }
+_INVALID_LAYER_SORT_ORDER = 99
+_S_MILLI_EVIDENCE_WEIGHT = 500
+_S_MILLI_DEPENDENCY_WEIGHT = 300
+_S_MILLI_PROVENANCE_WEIGHT = 200
+_S_MILLI_ROUNDING_BIAS = 500
 
 
 def _core_ir_node_sort_key(node: Mapping[str, Any]) -> tuple[int, str, str]:
@@ -815,7 +820,7 @@ def _core_ir_node_sort_key(node: Mapping[str, Any]) -> tuple[int, str, str]:
     kind = raw_kind if isinstance(raw_kind, str) else ""
     raw_id = node.get("id")
     node_id = raw_id if isinstance(raw_id, str) else ""
-    return (_ADEU_CORE_LAYER_ORDER.get(layer, 99), kind, node_id)
+    return (_ADEU_CORE_LAYER_ORDER.get(layer, _INVALID_LAYER_SORT_ORDER), kind, node_id)
 
 
 def _clamp_0_1000(value: int) -> int:
@@ -887,30 +892,11 @@ def _validate_claim_spans(
             )
 
 
-def _validated_adeu_core_ir_payload(
+def _validate_core_ir_nodes(
     *,
     core_ir_path: Path,
-) -> tuple[dict[str, Any], dict[str, Mapping[str, Any]]]:
-    payload = _read_json_object(core_ir_path, description="adeu core IR fixture")
-    if payload.get("schema") != ADEU_CORE_IR_SCHEMA:
-        raise ValueError(
-            _issue(
-                "URM_STOP_GATE_INPUT_INVALID",
-                "core IR fixture input must use adeu_core_ir@0.1",
-                context={"path": str(core_ir_path)},
-            )
-        )
-    source_text_hash = payload.get("source_text_hash")
-    if not isinstance(source_text_hash, str) or not source_text_hash:
-        raise ValueError(
-            _issue(
-                "URM_STOP_GATE_INPUT_INVALID",
-                "core IR fixture missing source_text_hash",
-                context={"path": str(core_ir_path)},
-            )
-        )
-
-    raw_nodes = payload.get("nodes")
+    raw_nodes: Any,
+) -> dict[str, Mapping[str, Any]]:
     if not isinstance(raw_nodes, list):
         raise ValueError(
             _issue(
@@ -919,6 +905,7 @@ def _validated_adeu_core_ir_payload(
                 context={"path": str(core_ir_path)},
             )
         )
+
     observed_node_order: list[tuple[int, str, str]] = []
     node_index: dict[str, Mapping[str, Any]] = {}
     for node_idx, node in enumerate(raw_nodes):
@@ -974,25 +961,58 @@ def _validated_adeu_core_ir_payload(
                     context={"path": str(core_ir_path), "node_id": node_id},
                 )
             )
-        if layer == "E" and kind == "Claim":
-            _validate_claim_spans(
-                core_ir_path=core_ir_path,
-                claim_id=node_id,
-                raw_spans=node.get("spans"),
-            )
+
+        if layer == "E":
+            text = node.get("text")
+            if not isinstance(text, str) or not text:
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "core IR E-node must include non-empty text",
+                        context={"path": str(core_ir_path), "node_id": node_id},
+                    )
+                )
+            if "spans" in node:
+                _validate_claim_spans(
+                    core_ir_path=core_ir_path,
+                    claim_id=node_id,
+                    raw_spans=node.get("spans"),
+                )
             confidence = node.get("confidence")
             if confidence is not None and not isinstance(confidence, (int, float)):
                 raise ValueError(
                     _issue(
                         "URM_STOP_GATE_INPUT_INVALID",
-                        "core IR claim confidence must be numeric when present",
-                        context={"path": str(core_ir_path), "claim_id": node_id},
+                        "core IR E-node confidence must be numeric when present",
+                        context={"path": str(core_ir_path), "node_id": node_id},
                     )
                 )
+        else:
+            label = node.get("label")
+            if not isinstance(label, str) or not label:
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "core IR O/D/U node must include non-empty label",
+                        context={"path": str(core_ir_path), "node_id": node_id},
+                    )
+                )
+        if layer == "O" and "aliases" in node:
+            aliases = node.get("aliases")
+            if not isinstance(aliases, list) or not all(
+                isinstance(alias, str) for alias in aliases
+            ):
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "core IR O-node aliases must be a string list when present",
+                        context={"path": str(core_ir_path), "node_id": node_id},
+                    )
+                )
+
         node_index[node_id] = node
-        observed_node_order.append(
-            (_ADEU_CORE_LAYER_ORDER[layer], kind, node_id)
-        )
+        observed_node_order.append(_core_ir_node_sort_key(node))
+
     if observed_node_order != sorted(observed_node_order):
         raise ValueError(
             _issue(
@@ -1001,8 +1021,15 @@ def _validated_adeu_core_ir_payload(
                 context={"path": str(core_ir_path)},
             )
         )
+    return node_index
 
-    raw_edges = payload.get("edges")
+
+def _validate_core_ir_edges(
+    *,
+    core_ir_path: Path,
+    raw_edges: Any,
+    node_index: Mapping[str, Mapping[str, Any]],
+) -> None:
     if not isinstance(raw_edges, list):
         raise ValueError(
             _issue(
@@ -1011,6 +1038,7 @@ def _validated_adeu_core_ir_payload(
                 context={"path": str(core_ir_path)},
             )
         )
+
     observed_edge_order: list[tuple[str, str, str]] = []
     seen_edges: set[tuple[str, str, str]] = set()
     for edge_idx, edge in enumerate(raw_edges):
@@ -1101,6 +1129,40 @@ def _validated_adeu_core_ir_payload(
                 context={"path": str(core_ir_path)},
             )
         )
+
+
+def _validated_adeu_core_ir_payload(
+    *,
+    core_ir_path: Path,
+) -> tuple[dict[str, Any], dict[str, Mapping[str, Any]]]:
+    payload = _read_json_object(core_ir_path, description="adeu core IR fixture")
+    if payload.get("schema") != ADEU_CORE_IR_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core IR fixture input must use adeu_core_ir@0.1",
+                context={"path": str(core_ir_path)},
+            )
+        )
+    source_text_hash = payload.get("source_text_hash")
+    if not isinstance(source_text_hash, str) or not source_text_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core IR fixture missing source_text_hash",
+                context={"path": str(core_ir_path)},
+            )
+        )
+
+    node_index = _validate_core_ir_nodes(
+        core_ir_path=core_ir_path,
+        raw_nodes=payload.get("nodes"),
+    )
+    _validate_core_ir_edges(
+        core_ir_path=core_ir_path,
+        raw_edges=payload.get("edges"),
+        node_index=node_index,
+    )
     return payload, node_index
 
 
@@ -1160,10 +1222,10 @@ def _compute_adeu_claim_scores(
         provenance_anchor_ratio_milli = 1000 if isinstance(claim_spans, list) and claim_spans else 0
         s_milli = _clamp_0_1000(
             (
-                500 * evidence_support_ratio_milli
-                + 300 * dependency_resolution_ratio_milli
-                + 200 * provenance_anchor_ratio_milli
-                + 500
+                _S_MILLI_EVIDENCE_WEIGHT * evidence_support_ratio_milli
+                + _S_MILLI_DEPENDENCY_WEIGHT * dependency_resolution_ratio_milli
+                + _S_MILLI_PROVENANCE_WEIGHT * provenance_anchor_ratio_milli
+                + _S_MILLI_ROUNDING_BIAS
             )
             // 1000
         )
