@@ -12,7 +12,7 @@ from adeu_api.provider_parity_transfer_report_vnext_plus14 import (
     build_provider_parity_transfer_report_vnext_plus14_payload,
     provider_parity_transfer_report_vnext_plus14_markdown,
 )
-from urm_runtime.hashing import canonical_json
+from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 
 def _repo_root() -> Path:
@@ -48,6 +48,15 @@ def _extract_json_block(markdown: str) -> dict[str, object]:
     end = markdown.find("\n```", start)
     assert end != -1, "json fenced block end not found"
     return json.loads(markdown[start:end])
+
+
+def _write_manifest_with_recomputed_hash(tmp_path: Path, payload: dict[str, object]) -> Path:
+    normalized = dict(payload)
+    normalized.pop("manifest_hash", None)
+    normalized["manifest_hash"] = sha256_canonical_json(normalized)
+    path = tmp_path / "vnext_plus14_manifest.json"
+    path.write_text(canonical_json(normalized) + "\n", encoding="utf-8")
+    return path
 
 
 def test_build_provider_parity_transfer_report_payload_is_deterministic() -> None:
@@ -129,5 +138,57 @@ def test_build_provider_parity_transfer_report_rejects_manifest_hash_mismatch(
     with pytest.raises(ProviderParityTransferReportError, match="manifest_hash mismatch"):
         build_provider_parity_transfer_report_vnext_plus14_payload(
             vnext_plus14_manifest_path=bad_manifest_path,
+            provider_matrix_path=_provider_matrix_path(),
+        )
+
+
+def test_provider_parity_summary_detects_surface_provider_mapping_mismatch(
+    tmp_path: Path,
+) -> None:
+    manifest_payload = json.loads(_vnext_plus14_manifest_path().read_text(encoding="utf-8"))
+    provider_route_fixtures = manifest_payload["provider_route_contract_parity_fixtures"]
+
+    for entry in provider_route_fixtures:
+        if entry["surface_id"] == "adeu.propose":
+            entry["providers"] = ["mock", "codex"]
+        if entry["surface_id"] == "concepts.tournament.live_generation":
+            entry["providers"] = ["mock", "openai"]
+
+    manifest_path = _write_manifest_with_recomputed_hash(tmp_path, manifest_payload)
+    payload = build_provider_parity_transfer_report_vnext_plus14_payload(
+        vnext_plus14_manifest_path=manifest_path,
+        provider_matrix_path=_provider_matrix_path(),
+    )
+    parity_summary = payload["parity_summary"]
+    assert (
+        parity_summary["route_provider_unit_count"]
+        == parity_summary["matrix_provider_unit_count"]
+    )
+    assert parity_summary["valid"] is False
+    assert parity_summary["mapping_mismatch_count"] == 2
+    assert [item["surface_id"] for item in parity_summary["mapping_mismatches"]] == [
+        "adeu.propose",
+        "concepts.tournament.live_generation",
+    ]
+
+
+def test_provider_parity_transfer_report_rejects_cross_surface_coverage_fixture_id(
+    tmp_path: Path,
+) -> None:
+    manifest_payload = json.loads(_vnext_plus14_manifest_path().read_text(encoding="utf-8"))
+    coverage_entries = manifest_payload["coverage"]
+    for entry in coverage_entries:
+        if entry["surface_id"] == "adeu.propose":
+            entry["fixture_ids"][0] = "provider_route_contract_parity.concepts.propose"
+            entry["fixture_ids"] = sorted(entry["fixture_ids"])
+            break
+
+    manifest_path = _write_manifest_with_recomputed_hash(tmp_path, manifest_payload)
+    with pytest.raises(
+        ProviderParityTransferReportError,
+        match="references fixture_ids mapped to other surfaces",
+    ):
+        build_provider_parity_transfer_report_vnext_plus14_payload(
+            vnext_plus14_manifest_path=manifest_path,
             provider_matrix_path=_provider_matrix_path(),
         )

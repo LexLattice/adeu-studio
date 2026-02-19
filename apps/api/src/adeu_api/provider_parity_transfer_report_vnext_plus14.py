@@ -187,6 +187,7 @@ def _load_vnext_plus14_manifest_payload(path: Path) -> tuple[dict[str, Any], str
     )
 
     fixture_id_catalog: set[str] = set()
+    fixture_surface_catalog: dict[str, str] = {}
     for list_key in _REQUIRED_METRIC_FIXTURE_KEYS:
         for entry in normalized_manifest[list_key]:
             fixture_id = str(entry["fixture_id"])
@@ -195,6 +196,7 @@ def _load_vnext_plus14_manifest_payload(path: Path) -> tuple[dict[str, Any], str
                     f"vnext+14 manifest fixture_id is duplicated across lists: {fixture_id}"
                 )
             fixture_id_catalog.add(fixture_id)
+            fixture_surface_catalog[fixture_id] = str(entry["surface_id"])
 
     coverage_entries = payload.get("coverage")
     if not isinstance(coverage_entries, list) or not coverage_entries:
@@ -235,6 +237,16 @@ def _load_vnext_plus14_manifest_payload(path: Path) -> tuple[dict[str, Any], str
         if unknown_fixture_ids:
             raise ProviderParityTransferReportError(
                 f"coverage[{idx}] references unknown fixture_ids: {unknown_fixture_ids}"
+            )
+        cross_surface_fixture_ids = sorted(
+            fixture_id
+            for fixture_id in normalized_fixture_ids
+            if fixture_surface_catalog.get(fixture_id) != surface_id
+        )
+        if cross_surface_fixture_ids:
+            raise ProviderParityTransferReportError(
+                f"coverage[{idx}] references fixture_ids mapped to other surfaces: "
+                f"{cross_surface_fixture_ids}"
             )
         normalized_entry: dict[str, Any] = {
             "surface_id": surface_id,
@@ -372,12 +384,38 @@ def _build_parity_summary(
     replay_fixtures = manifest_payload["provider_parity_replay_determinism_fixtures"]
     route_provider_unit_count = sum(len(entry["providers"]) for entry in provider_route_fixtures)
     matrix_provider_unit_count = sum(len(providers) for providers in matrix_by_surface.values())
+    route_providers_by_surface: dict[str, list[str]] = {}
+    duplicate_surface_ids: list[str] = []
+    for entry in provider_route_fixtures:
+        surface_id = str(entry["surface_id"])
+        if surface_id in route_providers_by_surface:
+            duplicate_surface_ids.append(surface_id)
+        providers = [str(provider) for provider in entry["providers"]]
+        route_providers_by_surface[surface_id] = providers
+
+    mapping_mismatches: list[dict[str, Any]] = []
+    for surface_id in _FROZEN_PROVIDER_SURFACES:
+        route_providers = route_providers_by_surface.get(surface_id, [])
+        matrix_providers = matrix_by_surface.get(surface_id, [])
+        if route_providers != matrix_providers:
+            mapping_mismatches.append(
+                {
+                    "surface_id": surface_id,
+                    "route_providers": route_providers,
+                    "matrix_providers": matrix_providers,
+                }
+            )
+
     return {
-        "valid": route_provider_unit_count == matrix_provider_unit_count,
+        "valid": len(mapping_mismatches) == 0 and not duplicate_surface_ids,
         "surface_count": len(_FROZEN_PROVIDER_SURFACES),
         "matrix_surface_count": len(matrix_by_surface),
         "matrix_provider_unit_count": matrix_provider_unit_count,
         "route_provider_unit_count": route_provider_unit_count,
+        "duplicate_surface_count": len(duplicate_surface_ids),
+        "duplicate_surface_ids": sorted(set(duplicate_surface_ids)),
+        "mapping_mismatch_count": len(mapping_mismatches),
+        "mapping_mismatches": mapping_mismatches,
         "fixture_counts": {
             "provider_route_contract_parity": len(provider_route_fixtures),
             "codex_candidate_contract_valid": len(codex_fixtures),
