@@ -28,3 +28,7 @@ explain-tools = "adeu_api.explain_tools:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/adeu_api"]
+include = ["src/adeu_api/provider_parity/*.json"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/adeu_api/provider_parity/*.json"]

@@ -7,6 +7,7 @@ import sqlite3
 from collections import deque
 from datetime import datetime, timezone
 from functools import lru_cache
+from importlib import resources as importlib_resources
 from pathlib import Path
 from typing import Any, Callable, Literal, Mapping, NamedTuple
 
@@ -346,6 +347,7 @@ _PROVIDER_PARITY_MATRIX_PATH = (
     / "provider_parity"
     / "vnext_plus14_provider_matrix.json"
 )
+_PROVIDER_PARITY_MATRIX_PACKAGE_RESOURCE = "provider_parity/vnext_plus14_provider_matrix.json"
 _PROVIDER_KIND_ORDER: tuple[ProviderKind, ...] = ("mock", "openai", "codex")
 _PROVIDER_KIND_RANK = {value: idx for idx, value in enumerate(_PROVIDER_KIND_ORDER)}
 _FROZEN_PROVIDER_PARITY_SURFACE_IDS: tuple[str, ...] = (
@@ -374,26 +376,45 @@ def _provider_parity_detail(
     urm_code: str,
     extra: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    detail: dict[str, Any] = {"code": code, "message": message, "urm_code": urm_code}
-    if extra:
-        detail.update(extra)
-    return detail
+    return {"code": code, "message": message, "urm_code": urm_code, **(extra or {})}
 
 
-@lru_cache(maxsize=1)
-def _provider_parity_supported_providers_by_surface() -> dict[str, tuple[str, ...]]:
+def _read_provider_parity_matrix_payload() -> str:
     try:
-        payload = json.loads(_PROVIDER_PARITY_MATRIX_PATH.read_text(encoding="utf-8"))
-    except FileNotFoundError as exc:
-        raise _provider_parity_matrix_error(
-            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
-            message=f"provider parity matrix file missing: {_PROVIDER_PARITY_MATRIX_PATH}",
-        ) from exc
+        return _PROVIDER_PARITY_MATRIX_PATH.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        pass
     except OSError as exc:
         raise _provider_parity_matrix_error(
             code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
             message=f"provider parity matrix unreadable: {exc}",
         ) from exc
+
+    resource = importlib_resources.files("adeu_api").joinpath(
+        _PROVIDER_PARITY_MATRIX_PACKAGE_RESOURCE
+    )
+    try:
+        return resource.read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+            message=(
+                "provider parity matrix file missing in source and package paths: "
+                f"{_PROVIDER_PARITY_MATRIX_PATH} | "
+                f"adeu_api:{_PROVIDER_PARITY_MATRIX_PACKAGE_RESOURCE}"
+            ),
+        ) from exc
+    except OSError as exc:
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+            message=f"provider parity matrix packaged resource unreadable: {exc}",
+        ) from exc
+
+
+@lru_cache(maxsize=1)
+def _provider_parity_supported_providers_by_surface() -> dict[str, tuple[str, ...]]:
+    try:
+        payload = json.loads(_read_provider_parity_matrix_payload())
     except json.JSONDecodeError as exc:
         raise _provider_parity_matrix_error(
             code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
