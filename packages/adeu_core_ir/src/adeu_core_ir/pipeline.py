@@ -11,6 +11,7 @@ from adeu_ir import SourceSpan
 from pydantic import TypeAdapter
 
 from .ids import stable_core_node_id
+from .ledger import apply_claim_ledger_scores
 from .models import (
     AdeuCoreIR,
     CoreDNode,
@@ -628,6 +629,7 @@ def build_core_ir_from_source_text(
     candidates: dict[str, Any] | None = None,
     include_source_text: bool = True,
     candidate_span_space: str = "raw",
+    include_claim_ledger: bool = True,
 ) -> AdeuCoreIR:
     normalized = normalize_core_source_text(source_text)
     if candidate_span_space not in {"raw", "normalized"}:
@@ -654,8 +656,11 @@ def build_core_ir_from_source_text(
                     normalized.to_normalized_span(span).model_dump(mode="json") for span in spans
                 ]
                 node["spans"] = remapped_spans
-    return canonicalize_core_ir_candidates(
+    canonical = canonicalize_core_ir_candidates(
         source_text_hash=normalized.source_text_hash,
         source_text=normalized.normalized_text if include_source_text else None,
         candidates=harvested,
     )
+    if not include_claim_ledger:
+        return canonical
+    return apply_claim_ledger_scores(canonical)

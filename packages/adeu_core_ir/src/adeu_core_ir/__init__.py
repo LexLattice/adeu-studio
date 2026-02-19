@@ -1,4 +1,9 @@
 from .ids import stable_core_node_id
+from .ledger import (
+    LEDGER_VERSION_V0_1,
+    apply_claim_ledger_scores,
+    assert_claim_ledger_recompute_match,
+)
 from .models import (
     AdeuCoreIR,
     CoreDNode,
@@ -35,6 +40,9 @@ __all__ = [
     "harvest_core_ir_candidates",
     "normalize_core_source_text",
     "NormalizedCoreSourceText",
+    "LEDGER_VERSION_V0_1",
+    "apply_claim_ledger_scores",
+    "assert_claim_ledger_recompute_match",
     "stable_core_node_id",
 ]
 
