@@ -164,14 +164,19 @@ def assert_claim_ledger_recompute_match(core_ir: AdeuCoreIR | dict[str, Any]) ->
         if not isinstance(node, CoreENode) or node.kind != "Claim":
             continue
         score = expected[node.id]
-        display_expected = (score.s, score.b, score.r)
-        display_actual = (node.s, node.b, node.r)
+        display_mismatched = False
+        if node.s is not None and node.s != score.s:
+            display_mismatched = True
+        if node.b is not None and node.b != score.b:
+            display_mismatched = True
+        if node.r is not None and node.r != score.r:
+            display_mismatched = True
         if (
             node.ledger_version != score.ledger_version
             or node.s_milli != score.s_milli
             or node.b_milli != score.b_milli
             or node.r_milli != score.r_milli
-            or display_actual != display_expected
+            or display_mismatched
         ):
             mismatches.append(node.id)
 

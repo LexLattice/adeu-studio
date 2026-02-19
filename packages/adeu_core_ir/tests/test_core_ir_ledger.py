@@ -95,6 +95,11 @@ def test_claim_ledger_recompute_match_passes_for_scored_ir() -> None:
     assert_claim_ledger_recompute_match(scored)
 
 
+def test_claim_ledger_recompute_match_allows_missing_display_fields() -> None:
+    scored = apply_claim_ledger_scores(_payload(), include_display_fields=False)
+    assert_claim_ledger_recompute_match(scored)
+
+
 def test_claim_ledger_recompute_mismatch_fails_closed() -> None:
     scored = apply_claim_ledger_scores(_payload())
     payload = scored.model_dump(mode="json", by_alias=True, exclude_none=True)
