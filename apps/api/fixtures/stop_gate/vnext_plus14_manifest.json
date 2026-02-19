@@ -1,0 +1,297 @@
+{
+  "schema": "stop_gate.vnext_plus14_manifest@1",
+  "replay_count": 3,
+  "provider_route_contract_parity_fixtures": [
+    {
+      "fixture_id": "provider_route_contract_parity.adeu.propose",
+      "surface_id": "adeu.propose",
+      "providers": [
+        "mock",
+        "openai",
+        "codex"
+      ],
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    },
+    {
+      "fixture_id": "provider_route_contract_parity.concepts.propose",
+      "surface_id": "concepts.propose",
+      "providers": [
+        "mock",
+        "openai",
+        "codex"
+      ],
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    },
+    {
+      "fixture_id": "provider_route_contract_parity.concepts.tournament.live_generation",
+      "surface_id": "concepts.tournament.live_generation",
+      "providers": [
+        "mock"
+      ],
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ],
+      "notes": "live_generation remains mock-only"
+    },
+    {
+      "fixture_id": "provider_route_contract_parity.concepts.tournament.replay_candidates",
+      "surface_id": "concepts.tournament.replay_candidates",
+      "providers": [
+        "mock",
+        "openai",
+        "codex"
+      ],
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ],
+      "notes": "provider accepted but execution-inert for replay mode"
+    },
+    {
+      "fixture_id": "provider_route_contract_parity.puzzles.propose",
+      "surface_id": "puzzles.propose",
+      "providers": [
+        "mock",
+        "openai",
+        "codex"
+      ],
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    }
+  ],
+  "codex_candidate_contract_valid_fixtures": [
+    {
+      "fixture_id": "codex_candidate_contract_valid.adeu.propose.codex",
+      "surface_id": "adeu.propose",
+      "provider": "codex",
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    },
+    {
+      "fixture_id": "codex_candidate_contract_valid.concepts.propose.codex",
+      "surface_id": "concepts.propose",
+      "provider": "codex",
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    },
+    {
+      "fixture_id": "codex_candidate_contract_valid.concepts.tournament.replay_candidates.codex",
+      "surface_id": "concepts.tournament.replay_candidates",
+      "provider": "codex",
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ],
+      "notes": "replay mode keeps provider field but execution is inert"
+    },
+    {
+      "fixture_id": "codex_candidate_contract_valid.puzzles.propose.codex",
+      "surface_id": "puzzles.propose",
+      "provider": "codex",
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    }
+  ],
+  "provider_parity_replay_determinism_fixtures": [
+    {
+      "fixture_id": "provider_parity_replay_determinism.adeu.propose.codex",
+      "surface_id": "adeu.propose",
+      "provider": "codex",
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    },
+    {
+      "fixture_id": "provider_parity_replay_determinism.concepts.propose.codex",
+      "surface_id": "concepts.propose",
+      "provider": "codex",
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    },
+    {
+      "fixture_id": "provider_parity_replay_determinism.concepts.tournament.live_generation.mock",
+      "surface_id": "concepts.tournament.live_generation",
+      "provider": "mock",
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    },
+    {
+      "fixture_id": "provider_parity_replay_determinism.concepts.tournament.replay_candidates.codex",
+      "surface_id": "concepts.tournament.replay_candidates",
+      "provider": "codex",
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    },
+    {
+      "fixture_id": "provider_parity_replay_determinism.puzzles.propose.codex",
+      "surface_id": "puzzles.propose",
+      "provider": "codex",
+      "runs": [
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_1.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_2.json"
+        },
+        {
+          "artifact_ref": "../../../../examples/eval/stop_gate/provider_parity_case_a_run_3.json"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "surface_id": "adeu.propose",
+      "fixture_ids": [
+        "codex_candidate_contract_valid.adeu.propose.codex",
+        "provider_parity_replay_determinism.adeu.propose.codex",
+        "provider_route_contract_parity.adeu.propose"
+      ]
+    },
+    {
+      "surface_id": "concepts.propose",
+      "fixture_ids": [
+        "codex_candidate_contract_valid.concepts.propose.codex",
+        "provider_parity_replay_determinism.concepts.propose.codex",
+        "provider_route_contract_parity.concepts.propose"
+      ]
+    },
+    {
+      "surface_id": "concepts.tournament.live_generation",
+      "fixture_ids": [
+        "provider_parity_replay_determinism.concepts.tournament.live_generation.mock",
+        "provider_route_contract_parity.concepts.tournament.live_generation"
+      ]
+    },
+    {
+      "surface_id": "concepts.tournament.replay_candidates",
+      "fixture_ids": [
+        "codex_candidate_contract_valid.concepts.tournament.replay_candidates.codex",
+        "provider_parity_replay_determinism.concepts.tournament.replay_candidates.codex",
+        "provider_route_contract_parity.concepts.tournament.replay_candidates"
+      ]
+    },
+    {
+      "surface_id": "puzzles.propose",
+      "fixture_ids": [
+        "codex_candidate_contract_valid.puzzles.propose.codex",
+        "provider_parity_replay_determinism.puzzles.propose.codex",
+        "provider_route_contract_parity.puzzles.propose"
+      ]
+    }
+  ],
+  "manifest_hash": "70a938d3c772bee71e432aeaca9fc6d9f7194909e8cf2c0fc21e9a758a7d51ff"
+}
