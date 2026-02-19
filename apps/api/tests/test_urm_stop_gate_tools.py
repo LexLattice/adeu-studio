@@ -60,6 +60,10 @@ def _vnext_plus13_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus13_manifest.json"
 
 
+def _vnext_plus14_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus14_manifest.json"
+
+
 _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = {
     "domain_conformance_hash",
     "hash_excluded_fields",
@@ -523,6 +527,54 @@ def _vnext_plus13_manifest_payload(
     return payload
 
 
+def _vnext_plus14_manifest_payload() -> dict[str, object]:
+    return json.loads(_vnext_plus14_manifest_path().read_text(encoding="utf-8"))
+
+
+def _write_vnext_plus14_manifest_payload(
+    *,
+    tmp_path: Path,
+    payload: dict[str, object],
+    filename: str = "vnext_plus14_manifest.json",
+) -> Path:
+    normalized_payload = json.loads(json.dumps(payload))
+    if not isinstance(normalized_payload, dict):
+        raise AssertionError("vnext+14 manifest payload must be an object")
+    fixture_manifest_root = _vnext_plus14_manifest_path().parent
+    for fixture_key in (
+        "provider_route_contract_parity_fixtures",
+        "codex_candidate_contract_valid_fixtures",
+        "provider_parity_replay_determinism_fixtures",
+    ):
+        raw_fixtures = normalized_payload.get(fixture_key)
+        if not isinstance(raw_fixtures, list):
+            continue
+        for fixture in raw_fixtures:
+            if not isinstance(fixture, dict):
+                continue
+            runs = fixture.get("runs")
+            if not isinstance(runs, list):
+                continue
+            for run in runs:
+                if not isinstance(run, dict):
+                    continue
+                artifact_ref = run.get("artifact_ref")
+                if not isinstance(artifact_ref, str) or not artifact_ref:
+                    continue
+                artifact_path = Path(artifact_ref)
+                if artifact_path.is_absolute():
+                    continue
+                run["artifact_ref"] = str((fixture_manifest_root / artifact_path).resolve())
+    normalized_payload.pop("manifest_hash", None)
+    manifest_blob = json.dumps(normalized_payload, sort_keys=True, separators=(",", ":"))
+    normalized_payload["manifest_hash"] = hashlib.sha256(
+        manifest_blob.encode("utf-8")
+    ).hexdigest()
+    manifest_path = tmp_path / filename
+    _write_json(manifest_path, normalized_payload)
+    return manifest_path
+
+
 def _base_stop_gate_kwargs(
     *,
     quality_current: Path,
@@ -608,6 +660,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "vnext_plus10_manifest_path": _vnext_plus10_manifest_path(),
         "vnext_plus11_manifest_path": _vnext_plus11_manifest_path(),
         "vnext_plus13_manifest_path": _vnext_plus13_manifest_path(),
+        "vnext_plus14_manifest_path": _vnext_plus14_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -640,6 +693,9 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["adeu_core_ir_replay_determinism_pct"] == 100.0
     assert first["metrics"]["adeu_claim_ledger_recompute_match_pct"] == 100.0
     assert first["metrics"]["adeu_lane_projection_determinism_pct"] == 100.0
+    assert first["metrics"]["provider_route_contract_parity_pct"] == 100.0
+    assert first["metrics"]["codex_candidate_contract_valid_pct"] == 100.0
+    assert first["metrics"]["provider_parity_replay_determinism_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -652,6 +708,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert len(first["vnext_plus11_manifest_hash"]) == 64
     assert isinstance(first["vnext_plus13_manifest_hash"], str)
     assert len(first["vnext_plus13_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus14_manifest_hash"], str)
+    assert len(first["vnext_plus14_manifest_hash"]) == 64
 
 
 def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics(
@@ -1593,6 +1651,90 @@ def test_build_stop_gate_metrics_rejects_vnext_plus13_invalid_core_ir_node_shape
     )
 
 
+def test_build_stop_gate_metrics_rejects_vnext_plus14_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus14_manifest_payload()
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus14_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["provider_route_contract_parity_pct"] == 0.0
+    assert report["metrics"]["codex_candidate_contract_valid_pct"] == 0.0
+    assert report["metrics"]["provider_parity_replay_determinism_pct"] == 0.0
+    assert report["vnext_plus14_manifest_hash"] == ""
+    assert any(
+        issue.get("code") == "URM_PROVIDER_PARITY_MANIFEST_HASH_MISMATCH"
+        and issue.get("message") == "vnext+14 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_detects_vnext_plus14_replay_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    drift_payload = json.loads(
+        _example_stop_gate_path("provider_parity_case_a_run_2.json").read_text(encoding="utf-8")
+    )
+    drift_payload["status"] = "FAIL"
+    drift_path = tmp_path / "provider_parity_case_a_run_2_drift.json"
+    _write_json(drift_path, drift_payload)
+
+    manifest_payload = _vnext_plus14_manifest_payload()
+    replay_fixtures = manifest_payload.get("provider_parity_replay_determinism_fixtures")
+    assert isinstance(replay_fixtures, list) and replay_fixtures
+    first_fixture = replay_fixtures[0]
+    assert isinstance(first_fixture, dict)
+    first_runs = first_fixture.get("runs")
+    assert isinstance(first_runs, list) and len(first_runs) == 3
+    assert isinstance(first_runs[1], dict)
+    first_runs[1]["artifact_ref"] = str(drift_path)
+    manifest_path = _write_vnext_plus14_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is True
+    assert report["metrics"]["provider_route_contract_parity_pct"] == 100.0
+    assert report["metrics"]["codex_candidate_contract_valid_pct"] == 100.0
+    assert report["metrics"]["provider_parity_replay_determinism_pct"] < 100.0
+    assert report["gates"]["provider_route_contract_parity"] is True
+    assert report["gates"]["codex_candidate_contract_valid"] is True
+    assert report["gates"]["provider_parity_replay_determinism"] is False
+
+
 def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_current.write_text(
@@ -1644,6 +1786,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_vnext_plus11_manifest_path()),
             "--vnext-plus13-manifest",
             str(_vnext_plus13_manifest_path()),
+            "--vnext-plus14-manifest",
+            str(_vnext_plus14_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",
