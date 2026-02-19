@@ -10,9 +10,8 @@ _MAX_UNWRAP_DEPTH = 8
 def normalize_codex_transport_payload(payload: dict[str, Any]) -> dict[str, Any]:
     """Normalize codex transport wrappers into a direct candidate object."""
 
-    current: Any = payload
-    unwrap_depth = 0
-    while isinstance(current, dict) and unwrap_depth < _MAX_UNWRAP_DEPTH:
+    current = payload
+    for _ in range(_MAX_UNWRAP_DEPTH):
         if len(current) != 1:
             break
         wrapper_key, wrapper_value = next(iter(current.items()))
@@ -21,8 +20,4 @@ def normalize_codex_transport_payload(payload: dict[str, Any]) -> dict[str, Any]
         if not isinstance(wrapper_value, dict):
             break
         current = wrapper_value
-        unwrap_depth += 1
-
-    if not isinstance(current, dict):
-        return deepcopy(payload)
     return deepcopy(current)
