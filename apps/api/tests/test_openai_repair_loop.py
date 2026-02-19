@@ -115,6 +115,12 @@ def _minimal_payload(*, ir_id: str, verb: str) -> dict[str, Any]:
     }
 
 
+def _codex_wrapped_payload_missing_context(*, ir_id: str, verb: str) -> dict[str, Any]:
+    payload = _minimal_payload(ir_id=ir_id, verb=verb)
+    payload["context"] = None
+    return {"artifact": payload}
+
+
 def _run_record(
     *,
     request_hash: str,
@@ -322,6 +328,34 @@ def test_propose_openai_uses_configured_default_loop_limits(monkeypatch) -> None
 
     assert log.k == 1
     assert log.n == 2
+
+
+def test_propose_codex_normalizes_transport_wrapper_and_injects_context(monkeypatch) -> None:
+    fake_backend = _FakeBackend(
+        [_ok_result(_codex_wrapped_payload_missing_context(ir_id="ir_codex", verb="notify"))]
+    )
+
+    def fake_check_with_runs(*args: object, **kwargs: object) -> tuple[CheckReport, list]:
+        return _report_pass(), []
+
+    monkeypatch.setattr(openai_provider, "build_codex_exec_backend", lambda **kwargs: fake_backend)
+    monkeypatch.setattr(openai_provider, "check_with_validator_runs", fake_check_with_runs)
+
+    proposals, log, _ = openai_provider.propose_codex(
+        clause_text="Supplier shall notify Customer.",
+        context=_context(),
+        mode=KernelMode.LAX,
+        max_candidates=1,
+        max_repairs=0,
+    )
+
+    assert len(proposals) == 1
+    ir, _ = proposals[0]
+    assert ir.context.doc_id == "doc:test:openai"
+    assert ir.context.jurisdiction == "US-CA"
+    assert ir.context.time_eval == datetime(2026, 2, 6, tzinfo=timezone.utc)
+    assert fake_backend.temperatures == [None]
+    assert [attempt.status for attempt in log.attempts] == ["PASS"]
 
 
 def test_propose_openai_responses_backend_error_aborts_without_chat_fallback(

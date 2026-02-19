@@ -13,6 +13,7 @@ from adeu_puzzles import KnightsKnavesPuzzle
 from adeu_puzzles import check_with_validator_runs as puzzle_check_with_validator_runs
 from pydantic import ValidationError
 
+from .codex_payload_normalization import normalize_codex_transport_payload
 from .openai_backends import (
     BackendApi,
     OpenAIBackend,
@@ -127,10 +128,12 @@ class _PuzzleAdapter(ProposerAdapter[KnightsKnavesPuzzle, list[ValidatorRunRecor
         puzzle_text: str,
         source_features: dict[str, Any],
         context_override: dict[str, Any] | None,
+        normalize_parse_payload: bool = False,
     ):
         self._puzzle_text = puzzle_text
         self._source_features = source_features
         self._context_override = context_override
+        self._normalize_parse_payload = normalize_parse_payload
 
     def build_initial_prompt(self, *, candidate_idx: int) -> tuple[str, str]:
         system_prompt = (
@@ -189,8 +192,13 @@ class _PuzzleAdapter(ProposerAdapter[KnightsKnavesPuzzle, list[ValidatorRunRecor
         return system_prompt, user_prompt
 
     def parse_ir(self, payload: dict[str, Any]) -> tuple[KnightsKnavesPuzzle | None, str | None]:
+        parse_payload = (
+            normalize_codex_transport_payload(payload)
+            if self._normalize_parse_payload
+            else payload
+        )
         try:
-            return KnightsKnavesPuzzle.model_validate(payload), None
+            return KnightsKnavesPuzzle.model_validate(parse_payload), None
         except ValidationError as exc:
             return None, f"Puzzle schema validation failed: {exc}"
 
@@ -310,6 +318,7 @@ def _propose_puzzle_with_backend(
         puzzle_text=puzzle_text,
         source_features=source_features,
         context_override=context_override,
+        normalize_parse_payload=provider_label == "codex",
     )
     core_candidates, core_log = run_openai_repair_loop(
         adapter=adapter,

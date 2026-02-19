@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -14,6 +13,7 @@ from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode, ValidatorRunRecord
 from pydantic import ValidationError
 
+from .codex_payload_normalization import normalize_codex_transport_payload
 from .concept_id_canonicalization import canonicalize_concept_ids
 from .openai_backends import (
     BackendApi,
@@ -131,7 +131,7 @@ def _normalize_provenance_span(provenance: dict[str, Any]) -> None:
 
 
 def _normalize_concept_payload_for_parse(payload: dict[str, Any]) -> dict[str, Any]:
-    normalized = deepcopy(payload)
+    normalized = normalize_codex_transport_payload(payload)
 
     for field in _OPTIONAL_LIST_FIELDS:
         if normalized.get(field) is None:
