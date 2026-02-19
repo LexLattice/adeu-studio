@@ -1,0 +1,7 @@
+{
+  "schema": "provider_parity_fixture@1",
+  "fixture_version": "vnext_plus14.case_a",
+  "run_index": 3,
+  "status": "PASS",
+  "notes": "Persisted provider-parity replay fixture for deterministic hashing."
+}
