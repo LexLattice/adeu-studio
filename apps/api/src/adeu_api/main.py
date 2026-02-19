@@ -6,6 +6,8 @@ import re
 import sqlite3
 from collections import deque
 from datetime import datetime, timezone
+from functools import lru_cache
+from importlib import resources as importlib_resources
 from pathlib import Path
 from typing import Any, Callable, Literal, Mapping, NamedTuple
 
@@ -335,6 +337,242 @@ DEFAULT_CORS_ALLOW_ORIGINS: tuple[str, ...] = (
 CORS_ALLOW_ORIGINS = _env_csv("ADEU_CORS_ALLOW_ORIGINS") or list(DEFAULT_CORS_ALLOW_ORIGINS)
 LOCALHOST_CORS_ORIGIN_REGEX = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
 ProviderKind = Literal["mock", "openai", "codex"]
+_PROVIDER_PARITY_MATRIX_SCHEMA = "provider_parity.vnext_plus14_matrix@1"
+_PROVIDER_PARITY_PROVIDER_UNSUPPORTED_CODE = "URM_PROVIDER_PARITY_PROVIDER_UNSUPPORTED"
+_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE = "URM_PROVIDER_PARITY_ROUTE_MATRIX_INVALID"
+_PROVIDER_PARITY_SURFACE_MATRIX_DRIFT_CODE = "URM_PROVIDER_PARITY_SURFACE_MATRIX_DRIFT"
+_PROVIDER_PARITY_MATRIX_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "fixtures"
+    / "provider_parity"
+    / "vnext_plus14_provider_matrix.json"
+)
+_PROVIDER_PARITY_MATRIX_PACKAGE_RESOURCE = "provider_parity/vnext_plus14_provider_matrix.json"
+_PROVIDER_KIND_ORDER: tuple[ProviderKind, ...] = ("mock", "openai", "codex")
+_PROVIDER_KIND_RANK = {value: idx for idx, value in enumerate(_PROVIDER_KIND_ORDER)}
+_FROZEN_PROVIDER_PARITY_SURFACE_IDS: tuple[str, ...] = (
+    "adeu.propose",
+    "concepts.propose",
+    "puzzles.propose",
+    "concepts.tournament.live_generation",
+    "concepts.tournament.replay_candidates",
+)
+
+
+class _ProviderParityMatrixError(RuntimeError):
+    def __init__(self, *, code: str, message: str) -> None:
+        super().__init__(message)
+        self.code = code
+
+
+def _provider_parity_matrix_error(*, code: str, message: str) -> _ProviderParityMatrixError:
+    return _ProviderParityMatrixError(code=code, message=message)
+
+
+def _provider_parity_detail(
+    *,
+    code: str,
+    message: str,
+    urm_code: str,
+    extra: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    return {"code": code, "message": message, "urm_code": urm_code, **(extra or {})}
+
+
+def _read_provider_parity_matrix_payload() -> str:
+    try:
+        return _PROVIDER_PARITY_MATRIX_PATH.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        pass
+    except OSError as exc:
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+            message=f"provider parity matrix unreadable: {exc}",
+        ) from exc
+
+    resource = importlib_resources.files("adeu_api").joinpath(
+        _PROVIDER_PARITY_MATRIX_PACKAGE_RESOURCE
+    )
+    try:
+        return resource.read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+            message=(
+                "provider parity matrix file missing in source and package paths: "
+                f"{_PROVIDER_PARITY_MATRIX_PATH} | "
+                f"adeu_api:{_PROVIDER_PARITY_MATRIX_PACKAGE_RESOURCE}"
+            ),
+        ) from exc
+    except OSError as exc:
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+            message=f"provider parity matrix packaged resource unreadable: {exc}",
+        ) from exc
+
+
+@lru_cache(maxsize=1)
+def _provider_parity_supported_providers_by_surface() -> dict[str, tuple[str, ...]]:
+    try:
+        payload = json.loads(_read_provider_parity_matrix_payload())
+    except json.JSONDecodeError as exc:
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+            message=f"provider parity matrix JSON invalid: {exc.msg}",
+        ) from exc
+
+    if not isinstance(payload, dict):
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+            message="provider parity matrix payload must be an object",
+        )
+
+    if payload.get("schema") != _PROVIDER_PARITY_MATRIX_SCHEMA:
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+            message=(
+                "provider parity matrix schema mismatch: "
+                f"expected {_PROVIDER_PARITY_MATRIX_SCHEMA!r}, got {payload.get('schema')!r}"
+            ),
+        )
+
+    entries = payload.get("surfaces")
+    if not isinstance(entries, list):
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+            message="provider parity matrix requires surfaces[]",
+        )
+
+    mapping: dict[str, tuple[str, ...]] = {}
+    for idx, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            raise _provider_parity_matrix_error(
+                code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+                message=f"provider parity surfaces[{idx}] must be an object",
+            )
+        surface_id = entry.get("surface_id")
+        if not isinstance(surface_id, str) or not surface_id.strip():
+            raise _provider_parity_matrix_error(
+                code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+                message=f"provider parity surfaces[{idx}].surface_id must be a non-empty string",
+            )
+        if surface_id in mapping:
+            raise _provider_parity_matrix_error(
+                code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+                message=f"provider parity surface_id is duplicated: {surface_id}",
+            )
+
+        providers = entry.get("supported_providers")
+        if not isinstance(providers, list) or not providers:
+            raise _provider_parity_matrix_error(
+                code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+                message=(
+                    f"provider parity surfaces[{idx}].supported_providers "
+                    "must be a non-empty list"
+                ),
+            )
+        if any(not isinstance(provider, str) for provider in providers):
+            raise _provider_parity_matrix_error(
+                code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+                message=(
+                    f"provider parity surfaces[{idx}].supported_providers "
+                    "entries must be strings"
+                ),
+            )
+        if len(set(providers)) != len(providers):
+            raise _provider_parity_matrix_error(
+                code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+                message=f"provider parity surfaces[{idx}] includes duplicate providers",
+            )
+        unknown_providers = sorted(
+            provider for provider in providers if provider not in _PROVIDER_KIND_RANK
+        )
+        if unknown_providers:
+            raise _provider_parity_matrix_error(
+                code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+                message=(
+                    f"provider parity surfaces[{idx}] has unsupported provider values: "
+                    f"{','.join(unknown_providers)}"
+                ),
+            )
+        sorted_providers = sorted(providers, key=lambda value: _PROVIDER_KIND_RANK[value])
+        if providers != sorted_providers:
+            raise _provider_parity_matrix_error(
+                code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
+                message=(
+                    f"provider parity surfaces[{idx}] supported_providers must follow "
+                    f"canonical provider order {list(_PROVIDER_KIND_ORDER)}"
+                ),
+            )
+
+        mapping[surface_id] = tuple(sorted_providers)
+
+    expected_surfaces = set(_FROZEN_PROVIDER_PARITY_SURFACE_IDS)
+    actual_surfaces = set(mapping)
+    if expected_surfaces != actual_surfaces:
+        missing = sorted(expected_surfaces - actual_surfaces)
+        extra = sorted(actual_surfaces - expected_surfaces)
+        raise _provider_parity_matrix_error(
+            code=_PROVIDER_PARITY_SURFACE_MATRIX_DRIFT_CODE,
+            message=f"provider parity surface drift detected: missing={missing}, extra={extra}",
+        )
+    return mapping
+
+
+def _raise_provider_parity_matrix_http(exc: _ProviderParityMatrixError) -> HTTPException:
+    raise HTTPException(
+        status_code=500,
+        detail=_provider_parity_detail(
+            code=exc.code,
+            message=str(exc),
+            urm_code=exc.code,
+        ),
+    ) from exc
+
+
+def _assert_provider_supported_for_surface(
+    *,
+    surface_id: str,
+    provider: ProviderKind,
+    unsupported_status_code: int = 400,
+    legacy_code: str | None = None,
+    legacy_message: str | None = None,
+) -> None:
+    try:
+        supported_by_surface = _provider_parity_supported_providers_by_surface()
+    except _ProviderParityMatrixError as exc:
+        _raise_provider_parity_matrix_http(exc)
+
+    supported = supported_by_surface.get(surface_id)
+    if supported is None:
+        raise HTTPException(
+            status_code=500,
+            detail=_provider_parity_detail(
+                code=_PROVIDER_PARITY_SURFACE_MATRIX_DRIFT_CODE,
+                message=f"provider parity surface missing from matrix: {surface_id}",
+                urm_code=_PROVIDER_PARITY_SURFACE_MATRIX_DRIFT_CODE,
+                extra={"surface_id": surface_id},
+            ),
+        )
+
+    if provider not in supported:
+        raise HTTPException(
+            status_code=unsupported_status_code,
+            detail=_provider_parity_detail(
+                code=legacy_code or _PROVIDER_PARITY_PROVIDER_UNSUPPORTED_CODE,
+                message=legacy_message
+                or (
+                    f"provider unsupported for surface '{surface_id}': {provider}; "
+                    f"supported={list(supported)}"
+                ),
+                urm_code=_PROVIDER_PARITY_PROVIDER_UNSUPPORTED_CODE,
+                extra={
+                    "surface_id": surface_id,
+                    "provider": provider,
+                    "supported_providers": list(supported),
+                },
+            ),
+        )
 
 
 class ProposeRequest(BaseModel):
@@ -3837,6 +4075,7 @@ def _select_external_proposer(
 
 @app.post("/propose", response_model=ProposeResponse)
 def propose(req: ProposeRequest) -> ProposeResponse:
+    _assert_provider_supported_for_surface(surface_id="adeu.propose", provider=req.provider)
     bundles = load_fixture_bundles()
     clause = req.clause_text.strip()
     bundle = bundles.get(clause)
@@ -4086,6 +4325,21 @@ def concept_questions_endpoint(req: ConceptQuestionsRequest) -> ConceptQuestions
 
 @app.post("/concepts/tournament", response_model=ConceptTournamentResponse)
 def concept_tournament_endpoint(req: ConceptTournamentRequest) -> ConceptTournamentResponse:
+    tournament_surface_id = f"concepts.tournament.{req.tournament_mode}"
+    legacy_code = "TOURNAMENT_PROVIDER_ERROR" if req.tournament_mode == "live_generation" else None
+    legacy_message = (
+        f"live_generation provider is unsupported: {req.provider}"
+        if req.tournament_mode == "live_generation"
+        else None
+    )
+    _assert_provider_supported_for_surface(
+        surface_id=tournament_surface_id,
+        provider=req.provider,
+        unsupported_status_code=502 if req.tournament_mode == "live_generation" else 400,
+        legacy_code=legacy_code,
+        legacy_message=legacy_message,
+    )
+
     source_text, _ = _resolve_source_text_and_doc_id(
         source_text=req.source_text,
         doc_id=req.doc_id,
@@ -4107,14 +4361,6 @@ def concept_tournament_endpoint(req: ConceptTournamentRequest) -> ConceptTournam
 
     generated_truncated = False
     if req.tournament_mode == "live_generation":
-        if req.provider != "mock":
-            raise HTTPException(
-                status_code=502,
-                detail={
-                    "code": "TOURNAMENT_PROVIDER_ERROR",
-                    "message": f"live_generation provider is unsupported: {req.provider}",
-                },
-            )
         candidates, generated_truncated = _build_live_tournament_candidates(
             ir=req.ir,
             analysis=base_analysis,
@@ -4388,6 +4634,7 @@ def analyze_adeu_as_concepts(req: AdeuAnalyzeConceptsRequest) -> AdeuAnalyzeConc
 
 @app.post("/puzzles/propose", response_model=PuzzleProposeResponse)
 def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
+    _assert_provider_supported_for_surface(surface_id="puzzles.propose", provider=req.provider)
     puzzle_text = req.puzzle_text.strip()
     source_features = extract_puzzle_source_features(puzzle_text)
 
@@ -4511,6 +4758,7 @@ def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
 
 @app.post("/concepts/propose", response_model=ConceptProposeResponse)
 def propose_concept(req: ConceptProposeRequest) -> ConceptProposeResponse:
+    _assert_provider_supported_for_surface(surface_id="concepts.propose", provider=req.provider)
     source_text, _ = _resolve_source_text_and_doc_id(
         source_text=req.source_text,
         doc_id=req.doc_id,
