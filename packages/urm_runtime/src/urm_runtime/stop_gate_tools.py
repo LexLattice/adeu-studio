@@ -4,7 +4,7 @@ import argparse
 import json
 from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from adeu_kernel import strip_nonsemantic_proof_fields, strip_nonsemantic_validator_fields
 from adeu_semantic_depth import SemanticDepthError, validate_semantic_depth_report
@@ -84,6 +84,16 @@ VNEXT_PLUS13_DEFAULT_METRICS = {
     "adeu_claim_ledger_recompute_match_pct": 0.0,
     "adeu_lane_projection_determinism_pct": 0.0,
 }
+VNEXT_PLUS14_REPLAY_COUNT = 3
+VNEXT_PLUS14_MANIFEST_SCHEMA = "stop_gate.vnext_plus14_manifest@1"
+PROVIDER_PARITY_FIXTURE_SCHEMA = "provider_parity_fixture@1"
+VNEXT_PLUS14_DEFAULT_METRICS = {
+    "provider_route_contract_parity_pct": 0.0,
+    "codex_candidate_contract_valid_pct": 0.0,
+    "provider_parity_replay_determinism_pct": 0.0,
+}
+_FROZEN_PROVIDER_KINDS: tuple[str, ...] = ("mock", "openai", "codex")
+_FROZEN_PROVIDER_KIND_SET = frozenset(_FROZEN_PROVIDER_KINDS)
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -121,6 +131,9 @@ THRESHOLDS = {
     "adeu_core_ir_replay_determinism_pct": 100.0,
     "adeu_claim_ledger_recompute_match_pct": 100.0,
     "adeu_lane_projection_determinism_pct": 100.0,
+    "provider_route_contract_parity_pct": 100.0,
+    "codex_candidate_contract_valid_pct": 100.0,
+    "provider_parity_replay_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -175,12 +188,17 @@ def _default_vnext_plus13_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus13_manifest.json")
 
 
+def _default_vnext_plus14_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus14_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
 VNEXT_PLUS10_MANIFEST_PATH = _default_vnext_plus10_manifest_path()
 VNEXT_PLUS11_MANIFEST_PATH = _default_vnext_plus11_manifest_path()
 VNEXT_PLUS13_MANIFEST_PATH = _default_vnext_plus13_manifest_path()
+VNEXT_PLUS14_MANIFEST_PATH = _default_vnext_plus14_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -1352,6 +1370,125 @@ def _adeu_lane_projection_fixture_hash(*, core_ir_path: Path) -> str:
         ],
     }
     return sha256_canonical_json(projection)
+
+
+def _provider_parity_fixture_hash(*, artifact_ref: Path) -> tuple[str, bool]:
+    payload = _read_json_object(artifact_ref, description="provider parity fixture")
+    if payload.get("schema") != PROVIDER_PARITY_FIXTURE_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_PROVIDER_PARITY_FIXTURE_INVALID",
+                "provider parity fixture has unsupported schema",
+                context={"path": str(artifact_ref), "schema": payload.get("schema")},
+            )
+        )
+    fixture_version = payload.get("fixture_version")
+    if not isinstance(fixture_version, str) or not fixture_version:
+        raise ValueError(
+            _issue(
+                "URM_PROVIDER_PARITY_FIXTURE_INVALID",
+                "provider parity fixture missing fixture_version",
+                context={"path": str(artifact_ref)},
+            )
+        )
+    status = payload.get("status")
+    if not isinstance(status, str) or not status:
+        raise ValueError(
+            _issue(
+                "URM_PROVIDER_PARITY_FIXTURE_INVALID",
+                "provider parity fixture missing status",
+                context={"path": str(artifact_ref)},
+            )
+        )
+    hash_basis = {
+        key: value
+        for key, value in payload.items()
+        if key not in {"run_index", "notes"}
+    }
+    return sha256_canonical_json(hash_basis), status == "PASS"
+
+
+def _expand_provider_route_unit_fixtures(
+    *,
+    fixtures: list[dict[str, Any]],
+    manifest_path: Path,
+    metric_name: str,
+    issues: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    expanded: list[dict[str, Any]] = []
+    for fixture_index, fixture in enumerate(fixtures):
+        fixture_id = fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"{metric_name}_fixture_{fixture_index}"
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture_id must be a non-empty string",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_index": fixture_index,
+                    },
+                )
+            )
+        surface_id = fixture.get("surface_id")
+        if not isinstance(surface_id, str) or not surface_id:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture surface_id must be a non-empty string",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+            continue
+        providers = fixture.get("providers")
+        if not isinstance(providers, list) or not providers:
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture providers must be a non-empty list",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+            continue
+        normalized_providers: list[str] = []
+        providers_ok = True
+        for provider in providers:
+            provider_value = provider if isinstance(provider, str) else ""
+            if not provider_value or provider_value not in _FROZEN_PROVIDER_KIND_SET:
+                providers_ok = False
+                break
+            normalized_providers.append(provider_value)
+        if not providers_ok or len(set(normalized_providers)) != len(normalized_providers):
+            issues.append(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture providers must contain unique frozen provider kinds",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+            continue
+        runs = fixture.get("runs")
+        for provider in normalized_providers:
+            expanded.append(
+                {
+                    "fixture_id": f"{fixture_id}.{surface_id}.{provider}",
+                    "runs": runs,
+                }
+            )
+    return expanded
 
 
 def _issue(code: str, message: str, *, context: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -2888,6 +3025,260 @@ def _compute_vnext_plus13_metrics(
     }
 
 
+def _validate_vnext_plus14_surface_provider_fixtures(
+    *,
+    fixtures: list[Any],
+    manifest_path: Path,
+    metric_name: str,
+    codex_only: bool = False,
+) -> None:
+    for fixture_index, raw_fixture in enumerate(fixtures):
+        if not isinstance(raw_fixture, dict):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture entry must be an object",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_index": fixture_index,
+                    },
+                )
+            )
+
+        fixture_id = raw_fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"{metric_name}_fixture_{fixture_index}"
+
+        surface_id = raw_fixture.get("surface_id")
+        if not isinstance(surface_id, str) or not surface_id:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture surface_id must be a non-empty string",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+
+        provider = raw_fixture.get("provider")
+        if not isinstance(provider, str) or provider not in _FROZEN_PROVIDER_KIND_SET:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture provider must be a frozen provider kind",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+
+        if codex_only and provider != "codex":
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "codex candidate fixtures must use provider='codex'",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "provider": provider,
+                    },
+                )
+            )
+
+
+def _load_vnext_plus14_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    payload = _read_json_object(manifest_path, description="vnext+14 stop-gate manifest")
+    if payload.get("schema") != VNEXT_PLUS14_MANIFEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+14 stop-gate manifest has unsupported schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    replay_count = payload.get("replay_count")
+    if replay_count != VNEXT_PLUS14_REPLAY_COUNT:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+14 replay_count must match frozen replay count",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_replay_count": VNEXT_PLUS14_REPLAY_COUNT,
+                    "observed_replay_count": replay_count,
+                },
+            )
+        )
+    for key in (
+        "provider_route_contract_parity_fixtures",
+        "codex_candidate_contract_valid_fixtures",
+        "provider_parity_replay_determinism_fixtures",
+    ):
+        if not isinstance(payload.get(key), list):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "vnext+14 stop-gate manifest missing required fixture list",
+                    context={"manifest_path": str(manifest_path), "key": key},
+                )
+            )
+
+    _validate_vnext_plus14_surface_provider_fixtures(
+        fixtures=cast(list[Any], payload["codex_candidate_contract_valid_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="codex_candidate_contract_valid_pct",
+        codex_only=True,
+    )
+    _validate_vnext_plus14_surface_provider_fixtures(
+        fixtures=cast(list[Any], payload["provider_parity_replay_determinism_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="provider_parity_replay_determinism_pct",
+        codex_only=False,
+    )
+
+    raw_manifest_hash = payload.get("manifest_hash")
+    if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+14 stop-gate manifest missing manifest_hash",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    hash_basis = dict(payload)
+    hash_basis.pop("manifest_hash", None)
+    recomputed_manifest_hash = sha256_canonical_json(hash_basis)
+    if raw_manifest_hash != recomputed_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_PROVIDER_PARITY_MANIFEST_HASH_MISMATCH",
+                "vnext+14 manifest_hash mismatch",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "embedded_manifest_hash": raw_manifest_hash,
+                    "recomputed_manifest_hash": recomputed_manifest_hash,
+                },
+            )
+        )
+    return payload, recomputed_manifest_hash
+
+
+def _compute_vnext_plus14_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS14_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus14_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS14_DEFAULT_METRICS,
+            "vnext_plus14_manifest_hash": "",
+        }
+
+    try:
+        provider_route_fixtures = _manifest_metric_entries(
+            metrics={
+                "provider_route_contract_parity_pct": manifest.get(
+                    "provider_route_contract_parity_fixtures"
+                )
+            },
+            metric_name="provider_route_contract_parity_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        codex_candidate_fixtures = _manifest_metric_entries(
+            metrics={
+                "codex_candidate_contract_valid_pct": manifest.get(
+                    "codex_candidate_contract_valid_fixtures"
+                )
+            },
+            metric_name="codex_candidate_contract_valid_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        replay_fixtures = _manifest_metric_entries(
+            metrics={
+                "provider_parity_replay_determinism_pct": manifest.get(
+                    "provider_parity_replay_determinism_fixtures"
+                )
+            },
+            metric_name="provider_parity_replay_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS14_DEFAULT_METRICS,
+            "vnext_plus14_manifest_hash": manifest_hash,
+        }
+
+    provider_route_unit_fixtures = _expand_provider_route_unit_fixtures(
+        fixtures=provider_route_fixtures,
+        manifest_path=resolved_manifest_path,
+        metric_name="provider_route_contract_parity_pct",
+        issues=issues,
+    )
+    provider_route_contract_parity_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="provider_route_contract_parity_pct",
+        fixtures=provider_route_unit_fixtures,
+        replay_count=VNEXT_PLUS14_REPLAY_COUNT,
+        required_run_fields=("artifact_ref",),
+        run_hash_builder=_provider_parity_fixture_hash,
+        issues=issues,
+    )
+    codex_candidate_contract_valid_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="codex_candidate_contract_valid_pct",
+        fixtures=codex_candidate_fixtures,
+        replay_count=VNEXT_PLUS14_REPLAY_COUNT,
+        required_run_fields=("artifact_ref",),
+        run_hash_builder=_provider_parity_fixture_hash,
+        issues=issues,
+    )
+    provider_parity_replay_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="provider_parity_replay_determinism_pct",
+        fixtures=replay_fixtures,
+        replay_count=VNEXT_PLUS14_REPLAY_COUNT,
+        required_run_fields=("artifact_ref",),
+        run_hash_builder=_provider_parity_fixture_hash,
+        issues=issues,
+    )
+    return {
+        "provider_route_contract_parity_pct": provider_route_contract_parity_pct,
+        "codex_candidate_contract_valid_pct": codex_candidate_contract_valid_pct,
+        "provider_parity_replay_determinism_pct": provider_parity_replay_determinism_pct,
+        "vnext_plus14_manifest_hash": manifest_hash,
+    }
+
+
 def _metric_delta_satisfies_rule(*, rule: str, delta: float) -> bool:
     if rule == "non_decreasing":
         return delta >= 0.0
@@ -2953,6 +3344,7 @@ def build_stop_gate_metrics(
     vnext_plus10_manifest_path: Path | None = None,
     vnext_plus11_manifest_path: Path | None = None,
     vnext_plus13_manifest_path: Path | None = None,
+    vnext_plus14_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     try:
@@ -3308,6 +3700,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus13_manifest_path,
         issues=issues,
     )
+    vnext_plus14_metrics = _compute_vnext_plus14_metrics(
+        manifest_path=vnext_plus14_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -3464,6 +3860,15 @@ def build_stop_gate_metrics(
         "adeu_lane_projection_determinism_pct": vnext_plus13_metrics[
             "adeu_lane_projection_determinism_pct"
         ],
+        "provider_route_contract_parity_pct": vnext_plus14_metrics[
+            "provider_route_contract_parity_pct"
+        ],
+        "codex_candidate_contract_valid_pct": vnext_plus14_metrics[
+            "codex_candidate_contract_valid_pct"
+        ],
+        "provider_parity_replay_determinism_pct": vnext_plus14_metrics[
+            "provider_parity_replay_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -3523,6 +3928,14 @@ def build_stop_gate_metrics(
         >= THRESHOLDS["adeu_claim_ledger_recompute_match_pct"],
         "adeu_lane_projection_determinism": metrics["adeu_lane_projection_determinism_pct"]
         >= THRESHOLDS["adeu_lane_projection_determinism_pct"],
+        "provider_route_contract_parity": metrics["provider_route_contract_parity_pct"]
+        >= THRESHOLDS["provider_route_contract_parity_pct"],
+        "codex_candidate_contract_valid": metrics["codex_candidate_contract_valid_pct"]
+        >= THRESHOLDS["codex_candidate_contract_valid_pct"],
+        "provider_parity_replay_determinism": metrics[
+            "provider_parity_replay_determinism_pct"
+        ]
+        >= THRESHOLDS["provider_parity_replay_determinism_pct"],
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -3574,12 +3987,18 @@ def build_stop_gate_metrics(
                 if vnext_plus13_manifest_path is not None
                 else VNEXT_PLUS13_MANIFEST_PATH
             ),
+            "vnext_plus14_manifest_path": str(
+                vnext_plus14_manifest_path
+                if vnext_plus14_manifest_path is not None
+                else VNEXT_PLUS14_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
         "vnext_plus10_manifest_hash": vnext_plus10_metrics["vnext_plus10_manifest_hash"],
         "vnext_plus11_manifest_hash": vnext_plus11_metrics["vnext_plus11_manifest_hash"],
         "vnext_plus13_manifest_hash": vnext_plus13_metrics["vnext_plus13_manifest_hash"],
+        "vnext_plus14_manifest_hash": vnext_plus14_metrics["vnext_plus14_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -3607,6 +4026,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+10 manifest hash: `{report.get('vnext_plus10_manifest_hash')}`")
     lines.append(f"- vnext+11 manifest hash: `{report.get('vnext_plus11_manifest_hash')}`")
     lines.append(f"- vnext+13 manifest hash: `{report.get('vnext_plus13_manifest_hash')}`")
+    lines.append(f"- vnext+14 manifest hash: `{report.get('vnext_plus14_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -3756,6 +4176,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('adeu_lane_projection_determinism_pct')}`"
     )
     lines.append(
+        "- provider route contract parity pct: "
+        f"`{metrics.get('provider_route_contract_parity_pct')}`"
+    )
+    lines.append(
+        "- codex candidate contract valid pct: "
+        f"`{metrics.get('codex_candidate_contract_valid_pct')}`"
+    )
+    lines.append(
+        "- provider parity replay determinism pct: "
+        f"`{metrics.get('provider_parity_replay_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -3869,6 +4301,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS13_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus14-manifest",
+        dest="vnext_plus14_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS14_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -3890,6 +4328,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus10_manifest_path=args.vnext_plus10_manifest_path,
         vnext_plus11_manifest_path=args.vnext_plus11_manifest_path,
         vnext_plus13_manifest_path=args.vnext_plus13_manifest_path,
+        vnext_plus14_manifest_path=args.vnext_plus14_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
