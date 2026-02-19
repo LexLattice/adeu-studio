@@ -4,7 +4,7 @@ import argparse
 import json
 from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from adeu_kernel import strip_nonsemantic_proof_fields, strip_nonsemantic_validator_fields
 from adeu_semantic_depth import SemanticDepthError, validate_semantic_depth_report
@@ -3025,6 +3025,74 @@ def _compute_vnext_plus13_metrics(
     }
 
 
+def _validate_vnext_plus14_surface_provider_fixtures(
+    *,
+    fixtures: list[Any],
+    manifest_path: Path,
+    metric_name: str,
+    codex_only: bool = False,
+) -> None:
+    for fixture_index, raw_fixture in enumerate(fixtures):
+        if not isinstance(raw_fixture, dict):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture entry must be an object",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_index": fixture_index,
+                    },
+                )
+            )
+
+        fixture_id = raw_fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"{metric_name}_fixture_{fixture_index}"
+
+        surface_id = raw_fixture.get("surface_id")
+        if not isinstance(surface_id, str) or not surface_id:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture surface_id must be a non-empty string",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+
+        provider = raw_fixture.get("provider")
+        if not isinstance(provider, str) or provider not in _FROZEN_PROVIDER_KIND_SET:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture provider must be a frozen provider kind",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+
+        if codex_only and provider != "codex":
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "codex candidate fixtures must use provider='codex'",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "provider": provider,
+                    },
+                )
+            )
+
+
 def _load_vnext_plus14_manifest_payload(
     *,
     manifest_path: Path,
@@ -3067,6 +3135,20 @@ def _load_vnext_plus14_manifest_payload(
                     context={"manifest_path": str(manifest_path), "key": key},
                 )
             )
+
+    _validate_vnext_plus14_surface_provider_fixtures(
+        fixtures=cast(list[Any], payload["codex_candidate_contract_valid_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="codex_candidate_contract_valid_pct",
+        codex_only=True,
+    )
+    _validate_vnext_plus14_surface_provider_fixtures(
+        fixtures=cast(list[Any], payload["provider_parity_replay_determinism_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="provider_parity_replay_determinism_pct",
+        codex_only=False,
+    )
+
     raw_manifest_hash = payload.get("manifest_hash")
     if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
         raise ValueError(
@@ -3171,33 +3253,6 @@ def _compute_vnext_plus14_metrics(
         run_hash_builder=_provider_parity_fixture_hash,
         issues=issues,
     )
-    for fixture_index, fixture in enumerate(codex_candidate_fixtures):
-        surface_id = fixture.get("surface_id")
-        if not isinstance(surface_id, str) or not surface_id:
-            issues.append(
-                _issue(
-                    "URM_STOP_GATE_INPUT_INVALID",
-                    "manifest fixture surface_id must be a non-empty string",
-                    context={
-                        "manifest_path": str(resolved_manifest_path),
-                        "metric": "codex_candidate_contract_valid_pct",
-                        "fixture_index": fixture_index,
-                    },
-                )
-            )
-        provider = fixture.get("provider")
-        if not isinstance(provider, str) or provider not in _FROZEN_PROVIDER_KIND_SET:
-            issues.append(
-                _issue(
-                    "URM_STOP_GATE_INPUT_INVALID",
-                    "manifest fixture provider must be a frozen provider kind",
-                    context={
-                        "manifest_path": str(resolved_manifest_path),
-                        "metric": "codex_candidate_contract_valid_pct",
-                        "fixture_index": fixture_index,
-                    },
-                )
-            )
     codex_candidate_contract_valid_pct = _manifest_metric_pct(
         manifest_path=resolved_manifest_path,
         metric_name="codex_candidate_contract_valid_pct",

@@ -1687,6 +1687,91 @@ def test_build_stop_gate_metrics_rejects_vnext_plus14_manifest_hash_mismatch(
     )
 
 
+def test_build_stop_gate_metrics_rejects_vnext_plus14_codex_fixture_non_codex_provider(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus14_manifest_payload()
+    codex_fixtures = manifest_payload.get("codex_candidate_contract_valid_fixtures")
+    assert isinstance(codex_fixtures, list) and codex_fixtures
+    first_fixture = codex_fixtures[0]
+    assert isinstance(first_fixture, dict)
+    first_fixture["provider"] = "openai"
+    manifest_path = _write_vnext_plus14_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+        filename="vnext_plus14_manifest_codex_provider_invalid.json",
+    )
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["provider_route_contract_parity_pct"] == 0.0
+    assert report["metrics"]["codex_candidate_contract_valid_pct"] == 0.0
+    assert report["metrics"]["provider_parity_replay_determinism_pct"] == 0.0
+    assert report["vnext_plus14_manifest_hash"] == ""
+    assert any(
+        issue.get("message") == "codex candidate fixtures must use provider='codex'"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus14_replay_fixture_missing_provider(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus14_manifest_payload()
+    replay_fixtures = manifest_payload.get("provider_parity_replay_determinism_fixtures")
+    assert isinstance(replay_fixtures, list) and replay_fixtures
+    first_fixture = replay_fixtures[0]
+    assert isinstance(first_fixture, dict)
+    fixture_id = first_fixture.get("fixture_id")
+    first_fixture.pop("provider", None)
+    manifest_path = _write_vnext_plus14_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+        filename="vnext_plus14_manifest_replay_provider_missing.json",
+    )
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["vnext_plus14_manifest_hash"] == ""
+    assert any(
+        issue.get("message") == "manifest fixture provider must be a frozen provider kind"
+        and (issue.get("context") or {}).get("metric")
+        == "provider_parity_replay_determinism_pct"
+        and (issue.get("context") or {}).get("fixture_id") == fixture_id
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_build_stop_gate_metrics_detects_vnext_plus14_replay_drift(
     tmp_path: Path,
 ) -> None:
