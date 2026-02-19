@@ -4,6 +4,7 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 
+import adeu_api.main as api_main
 import pytest
 from adeu_api.main import ProposeRequest, propose
 from adeu_api.openai_provider import ProposerLog as OpenAIProposerLog
@@ -11,6 +12,7 @@ from adeu_api.scoring import ranking_sort_key, score_key
 from adeu_ir import Context
 from adeu_ir.repo import repo_root
 from adeu_kernel import KernelMode
+from fastapi import HTTPException
 
 
 def _fixture_clause(*, name: str) -> str:
@@ -141,6 +143,32 @@ def test_propose_codex_provider_branch(monkeypatch: pytest.MonkeyPatch) -> None:
     assert resp.provider.kind == "codex"
     assert resp.provider.api == "codex_exec"
     assert resp.provider.model == "codex-cli-default"
+
+
+def test_propose_surface_provider_unsupported_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    clause = _fixture_clause(name="modality_requires_ambiguity")
+
+    monkeypatch.setattr(
+        api_main,
+        "_provider_parity_supported_providers_by_surface",
+        lambda: {"adeu.propose": ("mock", "openai")},
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        propose(
+            ProposeRequest(
+                clause_text=clause,
+                provider="codex",
+                mode=KernelMode.LAX,
+            )
+        )
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_PROVIDER_PARITY_PROVIDER_UNSUPPORTED"
+    assert exc_info.value.detail["urm_code"] == "URM_PROVIDER_PARITY_PROVIDER_UNSUPPORTED"
+    assert exc_info.value.detail["surface_id"] == "adeu.propose"
 
 
 @pytest.mark.skipif(

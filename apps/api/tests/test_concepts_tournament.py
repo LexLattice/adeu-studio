@@ -237,6 +237,29 @@ def test_tournament_live_generation_provider_error() -> None:
 
     assert exc_info.value.status_code == 502
     assert exc_info.value.detail["code"] == "TOURNAMENT_PROVIDER_ERROR"
+    assert exc_info.value.detail["urm_code"] == "URM_PROVIDER_PARITY_PROVIDER_UNSUPPORTED"
+    assert exc_info.value.detail["surface_id"] == "concepts.tournament.live_generation"
+    assert exc_info.value.detail["provider"] == "openai"
+
+
+def test_tournament_replay_candidates_allows_external_provider() -> None:
+    concept = _fixture_ir(fixture="bank_sense_coherence", name="var2.json")
+    source = _fixture_source(fixture="bank_sense_coherence")
+
+    with pytest.raises(HTTPException) as exc_info:
+        concept_tournament_endpoint(
+            ConceptTournamentRequest(
+                ir=concept,
+                source_text=source,
+                mode=KernelMode.LAX,
+                tournament_mode="replay_candidates",
+                provider="openai",
+                candidates=None,
+            )
+        )
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "TOURNAMENT_NO_CANDIDATES"
 
 
 def test_tournament_budget_report_truncates_on_dry_run_cap() -> None:
