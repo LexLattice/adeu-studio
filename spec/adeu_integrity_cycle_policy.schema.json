@@ -1,0 +1,101 @@
+{
+  "$defs": {
+    "AdeuIntegrityCyclePolicyCycle": {
+      "additionalProperties": false,
+      "properties": {
+        "cycle_signature": {
+          "title": "Cycle Signature",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "self_cycle",
+            "multi_node_cycle"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "node_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Node Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "cycle_signature",
+        "node_ids"
+      ],
+      "title": "AdeuIntegrityCyclePolicyCycle",
+      "type": "object"
+    },
+    "AdeuIntegrityCyclePolicySummary": {
+      "additionalProperties": false,
+      "properties": {
+        "multi_node_cycle": {
+          "title": "Multi Node Cycle",
+          "type": "integer"
+        },
+        "self_cycle": {
+          "title": "Self Cycle",
+          "type": "integer"
+        },
+        "total_cycles": {
+          "title": "Total Cycles",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_cycles",
+        "self_cycle",
+        "multi_node_cycle"
+      ],
+      "title": "AdeuIntegrityCyclePolicySummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cycles": {
+      "items": {
+        "$ref": "#/$defs/AdeuIntegrityCyclePolicyCycle"
+      },
+      "title": "Cycles",
+      "type": "array"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metadata"
+    },
+    "schema": {
+      "const": "adeu_integrity_cycle_policy@0.1",
+      "default": "adeu_integrity_cycle_policy@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "title": "Source Text Hash",
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/$defs/AdeuIntegrityCyclePolicySummary"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "summary"
+  ],
+  "title": "AdeuIntegrityCyclePolicy",
+  "type": "object"
+}
