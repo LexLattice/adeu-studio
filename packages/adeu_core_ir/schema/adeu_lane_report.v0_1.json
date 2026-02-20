@@ -1,0 +1,67 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "lane_edge_counts": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "propertyNames": {
+        "enum": [
+          "O",
+          "E",
+          "D",
+          "U"
+        ]
+      },
+      "title": "Lane Edge Counts",
+      "type": "object"
+    },
+    "lane_nodes": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "propertyNames": {
+        "enum": [
+          "O",
+          "E",
+          "D",
+          "U"
+        ]
+      },
+      "title": "Lane Nodes",
+      "type": "object"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metadata"
+    },
+    "schema": {
+      "const": "adeu_lane_report@0.1",
+      "default": "adeu_lane_report@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "title": "Source Text Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "lane_nodes"
+  ],
+  "title": "AdeuLaneReport",
+  "type": "object"
+}
