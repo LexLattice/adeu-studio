@@ -77,6 +77,8 @@ VNEXT_PLUS11_DEFAULT_METRICS = {
 }
 ADEU_CORE_IR_SCHEMA = "adeu_core_ir@0.1"
 ADEU_LANE_PROJECTION_SCHEMA = "adeu_lane_projection@0.1"
+ADEU_LANE_REPORT_SCHEMA = "adeu_lane_report@0.1"
+ADEU_PROJECTION_ALIGNMENT_SCHEMA = "adeu_projection_alignment@0.1"
 VNEXT_PLUS13_REPLAY_COUNT = 3
 VNEXT_PLUS13_MANIFEST_SCHEMA = "stop_gate.vnext_plus13_manifest@1"
 VNEXT_PLUS13_DEFAULT_METRICS = {
@@ -92,8 +94,21 @@ VNEXT_PLUS14_DEFAULT_METRICS = {
     "codex_candidate_contract_valid_pct": 0.0,
     "provider_parity_replay_determinism_pct": 0.0,
 }
+VNEXT_PLUS15_REPLAY_COUNT = 3
+VNEXT_PLUS15_MANIFEST_SCHEMA = "stop_gate.vnext_plus15_manifest@1"
+VNEXT_PLUS15_DEFAULT_METRICS = {
+    "adeu_lane_report_replay_determinism_pct": 0.0,
+    "adeu_projection_alignment_determinism_pct": 0.0,
+    "adeu_depth_report_replay_determinism_pct": 0.0,
+}
 _FROZEN_PROVIDER_KINDS: tuple[str, ...] = ("mock", "openai", "codex")
 _FROZEN_PROVIDER_KIND_SET = frozenset(_FROZEN_PROVIDER_KINDS)
+_FROZEN_DEPTH_SURFACES: tuple[str, ...] = (
+    "adeu.core_ir.lane_report",
+    "adeu.core_ir.projection_alignment",
+    "adeu.core_ir.depth_report",
+)
+_FROZEN_DEPTH_SURFACE_SET = frozenset(_FROZEN_DEPTH_SURFACES)
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -134,6 +149,9 @@ THRESHOLDS = {
     "provider_route_contract_parity_pct": 100.0,
     "codex_candidate_contract_valid_pct": 100.0,
     "provider_parity_replay_determinism_pct": 100.0,
+    "adeu_lane_report_replay_determinism_pct": 100.0,
+    "adeu_projection_alignment_determinism_pct": 100.0,
+    "adeu_depth_report_replay_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -192,6 +210,10 @@ def _default_vnext_plus14_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus14_manifest.json")
 
 
+def _default_vnext_plus15_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus15_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
@@ -199,6 +221,7 @@ VNEXT_PLUS10_MANIFEST_PATH = _default_vnext_plus10_manifest_path()
 VNEXT_PLUS11_MANIFEST_PATH = _default_vnext_plus11_manifest_path()
 VNEXT_PLUS13_MANIFEST_PATH = _default_vnext_plus13_manifest_path()
 VNEXT_PLUS14_MANIFEST_PATH = _default_vnext_plus14_manifest_path()
+VNEXT_PLUS15_MANIFEST_PATH = _default_vnext_plus15_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -1408,6 +1431,271 @@ def _provider_parity_fixture_hash(*, artifact_ref: Path) -> tuple[str, bool]:
     return sha256_canonical_json(hash_basis), status == "PASS"
 
 
+def _validated_adeu_lane_report_payload(*, lane_report_path: Path) -> dict[str, Any]:
+    payload = _read_json_object(lane_report_path, description="adeu lane report fixture")
+    if payload.get("schema") != ADEU_LANE_REPORT_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_LANE_REPORT_INVALID",
+                "lane report fixture has unsupported schema",
+                context={"path": str(lane_report_path), "schema": payload.get("schema")},
+            )
+        )
+    source_text_hash = payload.get("source_text_hash")
+    if not isinstance(source_text_hash, str) or not source_text_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_LANE_REPORT_INVALID",
+                "lane report fixture missing source_text_hash",
+                context={"path": str(lane_report_path)},
+            )
+        )
+    lane_nodes = payload.get("lane_nodes")
+    if not isinstance(lane_nodes, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_LANE_REPORT_INVALID",
+                "lane report fixture lane_nodes must be an object",
+                context={"path": str(lane_report_path)},
+            )
+        )
+    lane_edge_counts = payload.get("lane_edge_counts")
+    if not isinstance(lane_edge_counts, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_LANE_REPORT_INVALID",
+                "lane report fixture lane_edge_counts must be an object",
+                context={"path": str(lane_report_path)},
+            )
+        )
+
+    total_nodes = 0
+    for lane in ("O", "E", "D", "U"):
+        node_ids = lane_nodes.get(lane)
+        if not isinstance(node_ids, list):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_DEPTH_LANE_REPORT_INVALID",
+                    "lane report fixture lane_nodes entry must be a list",
+                    context={"path": str(lane_report_path), "lane": lane},
+                )
+            )
+        normalized_node_ids: list[str] = []
+        for node_id in node_ids:
+            if not isinstance(node_id, str) or not node_id:
+                raise ValueError(
+                    _issue(
+                        "URM_ADEU_DEPTH_LANE_REPORT_INVALID",
+                        "lane report fixture lane_nodes contains empty node id",
+                        context={"path": str(lane_report_path), "lane": lane},
+                    )
+                )
+            normalized_node_ids.append(node_id)
+        if normalized_node_ids != sorted(normalized_node_ids):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_DEPTH_LANE_REPORT_INVALID",
+                    "lane report fixture lane_nodes must be lexicographically sorted",
+                    context={"path": str(lane_report_path), "lane": lane},
+                )
+            )
+        total_nodes += len(normalized_node_ids)
+
+        edge_count = lane_edge_counts.get(lane)
+        if not isinstance(edge_count, int) or edge_count < 0:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_DEPTH_LANE_REPORT_INVALID",
+                    "lane report fixture lane_edge_counts must be non-negative integers",
+                    context={"path": str(lane_report_path), "lane": lane},
+                )
+            )
+
+    if total_nodes <= 0:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_FIXTURE_INVALID",
+                "lane report fixture has empty lane-node evidence",
+                context={"path": str(lane_report_path)},
+            )
+        )
+    return payload
+
+
+def _validated_adeu_projection_alignment_payload(
+    *,
+    projection_alignment_path: Path,
+) -> dict[str, Any]:
+    payload = _read_json_object(
+        projection_alignment_path,
+        description="adeu projection alignment fixture",
+    )
+    if payload.get("schema") != ADEU_PROJECTION_ALIGNMENT_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                "projection alignment fixture has unsupported schema",
+                context={
+                    "path": str(projection_alignment_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    source_text_hash = payload.get("source_text_hash")
+    if not isinstance(source_text_hash, str) or not source_text_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                "projection alignment fixture missing source_text_hash",
+                context={"path": str(projection_alignment_path)},
+            )
+        )
+
+    summary = payload.get("summary")
+    if not isinstance(summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                "projection alignment fixture summary must be an object",
+                context={"path": str(projection_alignment_path)},
+            )
+        )
+    issues = payload.get("issues")
+    if not isinstance(issues, list):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                "projection alignment fixture issues must be a list",
+                context={"path": str(projection_alignment_path)},
+            )
+        )
+
+    issue_kind_counts = {
+        "missing_in_projection": 0,
+        "missing_in_extraction": 0,
+        "kind_mismatch": 0,
+        "edge_type_mismatch": 0,
+    }
+    issue_order_keys: list[tuple[str, str, str]] = []
+    for issue_idx, raw_issue in enumerate(issues):
+        if not isinstance(raw_issue, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                    "projection alignment issue must be an object",
+                    context={"path": str(projection_alignment_path), "issue_index": issue_idx},
+                )
+            )
+        kind = raw_issue.get("kind")
+        if not isinstance(kind, str) or kind not in issue_kind_counts:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                    "projection alignment issue kind is invalid",
+                    context={"path": str(projection_alignment_path), "issue_index": issue_idx},
+                )
+            )
+        subject_id = raw_issue.get("subject_id")
+        if not isinstance(subject_id, str) or not subject_id:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                    "projection alignment issue subject_id is invalid",
+                    context={"path": str(projection_alignment_path), "issue_index": issue_idx},
+                )
+            )
+        related_id = raw_issue.get("related_id")
+        if related_id is None:
+            related_id = ""
+        if not isinstance(related_id, str):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                    "projection alignment issue related_id is invalid",
+                    context={"path": str(projection_alignment_path), "issue_index": issue_idx},
+                )
+            )
+        issue_order_keys.append((kind, subject_id, related_id))
+        issue_kind_counts[kind] += 1
+
+    if issue_order_keys != sorted(issue_order_keys):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                "projection alignment issues must be sorted by (kind, subject_id, related_id)",
+                context={"path": str(projection_alignment_path)},
+            )
+        )
+
+    total_issues = summary.get("total_issues")
+    if not isinstance(total_issues, int) or total_issues != len(issues):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                "projection alignment summary.total_issues mismatch",
+                context={"path": str(projection_alignment_path)},
+            )
+        )
+    for kind, count in issue_kind_counts.items():
+        observed = summary.get(kind)
+        if not isinstance(observed, int) or observed != count:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_INVALID",
+                    f"projection alignment summary.{kind} mismatch",
+                    context={"path": str(projection_alignment_path)},
+                )
+            )
+    return payload
+
+
+def _adeu_lane_report_fixture_hash(*, lane_report_path: Path) -> str:
+    payload = _validated_adeu_lane_report_payload(lane_report_path=lane_report_path)
+    return sha256_canonical_json(payload)
+
+
+def _adeu_projection_alignment_fixture_hash(*, projection_alignment_path: Path) -> str:
+    payload = _validated_adeu_projection_alignment_payload(
+        projection_alignment_path=projection_alignment_path
+    )
+    return sha256_canonical_json(payload)
+
+
+def _adeu_depth_report_fixture_hash(
+    *,
+    lane_report_path: Path,
+    projection_alignment_path: Path,
+) -> str:
+    lane_report_payload = _validated_adeu_lane_report_payload(
+        lane_report_path=lane_report_path
+    )
+    projection_alignment_payload = _validated_adeu_projection_alignment_payload(
+        projection_alignment_path=projection_alignment_path
+    )
+    lane_source_hash = lane_report_payload.get("source_text_hash")
+    alignment_source_hash = projection_alignment_payload.get("source_text_hash")
+    if lane_source_hash != alignment_source_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_FIXTURE_INVALID",
+                "depth report fixture source_text_hash mismatch",
+                context={
+                    "lane_report_path": str(lane_report_path),
+                    "projection_alignment_path": str(projection_alignment_path),
+                },
+            )
+        )
+    lane_report_hash = sha256_canonical_json(lane_report_payload)
+    projection_alignment_hash = sha256_canonical_json(projection_alignment_payload)
+    return sha256_canonical_json(
+        {
+            "source_text_hash": lane_source_hash,
+            "lane_report_hash": lane_report_hash,
+            "projection_alignment_hash": projection_alignment_hash,
+        }
+    )
+
+
 def _expand_provider_route_unit_fixtures(
     *,
     fixtures: list[dict[str, Any]],
@@ -1774,6 +2062,8 @@ def _manifest_metric_pct(
     required_run_fields: tuple[str, ...],
     run_hash_builder: Callable[..., Any],
     issues: list[dict[str, Any]],
+    drift_issue_code: str | None = None,
+    drift_issue_message: str | None = None,
 ) -> float:
     total = len(fixtures)
     if total <= 0:
@@ -1895,6 +2185,21 @@ def _manifest_metric_pct(
 
         if fixture_ok and len(fixture_hashes) == 1:
             passed += 1
+        elif fixture_ok and len(fixture_hashes) > 1 and drift_issue_code is not None:
+            issues.append(
+                _issue(
+                    drift_issue_code,
+                    drift_issue_message
+                    or "fixture replay produced non-deterministic hashes",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "replay_count": replay_count,
+                        "distinct_hash_count": len(fixture_hashes),
+                    },
+                )
+            )
     return _pct(passed, total)
 
 
@@ -3279,6 +3584,231 @@ def _compute_vnext_plus14_metrics(
     }
 
 
+def _validate_vnext_plus15_surface_fixtures(
+    *,
+    fixtures: list[Any],
+    manifest_path: Path,
+    metric_name: str,
+) -> None:
+    for fixture_index, raw_fixture in enumerate(fixtures):
+        if not isinstance(raw_fixture, dict):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture entry must be an object",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_index": fixture_index,
+                    },
+                )
+            )
+        fixture_id = raw_fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"{metric_name}_fixture_{fixture_index}"
+        surface_id = raw_fixture.get("surface_id")
+        if not isinstance(surface_id, str) or surface_id not in _FROZEN_DEPTH_SURFACE_SET:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "manifest fixture surface_id must be a frozen depth surface",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "surface_id": surface_id,
+                    },
+                )
+            )
+
+
+def _load_vnext_plus15_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    payload = _read_json_object(manifest_path, description="vnext+15 stop-gate manifest")
+    if payload.get("schema") != VNEXT_PLUS15_MANIFEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+15 stop-gate manifest has unsupported schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    replay_count = payload.get("replay_count")
+    if replay_count != VNEXT_PLUS15_REPLAY_COUNT:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+15 replay_count must match frozen replay count",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_replay_count": VNEXT_PLUS15_REPLAY_COUNT,
+                    "observed_replay_count": replay_count,
+                },
+            )
+        )
+    for key in (
+        "lane_report_replay_fixtures",
+        "projection_alignment_fixtures",
+        "depth_report_replay_fixtures",
+    ):
+        if not isinstance(payload.get(key), list):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "vnext+15 stop-gate manifest missing required fixture list",
+                    context={"manifest_path": str(manifest_path), "key": key},
+                )
+            )
+
+    _validate_vnext_plus15_surface_fixtures(
+        fixtures=cast(list[Any], payload["lane_report_replay_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="adeu_lane_report_replay_determinism_pct",
+    )
+    _validate_vnext_plus15_surface_fixtures(
+        fixtures=cast(list[Any], payload["projection_alignment_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="adeu_projection_alignment_determinism_pct",
+    )
+    _validate_vnext_plus15_surface_fixtures(
+        fixtures=cast(list[Any], payload["depth_report_replay_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="adeu_depth_report_replay_determinism_pct",
+    )
+
+    raw_manifest_hash = payload.get("manifest_hash")
+    if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "vnext+15 stop-gate manifest missing manifest_hash",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    hash_basis = dict(payload)
+    hash_basis.pop("manifest_hash", None)
+    recomputed_manifest_hash = sha256_canonical_json(hash_basis)
+    if raw_manifest_hash != recomputed_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_DEPTH_MANIFEST_HASH_MISMATCH",
+                "vnext+15 manifest_hash mismatch",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "embedded_manifest_hash": raw_manifest_hash,
+                    "recomputed_manifest_hash": recomputed_manifest_hash,
+                },
+            )
+        )
+    return payload, recomputed_manifest_hash
+
+
+def _compute_vnext_plus15_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS15_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus15_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS15_DEFAULT_METRICS,
+            "vnext_plus15_manifest_hash": "",
+        }
+
+    try:
+        lane_report_fixtures = _manifest_metric_entries(
+            metrics={
+                "adeu_lane_report_replay_determinism_pct": manifest.get(
+                    "lane_report_replay_fixtures"
+                )
+            },
+            metric_name="adeu_lane_report_replay_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        projection_alignment_fixtures = _manifest_metric_entries(
+            metrics={
+                "adeu_projection_alignment_determinism_pct": manifest.get(
+                    "projection_alignment_fixtures"
+                )
+            },
+            metric_name="adeu_projection_alignment_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        depth_report_fixtures = _manifest_metric_entries(
+            metrics={
+                "adeu_depth_report_replay_determinism_pct": manifest.get(
+                    "depth_report_replay_fixtures"
+                )
+            },
+            metric_name="adeu_depth_report_replay_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS15_DEFAULT_METRICS,
+            "vnext_plus15_manifest_hash": manifest_hash,
+        }
+
+    adeu_lane_report_replay_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="adeu_lane_report_replay_determinism_pct",
+        fixtures=lane_report_fixtures,
+        replay_count=VNEXT_PLUS15_REPLAY_COUNT,
+        required_run_fields=("lane_report_path",),
+        run_hash_builder=_adeu_lane_report_fixture_hash,
+        issues=issues,
+    )
+    adeu_projection_alignment_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="adeu_projection_alignment_determinism_pct",
+        fixtures=projection_alignment_fixtures,
+        replay_count=VNEXT_PLUS15_REPLAY_COUNT,
+        required_run_fields=("projection_alignment_path",),
+        run_hash_builder=_adeu_projection_alignment_fixture_hash,
+        issues=issues,
+        drift_issue_code="URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_DRIFT",
+        drift_issue_message="vnext+15 projection alignment diagnostic drift",
+    )
+    adeu_depth_report_replay_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="adeu_depth_report_replay_determinism_pct",
+        fixtures=depth_report_fixtures,
+        replay_count=VNEXT_PLUS15_REPLAY_COUNT,
+        required_run_fields=("lane_report_path", "projection_alignment_path"),
+        run_hash_builder=_adeu_depth_report_fixture_hash,
+        issues=issues,
+    )
+    return {
+        "adeu_lane_report_replay_determinism_pct": adeu_lane_report_replay_determinism_pct,
+        "adeu_projection_alignment_determinism_pct": (
+            adeu_projection_alignment_determinism_pct
+        ),
+        "adeu_depth_report_replay_determinism_pct": adeu_depth_report_replay_determinism_pct,
+        "vnext_plus15_manifest_hash": manifest_hash,
+    }
+
+
 def _metric_delta_satisfies_rule(*, rule: str, delta: float) -> bool:
     if rule == "non_decreasing":
         return delta >= 0.0
@@ -3345,6 +3875,7 @@ def build_stop_gate_metrics(
     vnext_plus11_manifest_path: Path | None = None,
     vnext_plus13_manifest_path: Path | None = None,
     vnext_plus14_manifest_path: Path | None = None,
+    vnext_plus15_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     try:
@@ -3704,6 +4235,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus14_manifest_path,
         issues=issues,
     )
+    vnext_plus15_metrics = _compute_vnext_plus15_metrics(
+        manifest_path=vnext_plus15_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -3869,6 +4404,15 @@ def build_stop_gate_metrics(
         "provider_parity_replay_determinism_pct": vnext_plus14_metrics[
             "provider_parity_replay_determinism_pct"
         ],
+        "adeu_lane_report_replay_determinism_pct": vnext_plus15_metrics[
+            "adeu_lane_report_replay_determinism_pct"
+        ],
+        "adeu_projection_alignment_determinism_pct": vnext_plus15_metrics[
+            "adeu_projection_alignment_determinism_pct"
+        ],
+        "adeu_depth_report_replay_determinism_pct": vnext_plus15_metrics[
+            "adeu_depth_report_replay_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -3936,6 +4480,18 @@ def build_stop_gate_metrics(
             "provider_parity_replay_determinism_pct"
         ]
         >= THRESHOLDS["provider_parity_replay_determinism_pct"],
+        "adeu_lane_report_replay_determinism": metrics[
+            "adeu_lane_report_replay_determinism_pct"
+        ]
+        >= THRESHOLDS["adeu_lane_report_replay_determinism_pct"],
+        "adeu_projection_alignment_determinism": metrics[
+            "adeu_projection_alignment_determinism_pct"
+        ]
+        >= THRESHOLDS["adeu_projection_alignment_determinism_pct"],
+        "adeu_depth_report_replay_determinism": metrics[
+            "adeu_depth_report_replay_determinism_pct"
+        ]
+        >= THRESHOLDS["adeu_depth_report_replay_determinism_pct"],
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -3992,6 +4548,11 @@ def build_stop_gate_metrics(
                 if vnext_plus14_manifest_path is not None
                 else VNEXT_PLUS14_MANIFEST_PATH
             ),
+            "vnext_plus15_manifest_path": str(
+                vnext_plus15_manifest_path
+                if vnext_plus15_manifest_path is not None
+                else VNEXT_PLUS15_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -3999,6 +4560,7 @@ def build_stop_gate_metrics(
         "vnext_plus11_manifest_hash": vnext_plus11_metrics["vnext_plus11_manifest_hash"],
         "vnext_plus13_manifest_hash": vnext_plus13_metrics["vnext_plus13_manifest_hash"],
         "vnext_plus14_manifest_hash": vnext_plus14_metrics["vnext_plus14_manifest_hash"],
+        "vnext_plus15_manifest_hash": vnext_plus15_metrics["vnext_plus15_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -4027,6 +4589,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+11 manifest hash: `{report.get('vnext_plus11_manifest_hash')}`")
     lines.append(f"- vnext+13 manifest hash: `{report.get('vnext_plus13_manifest_hash')}`")
     lines.append(f"- vnext+14 manifest hash: `{report.get('vnext_plus14_manifest_hash')}`")
+    lines.append(f"- vnext+15 manifest hash: `{report.get('vnext_plus15_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -4188,6 +4751,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('provider_parity_replay_determinism_pct')}`"
     )
     lines.append(
+        "- adeu lane report replay determinism pct: "
+        f"`{metrics.get('adeu_lane_report_replay_determinism_pct')}`"
+    )
+    lines.append(
+        "- adeu projection alignment determinism pct: "
+        f"`{metrics.get('adeu_projection_alignment_determinism_pct')}`"
+    )
+    lines.append(
+        "- adeu depth report replay determinism pct: "
+        f"`{metrics.get('adeu_depth_report_replay_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -4307,6 +4882,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS14_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus15-manifest",
+        dest="vnext_plus15_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS15_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -4329,6 +4910,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus11_manifest_path=args.vnext_plus11_manifest_path,
         vnext_plus13_manifest_path=args.vnext_plus13_manifest_path,
         vnext_plus14_manifest_path=args.vnext_plus14_manifest_path,
+        vnext_plus15_manifest_path=args.vnext_plus15_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
