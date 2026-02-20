@@ -16,3 +16,29 @@ current milestone PR sequence.
   - `_spawn_child_v2`
   - `_recover_stale_child_runs`
   This was deferred from PR3/PR4 as maintainability-only follow-up work.
+- `cleanup-vnext-plus16-schema-consolidation-evaluation`:
+  evaluate whether `adeu_integrity_dangling_reference@0.1`,
+  `adeu_integrity_cycle_policy@0.1`, and `adeu_integrity_deontic_conflict@0.1`
+  should remain separate or move to a unified `adeu_integrity@0.1` family with a
+  deterministic discriminator, after v16 stability evidence is available.
+- `cleanup-vnext-plus16-drift-error-granularity`:
+  evaluate splitting shared `URM_ADEU_INTEGRITY_DIAGNOSTIC_DRIFT` into
+  per-diagnostic-family drift codes if debugging signal is insufficient in production.
+- `cleanup-vnext-plus16-stop-gate-ci-budget`:
+  assess CI/runtime budget impact from cumulative stop-gate metric growth (30+ metrics),
+  and propose bounded runtime strategies (fixture scheduling, selective lanes, or
+  deterministic parallelization) without reducing gate guarantees.
+- `cleanup-vnext-plus16-d2-d-lane-cycle-expansion`:
+  evaluate whether integrity cycle diagnostics should expand beyond `E`-layer
+  `depends_on` edges to include `D`-lane policy/exception cyclic structures in a follow-on arc.
+- `cleanup-vnext-plus16-d3-condition-alias-policy`:
+  revisit whether normalized condition aliases beyond current baseline should include or
+  exclude additional semantic tokens; confirm long-term handling of `"always"`/`"none"` style
+  condition encodings against real fixture distributions.
+- `cleanup-vnext-plus16-hostile-fixture-generation`:
+  evaluate adding deterministic procedural hostile fixture generation for integrity diagnostics
+  (malformed/dangling/cyclic payload families) to improve defense-in-depth coverage while
+  preserving replay determinism.
+- `cleanup-vnext-plus16-diagnostic-delta-tracking`:
+  evaluate additive baseline-to-baseline diagnostic delta tracking (deterministic hash or
+  counts diff) in transfer-report tooling for faster regression triage across arcs.

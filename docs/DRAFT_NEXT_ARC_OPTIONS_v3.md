@@ -1,59 +1,59 @@
-# Draft Next Arc Options v3 (Post vNext+14 Planning)
+# Draft Next Arc Options v3 (Post vNext+15 Planning)
 
 This document is the continuation-planning draft after:
 
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS14.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS14.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS15.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS15.md`
 - `docs/SEMANTICS_v3.md`
 - `docs/LOCKED_INSTRUCTION_KERNEL_v0.md`
 
 Status: draft only (not frozen).
-Goal: define post-`vNext+14` options and identify the concrete first slice for `vNext+15`.
+Goal: define post-`vNext+15` options and identify the concrete first slice for `vNext+16`.
 
 ## Consolidation Note
 
-For post-`vNext+14` planning, this file remains the working source of truth.
+For post-`vNext+15` planning, this file remains the working source of truth.
 `docs/DRAFT_NEXT_ARC_OPTIONS_v2.md` remains historical context only.
 
-## Baseline Snapshot (Post vNext+14)
+## Baseline Snapshot (Post vNext+15)
 
 Current baseline includes:
 
-- `vNext+14` (`B1`-`B4`) complete and merged on `main`:
-  - provider contract parity matrix + deterministic fail-closed route checks
-  - codex candidate parse/shape normalization parity across ADEU/Concepts/Puzzles proposer modules
-  - deterministic coverage accountability manifest + provider parity transfer report
-  - additive stop-gate metrics for provider parity closeout
-- v14 closeout is green:
+- `vNext+15` (`C1`-`C4`) complete and merged on `main`:
+  - deterministic lane-report contract (`adeu_lane_report@0.1`) and validators
+  - deterministic projection/extraction alignment diagnostics (`adeu_projection_alignment@0.1`, evidence-only)
+  - deterministic depth-coverage manifest + transfer report
+  - additive stop-gate metrics for depth closeout
+- v15 closeout is green:
   - `valid=true`
   - `all_passed=true`
-  - `provider_route_contract_parity_pct=100.0`
-  - `codex_candidate_contract_valid_pct=100.0`
-  - `provider_parity_replay_determinism_pct=100.0`
-- provider parity transfer report is stable and valid:
-  - `schema=provider_parity_transfer_report.vnext_plus14@1`
+  - `adeu_lane_report_replay_determinism_pct=100.0`
+  - `adeu_projection_alignment_determinism_pct=100.0`
+  - `adeu_depth_report_replay_determinism_pct=100.0`
+- core-ir depth transfer report is stable and valid:
+  - `schema=core_ir_depth_transfer_report.vnext_plus15@1`
   - `coverage_summary.valid=true`, `coverage_pct=100.0`
-  - `parity_summary.valid=true`, `mapping_mismatch_count=0`
+  - `alignment_summary.valid=true`
+  - `replay_summary.valid=true`, `replay_count=3`
 - prior arc guarantees remain green:
-  - all stop-gate tracked `vNext+6` through `vNext+13` metrics remain at threshold
-  - `vNext+12` and `vNext+13` closeout evidence remain reproducible
+  - all stop-gate tracked `vNext+6` through `vNext+14` metrics remain at threshold
+  - `vNext+12`, `vNext+13`, and `vNext+14` closeout evidence remain reproducible
 
-Net: provider reliability/parity hardening is complete enough to shift focus back to additive core-ir depth/reporting without changing solver semantics.
+Net: additive core-ir depth/reporting hardening is complete enough to shift focus to formal integrity checks while preserving projection-first and solver-semantics stability.
 
 ## Repo-Grounded Clarifications
 
-1. Provider parity surface contracts are now frozen and fixture-backed for `vNext+14` scope:
-   - `adeu.propose`
-   - `concepts.propose`
-   - `puzzles.propose`
-   - `concepts.tournament.live_generation`
-   - `concepts.tournament.replay_candidates`
-2. `adeu_core_ir@0.1` remains additive and projection-first:
-   - authoritative upstream semantics remain on `adeu.ir.v0` and `adeu.concepts.v0`.
+1. Core-ir reporting artifacts are now explicitly layered and additive:
+   - `adeu_core_ir@0.1` (canonical core-ir)
+   - `adeu_lane_projection@0.1` (projection structure)
+   - `adeu_lane_report@0.1` (deterministic lane summary)
+   - `adeu_projection_alignment@0.1` (deterministic evidence diagnostics)
+2. Projection authority remains unchanged:
+   - alignment diagnostics are evidence-only and may not mutate canonical projected semantics.
 3. Determinism boundary remains unchanged:
-   - provider generation may be nondeterministic,
    - deterministic acceptance claims are enforced on persisted fixtures + deterministic transforms.
-4. Next arc should avoid provider-surface churn and target core-ir depth/reporting only.
+4. Provider parity continuity remains unchanged:
+   - provider matrix/manifest behavior frozen in `vNext+14` stays out-of-scope for expansion in the next arc.
 
 ## Shared Locks For Any Next Arc
 
@@ -67,66 +67,42 @@ Net: provider reliability/parity hardening is complete enough to shift focus bac
 - New artifacts must be schema-versioned and canonically serialized.
 - Stop-gate schema continuity remains additive on `stop_gate_metrics@1` unless explicitly re-locked.
 
-## Path 7b: Core-IR Depth + Lane Reporting (Recommended for vNext+15)
+## Path 9a: Formal Integrity Checks (Recommended for vNext+16)
 
 ### Goal
 
-Expand core-ir depth/reporting coverage on top of the stabilized provider parity base.
+Add deterministic integrity checks over interconnected artifacts after depth/reporting stabilization.
 
 ### Scope
 
-1. Add deterministic lane reporting artifact(s) derived from frozen `adeu_core_ir@0.1` inputs.
-2. Add deterministic projection/extraction alignment diagnostics as additive evidence (no semantic rewrites).
-3. Add deterministic fixture coverage accounting and transfer-report evidence for the new depth surfaces.
-4. Close out with additive `vNext+15` stop-gate metrics.
+1. Deterministic dangling-reference checks across frozen artifact links.
+2. Deterministic dependency-cycle policy checks.
+3. Deterministic minimal deontic conflict checks under shared conditions.
+4. Additive fixture coverage accounting, transfer-report evidence, and stop-gate closeout metrics.
 
 ### Locks
 
-- projection authority lock:
-  - projected semantics remain authoritative when projection/extraction differ.
-- diagnostics-only lock:
-  - alignment outputs are evidence artifacts only and may not mutate canonical projected semantics.
-- core-ir continuity lock:
-  - `adeu_core_ir@0.1` and `adeu.sbr.v0_1` remain frozen unless explicit additive follow-on versioning is approved.
-- replay lock:
-  - deterministic acceptance/replay uses persisted fixtures only.
+- integrity-check-only lock:
+  - first slice enforces structural integrity diagnostics only; no solver-semantics expansion.
+- fail-closed determinism lock:
+  - deterministic issue classification, deterministic reason-code ordering, deterministic replay hashing.
+- continuity lock:
+  - projection-first authority and provider-parity freeze remain unchanged.
 
 ### Acceptance
 
-- lane reporting artifacts are deterministic and replay-stable on locked fixtures.
-- projection/extraction alignment diagnostics are deterministic and schema-valid.
-- additive v15 stop-gate metrics pass at frozen thresholds.
+- locked integrity fixtures produce schema-valid deterministic outputs with replay-stable hashes.
+- additive v16 stop-gate metrics pass frozen thresholds.
 
 ### Risk
 
-- depth/reporting fixture count can grow quickly; keep fixture inventory thin and coverage-justified.
-
-## Path 9a: Formal Integrity Checks (Deferred)
-
-### Goal
-
-Add deterministic integrity checks over interconnected layer artifacts after depth/reporting stabilization.
-
-### Scope
-
-1. dangling reference checks
-2. dependency cycle policy checks
-3. minimal deontic conflict checks under shared conditions
-
-### Locks
-
-- integrity-only scope in first slice; no solver-semantics expansion.
-- deterministic fail-closed reason-code ordering.
-
-### Acceptance
-
-- locked fixtures produce stable deterministic pass/fail artifacts.
+- multi-artifact fixture growth can expand quickly; keep inventory thin-slice and coverage-justified.
 
 ## Path 8b: Provider Maintenance (Fallback)
 
 ### Goal
 
-Reserve a constrained fallback slice if provider parity regressions appear during v15 execution.
+Reserve a constrained fallback slice if provider parity regressions appear during v16 execution.
 
 ### Scope
 
@@ -140,48 +116,43 @@ Reserve a constrained fallback slice if provider parity regressions appear durin
 
 ## Decision Matrix
 
-### If priority is additive core-ir depth/reporting value on stable provider infrastructure
+### If priority is formal artifact integrity enforcement on the stabilized v15 reporting base
 
-- Start with Path 7b.
+- Start with Path 9a.
 
-### If priority is formal graph integrity enforcement
-
-- Start Path 9a only after Path 7b closeout.
-
-### If provider parity regresses during v15 planning or execution
+### If provider parity regresses during v16 planning or execution
 
 - invoke Path 8b fallback and defer broader expansion.
 
-## Recommended Arc Order (v15+)
+## Recommended Arc Order (v16+)
 
-1. `vNext+15`: Path 7 thin slice (`7b`) — core-ir depth + lane reporting + deterministic closeout
-2. `vNext+16`: Path 9 thin slice (`9a`) — formal integrity checks
-3. `vNext+17`: Path 8 maintenance (`8b`) only if provider parity regression requires targeted remediation
+1. `vNext+16`: Path 9 thin slice (`9a`) — formal integrity checks + deterministic closeout
+2. `vNext+17`: Path 8 maintenance (`8b`) only if provider parity regression requires targeted remediation
 
 Why this order:
 
-- provider reliability is now stabilized and should be exploited for depth/reporting value,
+- v15 depth/reporting outputs are now stable and provide a better substrate for integrity policies,
 - it keeps deterministic closeout discipline consistent across arcs,
-- it defers heavier formal integrity expansion until depth artifacts are operationally mature.
+- it avoids mixing provider-surface maintenance into the first integrity slice unless a regression forces it.
 
 Fallback sequencing rule:
 
-- if provider parity metrics regress below threshold during `vNext+15`, hold depth expansion and run Path 8b maintenance first.
+- if provider parity metrics regress below threshold during `vNext+16`, hold integrity expansion and run Path 8b maintenance first.
 
 ## Proposed Freeze Candidate (Next Step)
 
-Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS15.md` with Path 7 follow-on thin slice (`7b`) only:
+Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS16.md` with Path 9 thin slice (`9a`) only:
 
-1. `C1` deterministic lane reporting contract and replay guarantees
-2. `C2` deterministic projection/extraction alignment diagnostics (evidence-only)
-3. `C3` manifest-driven coverage accountability + transfer-report refresh
-4. `C4` additive stop-gate metrics for `vNext+15 -> vNext+16` closeout
+1. `D1` deterministic dangling-reference checks and fixed issue taxonomy
+2. `D2` deterministic dependency-cycle policy checks
+3. `D3` deterministic minimal deontic conflict checks (evidence-first)
+4. `D4` manifest-driven coverage accountability + additive stop-gate metrics for `vNext+16 -> vNext+17`
 
-Suggested measured outcomes for `vNext+15 -> vNext+16` gate:
+Suggested measured outcomes for `vNext+16 -> vNext+17` gate:
 
-- `adeu_lane_report_replay_determinism_pct == 100.0`
-- `adeu_projection_alignment_determinism_pct == 100.0`
-- `adeu_depth_report_replay_determinism_pct == 100.0`
+- `artifact_dangling_reference_determinism_pct == 100.0`
+- `artifact_cycle_policy_determinism_pct == 100.0`
+- `artifact_deontic_conflict_determinism_pct == 100.0`
 - no solver-semantics delta and no trust-lane regression
-- all existing stop-gate tracked `vNext+6` through `vNext+14` metrics remain at threshold
-- `vNext+12`, `vNext+13`, and `vNext+14` closeout evidence remains green and reproducible
+- all existing stop-gate tracked `vNext+6` through `vNext+15` metrics remain at threshold
+- `vNext+12` through `vNext+15` closeout evidence remains green and reproducible
