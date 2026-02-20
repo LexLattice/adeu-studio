@@ -42,3 +42,8 @@ current milestone PR sequence.
 - `cleanup-vnext-plus16-diagnostic-delta-tracking`:
   evaluate additive baseline-to-baseline diagnostic delta tracking (deterministic hash or
   counts diff) in transfer-report tooling for faster regression triage across arcs.
+- `cleanup-vnext-plus16-shared-validation-module`:
+  extract duplicated v16 manifest/artifact validation logic currently mirrored between
+  `packages/urm_runtime/src/urm_runtime/stop_gate_tools.py` and
+  `apps/api/src/adeu_api/integrity_transfer_report_vnext_plus16.py` into shared helpers
+  (runtime-owned) to reduce maintenance drift risk without changing validation behavior.
