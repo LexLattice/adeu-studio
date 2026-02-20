@@ -151,3 +151,32 @@ def test_projection_alignment_payload_canonicalization_is_deterministic() -> Non
         alignment_a
     ) == canonicalize_projection_alignment_payload(alignment_b)
 
+
+def test_projection_alignment_reports_subset_edge_type_deltas_as_missing() -> None:
+    projection = _projection_payload()
+    projection["edges"] = [
+        {"type": "about", "from": "e_claim_1", "to": "o_concept_1"},
+        {"type": "defines", "from": "e_claim_1", "to": "o_concept_1"},
+    ]
+
+    extraction = _projection_payload()
+    extraction["edges"] = [
+        {"type": "about", "from": "e_claim_1", "to": "o_concept_1"},
+    ]
+
+    alignment = build_projection_alignment(
+        projection=projection,
+        extraction=extraction,
+    )
+
+    assert alignment.summary.edge_type_mismatch == 0
+    assert alignment.summary.missing_in_extraction == 1
+    assert alignment.summary.missing_in_projection == 0
+    assert [
+        issue.kind for issue in alignment.issues
+    ] == [
+        "missing_in_extraction",
+    ]
+    assert alignment.issues[0].subject_id.endswith(
+        "edge:defines:node:E:ai agents can delegate tasks->node:O:delegation"
+    )

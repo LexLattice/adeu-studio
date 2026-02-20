@@ -84,8 +84,6 @@ class AdeuProjectionAlignmentIssue(BaseModel):
     def _validate_ids(self) -> "AdeuProjectionAlignmentIssue":
         if not self.subject_id:
             raise ValueError("issue.subject_id may not be empty")
-        if self.related_id is None:
-            self.related_id = ""
         return self
 
 
@@ -281,36 +279,77 @@ def build_projection_alignment(
             )
 
     for pair in _sorted_pairs(projection_pair_keys & extraction_pair_keys):
-        projection_types = sorted(projection_pairs[pair])
-        extraction_types = sorted(extraction_pairs[pair])
+        projection_types = projection_pairs[pair]
+        extraction_types = extraction_pairs[pair]
         if projection_types == extraction_types:
             continue
         from_key, to_key = pair
-        issues.append(
-            AdeuProjectionAlignmentIssue.model_validate(
-                {
-                    "kind": "edge_type_mismatch",
-                    "subject_id": (
-                        "projection:"
-                        + _edge_comparison_id(
-                            edge_type=projection_types[0],
-                            from_key=from_key,
-                            to_key=to_key,
-                        )
-                    ),
-                    "related_id": (
-                        "extraction:"
-                        + _edge_comparison_id(
-                            edge_type=extraction_types[0],
-                            from_key=from_key,
-                            to_key=to_key,
-                        )
-                    ),
-                    "projection_type": projection_types[0],
-                    "extraction_type": extraction_types[0],
-                }
+        # Reserve edge_type_mismatch for unambiguous 1:1 substitutions.
+        if len(projection_types) == 1 and len(extraction_types) == 1:
+            projection_type = next(iter(projection_types))
+            extraction_type = next(iter(extraction_types))
+            issues.append(
+                AdeuProjectionAlignmentIssue.model_validate(
+                    {
+                        "kind": "edge_type_mismatch",
+                        "subject_id": (
+                            "projection:"
+                            + _edge_comparison_id(
+                                edge_type=projection_type,
+                                from_key=from_key,
+                                to_key=to_key,
+                            )
+                        ),
+                        "related_id": (
+                            "extraction:"
+                            + _edge_comparison_id(
+                                edge_type=extraction_type,
+                                from_key=from_key,
+                                to_key=to_key,
+                            )
+                        ),
+                        "projection_type": projection_type,
+                        "extraction_type": extraction_type,
+                    }
+                )
             )
-        )
+            continue
+
+        for edge_type in sorted(projection_types - extraction_types):
+            issues.append(
+                AdeuProjectionAlignmentIssue.model_validate(
+                    {
+                        "kind": "missing_in_extraction",
+                        "subject_id": (
+                            "projection:"
+                            + _edge_comparison_id(
+                                edge_type=edge_type,
+                                from_key=from_key,
+                                to_key=to_key,
+                            )
+                        ),
+                        "related_id": "",
+                    }
+                )
+            )
+
+        for edge_type in sorted(extraction_types - projection_types):
+            issues.append(
+                AdeuProjectionAlignmentIssue.model_validate(
+                    {
+                        "kind": "missing_in_projection",
+                        "subject_id": (
+                            "extraction:"
+                            + _edge_comparison_id(
+                                edge_type=edge_type,
+                                from_key=from_key,
+                                to_key=to_key,
+                            )
+                        ),
+                        "related_id": "",
+                    }
+                )
+            )
 
     sorted_issues = sorted(issues, key=_issue_sort_key)
     counts: dict[AlignmentIssueKind, int] = {
@@ -350,4 +389,3 @@ def canonicalize_projection_alignment_payload(
         else AdeuProjectionAlignment.model_validate(payload)
     )
     return report.model_dump(mode="json", by_alias=True, exclude_none=True)
-
