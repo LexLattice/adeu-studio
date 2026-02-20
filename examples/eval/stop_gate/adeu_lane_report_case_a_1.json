@@ -1,0 +1,1 @@
+{"lane_edge_counts":{"D":1,"E":7,"O":0,"U":0},"lane_nodes":{"D":["d1"],"E":["c1","c2","e1","q1"],"O":["o1"],"U":["u1"]},"schema":"adeu_lane_report@0.1","source_text_hash":"3d956a90a9f1433816149bcb70e300afdcca6d303bdc119cea8f0657222c32aa"}

@@ -1,0 +1,79 @@
+{
+  "schema": "stop_gate.vnext_plus15_manifest@1",
+  "replay_count": 3,
+  "lane_report_replay_fixtures": [
+    {
+      "fixture_id": "lane_report_replay.adeu.core_ir.case_a",
+      "surface_id": "adeu.core_ir.lane_report",
+      "runs": [
+        {
+          "lane_report_path": "../../../../examples/eval/stop_gate/adeu_lane_report_case_a_1.json"
+        },
+        {
+          "lane_report_path": "../../../../examples/eval/stop_gate/adeu_lane_report_case_a_2.json"
+        },
+        {
+          "lane_report_path": "../../../../examples/eval/stop_gate/adeu_lane_report_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "projection_alignment_fixtures": [
+    {
+      "fixture_id": "projection_alignment.case_a",
+      "surface_id": "adeu.core_ir.projection_alignment",
+      "runs": [
+        {
+          "projection_alignment_path": "../../../../examples/eval/stop_gate/adeu_projection_alignment_case_a_1.json"
+        },
+        {
+          "projection_alignment_path": "../../../../examples/eval/stop_gate/adeu_projection_alignment_case_a_2.json"
+        },
+        {
+          "projection_alignment_path": "../../../../examples/eval/stop_gate/adeu_projection_alignment_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "depth_report_replay_fixtures": [
+    {
+      "fixture_id": "depth_report_replay.case_a",
+      "surface_id": "adeu.core_ir.depth_report",
+      "runs": [
+        {
+          "lane_report_path": "../../../../examples/eval/stop_gate/adeu_lane_report_case_a_1.json",
+          "projection_alignment_path": "../../../../examples/eval/stop_gate/adeu_projection_alignment_case_a_1.json"
+        },
+        {
+          "lane_report_path": "../../../../examples/eval/stop_gate/adeu_lane_report_case_a_2.json",
+          "projection_alignment_path": "../../../../examples/eval/stop_gate/adeu_projection_alignment_case_a_2.json"
+        },
+        {
+          "lane_report_path": "../../../../examples/eval/stop_gate/adeu_lane_report_case_a_3.json",
+          "projection_alignment_path": "../../../../examples/eval/stop_gate/adeu_projection_alignment_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "surface_id": "adeu.core_ir.depth_report",
+      "fixture_ids": [
+        "depth_report_replay.case_a"
+      ]
+    },
+    {
+      "surface_id": "adeu.core_ir.lane_report",
+      "fixture_ids": [
+        "lane_report_replay.adeu.core_ir.case_a"
+      ]
+    },
+    {
+      "surface_id": "adeu.core_ir.projection_alignment",
+      "fixture_ids": [
+        "projection_alignment.case_a"
+      ]
+    }
+  ],
+  "manifest_hash": "224eac999dbcd9a3eb411baa7576eb469b8388a7e909a360150230f43b880541"
+}
