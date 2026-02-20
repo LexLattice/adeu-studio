@@ -1,4 +1,10 @@
 from .ids import stable_core_node_id
+from .lane_report import (
+    CANONICAL_LANE_ORDER,
+    AdeuLaneReport,
+    build_lane_report,
+    canonicalize_lane_report_payload,
+)
 from .ledger import (
     LEDGER_VERSION_V0_1,
     apply_claim_ledger_scores,
@@ -44,6 +50,10 @@ __all__ = [
     "apply_claim_ledger_scores",
     "assert_claim_ledger_recompute_match",
     "stable_core_node_id",
+    "AdeuLaneReport",
+    "build_lane_report",
+    "canonicalize_lane_report_payload",
+    "CANONICAL_LANE_ORDER",
 ]
 
 __version__ = "0.0.0"
