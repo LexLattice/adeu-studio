@@ -7,12 +7,19 @@ This document is the continuation-planning draft after:
 - `docs/SEMANTICS_v3.md`
 - `docs/LOCKED_INSTRUCTION_KERNEL_v0.md`
 
-Status: draft only (not frozen).
-Goal: define post-`vNext+15` options and identify the concrete first slice for `vNext+16`.
+Status: planning draft completed for `vNext+16`; superseded for active planning after v16 closeout.
+Goal: historical record of post-`vNext+15` optioning and the selected first slice for `vNext+16`.
+
+Closeout note (February 20, 2026 UTC):
+
+- Selected path `9a` was executed in `vNext+16` (`D1`-`D4`) and merged on `main`.
+- Closeout decision evidence is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS16.md`.
+- Active next-arc planning should move to `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md`.
 
 ## Consolidation Note
 
-For post-`vNext+15` planning, this file remains the working source of truth.
+For post-`vNext+15` planning, this file served as the working source of truth during `vNext+16` selection.
+After `vNext+16` closeout, it remains historical planning context.
 `docs/DRAFT_NEXT_ARC_OPTIONS_v2.md` remains historical context only.
 
 ## Baseline Snapshot (Post vNext+15)
