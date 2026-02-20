@@ -154,9 +154,8 @@ def build_integrity_dangling_reference_diagnostics(
             f"{_edge_component(from_ref)}->{_edge_component(to_ref)}"
         )
 
-        missing_endpoint_issues: list[AdeuIntegrityDanglingReferenceIssue] = []
         if not _is_present_component(from_ref):
-            missing_endpoint_issues.append(
+            issues.append(
                 AdeuIntegrityDanglingReferenceIssue.model_validate(
                     {
                         "kind": "missing_edge_endpoint",
@@ -166,7 +165,7 @@ def build_integrity_dangling_reference_diagnostics(
                 )
             )
         if not _is_present_component(to_ref):
-            missing_endpoint_issues.append(
+            issues.append(
                 AdeuIntegrityDanglingReferenceIssue.model_validate(
                     {
                         "kind": "missing_edge_endpoint",
@@ -175,8 +174,6 @@ def build_integrity_dangling_reference_diagnostics(
                     }
                 )
             )
-        issues.extend(missing_endpoint_issues)
-
         missing_node_ids: set[str] = set()
         if _is_present_component(from_ref) and from_ref not in node_ids:
             missing_node_ids.add(from_ref)
