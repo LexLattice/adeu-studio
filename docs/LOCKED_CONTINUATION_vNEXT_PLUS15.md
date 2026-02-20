@@ -279,6 +279,9 @@ Add reproducible core-ir depth closeout metrics to decide if `vNext+16` may star
 - Replay boundary lock is frozen:
   - closeout metrics are computed from persisted fixtures/artifacts only.
   - no live provider calls are permitted in deterministic stop-gate acceptance paths.
+- Runtime code-mapping lock is frozen:
+  - domain/model validation exceptions from C1/C2 builders are normalized at the stop-gate/runtime boundary into frozen URM codes.
+  - fixture-input/mapping failures (including unmapped edge-source lane cases) are surfaced as `URM_ADEU_DEPTH_FIXTURE_INVALID` in stop-gate evidence outputs.
 - Threshold lock is frozen for `vNext+15 -> vNext+16`:
   - `adeu_lane_report_replay_determinism_pct == 100.0`
   - `adeu_projection_alignment_determinism_pct == 100.0`
