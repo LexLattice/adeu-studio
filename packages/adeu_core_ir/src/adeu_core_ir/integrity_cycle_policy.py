@@ -109,15 +109,17 @@ class AdeuIntegrityCyclePolicy(BaseModel):
 
 
 def _depends_on_adjacency(core_ir: AdeuCoreIR) -> dict[str, list[str]]:
-    e_node_ids = sorted(node.id for node in core_ir.nodes if node.layer == "E")
-    adjacency: dict[str, set[str]] = {node_id: set() for node_id in e_node_ids}
+    adjacency: dict[str, set[str]] = {
+        node.id: set() for node in core_ir.nodes if node.layer == "E"
+    }
 
     for edge in core_ir.edges:
-        if edge.type != "depends_on":
-            continue
-        if edge.from_ref not in adjacency or edge.to_ref not in adjacency:
-            continue
-        adjacency[edge.from_ref].add(edge.to_ref)
+        if (
+            edge.type == "depends_on"
+            and edge.from_ref in adjacency
+            and edge.to_ref in adjacency
+        ):
+            adjacency[edge.from_ref].add(edge.to_ref)
 
     return {node_id: sorted(targets) for node_id, targets in adjacency.items()}
 
