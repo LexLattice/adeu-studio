@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unicodedata
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Literal, Mapping
 
@@ -164,34 +165,39 @@ def build_integrity_deontic_conflict_diagnostics(
 ) -> AdeuIntegrityDeonticConflict:
     core_ir = payload if isinstance(payload, AdeuCoreIR) else AdeuCoreIR.model_validate(payload)
     candidates = _collect_deontic_candidates(core_ir)
+    grouped_candidates: dict[tuple[str, str], list[_DeonticCandidate]] = defaultdict(list)
+    for candidate in candidates:
+        grouped_candidates[(candidate.normalized_target, candidate.normalized_condition)].append(
+            candidate
+        )
 
     conflicts: list[AdeuIntegrityDeonticConflictEntry] = []
-    for index, candidate_a in enumerate(candidates):
-        for candidate_b in candidates[index + 1 :]:
-            if candidate_a.normalized_target != candidate_b.normalized_target:
-                continue
-            if candidate_a.normalized_condition != candidate_b.normalized_condition:
-                continue
-            if not _is_conflict_modality_pair(candidate_a.modality, candidate_b.modality):
-                continue
+    for group_key in sorted(grouped_candidates):
+        group = grouped_candidates[group_key]
+        if len(group) < 2:
+            continue
+        for index, candidate_a in enumerate(group):
+            for candidate_b in group[index + 1 :]:
+                if not _is_conflict_modality_pair(candidate_a.modality, candidate_b.modality):
+                    continue
 
-            primary, related = (
-                (candidate_a, candidate_b)
-                if candidate_a.node_id <= candidate_b.node_id
-                else (candidate_b, candidate_a)
-            )
-            conflicts.append(
-                AdeuIntegrityDeonticConflictEntry.model_validate(
-                    {
-                        "kind": "deontic_conflict",
-                        "primary_id": primary.node_id,
-                        "related_id": related.node_id,
-                        "details": _build_conflict_details(primary=primary, related=related),
-                    }
+                primary, related = (
+                    (candidate_a, candidate_b)
+                    if candidate_a.node_id <= candidate_b.node_id
+                    else (candidate_b, candidate_a)
                 )
-            )
-            if len(conflicts) > _MAX_EMITTED_CONFLICTS:
-                _raise_conflict_cap_error()
+                conflicts.append(
+                    AdeuIntegrityDeonticConflictEntry.model_validate(
+                        {
+                            "kind": "deontic_conflict",
+                            "primary_id": primary.node_id,
+                            "related_id": related.node_id,
+                            "details": _build_conflict_details(primary=primary, related=related),
+                        }
+                    )
+                )
+                if len(conflicts) > _MAX_EMITTED_CONFLICTS:
+                    _raise_conflict_cap_error()
 
     sorted_conflicts = sorted(conflicts, key=_conflict_sort_key)
     return AdeuIntegrityDeonticConflict.model_validate(
