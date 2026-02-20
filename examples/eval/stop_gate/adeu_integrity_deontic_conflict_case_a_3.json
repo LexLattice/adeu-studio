@@ -1,0 +1,21 @@
+{
+  "schema": "adeu_integrity_deontic_conflict@0.1",
+  "source_text_hash": "hash-d3-case-a",
+  "summary": {
+    "total_conflicts": 1,
+    "deontic_conflict": 1
+  },
+  "conflicts": [
+    {
+      "kind": "deontic_conflict",
+      "primary_id": "d_forbidden_1",
+      "related_id": "d_obligatory_1",
+      "details": {
+        "normalized_target": "api access",
+        "normalized_condition": "",
+        "primary_modality": "forbidden",
+        "related_modality": "obligatory"
+      }
+    }
+  ]
+}

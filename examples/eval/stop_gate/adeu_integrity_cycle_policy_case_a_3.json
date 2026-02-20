@@ -1,0 +1,26 @@
+{
+  "schema": "adeu_integrity_cycle_policy@0.1",
+  "source_text_hash": "hash-d2-case-a",
+  "summary": {
+    "total_cycles": 2,
+    "self_cycle": 1,
+    "multi_node_cycle": 1
+  },
+  "cycles": [
+    {
+      "kind": "self_cycle",
+      "cycle_signature": "cycle:c1",
+      "node_ids": [
+        "c1"
+      ]
+    },
+    {
+      "kind": "multi_node_cycle",
+      "cycle_signature": "cycle:c1->c2",
+      "node_ids": [
+        "c1",
+        "c2"
+      ]
+    }
+  ]
+}
