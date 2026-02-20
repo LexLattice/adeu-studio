@@ -9,6 +9,7 @@ from adeu_kernel import (
     build_semantics_diagnostics,
     build_validator_evidence_packet,
 )
+from urm_runtime.hashing import sha256_canonical_json
 from urm_runtime.stop_gate_tools import build_stop_gate_metrics, main
 
 
@@ -675,10 +676,7 @@ def _write_vnext_plus16_manifest_payload(
                         continue
                     run[run_key] = str((fixture_manifest_root / artifact_path).resolve())
     normalized_payload.pop("manifest_hash", None)
-    manifest_blob = json.dumps(normalized_payload, sort_keys=True, separators=(",", ":"))
-    normalized_payload["manifest_hash"] = hashlib.sha256(
-        manifest_blob.encode("utf-8")
-    ).hexdigest()
+    normalized_payload["manifest_hash"] = sha256_canonical_json(normalized_payload)
     manifest_path = tmp_path / filename
     _write_json(manifest_path, normalized_payload)
     return manifest_path
