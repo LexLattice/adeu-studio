@@ -79,6 +79,9 @@ ADEU_CORE_IR_SCHEMA = "adeu_core_ir@0.1"
 ADEU_LANE_PROJECTION_SCHEMA = "adeu_lane_projection@0.1"
 ADEU_LANE_REPORT_SCHEMA = "adeu_lane_report@0.1"
 ADEU_PROJECTION_ALIGNMENT_SCHEMA = "adeu_projection_alignment@0.1"
+ADEU_INTEGRITY_DANGLING_REFERENCE_SCHEMA = "adeu_integrity_dangling_reference@0.1"
+ADEU_INTEGRITY_CYCLE_POLICY_SCHEMA = "adeu_integrity_cycle_policy@0.1"
+ADEU_INTEGRITY_DEONTIC_CONFLICT_SCHEMA = "adeu_integrity_deontic_conflict@0.1"
 VNEXT_PLUS13_REPLAY_COUNT = 3
 VNEXT_PLUS13_MANIFEST_SCHEMA = "stop_gate.vnext_plus13_manifest@1"
 VNEXT_PLUS13_DEFAULT_METRICS = {
@@ -101,6 +104,13 @@ VNEXT_PLUS15_DEFAULT_METRICS = {
     "adeu_projection_alignment_determinism_pct": 0.0,
     "adeu_depth_report_replay_determinism_pct": 0.0,
 }
+VNEXT_PLUS16_REPLAY_COUNT = 3
+VNEXT_PLUS16_MANIFEST_SCHEMA = "stop_gate.vnext_plus16_manifest@1"
+VNEXT_PLUS16_DEFAULT_METRICS = {
+    "artifact_dangling_reference_determinism_pct": 0.0,
+    "artifact_cycle_policy_determinism_pct": 0.0,
+    "artifact_deontic_conflict_determinism_pct": 0.0,
+}
 _FROZEN_PROVIDER_KINDS: tuple[str, ...] = ("mock", "openai", "codex")
 _FROZEN_PROVIDER_KIND_SET = frozenset(_FROZEN_PROVIDER_KINDS)
 _FROZEN_DEPTH_SURFACES: tuple[str, ...] = (
@@ -109,6 +119,12 @@ _FROZEN_DEPTH_SURFACES: tuple[str, ...] = (
     "adeu.core_ir.depth_report",
 )
 _FROZEN_DEPTH_SURFACE_SET = frozenset(_FROZEN_DEPTH_SURFACES)
+_FROZEN_INTEGRITY_SURFACES: tuple[str, ...] = (
+    "adeu.integrity.dangling_reference",
+    "adeu.integrity.cycle_policy",
+    "adeu.integrity.deontic_conflict",
+)
+_FROZEN_INTEGRITY_SURFACE_SET = frozenset(_FROZEN_INTEGRITY_SURFACES)
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -152,6 +168,9 @@ THRESHOLDS = {
     "adeu_lane_report_replay_determinism_pct": 100.0,
     "adeu_projection_alignment_determinism_pct": 100.0,
     "adeu_depth_report_replay_determinism_pct": 100.0,
+    "artifact_dangling_reference_determinism_pct": 100.0,
+    "artifact_cycle_policy_determinism_pct": 100.0,
+    "artifact_deontic_conflict_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -214,6 +233,10 @@ def _default_vnext_plus15_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus15_manifest.json")
 
 
+def _default_vnext_plus16_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus16_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
@@ -222,6 +245,7 @@ VNEXT_PLUS11_MANIFEST_PATH = _default_vnext_plus11_manifest_path()
 VNEXT_PLUS13_MANIFEST_PATH = _default_vnext_plus13_manifest_path()
 VNEXT_PLUS14_MANIFEST_PATH = _default_vnext_plus14_manifest_path()
 VNEXT_PLUS15_MANIFEST_PATH = _default_vnext_plus15_manifest_path()
+VNEXT_PLUS16_MANIFEST_PATH = _default_vnext_plus16_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -1696,6 +1720,539 @@ def _adeu_depth_report_fixture_hash(
     )
 
 
+def _canonical_cycle_rotation(node_ids: list[str]) -> list[str]:
+    if len(node_ids) <= 1:
+        return list(node_ids)
+    rotations = [node_ids[index:] + node_ids[:index] for index in range(len(node_ids))]
+    return min(rotations)
+
+
+def _validated_adeu_integrity_dangling_reference_payload(
+    *,
+    dangling_reference_path: Path,
+) -> dict[str, Any]:
+    payload = _read_json_object(
+        dangling_reference_path,
+        description="adeu integrity dangling-reference fixture",
+    )
+    if payload.get("schema") != ADEU_INTEGRITY_DANGLING_REFERENCE_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                "dangling-reference fixture has unsupported schema",
+                context={
+                    "path": str(dangling_reference_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    source_text_hash = payload.get("source_text_hash")
+    if not isinstance(source_text_hash, str) or not source_text_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                "dangling-reference fixture missing source_text_hash",
+                context={"path": str(dangling_reference_path)},
+            )
+        )
+    summary = payload.get("summary")
+    issues = payload.get("issues")
+    if not isinstance(summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                "dangling-reference fixture summary must be an object",
+                context={"path": str(dangling_reference_path)},
+            )
+        )
+    if not isinstance(issues, list):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                "dangling-reference fixture issues must be a list",
+                context={"path": str(dangling_reference_path)},
+            )
+        )
+
+    issue_kind_counts = {
+        "missing_node_reference": 0,
+        "missing_edge_endpoint": 0,
+    }
+    issue_order_keys: list[tuple[str, str, str]] = []
+    for issue_index, raw_issue in enumerate(issues):
+        if not isinstance(raw_issue, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                    "dangling-reference issue must be an object",
+                    context={"path": str(dangling_reference_path), "issue_index": issue_index},
+                )
+            )
+        kind = raw_issue.get("kind")
+        if not isinstance(kind, str) or kind not in issue_kind_counts:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                    "dangling-reference issue kind is invalid",
+                    context={"path": str(dangling_reference_path), "issue_index": issue_index},
+                )
+            )
+        subject_id = raw_issue.get("subject_id")
+        if not isinstance(subject_id, str) or not subject_id:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                    "dangling-reference issue subject_id is invalid",
+                    context={"path": str(dangling_reference_path), "issue_index": issue_index},
+                )
+            )
+        related_id = raw_issue.get("related_id")
+        if related_id is None:
+            related_id = ""
+        if not isinstance(related_id, str):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                    "dangling-reference issue related_id is invalid",
+                    context={"path": str(dangling_reference_path), "issue_index": issue_index},
+                )
+            )
+        issue_order_keys.append((kind, subject_id, related_id))
+        issue_kind_counts[kind] += 1
+
+    if issue_order_keys != sorted(issue_order_keys):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                "dangling-reference issues must be sorted by (kind, subject_id, related_id)",
+                context={"path": str(dangling_reference_path)},
+            )
+        )
+
+    total_issues = summary.get("total_issues")
+    if not isinstance(total_issues, int) or total_issues != len(issues):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                "dangling-reference summary.total_issues mismatch",
+                context={"path": str(dangling_reference_path)},
+            )
+        )
+    for kind, count in issue_kind_counts.items():
+        observed = summary.get(kind)
+        if not isinstance(observed, int) or observed != count:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DANGLING_REFERENCE_INVALID",
+                    f"dangling-reference summary.{kind} mismatch",
+                    context={"path": str(dangling_reference_path)},
+                )
+            )
+
+    return payload
+
+
+def _validated_adeu_integrity_cycle_policy_payload(
+    *,
+    cycle_policy_path: Path,
+) -> dict[str, Any]:
+    payload = _read_json_object(
+        cycle_policy_path,
+        description="adeu integrity cycle-policy fixture",
+    )
+    if payload.get("schema") != ADEU_INTEGRITY_CYCLE_POLICY_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                "cycle-policy fixture has unsupported schema",
+                context={"path": str(cycle_policy_path), "schema": payload.get("schema")},
+            )
+        )
+    source_text_hash = payload.get("source_text_hash")
+    if not isinstance(source_text_hash, str) or not source_text_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                "cycle-policy fixture missing source_text_hash",
+                context={"path": str(cycle_policy_path)},
+            )
+        )
+    summary = payload.get("summary")
+    cycles = payload.get("cycles")
+    if not isinstance(summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                "cycle-policy fixture summary must be an object",
+                context={"path": str(cycle_policy_path)},
+            )
+        )
+    if not isinstance(cycles, list):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                "cycle-policy fixture cycles must be a list",
+                context={"path": str(cycle_policy_path)},
+            )
+        )
+    if len(cycles) > 1000:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "cycle-policy fixture exceeds frozen cycle cap",
+                context={"path": str(cycle_policy_path), "max_cycles": 1000},
+            )
+        )
+
+    cycle_kind_counts = {
+        "self_cycle": 0,
+        "multi_node_cycle": 0,
+    }
+    cycle_signatures: list[str] = []
+    for cycle_index, raw_cycle in enumerate(cycles):
+        if not isinstance(raw_cycle, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                    "cycle entry must be an object",
+                    context={"path": str(cycle_policy_path), "cycle_index": cycle_index},
+                )
+            )
+        kind = raw_cycle.get("kind")
+        if not isinstance(kind, str) or kind not in cycle_kind_counts:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                    "cycle kind is invalid",
+                    context={"path": str(cycle_policy_path), "cycle_index": cycle_index},
+                )
+            )
+        cycle_signature = raw_cycle.get("cycle_signature")
+        if not isinstance(cycle_signature, str) or not cycle_signature:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                    "cycle_signature is invalid",
+                    context={"path": str(cycle_policy_path), "cycle_index": cycle_index},
+                )
+            )
+        raw_node_ids = raw_cycle.get("node_ids")
+        if not isinstance(raw_node_ids, list) or not raw_node_ids:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                    "cycle node_ids must be a non-empty list",
+                    context={"path": str(cycle_policy_path), "cycle_index": cycle_index},
+                )
+            )
+        node_ids: list[str] = []
+        for node_id in raw_node_ids:
+            if not isinstance(node_id, str) or not node_id:
+                raise ValueError(
+                    _issue(
+                        "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                        "cycle node_ids contains invalid node id",
+                        context={
+                            "path": str(cycle_policy_path),
+                            "cycle_index": cycle_index,
+                        },
+                    )
+                )
+            node_ids.append(node_id)
+        if len(node_ids) > 1 and len(set(node_ids)) != len(node_ids):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                    "cycle node_ids must not contain duplicate node ids",
+                    context={"path": str(cycle_policy_path), "cycle_index": cycle_index},
+                )
+            )
+        canonical_node_ids = _canonical_cycle_rotation(node_ids)
+        if node_ids != canonical_node_ids:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                    "cycle node_ids must use canonical rotation",
+                    context={"path": str(cycle_policy_path), "cycle_index": cycle_index},
+                )
+            )
+        expected_signature = "cycle:" + "->".join(node_ids)
+        if cycle_signature != expected_signature:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                    "cycle_signature must match canonical node_ids",
+                    context={"path": str(cycle_policy_path), "cycle_index": cycle_index},
+                )
+            )
+        expected_kind = "self_cycle" if len(node_ids) == 1 else "multi_node_cycle"
+        if kind != expected_kind:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                    "cycle kind must match node_ids cycle cardinality",
+                    context={"path": str(cycle_policy_path), "cycle_index": cycle_index},
+                )
+            )
+        cycle_signatures.append(cycle_signature)
+        cycle_kind_counts[kind] += 1
+
+    if cycle_signatures != sorted(cycle_signatures):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                "cycle entries must be sorted by cycle_signature",
+                context={"path": str(cycle_policy_path)},
+            )
+        )
+    if len(set(cycle_signatures)) != len(cycle_signatures):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                "cycle entries must be unique by cycle_signature",
+                context={"path": str(cycle_policy_path)},
+            )
+        )
+
+    total_cycles = summary.get("total_cycles")
+    if not isinstance(total_cycles, int) or total_cycles != len(cycles):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                "cycle-policy summary.total_cycles mismatch",
+                context={"path": str(cycle_policy_path)},
+            )
+        )
+    for kind, count in cycle_kind_counts.items():
+        observed = summary.get(kind)
+        if not isinstance(observed, int) or observed != count:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_CYCLE_POLICY_INVALID",
+                    f"cycle-policy summary.{kind} mismatch",
+                    context={"path": str(cycle_policy_path)},
+                )
+            )
+    return payload
+
+
+def _validated_adeu_integrity_deontic_conflict_payload(
+    *,
+    deontic_conflict_path: Path,
+) -> dict[str, Any]:
+    payload = _read_json_object(
+        deontic_conflict_path,
+        description="adeu integrity deontic-conflict fixture",
+    )
+    if payload.get("schema") != ADEU_INTEGRITY_DEONTIC_CONFLICT_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                "deontic-conflict fixture has unsupported schema",
+                context={
+                    "path": str(deontic_conflict_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    source_text_hash = payload.get("source_text_hash")
+    if not isinstance(source_text_hash, str) or not source_text_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                "deontic-conflict fixture missing source_text_hash",
+                context={"path": str(deontic_conflict_path)},
+            )
+        )
+    summary = payload.get("summary")
+    conflicts = payload.get("conflicts")
+    if not isinstance(summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                "deontic-conflict fixture summary must be an object",
+                context={"path": str(deontic_conflict_path)},
+            )
+        )
+    if not isinstance(conflicts, list):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                "deontic-conflict fixture conflicts must be a list",
+                context={"path": str(deontic_conflict_path)},
+            )
+        )
+    if len(conflicts) > 1000:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "deontic-conflict fixture exceeds frozen conflict cap",
+                context={"path": str(deontic_conflict_path), "max_conflicts": 1000},
+            )
+        )
+
+    conflict_order_keys: list[tuple[str, str, str]] = []
+    pair_keys: set[tuple[str, str]] = set()
+    for conflict_index, raw_conflict in enumerate(conflicts):
+        if not isinstance(raw_conflict, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                    "deontic-conflict entry must be an object",
+                    context={"path": str(deontic_conflict_path), "conflict_index": conflict_index},
+                )
+            )
+        kind = raw_conflict.get("kind")
+        if kind != "deontic_conflict":
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                    "deontic-conflict entry kind is invalid",
+                    context={"path": str(deontic_conflict_path), "conflict_index": conflict_index},
+                )
+            )
+        primary_id = raw_conflict.get("primary_id")
+        if not isinstance(primary_id, str) or not primary_id:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                    "deontic-conflict entry primary_id is invalid",
+                    context={"path": str(deontic_conflict_path), "conflict_index": conflict_index},
+                )
+            )
+        related_id = raw_conflict.get("related_id")
+        if related_id is None:
+            related_id = ""
+        if not isinstance(related_id, str):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                    "deontic-conflict entry related_id is invalid",
+                    context={"path": str(deontic_conflict_path), "conflict_index": conflict_index},
+                )
+            )
+        if related_id and primary_id > related_id:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                    "deontic-conflict entry ids must follow canonical orientation",
+                    context={"path": str(deontic_conflict_path), "conflict_index": conflict_index},
+                )
+            )
+        details = raw_conflict.get("details")
+        if details is not None and not isinstance(details, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                    "deontic-conflict entry details must be an object when present",
+                    context={"path": str(deontic_conflict_path), "conflict_index": conflict_index},
+                )
+            )
+        conflict_order_keys.append((str(kind), primary_id, related_id))
+        pair_key = (primary_id, related_id)
+        if pair_key in pair_keys:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                    "deontic-conflict entries must be unique by (primary_id, related_id)",
+                    context={"path": str(deontic_conflict_path)},
+                )
+            )
+        pair_keys.add(pair_key)
+
+    if conflict_order_keys != sorted(conflict_order_keys):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                "deontic-conflict entries must be sorted by (kind, primary_id, related_id)",
+                context={"path": str(deontic_conflict_path)},
+            )
+        )
+
+    total_conflicts = summary.get("total_conflicts")
+    deontic_conflict = summary.get("deontic_conflict")
+    if not isinstance(total_conflicts, int) or total_conflicts != len(conflicts):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                "deontic-conflict summary.total_conflicts mismatch",
+                context={"path": str(deontic_conflict_path)},
+            )
+        )
+    if not isinstance(deontic_conflict, int) or deontic_conflict != len(conflicts):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_DEONTIC_CONFLICT_INVALID",
+                "deontic-conflict summary.deontic_conflict mismatch",
+                context={"path": str(deontic_conflict_path)},
+            )
+        )
+    return payload
+
+
+def _adeu_integrity_dangling_reference_fixture_hash(
+    *,
+    dangling_reference_path: Path,
+) -> str:
+    payload = _validated_adeu_integrity_dangling_reference_payload(
+        dangling_reference_path=dangling_reference_path
+    )
+    return sha256_canonical_json(payload)
+
+
+def _adeu_integrity_cycle_policy_fixture_hash(
+    *,
+    cycle_policy_path: Path,
+) -> str:
+    payload = _validated_adeu_integrity_cycle_policy_payload(
+        cycle_policy_path=cycle_policy_path
+    )
+    return sha256_canonical_json(payload)
+
+
+def _adeu_integrity_deontic_conflict_fixture_hash(
+    *,
+    deontic_conflict_path: Path,
+) -> str:
+    payload = _validated_adeu_integrity_deontic_conflict_payload(
+        deontic_conflict_path=deontic_conflict_path
+    )
+    return sha256_canonical_json(payload)
+
+
+def _adeu_integrity_dangling_reference_diagnostic_count(
+    *,
+    dangling_reference_path: Path,
+) -> int:
+    payload = _validated_adeu_integrity_dangling_reference_payload(
+        dangling_reference_path=dangling_reference_path
+    )
+    summary = cast(Mapping[str, Any], payload.get("summary", {}))
+    return int(summary.get("total_issues", 0))
+
+
+def _adeu_integrity_cycle_policy_diagnostic_count(
+    *,
+    cycle_policy_path: Path,
+) -> int:
+    payload = _validated_adeu_integrity_cycle_policy_payload(
+        cycle_policy_path=cycle_policy_path
+    )
+    summary = cast(Mapping[str, Any], payload.get("summary", {}))
+    return int(summary.get("total_cycles", 0))
+
+
+def _adeu_integrity_deontic_conflict_diagnostic_count(
+    *,
+    deontic_conflict_path: Path,
+) -> int:
+    payload = _validated_adeu_integrity_deontic_conflict_payload(
+        deontic_conflict_path=deontic_conflict_path
+    )
+    summary = cast(Mapping[str, Any], payload.get("summary", {}))
+    return int(summary.get("total_conflicts", 0))
+
+
 def _expand_provider_route_unit_fixtures(
     *,
     fixtures: list[dict[str, Any]],
@@ -2201,6 +2758,36 @@ def _manifest_metric_pct(
                 )
             )
     return _pct(passed, total)
+
+
+def _has_non_zero_diagnostic_fixture(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    required_run_fields: tuple[str, ...],
+    run_diagnostic_count_builder: Callable[..., int],
+) -> bool:
+    for fixture in fixtures:
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            continue
+        for run in runs:
+            if not isinstance(run, dict):
+                continue
+            try:
+                resolved_paths = {
+                    key: _resolve_manifest_relative_path(
+                        manifest_path=manifest_path,
+                        raw_path=run.get(key),
+                    )
+                    for key in required_run_fields
+                }
+                diagnostic_count = run_diagnostic_count_builder(**resolved_paths)
+            except ValueError:
+                continue
+            if diagnostic_count > 0:
+                return True
+    return False
 
 
 def _semantic_depth_precision_recall_from_manifest(
@@ -3809,6 +4396,511 @@ def _compute_vnext_plus15_metrics(
     }
 
 
+def _validate_vnext_plus16_surface_fixtures(
+    *,
+    fixtures: list[Any],
+    manifest_path: Path,
+    metric_name: str,
+    expected_surface_id: str,
+    required_run_keys: tuple[str, ...],
+) -> None:
+    seen_fixture_ids: set[str] = set()
+    for fixture_index, raw_fixture in enumerate(fixtures):
+        if not isinstance(raw_fixture, dict):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "manifest fixture entry must be an object",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_index": fixture_index,
+                    },
+                )
+            )
+        fixture_id = raw_fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "manifest fixture fixture_id must be a non-empty string",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_index": fixture_index,
+                    },
+                )
+            )
+        if fixture_id in seen_fixture_ids:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "manifest fixture fixture_id is duplicated in list",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+        seen_fixture_ids.add(fixture_id)
+
+        surface_id = raw_fixture.get("surface_id")
+        if not isinstance(surface_id, str) or surface_id not in _FROZEN_INTEGRITY_SURFACE_SET:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "manifest fixture surface_id must be a frozen integrity surface",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "surface_id": surface_id,
+                    },
+                )
+            )
+        if surface_id != expected_surface_id:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "manifest fixture surface_id does not match fixture list surface",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "surface_id": surface_id,
+                        "expected_surface_id": expected_surface_id,
+                    },
+                )
+            )
+
+        runs = raw_fixture.get("runs")
+        if not isinstance(runs, list):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "manifest fixture runs must be a list",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                    },
+                )
+            )
+        for run_index, raw_run in enumerate(runs):
+            if not isinstance(raw_run, dict):
+                raise ValueError(
+                    _issue(
+                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                        "manifest run entry must be an object",
+                        context={
+                            "manifest_path": str(manifest_path),
+                            "metric": metric_name,
+                            "fixture_id": fixture_id,
+                            "run_index": run_index,
+                        },
+                    )
+                )
+            for run_key in required_run_keys:
+                run_ref = raw_run.get(run_key)
+                if not isinstance(run_ref, str) or not run_ref:
+                    raise ValueError(
+                        _issue(
+                            "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                            "manifest run missing required run-reference key",
+                            context={
+                                "manifest_path": str(manifest_path),
+                                "metric": metric_name,
+                                "fixture_id": fixture_id,
+                                "run_index": run_index,
+                                "required_run_key": run_key,
+                            },
+                        )
+                    )
+
+
+def _load_vnext_plus16_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    payload = _read_json_object(manifest_path, description="vnext+16 stop-gate manifest")
+    if payload.get("schema") != VNEXT_PLUS16_MANIFEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "vnext+16 stop-gate manifest has unsupported schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    replay_count = payload.get("replay_count")
+    if replay_count != VNEXT_PLUS16_REPLAY_COUNT:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "vnext+16 replay_count must match frozen replay count",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_replay_count": VNEXT_PLUS16_REPLAY_COUNT,
+                    "observed_replay_count": replay_count,
+                },
+            )
+        )
+
+    for key in (
+        "dangling_reference_fixtures",
+        "cycle_policy_fixtures",
+        "deontic_conflict_fixtures",
+    ):
+        fixtures = payload.get(key)
+        if not isinstance(fixtures, list):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "vnext+16 stop-gate manifest missing required fixture list",
+                    context={"manifest_path": str(manifest_path), "key": key},
+                )
+            )
+        if not fixtures:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "vnext+16 stop-gate fixture list may not be empty",
+                    context={"manifest_path": str(manifest_path), "key": key},
+                )
+            )
+
+    _validate_vnext_plus16_surface_fixtures(
+        fixtures=cast(list[Any], payload["dangling_reference_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="artifact_dangling_reference_determinism_pct",
+        expected_surface_id="adeu.integrity.dangling_reference",
+        required_run_keys=("dangling_reference_path",),
+    )
+    _validate_vnext_plus16_surface_fixtures(
+        fixtures=cast(list[Any], payload["cycle_policy_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="artifact_cycle_policy_determinism_pct",
+        expected_surface_id="adeu.integrity.cycle_policy",
+        required_run_keys=("cycle_policy_path",),
+    )
+    _validate_vnext_plus16_surface_fixtures(
+        fixtures=cast(list[Any], payload["deontic_conflict_fixtures"]),
+        manifest_path=manifest_path,
+        metric_name="artifact_deontic_conflict_determinism_pct",
+        expected_surface_id="adeu.integrity.deontic_conflict",
+        required_run_keys=("deontic_conflict_path",),
+    )
+
+    fixture_surface_catalog: dict[str, str] = {}
+    for key in (
+        "dangling_reference_fixtures",
+        "cycle_policy_fixtures",
+        "deontic_conflict_fixtures",
+    ):
+        fixtures = cast(list[dict[str, Any]], payload[key])
+        for fixture in fixtures:
+            fixture_id = str(fixture["fixture_id"])
+            surface_id = str(fixture["surface_id"])
+            if fixture_id in fixture_surface_catalog:
+                raise ValueError(
+                    _issue(
+                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                        "vnext+16 fixture_id must be unique across fixture lists",
+                        context={
+                            "manifest_path": str(manifest_path),
+                            "fixture_id": fixture_id,
+                        },
+                    )
+                )
+            fixture_surface_catalog[fixture_id] = surface_id
+
+    coverage = payload.get("coverage")
+    if not isinstance(coverage, list) or not coverage:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "vnext+16 stop-gate manifest coverage must be a non-empty list",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    seen_coverage_surfaces: set[str] = set()
+    for coverage_index, raw_coverage in enumerate(coverage):
+        if not isinstance(raw_coverage, dict):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "coverage entry must be an object",
+                    context={"manifest_path": str(manifest_path), "coverage_index": coverage_index},
+                )
+            )
+        surface_id = raw_coverage.get("surface_id")
+        if not isinstance(surface_id, str) or surface_id not in _FROZEN_INTEGRITY_SURFACE_SET:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "coverage surface_id must be a frozen integrity surface",
+                    context={"manifest_path": str(manifest_path), "coverage_index": coverage_index},
+                )
+            )
+        if surface_id in seen_coverage_surfaces:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "coverage surface_id must be unique",
+                    context={"manifest_path": str(manifest_path), "surface_id": surface_id},
+                )
+            )
+        fixture_ids = raw_coverage.get("fixture_ids")
+        if not isinstance(fixture_ids, list) or not fixture_ids:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "coverage fixture_ids must be a non-empty list",
+                    context={"manifest_path": str(manifest_path), "surface_id": surface_id},
+                )
+            )
+        normalized_fixture_ids: list[str] = []
+        for fixture_id in fixture_ids:
+            if not isinstance(fixture_id, str) or not fixture_id:
+                raise ValueError(
+                    _issue(
+                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                        "coverage fixture_ids contains invalid fixture id",
+                        context={"manifest_path": str(manifest_path), "surface_id": surface_id},
+                    )
+                )
+            normalized_fixture_ids.append(fixture_id)
+        if len(set(normalized_fixture_ids)) != len(normalized_fixture_ids):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                    "coverage fixture_ids must be unique within a surface",
+                    context={"manifest_path": str(manifest_path), "surface_id": surface_id},
+                )
+            )
+        for fixture_id in normalized_fixture_ids:
+            fixture_surface = fixture_surface_catalog.get(fixture_id)
+            if fixture_surface is None:
+                raise ValueError(
+                    _issue(
+                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                        "coverage references unknown fixture_id",
+                        context={
+                            "manifest_path": str(manifest_path),
+                            "surface_id": surface_id,
+                            "fixture_id": fixture_id,
+                        },
+                    )
+                )
+            if fixture_surface != surface_id:
+                raise ValueError(
+                    _issue(
+                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                        "coverage fixture_id is mapped to a different surface",
+                        context={
+                            "manifest_path": str(manifest_path),
+                            "surface_id": surface_id,
+                            "fixture_id": fixture_id,
+                            "fixture_surface_id": fixture_surface,
+                        },
+                    )
+                )
+        seen_coverage_surfaces.add(surface_id)
+
+    if seen_coverage_surfaces != _FROZEN_INTEGRITY_SURFACE_SET:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "coverage surface set must exactly match frozen integrity surfaces",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_surfaces": sorted(_FROZEN_INTEGRITY_SURFACES),
+                    "observed_surfaces": sorted(seen_coverage_surfaces),
+                },
+            )
+        )
+
+    raw_manifest_hash = payload.get("manifest_hash")
+    if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "vnext+16 stop-gate manifest missing manifest_hash",
+                context={"manifest_path": str(manifest_path)},
+            )
+        )
+    hash_basis = dict(payload)
+    hash_basis.pop("manifest_hash", None)
+    recomputed_manifest_hash = sha256_canonical_json(hash_basis)
+    if raw_manifest_hash != recomputed_manifest_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH",
+                "vnext+16 manifest_hash mismatch",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "embedded_manifest_hash": raw_manifest_hash,
+                    "recomputed_manifest_hash": recomputed_manifest_hash,
+                },
+            )
+        )
+    return payload, recomputed_manifest_hash
+
+
+def _compute_vnext_plus16_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS16_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus16_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS16_DEFAULT_METRICS,
+            "vnext_plus16_manifest_hash": "",
+        }
+
+    try:
+        dangling_reference_fixtures = _manifest_metric_entries(
+            metrics={
+                "artifact_dangling_reference_determinism_pct": manifest.get(
+                    "dangling_reference_fixtures"
+                )
+            },
+            metric_name="artifact_dangling_reference_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        cycle_policy_fixtures = _manifest_metric_entries(
+            metrics={
+                "artifact_cycle_policy_determinism_pct": manifest.get(
+                    "cycle_policy_fixtures"
+                )
+            },
+            metric_name="artifact_cycle_policy_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+        deontic_conflict_fixtures = _manifest_metric_entries(
+            metrics={
+                "artifact_deontic_conflict_determinism_pct": manifest.get(
+                    "deontic_conflict_fixtures"
+                )
+            },
+            metric_name="artifact_deontic_conflict_determinism_pct",
+            manifest_path=resolved_manifest_path,
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS16_DEFAULT_METRICS,
+            "vnext_plus16_manifest_hash": manifest_hash,
+        }
+
+    artifact_dangling_reference_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="artifact_dangling_reference_determinism_pct",
+        fixtures=dangling_reference_fixtures,
+        replay_count=VNEXT_PLUS16_REPLAY_COUNT,
+        required_run_fields=("dangling_reference_path",),
+        run_hash_builder=_adeu_integrity_dangling_reference_fixture_hash,
+        issues=issues,
+        drift_issue_code="URM_ADEU_INTEGRITY_DIAGNOSTIC_DRIFT",
+        drift_issue_message="vnext+16 dangling-reference diagnostic drift",
+    )
+    artifact_cycle_policy_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="artifact_cycle_policy_determinism_pct",
+        fixtures=cycle_policy_fixtures,
+        replay_count=VNEXT_PLUS16_REPLAY_COUNT,
+        required_run_fields=("cycle_policy_path",),
+        run_hash_builder=_adeu_integrity_cycle_policy_fixture_hash,
+        issues=issues,
+        drift_issue_code="URM_ADEU_INTEGRITY_DIAGNOSTIC_DRIFT",
+        drift_issue_message="vnext+16 cycle-policy diagnostic drift",
+    )
+    artifact_deontic_conflict_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="artifact_deontic_conflict_determinism_pct",
+        fixtures=deontic_conflict_fixtures,
+        replay_count=VNEXT_PLUS16_REPLAY_COUNT,
+        required_run_fields=("deontic_conflict_path",),
+        run_hash_builder=_adeu_integrity_deontic_conflict_fixture_hash,
+        issues=issues,
+        drift_issue_code="URM_ADEU_INTEGRITY_DIAGNOSTIC_DRIFT",
+        drift_issue_message="vnext+16 deontic-conflict diagnostic drift",
+    )
+
+    if not _has_non_zero_diagnostic_fixture(
+        manifest_path=resolved_manifest_path,
+        fixtures=dangling_reference_fixtures,
+        required_run_fields=("dangling_reference_path",),
+        run_diagnostic_count_builder=_adeu_integrity_dangling_reference_diagnostic_count,
+    ):
+        artifact_dangling_reference_determinism_pct = 0.0
+        issues.append(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "vnext+16 dangling-reference fixtures must include non-zero diagnostics",
+                context={"manifest_path": str(resolved_manifest_path)},
+            )
+        )
+    if not _has_non_zero_diagnostic_fixture(
+        manifest_path=resolved_manifest_path,
+        fixtures=cycle_policy_fixtures,
+        required_run_fields=("cycle_policy_path",),
+        run_diagnostic_count_builder=_adeu_integrity_cycle_policy_diagnostic_count,
+    ):
+        artifact_cycle_policy_determinism_pct = 0.0
+        issues.append(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "vnext+16 cycle-policy fixtures must include non-zero diagnostics",
+                context={"manifest_path": str(resolved_manifest_path)},
+            )
+        )
+    if not _has_non_zero_diagnostic_fixture(
+        manifest_path=resolved_manifest_path,
+        fixtures=deontic_conflict_fixtures,
+        required_run_fields=("deontic_conflict_path",),
+        run_diagnostic_count_builder=_adeu_integrity_deontic_conflict_diagnostic_count,
+    ):
+        artifact_deontic_conflict_determinism_pct = 0.0
+        issues.append(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                "vnext+16 deontic-conflict fixtures must include non-zero diagnostics",
+                context={"manifest_path": str(resolved_manifest_path)},
+            )
+        )
+
+    return {
+        "artifact_dangling_reference_determinism_pct": (
+            artifact_dangling_reference_determinism_pct
+        ),
+        "artifact_cycle_policy_determinism_pct": artifact_cycle_policy_determinism_pct,
+        "artifact_deontic_conflict_determinism_pct": (
+            artifact_deontic_conflict_determinism_pct
+        ),
+        "vnext_plus16_manifest_hash": manifest_hash,
+    }
+
+
 def _metric_delta_satisfies_rule(*, rule: str, delta: float) -> bool:
     if rule == "non_decreasing":
         return delta >= 0.0
@@ -3876,6 +4968,7 @@ def build_stop_gate_metrics(
     vnext_plus13_manifest_path: Path | None = None,
     vnext_plus14_manifest_path: Path | None = None,
     vnext_plus15_manifest_path: Path | None = None,
+    vnext_plus16_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     issues: list[dict[str, Any]] = []
     try:
@@ -4239,6 +5332,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus15_manifest_path,
         issues=issues,
     )
+    vnext_plus16_metrics = _compute_vnext_plus16_metrics(
+        manifest_path=vnext_plus16_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -4413,6 +5510,15 @@ def build_stop_gate_metrics(
         "adeu_depth_report_replay_determinism_pct": vnext_plus15_metrics[
             "adeu_depth_report_replay_determinism_pct"
         ],
+        "artifact_dangling_reference_determinism_pct": vnext_plus16_metrics[
+            "artifact_dangling_reference_determinism_pct"
+        ],
+        "artifact_cycle_policy_determinism_pct": vnext_plus16_metrics[
+            "artifact_cycle_policy_determinism_pct"
+        ],
+        "artifact_deontic_conflict_determinism_pct": vnext_plus16_metrics[
+            "artifact_deontic_conflict_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -4492,6 +5598,18 @@ def build_stop_gate_metrics(
             "adeu_depth_report_replay_determinism_pct"
         ]
         >= THRESHOLDS["adeu_depth_report_replay_determinism_pct"],
+        "artifact_dangling_reference_determinism": metrics[
+            "artifact_dangling_reference_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_dangling_reference_determinism_pct"],
+        "artifact_cycle_policy_determinism": metrics[
+            "artifact_cycle_policy_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_cycle_policy_determinism_pct"],
+        "artifact_deontic_conflict_determinism": metrics[
+            "artifact_deontic_conflict_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_deontic_conflict_determinism_pct"],
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -4553,6 +5671,11 @@ def build_stop_gate_metrics(
                 if vnext_plus15_manifest_path is not None
                 else VNEXT_PLUS15_MANIFEST_PATH
             ),
+            "vnext_plus16_manifest_path": str(
+                vnext_plus16_manifest_path
+                if vnext_plus16_manifest_path is not None
+                else VNEXT_PLUS16_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -4561,6 +5684,7 @@ def build_stop_gate_metrics(
         "vnext_plus13_manifest_hash": vnext_plus13_metrics["vnext_plus13_manifest_hash"],
         "vnext_plus14_manifest_hash": vnext_plus14_metrics["vnext_plus14_manifest_hash"],
         "vnext_plus15_manifest_hash": vnext_plus15_metrics["vnext_plus15_manifest_hash"],
+        "vnext_plus16_manifest_hash": vnext_plus16_metrics["vnext_plus16_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -4590,6 +5714,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+13 manifest hash: `{report.get('vnext_plus13_manifest_hash')}`")
     lines.append(f"- vnext+14 manifest hash: `{report.get('vnext_plus14_manifest_hash')}`")
     lines.append(f"- vnext+15 manifest hash: `{report.get('vnext_plus15_manifest_hash')}`")
+    lines.append(f"- vnext+16 manifest hash: `{report.get('vnext_plus16_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -4763,6 +5888,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('adeu_depth_report_replay_determinism_pct')}`"
     )
     lines.append(
+        "- artifact dangling-reference determinism pct: "
+        f"`{metrics.get('artifact_dangling_reference_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact cycle-policy determinism pct: "
+        f"`{metrics.get('artifact_cycle_policy_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact deontic-conflict determinism pct: "
+        f"`{metrics.get('artifact_deontic_conflict_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -4888,6 +6025,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS15_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus16-manifest",
+        dest="vnext_plus16_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS16_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -4911,6 +6054,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus13_manifest_path=args.vnext_plus13_manifest_path,
         vnext_plus14_manifest_path=args.vnext_plus14_manifest_path,
         vnext_plus15_manifest_path=args.vnext_plus15_manifest_path,
+        vnext_plus16_manifest_path=args.vnext_plus16_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:

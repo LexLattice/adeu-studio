@@ -9,6 +9,7 @@ from adeu_kernel import (
     build_semantics_diagnostics,
     build_validator_evidence_packet,
 )
+from urm_runtime.hashing import sha256_canonical_json
 from urm_runtime.stop_gate_tools import build_stop_gate_metrics, main
 
 
@@ -66,6 +67,10 @@ def _vnext_plus14_manifest_path() -> Path:
 
 def _vnext_plus15_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus15_manifest.json"
+
+
+def _vnext_plus16_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus16_manifest.json"
 
 
 _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = {
@@ -539,6 +544,10 @@ def _vnext_plus15_manifest_payload() -> dict[str, object]:
     return json.loads(_vnext_plus15_manifest_path().read_text(encoding="utf-8"))
 
 
+def _vnext_plus16_manifest_payload() -> dict[str, object]:
+    return json.loads(_vnext_plus16_manifest_path().read_text(encoding="utf-8"))
+
+
 def _write_vnext_plus14_manifest_payload(
     *,
     tmp_path: Path,
@@ -631,6 +640,48 @@ def _write_vnext_plus15_manifest_payload(
     return manifest_path
 
 
+def _write_vnext_plus16_manifest_payload(
+    *,
+    tmp_path: Path,
+    payload: dict[str, object],
+    filename: str = "vnext_plus16_manifest.json",
+) -> Path:
+    normalized_payload = json.loads(json.dumps(payload))
+    if not isinstance(normalized_payload, dict):
+        raise AssertionError("vnext+16 manifest payload must be an object")
+    fixture_manifest_root = _vnext_plus16_manifest_path().parent
+    for fixture_key, run_keys in (
+        ("dangling_reference_fixtures", ("dangling_reference_path",)),
+        ("cycle_policy_fixtures", ("cycle_policy_path",)),
+        ("deontic_conflict_fixtures", ("deontic_conflict_path",)),
+    ):
+        raw_fixtures = normalized_payload.get(fixture_key)
+        if not isinstance(raw_fixtures, list):
+            continue
+        for fixture in raw_fixtures:
+            if not isinstance(fixture, dict):
+                continue
+            runs = fixture.get("runs")
+            if not isinstance(runs, list):
+                continue
+            for run in runs:
+                if not isinstance(run, dict):
+                    continue
+                for run_key in run_keys:
+                    raw_ref = run.get(run_key)
+                    if not isinstance(raw_ref, str) or not raw_ref:
+                        continue
+                    artifact_path = Path(raw_ref)
+                    if artifact_path.is_absolute():
+                        continue
+                    run[run_key] = str((fixture_manifest_root / artifact_path).resolve())
+    normalized_payload.pop("manifest_hash", None)
+    normalized_payload["manifest_hash"] = sha256_canonical_json(normalized_payload)
+    manifest_path = tmp_path / filename
+    _write_json(manifest_path, normalized_payload)
+    return manifest_path
+
+
 def _base_stop_gate_kwargs(
     *,
     quality_current: Path,
@@ -718,6 +769,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "vnext_plus13_manifest_path": _vnext_plus13_manifest_path(),
         "vnext_plus14_manifest_path": _vnext_plus14_manifest_path(),
         "vnext_plus15_manifest_path": _vnext_plus15_manifest_path(),
+        "vnext_plus16_manifest_path": _vnext_plus16_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -756,6 +808,9 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["adeu_lane_report_replay_determinism_pct"] == 100.0
     assert first["metrics"]["adeu_projection_alignment_determinism_pct"] == 100.0
     assert first["metrics"]["adeu_depth_report_replay_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_dangling_reference_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_cycle_policy_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_deontic_conflict_determinism_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -772,6 +827,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert len(first["vnext_plus14_manifest_hash"]) == 64
     assert isinstance(first["vnext_plus15_manifest_hash"], str)
     assert len(first["vnext_plus15_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus16_manifest_hash"], str)
+    assert len(first["vnext_plus16_manifest_hash"]) == 64
 
 
 def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics(
@@ -2035,6 +2092,163 @@ def test_build_stop_gate_metrics_rejects_vnext_plus15_empty_lane_report_fixture(
     )
 
 
+def test_build_stop_gate_metrics_rejects_vnext_plus16_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus16_manifest_payload()
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus16_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=_vnext_plus14_manifest_path(),
+        vnext_plus15_manifest_path=_vnext_plus15_manifest_path(),
+        vnext_plus16_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["artifact_dangling_reference_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_cycle_policy_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_deontic_conflict_determinism_pct"] == 0.0
+    assert report["vnext_plus16_manifest_hash"] == ""
+    assert any(
+        issue.get("code") == "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH"
+        and issue.get("message") == "vnext+16 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_detects_vnext_plus16_cycle_policy_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    drift_payload = json.loads(
+        _example_stop_gate_path("adeu_integrity_cycle_policy_case_a_2.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    drift_payload["source_text_hash"] = "hash-d2-case-a-drift"
+    drift_path = tmp_path / "adeu_integrity_cycle_policy_case_a_2_drift.json"
+    _write_json(drift_path, drift_payload)
+
+    manifest_payload = _vnext_plus16_manifest_payload()
+    cycle_fixtures = manifest_payload.get("cycle_policy_fixtures")
+    assert isinstance(cycle_fixtures, list) and cycle_fixtures
+    first_fixture = cycle_fixtures[0]
+    assert isinstance(first_fixture, dict)
+    first_runs = first_fixture.get("runs")
+    assert isinstance(first_runs, list) and len(first_runs) == 3
+    assert isinstance(first_runs[1], dict)
+    first_runs[1]["cycle_policy_path"] = str(drift_path)
+    manifest_path = _write_vnext_plus16_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=_vnext_plus14_manifest_path(),
+        vnext_plus15_manifest_path=_vnext_plus15_manifest_path(),
+        vnext_plus16_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["artifact_dangling_reference_determinism_pct"] == 100.0
+    assert report["metrics"]["artifact_cycle_policy_determinism_pct"] < 100.0
+    assert report["metrics"]["artifact_deontic_conflict_determinism_pct"] == 100.0
+    assert report["gates"]["artifact_dangling_reference_determinism"] is True
+    assert report["gates"]["artifact_cycle_policy_determinism"] is False
+    assert report["gates"]["artifact_deontic_conflict_determinism"] is True
+    assert any(
+        issue.get("code") == "URM_ADEU_INTEGRITY_DIAGNOSTIC_DRIFT"
+        and issue.get("message") == "vnext+16 cycle-policy diagnostic drift"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus16_all_zero_diagnostics(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    zero_dangling_payload = {
+        "schema": "adeu_integrity_dangling_reference@0.1",
+        "source_text_hash": "hash-d1-case-a",
+        "summary": {
+            "total_issues": 0,
+            "missing_node_reference": 0,
+            "missing_edge_endpoint": 0,
+        },
+        "issues": [],
+    }
+    zero_dangling_path = tmp_path / "adeu_integrity_dangling_reference_zero.json"
+    _write_json(zero_dangling_path, zero_dangling_payload)
+
+    manifest_payload = _vnext_plus16_manifest_payload()
+    dangling_fixtures = manifest_payload.get("dangling_reference_fixtures")
+    assert isinstance(dangling_fixtures, list) and dangling_fixtures
+    first_fixture = dangling_fixtures[0]
+    assert isinstance(first_fixture, dict)
+    first_runs = first_fixture.get("runs")
+    assert isinstance(first_runs, list) and len(first_runs) == 3
+    for run in first_runs:
+        assert isinstance(run, dict)
+        run["dangling_reference_path"] = str(zero_dangling_path)
+    manifest_path = _write_vnext_plus16_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=_vnext_plus14_manifest_path(),
+        vnext_plus15_manifest_path=_vnext_plus15_manifest_path(),
+        vnext_plus16_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["artifact_dangling_reference_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_cycle_policy_determinism_pct"] == 100.0
+    assert report["metrics"]["artifact_deontic_conflict_determinism_pct"] == 100.0
+    assert any(
+        issue.get("code") == "URM_ADEU_INTEGRITY_FIXTURE_INVALID"
+        and issue.get("message")
+        == "vnext+16 dangling-reference fixtures must include non-zero diagnostics"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_current.write_text(
@@ -2090,6 +2304,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_vnext_plus14_manifest_path()),
             "--vnext-plus15-manifest",
             str(_vnext_plus15_manifest_path()),
+            "--vnext-plus16-manifest",
+            str(_vnext_plus16_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",

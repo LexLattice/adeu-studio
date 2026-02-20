@@ -1,0 +1,7 @@
+# Integrity Transfer Report vNext+16
+
+Deterministic D4 transfer summary generated from persisted vNext+16 integrity fixtures and diagnostics.
+
+```json
+{"coverage_summary":{"coverage_pct":100.0,"covered_surface_count":3,"entries":[{"fixture_ids":["integrity_cycle_policy.case_a"],"surface_id":"adeu.integrity.cycle_policy","valid":true},{"fixture_ids":["integrity_dangling_reference.case_a"],"surface_id":"adeu.integrity.dangling_reference","valid":true},{"fixture_ids":["integrity_deontic_conflict.case_a"],"surface_id":"adeu.integrity.deontic_conflict","valid":true}],"surface_count":3,"valid":true},"cycle_policy_summary":{"cycle_kind_counts":{"multi_node_cycle":3,"self_cycle":3},"fixture_count":1,"run_count":3,"total_cycles":6,"valid":true},"dangling_reference_summary":{"fixture_count":1,"issue_kind_counts":{"missing_edge_endpoint":3,"missing_node_reference":3},"run_count":3,"total_issues":6,"valid":true},"deontic_conflict_summary":{"conflict_kind_counts":{"deontic_conflict":3},"fixture_count":1,"run_count":3,"total_conflicts":3,"valid":true},"replay_summary":{"fixture_counts":{"cycle_policy":1,"dangling_reference":1,"deontic_conflict":1},"replay_count":3,"replay_unit_counts":{"cycle_policy":3,"dangling_reference":3,"deontic_conflict":3},"valid":true},"schema":"integrity_transfer_report.vnext_plus16@1","vnext_plus16_manifest_hash":"9696117b034d88b192b1c605da58f4806dcdc20f9c8f9e1bdd972b8ef57777ff"}
+```

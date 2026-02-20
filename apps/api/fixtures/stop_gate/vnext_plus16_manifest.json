@@ -1,0 +1,76 @@
+{
+  "schema": "stop_gate.vnext_plus16_manifest@1",
+  "replay_count": 3,
+  "dangling_reference_fixtures": [
+    {
+      "fixture_id": "integrity_dangling_reference.case_a",
+      "surface_id": "adeu.integrity.dangling_reference",
+      "runs": [
+        {
+          "dangling_reference_path": "../../../../examples/eval/stop_gate/adeu_integrity_dangling_reference_case_a_1.json"
+        },
+        {
+          "dangling_reference_path": "../../../../examples/eval/stop_gate/adeu_integrity_dangling_reference_case_a_2.json"
+        },
+        {
+          "dangling_reference_path": "../../../../examples/eval/stop_gate/adeu_integrity_dangling_reference_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "cycle_policy_fixtures": [
+    {
+      "fixture_id": "integrity_cycle_policy.case_a",
+      "surface_id": "adeu.integrity.cycle_policy",
+      "runs": [
+        {
+          "cycle_policy_path": "../../../../examples/eval/stop_gate/adeu_integrity_cycle_policy_case_a_1.json"
+        },
+        {
+          "cycle_policy_path": "../../../../examples/eval/stop_gate/adeu_integrity_cycle_policy_case_a_2.json"
+        },
+        {
+          "cycle_policy_path": "../../../../examples/eval/stop_gate/adeu_integrity_cycle_policy_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "deontic_conflict_fixtures": [
+    {
+      "fixture_id": "integrity_deontic_conflict.case_a",
+      "surface_id": "adeu.integrity.deontic_conflict",
+      "runs": [
+        {
+          "deontic_conflict_path": "../../../../examples/eval/stop_gate/adeu_integrity_deontic_conflict_case_a_1.json"
+        },
+        {
+          "deontic_conflict_path": "../../../../examples/eval/stop_gate/adeu_integrity_deontic_conflict_case_a_2.json"
+        },
+        {
+          "deontic_conflict_path": "../../../../examples/eval/stop_gate/adeu_integrity_deontic_conflict_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "surface_id": "adeu.integrity.cycle_policy",
+      "fixture_ids": [
+        "integrity_cycle_policy.case_a"
+      ]
+    },
+    {
+      "surface_id": "adeu.integrity.dangling_reference",
+      "fixture_ids": [
+        "integrity_dangling_reference.case_a"
+      ]
+    },
+    {
+      "surface_id": "adeu.integrity.deontic_conflict",
+      "fixture_ids": [
+        "integrity_deontic_conflict.case_a"
+      ]
+    }
+  ],
+  "manifest_hash": "9696117b034d88b192b1c605da58f4806dcdc20f9c8f9e1bdd972b8ef57777ff"
+}
