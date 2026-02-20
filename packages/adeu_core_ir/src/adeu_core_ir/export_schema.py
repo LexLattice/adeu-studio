@@ -5,6 +5,7 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 
+from .integrity_dangling_reference import AdeuIntegrityDanglingReference
 from .lane_report import AdeuLaneReport
 from .models import AdeuCoreIR
 from .projection_alignment import AdeuProjectionAlignment
@@ -19,6 +20,9 @@ def main() -> None:
     root = repo_root(anchor=Path(__file__))
     core_ir_schema = AdeuCoreIR.model_json_schema(by_alias=True)
     lane_report_schema = AdeuLaneReport.model_json_schema(by_alias=True)
+    integrity_dangling_reference_schema = (
+        AdeuIntegrityDanglingReference.model_json_schema(by_alias=True)
+    )
     projection_alignment_schema = AdeuProjectionAlignment.model_json_schema(by_alias=True)
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
@@ -28,6 +32,18 @@ def main() -> None:
         root / "packages" / "adeu_core_ir" / "schema" / "adeu_lane_report.v0_1.json"
     )
     _write_schema(lane_authoritative_path, lane_report_schema)
+
+    integrity_dangling_reference_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "adeu_integrity_dangling_reference.v0_1.json"
+    )
+    _write_schema(
+        integrity_dangling_reference_authoritative_path,
+        integrity_dangling_reference_schema,
+    )
 
     projection_alignment_authoritative_path = (
         root / "packages" / "adeu_core_ir" / "schema" / "adeu_projection_alignment.v0_1.json"
@@ -39,6 +55,14 @@ def main() -> None:
 
     lane_mirror_path = root / "spec" / "adeu_lane_report.schema.json"
     _write_schema(lane_mirror_path, lane_report_schema)
+
+    integrity_dangling_reference_mirror_path = (
+        root / "spec" / "adeu_integrity_dangling_reference.schema.json"
+    )
+    _write_schema(
+        integrity_dangling_reference_mirror_path,
+        integrity_dangling_reference_schema,
+    )
 
     projection_alignment_mirror_path = root / "spec" / "adeu_projection_alignment.schema.json"
     _write_schema(projection_alignment_mirror_path, projection_alignment_schema)
