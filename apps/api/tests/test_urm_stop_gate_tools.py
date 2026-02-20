@@ -64,6 +64,10 @@ def _vnext_plus14_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus14_manifest.json"
 
 
+def _vnext_plus15_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus15_manifest.json"
+
+
 _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = {
     "domain_conformance_hash",
     "hash_excluded_fields",
@@ -531,6 +535,10 @@ def _vnext_plus14_manifest_payload() -> dict[str, object]:
     return json.loads(_vnext_plus14_manifest_path().read_text(encoding="utf-8"))
 
 
+def _vnext_plus15_manifest_payload() -> dict[str, object]:
+    return json.loads(_vnext_plus15_manifest_path().read_text(encoding="utf-8"))
+
+
 def _write_vnext_plus14_manifest_payload(
     *,
     tmp_path: Path,
@@ -565,6 +573,54 @@ def _write_vnext_plus14_manifest_payload(
                 if artifact_path.is_absolute():
                     continue
                 run["artifact_ref"] = str((fixture_manifest_root / artifact_path).resolve())
+    normalized_payload.pop("manifest_hash", None)
+    manifest_blob = json.dumps(normalized_payload, sort_keys=True, separators=(",", ":"))
+    normalized_payload["manifest_hash"] = hashlib.sha256(
+        manifest_blob.encode("utf-8")
+    ).hexdigest()
+    manifest_path = tmp_path / filename
+    _write_json(manifest_path, normalized_payload)
+    return manifest_path
+
+
+def _write_vnext_plus15_manifest_payload(
+    *,
+    tmp_path: Path,
+    payload: dict[str, object],
+    filename: str = "vnext_plus15_manifest.json",
+) -> Path:
+    normalized_payload = json.loads(json.dumps(payload))
+    if not isinstance(normalized_payload, dict):
+        raise AssertionError("vnext+15 manifest payload must be an object")
+    fixture_manifest_root = _vnext_plus15_manifest_path().parent
+    for fixture_key, run_keys in (
+        ("lane_report_replay_fixtures", ("lane_report_path",)),
+        ("projection_alignment_fixtures", ("projection_alignment_path",)),
+        (
+            "depth_report_replay_fixtures",
+            ("lane_report_path", "projection_alignment_path"),
+        ),
+    ):
+        raw_fixtures = normalized_payload.get(fixture_key)
+        if not isinstance(raw_fixtures, list):
+            continue
+        for fixture in raw_fixtures:
+            if not isinstance(fixture, dict):
+                continue
+            runs = fixture.get("runs")
+            if not isinstance(runs, list):
+                continue
+            for run in runs:
+                if not isinstance(run, dict):
+                    continue
+                for run_key in run_keys:
+                    raw_ref = run.get(run_key)
+                    if not isinstance(raw_ref, str) or not raw_ref:
+                        continue
+                    artifact_path = Path(raw_ref)
+                    if artifact_path.is_absolute():
+                        continue
+                    run[run_key] = str((fixture_manifest_root / artifact_path).resolve())
     normalized_payload.pop("manifest_hash", None)
     manifest_blob = json.dumps(normalized_payload, sort_keys=True, separators=(",", ":"))
     normalized_payload["manifest_hash"] = hashlib.sha256(
@@ -661,6 +717,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "vnext_plus11_manifest_path": _vnext_plus11_manifest_path(),
         "vnext_plus13_manifest_path": _vnext_plus13_manifest_path(),
         "vnext_plus14_manifest_path": _vnext_plus14_manifest_path(),
+        "vnext_plus15_manifest_path": _vnext_plus15_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -696,6 +753,9 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["provider_route_contract_parity_pct"] == 100.0
     assert first["metrics"]["codex_candidate_contract_valid_pct"] == 100.0
     assert first["metrics"]["provider_parity_replay_determinism_pct"] == 100.0
+    assert first["metrics"]["adeu_lane_report_replay_determinism_pct"] == 100.0
+    assert first["metrics"]["adeu_projection_alignment_determinism_pct"] == 100.0
+    assert first["metrics"]["adeu_depth_report_replay_determinism_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -710,6 +770,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert len(first["vnext_plus13_manifest_hash"]) == 64
     assert isinstance(first["vnext_plus14_manifest_hash"], str)
     assert len(first["vnext_plus14_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus15_manifest_hash"], str)
+    assert len(first["vnext_plus15_manifest_hash"]) == 64
 
 
 def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics(
@@ -1820,6 +1882,159 @@ def test_build_stop_gate_metrics_detects_vnext_plus14_replay_drift(
     assert report["gates"]["provider_parity_replay_determinism"] is False
 
 
+def test_build_stop_gate_metrics_rejects_vnext_plus15_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus15_manifest_payload()
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus15_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=_vnext_plus14_manifest_path(),
+        vnext_plus15_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["adeu_lane_report_replay_determinism_pct"] == 0.0
+    assert report["metrics"]["adeu_projection_alignment_determinism_pct"] == 0.0
+    assert report["metrics"]["adeu_depth_report_replay_determinism_pct"] == 0.0
+    assert report["vnext_plus15_manifest_hash"] == ""
+    assert any(
+        issue.get("code") == "URM_ADEU_DEPTH_MANIFEST_HASH_MISMATCH"
+        and issue.get("message") == "vnext+15 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_detects_vnext_plus15_alignment_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    drift_payload = json.loads(
+        _example_stop_gate_path("adeu_projection_alignment_case_a_2.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    drift_issues = drift_payload.get("issues")
+    assert isinstance(drift_issues, list) and drift_issues
+    first_issue = drift_issues[0]
+    assert isinstance(first_issue, dict)
+    first_issue["subject_id"] = str(first_issue["subject_id"]) + ".drift"
+    drift_path = tmp_path / "adeu_projection_alignment_case_a_2_drift.json"
+    _write_json(drift_path, drift_payload)
+
+    manifest_payload = _vnext_plus15_manifest_payload()
+    alignment_fixtures = manifest_payload.get("projection_alignment_fixtures")
+    assert isinstance(alignment_fixtures, list) and alignment_fixtures
+    first_fixture = alignment_fixtures[0]
+    assert isinstance(first_fixture, dict)
+    first_runs = first_fixture.get("runs")
+    assert isinstance(first_runs, list) and len(first_runs) == 3
+    assert isinstance(first_runs[1], dict)
+    first_runs[1]["projection_alignment_path"] = str(drift_path)
+    manifest_path = _write_vnext_plus15_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=_vnext_plus14_manifest_path(),
+        vnext_plus15_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["adeu_lane_report_replay_determinism_pct"] == 100.0
+    assert report["metrics"]["adeu_projection_alignment_determinism_pct"] < 100.0
+    assert report["metrics"]["adeu_depth_report_replay_determinism_pct"] == 100.0
+    assert report["gates"]["adeu_lane_report_replay_determinism"] is True
+    assert report["gates"]["adeu_projection_alignment_determinism"] is False
+    assert report["gates"]["adeu_depth_report_replay_determinism"] is True
+    assert any(
+        issue.get("code") == "URM_ADEU_DEPTH_ALIGNMENT_DIAGNOSTIC_DRIFT"
+        and issue.get("message") == "vnext+15 projection alignment diagnostic drift"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus15_empty_lane_report_fixture(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    empty_lane_report_payload = {
+        "schema": "adeu_lane_report@0.1",
+        "source_text_hash": "hash-empty",
+        "lane_nodes": {"O": [], "E": [], "D": [], "U": []},
+        "lane_edge_counts": {"O": 0, "E": 0, "D": 0, "U": 0},
+    }
+    empty_lane_report_path = tmp_path / "adeu_lane_report_empty.json"
+    _write_json(empty_lane_report_path, empty_lane_report_payload)
+
+    manifest_payload = _vnext_plus15_manifest_payload()
+    lane_fixtures = manifest_payload.get("lane_report_replay_fixtures")
+    assert isinstance(lane_fixtures, list) and lane_fixtures
+    first_fixture = lane_fixtures[0]
+    assert isinstance(first_fixture, dict)
+    first_runs = first_fixture.get("runs")
+    assert isinstance(first_runs, list) and len(first_runs) == 3
+    for run in first_runs:
+        assert isinstance(run, dict)
+        run["lane_report_path"] = str(empty_lane_report_path)
+    manifest_path = _write_vnext_plus15_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
+        vnext_plus14_manifest_path=_vnext_plus14_manifest_path(),
+        vnext_plus15_manifest_path=manifest_path,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["adeu_lane_report_replay_determinism_pct"] == 0.0
+    assert report["metrics"]["adeu_projection_alignment_determinism_pct"] == 100.0
+    assert report["metrics"]["adeu_depth_report_replay_determinism_pct"] == 100.0
+    assert any(
+        issue.get("code") == "URM_ADEU_DEPTH_FIXTURE_INVALID"
+        and issue.get("message") == "lane report fixture has empty lane-node evidence"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_current.write_text(
@@ -1873,6 +2088,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_vnext_plus13_manifest_path()),
             "--vnext-plus14-manifest",
             str(_vnext_plus14_manifest_path()),
+            "--vnext-plus15-manifest",
+            str(_vnext_plus15_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",
