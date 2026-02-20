@@ -1,4 +1,11 @@
 from .ids import stable_core_node_id
+from .integrity_dangling_reference import (
+    AdeuIntegrityDanglingReference,
+    AdeuIntegrityDanglingReferenceIssue,
+    AdeuIntegrityDanglingReferenceSummary,
+    build_integrity_dangling_reference_diagnostics,
+    canonicalize_integrity_dangling_reference_payload,
+)
 from .lane_report import (
     CANONICAL_LANE_ORDER,
     AdeuLaneReport,
@@ -57,6 +64,11 @@ __all__ = [
     "apply_claim_ledger_scores",
     "assert_claim_ledger_recompute_match",
     "stable_core_node_id",
+    "AdeuIntegrityDanglingReference",
+    "AdeuIntegrityDanglingReferenceIssue",
+    "AdeuIntegrityDanglingReferenceSummary",
+    "build_integrity_dangling_reference_diagnostics",
+    "canonicalize_integrity_dangling_reference_payload",
     "AdeuLaneReport",
     "build_lane_report",
     "canonicalize_lane_report_payload",

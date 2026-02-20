@@ -1,0 +1,112 @@
+{
+  "$defs": {
+    "AdeuIntegrityDanglingReferenceIssue": {
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Details"
+        },
+        "kind": {
+          "enum": [
+            "missing_node_reference",
+            "missing_edge_endpoint"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "related_id": {
+          "default": "",
+          "title": "Related Id",
+          "type": "string"
+        },
+        "subject_id": {
+          "title": "Subject Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "subject_id"
+      ],
+      "title": "AdeuIntegrityDanglingReferenceIssue",
+      "type": "object"
+    },
+    "AdeuIntegrityDanglingReferenceSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "missing_edge_endpoint": {
+          "title": "Missing Edge Endpoint",
+          "type": "integer"
+        },
+        "missing_node_reference": {
+          "title": "Missing Node Reference",
+          "type": "integer"
+        },
+        "total_issues": {
+          "title": "Total Issues",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_issues",
+        "missing_node_reference",
+        "missing_edge_endpoint"
+      ],
+      "title": "AdeuIntegrityDanglingReferenceSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "issues": {
+      "items": {
+        "$ref": "#/$defs/AdeuIntegrityDanglingReferenceIssue"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metadata"
+    },
+    "schema": {
+      "const": "adeu_integrity_dangling_reference@0.1",
+      "default": "adeu_integrity_dangling_reference@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "title": "Source Text Hash",
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/$defs/AdeuIntegrityDanglingReferenceSummary"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "summary",
+    "issues"
+  ],
+  "title": "AdeuIntegrityDanglingReference",
+  "type": "object"
+}
