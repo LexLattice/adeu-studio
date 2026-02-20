@@ -29,6 +29,13 @@ from .pipeline import (
     harvest_core_ir_candidates,
     normalize_core_source_text,
 )
+from .projection_alignment import (
+    AdeuProjectionAlignment,
+    AdeuProjectionAlignmentIssue,
+    AdeuProjectionAlignmentSummary,
+    build_projection_alignment,
+    canonicalize_projection_alignment_payload,
+)
 
 __all__ = [
     "AdeuCoreIR",
@@ -54,6 +61,11 @@ __all__ = [
     "build_lane_report",
     "canonicalize_lane_report_payload",
     "CANONICAL_LANE_ORDER",
+    "AdeuProjectionAlignment",
+    "AdeuProjectionAlignmentIssue",
+    "AdeuProjectionAlignmentSummary",
+    "build_projection_alignment",
+    "canonicalize_projection_alignment_payload",
 ]
 
 __version__ = "0.0.0"

@@ -1,0 +1,156 @@
+{
+  "$defs": {
+    "AdeuProjectionAlignmentIssue": {
+      "additionalProperties": false,
+      "properties": {
+        "extraction_kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Extraction Kind"
+        },
+        "extraction_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Extraction Type"
+        },
+        "kind": {
+          "enum": [
+            "missing_in_projection",
+            "missing_in_extraction",
+            "kind_mismatch",
+            "edge_type_mismatch"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "projection_kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Projection Kind"
+        },
+        "projection_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Projection Type"
+        },
+        "related_id": {
+          "default": "",
+          "title": "Related Id",
+          "type": "string"
+        },
+        "subject_id": {
+          "title": "Subject Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "subject_id"
+      ],
+      "title": "AdeuProjectionAlignmentIssue",
+      "type": "object"
+    },
+    "AdeuProjectionAlignmentSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "edge_type_mismatch": {
+          "default": 0,
+          "title": "Edge Type Mismatch",
+          "type": "integer"
+        },
+        "kind_mismatch": {
+          "default": 0,
+          "title": "Kind Mismatch",
+          "type": "integer"
+        },
+        "missing_in_extraction": {
+          "default": 0,
+          "title": "Missing In Extraction",
+          "type": "integer"
+        },
+        "missing_in_projection": {
+          "default": 0,
+          "title": "Missing In Projection",
+          "type": "integer"
+        },
+        "total_issues": {
+          "default": 0,
+          "title": "Total Issues",
+          "type": "integer"
+        }
+      },
+      "title": "AdeuProjectionAlignmentSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "issues": {
+      "items": {
+        "$ref": "#/$defs/AdeuProjectionAlignmentIssue"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metadata"
+    },
+    "schema": {
+      "const": "adeu_projection_alignment@0.1",
+      "default": "adeu_projection_alignment@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "title": "Source Text Hash",
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/$defs/AdeuProjectionAlignmentSummary"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "summary"
+  ],
+  "title": "AdeuProjectionAlignment",
+  "type": "object"
+}
