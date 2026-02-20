@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, Mapping
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from .models import AdeuCoreIR, Layer
 
@@ -29,7 +29,7 @@ class AdeuLaneReport(BaseModel):
     schema: LaneReportSchemaVersion = "adeu_lane_report@0.1"
     source_text_hash: str
     lane_nodes: dict[Layer, list[str]]
-    lane_edge_counts: dict[Layer, int] = Field(default_factory=_default_lane_edge_counts)
+    lane_edge_counts: dict[Layer, int]
     metadata: dict[str, Any] | None = None
 
     @model_validator(mode="after")

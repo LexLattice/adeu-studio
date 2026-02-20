@@ -8,6 +8,7 @@ from adeu_core_ir import (
     canonicalize_core_ir_payload,
     canonicalize_lane_report_payload,
 )
+from pydantic import ValidationError
 
 
 def _valid_core_ir_payload() -> dict[str, object]:
@@ -125,3 +126,18 @@ def test_lane_report_rejects_negative_edge_counts() -> None:
             }
         )
 
+
+def test_lane_report_requires_lane_edge_counts_field() -> None:
+    with pytest.raises(ValidationError, match="lane_edge_counts"):
+        AdeuLaneReport.model_validate(
+            {
+                "schema": "adeu_lane_report@0.1",
+                "source_text_hash": "hash-lane-a",
+                "lane_nodes": {
+                    "O": ["o_concept_1"],
+                    "E": ["e_claim_1"],
+                    "D": ["d_policy_1"],
+                    "U": ["u_goal_1"],
+                },
+            }
+        )

@@ -60,7 +60,8 @@
   },
   "required": [
     "source_text_hash",
-    "lane_nodes"
+    "lane_nodes",
+    "lane_edge_counts"
   ],
   "title": "AdeuLaneReport",
   "type": "object"
