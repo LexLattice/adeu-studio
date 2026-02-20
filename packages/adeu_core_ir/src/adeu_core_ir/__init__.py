@@ -1,4 +1,11 @@
 from .ids import stable_core_node_id
+from .integrity_cycle_policy import (
+    AdeuIntegrityCyclePolicy,
+    AdeuIntegrityCyclePolicyCycle,
+    AdeuIntegrityCyclePolicySummary,
+    build_integrity_cycle_policy_diagnostics,
+    canonicalize_integrity_cycle_policy_payload,
+)
 from .integrity_dangling_reference import (
     AdeuIntegrityDanglingReference,
     AdeuIntegrityDanglingReferenceIssue,
@@ -64,6 +71,11 @@ __all__ = [
     "apply_claim_ledger_scores",
     "assert_claim_ledger_recompute_match",
     "stable_core_node_id",
+    "AdeuIntegrityCyclePolicy",
+    "AdeuIntegrityCyclePolicyCycle",
+    "AdeuIntegrityCyclePolicySummary",
+    "build_integrity_cycle_policy_diagnostics",
+    "canonicalize_integrity_cycle_policy_payload",
     "AdeuIntegrityDanglingReference",
     "AdeuIntegrityDanglingReferenceIssue",
     "AdeuIntegrityDanglingReferenceSummary",
