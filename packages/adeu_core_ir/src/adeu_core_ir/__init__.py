@@ -13,6 +13,13 @@ from .integrity_dangling_reference import (
     build_integrity_dangling_reference_diagnostics,
     canonicalize_integrity_dangling_reference_payload,
 )
+from .integrity_deontic_conflict import (
+    AdeuIntegrityDeonticConflict,
+    AdeuIntegrityDeonticConflictEntry,
+    AdeuIntegrityDeonticConflictSummary,
+    build_integrity_deontic_conflict_diagnostics,
+    canonicalize_integrity_deontic_conflict_payload,
+)
 from .lane_report import (
     CANONICAL_LANE_ORDER,
     AdeuLaneReport,
@@ -76,6 +83,11 @@ __all__ = [
     "AdeuIntegrityCyclePolicySummary",
     "build_integrity_cycle_policy_diagnostics",
     "canonicalize_integrity_cycle_policy_payload",
+    "AdeuIntegrityDeonticConflict",
+    "AdeuIntegrityDeonticConflictEntry",
+    "AdeuIntegrityDeonticConflictSummary",
+    "build_integrity_deontic_conflict_diagnostics",
+    "canonicalize_integrity_deontic_conflict_payload",
     "AdeuIntegrityDanglingReference",
     "AdeuIntegrityDanglingReferenceIssue",
     "AdeuIntegrityDanglingReferenceSummary",
