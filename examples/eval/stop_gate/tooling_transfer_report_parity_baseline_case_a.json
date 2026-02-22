@@ -1,0 +1,14 @@
+{
+  "schema": "tooling.transfer_report_parity_fixture@1",
+  "family": "transfer_report",
+  "version": "vnext_plus18_case_a",
+  "summary": {
+    "validation_parity": 100.0,
+    "transfer_parity": 100.0
+  },
+  "runtime_observability": {
+    "total_fixtures": 3,
+    "total_replays": 9,
+    "elapsed_ms": 11111
+  }
+}
