@@ -36,6 +36,16 @@ from adeu_concepts import (
 from adeu_concepts import (
     check_with_validator_runs as check_concept_with_validator_runs,
 )
+from adeu_core_ir import (
+    AdeuCoreIR,
+    AdeuIntegrityCyclePolicy,
+    AdeuIntegrityCyclePolicyExtended,
+    AdeuIntegrityDanglingReference,
+    AdeuIntegrityDeonticConflict,
+    AdeuIntegrityDeonticConflictExtended,
+    AdeuIntegrityReferenceIntegrityExtended,
+    AdeuLaneReport,
+)
 from adeu_explain import (
     EXPLAIN_BUILDER_VERSION,
     EXPLAIN_DIFF_SCHEMA,
@@ -103,7 +113,7 @@ from adeu_semantic_depth import (
     validate_semantic_depth_ref,
     validate_semantic_depth_report,
 )
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from urm_runtime.config import URMRuntimeConfig
@@ -356,6 +366,47 @@ _FROZEN_PROVIDER_PARITY_SURFACE_IDS: tuple[str, ...] = (
     "puzzles.propose",
     "concepts.tournament.live_generation",
     "concepts.tournament.replay_candidates",
+)
+_READ_SURFACE_REQUEST_INVALID_CODE = "URM_ADEU_READ_SURFACE_REQUEST_INVALID"
+_READ_SURFACE_ARTIFACT_NOT_FOUND_CODE = "URM_ADEU_READ_SURFACE_ARTIFACT_NOT_FOUND"
+_READ_SURFACE_PAYLOAD_INVALID_CODE = "URM_ADEU_READ_SURFACE_PAYLOAD_INVALID"
+_READ_SURFACE_FIXTURE_INVALID_CODE = "URM_ADEU_READ_SURFACE_FIXTURE_INVALID"
+_READ_SURFACE_CATALOG_SCHEMA = "read_surface.vnext_plus19_catalog@1"
+_READ_SURFACE_CATALOG_PATH = (
+    Path(__file__).resolve().parents[2] / "fixtures" / "read_surface" / "vnext_plus19_catalog.json"
+)
+_READ_SURFACE_CACHE_CONTROL = "public, max-age=31536000, immutable"
+_ADEU_CORE_IR_SCHEMA = "adeu_core_ir@0.1"
+_ADEU_LANE_PROJECTION_SCHEMA = "adeu_lane_projection@0.1"
+_ADEU_LANE_REPORT_SCHEMA = "adeu_lane_report@0.1"
+_ADEU_INTEGRITY_DANGLING_REFERENCE_SCHEMA = "adeu_integrity_dangling_reference@0.1"
+_ADEU_INTEGRITY_CYCLE_POLICY_SCHEMA = "adeu_integrity_cycle_policy@0.1"
+_ADEU_INTEGRITY_DEONTIC_CONFLICT_SCHEMA = "adeu_integrity_deontic_conflict@0.1"
+_ADEU_INTEGRITY_REFERENCE_INTEGRITY_EXTENDED_SCHEMA = (
+    "adeu_integrity_reference_integrity_extended@0.1"
+)
+_ADEU_INTEGRITY_CYCLE_POLICY_EXTENDED_SCHEMA = "adeu_integrity_cycle_policy_extended@0.1"
+_ADEU_INTEGRITY_DEONTIC_CONFLICT_EXTENDED_SCHEMA = (
+    "adeu_integrity_deontic_conflict_extended@0.1"
+)
+_READ_SURFACE_INTEGRITY_FAMILY_TO_SCHEMA: dict[str, str] = {
+    "dangling_reference": _ADEU_INTEGRITY_DANGLING_REFERENCE_SCHEMA,
+    "cycle_policy": _ADEU_INTEGRITY_CYCLE_POLICY_SCHEMA,
+    "deontic_conflict": _ADEU_INTEGRITY_DEONTIC_CONFLICT_SCHEMA,
+    "reference_integrity_extended": _ADEU_INTEGRITY_REFERENCE_INTEGRITY_EXTENDED_SCHEMA,
+    "cycle_policy_extended": _ADEU_INTEGRITY_CYCLE_POLICY_EXTENDED_SCHEMA,
+    "deontic_conflict_extended": _ADEU_INTEGRITY_DEONTIC_CONFLICT_EXTENDED_SCHEMA,
+}
+_READ_SURFACE_INTEGRITY_SCHEMAS: tuple[str, ...] = tuple(
+    _READ_SURFACE_INTEGRITY_FAMILY_TO_SCHEMA[family]
+    for family in (
+        "dangling_reference",
+        "cycle_policy",
+        "deontic_conflict",
+        "reference_integrity_extended",
+        "cycle_policy_extended",
+        "deontic_conflict_extended",
+    )
 )
 
 
@@ -1429,6 +1480,545 @@ class DocumentSummary(BaseModel):
 class DocumentListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     items: list[DocumentSummary]
+
+
+ReadSurfaceLaneKey = Literal["O", "E", "D", "U"]
+
+
+class ReadSurfaceCatalogArtifactRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_ref_id: str = Field(min_length=1)
+    schema: str = Field(min_length=1)
+    path: str = Field(min_length=1)
+
+
+class ReadSurfaceCatalogEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    core_ir_artifact_id: str = Field(min_length=1)
+    source_text_hash: str = Field(min_length=1)
+    parent_links: dict[str, str] = Field(default_factory=dict)
+    created_at: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_parent_links(self) -> "ReadSurfaceCatalogEntry":
+        for schema, artifact_ref_id in self.parent_links.items():
+            if not schema:
+                raise ValueError("parent_links may not include empty schema keys")
+            if not artifact_ref_id:
+                raise ValueError("parent_links may not include empty artifact ids")
+        return self
+
+
+class ReadSurfaceCatalog(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["read_surface.vnext_plus19_catalog@1"] = _READ_SURFACE_CATALOG_SCHEMA
+    artifact_refs: list[ReadSurfaceCatalogArtifactRef]
+    entries: list[ReadSurfaceCatalogEntry]
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "ReadSurfaceCatalog":
+        sorted_entry_ids = sorted(entry.core_ir_artifact_id for entry in self.entries)
+        if [entry.core_ir_artifact_id for entry in self.entries] != sorted_entry_ids:
+            raise ValueError("catalog entries must be sorted by core_ir_artifact_id")
+        if len(set(sorted_entry_ids)) != len(sorted_entry_ids):
+            raise ValueError("catalog entries contain duplicate core_ir_artifact_id values")
+
+        artifact_ref_ids = [item.artifact_ref_id for item in self.artifact_refs]
+        if artifact_ref_ids != sorted(artifact_ref_ids):
+            raise ValueError("artifact_refs must be sorted by artifact_ref_id")
+        if len(set(artifact_ref_ids)) != len(artifact_ref_ids):
+            raise ValueError("artifact_refs contain duplicate artifact_ref_id values")
+
+        known_refs = set(artifact_ref_ids)
+        for entry in self.entries:
+            if entry.core_ir_artifact_id not in known_refs:
+                raise ValueError(
+                    f"entry.core_ir_artifact_id not found in artifact_refs: "
+                    f"{entry.core_ir_artifact_id}"
+                )
+            for schema, artifact_ref_id in entry.parent_links.items():
+                if schema not in (
+                    _ADEU_LANE_PROJECTION_SCHEMA,
+                    _ADEU_LANE_REPORT_SCHEMA,
+                    *_READ_SURFACE_INTEGRITY_SCHEMAS,
+                ):
+                    raise ValueError(f"unsupported parent_links schema: {schema}")
+                if artifact_ref_id not in known_refs:
+                    raise ValueError(
+                        f"parent_links artifact id not found in artifact_refs: {artifact_ref_id}"
+                    )
+        return self
+
+
+class ReadSurfaceLaneProjectionEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    type: str = Field(min_length=1)
+    from_ref: str = Field(alias="from", min_length=1)
+    to_ref: str = Field(alias="to", min_length=1)
+
+
+class ReadSurfaceLaneProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["adeu_lane_projection@0.1"] = _ADEU_LANE_PROJECTION_SCHEMA
+    source_text_hash: str
+    lanes: dict[ReadSurfaceLaneKey, list[str]]
+    edges: list[ReadSurfaceLaneProjectionEdge] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "ReadSurfaceLaneProjection":
+        if list(self.lanes.keys()) != ["O", "E", "D", "U"]:
+            raise ValueError("lanes must include keys in canonical order ['O','E','D','U']")
+        for lane in ("O", "E", "D", "U"):
+            node_ids = self.lanes[lane]
+            if node_ids != sorted(node_ids):
+                raise ValueError(f"lanes[{lane}] must be sorted lexicographically")
+            if len(set(node_ids)) != len(node_ids):
+                raise ValueError(f"lanes[{lane}] may not contain duplicates")
+        edge_identities = [
+            (edge.type, edge.from_ref, edge.to_ref)
+            for edge in self.edges
+        ]
+        if edge_identities != sorted(edge_identities):
+            raise ValueError("edges must be sorted by (type, from, to)")
+        if len(set(edge_identities)) != len(edge_identities):
+            raise ValueError("edges may not contain duplicate (type, from, to) identities")
+        return self
+
+
+class ReadSurfaceCoreIRResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    schema: str
+    created_at: str | None = None
+    core_ir: dict[str, Any]
+
+
+class ReadSurfaceLaneProjectionResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    schema: str
+    created_at: str | None = None
+    lane_projection: dict[str, Any]
+
+
+class ReadSurfaceLaneReportResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    schema: str
+    created_at: str | None = None
+    lane_report: dict[str, Any]
+
+
+class ReadSurfaceIntegrityResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str
+    schema: str
+    created_at: str | None = None
+    integrity_artifact: dict[str, Any]
+
+
+class _ReadSurfaceCatalogError(RuntimeError):
+    def __init__(self, *, code: str, reason: str, context: Mapping[str, Any] | None = None) -> None:
+        super().__init__(reason)
+        self.code = code
+        self.reason = reason
+        self.context = dict(context or {})
+
+
+class _ReadSurfaceCatalogIndex(NamedTuple):
+    catalog_path: Path
+    artifact_refs_by_id: dict[str, ReadSurfaceCatalogArtifactRef]
+    artifact_payloads_by_id: dict[str, dict[str, Any]]
+    entries_by_core_ir_id: dict[str, ReadSurfaceCatalogEntry]
+    artifact_ids_by_schema_source_hash: dict[tuple[str, str], tuple[str, ...]]
+
+
+def _read_surface_error_detail(
+    *,
+    code: str,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    detail: dict[str, Any] = {
+        "code": code,
+        "reason": reason,
+    }
+    if context:
+        detail["context"] = dict(context)
+    return detail
+
+
+def _read_surface_catalog_error(
+    *,
+    code: str,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> _ReadSurfaceCatalogError:
+    return _ReadSurfaceCatalogError(code=code, reason=reason, context=context)
+
+
+def _read_surface_catalog_payload() -> str:
+    try:
+        return _READ_SURFACE_CATALOG_PATH.read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface catalog fixture is missing",
+            context={"path": str(_READ_SURFACE_CATALOG_PATH)},
+        ) from exc
+    except OSError as exc:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface catalog fixture is unreadable",
+            context={"path": str(_READ_SURFACE_CATALOG_PATH), "error": str(exc)},
+        ) from exc
+
+
+def _resolve_read_surface_artifact_path(*, catalog_path: Path, artifact_path: str) -> Path:
+    candidate = Path(artifact_path)
+    if not candidate.is_absolute():
+        candidate = catalog_path.parent / candidate
+    return candidate.resolve()
+
+
+def _read_surface_artifact_payload(
+    *,
+    path: Path,
+    artifact_ref_id: str,
+) -> dict[str, Any]:
+    try:
+        raw = path.read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface artifact fixture is missing",
+            context={"artifact_ref_id": artifact_ref_id, "path": str(path)},
+        ) from exc
+    except OSError as exc:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface artifact fixture is unreadable",
+            context={"artifact_ref_id": artifact_ref_id, "path": str(path), "error": str(exc)},
+        ) from exc
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface artifact fixture JSON is invalid",
+            context={
+                "artifact_ref_id": artifact_ref_id,
+                "path": str(path),
+                "error": exc.msg,
+            },
+        ) from exc
+
+    if not isinstance(payload, dict):
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface artifact fixture payload must be an object",
+            context={"artifact_ref_id": artifact_ref_id, "path": str(path)},
+        )
+    return payload
+
+
+def _validate_read_surface_payload_for_schema(
+    *,
+    schema: str,
+    payload: dict[str, Any],
+    artifact_ref_id: str,
+    path: Path,
+) -> dict[str, Any]:
+    validator: Callable[[dict[str, Any]], BaseModel]
+    if schema == _ADEU_CORE_IR_SCHEMA:
+        validator = AdeuCoreIR.model_validate
+    elif schema == _ADEU_LANE_PROJECTION_SCHEMA:
+        validator = ReadSurfaceLaneProjection.model_validate
+    elif schema == _ADEU_LANE_REPORT_SCHEMA:
+        validator = AdeuLaneReport.model_validate
+    elif schema == _ADEU_INTEGRITY_DANGLING_REFERENCE_SCHEMA:
+        validator = AdeuIntegrityDanglingReference.model_validate
+    elif schema == _ADEU_INTEGRITY_CYCLE_POLICY_SCHEMA:
+        validator = AdeuIntegrityCyclePolicy.model_validate
+    elif schema == _ADEU_INTEGRITY_DEONTIC_CONFLICT_SCHEMA:
+        validator = AdeuIntegrityDeonticConflict.model_validate
+    elif schema == _ADEU_INTEGRITY_REFERENCE_INTEGRITY_EXTENDED_SCHEMA:
+        validator = AdeuIntegrityReferenceIntegrityExtended.model_validate
+    elif schema == _ADEU_INTEGRITY_CYCLE_POLICY_EXTENDED_SCHEMA:
+        validator = AdeuIntegrityCyclePolicyExtended.model_validate
+    elif schema == _ADEU_INTEGRITY_DEONTIC_CONFLICT_EXTENDED_SCHEMA:
+        validator = AdeuIntegrityDeonticConflictExtended.model_validate
+    else:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface artifact ref uses unsupported schema",
+            context={
+                "artifact_ref_id": artifact_ref_id,
+                "path": str(path),
+                "schema": schema,
+            },
+        )
+
+    try:
+        normalized = validator(payload)
+    except Exception as exc:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_PAYLOAD_INVALID_CODE,
+            reason="read-surface artifact payload failed schema validation",
+            context={
+                "artifact_ref_id": artifact_ref_id,
+                "path": str(path),
+                "schema": schema,
+                "error": str(exc),
+            },
+        ) from exc
+    normalized_payload = normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+    source_text_hash = normalized_payload.get("source_text_hash")
+    if not isinstance(source_text_hash, str) or not source_text_hash:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_PAYLOAD_INVALID_CODE,
+            reason="read-surface artifact payload missing source_text_hash",
+            context={
+                "artifact_ref_id": artifact_ref_id,
+                "path": str(path),
+                "schema": schema,
+            },
+        )
+    return normalized_payload
+
+
+@lru_cache(maxsize=1)
+def _read_surface_catalog_index() -> _ReadSurfaceCatalogIndex:
+    raw_payload = _read_surface_catalog_payload()
+    try:
+        parsed = json.loads(raw_payload)
+    except json.JSONDecodeError as exc:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface catalog JSON is invalid",
+            context={"path": str(_READ_SURFACE_CATALOG_PATH), "error": exc.msg},
+        ) from exc
+
+    if not isinstance(parsed, dict):
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface catalog payload must be an object",
+            context={"path": str(_READ_SURFACE_CATALOG_PATH)},
+        )
+
+    try:
+        catalog = ReadSurfaceCatalog.model_validate(parsed)
+    except Exception as exc:
+        raise _read_surface_catalog_error(
+            code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+            reason="read-surface catalog payload failed schema validation",
+            context={"path": str(_READ_SURFACE_CATALOG_PATH), "error": str(exc)},
+        ) from exc
+
+    catalog_path = _READ_SURFACE_CATALOG_PATH.resolve()
+    artifact_refs_by_id = {
+        artifact_ref.artifact_ref_id: artifact_ref for artifact_ref in catalog.artifact_refs
+    }
+    entries_by_core_ir_id = {entry.core_ir_artifact_id: entry for entry in catalog.entries}
+
+    artifact_payloads_by_id: dict[str, dict[str, Any]] = {}
+    artifact_ids_by_schema_source_hash_lists: dict[tuple[str, str], list[str]] = {}
+    for artifact_ref in catalog.artifact_refs:
+        resolved_path = _resolve_read_surface_artifact_path(
+            catalog_path=catalog_path,
+            artifact_path=artifact_ref.path,
+        )
+        payload = _read_surface_artifact_payload(
+            path=resolved_path,
+            artifact_ref_id=artifact_ref.artifact_ref_id,
+        )
+        payload_schema = payload.get("schema")
+        if payload_schema != artifact_ref.schema:
+            raise _read_surface_catalog_error(
+                code=_READ_SURFACE_PAYLOAD_INVALID_CODE,
+                reason="read-surface artifact payload schema mismatch",
+                context={
+                    "artifact_ref_id": artifact_ref.artifact_ref_id,
+                    "path": str(resolved_path),
+                    "declared_schema": artifact_ref.schema,
+                    "payload_schema": payload_schema,
+                },
+            )
+        normalized_payload = _validate_read_surface_payload_for_schema(
+            schema=artifact_ref.schema,
+            payload=payload,
+            artifact_ref_id=artifact_ref.artifact_ref_id,
+            path=resolved_path,
+        )
+        artifact_payloads_by_id[artifact_ref.artifact_ref_id] = normalized_payload
+        source_text_hash = str(normalized_payload["source_text_hash"])
+        key = (artifact_ref.schema, source_text_hash)
+        artifact_ids_by_schema_source_hash_lists.setdefault(key, []).append(
+            artifact_ref.artifact_ref_id
+        )
+
+    for entry in catalog.entries:
+        core_payload = artifact_payloads_by_id[entry.core_ir_artifact_id]
+        core_source_text_hash = core_payload.get("source_text_hash")
+        if core_source_text_hash != entry.source_text_hash:
+            raise _read_surface_catalog_error(
+                code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+                reason="read-surface catalog entry source_text_hash mismatch",
+                context={
+                    "core_ir_artifact_id": entry.core_ir_artifact_id,
+                    "catalog_source_text_hash": entry.source_text_hash,
+                    "payload_source_text_hash": core_source_text_hash,
+                },
+            )
+        core_ref = artifact_refs_by_id[entry.core_ir_artifact_id]
+        if core_ref.schema != _ADEU_CORE_IR_SCHEMA:
+            raise _read_surface_catalog_error(
+                code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+                reason="read-surface catalog core_ir_artifact_id must point to adeu_core_ir@0.1",
+                context={
+                    "core_ir_artifact_id": entry.core_ir_artifact_id,
+                    "schema": core_ref.schema,
+                },
+            )
+        for schema, artifact_ref_id in entry.parent_links.items():
+            linked_payload = artifact_payloads_by_id[artifact_ref_id]
+            linked_source_text_hash = linked_payload.get("source_text_hash")
+            if linked_source_text_hash != entry.source_text_hash:
+                raise _read_surface_catalog_error(
+                    code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+                    reason="read-surface parent-link source_text_hash mismatch",
+                    context={
+                        "core_ir_artifact_id": entry.core_ir_artifact_id,
+                        "source_schema": _ADEU_CORE_IR_SCHEMA,
+                        "linked_schema": schema,
+                        "linked_artifact_ref_id": artifact_ref_id,
+                        "catalog_source_text_hash": entry.source_text_hash,
+                        "linked_source_text_hash": linked_source_text_hash,
+                    },
+                )
+
+    artifact_ids_by_schema_source_hash = {
+        key: tuple(value) for key, value in artifact_ids_by_schema_source_hash_lists.items()
+    }
+    return _ReadSurfaceCatalogIndex(
+        catalog_path=catalog_path,
+        artifact_refs_by_id=artifact_refs_by_id,
+        artifact_payloads_by_id=artifact_payloads_by_id,
+        entries_by_core_ir_id=entries_by_core_ir_id,
+        artifact_ids_by_schema_source_hash=artifact_ids_by_schema_source_hash,
+    )
+
+
+def _read_surface_catalog_index_or_http() -> _ReadSurfaceCatalogIndex:
+    try:
+        return _read_surface_catalog_index()
+    except _ReadSurfaceCatalogError as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=_read_surface_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+
+def _read_surface_core_entry_or_http(
+    *,
+    index: _ReadSurfaceCatalogIndex,
+    artifact_id: str,
+) -> ReadSurfaceCatalogEntry:
+    entry = index.entries_by_core_ir_id.get(artifact_id)
+    if entry is None:
+        raise HTTPException(
+            status_code=404,
+            detail=_read_surface_error_detail(
+                code=_READ_SURFACE_ARTIFACT_NOT_FOUND_CODE,
+                reason="core-ir artifact id not found in read-surface catalog",
+                context={"artifact_id": artifact_id},
+            ),
+        )
+    return entry
+
+
+def _resolve_read_surface_ref_for_schema_or_http(
+    *,
+    index: _ReadSurfaceCatalogIndex,
+    artifact_id: str,
+    entry: ReadSurfaceCatalogEntry,
+    target_schema: str,
+    family: str | None = None,
+) -> ReadSurfaceCatalogArtifactRef:
+    parent_ref_id = entry.parent_links.get(target_schema)
+    if parent_ref_id is not None:
+        parent_ref = index.artifact_refs_by_id[parent_ref_id]
+        if parent_ref.schema != target_schema:
+            raise HTTPException(
+                status_code=500,
+                detail=_read_surface_error_detail(
+                    code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+                    reason="parent_links schema mismatch in read-surface catalog",
+                    context={
+                        "artifact_id": artifact_id,
+                        "family": family,
+                        "schema": target_schema,
+                        "parent_ref_id": parent_ref_id,
+                        "parent_ref_schema": parent_ref.schema,
+                    },
+                ),
+            )
+        return parent_ref
+
+    core_payload = index.artifact_payloads_by_id[entry.core_ir_artifact_id]
+    source_text_hash = str(core_payload["source_text_hash"])
+    candidate_ref_ids = index.artifact_ids_by_schema_source_hash.get(
+        (target_schema, source_text_hash),
+        (),
+    )
+    if len(candidate_ref_ids) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail=_read_surface_error_detail(
+                code=_READ_SURFACE_ARTIFACT_NOT_FOUND_CODE,
+                reason="read-surface artifact not found for source_text_hash fallback lookup",
+                context={
+                    "artifact_id": artifact_id,
+                    "family": family,
+                    "schema": target_schema,
+                    "source_text_hash": source_text_hash,
+                },
+            ),
+        )
+    if len(candidate_ref_ids) > 1:
+        raise HTTPException(
+            status_code=400,
+            detail=_read_surface_error_detail(
+                code=_READ_SURFACE_REQUEST_INVALID_CODE,
+                reason="read-surface fallback lookup is ambiguous",
+                context={
+                    "artifact_id": artifact_id,
+                    "family": family,
+                    "schema": target_schema,
+                    "source_text_hash": source_text_hash,
+                    "candidate_ref_ids": list(candidate_ref_ids),
+                },
+            ),
+        )
+    return index.artifact_refs_by_id[candidate_ref_ids[0]]
+
+
+def _set_read_surface_cache_header(response: Response) -> None:
+    response.headers["Cache-Control"] = _READ_SURFACE_CACHE_CONTROL
 
 
 class ConceptAlignRequest(BaseModel):
@@ -5607,6 +6197,122 @@ def concepts_semantic_depth_endpoint(
         explain_diff_ref=req.explain_diff_ref,
         coherence_summary=req.coherence_summary,
         nonsemantic_fields=req.nonsemantic_fields,
+    )
+
+
+@app.get(
+    "/urm/core-ir/artifacts/{artifact_id}",
+    response_model=ReadSurfaceCoreIRResponse,
+)
+def get_urm_core_ir_artifact_endpoint(
+    artifact_id: str,
+    response: Response,
+) -> ReadSurfaceCoreIRResponse:
+    index = _read_surface_catalog_index_or_http()
+    entry = _read_surface_core_entry_or_http(index=index, artifact_id=artifact_id)
+    core_ref = index.artifact_refs_by_id[entry.core_ir_artifact_id]
+    core_payload = index.artifact_payloads_by_id[core_ref.artifact_ref_id]
+    _set_read_surface_cache_header(response)
+    return ReadSurfaceCoreIRResponse(
+        artifact_id=artifact_id,
+        schema=core_ref.schema,
+        created_at=entry.created_at,
+        core_ir=core_payload,
+    )
+
+
+@app.get(
+    "/urm/core-ir/artifacts/{artifact_id}/lane-projection",
+    response_model=ReadSurfaceLaneProjectionResponse,
+)
+def get_urm_core_ir_lane_projection_endpoint(
+    artifact_id: str,
+    response: Response,
+) -> ReadSurfaceLaneProjectionResponse:
+    index = _read_surface_catalog_index_or_http()
+    entry = _read_surface_core_entry_or_http(index=index, artifact_id=artifact_id)
+    lane_projection_ref = _resolve_read_surface_ref_for_schema_or_http(
+        index=index,
+        artifact_id=artifact_id,
+        entry=entry,
+        target_schema=_ADEU_LANE_PROJECTION_SCHEMA,
+    )
+    lane_projection_payload = index.artifact_payloads_by_id[lane_projection_ref.artifact_ref_id]
+    _set_read_surface_cache_header(response)
+    return ReadSurfaceLaneProjectionResponse(
+        artifact_id=artifact_id,
+        schema=lane_projection_ref.schema,
+        created_at=entry.created_at,
+        lane_projection=lane_projection_payload,
+    )
+
+
+@app.get(
+    "/urm/core-ir/artifacts/{artifact_id}/lane-report",
+    response_model=ReadSurfaceLaneReportResponse,
+)
+def get_urm_core_ir_lane_report_endpoint(
+    artifact_id: str,
+    response: Response,
+) -> ReadSurfaceLaneReportResponse:
+    index = _read_surface_catalog_index_or_http()
+    entry = _read_surface_core_entry_or_http(index=index, artifact_id=artifact_id)
+    lane_report_ref = _resolve_read_surface_ref_for_schema_or_http(
+        index=index,
+        artifact_id=artifact_id,
+        entry=entry,
+        target_schema=_ADEU_LANE_REPORT_SCHEMA,
+    )
+    lane_report_payload = index.artifact_payloads_by_id[lane_report_ref.artifact_ref_id]
+    _set_read_surface_cache_header(response)
+    return ReadSurfaceLaneReportResponse(
+        artifact_id=artifact_id,
+        schema=lane_report_ref.schema,
+        created_at=entry.created_at,
+        lane_report=lane_report_payload,
+    )
+
+
+@app.get(
+    "/urm/core-ir/artifacts/{artifact_id}/integrity/{family}",
+    response_model=ReadSurfaceIntegrityResponse,
+)
+def get_urm_core_ir_integrity_endpoint(
+    artifact_id: str,
+    family: str,
+    response: Response,
+) -> ReadSurfaceIntegrityResponse:
+    target_schema = _READ_SURFACE_INTEGRITY_FAMILY_TO_SCHEMA.get(family)
+    if target_schema is None:
+        raise HTTPException(
+            status_code=400,
+            detail=_read_surface_error_detail(
+                code=_READ_SURFACE_REQUEST_INVALID_CODE,
+                reason="unsupported integrity family for read-surface endpoint",
+                context={
+                    "artifact_id": artifact_id,
+                    "family": family,
+                    "supported_families": sorted(_READ_SURFACE_INTEGRITY_FAMILY_TO_SCHEMA),
+                },
+            ),
+        )
+
+    index = _read_surface_catalog_index_or_http()
+    entry = _read_surface_core_entry_or_http(index=index, artifact_id=artifact_id)
+    integrity_ref = _resolve_read_surface_ref_for_schema_or_http(
+        index=index,
+        artifact_id=artifact_id,
+        entry=entry,
+        target_schema=target_schema,
+        family=family,
+    )
+    integrity_payload = index.artifact_payloads_by_id[integrity_ref.artifact_ref_id]
+    _set_read_surface_cache_header(response)
+    return ReadSurfaceIntegrityResponse(
+        artifact_id=artifact_id,
+        schema=integrity_ref.schema,
+        created_at=entry.created_at,
+        integrity_artifact=integrity_payload,
     )
 
 
