@@ -275,7 +275,7 @@ def _collect_cycles(
     cycle_map: dict[
         tuple[IntegrityCyclePolicyExtendedKind, str], AdeuIntegrityCyclePolicyExtendedCycle
     ],
-) -> list[AdeuIntegrityCyclePolicyExtendedCycle]:
+) -> None:
     def _walk(
         start_node_id: str,
         current_node_id: str,
@@ -305,7 +305,6 @@ def _collect_cycles(
 
     for start_node_id in sorted(adjacency):
         _walk(start_node_id, start_node_id, [start_node_id], [], {start_node_id})
-    return sorted(cycle_map.values(), key=_cycle_sort_key)
 
 
 def build_integrity_cycle_policy_extended_diagnostics(
