@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: draft lock implemented on `main`; closeout evidence is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS17.md`.
 
 Decision basis:
 
@@ -19,6 +19,19 @@ Decision basis:
   - deterministic extended cycle-policy diagnostics second
   - deterministic extended deontic conflict diagnostics third
   - manifest-driven closeout metrics and stop-gate fourth
+
+Closeout note (February 22, 2026 UTC):
+
+- `E1`-`E4` merged on `main` with green CI.
+- v17 deterministic thresholds are satisfied:
+  - `artifact_reference_integrity_extended_determinism_pct = 100.0`
+  - `artifact_cycle_policy_extended_determinism_pct = 100.0`
+  - `artifact_deontic_conflict_extended_determinism_pct = 100.0`
+- v16 continuity thresholds remain satisfied:
+  - `artifact_dangling_reference_determinism_pct = 100.0`
+  - `artifact_cycle_policy_determinism_pct = 100.0`
+  - `artifact_deontic_conflict_determinism_pct = 100.0`
+- deterministic transfer-report evidence is published in `docs/INTEGRITY_TRANSFER_REPORT_vNEXT_PLUS17.md`.
 
 ## Global Locks
 

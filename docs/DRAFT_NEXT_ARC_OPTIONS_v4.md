@@ -7,14 +7,15 @@ This document consolidates the four independent v4 planning drafts:
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_opus.md`
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_gemini.md`
 
-Status: active planning draft (not frozen).
-Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for `vNext+17+`.
+Status: active planning draft (v17 baseline executed; still active for `vNext+18+` selection).
+Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+17` sequencing.
 
 ## Baseline Agreement (Shared Across Drafts)
 
 All four drafts converge on these baseline points:
 
 - `vNext+16` (`D1`-`D4`) is complete and green.
+- `vNext+17` Path S1 (`E1`-`E4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS17.md`).
 - Determinism/manifest/stop-gate closeout discipline is now mature and must carry forward.
 - Next work should remain additive-first and explicitly locked.
 - Provider parity maintenance remains a fallback path, not the default next arc.
