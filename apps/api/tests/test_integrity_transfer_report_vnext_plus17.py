@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 import pytest
+import adeu_api.integrity_transfer_report_vnext_plus17 as vnext_plus17_transfer_report
 from adeu_api.integrity_transfer_report_vnext_plus17 import (
     INTEGRITY_TRANSFER_REPORT_VNEXT_PLUS17_SCHEMA,
     IntegrityTransferReportError,
@@ -222,3 +223,11 @@ def test_integrity_transfer_report_rejects_deontic_summary_mismatch(
         build_integrity_transfer_report_vnext_plus17_payload(
             vnext_plus17_manifest_path=manifest_path,
         )
+
+
+def test_vnext_plus17_transfer_report_uses_runtime_shared_helpers() -> None:
+    source = Path(vnext_plus17_transfer_report.__file__).read_text(encoding="utf-8")
+    assert "from urm_runtime.integrity_transfer_report_shared import (" in source
+    assert "def _resolve_ref(" not in source
+    assert "def _build_coverage_summary(" not in source
+    assert "def _build_replay_summary(" not in source

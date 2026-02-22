@@ -6,9 +6,13 @@ from pathlib import Path
 from typing import Any
 
 from urm_runtime.hashing import canonical_json
+from urm_runtime.integrity_transfer_report_shared import (
+    _build_transfer_report_coverage_summary,
+    _build_transfer_report_replay_summary,
+    _resolve_transfer_report_ref,
+)
 from urm_runtime.stop_gate_tools import (
     _load_vnext_plus17_manifest_payload,
-    _resolve_manifest_relative_path,
     _validated_adeu_integrity_cycle_policy_extended_payload,
     _validated_adeu_integrity_deontic_conflict_extended_payload,
     _validated_adeu_integrity_reference_integrity_extended_payload,
@@ -38,42 +42,6 @@ def _as_integrity_transfer_report_error(exc: ValueError) -> IntegrityTransferRep
     return IntegrityTransferReportError(str(exc))
 
 
-def _resolve_ref(*, manifest_path: Path, raw_ref: str) -> Path:
-    try:
-        return _resolve_manifest_relative_path(
-            manifest_path=manifest_path,
-            raw_path=raw_ref,
-        )
-    except ValueError as exc:
-        raise _as_integrity_transfer_report_error(exc) from exc
-
-
-def _build_coverage_summary(*, manifest_coverage_entries: list[dict[str, Any]]) -> dict[str, Any]:
-    entries = [
-        {
-            "surface_id": str(entry["surface_id"]),
-            "fixture_ids": list(entry["fixture_ids"]),
-            "valid": True,
-            **({"notes": entry["notes"]} if "notes" in entry else {}),
-        }
-        for entry in sorted(manifest_coverage_entries, key=lambda item: str(item["surface_id"]))
-    ]
-    surface_count = len(_FROZEN_INTEGRITY_EXTENDED_SURFACES)
-    covered_surface_count = len(entries)
-    coverage_pct = (
-        round((100.0 * covered_surface_count) / float(surface_count), 6)
-        if surface_count > 0
-        else 0.0
-    )
-    return {
-        "valid": covered_surface_count == surface_count,
-        "surface_count": surface_count,
-        "covered_surface_count": covered_surface_count,
-        "coverage_pct": coverage_pct,
-        "entries": entries,
-    }
-
-
 def _build_integrity_family_summary(
     *,
     manifest_path: Path,
@@ -91,10 +59,13 @@ def _build_integrity_family_summary(
     for fixture in fixtures:
         for run in fixture["runs"]:
             run_count += 1
-            artifact_path = _resolve_ref(
-                manifest_path=manifest_path,
-                raw_ref=str(run[run_ref_key]),
-            )
+            try:
+                artifact_path = _resolve_transfer_report_ref(
+                    manifest_path=manifest_path,
+                    raw_ref=str(run[run_ref_key]),
+                )
+            except ValueError as exc:
+                raise _as_integrity_transfer_report_error(exc) from exc
             try:
                 payload = validate_payload(artifact_path)
             except ValueError as exc:
@@ -193,35 +164,6 @@ def _build_deontic_conflict_extended_summary(
     )
 
 
-def _build_replay_summary(
-    *,
-    replay_count: int,
-    reference_integrity_extended_fixtures: list[dict[str, Any]],
-    cycle_policy_extended_fixtures: list[dict[str, Any]],
-    deontic_conflict_extended_fixtures: list[dict[str, Any]],
-) -> dict[str, Any]:
-    return {
-        "valid": True,
-        "replay_count": replay_count,
-        "fixture_counts": {
-            "reference_integrity_extended": len(reference_integrity_extended_fixtures),
-            "cycle_policy_extended": len(cycle_policy_extended_fixtures),
-            "deontic_conflict_extended": len(deontic_conflict_extended_fixtures),
-        },
-        "replay_unit_counts": {
-            "reference_integrity_extended": sum(
-                len(fixture["runs"]) for fixture in reference_integrity_extended_fixtures
-            ),
-            "cycle_policy_extended": sum(
-                len(fixture["runs"]) for fixture in cycle_policy_extended_fixtures
-            ),
-            "deontic_conflict_extended": sum(
-                len(fixture["runs"]) for fixture in deontic_conflict_extended_fixtures
-            ),
-        },
-    }
-
-
 def build_integrity_transfer_report_vnext_plus17_payload(
     *,
     vnext_plus17_manifest_path: Path,
@@ -244,8 +186,9 @@ def build_integrity_transfer_report_vnext_plus17_payload(
     return {
         "schema": INTEGRITY_TRANSFER_REPORT_VNEXT_PLUS17_SCHEMA,
         "vnext_plus17_manifest_hash": manifest_hash,
-        "coverage_summary": _build_coverage_summary(
+        "coverage_summary": _build_transfer_report_coverage_summary(
             manifest_coverage_entries=manifest_payload["coverage"],
+            frozen_surface_ids=_FROZEN_INTEGRITY_EXTENDED_SURFACES,
         ),
         "reference_integrity_extended_summary": _build_reference_integrity_extended_summary(
             manifest_path=vnext_plus17_manifest_path,
@@ -259,11 +202,13 @@ def build_integrity_transfer_report_vnext_plus17_payload(
             manifest_path=vnext_plus17_manifest_path,
             fixtures=deontic_conflict_extended_fixtures,
         ),
-        "replay_summary": _build_replay_summary(
+        "replay_summary": _build_transfer_report_replay_summary(
             replay_count=replay_count,
-            reference_integrity_extended_fixtures=reference_integrity_extended_fixtures,
-            cycle_policy_extended_fixtures=cycle_policy_extended_fixtures,
-            deontic_conflict_extended_fixtures=deontic_conflict_extended_fixtures,
+            fixture_families={
+                "reference_integrity_extended": reference_integrity_extended_fixtures,
+                "cycle_policy_extended": cycle_policy_extended_fixtures,
+                "deontic_conflict_extended": deontic_conflict_extended_fixtures,
+            },
         ),
     }
 
