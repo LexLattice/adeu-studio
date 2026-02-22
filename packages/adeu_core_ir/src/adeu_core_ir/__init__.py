@@ -6,6 +6,13 @@ from .integrity_cycle_policy import (
     build_integrity_cycle_policy_diagnostics,
     canonicalize_integrity_cycle_policy_payload,
 )
+from .integrity_cycle_policy_extended import (
+    AdeuIntegrityCyclePolicyExtended,
+    AdeuIntegrityCyclePolicyExtendedCycle,
+    AdeuIntegrityCyclePolicyExtendedSummary,
+    build_integrity_cycle_policy_extended_diagnostics,
+    canonicalize_integrity_cycle_policy_extended_payload,
+)
 from .integrity_dangling_reference import (
     AdeuIntegrityDanglingReference,
     AdeuIntegrityDanglingReferenceIssue,
@@ -90,6 +97,11 @@ __all__ = [
     "AdeuIntegrityCyclePolicySummary",
     "build_integrity_cycle_policy_diagnostics",
     "canonicalize_integrity_cycle_policy_payload",
+    "AdeuIntegrityCyclePolicyExtended",
+    "AdeuIntegrityCyclePolicyExtendedCycle",
+    "AdeuIntegrityCyclePolicyExtendedSummary",
+    "build_integrity_cycle_policy_extended_diagnostics",
+    "canonicalize_integrity_cycle_policy_extended_payload",
     "AdeuIntegrityDeonticConflict",
     "AdeuIntegrityDeonticConflictEntry",
     "AdeuIntegrityDeonticConflictSummary",
