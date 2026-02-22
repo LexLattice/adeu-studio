@@ -695,23 +695,22 @@ def _rewrite_manifest_relative_run_paths(
                     run[run_key] = str((fixture_manifest_root / artifact_path).resolve())
 
 
-def _write_vnext_plus16_manifest_payload(
+def _write_manifest_payload_with_rewritten_runs(
     *,
     tmp_path: Path,
     payload: dict[str, object],
-    filename: str = "vnext_plus16_manifest.json",
+    filename: str,
+    manifest_label: str,
+    fixture_manifest_root: Path,
+    fixture_specs: tuple[tuple[str, tuple[str, ...]], ...],
 ) -> Path:
     normalized_payload = json.loads(json.dumps(payload))
     if not isinstance(normalized_payload, dict):
-        raise AssertionError("vnext+16 manifest payload must be an object")
+        raise AssertionError(f"{manifest_label} manifest payload must be an object")
     _rewrite_manifest_relative_run_paths(
         normalized_payload=normalized_payload,
-        fixture_manifest_root=_vnext_plus16_manifest_path().parent,
-        fixture_specs=(
-            ("dangling_reference_fixtures", ("dangling_reference_path",)),
-            ("cycle_policy_fixtures", ("cycle_policy_path",)),
-            ("deontic_conflict_fixtures", ("deontic_conflict_path",)),
-        ),
+        fixture_manifest_root=fixture_manifest_root,
+        fixture_specs=fixture_specs,
     )
     normalized_payload.pop("manifest_hash", None)
     normalized_payload["manifest_hash"] = sha256_canonical_json(normalized_payload)
@@ -720,17 +719,37 @@ def _write_vnext_plus16_manifest_payload(
     return manifest_path
 
 
+def _write_vnext_plus16_manifest_payload(
+    *,
+    tmp_path: Path,
+    payload: dict[str, object],
+    filename: str = "vnext_plus16_manifest.json",
+) -> Path:
+    return _write_manifest_payload_with_rewritten_runs(
+        tmp_path=tmp_path,
+        payload=payload,
+        filename=filename,
+        manifest_label="vnext+16",
+        fixture_manifest_root=_vnext_plus16_manifest_path().parent,
+        fixture_specs=(
+            ("dangling_reference_fixtures", ("dangling_reference_path",)),
+            ("cycle_policy_fixtures", ("cycle_policy_path",)),
+            ("deontic_conflict_fixtures", ("deontic_conflict_path",)),
+        ),
+    )
+
+
 def _write_vnext_plus17_manifest_payload(
     *,
     tmp_path: Path,
     payload: dict[str, object],
     filename: str = "vnext_plus17_manifest.json",
 ) -> Path:
-    normalized_payload = json.loads(json.dumps(payload))
-    if not isinstance(normalized_payload, dict):
-        raise AssertionError("vnext+17 manifest payload must be an object")
-    _rewrite_manifest_relative_run_paths(
-        normalized_payload=normalized_payload,
+    return _write_manifest_payload_with_rewritten_runs(
+        tmp_path=tmp_path,
+        payload=payload,
+        filename=filename,
+        manifest_label="vnext+17",
         fixture_manifest_root=_vnext_plus17_manifest_path().parent,
         fixture_specs=(
             (
@@ -741,11 +760,6 @@ def _write_vnext_plus17_manifest_payload(
             ("deontic_conflict_extended_fixtures", ("deontic_conflict_extended_path",)),
         ),
     )
-    normalized_payload.pop("manifest_hash", None)
-    normalized_payload["manifest_hash"] = sha256_canonical_json(normalized_payload)
-    manifest_path = tmp_path / filename
-    _write_json(manifest_path, normalized_payload)
-    return manifest_path
 
 
 def _write_vnext_plus18_manifest_payload(
@@ -754,11 +768,11 @@ def _write_vnext_plus18_manifest_payload(
     payload: dict[str, object],
     filename: str = "vnext_plus18_manifest.json",
 ) -> Path:
-    normalized_payload = json.loads(json.dumps(payload))
-    if not isinstance(normalized_payload, dict):
-        raise AssertionError("vnext+18 manifest payload must be an object")
-    _rewrite_manifest_relative_run_paths(
-        normalized_payload=normalized_payload,
+    return _write_manifest_payload_with_rewritten_runs(
+        tmp_path=tmp_path,
+        payload=payload,
+        filename=filename,
+        manifest_label="vnext+18",
         fixture_manifest_root=_vnext_plus18_manifest_path().parent,
         fixture_specs=(
             ("validation_parity_fixtures", ("baseline_path", "candidate_path")),
@@ -766,11 +780,6 @@ def _write_vnext_plus18_manifest_payload(
             ("ci_budget_fixtures", ("report_path",)),
         ),
     )
-    normalized_payload.pop("manifest_hash", None)
-    normalized_payload["manifest_hash"] = sha256_canonical_json(normalized_payload)
-    manifest_path = tmp_path / filename
-    _write_json(manifest_path, normalized_payload)
-    return manifest_path
 
 
 def _write_vnext_plus19_manifest_payload(
@@ -779,11 +788,11 @@ def _write_vnext_plus19_manifest_payload(
     payload: dict[str, object],
     filename: str = "vnext_plus19_manifest.json",
 ) -> Path:
-    normalized_payload = json.loads(json.dumps(payload))
-    if not isinstance(normalized_payload, dict):
-        raise AssertionError("vnext+19 manifest payload must be an object")
-    _rewrite_manifest_relative_run_paths(
-        normalized_payload=normalized_payload,
+    return _write_manifest_payload_with_rewritten_runs(
+        tmp_path=tmp_path,
+        payload=payload,
+        filename=filename,
+        manifest_label="vnext+19",
         fixture_manifest_root=_vnext_plus19_manifest_path().parent,
         fixture_specs=(
             ("core_ir_read_surface_fixtures", ("core_ir_read_surface_path",)),
@@ -791,11 +800,6 @@ def _write_vnext_plus19_manifest_payload(
             ("integrity_read_surface_fixtures", ("integrity_read_surface_path",)),
         ),
     )
-    normalized_payload.pop("manifest_hash", None)
-    normalized_payload["manifest_hash"] = sha256_canonical_json(normalized_payload)
-    manifest_path = tmp_path / filename
-    _write_json(manifest_path, normalized_payload)
-    return manifest_path
 
 
 def _normalize_runtime_observability(report: dict[str, object]) -> dict[str, object]:

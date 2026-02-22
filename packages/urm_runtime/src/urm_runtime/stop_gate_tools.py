@@ -6939,69 +6939,46 @@ def _compute_vnext_plus19_metrics(
             "vnext_plus19_replay_count_total": 0,
         }
 
-    core_ir_fixtures = cast(list[dict[str, Any]], manifest["core_ir_read_surface_fixtures"])
-    lane_fixtures = cast(list[dict[str, Any]], manifest["lane_read_surface_fixtures"])
-    integrity_fixtures = cast(list[dict[str, Any]], manifest["integrity_read_surface_fixtures"])
+    surface_hash_builders: dict[str, Callable[..., Any]] = {
+        "core_ir_read_surface_fixtures": _read_surface_core_ir_fixture_hash,
+        "lane_read_surface_fixtures": _read_surface_lane_capture_fixture_hash,
+        "integrity_read_surface_fixtures": _read_surface_integrity_capture_fixture_hash,
+    }
+    surface_drift_messages = {
+        "core_ir_read_surface_fixtures": "vnext+19 core-ir read-surface diagnostic drift",
+        "lane_read_surface_fixtures": "vnext+19 lane read-surface diagnostic drift",
+        "integrity_read_surface_fixtures": "vnext+19 integrity read-surface diagnostic drift",
+    }
 
-    artifact_core_ir_read_surface_determinism_pct = _manifest_metric_pct(
-        manifest_path=resolved_manifest_path,
-        metric_name="artifact_core_ir_read_surface_determinism_pct",
-        fixtures=core_ir_fixtures,
-        replay_count=VNEXT_PLUS19_REPLAY_COUNT,
-        required_run_fields=("core_ir_read_surface_path",),
-        run_hash_builder=_read_surface_core_ir_fixture_hash,
-        issues=issues,
-        invalid_issue_code="URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
-        drift_issue_code="URM_ADEU_READ_SURFACE_DIAGNOSTIC_DRIFT",
-        drift_issue_message="vnext+19 core-ir read-surface diagnostic drift",
-    )
-    artifact_lane_read_surface_determinism_pct = _manifest_metric_pct(
-        manifest_path=resolved_manifest_path,
-        metric_name="artifact_lane_read_surface_determinism_pct",
-        fixtures=lane_fixtures,
-        replay_count=VNEXT_PLUS19_REPLAY_COUNT,
-        required_run_fields=("lane_read_surface_path",),
-        run_hash_builder=_read_surface_lane_capture_fixture_hash,
-        issues=issues,
-        invalid_issue_code="URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
-        drift_issue_code="URM_ADEU_READ_SURFACE_DIAGNOSTIC_DRIFT",
-        drift_issue_message="vnext+19 lane read-surface diagnostic drift",
-    )
-    artifact_integrity_read_surface_determinism_pct = _manifest_metric_pct(
-        manifest_path=resolved_manifest_path,
-        metric_name="artifact_integrity_read_surface_determinism_pct",
-        fixtures=integrity_fixtures,
-        replay_count=VNEXT_PLUS19_REPLAY_COUNT,
-        required_run_fields=("integrity_read_surface_path",),
-        run_hash_builder=_read_surface_integrity_capture_fixture_hash,
-        issues=issues,
-        invalid_issue_code="URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
-        drift_issue_code="URM_ADEU_READ_SURFACE_DIAGNOSTIC_DRIFT",
-        drift_issue_message="vnext+19 integrity read-surface diagnostic drift",
-    )
+    metric_values: dict[str, float] = {}
+    fixture_groups: list[list[dict[str, Any]]] = []
+    for fixture_key, metric_name, _surface_id, required_run_fields in (
+        _VNEXT_PLUS19_READ_SURFACE_SPECS
+    ):
+        fixtures = cast(list[dict[str, Any]], manifest[fixture_key])
+        fixture_groups.append(fixtures)
+        metric_values[metric_name] = _manifest_metric_pct(
+            manifest_path=resolved_manifest_path,
+            metric_name=metric_name,
+            fixtures=fixtures,
+            replay_count=VNEXT_PLUS19_REPLAY_COUNT,
+            required_run_fields=required_run_fields,
+            run_hash_builder=surface_hash_builders[fixture_key],
+            issues=issues,
+            invalid_issue_code="URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
+            drift_issue_code="URM_ADEU_READ_SURFACE_DIAGNOSTIC_DRIFT",
+            drift_issue_message=surface_drift_messages[fixture_key],
+        )
 
-    fixture_count_total = (
-        len(core_ir_fixtures) + len(lane_fixtures) + len(integrity_fixtures)
-    )
+    fixture_count_total = sum(len(fixtures) for fixtures in fixture_groups)
     replay_count_total = sum(
         len(cast(list[Any], fixture.get("runs", [])))
-        for fixture in (
-            *core_ir_fixtures,
-            *lane_fixtures,
-            *integrity_fixtures,
-        )
+        for fixtures in fixture_groups
+        for fixture in fixtures
     )
 
     return {
-        "artifact_core_ir_read_surface_determinism_pct": (
-            artifact_core_ir_read_surface_determinism_pct
-        ),
-        "artifact_lane_read_surface_determinism_pct": (
-            artifact_lane_read_surface_determinism_pct
-        ),
-        "artifact_integrity_read_surface_determinism_pct": (
-            artifact_integrity_read_surface_determinism_pct
-        ),
+        **metric_values,
         "vnext_plus19_manifest_hash": manifest_hash,
         "vnext_plus19_fixture_count_total": fixture_count_total,
         "vnext_plus19_replay_count_total": replay_count_total,
