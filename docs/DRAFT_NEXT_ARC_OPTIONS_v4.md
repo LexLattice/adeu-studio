@@ -1,186 +1,414 @@
-# Draft Next Arc Options v4 (Post vNext+16 Planning)
+# Draft Next Arc Options v4 (Cross-Draft Consolidation)
 
-This document is the continuation-planning draft after:
+This document consolidates the four independent v4 planning drafts:
 
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS16.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS16.md`
-- `docs/INTEGRITY_TRANSFER_REPORT_vNEXT_PLUS16.md`
-- `docs/SEMANTICS_v3.md`
-- `docs/LOCKED_INSTRUCTION_KERNEL_v0.md`
+- `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_codex.md`
+- `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_gpt.md`
+- `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_opus.md`
+- `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_gemini.md`
 
-Status: draft only (not frozen).
-Goal: define post-`vNext+16` options and identify the concrete first slice for `vNext+17`.
+Status: active planning draft (not frozen).
+Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for `vNext+17+`.
 
-## Consolidation Note
+## Baseline Agreement (Shared Across Drafts)
 
-For post-`vNext+16` planning, this file is the working source of truth.
-`docs/DRAFT_NEXT_ARC_OPTIONS_v3.md` remains historical planning context only.
+All four drafts converge on these baseline points:
 
-## Baseline Snapshot (Post vNext+16)
+- `vNext+16` (`D1`-`D4`) is complete and green.
+- Determinism/manifest/stop-gate closeout discipline is now mature and must carry forward.
+- Next work should remain additive-first and explicitly locked.
+- Provider parity maintenance remains a fallback path, not the default next arc.
+- S9 is treated as an operational fallback mode that may preempt planned arcs when
+  parity thresholds regress.
 
-Current baseline includes:
+## Consolidated Path Families
 
-- `vNext+16` (`D1`-`D4`) complete and merged on `main`:
-  - deterministic dangling-reference diagnostics (`adeu_integrity_dangling_reference@0.1`)
-  - deterministic dependency-cycle policy diagnostics (`adeu_integrity_cycle_policy@0.1`)
-  - deterministic minimal deontic conflict diagnostics (`adeu_integrity_deontic_conflict@0.1`)
-  - deterministic v16 manifest-driven coverage + transfer report + stop-gate closeout metrics
-- v16 closeout is green:
-  - `valid=true`
-  - `all_passed=true`
-  - `artifact_dangling_reference_determinism_pct=100.0`
-  - `artifact_cycle_policy_determinism_pct=100.0`
-  - `artifact_deontic_conflict_determinism_pct=100.0`
-- integrity transfer report is stable and valid:
-  - `schema=integrity_transfer_report.vnext_plus16@1`
-  - `coverage_summary.valid=true`, `coverage_pct=100.0`
-  - `replay_summary.valid=true`, `replay_count=3`
-- prior arc guarantees remain green:
-  - all stop-gate tracked `vNext+6` through `vNext+15` metrics remain at threshold
-  - `vNext+12` through `vNext+15` closeout evidence remains reproducible
+The four drafts collectively define nine high-level path families.
+This section preserves all of them in one normalized option set.
 
-Net: the first integrity thin slice is complete and stable; next planning should choose between integrity-semantic expansion and targeted operational consolidation.
-
-## Repo-Grounded Clarifications
-
-1. Integrity diagnostics are currently evidence-first and non-authoritative.
-   - no solver-semantics mutation is permitted by the `vNext+16` lock.
-2. D1 scope is intentionally narrow today.
-   - structural missing node/endpoint checks are in scope; artifact-reference integrity was deferred.
-3. D2 scope is intentionally narrow today.
-   - cycle checks are constrained to `E`-layer `depends_on` edges.
-4. D3 scope is intentionally minimal today.
-   - only `{obligatory, forbidden}` direct conflicts are included.
-   - `permitted` modality interaction and `excepts`/`priority` suppression are deferred.
-5. Stop-gate breadth is now substantial.
-   - current closeout output includes `55` metrics and `36` gate booleans (`artifacts/stop_gate/metrics_v16_closeout.json`).
-6. There is known duplicated validation logic in v16 reporting/metrics paths.
-   - tracked in `docs/FUTURE_CLEANUPS.md` for possible shared-module extraction.
-
-## Shared Locks For Any Next Arc
-
-- No solver semantic contract changes unless explicitly versioned and locked.
-- `docs/SEMANTICS_v3.md` remains authoritative unless a versioned follow-on lock says otherwise.
-- Trust lanes remain explicit and separate (`mapping_trust`, `solver_trust`, `proof_trust`).
-- New behavior is additive-only unless explicitly marked breaking.
-- Replay determinism is mandatory for acceptance paths.
-- Runtime behavior must emit evidence events in `urm-events@1`.
-- New `/urm/...` endpoints must be idempotent via `client_request_id`.
-- Deterministic claims must be grounded to persisted artifacts/hashes only.
-- Stop-gate schema continuity remains additive on `stop_gate_metrics@1` unless explicitly re-locked.
-
-## Path 9b: Integrity Semantics Expansion (Recommended for vNext+17)
+## Path S1: Integrity Diagnostics Expansion (Follow-On)
 
 ### Goal
 
-Expand integrity diagnostics beyond the minimal v16 surface while preserving evidence-first, deterministic behavior.
+Deepen the v16 integrity diagnostics along deferred edges while preserving evidence-first behavior.
 
-### Scope
+### Source Convergence
 
-1. Extend reference-integrity checks beyond node/edge endpoint structure.
-2. Extend cycle policy coverage to include additional integrity-relevant graph surfaces (for example D-lane policy/exception cycles) with explicit deterministic boundaries.
-3. Expand deontic conflict diagnostics to include deferred conflict cases (`permitted` interactions and deterministic `excepts`/`priority` evidence handling).
-4. Additive fixture coverage accounting, transfer-report evidence updates, and stop-gate closeout metrics.
+- `v4_codex`: Path `9b`
+- `v4_gemini`: Path `11a` (normative-resolution follow-on)
+- `v4_opus`: partial overlap (cycle/deontic expansion ideas appear in clarifications/risks)
 
-### Locks
+### Typical Scope
 
-- Integrity diagnostics remain evidence artifacts only (non-authoritative).
-- Existing v16 schemas/metrics remain accepted and unchanged; any expansion is additive.
-- Deterministic issue/conflict ordering, identity semantics, and replay hashing are frozen before implementation.
-- Expanded diagnostics remain fail-closed on malformed fixtures and candidate-volume caps.
+1. Extend reference-integrity checks beyond D1 structural endpoint checks.
+2. Extend cycle policy scope beyond current D2 E-layer `depends_on` boundary where justified.
+   If D-layer cycle checks are added, they must freeze a separate taxonomy for
+   `dependency_loop` vs `exception_loop` and may not reuse E-layer cycle semantics by default.
+3. Expand deontic conflict scope beyond current D3 `{obligatory, forbidden}` minimum.
+4. Keep outputs additive and deterministic with explicit identity/ordering/cap locks.
 
-### Acceptance
+### Acceptance Shape
 
-- Locked expansion fixtures produce schema-valid deterministic outputs with replay-stable hashes.
-- New additive v17 stop-gate metrics pass frozen thresholds.
-- All existing tracked metrics remain at threshold.
+- new integrity expansion fixtures are deterministic under replay
+- additive v17 integrity metrics pass at `100.0`
+- no solver semantics contract delta
+- lock diagnostic-vs-validation boundary explicitly:
+  - expanded checks are diagnostics over persisted/raw payloads and do not change canonical
+    `adeu_core_ir@0.1` fail-closed validation behavior.
+  - non-empty diagnostic fixtures must include intentional validator-bypass payloads when a
+    check overlaps existing hard validators.
 
-### Risk
-
-- Expansion of diagnostic taxonomies can drift without tight identity/normalization locks.
-
-## Path 10a: Integrity Tooling Consolidation + CI Budget Hardening
-
-### Goal
-
-Reduce maintenance drift and CI/runtime pressure before further integrity semantic expansion.
-
-### Scope
-
-1. Extract shared v16 manifest/artifact validation logic into runtime-owned helper modules.
-2. Add deterministic stop-gate runtime/budget visibility for regression detection.
-3. Evaluate integrity schema-family consolidation strategy (`3 schemas` vs unified discriminator family) without breaking current contracts.
-4. Normalize deterministic runtime-entrypoint environment enforcement (`TZ=UTC`, `LC_ALL=C`) through shared helpers.
-
-### Acceptance
-
-- Refactors are behavior-preserving and deterministic hashes remain unchanged on locked fixtures.
-- CI/runtime budget reporting is reproducible and actionable.
-- No gate or schema regressions are introduced.
-
-### Risk
-
-- Low feature visibility; high maintainability payoff.
-
-## Path 8b: Provider Maintenance (Fallback)
+## Path S2: Extraction Fidelity Completion (v15 Deferred Diagnostics)
 
 ### Goal
 
-Reserve a constrained fallback slice if provider parity regressions appear during v17 planning or execution.
+Close deferred projection-alignment fidelity gaps from v15 (span/label/score diagnostics).
+
+### Source Convergence
+
+- `v4_gemini`: Path `10a`
+- partial relation to `v4_codex`/`v4_opus` via quality/coherence themes
+
+### Typical Scope
+
+1. Add deterministic `span_mismatch`, `label_text_mismatch`, and bounded score diagnostics.
+2. Keep diagnostics non-authoritative evidence-only.
+3. Preserve existing alignment determinism contracts and thresholds.
+
+### Acceptance Shape
+
+- alignment fixtures expose deterministic drift taxonomy
+- alignment determinism metric remains `100.0`
+
+## Path S3: Product Surface Activation (Core-IR API/Rendering/Proposer)
+
+### Goal
+
+Turn the now-stable core-ir/integrity pipeline into an explicit product-visible surface.
+
+### Source Convergence
+
+- `v4_gpt`: Option A (core-ir proposer thin slice), Option B (quality report)
+- `v4_opus`: Path `10` (core-ir rendering + API exposure)
+
+### S3a: Product Surface Read-Only (Thin Slice)
+
+#### Typical Scope
+
+1. Read-only API exposure of persisted core-ir/lane/integrity artifacts.
+2. Deterministic render payload builders for product consumption (JSON-first, UI-agnostic).
+3. Optional minimal web rendering over persisted read payloads only.
+4. If layout/grouping becomes contract-relevant, freeze a deterministic layout schema/version
+   instead of leaving ordering to ad hoc frontend heuristics.
+5. Minimal-form lock: S3a may ship as read-only endpoints + render-payload JSON only;
+   web UI is optional and only if it does not require adding a new frontend build-system
+   dependency.
+
+#### Acceptance Shape
+
+- API/CLI/UI parity over persisted artifacts
+- deterministic render payload replay stability
+- no mutation semantics on read surfaces
+
+### S3b: Core-IR Proposer Activation (Separate Thin Slice)
+
+#### Typical Scope
+
+1. Activate a core-ir proposer surface with explicit provider boundaries.
+2. Ensure outputs include core-ir + lane + integrity evidence artifacts.
+3. Keep proposer nondeterminism isolated behind persisted artifact determinism boundaries.
+
+#### Acceptance Shape
+
+- proposer contract validity and replay determinism metrics are green on locked fixtures
+- no regression to existing proposer/provider parity contracts
+- explicit provider continuity release is approved in the lock doc before implementation
+  (S3b expands proposer surface sets and cannot rely on vNext+14 continuity lock unchanged)
+
+## Path S4: Cross-IR Coherence Bridge (Concept IR ↔ Core-IR)
+
+### Goal
+
+Add deterministic diagnostics and reporting for alignment between concept-level and core-ir representations.
+
+### Source Convergence
+
+- `v4_opus`: Path `11`
+- related motivation in `v4_gpt` Option B
+
+### Typical Scope
+
+1. Freeze deterministic mapping/projection from concept structures to core-ir structures.
+2. Emit deterministic coherence issue taxonomy.
+3. Extend quality reporting/dashboard with cross-IR coherence signals.
+4. Freeze asymmetric bridge behavior for unmappable entities (drop, roll-up, or placeholder)
+   so Concept IR-only and Core-IR-only structures do not create nondeterministic drift.
+
+### Acceptance Shape
+
+- coherence diagnostics replay determinism `100.0`
+- additive reporting without mutating canonical artifacts
+
+## Path S5: Tooling Consolidation + CI Budget Sustainability
+
+### Goal
+
+Reduce maintenance drift and execution cost as metric/schema surface area grows.
+
+### Source Convergence
+
+- `v4_codex`: Path `10a`
+- `v4_opus`: Path `12`
+- ties directly to `docs/FUTURE_CLEANUPS.md`
+
+### Typical Scope
+
+1. Extract shared manifest/artifact validation modules.
+2. Add deterministic CI/runtime budget observability and bounded optimization.
+3. Evaluate schema-family consolidation strategy with compatibility constraints.
+4. Preserve behavior while reducing duplication and operational drag.
+
+### Acceptance Shape
+
+- behavior-preserving refactors (no hash/contract regressions)
+- deterministic budget reporting
+- all existing gates remain green
+- migration determinism checks prove exact historical hash parity for locked v14-v16 fixtures
+- stop-gate runtime budget ceiling is explicitly frozen (for example full closeout under a
+  bounded wall-clock target in CI)
+
+## Path S6: Normative Advice Layer (Evidence-Only Policy Guidance)
+
+### Goal
+
+Derive deterministic non-authoritative gating/advice from integrity + lane outputs without solver mutation.
+
+### Source Convergence
+
+- `v4_gpt`: Option C
+
+### Typical Scope
+
+1. Define additive advice artifact family and frozen ruleset version.
+2. Bind advice to existing evidence refs, with mandatory `justification_refs` to D/E evidence.
+3. Keep advisory output explicitly non-enforcing.
+
+### Acceptance Shape
+
+- deterministic advice replay and rule coverage
+- no trust-lane/solver-lane semantics mutation
+- advice generation contract explicitly depends on mature D3/S1 evidence outputs
+
+## Path S7: Proof/Trust Lane Starter
+
+### Goal
+
+Begin proving key deterministic invariants as explicit trust-lane evidence.
+
+### Source Convergence
+
+- `v4_gpt`: Option D
+
+### Typical Scope
+
+1. Select a narrow invariant set (canonicalization, replay invariants, ledger recompute).
+2. Emit deterministic proof evidence packets for persisted checks.
+3. Keep scope narrow and additive.
+4. Distinguish solver-obligation proofs from infrastructure-invariant checks explicitly
+   (the latter may use deterministic property-test evidence rather than Lean obligations).
+
+### Acceptance Shape
+
+- locked invariant set checked reproducibly
+- proof evidence replay stability
+
+## Path S8: Solver Semantics v4 Expansion (Future Heavy Arc)
+
+### Goal
+
+Introduce a new semantics generation (for example soft constraints/optimization) only behind explicit versioned locks.
+This path is explicitly out of default `vNext+17`-`vNext+20` sequencing.
+
+### Source Convergence
+
+- `v4_gemini`: Path `12a`
+
+### Typical Scope
+
+1. Draft/freeze `SEMANTICS_v4` contract.
+2. Define compatibility and migration boundaries from v3.
+3. Bind to deterministic tests/metrics.
+4. If soft constraints/objectives are introduced, freeze their mapping to U-layer constructs
+   so D-layer deontic semantics remain non-probabilistic.
+
+### Acceptance Shape
+
+- strict backward compatibility or explicit migration lock
+- new v4-specific deterministic metrics and fixtures
+
+## Path S9: Provider Parity Maintenance (Fallback)
+
+### Goal
+
+Preserve a constrained maintenance branch if parity regresses.
+
+### Source Convergence
+
+- present in `v4_codex`, `v4_opus`, and `v4_gemini` directly
+- compatible with `v4_gpt` risk framing
 
 ### Scope
 
-1. fixture/matrix drift remediation only
-2. no expansion of proposer surface set
+1. matrix/fixture drift remediation only
+2. no surface-set expansion
 3. additive tests + stop-gate evidence only
 
-### Acceptance
+## Synthesis Decision Matrix
 
-- parity closeout metrics return to frozen thresholds without broad scope expansion.
+### If priority is maximum continuity from v16 deferred work
 
-## Decision Matrix
+- choose Path S1 first (integrity diagnostics expansion)
 
-### If priority is deeper formal integrity coverage on the stabilized v16 base
+### If priority is immediate user-visible product value
 
-- Start with Path 9b.
+- choose Path S3a first (read-only product surface activation)
 
-### If priority is reducing operational drift and CI budget risk first
+### If priority is early workflow/product feedback without proposer nondeterminism
 
-- Start with Path 10a.
+- choose Path S3a first, then choose S1 or S5 based on observed usage pain points
 
-### If provider parity regresses during v17 planning/execution
+### If priority is maintainability and CI sustainability
 
-- invoke Path 8b fallback and defer broader expansion.
+- choose Path S5 first (tooling consolidation)
 
-## Recommended Arc Order (v17+)
+### If priority is conceptual coherence between IR stacks
 
-1. `vNext+17`: Path 9 follow-on thin slice (`9b`) — integrity semantics expansion + deterministic closeout
-2. `vNext+18`: Path 10 consolidation (`10a`) — shared validation/runtime budget hardening
+- choose Path S4 first (cross-IR coherence bridge)
 
-Why this order:
+### If priority is long-horizon semantics capability
 
-- v16 established a stable deterministic integrity foundation and explicit deferred edges worth formalizing next,
-- keeps integrity momentum while contracts are fresh and recently validated,
-- retains a clear fallback to provider maintenance if parity regresses.
+- defer to Path S8 only after at least one of S1/S5 lands cleanly
 
-Fallback sequencing rule:
+### If provider parity regresses below thresholds
 
-- if provider parity metrics regress below threshold during `vNext+17`, hold integrity expansion and run Path 8b maintenance first.
+- execute Path S9 fallback before any expansion path
+
+## Cross-Path Dependencies (Explicit)
+
+| Path | Depends On / Constraint |
+|---|---|
+| S1 | overlaps existing hard validators; requires explicit diagnostic-vs-validation lock and bypass fixtures for non-empty evidence |
+| S2 | can run independently; practically benefits from S1 lock clarity on issue-taxonomy naming and ordering |
+| S3a | independent of proposer matrix; read-only persisted-artifact exposure only |
+| S3b | requires explicit provider-surface lock release and provider-matrix refresh semantics |
+| S4 | strongly benefits from S3a payload surfaces and frozen asymmetric bridge-mapping contract |
+| S5 | independent and can/should precede metric growth arcs if CI budget pressure is high |
+| S6 | depends on stable D3/S1 evidence outputs and explicit evidence linkage (`justification_refs`) |
+| S7 | independent but operationally easier after S5 CI/runtime hardening |
+| S8 | depends on stable outcomes from S1/S5 and explicit semantics versioning strategy |
+| S9 | fallback path that preempts expansion paths when parity thresholds regress |
+
+## Consolidated Recommended Order (v17+)
+
+Default balanced sequence from synthesis:
+
+1. `vNext+17`: Path S1 thin slice (integrity diagnostics expansion)
+2. `vNext+18`: Path S5 thin slice (tooling consolidation + CI sustainability)
+3. `vNext+19`: Path S3a thin slice (read-only product surface activation)
+4. `vNext+20`: Path S4 thin slice (cross-IR coherence bridge)
+5. `vNext+21+`: optional S6/S7/S8 progression based on risk appetite
+
+Rationale:
+
+- S1 closes explicit deferred diagnostic edges while v16 contracts are fresh.
+- S5 controls complexity before further surface expansion.
+- S3a and S4 maximize product/system value once integrity and maintainability are stabilized.
+- S8 (solver semantics v4) remains intentionally deferred until preconditions are stronger.
+
+Alternative balanced sequence (earlier product stress-test):
+
+1. `vNext+17`: Path S3a thin slice (read-only product surface activation)
+2. `vNext+18`: Path S1 thin slice (integrity diagnostics expansion)
+3. `vNext+19`: Path S5 thin slice (tooling consolidation + CI sustainability)
+4. `vNext+20`: Path S3b or S4 based on S3a evidence and user workflow pain points
+
+Rationale for alternative:
+
+- it preserves additive/read-only safety,
+- gives earlier feedback on real payload/UX usefulness,
+- and can tighten S1 scope based on observed gaps instead of purely speculative deferred edges.
+
+Stability-first sequence (CI pressure first):
+
+1. `vNext+17`: Path S5 thin slice (tooling consolidation + CI sustainability)
+2. `vNext+18`: Path S1 thin slice (integrity diagnostics expansion)
+3. `vNext+19`: Path S3a thin slice (read-only product surface activation)
+4. `vNext+20`: Path S4 thin slice (cross-IR coherence bridge)
+
+Rationale for stability-first:
+
+- addresses metric-growth cost before adding new determinism metrics,
+- reduces migration/refactor risk before product exposure,
+- keeps expansion arcs operating on a cleaner runtime/validation base.
+
+S2 prioritization note:
+
+- S2 is intentionally not in the default top sequence; treat it as conditional and pull it
+  forward only if alignment fidelity defects are observed in active usage or audits.
+- S2 trigger definition (to be frozen before lock):
+  - trigger when projection-alignment defects exceed `>= X` mismatches per fixture replay set
+    or manual audits detect span/label drift in `>= N` reviewed cases.
+  - recommended placeholders for planning: `X=3`, `N=5` (freeze concrete values in lock doc).
 
 ## Proposed Freeze Candidate (Next Step)
 
-Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS17.md` with Path 9 follow-on thin slice (`9b`) only:
+Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS17.md` with Path S1 thin slice only:
 
 1. `E1` deterministic extended reference-integrity diagnostics
 2. `E2` deterministic extended cycle-policy diagnostics
-3. `E3` deterministic deontic conflict-rule expansion (still evidence-first)
+3. `E3` deterministic deontic conflict expansion (still evidence-first)
 4. `E4` manifest-driven coverage accountability + additive stop-gate metrics for `vNext+17 -> vNext+18`
+
+Deferred-edge lock candidate for S1 (`E1`-`E3`):
+
+- S1 deferred-edge candidate set (exhaustive for this synthesis):
+  - missing referenced node ids in node-level reference fields (not only edge endpoints),
+  - edge endpoint references that exist but violate frozen edge typing constraints,
+  - duplicate edge identity collisions (`(type, from, to)` duplicates).
+- the lock doc must select and freeze an explicit subset from this exhaustive set as the full
+  `E1`-`E3` scope; no additional deferred-edge kinds may be introduced without updating this
+  synthesis first.
+
+Metric naming rule for S1 expansion:
+
+- v16 metric keys remain unchanged and must not be reused/overwritten by expansion work.
+- additive v17 S1 metrics must use `_extended_` in key names (not `_expanded_`).
 
 Suggested measured outcomes for `vNext+17 -> vNext+18` gate:
 
-- `artifact_reference_integrity_determinism_pct == 100.0`
+- existing v16 family metrics remain present and at threshold:
+  - `artifact_dangling_reference_determinism_pct == 100.0`
+  - `artifact_cycle_policy_determinism_pct == 100.0`
+  - `artifact_deontic_conflict_determinism_pct == 100.0`
+- additive expansion metrics use explicit non-replacement naming:
+  - `artifact_reference_integrity_extended_determinism_pct == 100.0`
 - `artifact_cycle_policy_extended_determinism_pct == 100.0`
-- `artifact_deontic_conflict_expanded_determinism_pct == 100.0`
+- `artifact_deontic_conflict_extended_determinism_pct == 100.0`
 - no solver-semantics delta and no trust-lane regression
 - all existing stop-gate tracked `vNext+6` through `vNext+16` metrics remain at threshold
-- `vNext+12` through `vNext+16` closeout evidence remains green and reproducible
+- closeout evidence from prior arcs remains green and reproducible
+
+## Candidate v17 Locks (Mutually Exclusive)
+
+Candidate v17-A (default in this synthesis):
+
+- `vNext+17 = Path S1` (`E1`-`E4`) integrity diagnostics expansion.
+- choose this if the priority is tightening evidence/contracts before expanding product surfaces.
+
+Candidate v17-B (read-only product stress-test):
+
+- `vNext+17 = Path S3a` with:
+  - `R1` read-only endpoints for persisted core-ir/lane/integrity artifacts,
+  - `R2` deterministic render-payload builder + transfer-report refresh,
+  - `R3` additive stop-gate determinism metrics for read-surface payloads.
+- choose this if the priority is early product/workflow learning while keeping proposer nondeterminism out of scope.
