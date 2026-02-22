@@ -6,6 +6,8 @@ from pathlib import Path
 from urm_runtime.hashing import canonical_json
 from urm_runtime.stop_gate_tools import build_stop_gate_metrics, stop_gate_markdown
 
+_ACTIVE_MANIFEST_VERSIONS: tuple[int, ...] = (7, 8, 9, 10, 11, 13, 14, 15, 16, 17)
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -91,71 +93,23 @@ def parse_args() -> argparse.Namespace:
         ],
         help="Semantics diagnostics artifact path (repeatable)",
     )
-    parser.add_argument(
-        "--vnext-plus7-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus7_manifest.json"),
-        help="vNext+7 frozen stop-gate fixture manifest path",
-    )
-    parser.add_argument(
-        "--vnext-plus8-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus8_manifest.json"),
-        help="vNext+8 frozen stop-gate fixture manifest path",
-    )
-    parser.add_argument(
-        "--vnext-plus9-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus9_manifest.json"),
-        help="vNext+9 frozen stop-gate fixture manifest path",
-    )
-    parser.add_argument(
-        "--vnext-plus10-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus10_manifest.json"),
-        help="vNext+10 frozen stop-gate fixture manifest path",
-    )
-    parser.add_argument(
-        "--vnext-plus11-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus11_manifest.json"),
-        help="vNext+11 frozen stop-gate fixture manifest path",
-    )
-    parser.add_argument(
-        "--vnext-plus13-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus13_manifest.json"),
-        help="vNext+13 frozen stop-gate fixture manifest path",
-    )
-    parser.add_argument(
-        "--vnext-plus14-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus14_manifest.json"),
-        help="vNext+14 frozen stop-gate fixture manifest path",
-    )
-    parser.add_argument(
-        "--vnext-plus15-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus15_manifest.json"),
-        help="vNext+15 frozen stop-gate fixture manifest path",
-    )
-    parser.add_argument(
-        "--vnext-plus16-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus16_manifest.json"),
-        help="vNext+16 frozen stop-gate fixture manifest path",
-    )
-    parser.add_argument(
-        "--vnext-plus17-manifest",
-        type=Path,
-        default=Path("apps/api/fixtures/stop_gate/vnext_plus17_manifest.json"),
-        help="vNext+17 frozen stop-gate fixture manifest path",
-    )
+    for version in _ACTIVE_MANIFEST_VERSIONS:
+        parser.add_argument(
+            f"--vnext-plus{version}-manifest",
+            dest=f"vnext_plus{version}_manifest",
+            type=Path,
+            default=Path(f"apps/api/fixtures/stop_gate/vnext_plus{version}_manifest.json"),
+            help=f"vNext+{version} frozen stop-gate fixture manifest path",
+        )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    manifest_kwargs = {
+        f"vnext_plus{version}_manifest_path": getattr(args, f"vnext_plus{version}_manifest")
+        for version in _ACTIVE_MANIFEST_VERSIONS
+    }
     report = build_stop_gate_metrics(
         incident_packet_paths=list(args.incident_packet_paths),
         event_stream_paths=list(args.event_stream_paths),
@@ -164,16 +118,7 @@ def main() -> None:
         semantics_diagnostics_paths=list(args.semantics_diagnostics_paths),
         quality_current_path=args.quality_current,
         quality_baseline_path=args.quality_baseline,
-        vnext_plus7_manifest_path=args.vnext_plus7_manifest,
-        vnext_plus8_manifest_path=args.vnext_plus8_manifest,
-        vnext_plus9_manifest_path=args.vnext_plus9_manifest,
-        vnext_plus10_manifest_path=args.vnext_plus10_manifest,
-        vnext_plus11_manifest_path=args.vnext_plus11_manifest,
-        vnext_plus13_manifest_path=args.vnext_plus13_manifest,
-        vnext_plus14_manifest_path=args.vnext_plus14_manifest,
-        vnext_plus15_manifest_path=args.vnext_plus15_manifest,
-        vnext_plus16_manifest_path=args.vnext_plus16_manifest,
-        vnext_plus17_manifest_path=args.vnext_plus17_manifest,
+        **manifest_kwargs,
     )
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
     args.out_json.write_text(canonical_json(report) + "\n", encoding="utf-8")

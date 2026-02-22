@@ -5937,21 +5937,21 @@ def _runtime_observability_payload(
 def _runtime_budget_metric_pct(
     *,
     runtime_observability: Mapping[str, Any],
-    issues: list[dict[str, Any]],
-) -> float:
+) -> tuple[float, dict[str, Any] | None]:
     elapsed_ms = runtime_observability.get("elapsed_ms")
     if not isinstance(elapsed_ms, int):
-        issues.append(
+        return (
+            0.0,
             _issue(
                 "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
                 "runtime_observability elapsed_ms must be an integer",
                 context={"field": "elapsed_ms"},
-            )
+            ),
         )
-        return 0.0
     if elapsed_ms <= VNEXT_PLUS18_CI_BUDGET_CEILING_MS:
-        return 100.0
-    issues.append(
+        return 100.0, None
+    return (
+        0.0,
         _issue(
             "URM_ADEU_TOOLING_RUNTIME_BUDGET_EXCEEDED",
             "stop-gate runtime budget exceeded frozen ceiling",
@@ -5959,9 +5959,8 @@ def _runtime_budget_metric_pct(
                 "elapsed_ms": elapsed_ms,
                 "ceiling_ms": VNEXT_PLUS18_CI_BUDGET_CEILING_MS,
             },
-        )
+        ),
     )
-    return 0.0
 
 
 def build_stop_gate_metrics(
@@ -6429,10 +6428,11 @@ def build_stop_gate_metrics(
         total_replays=int(vnext_plus17_metrics["vnext_plus17_replay_count_total"]),
         runtime_started=runtime_started,
     )
-    runtime_budget_metric_pct = _runtime_budget_metric_pct(
+    runtime_budget_metric_pct, runtime_budget_issue = _runtime_budget_metric_pct(
         runtime_observability=runtime_observability,
-        issues=issues,
     )
+    if runtime_budget_issue is not None:
+        issues.append(runtime_budget_issue)
 
     metrics = {
         "policy_incident_reproducibility_pct": policy_incident_reproducibility_pct,

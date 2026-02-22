@@ -780,6 +780,16 @@ def _base_stop_gate_kwargs(
     }
 
 
+def _vnext_plus13_to_17_manifest_kwargs() -> dict[str, Path]:
+    return {
+        "vnext_plus13_manifest_path": _vnext_plus13_manifest_path(),
+        "vnext_plus14_manifest_path": _vnext_plus14_manifest_path(),
+        "vnext_plus15_manifest_path": _vnext_plus15_manifest_path(),
+        "vnext_plus16_manifest_path": _vnext_plus16_manifest_path(),
+        "vnext_plus17_manifest_path": _vnext_plus17_manifest_path(),
+    }
+
+
 def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_baseline = tmp_path / "quality_baseline.json"
@@ -930,11 +940,7 @@ def test_build_stop_gate_metrics_fails_when_runtime_budget_exceeds_ceiling(
             quality_current=quality_current,
             quality_baseline=quality_baseline,
         ),
-        vnext_plus13_manifest_path=_vnext_plus13_manifest_path(),
-        vnext_plus14_manifest_path=_vnext_plus14_manifest_path(),
-        vnext_plus15_manifest_path=_vnext_plus15_manifest_path(),
-        vnext_plus16_manifest_path=_vnext_plus16_manifest_path(),
-        vnext_plus17_manifest_path=_vnext_plus17_manifest_path(),
+        **_vnext_plus13_to_17_manifest_kwargs(),
     )
 
     assert report["valid"] is False
