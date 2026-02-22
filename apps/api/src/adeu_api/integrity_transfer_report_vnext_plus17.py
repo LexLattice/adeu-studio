@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from urm_runtime.hashing import canonical_json
 from urm_runtime.integrity_transfer_report_shared import (
     _build_transfer_report_coverage_summary,
+    _build_transfer_report_family_summary,
     _build_transfer_report_replay_summary,
-    _resolve_transfer_report_ref,
+    _make_transfer_report_error_adapter,
 )
 from urm_runtime.stop_gate_tools import (
     _load_vnext_plus17_manifest_payload,
@@ -30,58 +29,10 @@ class IntegrityTransferReportError(ValueError):
     """Raised when vNext+17 integrity transfer-report inputs are invalid."""
 
 
-def _as_integrity_transfer_report_error(exc: ValueError) -> IntegrityTransferReportError:
-    issue = exc.args[0] if exc.args else None
-    if isinstance(issue, dict):
-        code = str(issue.get("code") or "URM_ADEU_INTEGRITY_FIXTURE_INVALID")
-        message = str(issue.get("message") or "invalid vnext+17 transfer report input")
-        context = issue.get("context", {})
-        return IntegrityTransferReportError(
-            f"{code}: {message} ({canonical_json(context)})"
-        )
-    return IntegrityTransferReportError(str(exc))
-
-
-def _build_integrity_family_summary(
-    *,
-    manifest_path: Path,
-    fixtures: list[dict[str, Any]],
-    run_ref_key: str,
-    summary_total_key: str,
-    summary_kind_keys: tuple[str, ...],
-    validate_payload: Callable[[Path], dict[str, Any]],
-    total_output_key: str,
-    counts_output_key: str,
-) -> dict[str, Any]:
-    total_count = 0
-    kind_counts = {key: 0 for key in summary_kind_keys}
-    run_count = 0
-    for fixture in fixtures:
-        for run in fixture["runs"]:
-            run_count += 1
-            try:
-                artifact_path = _resolve_transfer_report_ref(
-                    manifest_path=manifest_path,
-                    raw_ref=str(run[run_ref_key]),
-                )
-            except ValueError as exc:
-                raise _as_integrity_transfer_report_error(exc) from exc
-            try:
-                payload = validate_payload(artifact_path)
-            except ValueError as exc:
-                raise _as_integrity_transfer_report_error(exc) from exc
-            summary = payload["summary"]
-            assert isinstance(summary, dict)
-            total_count += int(summary[summary_total_key])
-            for key in kind_counts:
-                kind_counts[key] += int(summary[key])
-    return {
-        "valid": True,
-        "fixture_count": len(fixtures),
-        "run_count": run_count,
-        total_output_key: total_count,
-        counts_output_key: kind_counts,
-    }
+_AS_INTEGRITY_TRANSFER_REPORT_ERROR = _make_transfer_report_error_adapter(
+    error_type=IntegrityTransferReportError,
+    default_message="invalid vnext+17 transfer report input",
+)
 
 
 def _validate_reference_integrity_extended_payload(path: Path) -> dict[str, Any]:
@@ -107,7 +58,7 @@ def _build_reference_integrity_extended_summary(
     manifest_path: Path,
     fixtures: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    return _build_integrity_family_summary(
+    return _build_transfer_report_family_summary(
         manifest_path=manifest_path,
         fixtures=fixtures,
         run_ref_key="reference_integrity_extended_path",
@@ -119,6 +70,7 @@ def _build_reference_integrity_extended_summary(
         validate_payload=_validate_reference_integrity_extended_payload,
         total_output_key="total_issues",
         counts_output_key="issue_kind_counts",
+        as_error=_AS_INTEGRITY_TRANSFER_REPORT_ERROR,
     )
 
 
@@ -127,7 +79,7 @@ def _build_cycle_policy_extended_summary(
     manifest_path: Path,
     fixtures: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    return _build_integrity_family_summary(
+    return _build_transfer_report_family_summary(
         manifest_path=manifest_path,
         fixtures=fixtures,
         run_ref_key="cycle_policy_extended_path",
@@ -141,6 +93,7 @@ def _build_cycle_policy_extended_summary(
         validate_payload=_validate_cycle_policy_extended_payload,
         total_output_key="total_cycles",
         counts_output_key="cycle_kind_counts",
+        as_error=_AS_INTEGRITY_TRANSFER_REPORT_ERROR,
     )
 
 
@@ -149,7 +102,7 @@ def _build_deontic_conflict_extended_summary(
     manifest_path: Path,
     fixtures: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    return _build_integrity_family_summary(
+    return _build_transfer_report_family_summary(
         manifest_path=manifest_path,
         fixtures=fixtures,
         run_ref_key="deontic_conflict_extended_path",
@@ -161,6 +114,7 @@ def _build_deontic_conflict_extended_summary(
         validate_payload=_validate_deontic_conflict_extended_payload,
         total_output_key="total_conflicts",
         counts_output_key="conflict_kind_counts",
+        as_error=_AS_INTEGRITY_TRANSFER_REPORT_ERROR,
     )
 
 
@@ -173,7 +127,7 @@ def build_integrity_transfer_report_vnext_plus17_payload(
             manifest_path=vnext_plus17_manifest_path
         )
     except ValueError as exc:
-        raise _as_integrity_transfer_report_error(exc) from exc
+        raise _AS_INTEGRITY_TRANSFER_REPORT_ERROR(exc) from exc
 
     reference_integrity_extended_fixtures = manifest_payload[
         "reference_integrity_extended_fixtures"

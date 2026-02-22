@@ -5,8 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
 import adeu_api.integrity_transfer_report_vnext_plus16 as vnext_plus16_transfer_report
+import pytest
 from adeu_api.integrity_transfer_report_vnext_plus16 import (
     INTEGRITY_TRANSFER_REPORT_VNEXT_PLUS16_SCHEMA,
     IntegrityTransferReportError,
