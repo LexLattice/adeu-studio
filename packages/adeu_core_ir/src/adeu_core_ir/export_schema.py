@@ -8,6 +8,9 @@ from adeu_ir.repo import repo_root
 from .integrity_cycle_policy import AdeuIntegrityCyclePolicy
 from .integrity_dangling_reference import AdeuIntegrityDanglingReference
 from .integrity_deontic_conflict import AdeuIntegrityDeonticConflict
+from .integrity_reference_integrity_extended import (
+    AdeuIntegrityReferenceIntegrityExtended,
+)
 from .lane_report import AdeuLaneReport
 from .models import AdeuCoreIR
 from .projection_alignment import AdeuProjectionAlignment
@@ -28,6 +31,9 @@ def main() -> None:
     )
     integrity_dangling_reference_schema = (
         AdeuIntegrityDanglingReference.model_json_schema(by_alias=True)
+    )
+    integrity_reference_integrity_extended_schema = (
+        AdeuIntegrityReferenceIntegrityExtended.model_json_schema(by_alias=True)
     )
     projection_alignment_schema = AdeuProjectionAlignment.model_json_schema(by_alias=True)
 
@@ -71,6 +77,18 @@ def main() -> None:
         integrity_dangling_reference_schema,
     )
 
+    integrity_reference_integrity_extended_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "adeu_integrity_reference_integrity_extended.v0_1.json"
+    )
+    _write_schema(
+        integrity_reference_integrity_extended_authoritative_path,
+        integrity_reference_integrity_extended_schema,
+    )
+
     projection_alignment_authoritative_path = (
         root / "packages" / "adeu_core_ir" / "schema" / "adeu_projection_alignment.v0_1.json"
     )
@@ -102,6 +120,14 @@ def main() -> None:
     _write_schema(
         integrity_dangling_reference_mirror_path,
         integrity_dangling_reference_schema,
+    )
+
+    integrity_reference_integrity_extended_mirror_path = (
+        root / "spec" / "adeu_integrity_reference_integrity_extended.schema.json"
+    )
+    _write_schema(
+        integrity_reference_integrity_extended_mirror_path,
+        integrity_reference_integrity_extended_schema,
     )
 
     projection_alignment_mirror_path = root / "spec" / "adeu_projection_alignment.schema.json"

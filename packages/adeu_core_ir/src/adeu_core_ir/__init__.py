@@ -20,6 +20,13 @@ from .integrity_deontic_conflict import (
     build_integrity_deontic_conflict_diagnostics,
     canonicalize_integrity_deontic_conflict_payload,
 )
+from .integrity_reference_integrity_extended import (
+    AdeuIntegrityReferenceIntegrityExtended,
+    AdeuIntegrityReferenceIntegrityExtendedIssue,
+    AdeuIntegrityReferenceIntegrityExtendedSummary,
+    build_integrity_reference_integrity_extended_diagnostics,
+    canonicalize_integrity_reference_integrity_extended_payload,
+)
 from .lane_report import (
     CANONICAL_LANE_ORDER,
     AdeuLaneReport,
@@ -93,6 +100,11 @@ __all__ = [
     "AdeuIntegrityDanglingReferenceSummary",
     "build_integrity_dangling_reference_diagnostics",
     "canonicalize_integrity_dangling_reference_payload",
+    "AdeuIntegrityReferenceIntegrityExtended",
+    "AdeuIntegrityReferenceIntegrityExtendedIssue",
+    "AdeuIntegrityReferenceIntegrityExtendedSummary",
+    "build_integrity_reference_integrity_extended_diagnostics",
+    "canonicalize_integrity_reference_integrity_extended_payload",
     "AdeuLaneReport",
     "build_lane_report",
     "canonicalize_lane_report_payload",
