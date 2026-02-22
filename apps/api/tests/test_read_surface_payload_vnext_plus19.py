@@ -14,7 +14,11 @@ from adeu_core_ir import FROZEN_READ_SURFACE_INTEGRITY_FAMILIES
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    current_path = Path(__file__).resolve()
+    for parent in current_path.parents:
+        if (parent / ".git").exists():
+            return parent
+    raise FileNotFoundError("Repository root not found")
 
 
 @pytest.fixture(autouse=True)

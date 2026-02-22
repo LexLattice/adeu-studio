@@ -90,6 +90,7 @@ from .read_surface_payload import (
     AdeuReadSurfacePayload,
     AdeuReadSurfaceRenderSummary,
     canonicalize_read_surface_payload,
+    integrity_issue_count,
 )
 
 __all__ = [
@@ -162,6 +163,7 @@ __all__ = [
     "FROZEN_READ_SURFACE_INTEGRITY_FAMILIES",
     "MISSING_INTEGRITY_ARTIFACT_REASON",
     "canonicalize_read_surface_payload",
+    "integrity_issue_count",
 ]
 
 __version__ = "0.0.0"

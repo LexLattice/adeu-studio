@@ -36,7 +36,7 @@ def _validate_lane_key_order(*, field_name: str, value: dict[Layer, Any]) -> Non
         )
 
 
-def _integrity_issue_count(payload: dict[str, Any] | None) -> int:
+def integrity_issue_count(payload: dict[str, Any] | None) -> int:
     if payload is None:
         return 0
     summary = payload.get("summary")
@@ -251,7 +251,7 @@ class AdeuReadSurfacePayload(BaseModel):
             raise ValueError("render_summary.lane_projection_edge_count mismatch")
 
         expected_issue_counts = {
-            family: _integrity_issue_count(self.integrity[family].artifact)
+            family: integrity_issue_count(self.integrity[family].artifact)
             for family in FROZEN_READ_SURFACE_INTEGRITY_FAMILIES
         }
         if self.render_summary.integrity_issue_counts != expected_issue_counts:

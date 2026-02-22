@@ -11,6 +11,7 @@ from adeu_core_ir import (
     MISSING_INTEGRITY_ARTIFACT_REASON,
     AdeuReadSurfacePayload,
     canonicalize_read_surface_payload,
+    integrity_issue_count,
 )
 from fastapi import HTTPException, Response
 
@@ -61,22 +62,6 @@ def _as_read_surface_payload_error(
     )
 
 
-def _integrity_issue_count(payload: dict[str, Any] | None) -> int:
-    if payload is None:
-        return 0
-    summary = payload.get("summary")
-    if isinstance(summary, dict):
-        for key in ("total_issues", "total_cycles", "total_conflicts"):
-            value = summary.get(key)
-            if isinstance(value, int) and value >= 0:
-                return value
-    for key in ("issues", "cycles", "conflicts"):
-        value = payload.get(key)
-        if isinstance(value, list):
-            return len(value)
-    return 0
-
-
 def _build_integrity_payload(
     *,
     artifact_id: str,
@@ -119,7 +104,7 @@ def _build_render_summary(
         lane: int(lane_report["lane_edge_counts"][lane]) for lane in _CANONICAL_LANES
     }
     integrity_issue_counts = {
-        family: _integrity_issue_count(integrity_payload_by_family[family])
+        family: integrity_issue_count(integrity_payload_by_family[family])
         for family in FROZEN_READ_SURFACE_INTEGRITY_FAMILIES
     }
     present_integrity_count = sum(
@@ -150,56 +135,26 @@ def _extract_integrity_refs_for_node(
     if artifact is None:
         return []
     refs: list[dict[str, str]] = []
-    issues = artifact.get("issues")
-    if isinstance(issues, list):
-        for issue in issues:
-            if not isinstance(issue, dict):
+    for items, default_kind, id_fields in (
+        (artifact.get("issues"), "issue", ("subject_id", "related_id")),
+        (artifact.get("conflicts"), "conflict", ("primary_id", "related_id")),
+    ):
+        if not isinstance(items, list):
+            continue
+        for item in items:
+            if not isinstance(item, dict):
                 continue
-            kind = str(issue.get("kind", "issue"))
-            subject_id = issue.get("subject_id")
-            related_id = issue.get("related_id")
-            if subject_id == node_id:
+            kind = str(item.get("kind", default_kind))
+            for role in id_fields:
+                reference_id = item.get(role)
+                if reference_id != node_id:
+                    continue
                 refs.append(
                     {
                         "family": family,
                         "kind": kind,
-                        "role": "subject_id",
-                        "reference_id": str(subject_id),
-                    }
-                )
-            if related_id == node_id:
-                refs.append(
-                    {
-                        "family": family,
-                        "kind": kind,
-                        "role": "related_id",
-                        "reference_id": str(related_id),
-                    }
-                )
-    conflicts = artifact.get("conflicts")
-    if isinstance(conflicts, list):
-        for conflict in conflicts:
-            if not isinstance(conflict, dict):
-                continue
-            kind = str(conflict.get("kind", "conflict"))
-            primary_id = conflict.get("primary_id")
-            related_id = conflict.get("related_id")
-            if primary_id == node_id:
-                refs.append(
-                    {
-                        "family": family,
-                        "kind": kind,
-                        "role": "primary_id",
-                        "reference_id": str(primary_id),
-                    }
-                )
-            if related_id == node_id:
-                refs.append(
-                    {
-                        "family": family,
-                        "kind": kind,
-                        "role": "related_id",
-                        "reference_id": str(related_id),
+                        "role": role,
+                        "reference_id": str(reference_id),
                     }
                 )
     cycles = artifact.get("cycles")
