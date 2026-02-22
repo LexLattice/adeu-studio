@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "AdeuIntegrityDeonticConflictExtendedEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Details"
+        },
+        "kind": {
+          "enum": [
+            "deontic_conflict",
+            "deontic_tension"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "primary_id": {
+          "title": "Primary Id",
+          "type": "string"
+        },
+        "related_id": {
+          "default": "",
+          "title": "Related Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "primary_id"
+      ],
+      "title": "AdeuIntegrityDeonticConflictExtendedEntry",
+      "type": "object"
+    },
+    "AdeuIntegrityDeonticConflictExtendedSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "deontic_conflict": {
+          "title": "Deontic Conflict",
+          "type": "integer"
+        },
+        "deontic_tension": {
+          "title": "Deontic Tension",
+          "type": "integer"
+        },
+        "total_conflicts": {
+          "title": "Total Conflicts",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_conflicts",
+        "deontic_conflict",
+        "deontic_tension"
+      ],
+      "title": "AdeuIntegrityDeonticConflictExtendedSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "conflicts": {
+      "items": {
+        "$ref": "#/$defs/AdeuIntegrityDeonticConflictExtendedEntry"
+      },
+      "title": "Conflicts",
+      "type": "array"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metadata"
+    },
+    "schema": {
+      "const": "adeu_integrity_deontic_conflict_extended@0.1",
+      "default": "adeu_integrity_deontic_conflict_extended@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "title": "Source Text Hash",
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/$defs/AdeuIntegrityDeonticConflictExtendedSummary"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "summary"
+  ],
+  "title": "AdeuIntegrityDeonticConflictExtended",
+  "type": "object"
+}
