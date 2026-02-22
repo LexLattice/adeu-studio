@@ -7,8 +7,8 @@ This document consolidates the four independent v4 planning drafts:
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_opus.md`
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_gemini.md`
 
-Status: active planning draft (v17 baseline executed; still active for `vNext+18+` selection).
-Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+17` sequencing.
+Status: active planning draft (v17 and v18 baselines executed; still active for `vNext+19+` selection).
+Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+18` sequencing.
 
 ## Baseline Agreement (Shared Across Drafts)
 
@@ -16,6 +16,7 @@ All four drafts converge on these baseline points:
 
 - `vNext+16` (`D1`-`D4`) is complete and green.
 - `vNext+17` Path S1 (`E1`-`E4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS17.md`).
+- `vNext+18` Path S5 (`F1`-`F4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS18.md`).
 - Determinism/manifest/stop-gate closeout discipline is now mature and must carry forward.
 - Next work should remain additive-first and explicitly locked.
 - Provider parity maintenance remains a fallback path, not the default next arc.
@@ -359,9 +360,26 @@ S2 prioritization note:
 - S2 trigger definition (to be frozen before lock):
   - trigger when projection-alignment defects exceed `>= X` mismatches per fixture replay set
     or manual audits detect span/label drift in `>= N` reviewed cases.
-  - recommended placeholders for planning: `X=3`, `N=5` (freeze concrete values in lock doc).
+- recommended placeholders for planning: `X=3`, `N=5` (freeze concrete values in lock doc).
+
+Execution checkpoint (current state):
+
+- completed:
+  - `vNext+17 = S1` (closed out)
+  - `vNext+18 = S5` (closed out)
+- active default next selection:
+  - `vNext+19 = S3a` (read-only product surface activation)
 
 ## Proposed Freeze Candidate (Next Step)
+
+Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS19.md` with Path S3a thin slice only:
+
+1. `R1` read-only endpoints for persisted core-ir/lane/integrity artifacts
+2. `R2` deterministic render-payload builder (JSON-first, UI-agnostic) + transfer-report refresh
+3. `R3` additive stop-gate determinism metrics for read-surface payload stability
+4. `R4` explicit no-mutation and no-provider-expansion lock continuity for `vNext+19 -> vNext+20`
+
+## Historical Freeze Candidate (v17 Reference)
 
 Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS17.md` with Path S1 thin slice only:
 
