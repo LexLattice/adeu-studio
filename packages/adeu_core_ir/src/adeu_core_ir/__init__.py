@@ -78,6 +78,19 @@ from .projection_alignment import (
     build_projection_alignment,
     canonicalize_projection_alignment_payload,
 )
+from .read_surface_payload import (
+    FROZEN_READ_SURFACE_INTEGRITY_FAMILIES,
+    MISSING_INTEGRITY_ARTIFACT_REASON,
+    AdeuLaneProjection,
+    AdeuLaneProjectionEdge,
+    AdeuReadSurfaceCorrelationIntegrityRef,
+    AdeuReadSurfaceCorrelationLaneRef,
+    AdeuReadSurfaceIntegrityFamilyArtifact,
+    AdeuReadSurfaceNodeCorrelation,
+    AdeuReadSurfacePayload,
+    AdeuReadSurfaceRenderSummary,
+    canonicalize_read_surface_payload,
+)
 
 __all__ = [
     "AdeuCoreIR",
@@ -138,6 +151,17 @@ __all__ = [
     "AdeuProjectionAlignmentSummary",
     "build_projection_alignment",
     "canonicalize_projection_alignment_payload",
+    "AdeuLaneProjection",
+    "AdeuLaneProjectionEdge",
+    "AdeuReadSurfacePayload",
+    "AdeuReadSurfaceRenderSummary",
+    "AdeuReadSurfaceIntegrityFamilyArtifact",
+    "AdeuReadSurfaceCorrelationLaneRef",
+    "AdeuReadSurfaceCorrelationIntegrityRef",
+    "AdeuReadSurfaceNodeCorrelation",
+    "FROZEN_READ_SURFACE_INTEGRITY_FAMILIES",
+    "MISSING_INTEGRITY_ARTIFACT_REASON",
+    "canonicalize_read_surface_payload",
 ]
 
 __version__ = "0.0.0"

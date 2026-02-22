@@ -16,6 +16,7 @@ from .integrity_reference_integrity_extended import (
 from .lane_report import AdeuLaneReport
 from .models import AdeuCoreIR
 from .projection_alignment import AdeuProjectionAlignment
+from .read_surface_payload import AdeuReadSurfacePayload
 
 
 def _write_schema(path: Path, schema: dict) -> None:
@@ -44,6 +45,7 @@ def main() -> None:
         AdeuIntegrityReferenceIntegrityExtended.model_json_schema(by_alias=True)
     )
     projection_alignment_schema = AdeuProjectionAlignment.model_json_schema(by_alias=True)
+    read_surface_payload_schema = AdeuReadSurfacePayload.model_json_schema(by_alias=True)
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
     _write_schema(authoritative_path, core_ir_schema)
@@ -126,6 +128,11 @@ def main() -> None:
     )
     _write_schema(projection_alignment_authoritative_path, projection_alignment_schema)
 
+    read_surface_payload_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "adeu_read_surface_payload.v0_1.json"
+    )
+    _write_schema(read_surface_payload_authoritative_path, read_surface_payload_schema)
+
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
 
@@ -180,6 +187,9 @@ def main() -> None:
 
     projection_alignment_mirror_path = root / "spec" / "adeu_projection_alignment.schema.json"
     _write_schema(projection_alignment_mirror_path, projection_alignment_schema)
+
+    read_surface_payload_mirror_path = root / "spec" / "adeu_read_surface_payload.schema.json"
+    _write_schema(read_surface_payload_mirror_path, read_surface_payload_schema)
 
 
 if __name__ == "__main__":
