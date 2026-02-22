@@ -6134,6 +6134,64 @@ def _tooling_transfer_report_parity_fixture_hash(
     )
 
 
+def _validate_vnext_plus18_ci_budget_report_payload(
+    *,
+    report_payload: Mapping[str, Any],
+    report_path: Path,
+    manifest_path: Path,
+    fixture_id: str,
+    issues: list[dict[str, Any]],
+) -> bool:
+    if report_payload.get("schema") != STOP_GATE_SCHEMA:
+        issues.append(
+            _issue(
+                "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
+                "vnext+18 ci-budget evidence report must use stop_gate_metrics@1 schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "fixture_id": fixture_id,
+                    "path": str(report_path),
+                    "schema": report_payload.get("schema"),
+                },
+            )
+        )
+        return False
+    runtime_observability = report_payload.get("runtime_observability")
+    if not isinstance(runtime_observability, dict):
+        issues.append(
+            _issue(
+                "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
+                "vnext+18 ci-budget evidence report missing runtime_observability object",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "fixture_id": fixture_id,
+                    "path": str(report_path),
+                },
+            )
+        )
+        return False
+    for field in ("total_fixtures", "total_replays", "elapsed_ms"):
+        value = runtime_observability.get(field)
+        if not isinstance(value, int) or value < 0:
+            issues.append(
+                _issue(
+                    "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
+                    (
+                        "vnext+18 ci-budget evidence runtime_observability fields "
+                        "must be non-negative integers"
+                    ),
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "fixture_id": fixture_id,
+                        "path": str(report_path),
+                        "field": field,
+                    },
+                )
+            )
+            return False
+    return True
+
+
 def _validate_vnext_plus18_ci_budget_evidence(
     *,
     manifest_path: Path,
@@ -6232,51 +6290,13 @@ def _validate_vnext_plus18_ci_budget_evidence(
         )
         return False
 
-    if report_payload.get("schema") != STOP_GATE_SCHEMA:
-        issues.append(
-            _issue(
-                "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
-                "vnext+18 ci-budget evidence report must use stop_gate_metrics@1 schema",
-                context={
-                    "manifest_path": str(manifest_path),
-                    "fixture_id": fixture_id,
-                    "path": str(report_path),
-                    "schema": report_payload.get("schema"),
-                },
-            )
-        )
-        return False
-    runtime_observability = report_payload.get("runtime_observability")
-    if not isinstance(runtime_observability, dict):
-        issues.append(
-            _issue(
-                "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
-                "vnext+18 ci-budget evidence report missing runtime_observability object",
-                context={
-                    "manifest_path": str(manifest_path),
-                    "fixture_id": fixture_id,
-                    "path": str(report_path),
-                },
-            )
-        )
-        return False
-    for field in ("total_fixtures", "total_replays", "elapsed_ms"):
-        value = runtime_observability.get(field)
-        if not isinstance(value, int):
-            issues.append(
-                _issue(
-                    "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
-                    "vnext+18 ci-budget evidence runtime_observability fields must be integers",
-                    context={
-                        "manifest_path": str(manifest_path),
-                        "fixture_id": fixture_id,
-                        "path": str(report_path),
-                        "field": field,
-                    },
-                )
-            )
-            return False
-    return True
+    return _validate_vnext_plus18_ci_budget_report_payload(
+        report_payload=report_payload,
+        report_path=report_path,
+        manifest_path=manifest_path,
+        fixture_id=fixture_id,
+        issues=issues,
+    )
 
 
 def _load_vnext_plus18_manifest_payload(
@@ -6381,11 +6401,12 @@ def _compute_vnext_plus18_metrics(
     )
     replay_count_total = sum(
         len(cast(list[Any], fixture.get("runs", [])))
-        for fixture in validation_parity_fixtures
-    ) + sum(
-        len(cast(list[Any], fixture.get("runs", [])))
-        for fixture in transfer_report_parity_fixtures
-    ) + sum(len(cast(list[Any], fixture.get("runs", []))) for fixture in ci_budget_fixtures)
+        for fixture in (
+            *validation_parity_fixtures,
+            *transfer_report_parity_fixtures,
+            *ci_budget_fixtures,
+        )
+    )
 
     return {
         "artifact_validation_consolidation_parity_pct": (
