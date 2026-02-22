@@ -126,6 +126,9 @@ VNEXT_PLUS17_DEFAULT_METRICS = {
     "artifact_cycle_policy_extended_determinism_pct": 0.0,
     "artifact_deontic_conflict_extended_determinism_pct": 0.0,
 }
+VNEXT_PLUS18_CI_BUDGET_CEILING_MS = 120000
+VNEXT_PLUS18_CI_BUDGET_METRIC_KEY = "artifact_stop_gate_ci_budget_within_ceiling_pct"
+VNEXT_PLUS18_CI_BUDGET_GATE_KEY = "artifact_stop_gate_ci_budget_within_ceiling"
 _FROZEN_PROVIDER_KINDS: tuple[str, ...] = ("mock", "openai", "codex")
 _FROZEN_PROVIDER_KIND_SET = frozenset(_FROZEN_PROVIDER_KINDS)
 _FROZEN_DEPTH_SURFACES: tuple[str, ...] = (
@@ -195,6 +198,7 @@ THRESHOLDS = {
     "artifact_reference_integrity_extended_determinism_pct": 100.0,
     "artifact_cycle_policy_extended_determinism_pct": 100.0,
     "artifact_deontic_conflict_extended_determinism_pct": 100.0,
+    "artifact_stop_gate_ci_budget_within_ceiling_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -5917,6 +5921,49 @@ def _failure_code_sequence(events: list[NormalizedEvent]) -> list[dict[str, str 
     return sequence
 
 
+def _runtime_observability_payload(
+    *,
+    total_fixtures: int,
+    total_replays: int,
+    runtime_started: float,
+) -> dict[str, int]:
+    return {
+        "total_fixtures": int(total_fixtures),
+        "total_replays": int(total_replays),
+        "elapsed_ms": max(0, int(round((time.monotonic() - runtime_started) * 1000.0))),
+    }
+
+
+def _runtime_budget_metric_pct(
+    *,
+    runtime_observability: Mapping[str, Any],
+    issues: list[dict[str, Any]],
+) -> float:
+    elapsed_ms = runtime_observability.get("elapsed_ms")
+    if not isinstance(elapsed_ms, int):
+        issues.append(
+            _issue(
+                "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
+                "runtime_observability elapsed_ms must be an integer",
+                context={"field": "elapsed_ms"},
+            )
+        )
+        return 0.0
+    if elapsed_ms <= VNEXT_PLUS18_CI_BUDGET_CEILING_MS:
+        return 100.0
+    issues.append(
+        _issue(
+            "URM_ADEU_TOOLING_RUNTIME_BUDGET_EXCEEDED",
+            "stop-gate runtime budget exceeded frozen ceiling",
+            context={
+                "elapsed_ms": elapsed_ms,
+                "ceiling_ms": VNEXT_PLUS18_CI_BUDGET_CEILING_MS,
+            },
+        )
+    )
+    return 0.0
+
+
 def build_stop_gate_metrics(
     *,
     incident_packet_paths: list[Path],
@@ -5988,14 +6035,11 @@ def build_stop_gate_metrics(
             "schema": STOP_GATE_SCHEMA,
             "valid": False,
             "issues": issues,
-            "runtime_observability": {
-                "total_fixtures": 0,
-                "total_replays": 0,
-                "elapsed_ms": max(
-                    0,
-                    int(round((time.monotonic() - runtime_started) * 1000.0)),
-                ),
-            },
+            "runtime_observability": _runtime_observability_payload(
+                total_fixtures=0,
+                total_replays=0,
+                runtime_started=runtime_started,
+            ),
         }
 
     if quality_current.get("dashboard_version") != QUALITY_DASHBOARD_SCHEMA:
@@ -6380,6 +6424,16 @@ def build_stop_gate_metrics(
                 )
             quality_delta_non_negative = bool(quality_checks) and all(quality_checks)
 
+    runtime_observability = _runtime_observability_payload(
+        total_fixtures=int(vnext_plus17_metrics["vnext_plus17_fixture_count_total"]),
+        total_replays=int(vnext_plus17_metrics["vnext_plus17_replay_count_total"]),
+        runtime_started=runtime_started,
+    )
+    runtime_budget_metric_pct = _runtime_budget_metric_pct(
+        runtime_observability=runtime_observability,
+        issues=issues,
+    )
+
     metrics = {
         "policy_incident_reproducibility_pct": policy_incident_reproducibility_pct,
         "child_lifecycle_replay_determinism_pct": child_lifecycle_replay_determinism_pct,
@@ -6508,6 +6562,7 @@ def build_stop_gate_metrics(
         "artifact_deontic_conflict_extended_determinism_pct": vnext_plus17_metrics[
             "artifact_deontic_conflict_extended_determinism_pct"
         ],
+        VNEXT_PLUS18_CI_BUDGET_METRIC_KEY: runtime_budget_metric_pct,
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -6611,6 +6666,10 @@ def build_stop_gate_metrics(
             "artifact_deontic_conflict_extended_determinism_pct"
         ]
         >= THRESHOLDS["artifact_deontic_conflict_extended_determinism_pct"],
+        VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
+            metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
+            >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
+        ),
         "quality_delta_non_negative": metrics["quality_delta_non_negative"]
         is THRESHOLDS["quality_delta_non_negative"],
     }
@@ -6696,14 +6755,7 @@ def build_stop_gate_metrics(
         "metrics": metrics,
         "gates": gates,
         "all_passed": all(gates.values()),
-        "runtime_observability": {
-            "total_fixtures": int(vnext_plus17_metrics["vnext_plus17_fixture_count_total"]),
-            "total_replays": int(vnext_plus17_metrics["vnext_plus17_replay_count_total"]),
-            "elapsed_ms": max(
-                0,
-                int(round((time.monotonic() - runtime_started) * 1000.0)),
-            ),
-        },
+        "runtime_observability": runtime_observability,
         "issues": sorted(
             issues,
             key=lambda issue: (
@@ -6926,6 +6978,10 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(
         "- artifact deontic-conflict extended determinism pct: "
         f"`{metrics.get('artifact_deontic_conflict_extended_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact stop-gate ci budget within ceiling pct: "
+        f"`{metrics.get('artifact_stop_gate_ci_budget_within_ceiling_pct')}`"
     )
     lines.append(
         "- quality delta non-negative: "

@@ -133,6 +133,24 @@ def parse_args() -> argparse.Namespace:
         default=Path("apps/api/fixtures/stop_gate/vnext_plus14_manifest.json"),
         help="vNext+14 frozen stop-gate fixture manifest path",
     )
+    parser.add_argument(
+        "--vnext-plus15-manifest",
+        type=Path,
+        default=Path("apps/api/fixtures/stop_gate/vnext_plus15_manifest.json"),
+        help="vNext+15 frozen stop-gate fixture manifest path",
+    )
+    parser.add_argument(
+        "--vnext-plus16-manifest",
+        type=Path,
+        default=Path("apps/api/fixtures/stop_gate/vnext_plus16_manifest.json"),
+        help="vNext+16 frozen stop-gate fixture manifest path",
+    )
+    parser.add_argument(
+        "--vnext-plus17-manifest",
+        type=Path,
+        default=Path("apps/api/fixtures/stop_gate/vnext_plus17_manifest.json"),
+        help="vNext+17 frozen stop-gate fixture manifest path",
+    )
     return parser.parse_args()
 
 
@@ -153,6 +171,9 @@ def main() -> None:
         vnext_plus11_manifest_path=args.vnext_plus11_manifest,
         vnext_plus13_manifest_path=args.vnext_plus13_manifest,
         vnext_plus14_manifest_path=args.vnext_plus14_manifest,
+        vnext_plus15_manifest_path=args.vnext_plus15_manifest,
+        vnext_plus16_manifest_path=args.vnext_plus16_manifest,
+        vnext_plus17_manifest_path=args.vnext_plus17_manifest,
     )
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
     args.out_json.write_text(canonical_json(report) + "\n", encoding="utf-8")
