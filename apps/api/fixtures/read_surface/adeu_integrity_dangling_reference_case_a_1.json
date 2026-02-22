@@ -1,0 +1,21 @@
+{
+  "schema": "adeu_integrity_dangling_reference@0.1",
+  "source_text_hash": "3d956a90a9f1433816149bcb70e300afdcca6d303bdc119cea8f0657222c32aa",
+  "summary": {
+    "total_issues": 2,
+    "missing_node_reference": 1,
+    "missing_edge_endpoint": 1
+  },
+  "issues": [
+    {
+      "kind": "missing_edge_endpoint",
+      "subject_id": "edge:about:e1->_MISSING_",
+      "related_id": "endpoint:to"
+    },
+    {
+      "kind": "missing_node_reference",
+      "subject_id": "edge:about:e1->o_missing",
+      "related_id": "o_missing"
+    }
+  ]
+}

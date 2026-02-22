@@ -205,3 +205,59 @@ def test_read_surface_lane_report_fallback_ambiguous_match_fails_closed(
         "lane.report.a",
         "lane.report.b",
     ]
+
+
+def test_read_surface_parent_link_source_hash_mismatch_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    source_hash = "3d956a90a9f1433816149bcb70e300afdcca6d303bdc119cea8f0657222c32aa"
+    core_payload = _load_json(_repo_root() / "examples/eval/stop_gate/adeu_core_ir_case_a_1.json")
+    lane_report_payload = _load_json(
+        _repo_root() / "apps/api/fixtures/read_surface/adeu_lane_report_case_a_1.json"
+    )
+    lane_report_payload["source_text_hash"] = "hash-mismatch"
+
+    catalog_path = tmp_path / "vnext_plus19_catalog.json"
+    (tmp_path / "core.json").write_text(json.dumps(core_payload), encoding="utf-8")
+    (tmp_path / "lane_report.json").write_text(json.dumps(lane_report_payload), encoding="utf-8")
+    catalog_path.write_text(
+        json.dumps(
+            {
+                "schema": "read_surface.vnext_plus19_catalog@1",
+                "artifact_refs": [
+                    {
+                        "artifact_ref_id": "core.ir",
+                        "schema": "adeu_core_ir@0.1",
+                        "path": "core.json",
+                    },
+                    {
+                        "artifact_ref_id": "lane.report",
+                        "schema": "adeu_lane_report@0.1",
+                        "path": "lane_report.json",
+                    },
+                ],
+                "entries": [
+                    {
+                        "core_ir_artifact_id": "core.ir",
+                        "source_text_hash": source_hash,
+                        "parent_links": {
+                            "adeu_lane_report@0.1": "lane.report",
+                        },
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(api_main, "_READ_SURFACE_CATALOG_PATH", catalog_path)
+    api_main._read_surface_catalog_index.cache_clear()
+
+    with pytest.raises(HTTPException) as exc_info:
+        api_main.get_urm_core_ir_artifact_endpoint(
+            artifact_id="core.ir",
+            response=Response(),
+        )
+
+    assert exc_info.value.status_code == 500
+    assert exc_info.value.detail["code"] == "URM_ADEU_READ_SURFACE_FIXTURE_INVALID"

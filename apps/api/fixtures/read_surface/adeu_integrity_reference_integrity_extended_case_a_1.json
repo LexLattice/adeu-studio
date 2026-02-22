@@ -1,0 +1,29 @@
+{
+  "schema": "adeu_integrity_reference_integrity_extended@0.1",
+  "source_text_hash": "3d956a90a9f1433816149bcb70e300afdcca6d303bdc119cea8f0657222c32aa",
+  "summary": {
+    "total_issues": 3,
+    "edge_type_constraint_violation": 2,
+    "duplicate_edge_identity": 1
+  },
+  "issues": [
+    {
+      "kind": "duplicate_edge_identity",
+      "subject_id": "edge:about:e1->o2",
+      "related_id": "duplicate_edge_identity",
+      "details": {
+        "duplicate_count": 3
+      }
+    },
+    {
+      "kind": "edge_type_constraint_violation",
+      "subject_id": "edge:about:o1->e1",
+      "related_id": "type_constraint"
+    },
+    {
+      "kind": "edge_type_constraint_violation",
+      "subject_id": "edge:depends_on:e1->o1",
+      "related_id": "type_constraint"
+    }
+  ]
+}

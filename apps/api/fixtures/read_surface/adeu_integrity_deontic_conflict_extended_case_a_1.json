@@ -1,0 +1,37 @@
+{
+  "schema": "adeu_integrity_deontic_conflict_extended@0.1",
+  "source_text_hash": "3d956a90a9f1433816149bcb70e300afdcca6d303bdc119cea8f0657222c32aa",
+  "summary": {
+    "total_conflicts": 2,
+    "deontic_conflict": 1,
+    "deontic_tension": 1
+  },
+  "conflicts": [
+    {
+      "kind": "deontic_conflict",
+      "primary_id": "d_forbidden_1",
+      "related_id": "d_obligatory_1",
+      "details": {
+        "normalized_target": "api access",
+        "normalized_condition": "",
+        "primary_modality": "forbidden",
+        "related_modality": "obligatory",
+        "primary_priority": 7,
+        "related_priority": 2
+      }
+    },
+    {
+      "kind": "deontic_tension",
+      "primary_id": "d_forbidden_1",
+      "related_id": "d_permitted_1",
+      "details": {
+        "normalized_target": "api access",
+        "normalized_condition": "",
+        "primary_modality": "forbidden",
+        "related_modality": "permitted",
+        "primary_priority": 7,
+        "related_priority": 1
+      }
+    }
+  ]
+}

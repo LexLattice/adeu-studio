@@ -1890,6 +1890,22 @@ def _read_surface_catalog_index() -> _ReadSurfaceCatalogIndex:
                     "schema": core_ref.schema,
                 },
             )
+        for schema, artifact_ref_id in entry.parent_links.items():
+            linked_payload = artifact_payloads_by_id[artifact_ref_id]
+            linked_source_text_hash = linked_payload.get("source_text_hash")
+            if linked_source_text_hash != entry.source_text_hash:
+                raise _read_surface_catalog_error(
+                    code=_READ_SURFACE_FIXTURE_INVALID_CODE,
+                    reason="read-surface parent-link source_text_hash mismatch",
+                    context={
+                        "core_ir_artifact_id": entry.core_ir_artifact_id,
+                        "source_schema": _ADEU_CORE_IR_SCHEMA,
+                        "linked_schema": schema,
+                        "linked_artifact_ref_id": artifact_ref_id,
+                        "catalog_source_text_hash": entry.source_text_hash,
+                        "linked_source_text_hash": linked_source_text_hash,
+                    },
+                )
 
     artifact_ids_by_schema_source_hash = {
         key: tuple(value) for key, value in artifact_ids_by_schema_source_hash_lists.items()

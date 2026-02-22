@@ -9,32 +9,32 @@
     {
       "artifact_ref_id": "integrity.cycle_policy.case_a_1",
       "schema": "adeu_integrity_cycle_policy@0.1",
-      "path": "../../../../examples/eval/stop_gate/adeu_integrity_cycle_policy_case_a_1.json"
+      "path": "adeu_integrity_cycle_policy_case_a_1.json"
     },
     {
       "artifact_ref_id": "integrity.cycle_policy_extended.case_a_1",
       "schema": "adeu_integrity_cycle_policy_extended@0.1",
-      "path": "../../../../examples/eval/stop_gate/adeu_integrity_cycle_policy_extended_case_a_1.json"
+      "path": "adeu_integrity_cycle_policy_extended_case_a_1.json"
     },
     {
       "artifact_ref_id": "integrity.dangling_reference.case_a_1",
       "schema": "adeu_integrity_dangling_reference@0.1",
-      "path": "../../../../examples/eval/stop_gate/adeu_integrity_dangling_reference_case_a_1.json"
+      "path": "adeu_integrity_dangling_reference_case_a_1.json"
     },
     {
       "artifact_ref_id": "integrity.deontic_conflict.case_a_1",
       "schema": "adeu_integrity_deontic_conflict@0.1",
-      "path": "../../../../examples/eval/stop_gate/adeu_integrity_deontic_conflict_case_a_1.json"
+      "path": "adeu_integrity_deontic_conflict_case_a_1.json"
     },
     {
       "artifact_ref_id": "integrity.deontic_conflict_extended.case_a_1",
       "schema": "adeu_integrity_deontic_conflict_extended@0.1",
-      "path": "../../../../examples/eval/stop_gate/adeu_integrity_deontic_conflict_extended_case_a_1.json"
+      "path": "adeu_integrity_deontic_conflict_extended_case_a_1.json"
     },
     {
       "artifact_ref_id": "integrity.reference_integrity_extended.case_a_1",
       "schema": "adeu_integrity_reference_integrity_extended@0.1",
-      "path": "../../../../examples/eval/stop_gate/adeu_integrity_reference_integrity_extended_case_a_1.json"
+      "path": "adeu_integrity_reference_integrity_extended_case_a_1.json"
     },
     {
       "artifact_ref_id": "lane_projection.case_a_1",
