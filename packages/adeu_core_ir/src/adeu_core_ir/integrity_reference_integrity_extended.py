@@ -210,12 +210,10 @@ def build_integrity_reference_integrity_extended_diagnostics(
         if has_violation:
             issue_key = ("edge_type_constraint_violation", subject_id, "type_constraint")
             if issue_key not in issue_map:
-                issue_map[issue_key] = AdeuIntegrityReferenceIntegrityExtendedIssue.model_validate(
-                    {
-                        "kind": "edge_type_constraint_violation",
-                        "subject_id": subject_id,
-                        "related_id": "type_constraint",
-                    }
+                issue_map[issue_key] = AdeuIntegrityReferenceIntegrityExtendedIssue(
+                    kind="edge_type_constraint_violation",
+                    subject_id=subject_id,
+                    related_id="type_constraint",
                 )
 
     for identity, duplicate_count in sorted(duplicate_counts.items()):
@@ -223,15 +221,11 @@ def build_integrity_reference_integrity_extended_diagnostics(
             continue
         subject_id = f"edge:{identity[0]}:{identity[1]}->{identity[2]}"
         issue_key = ("duplicate_edge_identity", subject_id, "duplicate_edge_identity")
-        issue_map[issue_key] = AdeuIntegrityReferenceIntegrityExtendedIssue.model_validate(
-            {
-                "kind": "duplicate_edge_identity",
-                "subject_id": subject_id,
-                "related_id": "duplicate_edge_identity",
-                "details": {
-                    "duplicate_count": duplicate_count,
-                },
-            }
+        issue_map[issue_key] = AdeuIntegrityReferenceIntegrityExtendedIssue(
+            kind="duplicate_edge_identity",
+            subject_id=subject_id,
+            related_id="duplicate_edge_identity",
+            details={"duplicate_count": duplicate_count},
         )
 
     sorted_issues = sorted(issue_map.values(), key=_issue_sort_key)
@@ -245,20 +239,15 @@ def build_integrity_reference_integrity_extended_diagnostics(
     for issue in sorted_issues:
         counts[issue.kind] += 1
 
-    return AdeuIntegrityReferenceIntegrityExtended.model_validate(
-        {
-            "schema": "adeu_integrity_reference_integrity_extended@0.1",
-            "source_text_hash": source_text_hash,
-            "summary": {
-                "total_issues": len(sorted_issues),
-                "edge_type_constraint_violation": counts["edge_type_constraint_violation"],
-                "duplicate_edge_identity": counts["duplicate_edge_identity"],
-            },
-            "issues": [
-                issue.model_dump(mode="json", by_alias=True, exclude_none=True)
-                for issue in sorted_issues
-            ],
-        }
+    return AdeuIntegrityReferenceIntegrityExtended(
+        schema="adeu_integrity_reference_integrity_extended@0.1",
+        source_text_hash=source_text_hash,
+        summary=AdeuIntegrityReferenceIntegrityExtendedSummary(
+            total_issues=len(sorted_issues),
+            edge_type_constraint_violation=counts["edge_type_constraint_violation"],
+            duplicate_edge_identity=counts["duplicate_edge_identity"],
+        ),
+        issues=sorted_issues,
     )
 
 
