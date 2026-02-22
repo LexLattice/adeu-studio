@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
+import urm_runtime.stop_gate_tools as stop_gate_tools_module
 from adeu_kernel import (
     build_proof_evidence_packet,
     build_semantics_diagnostics,
@@ -2479,6 +2480,14 @@ def test_build_stop_gate_metrics_rejects_vnext_plus17_all_zero_reference_integri
         for issue in report["issues"]
         if isinstance(issue, dict)
     )
+
+
+def test_stop_gate_tools_uses_shared_integrity_manifest_loader() -> None:
+    source = Path(stop_gate_tools_module.__file__).read_text(encoding="utf-8")
+    assert "def _load_integrity_manifest_payload(" in source
+    assert "def _validate_integrity_surface_fixtures(" in source
+    assert "def _validate_vnext_plus16_surface_fixtures(" not in source
+    assert "def _validate_vnext_plus17_surface_fixtures(" not in source
 
 
 def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:

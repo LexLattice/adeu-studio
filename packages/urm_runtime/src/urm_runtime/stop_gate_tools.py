@@ -5048,13 +5048,60 @@ def _compute_vnext_plus15_metrics(
     }
 
 
-def _validate_vnext_plus16_surface_fixtures(
+_IntegritySurfaceFixtureSpec = tuple[str, str, str, tuple[str, ...]]
+
+_VNEXT_PLUS16_INTEGRITY_SURFACE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "dangling_reference_fixtures",
+        "artifact_dangling_reference_determinism_pct",
+        "adeu.integrity.dangling_reference",
+        ("dangling_reference_path",),
+    ),
+    (
+        "cycle_policy_fixtures",
+        "artifact_cycle_policy_determinism_pct",
+        "adeu.integrity.cycle_policy",
+        ("cycle_policy_path",),
+    ),
+    (
+        "deontic_conflict_fixtures",
+        "artifact_deontic_conflict_determinism_pct",
+        "adeu.integrity.deontic_conflict",
+        ("deontic_conflict_path",),
+    ),
+)
+
+_VNEXT_PLUS17_INTEGRITY_SURFACE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "reference_integrity_extended_fixtures",
+        "artifact_reference_integrity_extended_determinism_pct",
+        "adeu.integrity.reference_integrity_extended",
+        ("reference_integrity_extended_path",),
+    ),
+    (
+        "cycle_policy_extended_fixtures",
+        "artifact_cycle_policy_extended_determinism_pct",
+        "adeu.integrity.cycle_policy_extended",
+        ("cycle_policy_extended_path",),
+    ),
+    (
+        "deontic_conflict_extended_fixtures",
+        "artifact_deontic_conflict_extended_determinism_pct",
+        "adeu.integrity.deontic_conflict_extended",
+        ("deontic_conflict_extended_path",),
+    ),
+)
+
+
+def _validate_integrity_surface_fixtures(
     *,
     fixtures: list[Any],
     manifest_path: Path,
     metric_name: str,
     expected_surface_id: str,
     required_run_keys: tuple[str, ...],
+    frozen_surface_set: frozenset[str],
+    surface_description: str,
 ) -> None:
     seen_fixture_ids: set[str] = set()
     for fixture_index, raw_fixture in enumerate(fixtures):
@@ -5098,11 +5145,11 @@ def _validate_vnext_plus16_surface_fixtures(
         seen_fixture_ids.add(fixture_id)
 
         surface_id = raw_fixture.get("surface_id")
-        if not isinstance(surface_id, str) or surface_id not in _FROZEN_INTEGRITY_SURFACE_SET:
+        if not isinstance(surface_id, str) or surface_id not in frozen_surface_set:
             raise ValueError(
                 _issue(
                     "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "manifest fixture surface_id must be a frozen integrity surface",
+                    f"manifest fixture surface_id must be a {surface_description}",
                     context={
                         "manifest_path": str(manifest_path),
                         "metric": metric_name,
@@ -5171,47 +5218,20 @@ def _validate_vnext_plus16_surface_fixtures(
                     )
 
 
-def _load_vnext_plus16_manifest_payload(
+def _validate_integrity_required_fixture_lists(
     *,
+    payload: dict[str, Any],
     manifest_path: Path,
-) -> tuple[dict[str, Any], str]:
-    payload = _read_json_object(manifest_path, description="vnext+16 stop-gate manifest")
-    if payload.get("schema") != VNEXT_PLUS16_MANIFEST_SCHEMA:
-        raise ValueError(
-            _issue(
-                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "vnext+16 stop-gate manifest has unsupported schema",
-                context={
-                    "manifest_path": str(manifest_path),
-                    "schema": payload.get("schema"),
-                },
-            )
-        )
-    replay_count = payload.get("replay_count")
-    if replay_count != VNEXT_PLUS16_REPLAY_COUNT:
-        raise ValueError(
-            _issue(
-                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "vnext+16 replay_count must match frozen replay count",
-                context={
-                    "manifest_path": str(manifest_path),
-                    "expected_replay_count": VNEXT_PLUS16_REPLAY_COUNT,
-                    "observed_replay_count": replay_count,
-                },
-            )
-        )
-
-    for key in (
-        "dangling_reference_fixtures",
-        "cycle_policy_fixtures",
-        "deontic_conflict_fixtures",
-    ):
+    manifest_label: str,
+    fixture_list_keys: tuple[str, ...],
+) -> None:
+    for key in fixture_list_keys:
         fixtures = payload.get(key)
         if not isinstance(fixtures, list):
             raise ValueError(
                 _issue(
                     "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "vnext+16 stop-gate manifest missing required fixture list",
+                    f"{manifest_label} stop-gate manifest missing required fixture list",
                     context={"manifest_path": str(manifest_path), "key": key},
                 )
             )
@@ -5219,39 +5239,21 @@ def _load_vnext_plus16_manifest_payload(
             raise ValueError(
                 _issue(
                     "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "vnext+16 stop-gate fixture list may not be empty",
+                    f"{manifest_label} stop-gate fixture list may not be empty",
                     context={"manifest_path": str(manifest_path), "key": key},
                 )
             )
 
-    _validate_vnext_plus16_surface_fixtures(
-        fixtures=cast(list[Any], payload["dangling_reference_fixtures"]),
-        manifest_path=manifest_path,
-        metric_name="artifact_dangling_reference_determinism_pct",
-        expected_surface_id="adeu.integrity.dangling_reference",
-        required_run_keys=("dangling_reference_path",),
-    )
-    _validate_vnext_plus16_surface_fixtures(
-        fixtures=cast(list[Any], payload["cycle_policy_fixtures"]),
-        manifest_path=manifest_path,
-        metric_name="artifact_cycle_policy_determinism_pct",
-        expected_surface_id="adeu.integrity.cycle_policy",
-        required_run_keys=("cycle_policy_path",),
-    )
-    _validate_vnext_plus16_surface_fixtures(
-        fixtures=cast(list[Any], payload["deontic_conflict_fixtures"]),
-        manifest_path=manifest_path,
-        metric_name="artifact_deontic_conflict_determinism_pct",
-        expected_surface_id="adeu.integrity.deontic_conflict",
-        required_run_keys=("deontic_conflict_path",),
-    )
 
+def _build_integrity_fixture_surface_catalog(
+    *,
+    payload: dict[str, Any],
+    manifest_path: Path,
+    manifest_label: str,
+    fixture_list_keys: tuple[str, ...],
+) -> dict[str, str]:
     fixture_surface_catalog: dict[str, str] = {}
-    for key in (
-        "dangling_reference_fixtures",
-        "cycle_policy_fixtures",
-        "deontic_conflict_fixtures",
-    ):
+    for key in fixture_list_keys:
         fixtures = cast(list[dict[str, Any]], payload[key])
         for fixture in fixtures:
             fixture_id = str(fixture["fixture_id"])
@@ -5260,7 +5262,7 @@ def _load_vnext_plus16_manifest_payload(
                 raise ValueError(
                     _issue(
                         "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                        "vnext+16 fixture_id must be unique across fixture lists",
+                        f"{manifest_label} fixture_id must be unique across fixture lists",
                         context={
                             "manifest_path": str(manifest_path),
                             "fixture_id": fixture_id,
@@ -5268,13 +5270,26 @@ def _load_vnext_plus16_manifest_payload(
                     )
                 )
             fixture_surface_catalog[fixture_id] = surface_id
+    return fixture_surface_catalog
 
+
+def _validate_integrity_coverage(
+    *,
+    payload: dict[str, Any],
+    manifest_path: Path,
+    manifest_label: str,
+    frozen_surface_set: frozenset[str],
+    frozen_surfaces: tuple[str, ...],
+    fixture_surface_catalog: dict[str, str],
+    surface_description: str,
+    surface_set_description: str,
+) -> None:
     coverage = payload.get("coverage")
     if not isinstance(coverage, list) or not coverage:
         raise ValueError(
             _issue(
                 "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "vnext+16 stop-gate manifest coverage must be a non-empty list",
+                f"{manifest_label} stop-gate manifest coverage must be a non-empty list",
                 context={"manifest_path": str(manifest_path)},
             )
         )
@@ -5289,11 +5304,11 @@ def _load_vnext_plus16_manifest_payload(
                 )
             )
         surface_id = raw_coverage.get("surface_id")
-        if not isinstance(surface_id, str) or surface_id not in _FROZEN_INTEGRITY_SURFACE_SET:
+        if not isinstance(surface_id, str) or surface_id not in frozen_surface_set:
             raise ValueError(
                 _issue(
                     "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "coverage surface_id must be a frozen integrity surface",
+                    f"coverage surface_id must be a {surface_description}",
                     context={"manifest_path": str(manifest_path), "coverage_index": coverage_index},
                 )
             )
@@ -5362,25 +5377,32 @@ def _load_vnext_plus16_manifest_payload(
                 )
         seen_coverage_surfaces.add(surface_id)
 
-    if seen_coverage_surfaces != _FROZEN_INTEGRITY_SURFACE_SET:
+    if seen_coverage_surfaces != frozen_surface_set:
         raise ValueError(
             _issue(
                 "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "coverage surface set must exactly match frozen integrity surfaces",
+                f"coverage surface set must exactly match {surface_set_description}",
                 context={
                     "manifest_path": str(manifest_path),
-                    "expected_surfaces": sorted(_FROZEN_INTEGRITY_SURFACES),
+                    "expected_surfaces": sorted(frozen_surfaces),
                     "observed_surfaces": sorted(seen_coverage_surfaces),
                 },
             )
         )
 
+
+def _recompute_integrity_manifest_hash(
+    *,
+    payload: dict[str, Any],
+    manifest_path: Path,
+    manifest_label: str,
+) -> str:
     raw_manifest_hash = payload.get("manifest_hash")
     if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
         raise ValueError(
             _issue(
                 "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "vnext+16 stop-gate manifest missing manifest_hash",
+                f"{manifest_label} stop-gate manifest missing manifest_hash",
                 context={"manifest_path": str(manifest_path)},
             )
         )
@@ -5391,7 +5413,7 @@ def _load_vnext_plus16_manifest_payload(
         raise ValueError(
             _issue(
                 "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH",
-                "vnext+16 manifest_hash mismatch",
+                f"{manifest_label} manifest_hash mismatch",
                 context={
                     "manifest_path": str(manifest_path),
                     "embedded_manifest_hash": raw_manifest_hash,
@@ -5399,7 +5421,107 @@ def _load_vnext_plus16_manifest_payload(
                 },
             )
         )
+    return recomputed_manifest_hash
+
+
+def _load_integrity_manifest_payload(
+    *,
+    manifest_path: Path,
+    manifest_label: str,
+    manifest_schema: str,
+    replay_count: int,
+    surface_specs: tuple[_IntegritySurfaceFixtureSpec, ...],
+    frozen_surface_set: frozenset[str],
+    frozen_surfaces: tuple[str, ...],
+    surface_description: str,
+    surface_set_description: str,
+) -> tuple[dict[str, Any], str]:
+    payload = _read_json_object(
+        manifest_path,
+        description=f"{manifest_label} stop-gate manifest",
+    )
+    if payload.get("schema") != manifest_schema:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                f"{manifest_label} stop-gate manifest has unsupported schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    observed_replay_count = payload.get("replay_count")
+    if observed_replay_count != replay_count:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
+                f"{manifest_label} replay_count must match frozen replay count",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "expected_replay_count": replay_count,
+                    "observed_replay_count": observed_replay_count,
+                },
+            )
+        )
+
+    fixture_list_keys = tuple(spec[0] for spec in surface_specs)
+    _validate_integrity_required_fixture_lists(
+        payload=payload,
+        manifest_path=manifest_path,
+        manifest_label=manifest_label,
+        fixture_list_keys=fixture_list_keys,
+    )
+    for list_key, metric_name, expected_surface_id, required_run_keys in surface_specs:
+        _validate_integrity_surface_fixtures(
+            fixtures=cast(list[Any], payload[list_key]),
+            manifest_path=manifest_path,
+            metric_name=metric_name,
+            expected_surface_id=expected_surface_id,
+            required_run_keys=required_run_keys,
+            frozen_surface_set=frozen_surface_set,
+            surface_description=surface_description,
+        )
+
+    fixture_surface_catalog = _build_integrity_fixture_surface_catalog(
+        payload=payload,
+        manifest_path=manifest_path,
+        manifest_label=manifest_label,
+        fixture_list_keys=fixture_list_keys,
+    )
+    _validate_integrity_coverage(
+        payload=payload,
+        manifest_path=manifest_path,
+        manifest_label=manifest_label,
+        frozen_surface_set=frozen_surface_set,
+        frozen_surfaces=frozen_surfaces,
+        fixture_surface_catalog=fixture_surface_catalog,
+        surface_description=surface_description,
+        surface_set_description=surface_set_description,
+    )
+    recomputed_manifest_hash = _recompute_integrity_manifest_hash(
+        payload=payload,
+        manifest_path=manifest_path,
+        manifest_label=manifest_label,
+    )
     return payload, recomputed_manifest_hash
+
+
+def _load_vnext_plus16_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    return _load_integrity_manifest_payload(
+        manifest_path=manifest_path,
+        manifest_label="vnext+16",
+        manifest_schema=VNEXT_PLUS16_MANIFEST_SCHEMA,
+        replay_count=VNEXT_PLUS16_REPLAY_COUNT,
+        surface_specs=_VNEXT_PLUS16_INTEGRITY_SURFACE_SPECS,
+        frozen_surface_set=_FROZEN_INTEGRITY_SURFACE_SET,
+        frozen_surfaces=_FROZEN_INTEGRITY_SURFACES,
+        surface_description="frozen integrity surface",
+        surface_set_description="frozen integrity surfaces",
+    )
 
 
 def _compute_vnext_plus16_metrics(
@@ -5553,364 +5675,21 @@ def _compute_vnext_plus16_metrics(
     }
 
 
-def _validate_vnext_plus17_surface_fixtures(
-    *,
-    fixtures: list[Any],
-    manifest_path: Path,
-    metric_name: str,
-    expected_surface_id: str,
-    required_run_keys: tuple[str, ...],
-) -> None:
-    seen_fixture_ids: set[str] = set()
-    for fixture_index, raw_fixture in enumerate(fixtures):
-        if not isinstance(raw_fixture, dict):
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "manifest fixture entry must be an object",
-                    context={
-                        "manifest_path": str(manifest_path),
-                        "metric": metric_name,
-                        "fixture_index": fixture_index,
-                    },
-                )
-            )
-        fixture_id = raw_fixture.get("fixture_id")
-        if not isinstance(fixture_id, str) or not fixture_id:
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "manifest fixture fixture_id must be a non-empty string",
-                    context={
-                        "manifest_path": str(manifest_path),
-                        "metric": metric_name,
-                        "fixture_index": fixture_index,
-                    },
-                )
-            )
-        if fixture_id in seen_fixture_ids:
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "manifest fixture fixture_id is duplicated in list",
-                    context={
-                        "manifest_path": str(manifest_path),
-                        "metric": metric_name,
-                        "fixture_id": fixture_id,
-                    },
-                )
-            )
-        seen_fixture_ids.add(fixture_id)
-
-        surface_id = raw_fixture.get("surface_id")
-        if (
-            not isinstance(surface_id, str)
-            or surface_id not in _FROZEN_INTEGRITY_EXTENDED_SURFACE_SET
-        ):
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "manifest fixture surface_id must be a frozen integrity extended surface",
-                    context={
-                        "manifest_path": str(manifest_path),
-                        "metric": metric_name,
-                        "fixture_id": fixture_id,
-                        "surface_id": surface_id,
-                    },
-                )
-            )
-        if surface_id != expected_surface_id:
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "manifest fixture surface_id does not match fixture list surface",
-                    context={
-                        "manifest_path": str(manifest_path),
-                        "metric": metric_name,
-                        "fixture_id": fixture_id,
-                        "surface_id": surface_id,
-                        "expected_surface_id": expected_surface_id,
-                    },
-                )
-            )
-
-        runs = raw_fixture.get("runs")
-        if not isinstance(runs, list):
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "manifest fixture runs must be a list",
-                    context={
-                        "manifest_path": str(manifest_path),
-                        "metric": metric_name,
-                        "fixture_id": fixture_id,
-                    },
-                )
-            )
-        for run_index, raw_run in enumerate(runs):
-            if not isinstance(raw_run, dict):
-                raise ValueError(
-                    _issue(
-                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                        "manifest run entry must be an object",
-                        context={
-                            "manifest_path": str(manifest_path),
-                            "metric": metric_name,
-                            "fixture_id": fixture_id,
-                            "run_index": run_index,
-                        },
-                    )
-                )
-            for run_key in required_run_keys:
-                run_ref = raw_run.get(run_key)
-                if not isinstance(run_ref, str) or not run_ref:
-                    raise ValueError(
-                        _issue(
-                            "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                            "manifest run missing required run-reference key",
-                            context={
-                                "manifest_path": str(manifest_path),
-                                "metric": metric_name,
-                                "fixture_id": fixture_id,
-                                "run_index": run_index,
-                                "required_run_key": run_key,
-                            },
-                        )
-                    )
-
-
 def _load_vnext_plus17_manifest_payload(
     *,
     manifest_path: Path,
 ) -> tuple[dict[str, Any], str]:
-    payload = _read_json_object(manifest_path, description="vnext+17 stop-gate manifest")
-    if payload.get("schema") != VNEXT_PLUS17_MANIFEST_SCHEMA:
-        raise ValueError(
-            _issue(
-                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "vnext+17 stop-gate manifest has unsupported schema",
-                context={
-                    "manifest_path": str(manifest_path),
-                    "schema": payload.get("schema"),
-                },
-            )
-        )
-    replay_count = payload.get("replay_count")
-    if replay_count != VNEXT_PLUS17_REPLAY_COUNT:
-        raise ValueError(
-            _issue(
-                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "vnext+17 replay_count must match frozen replay count",
-                context={
-                    "manifest_path": str(manifest_path),
-                    "expected_replay_count": VNEXT_PLUS17_REPLAY_COUNT,
-                    "observed_replay_count": replay_count,
-                },
-            )
-        )
-
-    for key in (
-        "reference_integrity_extended_fixtures",
-        "cycle_policy_extended_fixtures",
-        "deontic_conflict_extended_fixtures",
-    ):
-        fixtures = payload.get(key)
-        if not isinstance(fixtures, list):
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "vnext+17 stop-gate manifest missing required fixture list",
-                    context={"manifest_path": str(manifest_path), "key": key},
-                )
-            )
-        if not fixtures:
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "vnext+17 stop-gate fixture list may not be empty",
-                    context={"manifest_path": str(manifest_path), "key": key},
-                )
-            )
-
-    _validate_vnext_plus17_surface_fixtures(
-        fixtures=cast(list[Any], payload["reference_integrity_extended_fixtures"]),
+    return _load_integrity_manifest_payload(
         manifest_path=manifest_path,
-        metric_name="artifact_reference_integrity_extended_determinism_pct",
-        expected_surface_id="adeu.integrity.reference_integrity_extended",
-        required_run_keys=("reference_integrity_extended_path",),
+        manifest_label="vnext+17",
+        manifest_schema=VNEXT_PLUS17_MANIFEST_SCHEMA,
+        replay_count=VNEXT_PLUS17_REPLAY_COUNT,
+        surface_specs=_VNEXT_PLUS17_INTEGRITY_SURFACE_SPECS,
+        frozen_surface_set=_FROZEN_INTEGRITY_EXTENDED_SURFACE_SET,
+        frozen_surfaces=_FROZEN_INTEGRITY_EXTENDED_SURFACES,
+        surface_description="frozen integrity extended surface",
+        surface_set_description="frozen integrity extended surfaces",
     )
-    _validate_vnext_plus17_surface_fixtures(
-        fixtures=cast(list[Any], payload["cycle_policy_extended_fixtures"]),
-        manifest_path=manifest_path,
-        metric_name="artifact_cycle_policy_extended_determinism_pct",
-        expected_surface_id="adeu.integrity.cycle_policy_extended",
-        required_run_keys=("cycle_policy_extended_path",),
-    )
-    _validate_vnext_plus17_surface_fixtures(
-        fixtures=cast(list[Any], payload["deontic_conflict_extended_fixtures"]),
-        manifest_path=manifest_path,
-        metric_name="artifact_deontic_conflict_extended_determinism_pct",
-        expected_surface_id="adeu.integrity.deontic_conflict_extended",
-        required_run_keys=("deontic_conflict_extended_path",),
-    )
-
-    fixture_surface_catalog: dict[str, str] = {}
-    for key in (
-        "reference_integrity_extended_fixtures",
-        "cycle_policy_extended_fixtures",
-        "deontic_conflict_extended_fixtures",
-    ):
-        fixtures = cast(list[dict[str, Any]], payload[key])
-        for fixture in fixtures:
-            fixture_id = str(fixture["fixture_id"])
-            surface_id = str(fixture["surface_id"])
-            if fixture_id in fixture_surface_catalog:
-                raise ValueError(
-                    _issue(
-                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                        "vnext+17 fixture_id must be unique across fixture lists",
-                        context={
-                            "manifest_path": str(manifest_path),
-                            "fixture_id": fixture_id,
-                        },
-                    )
-                )
-            fixture_surface_catalog[fixture_id] = surface_id
-
-    coverage = payload.get("coverage")
-    if not isinstance(coverage, list) or not coverage:
-        raise ValueError(
-            _issue(
-                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "vnext+17 stop-gate manifest coverage must be a non-empty list",
-                context={"manifest_path": str(manifest_path)},
-            )
-        )
-    seen_coverage_surfaces: set[str] = set()
-    for coverage_index, raw_coverage in enumerate(coverage):
-        if not isinstance(raw_coverage, dict):
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "coverage entry must be an object",
-                    context={"manifest_path": str(manifest_path), "coverage_index": coverage_index},
-                )
-            )
-        surface_id = raw_coverage.get("surface_id")
-        if (
-            not isinstance(surface_id, str)
-            or surface_id not in _FROZEN_INTEGRITY_EXTENDED_SURFACE_SET
-        ):
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "coverage surface_id must be a frozen integrity extended surface",
-                    context={"manifest_path": str(manifest_path), "coverage_index": coverage_index},
-                )
-            )
-        if surface_id in seen_coverage_surfaces:
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "coverage surface_id must be unique",
-                    context={"manifest_path": str(manifest_path), "surface_id": surface_id},
-                )
-            )
-        fixture_ids = raw_coverage.get("fixture_ids")
-        if not isinstance(fixture_ids, list) or not fixture_ids:
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "coverage fixture_ids must be a non-empty list",
-                    context={"manifest_path": str(manifest_path), "surface_id": surface_id},
-                )
-            )
-        normalized_fixture_ids: list[str] = []
-        for fixture_id in fixture_ids:
-            if not isinstance(fixture_id, str) or not fixture_id:
-                raise ValueError(
-                    _issue(
-                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                        "coverage fixture_ids contains invalid fixture id",
-                        context={"manifest_path": str(manifest_path), "surface_id": surface_id},
-                    )
-                )
-            normalized_fixture_ids.append(fixture_id)
-        if len(set(normalized_fixture_ids)) != len(normalized_fixture_ids):
-            raise ValueError(
-                _issue(
-                    "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                    "coverage fixture_ids must be unique within a surface",
-                    context={"manifest_path": str(manifest_path), "surface_id": surface_id},
-                )
-            )
-        for fixture_id in normalized_fixture_ids:
-            fixture_surface = fixture_surface_catalog.get(fixture_id)
-            if fixture_surface is None:
-                raise ValueError(
-                    _issue(
-                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                        "coverage references unknown fixture_id",
-                        context={
-                            "manifest_path": str(manifest_path),
-                            "surface_id": surface_id,
-                            "fixture_id": fixture_id,
-                        },
-                    )
-                )
-            if fixture_surface != surface_id:
-                raise ValueError(
-                    _issue(
-                        "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                        "coverage fixture_id is mapped to a different surface",
-                        context={
-                            "manifest_path": str(manifest_path),
-                            "surface_id": surface_id,
-                            "fixture_id": fixture_id,
-                            "fixture_surface_id": fixture_surface,
-                        },
-                    )
-                )
-        seen_coverage_surfaces.add(surface_id)
-
-    if seen_coverage_surfaces != _FROZEN_INTEGRITY_EXTENDED_SURFACE_SET:
-        raise ValueError(
-            _issue(
-                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "coverage surface set must exactly match frozen integrity extended surfaces",
-                context={
-                    "manifest_path": str(manifest_path),
-                    "expected_surfaces": sorted(_FROZEN_INTEGRITY_EXTENDED_SURFACES),
-                    "observed_surfaces": sorted(seen_coverage_surfaces),
-                },
-            )
-        )
-
-    raw_manifest_hash = payload.get("manifest_hash")
-    if not isinstance(raw_manifest_hash, str) or not raw_manifest_hash:
-        raise ValueError(
-            _issue(
-                "URM_ADEU_INTEGRITY_FIXTURE_INVALID",
-                "vnext+17 stop-gate manifest missing manifest_hash",
-                context={"manifest_path": str(manifest_path)},
-            )
-        )
-    hash_basis = dict(payload)
-    hash_basis.pop("manifest_hash", None)
-    recomputed_manifest_hash = sha256_canonical_json(hash_basis)
-    if raw_manifest_hash != recomputed_manifest_hash:
-        raise ValueError(
-            _issue(
-                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH",
-                "vnext+17 manifest_hash mismatch",
-                context={
-                    "manifest_path": str(manifest_path),
-                    "embedded_manifest_hash": raw_manifest_hash,
-                    "recomputed_manifest_hash": recomputed_manifest_hash,
-                },
-            )
-        )
-    return payload, recomputed_manifest_hash
 
 
 def _compute_vnext_plus17_metrics(
