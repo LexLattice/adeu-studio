@@ -90,6 +90,6 @@ Deterministic R2 transfer summary generated from fixture-backed vNext+19 read-su
     "valid": true
   },
   "schema": "read_surface_transfer_report.vnext_plus19@1",
-  "vnext_plus19_manifest_hash": "1091bbbfd92b5fd193dcc9022b4b0632c938c7d2fb3d91cf89129ee99e908caa"
+  "vnext_plus19_manifest_hash": "532d78b52dcbd8c3289abd5d016034916d68be6f1960d2dc0c73d804e386e5a0"
 }
 ```
