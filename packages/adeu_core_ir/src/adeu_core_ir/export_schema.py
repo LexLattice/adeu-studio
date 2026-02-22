@@ -6,6 +6,7 @@ from pathlib import Path
 from adeu_ir.repo import repo_root
 
 from .integrity_cycle_policy import AdeuIntegrityCyclePolicy
+from .integrity_cycle_policy_extended import AdeuIntegrityCyclePolicyExtended
 from .integrity_dangling_reference import AdeuIntegrityDanglingReference
 from .integrity_deontic_conflict import AdeuIntegrityDeonticConflict
 from .integrity_reference_integrity_extended import (
@@ -26,6 +27,9 @@ def main() -> None:
     core_ir_schema = AdeuCoreIR.model_json_schema(by_alias=True)
     lane_report_schema = AdeuLaneReport.model_json_schema(by_alias=True)
     integrity_cycle_policy_schema = AdeuIntegrityCyclePolicy.model_json_schema(by_alias=True)
+    integrity_cycle_policy_extended_schema = AdeuIntegrityCyclePolicyExtended.model_json_schema(
+        by_alias=True
+    )
     integrity_deontic_conflict_schema = AdeuIntegrityDeonticConflict.model_json_schema(
         by_alias=True
     )
@@ -51,6 +55,18 @@ def main() -> None:
     _write_schema(
         integrity_cycle_policy_authoritative_path,
         integrity_cycle_policy_schema,
+    )
+
+    integrity_cycle_policy_extended_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "adeu_integrity_cycle_policy_extended.v0_1.json"
+    )
+    _write_schema(
+        integrity_cycle_policy_extended_authoritative_path,
+        integrity_cycle_policy_extended_schema,
     )
 
     integrity_deontic_conflict_authoritative_path = (
@@ -104,6 +120,14 @@ def main() -> None:
     _write_schema(
         integrity_cycle_policy_mirror_path,
         integrity_cycle_policy_schema,
+    )
+
+    integrity_cycle_policy_extended_mirror_path = (
+        root / "spec" / "adeu_integrity_cycle_policy_extended.schema.json"
+    )
+    _write_schema(
+        integrity_cycle_policy_extended_mirror_path,
+        integrity_cycle_policy_extended_schema,
     )
 
     integrity_deontic_conflict_mirror_path = (

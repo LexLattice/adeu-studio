@@ -1,0 +1,113 @@
+{
+  "$defs": {
+    "AdeuIntegrityCyclePolicyExtendedCycle": {
+      "additionalProperties": false,
+      "properties": {
+        "cycle_signature": {
+          "title": "Cycle Signature",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "self_cycle",
+            "multi_node_cycle",
+            "dependency_loop",
+            "exception_loop"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "node_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Node Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "cycle_signature",
+        "node_ids"
+      ],
+      "title": "AdeuIntegrityCyclePolicyExtendedCycle",
+      "type": "object"
+    },
+    "AdeuIntegrityCyclePolicyExtendedSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "dependency_loop": {
+          "title": "Dependency Loop",
+          "type": "integer"
+        },
+        "exception_loop": {
+          "title": "Exception Loop",
+          "type": "integer"
+        },
+        "multi_node_cycle": {
+          "title": "Multi Node Cycle",
+          "type": "integer"
+        },
+        "self_cycle": {
+          "title": "Self Cycle",
+          "type": "integer"
+        },
+        "total_cycles": {
+          "title": "Total Cycles",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_cycles",
+        "self_cycle",
+        "multi_node_cycle",
+        "dependency_loop",
+        "exception_loop"
+      ],
+      "title": "AdeuIntegrityCyclePolicyExtendedSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cycles": {
+      "items": {
+        "$ref": "#/$defs/AdeuIntegrityCyclePolicyExtendedCycle"
+      },
+      "title": "Cycles",
+      "type": "array"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metadata"
+    },
+    "schema": {
+      "const": "adeu_integrity_cycle_policy_extended@0.1",
+      "default": "adeu_integrity_cycle_policy_extended@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "title": "Source Text Hash",
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/$defs/AdeuIntegrityCyclePolicyExtendedSummary"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "summary"
+  ],
+  "title": "AdeuIntegrityCyclePolicyExtended",
+  "type": "object"
+}
