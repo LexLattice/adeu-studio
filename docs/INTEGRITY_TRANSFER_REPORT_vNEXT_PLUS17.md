@@ -1,0 +1,85 @@
+# Integrity Transfer Report vNext+17
+
+Deterministic E4 transfer summary generated from persisted vNext+17 extended integrity fixtures and diagnostics.
+
+```json
+{
+  "coverage_summary": {
+    "coverage_pct": 100.0,
+    "covered_surface_count": 3,
+    "entries": [
+      {
+        "fixture_ids": [
+          "integrity_cycle_policy_extended.case_a"
+        ],
+        "surface_id": "adeu.integrity.cycle_policy_extended",
+        "valid": true
+      },
+      {
+        "fixture_ids": [
+          "integrity_deontic_conflict_extended.case_a"
+        ],
+        "surface_id": "adeu.integrity.deontic_conflict_extended",
+        "valid": true
+      },
+      {
+        "fixture_ids": [
+          "integrity_reference_integrity_extended.case_a"
+        ],
+        "surface_id": "adeu.integrity.reference_integrity_extended",
+        "valid": true
+      }
+    ],
+    "surface_count": 3,
+    "valid": true
+  },
+  "cycle_policy_extended_summary": {
+    "cycle_kind_counts": {
+      "dependency_loop": 3,
+      "exception_loop": 3,
+      "multi_node_cycle": 3,
+      "self_cycle": 0
+    },
+    "fixture_count": 1,
+    "run_count": 3,
+    "total_cycles": 9,
+    "valid": true
+  },
+  "deontic_conflict_extended_summary": {
+    "conflict_kind_counts": {
+      "deontic_conflict": 3,
+      "deontic_tension": 3
+    },
+    "fixture_count": 1,
+    "run_count": 3,
+    "total_conflicts": 6,
+    "valid": true
+  },
+  "reference_integrity_extended_summary": {
+    "fixture_count": 1,
+    "issue_kind_counts": {
+      "duplicate_edge_identity": 3,
+      "edge_type_constraint_violation": 6
+    },
+    "run_count": 3,
+    "total_issues": 9,
+    "valid": true
+  },
+  "replay_summary": {
+    "fixture_counts": {
+      "cycle_policy_extended": 1,
+      "deontic_conflict_extended": 1,
+      "reference_integrity_extended": 1
+    },
+    "replay_count": 3,
+    "replay_unit_counts": {
+      "cycle_policy_extended": 3,
+      "deontic_conflict_extended": 3,
+      "reference_integrity_extended": 3
+    },
+    "valid": true
+  },
+  "schema": "integrity_transfer_report.vnext_plus17@1",
+  "vnext_plus17_manifest_hash": "566d1d0b7f1dd11d64f1aa28bd2ad783436c343d6f92ffe748c37e55e6fbe680"
+}
+```

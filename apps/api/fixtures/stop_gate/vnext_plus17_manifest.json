@@ -1,0 +1,76 @@
+{
+  "schema": "stop_gate.vnext_plus17_manifest@1",
+  "replay_count": 3,
+  "reference_integrity_extended_fixtures": [
+    {
+      "fixture_id": "integrity_reference_integrity_extended.case_a",
+      "surface_id": "adeu.integrity.reference_integrity_extended",
+      "runs": [
+        {
+          "reference_integrity_extended_path": "../../../../examples/eval/stop_gate/adeu_integrity_reference_integrity_extended_case_a_1.json"
+        },
+        {
+          "reference_integrity_extended_path": "../../../../examples/eval/stop_gate/adeu_integrity_reference_integrity_extended_case_a_2.json"
+        },
+        {
+          "reference_integrity_extended_path": "../../../../examples/eval/stop_gate/adeu_integrity_reference_integrity_extended_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "cycle_policy_extended_fixtures": [
+    {
+      "fixture_id": "integrity_cycle_policy_extended.case_a",
+      "surface_id": "adeu.integrity.cycle_policy_extended",
+      "runs": [
+        {
+          "cycle_policy_extended_path": "../../../../examples/eval/stop_gate/adeu_integrity_cycle_policy_extended_case_a_1.json"
+        },
+        {
+          "cycle_policy_extended_path": "../../../../examples/eval/stop_gate/adeu_integrity_cycle_policy_extended_case_a_2.json"
+        },
+        {
+          "cycle_policy_extended_path": "../../../../examples/eval/stop_gate/adeu_integrity_cycle_policy_extended_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "deontic_conflict_extended_fixtures": [
+    {
+      "fixture_id": "integrity_deontic_conflict_extended.case_a",
+      "surface_id": "adeu.integrity.deontic_conflict_extended",
+      "runs": [
+        {
+          "deontic_conflict_extended_path": "../../../../examples/eval/stop_gate/adeu_integrity_deontic_conflict_extended_case_a_1.json"
+        },
+        {
+          "deontic_conflict_extended_path": "../../../../examples/eval/stop_gate/adeu_integrity_deontic_conflict_extended_case_a_2.json"
+        },
+        {
+          "deontic_conflict_extended_path": "../../../../examples/eval/stop_gate/adeu_integrity_deontic_conflict_extended_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "surface_id": "adeu.integrity.cycle_policy_extended",
+      "fixture_ids": [
+        "integrity_cycle_policy_extended.case_a"
+      ]
+    },
+    {
+      "surface_id": "adeu.integrity.deontic_conflict_extended",
+      "fixture_ids": [
+        "integrity_deontic_conflict_extended.case_a"
+      ]
+    },
+    {
+      "surface_id": "adeu.integrity.reference_integrity_extended",
+      "fixture_ids": [
+        "integrity_reference_integrity_extended.case_a"
+      ]
+    }
+  ],
+  "manifest_hash": "566d1d0b7f1dd11d64f1aa28bd2ad783436c343d6f92ffe748c37e55e6fbe680"
+}
