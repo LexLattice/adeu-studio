@@ -1,4 +1,4 @@
-# Locked Continuation vNext+19 (Draft Lock)
+# Locked Continuation vNext+19 (Frozen Lock)
 
 This document drafts the next arc after:
 
@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: frozen lock implemented on `main` (R1-R4 merged); closeout decision draft captured in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS19.md`.
 
 Decision basis:
 
@@ -19,6 +19,28 @@ Decision basis:
   - deterministic render-payload builder (JSON-first, UI-agnostic) + transfer-report refresh second
   - additive stop-gate determinism metrics for read-surface payload stability third
   - explicit no-mutation and no-provider-expansion continuity fourth
+
+Implementation closeout snapshot (February 22, 2026 UTC):
+
+- merged implementation PRs on `main`:
+  - `#158` (`R1`): `37ed142`
+  - `#159` (`R2`): `fabcf7a`
+  - `#160` (`R3`): `22fe1e9`
+  - `#161` (`R4`): `6840a82`
+- merged CI evidence:
+  - `#158` merge run `22283452259` (`success`)
+  - `#159` merge run `22283892910` (`success`)
+  - `#160` merge run `22284243051` (`success`)
+  - `#161` merge run `22286735210` (`success`)
+- deterministic closeout artifact refresh:
+  - quality dashboard JSON: `artifacts/quality_dashboard_v19_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v19_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v19_closeout.md`
+  - transfer report: `docs/READ_SURFACE_TRANSFER_REPORT_vNEXT_PLUS19.md`
+- closeout commands:
+  - `PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard_v19_closeout.json`
+  - `PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python apps/api/scripts/build_stop_gate_metrics.py --quality-current artifacts/quality_dashboard_v19_closeout.json --quality-baseline artifacts/quality_dashboard_v19_closeout.json --out-json artifacts/stop_gate/metrics_v19_closeout.json --out-md artifacts/stop_gate/report_v19_closeout.md`
+  - `PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python apps/api/scripts/build_read_surface_transfer_report_vnext_plus19.py --vnext-plus19-manifest-hash 532d78b52dcbd8c3289abd5d016034916d68be6f1960d2dc0c73d804e386e5a0 --out docs/READ_SURFACE_TRANSFER_REPORT_vNEXT_PLUS19.md`
 
 ## Global Locks
 
@@ -65,7 +87,7 @@ Decision basis:
   - v18 parity/budget semantics remain authoritative.
   - this arc may reuse v18 shared helpers but may not weaken v18 parity or budget gates.
 
-## Arc Scope (Draft Lock)
+## Arc Scope (Frozen Lock)
 
 This arc proposes Path S3a thin slice only:
 
@@ -389,7 +411,7 @@ Keep v19 product-surface activation strictly read-only and prevent silent drift 
 - No mutation side effects are observed for read-surface calls on locked fixtures.
 - No-mutation tests include deterministic pre/post storage snapshot hash equality assertions.
 
-## Error-Code Policy (Draft Lock)
+## Error-Code Policy (Frozen Lock)
 
 - Reuse existing URM/common codes where applicable.
 - New codes are allowed only when needed, must be deterministic, and must be prefixed `URM_`.
@@ -417,28 +439,28 @@ Keep v19 product-surface activation strictly read-only and prevent silent drift 
 4. `docs: add vnext_plus19 read-surface transfer report and closeout scaffold`
 5. `tests: add deterministic vnext_plus19 replay fixtures, NoProviderCallsGuard coverage, and no-mutation snapshot assertions`
 
-## Intermediate Stage Preconditions And Outputs (Draft)
+## Intermediate Stage Preconditions And Outputs (Completed)
 
-Before implementation PR1 for `vNext+19`, confirm v18 preconditions are frozen/merged and prepare v19 scaffolding artifacts:
+Completed preconditions and outputs for `vNext+19`:
 
 1. `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS18.md` (precondition closeout gate artifact; frozen + merged)
-2. `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md` (precondition post-`vNext+18` baseline refresh; frozen + merged)
-3. initial fixture inventory for `apps/api/fixtures/stop_gate/vnext_plus19_manifest.json`
+2. `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md` (post-`vNext+18` baseline refresh; updated through post-`vNext+19`)
+3. fixture inventory for `apps/api/fixtures/stop_gate/vnext_plus19_manifest.json` (frozen schema `stop_gate.vnext_plus19_manifest@1`)
 4. frozen read-surface catalog scaffold `apps/api/fixtures/read_surface/vnext_plus19_catalog.json` (`read_surface.vnext_plus19_catalog@1`)
-5. draft transfer-report schema/renderer for `read_surface_transfer_report.vnext_plus19@1`
+5. transfer-report schema/renderer and output (`read_surface_transfer_report.vnext_plus19@1`) at `docs/READ_SURFACE_TRANSFER_REPORT_vNEXT_PLUS19.md`
 6. deterministic env helper hook-up for read-surface stop-gate/report entrypoints (`TZ=UTC`, `LC_ALL=C`)
-7. draft closeout skeleton `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS19.md` for end-of-arc evidence capture
+7. closeout draft scaffold and evidence capture in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS19.md`
 
-## Exit Criteria (Draft)
+## Exit Criteria (Closeout Snapshot)
 
-- `R1`-`R4` merged with green CI.
-- `artifact_core_ir_read_surface_determinism_pct == 100.0` on locked fixtures.
-- `artifact_lane_read_surface_determinism_pct == 100.0` on locked fixtures.
-- `artifact_integrity_read_surface_determinism_pct == 100.0` on locked fixtures.
-- `vNext+19 -> vNext+20` frozen thresholds all pass.
-- v16/v17/v18 continuity metrics remain present and at threshold (`100.0`).
-- v19 closeout evidence includes runtime-observability comparison rows against v18 canonical baseline.
-- No solver semantics contract delta and no trust-lane regression introduced.
-- Provider-parity continuity lock remains unchanged (no proposer surface expansion).
-- All existing stop-gate tracked `vNext+6` through `vNext+18` metrics remain at threshold.
-- `vNext+16` through `vNext+18` closeout evidence remains green and reproducible.
+- `R1`-`R4` merged with green CI: `pass` (PRs `#158`-`#161`)
+- `artifact_core_ir_read_surface_determinism_pct == 100.0`: `pass`
+- `artifact_lane_read_surface_determinism_pct == 100.0`: `pass`
+- `artifact_integrity_read_surface_determinism_pct == 100.0`: `pass`
+- `vNext+19 -> vNext+20` frozen thresholds all pass: `pass`
+- v16/v17/v18 continuity metrics remain present and at threshold (`100.0`): `pass`
+- runtime-observability comparison row against v18 canonical baseline included: `pass` (see `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS19.md`)
+- no solver semantics contract delta and no trust-lane regression introduced: `pass`
+- provider-parity continuity lock unchanged (no proposer surface expansion): `pass`
+- all existing tracked `vNext+6` through `vNext+18` stop-gate metrics remain at threshold: `pass`
+- `vNext+16` through `vNext+18` closeout evidence remains green and reproducible: `pass`

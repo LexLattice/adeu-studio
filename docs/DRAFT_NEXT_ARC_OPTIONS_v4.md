@@ -7,8 +7,8 @@ This document consolidates the four independent v4 planning drafts:
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_opus.md`
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_gemini.md`
 
-Status: active planning draft (v17 and v18 baselines executed; still active for `vNext+19+` selection).
-Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+18` sequencing.
+Status: active planning draft (v17, v18, and v19 baselines executed; active for `vNext+20+` selection).
+Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+19` sequencing.
 
 ## Baseline Agreement (Shared Across Drafts)
 
@@ -17,6 +17,7 @@ All four drafts converge on these baseline points:
 - `vNext+16` (`D1`-`D4`) is complete and green.
 - `vNext+17` Path S1 (`E1`-`E4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS17.md`).
 - `vNext+18` Path S5 (`F1`-`F4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS18.md`).
+- `vNext+19` Path S3a (`R1`-`R4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS19.md`).
 - Determinism/manifest/stop-gate closeout discipline is now mature and must carry forward.
 - Next work should remain additive-first and explicitly locked.
 - Provider parity maintenance remains a fallback path, not the default next arc.
@@ -367,17 +368,31 @@ Execution checkpoint (current state):
 - completed:
   - `vNext+17 = S1` (closed out)
   - `vNext+18 = S5` (closed out)
+  - `vNext+19 = S3a` (closed out)
 - active default next selection:
-  - `vNext+19 = S3a` (read-only product surface activation)
+  - `vNext+20 = S4` (cross-IR coherence bridge)
 
 ## Proposed Freeze Candidate (Next Step)
 
-Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS19.md` with Path S3a thin slice only:
+Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS20.md` with Path S4 thin slice only:
 
-1. `R1` read-only endpoints for persisted core-ir/lane/integrity artifacts
-2. `R2` deterministic render-payload builder (JSON-first, UI-agnostic) + transfer-report refresh
-3. `R3` additive stop-gate determinism metrics for read-surface payload stability
-4. `R4` explicit no-mutation and no-provider-expansion lock continuity for `vNext+19 -> vNext+20`
+1. `C1` deterministic concept-to-core-ir bridge mapping contract freeze (including asymmetric unmappable handling).
+2. `C2` deterministic cross-IR coherence diagnostics artifact family with frozen issue taxonomy.
+3. `C3` additive stop-gate determinism metrics for cross-IR coherence payload stability (`vNext+20 -> vNext+21`).
+4. `C4` continuity locks preserving no-mutation/no-provider-expansion semantics unless explicitly released.
+
+## Historical Freeze Candidate (v19 Reference)
+
+Implemented lock doc:
+
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS19.md` (Path S3a, `R1`-`R4`)
+
+Merged implementation sequence:
+
+1. PR `#158` (`R1`): fixture-backed read-only `/urm` core-ir/lane/integrity endpoints
+2. PR `#159` (`R2`): deterministic read-surface render payload builder
+3. PR `#160` (`R3`): additive v19 read-surface stop-gate determinism metrics
+4. PR `#161` (`R4`): provider/network guard coverage + deterministic no-mutation snapshot checks
 
 ## Historical Freeze Candidate (v17 Reference)
 
