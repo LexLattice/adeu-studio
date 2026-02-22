@@ -135,6 +135,31 @@ VNEXT_PLUS18_DEFAULT_METRICS = {
 VNEXT_PLUS18_CI_BUDGET_CEILING_MS = 120000
 VNEXT_PLUS18_CI_BUDGET_METRIC_KEY = "artifact_stop_gate_ci_budget_within_ceiling_pct"
 VNEXT_PLUS18_CI_BUDGET_GATE_KEY = "artifact_stop_gate_ci_budget_within_ceiling"
+VNEXT_PLUS19_REPLAY_COUNT = 3
+VNEXT_PLUS19_MANIFEST_SCHEMA = "stop_gate.vnext_plus19_manifest@1"
+VNEXT_PLUS19_DEFAULT_METRICS = {
+    "artifact_core_ir_read_surface_determinism_pct": 0.0,
+    "artifact_lane_read_surface_determinism_pct": 0.0,
+    "artifact_integrity_read_surface_determinism_pct": 0.0,
+}
+_READ_SURFACE_LANE_CAPTURE_SCHEMA = "adeu_lane_read_surface_capture@0.1"
+_READ_SURFACE_INTEGRITY_CAPTURE_SCHEMA = "adeu_integrity_read_surface_capture@0.1"
+_FROZEN_READ_SURFACE_INTEGRITY_FAMILIES: tuple[str, ...] = (
+    "dangling_reference",
+    "cycle_policy",
+    "deontic_conflict",
+    "reference_integrity_extended",
+    "cycle_policy_extended",
+    "deontic_conflict_extended",
+)
+_READ_SURFACE_INTEGRITY_FAMILY_TO_SCHEMA: dict[str, str] = {
+    "dangling_reference": ADEU_INTEGRITY_DANGLING_REFERENCE_SCHEMA,
+    "cycle_policy": ADEU_INTEGRITY_CYCLE_POLICY_SCHEMA,
+    "deontic_conflict": ADEU_INTEGRITY_DEONTIC_CONFLICT_SCHEMA,
+    "reference_integrity_extended": ADEU_INTEGRITY_REFERENCE_INTEGRITY_EXTENDED_SCHEMA,
+    "cycle_policy_extended": ADEU_INTEGRITY_CYCLE_POLICY_EXTENDED_SCHEMA,
+    "deontic_conflict_extended": ADEU_INTEGRITY_DEONTIC_CONFLICT_EXTENDED_SCHEMA,
+}
 _FROZEN_PROVIDER_KINDS: tuple[str, ...] = ("mock", "openai", "codex")
 _FROZEN_PROVIDER_KIND_SET = frozenset(_FROZEN_PROVIDER_KINDS)
 _FROZEN_DEPTH_SURFACES: tuple[str, ...] = (
@@ -161,6 +186,12 @@ _FROZEN_TOOLING_SURFACES: tuple[str, ...] = (
     "adeu.tooling.ci_budget",
 )
 _FROZEN_TOOLING_SURFACE_SET = frozenset(_FROZEN_TOOLING_SURFACES)
+_FROZEN_READ_SURFACE_SURFACES: tuple[str, ...] = (
+    "adeu.read_surface.core_ir",
+    "adeu.read_surface.lane",
+    "adeu.read_surface.integrity",
+)
+_FROZEN_READ_SURFACE_SURFACE_SET = frozenset(_FROZEN_READ_SURFACE_SURFACES)
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -213,6 +244,9 @@ THRESHOLDS = {
     "artifact_validation_consolidation_parity_pct": 100.0,
     "artifact_transfer_report_consolidation_parity_pct": 100.0,
     "artifact_stop_gate_ci_budget_within_ceiling_pct": 100.0,
+    "artifact_core_ir_read_surface_determinism_pct": 100.0,
+    "artifact_lane_read_surface_determinism_pct": 100.0,
+    "artifact_integrity_read_surface_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -287,6 +321,10 @@ def _default_vnext_plus18_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus18_manifest.json")
 
 
+def _default_vnext_plus19_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus19_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
@@ -298,6 +336,7 @@ VNEXT_PLUS15_MANIFEST_PATH = _default_vnext_plus15_manifest_path()
 VNEXT_PLUS16_MANIFEST_PATH = _default_vnext_plus16_manifest_path()
 VNEXT_PLUS17_MANIFEST_PATH = _default_vnext_plus17_manifest_path()
 VNEXT_PLUS18_MANIFEST_PATH = _default_vnext_plus18_manifest_path()
+VNEXT_PLUS19_MANIFEST_PATH = _default_vnext_plus19_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -5153,6 +5192,27 @@ _VNEXT_PLUS18_TOOLING_SURFACE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = 
     ),
 )
 
+_VNEXT_PLUS19_READ_SURFACE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "core_ir_read_surface_fixtures",
+        "artifact_core_ir_read_surface_determinism_pct",
+        "adeu.read_surface.core_ir",
+        ("core_ir_read_surface_path",),
+    ),
+    (
+        "lane_read_surface_fixtures",
+        "artifact_lane_read_surface_determinism_pct",
+        "adeu.read_surface.lane",
+        ("lane_read_surface_path",),
+    ),
+    (
+        "integrity_read_surface_fixtures",
+        "artifact_integrity_read_surface_determinism_pct",
+        "adeu.read_surface.integrity",
+        ("integrity_read_surface_path",),
+    ),
+)
+
 
 def _validate_integrity_surface_fixtures(
     *,
@@ -6422,6 +6482,532 @@ def _compute_vnext_plus18_metrics(
     }
 
 
+def _strip_created_at_fields(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        normalized: dict[str, Any] = {}
+        for key in sorted(value.keys()):
+            key_str = str(key)
+            if key_str == "created_at":
+                continue
+            normalized[key_str] = _strip_created_at_fields(value[key])
+        return normalized
+    if isinstance(value, list):
+        return [_strip_created_at_fields(item) for item in value]
+    return value
+
+
+def _read_surface_projection_hash(payload: Mapping[str, Any]) -> str:
+    return sha256_canonical_json(_strip_created_at_fields(payload))
+
+
+def _validate_read_surface_envelope_keys(
+    *,
+    payload: Mapping[str, Any],
+    required_keys: set[str],
+    optional_keys: set[str],
+    path: Path,
+    context: Mapping[str, Any] | None = None,
+) -> None:
+    observed_keys = {str(key) for key in payload.keys()}
+    missing_keys = sorted(required_keys - observed_keys)
+    unexpected_keys = sorted(observed_keys - (required_keys | optional_keys))
+    if missing_keys or unexpected_keys:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "read-surface capture envelope has unexpected key shape",
+                context={
+                    "path": str(path),
+                    "missing_keys": missing_keys,
+                    "unexpected_keys": unexpected_keys,
+                    **dict(context or {}),
+                },
+            )
+        )
+
+
+def _validate_read_surface_response_payload(
+    *,
+    response_payload: Any,
+    expected_schema: str,
+    expected_payload_field: str,
+    expected_artifact_id: str | None,
+    path: Path,
+    context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    if not isinstance(response_payload, dict):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "read-surface response payload must be an object",
+                context={"path": str(path), **dict(context or {})},
+            )
+        )
+    _validate_read_surface_envelope_keys(
+        payload=response_payload,
+        required_keys={"artifact_id", "schema", expected_payload_field},
+        optional_keys={"created_at"},
+        path=path,
+        context=context,
+    )
+    artifact_id = response_payload.get("artifact_id")
+    if not isinstance(artifact_id, str) or not artifact_id:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "read-surface response artifact_id must be a non-empty string",
+                context={"path": str(path), **dict(context or {})},
+            )
+        )
+    if expected_artifact_id is not None and artifact_id != expected_artifact_id:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "read-surface response artifact_id does not match capture artifact_id",
+                context={
+                    "path": str(path),
+                    "expected_artifact_id": expected_artifact_id,
+                    "observed_artifact_id": artifact_id,
+                    **dict(context or {}),
+                },
+            )
+        )
+    schema = response_payload.get("schema")
+    if schema != expected_schema:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "read-surface response schema is invalid",
+                context={
+                    "path": str(path),
+                    "expected_schema": expected_schema,
+                    "observed_schema": schema,
+                    **dict(context or {}),
+                },
+            )
+        )
+    created_at = response_payload.get("created_at")
+    if "created_at" in response_payload and created_at is not None and not isinstance(
+        created_at, str
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "read-surface response created_at must be a string when present",
+                context={"path": str(path), **dict(context or {})},
+            )
+        )
+    nested_payload = response_payload.get(expected_payload_field)
+    if not isinstance(nested_payload, dict):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "read-surface response payload field must be an object",
+                context={
+                    "path": str(path),
+                    "payload_field": expected_payload_field,
+                    **dict(context or {}),
+                },
+            )
+        )
+    nested_schema = nested_payload.get("schema")
+    if nested_schema != expected_schema:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "read-surface nested payload schema is invalid",
+                context={
+                    "path": str(path),
+                    "payload_field": expected_payload_field,
+                    "expected_schema": expected_schema,
+                    "observed_schema": nested_schema,
+                    **dict(context or {}),
+                },
+            )
+        )
+    return response_payload
+
+
+def _read_surface_core_ir_fixture_hash(*, core_ir_read_surface_path: Path) -> str:
+    payload = _read_json_object(
+        core_ir_read_surface_path,
+        description="core-ir read-surface response fixture",
+    )
+    _validate_read_surface_response_payload(
+        response_payload=payload,
+        expected_schema=ADEU_CORE_IR_SCHEMA,
+        expected_payload_field="core_ir",
+        expected_artifact_id=None,
+        path=core_ir_read_surface_path,
+    )
+    return _read_surface_projection_hash(payload)
+
+
+def _read_surface_lane_capture_fixture_hash(*, lane_read_surface_path: Path) -> str:
+    payload = _read_json_object(
+        lane_read_surface_path,
+        description="lane read-surface capture fixture",
+    )
+    _validate_read_surface_envelope_keys(
+        payload=payload,
+        required_keys={"schema", "artifact_id", "captures"},
+        optional_keys=set(),
+        path=lane_read_surface_path,
+    )
+    if payload.get("schema") != _READ_SURFACE_LANE_CAPTURE_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "lane read-surface capture uses unsupported schema",
+                context={
+                    "path": str(lane_read_surface_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    artifact_id = payload.get("artifact_id")
+    if not isinstance(artifact_id, str) or not artifact_id:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "lane read-surface capture artifact_id must be a non-empty string",
+                context={"path": str(lane_read_surface_path)},
+            )
+        )
+    captures = payload.get("captures")
+    if not isinstance(captures, list) or len(captures) != 2:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "lane read-surface capture must include exactly two endpoint captures",
+                context={"path": str(lane_read_surface_path)},
+            )
+        )
+    expected_captures: tuple[tuple[str, str, str], ...] = (
+        (
+            f"/urm/core-ir/artifacts/{artifact_id}/lane-projection",
+            ADEU_LANE_PROJECTION_SCHEMA,
+            "lane_projection",
+        ),
+        (
+            f"/urm/core-ir/artifacts/{artifact_id}/lane-report",
+            ADEU_LANE_REPORT_SCHEMA,
+            "lane_report",
+        ),
+    )
+    for capture_index, expected in enumerate(expected_captures):
+        expected_path, expected_schema, expected_field = expected
+        capture = captures[capture_index]
+        if not isinstance(capture, dict):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "lane read-surface capture entry must be an object",
+                    context={
+                        "path": str(lane_read_surface_path),
+                        "capture_index": capture_index,
+                    },
+                )
+            )
+        _validate_read_surface_envelope_keys(
+            payload=capture,
+            required_keys={"method", "path", "response"},
+            optional_keys=set(),
+            path=lane_read_surface_path,
+            context={"capture_index": capture_index},
+        )
+        if capture.get("method") != "GET":
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "lane read-surface capture method must be GET",
+                    context={
+                        "path": str(lane_read_surface_path),
+                        "capture_index": capture_index,
+                        "method": capture.get("method"),
+                    },
+                )
+            )
+        if capture.get("path") != expected_path:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "lane read-surface capture path is invalid",
+                    context={
+                        "path": str(lane_read_surface_path),
+                        "capture_index": capture_index,
+                        "expected_path": expected_path,
+                        "observed_path": capture.get("path"),
+                    },
+                )
+            )
+        _validate_read_surface_response_payload(
+            response_payload=capture.get("response"),
+            expected_schema=expected_schema,
+            expected_payload_field=expected_field,
+            expected_artifact_id=artifact_id,
+            path=lane_read_surface_path,
+            context={
+                "capture_index": capture_index,
+                "capture_path": expected_path,
+            },
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _read_surface_integrity_capture_fixture_hash(
+    *, integrity_read_surface_path: Path
+) -> str:
+    payload = _read_json_object(
+        integrity_read_surface_path,
+        description="integrity read-surface capture fixture",
+    )
+    _validate_read_surface_envelope_keys(
+        payload=payload,
+        required_keys={"schema", "artifact_id", "captures"},
+        optional_keys=set(),
+        path=integrity_read_surface_path,
+    )
+    if payload.get("schema") != _READ_SURFACE_INTEGRITY_CAPTURE_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "integrity read-surface capture uses unsupported schema",
+                context={
+                    "path": str(integrity_read_surface_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    artifact_id = payload.get("artifact_id")
+    if not isinstance(artifact_id, str) or not artifact_id:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "integrity read-surface capture artifact_id must be a non-empty string",
+                context={"path": str(integrity_read_surface_path)},
+            )
+        )
+    captures = payload.get("captures")
+    if not isinstance(captures, list) or len(captures) != len(
+        _FROZEN_READ_SURFACE_INTEGRITY_FAMILIES
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "integrity read-surface capture must include one capture per frozen family",
+                context={
+                    "path": str(integrity_read_surface_path),
+                    "expected_family_count": len(_FROZEN_READ_SURFACE_INTEGRITY_FAMILIES),
+                    "observed_family_count": (
+                        len(captures) if isinstance(captures, list) else None
+                    ),
+                },
+            )
+        )
+    for capture_index, expected_family in enumerate(_FROZEN_READ_SURFACE_INTEGRITY_FAMILIES):
+        capture = captures[capture_index]
+        if not isinstance(capture, dict):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "integrity read-surface capture entry must be an object",
+                    context={
+                        "path": str(integrity_read_surface_path),
+                        "capture_index": capture_index,
+                    },
+                )
+            )
+        _validate_read_surface_envelope_keys(
+            payload=capture,
+            required_keys={"family", "method", "path", "response"},
+            optional_keys=set(),
+            path=integrity_read_surface_path,
+            context={"capture_index": capture_index},
+        )
+        if capture.get("family") != expected_family:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "integrity read-surface capture family order is invalid",
+                    context={
+                        "path": str(integrity_read_surface_path),
+                        "capture_index": capture_index,
+                        "expected_family": expected_family,
+                        "observed_family": capture.get("family"),
+                    },
+                )
+            )
+        if capture.get("method") != "GET":
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "integrity read-surface capture method must be GET",
+                    context={
+                        "path": str(integrity_read_surface_path),
+                        "capture_index": capture_index,
+                        "method": capture.get("method"),
+                    },
+                )
+            )
+        expected_path = f"/urm/core-ir/artifacts/{artifact_id}/integrity/{expected_family}"
+        if capture.get("path") != expected_path:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "integrity read-surface capture path is invalid",
+                    context={
+                        "path": str(integrity_read_surface_path),
+                        "capture_index": capture_index,
+                        "expected_path": expected_path,
+                        "observed_path": capture.get("path"),
+                    },
+                )
+            )
+        expected_schema = _READ_SURFACE_INTEGRITY_FAMILY_TO_SCHEMA[expected_family]
+        _validate_read_surface_response_payload(
+            response_payload=capture.get("response"),
+            expected_schema=expected_schema,
+            expected_payload_field="integrity_artifact",
+            expected_artifact_id=artifact_id,
+            path=integrity_read_surface_path,
+            context={
+                "capture_index": capture_index,
+                "family": expected_family,
+                "capture_path": expected_path,
+            },
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _load_vnext_plus19_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        return _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+19",
+            manifest_schema=VNEXT_PLUS19_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS19_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS19_READ_SURFACE_SPECS,
+            frozen_surface_set=_FROZEN_READ_SURFACE_SURFACE_SET,
+            frozen_surfaces=_FROZEN_READ_SURFACE_SURFACES,
+            surface_description="frozen read-surface id",
+            surface_set_description="frozen read-surface ids",
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_STOP_GATE_INPUT_INVALID": "URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": "URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    "URM_ADEU_READ_SURFACE_MANIFEST_HASH_MISMATCH"
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus19_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS19_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus19_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS19_DEFAULT_METRICS,
+            "vnext_plus19_manifest_hash": "",
+            "vnext_plus19_fixture_count_total": 0,
+            "vnext_plus19_replay_count_total": 0,
+        }
+
+    core_ir_fixtures = cast(list[dict[str, Any]], manifest["core_ir_read_surface_fixtures"])
+    lane_fixtures = cast(list[dict[str, Any]], manifest["lane_read_surface_fixtures"])
+    integrity_fixtures = cast(list[dict[str, Any]], manifest["integrity_read_surface_fixtures"])
+
+    artifact_core_ir_read_surface_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="artifact_core_ir_read_surface_determinism_pct",
+        fixtures=core_ir_fixtures,
+        replay_count=VNEXT_PLUS19_REPLAY_COUNT,
+        required_run_fields=("core_ir_read_surface_path",),
+        run_hash_builder=_read_surface_core_ir_fixture_hash,
+        issues=issues,
+        invalid_issue_code="URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
+        drift_issue_code="URM_ADEU_READ_SURFACE_DIAGNOSTIC_DRIFT",
+        drift_issue_message="vnext+19 core-ir read-surface diagnostic drift",
+    )
+    artifact_lane_read_surface_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="artifact_lane_read_surface_determinism_pct",
+        fixtures=lane_fixtures,
+        replay_count=VNEXT_PLUS19_REPLAY_COUNT,
+        required_run_fields=("lane_read_surface_path",),
+        run_hash_builder=_read_surface_lane_capture_fixture_hash,
+        issues=issues,
+        invalid_issue_code="URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
+        drift_issue_code="URM_ADEU_READ_SURFACE_DIAGNOSTIC_DRIFT",
+        drift_issue_message="vnext+19 lane read-surface diagnostic drift",
+    )
+    artifact_integrity_read_surface_determinism_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="artifact_integrity_read_surface_determinism_pct",
+        fixtures=integrity_fixtures,
+        replay_count=VNEXT_PLUS19_REPLAY_COUNT,
+        required_run_fields=("integrity_read_surface_path",),
+        run_hash_builder=_read_surface_integrity_capture_fixture_hash,
+        issues=issues,
+        invalid_issue_code="URM_ADEU_READ_SURFACE_FIXTURE_INVALID",
+        drift_issue_code="URM_ADEU_READ_SURFACE_DIAGNOSTIC_DRIFT",
+        drift_issue_message="vnext+19 integrity read-surface diagnostic drift",
+    )
+
+    fixture_count_total = (
+        len(core_ir_fixtures) + len(lane_fixtures) + len(integrity_fixtures)
+    )
+    replay_count_total = sum(
+        len(cast(list[Any], fixture.get("runs", [])))
+        for fixture in (
+            *core_ir_fixtures,
+            *lane_fixtures,
+            *integrity_fixtures,
+        )
+    )
+
+    return {
+        "artifact_core_ir_read_surface_determinism_pct": (
+            artifact_core_ir_read_surface_determinism_pct
+        ),
+        "artifact_lane_read_surface_determinism_pct": (
+            artifact_lane_read_surface_determinism_pct
+        ),
+        "artifact_integrity_read_surface_determinism_pct": (
+            artifact_integrity_read_surface_determinism_pct
+        ),
+        "vnext_plus19_manifest_hash": manifest_hash,
+        "vnext_plus19_fixture_count_total": fixture_count_total,
+        "vnext_plus19_replay_count_total": replay_count_total,
+    }
+
+
 def build_stop_gate_metrics(
     *,
     incident_packet_paths: list[Path],
@@ -6442,6 +7028,7 @@ def build_stop_gate_metrics(
     vnext_plus16_manifest_path: Path | None = None,
     vnext_plus17_manifest_path: Path | None = None,
     vnext_plus18_manifest_path: Path | None = None,
+    vnext_plus19_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -6823,6 +7410,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus18_manifest_path,
         issues=issues,
     )
+    vnext_plus19_metrics = _compute_vnext_plus19_metrics(
+        manifest_path=vnext_plus19_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -6888,8 +7479,8 @@ def build_stop_gate_metrics(
             quality_delta_non_negative = bool(quality_checks) and all(quality_checks)
 
     runtime_observability = _runtime_observability_payload(
-        total_fixtures=int(vnext_plus18_metrics["vnext_plus18_fixture_count_total"]),
-        total_replays=int(vnext_plus18_metrics["vnext_plus18_replay_count_total"]),
+        total_fixtures=int(vnext_plus19_metrics["vnext_plus19_fixture_count_total"]),
+        total_replays=int(vnext_plus19_metrics["vnext_plus19_replay_count_total"]),
         runtime_started=runtime_started,
     )
     runtime_budget_metric_pct, runtime_budget_issue = _runtime_budget_metric_pct(
@@ -7035,6 +7626,15 @@ def build_stop_gate_metrics(
             "artifact_transfer_report_consolidation_parity_pct"
         ],
         VNEXT_PLUS18_CI_BUDGET_METRIC_KEY: runtime_budget_metric_pct,
+        "artifact_core_ir_read_surface_determinism_pct": vnext_plus19_metrics[
+            "artifact_core_ir_read_surface_determinism_pct"
+        ],
+        "artifact_lane_read_surface_determinism_pct": vnext_plus19_metrics[
+            "artifact_lane_read_surface_determinism_pct"
+        ],
+        "artifact_integrity_read_surface_determinism_pct": vnext_plus19_metrics[
+            "artifact_integrity_read_surface_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -7146,6 +7746,18 @@ def build_stop_gate_metrics(
             "artifact_transfer_report_consolidation_parity_pct"
         ]
         >= THRESHOLDS["artifact_transfer_report_consolidation_parity_pct"],
+        "artifact_core_ir_read_surface_determinism": metrics[
+            "artifact_core_ir_read_surface_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_core_ir_read_surface_determinism_pct"],
+        "artifact_lane_read_surface_determinism": metrics[
+            "artifact_lane_read_surface_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_lane_read_surface_determinism_pct"],
+        "artifact_integrity_read_surface_determinism": metrics[
+            "artifact_integrity_read_surface_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_integrity_read_surface_determinism_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -7226,6 +7838,11 @@ def build_stop_gate_metrics(
                 if vnext_plus18_manifest_path is not None
                 else VNEXT_PLUS18_MANIFEST_PATH
             ),
+            "vnext_plus19_manifest_path": str(
+                vnext_plus19_manifest_path
+                if vnext_plus19_manifest_path is not None
+                else VNEXT_PLUS19_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -7237,6 +7854,7 @@ def build_stop_gate_metrics(
         "vnext_plus16_manifest_hash": vnext_plus16_metrics["vnext_plus16_manifest_hash"],
         "vnext_plus17_manifest_hash": vnext_plus17_metrics["vnext_plus17_manifest_hash"],
         "vnext_plus18_manifest_hash": vnext_plus18_metrics["vnext_plus18_manifest_hash"],
+        "vnext_plus19_manifest_hash": vnext_plus19_metrics["vnext_plus19_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -7270,6 +7888,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+16 manifest hash: `{report.get('vnext_plus16_manifest_hash')}`")
     lines.append(f"- vnext+17 manifest hash: `{report.get('vnext_plus17_manifest_hash')}`")
     lines.append(f"- vnext+18 manifest hash: `{report.get('vnext_plus18_manifest_hash')}`")
+    lines.append(f"- vnext+19 manifest hash: `{report.get('vnext_plus19_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -7479,6 +8098,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('artifact_stop_gate_ci_budget_within_ceiling_pct')}`"
     )
     lines.append(
+        "- artifact core-ir read-surface determinism pct: "
+        f"`{metrics.get('artifact_core_ir_read_surface_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact lane read-surface determinism pct: "
+        f"`{metrics.get('artifact_lane_read_surface_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact integrity read-surface determinism pct: "
+        f"`{metrics.get('artifact_integrity_read_surface_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -7639,6 +8270,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS18_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus19-manifest",
+        dest="vnext_plus19_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS19_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -7665,6 +8302,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus16_manifest_path=args.vnext_plus16_manifest_path,
         vnext_plus17_manifest_path=args.vnext_plus17_manifest_path,
         vnext_plus18_manifest_path=args.vnext_plus18_manifest_path,
+        vnext_plus19_manifest_path=args.vnext_plus19_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
