@@ -1,0 +1,112 @@
+{
+  "$defs": {
+    "AdeuIntegrityReferenceIntegrityExtendedIssue": {
+      "additionalProperties": false,
+      "properties": {
+        "details": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Details"
+        },
+        "kind": {
+          "enum": [
+            "edge_type_constraint_violation",
+            "duplicate_edge_identity"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "related_id": {
+          "default": "",
+          "title": "Related Id",
+          "type": "string"
+        },
+        "subject_id": {
+          "title": "Subject Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "subject_id"
+      ],
+      "title": "AdeuIntegrityReferenceIntegrityExtendedIssue",
+      "type": "object"
+    },
+    "AdeuIntegrityReferenceIntegrityExtendedSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "duplicate_edge_identity": {
+          "title": "Duplicate Edge Identity",
+          "type": "integer"
+        },
+        "edge_type_constraint_violation": {
+          "title": "Edge Type Constraint Violation",
+          "type": "integer"
+        },
+        "total_issues": {
+          "title": "Total Issues",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_issues",
+        "edge_type_constraint_violation",
+        "duplicate_edge_identity"
+      ],
+      "title": "AdeuIntegrityReferenceIntegrityExtendedSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "issues": {
+      "items": {
+        "$ref": "#/$defs/AdeuIntegrityReferenceIntegrityExtendedIssue"
+      },
+      "title": "Issues",
+      "type": "array"
+    },
+    "metadata": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Metadata"
+    },
+    "schema": {
+      "const": "adeu_integrity_reference_integrity_extended@0.1",
+      "default": "adeu_integrity_reference_integrity_extended@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "title": "Source Text Hash",
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/$defs/AdeuIntegrityReferenceIntegrityExtendedSummary"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "summary",
+    "issues"
+  ],
+  "title": "AdeuIntegrityReferenceIntegrityExtended",
+  "type": "object"
+}
