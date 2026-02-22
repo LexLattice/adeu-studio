@@ -79,11 +79,7 @@ def _read_surface_mutable_surface_paths() -> list[Path]:
         raw_path = artifact_ref.get("path")
         if not isinstance(raw_path, str) or not raw_path:
             raise AssertionError("catalog artifact_ref path must be a non-empty string")
-        artifact_path = Path(raw_path)
-        if not artifact_path.is_absolute():
-            artifact_path = (catalog_path.parent / artifact_path).resolve()
-        else:
-            artifact_path = artifact_path.resolve()
+        artifact_path = (catalog_path.parent / Path(raw_path)).resolve()
         paths.add(artifact_path)
 
     return sorted(paths, key=lambda path: str(path))
