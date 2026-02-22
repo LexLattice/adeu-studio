@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import adeu_api.integrity_transfer_report_vnext_plus16 as vnext_plus16_transfer_report
 import pytest
 from adeu_api.integrity_transfer_report_vnext_plus16 import (
     INTEGRITY_TRANSFER_REPORT_VNEXT_PLUS16_SCHEMA,
@@ -180,7 +181,7 @@ def test_integrity_transfer_report_rejects_cross_surface_coverage_fixture_id(
     manifest_path = _write_manifest_with_recomputed_hash(tmp_path, manifest_payload)
     with pytest.raises(
         IntegrityTransferReportError,
-        match="references fixture_ids mapped to other surfaces",
+        match="(mapped to other surfaces|mapped to a different surface)",
     ):
         build_integrity_transfer_report_vnext_plus16_payload(
             vnext_plus16_manifest_path=manifest_path,
@@ -221,3 +222,11 @@ def test_integrity_transfer_report_rejects_deontic_summary_mismatch(
         build_integrity_transfer_report_vnext_plus16_payload(
             vnext_plus16_manifest_path=manifest_path,
         )
+
+
+def test_vnext_plus16_transfer_report_uses_runtime_shared_helpers() -> None:
+    source = Path(vnext_plus16_transfer_report.__file__).read_text(encoding="utf-8")
+    assert "from urm_runtime.integrity_transfer_report_shared import (" in source
+    assert "def _resolve_ref(" not in source
+    assert "def _build_coverage_summary(" not in source
+    assert "def _build_replay_summary(" not in source
