@@ -1,0 +1,76 @@
+{
+  "schema": "stop_gate.vnext_plus18_manifest@1",
+  "replay_count": 3,
+  "validation_parity_fixtures": [
+    {
+      "fixture_id": "tooling_validation_parity.case_a",
+      "surface_id": "adeu.tooling.validation_parity",
+      "runs": [
+        {
+          "baseline_path": "../../../../examples/eval/stop_gate/tooling_validation_parity_baseline_case_a.json",
+          "candidate_path": "../../../../examples/eval/stop_gate/tooling_validation_parity_candidate_case_a_1.json"
+        },
+        {
+          "baseline_path": "../../../../examples/eval/stop_gate/tooling_validation_parity_baseline_case_a.json",
+          "candidate_path": "../../../../examples/eval/stop_gate/tooling_validation_parity_candidate_case_a_2.json"
+        },
+        {
+          "baseline_path": "../../../../examples/eval/stop_gate/tooling_validation_parity_baseline_case_a.json",
+          "candidate_path": "../../../../examples/eval/stop_gate/tooling_validation_parity_candidate_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "transfer_report_parity_fixtures": [
+    {
+      "fixture_id": "tooling_transfer_report_parity.case_a",
+      "surface_id": "adeu.tooling.transfer_report_parity",
+      "runs": [
+        {
+          "baseline_path": "../../../../examples/eval/stop_gate/tooling_transfer_report_parity_baseline_case_a.json",
+          "candidate_path": "../../../../examples/eval/stop_gate/tooling_transfer_report_parity_candidate_case_a_1.json"
+        },
+        {
+          "baseline_path": "../../../../examples/eval/stop_gate/tooling_transfer_report_parity_baseline_case_a.json",
+          "candidate_path": "../../../../examples/eval/stop_gate/tooling_transfer_report_parity_candidate_case_a_2.json"
+        },
+        {
+          "baseline_path": "../../../../examples/eval/stop_gate/tooling_transfer_report_parity_baseline_case_a.json",
+          "candidate_path": "../../../../examples/eval/stop_gate/tooling_transfer_report_parity_candidate_case_a_3.json"
+        }
+      ]
+    }
+  ],
+  "ci_budget_fixtures": [
+    {
+      "fixture_id": "tooling_ci_budget.case_a",
+      "surface_id": "adeu.tooling.ci_budget",
+      "runs": [
+        {
+          "report_path": "../../../../examples/eval/stop_gate/tooling_ci_budget_evidence_case_a.json"
+        }
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "surface_id": "adeu.tooling.ci_budget",
+      "fixture_ids": [
+        "tooling_ci_budget.case_a"
+      ]
+    },
+    {
+      "surface_id": "adeu.tooling.transfer_report_parity",
+      "fixture_ids": [
+        "tooling_transfer_report_parity.case_a"
+      ]
+    },
+    {
+      "surface_id": "adeu.tooling.validation_parity",
+      "fixture_ids": [
+        "tooling_validation_parity.case_a"
+      ]
+    }
+  ],
+  "manifest_hash": "de1f7fb75d0bc59307ff6de1da5afc4d15b85b2b958d79a35b74c3d5ed6f6da0"
+}

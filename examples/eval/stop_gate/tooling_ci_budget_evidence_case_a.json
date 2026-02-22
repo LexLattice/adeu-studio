@@ -1,0 +1,9 @@
+{
+  "schema": "stop_gate_metrics@1",
+  "valid": true,
+  "runtime_observability": {
+    "total_fixtures": 3,
+    "total_replays": 7,
+    "elapsed_ms": 42000
+  }
+}

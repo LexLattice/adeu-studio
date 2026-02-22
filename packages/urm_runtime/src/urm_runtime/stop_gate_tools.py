@@ -126,6 +126,12 @@ VNEXT_PLUS17_DEFAULT_METRICS = {
     "artifact_cycle_policy_extended_determinism_pct": 0.0,
     "artifact_deontic_conflict_extended_determinism_pct": 0.0,
 }
+VNEXT_PLUS18_REPLAY_COUNT = 3
+VNEXT_PLUS18_MANIFEST_SCHEMA = "stop_gate.vnext_plus18_manifest@1"
+VNEXT_PLUS18_DEFAULT_METRICS = {
+    "artifact_validation_consolidation_parity_pct": 0.0,
+    "artifact_transfer_report_consolidation_parity_pct": 0.0,
+}
 VNEXT_PLUS18_CI_BUDGET_CEILING_MS = 120000
 VNEXT_PLUS18_CI_BUDGET_METRIC_KEY = "artifact_stop_gate_ci_budget_within_ceiling_pct"
 VNEXT_PLUS18_CI_BUDGET_GATE_KEY = "artifact_stop_gate_ci_budget_within_ceiling"
@@ -149,6 +155,12 @@ _FROZEN_INTEGRITY_EXTENDED_SURFACES: tuple[str, ...] = (
     "adeu.integrity.deontic_conflict_extended",
 )
 _FROZEN_INTEGRITY_EXTENDED_SURFACE_SET = frozenset(_FROZEN_INTEGRITY_EXTENDED_SURFACES)
+_FROZEN_TOOLING_SURFACES: tuple[str, ...] = (
+    "adeu.tooling.validation_parity",
+    "adeu.tooling.transfer_report_parity",
+    "adeu.tooling.ci_budget",
+)
+_FROZEN_TOOLING_SURFACE_SET = frozenset(_FROZEN_TOOLING_SURFACES)
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -198,6 +210,8 @@ THRESHOLDS = {
     "artifact_reference_integrity_extended_determinism_pct": 100.0,
     "artifact_cycle_policy_extended_determinism_pct": 100.0,
     "artifact_deontic_conflict_extended_determinism_pct": 100.0,
+    "artifact_validation_consolidation_parity_pct": 100.0,
+    "artifact_transfer_report_consolidation_parity_pct": 100.0,
     "artifact_stop_gate_ci_budget_within_ceiling_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
@@ -269,6 +283,10 @@ def _default_vnext_plus17_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus17_manifest.json")
 
 
+def _default_vnext_plus18_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus18_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
@@ -279,6 +297,7 @@ VNEXT_PLUS14_MANIFEST_PATH = _default_vnext_plus14_manifest_path()
 VNEXT_PLUS15_MANIFEST_PATH = _default_vnext_plus15_manifest_path()
 VNEXT_PLUS16_MANIFEST_PATH = _default_vnext_plus16_manifest_path()
 VNEXT_PLUS17_MANIFEST_PATH = _default_vnext_plus17_manifest_path()
+VNEXT_PLUS18_MANIFEST_PATH = _default_vnext_plus18_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -3006,6 +3025,18 @@ def _issue_with_context(issue: dict[str, Any], *, context: dict[str, Any]) -> di
     }
 
 
+def _map_issue_code(
+    issue: dict[str, Any],
+    *,
+    code_map: Mapping[str, str],
+) -> dict[str, Any]:
+    mapped = dict(issue)
+    code = mapped.get("code")
+    if isinstance(code, str) and code in code_map:
+        mapped["code"] = code_map[code]
+    return mapped
+
+
 def _read_json_object(path: Path, *, description: str) -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -3275,6 +3306,7 @@ def _manifest_metric_pct(
     required_run_fields: tuple[str, ...],
     run_hash_builder: Callable[..., Any],
     issues: list[dict[str, Any]],
+    invalid_issue_code: str = "URM_STOP_GATE_INPUT_INVALID",
     drift_issue_code: str | None = None,
     drift_issue_message: str | None = None,
 ) -> float:
@@ -3289,7 +3321,7 @@ def _manifest_metric_pct(
             fixture_id = f"{metric_name}_fixture_{fixture_index}"
             issues.append(
                 _issue(
-                    "URM_STOP_GATE_INPUT_INVALID",
+                    invalid_issue_code,
                     "manifest fixture_id must be a non-empty string",
                     context={
                         "manifest_path": str(manifest_path),
@@ -3303,7 +3335,7 @@ def _manifest_metric_pct(
         if not isinstance(runs, list):
             issues.append(
                 _issue(
-                    "URM_STOP_GATE_INPUT_INVALID",
+                    invalid_issue_code,
                     "manifest fixture runs must be a list",
                     context={
                         "manifest_path": str(manifest_path),
@@ -3316,7 +3348,7 @@ def _manifest_metric_pct(
         if len(runs) != replay_count:
             issues.append(
                 _issue(
-                    "URM_STOP_GATE_INPUT_INVALID",
+                    invalid_issue_code,
                     "manifest fixture run count does not match frozen replay count",
                     context={
                         "manifest_path": str(manifest_path),
@@ -3335,7 +3367,7 @@ def _manifest_metric_pct(
             if not isinstance(run, dict):
                 issues.append(
                     _issue(
-                        "URM_STOP_GATE_INPUT_INVALID",
+                        invalid_issue_code,
                         "manifest run entry must be an object",
                         context={
                             "manifest_path": str(manifest_path),
@@ -3358,8 +3390,12 @@ def _manifest_metric_pct(
                 run_hash = run_hash_builder(**resolved_paths)
             except ValueError as exc:
                 issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
-                    "URM_STOP_GATE_INPUT_INVALID",
+                    invalid_issue_code,
                     str(exc),
+                )
+                issue = _map_issue_code(
+                    issue,
+                    code_map={"URM_STOP_GATE_INPUT_INVALID": invalid_issue_code},
                 )
                 issues.append(
                     _issue_with_context(
@@ -3380,7 +3416,7 @@ def _manifest_metric_pct(
             if not isinstance(run_hash_value, str):
                 issues.append(
                     _issue(
-                        "URM_STOP_GATE_INPUT_INVALID",
+                        invalid_issue_code,
                         "manifest run hash builder must return string hash",
                         context={
                             "manifest_path": str(manifest_path),
@@ -5096,6 +5132,27 @@ _VNEXT_PLUS17_INTEGRITY_SURFACE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] 
     ),
 )
 
+_VNEXT_PLUS18_TOOLING_SURFACE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "validation_parity_fixtures",
+        "artifact_validation_consolidation_parity_pct",
+        "adeu.tooling.validation_parity",
+        ("baseline_path", "candidate_path"),
+    ),
+    (
+        "transfer_report_parity_fixtures",
+        "artifact_transfer_report_consolidation_parity_pct",
+        "adeu.tooling.transfer_report_parity",
+        ("baseline_path", "candidate_path"),
+    ),
+    (
+        "ci_budget_fixtures",
+        VNEXT_PLUS18_CI_BUDGET_METRIC_KEY,
+        "adeu.tooling.ci_budget",
+        ("report_path",),
+    ),
+)
+
 
 def _validate_integrity_surface_fixtures(
     *,
@@ -5963,6 +6020,408 @@ def _runtime_budget_metric_pct(
     )
 
 
+def _tooling_parity_hash_projection(payload: Mapping[str, Any]) -> dict[str, Any]:
+    projected = dict(payload)
+    projected.pop("runtime_observability", None)
+    return projected
+
+
+def _read_tooling_parity_payload(
+    *,
+    path: Path,
+    description: str,
+    invalid_code: str,
+) -> dict[str, Any]:
+    try:
+        return _read_json_object(path, description=description)
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            invalid_code,
+            str(exc),
+            context={"path": str(path)},
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={"URM_STOP_GATE_INPUT_INVALID": invalid_code},
+        )
+        raise ValueError(issue) from exc
+
+
+def _tooling_parity_fixture_hash(
+    *,
+    baseline_path: Path,
+    candidate_path: Path,
+    invalid_code: str,
+    drift_message: str,
+) -> str:
+    baseline_payload = _read_tooling_parity_payload(
+        path=baseline_path,
+        description="tooling parity baseline artifact",
+        invalid_code=invalid_code,
+    )
+    candidate_payload = _read_tooling_parity_payload(
+        path=candidate_path,
+        description="tooling parity candidate artifact",
+        invalid_code=invalid_code,
+    )
+    baseline_schema = baseline_payload.get("schema")
+    candidate_schema = candidate_payload.get("schema")
+    if not isinstance(baseline_schema, str) or not isinstance(candidate_schema, str):
+        raise ValueError(
+            _issue(
+                invalid_code,
+                "tooling parity artifacts must contain schema field",
+                context={
+                    "baseline_path": str(baseline_path),
+                    "candidate_path": str(candidate_path),
+                },
+            )
+        )
+    if baseline_schema != candidate_schema:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                "tooling parity fixture baseline/candidate schema mismatch",
+                context={
+                    "baseline_path": str(baseline_path),
+                    "candidate_path": str(candidate_path),
+                    "baseline_schema": baseline_schema,
+                    "candidate_schema": candidate_schema,
+                },
+            )
+        )
+
+    baseline_hash = sha256_canonical_json(_tooling_parity_hash_projection(baseline_payload))
+    candidate_hash = sha256_canonical_json(_tooling_parity_hash_projection(candidate_payload))
+    if baseline_hash != candidate_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_TOOLING_PARITY_DRIFT",
+                drift_message,
+                context={
+                    "baseline_path": str(baseline_path),
+                    "candidate_path": str(candidate_path),
+                    "schema": baseline_schema,
+                },
+            )
+        )
+    return candidate_hash
+
+
+def _tooling_validation_parity_fixture_hash(
+    *,
+    baseline_path: Path,
+    candidate_path: Path,
+) -> str:
+    return _tooling_parity_fixture_hash(
+        baseline_path=baseline_path,
+        candidate_path=candidate_path,
+        invalid_code="URM_ADEU_TOOLING_VALIDATION_PARITY_INVALID",
+        drift_message="vnext+18 validation consolidation parity drift",
+    )
+
+
+def _tooling_transfer_report_parity_fixture_hash(
+    *,
+    baseline_path: Path,
+    candidate_path: Path,
+) -> str:
+    return _tooling_parity_fixture_hash(
+        baseline_path=baseline_path,
+        candidate_path=candidate_path,
+        invalid_code="URM_ADEU_TOOLING_TRANSFER_REPORT_PARITY_INVALID",
+        drift_message="vnext+18 transfer-report consolidation parity drift",
+    )
+
+
+def _validate_vnext_plus18_ci_budget_report_payload(
+    *,
+    report_payload: Mapping[str, Any],
+    report_path: Path,
+    manifest_path: Path,
+    fixture_id: str,
+    issues: list[dict[str, Any]],
+) -> bool:
+    if report_payload.get("schema") != STOP_GATE_SCHEMA:
+        issues.append(
+            _issue(
+                "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
+                "vnext+18 ci-budget evidence report must use stop_gate_metrics@1 schema",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "fixture_id": fixture_id,
+                    "path": str(report_path),
+                    "schema": report_payload.get("schema"),
+                },
+            )
+        )
+        return False
+    runtime_observability = report_payload.get("runtime_observability")
+    if not isinstance(runtime_observability, dict):
+        issues.append(
+            _issue(
+                "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
+                "vnext+18 ci-budget evidence report missing runtime_observability object",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "fixture_id": fixture_id,
+                    "path": str(report_path),
+                },
+            )
+        )
+        return False
+    for field in ("total_fixtures", "total_replays", "elapsed_ms"):
+        value = runtime_observability.get(field)
+        if not isinstance(value, int) or value < 0:
+            issues.append(
+                _issue(
+                    "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
+                    (
+                        "vnext+18 ci-budget evidence runtime_observability fields "
+                        "must be non-negative integers"
+                    ),
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "fixture_id": fixture_id,
+                        "path": str(report_path),
+                        "field": field,
+                    },
+                )
+            )
+            return False
+    return True
+
+
+def _validate_vnext_plus18_ci_budget_evidence(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> bool:
+    if len(fixtures) != 1:
+        issues.append(
+            _issue(
+                "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                "vnext+18 ci_budget_fixtures must contain exactly one fixture entry",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "observed_fixture_count": len(fixtures),
+                    "expected_fixture_count": 1,
+                },
+            )
+        )
+        return False
+
+    fixture = fixtures[0]
+    fixture_id = fixture.get("fixture_id")
+    if not isinstance(fixture_id, str) or not fixture_id:
+        fixture_id = "vnext_plus18_ci_budget_fixture"
+    runs = fixture.get("runs")
+    if not isinstance(runs, list) or len(runs) != 1:
+        issues.append(
+            _issue(
+                "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                "vnext+18 ci_budget fixture must contain exactly one run entry",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "fixture_id": fixture_id,
+                    "observed_run_count": 0 if not isinstance(runs, list) else len(runs),
+                    "expected_run_count": 1,
+                },
+            )
+        )
+        return False
+    run = runs[0]
+    if not isinstance(run, dict):
+        issues.append(
+            _issue(
+                "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                "vnext+18 ci_budget run entry must be an object",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "fixture_id": fixture_id,
+                    "run_index": 0,
+                },
+            )
+        )
+        return False
+    try:
+        report_path = _resolve_manifest_relative_path(
+            manifest_path=manifest_path,
+            raw_path=run.get("report_path"),
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_TOOLING_FIXTURE_INVALID",
+            str(exc),
+            context={"manifest_path": str(manifest_path), "fixture_id": fixture_id},
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={"URM_STOP_GATE_INPUT_INVALID": "URM_ADEU_TOOLING_FIXTURE_INVALID"},
+        )
+        issues.append(
+            _issue_with_context(
+                issue,
+                context={"manifest_path": str(manifest_path), "fixture_id": fixture_id},
+            )
+        )
+        return False
+    try:
+        report_payload = _read_json_object(
+            report_path,
+            description="vnext+18 ci-budget evidence report",
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_TOOLING_CI_BUDGET_INVALID",
+            str(exc),
+            context={"path": str(report_path)},
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={"URM_STOP_GATE_INPUT_INVALID": "URM_ADEU_TOOLING_CI_BUDGET_INVALID"},
+        )
+        issues.append(
+            _issue_with_context(
+                issue,
+                context={"manifest_path": str(manifest_path), "fixture_id": fixture_id},
+            )
+        )
+        return False
+
+    return _validate_vnext_plus18_ci_budget_report_payload(
+        report_payload=report_payload,
+        report_path=report_path,
+        manifest_path=manifest_path,
+        fixture_id=fixture_id,
+        issues=issues,
+    )
+
+
+def _load_vnext_plus18_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        return _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+18",
+            manifest_schema=VNEXT_PLUS18_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS18_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS18_TOOLING_SURFACE_SPECS,
+            frozen_surface_set=_FROZEN_TOOLING_SURFACE_SET,
+            frozen_surfaces=_FROZEN_TOOLING_SURFACES,
+            surface_description="frozen tooling surface",
+            surface_set_description="frozen tooling surfaces",
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_TOOLING_FIXTURE_INVALID",
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    "URM_ADEU_TOOLING_MANIFEST_HASH_MISMATCH"
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus18_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS18_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus18_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_TOOLING_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS18_DEFAULT_METRICS,
+            "vnext_plus18_manifest_hash": "",
+            "vnext_plus18_fixture_count_total": 0,
+            "vnext_plus18_replay_count_total": 0,
+            "vnext_plus18_ci_budget_evidence_valid": False,
+        }
+
+    validation_parity_fixtures = cast(list[dict[str, Any]], manifest["validation_parity_fixtures"])
+    transfer_report_parity_fixtures = cast(
+        list[dict[str, Any]], manifest["transfer_report_parity_fixtures"]
+    )
+    ci_budget_fixtures = cast(list[dict[str, Any]], manifest["ci_budget_fixtures"])
+
+    artifact_validation_consolidation_parity_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="artifact_validation_consolidation_parity_pct",
+        fixtures=validation_parity_fixtures,
+        replay_count=VNEXT_PLUS18_REPLAY_COUNT,
+        required_run_fields=("baseline_path", "candidate_path"),
+        run_hash_builder=_tooling_validation_parity_fixture_hash,
+        issues=issues,
+        invalid_issue_code="URM_ADEU_TOOLING_FIXTURE_INVALID",
+        drift_issue_code="URM_ADEU_TOOLING_PARITY_DRIFT",
+        drift_issue_message="vnext+18 validation consolidation parity drift",
+    )
+    artifact_transfer_report_consolidation_parity_pct = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name="artifact_transfer_report_consolidation_parity_pct",
+        fixtures=transfer_report_parity_fixtures,
+        replay_count=VNEXT_PLUS18_REPLAY_COUNT,
+        required_run_fields=("baseline_path", "candidate_path"),
+        run_hash_builder=_tooling_transfer_report_parity_fixture_hash,
+        issues=issues,
+        invalid_issue_code="URM_ADEU_TOOLING_FIXTURE_INVALID",
+        drift_issue_code="URM_ADEU_TOOLING_PARITY_DRIFT",
+        drift_issue_message="vnext+18 transfer-report consolidation parity drift",
+    )
+    ci_budget_evidence_valid = _validate_vnext_plus18_ci_budget_evidence(
+        manifest_path=resolved_manifest_path,
+        fixtures=ci_budget_fixtures,
+        issues=issues,
+    )
+
+    fixture_count_total = (
+        len(validation_parity_fixtures)
+        + len(transfer_report_parity_fixtures)
+        + len(ci_budget_fixtures)
+    )
+    replay_count_total = sum(
+        len(cast(list[Any], fixture.get("runs", [])))
+        for fixture in (
+            *validation_parity_fixtures,
+            *transfer_report_parity_fixtures,
+            *ci_budget_fixtures,
+        )
+    )
+
+    return {
+        "artifact_validation_consolidation_parity_pct": (
+            artifact_validation_consolidation_parity_pct
+        ),
+        "artifact_transfer_report_consolidation_parity_pct": (
+            artifact_transfer_report_consolidation_parity_pct
+        ),
+        "vnext_plus18_manifest_hash": manifest_hash,
+        "vnext_plus18_fixture_count_total": fixture_count_total,
+        "vnext_plus18_replay_count_total": replay_count_total,
+        "vnext_plus18_ci_budget_evidence_valid": ci_budget_evidence_valid,
+    }
+
+
 def build_stop_gate_metrics(
     *,
     incident_packet_paths: list[Path],
@@ -5982,6 +6441,7 @@ def build_stop_gate_metrics(
     vnext_plus15_manifest_path: Path | None = None,
     vnext_plus16_manifest_path: Path | None = None,
     vnext_plus17_manifest_path: Path | None = None,
+    vnext_plus18_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -6359,6 +6819,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus17_manifest_path,
         issues=issues,
     )
+    vnext_plus18_metrics = _compute_vnext_plus18_metrics(
+        manifest_path=vnext_plus18_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -6424,8 +6888,8 @@ def build_stop_gate_metrics(
             quality_delta_non_negative = bool(quality_checks) and all(quality_checks)
 
     runtime_observability = _runtime_observability_payload(
-        total_fixtures=int(vnext_plus17_metrics["vnext_plus17_fixture_count_total"]),
-        total_replays=int(vnext_plus17_metrics["vnext_plus17_replay_count_total"]),
+        total_fixtures=int(vnext_plus18_metrics["vnext_plus18_fixture_count_total"]),
+        total_replays=int(vnext_plus18_metrics["vnext_plus18_replay_count_total"]),
         runtime_started=runtime_started,
     )
     runtime_budget_metric_pct, runtime_budget_issue = _runtime_budget_metric_pct(
@@ -6433,6 +6897,8 @@ def build_stop_gate_metrics(
     )
     if runtime_budget_issue is not None:
         issues.append(runtime_budget_issue)
+    if not bool(vnext_plus18_metrics["vnext_plus18_ci_budget_evidence_valid"]):
+        runtime_budget_metric_pct = 0.0
 
     metrics = {
         "policy_incident_reproducibility_pct": policy_incident_reproducibility_pct,
@@ -6562,6 +7028,12 @@ def build_stop_gate_metrics(
         "artifact_deontic_conflict_extended_determinism_pct": vnext_plus17_metrics[
             "artifact_deontic_conflict_extended_determinism_pct"
         ],
+        "artifact_validation_consolidation_parity_pct": vnext_plus18_metrics[
+            "artifact_validation_consolidation_parity_pct"
+        ],
+        "artifact_transfer_report_consolidation_parity_pct": vnext_plus18_metrics[
+            "artifact_transfer_report_consolidation_parity_pct"
+        ],
         VNEXT_PLUS18_CI_BUDGET_METRIC_KEY: runtime_budget_metric_pct,
     }
     gates = {
@@ -6666,6 +7138,14 @@ def build_stop_gate_metrics(
             "artifact_deontic_conflict_extended_determinism_pct"
         ]
         >= THRESHOLDS["artifact_deontic_conflict_extended_determinism_pct"],
+        "artifact_validation_consolidation_parity": metrics[
+            "artifact_validation_consolidation_parity_pct"
+        ]
+        >= THRESHOLDS["artifact_validation_consolidation_parity_pct"],
+        "artifact_transfer_report_consolidation_parity": metrics[
+            "artifact_transfer_report_consolidation_parity_pct"
+        ]
+        >= THRESHOLDS["artifact_transfer_report_consolidation_parity_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -6741,6 +7221,11 @@ def build_stop_gate_metrics(
                 if vnext_plus17_manifest_path is not None
                 else VNEXT_PLUS17_MANIFEST_PATH
             ),
+            "vnext_plus18_manifest_path": str(
+                vnext_plus18_manifest_path
+                if vnext_plus18_manifest_path is not None
+                else VNEXT_PLUS18_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -6751,6 +7236,7 @@ def build_stop_gate_metrics(
         "vnext_plus15_manifest_hash": vnext_plus15_metrics["vnext_plus15_manifest_hash"],
         "vnext_plus16_manifest_hash": vnext_plus16_metrics["vnext_plus16_manifest_hash"],
         "vnext_plus17_manifest_hash": vnext_plus17_metrics["vnext_plus17_manifest_hash"],
+        "vnext_plus18_manifest_hash": vnext_plus18_metrics["vnext_plus18_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -6783,6 +7269,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+15 manifest hash: `{report.get('vnext_plus15_manifest_hash')}`")
     lines.append(f"- vnext+16 manifest hash: `{report.get('vnext_plus16_manifest_hash')}`")
     lines.append(f"- vnext+17 manifest hash: `{report.get('vnext_plus17_manifest_hash')}`")
+    lines.append(f"- vnext+18 manifest hash: `{report.get('vnext_plus18_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -6980,6 +7467,14 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('artifact_deontic_conflict_extended_determinism_pct')}`"
     )
     lines.append(
+        "- artifact validation consolidation parity pct: "
+        f"`{metrics.get('artifact_validation_consolidation_parity_pct')}`"
+    )
+    lines.append(
+        "- artifact transfer-report consolidation parity pct: "
+        f"`{metrics.get('artifact_transfer_report_consolidation_parity_pct')}`"
+    )
+    lines.append(
         "- artifact stop-gate ci budget within ceiling pct: "
         f"`{metrics.get('artifact_stop_gate_ci_budget_within_ceiling_pct')}`"
     )
@@ -7138,6 +7633,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS17_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus18-manifest",
+        dest="vnext_plus18_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS18_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -7163,6 +7664,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus15_manifest_path=args.vnext_plus15_manifest_path,
         vnext_plus16_manifest_path=args.vnext_plus16_manifest_path,
         vnext_plus17_manifest_path=args.vnext_plus17_manifest_path,
+        vnext_plus18_manifest_path=args.vnext_plus18_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
