@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
 import urm_runtime.stop_gate_tools as stop_gate_tools_module
 from adeu_kernel import (
     build_proof_evidence_packet,
@@ -779,6 +780,16 @@ def _base_stop_gate_kwargs(
     }
 
 
+def _vnext_plus13_to_17_manifest_kwargs() -> dict[str, Path]:
+    return {
+        "vnext_plus13_manifest_path": _vnext_plus13_manifest_path(),
+        "vnext_plus14_manifest_path": _vnext_plus14_manifest_path(),
+        "vnext_plus15_manifest_path": _vnext_plus15_manifest_path(),
+        "vnext_plus16_manifest_path": _vnext_plus16_manifest_path(),
+        "vnext_plus17_manifest_path": _vnext_plus17_manifest_path(),
+    }
+
+
 def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> None:
     quality_current = tmp_path / "quality_current.json"
     quality_baseline = tmp_path / "quality_baseline.json"
@@ -877,6 +888,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["artifact_reference_integrity_extended_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_cycle_policy_extended_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_deontic_conflict_extended_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_stop_gate_ci_budget_within_ceiling_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -902,6 +914,47 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert runtime_observability["total_replays"] == 9
     assert isinstance(runtime_observability["elapsed_ms"], int)
     assert runtime_observability["elapsed_ms"] >= 0
+    assert first["gates"]["artifact_stop_gate_ci_budget_within_ceiling"] is True
+
+
+def test_build_stop_gate_metrics_fails_when_runtime_budget_exceeds_ceiling(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    ceiling_ms = int(stop_gate_tools_module.VNEXT_PLUS18_CI_BUDGET_CEILING_MS)
+    ticks = iter([0.0, (ceiling_ms + 1) / 1000.0])
+
+    def _fake_monotonic() -> float:
+        return next(ticks, (ceiling_ms + 1) / 1000.0)
+
+    monkeypatch.setattr(stop_gate_tools_module.time, "monotonic", _fake_monotonic)
+
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **_vnext_plus13_to_17_manifest_kwargs(),
+    )
+
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_stop_gate_ci_budget_within_ceiling_pct"] == 0.0
+    assert report["gates"]["artifact_stop_gate_ci_budget_within_ceiling"] is False
+    runtime_observability = report["runtime_observability"]
+    assert runtime_observability["elapsed_ms"] > ceiling_ms
+    assert any(
+        issue.get("code") == "URM_ADEU_TOOLING_RUNTIME_BUDGET_EXCEEDED"
+        and issue.get("message") == "stop-gate runtime budget exceeded frozen ceiling"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
 
 
 def test_build_stop_gate_metrics_detects_replay_hash_drift_for_semantics_metrics(
