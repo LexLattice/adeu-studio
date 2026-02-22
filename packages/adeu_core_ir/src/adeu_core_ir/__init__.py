@@ -27,6 +27,13 @@ from .integrity_deontic_conflict import (
     build_integrity_deontic_conflict_diagnostics,
     canonicalize_integrity_deontic_conflict_payload,
 )
+from .integrity_deontic_conflict_extended import (
+    AdeuIntegrityDeonticConflictExtended,
+    AdeuIntegrityDeonticConflictExtendedEntry,
+    AdeuIntegrityDeonticConflictExtendedSummary,
+    build_integrity_deontic_conflict_extended_diagnostics,
+    canonicalize_integrity_deontic_conflict_extended_payload,
+)
 from .integrity_reference_integrity_extended import (
     AdeuIntegrityReferenceIntegrityExtended,
     AdeuIntegrityReferenceIntegrityExtendedIssue,
@@ -107,6 +114,11 @@ __all__ = [
     "AdeuIntegrityDeonticConflictSummary",
     "build_integrity_deontic_conflict_diagnostics",
     "canonicalize_integrity_deontic_conflict_payload",
+    "AdeuIntegrityDeonticConflictExtended",
+    "AdeuIntegrityDeonticConflictExtendedEntry",
+    "AdeuIntegrityDeonticConflictExtendedSummary",
+    "build_integrity_deontic_conflict_extended_diagnostics",
+    "canonicalize_integrity_deontic_conflict_extended_payload",
     "AdeuIntegrityDanglingReference",
     "AdeuIntegrityDanglingReferenceIssue",
     "AdeuIntegrityDanglingReferenceSummary",
