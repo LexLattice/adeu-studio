@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -72,42 +74,81 @@ def _build_coverage_summary(*, manifest_coverage_entries: list[dict[str, Any]]) 
     }
 
 
-def _build_reference_integrity_extended_summary(
+def _build_integrity_family_summary(
     *,
     manifest_path: Path,
     fixtures: list[dict[str, Any]],
+    run_ref_key: str,
+    summary_total_key: str,
+    summary_kind_keys: tuple[str, ...],
+    validate_payload: Callable[[Path], dict[str, Any]],
+    total_output_key: str,
+    counts_output_key: str,
 ) -> dict[str, Any]:
-    total_issues = 0
-    issue_kind_counts = {
-        "edge_type_constraint_violation": 0,
-        "duplicate_edge_identity": 0,
-    }
+    total_count = 0
+    kind_counts = {key: 0 for key in summary_kind_keys}
     run_count = 0
     for fixture in fixtures:
         for run in fixture["runs"]:
             run_count += 1
             artifact_path = _resolve_ref(
                 manifest_path=manifest_path,
-                raw_ref=str(run["reference_integrity_extended_path"]),
+                raw_ref=str(run[run_ref_key]),
             )
             try:
-                payload = _validated_adeu_integrity_reference_integrity_extended_payload(
-                    reference_integrity_extended_path=artifact_path,
-                )
+                payload = validate_payload(artifact_path)
             except ValueError as exc:
                 raise _as_integrity_transfer_report_error(exc) from exc
             summary = payload["summary"]
             assert isinstance(summary, dict)
-            total_issues += int(summary["total_issues"])
-            for key in issue_kind_counts:
-                issue_kind_counts[key] += int(summary[key])
+            total_count += int(summary[summary_total_key])
+            for key in kind_counts:
+                kind_counts[key] += int(summary[key])
     return {
         "valid": True,
         "fixture_count": len(fixtures),
         "run_count": run_count,
-        "total_issues": total_issues,
-        "issue_kind_counts": issue_kind_counts,
+        total_output_key: total_count,
+        counts_output_key: kind_counts,
     }
+
+
+def _validate_reference_integrity_extended_payload(path: Path) -> dict[str, Any]:
+    return _validated_adeu_integrity_reference_integrity_extended_payload(
+        reference_integrity_extended_path=path,
+    )
+
+
+def _validate_cycle_policy_extended_payload(path: Path) -> dict[str, Any]:
+    return _validated_adeu_integrity_cycle_policy_extended_payload(
+        cycle_policy_extended_path=path,
+    )
+
+
+def _validate_deontic_conflict_extended_payload(path: Path) -> dict[str, Any]:
+    return _validated_adeu_integrity_deontic_conflict_extended_payload(
+        deontic_conflict_extended_path=path,
+    )
+
+
+def _build_reference_integrity_extended_summary(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+) -> dict[str, Any]:
+    return _build_integrity_family_summary(
+        manifest_path=manifest_path,
+        fixtures=fixtures,
+        run_ref_key="reference_integrity_extended_path",
+        summary_total_key="total_issues",
+        summary_kind_keys=(
+            "edge_type_constraint_violation",
+            "duplicate_edge_identity",
+        ),
+        validate_payload=_validate_reference_integrity_extended_payload,
+        total_output_key="total_issues",
+        counts_output_key="issue_kind_counts",
+    )
 
 
 def _build_cycle_policy_extended_summary(
@@ -115,39 +156,21 @@ def _build_cycle_policy_extended_summary(
     manifest_path: Path,
     fixtures: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    total_cycles = 0
-    cycle_kind_counts = {
-        "self_cycle": 0,
-        "multi_node_cycle": 0,
-        "dependency_loop": 0,
-        "exception_loop": 0,
-    }
-    run_count = 0
-    for fixture in fixtures:
-        for run in fixture["runs"]:
-            run_count += 1
-            artifact_path = _resolve_ref(
-                manifest_path=manifest_path,
-                raw_ref=str(run["cycle_policy_extended_path"]),
-            )
-            try:
-                payload = _validated_adeu_integrity_cycle_policy_extended_payload(
-                    cycle_policy_extended_path=artifact_path,
-                )
-            except ValueError as exc:
-                raise _as_integrity_transfer_report_error(exc) from exc
-            summary = payload["summary"]
-            assert isinstance(summary, dict)
-            total_cycles += int(summary["total_cycles"])
-            for key in cycle_kind_counts:
-                cycle_kind_counts[key] += int(summary[key])
-    return {
-        "valid": True,
-        "fixture_count": len(fixtures),
-        "run_count": run_count,
-        "total_cycles": total_cycles,
-        "cycle_kind_counts": cycle_kind_counts,
-    }
+    return _build_integrity_family_summary(
+        manifest_path=manifest_path,
+        fixtures=fixtures,
+        run_ref_key="cycle_policy_extended_path",
+        summary_total_key="total_cycles",
+        summary_kind_keys=(
+            "self_cycle",
+            "multi_node_cycle",
+            "dependency_loop",
+            "exception_loop",
+        ),
+        validate_payload=_validate_cycle_policy_extended_payload,
+        total_output_key="total_cycles",
+        counts_output_key="cycle_kind_counts",
+    )
 
 
 def _build_deontic_conflict_extended_summary(
@@ -155,37 +178,19 @@ def _build_deontic_conflict_extended_summary(
     manifest_path: Path,
     fixtures: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    total_conflicts = 0
-    conflict_kind_counts = {
-        "deontic_conflict": 0,
-        "deontic_tension": 0,
-    }
-    run_count = 0
-    for fixture in fixtures:
-        for run in fixture["runs"]:
-            run_count += 1
-            artifact_path = _resolve_ref(
-                manifest_path=manifest_path,
-                raw_ref=str(run["deontic_conflict_extended_path"]),
-            )
-            try:
-                payload = _validated_adeu_integrity_deontic_conflict_extended_payload(
-                    deontic_conflict_extended_path=artifact_path,
-                )
-            except ValueError as exc:
-                raise _as_integrity_transfer_report_error(exc) from exc
-            summary = payload["summary"]
-            assert isinstance(summary, dict)
-            total_conflicts += int(summary["total_conflicts"])
-            for key in conflict_kind_counts:
-                conflict_kind_counts[key] += int(summary[key])
-    return {
-        "valid": True,
-        "fixture_count": len(fixtures),
-        "run_count": run_count,
-        "total_conflicts": total_conflicts,
-        "conflict_kind_counts": conflict_kind_counts,
-    }
+    return _build_integrity_family_summary(
+        manifest_path=manifest_path,
+        fixtures=fixtures,
+        run_ref_key="deontic_conflict_extended_path",
+        summary_total_key="total_conflicts",
+        summary_kind_keys=(
+            "deontic_conflict",
+            "deontic_tension",
+        ),
+        validate_payload=_validate_deontic_conflict_extended_payload,
+        total_output_key="total_conflicts",
+        counts_output_key="conflict_kind_counts",
+    )
 
 
 def _build_replay_summary(
@@ -264,6 +269,7 @@ def build_integrity_transfer_report_vnext_plus17_payload(
 
 
 def integrity_transfer_report_vnext_plus17_markdown(payload: dict[str, Any]) -> str:
+    rendered_payload = json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
     lines: list[str] = [
         "# Integrity Transfer Report vNext+17",
         "",
@@ -271,7 +277,7 @@ def integrity_transfer_report_vnext_plus17_markdown(payload: dict[str, Any]) -> 
         "extended integrity fixtures and diagnostics.",
         "",
         "```json",
-        canonical_json(payload),
+        rendered_payload,
         "```",
         "",
     ]
