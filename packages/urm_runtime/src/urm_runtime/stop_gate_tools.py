@@ -5465,7 +5465,7 @@ def _load_integrity_manifest_payload(
             )
         )
 
-    fixture_list_keys = tuple(spec[0] for spec in surface_specs)
+    fixture_list_keys = tuple(list_key for list_key, _, _, _ in surface_specs)
     _validate_integrity_required_fixture_lists(
         payload=payload,
         manifest_path=manifest_path,
