@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from adeu_core_ir import (
     AdeuSemanticsV4CandidatePacket,
@@ -176,32 +176,30 @@ class SemanticsV4CandidateProjectionVnextPlus23(BaseModel):
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "SemanticsV4CandidateProjectionVnextPlus23":
-        if list(self.comparison_counts_by_code.keys()) != sorted(
-            self.comparison_counts_by_code.keys()
+        for field_name, valid_keys, unsupported_key_error in (
+            (
+                "comparison_counts_by_code",
+                set(_COMPARISON_MESSAGE_BY_CODE),
+                "comparison_counts_by_code contains unsupported comparison_code",
+            ),
+            (
+                "comparison_counts_by_status",
+                {"compatible", "drift"},
+                "comparison_counts_by_status contains unsupported status value",
+            ),
+            (
+                "comparison_counts_by_severity",
+                {"high", "low", "medium"},
+                "comparison_counts_by_severity contains unsupported severity value",
+            ),
         ):
-            raise ValueError("comparison_counts_by_code keys must be lexicographically sorted")
-        if any(key not in _COMPARISON_MESSAGE_BY_CODE for key in self.comparison_counts_by_code):
-            raise ValueError("comparison_counts_by_code contains unsupported comparison_code")
-        if any(value < 0 for value in self.comparison_counts_by_code.values()):
-            raise ValueError("comparison_counts_by_code values must be non-negative integers")
-
-        if list(self.comparison_counts_by_status.keys()) != sorted(
-            self.comparison_counts_by_status.keys()
-        ):
-            raise ValueError("comparison_counts_by_status keys must be lexicographically sorted")
-        if any(key not in {"compatible", "drift"} for key in self.comparison_counts_by_status):
-            raise ValueError("comparison_counts_by_status contains unsupported status value")
-        if any(value < 0 for value in self.comparison_counts_by_status.values()):
-            raise ValueError("comparison_counts_by_status values must be non-negative integers")
-
-        if list(self.comparison_counts_by_severity.keys()) != sorted(
-            self.comparison_counts_by_severity.keys()
-        ):
-            raise ValueError("comparison_counts_by_severity keys must be lexicographically sorted")
-        if any(key not in {"high", "low", "medium"} for key in self.comparison_counts_by_severity):
-            raise ValueError("comparison_counts_by_severity contains unsupported severity value")
-        if any(value < 0 for value in self.comparison_counts_by_severity.values()):
-            raise ValueError("comparison_counts_by_severity values must be non-negative integers")
+            counts_dict = cast(dict[str, int], getattr(self, field_name))
+            if list(counts_dict.keys()) != sorted(counts_dict.keys()):
+                raise ValueError(f"{field_name} keys must be lexicographically sorted")
+            if any(key not in valid_keys for key in counts_dict):
+                raise ValueError(unsupported_key_error)
+            if any(value < 0 for value in counts_dict.values()):
+                raise ValueError(f"{field_name} values must be non-negative integers")
 
         if self.comparison_item_count != sum(self.comparison_counts_by_code.values()):
             raise ValueError(
