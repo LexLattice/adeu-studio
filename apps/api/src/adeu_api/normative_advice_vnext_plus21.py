@@ -14,6 +14,7 @@ from .cross_ir_bridge_vnext_plus20 import (
     CrossIRBridgeVnextPlus20Error,
     build_cross_ir_bridge_manifest_vnext_plus20,
     canonical_bridge_manifest_hash_vnext_plus20,
+    list_cross_ir_catalog_pairs_vnext_plus20,
     load_cross_ir_pair_artifacts_vnext_plus20,
 )
 from .cross_ir_coherence_vnext_plus20 import AdeuCrossIRCoherenceDiagnostics
@@ -24,7 +25,9 @@ VNEXT_PLUS20_STOP_GATE_MANIFEST_PATH = (
     Path(__file__).resolve().parents[2] / "fixtures" / "stop_gate" / "vnext_plus20_manifest.json"
 )
 NORMATIVE_ADVICE_PACKET_SCHEMA = "adeu_normative_advice_packet@0.1"
+NORMATIVE_ADVICE_PROJECTION_SCHEMA = "normative_advice_projection.vnext_plus21@1"
 _COHERENCE_SURFACE_ID = "adeu.cross_ir.coherence_diagnostics"
+_PRIORITY_VALUES = frozenset({"low", "medium", "high"})
 
 NormativeAdviceCode = Literal[
     "MAPPING_GAP_REVIEW",
@@ -113,6 +116,46 @@ class _VnextPlus20StopGateManifest(BaseModel):
     )
 
 
+class NormativeAdviceProjectionVnextPlus21(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["normative_advice_projection.vnext_plus21@1"] = (
+        NORMATIVE_ADVICE_PROJECTION_SCHEMA
+    )
+    bridge_pair_count: int = Field(ge=0)
+    advice_item_count: int = Field(ge=0)
+    advice_counts_by_code: dict[str, int] = Field(default_factory=dict)
+    advice_counts_by_priority: dict[str, int] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "NormativeAdviceProjectionVnextPlus21":
+        if list(self.advice_counts_by_code.keys()) != sorted(self.advice_counts_by_code.keys()):
+            raise ValueError("advice_counts_by_code keys must be lexicographically sorted")
+        if any(key not in _ADVICE_PRIORITY_BY_CODE for key in self.advice_counts_by_code):
+            raise ValueError("advice_counts_by_code contains unsupported advice_code")
+        if any(value < 0 for value in self.advice_counts_by_code.values()):
+            raise ValueError("advice_counts_by_code values must be non-negative integers")
+
+        if list(self.advice_counts_by_priority.keys()) != sorted(
+            self.advice_counts_by_priority.keys()
+        ):
+            raise ValueError("advice_counts_by_priority keys must be lexicographically sorted")
+        if any(key not in _PRIORITY_VALUES for key in self.advice_counts_by_priority):
+            raise ValueError("advice_counts_by_priority contains unsupported priority value")
+        if any(value < 0 for value in self.advice_counts_by_priority.values()):
+            raise ValueError("advice_counts_by_priority values must be non-negative integers")
+
+        if self.advice_item_count != sum(self.advice_counts_by_code.values()):
+            raise ValueError(
+                "advice_item_count must equal sum(advice_counts_by_code.values())"
+            )
+        if self.advice_item_count != sum(self.advice_counts_by_priority.values()):
+            raise ValueError(
+                "advice_item_count must equal sum(advice_counts_by_priority.values())"
+            )
+        return self
+
+
 def _normative_advice_error(
     *,
     code: str,
@@ -190,7 +233,7 @@ def _issue_id_from_justification_ref(value: str) -> str | None:
 @lru_cache(maxsize=8)
 def _coherence_fixture_index_for_manifest(
     manifest_path_value: str,
-) -> dict[tuple[str, str, str], Path]:
+) -> dict[tuple[str, str, str], tuple[Path, ...]]:
     manifest_path = Path(manifest_path_value)
     try:
         raw_payload = manifest_path.read_text(encoding="utf-8")
@@ -619,4 +662,122 @@ def build_normative_advice_packet_vnext_plus21(
                 },
             )
 
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def build_normative_advice_projection_vnext_plus21(
+    *,
+    catalog_path: Path | None = None,
+    coherence_manifest_path: Path | None = None,
+    include_source_issue_snapshot: bool = False,
+) -> dict[str, Any]:
+    try:
+        pairs = list_cross_ir_catalog_pairs_vnext_plus20(catalog_path=catalog_path)
+    except CrossIRBridgeVnextPlus20Error as exc:
+        raise _cross_ir_error_to_normative(exc) from exc
+
+    pair_tuples: list[tuple[str, str, str]] = []
+    for pair in pairs:
+        source_text_hash = pair.get("source_text_hash")
+        core_ir_artifact_id = pair.get("core_ir_artifact_id")
+        concept_artifact_id = pair.get("concept_artifact_id")
+        if (
+            not isinstance(source_text_hash, str)
+            or not source_text_hash
+            or not isinstance(core_ir_artifact_id, str)
+            or not core_ir_artifact_id
+            or not isinstance(concept_artifact_id, str)
+            or not concept_artifact_id
+        ):
+            raise _normative_advice_error(
+                code="URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID",
+                reason="catalog pair entry is invalid for normative advice projection",
+                context={"pair": dict(pair)},
+            )
+        pair_tuples.append((source_text_hash, core_ir_artifact_id, concept_artifact_id))
+
+    pair_tuples = sorted(pair_tuples)
+
+    advice_item_count = 0
+    advice_counts_by_code: Counter[str] = Counter()
+    advice_counts_by_priority: Counter[str] = Counter()
+    for source_text_hash, core_ir_artifact_id, concept_artifact_id in pair_tuples:
+        packet = build_normative_advice_packet_vnext_plus21(
+            source_text_hash=source_text_hash,
+            core_ir_artifact_id=core_ir_artifact_id,
+            concept_artifact_id=concept_artifact_id,
+            catalog_path=catalog_path,
+            coherence_manifest_path=coherence_manifest_path,
+            include_source_issue_snapshot=include_source_issue_snapshot,
+        )
+        advice_items = packet.get("advice_items")
+        if not isinstance(advice_items, list):
+            raise _normative_advice_error(
+                code="URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID",
+                reason="normative advice packet advice_items must be a list",
+                context={
+                    "source_text_hash": source_text_hash,
+                    "core_ir_artifact_id": core_ir_artifact_id,
+                    "concept_artifact_id": concept_artifact_id,
+                },
+            )
+        advice_item_count += len(advice_items)
+        for advice_item in advice_items:
+            if not isinstance(advice_item, Mapping):
+                raise _normative_advice_error(
+                    code="URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID",
+                    reason="normative advice item payload must be an object",
+                    context={
+                        "source_text_hash": source_text_hash,
+                        "core_ir_artifact_id": core_ir_artifact_id,
+                        "concept_artifact_id": concept_artifact_id,
+                    },
+                )
+            advice_code = advice_item.get("advice_code")
+            priority = advice_item.get("priority")
+            if advice_code not in _ADVICE_PRIORITY_BY_CODE:
+                raise _normative_advice_error(
+                    code="URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID",
+                    reason="normative advice item includes unsupported advice_code",
+                    context={
+                        "source_text_hash": source_text_hash,
+                        "core_ir_artifact_id": core_ir_artifact_id,
+                        "concept_artifact_id": concept_artifact_id,
+                        "advice_code": advice_code,
+                    },
+                )
+            if priority not in _PRIORITY_VALUES:
+                raise _normative_advice_error(
+                    code="URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID",
+                    reason="normative advice item includes unsupported priority",
+                    context={
+                        "source_text_hash": source_text_hash,
+                        "core_ir_artifact_id": core_ir_artifact_id,
+                        "concept_artifact_id": concept_artifact_id,
+                        "priority": priority,
+                    },
+                )
+            advice_counts_by_code[str(advice_code)] += 1
+            advice_counts_by_priority[str(priority)] += 1
+
+    projection_payload = {
+        "schema": NORMATIVE_ADVICE_PROJECTION_SCHEMA,
+        "bridge_pair_count": len(pair_tuples),
+        "advice_item_count": advice_item_count,
+        "advice_counts_by_code": {
+            code: advice_counts_by_code[code] for code in sorted(advice_counts_by_code)
+        },
+        "advice_counts_by_priority": {
+            priority: advice_counts_by_priority[priority]
+            for priority in sorted(advice_counts_by_priority)
+        },
+    }
+    try:
+        normalized = NormativeAdviceProjectionVnextPlus21.model_validate(projection_payload)
+    except Exception as exc:
+        raise _normative_advice_error(
+            code="URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID",
+            reason="normative advice projection payload failed schema validation",
+            context={"error": str(exc)},
+        ) from exc
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)

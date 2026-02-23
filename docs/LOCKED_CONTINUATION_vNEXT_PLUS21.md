@@ -294,6 +294,9 @@ Expose deterministic aggregate advice summaries and closeout reporting over pers
 - Projection endpoint activation lock is frozen:
   - `GET /urm/normative-advice/projection` is implemented in `N2`, not `N1`.
   - `N1` PRs may ship pair-packet endpoint only; projection endpoint activation is deferred to `N2` implementation PR.
+- N2 implementation slicing lock is frozen:
+  - this `N2` API/runtime slice implements deterministic projection builder + `GET /urm/normative-advice/projection`.
+  - transfer-report markdown renderer/script/output generation (`docs/NORMATIVE_ADVICE_TRANSFER_REPORT_vNEXT_PLUS21.md`) may ship in a dedicated `N2` docs slice before `v21` closeout.
 
 - Advice projection schema lock is frozen:
   - `schema = "normative_advice_projection.vnext_plus21@1"`
