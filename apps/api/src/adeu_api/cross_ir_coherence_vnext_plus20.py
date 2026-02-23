@@ -883,20 +883,8 @@ def build_cross_ir_quality_projection_vnext_plus20(
     issue_summary = coherence["issue_summary"]
     projection = CrossIRQualityProjectionVnextPlus20(
         bridge_pair_count=1,
-        coherence_issue_count=int(issue_summary["total_issues"]),
-        coherence_counts_by_code={
-            str(key): int(value)
-            for key, value in sorted(
-                dict(issue_summary.get("counts_by_code", {})).items(),
-                key=lambda item: item[0],
-            )
-        },
-        coherence_counts_by_severity={
-            str(key): int(value)
-            for key, value in sorted(
-                dict(issue_summary.get("counts_by_severity", {})).items(),
-                key=lambda item: item[0],
-            )
-        },
+        coherence_issue_count=issue_summary["total_issues"],
+        coherence_counts_by_code=issue_summary["counts_by_code"],
+        coherence_counts_by_severity=issue_summary["counts_by_severity"],
     )
     return projection.model_dump(mode="json", by_alias=True, exclude_none=True)
