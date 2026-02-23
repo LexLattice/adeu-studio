@@ -46,6 +46,7 @@ from adeu_core_ir import (
     AdeuIntegrityReferenceIntegrityExtended,
     AdeuLaneReport,
     AdeuNormativeAdvicePacket,
+    AdeuTrustInvariantPacket,
 )
 from adeu_explain import (
     EXPLAIN_BUILDER_VERSION,
@@ -143,6 +144,11 @@ from .normative_advice_vnext_plus21 import (
     build_normative_advice_packet_vnext_plus21,
     build_normative_advice_projection_vnext_plus21,
     normative_advice_non_enforcement_context,
+)
+from .trust_invariant_vnext_plus22 import (
+    TrustInvariantVnextPlus22Error,
+    build_trust_invariant_packet_vnext_plus22,
+    trust_invariant_non_enforcement_context,
 )
 from .openai_concept_provider import propose_concept_codex, propose_concept_openai
 from .puzzle_id_canonicalization import canonicalize_puzzle_ids
@@ -384,6 +390,12 @@ _NORMATIVE_ADVICE_ARTIFACT_NOT_FOUND_CODE = "URM_ADEU_NORMATIVE_ADVICE_ARTIFACT_
 _NORMATIVE_ADVICE_PAYLOAD_INVALID_CODE = "URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID"
 _NORMATIVE_ADVICE_FIXTURE_INVALID_CODE = "URM_ADEU_NORMATIVE_ADVICE_FIXTURE_INVALID"
 _NORMATIVE_ADVICE_DIAGNOSTIC_DRIFT_CODE = "URM_ADEU_NORMATIVE_ADVICE_DIAGNOSTIC_DRIFT"
+_TRUST_INVARIANT_REQUEST_INVALID_CODE = "URM_ADEU_TRUST_INVARIANT_REQUEST_INVALID"
+_TRUST_INVARIANT_ARTIFACT_NOT_FOUND_CODE = "URM_ADEU_TRUST_INVARIANT_ARTIFACT_NOT_FOUND"
+_TRUST_INVARIANT_PAYLOAD_INVALID_CODE = "URM_ADEU_TRUST_INVARIANT_PAYLOAD_INVALID"
+_TRUST_INVARIANT_FIXTURE_INVALID_CODE = "URM_ADEU_TRUST_INVARIANT_FIXTURE_INVALID"
+_TRUST_INVARIANT_DIAGNOSTIC_DRIFT_CODE = "URM_ADEU_TRUST_INVARIANT_DIAGNOSTIC_DRIFT"
+_TRUST_INVARIANT_MANIFEST_HASH_MISMATCH_CODE = "URM_ADEU_TRUST_INVARIANT_MANIFEST_HASH_MISMATCH"
 _READ_SURFACE_CATALOG_SCHEMA = "read_surface.vnext_plus19_catalog@1"
 _READ_SURFACE_CATALOG_PATH = (
     Path(__file__).resolve().parents[2] / "fixtures" / "read_surface" / "vnext_plus19_catalog.json"
@@ -2055,6 +2067,33 @@ def _normative_advice_status_code(code: str) -> int:
         _NORMATIVE_ADVICE_PAYLOAD_INVALID_CODE,
         _NORMATIVE_ADVICE_FIXTURE_INVALID_CODE,
         _NORMATIVE_ADVICE_DIAGNOSTIC_DRIFT_CODE,
+    ):
+        return 500
+    return 500
+
+
+def _trust_invariant_error_detail(
+    *,
+    code: str,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    detail: dict[str, Any] = {"code": code, "reason": reason}
+    if context:
+        detail["context"] = dict(context)
+    return detail
+
+
+def _trust_invariant_status_code(code: str) -> int:
+    if code == _TRUST_INVARIANT_REQUEST_INVALID_CODE:
+        return 400
+    if code == _TRUST_INVARIANT_ARTIFACT_NOT_FOUND_CODE:
+        return 404
+    if code in (
+        _TRUST_INVARIANT_PAYLOAD_INVALID_CODE,
+        _TRUST_INVARIANT_FIXTURE_INVALID_CODE,
+        _TRUST_INVARIANT_DIAGNOSTIC_DRIFT_CODE,
+        _TRUST_INVARIANT_MANIFEST_HASH_MISMATCH_CODE,
     ):
         return 500
     return 500
@@ -6408,6 +6447,37 @@ def get_urm_normative_advice_projection_endpoint(
 
     _set_read_surface_cache_header(response)
     return projection
+
+
+@app.get(
+    "/urm/proof-trust/pairs/{source_text_hash}/{core_ir_artifact_id}/{concept_artifact_id}",
+    response_model=AdeuTrustInvariantPacket,
+)
+def get_urm_proof_trust_pair_endpoint(
+    source_text_hash: str,
+    core_ir_artifact_id: str,
+    concept_artifact_id: str,
+    response: Response,
+) -> AdeuTrustInvariantPacket:
+    try:
+        with trust_invariant_non_enforcement_context():
+            payload = build_trust_invariant_packet_vnext_plus22(
+                source_text_hash=source_text_hash,
+                core_ir_artifact_id=core_ir_artifact_id,
+                concept_artifact_id=concept_artifact_id,
+            )
+    except TrustInvariantVnextPlus22Error as exc:
+        raise HTTPException(
+            status_code=_trust_invariant_status_code(exc.code),
+            detail=_trust_invariant_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+    _set_read_surface_cache_header(response)
+    return AdeuTrustInvariantPacket.model_validate(payload)
 
 
 @app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)
