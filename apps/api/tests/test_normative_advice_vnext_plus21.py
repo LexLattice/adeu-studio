@@ -112,8 +112,12 @@ def test_normative_advice_pair_endpoint_returns_packet_and_cache_header() -> Non
 
 
 def test_build_normative_advice_projection_is_deterministic_and_schema_valid() -> None:
-    first = normative_advice.build_normative_advice_projection_vnext_plus21()
-    second = normative_advice.build_normative_advice_projection_vnext_plus21()
+    first = normative_advice.build_normative_advice_projection_vnext_plus21().model_dump(
+        mode="json"
+    )
+    second = normative_advice.build_normative_advice_projection_vnext_plus21().model_dump(
+        mode="json"
+    )
 
     assert first["schema"] == "normative_advice_projection.vnext_plus21@1"
     assert canonical_json(first) == canonical_json(second)

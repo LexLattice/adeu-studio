@@ -6392,7 +6392,7 @@ def get_urm_normative_advice_projection_endpoint(
     response: Response,
 ) -> NormativeAdviceProjectionVnextPlus21:
     try:
-        payload = build_normative_advice_projection_vnext_plus21()
+        projection = build_normative_advice_projection_vnext_plus21()
     except NormativeAdviceVnextPlus21Error as exc:
         raise HTTPException(
             status_code=_normative_advice_status_code(exc.code),
@@ -6404,7 +6404,7 @@ def get_urm_normative_advice_projection_endpoint(
         ) from exc
 
     _set_read_surface_cache_header(response)
-    return NormativeAdviceProjectionVnextPlus21.model_validate(payload)
+    return projection
 
 
 @app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)
