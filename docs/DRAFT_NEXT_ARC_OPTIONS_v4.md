@@ -7,8 +7,8 @@ This document consolidates the four independent v4 planning drafts:
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_opus.md`
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_gemini.md`
 
-Status: active planning draft (v17, v18, and v19 baselines executed; active for `vNext+20+` selection).
-Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+19` sequencing.
+Status: active planning draft (v17 through v23 baselines executed; active for `vNext+24+` selection).
+Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+23` sequencing.
 
 ## Baseline Agreement (Shared Across Drafts)
 
@@ -18,6 +18,10 @@ All four drafts converge on these baseline points:
 - `vNext+17` Path S1 (`E1`-`E4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS17.md`).
 - `vNext+18` Path S5 (`F1`-`F4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS18.md`).
 - `vNext+19` Path S3a (`R1`-`R4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS19.md`).
+- `vNext+20` Path S4 (`C1`-`C4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS20.md`).
+- `vNext+21` Path S6 (`N1`-`N4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS21.md`).
+- `vNext+22` Path S7 (`T1`-`T4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS22.md`).
+- `vNext+23` Path S8 (`V1`-`V4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS23.md`).
 - Determinism/manifest/stop-gate closeout discipline is now mature and must carry forward.
 - Next work should remain additive-first and explicitly locked.
 - Provider parity maintenance remains a fallback path, not the default next arc.
@@ -369,17 +373,21 @@ Execution checkpoint (current state):
   - `vNext+17 = S1` (closed out)
   - `vNext+18 = S5` (closed out)
   - `vNext+19 = S3a` (closed out)
+  - `vNext+20 = S4` (closed out)
+  - `vNext+21 = S6` (closed out)
+  - `vNext+22 = S7` (closed out)
+  - `vNext+23 = S8` (closed out)
 - active default next selection:
-  - `vNext+20 = S4` (cross-IR coherence bridge)
+  - `vNext+24 = pending lock selection` (post-S8 follow-on scope to be explicitly frozen)
 
 ## Proposed Freeze Candidate (Next Step)
 
-Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS20.md` with Path S4 thin slice only:
+Create `docs/LOCKED_CONTINUATION_vNEXT_PLUS24.md` with one thin-slice continuation only (exact path to be selected and explicitly frozen):
 
-1. `C1` deterministic concept-to-core-ir bridge mapping contract freeze (including asymmetric unmappable handling).
-2. `C2` deterministic cross-IR coherence diagnostics artifact family with frozen issue taxonomy.
-3. `C3` additive stop-gate determinism metrics for cross-IR coherence payload stability (`vNext+20 -> vNext+21`).
-4. `C4` continuity locks preserving no-mutation/no-provider-expansion semantics unless explicitly released.
+1. freeze deterministic contract deltas for the selected post-v23 scope.
+2. keep additive-only stop-gate metric extension on `stop_gate_metrics@1`.
+3. preserve v14-v23 continuity locks unless an explicit release is approved.
+4. keep non-enforcement/no-mutation/no-provider-expansion boundaries explicit where applicable.
 
 ## Historical Freeze Candidate (v19 Reference)
 
