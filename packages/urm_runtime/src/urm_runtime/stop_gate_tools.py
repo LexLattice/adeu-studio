@@ -7541,7 +7541,10 @@ def _normative_advice_projection_fixture_hash(
         raise ValueError(
             _issue(
                 "URM_STOP_GATE_INPUT_INVALID",
-                "normative advice projection advice_counts_by_code contains unsupported advice_code",
+                (
+                    "normative advice projection advice_counts_by_code contains "
+                    "unsupported advice_code"
+                ),
                 context={"path": str(normative_advice_projection_path)},
             )
         )

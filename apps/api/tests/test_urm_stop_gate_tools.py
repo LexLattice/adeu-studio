@@ -3214,7 +3214,10 @@ def test_build_stop_gate_metrics_rejects_vnext_plus21_missing_non_empty_floor(
     assert any(
         issue.get("code") == "URM_ADEU_NORMATIVE_ADVICE_FIXTURE_INVALID"
         and issue.get("message")
-        == "vnext+21 normative-advice packet fixtures must include non-zero advice for required advice codes"
+        == (
+            "vnext+21 normative-advice packet fixtures must include non-zero "
+            "advice for required advice codes"
+        )
         for issue in report["issues"]
         if isinstance(issue, dict)
     )
