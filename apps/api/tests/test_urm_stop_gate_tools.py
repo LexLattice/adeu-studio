@@ -95,6 +95,10 @@ def _vnext_plus21_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus21_manifest.json"
 
 
+def _vnext_plus22_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus22_manifest.json"
+
+
 _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = {
     "domain_conformance_hash",
     "hash_excluded_fields",
@@ -590,6 +594,10 @@ def _vnext_plus21_manifest_payload() -> dict[str, object]:
     return json.loads(_vnext_plus21_manifest_path().read_text(encoding="utf-8"))
 
 
+def _vnext_plus22_manifest_payload() -> dict[str, object]:
+    return json.loads(_vnext_plus22_manifest_path().read_text(encoding="utf-8"))
+
+
 def _write_vnext_plus14_manifest_payload(
     *,
     tmp_path: Path,
@@ -866,6 +874,28 @@ def _write_vnext_plus21_manifest_payload(
     )
 
 
+def _write_vnext_plus22_manifest_payload(
+    *,
+    tmp_path: Path,
+    payload: dict[str, object],
+    filename: str = "vnext_plus22_manifest.json",
+) -> Path:
+    return _write_manifest_payload_with_rewritten_runs(
+        tmp_path=tmp_path,
+        payload=payload,
+        filename=filename,
+        manifest_label="vnext+22",
+        fixture_manifest_root=_vnext_plus22_manifest_path().parent,
+        fixture_specs=(
+            ("trust_invariant_packet_fixtures", ("trust_invariant_packet_path",)),
+            (
+                "trust_invariant_projection_fixtures",
+                ("trust_invariant_projection_path",),
+            ),
+        ),
+    )
+
+
 def _normalize_runtime_observability(report: dict[str, object]) -> dict[str, object]:
     normalized = json.loads(json.dumps(report))
     runtime_observability = normalized.get("runtime_observability")
@@ -926,6 +956,7 @@ def _vnext_plus13_to_19_manifest_kwargs() -> dict[str, Path]:
         "vnext_plus19_manifest_path": _vnext_plus19_manifest_path(),
         "vnext_plus20_manifest_path": _vnext_plus20_manifest_path(),
         "vnext_plus21_manifest_path": _vnext_plus21_manifest_path(),
+        "vnext_plus22_manifest_path": _vnext_plus22_manifest_path(),
     }
 
 
@@ -987,6 +1018,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "vnext_plus19_manifest_path": _vnext_plus19_manifest_path(),
         "vnext_plus20_manifest_path": _vnext_plus20_manifest_path(),
         "vnext_plus21_manifest_path": _vnext_plus21_manifest_path(),
+        "vnext_plus22_manifest_path": _vnext_plus22_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -1042,6 +1074,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["artifact_cross_ir_quality_projection_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_normative_advice_packet_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_normative_advice_projection_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_trust_invariant_packet_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_trust_invariant_projection_determinism_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -1070,9 +1104,18 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert len(first["vnext_plus20_manifest_hash"]) == 64
     assert isinstance(first["vnext_plus21_manifest_hash"], str)
     assert len(first["vnext_plus21_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus22_manifest_hash"], str)
+    assert len(first["vnext_plus22_manifest_hash"]) == 64
     runtime_observability = first["runtime_observability"]
-    assert runtime_observability["total_fixtures"] == 9
-    assert runtime_observability["total_replays"] == 27
+    assert runtime_observability["total_fixtures"] == 12
+    assert runtime_observability["total_replays"] == 36
+    assert isinstance(runtime_observability["bytes_hashed_per_replay"], int)
+    assert runtime_observability["bytes_hashed_per_replay"] > 0
+    assert isinstance(runtime_observability["bytes_hashed_total"], int)
+    assert (
+        runtime_observability["bytes_hashed_total"]
+        == 3 * runtime_observability["bytes_hashed_per_replay"]
+    )
     assert isinstance(runtime_observability["elapsed_ms"], int)
     assert runtime_observability["elapsed_ms"] >= 0
     assert first["gates"]["artifact_stop_gate_ci_budget_within_ceiling"] is True
@@ -1084,6 +1127,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["gates"]["artifact_cross_ir_quality_projection_determinism"] is True
     assert first["gates"]["artifact_normative_advice_packet_determinism"] is True
     assert first["gates"]["artifact_normative_advice_projection_determinism"] is True
+    assert first["gates"]["artifact_trust_invariant_packet_determinism"] is True
+    assert first["gates"]["artifact_trust_invariant_projection_determinism"] is True
 
 
 def test_build_stop_gate_metrics_fails_when_runtime_budget_exceeds_ceiling(
@@ -3223,6 +3268,189 @@ def test_build_stop_gate_metrics_rejects_vnext_plus21_missing_non_empty_floor(
     )
 
 
+def test_build_stop_gate_metrics_rejects_vnext_plus22_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus22_manifest_payload()
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus22_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus22_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["artifact_trust_invariant_packet_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_trust_invariant_projection_determinism_pct"] == 0.0
+    assert report["vnext_plus22_manifest_hash"] == ""
+    assert any(
+        issue.get("code") == "URM_ADEU_TRUST_INVARIANT_MANIFEST_HASH_MISMATCH"
+        and issue.get("message") == "vnext+22 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_excludes_created_at_recursively_for_vnext_plus22(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    packet_payload = json.loads(
+        (
+            _vnext_plus22_manifest_path().parent
+            / "vnext_plus22"
+            / "trust_invariant_packet_case_a_2.json"
+        ).read_text(encoding="utf-8")
+    )
+    packet_payload["created_at"] = "2099-02-01T00:00:00Z"
+    proof_summary = packet_payload.get("proof_summary")
+    assert isinstance(proof_summary, dict)
+    proof_summary["created_at"] = "2099-02-02T00:00:00Z"
+    proof_items = packet_payload.get("proof_items")
+    assert isinstance(proof_items, list) and proof_items
+    assert isinstance(proof_items[0], dict)
+    proof_items[0]["created_at"] = "2099-02-03T00:00:00Z"
+    packet_payload_path = tmp_path / "trust_invariant_packet_case_a_2_created_at_drift.json"
+    _write_json(packet_payload_path, packet_payload)
+
+    projection_payload = json.loads(
+        (
+            _vnext_plus22_manifest_path().parent
+            / "vnext_plus22"
+            / "trust_invariant_projection_case_a_2.json"
+        ).read_text(encoding="utf-8")
+    )
+    projection_payload["created_at"] = "2099-02-04T00:00:00Z"
+    projection_payload_path = (
+        tmp_path / "trust_invariant_projection_case_a_2_created_at_drift.json"
+    )
+    _write_json(projection_payload_path, projection_payload)
+
+    manifest_payload = _vnext_plus22_manifest_payload()
+    packet_fixtures = manifest_payload.get("trust_invariant_packet_fixtures")
+    assert isinstance(packet_fixtures, list) and packet_fixtures
+    packet_fixture = packet_fixtures[0]
+    assert isinstance(packet_fixture, dict)
+    packet_runs = packet_fixture.get("runs")
+    assert isinstance(packet_runs, list) and len(packet_runs) == 3
+    assert isinstance(packet_runs[1], dict)
+    packet_runs[1]["trust_invariant_packet_path"] = str(packet_payload_path)
+
+    projection_fixtures = manifest_payload.get("trust_invariant_projection_fixtures")
+    assert isinstance(projection_fixtures, list) and projection_fixtures
+    projection_fixture = projection_fixtures[0]
+    assert isinstance(projection_fixture, dict)
+    projection_runs = projection_fixture.get("runs")
+    assert isinstance(projection_runs, list) and len(projection_runs) == 3
+    assert isinstance(projection_runs[1], dict)
+    projection_runs[1]["trust_invariant_projection_path"] = str(projection_payload_path)
+
+    manifest_path = _write_vnext_plus22_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus22_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is True
+    assert report["all_passed"] is True
+    assert report["metrics"]["artifact_trust_invariant_packet_determinism_pct"] == 100.0
+    assert report["metrics"]["artifact_trust_invariant_projection_determinism_pct"] == 100.0
+    assert not any(
+        issue.get("code") == "URM_ADEU_TRUST_INVARIANT_DIAGNOSTIC_DRIFT"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus22_missing_non_empty_floor(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    all_pass_packet = json.loads(
+        (
+            _vnext_plus22_manifest_path().parent
+            / "vnext_plus22"
+            / "trust_invariant_packet_case_a_1.json"
+        ).read_text(encoding="utf-8")
+    )
+    all_pass_packet_path = tmp_path / "trust_invariant_packet_all_pass.json"
+    _write_json(all_pass_packet_path, all_pass_packet)
+
+    manifest_payload = _vnext_plus22_manifest_payload()
+    packet_fixtures = manifest_payload.get("trust_invariant_packet_fixtures")
+    assert isinstance(packet_fixtures, list) and packet_fixtures
+    for packet_fixture in packet_fixtures:
+        assert isinstance(packet_fixture, dict)
+        packet_runs = packet_fixture.get("runs")
+        assert isinstance(packet_runs, list) and len(packet_runs) == 3
+        for run in packet_runs:
+            assert isinstance(run, dict)
+            run["trust_invariant_packet_path"] = str(all_pass_packet_path)
+    manifest_path = _write_vnext_plus22_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus22_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_trust_invariant_packet_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_trust_invariant_projection_determinism_pct"] == 100.0
+    assert report["gates"]["artifact_trust_invariant_packet_determinism"] is False
+    assert report["gates"]["artifact_trust_invariant_projection_determinism"] is True
+    assert any(
+        issue.get("code") == "URM_ADEU_TRUST_INVARIANT_FIXTURE_INVALID"
+        and issue.get("message")
+        == (
+            "vnext+22 trust-invariant packet fixtures must include non-zero checks, "
+            "required invariant codes, and at least one fail status"
+        )
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_stop_gate_tools_uses_shared_integrity_manifest_loader() -> None:
     source = Path(stop_gate_tools_module.__file__).read_text(encoding="utf-8")
     assert "def _load_integrity_manifest_payload(" in source
@@ -3298,6 +3526,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_vnext_plus20_manifest_path()),
             "--vnext-plus21-manifest",
             str(_vnext_plus21_manifest_path()),
+            "--vnext-plus22-manifest",
+            str(_vnext_plus22_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",

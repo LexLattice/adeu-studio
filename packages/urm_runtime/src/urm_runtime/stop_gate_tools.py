@@ -155,11 +155,19 @@ VNEXT_PLUS21_DEFAULT_METRICS = {
     "artifact_normative_advice_packet_determinism_pct": 0.0,
     "artifact_normative_advice_projection_determinism_pct": 0.0,
 }
+VNEXT_PLUS22_REPLAY_COUNT = 3
+VNEXT_PLUS22_MANIFEST_SCHEMA = "stop_gate.vnext_plus22_manifest@1"
+VNEXT_PLUS22_DEFAULT_METRICS = {
+    "artifact_trust_invariant_packet_determinism_pct": 0.0,
+    "artifact_trust_invariant_projection_determinism_pct": 0.0,
+}
 CROSS_IR_BRIDGE_MANIFEST_SCHEMA = "adeu_cross_ir_bridge_manifest@0.1"
 CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA = "adeu_cross_ir_coherence_diagnostics@0.1"
 CROSS_IR_QUALITY_PROJECTION_SCHEMA = "cross_ir_quality_projection.vnext_plus20@1"
 NORMATIVE_ADVICE_PACKET_SCHEMA = "adeu_normative_advice_packet@0.1"
 NORMATIVE_ADVICE_PROJECTION_SCHEMA = "normative_advice_projection.vnext_plus21@1"
+TRUST_INVARIANT_PACKET_SCHEMA = "adeu_trust_invariant_packet@0.1"
+TRUST_INVARIANT_PROJECTION_SCHEMA = "trust_invariant_projection.vnext_plus22@1"
 _READ_SURFACE_LANE_CAPTURE_SCHEMA = "adeu_lane_read_surface_capture@0.1"
 _READ_SURFACE_INTEGRITY_CAPTURE_SCHEMA = "adeu_integrity_read_surface_capture@0.1"
 _FROZEN_READ_SURFACE_INTEGRITY_FAMILIES: tuple[str, ...] = (
@@ -221,6 +229,11 @@ _FROZEN_NORMATIVE_ADVICE_SURFACES: tuple[str, ...] = (
     "adeu.normative_advice.projection",
 )
 _FROZEN_NORMATIVE_ADVICE_SURFACE_SET = frozenset(_FROZEN_NORMATIVE_ADVICE_SURFACES)
+_FROZEN_TRUST_INVARIANT_SURFACES: tuple[str, ...] = (
+    "adeu.trust_invariant.packet",
+    "adeu.trust_invariant.projection",
+)
+_FROZEN_TRUST_INVARIANT_SURFACE_SET = frozenset(_FROZEN_TRUST_INVARIANT_SURFACES)
 _FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES = frozenset(
     {
         "MISSING_CONCEPT_MAPPING",
@@ -249,6 +262,21 @@ _FROZEN_VNEXT_PLUS21_NON_EMPTY_ADVICE_CODES = frozenset(
     {
         "MAPPING_GAP_REVIEW",
         "SOURCE_DIVERGENCE_REVIEW",
+    }
+)
+_TRUST_INVARIANT_CODES = frozenset(
+    {
+        "CANONICAL_JSON_CONFORMANCE",
+        "HASH_RECOMPUTE_MATCH",
+        "MANIFEST_CHAIN_STABILITY",
+        "REPLAY_HASH_STABILITY",
+    }
+)
+_TRUST_INVARIANT_STATUSES = frozenset({"pass", "fail"})
+_FROZEN_VNEXT_PLUS22_NON_EMPTY_INVARIANT_CODES = frozenset(
+    {
+        "HASH_RECOMPUTE_MATCH",
+        "REPLAY_HASH_STABILITY",
     }
 )
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
@@ -311,6 +339,8 @@ THRESHOLDS = {
     "artifact_cross_ir_quality_projection_determinism_pct": 100.0,
     "artifact_normative_advice_packet_determinism_pct": 100.0,
     "artifact_normative_advice_projection_determinism_pct": 100.0,
+    "artifact_trust_invariant_packet_determinism_pct": 100.0,
+    "artifact_trust_invariant_projection_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -397,6 +427,10 @@ def _default_vnext_plus21_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus21_manifest.json")
 
 
+def _default_vnext_plus22_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus22_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
@@ -411,6 +445,7 @@ VNEXT_PLUS18_MANIFEST_PATH = _default_vnext_plus18_manifest_path()
 VNEXT_PLUS19_MANIFEST_PATH = _default_vnext_plus19_manifest_path()
 VNEXT_PLUS20_MANIFEST_PATH = _default_vnext_plus20_manifest_path()
 VNEXT_PLUS21_MANIFEST_PATH = _default_vnext_plus21_manifest_path()
+VNEXT_PLUS22_MANIFEST_PATH = _default_vnext_plus22_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -3565,6 +3600,36 @@ def _manifest_metric_pct(
     return _pct(passed, total)
 
 
+def _manifest_bytes_hashed_per_replay(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    required_run_fields: tuple[str, ...],
+    payload_description: str,
+) -> int:
+    if len(required_run_fields) != 1:
+        return 0
+    run_field = required_run_fields[0]
+    bytes_total = 0
+    for fixture in fixtures:
+        runs = fixture.get("runs")
+        if not isinstance(runs, list) or not runs:
+            continue
+        run = runs[0]
+        if not isinstance(run, dict):
+            continue
+        try:
+            payload_path = _resolve_manifest_relative_path(
+                manifest_path=manifest_path,
+                raw_path=run.get(run_field),
+            )
+            payload = _read_json_object(payload_path, description=payload_description)
+        except ValueError:
+            continue
+        bytes_total += _surface_projection_hash_input_bytes(payload)
+    return bytes_total
+
+
 def _has_non_zero_diagnostic_fixture(
     *,
     manifest_path: Path,
@@ -5323,6 +5388,21 @@ _VNEXT_PLUS21_NORMATIVE_ADVICE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] =
     ),
 )
 
+_VNEXT_PLUS22_TRUST_INVARIANT_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "trust_invariant_packet_fixtures",
+        "artifact_trust_invariant_packet_determinism_pct",
+        "adeu.trust_invariant.packet",
+        ("trust_invariant_packet_path",),
+    ),
+    (
+        "trust_invariant_projection_fixtures",
+        "artifact_trust_invariant_projection_determinism_pct",
+        "adeu.trust_invariant.projection",
+        ("trust_invariant_projection_path",),
+    ),
+)
+
 
 def _validate_integrity_surface_fixtures(
     *,
@@ -6152,11 +6232,15 @@ def _runtime_observability_payload(
     *,
     total_fixtures: int,
     total_replays: int,
+    bytes_hashed_per_replay: int = 0,
+    bytes_hashed_total: int = 0,
     runtime_started: float,
 ) -> dict[str, int]:
     return {
         "total_fixtures": int(total_fixtures),
         "total_replays": int(total_replays),
+        "bytes_hashed_per_replay": int(bytes_hashed_per_replay),
+        "bytes_hashed_total": int(bytes_hashed_total),
         "elapsed_ms": max(0, int(round((time.monotonic() - runtime_started) * 1000.0))),
     }
 
@@ -6608,6 +6692,11 @@ def _strip_created_at_fields(value: Any) -> Any:
 
 def _read_surface_projection_hash(payload: Mapping[str, Any]) -> str:
     return sha256_canonical_json(_strip_created_at_fields(payload))
+
+
+def _surface_projection_hash_input_bytes(payload: Mapping[str, Any]) -> int:
+    canonical_payload = _strip_created_at_fields(payload)
+    return len(canonical_json(canonical_payload).encode("utf-8"))
 
 
 def _is_lower_sha256(value: Any) -> bool:
@@ -7615,6 +7704,690 @@ def _normative_advice_projection_fixture_hash(
     return _read_surface_projection_hash(payload)
 
 
+def _trust_invariant_artifact_ref(
+    *,
+    schema: str,
+    source_text_hash: str,
+    core_ir_artifact_id: str,
+    concept_artifact_id: str,
+) -> str:
+    return (
+        "artifact:"
+        f"{schema}:{source_text_hash}:{core_ir_artifact_id}:{concept_artifact_id}"
+    )
+
+
+def _validate_trust_invariant_capture_keys(
+    *,
+    payload: Mapping[str, Any],
+    required_keys: set[str],
+    optional_keys: set[str],
+    path: Path,
+    context: Mapping[str, Any] | None = None,
+) -> None:
+    observed_keys = {str(key) for key in payload.keys()}
+    missing_keys = sorted(required_keys - observed_keys)
+    unexpected_keys = sorted(observed_keys - (required_keys | optional_keys))
+    if missing_keys or unexpected_keys:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant capture payload has unexpected key shape",
+                context={
+                    "path": str(path),
+                    "missing_keys": missing_keys,
+                    "unexpected_keys": unexpected_keys,
+                    **dict(context or {}),
+                },
+            )
+        )
+
+
+def _trust_invariant_packet_fixture_hash(*, trust_invariant_packet_path: Path) -> str:
+    payload = _read_json_object(
+        trust_invariant_packet_path,
+        description="trust-invariant packet fixture",
+    )
+    _validate_trust_invariant_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "source_text_hash",
+            "core_ir_artifact_id",
+            "concept_artifact_id",
+            "bridge_manifest_hash",
+            "normative_advice_packet_hash",
+            "proof_summary",
+            "proof_items",
+        },
+        optional_keys={"created_at"},
+        path=trust_invariant_packet_path,
+    )
+    if payload.get("schema") != TRUST_INVARIANT_PACKET_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet schema is invalid",
+                context={
+                    "path": str(trust_invariant_packet_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    for field in ("source_text_hash", "core_ir_artifact_id", "concept_artifact_id"):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant packet identity field must be a non-empty string",
+                    context={"path": str(trust_invariant_packet_path), "field": field},
+                )
+            )
+
+    source_text_hash = cast(str, payload["source_text_hash"])
+    core_ir_artifact_id = cast(str, payload["core_ir_artifact_id"])
+    concept_artifact_id = cast(str, payload["concept_artifact_id"])
+
+    if not _is_lower_sha256(payload.get("bridge_manifest_hash")):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet bridge_manifest_hash must be lowercase sha256",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if not _is_lower_sha256(payload.get("normative_advice_packet_hash")):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant packet normative_advice_packet_hash must be "
+                    "lowercase sha256"
+                ),
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+
+    proof_summary = payload.get("proof_summary")
+    if not isinstance(proof_summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet proof_summary must be an object",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    _validate_trust_invariant_capture_keys(
+        payload=proof_summary,
+        required_keys={
+            "total_checks",
+            "passed_checks",
+            "failed_checks",
+            "counts_by_invariant_code",
+            "counts_by_status",
+        },
+        optional_keys={"created_at"},
+        path=trust_invariant_packet_path,
+        context={"field": "proof_summary"},
+    )
+    total_checks = proof_summary.get("total_checks")
+    passed_checks = proof_summary.get("passed_checks")
+    failed_checks = proof_summary.get("failed_checks")
+    if (
+        not isinstance(total_checks, int)
+        or total_checks < 0
+        or not isinstance(passed_checks, int)
+        or passed_checks < 0
+        or not isinstance(failed_checks, int)
+        or failed_checks < 0
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet proof_summary counts must be non-negative integers",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if passed_checks + failed_checks != total_checks:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet pass/fail counts must sum to total_checks",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    counts_by_invariant_code = proof_summary.get("counts_by_invariant_code")
+    counts_by_status = proof_summary.get("counts_by_status")
+    if not isinstance(counts_by_invariant_code, Mapping) or not isinstance(
+        counts_by_status, Mapping
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet summary count maps must be objects",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if list(counts_by_invariant_code.keys()) != sorted(counts_by_invariant_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet counts_by_invariant_code keys must be sorted",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if any(key not in _TRUST_INVARIANT_CODES for key in counts_by_invariant_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant packet counts_by_invariant_code contains "
+                    "unsupported invariant_code"
+                ),
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if any(
+        not isinstance(value, int) or value < 0 for value in counts_by_invariant_code.values()
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant packet counts_by_invariant_code values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if list(counts_by_status.keys()) != sorted(counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet counts_by_status keys must be sorted",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if any(key not in _TRUST_INVARIANT_STATUSES for key in counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet counts_by_status contains unsupported status value",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant packet counts_by_status values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+
+    proof_items = payload.get("proof_items")
+    if not isinstance(proof_items, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet proof_items must be a list",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if len(proof_items) != total_checks:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet total_checks does not match proof_items length",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+
+    coherence_ref = _trust_invariant_artifact_ref(
+        schema=CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA,
+        source_text_hash=source_text_hash,
+        core_ir_artifact_id=core_ir_artifact_id,
+        concept_artifact_id=concept_artifact_id,
+    )
+    normative_ref = _trust_invariant_artifact_ref(
+        schema=NORMATIVE_ADVICE_PACKET_SCHEMA,
+        source_text_hash=source_text_hash,
+        core_ir_artifact_id=core_ir_artifact_id,
+        concept_artifact_id=concept_artifact_id,
+    )
+    trust_ref = _trust_invariant_artifact_ref(
+        schema=TRUST_INVARIANT_PACKET_SCHEMA,
+        source_text_hash=source_text_hash,
+        core_ir_artifact_id=core_ir_artifact_id,
+        concept_artifact_id=concept_artifact_id,
+    )
+    expected_refs_by_code = {
+        "CANONICAL_JSON_CONFORMANCE": [coherence_ref, normative_ref],
+        "HASH_RECOMPUTE_MATCH": [normative_ref],
+        "MANIFEST_CHAIN_STABILITY": [coherence_ref, normative_ref],
+        "REPLAY_HASH_STABILITY": [trust_ref],
+    }
+
+    observed_counts_by_invariant: dict[str, int] = {}
+    observed_counts_by_status: dict[str, int] = {}
+    observed_invariant_codes: list[str] = []
+    observed_sort_keys: list[tuple[str, str]] = []
+    for item_index, item in enumerate(proof_items):
+        if not isinstance(item, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item must be an object",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        _validate_trust_invariant_capture_keys(
+            payload=item,
+            required_keys={
+                "proof_id",
+                "invariant_code",
+                "status",
+                "justification_refs",
+                "message",
+            },
+            optional_keys={"expected_hash", "observed_hash", "source_snapshot", "created_at"},
+            path=trust_invariant_packet_path,
+            context={"item_index": item_index},
+        )
+        proof_id = item.get("proof_id")
+        invariant_code = item.get("invariant_code")
+        status = item.get("status")
+        justification_refs = item.get("justification_refs")
+        message = item.get("message")
+
+        if not _is_lower_hex(proof_id, length=16):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item proof_id must be lowercase hex16",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        if not isinstance(invariant_code, str) or invariant_code not in _TRUST_INVARIANT_CODES:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item invariant_code is invalid",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        if not isinstance(status, str) or status not in _TRUST_INVARIANT_STATUSES:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item status is invalid",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        if not isinstance(justification_refs, list) or not justification_refs:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    (
+                        "trust-invariant proof item justification_refs must be a non-empty "
+                        "list"
+                    ),
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        if not all(isinstance(ref, str) and ref for ref in justification_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    (
+                        "trust-invariant proof item justification_refs must contain "
+                        "non-empty strings"
+                    ),
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        if justification_refs != sorted(justification_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item justification_refs must be sorted",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        if len(set(justification_refs)) != len(justification_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item justification_refs may not contain duplicates",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        expected_refs = expected_refs_by_code[invariant_code]
+        if justification_refs != expected_refs:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    (
+                        "trust-invariant proof item justification_refs must match frozen "
+                        "invariant cardinality and schema order"
+                    ),
+                    context={
+                        "path": str(trust_invariant_packet_path),
+                        "item_index": item_index,
+                        "invariant_code": invariant_code,
+                    },
+                )
+            )
+        if not isinstance(message, str) or not message:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item message must be a non-empty string",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+
+        expected_hash = item.get("expected_hash")
+        observed_hash = item.get("observed_hash")
+        if expected_hash is not None and not _is_lower_sha256(expected_hash):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item expected_hash must be lowercase sha256",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        if observed_hash is not None and not _is_lower_sha256(observed_hash):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item observed_hash must be lowercase sha256",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+        if invariant_code == "CANONICAL_JSON_CONFORMANCE":
+            if expected_hash is not None or observed_hash is not None:
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        (
+                            "canonical-json-conformance proof item may not include "
+                            "expected_hash/observed_hash"
+                        ),
+                        context={
+                            "path": str(trust_invariant_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+        elif invariant_code == "REPLAY_HASH_STABILITY":
+            if expected_hash is not None or observed_hash is None:
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        (
+                            "replay-hash-stability proof item must include observed_hash "
+                            "and omit expected_hash"
+                        ),
+                        context={
+                            "path": str(trust_invariant_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+        elif expected_hash is None or observed_hash is None:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    (
+                        "hash-recompute/manifest-chain proof items require expected_hash "
+                        "and observed_hash"
+                    ),
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+
+        if "source_snapshot" in item and item.get("source_snapshot") is not None and not isinstance(
+            item.get("source_snapshot"),
+            Mapping,
+        ):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item source_snapshot must be an object when present",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+
+        proof_id_payload: dict[str, Any] = {
+            "invariant_code": invariant_code,
+            "status": status,
+            "justification_refs": justification_refs,
+        }
+        if expected_hash is not None:
+            proof_id_payload["expected_hash"] = expected_hash
+        if observed_hash is not None:
+            proof_id_payload["observed_hash"] = observed_hash
+        expected_proof_id = sha256_canonical_json(proof_id_payload)[:16]
+        if proof_id != expected_proof_id:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "trust-invariant proof item proof_id does not match canonical content hash",
+                    context={"path": str(trust_invariant_packet_path), "item_index": item_index},
+                )
+            )
+
+        observed_counts_by_invariant[invariant_code] = (
+            observed_counts_by_invariant.get(invariant_code, 0) + 1
+        )
+        observed_counts_by_status[status] = observed_counts_by_status.get(status, 0) + 1
+        observed_invariant_codes.append(invariant_code)
+        observed_sort_keys.append((invariant_code, cast(str, proof_id)))
+
+    if observed_sort_keys != sorted(observed_sort_keys):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet proof_items must be sorted by invariant_code/proof_id",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if sorted(observed_invariant_codes) != sorted(_TRUST_INVARIANT_CODES):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet proof_items must include exactly one item per invariant",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if passed_checks != observed_counts_by_status.get("pass", 0):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet passed_checks mismatch for proof_items",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if failed_checks != observed_counts_by_status.get("fail", 0):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet failed_checks mismatch for proof_items",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_invariant.items())) != {
+        str(key): int(value) for key, value in counts_by_invariant_code.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant packet counts_by_invariant_code does not match "
+                    "proof_items"
+                ),
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_status.items())) != {
+        str(key): int(value) for key, value in counts_by_status.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant packet counts_by_status does not match proof_items",
+                context={"path": str(trust_invariant_packet_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _trust_invariant_projection_fixture_hash(
+    *, trust_invariant_projection_path: Path
+) -> str:
+    payload = _read_json_object(
+        trust_invariant_projection_path,
+        description="trust-invariant projection fixture",
+    )
+    _validate_trust_invariant_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "bridge_pair_count",
+            "proof_item_count",
+            "proof_counts_by_invariant_code",
+            "proof_counts_by_status",
+        },
+        optional_keys={"created_at"},
+        path=trust_invariant_projection_path,
+    )
+    if payload.get("schema") != TRUST_INVARIANT_PROJECTION_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant projection schema is invalid",
+                context={
+                    "path": str(trust_invariant_projection_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    bridge_pair_count = payload.get("bridge_pair_count")
+    proof_item_count = payload.get("proof_item_count")
+    if (
+        not isinstance(bridge_pair_count, int)
+        or bridge_pair_count < 0
+        or not isinstance(proof_item_count, int)
+        or proof_item_count < 0
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant projection count fields must be non-negative integers",
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    counts_by_invariant_code = payload.get("proof_counts_by_invariant_code")
+    counts_by_status = payload.get("proof_counts_by_status")
+    if not isinstance(counts_by_invariant_code, Mapping) or not isinstance(
+        counts_by_status, Mapping
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant projection count maps must be objects",
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    if list(counts_by_invariant_code.keys()) != sorted(counts_by_invariant_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant projection proof_counts_by_invariant_code keys must be sorted",
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    if any(key not in _TRUST_INVARIANT_CODES for key in counts_by_invariant_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant projection proof_counts_by_invariant_code contains "
+                    "unsupported invariant_code"
+                ),
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    if any(
+        not isinstance(value, int) or value < 0 for value in counts_by_invariant_code.values()
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant projection proof_counts_by_invariant_code values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    if list(counts_by_status.keys()) != sorted(counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant projection proof_counts_by_status keys must be sorted",
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    if any(key not in _TRUST_INVARIANT_STATUSES for key in counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant projection proof_counts_by_status contains "
+                    "unsupported status"
+                ),
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant projection proof_counts_by_status values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    if proof_item_count != sum(int(value) for value in counts_by_invariant_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "trust-invariant projection proof_item_count mismatch for "
+                    "proof_counts_by_invariant_code"
+                ),
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    if proof_item_count != sum(int(value) for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "trust-invariant projection proof_item_count mismatch for proof_counts_by_status",
+                context={"path": str(trust_invariant_projection_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
 def _validate_vnext_plus20_non_empty_floor(
     *,
     manifest_path: Path,
@@ -8460,6 +9233,209 @@ def _compute_vnext_plus21_metrics(
     }
 
 
+def _validate_vnext_plus22_non_empty_floor(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> bool:
+    observed_codes: set[str] = set()
+    observed_statuses: set[str] = set()
+    has_non_zero_checks = False
+    for fixture in fixtures:
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            continue
+        for run in runs:
+            if not isinstance(run, dict):
+                continue
+            try:
+                packet_path = _resolve_manifest_relative_path(
+                    manifest_path=manifest_path,
+                    raw_path=run.get("trust_invariant_packet_path"),
+                )
+                payload = _read_json_object(
+                    packet_path,
+                    description="trust-invariant packet fixture",
+                )
+            except ValueError:
+                continue
+            summary = payload.get("proof_summary")
+            if isinstance(summary, Mapping):
+                total_checks = summary.get("total_checks")
+                if isinstance(total_checks, int) and total_checks > 0:
+                    has_non_zero_checks = True
+            proof_items = payload.get("proof_items")
+            if not isinstance(proof_items, list):
+                continue
+            for proof_item in proof_items:
+                if not isinstance(proof_item, Mapping):
+                    continue
+                invariant_code = proof_item.get("invariant_code")
+                status = proof_item.get("status")
+                if isinstance(invariant_code, str):
+                    observed_codes.add(invariant_code)
+                if isinstance(status, str):
+                    observed_statuses.add(status)
+    missing_codes = sorted(_FROZEN_VNEXT_PLUS22_NON_EMPTY_INVARIANT_CODES - observed_codes)
+    has_fail_status = "fail" in observed_statuses
+    if has_non_zero_checks and not missing_codes and has_fail_status:
+        return True
+    issues.append(
+        _issue(
+            "URM_ADEU_TRUST_INVARIANT_FIXTURE_INVALID",
+            (
+                "vnext+22 trust-invariant packet fixtures must include non-zero checks, "
+                "required invariant codes, and at least one fail status"
+            ),
+            context={
+                "manifest_path": str(manifest_path),
+                "required_invariant_codes": sorted(
+                    _FROZEN_VNEXT_PLUS22_NON_EMPTY_INVARIANT_CODES
+                ),
+                "observed_invariant_codes": sorted(observed_codes),
+                "observed_statuses": sorted(observed_statuses),
+                "has_non_zero_checks": has_non_zero_checks,
+                "has_fail_status": has_fail_status,
+                "missing_invariant_codes": missing_codes,
+            },
+        )
+    )
+    return False
+
+
+def _load_vnext_plus22_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        return _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+22",
+            manifest_schema=VNEXT_PLUS22_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS22_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS22_TRUST_INVARIANT_SPECS,
+            frozen_surface_set=_FROZEN_TRUST_INVARIANT_SURFACE_SET,
+            frozen_surfaces=_FROZEN_TRUST_INVARIANT_SURFACES,
+            surface_description="frozen trust-invariant surface id",
+            surface_set_description="frozen trust-invariant surface ids",
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_TRUST_INVARIANT_FIXTURE_INVALID",
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_STOP_GATE_INPUT_INVALID": "URM_ADEU_TRUST_INVARIANT_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": (
+                    "URM_ADEU_TRUST_INVARIANT_FIXTURE_INVALID"
+                ),
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    "URM_ADEU_TRUST_INVARIANT_MANIFEST_HASH_MISMATCH"
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus22_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS22_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus22_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_TRUST_INVARIANT_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS22_DEFAULT_METRICS,
+            "vnext_plus22_manifest_hash": "",
+            "vnext_plus22_fixture_count_total": 0,
+            "vnext_plus22_replay_count_total": 0,
+            "vnext_plus22_bytes_hashed_per_replay": 0,
+            "vnext_plus22_bytes_hashed_total": 0,
+        }
+
+    surface_hash_builders: dict[str, Callable[..., Any]] = {
+        "trust_invariant_packet_fixtures": _trust_invariant_packet_fixture_hash,
+        "trust_invariant_projection_fixtures": _trust_invariant_projection_fixture_hash,
+    }
+    surface_drift_messages = {
+        "trust_invariant_packet_fixtures": "vnext+22 trust-invariant packet drift",
+        "trust_invariant_projection_fixtures": "vnext+22 trust-invariant projection drift",
+    }
+    surface_payload_descriptions = {
+        "trust_invariant_packet_fixtures": "trust-invariant packet fixture",
+        "trust_invariant_projection_fixtures": "trust-invariant projection fixture",
+    }
+
+    metric_values: dict[str, float] = {}
+    fixture_groups: list[list[dict[str, Any]]] = []
+    bytes_hashed_per_replay = 0
+    for fixture_key, metric_name, _surface_id, required_run_fields in (
+        _VNEXT_PLUS22_TRUST_INVARIANT_SPECS
+    ):
+        fixtures = cast(list[dict[str, Any]], manifest[fixture_key])
+        fixture_groups.append(fixtures)
+        metric_values[metric_name] = _manifest_metric_pct(
+            manifest_path=resolved_manifest_path,
+            metric_name=metric_name,
+            fixtures=fixtures,
+            replay_count=VNEXT_PLUS22_REPLAY_COUNT,
+            required_run_fields=required_run_fields,
+            run_hash_builder=surface_hash_builders[fixture_key],
+            issues=issues,
+            invalid_issue_code="URM_ADEU_TRUST_INVARIANT_FIXTURE_INVALID",
+            drift_issue_code="URM_ADEU_TRUST_INVARIANT_DIAGNOSTIC_DRIFT",
+            drift_issue_message=surface_drift_messages[fixture_key],
+        )
+        bytes_hashed_per_replay += _manifest_bytes_hashed_per_replay(
+            manifest_path=resolved_manifest_path,
+            fixtures=fixtures,
+            required_run_fields=required_run_fields,
+            payload_description=surface_payload_descriptions[fixture_key],
+        )
+
+    packet_fixtures = cast(
+        list[dict[str, Any]],
+        manifest["trust_invariant_packet_fixtures"],
+    )
+    if not _validate_vnext_plus22_non_empty_floor(
+        manifest_path=resolved_manifest_path,
+        fixtures=packet_fixtures,
+        issues=issues,
+    ):
+        metric_values["artifact_trust_invariant_packet_determinism_pct"] = 0.0
+
+    fixture_count_total = sum(len(fixtures) for fixtures in fixture_groups)
+    replay_count_total = sum(
+        len(cast(list[Any], fixture.get("runs", [])))
+        for fixtures in fixture_groups
+        for fixture in fixtures
+    )
+
+    return {
+        **metric_values,
+        "vnext_plus22_manifest_hash": manifest_hash,
+        "vnext_plus22_fixture_count_total": fixture_count_total,
+        "vnext_plus22_replay_count_total": replay_count_total,
+        "vnext_plus22_bytes_hashed_per_replay": bytes_hashed_per_replay,
+        "vnext_plus22_bytes_hashed_total": VNEXT_PLUS22_REPLAY_COUNT
+        * bytes_hashed_per_replay,
+    }
+
+
 def build_stop_gate_metrics(
     *,
     incident_packet_paths: list[Path],
@@ -8483,6 +9459,7 @@ def build_stop_gate_metrics(
     vnext_plus19_manifest_path: Path | None = None,
     vnext_plus20_manifest_path: Path | None = None,
     vnext_plus21_manifest_path: Path | None = None,
+    vnext_plus22_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -8876,6 +9853,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus21_manifest_path,
         issues=issues,
     )
+    vnext_plus22_metrics = _compute_vnext_plus22_metrics(
+        manifest_path=vnext_plus22_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -8945,12 +9926,16 @@ def build_stop_gate_metrics(
             int(vnext_plus19_metrics["vnext_plus19_fixture_count_total"])
             + int(vnext_plus20_metrics["vnext_plus20_fixture_count_total"])
             + int(vnext_plus21_metrics["vnext_plus21_fixture_count_total"])
+            + int(vnext_plus22_metrics["vnext_plus22_fixture_count_total"])
         ),
         total_replays=(
             int(vnext_plus19_metrics["vnext_plus19_replay_count_total"])
             + int(vnext_plus20_metrics["vnext_plus20_replay_count_total"])
             + int(vnext_plus21_metrics["vnext_plus21_replay_count_total"])
+            + int(vnext_plus22_metrics["vnext_plus22_replay_count_total"])
         ),
+        bytes_hashed_per_replay=int(vnext_plus22_metrics["vnext_plus22_bytes_hashed_per_replay"]),
+        bytes_hashed_total=int(vnext_plus22_metrics["vnext_plus22_bytes_hashed_total"]),
         runtime_started=runtime_started,
     )
     runtime_budget_metric_pct, runtime_budget_issue = _runtime_budget_metric_pct(
@@ -9120,6 +10105,12 @@ def build_stop_gate_metrics(
         "artifact_normative_advice_projection_determinism_pct": vnext_plus21_metrics[
             "artifact_normative_advice_projection_determinism_pct"
         ],
+        "artifact_trust_invariant_packet_determinism_pct": vnext_plus22_metrics[
+            "artifact_trust_invariant_packet_determinism_pct"
+        ],
+        "artifact_trust_invariant_projection_determinism_pct": vnext_plus22_metrics[
+            "artifact_trust_invariant_projection_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -9263,6 +10254,14 @@ def build_stop_gate_metrics(
             "artifact_normative_advice_projection_determinism_pct"
         ]
         >= THRESHOLDS["artifact_normative_advice_projection_determinism_pct"],
+        "artifact_trust_invariant_packet_determinism": metrics[
+            "artifact_trust_invariant_packet_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_trust_invariant_packet_determinism_pct"],
+        "artifact_trust_invariant_projection_determinism": metrics[
+            "artifact_trust_invariant_projection_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_trust_invariant_projection_determinism_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -9358,6 +10357,11 @@ def build_stop_gate_metrics(
                 if vnext_plus21_manifest_path is not None
                 else VNEXT_PLUS21_MANIFEST_PATH
             ),
+            "vnext_plus22_manifest_path": str(
+                vnext_plus22_manifest_path
+                if vnext_plus22_manifest_path is not None
+                else VNEXT_PLUS22_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -9372,6 +10376,7 @@ def build_stop_gate_metrics(
         "vnext_plus19_manifest_hash": vnext_plus19_metrics["vnext_plus19_manifest_hash"],
         "vnext_plus20_manifest_hash": vnext_plus20_metrics["vnext_plus20_manifest_hash"],
         "vnext_plus21_manifest_hash": vnext_plus21_metrics["vnext_plus21_manifest_hash"],
+        "vnext_plus22_manifest_hash": vnext_plus22_metrics["vnext_plus22_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -9408,6 +10413,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+19 manifest hash: `{report.get('vnext_plus19_manifest_hash')}`")
     lines.append(f"- vnext+20 manifest hash: `{report.get('vnext_plus20_manifest_hash')}`")
     lines.append(f"- vnext+21 manifest hash: `{report.get('vnext_plus21_manifest_hash')}`")
+    lines.append(f"- vnext+22 manifest hash: `{report.get('vnext_plus22_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -9649,6 +10655,14 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('artifact_normative_advice_projection_determinism_pct')}`"
     )
     lines.append(
+        "- artifact trust-invariant packet determinism pct: "
+        f"`{metrics.get('artifact_trust_invariant_packet_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact trust-invariant projection determinism pct: "
+        f"`{metrics.get('artifact_trust_invariant_projection_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -9685,6 +10699,14 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         lines.append(
             "- total replays: "
             f"`{runtime_observability.get('total_replays')}`"
+        )
+        lines.append(
+            "- bytes hashed per replay: "
+            f"`{runtime_observability.get('bytes_hashed_per_replay')}`"
+        )
+        lines.append(
+            "- bytes hashed total: "
+            f"`{runtime_observability.get('bytes_hashed_total')}`"
         )
         lines.append(
             "- elapsed ms: "
@@ -9827,6 +10849,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS21_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus22-manifest",
+        dest="vnext_plus22_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS22_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -9856,6 +10884,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus19_manifest_path=args.vnext_plus19_manifest_path,
         vnext_plus20_manifest_path=args.vnext_plus20_manifest_path,
         vnext_plus21_manifest_path=args.vnext_plus21_manifest_path,
+        vnext_plus22_manifest_path=args.vnext_plus22_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:

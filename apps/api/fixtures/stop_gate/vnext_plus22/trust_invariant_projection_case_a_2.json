@@ -1,0 +1,1 @@
+{"bridge_pair_count":1,"proof_counts_by_invariant_code":{"CANONICAL_JSON_CONFORMANCE":1,"HASH_RECOMPUTE_MATCH":1,"MANIFEST_CHAIN_STABILITY":1,"REPLAY_HASH_STABILITY":1},"proof_counts_by_status":{"fail":1,"pass":3},"proof_item_count":4,"schema":"trust_invariant_projection.vnext_plus22@1"}
