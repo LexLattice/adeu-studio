@@ -101,6 +101,14 @@ from .read_surface_payload import (
     canonicalize_read_surface_payload,
     integrity_issue_count,
 )
+from .trust_invariant_packet import (
+    TRUST_INVARIANT_PACKET_SCHEMA,
+    AdeuTrustInvariantPacket,
+    TrustInvariantProofItem,
+    TrustInvariantSummary,
+    build_trust_invariant_proof_id,
+    canonicalize_trust_invariant_packet_payload,
+)
 
 __all__ = [
     "AdeuCoreIR",
@@ -180,6 +188,12 @@ __all__ = [
     "MISSING_INTEGRITY_ARTIFACT_REASON",
     "canonicalize_read_surface_payload",
     "integrity_issue_count",
+    "AdeuTrustInvariantPacket",
+    "TrustInvariantSummary",
+    "TrustInvariantProofItem",
+    "TRUST_INVARIANT_PACKET_SCHEMA",
+    "build_trust_invariant_proof_id",
+    "canonicalize_trust_invariant_packet_payload",
 ]
 
 __version__ = "0.0.0"

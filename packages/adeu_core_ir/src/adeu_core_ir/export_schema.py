@@ -18,6 +18,7 @@ from .models import AdeuCoreIR
 from .normative_advice_packet import AdeuNormativeAdvicePacket
 from .projection_alignment import AdeuProjectionAlignment
 from .read_surface_payload import AdeuReadSurfacePayload
+from .trust_invariant_packet import AdeuTrustInvariantPacket
 
 
 def _write_schema(path: Path, schema: dict) -> None:
@@ -48,6 +49,7 @@ def main() -> None:
     projection_alignment_schema = AdeuProjectionAlignment.model_json_schema(by_alias=True)
     read_surface_payload_schema = AdeuReadSurfacePayload.model_json_schema(by_alias=True)
     normative_advice_packet_schema = AdeuNormativeAdvicePacket.model_json_schema(by_alias=True)
+    trust_invariant_packet_schema = AdeuTrustInvariantPacket.model_json_schema(by_alias=True)
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
     _write_schema(authoritative_path, core_ir_schema)
@@ -143,6 +145,14 @@ def main() -> None:
         normative_advice_packet_schema,
     )
 
+    trust_invariant_packet_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "adeu_trust_invariant_packet.v0_1.json"
+    )
+    _write_schema(
+        trust_invariant_packet_authoritative_path,
+        trust_invariant_packet_schema,
+    )
+
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
 
@@ -207,6 +217,14 @@ def main() -> None:
     _write_schema(
         normative_advice_packet_mirror_path,
         normative_advice_packet_schema,
+    )
+
+    trust_invariant_packet_mirror_path = (
+        root / "spec" / "adeu_trust_invariant_packet.schema.json"
+    )
+    _write_schema(
+        trust_invariant_packet_mirror_path,
+        trust_invariant_packet_schema,
     )
 
 

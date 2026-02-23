@@ -1,0 +1,191 @@
+{
+  "$defs": {
+    "TrustInvariantProofItem": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Hash"
+        },
+        "invariant_code": {
+          "enum": [
+            "CANONICAL_JSON_CONFORMANCE",
+            "HASH_RECOMPUTE_MATCH",
+            "REPLAY_HASH_STABILITY",
+            "MANIFEST_CHAIN_STABILITY"
+          ],
+          "title": "Invariant Code",
+          "type": "string"
+        },
+        "justification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Justification Refs",
+          "type": "array"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "observed_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Hash"
+        },
+        "proof_id": {
+          "maxLength": 16,
+          "minLength": 16,
+          "title": "Proof Id",
+          "type": "string"
+        },
+        "source_snapshot": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Snapshot"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "proof_id",
+        "invariant_code",
+        "status",
+        "justification_refs",
+        "message"
+      ],
+      "title": "TrustInvariantProofItem",
+      "type": "object"
+    },
+    "TrustInvariantSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "counts_by_invariant_code": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Invariant Code",
+          "type": "object"
+        },
+        "counts_by_status": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Status",
+          "type": "object"
+        },
+        "failed_checks": {
+          "minimum": 0,
+          "title": "Failed Checks",
+          "type": "integer"
+        },
+        "passed_checks": {
+          "minimum": 0,
+          "title": "Passed Checks",
+          "type": "integer"
+        },
+        "total_checks": {
+          "minimum": 0,
+          "title": "Total Checks",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_checks",
+        "passed_checks",
+        "failed_checks",
+        "counts_by_invariant_code",
+        "counts_by_status"
+      ],
+      "title": "TrustInvariantSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bridge_manifest_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Bridge Manifest Hash",
+      "type": "string"
+    },
+    "concept_artifact_id": {
+      "minLength": 1,
+      "title": "Concept Artifact Id",
+      "type": "string"
+    },
+    "core_ir_artifact_id": {
+      "minLength": 1,
+      "title": "Core Ir Artifact Id",
+      "type": "string"
+    },
+    "normative_advice_packet_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Normative Advice Packet Hash",
+      "type": "string"
+    },
+    "proof_items": {
+      "items": {
+        "$ref": "#/$defs/TrustInvariantProofItem"
+      },
+      "title": "Proof Items",
+      "type": "array"
+    },
+    "proof_summary": {
+      "$ref": "#/$defs/TrustInvariantSummary"
+    },
+    "schema": {
+      "const": "adeu_trust_invariant_packet@0.1",
+      "default": "adeu_trust_invariant_packet@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "minLength": 1,
+      "title": "Source Text Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "core_ir_artifact_id",
+    "concept_artifact_id",
+    "bridge_manifest_hash",
+    "normative_advice_packet_hash",
+    "proof_summary",
+    "proof_items"
+  ],
+  "title": "AdeuTrustInvariantPacket",
+  "type": "object"
+}
