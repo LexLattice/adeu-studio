@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import socket
 from contextlib import ExitStack
+from functools import partial
 from pathlib import Path
 from typing import Any, Literal
 from unittest.mock import patch
@@ -100,19 +101,6 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _strip_created_at_recursive(value: object) -> object:
-    if isinstance(value, dict):
-        projected: dict[str, object] = {}
-        for key, child in value.items():
-            if key == "created_at":
-                continue
-            projected[key] = _strip_created_at_recursive(child)
-        return projected
-    if isinstance(value, list):
-        return [_strip_created_at_recursive(item) for item in value]
-    return value
-
-
 @pytest.fixture(autouse=True)
 def _clear_semantics_v4_manifest_caches() -> None:
     semantics_v4._trust_packet_fixture_index_for_manifest.cache_clear()
@@ -122,13 +110,11 @@ def _clear_semantics_v4_manifest_caches() -> None:
     semantics_v4._semantics_fixture_index_for_manifest.cache_clear()
 
 
-def _raise_materialization_flow_call(*, target: str) -> Any:
-    def _fail(*args: Any, **kwargs: Any) -> Any:
-        raise AssertionError(
-            "semantics-v4 v4 fail-closed: materialization flow invoked: " f"{target}"
-        )
-
-    return _fail
+def _fail_materialization_flow_call(target: str, *args: Any, **kwargs: Any) -> Any:
+    del args, kwargs
+    raise AssertionError(
+        "semantics-v4 v4 fail-closed: materialization flow invoked: " f"{target}"
+    )
 
 
 def _exercise_semantics_v4_builders() -> None:
@@ -160,7 +146,10 @@ def _exercise_semantics_v4_paths_under_v4_guards() -> None:
         with ExitStack() as stack:
             for target in _MATERIALIZATION_FLOW_TARGETS:
                 stack.enter_context(
-                    patch(target, new=_raise_materialization_flow_call(target=target))
+                    patch(
+                        target,
+                        new=partial(_fail_materialization_flow_call, target=target),
+                    )
                 )
             _exercise_semantics_v4_builders()
             _exercise_semantics_v4_endpoints()
@@ -272,9 +261,9 @@ def _assert_non_enforcement_payload(
     if isinstance(value, dict):
         for key, child in value.items():
             if key in _NON_ENFORCEMENT_FIELD_NAMES:
-                prefix = "/".join(str(part) for part in _path) or "<root>"
+                key_path = "/".join(str(part) for part in (*_path, key)) or "<root>"
                 raise AssertionError(
-                    f"disallowed non-enforcement key '{key}' found at path '{prefix}'"
+                    f"disallowed non-enforcement key '{key}' found at path '{key_path}'"
                 )
             _assert_non_enforcement_payload(child, _path=(*_path, key))
         return
@@ -426,11 +415,15 @@ def test_default_v3_semantics_diagnostics_endpoints_remain_byte_stable(
         concept_artifact.artifact_id
     ).model_dump(mode="json")
 
-    assert canonical_json(_strip_created_at_recursive(artifact_after)) == canonical_json(
-        _strip_created_at_recursive(artifact_baseline)
+    assert canonical_json(
+        semantics_v4._strip_created_at_recursive(artifact_after)
+    ) == canonical_json(
+        semantics_v4._strip_created_at_recursive(artifact_baseline)
     )
-    assert canonical_json(_strip_created_at_recursive(concept_after)) == canonical_json(
-        _strip_created_at_recursive(concept_baseline)
+    assert canonical_json(
+        semantics_v4._strip_created_at_recursive(concept_after)
+    ) == canonical_json(
+        semantics_v4._strip_created_at_recursive(concept_baseline)
     )
 
 
