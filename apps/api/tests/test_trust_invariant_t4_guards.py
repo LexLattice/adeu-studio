@@ -4,7 +4,7 @@ import json
 import socket
 from contextlib import ExitStack, nullcontext
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 from unittest.mock import patch
 
 import adeu_api.main as api_main
@@ -15,6 +15,7 @@ from adeu_api.cross_ir_bridge_vnext_plus20 import CROSS_IR_CATALOG_PATH, CrossIR
 from adeu_api.hashing import sha256_canonical_json
 from adeu_api.read_surface_runtime_guards import NoProviderCallsGuard
 from fastapi import HTTPException, Response
+from pydantic import BaseModel
 
 _MATERIALIZATION_FLOW_TARGETS: tuple[str, ...] = (
     "adeu_api.main.create_artifact",
@@ -37,7 +38,51 @@ _NON_ENFORCEMENT_FIELD_NAMES: frozenset[str] = frozenset(
 )
 
 
-def _load_json(path: Path) -> dict[str, object]:
+class _NormativeAdvicePacketRun(BaseModel):
+    normative_advice_packet_path: str
+
+
+class _NormativeAdvicePacketFixture(BaseModel):
+    runs: list[_NormativeAdvicePacketRun]
+
+
+class _NormativeAdviceProjectionRun(BaseModel):
+    normative_advice_projection_path: str
+
+
+class _NormativeAdviceProjectionFixture(BaseModel):
+    runs: list[_NormativeAdviceProjectionRun]
+
+
+class _VnextPlus21ManifestForT4(BaseModel):
+    schema: Literal["stop_gate.vnext_plus21_manifest@1"]
+    normative_advice_packet_fixtures: list[_NormativeAdvicePacketFixture]
+    normative_advice_projection_fixtures: list[_NormativeAdviceProjectionFixture]
+
+
+class _TrustInvariantPacketRun(BaseModel):
+    trust_invariant_packet_path: str
+
+
+class _TrustInvariantPacketFixture(BaseModel):
+    runs: list[_TrustInvariantPacketRun]
+
+
+class _TrustInvariantProjectionRun(BaseModel):
+    trust_invariant_projection_path: str
+
+
+class _TrustInvariantProjectionFixture(BaseModel):
+    runs: list[_TrustInvariantProjectionRun]
+
+
+class _VnextPlus22ManifestForT4(BaseModel):
+    schema: Literal["stop_gate.vnext_plus22_manifest@1"]
+    trust_invariant_packet_fixtures: list[_TrustInvariantPacketFixture]
+    trust_invariant_projection_fixtures: list[_TrustInvariantProjectionFixture]
+
+
+def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -112,6 +157,13 @@ def _vnext_plus22_manifest_path() -> Path:
     )
 
 
+def _resolve_manifest_payload_path(*, manifest_path: Path, raw_path: str) -> Path:
+    payload_path = Path(raw_path)
+    if not payload_path.is_absolute():
+        payload_path = manifest_path.parent / payload_path
+    return payload_path.resolve()
+
+
 def _trust_invariant_mutable_surface_paths() -> list[Path]:
     catalog_path = CROSS_IR_CATALOG_PATH.resolve()
     catalog = CrossIRCatalog.model_validate(_load_json(catalog_path))
@@ -123,51 +175,45 @@ def _trust_invariant_mutable_surface_paths() -> list[Path]:
             artifact_path = catalog_path.parent / artifact_path
         paths.add(artifact_path.resolve())
 
-    manifest_specs = (
-        (
-            _vnext_plus21_manifest_path().resolve(),
-            (
-                ("normative_advice_packet_fixtures", "normative_advice_packet_path"),
-                ("normative_advice_projection_fixtures", "normative_advice_projection_path"),
-            ),
-            "stop_gate.vnext_plus21_manifest@1",
-        ),
-        (
-            _vnext_plus22_manifest_path().resolve(),
-            (
-                ("trust_invariant_packet_fixtures", "trust_invariant_packet_path"),
-                ("trust_invariant_projection_fixtures", "trust_invariant_projection_path"),
-            ),
-            "stop_gate.vnext_plus22_manifest@1",
-        ),
-    )
-    for manifest_path, fixture_specs, expected_schema in manifest_specs:
-        manifest_payload = _load_json(manifest_path)
-        if manifest_payload.get("schema") != expected_schema:
-            raise AssertionError(f"expected {expected_schema} schema")
-        paths.add(manifest_path)
-        for fixture_list_key, run_key in fixture_specs:
-            fixture_list = manifest_payload.get(fixture_list_key)
-            if not isinstance(fixture_list, list):
-                raise AssertionError(f"{fixture_list_key} must be a list")
-            for fixture in fixture_list:
-                if not isinstance(fixture, dict):
-                    raise AssertionError(f"{fixture_list_key} entries must be objects")
-                runs = fixture.get("runs")
-                if not isinstance(runs, list) or not runs:
-                    raise AssertionError(f"{fixture_list_key} entries must include non-empty runs")
-                for run in runs:
-                    if not isinstance(run, dict):
-                        raise AssertionError("fixture run entries must be objects")
-                    raw_path = run.get(run_key)
-                    if not isinstance(raw_path, str) or not raw_path:
-                        raise AssertionError(
-                            f"fixture run key {run_key} must be a non-empty string"
-                        )
-                    payload_path = Path(raw_path)
-                    if not payload_path.is_absolute():
-                        payload_path = manifest_path.parent / payload_path
-                    paths.add(payload_path.resolve())
+    v21_manifest_path = _vnext_plus21_manifest_path().resolve()
+    v21_manifest = _VnextPlus21ManifestForT4.model_validate(_load_json(v21_manifest_path))
+    paths.add(v21_manifest_path)
+    for fixture in v21_manifest.normative_advice_packet_fixtures:
+        for run in fixture.runs:
+            paths.add(
+                _resolve_manifest_payload_path(
+                    manifest_path=v21_manifest_path,
+                    raw_path=run.normative_advice_packet_path,
+                )
+            )
+    for fixture in v21_manifest.normative_advice_projection_fixtures:
+        for run in fixture.runs:
+            paths.add(
+                _resolve_manifest_payload_path(
+                    manifest_path=v21_manifest_path,
+                    raw_path=run.normative_advice_projection_path,
+                )
+            )
+
+    v22_manifest_path = _vnext_plus22_manifest_path().resolve()
+    v22_manifest = _VnextPlus22ManifestForT4.model_validate(_load_json(v22_manifest_path))
+    paths.add(v22_manifest_path)
+    for fixture in v22_manifest.trust_invariant_packet_fixtures:
+        for run in fixture.runs:
+            paths.add(
+                _resolve_manifest_payload_path(
+                    manifest_path=v22_manifest_path,
+                    raw_path=run.trust_invariant_packet_path,
+                )
+            )
+    for fixture in v22_manifest.trust_invariant_projection_fixtures:
+        for run in fixture.runs:
+            paths.add(
+                _resolve_manifest_payload_path(
+                    manifest_path=v22_manifest_path,
+                    raw_path=run.trust_invariant_projection_path,
+                )
+            )
 
     return sorted(paths, key=lambda path: str(path))
 
@@ -179,15 +225,23 @@ def _mutable_surface_snapshot_hashes() -> dict[str, str]:
     }
 
 
-def _assert_non_enforcement_payload(value: object) -> None:
+def _assert_non_enforcement_payload(
+    value: object,
+    *,
+    _path: tuple[str | int, ...] = (),
+) -> None:
     if isinstance(value, dict):
         for key, child in value.items():
-            assert key not in _NON_ENFORCEMENT_FIELD_NAMES
-            _assert_non_enforcement_payload(child)
+            if key in _NON_ENFORCEMENT_FIELD_NAMES:
+                prefix = "/".join(str(part) for part in _path) or "<root>"
+                raise AssertionError(
+                    f"disallowed non-enforcement key '{key}' found at path '{prefix}'"
+                )
+            _assert_non_enforcement_payload(child, _path=(*_path, key))
         return
     if isinstance(value, list):
-        for child in value:
-            _assert_non_enforcement_payload(child)
+        for index, child in enumerate(value):
+            _assert_non_enforcement_payload(child, _path=(*_path, index))
 
 
 def test_no_provider_calls_guard_fails_closed_on_provider_entrypoint_for_trust_invariant() -> None:
