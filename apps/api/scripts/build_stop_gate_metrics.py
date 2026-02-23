@@ -6,7 +6,22 @@ from pathlib import Path
 from urm_runtime.hashing import canonical_json
 from urm_runtime.stop_gate_tools import build_stop_gate_metrics, stop_gate_markdown
 
-_ACTIVE_MANIFEST_VERSIONS: tuple[int, ...] = (7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20)
+_ACTIVE_MANIFEST_VERSIONS: tuple[int, ...] = (
+    7,
+    8,
+    9,
+    10,
+    11,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+)
 
 
 def parse_args() -> argparse.Namespace:
