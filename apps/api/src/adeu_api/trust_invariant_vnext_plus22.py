@@ -14,7 +14,7 @@ from adeu_core_ir import (
     AdeuTrustInvariantPacket,
     build_trust_invariant_proof_id,
 )
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from .cross_ir_bridge_vnext_plus20 import (
     CrossIRBridgeVnextPlus20Error,
@@ -1097,7 +1097,7 @@ def build_trust_invariant_projection_vnext_plus22(
     }
     try:
         normalized = TrustInvariantProjectionVnextPlus22.model_validate(projection_payload)
-    except Exception as exc:
+    except ValidationError as exc:
         raise _trust_invariant_error(
             code="URM_ADEU_TRUST_INVARIANT_PAYLOAD_INVALID",
             reason="trust-invariant projection payload failed schema validation",
