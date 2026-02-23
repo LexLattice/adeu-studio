@@ -232,7 +232,7 @@ def _coherence_fixture_index_for_manifest(
             context={"path": str(manifest_path), "error": str(exc)},
         ) from exc
 
-    by_identity: dict[tuple[str, str, str], Path] = {}
+    by_identity: dict[tuple[str, str, str], tuple[Path, ...]] = {}
     for fixture in manifest.cross_ir_coherence_diagnostics_fixtures:
         identity = (
             fixture.source_text_hash,
@@ -249,40 +249,25 @@ def _coherence_fixture_index_for_manifest(
                     "concept_artifact_id": fixture.concept_artifact_id,
                 },
             )
-        selected_run_path = sorted(
-            run.cross_ir_coherence_diagnostics_path for run in fixture.runs
-        )[0]
-        selected_path = Path(selected_run_path)
-        if not selected_path.is_absolute():
-            selected_path = manifest_path.parent / selected_path
-        by_identity[identity] = selected_path.resolve()
+        resolved_run_paths: list[Path] = []
+        for run_path in sorted(run.cross_ir_coherence_diagnostics_path for run in fixture.runs):
+            selected_path = Path(run_path)
+            if not selected_path.is_absolute():
+                selected_path = manifest_path.parent / selected_path
+            resolved_run_paths.append(selected_path.resolve())
+        by_identity[identity] = tuple(resolved_run_paths)
     return by_identity
 
 
-def _coherence_payload_for_pair(
+def _load_and_validate_coherence_payload(
     *,
+    path: Path,
     source_text_hash: str,
     core_ir_artifact_id: str,
     concept_artifact_id: str,
-    coherence_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
-    manifest_path = _resolved_manifest_path(coherence_manifest_path)
-    by_identity = _coherence_fixture_index_for_manifest(str(manifest_path))
-    identity = (source_text_hash, core_ir_artifact_id, concept_artifact_id)
-    coherence_path = by_identity.get(identity)
-    if coherence_path is None:
-        raise _normative_advice_error(
-            code="URM_ADEU_NORMATIVE_ADVICE_ARTIFACT_NOT_FOUND",
-            reason="matched coherence diagnostics artifact not found for pair identity",
-            context={
-                "source_text_hash": source_text_hash,
-                "core_ir_artifact_id": core_ir_artifact_id,
-                "concept_artifact_id": concept_artifact_id,
-                "manifest_path": str(manifest_path),
-            },
-        )
     try:
-        raw_payload = coherence_path.read_text(encoding="utf-8")
+        raw_payload = path.read_text(encoding="utf-8")
     except FileNotFoundError as exc:
         raise _normative_advice_error(
             code="URM_ADEU_NORMATIVE_ADVICE_ARTIFACT_NOT_FOUND",
@@ -291,7 +276,7 @@ def _coherence_payload_for_pair(
                 "source_text_hash": source_text_hash,
                 "core_ir_artifact_id": core_ir_artifact_id,
                 "concept_artifact_id": concept_artifact_id,
-                "path": str(coherence_path),
+                "path": str(path),
             },
         ) from exc
     except OSError as exc:
@@ -302,7 +287,7 @@ def _coherence_payload_for_pair(
                 "source_text_hash": source_text_hash,
                 "core_ir_artifact_id": core_ir_artifact_id,
                 "concept_artifact_id": concept_artifact_id,
-                "path": str(coherence_path),
+                "path": str(path),
                 "error": str(exc),
             },
         ) from exc
@@ -317,7 +302,7 @@ def _coherence_payload_for_pair(
                 "source_text_hash": source_text_hash,
                 "core_ir_artifact_id": core_ir_artifact_id,
                 "concept_artifact_id": concept_artifact_id,
-                "path": str(coherence_path),
+                "path": str(path),
                 "error": exc.msg,
             },
         ) from exc
@@ -329,7 +314,7 @@ def _coherence_payload_for_pair(
                 "source_text_hash": source_text_hash,
                 "core_ir_artifact_id": core_ir_artifact_id,
                 "concept_artifact_id": concept_artifact_id,
-                "path": str(coherence_path),
+                "path": str(path),
             },
         )
     try:
@@ -342,7 +327,7 @@ def _coherence_payload_for_pair(
                 "source_text_hash": source_text_hash,
                 "core_ir_artifact_id": core_ir_artifact_id,
                 "concept_artifact_id": concept_artifact_id,
-                "path": str(coherence_path),
+                "path": str(path),
                 "error": str(exc),
             },
         ) from exc
@@ -381,6 +366,58 @@ def _coherence_payload_for_pair(
             },
         )
     return payload
+
+
+def _coherence_payload_for_pair(
+    *,
+    source_text_hash: str,
+    core_ir_artifact_id: str,
+    concept_artifact_id: str,
+    coherence_manifest_path: Path | None = None,
+) -> dict[str, Any]:
+    manifest_path = _resolved_manifest_path(coherence_manifest_path)
+    by_identity = _coherence_fixture_index_for_manifest(str(manifest_path))
+    identity = (source_text_hash, core_ir_artifact_id, concept_artifact_id)
+    coherence_paths = by_identity.get(identity)
+    if coherence_paths is None:
+        raise _normative_advice_error(
+            code="URM_ADEU_NORMATIVE_ADVICE_ARTIFACT_NOT_FOUND",
+            reason="matched coherence diagnostics artifact not found for pair identity",
+            context={
+                "source_text_hash": source_text_hash,
+                "core_ir_artifact_id": core_ir_artifact_id,
+                "concept_artifact_id": concept_artifact_id,
+                "manifest_path": str(manifest_path),
+            },
+        )
+
+    payload_by_path: dict[str, dict[str, Any]] = {}
+    hash_by_path: dict[str, str] = {}
+    for coherence_path in coherence_paths:
+        payload = _load_and_validate_coherence_payload(
+            path=coherence_path,
+            source_text_hash=source_text_hash,
+            core_ir_artifact_id=core_ir_artifact_id,
+            concept_artifact_id=concept_artifact_id,
+        )
+        path_key = str(coherence_path)
+        payload_by_path[path_key] = payload
+        hash_by_path[path_key] = sha256_text(canonical_json(payload))
+
+    if len(set(hash_by_path.values())) > 1:
+        raise _normative_advice_error(
+            code="URM_ADEU_NORMATIVE_ADVICE_DIAGNOSTIC_DRIFT",
+            reason="coherence replay run payloads drift for pair identity",
+            context={
+                "source_text_hash": source_text_hash,
+                "core_ir_artifact_id": core_ir_artifact_id,
+                "concept_artifact_id": concept_artifact_id,
+                "coherence_run_hashes_by_path": hash_by_path,
+            },
+        )
+
+    selected_path = min(payload_by_path.keys())
+    return payload_by_path[selected_path]
 
 
 def _issue_is_intentional_asymmetry_only(
@@ -553,7 +590,19 @@ def build_normative_advice_packet_vnext_plus21(
         },
         "advice_items": advice_items,
     }
-    normalized = AdeuNormativeAdvicePacket.model_validate(packet_payload)
+    try:
+        normalized = AdeuNormativeAdvicePacket.model_validate(packet_payload)
+    except Exception as exc:
+        raise _normative_advice_error(
+            code="URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID",
+            reason="normative advice packet payload failed schema validation",
+            context={
+                "source_text_hash": source_text_hash,
+                "core_ir_artifact_id": core_ir_artifact_id,
+                "concept_artifact_id": concept_artifact_id,
+                "error": str(exc),
+            },
+        ) from exc
 
     # Defensive assertion: emitted ids must remain recoverable from justification refs.
     for item in normalized.advice_items:

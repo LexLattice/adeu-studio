@@ -209,3 +209,73 @@ def test_normative_advice_pair_endpoint_bridge_manifest_hash_mismatch_returns_pa
 
     assert exc_info.value.status_code == 500
     assert exc_info.value.detail["code"] == "URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID"
+
+
+def test_normative_advice_pair_endpoint_coherence_replay_drift_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    coherence_payload_a = _coherence_fixture_payload()
+    coherence_payload_b = _coherence_fixture_payload()
+    coherence_payload_b["issues"][0]["message"] = "drifted replay message"  # type: ignore[index]
+
+    coherence_path_a = tmp_path / "coherence_a.json"
+    coherence_path_b = tmp_path / "coherence_b.json"
+    coherence_path_a.write_text(json.dumps(coherence_payload_a), encoding="utf-8")
+    coherence_path_b.write_text(json.dumps(coherence_payload_b), encoding="utf-8")
+
+    manifest_path = tmp_path / "vnext_plus20_manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "schema": "stop_gate.vnext_plus20_manifest@1",
+                "cross_ir_coherence_diagnostics_fixtures": [
+                    {
+                        "fixture_id": "cross_ir.coherence_diagnostics.case_a",
+                        "surface_id": "adeu.cross_ir.coherence_diagnostics",
+                        "source_text_hash": _pair()["source_text_hash"],
+                        "core_ir_artifact_id": _pair()["core_ir_artifact_id"],
+                        "concept_artifact_id": _pair()["concept_artifact_id"],
+                        "runs": [
+                            {
+                                "cross_ir_coherence_diagnostics_path": str(coherence_path_a),
+                            },
+                            {
+                                "cross_ir_coherence_diagnostics_path": str(coherence_path_b),
+                            },
+                        ],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(normative_advice, "VNEXT_PLUS20_STOP_GATE_MANIFEST_PATH", manifest_path)
+    normative_advice._coherence_fixture_index_for_manifest.cache_clear()
+
+    with pytest.raises(HTTPException) as exc_info:
+        api_main.get_urm_normative_advice_pair_endpoint(
+            source_text_hash=_pair()["source_text_hash"],
+            core_ir_artifact_id=_pair()["core_ir_artifact_id"],
+            concept_artifact_id=_pair()["concept_artifact_id"],
+            response=Response(),
+        )
+
+    assert exc_info.value.status_code == 500
+    assert exc_info.value.detail["code"] == "URM_ADEU_NORMATIVE_ADVICE_DIAGNOSTIC_DRIFT"
+
+
+def test_build_normative_advice_packet_wraps_packet_validation_errors(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _FailPacket:
+        @staticmethod
+        def model_validate(_payload: object) -> object:
+            raise ValueError("forced packet validation failure")
+
+    monkeypatch.setattr(normative_advice, "AdeuNormativeAdvicePacket", _FailPacket)
+
+    with pytest.raises(normative_advice.NormativeAdviceVnextPlus21Error) as exc_info:
+        normative_advice.build_normative_advice_packet_vnext_plus21(**_pair())
+
+    assert exc_info.value.code == "URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID"
+    assert exc_info.value.reason == "normative advice packet payload failed schema validation"

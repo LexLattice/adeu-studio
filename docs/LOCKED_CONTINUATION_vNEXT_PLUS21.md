@@ -132,8 +132,8 @@ Emit deterministic, read-only, non-enforcing normative advice packets derived fr
     - matched coherence diagnostics from `adeu_cross_ir_coherence_diagnostics@0.1`
   - coherence-only operation without catalog context is request-invalid and fails closed.
 - Endpoint-set lock is frozen:
-  - `GET /urm/normative-advice/pairs/{source_text_hash}/{core_ir_artifact_id}/{concept_artifact_id}`
-  - `GET /urm/normative-advice/projection`
+  - `GET /urm/normative-advice/pairs/{source_text_hash}/{core_ir_artifact_id}/{concept_artifact_id}` (`N1` implementation scope)
+  - `GET /urm/normative-advice/projection` (`N2` implementation scope; deferred from this `N1` PR slice)
 - Persistence-model lock is frozen:
   - `N1/N2` surfaces in this arc are fixture-backed over persisted JSON artifacts/capture catalogs.
   - no new SQL storage tables or schema migrations are introduced for normative advice retrieval/projection in v21.
@@ -291,6 +291,10 @@ Expose deterministic aggregate advice summaries and closeout reporting over pers
 
 ### Locks
 
+- Projection endpoint activation lock is frozen:
+  - `GET /urm/normative-advice/projection` is implemented in `N2`, not `N1`.
+  - `N1` PRs may ship pair-packet endpoint only; projection endpoint activation is deferred to `N2` implementation PR.
+
 - Advice projection schema lock is frozen:
   - `schema = "normative_advice_projection.vnext_plus21@1"`
   - required top-level fields:
@@ -345,6 +349,10 @@ Make normative advice determinism measurable and reproducible with additive stop
 - Preserve v16-v20 continuity metrics and thresholds.
 
 ### Locks
+
+- Snapshot transclusion harness-mode lock is frozen:
+  - enforcement of `source_issue_snapshot` inclusion mode is a deterministic harness/build-mode concern in `N3`, not a request-level API toggle in `N1`.
+  - when snapshot transclusion is enabled for a `v21` determinism harness/build mode, it must be enabled for all fixtures/runs in that mode; mixed inclusion remains forbidden.
 
 - Coverage manifest lock is frozen:
   - path:
