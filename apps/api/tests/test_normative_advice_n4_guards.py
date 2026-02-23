@@ -19,12 +19,18 @@ from fastapi import HTTPException, Response
 _MATERIALIZATION_FLOW_TARGETS: tuple[str, ...] = (
     "adeu_api.main.create_artifact",
     "adeu_api.main.create_concept_artifact",
+    "adeu_api.main.create_document",
     "adeu_api.main.create_explain_artifact",
+    "adeu_api.main.create_proof_artifact",
     "adeu_api.main.create_semantic_depth_report",
+    "adeu_api.main.create_validator_run",
     "adeu_api.storage.create_artifact",
     "adeu_api.storage.create_concept_artifact",
+    "adeu_api.storage.create_document",
     "adeu_api.storage.create_explain_artifact",
+    "adeu_api.storage.create_proof_artifact",
     "adeu_api.storage.create_semantic_depth_report",
+    "adeu_api.storage.create_validator_run",
 )
 _NON_ENFORCEMENT_FIELD_NAMES: frozenset[str] = frozenset(
     {"enforce", "block", "gate", "allow", "deny"}
