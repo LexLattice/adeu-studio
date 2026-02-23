@@ -161,6 +161,12 @@ VNEXT_PLUS22_DEFAULT_METRICS = {
     "artifact_trust_invariant_packet_determinism_pct": 0.0,
     "artifact_trust_invariant_projection_determinism_pct": 0.0,
 }
+VNEXT_PLUS23_REPLAY_COUNT = 3
+VNEXT_PLUS23_MANIFEST_SCHEMA = "stop_gate.vnext_plus23_manifest@1"
+VNEXT_PLUS23_DEFAULT_METRICS = {
+    "artifact_semantics_v4_candidate_packet_determinism_pct": 0.0,
+    "artifact_semantics_v4_candidate_projection_determinism_pct": 0.0,
+}
 CROSS_IR_BRIDGE_MANIFEST_SCHEMA = "adeu_cross_ir_bridge_manifest@0.1"
 CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA = "adeu_cross_ir_coherence_diagnostics@0.1"
 CROSS_IR_QUALITY_PROJECTION_SCHEMA = "cross_ir_quality_projection.vnext_plus20@1"
@@ -168,6 +174,8 @@ NORMATIVE_ADVICE_PACKET_SCHEMA = "adeu_normative_advice_packet@0.1"
 NORMATIVE_ADVICE_PROJECTION_SCHEMA = "normative_advice_projection.vnext_plus21@1"
 TRUST_INVARIANT_PACKET_SCHEMA = "adeu_trust_invariant_packet@0.1"
 TRUST_INVARIANT_PROJECTION_SCHEMA = "trust_invariant_projection.vnext_plus22@1"
+SEMANTICS_V4_CANDIDATE_PACKET_SCHEMA = "adeu_semantics_v4_candidate_packet@0.1"
+SEMANTICS_V4_CANDIDATE_PROJECTION_SCHEMA = "semantics_v4_candidate_projection.vnext_plus23@1"
 _READ_SURFACE_LANE_CAPTURE_SCHEMA = "adeu_lane_read_surface_capture@0.1"
 _READ_SURFACE_INTEGRITY_CAPTURE_SCHEMA = "adeu_integrity_read_surface_capture@0.1"
 _FROZEN_READ_SURFACE_INTEGRITY_FAMILIES: tuple[str, ...] = (
@@ -234,6 +242,13 @@ _FROZEN_TRUST_INVARIANT_SURFACES: tuple[str, ...] = (
     "adeu.trust_invariant.projection",
 )
 _FROZEN_TRUST_INVARIANT_SURFACE_SET = frozenset(_FROZEN_TRUST_INVARIANT_SURFACES)
+_FROZEN_SEMANTICS_V4_CANDIDATE_SURFACES: tuple[str, ...] = (
+    "adeu.semantics_v4_candidate.packet",
+    "adeu.semantics_v4_candidate.projection",
+)
+_FROZEN_SEMANTICS_V4_CANDIDATE_SURFACE_SET = frozenset(
+    _FROZEN_SEMANTICS_V4_CANDIDATE_SURFACES
+)
 _FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES = frozenset(
     {
         "MISSING_CONCEPT_MAPPING",
@@ -277,6 +292,32 @@ _FROZEN_VNEXT_PLUS22_NON_EMPTY_INVARIANT_CODES = frozenset(
     {
         "HASH_RECOMPUTE_MATCH",
         "REPLAY_HASH_STABILITY",
+    }
+)
+_SEMANTICS_V4_COMPARISON_CODES = frozenset(
+    {
+        "STATUS_SET_CONTINUITY_REVIEW",
+        "ASSURANCE_SET_CONTINUITY_REVIEW",
+        "REQUEST_FORMULA_HASH_CONTINUITY_REVIEW",
+        "WITNESS_REF_STRUCTURE_REVIEW",
+    }
+)
+_SEMANTICS_V4_COMPARISON_STATUSES = frozenset({"compatible", "drift"})
+_SEMANTICS_V4_COMPARISON_SEVERITIES = frozenset({"high", "low", "medium"})
+_SEMANTICS_V4_COMPARISON_SEVERITY_BY_CODE_STATUS: dict[tuple[str, str], str] = {
+    ("STATUS_SET_CONTINUITY_REVIEW", "compatible"): "low",
+    ("STATUS_SET_CONTINUITY_REVIEW", "drift"): "high",
+    ("ASSURANCE_SET_CONTINUITY_REVIEW", "compatible"): "low",
+    ("ASSURANCE_SET_CONTINUITY_REVIEW", "drift"): "medium",
+    ("REQUEST_FORMULA_HASH_CONTINUITY_REVIEW", "compatible"): "low",
+    ("REQUEST_FORMULA_HASH_CONTINUITY_REVIEW", "drift"): "high",
+    ("WITNESS_REF_STRUCTURE_REVIEW", "compatible"): "low",
+    ("WITNESS_REF_STRUCTURE_REVIEW", "drift"): "medium",
+}
+_FROZEN_VNEXT_PLUS23_NON_EMPTY_COMPARISON_CODES = frozenset(
+    {
+        "REQUEST_FORMULA_HASH_CONTINUITY_REVIEW",
+        "STATUS_SET_CONTINUITY_REVIEW",
     }
 )
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
@@ -341,6 +382,8 @@ THRESHOLDS = {
     "artifact_normative_advice_projection_determinism_pct": 100.0,
     "artifact_trust_invariant_packet_determinism_pct": 100.0,
     "artifact_trust_invariant_projection_determinism_pct": 100.0,
+    "artifact_semantics_v4_candidate_packet_determinism_pct": 100.0,
+    "artifact_semantics_v4_candidate_projection_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -431,6 +474,10 @@ def _default_vnext_plus22_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus22_manifest.json")
 
 
+def _default_vnext_plus23_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus23_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
@@ -446,6 +493,7 @@ VNEXT_PLUS19_MANIFEST_PATH = _default_vnext_plus19_manifest_path()
 VNEXT_PLUS20_MANIFEST_PATH = _default_vnext_plus20_manifest_path()
 VNEXT_PLUS21_MANIFEST_PATH = _default_vnext_plus21_manifest_path()
 VNEXT_PLUS22_MANIFEST_PATH = _default_vnext_plus22_manifest_path()
+VNEXT_PLUS23_MANIFEST_PATH = _default_vnext_plus23_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -5403,6 +5451,21 @@ _VNEXT_PLUS22_TRUST_INVARIANT_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = 
     ),
 )
 
+_VNEXT_PLUS23_SEMANTICS_V4_CANDIDATE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "semantics_v4_candidate_packet_fixtures",
+        "artifact_semantics_v4_candidate_packet_determinism_pct",
+        "adeu.semantics_v4_candidate.packet",
+        ("semantics_v4_candidate_packet_path",),
+    ),
+    (
+        "semantics_v4_candidate_projection_fixtures",
+        "artifact_semantics_v4_candidate_projection_determinism_pct",
+        "adeu.semantics_v4_candidate.projection",
+        ("semantics_v4_candidate_projection_path",),
+    ),
+)
+
 
 def _validate_integrity_surface_fixtures(
     *,
@@ -8388,6 +8451,811 @@ def _trust_invariant_projection_fixture_hash(
     return _read_surface_projection_hash(payload)
 
 
+def _semantics_v4_candidate_artifact_ref(
+    *,
+    schema: str,
+    source_text_hash: str,
+    core_ir_artifact_id: str,
+    concept_artifact_id: str,
+    lane: str | None = None,
+) -> str:
+    if lane is None:
+        return (
+            "artifact:"
+            f"{schema}:{source_text_hash}:{core_ir_artifact_id}:{concept_artifact_id}"
+        )
+    return (
+        "artifact:"
+        f"{schema}:{lane}:{source_text_hash}:{core_ir_artifact_id}:{concept_artifact_id}"
+    )
+
+
+def _validate_semantics_v4_candidate_capture_keys(
+    *,
+    payload: Mapping[str, Any],
+    required_keys: set[str],
+    optional_keys: set[str],
+    path: Path,
+    context: Mapping[str, Any] | None = None,
+) -> None:
+    observed_keys = {str(key) for key in payload.keys()}
+    missing_keys = sorted(required_keys - observed_keys)
+    unexpected_keys = sorted(observed_keys - (required_keys | optional_keys))
+    if missing_keys or unexpected_keys:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate capture payload has unexpected key shape",
+                context={
+                    "path": str(path),
+                    "missing_keys": missing_keys,
+                    "unexpected_keys": unexpected_keys,
+                    **dict(context or {}),
+                },
+            )
+        )
+
+
+def _semantics_v4_candidate_packet_fixture_hash(
+    *, semantics_v4_candidate_packet_path: Path
+) -> str:
+    payload = _read_json_object(
+        semantics_v4_candidate_packet_path,
+        description="semantics-v4 candidate packet fixture",
+    )
+    _validate_semantics_v4_candidate_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "source_text_hash",
+            "core_ir_artifact_id",
+            "concept_artifact_id",
+            "trust_invariant_packet_hash",
+            "baseline_semantics_hash",
+            "candidate_semantics_hash",
+            "comparison_summary",
+            "comparison_items",
+        },
+        optional_keys={"created_at"},
+        path=semantics_v4_candidate_packet_path,
+    )
+    if payload.get("schema") != SEMANTICS_V4_CANDIDATE_PACKET_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet schema is invalid",
+                context={
+                    "path": str(semantics_v4_candidate_packet_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    for field in ("source_text_hash", "core_ir_artifact_id", "concept_artifact_id"):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate packet identity field must be a non-empty string",
+                    context={"path": str(semantics_v4_candidate_packet_path), "field": field},
+                )
+            )
+    for field in (
+        "trust_invariant_packet_hash",
+        "baseline_semantics_hash",
+        "candidate_semantics_hash",
+    ):
+        if not _is_lower_sha256(payload.get(field)):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate packet hash fields must be lowercase sha256",
+                    context={"path": str(semantics_v4_candidate_packet_path), "field": field},
+                )
+            )
+
+    comparison_summary = payload.get("comparison_summary")
+    if not isinstance(comparison_summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet comparison_summary must be an object",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    _validate_semantics_v4_candidate_capture_keys(
+        payload=comparison_summary,
+        required_keys={
+            "total_comparisons",
+            "compatible_checks",
+            "drift_checks",
+            "counts_by_code",
+            "counts_by_severity",
+            "counts_by_status",
+        },
+        optional_keys={"created_at"},
+        path=semantics_v4_candidate_packet_path,
+        context={"field": "comparison_summary"},
+    )
+    total_comparisons = comparison_summary.get("total_comparisons")
+    compatible_checks = comparison_summary.get("compatible_checks")
+    drift_checks = comparison_summary.get("drift_checks")
+    if (
+        not isinstance(total_comparisons, int)
+        or total_comparisons < 0
+        or not isinstance(compatible_checks, int)
+        or compatible_checks < 0
+        or not isinstance(drift_checks, int)
+        or drift_checks < 0
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet summary counts must be non-negative integers",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if compatible_checks + drift_checks != total_comparisons:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet summary status counts must sum to total_comparisons",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+
+    counts_by_code = comparison_summary.get("counts_by_code")
+    counts_by_severity = comparison_summary.get("counts_by_severity")
+    counts_by_status = comparison_summary.get("counts_by_status")
+    if (
+        not isinstance(counts_by_code, Mapping)
+        or not isinstance(counts_by_severity, Mapping)
+        or not isinstance(counts_by_status, Mapping)
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet summary count maps must be objects",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if list(counts_by_code.keys()) != sorted(counts_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet counts_by_code keys must be sorted",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if any(key not in _SEMANTICS_V4_COMPARISON_CODES for key in counts_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet counts_by_code contains unsupported comparison_code",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet counts_by_code values must be non-negative integers",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if list(counts_by_severity.keys()) != sorted(counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet counts_by_severity keys must be sorted",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if any(key not in _SEMANTICS_V4_COMPARISON_SEVERITIES for key in counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate packet counts_by_severity contains unsupported "
+                    "severity"
+                ),
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_severity.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate packet counts_by_severity values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if list(counts_by_status.keys()) != sorted(counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet counts_by_status keys must be sorted",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if any(key not in _SEMANTICS_V4_COMPARISON_STATUSES for key in counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet counts_by_status contains unsupported status",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate packet counts_by_status values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+
+    comparison_items = payload.get("comparison_items")
+    if not isinstance(comparison_items, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate packet comparison_items must be a list",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if len(comparison_items) != total_comparisons:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate packet total_comparisons does not match "
+                    "comparison_items length"
+                ),
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+
+    source_text_hash = cast(str, payload["source_text_hash"])
+    core_ir_artifact_id = cast(str, payload["core_ir_artifact_id"])
+    concept_artifact_id = cast(str, payload["concept_artifact_id"])
+    trust_ref = _semantics_v4_candidate_artifact_ref(
+        schema=TRUST_INVARIANT_PACKET_SCHEMA,
+        source_text_hash=source_text_hash,
+        core_ir_artifact_id=core_ir_artifact_id,
+        concept_artifact_id=concept_artifact_id,
+    )
+    v3_ref = _semantics_v4_candidate_artifact_ref(
+        schema=SEMANTICS_DIAGNOSTICS_SCHEMA,
+        lane="v3",
+        source_text_hash=source_text_hash,
+        core_ir_artifact_id=core_ir_artifact_id,
+        concept_artifact_id=concept_artifact_id,
+    )
+    v4_ref = _semantics_v4_candidate_artifact_ref(
+        schema=SEMANTICS_DIAGNOSTICS_SCHEMA,
+        lane="v4_candidate",
+        source_text_hash=source_text_hash,
+        core_ir_artifact_id=core_ir_artifact_id,
+        concept_artifact_id=concept_artifact_id,
+    )
+    expected_refs_by_code = {
+        "STATUS_SET_CONTINUITY_REVIEW": [v3_ref, v4_ref],
+        "ASSURANCE_SET_CONTINUITY_REVIEW": [v3_ref, v4_ref],
+        "REQUEST_FORMULA_HASH_CONTINUITY_REVIEW": [v3_ref, v4_ref],
+        "WITNESS_REF_STRUCTURE_REVIEW": [trust_ref, v3_ref, v4_ref],
+    }
+
+    observed_counts_by_code: dict[str, int] = {}
+    observed_counts_by_severity: dict[str, int] = {}
+    observed_counts_by_status: dict[str, int] = {}
+    observed_codes: list[str] = []
+    observed_sort_keys: list[tuple[str, str]] = []
+    for item_index, item in enumerate(comparison_items):
+        if not isinstance(item, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate comparison item must be an object",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        _validate_semantics_v4_candidate_capture_keys(
+            payload=item,
+            required_keys={
+                "comparison_id",
+                "comparison_code",
+                "status",
+                "severity",
+                "justification_refs",
+                "message",
+            },
+            optional_keys={"expected_hash", "observed_hash", "created_at"},
+            path=semantics_v4_candidate_packet_path,
+            context={"item_index": item_index},
+        )
+        comparison_id = item.get("comparison_id")
+        comparison_code = item.get("comparison_code")
+        status = item.get("status")
+        severity = item.get("severity")
+        justification_refs = item.get("justification_refs")
+        message = item.get("message")
+        expected_hash = item.get("expected_hash")
+        observed_hash = item.get("observed_hash")
+
+        if not _is_lower_hex(comparison_id, length=16):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate comparison_id must be lowercase hex16",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if (
+            not isinstance(comparison_code, str)
+            or comparison_code not in _SEMANTICS_V4_COMPARISON_CODES
+        ):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate comparison_code is invalid",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not isinstance(status, str) or status not in _SEMANTICS_V4_COMPARISON_STATUSES:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate status is invalid",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not isinstance(severity, str) or severity not in _SEMANTICS_V4_COMPARISON_SEVERITIES:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate severity is invalid",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        expected_severity = _SEMANTICS_V4_COMPARISON_SEVERITY_BY_CODE_STATUS[
+            (comparison_code, status)
+        ]
+        if severity != expected_severity:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate severity does not match frozen code/status mapping",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                        "comparison_code": comparison_code,
+                        "status": status,
+                    },
+                )
+            )
+        if not isinstance(justification_refs, list) or not justification_refs:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate justification_refs must be a non-empty list",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not all(isinstance(ref, str) and ref for ref in justification_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    (
+                        "semantics-v4 candidate justification_refs must contain non-empty "
+                        "strings"
+                    ),
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if justification_refs != sorted(justification_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate justification_refs must be sorted",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if len(set(justification_refs)) != len(justification_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate justification_refs may not contain duplicates",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        expected_refs = expected_refs_by_code[comparison_code]
+        if justification_refs != expected_refs:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    (
+                        "semantics-v4 candidate justification_refs must match frozen "
+                        "comparison cardinality and schema order"
+                    ),
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                        "comparison_code": comparison_code,
+                    },
+                )
+            )
+        if not isinstance(message, str) or not message:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "semantics-v4 candidate message must be a non-empty string",
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+
+        if status == "compatible":
+            if expected_hash is not None or observed_hash is not None:
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        (
+                            "compatible semantics-v4 candidate items may not include "
+                            "expected_hash/observed_hash"
+                        ),
+                        context={
+                            "path": str(semantics_v4_candidate_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+        else:
+            if not _is_lower_sha256(expected_hash) or not _is_lower_sha256(observed_hash):
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        (
+                            "drift semantics-v4 candidate items must include lowercase "
+                            "sha256 expected_hash/observed_hash"
+                        ),
+                        context={
+                            "path": str(semantics_v4_candidate_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+
+        comparison_id_payload: dict[str, Any] = {
+            "comparison_code": comparison_code,
+            "status": status,
+            "severity": severity,
+            "justification_refs": justification_refs,
+        }
+        if expected_hash is not None:
+            comparison_id_payload["expected_hash"] = expected_hash
+        if observed_hash is not None:
+            comparison_id_payload["observed_hash"] = observed_hash
+        expected_comparison_id = sha256_canonical_json(comparison_id_payload)[:16]
+        if comparison_id != expected_comparison_id:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    (
+                        "semantics-v4 candidate comparison_id does not match canonical "
+                        "content hash"
+                    ),
+                    context={
+                        "path": str(semantics_v4_candidate_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+
+        observed_counts_by_code[comparison_code] = (
+            observed_counts_by_code.get(comparison_code, 0) + 1
+        )
+        observed_counts_by_status[status] = observed_counts_by_status.get(status, 0) + 1
+        observed_counts_by_severity[severity] = observed_counts_by_severity.get(severity, 0) + 1
+        observed_codes.append(comparison_code)
+        observed_sort_keys.append((comparison_code, cast(str, comparison_id)))
+
+    if observed_sort_keys != sorted(observed_sort_keys):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate comparison_items must be sorted by "
+                    "comparison_code/comparison_id"
+                ),
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if sorted(observed_codes) != sorted(_SEMANTICS_V4_COMPARISON_CODES):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate comparison_items must include exactly one "
+                    "item per comparison_code"
+                ),
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if compatible_checks != observed_counts_by_status.get("compatible", 0):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate compatible_checks mismatch for comparison_items",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if drift_checks != observed_counts_by_status.get("drift", 0):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate drift_checks mismatch for comparison_items",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_code.items())) != {
+        str(key): int(value) for key, value in counts_by_code.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate counts_by_code does not match comparison_items",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_status.items())) != {
+        str(key): int(value) for key, value in counts_by_status.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate counts_by_status does not match comparison_items",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_severity.items())) != {
+        str(key): int(value) for key, value in counts_by_severity.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate counts_by_severity does not match comparison_items",
+                context={"path": str(semantics_v4_candidate_packet_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _semantics_v4_candidate_projection_fixture_hash(
+    *, semantics_v4_candidate_projection_path: Path
+) -> str:
+    payload = _read_json_object(
+        semantics_v4_candidate_projection_path,
+        description="semantics-v4 candidate projection fixture",
+    )
+    _validate_semantics_v4_candidate_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "bridge_pair_count",
+            "comparison_item_count",
+            "comparison_counts_by_code",
+            "comparison_counts_by_status",
+            "comparison_counts_by_severity",
+        },
+        optional_keys={"created_at"},
+        path=semantics_v4_candidate_projection_path,
+    )
+    if payload.get("schema") != SEMANTICS_V4_CANDIDATE_PROJECTION_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate projection schema is invalid",
+                context={
+                    "path": str(semantics_v4_candidate_projection_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    bridge_pair_count = payload.get("bridge_pair_count")
+    comparison_item_count = payload.get("comparison_item_count")
+    if (
+        not isinstance(bridge_pair_count, int)
+        or bridge_pair_count < 0
+        or not isinstance(comparison_item_count, int)
+        or comparison_item_count < 0
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate projection count fields must be non-negative integers",
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    counts_by_code = payload.get("comparison_counts_by_code")
+    counts_by_status = payload.get("comparison_counts_by_status")
+    counts_by_severity = payload.get("comparison_counts_by_severity")
+    if (
+        not isinstance(counts_by_code, Mapping)
+        or not isinstance(counts_by_status, Mapping)
+        or not isinstance(counts_by_severity, Mapping)
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate projection count maps must be objects",
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if list(counts_by_code.keys()) != sorted(counts_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate projection comparison_counts_by_code keys must be sorted",
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if any(key not in _SEMANTICS_V4_COMPARISON_CODES for key in counts_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_counts_by_code contains "
+                    "unsupported comparison_code"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_counts_by_code values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if list(counts_by_status.keys()) != sorted(counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "semantics-v4 candidate projection comparison_counts_by_status keys must be sorted",
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if any(key not in _SEMANTICS_V4_COMPARISON_STATUSES for key in counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_counts_by_status contains "
+                    "unsupported status"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_counts_by_status values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if list(counts_by_severity.keys()) != sorted(counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_counts_by_severity keys must "
+                    "be sorted"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if any(key not in _SEMANTICS_V4_COMPARISON_SEVERITIES for key in counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_counts_by_severity contains "
+                    "unsupported severity"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_severity.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_counts_by_severity values must "
+                    "be non-negative integers"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if comparison_item_count != sum(int(value) for value in counts_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_item_count mismatch for "
+                    "comparison_counts_by_code"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if comparison_item_count != sum(int(value) for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_item_count mismatch for "
+                    "comparison_counts_by_status"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    if comparison_item_count != sum(int(value) for value in counts_by_severity.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "semantics-v4 candidate projection comparison_item_count mismatch for "
+                    "comparison_counts_by_severity"
+                ),
+                context={"path": str(semantics_v4_candidate_projection_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
 def _validate_vnext_plus20_non_empty_floor(
     *,
     manifest_path: Path,
@@ -9436,6 +10304,435 @@ def _compute_vnext_plus22_metrics(
     }
 
 
+def _validate_vnext_plus23_packet_fixture_inputs(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> bool:
+    fixture_valid = True
+    for fixture_index, fixture in enumerate(fixtures):
+        fixture_id = fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"vnext_plus23_packet_fixture_{fixture_index}"
+        for field in (
+            "source_text_hash",
+            "core_ir_artifact_id",
+            "concept_artifact_id",
+            "semantics_v3_path",
+            "semantics_v4_candidate_path",
+        ):
+            value = fixture.get(field)
+            if isinstance(value, str) and value:
+                continue
+            issues.append(
+                _issue(
+                    "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+                    (
+                        "vnext+23 semantics-v4 candidate packet fixture is missing required "
+                        "pair identity/upstream diagnostics refs"
+                    ),
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "fixture_id": fixture_id,
+                        "field": field,
+                    },
+                )
+            )
+            fixture_valid = False
+
+        semantics_v3_lane = fixture.get("semantics_v3_source_lane")
+        if semantics_v3_lane != "v3_default":
+            issues.append(
+                _issue(
+                    "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+                    "vnext+23 semantics_v3_source_lane must equal v3_default",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "fixture_id": fixture_id,
+                        "semantics_v3_source_lane": semantics_v3_lane,
+                    },
+                )
+            )
+            fixture_valid = False
+        semantics_v4_lane = fixture.get("semantics_v4_candidate_source_lane")
+        if semantics_v4_lane != "v4_candidate":
+            issues.append(
+                _issue(
+                    "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+                    "vnext+23 semantics_v4_candidate_source_lane must equal v4_candidate",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "fixture_id": fixture_id,
+                        "semantics_v4_candidate_source_lane": semantics_v4_lane,
+                    },
+                )
+            )
+            fixture_valid = False
+
+        semantics_v3_path = fixture.get("semantics_v3_path")
+        semantics_v4_candidate_path = fixture.get("semantics_v4_candidate_path")
+        if (
+            isinstance(semantics_v3_path, str)
+            and semantics_v3_path
+            and isinstance(semantics_v4_candidate_path, str)
+            and semantics_v4_candidate_path
+        ):
+            if semantics_v3_path == semantics_v4_candidate_path:
+                issues.append(
+                    _issue(
+                        "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+                        "vnext+23 semantics_v3_path and semantics_v4_candidate_path must differ",
+                        context={"manifest_path": str(manifest_path), "fixture_id": fixture_id},
+                    )
+                )
+                fixture_valid = False
+            for field, raw_path in (
+                ("semantics_v3_path", semantics_v3_path),
+                ("semantics_v4_candidate_path", semantics_v4_candidate_path),
+            ):
+                try:
+                    resolved_path = _resolve_manifest_relative_path(
+                        manifest_path=manifest_path,
+                        raw_path=raw_path,
+                    )
+                    diagnostics_payload = _read_json_object(
+                        resolved_path,
+                        description="semantics diagnostics fixture",
+                    )
+                    if diagnostics_payload.get("schema") != SEMANTICS_DIAGNOSTICS_SCHEMA:
+                        raise ValueError(
+                            _issue(
+                                "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+                                (
+                                    "vnext+23 upstream diagnostics fixture must use "
+                                    "semantics_diagnostics@1 schema"
+                                ),
+                                context={
+                                    "manifest_path": str(manifest_path),
+                                    "fixture_id": fixture_id,
+                                    "field": field,
+                                    "path": str(resolved_path),
+                                    "schema": diagnostics_payload.get("schema"),
+                                },
+                            )
+                        )
+                except ValueError as exc:
+                    issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+                        "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+                        str(exc),
+                        context={
+                            "manifest_path": str(manifest_path),
+                            "fixture_id": fixture_id,
+                            "field": field,
+                        },
+                    )
+                    issue = _map_issue_code(
+                        issue,
+                        code_map={
+                            "URM_STOP_GATE_INPUT_INVALID": (
+                                "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID"
+                            )
+                        },
+                    )
+                    issues.append(issue)
+                    fixture_valid = False
+    return fixture_valid
+
+
+def _validate_vnext_plus23_non_empty_floor(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> bool:
+    observed_codes: set[str] = set()
+    observed_statuses: set[str] = set()
+    has_non_zero_comparisons = False
+    has_witness_review = False
+    has_witness_drift = False
+    has_witness_drift_from_declared_v4_lane = False
+    pair_mismatch_cases: list[dict[str, Any]] = []
+
+    for fixture_index, fixture in enumerate(fixtures):
+        fixture_id = fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"vnext_plus23_packet_fixture_{fixture_index}"
+        expected_source_text_hash = fixture.get("source_text_hash")
+        expected_core_ir_artifact_id = fixture.get("core_ir_artifact_id")
+        expected_concept_artifact_id = fixture.get("concept_artifact_id")
+        candidate_lane = fixture.get("semantics_v4_candidate_source_lane")
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            continue
+        for run_index, run in enumerate(runs):
+            if not isinstance(run, dict):
+                continue
+            try:
+                packet_path = _resolve_manifest_relative_path(
+                    manifest_path=manifest_path,
+                    raw_path=run.get("semantics_v4_candidate_packet_path"),
+                )
+                payload = _read_json_object(
+                    packet_path,
+                    description="semantics-v4 candidate packet fixture",
+                )
+            except ValueError:
+                continue
+
+            summary = payload.get("comparison_summary")
+            if isinstance(summary, Mapping):
+                total_comparisons = summary.get("total_comparisons")
+                if isinstance(total_comparisons, int) and total_comparisons > 0:
+                    has_non_zero_comparisons = True
+
+            payload_source_text_hash = payload.get("source_text_hash")
+            payload_core_ir_artifact_id = payload.get("core_ir_artifact_id")
+            payload_concept_artifact_id = payload.get("concept_artifact_id")
+            if (
+                isinstance(expected_source_text_hash, str)
+                and isinstance(expected_core_ir_artifact_id, str)
+                and isinstance(expected_concept_artifact_id, str)
+                and (
+                    payload_source_text_hash != expected_source_text_hash
+                    or payload_core_ir_artifact_id != expected_core_ir_artifact_id
+                    or payload_concept_artifact_id != expected_concept_artifact_id
+                )
+            ):
+                pair_mismatch_cases.append(
+                    {
+                        "fixture_id": fixture_id,
+                        "run_index": run_index,
+                        "expected_pair": [
+                            expected_source_text_hash,
+                            expected_core_ir_artifact_id,
+                            expected_concept_artifact_id,
+                        ],
+                        "observed_pair": [
+                            payload_source_text_hash,
+                            payload_core_ir_artifact_id,
+                            payload_concept_artifact_id,
+                        ],
+                    }
+                )
+
+            comparison_items = payload.get("comparison_items")
+            if not isinstance(comparison_items, list):
+                continue
+            for comparison_item in comparison_items:
+                if not isinstance(comparison_item, Mapping):
+                    continue
+                comparison_code = comparison_item.get("comparison_code")
+                status = comparison_item.get("status")
+                if isinstance(comparison_code, str):
+                    observed_codes.add(comparison_code)
+                if isinstance(status, str):
+                    observed_statuses.add(status)
+                if comparison_code == "WITNESS_REF_STRUCTURE_REVIEW":
+                    has_witness_review = True
+                    if status == "drift":
+                        has_witness_drift = True
+                        if candidate_lane == "v4_candidate":
+                            has_witness_drift_from_declared_v4_lane = True
+
+    if pair_mismatch_cases:
+        issues.append(
+            _issue(
+                "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+                "vnext+23 semantics-v4 packet fixture payload identity must match fixture tuple",
+                context={
+                    "manifest_path": str(manifest_path),
+                    "pair_mismatch_count": len(pair_mismatch_cases),
+                    "pair_mismatch_examples": pair_mismatch_cases[:3],
+                },
+            )
+        )
+
+    missing_codes = sorted(_FROZEN_VNEXT_PLUS23_NON_EMPTY_COMPARISON_CODES - observed_codes)
+    has_drift_status = "drift" in observed_statuses
+    has_compatible_status = "compatible" in observed_statuses
+    if (
+        not pair_mismatch_cases
+        and has_non_zero_comparisons
+        and not missing_codes
+        and has_witness_review
+        and has_drift_status
+        and has_compatible_status
+        and has_witness_drift
+        and has_witness_drift_from_declared_v4_lane
+    ):
+        return True
+
+    issues.append(
+        _issue(
+            "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+            (
+                "vnext+23 semantics-v4 packet fixtures must include non-zero comparisons, "
+                "required comparison codes, drift/compatible statuses, and witness-structure "
+                "drift sourced from the declared v4-candidate lane"
+            ),
+            context={
+                "manifest_path": str(manifest_path),
+                "required_comparison_codes": sorted(
+                    _FROZEN_VNEXT_PLUS23_NON_EMPTY_COMPARISON_CODES
+                ),
+                "observed_comparison_codes": sorted(observed_codes),
+                "observed_statuses": sorted(observed_statuses),
+                "has_non_zero_comparisons": has_non_zero_comparisons,
+                "has_witness_review": has_witness_review,
+                "has_drift_status": has_drift_status,
+                "has_compatible_status": has_compatible_status,
+                "has_witness_drift": has_witness_drift,
+                "has_witness_drift_from_declared_v4_lane": (
+                    has_witness_drift_from_declared_v4_lane
+                ),
+                "missing_comparison_codes": missing_codes,
+                "pair_mismatch_count": len(pair_mismatch_cases),
+            },
+        )
+    )
+    return False
+
+
+def _load_vnext_plus23_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        return _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+23",
+            manifest_schema=VNEXT_PLUS23_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS23_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS23_SEMANTICS_V4_CANDIDATE_SPECS,
+            frozen_surface_set=_FROZEN_SEMANTICS_V4_CANDIDATE_SURFACE_SET,
+            frozen_surfaces=_FROZEN_SEMANTICS_V4_CANDIDATE_SURFACES,
+            surface_description="frozen semantics-v4 candidate surface id",
+            surface_set_description="frozen semantics-v4 candidate surface ids",
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_STOP_GATE_INPUT_INVALID": "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    "URM_ADEU_SEMANTICS_V4_MANIFEST_HASH_MISMATCH"
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus23_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS23_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus23_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS23_DEFAULT_METRICS,
+            "vnext_plus23_manifest_hash": "",
+            "vnext_plus23_fixture_count_total": 0,
+            "vnext_plus23_replay_count_total": 0,
+            "vnext_plus23_bytes_hashed_per_replay": 0,
+            "vnext_plus23_bytes_hashed_total": 0,
+        }
+
+    surface_hash_builders: dict[str, Callable[..., Any]] = {
+        "semantics_v4_candidate_packet_fixtures": _semantics_v4_candidate_packet_fixture_hash,
+        "semantics_v4_candidate_projection_fixtures": (
+            _semantics_v4_candidate_projection_fixture_hash
+        ),
+    }
+    surface_drift_messages = {
+        "semantics_v4_candidate_packet_fixtures": "vnext+23 semantics-v4 candidate packet drift",
+        "semantics_v4_candidate_projection_fixtures": (
+            "vnext+23 semantics-v4 candidate projection drift"
+        ),
+    }
+    surface_payload_descriptions = {
+        "semantics_v4_candidate_packet_fixtures": "semantics-v4 candidate packet fixture",
+        "semantics_v4_candidate_projection_fixtures": "semantics-v4 candidate projection fixture",
+    }
+
+    metric_values: dict[str, float] = {}
+    fixture_groups: list[list[dict[str, Any]]] = []
+    bytes_hashed_per_replay = 0
+    for fixture_key, metric_name, _surface_id, required_run_fields in (
+        _VNEXT_PLUS23_SEMANTICS_V4_CANDIDATE_SPECS
+    ):
+        fixtures = cast(list[dict[str, Any]], manifest[fixture_key])
+        fixture_groups.append(fixtures)
+        metric_values[metric_name] = _manifest_metric_pct(
+            manifest_path=resolved_manifest_path,
+            metric_name=metric_name,
+            fixtures=fixtures,
+            replay_count=VNEXT_PLUS23_REPLAY_COUNT,
+            required_run_fields=required_run_fields,
+            run_hash_builder=surface_hash_builders[fixture_key],
+            issues=issues,
+            invalid_issue_code="URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
+            drift_issue_code="URM_ADEU_SEMANTICS_V4_DIAGNOSTIC_DRIFT",
+            drift_issue_message=surface_drift_messages[fixture_key],
+        )
+        bytes_hashed_per_replay += _manifest_bytes_hashed_per_replay(
+            manifest_path=resolved_manifest_path,
+            fixtures=fixtures,
+            required_run_fields=required_run_fields,
+            payload_description=surface_payload_descriptions[fixture_key],
+        )
+
+    packet_fixtures = cast(
+        list[dict[str, Any]],
+        manifest["semantics_v4_candidate_packet_fixtures"],
+    )
+    if not _validate_vnext_plus23_packet_fixture_inputs(
+        manifest_path=resolved_manifest_path,
+        fixtures=packet_fixtures,
+        issues=issues,
+    ):
+        metric_values["artifact_semantics_v4_candidate_packet_determinism_pct"] = 0.0
+    if not _validate_vnext_plus23_non_empty_floor(
+        manifest_path=resolved_manifest_path,
+        fixtures=packet_fixtures,
+        issues=issues,
+    ):
+        metric_values["artifact_semantics_v4_candidate_packet_determinism_pct"] = 0.0
+
+    fixture_count_total = sum(len(fixtures) for fixtures in fixture_groups)
+    replay_count_total = sum(
+        len(cast(list[Any], fixture.get("runs", [])))
+        for fixtures in fixture_groups
+        for fixture in fixtures
+    )
+
+    return {
+        **metric_values,
+        "vnext_plus23_manifest_hash": manifest_hash,
+        "vnext_plus23_fixture_count_total": fixture_count_total,
+        "vnext_plus23_replay_count_total": replay_count_total,
+        "vnext_plus23_bytes_hashed_per_replay": bytes_hashed_per_replay,
+        "vnext_plus23_bytes_hashed_total": VNEXT_PLUS23_REPLAY_COUNT * bytes_hashed_per_replay,
+    }
+
+
 def build_stop_gate_metrics(
     *,
     incident_packet_paths: list[Path],
@@ -9460,6 +10757,7 @@ def build_stop_gate_metrics(
     vnext_plus20_manifest_path: Path | None = None,
     vnext_plus21_manifest_path: Path | None = None,
     vnext_plus22_manifest_path: Path | None = None,
+    vnext_plus23_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -9857,6 +11155,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus22_manifest_path,
         issues=issues,
     )
+    vnext_plus23_metrics = _compute_vnext_plus23_metrics(
+        manifest_path=vnext_plus23_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -9927,15 +11229,17 @@ def build_stop_gate_metrics(
             + int(vnext_plus20_metrics["vnext_plus20_fixture_count_total"])
             + int(vnext_plus21_metrics["vnext_plus21_fixture_count_total"])
             + int(vnext_plus22_metrics["vnext_plus22_fixture_count_total"])
+            + int(vnext_plus23_metrics["vnext_plus23_fixture_count_total"])
         ),
         total_replays=(
             int(vnext_plus19_metrics["vnext_plus19_replay_count_total"])
             + int(vnext_plus20_metrics["vnext_plus20_replay_count_total"])
             + int(vnext_plus21_metrics["vnext_plus21_replay_count_total"])
             + int(vnext_plus22_metrics["vnext_plus22_replay_count_total"])
+            + int(vnext_plus23_metrics["vnext_plus23_replay_count_total"])
         ),
-        bytes_hashed_per_replay=int(vnext_plus22_metrics["vnext_plus22_bytes_hashed_per_replay"]),
-        bytes_hashed_total=int(vnext_plus22_metrics["vnext_plus22_bytes_hashed_total"]),
+        bytes_hashed_per_replay=int(vnext_plus23_metrics["vnext_plus23_bytes_hashed_per_replay"]),
+        bytes_hashed_total=int(vnext_plus23_metrics["vnext_plus23_bytes_hashed_total"]),
         runtime_started=runtime_started,
     )
     runtime_budget_metric_pct, runtime_budget_issue = _runtime_budget_metric_pct(
@@ -10111,6 +11415,12 @@ def build_stop_gate_metrics(
         "artifact_trust_invariant_projection_determinism_pct": vnext_plus22_metrics[
             "artifact_trust_invariant_projection_determinism_pct"
         ],
+        "artifact_semantics_v4_candidate_packet_determinism_pct": vnext_plus23_metrics[
+            "artifact_semantics_v4_candidate_packet_determinism_pct"
+        ],
+        "artifact_semantics_v4_candidate_projection_determinism_pct": vnext_plus23_metrics[
+            "artifact_semantics_v4_candidate_projection_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -10262,6 +11572,14 @@ def build_stop_gate_metrics(
             "artifact_trust_invariant_projection_determinism_pct"
         ]
         >= THRESHOLDS["artifact_trust_invariant_projection_determinism_pct"],
+        "artifact_semantics_v4_candidate_packet_determinism": metrics[
+            "artifact_semantics_v4_candidate_packet_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_semantics_v4_candidate_packet_determinism_pct"],
+        "artifact_semantics_v4_candidate_projection_determinism": metrics[
+            "artifact_semantics_v4_candidate_projection_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_semantics_v4_candidate_projection_determinism_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -10362,6 +11680,11 @@ def build_stop_gate_metrics(
                 if vnext_plus22_manifest_path is not None
                 else VNEXT_PLUS22_MANIFEST_PATH
             ),
+            "vnext_plus23_manifest_path": str(
+                vnext_plus23_manifest_path
+                if vnext_plus23_manifest_path is not None
+                else VNEXT_PLUS23_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -10377,6 +11700,7 @@ def build_stop_gate_metrics(
         "vnext_plus20_manifest_hash": vnext_plus20_metrics["vnext_plus20_manifest_hash"],
         "vnext_plus21_manifest_hash": vnext_plus21_metrics["vnext_plus21_manifest_hash"],
         "vnext_plus22_manifest_hash": vnext_plus22_metrics["vnext_plus22_manifest_hash"],
+        "vnext_plus23_manifest_hash": vnext_plus23_metrics["vnext_plus23_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -10414,6 +11738,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+20 manifest hash: `{report.get('vnext_plus20_manifest_hash')}`")
     lines.append(f"- vnext+21 manifest hash: `{report.get('vnext_plus21_manifest_hash')}`")
     lines.append(f"- vnext+22 manifest hash: `{report.get('vnext_plus22_manifest_hash')}`")
+    lines.append(f"- vnext+23 manifest hash: `{report.get('vnext_plus23_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -10663,6 +11988,14 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('artifact_trust_invariant_projection_determinism_pct')}`"
     )
     lines.append(
+        "- artifact semantics-v4 candidate packet determinism pct: "
+        f"`{metrics.get('artifact_semantics_v4_candidate_packet_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact semantics-v4 candidate projection determinism pct: "
+        f"`{metrics.get('artifact_semantics_v4_candidate_projection_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -10855,6 +12188,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS22_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus23-manifest",
+        dest="vnext_plus23_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS23_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -10885,6 +12224,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus20_manifest_path=args.vnext_plus20_manifest_path,
         vnext_plus21_manifest_path=args.vnext_plus21_manifest_path,
         vnext_plus22_manifest_path=args.vnext_plus22_manifest_path,
+        vnext_plus23_manifest_path=args.vnext_plus23_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
