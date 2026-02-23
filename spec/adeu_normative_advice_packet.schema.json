@@ -1,0 +1,209 @@
+{
+  "$defs": {
+    "NormativeAdviceItem": {
+      "additionalProperties": false,
+      "properties": {
+        "advice_code": {
+          "enum": [
+            "MAPPING_GAP_REVIEW",
+            "SOURCE_DIVERGENCE_REVIEW",
+            "TOPOLOGY_ALIGNMENT_REVIEW",
+            "CLAIM_PROJECTION_REVIEW",
+            "TRUST_ALIGNMENT_REVIEW"
+          ],
+          "title": "Advice Code",
+          "type": "string"
+        },
+        "advice_id": {
+          "maxLength": 16,
+          "minLength": 16,
+          "title": "Advice Id",
+          "type": "string"
+        },
+        "concept_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Concept Refs",
+          "type": "array"
+        },
+        "core_ir_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Core Ir Refs",
+          "type": "array"
+        },
+        "justification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Justification Refs",
+          "type": "array"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "priority": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Priority",
+          "type": "string"
+        },
+        "source_issue_snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NormativeAdviceSourceIssueSnapshot"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "advice_id",
+        "advice_code",
+        "priority",
+        "message"
+      ],
+      "title": "NormativeAdviceItem",
+      "type": "object"
+    },
+    "NormativeAdviceSourceIssueSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "additionalProperties": true,
+          "title": "Evidence",
+          "type": "object"
+        },
+        "issue_code": {
+          "enum": [
+            "MISSING_CONCEPT_MAPPING",
+            "MISSING_CORE_IR_MAPPING",
+            "TOPOLOGY_DRIFT",
+            "CLAIM_PROJECTION_GAP",
+            "LINK_KIND_DRIFT",
+            "SOURCE_HASH_MISMATCH",
+            "TRUST_LABEL_MISMATCH"
+          ],
+          "title": "Issue Code",
+          "type": "string"
+        },
+        "issue_id": {
+          "maxLength": 16,
+          "minLength": 16,
+          "title": "Issue Id",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "warn",
+            "error"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "issue_id",
+        "issue_code",
+        "severity",
+        "message",
+        "evidence"
+      ],
+      "title": "NormativeAdviceSourceIssueSnapshot",
+      "type": "object"
+    },
+    "NormativeAdviceSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "counts_by_code": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Code",
+          "type": "object"
+        },
+        "counts_by_priority": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Priority",
+          "type": "object"
+        },
+        "total_advice": {
+          "minimum": 0,
+          "title": "Total Advice",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_advice"
+      ],
+      "title": "NormativeAdviceSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "advice_items": {
+      "items": {
+        "$ref": "#/$defs/NormativeAdviceItem"
+      },
+      "title": "Advice Items",
+      "type": "array"
+    },
+    "advice_summary": {
+      "$ref": "#/$defs/NormativeAdviceSummary"
+    },
+    "bridge_manifest_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Bridge Manifest Hash",
+      "type": "string"
+    },
+    "concept_artifact_id": {
+      "minLength": 1,
+      "title": "Concept Artifact Id",
+      "type": "string"
+    },
+    "core_ir_artifact_id": {
+      "minLength": 1,
+      "title": "Core Ir Artifact Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_normative_advice_packet@0.1",
+      "default": "adeu_normative_advice_packet@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "minLength": 1,
+      "title": "Source Text Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "core_ir_artifact_id",
+    "concept_artifact_id",
+    "bridge_manifest_hash",
+    "advice_summary"
+  ],
+  "title": "AdeuNormativeAdvicePacket",
+  "type": "object"
+}

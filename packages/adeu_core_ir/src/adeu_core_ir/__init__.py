@@ -64,6 +64,15 @@ from .models import (
     canonicalize_core_ir,
     canonicalize_core_ir_payload,
 )
+from .normative_advice_packet import (
+    NORMATIVE_ADVICE_JUSTIFICATION_PREFIX,
+    NORMATIVE_ADVICE_PACKET_SCHEMA,
+    AdeuNormativeAdvicePacket,
+    NormativeAdviceItem,
+    NormativeAdviceSourceIssueSnapshot,
+    NormativeAdviceSummary,
+    canonicalize_normative_advice_packet_payload,
+)
 from .pipeline import (
     NormalizedCoreSourceText,
     build_core_ir_from_source_text,
@@ -147,6 +156,13 @@ __all__ = [
     "build_lane_report",
     "canonicalize_lane_report_payload",
     "CANONICAL_LANE_ORDER",
+    "AdeuNormativeAdvicePacket",
+    "NormativeAdviceSummary",
+    "NormativeAdviceItem",
+    "NormativeAdviceSourceIssueSnapshot",
+    "NORMATIVE_ADVICE_PACKET_SCHEMA",
+    "NORMATIVE_ADVICE_JUSTIFICATION_PREFIX",
+    "canonicalize_normative_advice_packet_payload",
     "AdeuProjectionAlignment",
     "AdeuProjectionAlignmentIssue",
     "AdeuProjectionAlignmentSummary",

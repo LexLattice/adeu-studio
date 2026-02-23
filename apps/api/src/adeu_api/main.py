@@ -45,6 +45,7 @@ from adeu_core_ir import (
     AdeuIntegrityDeonticConflictExtended,
     AdeuIntegrityReferenceIntegrityExtended,
     AdeuLaneReport,
+    AdeuNormativeAdvicePacket,
 )
 from adeu_explain import (
     EXPLAIN_BUILDER_VERSION,
@@ -136,6 +137,10 @@ from .explain_builder import (
 from .hashing import canonical_json, sha256_canonical_json, sha256_text
 from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
+from .normative_advice_vnext_plus21 import (
+    NormativeAdviceVnextPlus21Error,
+    build_normative_advice_packet_vnext_plus21,
+)
 from .openai_concept_provider import propose_concept_codex, propose_concept_openai
 from .puzzle_id_canonicalization import canonicalize_puzzle_ids
 from .puzzle_mock_provider import get_puzzle_fixture_bundle
@@ -371,6 +376,11 @@ _READ_SURFACE_REQUEST_INVALID_CODE = "URM_ADEU_READ_SURFACE_REQUEST_INVALID"
 _READ_SURFACE_ARTIFACT_NOT_FOUND_CODE = "URM_ADEU_READ_SURFACE_ARTIFACT_NOT_FOUND"
 _READ_SURFACE_PAYLOAD_INVALID_CODE = "URM_ADEU_READ_SURFACE_PAYLOAD_INVALID"
 _READ_SURFACE_FIXTURE_INVALID_CODE = "URM_ADEU_READ_SURFACE_FIXTURE_INVALID"
+_NORMATIVE_ADVICE_REQUEST_INVALID_CODE = "URM_ADEU_NORMATIVE_ADVICE_REQUEST_INVALID"
+_NORMATIVE_ADVICE_ARTIFACT_NOT_FOUND_CODE = "URM_ADEU_NORMATIVE_ADVICE_ARTIFACT_NOT_FOUND"
+_NORMATIVE_ADVICE_PAYLOAD_INVALID_CODE = "URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID"
+_NORMATIVE_ADVICE_FIXTURE_INVALID_CODE = "URM_ADEU_NORMATIVE_ADVICE_FIXTURE_INVALID"
+_NORMATIVE_ADVICE_DIAGNOSTIC_DRIFT_CODE = "URM_ADEU_NORMATIVE_ADVICE_DIAGNOSTIC_DRIFT"
 _READ_SURFACE_CATALOG_SCHEMA = "read_surface.vnext_plus19_catalog@1"
 _READ_SURFACE_CATALOG_PATH = (
     Path(__file__).resolve().parents[2] / "fixtures" / "read_surface" / "vnext_plus19_catalog.json"
@@ -2019,6 +2029,32 @@ def _resolve_read_surface_ref_for_schema_or_http(
 
 def _set_read_surface_cache_header(response: Response) -> None:
     response.headers["Cache-Control"] = _READ_SURFACE_CACHE_CONTROL
+
+
+def _normative_advice_error_detail(
+    *,
+    code: str,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    detail: dict[str, Any] = {"code": code, "reason": reason}
+    if context:
+        detail["context"] = dict(context)
+    return detail
+
+
+def _normative_advice_status_code(code: str) -> int:
+    if code == _NORMATIVE_ADVICE_REQUEST_INVALID_CODE:
+        return 400
+    if code == _NORMATIVE_ADVICE_ARTIFACT_NOT_FOUND_CODE:
+        return 404
+    if code in (
+        _NORMATIVE_ADVICE_PAYLOAD_INVALID_CODE,
+        _NORMATIVE_ADVICE_FIXTURE_INVALID_CODE,
+        _NORMATIVE_ADVICE_DIAGNOSTIC_DRIFT_CODE,
+    ):
+        return 500
+    return 500
 
 
 class ConceptAlignRequest(BaseModel):
@@ -6314,6 +6350,36 @@ def get_urm_core_ir_integrity_endpoint(
         created_at=entry.created_at,
         integrity_artifact=integrity_payload,
     )
+
+
+@app.get(
+    "/urm/normative-advice/pairs/{source_text_hash}/{core_ir_artifact_id}/{concept_artifact_id}",
+    response_model=AdeuNormativeAdvicePacket,
+)
+def get_urm_normative_advice_pair_endpoint(
+    source_text_hash: str,
+    core_ir_artifact_id: str,
+    concept_artifact_id: str,
+    response: Response,
+) -> AdeuNormativeAdvicePacket:
+    try:
+        payload = build_normative_advice_packet_vnext_plus21(
+            source_text_hash=source_text_hash,
+            core_ir_artifact_id=core_ir_artifact_id,
+            concept_artifact_id=concept_artifact_id,
+        )
+    except NormativeAdviceVnextPlus21Error as exc:
+        raise HTTPException(
+            status_code=_normative_advice_status_code(exc.code),
+            detail=_normative_advice_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+    _set_read_surface_cache_header(response)
+    return AdeuNormativeAdvicePacket.model_validate(payload)
 
 
 @app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)
