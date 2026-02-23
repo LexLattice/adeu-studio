@@ -9,6 +9,7 @@ import adeu_api.semantics_v4_candidate_vnext_plus23 as semantics_v4
 import pytest
 from adeu_api.hashing import canonical_json
 from fastapi import HTTPException, Response
+from pydantic import BaseModel
 
 
 def _repo_root() -> Path:
@@ -189,7 +190,11 @@ def test_build_semantics_v4_packet_wraps_packet_validation_errors(
     class _FailPacket:
         @staticmethod
         def model_validate(_payload: object) -> object:
-            raise ValueError("forced packet validation failure")
+            class _ProbeValidationModel(BaseModel):
+                required_int: int
+
+            _ProbeValidationModel.model_validate({"required_int": "not-an-int"})
+            raise AssertionError("unreachable")
 
     monkeypatch.setattr(semantics_v4, "AdeuSemanticsV4CandidatePacket", _FailPacket)
 

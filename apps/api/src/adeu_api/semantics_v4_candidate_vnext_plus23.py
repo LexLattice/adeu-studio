@@ -251,10 +251,11 @@ def _cross_ir_error_to_semantics_v4(
 def _strip_created_at_recursive(value: Any) -> Any:
     if isinstance(value, Mapping):
         normalized: dict[str, Any] = {}
-        for key in sorted(str(item) for item in value.keys()):
+        for raw_key, raw_value in value.items():
+            key = str(raw_key)
             if key == "created_at":
                 continue
-            normalized[key] = _strip_created_at_recursive(value[key])
+            normalized[key] = _strip_created_at_recursive(raw_value)
         return normalized
     if isinstance(value, list):
         return [_strip_created_at_recursive(item) for item in value]
@@ -324,7 +325,7 @@ def _trust_packet_fixture_index_for_manifest(
 
     try:
         manifest = _VnextPlus22StopGateManifest.model_validate(parsed)
-    except Exception as exc:
+    except ValidationError as exc:
         raise _semantics_v4_candidate_error(
             code="URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
             reason="vnext+22 stop-gate manifest payload failed schema validation",
@@ -397,7 +398,7 @@ def _semantics_fixture_index_for_manifest(
 
     try:
         manifest = _VnextPlus23StopGateManifest.model_validate(parsed)
-    except Exception as exc:
+    except ValidationError as exc:
         raise _semantics_v4_candidate_error(
             code="URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID",
             reason="vnext+23 stop-gate manifest payload failed schema validation",
@@ -517,7 +518,7 @@ def _load_and_validate_trust_payload(
 
     try:
         normalized = AdeuTrustInvariantPacket.model_validate(parsed)
-    except Exception as exc:
+    except ValidationError as exc:
         raise _semantics_v4_candidate_error(
             code="URM_ADEU_SEMANTICS_V4_PAYLOAD_INVALID",
             reason="matched trust-invariant packet payload failed schema validation",
@@ -1064,7 +1065,7 @@ def build_semantics_v4_candidate_packet_vnext_plus23(
 
     try:
         normalized = AdeuSemanticsV4CandidatePacket.model_validate(packet_payload)
-    except Exception as exc:
+    except ValidationError as exc:
         raise _semantics_v4_candidate_error(
             code="URM_ADEU_SEMANTICS_V4_PAYLOAD_INVALID",
             reason="semantics-v4 candidate packet payload failed schema validation",
