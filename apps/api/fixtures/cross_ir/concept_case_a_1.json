@@ -1,0 +1,61 @@
+{
+  "schema_version": "adeu.concepts.v0",
+  "concept_id": "concept.case_a_1",
+  "context": {
+    "doc_id": "doc.case_a_1",
+    "domain_tags": [
+      "trust"
+    ]
+  },
+  "terms": [
+    {
+      "id": "o1",
+      "label": "trust",
+      "provenance": {
+        "doc_ref": "doc.case_a_1#term"
+      }
+    }
+  ],
+  "senses": [
+    {
+      "id": "c2",
+      "term_id": "o1",
+      "gloss": "trust as confidence",
+      "provenance": {
+        "doc_ref": "doc.case_a_1#sense"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "sense_id": "c2",
+      "text": "AI systems improve trust.",
+      "provenance": {
+        "doc_ref": "doc.case_a_1#claim"
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "edge:supports:e1:c1",
+      "kind": "commitment",
+      "src_sense_id": "c2",
+      "dst_sense_id": "c2",
+      "provenance": {
+        "doc_ref": "doc.case_a_1#link"
+      }
+    }
+  ],
+  "ambiguity": [
+    {
+      "id": "amb1",
+      "term_id": "o1",
+      "options": [
+        "optA",
+        "optB"
+      ]
+    }
+  ],
+  "bridges": []
+}
