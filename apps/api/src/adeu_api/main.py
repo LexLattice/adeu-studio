@@ -142,6 +142,7 @@ from .normative_advice_vnext_plus21 import (
     NormativeAdviceVnextPlus21Error,
     build_normative_advice_packet_vnext_plus21,
     build_normative_advice_projection_vnext_plus21,
+    normative_advice_non_enforcement_context,
 )
 from .openai_concept_provider import propose_concept_codex, propose_concept_openai
 from .puzzle_id_canonicalization import canonicalize_puzzle_ids
@@ -6365,11 +6366,12 @@ def get_urm_normative_advice_pair_endpoint(
     response: Response,
 ) -> AdeuNormativeAdvicePacket:
     try:
-        payload = build_normative_advice_packet_vnext_plus21(
-            source_text_hash=source_text_hash,
-            core_ir_artifact_id=core_ir_artifact_id,
-            concept_artifact_id=concept_artifact_id,
-        )
+        with normative_advice_non_enforcement_context():
+            payload = build_normative_advice_packet_vnext_plus21(
+                source_text_hash=source_text_hash,
+                core_ir_artifact_id=core_ir_artifact_id,
+                concept_artifact_id=concept_artifact_id,
+            )
     except NormativeAdviceVnextPlus21Error as exc:
         raise HTTPException(
             status_code=_normative_advice_status_code(exc.code),
@@ -6392,7 +6394,8 @@ def get_urm_normative_advice_projection_endpoint(
     response: Response,
 ) -> NormativeAdviceProjectionVnextPlus21:
     try:
-        projection = build_normative_advice_projection_vnext_plus21()
+        with normative_advice_non_enforcement_context():
+            projection = build_normative_advice_projection_vnext_plus21()
     except NormativeAdviceVnextPlus21Error as exc:
         raise HTTPException(
             status_code=_normative_advice_status_code(exc.code),
