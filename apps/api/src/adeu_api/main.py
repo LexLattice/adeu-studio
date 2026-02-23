@@ -46,6 +46,7 @@ from adeu_core_ir import (
     AdeuIntegrityReferenceIntegrityExtended,
     AdeuLaneReport,
     AdeuNormativeAdvicePacket,
+    AdeuSemanticsV4CandidatePacket,
     AdeuTrustInvariantPacket,
 )
 from adeu_explain import (
@@ -153,6 +154,11 @@ from .scoring import ranking_sort_key, score_key
 from .semantic_depth_builder import (
     as_semantic_depth_artifact_ref,
     build_semantic_depth_report_payload,
+)
+from .semantics_v4_candidate_vnext_plus23 import (
+    SemanticsV4CandidateVnextPlus23Error,
+    build_semantics_v4_candidate_packet_vnext_plus23,
+    semantics_v4_candidate_non_enforcement_context,
 )
 from .source_features import extract_source_features
 from .storage import (
@@ -398,6 +404,12 @@ _TRUST_INVARIANT_PAYLOAD_INVALID_CODE = "URM_ADEU_TRUST_INVARIANT_PAYLOAD_INVALI
 _TRUST_INVARIANT_FIXTURE_INVALID_CODE = "URM_ADEU_TRUST_INVARIANT_FIXTURE_INVALID"
 _TRUST_INVARIANT_DIAGNOSTIC_DRIFT_CODE = "URM_ADEU_TRUST_INVARIANT_DIAGNOSTIC_DRIFT"
 _TRUST_INVARIANT_MANIFEST_HASH_MISMATCH_CODE = "URM_ADEU_TRUST_INVARIANT_MANIFEST_HASH_MISMATCH"
+_SEMANTICS_V4_REQUEST_INVALID_CODE = "URM_ADEU_SEMANTICS_V4_REQUEST_INVALID"
+_SEMANTICS_V4_ARTIFACT_NOT_FOUND_CODE = "URM_ADEU_SEMANTICS_V4_ARTIFACT_NOT_FOUND"
+_SEMANTICS_V4_PAYLOAD_INVALID_CODE = "URM_ADEU_SEMANTICS_V4_PAYLOAD_INVALID"
+_SEMANTICS_V4_FIXTURE_INVALID_CODE = "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID"
+_SEMANTICS_V4_DIAGNOSTIC_DRIFT_CODE = "URM_ADEU_SEMANTICS_V4_DIAGNOSTIC_DRIFT"
+_SEMANTICS_V4_MANIFEST_HASH_MISMATCH_CODE = "URM_ADEU_SEMANTICS_V4_MANIFEST_HASH_MISMATCH"
 _READ_SURFACE_CATALOG_SCHEMA = "read_surface.vnext_plus19_catalog@1"
 _READ_SURFACE_CATALOG_PATH = (
     Path(__file__).resolve().parents[2] / "fixtures" / "read_surface" / "vnext_plus19_catalog.json"
@@ -2096,6 +2108,33 @@ def _trust_invariant_status_code(code: str) -> int:
         _TRUST_INVARIANT_FIXTURE_INVALID_CODE,
         _TRUST_INVARIANT_DIAGNOSTIC_DRIFT_CODE,
         _TRUST_INVARIANT_MANIFEST_HASH_MISMATCH_CODE,
+    ):
+        return 500
+    return 500
+
+
+def _semantics_v4_error_detail(
+    *,
+    code: str,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    detail: dict[str, Any] = {"code": code, "reason": reason}
+    if context:
+        detail["context"] = dict(context)
+    return detail
+
+
+def _semantics_v4_status_code(code: str) -> int:
+    if code == _SEMANTICS_V4_REQUEST_INVALID_CODE:
+        return 400
+    if code == _SEMANTICS_V4_ARTIFACT_NOT_FOUND_CODE:
+        return 404
+    if code in (
+        _SEMANTICS_V4_PAYLOAD_INVALID_CODE,
+        _SEMANTICS_V4_FIXTURE_INVALID_CODE,
+        _SEMANTICS_V4_DIAGNOSTIC_DRIFT_CODE,
+        _SEMANTICS_V4_MANIFEST_HASH_MISMATCH_CODE,
     ):
         return 500
     return 500
@@ -6504,6 +6543,37 @@ def get_urm_proof_trust_projection_endpoint(
 
     _set_read_surface_cache_header(response)
     return projection
+
+
+@app.get(
+    "/urm/semantics-v4/pairs/{source_text_hash}/{core_ir_artifact_id}/{concept_artifact_id}",
+    response_model=AdeuSemanticsV4CandidatePacket,
+)
+def get_urm_semantics_v4_pair_endpoint(
+    source_text_hash: str,
+    core_ir_artifact_id: str,
+    concept_artifact_id: str,
+    response: Response,
+) -> AdeuSemanticsV4CandidatePacket:
+    try:
+        with semantics_v4_candidate_non_enforcement_context():
+            payload = build_semantics_v4_candidate_packet_vnext_plus23(
+                source_text_hash=source_text_hash,
+                core_ir_artifact_id=core_ir_artifact_id,
+                concept_artifact_id=concept_artifact_id,
+            )
+    except SemanticsV4CandidateVnextPlus23Error as exc:
+        raise HTTPException(
+            status_code=_semantics_v4_status_code(exc.code),
+            detail=_semantics_v4_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+    _set_read_surface_cache_header(response)
+    return AdeuSemanticsV4CandidatePacket.model_validate(payload)
 
 
 @app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)

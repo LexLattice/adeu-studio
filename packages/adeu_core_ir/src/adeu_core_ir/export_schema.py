@@ -18,6 +18,7 @@ from .models import AdeuCoreIR
 from .normative_advice_packet import AdeuNormativeAdvicePacket
 from .projection_alignment import AdeuProjectionAlignment
 from .read_surface_payload import AdeuReadSurfacePayload
+from .semantics_v4_candidate_packet import AdeuSemanticsV4CandidatePacket
 from .trust_invariant_packet import AdeuTrustInvariantPacket
 
 
@@ -50,6 +51,9 @@ def main() -> None:
     read_surface_payload_schema = AdeuReadSurfacePayload.model_json_schema(by_alias=True)
     normative_advice_packet_schema = AdeuNormativeAdvicePacket.model_json_schema(by_alias=True)
     trust_invariant_packet_schema = AdeuTrustInvariantPacket.model_json_schema(by_alias=True)
+    semantics_v4_candidate_packet_schema = AdeuSemanticsV4CandidatePacket.model_json_schema(
+        by_alias=True
+    )
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
     _write_schema(authoritative_path, core_ir_schema)
@@ -153,6 +157,18 @@ def main() -> None:
         trust_invariant_packet_schema,
     )
 
+    semantics_v4_candidate_packet_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "adeu_semantics_v4_candidate_packet.v0_1.json"
+    )
+    _write_schema(
+        semantics_v4_candidate_packet_authoritative_path,
+        semantics_v4_candidate_packet_schema,
+    )
+
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
 
@@ -225,6 +241,14 @@ def main() -> None:
     _write_schema(
         trust_invariant_packet_mirror_path,
         trust_invariant_packet_schema,
+    )
+
+    semantics_v4_candidate_packet_mirror_path = (
+        root / "spec" / "adeu_semantics_v4_candidate_packet.schema.json"
+    )
+    _write_schema(
+        semantics_v4_candidate_packet_mirror_path,
+        semantics_v4_candidate_packet_schema,
     )
 
 

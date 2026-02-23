@@ -101,6 +101,14 @@ from .read_surface_payload import (
     canonicalize_read_surface_payload,
     integrity_issue_count,
 )
+from .semantics_v4_candidate_packet import (
+    ADEU_SEMANTICS_V4_CANDIDATE_PACKET_SCHEMA,
+    AdeuSemanticsV4CandidatePacket,
+    SemanticsV4CandidateComparisonItem,
+    SemanticsV4CandidateComparisonSummary,
+    build_semantics_v4_candidate_comparison_id,
+    canonicalize_semantics_v4_candidate_packet_payload,
+)
 from .trust_invariant_packet import (
     TRUST_INVARIANT_PACKET_SCHEMA,
     AdeuTrustInvariantPacket,
@@ -176,6 +184,12 @@ __all__ = [
     "AdeuProjectionAlignmentSummary",
     "build_projection_alignment",
     "canonicalize_projection_alignment_payload",
+    "AdeuSemanticsV4CandidatePacket",
+    "SemanticsV4CandidateComparisonSummary",
+    "SemanticsV4CandidateComparisonItem",
+    "ADEU_SEMANTICS_V4_CANDIDATE_PACKET_SCHEMA",
+    "build_semantics_v4_candidate_comparison_id",
+    "canonicalize_semantics_v4_candidate_packet_payload",
     "AdeuLaneProjection",
     "AdeuLaneProjectionEdge",
     "AdeuReadSurfacePayload",
