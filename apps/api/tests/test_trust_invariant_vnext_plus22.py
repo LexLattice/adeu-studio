@@ -67,9 +67,27 @@ def _build_packet(**kwargs: str | Path) -> dict[str, object]:
         return trust_invariant.build_trust_invariant_packet_vnext_plus22(**kwargs)
 
 
+def _build_projection(
+    **kwargs: str | Path,
+) -> trust_invariant.TrustInvariantProjectionVnextPlus22:
+    with trust_invariant.trust_invariant_non_enforcement_context():
+        return trust_invariant.build_trust_invariant_projection_vnext_plus22(**kwargs)
+
+
 def test_build_trust_invariant_packet_requires_runtime_non_enforcement_context() -> None:
     with pytest.raises(trust_invariant.TrustInvariantVnextPlus22Error) as exc_info:
         trust_invariant.build_trust_invariant_packet_vnext_plus22(**_pair())
+
+    assert exc_info.value.code == "URM_ADEU_TRUST_INVARIANT_REQUEST_INVALID"
+    assert (
+        exc_info.value.reason
+        == "trust-invariant runtime non-enforcement context is not active"
+    )
+
+
+def test_build_trust_invariant_projection_requires_runtime_non_enforcement_context() -> None:
+    with pytest.raises(trust_invariant.TrustInvariantVnextPlus22Error) as exc_info:
+        trust_invariant.build_trust_invariant_projection_vnext_plus22()
 
     assert exc_info.value.code == "URM_ADEU_TRUST_INVARIANT_REQUEST_INVALID"
     assert (
@@ -120,6 +138,25 @@ def test_build_trust_invariant_packet_is_deterministic_and_schema_valid() -> Non
     assert "observed_hash" not in canonical_item
 
 
+def test_build_trust_invariant_projection_is_deterministic_and_schema_valid() -> None:
+    first = _build_projection().model_dump(mode="json")
+    second = _build_projection().model_dump(mode="json")
+
+    assert first["schema"] == "trust_invariant_projection.vnext_plus22@1"
+    assert canonical_json(first) == canonical_json(second)
+
+    bridge_pair_count = first["bridge_pair_count"]
+    assert bridge_pair_count >= 1
+    assert first["proof_item_count"] == bridge_pair_count * 4
+    assert first["proof_counts_by_invariant_code"] == {
+        "CANONICAL_JSON_CONFORMANCE": bridge_pair_count,
+        "HASH_RECOMPUTE_MATCH": bridge_pair_count,
+        "MANIFEST_CHAIN_STABILITY": bridge_pair_count,
+        "REPLAY_HASH_STABILITY": bridge_pair_count,
+    }
+    assert sum(first["proof_counts_by_status"].values()) == first["proof_item_count"]
+
+
 def test_build_trust_invariant_packet_selects_lexicographically_first_normative_fixture() -> None:
     packet = _build_packet(**_pair())
 
@@ -148,6 +185,18 @@ def test_trust_invariant_pair_endpoint_returns_packet_and_cache_header() -> None
     assert response.headers["Cache-Control"] == api_main._READ_SURFACE_CACHE_CONTROL
 
 
+def test_trust_invariant_projection_endpoint_returns_projection_and_cache_header() -> None:
+    response = Response()
+    payload = api_main.get_urm_proof_trust_projection_endpoint(response=response).model_dump(
+        mode="json"
+    )
+
+    assert payload["schema"] == "trust_invariant_projection.vnext_plus22@1"
+    assert payload["bridge_pair_count"] >= 1
+    assert payload["proof_item_count"] >= 4
+    assert response.headers["Cache-Control"] == api_main._READ_SURFACE_CACHE_CONTROL
+
+
 def test_trust_invariant_pair_endpoint_unknown_pair_returns_not_found() -> None:
     with pytest.raises(HTTPException) as exc_info:
         api_main.get_urm_proof_trust_pair_endpoint(
@@ -156,6 +205,34 @@ def test_trust_invariant_pair_endpoint_unknown_pair_returns_not_found() -> None:
             concept_artifact_id=_pair()["concept_artifact_id"],
             response=Response(),
         )
+
+    assert exc_info.value.status_code == 404
+    assert exc_info.value.detail["code"] == "URM_ADEU_TRUST_INVARIANT_ARTIFACT_NOT_FOUND"
+
+
+def test_trust_invariant_projection_endpoint_missing_normative_artifact_returns_not_found(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest_path = tmp_path / "vnext_plus21_manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "schema": "stop_gate.vnext_plus21_manifest@1",
+                "normative_advice_packet_fixtures": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        trust_invariant,
+        "VNEXT_PLUS21_STOP_GATE_MANIFEST_PATH",
+        manifest_path,
+    )
+    trust_invariant._normative_advice_fixture_index_for_manifest.cache_clear()
+
+    with pytest.raises(HTTPException) as exc_info:
+        api_main.get_urm_proof_trust_projection_endpoint(response=Response())
 
     assert exc_info.value.status_code == 404
     assert exc_info.value.detail["code"] == "URM_ADEU_TRUST_INVARIANT_ARTIFACT_NOT_FOUND"
@@ -331,6 +408,34 @@ def test_trust_invariant_endpoint_fails_closed_on_non_enforcement_context_violat
 
     assert exc_info.value.status_code == 400
     assert exc_info.value.detail["code"] == "URM_ADEU_TRUST_INVARIANT_REQUEST_INVALID"
+
+
+def test_build_trust_invariant_projection_rejects_invalid_catalog_pair_entry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _invalid_pairs(*, catalog_path: Path | None = None) -> list[dict[str, str]]:
+        del catalog_path
+        return [
+            {
+                "source_text_hash": "",
+                "core_ir_artifact_id": _pair()["core_ir_artifact_id"],
+                "concept_artifact_id": _pair()["concept_artifact_id"],
+            }
+        ]
+
+    monkeypatch.setattr(
+        trust_invariant,
+        "list_cross_ir_catalog_pairs_vnext_plus20",
+        _invalid_pairs,
+    )
+    with pytest.raises(trust_invariant.TrustInvariantVnextPlus22Error) as exc_info:
+        _build_projection()
+
+    assert exc_info.value.code == "URM_ADEU_TRUST_INVARIANT_PAYLOAD_INVALID"
+    assert (
+        exc_info.value.reason
+        == "catalog pair entry is invalid for trust-invariant projection"
+    )
 
 
 def test_build_trust_invariant_packet_wraps_packet_validation_errors(

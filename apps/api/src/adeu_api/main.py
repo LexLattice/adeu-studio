@@ -185,8 +185,10 @@ from .storage import (
     transaction as storage_transaction,
 )
 from .trust_invariant_vnext_plus22 import (
+    TrustInvariantProjectionVnextPlus22,
     TrustInvariantVnextPlus22Error,
     build_trust_invariant_packet_vnext_plus22,
+    build_trust_invariant_projection_vnext_plus22,
     trust_invariant_non_enforcement_context,
 )
 from .urm_routes import router as urm_router
@@ -6478,6 +6480,30 @@ def get_urm_proof_trust_pair_endpoint(
 
     _set_read_surface_cache_header(response)
     return AdeuTrustInvariantPacket.model_validate(payload)
+
+
+@app.get(
+    "/urm/proof-trust/projection",
+    response_model=TrustInvariantProjectionVnextPlus22,
+)
+def get_urm_proof_trust_projection_endpoint(
+    response: Response,
+) -> TrustInvariantProjectionVnextPlus22:
+    try:
+        with trust_invariant_non_enforcement_context():
+            projection = build_trust_invariant_projection_vnext_plus22()
+    except TrustInvariantVnextPlus22Error as exc:
+        raise HTTPException(
+            status_code=_trust_invariant_status_code(exc.code),
+            detail=_trust_invariant_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+    _set_read_surface_cache_header(response)
+    return projection
 
 
 @app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)
