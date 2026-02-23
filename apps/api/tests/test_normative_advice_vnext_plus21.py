@@ -42,9 +42,29 @@ def _clear_normative_advice_manifest_cache() -> None:
     normative_advice._coherence_fixture_index_for_manifest.cache_clear()
 
 
+def _build_packet(**kwargs: str | Path | bool) -> dict[str, object]:
+    with normative_advice.normative_advice_non_enforcement_context():
+        return normative_advice.build_normative_advice_packet_vnext_plus21(**kwargs)
+
+
+def _build_projection(
+    **kwargs: str | Path | bool,
+) -> normative_advice.NormativeAdviceProjectionVnextPlus21:
+    with normative_advice.normative_advice_non_enforcement_context():
+        return normative_advice.build_normative_advice_projection_vnext_plus21(**kwargs)
+
+
+def test_build_normative_advice_packet_requires_runtime_non_enforcement_context() -> None:
+    with pytest.raises(normative_advice.NormativeAdviceVnextPlus21Error) as exc_info:
+        normative_advice.build_normative_advice_packet_vnext_plus21(**_pair())
+
+    assert exc_info.value.code == "URM_ADEU_NORMATIVE_ADVICE_REQUEST_INVALID"
+    assert exc_info.value.reason == "normative advice runtime non-enforcement context is not active"
+
+
 def test_build_normative_advice_packet_is_deterministic_and_schema_valid() -> None:
-    first = normative_advice.build_normative_advice_packet_vnext_plus21(**_pair())
-    second = normative_advice.build_normative_advice_packet_vnext_plus21(**_pair())
+    first = _build_packet(**_pair())
+    second = _build_packet(**_pair())
 
     assert first["schema"] == "adeu_normative_advice_packet@0.1"
     assert canonical_json(first) == canonical_json(second)
@@ -72,7 +92,7 @@ def test_build_normative_advice_packet_is_deterministic_and_schema_valid() -> No
 
 
 def test_build_normative_advice_packet_refs_are_verbatim_from_source_issue() -> None:
-    packet = normative_advice.build_normative_advice_packet_vnext_plus21(**_pair())
+    packet = _build_packet(**_pair())
     coherence_payload = _coherence_fixture_payload()
     coherence_issue_by_id = {
         str(issue["issue_id"]): issue for issue in coherence_payload["issues"]  # type: ignore[index]
@@ -86,7 +106,7 @@ def test_build_normative_advice_packet_refs_are_verbatim_from_source_issue() -> 
 
 
 def test_build_normative_advice_packet_source_issue_snapshot_opt_in() -> None:
-    packet = normative_advice.build_normative_advice_packet_vnext_plus21(
+    packet = _build_packet(
         **_pair(),
         include_source_issue_snapshot=True,
     )
@@ -112,12 +132,8 @@ def test_normative_advice_pair_endpoint_returns_packet_and_cache_header() -> Non
 
 
 def test_build_normative_advice_projection_is_deterministic_and_schema_valid() -> None:
-    first = normative_advice.build_normative_advice_projection_vnext_plus21().model_dump(
-        mode="json"
-    )
-    second = normative_advice.build_normative_advice_projection_vnext_plus21().model_dump(
-        mode="json"
-    )
+    first = _build_projection().model_dump(mode="json")
+    second = _build_projection().model_dump(mode="json")
 
     assert first["schema"] == "normative_advice_projection.vnext_plus21@1"
     assert canonical_json(first) == canonical_json(second)
@@ -125,7 +141,7 @@ def test_build_normative_advice_projection_is_deterministic_and_schema_valid() -
     pairs = normative_advice.list_cross_ir_catalog_pairs_vnext_plus20()
     expected_item_count = 0
     for pair in pairs:
-        packet = normative_advice.build_normative_advice_packet_vnext_plus21(
+        packet = _build_packet(
             source_text_hash=pair["source_text_hash"],
             core_ir_artifact_id=pair["core_ir_artifact_id"],
             concept_artifact_id=pair["concept_artifact_id"],
@@ -395,7 +411,7 @@ def test_build_normative_advice_packet_wraps_packet_validation_errors(
     monkeypatch.setattr(normative_advice, "AdeuNormativeAdvicePacket", _FailPacket)
 
     with pytest.raises(normative_advice.NormativeAdviceVnextPlus21Error) as exc_info:
-        normative_advice.build_normative_advice_packet_vnext_plus21(**_pair())
+        _build_packet(**_pair())
 
     assert exc_info.value.code == "URM_ADEU_NORMATIVE_ADVICE_PAYLOAD_INVALID"
     assert exc_info.value.reason == "normative advice packet payload failed schema validation"

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
@@ -71,6 +73,10 @@ _ADVICE_MESSAGE_BY_CODE: dict[NormativeAdviceCode, str] = {
     ),
 }
 _HEX16_RE = frozenset("0123456789abcdef")
+_NORMATIVE_ADVICE_NON_ENFORCEMENT_CONTEXT: ContextVar[bool] = ContextVar(
+    "normative_advice_non_enforcement_context",
+    default=False,
+)
 
 
 class NormativeAdviceVnextPlus21Error(ValueError):
@@ -163,6 +169,25 @@ def _normative_advice_error(
     context: Mapping[str, Any] | None = None,
 ) -> NormativeAdviceVnextPlus21Error:
     return NormativeAdviceVnextPlus21Error(code=code, reason=reason, context=context)
+
+
+@contextmanager
+def normative_advice_non_enforcement_context() -> Iterator[None]:
+    token = _NORMATIVE_ADVICE_NON_ENFORCEMENT_CONTEXT.set(True)
+    try:
+        yield
+    finally:
+        _NORMATIVE_ADVICE_NON_ENFORCEMENT_CONTEXT.reset(token)
+
+
+def _require_normative_advice_non_enforcement_context(*, operation: str) -> None:
+    if _NORMATIVE_ADVICE_NON_ENFORCEMENT_CONTEXT.get():
+        return
+    raise _normative_advice_error(
+        code="URM_ADEU_NORMATIVE_ADVICE_REQUEST_INVALID",
+        reason="normative advice runtime non-enforcement context is not active",
+        context={"operation": operation},
+    )
 
 
 def _resolved_manifest_path(path: Path | None) -> Path:
@@ -498,6 +523,9 @@ def build_normative_advice_packet_vnext_plus21(
     coherence_manifest_path: Path | None = None,
     include_source_issue_snapshot: bool = False,
 ) -> dict[str, Any]:
+    _require_normative_advice_non_enforcement_context(
+        operation="build_normative_advice_packet_vnext_plus21"
+    )
     try:
         pair_artifacts = load_cross_ir_pair_artifacts_vnext_plus20(
             source_text_hash=source_text_hash,
@@ -671,6 +699,9 @@ def build_normative_advice_projection_vnext_plus21(
     coherence_manifest_path: Path | None = None,
     include_source_issue_snapshot: bool = False,
 ) -> NormativeAdviceProjectionVnextPlus21:
+    _require_normative_advice_non_enforcement_context(
+        operation="build_normative_advice_projection_vnext_plus21"
+    )
     try:
         pairs = list_cross_ir_catalog_pairs_vnext_plus20(catalog_path=catalog_path)
     except CrossIRBridgeVnextPlus20Error as exc:
