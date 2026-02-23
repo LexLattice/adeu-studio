@@ -149,9 +149,17 @@ VNEXT_PLUS20_DEFAULT_METRICS = {
     "artifact_cross_ir_coherence_diagnostics_determinism_pct": 0.0,
     "artifact_cross_ir_quality_projection_determinism_pct": 0.0,
 }
+VNEXT_PLUS21_REPLAY_COUNT = 3
+VNEXT_PLUS21_MANIFEST_SCHEMA = "stop_gate.vnext_plus21_manifest@1"
+VNEXT_PLUS21_DEFAULT_METRICS = {
+    "artifact_normative_advice_packet_determinism_pct": 0.0,
+    "artifact_normative_advice_projection_determinism_pct": 0.0,
+}
 CROSS_IR_BRIDGE_MANIFEST_SCHEMA = "adeu_cross_ir_bridge_manifest@0.1"
 CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA = "adeu_cross_ir_coherence_diagnostics@0.1"
 CROSS_IR_QUALITY_PROJECTION_SCHEMA = "cross_ir_quality_projection.vnext_plus20@1"
+NORMATIVE_ADVICE_PACKET_SCHEMA = "adeu_normative_advice_packet@0.1"
+NORMATIVE_ADVICE_PROJECTION_SCHEMA = "normative_advice_projection.vnext_plus21@1"
 _READ_SURFACE_LANE_CAPTURE_SCHEMA = "adeu_lane_read_surface_capture@0.1"
 _READ_SURFACE_INTEGRITY_CAPTURE_SCHEMA = "adeu_integrity_read_surface_capture@0.1"
 _FROZEN_READ_SURFACE_INTEGRITY_FAMILIES: tuple[str, ...] = (
@@ -208,11 +216,39 @@ _FROZEN_CROSS_IR_SURFACES: tuple[str, ...] = (
     "adeu.cross_ir.quality_projection",
 )
 _FROZEN_CROSS_IR_SURFACE_SET = frozenset(_FROZEN_CROSS_IR_SURFACES)
+_FROZEN_NORMATIVE_ADVICE_SURFACES: tuple[str, ...] = (
+    "adeu.normative_advice.packet",
+    "adeu.normative_advice.projection",
+)
+_FROZEN_NORMATIVE_ADVICE_SURFACE_SET = frozenset(_FROZEN_NORMATIVE_ADVICE_SURFACES)
 _FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES = frozenset(
     {
         "MISSING_CONCEPT_MAPPING",
         "MISSING_CORE_IR_MAPPING",
         "SOURCE_HASH_MISMATCH",
+    }
+)
+_NORMATIVE_ADVICE_CODES = frozenset(
+    {
+        "MAPPING_GAP_REVIEW",
+        "SOURCE_DIVERGENCE_REVIEW",
+        "TOPOLOGY_ALIGNMENT_REVIEW",
+        "CLAIM_PROJECTION_REVIEW",
+        "TRUST_ALIGNMENT_REVIEW",
+    }
+)
+_NORMATIVE_ADVICE_PRIORITIES = frozenset({"low", "medium", "high"})
+_NORMATIVE_ADVICE_CODE_TO_PRIORITY = {
+    "MAPPING_GAP_REVIEW": "medium",
+    "SOURCE_DIVERGENCE_REVIEW": "high",
+    "TOPOLOGY_ALIGNMENT_REVIEW": "medium",
+    "CLAIM_PROJECTION_REVIEW": "high",
+    "TRUST_ALIGNMENT_REVIEW": "medium",
+}
+_FROZEN_VNEXT_PLUS21_NON_EMPTY_ADVICE_CODES = frozenset(
+    {
+        "MAPPING_GAP_REVIEW",
+        "SOURCE_DIVERGENCE_REVIEW",
     }
 )
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
@@ -273,6 +309,8 @@ THRESHOLDS = {
     "artifact_cross_ir_bridge_mapping_determinism_pct": 100.0,
     "artifact_cross_ir_coherence_diagnostics_determinism_pct": 100.0,
     "artifact_cross_ir_quality_projection_determinism_pct": 100.0,
+    "artifact_normative_advice_packet_determinism_pct": 100.0,
+    "artifact_normative_advice_projection_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -355,6 +393,10 @@ def _default_vnext_plus20_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus20_manifest.json")
 
 
+def _default_vnext_plus21_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus21_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
@@ -368,6 +410,7 @@ VNEXT_PLUS17_MANIFEST_PATH = _default_vnext_plus17_manifest_path()
 VNEXT_PLUS18_MANIFEST_PATH = _default_vnext_plus18_manifest_path()
 VNEXT_PLUS19_MANIFEST_PATH = _default_vnext_plus19_manifest_path()
 VNEXT_PLUS20_MANIFEST_PATH = _default_vnext_plus20_manifest_path()
+VNEXT_PLUS21_MANIFEST_PATH = _default_vnext_plus21_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -5265,6 +5308,21 @@ _VNEXT_PLUS20_CROSS_IR_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
     ),
 )
 
+_VNEXT_PLUS21_NORMATIVE_ADVICE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "normative_advice_packet_fixtures",
+        "artifact_normative_advice_packet_determinism_pct",
+        "adeu.normative_advice.packet",
+        ("normative_advice_packet_path",),
+    ),
+    (
+        "normative_advice_projection_fixtures",
+        "artifact_normative_advice_projection_determinism_pct",
+        "adeu.normative_advice.projection",
+        ("normative_advice_projection_path",),
+    ),
+)
+
 
 def _validate_integrity_surface_fixtures(
     *,
@@ -6558,6 +6616,12 @@ def _is_lower_sha256(value: Any) -> bool:
     )
 
 
+def _is_lower_hex(value: Any, *, length: int) -> bool:
+    return isinstance(value, str) and len(value) == length and all(
+        char in "0123456789abcdef" for char in value
+    )
+
+
 def _validate_cross_ir_capture_keys(
     *,
     payload: Mapping[str, Any],
@@ -6940,6 +7004,612 @@ def _cross_ir_quality_projection_fixture_hash(*, cross_ir_quality_projection_pat
                     "non-negative integers"
                 ),
                 context={"path": str(cross_ir_quality_projection_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _validate_normative_advice_capture_keys(
+    *,
+    payload: Mapping[str, Any],
+    required_keys: set[str],
+    optional_keys: set[str],
+    path: Path,
+    context: Mapping[str, Any] | None = None,
+) -> None:
+    observed_keys = {str(key) for key in payload.keys()}
+    missing_keys = sorted(required_keys - observed_keys)
+    unexpected_keys = sorted(observed_keys - (required_keys | optional_keys))
+    if missing_keys or unexpected_keys:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative-advice capture payload has unexpected key shape",
+                context={
+                    "path": str(path),
+                    "missing_keys": missing_keys,
+                    "unexpected_keys": unexpected_keys,
+                    **dict(context or {}),
+                },
+            )
+        )
+
+
+def _normative_advice_packet_fixture_hash(*, normative_advice_packet_path: Path) -> str:
+    payload = _read_json_object(
+        normative_advice_packet_path,
+        description="normative advice packet fixture",
+    )
+    _validate_normative_advice_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "source_text_hash",
+            "core_ir_artifact_id",
+            "concept_artifact_id",
+            "bridge_manifest_hash",
+            "advice_summary",
+            "advice_items",
+        },
+        optional_keys={"created_at"},
+        path=normative_advice_packet_path,
+    )
+    if payload.get("schema") != NORMATIVE_ADVICE_PACKET_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet schema is invalid",
+                context={
+                    "path": str(normative_advice_packet_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    for field in ("source_text_hash", "core_ir_artifact_id", "concept_artifact_id"):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice packet identity field must be a non-empty string",
+                    context={"path": str(normative_advice_packet_path), "field": field},
+                )
+            )
+    if not _is_lower_sha256(payload.get("bridge_manifest_hash")):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet bridge_manifest_hash must be lowercase sha256",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    advice_summary = payload.get("advice_summary")
+    if not isinstance(advice_summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet advice_summary must be an object",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    _validate_normative_advice_capture_keys(
+        payload=advice_summary,
+        required_keys={"total_advice", "counts_by_code", "counts_by_priority"},
+        optional_keys={"created_at"},
+        path=normative_advice_packet_path,
+        context={"field": "advice_summary"},
+    )
+    total_advice = advice_summary.get("total_advice")
+    if not isinstance(total_advice, int) or total_advice < 0:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet total_advice must be a non-negative integer",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    summary_by_code = advice_summary.get("counts_by_code")
+    summary_by_priority = advice_summary.get("counts_by_priority")
+    if not isinstance(summary_by_code, Mapping) or not isinstance(summary_by_priority, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet summary count fields must be objects",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    if list(summary_by_code.keys()) != sorted(summary_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet counts_by_code keys must be sorted",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    if any(key not in _NORMATIVE_ADVICE_CODES for key in summary_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet counts_by_code contains unsupported advice_code",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in summary_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet counts_by_code values must be non-negative integers",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    if list(summary_by_priority.keys()) != sorted(summary_by_priority.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet counts_by_priority keys must be sorted",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    if any(key not in _NORMATIVE_ADVICE_PRIORITIES for key in summary_by_priority.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet counts_by_priority contains unsupported priority",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in summary_by_priority.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet counts_by_priority values must be non-negative integers",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+
+    advice_items = payload.get("advice_items")
+    if not isinstance(advice_items, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet advice_items must be a list",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    if total_advice != len(advice_items):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice packet total_advice does not match advice_items length",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+
+    observed_counts_by_code: dict[str, int] = {}
+    observed_counts_by_priority: dict[str, int] = {}
+    for item_index, item in enumerate(advice_items):
+        if not isinstance(item, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item must be an object",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        _validate_normative_advice_capture_keys(
+            payload=item,
+            required_keys={
+                "advice_id",
+                "advice_code",
+                "priority",
+                "concept_refs",
+                "core_ir_refs",
+                "justification_refs",
+                "message",
+            },
+            optional_keys={"source_issue_snapshot", "created_at"},
+            path=normative_advice_packet_path,
+            context={"item_index": item_index},
+        )
+
+        advice_id = item.get("advice_id")
+        advice_code = item.get("advice_code")
+        priority = item.get("priority")
+        concept_refs = item.get("concept_refs")
+        core_ir_refs = item.get("core_ir_refs")
+        justification_refs = item.get("justification_refs")
+        message = item.get("message")
+        if not _is_lower_hex(advice_id, length=16):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item advice_id must be lowercase hex16",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not isinstance(advice_code, str) or advice_code not in _NORMATIVE_ADVICE_CODES:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item advice_code is invalid",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if (
+            not isinstance(priority, str)
+            or priority not in _NORMATIVE_ADVICE_PRIORITIES
+            or _NORMATIVE_ADVICE_CODE_TO_PRIORITY[advice_code] != priority
+        ):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item priority is invalid for advice_code",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                        "advice_code": advice_code,
+                        "priority": priority,
+                    },
+                )
+            )
+        if not isinstance(concept_refs, list) or not all(
+            isinstance(ref, str) and ref for ref in concept_refs
+        ):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item concept_refs must be a list of non-empty strings",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if concept_refs != sorted(concept_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item concept_refs must be lexicographically sorted",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not isinstance(core_ir_refs, list) or not all(
+            isinstance(ref, str) and ref for ref in core_ir_refs
+        ):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item core_ir_refs must be a list of non-empty strings",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if core_ir_refs != sorted(core_ir_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item core_ir_refs must be lexicographically sorted",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if (
+            not isinstance(justification_refs, list)
+            or len(justification_refs) != 1
+            or not isinstance(justification_refs[0], str)
+            or not justification_refs[0]
+            or justification_refs != sorted(justification_refs)
+        ):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item justification_refs must be a sorted singleton list",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        issue_ref = cast(str, justification_refs[0])
+        if not issue_ref.startswith("coherence_issue:") or not _is_lower_hex(
+            issue_ref.split(":", 1)[1], length=16
+        ):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item justification ref must be coherence_issue:{hex16}",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                        "justification_ref": issue_ref,
+                    },
+                )
+            )
+        if not isinstance(message, str) or not message:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item message must be a non-empty string",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        expected_advice_id = sha256_canonical_json(
+            {
+                "advice_code": advice_code,
+                "concept_refs": concept_refs,
+                "core_ir_refs": core_ir_refs,
+                "justification_refs": justification_refs,
+            }
+        )[:16]
+        if advice_id != expected_advice_id:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "normative advice item advice_id does not match canonical content hash",
+                    context={
+                        "path": str(normative_advice_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if "source_issue_snapshot" in item:
+            source_issue_snapshot = item.get("source_issue_snapshot")
+            if not isinstance(source_issue_snapshot, Mapping):
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "normative advice source_issue_snapshot must be an object",
+                        context={
+                            "path": str(normative_advice_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+            _validate_normative_advice_capture_keys(
+                payload=source_issue_snapshot,
+                required_keys={"issue_id", "issue_code", "severity", "message", "evidence"},
+                optional_keys={"created_at"},
+                path=normative_advice_packet_path,
+                context={"item_index": item_index, "field": "source_issue_snapshot"},
+            )
+            snapshot_issue_id = source_issue_snapshot.get("issue_id")
+            if (
+                not isinstance(snapshot_issue_id, str)
+                or not _is_lower_hex(snapshot_issue_id, length=16)
+                or issue_ref != f"coherence_issue:{snapshot_issue_id}"
+            ):
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        (
+                            "normative advice source_issue_snapshot.issue_id must match "
+                            "justification_refs issue id"
+                        ),
+                        context={
+                            "path": str(normative_advice_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+            if source_issue_snapshot.get("severity") not in {"warn", "error"}:
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "normative advice source_issue_snapshot severity must be warn|error",
+                        context={
+                            "path": str(normative_advice_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+            if not isinstance(source_issue_snapshot.get("issue_code"), str) or not isinstance(
+                source_issue_snapshot.get("message"), str
+            ):
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "normative advice source_issue_snapshot issue_code/message are invalid",
+                        context={
+                            "path": str(normative_advice_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+            if not isinstance(source_issue_snapshot.get("evidence"), Mapping):
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        "normative advice source_issue_snapshot evidence must be an object",
+                        context={
+                            "path": str(normative_advice_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+
+        observed_counts_by_code[advice_code] = observed_counts_by_code.get(advice_code, 0) + 1
+        observed_counts_by_priority[priority] = observed_counts_by_priority.get(priority, 0) + 1
+
+    if dict(sorted(observed_counts_by_code.items())) != {
+        str(key): int(value) for key, value in summary_by_code.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice counts_by_code does not match advice_items",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_priority.items())) != {
+        str(key): int(value) for key, value in summary_by_priority.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice counts_by_priority does not match advice_items",
+                context={"path": str(normative_advice_packet_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _normative_advice_projection_fixture_hash(
+    *, normative_advice_projection_path: Path
+) -> str:
+    payload = _read_json_object(
+        normative_advice_projection_path,
+        description="normative advice projection fixture",
+    )
+    _validate_normative_advice_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "bridge_pair_count",
+            "advice_item_count",
+            "advice_counts_by_code",
+            "advice_counts_by_priority",
+        },
+        optional_keys={"created_at"},
+        path=normative_advice_projection_path,
+    )
+    if payload.get("schema") != NORMATIVE_ADVICE_PROJECTION_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice projection schema is invalid",
+                context={
+                    "path": str(normative_advice_projection_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    bridge_pair_count = payload.get("bridge_pair_count")
+    advice_item_count = payload.get("advice_item_count")
+    if (
+        not isinstance(bridge_pair_count, int)
+        or bridge_pair_count < 0
+        or not isinstance(advice_item_count, int)
+        or advice_item_count < 0
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice projection count fields must be non-negative integers",
+                context={"path": str(normative_advice_projection_path)},
+            )
+        )
+    advice_counts_by_code = payload.get("advice_counts_by_code")
+    advice_counts_by_priority = payload.get("advice_counts_by_priority")
+    if not isinstance(advice_counts_by_code, Mapping) or not isinstance(
+        advice_counts_by_priority, Mapping
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice projection count maps must be objects",
+                context={"path": str(normative_advice_projection_path)},
+            )
+        )
+    if list(advice_counts_by_code.keys()) != sorted(advice_counts_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice projection advice_counts_by_code keys must be sorted",
+                context={"path": str(normative_advice_projection_path)},
+            )
+        )
+    if any(key not in _NORMATIVE_ADVICE_CODES for key in advice_counts_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "normative advice projection advice_counts_by_code contains "
+                    "unsupported advice_code"
+                ),
+                context={"path": str(normative_advice_projection_path)},
+            )
+        )
+    if any(
+        not isinstance(value, int) or value < 0 for value in advice_counts_by_code.values()
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "normative advice projection advice_counts_by_code values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(normative_advice_projection_path)},
+            )
+        )
+    if list(advice_counts_by_priority.keys()) != sorted(advice_counts_by_priority.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice projection advice_counts_by_priority keys must be sorted",
+                context={"path": str(normative_advice_projection_path)},
+            )
+        )
+    if any(key not in _NORMATIVE_ADVICE_PRIORITIES for key in advice_counts_by_priority.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "normative advice projection advice_counts_by_priority contains "
+                    "unsupported priority"
+                ),
+                context={"path": str(normative_advice_projection_path)},
+            )
+        )
+    if any(
+        not isinstance(value, int) or value < 0 for value in advice_counts_by_priority.values()
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "normative advice projection advice_counts_by_priority values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(normative_advice_projection_path)},
+            )
+        )
+    if advice_item_count != sum(int(value) for value in advice_counts_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "normative advice projection advice_item_count mismatch for advice_counts_by_code",
+                context={"path": str(normative_advice_projection_path)},
+            )
+        )
+    if advice_item_count != sum(int(value) for value in advice_counts_by_priority.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "normative advice projection advice_item_count mismatch for "
+                    "advice_counts_by_priority"
+                ),
+                context={"path": str(normative_advice_projection_path)},
             )
         )
     return _read_surface_projection_hash(payload)
@@ -7612,6 +8282,184 @@ def _compute_vnext_plus20_metrics(
     }
 
 
+def _validate_vnext_plus21_non_empty_floor(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> bool:
+    observed_codes: set[str] = set()
+    has_non_zero_advice = False
+    for fixture in fixtures:
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            continue
+        for run in runs:
+            if not isinstance(run, dict):
+                continue
+            try:
+                packet_path = _resolve_manifest_relative_path(
+                    manifest_path=manifest_path,
+                    raw_path=run.get("normative_advice_packet_path"),
+                )
+                payload = _read_json_object(
+                    packet_path,
+                    description="normative advice packet fixture",
+                )
+            except ValueError:
+                continue
+            summary = payload.get("advice_summary")
+            if isinstance(summary, Mapping):
+                total_advice = summary.get("total_advice")
+                if isinstance(total_advice, int) and total_advice > 0:
+                    has_non_zero_advice = True
+            advice_items = payload.get("advice_items")
+            if not isinstance(advice_items, list):
+                continue
+            for advice_item in advice_items:
+                if not isinstance(advice_item, Mapping):
+                    continue
+                advice_code = advice_item.get("advice_code")
+                if isinstance(advice_code, str):
+                    observed_codes.add(advice_code)
+    missing_codes = sorted(_FROZEN_VNEXT_PLUS21_NON_EMPTY_ADVICE_CODES - observed_codes)
+    if has_non_zero_advice and not missing_codes:
+        return True
+    issues.append(
+        _issue(
+            "URM_ADEU_NORMATIVE_ADVICE_FIXTURE_INVALID",
+            (
+                "vnext+21 normative-advice packet fixtures must include non-zero advice for "
+                "required advice codes"
+            ),
+            context={
+                "manifest_path": str(manifest_path),
+                "required_advice_codes": sorted(_FROZEN_VNEXT_PLUS21_NON_EMPTY_ADVICE_CODES),
+                "observed_advice_codes": sorted(observed_codes),
+                "has_non_zero_advice": has_non_zero_advice,
+                "missing_advice_codes": missing_codes,
+            },
+        )
+    )
+    return False
+
+
+def _load_vnext_plus21_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        return _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+21",
+            manifest_schema=VNEXT_PLUS21_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS21_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS21_NORMATIVE_ADVICE_SPECS,
+            frozen_surface_set=_FROZEN_NORMATIVE_ADVICE_SURFACE_SET,
+            frozen_surfaces=_FROZEN_NORMATIVE_ADVICE_SURFACES,
+            surface_description="frozen normative-advice surface id",
+            surface_set_description="frozen normative-advice surface ids",
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_NORMATIVE_ADVICE_FIXTURE_INVALID",
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_STOP_GATE_INPUT_INVALID": "URM_ADEU_NORMATIVE_ADVICE_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": (
+                    "URM_ADEU_NORMATIVE_ADVICE_FIXTURE_INVALID"
+                ),
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    "URM_ADEU_NORMATIVE_ADVICE_MANIFEST_HASH_MISMATCH"
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus21_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS21_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus21_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_NORMATIVE_ADVICE_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS21_DEFAULT_METRICS,
+            "vnext_plus21_manifest_hash": "",
+            "vnext_plus21_fixture_count_total": 0,
+            "vnext_plus21_replay_count_total": 0,
+        }
+
+    surface_hash_builders: dict[str, Callable[..., Any]] = {
+        "normative_advice_packet_fixtures": _normative_advice_packet_fixture_hash,
+        "normative_advice_projection_fixtures": _normative_advice_projection_fixture_hash,
+    }
+    surface_drift_messages = {
+        "normative_advice_packet_fixtures": "vnext+21 normative advice packet drift",
+        "normative_advice_projection_fixtures": "vnext+21 normative advice projection drift",
+    }
+
+    metric_values: dict[str, float] = {}
+    fixture_groups: list[list[dict[str, Any]]] = []
+    for fixture_key, metric_name, _surface_id, required_run_fields in (
+        _VNEXT_PLUS21_NORMATIVE_ADVICE_SPECS
+    ):
+        fixtures = cast(list[dict[str, Any]], manifest[fixture_key])
+        fixture_groups.append(fixtures)
+        metric_values[metric_name] = _manifest_metric_pct(
+            manifest_path=resolved_manifest_path,
+            metric_name=metric_name,
+            fixtures=fixtures,
+            replay_count=VNEXT_PLUS21_REPLAY_COUNT,
+            required_run_fields=required_run_fields,
+            run_hash_builder=surface_hash_builders[fixture_key],
+            issues=issues,
+            invalid_issue_code="URM_ADEU_NORMATIVE_ADVICE_FIXTURE_INVALID",
+            drift_issue_code="URM_ADEU_NORMATIVE_ADVICE_DIAGNOSTIC_DRIFT",
+            drift_issue_message=surface_drift_messages[fixture_key],
+        )
+
+    packet_fixtures = cast(
+        list[dict[str, Any]],
+        manifest["normative_advice_packet_fixtures"],
+    )
+    if not _validate_vnext_plus21_non_empty_floor(
+        manifest_path=resolved_manifest_path,
+        fixtures=packet_fixtures,
+        issues=issues,
+    ):
+        metric_values["artifact_normative_advice_packet_determinism_pct"] = 0.0
+
+    fixture_count_total = sum(len(fixtures) for fixtures in fixture_groups)
+    replay_count_total = sum(
+        len(cast(list[Any], fixture.get("runs", [])))
+        for fixtures in fixture_groups
+        for fixture in fixtures
+    )
+
+    return {
+        **metric_values,
+        "vnext_plus21_manifest_hash": manifest_hash,
+        "vnext_plus21_fixture_count_total": fixture_count_total,
+        "vnext_plus21_replay_count_total": replay_count_total,
+    }
+
+
 def build_stop_gate_metrics(
     *,
     incident_packet_paths: list[Path],
@@ -7634,6 +8482,7 @@ def build_stop_gate_metrics(
     vnext_plus18_manifest_path: Path | None = None,
     vnext_plus19_manifest_path: Path | None = None,
     vnext_plus20_manifest_path: Path | None = None,
+    vnext_plus21_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -8023,6 +8872,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus20_manifest_path,
         issues=issues,
     )
+    vnext_plus21_metrics = _compute_vnext_plus21_metrics(
+        manifest_path=vnext_plus21_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -8091,10 +8944,12 @@ def build_stop_gate_metrics(
         total_fixtures=(
             int(vnext_plus19_metrics["vnext_plus19_fixture_count_total"])
             + int(vnext_plus20_metrics["vnext_plus20_fixture_count_total"])
+            + int(vnext_plus21_metrics["vnext_plus21_fixture_count_total"])
         ),
         total_replays=(
             int(vnext_plus19_metrics["vnext_plus19_replay_count_total"])
             + int(vnext_plus20_metrics["vnext_plus20_replay_count_total"])
+            + int(vnext_plus21_metrics["vnext_plus21_replay_count_total"])
         ),
         runtime_started=runtime_started,
     )
@@ -8259,6 +9114,12 @@ def build_stop_gate_metrics(
         "artifact_cross_ir_quality_projection_determinism_pct": vnext_plus20_metrics[
             "artifact_cross_ir_quality_projection_determinism_pct"
         ],
+        "artifact_normative_advice_packet_determinism_pct": vnext_plus21_metrics[
+            "artifact_normative_advice_packet_determinism_pct"
+        ],
+        "artifact_normative_advice_projection_determinism_pct": vnext_plus21_metrics[
+            "artifact_normative_advice_projection_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -8394,6 +9255,14 @@ def build_stop_gate_metrics(
             "artifact_cross_ir_quality_projection_determinism_pct"
         ]
         >= THRESHOLDS["artifact_cross_ir_quality_projection_determinism_pct"],
+        "artifact_normative_advice_packet_determinism": metrics[
+            "artifact_normative_advice_packet_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_normative_advice_packet_determinism_pct"],
+        "artifact_normative_advice_projection_determinism": metrics[
+            "artifact_normative_advice_projection_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_normative_advice_projection_determinism_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -8484,6 +9353,11 @@ def build_stop_gate_metrics(
                 if vnext_plus20_manifest_path is not None
                 else VNEXT_PLUS20_MANIFEST_PATH
             ),
+            "vnext_plus21_manifest_path": str(
+                vnext_plus21_manifest_path
+                if vnext_plus21_manifest_path is not None
+                else VNEXT_PLUS21_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -8497,6 +9371,7 @@ def build_stop_gate_metrics(
         "vnext_plus18_manifest_hash": vnext_plus18_metrics["vnext_plus18_manifest_hash"],
         "vnext_plus19_manifest_hash": vnext_plus19_metrics["vnext_plus19_manifest_hash"],
         "vnext_plus20_manifest_hash": vnext_plus20_metrics["vnext_plus20_manifest_hash"],
+        "vnext_plus21_manifest_hash": vnext_plus21_metrics["vnext_plus21_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -8532,6 +9407,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+18 manifest hash: `{report.get('vnext_plus18_manifest_hash')}`")
     lines.append(f"- vnext+19 manifest hash: `{report.get('vnext_plus19_manifest_hash')}`")
     lines.append(f"- vnext+20 manifest hash: `{report.get('vnext_plus20_manifest_hash')}`")
+    lines.append(f"- vnext+21 manifest hash: `{report.get('vnext_plus21_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -8765,6 +9641,14 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('artifact_cross_ir_quality_projection_determinism_pct')}`"
     )
     lines.append(
+        "- artifact normative advice packet determinism pct: "
+        f"`{metrics.get('artifact_normative_advice_packet_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact normative advice projection determinism pct: "
+        f"`{metrics.get('artifact_normative_advice_projection_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -8937,6 +9821,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS20_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus21-manifest",
+        dest="vnext_plus21_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS21_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -8965,6 +9855,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus18_manifest_path=args.vnext_plus18_manifest_path,
         vnext_plus19_manifest_path=args.vnext_plus19_manifest_path,
         vnext_plus20_manifest_path=args.vnext_plus20_manifest_path,
+        vnext_plus21_manifest_path=args.vnext_plus21_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
