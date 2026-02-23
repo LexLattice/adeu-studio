@@ -19,6 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 from .cross_ir_bridge_vnext_plus20 import (
     CrossIRBridgeVnextPlus20Error,
     build_cross_ir_bridge_manifest_vnext_plus20,
+    list_cross_ir_catalog_pairs_vnext_plus20,
 )
 from .hashing import canonical_json, sha256_text
 
@@ -31,6 +32,7 @@ VNEXT_PLUS23_STOP_GATE_MANIFEST_PATH = (
     Path(__file__).resolve().parents[2] / "fixtures" / "stop_gate" / "vnext_plus23_manifest.json"
 )
 SEMANTICS_V4_CANDIDATE_PACKET_SCHEMA = "adeu_semantics_v4_candidate_packet@0.1"
+SEMANTICS_V4_CANDIDATE_PROJECTION_SCHEMA = "semantics_v4_candidate_projection.vnext_plus23@1"
 
 _TRUST_PACKET_SURFACE_ID = "adeu.trust_invariant.packet"
 _SEMANTICS_V4_PACKET_SURFACE_ID = "adeu.semantics_v4_candidate.packet"
@@ -158,6 +160,62 @@ class _VnextPlus23StopGateManifest(BaseModel):
     semantics_v4_candidate_packet_fixtures: list[_SemanticsV4CandidatePacketFixture] = Field(
         default_factory=list
     )
+
+
+class SemanticsV4CandidateProjectionVnextPlus23(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["semantics_v4_candidate_projection.vnext_plus23@1"] = (
+        SEMANTICS_V4_CANDIDATE_PROJECTION_SCHEMA
+    )
+    bridge_pair_count: int = Field(ge=0)
+    comparison_item_count: int = Field(ge=0)
+    comparison_counts_by_code: dict[str, int] = Field(default_factory=dict)
+    comparison_counts_by_status: dict[str, int] = Field(default_factory=dict)
+    comparison_counts_by_severity: dict[str, int] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "SemanticsV4CandidateProjectionVnextPlus23":
+        if list(self.comparison_counts_by_code.keys()) != sorted(
+            self.comparison_counts_by_code.keys()
+        ):
+            raise ValueError("comparison_counts_by_code keys must be lexicographically sorted")
+        if any(key not in _COMPARISON_MESSAGE_BY_CODE for key in self.comparison_counts_by_code):
+            raise ValueError("comparison_counts_by_code contains unsupported comparison_code")
+        if any(value < 0 for value in self.comparison_counts_by_code.values()):
+            raise ValueError("comparison_counts_by_code values must be non-negative integers")
+
+        if list(self.comparison_counts_by_status.keys()) != sorted(
+            self.comparison_counts_by_status.keys()
+        ):
+            raise ValueError("comparison_counts_by_status keys must be lexicographically sorted")
+        if any(key not in {"compatible", "drift"} for key in self.comparison_counts_by_status):
+            raise ValueError("comparison_counts_by_status contains unsupported status value")
+        if any(value < 0 for value in self.comparison_counts_by_status.values()):
+            raise ValueError("comparison_counts_by_status values must be non-negative integers")
+
+        if list(self.comparison_counts_by_severity.keys()) != sorted(
+            self.comparison_counts_by_severity.keys()
+        ):
+            raise ValueError("comparison_counts_by_severity keys must be lexicographically sorted")
+        if any(key not in {"high", "low", "medium"} for key in self.comparison_counts_by_severity):
+            raise ValueError("comparison_counts_by_severity contains unsupported severity value")
+        if any(value < 0 for value in self.comparison_counts_by_severity.values()):
+            raise ValueError("comparison_counts_by_severity values must be non-negative integers")
+
+        if self.comparison_item_count != sum(self.comparison_counts_by_code.values()):
+            raise ValueError(
+                "comparison_item_count must equal sum(comparison_counts_by_code.values())"
+            )
+        if self.comparison_item_count != sum(self.comparison_counts_by_status.values()):
+            raise ValueError(
+                "comparison_item_count must equal sum(comparison_counts_by_status.values())"
+            )
+        if self.comparison_item_count != sum(self.comparison_counts_by_severity.values()):
+            raise ValueError(
+                "comparison_item_count must equal sum(comparison_counts_by_severity.values())"
+            )
+        return self
 
 
 class _SemanticsDiagnosticsWitnessRef(BaseModel):
@@ -1078,3 +1136,86 @@ def build_semantics_v4_candidate_packet_vnext_plus23(
         ) from exc
 
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def build_semantics_v4_candidate_projection_vnext_plus23(
+    *,
+    catalog_path: Path | None = None,
+    trust_manifest_path: Path | None = None,
+    semantics_manifest_path: Path | None = None,
+) -> SemanticsV4CandidateProjectionVnextPlus23:
+    _require_semantics_v4_candidate_non_enforcement_context(
+        operation="build_semantics_v4_candidate_projection_vnext_plus23"
+    )
+    try:
+        pairs = list_cross_ir_catalog_pairs_vnext_plus20(catalog_path=catalog_path)
+    except CrossIRBridgeVnextPlus20Error as exc:
+        raise _cross_ir_error_to_semantics_v4(exc) from exc
+
+    pair_tuples: list[tuple[str, str, str]] = []
+    for pair in pairs:
+        source_text_hash = pair.get("source_text_hash")
+        core_ir_artifact_id = pair.get("core_ir_artifact_id")
+        concept_artifact_id = pair.get("concept_artifact_id")
+        if (
+            not isinstance(source_text_hash, str)
+            or not source_text_hash
+            or not isinstance(core_ir_artifact_id, str)
+            or not core_ir_artifact_id
+            or not isinstance(concept_artifact_id, str)
+            or not concept_artifact_id
+        ):
+            raise _semantics_v4_candidate_error(
+                code="URM_ADEU_SEMANTICS_V4_PAYLOAD_INVALID",
+                reason="catalog pair entry is invalid for semantics-v4 candidate projection",
+                context={"pair": dict(pair)},
+            )
+        pair_tuples.append((source_text_hash, core_ir_artifact_id, concept_artifact_id))
+
+    pair_tuples = sorted(pair_tuples)
+
+    comparison_item_count = 0
+    comparison_counts_by_code: Counter[str] = Counter()
+    comparison_counts_by_status: Counter[str] = Counter()
+    comparison_counts_by_severity: Counter[str] = Counter()
+    for source_text_hash, core_ir_artifact_id, concept_artifact_id in pair_tuples:
+        packet = build_semantics_v4_candidate_packet_vnext_plus23(
+            source_text_hash=source_text_hash,
+            core_ir_artifact_id=core_ir_artifact_id,
+            concept_artifact_id=concept_artifact_id,
+            catalog_path=catalog_path,
+            trust_manifest_path=trust_manifest_path,
+            semantics_manifest_path=semantics_manifest_path,
+        )
+        comparison_items = packet["comparison_items"]
+        comparison_item_count += len(comparison_items)
+        for comparison_item in comparison_items:
+            comparison_counts_by_code[str(comparison_item["comparison_code"])] += 1
+            comparison_counts_by_status[str(comparison_item["status"])] += 1
+            comparison_counts_by_severity[str(comparison_item["severity"])] += 1
+
+    projection_payload = {
+        "schema": SEMANTICS_V4_CANDIDATE_PROJECTION_SCHEMA,
+        "bridge_pair_count": len(pair_tuples),
+        "comparison_item_count": comparison_item_count,
+        "comparison_counts_by_code": {
+            code: comparison_counts_by_code[code] for code in sorted(comparison_counts_by_code)
+        },
+        "comparison_counts_by_status": {
+            status: comparison_counts_by_status[status]
+            for status in sorted(comparison_counts_by_status)
+        },
+        "comparison_counts_by_severity": {
+            severity: comparison_counts_by_severity[severity]
+            for severity in sorted(comparison_counts_by_severity)
+        },
+    }
+    try:
+        normalized = SemanticsV4CandidateProjectionVnextPlus23.model_validate(projection_payload)
+    except ValidationError as exc:
+        raise _semantics_v4_candidate_error(
+            code="URM_ADEU_SEMANTICS_V4_PAYLOAD_INVALID",
+            reason="semantics-v4 candidate projection payload failed schema validation",
+            context={"error": str(exc)},
+        ) from exc
+    return normalized
