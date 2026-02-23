@@ -11,6 +11,7 @@ import adeu_api.openai_provider as openai_provider
 import pytest
 from adeu_api.cross_ir_bridge_vnext_plus20 import (
     CROSS_IR_CATALOG_PATH,
+    CrossIRCatalog,
     build_cross_ir_bridge_manifest_vnext_plus20,
     list_cross_ir_catalog_pairs_vnext_plus20,
 )
@@ -65,22 +66,11 @@ def _exercise_cross_ir_builders_under_c4_guards() -> None:
 
 def _cross_ir_mutable_surface_paths() -> list[Path]:
     catalog_path = CROSS_IR_CATALOG_PATH.resolve()
-    payload = _load_json(catalog_path)
-    if payload.get("schema") != "cross_ir.vnext_plus20_catalog@1":
-        raise AssertionError("expected cross_ir.vnext_plus20_catalog@1 schema")
-
-    artifact_refs = payload.get("artifact_refs")
-    if not isinstance(artifact_refs, list):
-        raise AssertionError("catalog artifact_refs must be a list")
+    catalog = CrossIRCatalog.model_validate(_load_json(catalog_path))
 
     paths: set[Path] = {catalog_path}
-    for artifact_ref in artifact_refs:
-        if not isinstance(artifact_ref, dict):
-            raise AssertionError("catalog artifact_ref entries must be objects")
-        raw_path = artifact_ref.get("path")
-        if not isinstance(raw_path, str) or not raw_path:
-            raise AssertionError("catalog artifact_ref path must be a non-empty string")
-        artifact_path = Path(raw_path)
+    for artifact_ref in catalog.artifact_refs:
+        artifact_path = Path(artifact_ref.path)
         if not artifact_path.is_absolute():
             artifact_path = catalog_path.parent / artifact_path
         paths.add(artifact_path.resolve())
