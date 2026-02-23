@@ -138,8 +138,10 @@ from .hashing import canonical_json, sha256_canonical_json, sha256_text
 from .id_canonicalization import canonicalize_ir_ids
 from .mock_provider import load_fixture_bundles
 from .normative_advice_vnext_plus21 import (
+    NormativeAdviceProjectionVnextPlus21,
     NormativeAdviceVnextPlus21Error,
     build_normative_advice_packet_vnext_plus21,
+    build_normative_advice_projection_vnext_plus21,
 )
 from .openai_concept_provider import propose_concept_codex, propose_concept_openai
 from .puzzle_id_canonicalization import canonicalize_puzzle_ids
@@ -6380,6 +6382,29 @@ def get_urm_normative_advice_pair_endpoint(
 
     _set_read_surface_cache_header(response)
     return AdeuNormativeAdvicePacket.model_validate(payload)
+
+
+@app.get(
+    "/urm/normative-advice/projection",
+    response_model=NormativeAdviceProjectionVnextPlus21,
+)
+def get_urm_normative_advice_projection_endpoint(
+    response: Response,
+) -> NormativeAdviceProjectionVnextPlus21:
+    try:
+        projection = build_normative_advice_projection_vnext_plus21()
+    except NormativeAdviceVnextPlus21Error as exc:
+        raise HTTPException(
+            status_code=_normative_advice_status_code(exc.code),
+            detail=_normative_advice_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+    _set_read_surface_cache_header(response)
+    return projection
 
 
 @app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)
