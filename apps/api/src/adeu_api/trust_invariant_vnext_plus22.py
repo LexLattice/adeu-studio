@@ -20,6 +20,7 @@ from .cross_ir_bridge_vnext_plus20 import (
     CrossIRBridgeVnextPlus20Error,
     build_cross_ir_bridge_manifest_vnext_plus20,
     canonical_bridge_manifest_hash_vnext_plus20,
+    list_cross_ir_catalog_pairs_vnext_plus20,
 )
 from .cross_ir_coherence_vnext_plus20 import AdeuCrossIRCoherenceDiagnostics
 from .hashing import canonical_json, sha256_text
@@ -33,8 +34,18 @@ VNEXT_PLUS21_STOP_GATE_MANIFEST_PATH = (
     Path(__file__).resolve().parents[2] / "fixtures" / "stop_gate" / "vnext_plus21_manifest.json"
 )
 TRUST_INVARIANT_PACKET_SCHEMA = "adeu_trust_invariant_packet@0.1"
+TRUST_INVARIANT_PROJECTION_SCHEMA = "trust_invariant_projection.vnext_plus22@1"
 _COHERENCE_SURFACE_ID = "adeu.cross_ir.coherence_diagnostics"
 _NORMATIVE_ADVICE_PACKET_SURFACE_ID = "adeu.normative_advice.packet"
+_TRUST_INVARIANT_CODES = frozenset(
+    {
+        "CANONICAL_JSON_CONFORMANCE",
+        "HASH_RECOMPUTE_MATCH",
+        "MANIFEST_CHAIN_STABILITY",
+        "REPLAY_HASH_STABILITY",
+    }
+)
+_TRUST_INVARIANT_STATUSES = frozenset({"pass", "fail"})
 _TRUST_INVARIANT_NON_ENFORCEMENT_CONTEXT: ContextVar[bool] = ContextVar(
     "trust_invariant_non_enforcement_context",
     default=False,
@@ -117,6 +128,48 @@ class _VnextPlus21StopGateManifest(BaseModel):
     normative_advice_packet_fixtures: list[_NormativeAdvicePacketFixture] = Field(
         default_factory=list
     )
+
+
+class TrustInvariantProjectionVnextPlus22(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["trust_invariant_projection.vnext_plus22@1"] = (
+        TRUST_INVARIANT_PROJECTION_SCHEMA
+    )
+    bridge_pair_count: int = Field(ge=0)
+    proof_item_count: int = Field(ge=0)
+    proof_counts_by_invariant_code: dict[str, int] = Field(default_factory=dict)
+    proof_counts_by_status: dict[str, int] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "TrustInvariantProjectionVnextPlus22":
+        if list(self.proof_counts_by_invariant_code.keys()) != sorted(
+            self.proof_counts_by_invariant_code.keys()
+        ):
+            raise ValueError(
+                "proof_counts_by_invariant_code keys must be lexicographically sorted"
+            )
+        if any(key not in _TRUST_INVARIANT_CODES for key in self.proof_counts_by_invariant_code):
+            raise ValueError("proof_counts_by_invariant_code contains unsupported invariant_code")
+        if any(value < 0 for value in self.proof_counts_by_invariant_code.values()):
+            raise ValueError("proof_counts_by_invariant_code values must be non-negative integers")
+
+        if list(self.proof_counts_by_status.keys()) != sorted(
+            self.proof_counts_by_status.keys()
+        ):
+            raise ValueError("proof_counts_by_status keys must be lexicographically sorted")
+        if any(key not in _TRUST_INVARIANT_STATUSES for key in self.proof_counts_by_status):
+            raise ValueError("proof_counts_by_status contains unsupported status value")
+        if any(value < 0 for value in self.proof_counts_by_status.values()):
+            raise ValueError("proof_counts_by_status values must be non-negative integers")
+
+        if self.proof_item_count != sum(self.proof_counts_by_invariant_code.values()):
+            raise ValueError(
+                "proof_item_count must equal sum(proof_counts_by_invariant_code.values())"
+            )
+        if self.proof_item_count != sum(self.proof_counts_by_status.values()):
+            raise ValueError("proof_item_count must equal sum(proof_counts_by_status.values())")
+        return self
 
 
 def _trust_invariant_error(
@@ -974,3 +1027,80 @@ def build_trust_invariant_packet_vnext_plus22(
         ) from exc
 
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def build_trust_invariant_projection_vnext_plus22(
+    *,
+    catalog_path: Path | None = None,
+    coherence_manifest_path: Path | None = None,
+    normative_advice_manifest_path: Path | None = None,
+) -> TrustInvariantProjectionVnextPlus22:
+    _require_trust_invariant_non_enforcement_context(
+        operation="build_trust_invariant_projection_vnext_plus22"
+    )
+    try:
+        pairs = list_cross_ir_catalog_pairs_vnext_plus20(catalog_path=catalog_path)
+    except CrossIRBridgeVnextPlus20Error as exc:
+        raise _cross_ir_error_to_trust(exc) from exc
+
+    pair_tuples: list[tuple[str, str, str]] = []
+    for pair in pairs:
+        source_text_hash = pair.get("source_text_hash")
+        core_ir_artifact_id = pair.get("core_ir_artifact_id")
+        concept_artifact_id = pair.get("concept_artifact_id")
+        if (
+            not isinstance(source_text_hash, str)
+            or not source_text_hash
+            or not isinstance(core_ir_artifact_id, str)
+            or not core_ir_artifact_id
+            or not isinstance(concept_artifact_id, str)
+            or not concept_artifact_id
+        ):
+            raise _trust_invariant_error(
+                code="URM_ADEU_TRUST_INVARIANT_PAYLOAD_INVALID",
+                reason="catalog pair entry is invalid for trust-invariant projection",
+                context={"pair": dict(pair)},
+            )
+        pair_tuples.append((source_text_hash, core_ir_artifact_id, concept_artifact_id))
+
+    pair_tuples = sorted(pair_tuples)
+
+    proof_item_count = 0
+    proof_counts_by_invariant_code: Counter[str] = Counter()
+    proof_counts_by_status: Counter[str] = Counter()
+    for source_text_hash, core_ir_artifact_id, concept_artifact_id in pair_tuples:
+        packet = build_trust_invariant_packet_vnext_plus22(
+            source_text_hash=source_text_hash,
+            core_ir_artifact_id=core_ir_artifact_id,
+            concept_artifact_id=concept_artifact_id,
+            catalog_path=catalog_path,
+            coherence_manifest_path=coherence_manifest_path,
+            normative_advice_manifest_path=normative_advice_manifest_path,
+        )
+        proof_items = packet["proof_items"]
+        proof_item_count += len(proof_items)
+        for proof_item in proof_items:
+            proof_counts_by_invariant_code[str(proof_item["invariant_code"])] += 1
+            proof_counts_by_status[str(proof_item["status"])] += 1
+
+    projection_payload = {
+        "schema": TRUST_INVARIANT_PROJECTION_SCHEMA,
+        "bridge_pair_count": len(pair_tuples),
+        "proof_item_count": proof_item_count,
+        "proof_counts_by_invariant_code": {
+            code: proof_counts_by_invariant_code[code]
+            for code in sorted(proof_counts_by_invariant_code)
+        },
+        "proof_counts_by_status": {
+            status: proof_counts_by_status[status] for status in sorted(proof_counts_by_status)
+        },
+    }
+    try:
+        normalized = TrustInvariantProjectionVnextPlus22.model_validate(projection_payload)
+    except Exception as exc:
+        raise _trust_invariant_error(
+            code="URM_ADEU_TRUST_INVARIANT_PAYLOAD_INVALID",
+            reason="trust-invariant projection payload failed schema validation",
+            context={"error": str(exc)},
+        ) from exc
+    return normalized
