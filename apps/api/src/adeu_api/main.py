@@ -156,8 +156,10 @@ from .semantic_depth_builder import (
     build_semantic_depth_report_payload,
 )
 from .semantics_v4_candidate_vnext_plus23 import (
+    SemanticsV4CandidateProjectionVnextPlus23,
     SemanticsV4CandidateVnextPlus23Error,
     build_semantics_v4_candidate_packet_vnext_plus23,
+    build_semantics_v4_candidate_projection_vnext_plus23,
     semantics_v4_candidate_non_enforcement_context,
 )
 from .source_features import extract_source_features
@@ -6574,6 +6576,30 @@ def get_urm_semantics_v4_pair_endpoint(
 
     _set_read_surface_cache_header(response)
     return AdeuSemanticsV4CandidatePacket.model_validate(payload)
+
+
+@app.get(
+    "/urm/semantics-v4/projection",
+    response_model=SemanticsV4CandidateProjectionVnextPlus23,
+)
+def get_urm_semantics_v4_projection_endpoint(
+    response: Response,
+) -> SemanticsV4CandidateProjectionVnextPlus23:
+    try:
+        with semantics_v4_candidate_non_enforcement_context():
+            projection = build_semantics_v4_candidate_projection_vnext_plus23()
+    except SemanticsV4CandidateVnextPlus23Error as exc:
+        raise HTTPException(
+            status_code=_semantics_v4_status_code(exc.code),
+            detail=_semantics_v4_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+    _set_read_surface_cache_header(response)
+    return projection
 
 
 @app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)
