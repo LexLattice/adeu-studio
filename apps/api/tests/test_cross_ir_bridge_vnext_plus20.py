@@ -29,6 +29,27 @@ def _vnext_plus20_pair() -> dict[str, str]:
     }
 
 
+def _absolutize_catalog_artifact_paths(
+    *,
+    payload: dict[str, object],
+    catalog_path: Path,
+) -> None:
+    catalog_dir = catalog_path.parent
+    artifact_refs = payload.get("artifact_refs")
+    if not isinstance(artifact_refs, list):
+        return
+    for artifact_ref in artifact_refs:
+        if not isinstance(artifact_ref, dict):
+            continue
+        artifact_path_value = artifact_ref.get("path")
+        if not isinstance(artifact_path_value, str):
+            continue
+        artifact_path = Path(artifact_path_value)
+        if artifact_path.is_absolute():
+            continue
+        artifact_ref["path"] = str((catalog_dir / artifact_path).resolve())
+
+
 def test_list_cross_ir_catalog_pairs_is_sorted_and_complete() -> None:
     assert list_cross_ir_catalog_pairs_vnext_plus20() == [_vnext_plus20_pair()]
 
@@ -80,6 +101,7 @@ def test_build_cross_ir_bridge_manifest_fails_when_catalog_core_hash_mismatches(
         _repo_root() / "apps" / "api" / "fixtures" / "cross_ir" / "vnext_plus20_catalog.json"
     )
     payload = json.loads(catalog_path.read_text(encoding="utf-8"))
+    _absolutize_catalog_artifact_paths(payload=payload, catalog_path=catalog_path)
     payload["entries"][0]["source_text_hash"] = "f" * 64
 
     patched_catalog_path = tmp_path / "vnext_plus20_catalog.json"
@@ -105,3 +127,30 @@ def test_canonical_bridge_manifest_hash_excludes_mapping_hash_and_created_at() -
     mutated["created_at"] = "2030-01-01T00:00:00Z"
 
     assert canonical_bridge_manifest_hash_vnext_plus20(mutated) == baseline_hash
+
+
+def test_build_cross_ir_bridge_manifest_fails_when_intentional_allowlist_drifts(
+    tmp_path: Path,
+) -> None:
+    catalog_path = (
+        _repo_root() / "apps" / "api" / "fixtures" / "cross_ir" / "vnext_plus20_catalog.json"
+    )
+    payload = json.loads(catalog_path.read_text(encoding="utf-8"))
+    _absolutize_catalog_artifact_paths(payload=payload, catalog_path=catalog_path)
+    payload["entries"][0]["intentional_core_ir_only_object_ids"] = ["not_in_unmapped_set"]
+
+    patched_catalog_path = tmp_path / "vnext_plus20_catalog.json"
+    patched_catalog_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(CrossIRBridgeVnextPlus20Error) as exc_info:
+        build_cross_ir_bridge_manifest_vnext_plus20(
+            source_text_hash="3d956a90a9f1433816149bcb70e300afdcca6d303bdc119cea8f0657222c32aa",
+            core_ir_artifact_id="core_ir.case_a_1",
+            concept_artifact_id="concept.case_a_1",
+            catalog_path=patched_catalog_path,
+        )
+
+    assert exc_info.value.code == "URM_ADEU_CROSS_IR_FIXTURE_INVALID"
+    assert exc_info.value.context["missing_intentional_core_ir_only_object_ids"] == [
+        "not_in_unmapped_set"
+    ]

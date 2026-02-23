@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Iterator, Mapping
-from contextlib import contextmanager
+from collections.abc import Mapping
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal, NamedTuple
 
@@ -295,20 +295,9 @@ def _cross_ir_bridge_error(
     return CrossIRBridgeVnextPlus20Error(code=code, reason=reason, context=context)
 
 
-@contextmanager
-def _catalog_path_override(catalog_path: Path | None) -> Iterator[None]:
-    global CROSS_IR_CATALOG_PATH
-
-    if catalog_path is None:
-        yield
-        return
-
-    previous = CROSS_IR_CATALOG_PATH
-    CROSS_IR_CATALOG_PATH = Path(catalog_path)
-    try:
-        yield
-    finally:
-        CROSS_IR_CATALOG_PATH = previous
+def _resolved_catalog_path(catalog_path: Path | None) -> Path:
+    selected = CROSS_IR_CATALOG_PATH if catalog_path is None else Path(catalog_path)
+    return selected.resolve()
 
 
 def _load_json_payload(*, path: Path, artifact_ref_id: str) -> dict[str, Any]:
@@ -380,20 +369,22 @@ def _validate_concept_payload(
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
-def _catalog_index() -> _CrossIRCatalogIndex:
+@lru_cache(maxsize=16)
+def _catalog_index_for_path(catalog_path_value: str) -> _CrossIRCatalogIndex:
+    catalog_path = Path(catalog_path_value)
     try:
-        raw_payload = CROSS_IR_CATALOG_PATH.read_text(encoding="utf-8")
+        raw_payload = catalog_path.read_text(encoding="utf-8")
     except FileNotFoundError as exc:
         raise _cross_ir_bridge_error(
             code="URM_ADEU_CROSS_IR_FIXTURE_INVALID",
             reason="cross-ir catalog fixture is missing",
-            context={"path": str(CROSS_IR_CATALOG_PATH)},
+            context={"path": str(catalog_path)},
         ) from exc
     except OSError as exc:
         raise _cross_ir_bridge_error(
             code="URM_ADEU_CROSS_IR_FIXTURE_INVALID",
             reason="cross-ir catalog fixture is unreadable",
-            context={"path": str(CROSS_IR_CATALOG_PATH), "error": str(exc)},
+            context={"path": str(catalog_path), "error": str(exc)},
         ) from exc
 
     try:
@@ -402,14 +393,14 @@ def _catalog_index() -> _CrossIRCatalogIndex:
         raise _cross_ir_bridge_error(
             code="URM_ADEU_CROSS_IR_FIXTURE_INVALID",
             reason="cross-ir catalog JSON is invalid",
-            context={"path": str(CROSS_IR_CATALOG_PATH), "error": exc.msg},
+            context={"path": str(catalog_path), "error": exc.msg},
         ) from exc
 
     if not isinstance(parsed, dict):
         raise _cross_ir_bridge_error(
             code="URM_ADEU_CROSS_IR_FIXTURE_INVALID",
             reason="cross-ir catalog payload must be an object",
-            context={"path": str(CROSS_IR_CATALOG_PATH)},
+            context={"path": str(catalog_path)},
         )
 
     try:
@@ -418,10 +409,9 @@ def _catalog_index() -> _CrossIRCatalogIndex:
         raise _cross_ir_bridge_error(
             code="URM_ADEU_CROSS_IR_FIXTURE_INVALID",
             reason="cross-ir catalog payload failed schema validation",
-            context={"path": str(CROSS_IR_CATALOG_PATH), "error": str(exc)},
+            context={"path": str(catalog_path), "error": str(exc)},
         ) from exc
 
-    catalog_path = CROSS_IR_CATALOG_PATH.resolve()
     artifact_refs_by_id = {
         artifact_ref.artifact_ref_id: artifact_ref for artifact_ref in catalog.artifact_refs
     }
@@ -509,6 +499,11 @@ def _catalog_index() -> _CrossIRCatalogIndex:
         concept_payloads_by_id=concept_payloads_by_id,
         entries_by_identity=entries_by_identity,
     )
+
+
+def _catalog_index(*, catalog_path: Path | None = None) -> _CrossIRCatalogIndex:
+    resolved_catalog_path = _resolved_catalog_path(catalog_path)
+    return _catalog_index_for_path(str(resolved_catalog_path))
 
 
 def _concept_has_provenance(raw: Mapping[str, Any]) -> bool:
@@ -683,8 +678,7 @@ def list_cross_ir_catalog_pairs_vnext_plus20(
     *,
     catalog_path: Path | None = None,
 ) -> list[dict[str, str]]:
-    with _catalog_path_override(catalog_path):
-        index = _catalog_index()
+    index = _catalog_index(catalog_path=catalog_path)
 
     identities = sorted(index.entries_by_identity.keys())
     return [
@@ -706,22 +700,21 @@ def build_cross_ir_bridge_manifest_vnext_plus20(
 ) -> dict[str, Any]:
     identity = (source_text_hash, core_ir_artifact_id, concept_artifact_id)
 
-    with _catalog_path_override(catalog_path):
-        index = _catalog_index()
-        entry = index.entries_by_identity.get(identity)
-        if entry is None:
-            raise _cross_ir_bridge_error(
-                code="URM_ADEU_CROSS_IR_ARTIFACT_NOT_FOUND",
-                reason="cross-ir pair identity not found in catalog",
-                context={
-                    "source_text_hash": source_text_hash,
-                    "core_ir_artifact_id": core_ir_artifact_id,
-                    "concept_artifact_id": concept_artifact_id,
-                },
-            )
+    index = _catalog_index(catalog_path=catalog_path)
+    entry = index.entries_by_identity.get(identity)
+    if entry is None:
+        raise _cross_ir_bridge_error(
+            code="URM_ADEU_CROSS_IR_ARTIFACT_NOT_FOUND",
+            reason="cross-ir pair identity not found in catalog",
+            context={
+                "source_text_hash": source_text_hash,
+                "core_ir_artifact_id": core_ir_artifact_id,
+                "concept_artifact_id": concept_artifact_id,
+            },
+        )
 
-        core_payload = index.core_payloads_by_id[entry.core_ir_artifact_id]
-        concept_payload = index.concept_payloads_by_id[entry.concept_artifact_id]
+    core_payload = index.core_payloads_by_id[entry.core_ir_artifact_id]
+    concept_payload = index.concept_payloads_by_id[entry.concept_artifact_id]
 
     concept_objects = _concept_objects(concept_payload)
     core_objects = _core_objects(core_payload)
@@ -729,6 +722,41 @@ def build_cross_ir_bridge_manifest_vnext_plus20(
         concept_objects=concept_objects,
         core_objects=core_objects,
     )
+    missing_intentional_concept_only = sorted(
+        set(entry.intentional_concept_only_object_ids) - set(unmapped_concept_objects)
+    )
+    if missing_intentional_concept_only:
+        raise _cross_ir_bridge_error(
+            code="URM_ADEU_CROSS_IR_FIXTURE_INVALID",
+            reason=(
+                "catalog intentional_concept_only_object_ids must be present in "
+                "computed unmapped_concept_objects"
+            ),
+            context={
+                "source_text_hash": source_text_hash,
+                "core_ir_artifact_id": core_ir_artifact_id,
+                "concept_artifact_id": concept_artifact_id,
+                "missing_intentional_concept_only_object_ids": missing_intentional_concept_only,
+            },
+        )
+
+    missing_intentional_core_ir_only = sorted(
+        set(entry.intentional_core_ir_only_object_ids) - set(unmapped_core_ir_objects)
+    )
+    if missing_intentional_core_ir_only:
+        raise _cross_ir_bridge_error(
+            code="URM_ADEU_CROSS_IR_FIXTURE_INVALID",
+            reason=(
+                "catalog intentional_core_ir_only_object_ids must be present in "
+                "computed unmapped_core_ir_objects"
+            ),
+            context={
+                "source_text_hash": source_text_hash,
+                "core_ir_artifact_id": core_ir_artifact_id,
+                "concept_artifact_id": concept_artifact_id,
+                "missing_intentional_core_ir_only_object_ids": missing_intentional_core_ir_only,
+            },
+        )
 
     manifest = AdeuCrossIRBridgeManifest(
         source_text_hash=entry.source_text_hash,
