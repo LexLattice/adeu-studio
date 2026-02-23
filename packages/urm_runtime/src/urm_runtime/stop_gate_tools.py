@@ -10709,12 +10709,14 @@ def _compute_vnext_plus23_metrics(
         issues=issues,
     ):
         metric_values["artifact_semantics_v4_candidate_packet_determinism_pct"] = 0.0
+        metric_values["artifact_semantics_v4_candidate_projection_determinism_pct"] = 0.0
     if not _validate_vnext_plus23_non_empty_floor(
         manifest_path=resolved_manifest_path,
         fixtures=packet_fixtures,
         issues=issues,
     ):
         metric_values["artifact_semantics_v4_candidate_packet_determinism_pct"] = 0.0
+        metric_values["artifact_semantics_v4_candidate_projection_determinism_pct"] = 0.0
 
     fixture_count_total = sum(len(fixtures) for fixtures in fixture_groups)
     replay_count_total = sum(
@@ -11238,8 +11240,20 @@ def build_stop_gate_metrics(
             + int(vnext_plus22_metrics["vnext_plus22_replay_count_total"])
             + int(vnext_plus23_metrics["vnext_plus23_replay_count_total"])
         ),
-        bytes_hashed_per_replay=int(vnext_plus23_metrics["vnext_plus23_bytes_hashed_per_replay"]),
-        bytes_hashed_total=int(vnext_plus23_metrics["vnext_plus23_bytes_hashed_total"]),
+        bytes_hashed_per_replay=(
+            int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_per_replay", 0))
+            + int(vnext_plus20_metrics.get("vnext_plus20_bytes_hashed_per_replay", 0))
+            + int(vnext_plus21_metrics.get("vnext_plus21_bytes_hashed_per_replay", 0))
+            + int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_per_replay", 0))
+            + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_per_replay", 0))
+        ),
+        bytes_hashed_total=(
+            int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_total", 0))
+            + int(vnext_plus20_metrics.get("vnext_plus20_bytes_hashed_total", 0))
+            + int(vnext_plus21_metrics.get("vnext_plus21_bytes_hashed_total", 0))
+            + int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_total", 0))
+            + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_total", 0))
+        ),
         runtime_started=runtime_started,
     )
     runtime_budget_metric_pct, runtime_budget_issue = _runtime_budget_metric_pct(

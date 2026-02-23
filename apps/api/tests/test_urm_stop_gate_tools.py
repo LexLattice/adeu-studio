@@ -3699,9 +3699,9 @@ def test_build_stop_gate_metrics_rejects_vnext_plus23_missing_non_empty_floor(
     assert report["valid"] is False
     assert report["all_passed"] is False
     assert report["metrics"]["artifact_semantics_v4_candidate_packet_determinism_pct"] == 0.0
-    assert report["metrics"]["artifact_semantics_v4_candidate_projection_determinism_pct"] == 100.0
+    assert report["metrics"]["artifact_semantics_v4_candidate_projection_determinism_pct"] == 0.0
     assert report["gates"]["artifact_semantics_v4_candidate_packet_determinism"] is False
-    assert report["gates"]["artifact_semantics_v4_candidate_projection_determinism"] is True
+    assert report["gates"]["artifact_semantics_v4_candidate_projection_determinism"] is False
     assert any(
         issue.get("code") == "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID"
         and issue.get("message")
@@ -3748,6 +3748,9 @@ def test_build_stop_gate_metrics_rejects_vnext_plus23_missing_upstream_lane_refs
     assert report["valid"] is False
     assert report["all_passed"] is False
     assert report["metrics"]["artifact_semantics_v4_candidate_packet_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_semantics_v4_candidate_projection_determinism_pct"] == 0.0
+    assert report["gates"]["artifact_semantics_v4_candidate_packet_determinism"] is False
+    assert report["gates"]["artifact_semantics_v4_candidate_projection_determinism"] is False
     assert any(
         issue.get("code") == "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID"
         and issue.get("message")
