@@ -1,4 +1,4 @@
-# Locked Continuation vNext+20 (Draft Lock)
+# Locked Continuation vNext+20 (Frozen Lock)
 
 This document drafts the next arc after:
 
@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: frozen lock implemented on `main` (`C1`-`C4` merged); closeout decision draft captured in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS20.md`.
 
 Decision basis:
 
@@ -19,6 +19,27 @@ Decision basis:
   - deterministic cross-IR coherence diagnostics artifact family second
   - additive stop-gate determinism metrics for coherence payload stability third
   - explicit no-mutation and no-provider-expansion continuity fourth
+
+Implementation closeout snapshot (February 23, 2026 UTC):
+
+- merged implementation PRs on `main`:
+  - `#163` (`C1`): `4b91ed0`
+  - `#164` (`C2`): `f64116b`
+  - `#165` (`C3`): `c4da270`
+  - `#166` (`C4`): `b95d8ac`
+- merged CI evidence:
+  - `#163` merge run `22288640426` (`success`)
+  - `#164` merge run `22289150373` (`success`)
+  - `#165` merge run `22289563667` (`success`)
+  - `#166` merge run `22289763284` (`success`)
+- deterministic closeout artifact refresh:
+  - quality dashboard JSON: `artifacts/quality_dashboard_v20_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v20_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v20_closeout.md`
+  - transfer report: `docs/CROSS_IR_COHERENCE_TRANSFER_REPORT_vNEXT_PLUS20.md`
+- closeout commands:
+  - `TZ=UTC LC_ALL=C PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard_v20_closeout.json`
+  - `TZ=UTC LC_ALL=C PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python apps/api/scripts/build_stop_gate_metrics.py --quality-current artifacts/quality_dashboard_v20_closeout.json --quality-baseline artifacts/quality_dashboard_v20_closeout.json --vnext-plus20-manifest apps/api/fixtures/stop_gate/vnext_plus20_manifest.json --out-json artifacts/stop_gate/metrics_v20_closeout.json --out-md artifacts/stop_gate/report_v20_closeout.md`
 
 ## Global Locks
 
@@ -73,7 +94,7 @@ Decision basis:
   - v19 read-only endpoint semantics remain authoritative.
   - this arc layers deterministic cross-IR diagnostics over persisted artifacts and may not weaken v19 read determinism constraints.
 
-## Arc Scope (Draft Lock)
+## Arc Scope (Frozen Lock)
 
 This arc proposes Path S4 thin slice only:
 
@@ -531,7 +552,7 @@ Keep v20 cross-IR coherence activation strictly read-only and prevent silent dri
 - No mutation side effects are observed for cross-IR calls on locked fixtures.
 - No-mutation tests include deterministic pre/post storage snapshot hash equality assertions.
 
-## Error-Code Policy (Draft Lock)
+## Error-Code Policy (Frozen Lock)
 
 - Reuse existing URM/common codes where applicable.
 - New codes are allowed only when needed, must be deterministic, and must be prefixed `URM_`.
@@ -559,7 +580,7 @@ Keep v20 cross-IR coherence activation strictly read-only and prevent silent dri
 4. `docs: add vnext_plus20 cross-ir coherence transfer report and closeout scaffold`
 5. `tests: add deterministic vnext_plus20 replay fixtures, NoProviderCallsGuard coverage, and no-mutation snapshot assertions`
 
-## Intermediate Stage Preconditions And Outputs (Draft)
+## Intermediate Stage Preconditions And Outputs (Completed Snapshot)
 
 Before implementation PR1 for `vNext+20`, confirm v19 preconditions are frozen/merged and prepare v20 scaffolding artifacts:
 
@@ -571,7 +592,7 @@ Before implementation PR1 for `vNext+20`, confirm v19 preconditions are frozen/m
 6. deterministic env helper hook-up for cross-IR stop-gate/report entrypoints (`TZ=UTC`, `LC_ALL=C`)
 7. draft closeout skeleton `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS20.md` for end-of-arc evidence capture
 
-## Exit Criteria (Draft)
+## Exit Criteria (Closeout Snapshot)
 
 - `C1`-`C4` merged with green CI.
 - `artifact_cross_ir_bridge_mapping_determinism_pct == 100.0` on locked fixtures.
