@@ -286,6 +286,19 @@ class _CoreObject:
     kind: CrossIRCoreKind
 
 
+class CrossIRPairArtifactsVnextPlus20(NamedTuple):
+    source_text_hash: str
+    core_ir_artifact_id: str
+    concept_artifact_id: str
+    bridge_mapping_version: str
+    mapping_hash: str
+    created_at: str | None
+    intentional_concept_only_object_ids: tuple[str, ...]
+    intentional_core_ir_only_object_ids: tuple[str, ...]
+    core_payload: dict[str, Any]
+    concept_payload: dict[str, Any]
+
+
 def _cross_ir_bridge_error(
     *,
     code: str,
@@ -506,6 +519,40 @@ def _catalog_index(*, catalog_path: Path | None = None) -> _CrossIRCatalogIndex:
     return _catalog_index_for_path(str(resolved_catalog_path))
 
 
+def load_cross_ir_pair_artifacts_vnext_plus20(
+    *,
+    source_text_hash: str,
+    core_ir_artifact_id: str,
+    concept_artifact_id: str,
+    catalog_path: Path | None = None,
+) -> CrossIRPairArtifactsVnextPlus20:
+    index = _catalog_index(catalog_path=catalog_path)
+    identity = (source_text_hash, core_ir_artifact_id, concept_artifact_id)
+    entry = index.entries_by_identity.get(identity)
+    if entry is None:
+        raise _cross_ir_bridge_error(
+            code="URM_ADEU_CROSS_IR_ARTIFACT_NOT_FOUND",
+            reason="cross-ir pair identity not found in catalog",
+            context={
+                "source_text_hash": source_text_hash,
+                "core_ir_artifact_id": core_ir_artifact_id,
+                "concept_artifact_id": concept_artifact_id,
+            },
+        )
+    return CrossIRPairArtifactsVnextPlus20(
+        source_text_hash=entry.source_text_hash,
+        core_ir_artifact_id=entry.core_ir_artifact_id,
+        concept_artifact_id=entry.concept_artifact_id,
+        bridge_mapping_version=entry.bridge_mapping_version,
+        mapping_hash=entry.mapping_hash,
+        created_at=entry.created_at,
+        intentional_concept_only_object_ids=tuple(entry.intentional_concept_only_object_ids),
+        intentional_core_ir_only_object_ids=tuple(entry.intentional_core_ir_only_object_ids),
+        core_payload=index.core_payloads_by_id[entry.core_ir_artifact_id],
+        concept_payload=index.concept_payloads_by_id[entry.concept_artifact_id],
+    )
+
+
 def _concept_has_provenance(raw: Mapping[str, Any]) -> bool:
     provenance = raw.get("provenance")
     if not isinstance(provenance, Mapping):
@@ -698,23 +745,15 @@ def build_cross_ir_bridge_manifest_vnext_plus20(
     concept_artifact_id: str,
     catalog_path: Path | None = None,
 ) -> dict[str, Any]:
-    identity = (source_text_hash, core_ir_artifact_id, concept_artifact_id)
+    artifacts = load_cross_ir_pair_artifacts_vnext_plus20(
+        source_text_hash=source_text_hash,
+        core_ir_artifact_id=core_ir_artifact_id,
+        concept_artifact_id=concept_artifact_id,
+        catalog_path=catalog_path,
+    )
 
-    index = _catalog_index(catalog_path=catalog_path)
-    entry = index.entries_by_identity.get(identity)
-    if entry is None:
-        raise _cross_ir_bridge_error(
-            code="URM_ADEU_CROSS_IR_ARTIFACT_NOT_FOUND",
-            reason="cross-ir pair identity not found in catalog",
-            context={
-                "source_text_hash": source_text_hash,
-                "core_ir_artifact_id": core_ir_artifact_id,
-                "concept_artifact_id": concept_artifact_id,
-            },
-        )
-
-    core_payload = index.core_payloads_by_id[entry.core_ir_artifact_id]
-    concept_payload = index.concept_payloads_by_id[entry.concept_artifact_id]
+    core_payload = artifacts.core_payload
+    concept_payload = artifacts.concept_payload
 
     concept_objects = _concept_objects(concept_payload)
     core_objects = _core_objects(core_payload)
@@ -723,7 +762,7 @@ def build_cross_ir_bridge_manifest_vnext_plus20(
         core_objects=core_objects,
     )
     missing_intentional_concept_only = sorted(
-        set(entry.intentional_concept_only_object_ids) - set(unmapped_concept_objects)
+        set(artifacts.intentional_concept_only_object_ids) - set(unmapped_concept_objects)
     )
     if missing_intentional_concept_only:
         raise _cross_ir_bridge_error(
@@ -741,7 +780,7 @@ def build_cross_ir_bridge_manifest_vnext_plus20(
         )
 
     missing_intentional_core_ir_only = sorted(
-        set(entry.intentional_core_ir_only_object_ids) - set(unmapped_core_ir_objects)
+        set(artifacts.intentional_core_ir_only_object_ids) - set(unmapped_core_ir_objects)
     )
     if missing_intentional_core_ir_only:
         raise _cross_ir_bridge_error(
@@ -759,15 +798,15 @@ def build_cross_ir_bridge_manifest_vnext_plus20(
         )
 
     manifest = AdeuCrossIRBridgeManifest(
-        source_text_hash=entry.source_text_hash,
-        core_ir_artifact_id=entry.core_ir_artifact_id,
-        concept_artifact_id=entry.concept_artifact_id,
-        bridge_mapping_version=entry.bridge_mapping_version,
-        mapping_hash=entry.mapping_hash,
+        source_text_hash=artifacts.source_text_hash,
+        core_ir_artifact_id=artifacts.core_ir_artifact_id,
+        concept_artifact_id=artifacts.concept_artifact_id,
+        bridge_mapping_version=artifacts.bridge_mapping_version,
+        mapping_hash=artifacts.mapping_hash,
         entries=entries,
         unmapped_concept_objects=unmapped_concept_objects,
         unmapped_core_ir_objects=unmapped_core_ir_objects,
-        created_at=entry.created_at,
+        created_at=artifacts.created_at,
     )
     return manifest.model_dump(mode="json", by_alias=True, exclude_none=True)
 
