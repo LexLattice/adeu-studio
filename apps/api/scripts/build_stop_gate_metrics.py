@@ -21,6 +21,8 @@ _ACTIVE_MANIFEST_VERSIONS: tuple[int, ...] = (
     19,
     20,
     21,
+    22,
+    23,
 )
 
 
