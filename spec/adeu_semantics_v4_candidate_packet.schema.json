@@ -1,0 +1,198 @@
+{
+  "$defs": {
+    "SemanticsV4CandidateComparisonItem": {
+      "additionalProperties": false,
+      "properties": {
+        "comparison_code": {
+          "enum": [
+            "STATUS_SET_CONTINUITY_REVIEW",
+            "ASSURANCE_SET_CONTINUITY_REVIEW",
+            "REQUEST_FORMULA_HASH_CONTINUITY_REVIEW",
+            "WITNESS_REF_STRUCTURE_REVIEW"
+          ],
+          "title": "Comparison Code",
+          "type": "string"
+        },
+        "comparison_id": {
+          "maxLength": 16,
+          "minLength": 16,
+          "title": "Comparison Id",
+          "type": "string"
+        },
+        "expected_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Hash"
+        },
+        "justification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Justification Refs",
+          "type": "array"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "observed_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Hash"
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "compatible",
+            "drift"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "comparison_id",
+        "comparison_code",
+        "status",
+        "severity",
+        "message"
+      ],
+      "title": "SemanticsV4CandidateComparisonItem",
+      "type": "object"
+    },
+    "SemanticsV4CandidateComparisonSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "compatible_checks": {
+          "minimum": 0,
+          "title": "Compatible Checks",
+          "type": "integer"
+        },
+        "counts_by_code": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Code",
+          "type": "object"
+        },
+        "counts_by_severity": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Severity",
+          "type": "object"
+        },
+        "counts_by_status": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Status",
+          "type": "object"
+        },
+        "drift_checks": {
+          "minimum": 0,
+          "title": "Drift Checks",
+          "type": "integer"
+        },
+        "total_comparisons": {
+          "minimum": 0,
+          "title": "Total Comparisons",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_comparisons",
+        "compatible_checks",
+        "drift_checks"
+      ],
+      "title": "SemanticsV4CandidateComparisonSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "baseline_semantics_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Baseline Semantics Hash",
+      "type": "string"
+    },
+    "candidate_semantics_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Candidate Semantics Hash",
+      "type": "string"
+    },
+    "comparison_items": {
+      "items": {
+        "$ref": "#/$defs/SemanticsV4CandidateComparisonItem"
+      },
+      "title": "Comparison Items",
+      "type": "array"
+    },
+    "comparison_summary": {
+      "$ref": "#/$defs/SemanticsV4CandidateComparisonSummary"
+    },
+    "concept_artifact_id": {
+      "minLength": 1,
+      "title": "Concept Artifact Id",
+      "type": "string"
+    },
+    "core_ir_artifact_id": {
+      "minLength": 1,
+      "title": "Core Ir Artifact Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_semantics_v4_candidate_packet@0.1",
+      "default": "adeu_semantics_v4_candidate_packet@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "minLength": 1,
+      "title": "Source Text Hash",
+      "type": "string"
+    },
+    "trust_invariant_packet_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Trust Invariant Packet Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "core_ir_artifact_id",
+    "concept_artifact_id",
+    "trust_invariant_packet_hash",
+    "baseline_semantics_hash",
+    "candidate_semantics_hash",
+    "comparison_summary"
+  ],
+  "title": "AdeuSemanticsV4CandidatePacket",
+  "type": "object"
+}
