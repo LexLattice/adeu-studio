@@ -142,6 +142,16 @@ VNEXT_PLUS19_DEFAULT_METRICS = {
     "artifact_lane_read_surface_determinism_pct": 0.0,
     "artifact_integrity_read_surface_determinism_pct": 0.0,
 }
+VNEXT_PLUS20_REPLAY_COUNT = 3
+VNEXT_PLUS20_MANIFEST_SCHEMA = "stop_gate.vnext_plus20_manifest@1"
+VNEXT_PLUS20_DEFAULT_METRICS = {
+    "artifact_cross_ir_bridge_mapping_determinism_pct": 0.0,
+    "artifact_cross_ir_coherence_diagnostics_determinism_pct": 0.0,
+    "artifact_cross_ir_quality_projection_determinism_pct": 0.0,
+}
+CROSS_IR_BRIDGE_MANIFEST_SCHEMA = "adeu_cross_ir_bridge_manifest@0.1"
+CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA = "adeu_cross_ir_coherence_diagnostics@0.1"
+CROSS_IR_QUALITY_PROJECTION_SCHEMA = "cross_ir_quality_projection.vnext_plus20@1"
 _READ_SURFACE_LANE_CAPTURE_SCHEMA = "adeu_lane_read_surface_capture@0.1"
 _READ_SURFACE_INTEGRITY_CAPTURE_SCHEMA = "adeu_integrity_read_surface_capture@0.1"
 _FROZEN_READ_SURFACE_INTEGRITY_FAMILIES: tuple[str, ...] = (
@@ -192,6 +202,19 @@ _FROZEN_READ_SURFACE_SURFACES: tuple[str, ...] = (
     "adeu.read_surface.integrity",
 )
 _FROZEN_READ_SURFACE_SURFACE_SET = frozenset(_FROZEN_READ_SURFACE_SURFACES)
+_FROZEN_CROSS_IR_SURFACES: tuple[str, ...] = (
+    "adeu.cross_ir.bridge_mapping",
+    "adeu.cross_ir.coherence_diagnostics",
+    "adeu.cross_ir.quality_projection",
+)
+_FROZEN_CROSS_IR_SURFACE_SET = frozenset(_FROZEN_CROSS_IR_SURFACES)
+_FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES = frozenset(
+    {
+        "MISSING_CONCEPT_MAPPING",
+        "MISSING_CORE_IR_MAPPING",
+        "SOURCE_HASH_MISMATCH",
+    }
+)
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -247,6 +270,9 @@ THRESHOLDS = {
     "artifact_core_ir_read_surface_determinism_pct": 100.0,
     "artifact_lane_read_surface_determinism_pct": 100.0,
     "artifact_integrity_read_surface_determinism_pct": 100.0,
+    "artifact_cross_ir_bridge_mapping_determinism_pct": 100.0,
+    "artifact_cross_ir_coherence_diagnostics_determinism_pct": 100.0,
+    "artifact_cross_ir_quality_projection_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -325,6 +351,10 @@ def _default_vnext_plus19_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus19_manifest.json")
 
 
+def _default_vnext_plus20_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus20_manifest.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
@@ -337,6 +367,7 @@ VNEXT_PLUS16_MANIFEST_PATH = _default_vnext_plus16_manifest_path()
 VNEXT_PLUS17_MANIFEST_PATH = _default_vnext_plus17_manifest_path()
 VNEXT_PLUS18_MANIFEST_PATH = _default_vnext_plus18_manifest_path()
 VNEXT_PLUS19_MANIFEST_PATH = _default_vnext_plus19_manifest_path()
+VNEXT_PLUS20_MANIFEST_PATH = _default_vnext_plus20_manifest_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -5213,6 +5244,27 @@ _VNEXT_PLUS19_READ_SURFACE_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
     ),
 )
 
+_VNEXT_PLUS20_CROSS_IR_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "cross_ir_bridge_mapping_fixtures",
+        "artifact_cross_ir_bridge_mapping_determinism_pct",
+        "adeu.cross_ir.bridge_mapping",
+        ("cross_ir_bridge_mapping_path",),
+    ),
+    (
+        "cross_ir_coherence_diagnostics_fixtures",
+        "artifact_cross_ir_coherence_diagnostics_determinism_pct",
+        "adeu.cross_ir.coherence_diagnostics",
+        ("cross_ir_coherence_diagnostics_path",),
+    ),
+    (
+        "cross_ir_quality_projection_fixtures",
+        "artifact_cross_ir_quality_projection_determinism_pct",
+        "adeu.cross_ir.quality_projection",
+        ("cross_ir_quality_projection_path",),
+    ),
+)
+
 
 def _validate_integrity_surface_fixtures(
     *,
@@ -6500,6 +6552,463 @@ def _read_surface_projection_hash(payload: Mapping[str, Any]) -> str:
     return sha256_canonical_json(_strip_created_at_fields(payload))
 
 
+def _is_lower_sha256(value: Any) -> bool:
+    return isinstance(value, str) and len(value) == 64 and all(
+        char in "0123456789abcdef" for char in value
+    )
+
+
+def _validate_cross_ir_capture_keys(
+    *,
+    payload: Mapping[str, Any],
+    required_keys: set[str],
+    path: Path,
+) -> None:
+    observed_keys = {str(key) for key in payload.keys()}
+    optional_keys = {"created_at"}
+    missing_keys = sorted(required_keys - observed_keys)
+    unexpected_keys = sorted(observed_keys - (required_keys | optional_keys))
+    if missing_keys or unexpected_keys:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir capture payload has unexpected key shape",
+                context={
+                    "path": str(path),
+                    "missing_keys": missing_keys,
+                    "unexpected_keys": unexpected_keys,
+                },
+            )
+        )
+
+
+def _cross_ir_bridge_mapping_fixture_hash(*, cross_ir_bridge_mapping_path: Path) -> str:
+    payload = _read_json_object(
+        cross_ir_bridge_mapping_path,
+        description="cross-ir bridge mapping fixture",
+    )
+    _validate_cross_ir_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "source_text_hash",
+            "core_ir_artifact_id",
+            "concept_artifact_id",
+            "bridge_mapping_version",
+            "mapping_hash",
+            "entries",
+            "unmapped_concept_objects",
+            "unmapped_core_ir_objects",
+        },
+        path=cross_ir_bridge_mapping_path,
+    )
+    if payload.get("schema") != CROSS_IR_BRIDGE_MANIFEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir bridge mapping schema is invalid",
+                context={
+                    "path": str(cross_ir_bridge_mapping_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    if payload.get("bridge_mapping_version") != "adeu_to_concepts.v1":
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir bridge mapping version is invalid",
+                context={
+                    "path": str(cross_ir_bridge_mapping_path),
+                    "bridge_mapping_version": payload.get("bridge_mapping_version"),
+                },
+            )
+        )
+    if not _is_lower_sha256(payload.get("mapping_hash")):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir bridge mapping mapping_hash must be lowercase sha256",
+                context={"path": str(cross_ir_bridge_mapping_path)},
+            )
+        )
+    entries = payload.get("entries")
+    unmapped_concept_objects = payload.get("unmapped_concept_objects")
+    unmapped_core_ir_objects = payload.get("unmapped_core_ir_objects")
+    if not isinstance(entries, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir bridge mapping entries must be a list",
+                context={"path": str(cross_ir_bridge_mapping_path)},
+            )
+        )
+    if not isinstance(unmapped_concept_objects, list) or not isinstance(
+        unmapped_core_ir_objects, list
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir bridge mapping unmapped fields must be lists",
+                context={"path": str(cross_ir_bridge_mapping_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _cross_ir_coherence_diagnostics_fixture_hash(
+    *, cross_ir_coherence_diagnostics_path: Path
+) -> str:
+    payload = _read_json_object(
+        cross_ir_coherence_diagnostics_path,
+        description="cross-ir coherence diagnostics fixture",
+    )
+    _validate_cross_ir_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "source_text_hash",
+            "core_ir_artifact_id",
+            "concept_artifact_id",
+            "bridge_manifest_hash",
+            "issue_summary",
+            "issues",
+        },
+        path=cross_ir_coherence_diagnostics_path,
+    )
+    if payload.get("schema") != CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics schema is invalid",
+                context={
+                    "path": str(cross_ir_coherence_diagnostics_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    if not _is_lower_sha256(payload.get("bridge_manifest_hash")):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics bridge_manifest_hash must be lowercase sha256",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    issue_summary = payload.get("issue_summary")
+    if not isinstance(issue_summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics issue_summary must be an object",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    summary_total = issue_summary.get("total_issues")
+    summary_by_code = issue_summary.get("counts_by_code")
+    summary_by_severity = issue_summary.get("counts_by_severity")
+    if not isinstance(summary_total, int) or summary_total < 0:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics total_issues must be a non-negative integer",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    if not isinstance(summary_by_code, Mapping) or not isinstance(summary_by_severity, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics summary counts must be objects",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    if list(summary_by_code.keys()) != sorted(summary_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics counts_by_code keys must be sorted",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in summary_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "cross-ir coherence diagnostics counts_by_code values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    if list(summary_by_severity.keys()) != sorted(summary_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics counts_by_severity keys must be sorted",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    if any(key not in {"error", "warn"} for key in summary_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics counts_by_severity keys must be warn|error",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in summary_by_severity.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "cross-ir coherence diagnostics counts_by_severity values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    issues = payload.get("issues")
+    if not isinstance(issues, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics issues must be a list",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    observed_counts_by_code: dict[str, int] = {}
+    observed_counts_by_severity: dict[str, int] = {}
+    for issue_index, issue in enumerate(issues):
+        if not isinstance(issue, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "cross-ir coherence diagnostics issue must be an object",
+                    context={
+                        "path": str(cross_ir_coherence_diagnostics_path),
+                        "issue_index": issue_index,
+                    },
+                )
+            )
+        issue_code = issue.get("issue_code")
+        severity = issue.get("severity")
+        if not isinstance(issue_code, str) or not issue_code:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "cross-ir coherence diagnostics issue_code must be a non-empty string",
+                    context={
+                        "path": str(cross_ir_coherence_diagnostics_path),
+                        "issue_index": issue_index,
+                    },
+                )
+            )
+        if severity not in {"warn", "error"}:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "cross-ir coherence diagnostics severity must be warn|error",
+                    context={
+                        "path": str(cross_ir_coherence_diagnostics_path),
+                        "issue_index": issue_index,
+                    },
+                )
+            )
+        observed_counts_by_code[issue_code] = observed_counts_by_code.get(issue_code, 0) + 1
+        observed_counts_by_severity[severity] = observed_counts_by_severity.get(severity, 0) + 1
+    if summary_total != len(issues):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics total_issues does not match issues length",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_code.items())) != {
+        str(key): value for key, value in summary_by_code.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics counts_by_code does not match issues",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_severity.items())) != {
+        str(key): value for key, value in summary_by_severity.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir coherence diagnostics counts_by_severity does not match issues",
+                context={"path": str(cross_ir_coherence_diagnostics_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _cross_ir_quality_projection_fixture_hash(*, cross_ir_quality_projection_path: Path) -> str:
+    payload = _read_json_object(
+        cross_ir_quality_projection_path,
+        description="cross-ir quality projection fixture",
+    )
+    _validate_cross_ir_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "bridge_pair_count",
+            "coherence_issue_count",
+            "coherence_counts_by_code",
+            "coherence_counts_by_severity",
+        },
+        path=cross_ir_quality_projection_path,
+    )
+    if payload.get("schema") != CROSS_IR_QUALITY_PROJECTION_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir quality projection schema is invalid",
+                context={
+                    "path": str(cross_ir_quality_projection_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    for key in ("bridge_pair_count", "coherence_issue_count"):
+        value = payload.get(key)
+        if not isinstance(value, int) or value < 0:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "cross-ir quality projection count field must be non-negative integer",
+                    context={"path": str(cross_ir_quality_projection_path), "key": key},
+                )
+            )
+    counts_by_code = payload.get("coherence_counts_by_code")
+    counts_by_severity = payload.get("coherence_counts_by_severity")
+    if not isinstance(counts_by_code, Mapping) or not isinstance(counts_by_severity, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir quality projection count maps must be objects",
+                context={"path": str(cross_ir_quality_projection_path)},
+            )
+        )
+    if list(counts_by_code.keys()) != sorted(counts_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir quality projection coherence_counts_by_code keys must be sorted",
+                context={"path": str(cross_ir_quality_projection_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "cross-ir quality projection coherence_counts_by_code values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(cross_ir_quality_projection_path)},
+            )
+        )
+    if list(counts_by_severity.keys()) != sorted(counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir quality projection coherence_counts_by_severity keys must be sorted",
+                context={"path": str(cross_ir_quality_projection_path)},
+            )
+        )
+    if any(key not in {"error", "warn"} for key in counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "cross-ir quality projection coherence_counts_by_severity keys must be warn|error",
+                context={"path": str(cross_ir_quality_projection_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_severity.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "cross-ir quality projection coherence_counts_by_severity values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(cross_ir_quality_projection_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _validate_vnext_plus20_non_empty_floor(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> bool:
+    observed_codes: set[str] = set()
+    has_non_zero_issues = False
+    for fixture in fixtures:
+        fixture_id = fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = "vnext_plus20_coherence_fixture"
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            continue
+        for run_index, run in enumerate(runs):
+            if not isinstance(run, dict):
+                continue
+            try:
+                diagnostics_path = _resolve_manifest_relative_path(
+                    manifest_path=manifest_path,
+                    raw_path=run.get("cross_ir_coherence_diagnostics_path"),
+                )
+                payload = _read_json_object(
+                    diagnostics_path,
+                    description="cross-ir coherence diagnostics fixture",
+                )
+            except ValueError:
+                continue
+            issue_summary = payload.get("issue_summary")
+            if isinstance(issue_summary, Mapping):
+                total_issues = issue_summary.get("total_issues")
+                if isinstance(total_issues, int) and total_issues > 0:
+                    has_non_zero_issues = True
+            payload_issues = payload.get("issues")
+            if isinstance(payload_issues, list):
+                for item in payload_issues:
+                    if not isinstance(item, Mapping):
+                        continue
+                    issue_code = item.get("issue_code")
+                    if isinstance(issue_code, str):
+                        observed_codes.add(issue_code)
+    missing_codes = sorted(_FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES - observed_codes)
+    if has_non_zero_issues and not missing_codes:
+        return True
+    issues.append(
+        _issue(
+            "URM_ADEU_CROSS_IR_FIXTURE_INVALID",
+            (
+                "vnext+20 coherence fixtures must include non-zero diagnostics for required "
+                "issue codes"
+            ),
+            context={
+                "manifest_path": str(manifest_path),
+                "required_issue_codes": sorted(_FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES),
+                "observed_issue_codes": sorted(observed_codes),
+                "has_non_zero_issues": has_non_zero_issues,
+                "missing_issue_codes": missing_codes,
+            },
+        )
+    )
+    return False
+
+
 def _validate_read_surface_envelope_keys(
     *,
     payload: Mapping[str, Any],
@@ -6985,6 +7494,124 @@ def _compute_vnext_plus19_metrics(
     }
 
 
+def _load_vnext_plus20_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        return _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+20",
+            manifest_schema=VNEXT_PLUS20_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS20_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS20_CROSS_IR_SPECS,
+            frozen_surface_set=_FROZEN_CROSS_IR_SURFACE_SET,
+            frozen_surfaces=_FROZEN_CROSS_IR_SURFACES,
+            surface_description="frozen cross-ir surface id",
+            surface_set_description="frozen cross-ir surface ids",
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_CROSS_IR_FIXTURE_INVALID",
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_STOP_GATE_INPUT_INVALID": "URM_ADEU_CROSS_IR_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": "URM_ADEU_CROSS_IR_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    "URM_ADEU_CROSS_IR_MANIFEST_HASH_MISMATCH"
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus20_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS20_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus20_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_CROSS_IR_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS20_DEFAULT_METRICS,
+            "vnext_plus20_manifest_hash": "",
+            "vnext_plus20_fixture_count_total": 0,
+            "vnext_plus20_replay_count_total": 0,
+        }
+
+    surface_hash_builders: dict[str, Callable[..., Any]] = {
+        "cross_ir_bridge_mapping_fixtures": _cross_ir_bridge_mapping_fixture_hash,
+        "cross_ir_coherence_diagnostics_fixtures": (
+            _cross_ir_coherence_diagnostics_fixture_hash
+        ),
+        "cross_ir_quality_projection_fixtures": _cross_ir_quality_projection_fixture_hash,
+    }
+    surface_drift_messages = {
+        "cross_ir_bridge_mapping_fixtures": "vnext+20 bridge mapping diagnostic drift",
+        "cross_ir_coherence_diagnostics_fixtures": (
+            "vnext+20 coherence diagnostics drift"
+        ),
+        "cross_ir_quality_projection_fixtures": "vnext+20 quality projection drift",
+    }
+
+    metric_values: dict[str, float] = {}
+    fixture_groups: list[list[dict[str, Any]]] = []
+    for fixture_key, metric_name, _surface_id, required_run_fields in _VNEXT_PLUS20_CROSS_IR_SPECS:
+        fixtures = cast(list[dict[str, Any]], manifest[fixture_key])
+        fixture_groups.append(fixtures)
+        metric_values[metric_name] = _manifest_metric_pct(
+            manifest_path=resolved_manifest_path,
+            metric_name=metric_name,
+            fixtures=fixtures,
+            replay_count=VNEXT_PLUS20_REPLAY_COUNT,
+            required_run_fields=required_run_fields,
+            run_hash_builder=surface_hash_builders[fixture_key],
+            issues=issues,
+            invalid_issue_code="URM_ADEU_CROSS_IR_FIXTURE_INVALID",
+            drift_issue_code="URM_ADEU_CROSS_IR_DIAGNOSTIC_DRIFT",
+            drift_issue_message=surface_drift_messages[fixture_key],
+        )
+
+    coherence_fixtures = cast(
+        list[dict[str, Any]],
+        manifest["cross_ir_coherence_diagnostics_fixtures"],
+    )
+    if not _validate_vnext_plus20_non_empty_floor(
+        manifest_path=resolved_manifest_path,
+        fixtures=coherence_fixtures,
+        issues=issues,
+    ):
+        metric_values["artifact_cross_ir_coherence_diagnostics_determinism_pct"] = 0.0
+
+    fixture_count_total = sum(len(fixtures) for fixtures in fixture_groups)
+    replay_count_total = sum(
+        len(cast(list[Any], fixture.get("runs", [])))
+        for fixtures in fixture_groups
+        for fixture in fixtures
+    )
+
+    return {
+        **metric_values,
+        "vnext_plus20_manifest_hash": manifest_hash,
+        "vnext_plus20_fixture_count_total": fixture_count_total,
+        "vnext_plus20_replay_count_total": replay_count_total,
+    }
+
+
 def build_stop_gate_metrics(
     *,
     incident_packet_paths: list[Path],
@@ -7006,6 +7633,7 @@ def build_stop_gate_metrics(
     vnext_plus17_manifest_path: Path | None = None,
     vnext_plus18_manifest_path: Path | None = None,
     vnext_plus19_manifest_path: Path | None = None,
+    vnext_plus20_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -7391,6 +8019,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus19_manifest_path,
         issues=issues,
     )
+    vnext_plus20_metrics = _compute_vnext_plus20_metrics(
+        manifest_path=vnext_plus20_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -7456,8 +8088,14 @@ def build_stop_gate_metrics(
             quality_delta_non_negative = bool(quality_checks) and all(quality_checks)
 
     runtime_observability = _runtime_observability_payload(
-        total_fixtures=int(vnext_plus19_metrics["vnext_plus19_fixture_count_total"]),
-        total_replays=int(vnext_plus19_metrics["vnext_plus19_replay_count_total"]),
+        total_fixtures=(
+            int(vnext_plus19_metrics["vnext_plus19_fixture_count_total"])
+            + int(vnext_plus20_metrics["vnext_plus20_fixture_count_total"])
+        ),
+        total_replays=(
+            int(vnext_plus19_metrics["vnext_plus19_replay_count_total"])
+            + int(vnext_plus20_metrics["vnext_plus20_replay_count_total"])
+        ),
         runtime_started=runtime_started,
     )
     runtime_budget_metric_pct, runtime_budget_issue = _runtime_budget_metric_pct(
@@ -7612,6 +8250,15 @@ def build_stop_gate_metrics(
         "artifact_integrity_read_surface_determinism_pct": vnext_plus19_metrics[
             "artifact_integrity_read_surface_determinism_pct"
         ],
+        "artifact_cross_ir_bridge_mapping_determinism_pct": vnext_plus20_metrics[
+            "artifact_cross_ir_bridge_mapping_determinism_pct"
+        ],
+        "artifact_cross_ir_coherence_diagnostics_determinism_pct": vnext_plus20_metrics[
+            "artifact_cross_ir_coherence_diagnostics_determinism_pct"
+        ],
+        "artifact_cross_ir_quality_projection_determinism_pct": vnext_plus20_metrics[
+            "artifact_cross_ir_quality_projection_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -7735,6 +8382,18 @@ def build_stop_gate_metrics(
             "artifact_integrity_read_surface_determinism_pct"
         ]
         >= THRESHOLDS["artifact_integrity_read_surface_determinism_pct"],
+        "artifact_cross_ir_bridge_mapping_determinism": metrics[
+            "artifact_cross_ir_bridge_mapping_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_cross_ir_bridge_mapping_determinism_pct"],
+        "artifact_cross_ir_coherence_diagnostics_determinism": metrics[
+            "artifact_cross_ir_coherence_diagnostics_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_cross_ir_coherence_diagnostics_determinism_pct"],
+        "artifact_cross_ir_quality_projection_determinism": metrics[
+            "artifact_cross_ir_quality_projection_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_cross_ir_quality_projection_determinism_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -7820,6 +8479,11 @@ def build_stop_gate_metrics(
                 if vnext_plus19_manifest_path is not None
                 else VNEXT_PLUS19_MANIFEST_PATH
             ),
+            "vnext_plus20_manifest_path": str(
+                vnext_plus20_manifest_path
+                if vnext_plus20_manifest_path is not None
+                else VNEXT_PLUS20_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -7832,6 +8496,7 @@ def build_stop_gate_metrics(
         "vnext_plus17_manifest_hash": vnext_plus17_metrics["vnext_plus17_manifest_hash"],
         "vnext_plus18_manifest_hash": vnext_plus18_metrics["vnext_plus18_manifest_hash"],
         "vnext_plus19_manifest_hash": vnext_plus19_metrics["vnext_plus19_manifest_hash"],
+        "vnext_plus20_manifest_hash": vnext_plus20_metrics["vnext_plus20_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -7866,6 +8531,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+17 manifest hash: `{report.get('vnext_plus17_manifest_hash')}`")
     lines.append(f"- vnext+18 manifest hash: `{report.get('vnext_plus18_manifest_hash')}`")
     lines.append(f"- vnext+19 manifest hash: `{report.get('vnext_plus19_manifest_hash')}`")
+    lines.append(f"- vnext+20 manifest hash: `{report.get('vnext_plus20_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -8087,6 +8753,18 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('artifact_integrity_read_surface_determinism_pct')}`"
     )
     lines.append(
+        "- artifact cross-ir bridge mapping determinism pct: "
+        f"`{metrics.get('artifact_cross_ir_bridge_mapping_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact cross-ir coherence diagnostics determinism pct: "
+        f"`{metrics.get('artifact_cross_ir_coherence_diagnostics_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact cross-ir quality projection determinism pct: "
+        f"`{metrics.get('artifact_cross_ir_quality_projection_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -8253,6 +8931,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS19_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus20-manifest",
+        dest="vnext_plus20_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS20_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -8280,6 +8964,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus17_manifest_path=args.vnext_plus17_manifest_path,
         vnext_plus18_manifest_path=args.vnext_plus18_manifest_path,
         vnext_plus19_manifest_path=args.vnext_plus19_manifest_path,
+        vnext_plus20_manifest_path=args.vnext_plus20_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:

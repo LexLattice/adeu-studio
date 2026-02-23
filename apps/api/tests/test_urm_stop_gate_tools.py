@@ -87,6 +87,10 @@ def _vnext_plus19_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus19_manifest.json"
 
 
+def _vnext_plus20_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus20_manifest.json"
+
+
 _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = {
     "domain_conformance_hash",
     "hash_excluded_fields",
@@ -574,6 +578,10 @@ def _vnext_plus19_manifest_payload() -> dict[str, object]:
     return json.loads(_vnext_plus19_manifest_path().read_text(encoding="utf-8"))
 
 
+def _vnext_plus20_manifest_payload() -> dict[str, object]:
+    return json.loads(_vnext_plus20_manifest_path().read_text(encoding="utf-8"))
+
+
 def _write_vnext_plus14_manifest_payload(
     *,
     tmp_path: Path,
@@ -802,6 +810,32 @@ def _write_vnext_plus19_manifest_payload(
     )
 
 
+def _write_vnext_plus20_manifest_payload(
+    *,
+    tmp_path: Path,
+    payload: dict[str, object],
+    filename: str = "vnext_plus20_manifest.json",
+) -> Path:
+    return _write_manifest_payload_with_rewritten_runs(
+        tmp_path=tmp_path,
+        payload=payload,
+        filename=filename,
+        manifest_label="vnext+20",
+        fixture_manifest_root=_vnext_plus20_manifest_path().parent,
+        fixture_specs=(
+            ("cross_ir_bridge_mapping_fixtures", ("cross_ir_bridge_mapping_path",)),
+            (
+                "cross_ir_coherence_diagnostics_fixtures",
+                ("cross_ir_coherence_diagnostics_path",),
+            ),
+            (
+                "cross_ir_quality_projection_fixtures",
+                ("cross_ir_quality_projection_path",),
+            ),
+        ),
+    )
+
+
 def _normalize_runtime_observability(report: dict[str, object]) -> dict[str, object]:
     normalized = json.loads(json.dumps(report))
     runtime_observability = normalized.get("runtime_observability")
@@ -860,6 +894,7 @@ def _vnext_plus13_to_19_manifest_kwargs() -> dict[str, Path]:
         **_vnext_plus13_to_17_manifest_kwargs(),
         "vnext_plus18_manifest_path": _vnext_plus18_manifest_path(),
         "vnext_plus19_manifest_path": _vnext_plus19_manifest_path(),
+        "vnext_plus20_manifest_path": _vnext_plus20_manifest_path(),
     }
 
 
@@ -919,6 +954,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "vnext_plus17_manifest_path": _vnext_plus17_manifest_path(),
         "vnext_plus18_manifest_path": _vnext_plus18_manifest_path(),
         "vnext_plus19_manifest_path": _vnext_plus19_manifest_path(),
+        "vnext_plus20_manifest_path": _vnext_plus20_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -969,6 +1005,9 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["artifact_core_ir_read_surface_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_lane_read_surface_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_integrity_read_surface_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_cross_ir_bridge_mapping_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_cross_ir_coherence_diagnostics_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_cross_ir_quality_projection_determinism_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -993,15 +1032,20 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert len(first["vnext_plus18_manifest_hash"]) == 64
     assert isinstance(first["vnext_plus19_manifest_hash"], str)
     assert len(first["vnext_plus19_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus20_manifest_hash"], str)
+    assert len(first["vnext_plus20_manifest_hash"]) == 64
     runtime_observability = first["runtime_observability"]
-    assert runtime_observability["total_fixtures"] == 3
-    assert runtime_observability["total_replays"] == 9
+    assert runtime_observability["total_fixtures"] == 6
+    assert runtime_observability["total_replays"] == 18
     assert isinstance(runtime_observability["elapsed_ms"], int)
     assert runtime_observability["elapsed_ms"] >= 0
     assert first["gates"]["artifact_stop_gate_ci_budget_within_ceiling"] is True
     assert first["gates"]["artifact_core_ir_read_surface_determinism"] is True
     assert first["gates"]["artifact_lane_read_surface_determinism"] is True
     assert first["gates"]["artifact_integrity_read_surface_determinism"] is True
+    assert first["gates"]["artifact_cross_ir_bridge_mapping_determinism"] is True
+    assert first["gates"]["artifact_cross_ir_coherence_diagnostics_determinism"] is True
+    assert first["gates"]["artifact_cross_ir_quality_projection_determinism"] is True
 
 
 def test_build_stop_gate_metrics_fails_when_runtime_budget_exceeds_ceiling(
@@ -2812,6 +2856,175 @@ def test_build_stop_gate_metrics_excludes_created_at_recursively_for_vnext_plus1
     )
 
 
+def test_build_stop_gate_metrics_rejects_vnext_plus20_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus20_manifest_payload()
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus20_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus20_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["artifact_cross_ir_bridge_mapping_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_cross_ir_coherence_diagnostics_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_cross_ir_quality_projection_determinism_pct"] == 0.0
+    assert report["vnext_plus20_manifest_hash"] == ""
+    assert any(
+        issue.get("code") == "URM_ADEU_CROSS_IR_MANIFEST_HASH_MISMATCH"
+        and issue.get("message") == "vnext+20 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_excludes_created_at_recursively_for_vnext_plus20(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    bridge_payload = json.loads(
+        (
+            _vnext_plus20_manifest_path().parent
+            / "vnext_plus20"
+            / "cross_ir_bridge_mapping_case_a_2.json"
+        ).read_text(encoding="utf-8")
+    )
+    bridge_payload["created_at"] = "2099-01-02T00:00:00Z"
+    bridge_payload_path = tmp_path / "cross_ir_bridge_mapping_case_a_2_created_at_drift.json"
+    _write_json(bridge_payload_path, bridge_payload)
+
+    manifest_payload = _vnext_plus20_manifest_payload()
+    bridge_fixtures = manifest_payload.get("cross_ir_bridge_mapping_fixtures")
+    assert isinstance(bridge_fixtures, list) and bridge_fixtures
+    bridge_fixture = bridge_fixtures[0]
+    assert isinstance(bridge_fixture, dict)
+    bridge_runs = bridge_fixture.get("runs")
+    assert isinstance(bridge_runs, list) and len(bridge_runs) == 3
+    assert isinstance(bridge_runs[1], dict)
+    bridge_runs[1]["cross_ir_bridge_mapping_path"] = str(bridge_payload_path)
+    manifest_path = _write_vnext_plus20_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus20_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is True
+    assert report["all_passed"] is True
+    assert report["metrics"]["artifact_cross_ir_bridge_mapping_determinism_pct"] == 100.0
+    assert report["metrics"]["artifact_cross_ir_coherence_diagnostics_determinism_pct"] == 100.0
+    assert report["metrics"]["artifact_cross_ir_quality_projection_determinism_pct"] == 100.0
+    assert not any(
+        issue.get("code") == "URM_ADEU_CROSS_IR_DIAGNOSTIC_DRIFT"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus20_missing_non_empty_floor(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    coherence_payload = json.loads(
+        (
+            _vnext_plus20_manifest_path().parent
+            / "vnext_plus20"
+            / "cross_ir_coherence_diagnostics_case_a_1.json"
+        ).read_text(encoding="utf-8")
+    )
+    coherence_payload["issue_summary"] = {
+        "total_issues": 1,
+        "counts_by_code": {"MISSING_CORE_IR_MAPPING": 1},
+        "counts_by_severity": {"warn": 1},
+    }
+    coherence_payload["issues"] = [
+        {
+            "issue_id": "50147aa1717df5a2",
+            "issue_code": "MISSING_CORE_IR_MAPPING",
+            "severity": "warn",
+            "concept_refs": [],
+            "core_ir_refs": ["u1"],
+            "message": (
+                "core-ir object is unmapped to concept and is not allowlisted as intentional"
+            ),
+            "evidence": {"kind": "unmapped", "side": "core_ir", "object_id": "u1"},
+        }
+    ]
+    coherence_payload_path = tmp_path / "cross_ir_coherence_diagnostics_missing_floor.json"
+    _write_json(coherence_payload_path, coherence_payload)
+
+    manifest_payload = _vnext_plus20_manifest_payload()
+    coherence_fixtures = manifest_payload.get("cross_ir_coherence_diagnostics_fixtures")
+    assert isinstance(coherence_fixtures, list) and coherence_fixtures
+    coherence_fixture = coherence_fixtures[0]
+    assert isinstance(coherence_fixture, dict)
+    coherence_runs = coherence_fixture.get("runs")
+    assert isinstance(coherence_runs, list) and len(coherence_runs) == 3
+    for run in coherence_runs:
+        assert isinstance(run, dict)
+        run["cross_ir_coherence_diagnostics_path"] = str(coherence_payload_path)
+    manifest_path = _write_vnext_plus20_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus20_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_cross_ir_bridge_mapping_determinism_pct"] == 100.0
+    assert report["metrics"]["artifact_cross_ir_coherence_diagnostics_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_cross_ir_quality_projection_determinism_pct"] == 100.0
+    assert any(
+        issue.get("code") == "URM_ADEU_CROSS_IR_FIXTURE_INVALID"
+        and issue.get("message")
+        == "vnext+20 coherence fixtures must include non-zero diagnostics for required issue codes"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_stop_gate_tools_uses_shared_integrity_manifest_loader() -> None:
     source = Path(stop_gate_tools_module.__file__).read_text(encoding="utf-8")
     assert "def _load_integrity_manifest_payload(" in source
@@ -2883,6 +3096,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_vnext_plus18_manifest_path()),
             "--vnext-plus19-manifest",
             str(_vnext_plus19_manifest_path()),
+            "--vnext-plus20-manifest",
+            str(_vnext_plus20_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",
