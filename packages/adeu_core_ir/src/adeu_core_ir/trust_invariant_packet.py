@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from collections import Counter
 from typing import Any, Literal
@@ -55,7 +56,7 @@ def _artifact_ref_schema(value: str) -> str | None:
     return schema
 
 
-def _proof_id(
+def build_trust_invariant_proof_id(
     *,
     invariant_code: TrustInvariantCode,
     status: TrustInvariantStatus,
@@ -63,8 +64,6 @@ def _proof_id(
     expected_hash: str | None,
     observed_hash: str | None,
 ) -> str:
-    import hashlib
-
     payload: dict[str, Any] = {
         "invariant_code": invariant_code,
         "status": status,
@@ -170,7 +169,7 @@ class TrustInvariantProofItem(BaseModel):
 
         if not _is_hex16(self.proof_id):
             raise ValueError("proof_id must be lowercase hex")
-        expected_proof_id = _proof_id(
+        expected_proof_id = build_trust_invariant_proof_id(
             invariant_code=self.invariant_code,
             status=self.status,
             justification_refs=self.justification_refs,

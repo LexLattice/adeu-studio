@@ -106,6 +106,7 @@ from .trust_invariant_packet import (
     AdeuTrustInvariantPacket,
     TrustInvariantProofItem,
     TrustInvariantSummary,
+    build_trust_invariant_proof_id,
     canonicalize_trust_invariant_packet_payload,
 )
 
@@ -191,6 +192,7 @@ __all__ = [
     "TrustInvariantSummary",
     "TrustInvariantProofItem",
     "TRUST_INVARIANT_PACKET_SCHEMA",
+    "build_trust_invariant_proof_id",
     "canonicalize_trust_invariant_packet_payload",
 ]
 

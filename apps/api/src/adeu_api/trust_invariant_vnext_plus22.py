@@ -9,7 +9,11 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Literal
 
-from adeu_core_ir import AdeuNormativeAdvicePacket, AdeuTrustInvariantPacket
+from adeu_core_ir import (
+    AdeuNormativeAdvicePacket,
+    AdeuTrustInvariantPacket,
+    build_trust_invariant_proof_id,
+)
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .cross_ir_bridge_vnext_plus20 import (
@@ -179,26 +183,6 @@ def _strip_created_at_recursive(value: Any) -> Any:
 
 def _sha256_created_at_stripped(payload: Any) -> str:
     return sha256_text(canonical_json(_strip_created_at_recursive(payload)))
-
-
-def _proof_id(
-    *,
-    invariant_code: str,
-    status: str,
-    justification_refs: list[str],
-    expected_hash: str | None = None,
-    observed_hash: str | None = None,
-) -> str:
-    payload: dict[str, Any] = {
-        "invariant_code": invariant_code,
-        "status": status,
-        "justification_refs": justification_refs,
-    }
-    if expected_hash is not None:
-        payload["expected_hash"] = expected_hash
-    if observed_hash is not None:
-        payload["observed_hash"] = observed_hash
-    return sha256_text(canonical_json(payload))[:16]
 
 
 def _proof_sort_key(item: Mapping[str, Any]) -> tuple[str, str]:
@@ -708,7 +692,7 @@ def _build_proof_item(
 ) -> dict[str, Any]:
     refs = sorted(justification_refs)
     item: dict[str, Any] = {
-        "proof_id": _proof_id(
+        "proof_id": build_trust_invariant_proof_id(
             invariant_code=invariant_code,
             status=status,
             justification_refs=refs,
@@ -925,17 +909,19 @@ def build_trust_invariant_packet_vnext_plus22(
         )
     )
 
-    packet_basis_without_replay = {
-        "schema": TRUST_INVARIANT_PACKET_SCHEMA,
-        "source_text_hash": source_text_hash,
-        "core_ir_artifact_id": core_ir_artifact_id,
-        "concept_artifact_id": concept_artifact_id,
-        "bridge_manifest_hash": bridge_manifest_hash,
-        "normative_advice_packet_hash": normative_advice_packet_hash,
-        "proof_items": sorted(proof_items, key=_proof_sort_key),
-    }
+    def _packet_basis_without_replay() -> dict[str, Any]:
+        return {
+            "schema": TRUST_INVARIANT_PACKET_SCHEMA,
+            "source_text_hash": source_text_hash,
+            "core_ir_artifact_id": core_ir_artifact_id,
+            "concept_artifact_id": concept_artifact_id,
+            "bridge_manifest_hash": bridge_manifest_hash,
+            "normative_advice_packet_hash": normative_advice_packet_hash,
+            "proof_items": sorted(proof_items, key=_proof_sort_key),
+        }
+
     replay_hashes = [
-        _sha256_created_at_stripped(packet_basis_without_replay)
+        _sha256_created_at_stripped(_packet_basis_without_replay())
         for _ in range(3)
     ]
     replay_hash_stable = len(set(replay_hashes)) == 1

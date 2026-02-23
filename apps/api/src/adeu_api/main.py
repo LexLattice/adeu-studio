@@ -145,11 +145,6 @@ from .normative_advice_vnext_plus21 import (
     build_normative_advice_projection_vnext_plus21,
     normative_advice_non_enforcement_context,
 )
-from .trust_invariant_vnext_plus22 import (
-    TrustInvariantVnextPlus22Error,
-    build_trust_invariant_packet_vnext_plus22,
-    trust_invariant_non_enforcement_context,
-)
 from .openai_concept_provider import propose_concept_codex, propose_concept_openai
 from .puzzle_id_canonicalization import canonicalize_puzzle_ids
 from .puzzle_mock_provider import get_puzzle_fixture_bundle
@@ -188,6 +183,11 @@ from .storage import (
 )
 from .storage import (
     transaction as storage_transaction,
+)
+from .trust_invariant_vnext_plus22 import (
+    TrustInvariantVnextPlus22Error,
+    build_trust_invariant_packet_vnext_plus22,
+    trust_invariant_non_enforcement_context,
 )
 from .urm_routes import router as urm_router
 
