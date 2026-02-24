@@ -1,0 +1,51 @@
+{
+  "schema": "adeu_projection_alignment_fidelity_input@0.1",
+  "source_text_hash": "3d956a90a9f1433816149bcb70e300afdcca6d303bdc119cea8f0657222c32aa",
+  "matched_nodes": [
+    {
+      "match_id": "match_1",
+      "projection_label_text": "AI trust",
+      "extraction_label_text": "AI trust",
+      "projection_span": {
+        "start": 0,
+        "end": 8
+      },
+      "extraction_span": {
+        "start": 0,
+        "end": 8
+      },
+      "projection_score_milli": 920,
+      "extraction_score_milli": 900
+    },
+    {
+      "match_id": "match_2",
+      "projection_label_text": " risk   score ",
+      "extraction_label_text": "risk score",
+      "projection_span": {
+        "start": 9,
+        "end": 19
+      },
+      "extraction_span": {
+        "start": 10,
+        "end": 19
+      },
+      "projection_score_milli": 710,
+      "extraction_score_milli": 700
+    },
+    {
+      "match_id": "match_3",
+      "projection_label_text": "Policy rule",
+      "extraction_label_text": "Policy rule",
+      "projection_span": {
+        "start": 20,
+        "end": 31
+      },
+      "extraction_span": {
+        "start": 20,
+        "end": 31
+      },
+      "projection_score_milli": 550,
+      "extraction_score_milli": 611
+    }
+  ]
+}

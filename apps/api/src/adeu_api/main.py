@@ -46,6 +46,7 @@ from adeu_core_ir import (
     AdeuIntegrityReferenceIntegrityExtended,
     AdeuLaneReport,
     AdeuNormativeAdvicePacket,
+    AdeuProjectionAlignmentFidelity,
     AdeuSemanticsV4CandidatePacket,
     AdeuTrustInvariantPacket,
 )
@@ -135,6 +136,11 @@ from .explain_builder import (
     as_explain_artifact_ref,
     build_explain_packet_payload,
     input_ref_for_side,
+)
+from .extraction_fidelity_vnext_plus24 import (
+    ExtractionFidelityVnextPlus24Error,
+    build_extraction_fidelity_packet_vnext_plus24,
+    extraction_fidelity_non_enforcement_context,
 )
 from .hashing import canonical_json, sha256_canonical_json, sha256_text
 from .id_canonicalization import canonicalize_ir_ids
@@ -412,6 +418,14 @@ _SEMANTICS_V4_PAYLOAD_INVALID_CODE = "URM_ADEU_SEMANTICS_V4_PAYLOAD_INVALID"
 _SEMANTICS_V4_FIXTURE_INVALID_CODE = "URM_ADEU_SEMANTICS_V4_FIXTURE_INVALID"
 _SEMANTICS_V4_DIAGNOSTIC_DRIFT_CODE = "URM_ADEU_SEMANTICS_V4_DIAGNOSTIC_DRIFT"
 _SEMANTICS_V4_MANIFEST_HASH_MISMATCH_CODE = "URM_ADEU_SEMANTICS_V4_MANIFEST_HASH_MISMATCH"
+_EXTRACTION_FIDELITY_REQUEST_INVALID_CODE = "URM_ADEU_EXTRACTION_FIDELITY_REQUEST_INVALID"
+_EXTRACTION_FIDELITY_ARTIFACT_NOT_FOUND_CODE = "URM_ADEU_EXTRACTION_FIDELITY_ARTIFACT_NOT_FOUND"
+_EXTRACTION_FIDELITY_PAYLOAD_INVALID_CODE = "URM_ADEU_EXTRACTION_FIDELITY_PAYLOAD_INVALID"
+_EXTRACTION_FIDELITY_FIXTURE_INVALID_CODE = "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID"
+_EXTRACTION_FIDELITY_DIAGNOSTIC_DRIFT_CODE = "URM_ADEU_EXTRACTION_FIDELITY_DIAGNOSTIC_DRIFT"
+_EXTRACTION_FIDELITY_MANIFEST_HASH_MISMATCH_CODE = (
+    "URM_ADEU_EXTRACTION_FIDELITY_MANIFEST_HASH_MISMATCH"
+)
 _READ_SURFACE_CATALOG_SCHEMA = "read_surface.vnext_plus19_catalog@1"
 _READ_SURFACE_CATALOG_PATH = (
     Path(__file__).resolve().parents[2] / "fixtures" / "read_surface" / "vnext_plus19_catalog.json"
@@ -427,9 +441,7 @@ _ADEU_INTEGRITY_REFERENCE_INTEGRITY_EXTENDED_SCHEMA = (
     "adeu_integrity_reference_integrity_extended@0.1"
 )
 _ADEU_INTEGRITY_CYCLE_POLICY_EXTENDED_SCHEMA = "adeu_integrity_cycle_policy_extended@0.1"
-_ADEU_INTEGRITY_DEONTIC_CONFLICT_EXTENDED_SCHEMA = (
-    "adeu_integrity_deontic_conflict_extended@0.1"
-)
+_ADEU_INTEGRITY_DEONTIC_CONFLICT_EXTENDED_SCHEMA = "adeu_integrity_deontic_conflict_extended@0.1"
 _READ_SURFACE_INTEGRITY_FAMILY_TO_SCHEMA: dict[str, str] = {
     "dangling_reference": _ADEU_INTEGRITY_DANGLING_REFERENCE_SCHEMA,
     "cycle_policy": _ADEU_INTEGRITY_CYCLE_POLICY_SCHEMA,
@@ -559,16 +571,14 @@ def _provider_parity_supported_providers_by_surface() -> dict[str, tuple[str, ..
             raise _provider_parity_matrix_error(
                 code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
                 message=(
-                    f"provider parity surfaces[{idx}].supported_providers "
-                    "must be a non-empty list"
+                    f"provider parity surfaces[{idx}].supported_providers must be a non-empty list"
                 ),
             )
         if any(not isinstance(provider, str) for provider in providers):
             raise _provider_parity_matrix_error(
                 code=_PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE,
                 message=(
-                    f"provider parity surfaces[{idx}].supported_providers "
-                    "entries must be strings"
+                    f"provider parity surfaces[{idx}].supported_providers entries must be strings"
                 ),
             )
         if len(set(providers)) != len(providers):
@@ -806,9 +816,7 @@ class ConceptTournamentRequest(BaseModel):
     @model_validator(mode="after")
     def _validate_replay_bounds(self) -> "ConceptTournamentRequest":
         if self.max_candidates > MAX_TOURNAMENT_REPLAY_CANDIDATES:
-            raise ValueError(
-                f"max_candidates must be <= {MAX_TOURNAMENT_REPLAY_CANDIDATES}"
-            )
+            raise ValueError(f"max_candidates must be <= {MAX_TOURNAMENT_REPLAY_CANDIDATES}")
         if self.top_k > self.max_candidates:
             raise ValueError("top_k must be <= max_candidates")
         if self.tournament_mode == "live_generation" and self.candidates:
@@ -1620,10 +1628,7 @@ class ReadSurfaceLaneProjection(BaseModel):
                 raise ValueError(f"lanes[{lane}] must be sorted lexicographically")
             if len(set(node_ids)) != len(node_ids):
                 raise ValueError(f"lanes[{lane}] may not contain duplicates")
-        edge_identities = [
-            (edge.type, edge.from_ref, edge.to_ref)
-            for edge in self.edges
-        ]
+        edge_identities = [(edge.type, edge.from_ref, edge.to_ref) for edge in self.edges]
         if edge_identities != sorted(edge_identities):
             raise ValueError("edges must be sorted by (type, from, to)")
         if len(set(edge_identities)) != len(edge_identities):
@@ -2142,6 +2147,33 @@ def _semantics_v4_status_code(code: str) -> int:
     return 500
 
 
+def _extraction_fidelity_error_detail(
+    *,
+    code: str,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    detail: dict[str, Any] = {"code": code, "reason": reason}
+    if context:
+        detail["context"] = dict(context)
+    return detail
+
+
+def _extraction_fidelity_status_code(code: str) -> int:
+    if code == _EXTRACTION_FIDELITY_REQUEST_INVALID_CODE:
+        return 400
+    if code == _EXTRACTION_FIDELITY_ARTIFACT_NOT_FOUND_CODE:
+        return 404
+    if code in (
+        _EXTRACTION_FIDELITY_PAYLOAD_INVALID_CODE,
+        _EXTRACTION_FIDELITY_FIXTURE_INVALID_CODE,
+        _EXTRACTION_FIDELITY_DIAGNOSTIC_DRIFT_CODE,
+        _EXTRACTION_FIDELITY_MANIFEST_HASH_MISMATCH_CODE,
+    ):
+        return 500
+    return 500
+
+
 class ConceptAlignRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     artifact_ids: list[str] = Field(default_factory=list)
@@ -2566,24 +2598,24 @@ def _build_alignment_suggestions(
             for artifact_id in artifact_ids
         }
         if len(signature_profiles) > 1:
-                suggestions.append(
-                    ConceptAlignmentSuggestion(
-                        suggestion_id=_next_alignment_suggestion_id(
-                            kind="conflict_candidate",
-                            vocabulary_key=vocabulary_key,
-                            used_ids=used_suggestion_ids,
-                        ),
-                        suggestion_fingerprint=_alignment_suggestion_fingerprint(
-                            kind="conflict_candidate",
-                            vocabulary_key=vocabulary_key,
-                            term_refs=term_refs,
-                            sense_refs=sense_refs,
-                        ),
+            suggestions.append(
+                ConceptAlignmentSuggestion(
+                    suggestion_id=_next_alignment_suggestion_id(
                         kind="conflict_candidate",
                         vocabulary_key=vocabulary_key,
-                        reason=(
-                            f"Term '{vocabulary_key}' has divergent sense gloss signatures "
-                            "across artifacts; review before merge."
+                        used_ids=used_suggestion_ids,
+                    ),
+                    suggestion_fingerprint=_alignment_suggestion_fingerprint(
+                        kind="conflict_candidate",
+                        vocabulary_key=vocabulary_key,
+                        term_refs=term_refs,
+                        sense_refs=sense_refs,
+                    ),
+                    kind="conflict_candidate",
+                    vocabulary_key=vocabulary_key,
+                    reason=(
+                        f"Term '{vocabulary_key}' has divergent sense gloss signatures "
+                        "across artifacts; review before merge."
                     ),
                     artifact_ids=artifact_ids,
                     doc_ids=doc_ids,
@@ -2787,8 +2819,7 @@ def _is_duplicate_grouped_proof_packet_error(exc: ValueError) -> bool:
         return False
     message, code, *_rest = exc.args
     return (
-        message == "duplicate grouped proof packet key"
-        and code == _PROOF_EVIDENCE_NOT_FOUND_CODE
+        message == "duplicate grouped proof packet key" and code == _PROOF_EVIDENCE_NOT_FOUND_CODE
     )
 
 
@@ -2977,9 +3008,7 @@ def _build_question_evidence_refs(
 
 def _require_patch_evidence_bindings(evidence_refs: list[EvidenceRef]) -> None:
     has_event = any(ref.kind == "event" for ref in evidence_refs)
-    has_validation_or_artifact = any(
-        ref.kind in {"validator", "artifact"} for ref in evidence_refs
-    )
+    has_validation_or_artifact = any(ref.kind in {"validator", "artifact"} for ref in evidence_refs)
     if has_event and has_validation_or_artifact:
         return
     raise HTTPException(
@@ -4807,6 +4836,7 @@ def propose(req: ProposeRequest) -> ProposeResponse:
     context = base_context.model_copy(update={"source_features": features})
     if req.provider in {"openai", "codex"}:
         from .openai_provider import propose_codex, propose_openai
+
         propose_external = _select_external_proposer(
             provider=req.provider,
             openai_impl=propose_openai,
@@ -5106,14 +5136,10 @@ def concept_tournament_endpoint(req: ConceptTournamentRequest) -> ConceptTournam
 
     for candidate in candidates:
         if remaining_dry_runs <= 0:
-            truncation_reason = (
-                truncation_reason or QUESTION_TRUNCATION_REASON_DRY_RUN_CAP
-            )
+            truncation_reason = truncation_reason or QUESTION_TRUNCATION_REASON_DRY_RUN_CAP
             break
         if remaining_solver_calls <= 0:
-            truncation_reason = (
-                truncation_reason or QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP
-            )
+            truncation_reason = truncation_reason or QUESTION_TRUNCATION_REASON_SOLVER_CALL_CAP
             break
 
         remaining_dry_runs -= 1
@@ -5351,6 +5377,7 @@ def propose_puzzle(req: PuzzleProposeRequest) -> PuzzleProposeResponse:
 
     if req.provider in {"openai", "codex"}:
         from .openai_puzzle_provider import propose_puzzle_codex, propose_puzzle_openai
+
         propose_external = _select_external_proposer(
             provider=req.provider,
             openai_impl=propose_puzzle_openai,
@@ -6602,6 +6629,33 @@ def get_urm_semantics_v4_projection_endpoint(
     return projection
 
 
+@app.get(
+    "/urm/extraction-fidelity/sources/{source_text_hash}",
+    response_model=AdeuProjectionAlignmentFidelity,
+)
+def get_urm_extraction_fidelity_source_endpoint(
+    source_text_hash: str,
+    response: Response,
+) -> AdeuProjectionAlignmentFidelity:
+    try:
+        with extraction_fidelity_non_enforcement_context():
+            payload = build_extraction_fidelity_packet_vnext_plus24(
+                source_text_hash=source_text_hash
+            )
+    except ExtractionFidelityVnextPlus24Error as exc:
+        raise HTTPException(
+            status_code=_extraction_fidelity_status_code(exc.code),
+            detail=_extraction_fidelity_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+    _set_read_surface_cache_header(response)
+    return AdeuProjectionAlignmentFidelity.model_validate(payload)
+
+
 @app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)
 def semantic_depth_materialize_endpoint(
     req: SemanticDepthMaterializeRequest,
@@ -6921,9 +6975,7 @@ def list_artifacts_endpoint(
             )
         )
 
-    return ArtifactListResponse(
-        items=summaries
-    )
+    return ArtifactListResponse(items=summaries)
 
 
 @app.get("/artifacts/{artifact_id}", response_model=ArtifactGetResponse)
