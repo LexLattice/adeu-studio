@@ -16,10 +16,14 @@ def _clear_provider_parity_cache() -> None:
 
 def _valid_matrix_payload() -> dict[str, object]:
     return {
-        "schema": "provider_parity.vnext_plus14_matrix@1",
+        "schema": "provider_parity.vnext_plus25_matrix@1",
         "surfaces": [
             {
                 "surface_id": "adeu.propose",
+                "supported_providers": ["mock", "openai", "codex"],
+            },
+            {
+                "surface_id": "adeu_core_ir.propose",
                 "supported_providers": ["mock", "openai", "codex"],
             },
             {
@@ -47,6 +51,7 @@ def test_provider_parity_matrix_loader_matches_frozen_surfaces() -> None:
 
     assert set(matrix) == set(api_main._FROZEN_PROVIDER_PARITY_SURFACE_IDS)
     assert matrix["adeu.propose"] == ("mock", "openai", "codex")
+    assert matrix["adeu_core_ir.propose"] == ("mock", "openai", "codex")
     assert matrix["concepts.tournament.live_generation"] == ("mock",)
     assert matrix["concepts.tournament.replay_candidates"] == ("mock", "openai", "codex")
 

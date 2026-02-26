@@ -1,0 +1,31 @@
+{
+  "schema": "provider_parity.vnext_plus25_matrix@1",
+  "surfaces": [
+    {
+      "surface_id": "adeu.propose",
+      "supported_providers": ["mock", "openai", "codex"]
+    },
+    {
+      "surface_id": "adeu_core_ir.propose",
+      "supported_providers": ["mock", "openai", "codex"]
+    },
+    {
+      "surface_id": "concepts.propose",
+      "supported_providers": ["mock", "openai", "codex"]
+    },
+    {
+      "surface_id": "puzzles.propose",
+      "supported_providers": ["mock", "openai", "codex"]
+    },
+    {
+      "surface_id": "concepts.tournament.live_generation",
+      "supported_providers": ["mock"],
+      "notes": "live_generation is intentionally mock-only"
+    },
+    {
+      "surface_id": "concepts.tournament.replay_candidates",
+      "supported_providers": ["mock", "openai", "codex"],
+      "notes": "provider is accepted but execution-inert in replay mode"
+    }
+  ]
+}
