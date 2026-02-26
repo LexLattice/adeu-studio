@@ -167,6 +167,12 @@ VNEXT_PLUS23_DEFAULT_METRICS = {
     "artifact_semantics_v4_candidate_packet_determinism_pct": 0.0,
     "artifact_semantics_v4_candidate_projection_determinism_pct": 0.0,
 }
+VNEXT_PLUS24_REPLAY_COUNT = 3
+VNEXT_PLUS24_MANIFEST_SCHEMA = "stop_gate.vnext_plus24_manifest@1"
+VNEXT_PLUS24_DEFAULT_METRICS = {
+    "artifact_extraction_fidelity_packet_determinism_pct": 0.0,
+    "artifact_extraction_fidelity_projection_determinism_pct": 0.0,
+}
 CROSS_IR_BRIDGE_MANIFEST_SCHEMA = "adeu_cross_ir_bridge_manifest@0.1"
 CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA = "adeu_cross_ir_coherence_diagnostics@0.1"
 CROSS_IR_QUALITY_PROJECTION_SCHEMA = "cross_ir_quality_projection.vnext_plus20@1"
@@ -176,6 +182,9 @@ TRUST_INVARIANT_PACKET_SCHEMA = "adeu_trust_invariant_packet@0.1"
 TRUST_INVARIANT_PROJECTION_SCHEMA = "trust_invariant_projection.vnext_plus22@1"
 SEMANTICS_V4_CANDIDATE_PACKET_SCHEMA = "adeu_semantics_v4_candidate_packet@0.1"
 SEMANTICS_V4_CANDIDATE_PROJECTION_SCHEMA = "semantics_v4_candidate_projection.vnext_plus23@1"
+EXTRACTION_FIDELITY_INPUT_SCHEMA = "adeu_projection_alignment_fidelity_input@0.1"
+EXTRACTION_FIDELITY_PACKET_SCHEMA = "adeu_projection_alignment_fidelity@0.1"
+EXTRACTION_FIDELITY_PROJECTION_SCHEMA = "projection_alignment_fidelity_projection.vnext_plus24@1"
 _READ_SURFACE_LANE_CAPTURE_SCHEMA = "adeu_lane_read_surface_capture@0.1"
 _READ_SURFACE_INTEGRITY_CAPTURE_SCHEMA = "adeu_integrity_read_surface_capture@0.1"
 _FROZEN_READ_SURFACE_INTEGRITY_FAMILIES: tuple[str, ...] = (
@@ -249,6 +258,11 @@ _FROZEN_SEMANTICS_V4_CANDIDATE_SURFACES: tuple[str, ...] = (
 _FROZEN_SEMANTICS_V4_CANDIDATE_SURFACE_SET = frozenset(
     _FROZEN_SEMANTICS_V4_CANDIDATE_SURFACES
 )
+_FROZEN_EXTRACTION_FIDELITY_SURFACES: tuple[str, ...] = (
+    "adeu.extraction_fidelity.packet",
+    "adeu.extraction_fidelity.projection",
+)
+_FROZEN_EXTRACTION_FIDELITY_SURFACE_SET = frozenset(_FROZEN_EXTRACTION_FIDELITY_SURFACES)
 _FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES = frozenset(
     {
         "MISSING_CONCEPT_MAPPING",
@@ -320,6 +334,26 @@ _FROZEN_VNEXT_PLUS23_NON_EMPTY_COMPARISON_CODES = frozenset(
         "STATUS_SET_CONTINUITY_REVIEW",
     }
 )
+_EXTRACTION_FIDELITY_CODES = frozenset(
+    {
+        "label_text_mismatch",
+        "score_mismatch",
+        "span_mismatch",
+    }
+)
+_EXTRACTION_FIDELITY_STATUSES = frozenset({"compatible", "drift"})
+_EXTRACTION_FIDELITY_SEVERITIES = frozenset({"high", "low", "medium"})
+_EXTRACTION_FIDELITY_SEVERITY_BY_CODE_STATUS: dict[tuple[str, str], str] = {
+    ("label_text_mismatch", "compatible"): "low",
+    ("label_text_mismatch", "drift"): "medium",
+    ("score_mismatch", "compatible"): "low",
+    ("score_mismatch", "drift"): "medium",
+    ("span_mismatch", "compatible"): "low",
+    ("span_mismatch", "drift"): "high",
+}
+_FROZEN_VNEXT_PLUS24_NON_EMPTY_FIDELITY_CODES = frozenset(
+    {"label_text_mismatch", "score_mismatch", "span_mismatch"}
+)
 FROZEN_QUALITY_METRIC_RULES: dict[str, str] = {
     "redundancy_rate": "non_increasing",
     "top_k_stability@10": "non_decreasing",
@@ -384,6 +418,8 @@ THRESHOLDS = {
     "artifact_trust_invariant_projection_determinism_pct": 100.0,
     "artifact_semantics_v4_candidate_packet_determinism_pct": 100.0,
     "artifact_semantics_v4_candidate_projection_determinism_pct": 100.0,
+    "artifact_extraction_fidelity_packet_determinism_pct": 100.0,
+    "artifact_extraction_fidelity_projection_determinism_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -411,6 +447,14 @@ def _default_manifest_path(filename: str) -> Path:
     repo_root = _discover_repo_root(module_path)
     if repo_root is not None:
         return repo_root / "apps" / "api" / "fixtures" / "stop_gate" / filename
+    return module_path.parent / filename
+
+
+def _default_extraction_fidelity_catalog_path(filename: str) -> Path:
+    module_path = Path(__file__).resolve()
+    repo_root = _discover_repo_root(module_path)
+    if repo_root is not None:
+        return repo_root / "apps" / "api" / "fixtures" / "extraction_fidelity" / filename
     return module_path.parent / filename
 
 
@@ -478,6 +522,14 @@ def _default_vnext_plus23_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus23_manifest.json")
 
 
+def _default_vnext_plus24_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus24_manifest.json")
+
+
+def _default_vnext_plus24_catalog_path() -> Path:
+    return _default_extraction_fidelity_catalog_path("vnext_plus24_catalog.json")
+
+
 VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
 VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
 VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
@@ -494,6 +546,8 @@ VNEXT_PLUS20_MANIFEST_PATH = _default_vnext_plus20_manifest_path()
 VNEXT_PLUS21_MANIFEST_PATH = _default_vnext_plus21_manifest_path()
 VNEXT_PLUS22_MANIFEST_PATH = _default_vnext_plus22_manifest_path()
 VNEXT_PLUS23_MANIFEST_PATH = _default_vnext_plus23_manifest_path()
+VNEXT_PLUS24_MANIFEST_PATH = _default_vnext_plus24_manifest_path()
+VNEXT_PLUS24_CATALOG_PATH = _default_vnext_plus24_catalog_path()
 
 
 def _validator_packet_hash(payload: Mapping[str, Any]) -> str:
@@ -5463,6 +5517,21 @@ _VNEXT_PLUS23_SEMANTICS_V4_CANDIDATE_SPECS: tuple[_IntegritySurfaceFixtureSpec, 
         "artifact_semantics_v4_candidate_projection_determinism_pct",
         "adeu.semantics_v4_candidate.projection",
         ("semantics_v4_candidate_projection_path",),
+    ),
+)
+
+_VNEXT_PLUS24_EXTRACTION_FIDELITY_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "extraction_fidelity_packet_fixtures",
+        "artifact_extraction_fidelity_packet_determinism_pct",
+        "adeu.extraction_fidelity.packet",
+        ("extraction_fidelity_packet_path",),
+    ),
+    (
+        "extraction_fidelity_projection_fixtures",
+        "artifact_extraction_fidelity_projection_determinism_pct",
+        "adeu.extraction_fidelity.projection",
+        ("extraction_fidelity_projection_path",),
     ),
 )
 
@@ -10735,6 +10804,1230 @@ def _compute_vnext_plus23_metrics(
     }
 
 
+def _validate_extraction_fidelity_capture_keys(
+    *,
+    payload: Mapping[str, Any],
+    required_keys: set[str],
+    optional_keys: set[str],
+    path: Path,
+    context: Mapping[str, Any] | None = None,
+) -> None:
+    observed_keys = {str(key) for key in payload.keys()}
+    missing_keys = sorted(required_keys - observed_keys)
+    unexpected_keys = sorted(observed_keys - (required_keys | optional_keys))
+    if missing_keys or unexpected_keys:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity capture payload has unexpected key shape",
+                context={
+                    "path": str(path),
+                    "missing_keys": missing_keys,
+                    "unexpected_keys": unexpected_keys,
+                    **dict(context or {}),
+                },
+            )
+        )
+
+
+def _extraction_fidelity_packet_fixture_hash(*, extraction_fidelity_packet_path: Path) -> str:
+    payload = _read_json_object(
+        extraction_fidelity_packet_path,
+        description="extraction-fidelity packet fixture",
+    )
+    _validate_extraction_fidelity_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "source_text_hash",
+            "projection_alignment_hash",
+            "fidelity_input_hash",
+            "fidelity_summary",
+            "fidelity_items",
+        },
+        optional_keys={"created_at"},
+        path=extraction_fidelity_packet_path,
+    )
+    if payload.get("schema") != EXTRACTION_FIDELITY_PACKET_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet schema is invalid",
+                context={
+                    "path": str(extraction_fidelity_packet_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+
+    source_text_hash = payload.get("source_text_hash")
+    if not isinstance(source_text_hash, str) or not source_text_hash:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet source_text_hash must be a non-empty string",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    for field in ("projection_alignment_hash", "fidelity_input_hash"):
+        if not _is_lower_sha256(payload.get(field)):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity packet hash fields must be lowercase sha256",
+                    context={"path": str(extraction_fidelity_packet_path), "field": field},
+                )
+            )
+
+    summary = payload.get("fidelity_summary")
+    if not isinstance(summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet fidelity_summary must be an object",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    _validate_extraction_fidelity_capture_keys(
+        payload=summary,
+        required_keys={
+            "total_checks",
+            "compatible_checks",
+            "drift_checks",
+            "counts_by_code",
+            "counts_by_status",
+            "counts_by_severity",
+        },
+        optional_keys={"created_at"},
+        path=extraction_fidelity_packet_path,
+        context={"field": "fidelity_summary"},
+    )
+    total_checks = summary.get("total_checks")
+    compatible_checks = summary.get("compatible_checks")
+    drift_checks = summary.get("drift_checks")
+    if (
+        not isinstance(total_checks, int)
+        or total_checks < 0
+        or not isinstance(compatible_checks, int)
+        or compatible_checks < 0
+        or not isinstance(drift_checks, int)
+        or drift_checks < 0
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet summary counts must be non-negative integers",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if compatible_checks + drift_checks != total_checks:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet status counts must sum to total_checks",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+
+    counts_by_code = summary.get("counts_by_code")
+    counts_by_status = summary.get("counts_by_status")
+    counts_by_severity = summary.get("counts_by_severity")
+    if (
+        not isinstance(counts_by_code, Mapping)
+        or not isinstance(counts_by_status, Mapping)
+        or not isinstance(counts_by_severity, Mapping)
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet summary count maps must be objects",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if list(counts_by_code.keys()) != sorted(counts_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet counts_by_code keys must be sorted",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if sorted(str(key) for key in counts_by_code.keys()) != sorted(_EXTRACTION_FIDELITY_CODES):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet counts_by_code must include frozen fidelity codes",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet counts_by_code values must be non-negative integers",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+
+    if list(counts_by_status.keys()) != sorted(counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet counts_by_status keys must be sorted",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if sorted(str(key) for key in counts_by_status.keys()) != sorted(_EXTRACTION_FIDELITY_STATUSES):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet counts_by_status must include frozen statuses",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet counts_by_status values must be non-negative integers",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+
+    if list(counts_by_severity.keys()) != sorted(counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet counts_by_severity keys must be sorted",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if any(str(key) not in _EXTRACTION_FIDELITY_SEVERITIES for key in counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity packet counts_by_severity contains unsupported "
+                    "severity"
+                ),
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_severity.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity packet counts_by_severity values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if total_checks != sum(int(value) for value in counts_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet total_checks mismatch for counts_by_code",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if total_checks != sum(int(value) for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet total_checks mismatch for counts_by_status",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if total_checks != sum(int(value) for value in counts_by_severity.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet total_checks mismatch for counts_by_severity",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+
+    fidelity_items = payload.get("fidelity_items")
+    if not isinstance(fidelity_items, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet fidelity_items must be a list",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if len(fidelity_items) != total_checks:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet total_checks does not match fidelity_items length",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+
+    expected_refs = sorted(
+        [
+            f"artifact:{ADEU_PROJECTION_ALIGNMENT_SCHEMA}:{source_text_hash}",
+            f"artifact:{EXTRACTION_FIDELITY_INPUT_SCHEMA}:{source_text_hash}",
+        ]
+    )
+    expected_one_per_code = {code: 1 for code in sorted(_EXTRACTION_FIDELITY_CODES)}
+    observed_counts_by_code: dict[str, int] = {}
+    observed_counts_by_status: dict[str, int] = {}
+    observed_counts_by_severity: dict[str, int] = {}
+    observed_sort_keys: list[tuple[str, str]] = []
+    for item_index, item in enumerate(fidelity_items):
+        if not isinstance(item, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item must be an object",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        _validate_extraction_fidelity_capture_keys(
+            payload=item,
+            required_keys={
+                "fidelity_id",
+                "fidelity_code",
+                "status",
+                "severity",
+                "justification_refs",
+                "message",
+            },
+            optional_keys={"expected_hash", "observed_hash", "created_at"},
+            path=extraction_fidelity_packet_path,
+            context={"item_index": item_index},
+        )
+        fidelity_id = item.get("fidelity_id")
+        fidelity_code = item.get("fidelity_code")
+        status = item.get("status")
+        severity = item.get("severity")
+        justification_refs = item.get("justification_refs")
+        message = item.get("message")
+        expected_hash = item.get("expected_hash")
+        observed_hash = item.get("observed_hash")
+
+        if not _is_lower_hex(fidelity_id, length=16):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item fidelity_id must be lowercase hex16",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not isinstance(fidelity_code, str) or fidelity_code not in _EXTRACTION_FIDELITY_CODES:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item fidelity_code is invalid",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not isinstance(status, str) or status not in _EXTRACTION_FIDELITY_STATUSES:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item status is invalid",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not isinstance(severity, str) or severity not in _EXTRACTION_FIDELITY_SEVERITIES:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item severity is invalid",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if severity != _EXTRACTION_FIDELITY_SEVERITY_BY_CODE_STATUS[(fidelity_code, status)]:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item severity violates frozen code/status mapping",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                        "fidelity_code": fidelity_code,
+                        "status": status,
+                    },
+                )
+            )
+        if not isinstance(justification_refs, list) or len(justification_refs) != 2:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item justification_refs must contain exactly two refs",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not all(isinstance(ref, str) and ref for ref in justification_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item justification_refs must contain non-empty strings",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if justification_refs != sorted(justification_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item justification_refs must be sorted",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if len(set(justification_refs)) != len(justification_refs):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item justification_refs may not contain duplicates",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if list(justification_refs) != expected_refs:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    (
+                        "extraction-fidelity item justification_refs must match frozen "
+                        "alignment/fidelity-input refs"
+                    ),
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+        if not isinstance(message, str) or not message:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity item message must be a non-empty string",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+
+        if status == "compatible":
+            if expected_hash is not None or observed_hash is not None:
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        (
+                            "compatible extraction-fidelity items may not include "
+                            "expected_hash/observed_hash"
+                        ),
+                        context={
+                            "path": str(extraction_fidelity_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+        else:
+            if not _is_lower_sha256(expected_hash) or not _is_lower_sha256(observed_hash):
+                raise ValueError(
+                    _issue(
+                        "URM_STOP_GATE_INPUT_INVALID",
+                        (
+                            "drift extraction-fidelity items must include lowercase "
+                            "sha256 expected_hash/observed_hash"
+                        ),
+                        context={
+                            "path": str(extraction_fidelity_packet_path),
+                            "item_index": item_index,
+                        },
+                    )
+                )
+
+        fidelity_id_payload: dict[str, Any] = {
+            "fidelity_code": fidelity_code,
+            "status": status,
+            "severity": severity,
+            "justification_refs": justification_refs,
+        }
+        if expected_hash is not None:
+            fidelity_id_payload["expected_hash"] = expected_hash
+        if observed_hash is not None:
+            fidelity_id_payload["observed_hash"] = observed_hash
+        expected_fidelity_id = sha256_canonical_json(fidelity_id_payload)[:16]
+        if fidelity_id != expected_fidelity_id:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "extraction-fidelity fidelity_id does not match canonical content hash",
+                    context={
+                        "path": str(extraction_fidelity_packet_path),
+                        "item_index": item_index,
+                    },
+                )
+            )
+
+        observed_counts_by_code[fidelity_code] = observed_counts_by_code.get(fidelity_code, 0) + 1
+        observed_counts_by_status[status] = observed_counts_by_status.get(status, 0) + 1
+        observed_counts_by_severity[severity] = observed_counts_by_severity.get(severity, 0) + 1
+        observed_sort_keys.append((fidelity_code, cast(str, fidelity_id)))
+
+    if observed_sort_keys != sorted(observed_sort_keys):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity fidelity_items must be sorted by fidelity_code/fidelity_id",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_code.items())) != expected_one_per_code:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity packet must include exactly one item per fidelity_code",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if compatible_checks != observed_counts_by_status.get("compatible", 0):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity compatible_checks mismatch for fidelity_items",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if drift_checks != observed_counts_by_status.get("drift", 0):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity drift_checks mismatch for fidelity_items",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_code.items())) != {
+        str(key): int(value) for key, value in counts_by_code.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity counts_by_code does not match fidelity_items",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_status.items())) != {
+        str(key): int(value) for key, value in counts_by_status.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity counts_by_status does not match fidelity_items",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    if dict(sorted(observed_counts_by_severity.items())) != {
+        str(key): int(value) for key, value in counts_by_severity.items()
+    }:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity counts_by_severity does not match fidelity_items",
+                context={"path": str(extraction_fidelity_packet_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _extraction_fidelity_projection_fixture_hash(
+    *, extraction_fidelity_projection_path: Path
+) -> str:
+    payload = _read_json_object(
+        extraction_fidelity_projection_path,
+        description="extraction-fidelity projection fixture",
+    )
+    _validate_extraction_fidelity_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "source_count",
+            "fidelity_item_count",
+            "fidelity_counts_by_code",
+            "fidelity_counts_by_status",
+            "fidelity_counts_by_severity",
+        },
+        optional_keys={"created_at"},
+        path=extraction_fidelity_projection_path,
+    )
+    if payload.get("schema") != EXTRACTION_FIDELITY_PROJECTION_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity projection schema is invalid",
+                context={
+                    "path": str(extraction_fidelity_projection_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    source_count = payload.get("source_count")
+    fidelity_item_count = payload.get("fidelity_item_count")
+    if (
+        not isinstance(source_count, int)
+        or source_count < 0
+        or not isinstance(fidelity_item_count, int)
+        or fidelity_item_count < 0
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity projection count fields must be non-negative integers",
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    counts_by_code = payload.get("fidelity_counts_by_code")
+    counts_by_status = payload.get("fidelity_counts_by_status")
+    counts_by_severity = payload.get("fidelity_counts_by_severity")
+    if (
+        not isinstance(counts_by_code, Mapping)
+        or not isinstance(counts_by_status, Mapping)
+        or not isinstance(counts_by_severity, Mapping)
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity projection count maps must be objects",
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if list(counts_by_code.keys()) != sorted(counts_by_code.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity projection fidelity_counts_by_code keys must be sorted",
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if sorted(str(key) for key in counts_by_code.keys()) != sorted(_EXTRACTION_FIDELITY_CODES):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity projection fidelity_counts_by_code is invalid",
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity projection fidelity_counts_by_code values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+
+    if list(counts_by_status.keys()) != sorted(counts_by_status.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity projection fidelity_counts_by_status keys must be sorted",
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if sorted(str(key) for key in counts_by_status.keys()) != sorted(_EXTRACTION_FIDELITY_STATUSES):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "extraction-fidelity projection fidelity_counts_by_status is invalid",
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity projection fidelity_counts_by_status values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+
+    if list(counts_by_severity.keys()) != sorted(counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity projection fidelity_counts_by_severity keys must be "
+                    "sorted"
+                ),
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if any(str(key) not in _EXTRACTION_FIDELITY_SEVERITIES for key in counts_by_severity.keys()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity projection fidelity_counts_by_severity contains "
+                    "unsupported severity"
+                ),
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if any(not isinstance(value, int) or value < 0 for value in counts_by_severity.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity projection fidelity_counts_by_severity values must be "
+                    "non-negative integers"
+                ),
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if fidelity_item_count != sum(int(value) for value in counts_by_code.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity projection fidelity_item_count mismatch for "
+                    "fidelity_counts_by_code"
+                ),
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if fidelity_item_count != sum(int(value) for value in counts_by_status.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity projection fidelity_item_count mismatch for "
+                    "fidelity_counts_by_status"
+                ),
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    if fidelity_item_count != sum(int(value) for value in counts_by_severity.values()):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "extraction-fidelity projection fidelity_item_count mismatch for "
+                    "fidelity_counts_by_severity"
+                ),
+                context={"path": str(extraction_fidelity_projection_path)},
+            )
+        )
+    return _read_surface_projection_hash(payload)
+
+
+def _load_vnext_plus24_catalog_source_refs() -> dict[str, tuple[str, str]]:
+    catalog_payload = _read_json_object(
+        VNEXT_PLUS24_CATALOG_PATH,
+        description="extraction-fidelity vnext+24 catalog",
+    )
+    if catalog_payload.get("schema") != "extraction_fidelity.vnext_plus24_catalog@1":
+        raise ValueError(
+            _issue(
+                "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                "vnext+24 extraction-fidelity catalog schema is invalid",
+                context={"catalog_path": str(VNEXT_PLUS24_CATALOG_PATH)},
+            )
+        )
+    entries = catalog_payload.get("entries")
+    if not isinstance(entries, list):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                "vnext+24 extraction-fidelity catalog entries must be a list",
+                context={"catalog_path": str(VNEXT_PLUS24_CATALOG_PATH)},
+            )
+        )
+
+    source_refs: dict[str, tuple[str, str]] = {}
+    for entry_index, entry in enumerate(entries):
+        if not isinstance(entry, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                    "vnext+24 extraction-fidelity catalog entry must be an object",
+                    context={
+                        "catalog_path": str(VNEXT_PLUS24_CATALOG_PATH),
+                        "entry_index": entry_index,
+                    },
+                )
+            )
+        source_text_hash = entry.get("source_text_hash")
+        projection_alignment_path = entry.get("projection_alignment_path")
+        fidelity_input_path = entry.get("projection_alignment_fidelity_input_path")
+        if (
+            not isinstance(source_text_hash, str)
+            or not source_text_hash
+            or not isinstance(projection_alignment_path, str)
+            or not projection_alignment_path
+            or not isinstance(fidelity_input_path, str)
+            or not fidelity_input_path
+        ):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                    "vnext+24 extraction-fidelity catalog entry is missing required refs",
+                    context={
+                        "catalog_path": str(VNEXT_PLUS24_CATALOG_PATH),
+                        "entry_index": entry_index,
+                    },
+                )
+            )
+        if source_text_hash in source_refs:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                    "vnext+24 extraction-fidelity catalog source_text_hash must be unique",
+                    context={
+                        "catalog_path": str(VNEXT_PLUS24_CATALOG_PATH),
+                        "source_text_hash": source_text_hash,
+                    },
+                )
+            )
+        source_refs[source_text_hash] = (
+            projection_alignment_path,
+            fidelity_input_path,
+        )
+    return source_refs
+
+
+def _validate_vnext_plus24_packet_fixture_inputs(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> bool:
+    fixture_valid = True
+    try:
+        catalog_source_refs = _load_vnext_plus24_catalog_source_refs()
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+            str(exc),
+            context={
+                "manifest_path": str(manifest_path),
+                "catalog_path": str(VNEXT_PLUS24_CATALOG_PATH),
+            },
+        )
+        issues.append(issue)
+        return False
+
+    for fixture_index, fixture in enumerate(fixtures):
+        fixture_id = fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"vnext_plus24_packet_fixture_{fixture_index}"
+        required_fields = (
+            "source_text_hash",
+            "projection_alignment_path",
+            "projection_alignment_fidelity_input_path",
+        )
+        for field in required_fields:
+            value = fixture.get(field)
+            if isinstance(value, str) and value:
+                continue
+            issues.append(
+                _issue(
+                    "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                    (
+                        "vnext+24 extraction-fidelity packet fixture is missing required "
+                        "source/upstream refs"
+                    ),
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "fixture_id": fixture_id,
+                        "field": field,
+                    },
+                )
+            )
+            fixture_valid = False
+
+        source_text_hash = fixture.get("source_text_hash")
+        projection_alignment_path = fixture.get("projection_alignment_path")
+        fidelity_input_path = fixture.get("projection_alignment_fidelity_input_path")
+        if (
+            not isinstance(source_text_hash, str)
+            or not source_text_hash
+            or not isinstance(projection_alignment_path, str)
+            or not projection_alignment_path
+            or not isinstance(fidelity_input_path, str)
+            or not fidelity_input_path
+        ):
+            continue
+
+        expected_refs = catalog_source_refs.get(source_text_hash)
+        if expected_refs is None:
+            issues.append(
+                _issue(
+                    "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                    (
+                        "vnext+24 packet fixture source_text_hash must exist in "
+                        "extraction-fidelity catalog"
+                    ),
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "fixture_id": fixture_id,
+                        "source_text_hash": source_text_hash,
+                        "catalog_path": str(VNEXT_PLUS24_CATALOG_PATH),
+                    },
+                )
+            )
+            fixture_valid = False
+            continue
+        if (
+            projection_alignment_path != expected_refs[0]
+            or fidelity_input_path != expected_refs[1]
+        ):
+            issues.append(
+                _issue(
+                    "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                    (
+                        "vnext+24 packet fixture upstream refs must match extraction-fidelity "
+                        "catalog refs exactly"
+                    ),
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "fixture_id": fixture_id,
+                        "source_text_hash": source_text_hash,
+                    },
+                )
+            )
+            fixture_valid = False
+
+        for field, raw_path, expected_schema in (
+            (
+                "projection_alignment_path",
+                projection_alignment_path,
+                ADEU_PROJECTION_ALIGNMENT_SCHEMA,
+            ),
+            (
+                "projection_alignment_fidelity_input_path",
+                fidelity_input_path,
+                EXTRACTION_FIDELITY_INPUT_SCHEMA,
+            ),
+        ):
+            try:
+                resolved_path = _resolve_manifest_relative_path(
+                    manifest_path=VNEXT_PLUS24_CATALOG_PATH,
+                    raw_path=raw_path,
+                )
+                upstream_payload = _read_json_object(
+                    resolved_path,
+                    description="vnext+24 extraction-fidelity upstream artifact fixture",
+                )
+                if upstream_payload.get("schema") != expected_schema:
+                    raise ValueError(
+                        _issue(
+                            "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                            "vnext+24 extraction-fidelity upstream fixture schema is invalid",
+                            context={
+                                "manifest_path": str(manifest_path),
+                                "fixture_id": fixture_id,
+                                "field": field,
+                                "path": str(resolved_path),
+                                "schema": upstream_payload.get("schema"),
+                            },
+                        )
+                    )
+                if upstream_payload.get("source_text_hash") != source_text_hash:
+                    raise ValueError(
+                        _issue(
+                            "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                            (
+                                "vnext+24 extraction-fidelity upstream fixture source_text_hash "
+                                "must match packet fixture source_text_hash"
+                            ),
+                            context={
+                                "manifest_path": str(manifest_path),
+                                "fixture_id": fixture_id,
+                                "field": field,
+                                "path": str(resolved_path),
+                                "source_text_hash": source_text_hash,
+                                "upstream_source_text_hash": upstream_payload.get(
+                                    "source_text_hash"
+                                ),
+                            },
+                        )
+                    )
+            except ValueError as exc:
+                issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+                    "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                    str(exc),
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "fixture_id": fixture_id,
+                        "field": field,
+                    },
+                )
+                issue = _map_issue_code(
+                    issue,
+                    code_map={
+                        "URM_STOP_GATE_INPUT_INVALID": (
+                            "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID"
+                        )
+                    },
+                )
+                issues.append(issue)
+                fixture_valid = False
+    return fixture_valid
+
+
+def _validate_vnext_plus24_non_empty_floor(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> bool:
+    observed_codes: set[str] = set()
+    observed_statuses: set[str] = set()
+    has_non_zero_checks = False
+    has_score_mismatch_drift = False
+    for fixture in fixtures:
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            continue
+        for run in runs:
+            if not isinstance(run, dict):
+                continue
+            try:
+                packet_path = _resolve_manifest_relative_path(
+                    manifest_path=manifest_path,
+                    raw_path=run.get("extraction_fidelity_packet_path"),
+                )
+                payload = _read_json_object(
+                    packet_path,
+                    description="extraction-fidelity packet fixture",
+                )
+            except ValueError:
+                continue
+            summary = payload.get("fidelity_summary")
+            if isinstance(summary, Mapping):
+                total_checks = summary.get("total_checks")
+                if isinstance(total_checks, int) and total_checks > 0:
+                    has_non_zero_checks = True
+            fidelity_items = payload.get("fidelity_items")
+            if not isinstance(fidelity_items, list):
+                continue
+            for fidelity_item in fidelity_items:
+                if not isinstance(fidelity_item, Mapping):
+                    continue
+                fidelity_code = fidelity_item.get("fidelity_code")
+                status = fidelity_item.get("status")
+                if isinstance(fidelity_code, str):
+                    observed_codes.add(fidelity_code)
+                if isinstance(status, str):
+                    observed_statuses.add(status)
+                if fidelity_code == "score_mismatch" and status == "drift":
+                    has_score_mismatch_drift = True
+
+    missing_codes = sorted(_FROZEN_VNEXT_PLUS24_NON_EMPTY_FIDELITY_CODES - observed_codes)
+    has_drift_status = "drift" in observed_statuses
+    has_compatible_status = "compatible" in observed_statuses
+    if (
+        has_non_zero_checks
+        and not missing_codes
+        and has_drift_status
+        and has_compatible_status
+        and has_score_mismatch_drift
+    ):
+        return True
+    issues.append(
+        _issue(
+            "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+            (
+                "vnext+24 extraction-fidelity packet fixtures must include non-zero checks, "
+                "required fidelity codes, drift/compatible statuses, and score_mismatch drift"
+            ),
+            context={
+                "manifest_path": str(manifest_path),
+                "required_fidelity_codes": sorted(_FROZEN_VNEXT_PLUS24_NON_EMPTY_FIDELITY_CODES),
+                "observed_fidelity_codes": sorted(observed_codes),
+                "observed_statuses": sorted(observed_statuses),
+                "has_non_zero_checks": has_non_zero_checks,
+                "has_drift_status": has_drift_status,
+                "has_compatible_status": has_compatible_status,
+                "has_score_mismatch_drift": has_score_mismatch_drift,
+                "missing_fidelity_codes": missing_codes,
+            },
+        )
+    )
+    return False
+
+
+def _load_vnext_plus24_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        return _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+24",
+            manifest_schema=VNEXT_PLUS24_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS24_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS24_EXTRACTION_FIDELITY_SPECS,
+            frozen_surface_set=_FROZEN_EXTRACTION_FIDELITY_SURFACE_SET,
+            frozen_surfaces=_FROZEN_EXTRACTION_FIDELITY_SURFACES,
+            surface_description="frozen extraction-fidelity surface id",
+            surface_set_description="frozen extraction-fidelity surface ids",
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_STOP_GATE_INPUT_INVALID": "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": (
+                    "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID"
+                ),
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    "URM_ADEU_EXTRACTION_FIDELITY_MANIFEST_HASH_MISMATCH"
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus24_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS24_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus24_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS24_DEFAULT_METRICS,
+            "vnext_plus24_manifest_hash": "",
+            "vnext_plus24_fixture_count_total": 0,
+            "vnext_plus24_replay_count_total": 0,
+            "vnext_plus24_bytes_hashed_per_replay": 0,
+            "vnext_plus24_bytes_hashed_total": 0,
+        }
+
+    surface_hash_builders: dict[str, Callable[..., Any]] = {
+        "extraction_fidelity_packet_fixtures": _extraction_fidelity_packet_fixture_hash,
+        "extraction_fidelity_projection_fixtures": _extraction_fidelity_projection_fixture_hash,
+    }
+    surface_drift_messages = {
+        "extraction_fidelity_packet_fixtures": "vnext+24 extraction-fidelity packet drift",
+        "extraction_fidelity_projection_fixtures": (
+            "vnext+24 extraction-fidelity projection drift"
+        ),
+    }
+    surface_payload_descriptions = {
+        "extraction_fidelity_packet_fixtures": "extraction-fidelity packet fixture",
+        "extraction_fidelity_projection_fixtures": "extraction-fidelity projection fixture",
+    }
+
+    metric_values: dict[str, float] = {}
+    fixture_groups: list[list[dict[str, Any]]] = []
+    bytes_hashed_per_replay = 0
+    for fixture_key, metric_name, _surface_id, required_run_fields in (
+        _VNEXT_PLUS24_EXTRACTION_FIDELITY_SPECS
+    ):
+        fixtures = cast(list[dict[str, Any]], manifest[fixture_key])
+        fixture_groups.append(fixtures)
+        metric_values[metric_name] = _manifest_metric_pct(
+            manifest_path=resolved_manifest_path,
+            metric_name=metric_name,
+            fixtures=fixtures,
+            replay_count=VNEXT_PLUS24_REPLAY_COUNT,
+            required_run_fields=required_run_fields,
+            run_hash_builder=surface_hash_builders[fixture_key],
+            issues=issues,
+            invalid_issue_code="URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID",
+            drift_issue_code="URM_ADEU_EXTRACTION_FIDELITY_DIAGNOSTIC_DRIFT",
+            drift_issue_message=surface_drift_messages[fixture_key],
+        )
+        bytes_hashed_per_replay += _manifest_bytes_hashed_per_replay(
+            manifest_path=resolved_manifest_path,
+            fixtures=fixtures,
+            required_run_fields=required_run_fields,
+            payload_description=surface_payload_descriptions[fixture_key],
+        )
+
+    packet_fixtures = cast(
+        list[dict[str, Any]],
+        manifest["extraction_fidelity_packet_fixtures"],
+    )
+    if not _validate_vnext_plus24_packet_fixture_inputs(
+        manifest_path=resolved_manifest_path,
+        fixtures=packet_fixtures,
+        issues=issues,
+    ):
+        metric_values["artifact_extraction_fidelity_packet_determinism_pct"] = 0.0
+        metric_values["artifact_extraction_fidelity_projection_determinism_pct"] = 0.0
+    if not _validate_vnext_plus24_non_empty_floor(
+        manifest_path=resolved_manifest_path,
+        fixtures=packet_fixtures,
+        issues=issues,
+    ):
+        metric_values["artifact_extraction_fidelity_packet_determinism_pct"] = 0.0
+
+    fixture_count_total = sum(len(fixtures) for fixtures in fixture_groups)
+    replay_count_total = sum(
+        len(cast(list[Any], fixture.get("runs", [])))
+        for fixtures in fixture_groups
+        for fixture in fixtures
+    )
+
+    return {
+        **metric_values,
+        "vnext_plus24_manifest_hash": manifest_hash,
+        "vnext_plus24_fixture_count_total": fixture_count_total,
+        "vnext_plus24_replay_count_total": replay_count_total,
+        "vnext_plus24_bytes_hashed_per_replay": bytes_hashed_per_replay,
+        "vnext_plus24_bytes_hashed_total": VNEXT_PLUS24_REPLAY_COUNT
+        * bytes_hashed_per_replay,
+    }
+
+
 def build_stop_gate_metrics(
     *,
     incident_packet_paths: list[Path],
@@ -10760,6 +12053,7 @@ def build_stop_gate_metrics(
     vnext_plus21_manifest_path: Path | None = None,
     vnext_plus22_manifest_path: Path | None = None,
     vnext_plus23_manifest_path: Path | None = None,
+    vnext_plus24_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -11161,6 +12455,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus23_manifest_path,
         issues=issues,
     )
+    vnext_plus24_metrics = _compute_vnext_plus24_metrics(
+        manifest_path=vnext_plus24_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -11232,6 +12530,7 @@ def build_stop_gate_metrics(
             + int(vnext_plus21_metrics["vnext_plus21_fixture_count_total"])
             + int(vnext_plus22_metrics["vnext_plus22_fixture_count_total"])
             + int(vnext_plus23_metrics["vnext_plus23_fixture_count_total"])
+            + int(vnext_plus24_metrics["vnext_plus24_fixture_count_total"])
         ),
         total_replays=(
             int(vnext_plus19_metrics["vnext_plus19_replay_count_total"])
@@ -11239,6 +12538,7 @@ def build_stop_gate_metrics(
             + int(vnext_plus21_metrics["vnext_plus21_replay_count_total"])
             + int(vnext_plus22_metrics["vnext_plus22_replay_count_total"])
             + int(vnext_plus23_metrics["vnext_plus23_replay_count_total"])
+            + int(vnext_plus24_metrics["vnext_plus24_replay_count_total"])
         ),
         bytes_hashed_per_replay=(
             int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_per_replay", 0))
@@ -11246,6 +12546,7 @@ def build_stop_gate_metrics(
             + int(vnext_plus21_metrics.get("vnext_plus21_bytes_hashed_per_replay", 0))
             + int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_per_replay", 0))
             + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_per_replay", 0))
+            + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_per_replay", 0))
         ),
         bytes_hashed_total=(
             int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_total", 0))
@@ -11253,6 +12554,7 @@ def build_stop_gate_metrics(
             + int(vnext_plus21_metrics.get("vnext_plus21_bytes_hashed_total", 0))
             + int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_total", 0))
             + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_total", 0))
+            + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_total", 0))
         ),
         runtime_started=runtime_started,
     )
@@ -11435,6 +12737,12 @@ def build_stop_gate_metrics(
         "artifact_semantics_v4_candidate_projection_determinism_pct": vnext_plus23_metrics[
             "artifact_semantics_v4_candidate_projection_determinism_pct"
         ],
+        "artifact_extraction_fidelity_packet_determinism_pct": vnext_plus24_metrics[
+            "artifact_extraction_fidelity_packet_determinism_pct"
+        ],
+        "artifact_extraction_fidelity_projection_determinism_pct": vnext_plus24_metrics[
+            "artifact_extraction_fidelity_projection_determinism_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -11594,6 +12902,14 @@ def build_stop_gate_metrics(
             "artifact_semantics_v4_candidate_projection_determinism_pct"
         ]
         >= THRESHOLDS["artifact_semantics_v4_candidate_projection_determinism_pct"],
+        "artifact_extraction_fidelity_packet_determinism": metrics[
+            "artifact_extraction_fidelity_packet_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_extraction_fidelity_packet_determinism_pct"],
+        "artifact_extraction_fidelity_projection_determinism": metrics[
+            "artifact_extraction_fidelity_projection_determinism_pct"
+        ]
+        >= THRESHOLDS["artifact_extraction_fidelity_projection_determinism_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -11699,6 +13015,11 @@ def build_stop_gate_metrics(
                 if vnext_plus23_manifest_path is not None
                 else VNEXT_PLUS23_MANIFEST_PATH
             ),
+            "vnext_plus24_manifest_path": str(
+                vnext_plus24_manifest_path
+                if vnext_plus24_manifest_path is not None
+                else VNEXT_PLUS24_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -11715,6 +13036,7 @@ def build_stop_gate_metrics(
         "vnext_plus21_manifest_hash": vnext_plus21_metrics["vnext_plus21_manifest_hash"],
         "vnext_plus22_manifest_hash": vnext_plus22_metrics["vnext_plus22_manifest_hash"],
         "vnext_plus23_manifest_hash": vnext_plus23_metrics["vnext_plus23_manifest_hash"],
+        "vnext_plus24_manifest_hash": vnext_plus24_metrics["vnext_plus24_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -11753,6 +13075,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+21 manifest hash: `{report.get('vnext_plus21_manifest_hash')}`")
     lines.append(f"- vnext+22 manifest hash: `{report.get('vnext_plus22_manifest_hash')}`")
     lines.append(f"- vnext+23 manifest hash: `{report.get('vnext_plus23_manifest_hash')}`")
+    lines.append(f"- vnext+24 manifest hash: `{report.get('vnext_plus24_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -12010,6 +13333,14 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('artifact_semantics_v4_candidate_projection_determinism_pct')}`"
     )
     lines.append(
+        "- artifact extraction-fidelity packet determinism pct: "
+        f"`{metrics.get('artifact_extraction_fidelity_packet_determinism_pct')}`"
+    )
+    lines.append(
+        "- artifact extraction-fidelity projection determinism pct: "
+        f"`{metrics.get('artifact_extraction_fidelity_projection_determinism_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -12208,6 +13539,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS23_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus24-manifest",
+        dest="vnext_plus24_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS24_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -12239,6 +13576,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus21_manifest_path=args.vnext_plus21_manifest_path,
         vnext_plus22_manifest_path=args.vnext_plus22_manifest_path,
         vnext_plus23_manifest_path=args.vnext_plus23_manifest_path,
+        vnext_plus24_manifest_path=args.vnext_plus24_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
