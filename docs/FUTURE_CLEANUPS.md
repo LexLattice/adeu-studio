@@ -70,3 +70,12 @@ current milestone PR sequence.
   (`*_c4_guards.py`, `*_n4_guards.py`, `*_t4_guards.py`, `*_v4_guards.py`,
   `test_extraction_fidelity_x4_guards.py`) into shared helper utilities for
   materialization-target lists, fixture-surface hashing, and non-enforcement key scans.
+- `cleanup-next-arc-options-rollover-discipline`:
+  reduce stale planning-state drift in `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md` by
+  introducing a lightweight update checklist/script that is run whenever an arc
+  closeout decision doc is merged (execution checkpoint + proposed freeze candidate
+  sections must be advanced in the same follow-up commit).
+- `cleanup-vnext-plus25-s3b-metric-key-finalization`:
+  before freezing `docs/LOCKED_CONTINUATION_vNEXT_PLUS25.md`, validate and align
+  proposed v25 S3b stop-gate metric key names against runtime conventions to avoid
+  lock/doc naming drift during implementation.

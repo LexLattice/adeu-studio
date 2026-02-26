@@ -94,6 +94,6 @@ Interpretation:
 
 ## Suggested Next Artifacts
 
-1. Draft `docs/LOCKED_CONTINUATION_vNEXT_PLUS25.md` with explicit post-v24 scope and continuity constraints.
-2. Refresh the next-arc options document for post-v24 sequencing and lock selection.
+1. Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS25.md` freeze content with explicit post-v24 scope and continuity constraints.
+2. Keep `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md` execution checkpoint synchronized with v24 closeout and v25 selection state.
 3. Reuse the v24 deterministic closeout command path as continuity checks in early v25 PRs.
