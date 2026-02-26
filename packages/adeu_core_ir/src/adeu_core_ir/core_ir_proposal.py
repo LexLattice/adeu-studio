@@ -38,7 +38,9 @@ class AdeuCoreIRProposal(BaseModel):
     core_ir_artifact_ref: str = Field(min_length=1)
     lane_artifact_refs: list[str] = Field(default_factory=list)
     integrity_artifact_refs: list[str] = Field(default_factory=list)
-    not_produced_reasons: list[CoreIRProposalNotProducedReason] = Field(default_factory=list)
+    not_produced_reasons: list[CoreIRProposalNotProducedReason] = Field(
+        default_factory=list
+    )
     summary: CoreIRProposalSummary
 
     @model_validator(mode="after")
@@ -62,7 +64,8 @@ class AdeuCoreIRProposal(BaseModel):
         ]
         if reason_pairs != sorted(reason_pairs):
             raise ValueError(
-                "not_produced_reasons must be lexicographically sorted by artifact_family/reason_code"
+                "not_produced_reasons must be lexicographically sorted by "
+                "artifact_family/reason_code"
             )
         if len(set(reason_pairs)) != len(reason_pairs):
             raise ValueError("not_produced_reasons must not contain duplicate entries")
@@ -74,8 +77,12 @@ class AdeuCoreIRProposal(BaseModel):
         return self
 
 
-def canonicalize_core_ir_proposal_payload(payload: AdeuCoreIRProposal | dict[str, Any]) -> dict[str, Any]:
+def canonicalize_core_ir_proposal_payload(
+    payload: AdeuCoreIRProposal | dict[str, Any],
+) -> dict[str, Any]:
     normalized = (
-        payload if isinstance(payload, AdeuCoreIRProposal) else AdeuCoreIRProposal.model_validate(payload)
+        payload
+        if isinstance(payload, AdeuCoreIRProposal)
+        else AdeuCoreIRProposal.model_validate(payload)
     )
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)

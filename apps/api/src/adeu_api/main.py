@@ -2357,14 +2357,12 @@ def _build_core_ir_proposal_packet(
         ),
     ]
 
-    lane_refs = sorted(
-        [
-            _core_ir_proposer_artifact_ref(
-                schema=str(lane_report_payload["schema"]),
-                payload=lane_report_payload,
-            )
-        ]
-    )
+    lane_refs = [
+        _core_ir_proposer_artifact_ref(
+            schema=str(lane_report_payload["schema"]),
+            payload=lane_report_payload,
+        )
+    ]
     integrity_refs = sorted(
         _core_ir_proposer_artifact_ref(
             schema=str(payload["schema"]),

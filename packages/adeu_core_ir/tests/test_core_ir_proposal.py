@@ -53,7 +53,10 @@ def test_core_ir_proposal_rejects_unsorted_integrity_refs() -> None:
     payload = _minimal_payload()
     payload["integrity_artifact_refs"] = list(reversed(payload["integrity_artifact_refs"]))  # type: ignore[index]
 
-    with pytest.raises(ValueError, match="integrity_artifact_refs must be lexicographically sorted"):
+    with pytest.raises(
+        ValueError,
+        match="integrity_artifact_refs must be lexicographically sorted",
+    ):
         AdeuCoreIRProposal.model_validate(payload)
 
 
