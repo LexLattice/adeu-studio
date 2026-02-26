@@ -56,3 +56,17 @@ current milestone PR sequence.
   `packages/urm_runtime/src/urm_runtime/stop_gate_tools.py:build_stop_gate_metrics`
   with a typed request model (for example Pydantic/dataclass) to reduce call-site drift
   and improve maintainability without changing metric behavior.
+- `cleanup-vnext-plus24-x4-catalog-helper-cache`:
+  apply a tiny read-path optimization in
+  `apps/api/tests/test_extraction_fidelity_x4_guards.py` by caching `_catalog_payload`
+  (and clearing that cache in the autouse fixture) to avoid repeated fixture file I/O
+  when test case count grows.
+- `cleanup-vnext-plus24-transfer-report-builder`:
+  add a dedicated v24 extraction-fidelity transfer-report builder module/script/test
+  (parity with prior arcs) so `docs/EXTRACTION_FIDELITY_TRANSFER_REPORT_vNEXT_PLUS24.md`
+  is generated mechanically from manifests/captured fixtures instead of manual updates.
+- `cleanup-read-surface-guard-harness-consolidation`:
+  consolidate repeated guard-test scaffolding across read-surface families
+  (`*_c4_guards.py`, `*_n4_guards.py`, `*_t4_guards.py`, `*_v4_guards.py`,
+  `test_extraction_fidelity_x4_guards.py`) into shared helper utilities for
+  materialization-target lists, fixture-surface hashing, and non-enforcement key scans.
