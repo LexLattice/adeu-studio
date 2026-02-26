@@ -51,3 +51,8 @@ current milestone PR sequence.
   for the planned v25 diff-viewer surface, add an explicit UI-safe render key contract
   (derived key field or constrained `match_id` profile) so frontend key props do not rely
   on opaque `match_id` content assumptions from v24.
+- `cleanup-stop-gate-metrics-input-model`:
+  replace the wide argument list for
+  `packages/urm_runtime/src/urm_runtime/stop_gate_tools.py:build_stop_gate_metrics`
+  with a typed request model (for example Pydantic/dataclass) to reduce call-site drift
+  and improve maintainability without changing metric behavior.
