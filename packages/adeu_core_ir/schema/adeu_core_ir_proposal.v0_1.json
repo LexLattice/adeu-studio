@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "CoreIRProposalNotProducedReason": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_family": {
+          "minLength": 1,
+          "title": "Artifact Family",
+          "type": "string"
+        },
+        "message": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message"
+        },
+        "reason_code": {
+          "minLength": 1,
+          "title": "Reason Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_family",
+        "reason_code"
+      ],
+      "title": "CoreIRProposalNotProducedReason",
+      "type": "object"
+    },
+    "CoreIRProposalSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion_node_count": {
+          "minimum": 0,
+          "title": "Assertion Node Count",
+          "type": "integer"
+        },
+        "candidate_count": {
+          "minimum": 0,
+          "title": "Candidate Count",
+          "type": "integer"
+        },
+        "integrity_ref_count": {
+          "minimum": 0,
+          "title": "Integrity Ref Count",
+          "type": "integer"
+        },
+        "lane_ref_count": {
+          "minimum": 0,
+          "title": "Lane Ref Count",
+          "type": "integer"
+        },
+        "logic_tree_max_depth": {
+          "minimum": 0,
+          "title": "Logic Tree Max Depth",
+          "type": "integer"
+        },
+        "relation_edge_count": {
+          "minimum": 0,
+          "title": "Relation Edge Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "candidate_count",
+        "assertion_node_count",
+        "relation_edge_count",
+        "logic_tree_max_depth",
+        "lane_ref_count",
+        "integrity_ref_count"
+      ],
+      "title": "CoreIRProposalSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "client_request_id": {
+      "minLength": 1,
+      "title": "Client Request Id",
+      "type": "string"
+    },
+    "core_ir_artifact_ref": {
+      "minLength": 1,
+      "title": "Core Ir Artifact Ref",
+      "type": "string"
+    },
+    "integrity_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Integrity Artifact Refs",
+      "type": "array"
+    },
+    "lane_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Lane Artifact Refs",
+      "type": "array"
+    },
+    "not_produced_reasons": {
+      "items": {
+        "$ref": "#/$defs/CoreIRProposalNotProducedReason"
+      },
+      "title": "Not Produced Reasons",
+      "type": "array"
+    },
+    "provider": {
+      "enum": [
+        "mock",
+        "openai",
+        "codex"
+      ],
+      "title": "Provider",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_core_ir_proposal@0.1",
+      "default": "adeu_core_ir_proposal@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/$defs/CoreIRProposalSummary"
+    },
+    "surface_id": {
+      "const": "adeu_core_ir.propose",
+      "default": "adeu_core_ir.propose",
+      "title": "Surface Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_request_id",
+    "provider",
+    "core_ir_artifact_ref",
+    "summary"
+  ],
+  "title": "AdeuCoreIRProposal",
+  "type": "object"
+}
