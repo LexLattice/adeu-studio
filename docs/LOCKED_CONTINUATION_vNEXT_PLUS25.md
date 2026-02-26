@@ -58,8 +58,22 @@ Decision basis:
     - `surface_id`
     - `client_request_id`
     - `provider`
+  - idempotency semantic payload hash is frozen:
+    - `source_text_hash = sha256` over request `source_text` after frozen normalization:
+      - trim outer ASCII whitespace `[ \t\n\r\f\v]`
+      - no internal whitespace collapsing
+      - no Unicode normalization
+      - UTF-8 encoding
+    - `request_semantic_hash = sha256_canonical_json({surface_id, provider, source_text_hash, requested_candidate_count, mode})`
+    - excluded from `request_semantic_hash`:
+      - `client_request_id`
+      - trace/logging fields
+      - transport-only envelope fields
   - same `client_request_id` with identical semantic payload must replay byte-identically.
   - same `client_request_id` with a different `provider` for the same `surface_id` is request-invalid and fails closed.
+  - idempotency conflict detection is frozen:
+    - if stored `request_semantic_hash` differs from recomputed `request_semantic_hash`, fail closed with:
+      - `URM_ADEU_CORE_IR_PROPOSER_REQUEST_INVALID`
   - same `client_request_id` with different semantic payload must fail closed deterministically.
 - Stop-gate metrics remain additive on `stop_gate_metrics@1`.
 - New schema-family introduction lock is frozen:
@@ -83,6 +97,15 @@ Decision basis:
   - if any required trigger metric is below threshold in the latest v24 closeout evidence:
     - v25 implementation is blocked
     - execute `S9` parity-remediation lock and closeout first.
+- Read-surface regression sentinel precondition lock is frozen:
+  - before v25 implementation PR1, replay frozen v19 read-surface fixtures from:
+    - `apps/api/fixtures/stop_gate/vnext_plus19_manifest.json`
+  - required sentinel surfaces:
+    - `adeu.read_surface.core_ir`
+    - `adeu.read_surface.lane`
+    - `adeu.read_surface.integrity`
+  - sentinel replay payload hashes (after frozen `created_at` exclusion rules) must match v24 canonical baseline.
+  - sentinel mismatch blocks v25 implementation until regression is resolved.
 
 ## Arc Scope (Draft Lock)
 
@@ -168,7 +191,13 @@ Activate a bounded core-ir proposer surface with explicit provider boundaries an
     - `client_request_id`
     - `provider`
     - `source_text`
-  - optional fields are additive-only and must not alter idempotency identity semantics.
+  - frozen semantic request knobs include:
+    - `requested_candidate_count`
+    - `mode`
+  - `requested_candidate_count` constraints are frozen:
+    - integer in `[1, 20]`
+    - deterministic default is `1` when omitted before semantic-hash evaluation.
+  - request fields outside the frozen semantic-hash projection are additive-only and must not alter idempotency identity semantics.
 - Response-envelope lock is frozen:
   - `schema = "adeu_core_ir_proposer_response@0.1"`
   - response must preserve v14 proposer envelope continuity fields:
@@ -178,6 +207,9 @@ Activate a bounded core-ir proposer surface with explicit provider boundaries an
   - response additionally includes:
     - `surface_id = "adeu_core_ir.propose"`
     - `proposal_packet` (`adeu_core_ir_proposal@0.1`)
+  - proposal-packet placement is frozen:
+    - `proposal_packet` is per-response aggregate for the selected top-ranked candidate only.
+    - candidate-level `proposal_packet` embeddings inside `candidates[]` are forbidden.
 - Deterministic acceptance boundary lock is frozen:
   - replay/stop-gate acceptance paths use persisted provider fixtures only.
   - live provider calls are forbidden in deterministic acceptance.
@@ -193,11 +225,25 @@ Activate a bounded core-ir proposer surface with explicit provider boundaries an
     - `client_request_id`
     - `surface_id`
     - `provider`
+    - `selected_candidate_rank`
     - `core_ir_artifact_ref`
     - `lane_artifact_refs`
     - `integrity_artifact_refs`
     - `not_produced_reasons`
     - `summary`
+  - `selected_candidate_rank` is frozen to:
+    - `1`
+  - additive payload slots are frozen to:
+    - `lane_artifacts`
+    - `integrity_artifacts`
+- Artifact-reference resolution lock is frozen:
+  - all `*_artifact_ref` values in this arc are non-persisted content-address refs with format:
+    - `proposed:sha256:<64-lowercase-hex>`
+  - refs are deterministic content addresses only and must not imply canonical artifact-store writes/lookups.
+  - `core_ir_artifact_ref` must hash the selected candidate core-ir payload in `response.candidates`.
+  - `lane_artifact_refs` / `integrity_artifact_refs`, when present, must hash payloads embedded in:
+    - `proposal_packet.lane_artifacts`
+    - `proposal_packet.integrity_artifacts`
 - Proposer packet summary lock is frozen:
   - `summary` required fields:
     - `candidate_count`
@@ -206,6 +252,17 @@ Activate a bounded core-ir proposer surface with explicit provider boundaries an
     - `logic_tree_max_depth`
     - `lane_ref_count`
     - `integrity_ref_count`
+- Summary computation lock is frozen:
+  - `summary.candidate_count == len(response.candidates)`.
+  - `summary.candidate_count == requested_candidate_count`; mismatch is payload-invalid.
+  - `summary.assertion_node_count` equals count of selected candidate core-ir nodes where:
+    - `layer == "E"`
+    - `kind in {"Claim","Assumption","Question","Evidence"}`
+  - `summary.relation_edge_count` equals count of selected candidate core-ir edges where:
+    - `type in {"about","defines","supports","refutes","depends_on","justifies","gates","serves_goal","prioritizes","excepts"}`
+  - `summary.logic_tree_max_depth` equals the maximum simple-path edge depth over selected candidate core-ir `depends_on` edges (0 when none).
+  - `summary.lane_ref_count == len(lane_artifact_refs)`.
+  - `summary.integrity_ref_count == len(integrity_artifact_refs)`.
 - Evidence linkage lock is frozen:
   - proposer packet must include deterministic evidence refs for produced core-ir + lane + integrity artifacts.
   - when an artifact family is not produced, packet must include deterministic `not_produced_reasons` entries for that family.
@@ -214,6 +271,23 @@ Activate a bounded core-ir proposer surface with explicit provider boundaries an
     - `artifact_family`
     - `reason_code`
     - optional `message`
+  - `artifact_family` enum is frozen to exactly:
+    - `core_ir`
+    - `lane_projection`
+    - `lane_report`
+    - `integrity.dangling_reference`
+    - `integrity.cycle_policy`
+    - `integrity.deontic_conflict`
+    - `integrity.reference_integrity_extended`
+    - `integrity.cycle_policy_extended`
+    - `integrity.deontic_conflict_extended`
+  - `reason_code` enum is frozen to exactly:
+    - `PROVIDER_DISABLED`
+    - `UNSUPPORTED_MODE`
+    - `VALIDATION_FAILED`
+    - `INTEGRITY_FAILED`
+    - `TIME_BUDGET`
+    - `UNKNOWN`
   - entries are sorted lexicographically by:
     - `artifact_family`
     - `reason_code`
@@ -387,6 +461,7 @@ Keep v25 proposer activation additive and bounded while preventing policy-execut
   - v25 proposer paths must not mutate persisted artifacts outside explicitly declared proposer artifact boundaries.
 - Proposer mutation-boundary lock is frozen:
   - runtime proposer endpoints in this arc are read-through with no canonical artifact writes.
+  - content-address `proposed:sha256:*` refs are computed in-memory from response payloads and do not authorize storage writes.
   - allowed persisted writes in deterministic acceptance are limited to captured fixture artifacts for:
     - `apps/api/fixtures/stop_gate/vnext_plus25_manifest.json`
     - artifact JSON files referenced by that manifest
