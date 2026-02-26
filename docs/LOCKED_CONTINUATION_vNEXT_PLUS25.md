@@ -127,6 +127,10 @@ Release provider continuity in a controlled way to permit exactly one core-ir pr
   - v25 extends the current proposer matrix by exactly one additive `surface_id`:
     - `adeu_core_ir.propose`
   - all existing proposer `surface_id` entries remain present and unchanged unless explicitly marked additive for compatibility.
+- Surface-id token lock is frozen:
+  - canonical v25 core-ir proposer `surface_id` token is exactly:
+    - `adeu_core_ir.propose`
+  - alias tokens (for example `adeu.core_ir.propose`) are out-of-scope in this arc.
 - Fail-closed provider lock remains frozen:
   - unsupported provider/surface combinations fail deterministically before provider dispatch.
 - Mock-provider strictness lock is frozen:
@@ -177,6 +181,10 @@ Activate a bounded core-ir proposer surface with explicit provider boundaries an
 - Deterministic acceptance boundary lock is frozen:
   - replay/stop-gate acceptance paths use persisted provider fixtures only.
   - live provider calls are forbidden in deterministic acceptance.
+- Provider-dispatch boundary lock is frozen:
+  - provider dispatch is allowed only for the frozen proposer surface:
+    - `POST /urm/core-ir/propose`
+  - no-provider-call guard continuity from v19-v24 remains required for non-proposer read surfaces and may not be relaxed in this arc.
 - Contract continuity lock is frozen:
   - v14 provider envelope compatibility requirements remain additive and authoritative.
 - Proposer packet schema lock is frozen:
@@ -320,6 +328,11 @@ Make v25 proposer determinism and parity measurable with additive stop-gate metr
     - normalized contract fingerprint hashes are equal across `mock|openai|codex`.
   - metric percentage computation remains:
     - `pct = 100 * passed / total`
+- Deterministic runtime-budget continuity lock is frozen:
+  - v18 tooling continuity threshold remains required and unchanged:
+    - `artifact_stop_gate_ci_budget_within_ceiling_pct == 100.0`
+  - v25 proposer fixture replay defaults to deterministic concurrent replay mode (`N=3`) under frozen deterministic env locks (`TZ=UTC`, `LC_ALL=C`).
+  - optimization may not alter fixture selection, replay cardinality, parity-fingerprint rules, or pass/fail semantics.
 - Additive metric keys are frozen on `stop_gate_metrics@1`:
   - `artifact_core_ir_proposer_contract_valid_pct`
   - `artifact_core_ir_proposer_provider_parity_pct`

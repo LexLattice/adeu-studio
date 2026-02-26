@@ -84,3 +84,11 @@ current milestone PR sequence.
   (`remote_latency_ms`, token counters, and capture-time provider metadata) with
   deterministic replay-safe exclusion rules so observability can improve without
   destabilizing lock-level determinism contracts.
+- `cleanup-vnext-plus25-parity-topology-strengthening`:
+  evaluate extending v25 contract-level parity fingerprinting with deterministic
+  topology-sensitive invariants (beyond count-based summaries) to reduce false-positive
+  parity passes where structurally distinct graphs share identical summary counts.
+- `cleanup-vnext-plus25-surface-id-naming-normalization`:
+  evaluate long-term surface-id naming normalization for proposer families
+  (for example `adeu_core_ir.propose` vs flatter dot-token patterns) and define
+  an additive migration/alias policy before any cross-family renaming.
