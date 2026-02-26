@@ -139,7 +139,9 @@ from .explain_builder import (
 )
 from .extraction_fidelity_vnext_plus24 import (
     ExtractionFidelityVnextPlus24Error,
+    ProjectionAlignmentFidelityProjectionVnextPlus24,
     build_extraction_fidelity_packet_vnext_plus24,
+    build_extraction_fidelity_projection_vnext_plus24,
     extraction_fidelity_non_enforcement_context,
 )
 from .hashing import canonical_json, sha256_canonical_json, sha256_text
@@ -6654,6 +6656,30 @@ def get_urm_extraction_fidelity_source_endpoint(
 
     _set_read_surface_cache_header(response)
     return AdeuProjectionAlignmentFidelity.model_validate(payload)
+
+
+@app.get(
+    "/urm/extraction-fidelity/projection",
+    response_model=ProjectionAlignmentFidelityProjectionVnextPlus24,
+)
+def get_urm_extraction_fidelity_projection_endpoint(
+    response: Response,
+) -> ProjectionAlignmentFidelityProjectionVnextPlus24:
+    try:
+        with extraction_fidelity_non_enforcement_context():
+            projection = build_extraction_fidelity_projection_vnext_plus24()
+    except ExtractionFidelityVnextPlus24Error as exc:
+        raise HTTPException(
+            status_code=_extraction_fidelity_status_code(exc.code),
+            detail=_extraction_fidelity_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+    _set_read_surface_cache_header(response)
+    return projection
 
 
 @app.post("/urm/semantic_depth/materialize", response_model=SemanticDepthMaterializeResponse)

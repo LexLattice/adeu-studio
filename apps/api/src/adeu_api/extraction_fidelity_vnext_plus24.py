@@ -8,7 +8,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal, NamedTuple
+from typing import Any, Literal, NamedTuple, cast
 
 from adeu_core_ir import (
     AdeuProjectionAlignment,
@@ -29,6 +29,7 @@ VNEXT_PLUS24_CATALOG_PATH = (
 )
 
 _EXTRACTION_FIDELITY_PACKET_SCHEMA = "adeu_projection_alignment_fidelity@0.1"
+_EXTRACTION_FIDELITY_PROJECTION_SCHEMA = "projection_alignment_fidelity_projection.vnext_plus24@1"
 _ADEU_PROJECTION_ALIGNMENT_SCHEMA = "adeu_projection_alignment@0.1"
 _ADEU_PROJECTION_ALIGNMENT_FIDELITY_INPUT_SCHEMA = "adeu_projection_alignment_fidelity_input@0.1"
 _FROZEN_FIDELITY_CODES = (
@@ -36,6 +37,8 @@ _FROZEN_FIDELITY_CODES = (
     "span_mismatch",
     "score_mismatch",
 )
+_FROZEN_FIDELITY_STATUSES = ("compatible", "drift")
+_FROZEN_FIDELITY_SEVERITIES = ("high", "low", "medium")
 _SCORE_DELTA_MILLI_THRESHOLD = 50
 _ASCII_WHITESPACE_RE = re.compile(r"[ \t\n\r\f\v]+")
 _EXTRACTION_FIDELITY_NON_ENFORCEMENT_CONTEXT: ContextVar[bool] = ContextVar(
@@ -74,6 +77,60 @@ class ExtractionFidelityCatalog(BaseModel):
         source_hashes = [entry.source_text_hash for entry in self.entries]
         if source_hashes != sorted(source_hashes):
             raise ValueError("catalog entries must be sorted by source_text_hash")
+        return self
+
+
+class ProjectionAlignmentFidelityProjectionVnextPlus24(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["projection_alignment_fidelity_projection.vnext_plus24@1"] = (
+        _EXTRACTION_FIDELITY_PROJECTION_SCHEMA
+    )
+    source_count: int = Field(ge=0)
+    fidelity_item_count: int = Field(ge=0)
+    fidelity_counts_by_code: dict[str, int] = Field(default_factory=dict)
+    fidelity_counts_by_status: dict[str, int] = Field(default_factory=dict)
+    fidelity_counts_by_severity: dict[str, int] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "ProjectionAlignmentFidelityProjectionVnextPlus24":
+        for field_name, valid_keys, unsupported_key_error in (
+            (
+                "fidelity_counts_by_code",
+                set(_FROZEN_FIDELITY_CODES),
+                "fidelity_counts_by_code contains unsupported fidelity_code",
+            ),
+            (
+                "fidelity_counts_by_status",
+                set(_FROZEN_FIDELITY_STATUSES),
+                "fidelity_counts_by_status contains unsupported status value",
+            ),
+            (
+                "fidelity_counts_by_severity",
+                set(_FROZEN_FIDELITY_SEVERITIES),
+                "fidelity_counts_by_severity contains unsupported severity value",
+            ),
+        ):
+            counts_dict = cast(dict[str, int], getattr(self, field_name))
+            if list(counts_dict.keys()) != sorted(counts_dict.keys()):
+                raise ValueError(f"{field_name} keys must be lexicographically sorted")
+            if any(key not in valid_keys for key in counts_dict):
+                raise ValueError(unsupported_key_error)
+            if any(value < 0 for value in counts_dict.values()):
+                raise ValueError(f"{field_name} values must be non-negative integers")
+
+        if self.fidelity_item_count != sum(self.fidelity_counts_by_code.values()):
+            raise ValueError(
+                "fidelity_item_count must equal sum(fidelity_counts_by_code.values())"
+            )
+        if self.fidelity_item_count != sum(self.fidelity_counts_by_status.values()):
+            raise ValueError(
+                "fidelity_item_count must equal sum(fidelity_counts_by_status.values())"
+            )
+        if self.fidelity_item_count != sum(self.fidelity_counts_by_severity.values()):
+            raise ValueError(
+                "fidelity_item_count must equal sum(fidelity_counts_by_severity.values())"
+            )
         return self
 
 
@@ -550,3 +607,77 @@ def build_extraction_fidelity_packet_vnext_plus24(
             context={"source_text_hash": source_text_hash, "error": str(exc)},
         ) from exc
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def build_extraction_fidelity_projection_vnext_plus24(
+    *,
+    catalog_path: Path | None = None,
+) -> ProjectionAlignmentFidelityProjectionVnextPlus24:
+    _require_extraction_fidelity_non_enforcement_context(
+        operation="build_extraction_fidelity_projection_vnext_plus24"
+    )
+
+    index = _catalog_index(catalog_path=catalog_path)
+    source_text_hashes = sorted(index.entries_by_source_text_hash.keys())
+    if not source_text_hashes:
+        raise _extraction_fidelity_error(
+            code="URM_ADEU_EXTRACTION_FIDELITY_ARTIFACT_NOT_FOUND",
+            reason="extraction-fidelity projection catalog has no source entries",
+            context={"path": str(index.catalog_path)},
+        )
+
+    packets = [
+        build_extraction_fidelity_packet_vnext_plus24(
+            source_text_hash=source_text_hash,
+            catalog_path=index.catalog_path,
+        )
+        for source_text_hash in source_text_hashes
+    ]
+
+    fidelity_code_counts = Counter[str]()
+    fidelity_status_counts = Counter[str]()
+    fidelity_severity_counts = Counter[str]()
+    fidelity_item_count = 0
+    for packet in packets:
+        packet_items = packet.get("fidelity_items")
+        if not isinstance(packet_items, list):
+            raise _extraction_fidelity_error(
+                code="URM_ADEU_EXTRACTION_FIDELITY_PAYLOAD_INVALID",
+                reason="extraction-fidelity packet payload missing fidelity_items list",
+                context={"source_text_hash": packet.get("source_text_hash")},
+            )
+        fidelity_item_count += len(packet_items)
+        for item in packet_items:
+            if not isinstance(item, Mapping):
+                raise _extraction_fidelity_error(
+                    code="URM_ADEU_EXTRACTION_FIDELITY_PAYLOAD_INVALID",
+                    reason="extraction-fidelity packet item must be an object",
+                    context={"source_text_hash": packet.get("source_text_hash")},
+                )
+            fidelity_code_counts[str(item.get("fidelity_code"))] += 1
+            fidelity_status_counts[str(item.get("status"))] += 1
+            fidelity_severity_counts[str(item.get("severity"))] += 1
+
+    payload: dict[str, Any] = {
+        "schema": _EXTRACTION_FIDELITY_PROJECTION_SCHEMA,
+        "source_count": len(source_text_hashes),
+        "fidelity_item_count": fidelity_item_count,
+        "fidelity_counts_by_code": {
+            key: fidelity_code_counts[key] for key in sorted(_FROZEN_FIDELITY_CODES)
+        },
+        "fidelity_counts_by_status": {
+            key: fidelity_status_counts[key] for key in sorted(_FROZEN_FIDELITY_STATUSES)
+        },
+        "fidelity_counts_by_severity": {
+            key: fidelity_severity_counts[key] for key in sorted(_FROZEN_FIDELITY_SEVERITIES)
+        },
+    }
+
+    try:
+        return ProjectionAlignmentFidelityProjectionVnextPlus24.model_validate(payload)
+    except Exception as exc:
+        raise _extraction_fidelity_error(
+            code="URM_ADEU_EXTRACTION_FIDELITY_PAYLOAD_INVALID",
+            reason="extraction-fidelity projection payload failed schema validation",
+            context={"error": str(exc)},
+        ) from exc

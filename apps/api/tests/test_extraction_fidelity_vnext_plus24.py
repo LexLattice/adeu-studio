@@ -37,11 +37,28 @@ def _build_packet(**kwargs: str | Path) -> dict[str, object]:
         return extraction_fidelity.build_extraction_fidelity_packet_vnext_plus24(**kwargs)
 
 
+def _build_projection(
+    **kwargs: str | Path,
+) -> extraction_fidelity.ProjectionAlignmentFidelityProjectionVnextPlus24:
+    with extraction_fidelity.extraction_fidelity_non_enforcement_context():
+        return extraction_fidelity.build_extraction_fidelity_projection_vnext_plus24(**kwargs)
+
+
 def test_build_extraction_fidelity_packet_requires_runtime_non_enforcement_context() -> None:
     with pytest.raises(extraction_fidelity.ExtractionFidelityVnextPlus24Error) as exc_info:
         extraction_fidelity.build_extraction_fidelity_packet_vnext_plus24(
             source_text_hash=_source_text_hash()
         )
+
+    assert exc_info.value.code == "URM_ADEU_EXTRACTION_FIDELITY_REQUEST_INVALID"
+    assert (
+        exc_info.value.reason == "extraction-fidelity runtime non-enforcement context is not active"
+    )
+
+
+def test_build_extraction_fidelity_projection_requires_runtime_non_enforcement_context() -> None:
+    with pytest.raises(extraction_fidelity.ExtractionFidelityVnextPlus24Error) as exc_info:
+        extraction_fidelity.build_extraction_fidelity_projection_vnext_plus24()
 
     assert exc_info.value.code == "URM_ADEU_EXTRACTION_FIDELITY_REQUEST_INVALID"
     assert (
@@ -114,6 +131,30 @@ def test_build_extraction_fidelity_packet_is_deterministic_and_schema_valid() ->
     assert len(by_code["span_mismatch"]["observed_hash"]) == 64
 
 
+def test_build_extraction_fidelity_projection_is_deterministic_and_schema_valid() -> None:
+    first = _build_projection().model_dump(mode="json")
+    second = _build_projection().model_dump(mode="json")
+
+    assert first["schema"] == "projection_alignment_fidelity_projection.vnext_plus24@1"
+    assert canonical_json(first) == canonical_json(second)
+    assert first["source_count"] == 1
+    assert first["fidelity_item_count"] == 3
+    assert first["fidelity_counts_by_code"] == {
+        "label_text_mismatch": 1,
+        "score_mismatch": 1,
+        "span_mismatch": 1,
+    }
+    assert first["fidelity_counts_by_status"] == {
+        "compatible": 1,
+        "drift": 2,
+    }
+    assert first["fidelity_counts_by_severity"] == {
+        "high": 1,
+        "low": 1,
+        "medium": 1,
+    }
+
+
 def test_extraction_fidelity_source_endpoint_returns_packet_and_cache_header() -> None:
     response = Response()
     payload = api_main.get_urm_extraction_fidelity_source_endpoint(
@@ -126,12 +167,54 @@ def test_extraction_fidelity_source_endpoint_returns_packet_and_cache_header() -
     assert response.headers["Cache-Control"] == api_main._READ_SURFACE_CACHE_CONTROL
 
 
+def test_extraction_fidelity_projection_endpoint_returns_projection_and_cache_header() -> None:
+    response = Response()
+    payload = api_main.get_urm_extraction_fidelity_projection_endpoint(
+        response=response
+    ).model_dump(mode="json")
+
+    assert payload["schema"] == "projection_alignment_fidelity_projection.vnext_plus24@1"
+    assert payload["source_count"] == 1
+    assert payload["fidelity_item_count"] == 3
+    assert response.headers["Cache-Control"] == api_main._READ_SURFACE_CACHE_CONTROL
+
+
 def test_extraction_fidelity_source_endpoint_unknown_source_returns_not_found() -> None:
     with pytest.raises(HTTPException) as exc_info:
         api_main.get_urm_extraction_fidelity_source_endpoint(
             source_text_hash="f" * 64,
             response=Response(),
         )
+
+    assert exc_info.value.status_code == 404
+    assert exc_info.value.detail["code"] == "URM_ADEU_EXTRACTION_FIDELITY_ARTIFACT_NOT_FOUND"
+
+
+def test_extraction_fidelity_projection_endpoint_missing_artifact_returns_not_found(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    catalog_path = tmp_path / "vnext_plus24_catalog.json"
+    catalog_path.write_text(
+        json.dumps(
+            {
+                "schema": "extraction_fidelity.vnext_plus24_catalog@1",
+                "entries": [
+                    {
+                        "source_text_hash": _source_text_hash(),
+                        "projection_alignment_path": "missing_alignment.json",
+                        "projection_alignment_fidelity_input_path": ("missing_fidelity_input.json"),
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(extraction_fidelity, "VNEXT_PLUS24_CATALOG_PATH", catalog_path)
+    extraction_fidelity._catalog_index_for_path.cache_clear()
+
+    with pytest.raises(HTTPException) as exc_info:
+        api_main.get_urm_extraction_fidelity_projection_endpoint(response=Response())
 
     assert exc_info.value.status_code == 404
     assert exc_info.value.detail["code"] == "URM_ADEU_EXTRACTION_FIDELITY_ARTIFACT_NOT_FOUND"
@@ -350,6 +433,18 @@ def test_extraction_fidelity_endpoint_fails_closed_on_non_enforcement_context_vi
             source_text_hash=_source_text_hash(),
             response=Response(),
         )
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_ADEU_EXTRACTION_FIDELITY_REQUEST_INVALID"
+
+
+def test_extraction_fidelity_projection_endpoint_fails_closed_on_non_enforcement_context_violation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(api_main, "extraction_fidelity_non_enforcement_context", nullcontext)
+
+    with pytest.raises(HTTPException) as exc_info:
+        api_main.get_urm_extraction_fidelity_projection_endpoint(response=Response())
 
     assert exc_info.value.status_code == 400
     assert exc_info.value.detail["code"] == "URM_ADEU_EXTRACTION_FIDELITY_REQUEST_INVALID"

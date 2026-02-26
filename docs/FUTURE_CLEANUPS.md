@@ -47,3 +47,7 @@ current milestone PR sequence.
   `packages/urm_runtime/src/urm_runtime/stop_gate_tools.py` and
   `apps/api/src/adeu_api/integrity_transfer_report_vnext_plus16.py` into shared helpers
   (runtime-owned) to reduce maintenance drift risk without changing validation behavior.
+- `cleanup-vnext-plus25-extraction-fidelity-ui-render-keys`:
+  for the planned v25 diff-viewer surface, add an explicit UI-safe render key contract
+  (derived key field or constrained `match_id` profile) so frontend key props do not rely
+  on opaque `match_id` content assumptions from v24.
