@@ -79,3 +79,8 @@ current milestone PR sequence.
   before freezing `docs/LOCKED_CONTINUATION_vNEXT_PLUS25.md`, validate and align
   proposed v25 S3b stop-gate metric key names against runtime conventions to avoid
   lock/doc naming drift during implementation.
+- `cleanup-vnext-plus25-provider-telemetry-capture`:
+  evaluate adding optional proposer provider telemetry capture for S3b follow-on arcs
+  (`remote_latency_ms`, token counters, and capture-time provider metadata) with
+  deterministic replay-safe exclusion rules so observability can improve without
+  destabilizing lock-level determinism contracts.

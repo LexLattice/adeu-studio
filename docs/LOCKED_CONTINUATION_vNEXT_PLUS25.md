@@ -54,7 +54,12 @@ Decision basis:
   - deterministic acceptance entrypoints in this arc must set/enforce these env values explicitly (runner/harness), not assume host defaults.
 - Endpoint idempotency continuity lock is frozen:
   - new `/urm/...` endpoints introduced in this arc must be idempotent via `client_request_id`.
+  - idempotency identity key is composite:
+    - `surface_id`
+    - `client_request_id`
+    - `provider`
   - same `client_request_id` with identical semantic payload must replay byte-identically.
+  - same `client_request_id` with a different `provider` for the same `surface_id` is request-invalid and fails closed.
   - same `client_request_id` with different semantic payload must fail closed deterministically.
 - Stop-gate metrics remain additive on `stop_gate_metrics@1`.
 - New schema-family introduction lock is frozen:
@@ -96,6 +101,7 @@ Out-of-scope note:
 - This arc does not introduce automatic policy execution/auto-remediation.
 - DB-backed proposer persistence migrations/new SQL tables are not in this arc.
 - Mandatory frontend build-system expansion is not in this arc.
+- Provider cost/SLA telemetry capture (`remote_latency_ms`, token counters) in proposer response envelopes is out-of-scope in this arc.
 
 ## Y1) Provider Continuity Release + Matrix Extension
 
@@ -123,6 +129,12 @@ Release provider continuity in a controlled way to permit exactly one core-ir pr
   - all existing proposer `surface_id` entries remain present and unchanged unless explicitly marked additive for compatibility.
 - Fail-closed provider lock remains frozen:
   - unsupported provider/surface combinations fail deterministically before provider dispatch.
+- Mock-provider strictness lock is frozen:
+  - mock proposer outputs used for parity fixtures must be deterministic functions of:
+    - `surface_id`
+    - `source_text_hash`
+    - request mode fields included in the fixture contract
+  - static one-payload mock responses that ignore source identity are fixture-invalid for v25 parity coverage.
 
 ### Acceptance
 
@@ -178,6 +190,14 @@ Activate a bounded core-ir proposer surface with explicit provider boundaries an
     - `integrity_artifact_refs`
     - `not_produced_reasons`
     - `summary`
+- Proposer packet summary lock is frozen:
+  - `summary` required fields:
+    - `candidate_count`
+    - `assertion_node_count`
+    - `relation_edge_count`
+    - `logic_tree_max_depth`
+    - `lane_ref_count`
+    - `integrity_ref_count`
 - Evidence linkage lock is frozen:
   - proposer packet must include deterministic evidence refs for produced core-ir + lane + integrity artifacts.
   - when an artifact family is not produced, packet must include deterministic `not_produced_reasons` entries for that family.
@@ -232,6 +252,23 @@ Make v25 proposer determinism and parity measurable with additive stop-gate metr
 - Parity semantics lock is frozen:
   - parity in this arc is deterministic contract parity across providers, not semantic identity of generated candidates.
   - parity comparisons use a normalized contract fingerprint projection; raw candidate free-text equivalence is out-of-scope.
+- Contract fingerprint projection lock is frozen:
+  - normalized contract parity fingerprint input is canonical JSON over:
+    - `surface_id`
+    - `candidate_count`
+    - `assertion_node_count`
+    - `relation_edge_count`
+    - `logic_tree_max_depth`
+    - `lane_ref_count`
+    - `integrity_ref_count`
+    - sorted `not_produced_reasons` pairs (`artifact_family`, `reason_code`)
+  - parity fingerprint excludes provider-volatile or free-text fields, including:
+    - `provider`
+    - `raw_prompt`
+    - `raw_response`
+    - prompt/response hashes
+    - narrative/free-text candidate prose.
+  - parity hash is `sha256` over canonical JSON bytes of this projection.
 - Surface enumeration completeness lock is frozen:
   - frozen v25 proposer `surface_id` set is exactly:
     - `adeu_core_ir.propose`
