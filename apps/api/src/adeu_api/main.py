@@ -379,7 +379,7 @@ DEFAULT_CORS_ALLOW_ORIGINS: tuple[str, ...] = (
 CORS_ALLOW_ORIGINS = _env_csv("ADEU_CORS_ALLOW_ORIGINS") or list(DEFAULT_CORS_ALLOW_ORIGINS)
 LOCALHOST_CORS_ORIGIN_REGEX = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
 ProviderKind = Literal["mock", "openai", "codex"]
-_PROVIDER_PARITY_MATRIX_SCHEMA = "provider_parity.vnext_plus14_matrix@1"
+_PROVIDER_PARITY_MATRIX_SCHEMA = "provider_parity.vnext_plus25_matrix@1"
 _PROVIDER_PARITY_PROVIDER_UNSUPPORTED_CODE = "URM_PROVIDER_PARITY_PROVIDER_UNSUPPORTED"
 _PROVIDER_PARITY_ROUTE_MATRIX_INVALID_CODE = "URM_PROVIDER_PARITY_ROUTE_MATRIX_INVALID"
 _PROVIDER_PARITY_SURFACE_MATRIX_DRIFT_CODE = "URM_PROVIDER_PARITY_SURFACE_MATRIX_DRIFT"
@@ -387,13 +387,14 @@ _PROVIDER_PARITY_MATRIX_PATH = (
     Path(__file__).resolve().parents[2]
     / "fixtures"
     / "provider_parity"
-    / "vnext_plus14_provider_matrix.json"
+    / "vnext_plus25_provider_matrix.json"
 )
-_PROVIDER_PARITY_MATRIX_PACKAGE_RESOURCE = "provider_parity/vnext_plus14_provider_matrix.json"
+_PROVIDER_PARITY_MATRIX_PACKAGE_RESOURCE = "provider_parity/vnext_plus25_provider_matrix.json"
 _PROVIDER_KIND_ORDER: tuple[ProviderKind, ...] = ("mock", "openai", "codex")
 _PROVIDER_KIND_RANK = {value: idx for idx, value in enumerate(_PROVIDER_KIND_ORDER)}
 _FROZEN_PROVIDER_PARITY_SURFACE_IDS: tuple[str, ...] = (
     "adeu.propose",
+    "adeu_core_ir.propose",
     "concepts.propose",
     "puzzles.propose",
     "concepts.tournament.live_generation",
