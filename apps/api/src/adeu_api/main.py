@@ -38,6 +38,7 @@ from adeu_concepts import (
 )
 from adeu_core_ir import (
     AdeuCoreIR,
+    AdeuCoreIRProposal,
     AdeuIntegrityCyclePolicy,
     AdeuIntegrityCyclePolicyExtended,
     AdeuIntegrityDanglingReference,
@@ -49,6 +50,14 @@ from adeu_core_ir import (
     AdeuProjectionAlignmentFidelity,
     AdeuSemanticsV4CandidatePacket,
     AdeuTrustInvariantPacket,
+    build_core_ir_from_source_text,
+    build_integrity_cycle_policy_diagnostics,
+    build_integrity_cycle_policy_extended_diagnostics,
+    build_integrity_dangling_reference_diagnostics,
+    build_integrity_deontic_conflict_diagnostics,
+    build_integrity_deontic_conflict_extended_diagnostics,
+    build_integrity_reference_integrity_extended_diagnostics,
+    build_lane_report,
 )
 from adeu_explain import (
     EXPLAIN_BUILDER_VERSION,
@@ -429,6 +438,17 @@ _EXTRACTION_FIDELITY_DIAGNOSTIC_DRIFT_CODE = "URM_ADEU_EXTRACTION_FIDELITY_DIAGN
 _EXTRACTION_FIDELITY_MANIFEST_HASH_MISMATCH_CODE = (
     "URM_ADEU_EXTRACTION_FIDELITY_MANIFEST_HASH_MISMATCH"
 )
+_CORE_IR_PROPOSER_REQUEST_INVALID_CODE = "URM_ADEU_CORE_IR_PROPOSER_REQUEST_INVALID"
+_CORE_IR_PROPOSER_ARTIFACT_NOT_FOUND_CODE = "URM_ADEU_CORE_IR_PROPOSER_ARTIFACT_NOT_FOUND"
+_CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE = "URM_ADEU_CORE_IR_PROPOSER_PAYLOAD_INVALID"
+_CORE_IR_PROPOSER_PROVIDER_UNSUPPORTED_CODE = "URM_ADEU_CORE_IR_PROPOSER_PROVIDER_UNSUPPORTED"
+_CORE_IR_PROPOSER_FIXTURE_INVALID_CODE = "URM_ADEU_CORE_IR_PROPOSER_FIXTURE_INVALID"
+_CORE_IR_PROPOSER_MANIFEST_HASH_MISMATCH_CODE = (
+    "URM_ADEU_CORE_IR_PROPOSER_MANIFEST_HASH_MISMATCH"
+)
+_CORE_IR_PROPOSER_SURFACE_ID = "adeu_core_ir.propose"
+_CORE_IR_PROPOSER_REQUEST_SCHEMA = "adeu_core_ir_proposer_request@0.1"
+_CORE_IR_PROPOSER_RESPONSE_SCHEMA = "adeu_core_ir_proposer_response@0.1"
 _READ_SURFACE_CATALOG_SCHEMA = "read_surface.vnext_plus19_catalog@1"
 _READ_SURFACE_CATALOG_PATH = (
     Path(__file__).resolve().parents[2] / "fixtures" / "read_surface" / "vnext_plus19_catalog.json"
@@ -464,6 +484,17 @@ _READ_SURFACE_INTEGRITY_SCHEMAS: tuple[str, ...] = tuple(
         "deontic_conflict_extended",
     )
 )
+
+
+class _CoreIRProposerIdempotencyRecord(NamedTuple):
+    provider: ProviderKind
+    request_payload_hash: str
+    response_payload: dict[str, Any]
+
+
+_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY: dict[
+    tuple[str, str], _CoreIRProposerIdempotencyRecord
+] = {}
 
 
 class _ProviderParityMatrixError(RuntimeError):
@@ -641,6 +672,7 @@ def _assert_provider_supported_for_surface(
     provider: ProviderKind,
     unsupported_status_code: int = 400,
     legacy_code: str | None = None,
+    legacy_urm_code: str | None = None,
     legacy_message: str | None = None,
 ) -> None:
     try:
@@ -670,7 +702,7 @@ def _assert_provider_supported_for_surface(
                     f"provider unsupported for surface '{surface_id}': {provider}; "
                     f"supported={list(supported)}"
                 ),
-                urm_code=_PROVIDER_PARITY_PROVIDER_UNSUPPORTED_CODE,
+                urm_code=legacy_urm_code or _PROVIDER_PARITY_PROVIDER_UNSUPPORTED_CODE,
                 extra={
                     "surface_id": surface_id,
                     "provider": provider,
@@ -735,6 +767,45 @@ class ProposeResponse(BaseModel):
     provider: ProviderInfo
     candidates: list[ProposeCandidate]
     proposer_log: ProposerLog
+
+
+class CoreIRProposerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["adeu_core_ir_proposer_request@0.1"] = _CORE_IR_PROPOSER_REQUEST_SCHEMA
+    client_request_id: str = Field(min_length=1)
+    provider: ProviderKind = "mock"
+    source_text: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_source_text(self) -> "CoreIRProposerRequest":
+        if not self.source_text.strip():
+            raise ValueError("source_text must include non-whitespace content")
+        return self
+
+    def idempotency_payload(self) -> dict[str, Any]:
+        source_text = self.source_text.strip()
+        source_text_hash = build_core_ir_from_source_text(
+            source_text,
+            include_source_text=False,
+            include_claim_ledger=False,
+        ).source_text_hash
+        return {
+            "surface_id": _CORE_IR_PROPOSER_SURFACE_ID,
+            "provider": self.provider,
+            "source_text_hash": source_text_hash,
+        }
+
+
+class CoreIRProposerResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["adeu_core_ir_proposer_response@0.1"] = _CORE_IR_PROPOSER_RESPONSE_SCHEMA
+    provider: ProviderInfo
+    candidates: list[ProposeCandidate]
+    proposer_log: ProposerLog
+    surface_id: Literal["adeu_core_ir.propose"] = _CORE_IR_PROPOSER_SURFACE_ID
+    proposal_packet: AdeuCoreIRProposal
 
 
 class CheckRequest(BaseModel):
@@ -2175,6 +2246,153 @@ def _extraction_fidelity_status_code(code: str) -> int:
     ):
         return 500
     return 500
+
+
+def _core_ir_proposer_error_detail(
+    *,
+    code: str,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    detail: dict[str, Any] = {"code": code, "reason": reason}
+    if context:
+        detail["context"] = dict(context)
+    return detail
+
+
+def _core_ir_proposer_status_code(code: str) -> int:
+    if code in (
+        _CORE_IR_PROPOSER_REQUEST_INVALID_CODE,
+        _CORE_IR_PROPOSER_PROVIDER_UNSUPPORTED_CODE,
+    ):
+        return 400
+    if code == _CORE_IR_PROPOSER_ARTIFACT_NOT_FOUND_CODE:
+        return 404
+    if code in (
+        _CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE,
+        _CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+        _CORE_IR_PROPOSER_MANIFEST_HASH_MISMATCH_CODE,
+    ):
+        return 500
+    return 500
+
+
+def _core_ir_proposer_logic_tree_max_depth(core_ir: AdeuCoreIR) -> int:
+    node_ids = {node.id for node in core_ir.nodes}
+    if not node_ids:
+        return 0
+
+    adjacency: dict[str, list[str]] = {node_id: [] for node_id in node_ids}
+    for edge in core_ir.edges:
+        if edge.type != "depends_on":
+            continue
+        if edge.from_ref not in node_ids or edge.to_ref not in node_ids:
+            continue
+        adjacency[edge.from_ref].append(edge.to_ref)
+    for node_id in adjacency:
+        adjacency[node_id] = sorted(adjacency[node_id])
+
+    memo: dict[str, int] = {}
+
+    def _depth(node_id: str, visiting: set[str]) -> int:
+        cached = memo.get(node_id)
+        if cached is not None:
+            return cached
+        if node_id in visiting:
+            return 1
+
+        visiting.add(node_id)
+        max_child_depth = 0
+        for next_node in adjacency[node_id]:
+            max_child_depth = max(max_child_depth, _depth(next_node, visiting))
+        visiting.remove(node_id)
+        depth = 1 + max_child_depth
+        memo[node_id] = depth
+        return depth
+
+    return max(_depth(node_id, set()) for node_id in sorted(node_ids))
+
+
+def _core_ir_proposer_artifact_ref(*, schema: str, payload: Mapping[str, Any]) -> str:
+    artifact_hash = sha256_canonical_json(dict(payload))
+    return f"proposal:{schema}:{artifact_hash}"
+
+
+def _build_core_ir_proposal_packet(
+    *,
+    client_request_id: str,
+    provider: ProviderKind,
+    source_text: str,
+    candidate_count: int,
+) -> AdeuCoreIRProposal:
+    core_ir = build_core_ir_from_source_text(source_text)
+    lane_report = build_lane_report(core_ir)
+    integrity_dangling_reference = build_integrity_dangling_reference_diagnostics(core_ir)
+    integrity_cycle_policy = build_integrity_cycle_policy_diagnostics(core_ir)
+    integrity_deontic_conflict = build_integrity_deontic_conflict_diagnostics(core_ir)
+    integrity_reference_integrity_extended = (
+        build_integrity_reference_integrity_extended_diagnostics(core_ir)
+    )
+    integrity_cycle_policy_extended = build_integrity_cycle_policy_extended_diagnostics(core_ir)
+    integrity_deontic_conflict_extended = build_integrity_deontic_conflict_extended_diagnostics(
+        core_ir
+    )
+
+    core_ir_payload = core_ir.model_dump(mode="json", by_alias=True, exclude_none=True)
+    lane_report_payload = lane_report.model_dump(mode="json", by_alias=True, exclude_none=True)
+    integrity_payloads = [
+        integrity_dangling_reference.model_dump(mode="json", by_alias=True, exclude_none=True),
+        integrity_cycle_policy.model_dump(mode="json", by_alias=True, exclude_none=True),
+        integrity_deontic_conflict.model_dump(mode="json", by_alias=True, exclude_none=True),
+        integrity_reference_integrity_extended.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude_none=True,
+        ),
+        integrity_cycle_policy_extended.model_dump(mode="json", by_alias=True, exclude_none=True),
+        integrity_deontic_conflict_extended.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude_none=True,
+        ),
+    ]
+
+    lane_refs = [
+        _core_ir_proposer_artifact_ref(
+            schema=str(lane_report_payload["schema"]),
+            payload=lane_report_payload,
+        )
+    ]
+    integrity_refs = sorted(
+        _core_ir_proposer_artifact_ref(
+            schema=str(payload["schema"]),
+            payload=payload,
+        )
+        for payload in integrity_payloads
+    )
+
+    packet_payload = {
+        "schema": "adeu_core_ir_proposal@0.1",
+        "client_request_id": client_request_id,
+        "surface_id": _CORE_IR_PROPOSER_SURFACE_ID,
+        "provider": provider,
+        "core_ir_artifact_ref": _core_ir_proposer_artifact_ref(
+            schema=str(core_ir_payload["schema"]),
+            payload=core_ir_payload,
+        ),
+        "lane_artifact_refs": lane_refs,
+        "integrity_artifact_refs": integrity_refs,
+        "not_produced_reasons": [],
+        "summary": {
+            "candidate_count": candidate_count,
+            "assertion_node_count": len(core_ir.nodes),
+            "relation_edge_count": len(core_ir.edges),
+            "logic_tree_max_depth": _core_ir_proposer_logic_tree_max_depth(core_ir),
+            "lane_ref_count": len(lane_refs),
+            "integrity_ref_count": len(integrity_refs),
+        },
+    }
+    return AdeuCoreIRProposal.model_validate(packet_payload)
 
 
 class ConceptAlignRequest(BaseModel):
@@ -6349,6 +6567,99 @@ def concepts_semantic_depth_endpoint(
         coherence_summary=req.coherence_summary,
         nonsemantic_fields=req.nonsemantic_fields,
     )
+
+
+@app.post("/urm/core-ir/propose", response_model=CoreIRProposerResponse)
+def urm_core_ir_propose_endpoint(req: CoreIRProposerRequest) -> CoreIRProposerResponse:
+    cache_key = (_CORE_IR_PROPOSER_SURFACE_ID, req.client_request_id)
+    request_payload_hash = sha256_canonical_json(req.idempotency_payload())
+    existing = _CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY.get(cache_key)
+    if existing is not None:
+        if existing.provider != req.provider:
+            raise HTTPException(
+                status_code=_core_ir_proposer_status_code(_CORE_IR_PROPOSER_REQUEST_INVALID_CODE),
+                detail=_core_ir_proposer_error_detail(
+                    code=_CORE_IR_PROPOSER_REQUEST_INVALID_CODE,
+                    reason="client_request_id already used with a different provider",
+                    context={
+                        "surface_id": _CORE_IR_PROPOSER_SURFACE_ID,
+                        "client_request_id": req.client_request_id,
+                        "provider": req.provider,
+                        "existing_provider": existing.provider,
+                    },
+                ),
+            )
+        if existing.request_payload_hash != request_payload_hash:
+            raise HTTPException(
+                status_code=_core_ir_proposer_status_code(_CORE_IR_PROPOSER_REQUEST_INVALID_CODE),
+                detail=_core_ir_proposer_error_detail(
+                    code=_CORE_IR_PROPOSER_REQUEST_INVALID_CODE,
+                    reason="client_request_id already used with a different semantic payload",
+                    context={
+                        "surface_id": _CORE_IR_PROPOSER_SURFACE_ID,
+                        "client_request_id": req.client_request_id,
+                        "provider": req.provider,
+                    },
+                ),
+            )
+        return CoreIRProposerResponse.model_validate(existing.response_payload)
+
+    _assert_provider_supported_for_surface(
+        surface_id=_CORE_IR_PROPOSER_SURFACE_ID,
+        provider=req.provider,
+        legacy_code=_CORE_IR_PROPOSER_PROVIDER_UNSUPPORTED_CODE,
+        legacy_urm_code=_CORE_IR_PROPOSER_PROVIDER_UNSUPPORTED_CODE,
+    )
+
+    try:
+        propose_response = propose(
+            ProposeRequest(
+                clause_text=req.source_text.strip(),
+                provider=req.provider,
+                mode=KernelMode.LAX,
+            )
+        )
+    except HTTPException as exc:
+        if exc.status_code != 400:
+            raise
+        raise HTTPException(
+            status_code=_core_ir_proposer_status_code(_CORE_IR_PROPOSER_REQUEST_INVALID_CODE),
+            detail=_core_ir_proposer_error_detail(
+                code=_CORE_IR_PROPOSER_REQUEST_INVALID_CODE,
+                reason="core-ir proposer request failed",
+                context={"provider": req.provider, "upstream_detail": exc.detail},
+            ),
+        ) from exc
+
+    try:
+        proposal_packet = _build_core_ir_proposal_packet(
+            client_request_id=req.client_request_id,
+            provider=req.provider,
+            source_text=req.source_text.strip(),
+            candidate_count=len(propose_response.candidates),
+        )
+        response_payload = CoreIRProposerResponse(
+            provider=propose_response.provider,
+            candidates=propose_response.candidates,
+            proposer_log=propose_response.proposer_log,
+            proposal_packet=proposal_packet,
+        ).model_dump(mode="json")
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=_core_ir_proposer_status_code(_CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE),
+            detail=_core_ir_proposer_error_detail(
+                code=_CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE,
+                reason="core-ir proposer response payload failed schema validation",
+                context={"provider": req.provider, "error": str(exc)},
+            ),
+        ) from exc
+
+    _CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY[cache_key] = _CoreIRProposerIdempotencyRecord(
+        provider=req.provider,
+        request_payload_hash=request_payload_hash,
+        response_payload=response_payload,
+    )
+    return CoreIRProposerResponse.model_validate(response_payload)
 
 
 @app.get(

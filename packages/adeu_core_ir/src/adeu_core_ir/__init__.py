@@ -1,3 +1,10 @@
+from .core_ir_proposal import (
+    ADEU_CORE_IR_PROPOSAL_SCHEMA,
+    AdeuCoreIRProposal,
+    CoreIRProposalNotProducedReason,
+    CoreIRProposalSummary,
+    canonicalize_core_ir_proposal_payload,
+)
 from .ids import stable_core_node_id
 from .integrity_cycle_policy import (
     AdeuIntegrityCyclePolicy,
@@ -133,6 +140,11 @@ from .trust_invariant_packet import (
 )
 
 __all__ = [
+    "ADEU_CORE_IR_PROPOSAL_SCHEMA",
+    "AdeuCoreIRProposal",
+    "CoreIRProposalNotProducedReason",
+    "CoreIRProposalSummary",
+    "canonicalize_core_ir_proposal_payload",
     "AdeuCoreIR",
     "CoreDNode",
     "CoreENode",

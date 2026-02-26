@@ -5,6 +5,7 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 
+from .core_ir_proposal import AdeuCoreIRProposal
 from .integrity_cycle_policy import AdeuIntegrityCyclePolicy
 from .integrity_cycle_policy_extended import AdeuIntegrityCyclePolicyExtended
 from .integrity_dangling_reference import AdeuIntegrityDanglingReference
@@ -64,6 +65,7 @@ def main() -> None:
     projection_alignment_fidelity_schema = AdeuProjectionAlignmentFidelity.model_json_schema(
         by_alias=True
     )
+    core_ir_proposal_schema = AdeuCoreIRProposal.model_json_schema(by_alias=True)
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
     _write_schema(authoritative_path, core_ir_schema)
@@ -199,6 +201,14 @@ def main() -> None:
         projection_alignment_fidelity_schema,
     )
 
+    core_ir_proposal_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir_proposal.v0_1.json"
+    )
+    _write_schema(
+        core_ir_proposal_authoritative_path,
+        core_ir_proposal_schema,
+    )
+
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
 
@@ -291,6 +301,12 @@ def main() -> None:
     _write_schema(
         projection_alignment_fidelity_mirror_path,
         projection_alignment_fidelity_schema,
+    )
+
+    core_ir_proposal_mirror_path = root / "spec" / "adeu_core_ir_proposal.schema.json"
+    _write_schema(
+        core_ir_proposal_mirror_path,
+        core_ir_proposal_schema,
     )
 
 
