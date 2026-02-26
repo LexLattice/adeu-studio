@@ -1,0 +1,1 @@
+{"fidelity_counts_by_code":{"label_text_mismatch":1,"score_mismatch":1,"span_mismatch":1},"fidelity_counts_by_severity":{"high":1,"low":1,"medium":1},"fidelity_counts_by_status":{"compatible":1,"drift":2},"fidelity_item_count":3,"schema":"projection_alignment_fidelity_projection.vnext_plus24@1","source_count":1}

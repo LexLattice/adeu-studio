@@ -103,6 +103,10 @@ def _vnext_plus23_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus23_manifest.json"
 
 
+def _vnext_plus24_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus24_manifest.json"
+
+
 _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = {
     "domain_conformance_hash",
     "hash_excluded_fields",
@@ -606,6 +610,10 @@ def _vnext_plus23_manifest_payload() -> dict[str, object]:
     return json.loads(_vnext_plus23_manifest_path().read_text(encoding="utf-8"))
 
 
+def _vnext_plus24_manifest_payload() -> dict[str, object]:
+    return json.loads(_vnext_plus24_manifest_path().read_text(encoding="utf-8"))
+
+
 def _write_vnext_plus14_manifest_payload(
     *,
     tmp_path: Path,
@@ -943,6 +951,28 @@ def _write_vnext_plus23_manifest_payload(
     )
 
 
+def _write_vnext_plus24_manifest_payload(
+    *,
+    tmp_path: Path,
+    payload: dict[str, object],
+    filename: str = "vnext_plus24_manifest.json",
+) -> Path:
+    return _write_manifest_payload_with_rewritten_runs(
+        tmp_path=tmp_path,
+        payload=payload,
+        filename=filename,
+        manifest_label="vnext+24",
+        fixture_manifest_root=_vnext_plus24_manifest_path().parent,
+        fixture_specs=(
+            ("extraction_fidelity_packet_fixtures", ("extraction_fidelity_packet_path",)),
+            (
+                "extraction_fidelity_projection_fixtures",
+                ("extraction_fidelity_projection_path",),
+            ),
+        ),
+    )
+
+
 def _normalize_runtime_observability(report: dict[str, object]) -> dict[str, object]:
     normalized = json.loads(json.dumps(report))
     runtime_observability = normalized.get("runtime_observability")
@@ -1005,6 +1035,7 @@ def _vnext_plus13_to_19_manifest_kwargs() -> dict[str, Path]:
         "vnext_plus21_manifest_path": _vnext_plus21_manifest_path(),
         "vnext_plus22_manifest_path": _vnext_plus22_manifest_path(),
         "vnext_plus23_manifest_path": _vnext_plus23_manifest_path(),
+        "vnext_plus24_manifest_path": _vnext_plus24_manifest_path(),
     }
 
 
@@ -1068,6 +1099,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "vnext_plus21_manifest_path": _vnext_plus21_manifest_path(),
         "vnext_plus22_manifest_path": _vnext_plus22_manifest_path(),
         "vnext_plus23_manifest_path": _vnext_plus23_manifest_path(),
+        "vnext_plus24_manifest_path": _vnext_plus24_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -1127,6 +1159,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["artifact_trust_invariant_projection_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_semantics_v4_candidate_packet_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_semantics_v4_candidate_projection_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_extraction_fidelity_packet_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_extraction_fidelity_projection_determinism_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -1159,9 +1193,11 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert len(first["vnext_plus22_manifest_hash"]) == 64
     assert isinstance(first["vnext_plus23_manifest_hash"], str)
     assert len(first["vnext_plus23_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus24_manifest_hash"], str)
+    assert len(first["vnext_plus24_manifest_hash"]) == 64
     runtime_observability = first["runtime_observability"]
-    assert runtime_observability["total_fixtures"] == 14
-    assert runtime_observability["total_replays"] == 42
+    assert runtime_observability["total_fixtures"] == 16
+    assert runtime_observability["total_replays"] == 48
     assert isinstance(runtime_observability["bytes_hashed_per_replay"], int)
     assert runtime_observability["bytes_hashed_per_replay"] > 0
     assert isinstance(runtime_observability["bytes_hashed_total"], int)
@@ -1184,6 +1220,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["gates"]["artifact_trust_invariant_projection_determinism"] is True
     assert first["gates"]["artifact_semantics_v4_candidate_packet_determinism"] is True
     assert first["gates"]["artifact_semantics_v4_candidate_projection_determinism"] is True
+    assert first["gates"]["artifact_extraction_fidelity_packet_determinism"] is True
+    assert first["gates"]["artifact_extraction_fidelity_projection_determinism"] is True
 
 
 def test_build_stop_gate_metrics_fails_when_runtime_budget_exceeds_ceiling(
@@ -3763,6 +3801,261 @@ def test_build_stop_gate_metrics_rejects_vnext_plus23_missing_upstream_lane_refs
     )
 
 
+def test_build_stop_gate_metrics_rejects_vnext_plus24_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus24_manifest_payload()
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus24_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus24_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["artifact_extraction_fidelity_packet_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_extraction_fidelity_projection_determinism_pct"] == 0.0
+    assert report["vnext_plus24_manifest_hash"] == ""
+    assert any(
+        issue.get("code") == "URM_ADEU_EXTRACTION_FIDELITY_MANIFEST_HASH_MISMATCH"
+        and issue.get("message") == "vnext+24 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_excludes_created_at_recursively_for_vnext_plus24(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    packet_payload = json.loads(
+        (
+            _vnext_plus24_manifest_path().parent
+            / "vnext_plus24"
+            / "extraction_fidelity_packet_case_a_2.json"
+        ).read_text(encoding="utf-8")
+    )
+    packet_payload["created_at"] = "2099-04-01T00:00:00Z"
+    fidelity_summary = packet_payload.get("fidelity_summary")
+    assert isinstance(fidelity_summary, dict)
+    fidelity_summary["created_at"] = "2099-04-02T00:00:00Z"
+    fidelity_items = packet_payload.get("fidelity_items")
+    assert isinstance(fidelity_items, list) and fidelity_items
+    assert isinstance(fidelity_items[0], dict)
+    fidelity_items[0]["created_at"] = "2099-04-03T00:00:00Z"
+    packet_payload_path = tmp_path / "extraction_fidelity_packet_case_a_2_created_at_drift.json"
+    _write_json(packet_payload_path, packet_payload)
+
+    projection_payload = json.loads(
+        (
+            _vnext_plus24_manifest_path().parent
+            / "vnext_plus24"
+            / "extraction_fidelity_projection_case_a_2.json"
+        ).read_text(encoding="utf-8")
+    )
+    projection_payload["created_at"] = "2099-04-04T00:00:00Z"
+    projection_payload_path = (
+        tmp_path / "extraction_fidelity_projection_case_a_2_created_at_drift.json"
+    )
+    _write_json(projection_payload_path, projection_payload)
+
+    manifest_payload = _vnext_plus24_manifest_payload()
+    packet_fixtures = manifest_payload.get("extraction_fidelity_packet_fixtures")
+    assert isinstance(packet_fixtures, list) and packet_fixtures
+    packet_fixture = packet_fixtures[0]
+    assert isinstance(packet_fixture, dict)
+    packet_runs = packet_fixture.get("runs")
+    assert isinstance(packet_runs, list) and len(packet_runs) == 3
+    assert isinstance(packet_runs[1], dict)
+    packet_runs[1]["extraction_fidelity_packet_path"] = str(packet_payload_path)
+
+    projection_fixtures = manifest_payload.get("extraction_fidelity_projection_fixtures")
+    assert isinstance(projection_fixtures, list) and projection_fixtures
+    projection_fixture = projection_fixtures[0]
+    assert isinstance(projection_fixture, dict)
+    projection_runs = projection_fixture.get("runs")
+    assert isinstance(projection_runs, list) and len(projection_runs) == 3
+    assert isinstance(projection_runs[1], dict)
+    projection_runs[1]["extraction_fidelity_projection_path"] = str(projection_payload_path)
+
+    manifest_path = _write_vnext_plus24_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus24_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is True
+    assert report["all_passed"] is True
+    assert report["metrics"]["artifact_extraction_fidelity_packet_determinism_pct"] == 100.0
+    assert report["metrics"]["artifact_extraction_fidelity_projection_determinism_pct"] == 100.0
+    assert not any(
+        issue.get("code") == "URM_ADEU_EXTRACTION_FIDELITY_DIAGNOSTIC_DRIFT"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus24_missing_non_empty_floor(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    all_compatible_packet = json.loads(
+        (
+            _vnext_plus24_manifest_path().parent
+            / "vnext_plus24"
+            / "extraction_fidelity_packet_case_a_1.json"
+        ).read_text(encoding="utf-8")
+    )
+    fidelity_items = all_compatible_packet.get("fidelity_items")
+    assert isinstance(fidelity_items, list) and fidelity_items
+    for fidelity_item in fidelity_items:
+        assert isinstance(fidelity_item, dict)
+        fidelity_item["status"] = "compatible"
+        fidelity_item["severity"] = "low"
+        fidelity_item.pop("expected_hash", None)
+        fidelity_item.pop("observed_hash", None)
+        fidelity_id_payload = {
+            "fidelity_code": fidelity_item["fidelity_code"],
+            "status": fidelity_item["status"],
+            "severity": fidelity_item["severity"],
+            "justification_refs": fidelity_item["justification_refs"],
+        }
+        fidelity_item["fidelity_id"] = sha256_canonical_json(fidelity_id_payload)[:16]
+    fidelity_items.sort(key=lambda item: (str(item["fidelity_code"]), str(item["fidelity_id"])))
+    fidelity_summary = all_compatible_packet.get("fidelity_summary")
+    assert isinstance(fidelity_summary, dict)
+    fidelity_summary["compatible_checks"] = len(fidelity_items)
+    fidelity_summary["drift_checks"] = 0
+    fidelity_summary["counts_by_status"] = {"compatible": len(fidelity_items)}
+    fidelity_summary["counts_by_severity"] = {"low": len(fidelity_items)}
+    all_compatible_packet_path = tmp_path / "extraction_fidelity_packet_all_compatible.json"
+    _write_json(all_compatible_packet_path, all_compatible_packet)
+
+    manifest_payload = _vnext_plus24_manifest_payload()
+    packet_fixtures = manifest_payload.get("extraction_fidelity_packet_fixtures")
+    assert isinstance(packet_fixtures, list) and packet_fixtures
+    for packet_fixture in packet_fixtures:
+        assert isinstance(packet_fixture, dict)
+        packet_runs = packet_fixture.get("runs")
+        assert isinstance(packet_runs, list) and len(packet_runs) == 3
+        for run in packet_runs:
+            assert isinstance(run, dict)
+            run["extraction_fidelity_packet_path"] = str(all_compatible_packet_path)
+    manifest_path = _write_vnext_plus24_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus24_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_extraction_fidelity_packet_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_extraction_fidelity_projection_determinism_pct"] == 100.0
+    assert report["gates"]["artifact_extraction_fidelity_packet_determinism"] is False
+    assert report["gates"]["artifact_extraction_fidelity_projection_determinism"] is True
+    assert any(
+        issue.get("code") == "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID"
+        and issue.get("message")
+        == (
+            "vnext+24 extraction-fidelity packet fixtures must include non-zero checks, "
+            "required fidelity codes, drift/compatible statuses, and score_mismatch drift"
+        )
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus24_catalog_ref_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus24_manifest_payload()
+    packet_fixtures = manifest_payload.get("extraction_fidelity_packet_fixtures")
+    assert isinstance(packet_fixtures, list) and packet_fixtures
+    packet_fixture = packet_fixtures[0]
+    assert isinstance(packet_fixture, dict)
+    packet_fixture["projection_alignment_path"] = (
+        "../extraction_fidelity/vnext_plus24/adeu_projection_alignment_case_a_1__mismatch.json"
+    )
+    manifest_path = _write_vnext_plus24_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus24_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_extraction_fidelity_packet_determinism_pct"] == 0.0
+    assert report["metrics"]["artifact_extraction_fidelity_projection_determinism_pct"] == 0.0
+    assert report["gates"]["artifact_extraction_fidelity_packet_determinism"] is False
+    assert report["gates"]["artifact_extraction_fidelity_projection_determinism"] is False
+    assert any(
+        issue.get("code") == "URM_ADEU_EXTRACTION_FIDELITY_FIXTURE_INVALID"
+        and issue.get("message")
+        == (
+            "vnext+24 packet fixture upstream refs must match extraction-fidelity "
+            "catalog refs exactly"
+        )
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_stop_gate_tools_uses_shared_integrity_manifest_loader() -> None:
     source = Path(stop_gate_tools_module.__file__).read_text(encoding="utf-8")
     assert "def _load_integrity_manifest_payload(" in source
@@ -3842,6 +4135,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_vnext_plus22_manifest_path()),
             "--vnext-plus23-manifest",
             str(_vnext_plus23_manifest_path()),
+            "--vnext-plus24-manifest",
+            str(_vnext_plus24_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",
