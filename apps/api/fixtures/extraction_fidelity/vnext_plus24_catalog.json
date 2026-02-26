@@ -1,0 +1,13 @@
+{
+  "schema": "extraction_fidelity.vnext_plus24_catalog@1",
+  "entries": [
+    {
+      "source_text_hash": "3d956a90a9f1433816149bcb70e300afdcca6d303bdc119cea8f0657222c32aa",
+      "projection_alignment_path": "vnext_plus24/adeu_projection_alignment_case_a_1.json",
+      "projection_alignment_fidelity_input_path": "vnext_plus24/adeu_projection_alignment_fidelity_input_case_a_1.json",
+      "created_at": "2026-02-01T00:00:00Z",
+      "domain_id": "trust_domain",
+      "document_ref": "doc.case_a_1"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "$defs": {
+    "ProjectionAlignmentFidelityMatchedNode": {
+      "additionalProperties": false,
+      "properties": {
+        "extraction_label_text": {
+          "title": "Extraction Label Text",
+          "type": "string"
+        },
+        "extraction_score_milli": {
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Extraction Score Milli",
+          "type": "integer"
+        },
+        "extraction_span": {
+          "$ref": "#/$defs/ProjectionAlignmentFidelitySpan"
+        },
+        "match_id": {
+          "minLength": 1,
+          "title": "Match Id",
+          "type": "string"
+        },
+        "projection_label_text": {
+          "title": "Projection Label Text",
+          "type": "string"
+        },
+        "projection_score_milli": {
+          "maximum": 1000,
+          "minimum": 0,
+          "title": "Projection Score Milli",
+          "type": "integer"
+        },
+        "projection_span": {
+          "$ref": "#/$defs/ProjectionAlignmentFidelitySpan"
+        }
+      },
+      "required": [
+        "match_id",
+        "projection_label_text",
+        "extraction_label_text",
+        "projection_span",
+        "extraction_span",
+        "projection_score_milli",
+        "extraction_score_milli"
+      ],
+      "title": "ProjectionAlignmentFidelityMatchedNode",
+      "type": "object"
+    },
+    "ProjectionAlignmentFidelitySpan": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "ProjectionAlignmentFidelitySpan",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "matched_nodes": {
+      "items": {
+        "$ref": "#/$defs/ProjectionAlignmentFidelityMatchedNode"
+      },
+      "title": "Matched Nodes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_projection_alignment_fidelity_input@0.1",
+      "default": "adeu_projection_alignment_fidelity_input@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "minLength": 1,
+      "title": "Source Text Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "matched_nodes"
+  ],
+  "title": "AdeuProjectionAlignmentFidelityInput",
+  "type": "object"
+}

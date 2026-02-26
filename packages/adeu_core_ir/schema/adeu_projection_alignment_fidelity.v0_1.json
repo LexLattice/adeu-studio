@@ -1,0 +1,178 @@
+{
+  "$defs": {
+    "ProjectionAlignmentFidelityItem": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Hash"
+        },
+        "fidelity_code": {
+          "enum": [
+            "label_text_mismatch",
+            "span_mismatch",
+            "score_mismatch"
+          ],
+          "title": "Fidelity Code",
+          "type": "string"
+        },
+        "fidelity_id": {
+          "maxLength": 16,
+          "minLength": 16,
+          "title": "Fidelity Id",
+          "type": "string"
+        },
+        "justification_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Justification Refs",
+          "type": "array"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "observed_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed Hash"
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "compatible",
+            "drift"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fidelity_id",
+        "fidelity_code",
+        "status",
+        "severity",
+        "message"
+      ],
+      "title": "ProjectionAlignmentFidelityItem",
+      "type": "object"
+    },
+    "ProjectionAlignmentFidelitySummary": {
+      "additionalProperties": false,
+      "properties": {
+        "compatible_checks": {
+          "minimum": 0,
+          "title": "Compatible Checks",
+          "type": "integer"
+        },
+        "counts_by_code": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Code",
+          "type": "object"
+        },
+        "counts_by_severity": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Severity",
+          "type": "object"
+        },
+        "counts_by_status": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Status",
+          "type": "object"
+        },
+        "drift_checks": {
+          "minimum": 0,
+          "title": "Drift Checks",
+          "type": "integer"
+        },
+        "total_checks": {
+          "minimum": 0,
+          "title": "Total Checks",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_checks",
+        "compatible_checks",
+        "drift_checks"
+      ],
+      "title": "ProjectionAlignmentFidelitySummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "fidelity_input_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Fidelity Input Hash",
+      "type": "string"
+    },
+    "fidelity_items": {
+      "items": {
+        "$ref": "#/$defs/ProjectionAlignmentFidelityItem"
+      },
+      "title": "Fidelity Items",
+      "type": "array"
+    },
+    "fidelity_summary": {
+      "$ref": "#/$defs/ProjectionAlignmentFidelitySummary"
+    },
+    "projection_alignment_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Projection Alignment Hash",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_projection_alignment_fidelity@0.1",
+      "default": "adeu_projection_alignment_fidelity@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_text_hash": {
+      "minLength": 1,
+      "title": "Source Text Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_text_hash",
+    "projection_alignment_hash",
+    "fidelity_input_hash",
+    "fidelity_summary"
+  ],
+  "title": "AdeuProjectionAlignmentFidelity",
+  "type": "object"
+}
