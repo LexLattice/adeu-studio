@@ -29,6 +29,7 @@ _ACTIVE_MANIFEST_VERSIONS: tuple[int, ...] = (
     23,
     24,
     25,
+    26,
 )
 
 
