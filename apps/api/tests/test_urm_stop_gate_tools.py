@@ -12,7 +12,12 @@ from adeu_kernel import (
     build_validator_evidence_packet,
 )
 from urm_runtime.hashing import sha256_canonical_json
-from urm_runtime.stop_gate_tools import build_stop_gate_metrics, main
+from urm_runtime.stop_gate_tools import (
+    StopGateMetricsInput,
+    build_stop_gate_metrics,
+    build_stop_gate_metrics_from_input,
+    main,
+)
 
 
 def _repo_root() -> Path:
@@ -1271,6 +1276,32 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["gates"]["artifact_extraction_fidelity_projection_determinism"] is True
     assert first["gates"]["artifact_core_ir_proposer_contract_valid"] is True
     assert first["gates"]["artifact_core_ir_proposer_provider_parity"] is True
+
+
+def test_build_stop_gate_metrics_from_input_matches_legacy_wrapper(tmp_path: Path) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    kwargs = {
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **_vnext_plus13_to_19_manifest_kwargs(),
+    }
+    legacy_report = build_stop_gate_metrics(**kwargs)
+
+    stop_gate_input = StopGateMetricsInput.from_legacy_kwargs(**kwargs)
+    typed_report = build_stop_gate_metrics_from_input(stop_gate_input)
+
+    assert isinstance(stop_gate_input.incident_packet_paths, tuple)
+    assert isinstance(stop_gate_input.event_stream_paths, tuple)
+    assert _normalize_runtime_observability(legacy_report) == _normalize_runtime_observability(
+        typed_report
+    )
 
 
 def test_build_stop_gate_metrics_fails_when_runtime_budget_exceeds_ceiling(

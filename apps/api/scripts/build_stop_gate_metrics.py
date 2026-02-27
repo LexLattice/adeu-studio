@@ -4,7 +4,11 @@ import argparse
 from pathlib import Path
 
 from urm_runtime.hashing import canonical_json
-from urm_runtime.stop_gate_tools import build_stop_gate_metrics, stop_gate_markdown
+from urm_runtime.stop_gate_tools import (
+    StopGateMetricsInput,
+    build_stop_gate_metrics_from_input,
+    stop_gate_markdown,
+)
 
 _ACTIVE_MANIFEST_VERSIONS: tuple[int, ...] = (
     7,
@@ -129,7 +133,7 @@ def main() -> None:
         f"vnext_plus{version}_manifest_path": getattr(args, f"vnext_plus{version}_manifest")
         for version in _ACTIVE_MANIFEST_VERSIONS
     }
-    report = build_stop_gate_metrics(
+    stop_gate_input = StopGateMetricsInput.from_legacy_kwargs(
         incident_packet_paths=list(args.incident_packet_paths),
         event_stream_paths=list(args.event_stream_paths),
         connector_snapshot_paths=list(args.connector_snapshot_paths),
@@ -139,6 +143,7 @@ def main() -> None:
         quality_baseline_path=args.quality_baseline,
         **manifest_kwargs,
     )
+    report = build_stop_gate_metrics_from_input(stop_gate_input)
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
     args.out_json.write_text(canonical_json(report) + "\n", encoding="utf-8")
     args.out_md.parent.mkdir(parents=True, exist_ok=True)
