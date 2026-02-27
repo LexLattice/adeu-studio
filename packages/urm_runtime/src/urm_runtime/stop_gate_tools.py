@@ -3,7 +3,8 @@ from __future__ import annotations
 import argparse
 import json
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
@@ -12987,34 +12988,120 @@ def _compute_vnext_plus25_metrics(
     }
 
 
-def build_stop_gate_metrics(
-    *,
-    incident_packet_paths: list[Path],
-    event_stream_paths: list[Path],
-    connector_snapshot_paths: list[Path],
-    validator_evidence_packet_paths: list[Path],
-    semantics_diagnostics_paths: list[Path],
-    quality_current_path: Path,
-    quality_baseline_path: Path | None = None,
-    vnext_plus7_manifest_path: Path | None = None,
-    vnext_plus8_manifest_path: Path | None = None,
-    vnext_plus9_manifest_path: Path | None = None,
-    vnext_plus10_manifest_path: Path | None = None,
-    vnext_plus11_manifest_path: Path | None = None,
-    vnext_plus13_manifest_path: Path | None = None,
-    vnext_plus14_manifest_path: Path | None = None,
-    vnext_plus15_manifest_path: Path | None = None,
-    vnext_plus16_manifest_path: Path | None = None,
-    vnext_plus17_manifest_path: Path | None = None,
-    vnext_plus18_manifest_path: Path | None = None,
-    vnext_plus19_manifest_path: Path | None = None,
-    vnext_plus20_manifest_path: Path | None = None,
-    vnext_plus21_manifest_path: Path | None = None,
-    vnext_plus22_manifest_path: Path | None = None,
-    vnext_plus23_manifest_path: Path | None = None,
-    vnext_plus24_manifest_path: Path | None = None,
-    vnext_plus25_manifest_path: Path | None = None,
-) -> dict[str, Any]:
+@dataclass(frozen=True)
+class StopGateMetricsInput:
+    incident_packet_paths: tuple[Path, ...]
+    event_stream_paths: tuple[Path, ...]
+    connector_snapshot_paths: tuple[Path, ...]
+    validator_evidence_packet_paths: tuple[Path, ...]
+    semantics_diagnostics_paths: tuple[Path, ...]
+    quality_current_path: Path
+    quality_baseline_path: Path | None = None
+    vnext_plus7_manifest_path: Path | None = None
+    vnext_plus8_manifest_path: Path | None = None
+    vnext_plus9_manifest_path: Path | None = None
+    vnext_plus10_manifest_path: Path | None = None
+    vnext_plus11_manifest_path: Path | None = None
+    vnext_plus13_manifest_path: Path | None = None
+    vnext_plus14_manifest_path: Path | None = None
+    vnext_plus15_manifest_path: Path | None = None
+    vnext_plus16_manifest_path: Path | None = None
+    vnext_plus17_manifest_path: Path | None = None
+    vnext_plus18_manifest_path: Path | None = None
+    vnext_plus19_manifest_path: Path | None = None
+    vnext_plus20_manifest_path: Path | None = None
+    vnext_plus21_manifest_path: Path | None = None
+    vnext_plus22_manifest_path: Path | None = None
+    vnext_plus23_manifest_path: Path | None = None
+    vnext_plus24_manifest_path: Path | None = None
+    vnext_plus25_manifest_path: Path | None = None
+
+    @classmethod
+    def from_legacy_kwargs(
+        cls,
+        *,
+        incident_packet_paths: Sequence[Path],
+        event_stream_paths: Sequence[Path],
+        connector_snapshot_paths: Sequence[Path],
+        validator_evidence_packet_paths: Sequence[Path],
+        semantics_diagnostics_paths: Sequence[Path],
+        quality_current_path: Path,
+        quality_baseline_path: Path | None = None,
+        vnext_plus7_manifest_path: Path | None = None,
+        vnext_plus8_manifest_path: Path | None = None,
+        vnext_plus9_manifest_path: Path | None = None,
+        vnext_plus10_manifest_path: Path | None = None,
+        vnext_plus11_manifest_path: Path | None = None,
+        vnext_plus13_manifest_path: Path | None = None,
+        vnext_plus14_manifest_path: Path | None = None,
+        vnext_plus15_manifest_path: Path | None = None,
+        vnext_plus16_manifest_path: Path | None = None,
+        vnext_plus17_manifest_path: Path | None = None,
+        vnext_plus18_manifest_path: Path | None = None,
+        vnext_plus19_manifest_path: Path | None = None,
+        vnext_plus20_manifest_path: Path | None = None,
+        vnext_plus21_manifest_path: Path | None = None,
+        vnext_plus22_manifest_path: Path | None = None,
+        vnext_plus23_manifest_path: Path | None = None,
+        vnext_plus24_manifest_path: Path | None = None,
+        vnext_plus25_manifest_path: Path | None = None,
+    ) -> "StopGateMetricsInput":
+        return cls(
+            incident_packet_paths=tuple(incident_packet_paths),
+            event_stream_paths=tuple(event_stream_paths),
+            connector_snapshot_paths=tuple(connector_snapshot_paths),
+            validator_evidence_packet_paths=tuple(validator_evidence_packet_paths),
+            semantics_diagnostics_paths=tuple(semantics_diagnostics_paths),
+            quality_current_path=quality_current_path,
+            quality_baseline_path=quality_baseline_path,
+            vnext_plus7_manifest_path=vnext_plus7_manifest_path,
+            vnext_plus8_manifest_path=vnext_plus8_manifest_path,
+            vnext_plus9_manifest_path=vnext_plus9_manifest_path,
+            vnext_plus10_manifest_path=vnext_plus10_manifest_path,
+            vnext_plus11_manifest_path=vnext_plus11_manifest_path,
+            vnext_plus13_manifest_path=vnext_plus13_manifest_path,
+            vnext_plus14_manifest_path=vnext_plus14_manifest_path,
+            vnext_plus15_manifest_path=vnext_plus15_manifest_path,
+            vnext_plus16_manifest_path=vnext_plus16_manifest_path,
+            vnext_plus17_manifest_path=vnext_plus17_manifest_path,
+            vnext_plus18_manifest_path=vnext_plus18_manifest_path,
+            vnext_plus19_manifest_path=vnext_plus19_manifest_path,
+            vnext_plus20_manifest_path=vnext_plus20_manifest_path,
+            vnext_plus21_manifest_path=vnext_plus21_manifest_path,
+            vnext_plus22_manifest_path=vnext_plus22_manifest_path,
+            vnext_plus23_manifest_path=vnext_plus23_manifest_path,
+            vnext_plus24_manifest_path=vnext_plus24_manifest_path,
+            vnext_plus25_manifest_path=vnext_plus25_manifest_path,
+        )
+
+
+def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) -> dict[str, Any]:
+    incident_packet_paths = stop_gate_input.incident_packet_paths
+    event_stream_paths = stop_gate_input.event_stream_paths
+    connector_snapshot_paths = stop_gate_input.connector_snapshot_paths
+    validator_evidence_packet_paths = stop_gate_input.validator_evidence_packet_paths
+    semantics_diagnostics_paths = stop_gate_input.semantics_diagnostics_paths
+    quality_current_path = stop_gate_input.quality_current_path
+    quality_baseline_path = stop_gate_input.quality_baseline_path
+    vnext_plus7_manifest_path = stop_gate_input.vnext_plus7_manifest_path
+    vnext_plus8_manifest_path = stop_gate_input.vnext_plus8_manifest_path
+    vnext_plus9_manifest_path = stop_gate_input.vnext_plus9_manifest_path
+    vnext_plus10_manifest_path = stop_gate_input.vnext_plus10_manifest_path
+    vnext_plus11_manifest_path = stop_gate_input.vnext_plus11_manifest_path
+    vnext_plus13_manifest_path = stop_gate_input.vnext_plus13_manifest_path
+    vnext_plus14_manifest_path = stop_gate_input.vnext_plus14_manifest_path
+    vnext_plus15_manifest_path = stop_gate_input.vnext_plus15_manifest_path
+    vnext_plus16_manifest_path = stop_gate_input.vnext_plus16_manifest_path
+    vnext_plus17_manifest_path = stop_gate_input.vnext_plus17_manifest_path
+    vnext_plus18_manifest_path = stop_gate_input.vnext_plus18_manifest_path
+    vnext_plus19_manifest_path = stop_gate_input.vnext_plus19_manifest_path
+    vnext_plus20_manifest_path = stop_gate_input.vnext_plus20_manifest_path
+    vnext_plus21_manifest_path = stop_gate_input.vnext_plus21_manifest_path
+    vnext_plus22_manifest_path = stop_gate_input.vnext_plus22_manifest_path
+    vnext_plus23_manifest_path = stop_gate_input.vnext_plus23_manifest_path
+    vnext_plus24_manifest_path = stop_gate_input.vnext_plus24_manifest_path
+    vnext_plus25_manifest_path = stop_gate_input.vnext_plus25_manifest_path
+
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
     try:
@@ -14041,6 +14128,65 @@ def build_stop_gate_metrics(
     }
 
 
+def build_stop_gate_metrics(
+    *,
+    incident_packet_paths: list[Path],
+    event_stream_paths: list[Path],
+    connector_snapshot_paths: list[Path],
+    validator_evidence_packet_paths: list[Path],
+    semantics_diagnostics_paths: list[Path],
+    quality_current_path: Path,
+    quality_baseline_path: Path | None = None,
+    vnext_plus7_manifest_path: Path | None = None,
+    vnext_plus8_manifest_path: Path | None = None,
+    vnext_plus9_manifest_path: Path | None = None,
+    vnext_plus10_manifest_path: Path | None = None,
+    vnext_plus11_manifest_path: Path | None = None,
+    vnext_plus13_manifest_path: Path | None = None,
+    vnext_plus14_manifest_path: Path | None = None,
+    vnext_plus15_manifest_path: Path | None = None,
+    vnext_plus16_manifest_path: Path | None = None,
+    vnext_plus17_manifest_path: Path | None = None,
+    vnext_plus18_manifest_path: Path | None = None,
+    vnext_plus19_manifest_path: Path | None = None,
+    vnext_plus20_manifest_path: Path | None = None,
+    vnext_plus21_manifest_path: Path | None = None,
+    vnext_plus22_manifest_path: Path | None = None,
+    vnext_plus23_manifest_path: Path | None = None,
+    vnext_plus24_manifest_path: Path | None = None,
+    vnext_plus25_manifest_path: Path | None = None,
+) -> dict[str, Any]:
+    return build_stop_gate_metrics_from_input(
+        StopGateMetricsInput.from_legacy_kwargs(
+            incident_packet_paths=incident_packet_paths,
+            event_stream_paths=event_stream_paths,
+            connector_snapshot_paths=connector_snapshot_paths,
+            validator_evidence_packet_paths=validator_evidence_packet_paths,
+            semantics_diagnostics_paths=semantics_diagnostics_paths,
+            quality_current_path=quality_current_path,
+            quality_baseline_path=quality_baseline_path,
+            vnext_plus7_manifest_path=vnext_plus7_manifest_path,
+            vnext_plus8_manifest_path=vnext_plus8_manifest_path,
+            vnext_plus9_manifest_path=vnext_plus9_manifest_path,
+            vnext_plus10_manifest_path=vnext_plus10_manifest_path,
+            vnext_plus11_manifest_path=vnext_plus11_manifest_path,
+            vnext_plus13_manifest_path=vnext_plus13_manifest_path,
+            vnext_plus14_manifest_path=vnext_plus14_manifest_path,
+            vnext_plus15_manifest_path=vnext_plus15_manifest_path,
+            vnext_plus16_manifest_path=vnext_plus16_manifest_path,
+            vnext_plus17_manifest_path=vnext_plus17_manifest_path,
+            vnext_plus18_manifest_path=vnext_plus18_manifest_path,
+            vnext_plus19_manifest_path=vnext_plus19_manifest_path,
+            vnext_plus20_manifest_path=vnext_plus20_manifest_path,
+            vnext_plus21_manifest_path=vnext_plus21_manifest_path,
+            vnext_plus22_manifest_path=vnext_plus22_manifest_path,
+            vnext_plus23_manifest_path=vnext_plus23_manifest_path,
+            vnext_plus24_manifest_path=vnext_plus24_manifest_path,
+            vnext_plus25_manifest_path=vnext_plus25_manifest_path,
+        )
+    )
+
+
 def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines: list[str] = []
     lines.append("# Stop-Gate Metrics")
@@ -14555,7 +14701,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
-    report = build_stop_gate_metrics(
+    stop_gate_input = StopGateMetricsInput.from_legacy_kwargs(
         incident_packet_paths=list(args.incident_packet_paths or []),
         event_stream_paths=list(args.event_stream_paths or []),
         connector_snapshot_paths=list(args.connector_snapshot_paths or []),
@@ -14582,6 +14728,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus24_manifest_path=args.vnext_plus24_manifest_path,
         vnext_plus25_manifest_path=args.vnext_plus25_manifest_path,
     )
+    report = build_stop_gate_metrics_from_input(stop_gate_input)
     payload = canonical_json(report)
     if args.out_json_path is not None:
         _write_text(args.out_json_path, payload + "\n")
