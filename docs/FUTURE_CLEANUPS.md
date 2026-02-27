@@ -102,3 +102,11 @@ current milestone PR sequence.
   (`_core_ir_proposer_logic_tree_max_depth` in `apps/api/src/adeu_api/main.py`);
   current behavior returns depth sentinel on cycle, while stricter fail-closed
   behavior (payload-invalid on detected cycle) is deferred pending explicit lock.
+- `cleanup-vnext-plus26-s9-trigger-check-script`:
+  add and wire deterministic `apps/api/scripts/check_s9_triggers.py` so
+  S9 trigger precondition checks are executable as a standalone closeout/preflight gate
+  instead of remaining documentation-only guidance.
+- `cleanup-vnext-plus26-tooling-transfer-report-builder`:
+  add a dedicated deterministic builder/script/test path for
+  `docs/TOOLING_TRANSFER_REPORT_vNEXT_PLUS26.md` so v26 tooling transfer report
+  payload regeneration is mechanical and replay-safe in the same style as v24/v25.
