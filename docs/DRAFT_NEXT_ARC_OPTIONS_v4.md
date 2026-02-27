@@ -7,8 +7,8 @@ This document consolidates the four independent v4 planning drafts:
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_opus.md`
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_gemini.md`
 
-Status: active planning draft (v17 through v24 baselines executed; active for `vNext+25+` selection).
-Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+24` sequencing.
+Status: active planning draft (v17 through v25 baselines executed; active for `vNext+26+` selection).
+Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+25` sequencing.
 
 ## Baseline Agreement (Shared Across Drafts)
 
@@ -23,6 +23,7 @@ All four drafts converge on these baseline points:
 - `vNext+22` Path S7 (`T1`-`T4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS22.md`).
 - `vNext+23` Path S8 (`V1`-`V4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS23.md`).
 - `vNext+24` Path S2 (`X1`-`X4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS24.md`).
+- `vNext+25` Path S3b (`Y1`-`Y4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS25.md`).
 - Determinism/manifest/stop-gate closeout discipline is now mature and must carry forward.
 - Next work should remain additive-first and explicitly locked.
 - Provider parity maintenance remains a fallback path, not the default next arc.
@@ -379,16 +380,17 @@ Execution checkpoint (current state):
   - `vNext+22 = S7` (closed out)
   - `vNext+23 = S8` (closed out)
   - `vNext+24 = S2` (closed out)
+  - `vNext+25 = S3b` (closed out)
 - active default next selection:
-  - `vNext+25 = pending lock freeze` (post-S2 follow-on scope to be explicitly frozen; default candidate `S3b`, fallback `S9` on parity-trigger breach)
+  - `vNext+26 = pending lock freeze` (post-S3b follow-on scope to be explicitly frozen; `S9` remains trigger-based preemption path)
 
 ## Proposed Freeze Candidate (Next Step)
 
-Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS25.md` with one thin-slice continuation only (exact path to be selected and explicitly frozen):
+Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS26.md` with one thin-slice continuation only (exact path to be selected and explicitly frozen):
 
-1. freeze deterministic contract deltas for the selected post-v24 scope.
+1. freeze deterministic contract deltas for the selected post-v25 scope.
 2. keep additive-only stop-gate metric extension on `stop_gate_metrics@1`.
-3. preserve v14-v23 continuity locks unless an explicit release is approved.
+3. preserve v14-v25 continuity locks unless an explicit release is approved.
 4. keep non-enforcement/no-mutation/no-provider-expansion boundaries explicit where applicable.
 
 ## Historical Freeze Candidate (v19 Reference)
