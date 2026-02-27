@@ -180,6 +180,13 @@ VNEXT_PLUS25_DEFAULT_METRICS = {
     "artifact_core_ir_proposer_contract_valid_pct": 0.0,
     "artifact_core_ir_proposer_provider_parity_pct": 0.0,
 }
+VNEXT_PLUS26_REPLAY_COUNT = 3
+VNEXT_PLUS26_MANIFEST_SCHEMA = "stop_gate.vnext_plus26_manifest@1"
+VNEXT_PLUS26_PARITY_PROJECTION = "stop_gate_parity.v1"
+VNEXT_PLUS26_DEFAULT_METRICS = {
+    "artifact_stop_gate_input_model_parity_pct": 0.0,
+    "artifact_transfer_report_builder_parity_pct": 0.0,
+}
 CROSS_IR_BRIDGE_MANIFEST_SCHEMA = "adeu_cross_ir_bridge_manifest@0.1"
 CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA = "adeu_cross_ir_coherence_diagnostics@0.1"
 CROSS_IR_QUALITY_PROJECTION_SCHEMA = "cross_ir_quality_projection.vnext_plus20@1"
@@ -279,6 +286,11 @@ _FROZEN_EXTRACTION_FIDELITY_SURFACES: tuple[str, ...] = (
 _FROZEN_EXTRACTION_FIDELITY_SURFACE_SET = frozenset(_FROZEN_EXTRACTION_FIDELITY_SURFACES)
 _FROZEN_CORE_IR_PROPOSER_SURFACES: tuple[str, ...] = (CORE_IR_PROPOSER_SURFACE_ID,)
 _FROZEN_CORE_IR_PROPOSER_SURFACE_SET = frozenset(_FROZEN_CORE_IR_PROPOSER_SURFACES)
+_FROZEN_VNEXT_PLUS26_TOOLING_SURFACES: tuple[str, ...] = (
+    "adeu.tooling.stop_gate_input_model_parity",
+    "adeu.tooling.transfer_report_builder_parity",
+)
+_FROZEN_VNEXT_PLUS26_TOOLING_SURFACE_SET = frozenset(_FROZEN_VNEXT_PLUS26_TOOLING_SURFACES)
 _FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES = frozenset(
     {
         "MISSING_CONCEPT_MAPPING",
@@ -438,6 +450,8 @@ THRESHOLDS = {
     "artifact_extraction_fidelity_projection_determinism_pct": 100.0,
     "artifact_core_ir_proposer_contract_valid_pct": 100.0,
     "artifact_core_ir_proposer_provider_parity_pct": 100.0,
+    "artifact_stop_gate_input_model_parity_pct": 100.0,
+    "artifact_transfer_report_builder_parity_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -548,6 +562,10 @@ def _default_vnext_plus25_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus25_manifest.json")
 
 
+def _default_vnext_plus26_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus26_manifest.json")
+
+
 def _default_vnext_plus24_catalog_path() -> Path:
     return _default_extraction_fidelity_catalog_path("vnext_plus24_catalog.json")
 
@@ -570,6 +588,7 @@ VNEXT_PLUS22_MANIFEST_PATH = _default_vnext_plus22_manifest_path()
 VNEXT_PLUS23_MANIFEST_PATH = _default_vnext_plus23_manifest_path()
 VNEXT_PLUS24_MANIFEST_PATH = _default_vnext_plus24_manifest_path()
 VNEXT_PLUS25_MANIFEST_PATH = _default_vnext_plus25_manifest_path()
+VNEXT_PLUS26_MANIFEST_PATH = _default_vnext_plus26_manifest_path()
 VNEXT_PLUS24_CATALOG_PATH = _default_vnext_plus24_catalog_path()
 
 
@@ -3755,6 +3774,40 @@ def _manifest_bytes_hashed_per_replay(
     return bytes_total
 
 
+def _manifest_pair_bytes_hashed_per_replay(
+    *,
+    manifest_path: Path,
+    fixtures: list[dict[str, Any]],
+    first_run_field: str,
+    second_run_field: str,
+    run_bytes_builder: Callable[..., int],
+) -> int:
+    bytes_total = 0
+    for fixture in fixtures:
+        runs = fixture.get("runs")
+        if not isinstance(runs, list) or not runs:
+            continue
+        run = runs[0]
+        if not isinstance(run, dict):
+            continue
+        try:
+            first_path = _resolve_manifest_relative_path(
+                manifest_path=manifest_path,
+                raw_path=run.get(first_run_field),
+            )
+            second_path = _resolve_manifest_relative_path(
+                manifest_path=manifest_path,
+                raw_path=run.get(second_run_field),
+            )
+            bytes_total += run_bytes_builder(
+                baseline_path=first_path,
+                candidate_path=second_path,
+            )
+        except ValueError:
+            continue
+    return bytes_total
+
+
 def _has_non_zero_diagnostic_fixture(
     *,
     manifest_path: Path,
@@ -5583,6 +5636,21 @@ _VNEXT_PLUS25_CORE_IR_PROPOSER_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] =
     ),
 )
 
+_VNEXT_PLUS26_TOOLING_PARITY_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "stop_gate_input_model_parity_fixtures",
+        "artifact_stop_gate_input_model_parity_pct",
+        "adeu.tooling.stop_gate_input_model_parity",
+        ("baseline_path", "candidate_path"),
+    ),
+    (
+        "transfer_report_builder_parity_fixtures",
+        "artifact_transfer_report_builder_parity_pct",
+        "adeu.tooling.transfer_report_builder_parity",
+        ("baseline_path", "candidate_path"),
+    ),
+)
+
 
 def _validate_integrity_surface_fixtures(
     *,
@@ -6565,6 +6633,205 @@ def _tooling_transfer_report_parity_fixture_hash(
         candidate_path=candidate_path,
         invalid_code="URM_ADEU_TOOLING_TRANSFER_REPORT_PARITY_INVALID",
         drift_message="vnext+18 transfer-report consolidation parity drift",
+    )
+
+
+def _normalize_vnext_plus26_path_value(*, value: str, repo_root: Path | None) -> str:
+    normalized = value.replace("\\", "/")
+    if repo_root is None:
+        return normalized
+    repo_root_resolved = repo_root.resolve()
+    path_value = Path(normalized)
+    is_windows_drive_absolute = (
+        len(normalized) >= 3
+        and normalized[0].isalpha()
+        and normalized[1] == ":"
+        and normalized[2] == "/"
+    )
+    if path_value.is_absolute():
+        try:
+            relative = path_value.resolve().relative_to(repo_root_resolved)
+        except ValueError:
+            pass
+        else:
+            return relative.as_posix()
+    if not is_windows_drive_absolute:
+        return normalized
+
+    repo_root_parts = [part for part in repo_root_resolved.as_posix().split("/") if part]
+    normalized_parts = [part for part in normalized.split("/") if part]
+    if normalized_parts and normalized_parts[0].endswith(":"):
+        normalized_parts = normalized_parts[1:]
+    if not repo_root_parts or not normalized_parts:
+        return normalized
+
+    repo_root_parts_folded = [part.casefold() for part in repo_root_parts]
+    normalized_parts_folded = [part.casefold() for part in normalized_parts]
+    max_start = len(normalized_parts_folded) - len(repo_root_parts_folded)
+    for start in range(max_start + 1):
+        end = start + len(repo_root_parts_folded)
+        if normalized_parts_folded[start:end] != repo_root_parts_folded:
+            continue
+        relative_parts = normalized_parts[end:]
+        return "/".join(relative_parts) if relative_parts else "."
+    return normalized
+
+
+def _normalize_vnext_plus26_parity_paths(
+    *,
+    value: Any,
+    repo_root: Path | None,
+    parent_key: str | None = None,
+) -> Any:
+    if isinstance(value, Mapping):
+        normalized: dict[str, Any] = {}
+        for key in sorted(value.keys()):
+            key_str = str(key)
+            normalized[key_str] = _normalize_vnext_plus26_parity_paths(
+                value=value[key],
+                repo_root=repo_root,
+                parent_key=key_str,
+            )
+        return normalized
+    if isinstance(value, list):
+        normalized_list = [
+            _normalize_vnext_plus26_parity_paths(
+                value=item,
+                repo_root=repo_root,
+                parent_key=parent_key,
+            )
+            for item in value
+        ]
+        if parent_key is not None and parent_key.endswith("_paths") and all(
+            isinstance(item, str) for item in normalized_list
+        ):
+            return sorted(cast(list[str], normalized_list))
+        return normalized_list
+    if isinstance(value, str) and parent_key is not None:
+        if parent_key.endswith("_path") or parent_key.endswith("_paths"):
+            return _normalize_vnext_plus26_path_value(value=value, repo_root=repo_root)
+    return value
+
+
+def _tooling_parity_hash_projection_vnext_plus26(
+    *,
+    payload: Mapping[str, Any],
+    repo_root: Path | None,
+) -> dict[str, Any]:
+    projected = _tooling_parity_hash_projection(payload)
+    normalized = _normalize_vnext_plus26_parity_paths(value=projected, repo_root=repo_root)
+    if not isinstance(normalized, dict):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                "vnext+26 parity projection must normalize to an object",
+            )
+        )
+    return normalized
+
+
+def _tooling_vnext_plus26_parity_fixture_hash(
+    *,
+    baseline_path: Path,
+    candidate_path: Path,
+) -> str:
+    baseline_payload = _read_tooling_parity_payload(
+        path=baseline_path,
+        description="vnext+26 tooling parity baseline artifact",
+        invalid_code="URM_ADEU_TOOLING_FIXTURE_INVALID",
+    )
+    candidate_payload = _read_tooling_parity_payload(
+        path=candidate_path,
+        description="vnext+26 tooling parity candidate artifact",
+        invalid_code="URM_ADEU_TOOLING_FIXTURE_INVALID",
+    )
+    baseline_schema = baseline_payload.get("schema")
+    candidate_schema = candidate_payload.get("schema")
+    if not isinstance(baseline_schema, str) or not isinstance(candidate_schema, str):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                "vnext+26 tooling parity artifacts must contain schema field",
+                context={
+                    "baseline_path": str(baseline_path),
+                    "candidate_path": str(candidate_path),
+                },
+            )
+        )
+    if baseline_schema != candidate_schema:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                "vnext+26 tooling parity fixture baseline/candidate schema mismatch",
+                context={
+                    "baseline_path": str(baseline_path),
+                    "candidate_path": str(candidate_path),
+                    "baseline_schema": baseline_schema,
+                    "candidate_schema": candidate_schema,
+                },
+            )
+        )
+
+    repo_root = (
+        _discover_repo_root(baseline_path)
+        or _discover_repo_root(candidate_path)
+        or _discover_repo_root(Path(__file__).resolve())
+    )
+    baseline_projection = _tooling_parity_hash_projection_vnext_plus26(
+        payload=baseline_payload,
+        repo_root=repo_root,
+    )
+    candidate_projection = _tooling_parity_hash_projection_vnext_plus26(
+        payload=candidate_payload,
+        repo_root=repo_root,
+    )
+    baseline_hash = sha256_canonical_json(baseline_projection)
+    candidate_hash = sha256_canonical_json(candidate_projection)
+    if baseline_hash != candidate_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_TOOLING_PARITY_DRIFT",
+                "vnext+26 tooling parity drift",
+                context={
+                    "baseline_path": str(baseline_path),
+                    "candidate_path": str(candidate_path),
+                    "schema": baseline_schema,
+                },
+            )
+        )
+    return candidate_hash
+
+
+def _tooling_vnext_plus26_parity_hash_input_bytes(
+    *,
+    baseline_path: Path,
+    candidate_path: Path,
+) -> int:
+    baseline_payload = _read_tooling_parity_payload(
+        path=baseline_path,
+        description="vnext+26 tooling parity baseline artifact",
+        invalid_code="URM_ADEU_TOOLING_FIXTURE_INVALID",
+    )
+    candidate_payload = _read_tooling_parity_payload(
+        path=candidate_path,
+        description="vnext+26 tooling parity candidate artifact",
+        invalid_code="URM_ADEU_TOOLING_FIXTURE_INVALID",
+    )
+    repo_root = (
+        _discover_repo_root(baseline_path)
+        or _discover_repo_root(candidate_path)
+        or _discover_repo_root(Path(__file__).resolve())
+    )
+    baseline_projection = _tooling_parity_hash_projection_vnext_plus26(
+        payload=baseline_payload,
+        repo_root=repo_root,
+    )
+    candidate_projection = _tooling_parity_hash_projection_vnext_plus26(
+        payload=candidate_payload,
+        repo_root=repo_root,
+    )
+    return len(canonical_json(baseline_projection).encode("utf-8")) + len(
+        canonical_json(candidate_projection).encode("utf-8")
     )
 
 
@@ -12988,6 +13255,125 @@ def _compute_vnext_plus25_metrics(
     }
 
 
+def _load_vnext_plus26_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        payload, manifest_hash = _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+26",
+            manifest_schema=VNEXT_PLUS26_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS26_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS26_TOOLING_PARITY_SPECS,
+            frozen_surface_set=_FROZEN_VNEXT_PLUS26_TOOLING_SURFACE_SET,
+            frozen_surfaces=_FROZEN_VNEXT_PLUS26_TOOLING_SURFACES,
+            surface_description="frozen vnext+26 tooling surface id",
+            surface_set_description="frozen vnext+26 tooling surface ids",
+        )
+        parity_projection = payload.get("parity_projection")
+        if parity_projection != VNEXT_PLUS26_PARITY_PROJECTION:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                    "vnext+26 parity_projection must match frozen projection id",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "expected_parity_projection": VNEXT_PLUS26_PARITY_PROJECTION,
+                        "observed_parity_projection": parity_projection,
+                    },
+                )
+            )
+        return payload, manifest_hash
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_TOOLING_FIXTURE_INVALID",
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    "URM_ADEU_TOOLING_MANIFEST_HASH_MISMATCH"
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus26_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS26_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus26_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_TOOLING_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS26_DEFAULT_METRICS,
+            "vnext_plus26_manifest_hash": "",
+            "vnext_plus26_fixture_count_total": 0,
+            "vnext_plus26_replay_count_total": 0,
+            "vnext_plus26_bytes_hashed_per_replay": 0,
+            "vnext_plus26_bytes_hashed_total": 0,
+        }
+
+    metric_values: dict[str, float] = {}
+    fixture_groups: list[list[dict[str, Any]]] = []
+    bytes_hashed_per_replay = 0
+    for fixture_key, metric_name, _surface_id, required_run_fields in (
+        _VNEXT_PLUS26_TOOLING_PARITY_SPECS
+    ):
+        fixtures = cast(list[dict[str, Any]], manifest[fixture_key])
+        fixture_groups.append(fixtures)
+        metric_values[metric_name] = _manifest_metric_pct(
+            manifest_path=resolved_manifest_path,
+            metric_name=metric_name,
+            fixtures=fixtures,
+            replay_count=VNEXT_PLUS26_REPLAY_COUNT,
+            required_run_fields=required_run_fields,
+            run_hash_builder=_tooling_vnext_plus26_parity_fixture_hash,
+            issues=issues,
+            invalid_issue_code="URM_ADEU_TOOLING_FIXTURE_INVALID",
+            drift_issue_code="URM_ADEU_TOOLING_PARITY_DRIFT",
+            drift_issue_message="vnext+26 tooling parity drift",
+        )
+        bytes_hashed_per_replay += _manifest_pair_bytes_hashed_per_replay(
+            manifest_path=resolved_manifest_path,
+            fixtures=fixtures,
+            first_run_field="baseline_path",
+            second_run_field="candidate_path",
+            run_bytes_builder=_tooling_vnext_plus26_parity_hash_input_bytes,
+        )
+
+    fixture_count_total = sum(len(fixtures) for fixtures in fixture_groups)
+    replay_count_total = sum(
+        len(cast(list[Any], fixture.get("runs", [])))
+        for fixtures in fixture_groups
+        for fixture in fixtures
+    )
+    return {
+        **metric_values,
+        "vnext_plus26_manifest_hash": manifest_hash,
+        "vnext_plus26_fixture_count_total": fixture_count_total,
+        "vnext_plus26_replay_count_total": replay_count_total,
+        "vnext_plus26_bytes_hashed_per_replay": bytes_hashed_per_replay,
+        "vnext_plus26_bytes_hashed_total": VNEXT_PLUS26_REPLAY_COUNT
+        * bytes_hashed_per_replay,
+    }
+
+
 @dataclass(frozen=True)
 class StopGateMetricsInput:
     incident_packet_paths: tuple[Path, ...]
@@ -13015,6 +13401,7 @@ class StopGateMetricsInput:
     vnext_plus23_manifest_path: Path | None = None
     vnext_plus24_manifest_path: Path | None = None
     vnext_plus25_manifest_path: Path | None = None
+    vnext_plus26_manifest_path: Path | None = None
 
     @classmethod
     def from_legacy_kwargs(
@@ -13045,6 +13432,7 @@ class StopGateMetricsInput:
         vnext_plus23_manifest_path: Path | None = None,
         vnext_plus24_manifest_path: Path | None = None,
         vnext_plus25_manifest_path: Path | None = None,
+        vnext_plus26_manifest_path: Path | None = None,
     ) -> "StopGateMetricsInput":
         return cls(
             incident_packet_paths=tuple(incident_packet_paths),
@@ -13072,6 +13460,7 @@ class StopGateMetricsInput:
             vnext_plus23_manifest_path=vnext_plus23_manifest_path,
             vnext_plus24_manifest_path=vnext_plus24_manifest_path,
             vnext_plus25_manifest_path=vnext_plus25_manifest_path,
+            vnext_plus26_manifest_path=vnext_plus26_manifest_path,
         )
 
 
@@ -13101,6 +13490,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
     vnext_plus23_manifest_path = stop_gate_input.vnext_plus23_manifest_path
     vnext_plus24_manifest_path = stop_gate_input.vnext_plus24_manifest_path
     vnext_plus25_manifest_path = stop_gate_input.vnext_plus25_manifest_path
+    vnext_plus26_manifest_path = stop_gate_input.vnext_plus26_manifest_path
 
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -13510,6 +13900,10 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
         manifest_path=vnext_plus25_manifest_path,
         issues=issues,
     )
+    vnext_plus26_metrics = _compute_vnext_plus26_metrics(
+        manifest_path=vnext_plus26_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -13583,6 +13977,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             + int(vnext_plus23_metrics["vnext_plus23_fixture_count_total"])
             + int(vnext_plus24_metrics["vnext_plus24_fixture_count_total"])
             + int(vnext_plus25_metrics["vnext_plus25_fixture_count_total"])
+            + int(vnext_plus26_metrics["vnext_plus26_fixture_count_total"])
         ),
         total_replays=(
             int(vnext_plus19_metrics["vnext_plus19_replay_count_total"])
@@ -13592,6 +13987,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             + int(vnext_plus23_metrics["vnext_plus23_replay_count_total"])
             + int(vnext_plus24_metrics["vnext_plus24_replay_count_total"])
             + int(vnext_plus25_metrics["vnext_plus25_replay_count_total"])
+            + int(vnext_plus26_metrics["vnext_plus26_replay_count_total"])
         ),
         bytes_hashed_per_replay=(
             int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_per_replay", 0))
@@ -13601,6 +13997,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_per_replay", 0))
             + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_per_replay", 0))
             + int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_per_replay", 0))
+            + int(vnext_plus26_metrics.get("vnext_plus26_bytes_hashed_per_replay", 0))
         ),
         bytes_hashed_total=(
             int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_total", 0))
@@ -13610,6 +14007,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_total", 0))
             + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_total", 0))
             + int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_total", 0))
+            + int(vnext_plus26_metrics.get("vnext_plus26_bytes_hashed_total", 0))
         ),
         runtime_started=runtime_started,
     )
@@ -13804,6 +14202,12 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
         "artifact_core_ir_proposer_provider_parity_pct": vnext_plus25_metrics[
             "artifact_core_ir_proposer_provider_parity_pct"
         ],
+        "artifact_stop_gate_input_model_parity_pct": vnext_plus26_metrics[
+            "artifact_stop_gate_input_model_parity_pct"
+        ],
+        "artifact_transfer_report_builder_parity_pct": vnext_plus26_metrics[
+            "artifact_transfer_report_builder_parity_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -13979,6 +14383,14 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             "artifact_core_ir_proposer_provider_parity_pct"
         ]
         >= THRESHOLDS["artifact_core_ir_proposer_provider_parity_pct"],
+        "artifact_stop_gate_input_model_parity": metrics[
+            "artifact_stop_gate_input_model_parity_pct"
+        ]
+        >= THRESHOLDS["artifact_stop_gate_input_model_parity_pct"],
+        "artifact_transfer_report_builder_parity": metrics[
+            "artifact_transfer_report_builder_parity_pct"
+        ]
+        >= THRESHOLDS["artifact_transfer_report_builder_parity_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -14094,6 +14506,11 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
                 if vnext_plus25_manifest_path is not None
                 else VNEXT_PLUS25_MANIFEST_PATH
             ),
+            "vnext_plus26_manifest_path": str(
+                vnext_plus26_manifest_path
+                if vnext_plus26_manifest_path is not None
+                else VNEXT_PLUS26_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -14112,6 +14529,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
         "vnext_plus23_manifest_hash": vnext_plus23_metrics["vnext_plus23_manifest_hash"],
         "vnext_plus24_manifest_hash": vnext_plus24_metrics["vnext_plus24_manifest_hash"],
         "vnext_plus25_manifest_hash": vnext_plus25_metrics["vnext_plus25_manifest_hash"],
+        "vnext_plus26_manifest_hash": vnext_plus26_metrics["vnext_plus26_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -14155,6 +14573,7 @@ def build_stop_gate_metrics(
     vnext_plus23_manifest_path: Path | None = None,
     vnext_plus24_manifest_path: Path | None = None,
     vnext_plus25_manifest_path: Path | None = None,
+    vnext_plus26_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     return build_stop_gate_metrics_from_input(
         StopGateMetricsInput.from_legacy_kwargs(
@@ -14183,6 +14602,7 @@ def build_stop_gate_metrics(
             vnext_plus23_manifest_path=vnext_plus23_manifest_path,
             vnext_plus24_manifest_path=vnext_plus24_manifest_path,
             vnext_plus25_manifest_path=vnext_plus25_manifest_path,
+            vnext_plus26_manifest_path=vnext_plus26_manifest_path,
         )
     )
 
@@ -14211,6 +14631,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+23 manifest hash: `{report.get('vnext_plus23_manifest_hash')}`")
     lines.append(f"- vnext+24 manifest hash: `{report.get('vnext_plus24_manifest_hash')}`")
     lines.append(f"- vnext+25 manifest hash: `{report.get('vnext_plus25_manifest_hash')}`")
+    lines.append(f"- vnext+26 manifest hash: `{report.get('vnext_plus26_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -14484,6 +14905,14 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('artifact_core_ir_proposer_provider_parity_pct')}`"
     )
     lines.append(
+        "- artifact stop-gate input-model parity pct: "
+        f"`{metrics.get('artifact_stop_gate_input_model_parity_pct')}`"
+    )
+    lines.append(
+        "- artifact transfer-report builder parity pct: "
+        f"`{metrics.get('artifact_transfer_report_builder_parity_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -14694,6 +15123,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS25_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus26-manifest",
+        dest="vnext_plus26_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS26_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -14727,6 +15162,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus23_manifest_path=args.vnext_plus23_manifest_path,
         vnext_plus24_manifest_path=args.vnext_plus24_manifest_path,
         vnext_plus25_manifest_path=args.vnext_plus25_manifest_path,
+        vnext_plus26_manifest_path=args.vnext_plus26_manifest_path,
     )
     report = build_stop_gate_metrics_from_input(stop_gate_input)
     payload = canonical_json(report)
