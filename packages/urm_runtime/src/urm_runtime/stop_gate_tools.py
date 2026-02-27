@@ -13076,11 +13076,11 @@ class StopGateMetricsInput:
 
 
 def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) -> dict[str, Any]:
-    incident_packet_paths = list(stop_gate_input.incident_packet_paths)
-    event_stream_paths = list(stop_gate_input.event_stream_paths)
-    connector_snapshot_paths = list(stop_gate_input.connector_snapshot_paths)
-    validator_evidence_packet_paths = list(stop_gate_input.validator_evidence_packet_paths)
-    semantics_diagnostics_paths = list(stop_gate_input.semantics_diagnostics_paths)
+    incident_packet_paths = stop_gate_input.incident_packet_paths
+    event_stream_paths = stop_gate_input.event_stream_paths
+    connector_snapshot_paths = stop_gate_input.connector_snapshot_paths
+    validator_evidence_packet_paths = stop_gate_input.validator_evidence_packet_paths
+    semantics_diagnostics_paths = stop_gate_input.semantics_diagnostics_paths
     quality_current_path = stop_gate_input.quality_current_path
     quality_baseline_path = stop_gate_input.quality_baseline_path
     vnext_plus7_manifest_path = stop_gate_input.vnext_plus7_manifest_path
