@@ -229,9 +229,11 @@ def _contract_summary(
     providers: set[str] = set()
     response_schema_values: set[str] = set()
     proposal_packet_schema_values: set[str] = set()
-    summary_values: list[dict[str, int]] = []
+    fixture_summary_values: list[tuple[str, list[dict[str, int]]]] = []
 
-    for fixture in fixtures:
+    for fixture_index, fixture in enumerate(fixtures):
+        fixture_id = str(fixture.get("fixture_id") or f"contract_fixture_{fixture_index}")
+        summary_values: list[dict[str, int]] = []
         runs = cast(list[dict[str, Any]], fixture["runs"])
         for run in runs:
             provider = str(run["provider"])
@@ -281,6 +283,7 @@ def _contract_summary(
                     "relation_edge_count": int(summary["relation_edge_count"]),
                 }
             )
+        fixture_summary_values.append((fixture_id, summary_values))
 
     if response_schema_values != {CORE_IR_PROPOSER_RESPONSE_SCHEMA}:
         _raise_error(
@@ -293,9 +296,17 @@ def _contract_summary(
             context={"observed_schemas": sorted(proposal_packet_schema_values)},
         )
 
-    first_summary = summary_values[0] if summary_values else {}
-    if any(summary != first_summary for summary in summary_values):
-        _raise_error("vnext+25 proposal packet summary invariants drift across providers")
+    for fixture_id, summaries in fixture_summary_values:
+        first_summary = summaries[0] if summaries else {}
+        if any(summary != first_summary for summary in summaries):
+            _raise_error(
+                "vnext+25 proposal packet summary invariants drift across providers",
+                context={"fixture_id": fixture_id},
+            )
+
+    summary_invariants: dict[str, int] = {}
+    if fixture_summary_values:
+        summary_invariants = fixture_summary_values[0][1][0]
 
     return {
         "core_ir_proposer_contract_fixture_count": len(fixtures),
@@ -304,7 +315,7 @@ def _contract_summary(
         "providers": sorted(providers),
         "response_schema": CORE_IR_PROPOSER_RESPONSE_SCHEMA,
         "proposal_packet_schema": CORE_IR_PROPOSAL_SCHEMA,
-        "summary_invariants": first_summary,
+        "summary_invariants": summary_invariants,
         "valid": True,
     }
 
@@ -317,7 +328,7 @@ def _parity_summary(
 ) -> dict[str, Any]:
     fixtures = cast(list[dict[str, Any]], manifest["core_ir_proposer_provider_parity_fixtures"])
     run_count = 0
-    parity_hashes_by_provider: dict[str, str] = {}
+    parity_hashes_by_provider: dict[str, list[str]] = {}
 
     for fixture in fixtures:
         runs = cast(list[dict[str, Any]], fixture["runs"])
@@ -342,17 +353,25 @@ def _parity_summary(
                 core_ir_proposal_packet_path=packet_path,
                 expected_provider=provider,
             )
-            parity_hashes_by_provider[provider] = parity_hash
+            parity_hashes_by_provider.setdefault(provider, []).append(parity_hash)
 
-    parity_hash_match = len(set(parity_hashes_by_provider.values())) == 1
+    all_parity_hashes = sorted(
+        parity_hash
+        for provider_hashes in parity_hashes_by_provider.values()
+        for parity_hash in provider_hashes
+    )
+    parity_hash_match = len(set(all_parity_hashes)) == 1
+
+    parity_hashes_output = {
+        provider: provider_hashes[0]
+        for provider, provider_hashes in sorted(parity_hashes_by_provider.items())
+        if provider_hashes
+    }
     return {
         "core_ir_proposer_parity_fixture_count": len(fixtures),
         "core_ir_proposer_parity_run_count": run_count,
         "artifact_core_ir_proposer_provider_parity_pct": parity_pct,
-        "parity_fingerprint_hashes_by_provider": {
-            provider: parity_hashes_by_provider[provider]
-            for provider in sorted(parity_hashes_by_provider)
-        },
+        "parity_fingerprint_hashes_by_provider": parity_hashes_output,
         "parity_fingerprint_hash_match": parity_hash_match,
         "valid": True,
     }
