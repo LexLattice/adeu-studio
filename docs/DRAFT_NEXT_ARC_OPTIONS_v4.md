@@ -382,11 +382,13 @@ Execution checkpoint (current state):
   - `vNext+24 = S2` (closed out)
   - `vNext+25 = S3b` (closed out)
 - active default next selection:
-  - `vNext+26 = pending lock freeze` (post-S3b follow-on scope to be explicitly frozen; `S9` remains trigger-based preemption path)
+  - `vNext+26 = Path S5 follow-on (draft lock in progress)`:
+    - `docs/LOCKED_CONTINUATION_vNEXT_PLUS26.md`
+    - `S9` remains trigger-based preemption path and hard precondition gate
 
 ## Proposed Freeze Candidate (Next Step)
 
-Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS26.md` with one thin-slice continuation only (exact path to be selected and explicitly frozen):
+Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS26.md` freeze content with one thin-slice continuation only (Path S5 follow-on, `Z1`-`Z4`):
 
 1. freeze deterministic contract deltas for the selected post-v25 scope.
 2. keep additive-only stop-gate metric extension on `stop_gate_metrics@1`.
