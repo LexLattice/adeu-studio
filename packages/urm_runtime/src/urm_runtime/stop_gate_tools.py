@@ -6640,14 +6640,41 @@ def _normalize_vnext_plus26_path_value(*, value: str, repo_root: Path | None) ->
     normalized = value.replace("\\", "/")
     if repo_root is None:
         return normalized
+    repo_root_resolved = repo_root.resolve()
     path_value = Path(normalized)
-    if not path_value.is_absolute():
+    is_windows_drive_absolute = (
+        len(normalized) >= 3
+        and normalized[0].isalpha()
+        and normalized[1] == ":"
+        and normalized[2] == "/"
+    )
+    if path_value.is_absolute():
+        try:
+            relative = path_value.resolve().relative_to(repo_root_resolved)
+        except ValueError:
+            pass
+        else:
+            return relative.as_posix()
+    if not is_windows_drive_absolute:
         return normalized
-    try:
-        relative = path_value.resolve().relative_to(repo_root.resolve())
-    except ValueError:
+
+    repo_root_parts = [part for part in repo_root_resolved.as_posix().split("/") if part]
+    normalized_parts = [part for part in normalized.split("/") if part]
+    if normalized_parts and normalized_parts[0].endswith(":"):
+        normalized_parts = normalized_parts[1:]
+    if not repo_root_parts or not normalized_parts:
         return normalized
-    return relative.as_posix()
+
+    repo_root_parts_folded = [part.casefold() for part in repo_root_parts]
+    normalized_parts_folded = [part.casefold() for part in normalized_parts]
+    max_start = len(normalized_parts_folded) - len(repo_root_parts_folded)
+    for start in range(max_start + 1):
+        end = start + len(repo_root_parts_folded)
+        if normalized_parts_folded[start:end] != repo_root_parts_folded:
+            continue
+        relative_parts = normalized_parts[end:]
+        return "/".join(relative_parts) if relative_parts else "."
+    return normalized
 
 
 def _normalize_vnext_plus26_parity_paths(

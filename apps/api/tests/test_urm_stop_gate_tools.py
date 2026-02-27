@@ -4162,6 +4162,77 @@ def test_build_stop_gate_metrics_normalizes_host_paths_for_vnext_plus26_parity(
     assert report["gates"]["artifact_stop_gate_input_model_parity"] is True
 
 
+def test_build_stop_gate_metrics_normalizes_windows_drive_paths_for_vnext_plus26_parity(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    baseline_capture = (
+        _vnext_plus26_manifest_path().parent
+        / "vnext_plus26"
+        / "stop_gate_input_model_parity_baseline_case_a.json"
+    )
+    baseline_payload = json.loads(baseline_capture.read_text(encoding="utf-8"))
+    candidate_payload = json.loads(json.dumps(baseline_payload))
+    assert isinstance(candidate_payload, dict)
+    candidate_inputs = candidate_payload.get("inputs")
+    assert isinstance(candidate_inputs, dict)
+
+    quality_current_abs = (
+        _repo_root() / "artifacts" / "quality_dashboard_v25_closeout.json"
+    ).resolve()
+    candidate_inputs["quality_current_path"] = f"C:/{quality_current_abs.as_posix().lstrip('/')}"
+
+    incident_paths = candidate_inputs.get("incident_packet_paths")
+    if isinstance(incident_paths, list):
+        windows_incident_paths: list[str] = []
+        for value in incident_paths:
+            if not isinstance(value, str):
+                continue
+            incident_abs = (_repo_root() / value).resolve()
+            windows_incident_paths.append(f"C:/{incident_abs.as_posix().lstrip('/')}")
+        candidate_inputs["incident_packet_paths"] = windows_incident_paths
+
+    baseline_path = tmp_path / "stop_gate_input_model_parity_baseline_case_a.json"
+    candidate_path = tmp_path / "stop_gate_input_model_parity_candidate_case_a.json"
+    _write_json(baseline_path, baseline_payload)
+    _write_json(candidate_path, candidate_payload)
+
+    manifest_payload = _vnext_plus26_manifest_payload()
+    fixtures = manifest_payload.get("stop_gate_input_model_parity_fixtures")
+    assert isinstance(fixtures, list) and fixtures
+    fixture = fixtures[0]
+    assert isinstance(fixture, dict)
+    runs = fixture.get("runs")
+    assert isinstance(runs, list) and runs
+    for run in runs:
+        assert isinstance(run, dict)
+        run["baseline_path"] = str(baseline_path)
+        run["candidate_path"] = str(candidate_path)
+
+    manifest_path = _write_vnext_plus26_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus26_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is True
+    assert report["metrics"]["artifact_stop_gate_input_model_parity_pct"] == 100.0
+    assert report["gates"]["artifact_stop_gate_input_model_parity"] is True
+
+
 def test_build_stop_gate_metrics_excludes_created_at_recursively_for_vnext_plus24(
     tmp_path: Path,
 ) -> None:
