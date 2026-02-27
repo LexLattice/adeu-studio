@@ -107,6 +107,10 @@ def _vnext_plus24_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus24_manifest.json"
 
 
+def _vnext_plus25_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus25_manifest.json"
+
+
 _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = {
     "domain_conformance_hash",
     "hash_excluded_fields",
@@ -614,6 +618,10 @@ def _vnext_plus24_manifest_payload() -> dict[str, object]:
     return json.loads(_vnext_plus24_manifest_path().read_text(encoding="utf-8"))
 
 
+def _vnext_plus25_manifest_payload() -> dict[str, object]:
+    return json.loads(_vnext_plus25_manifest_path().read_text(encoding="utf-8"))
+
+
 def _write_vnext_plus14_manifest_payload(
     *,
     tmp_path: Path,
@@ -973,6 +981,39 @@ def _write_vnext_plus24_manifest_payload(
     )
 
 
+def _write_vnext_plus25_manifest_payload(
+    *,
+    tmp_path: Path,
+    payload: dict[str, object],
+    filename: str = "vnext_plus25_manifest.json",
+) -> Path:
+    return _write_manifest_payload_with_rewritten_runs(
+        tmp_path=tmp_path,
+        payload=payload,
+        filename=filename,
+        manifest_label="vnext+25",
+        fixture_manifest_root=_vnext_plus25_manifest_path().parent,
+        fixture_specs=(
+            (
+                "core_ir_proposer_contract_valid_fixtures",
+                (
+                    "core_ir_proposer_request_path",
+                    "core_ir_proposer_response_path",
+                    "core_ir_proposal_packet_path",
+                ),
+            ),
+            (
+                "core_ir_proposer_provider_parity_fixtures",
+                (
+                    "core_ir_proposer_request_path",
+                    "core_ir_proposer_response_path",
+                    "core_ir_proposal_packet_path",
+                ),
+            ),
+        ),
+    )
+
+
 def _normalize_runtime_observability(report: dict[str, object]) -> dict[str, object]:
     normalized = json.loads(json.dumps(report))
     runtime_observability = normalized.get("runtime_observability")
@@ -1036,6 +1077,7 @@ def _vnext_plus13_to_19_manifest_kwargs() -> dict[str, Path]:
         "vnext_plus22_manifest_path": _vnext_plus22_manifest_path(),
         "vnext_plus23_manifest_path": _vnext_plus23_manifest_path(),
         "vnext_plus24_manifest_path": _vnext_plus24_manifest_path(),
+        "vnext_plus25_manifest_path": _vnext_plus25_manifest_path(),
     }
 
 
@@ -1100,6 +1142,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
         "vnext_plus22_manifest_path": _vnext_plus22_manifest_path(),
         "vnext_plus23_manifest_path": _vnext_plus23_manifest_path(),
         "vnext_plus24_manifest_path": _vnext_plus24_manifest_path(),
+        "vnext_plus25_manifest_path": _vnext_plus25_manifest_path(),
     }
     first = build_stop_gate_metrics(**kwargs)
     second = build_stop_gate_metrics(**kwargs)
@@ -1161,6 +1204,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["artifact_semantics_v4_candidate_projection_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_extraction_fidelity_packet_determinism_pct"] == 100.0
     assert first["metrics"]["artifact_extraction_fidelity_projection_determinism_pct"] == 100.0
+    assert first["metrics"]["artifact_core_ir_proposer_contract_valid_pct"] == 100.0
+    assert first["metrics"]["artifact_core_ir_proposer_provider_parity_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -1195,9 +1240,11 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert len(first["vnext_plus23_manifest_hash"]) == 64
     assert isinstance(first["vnext_plus24_manifest_hash"], str)
     assert len(first["vnext_plus24_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus25_manifest_hash"], str)
+    assert len(first["vnext_plus25_manifest_hash"]) == 64
     runtime_observability = first["runtime_observability"]
-    assert runtime_observability["total_fixtures"] == 16
-    assert runtime_observability["total_replays"] == 48
+    assert runtime_observability["total_fixtures"] == 18
+    assert runtime_observability["total_replays"] == 66
     assert isinstance(runtime_observability["bytes_hashed_per_replay"], int)
     assert runtime_observability["bytes_hashed_per_replay"] > 0
     assert isinstance(runtime_observability["bytes_hashed_total"], int)
@@ -1222,6 +1269,8 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["gates"]["artifact_semantics_v4_candidate_projection_determinism"] is True
     assert first["gates"]["artifact_extraction_fidelity_packet_determinism"] is True
     assert first["gates"]["artifact_extraction_fidelity_projection_determinism"] is True
+    assert first["gates"]["artifact_core_ir_proposer_contract_valid"] is True
+    assert first["gates"]["artifact_core_ir_proposer_provider_parity"] is True
 
 
 def test_build_stop_gate_metrics_fails_when_runtime_budget_exceeds_ceiling(
@@ -3837,6 +3886,108 @@ def test_build_stop_gate_metrics_rejects_vnext_plus24_manifest_hash_mismatch(
     )
 
 
+def test_build_stop_gate_metrics_rejects_vnext_plus25_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus25_manifest_payload()
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus25_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus25_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["artifact_core_ir_proposer_contract_valid_pct"] == 0.0
+    assert report["metrics"]["artifact_core_ir_proposer_provider_parity_pct"] == 0.0
+    assert report["vnext_plus25_manifest_hash"] == ""
+    assert any(
+        issue.get("code") == "URM_ADEU_CORE_IR_PROPOSER_MANIFEST_HASH_MISMATCH"
+        and issue.get("message") == "vnext+25 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus25_provider_parity_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    drift_packet_payload = json.loads(
+        (
+            _vnext_plus25_manifest_path().parent
+            / "vnext_plus25"
+            / "core_ir_proposal_packet_case_a_openai.json"
+        ).read_text(encoding="utf-8")
+    )
+    summary = drift_packet_payload.get("summary")
+    assert isinstance(summary, dict)
+    summary["relation_edge_count"] = 999
+    drift_packet_path = tmp_path / "core_ir_proposal_packet_case_a_openai_drift.json"
+    _write_json(drift_packet_path, drift_packet_payload)
+
+    manifest_payload = _vnext_plus25_manifest_payload()
+    parity_fixtures = manifest_payload.get("core_ir_proposer_provider_parity_fixtures")
+    assert isinstance(parity_fixtures, list) and parity_fixtures
+    parity_fixture = parity_fixtures[0]
+    assert isinstance(parity_fixture, dict)
+    parity_runs = parity_fixture.get("runs")
+    assert isinstance(parity_runs, list) and parity_runs
+    matched_openai_run = False
+    for run in parity_runs:
+        assert isinstance(run, dict)
+        if run.get("provider") == "openai":
+            run["core_ir_proposal_packet_path"] = str(drift_packet_path)
+            matched_openai_run = True
+            break
+    assert matched_openai_run is True
+    manifest_path = _write_vnext_plus25_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus25_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_core_ir_proposer_contract_valid_pct"] == 100.0
+    assert report["metrics"]["artifact_core_ir_proposer_provider_parity_pct"] == 0.0
+    assert report["gates"]["artifact_core_ir_proposer_contract_valid"] is True
+    assert report["gates"]["artifact_core_ir_proposer_provider_parity"] is False
+    assert any(
+        issue.get("code") == "URM_ADEU_CORE_IR_PROPOSER_PAYLOAD_INVALID"
+        and issue.get("message") == "vnext+25 core-ir proposer provider parity drift"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_build_stop_gate_metrics_excludes_created_at_recursively_for_vnext_plus24(
     tmp_path: Path,
 ) -> None:
@@ -4137,6 +4288,8 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
             str(_vnext_plus23_manifest_path()),
             "--vnext-plus24-manifest",
             str(_vnext_plus24_manifest_path()),
+            "--vnext-plus25-manifest",
+            str(_vnext_plus25_manifest_path()),
             "--out-json",
             str(out_json),
             "--out-md",

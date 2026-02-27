@@ -92,3 +92,13 @@ current milestone PR sequence.
   evaluate long-term surface-id naming normalization for proposer families
   (for example `adeu_core_ir.propose` vs flatter dot-token patterns) and define
   an additive migration/alias policy before any cross-family renaming.
+- `cleanup-vnext-plus25-proposer-idempotency-shared-store`:
+  replace process-local proposer idempotency cache
+  (`_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY` in `apps/api/src/adeu_api/main.py`)
+  with shared persistence (runtime DB/redis-backed) so idempotent replay/conflict
+  behavior remains correct across multi-worker and multi-instance deployments.
+- `cleanup-vnext-plus25-logic-tree-cycle-fail-closed`:
+  decide and lock cycle handling policy for proposer summary depth computation
+  (`_core_ir_proposer_logic_tree_max_depth` in `apps/api/src/adeu_api/main.py`);
+  current behavior returns depth sentinel on cycle, while stricter fail-closed
+  behavior (payload-invalid on detected cycle) is deferred pending explicit lock.

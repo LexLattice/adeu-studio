@@ -173,6 +173,12 @@ VNEXT_PLUS24_DEFAULT_METRICS = {
     "artifact_extraction_fidelity_packet_determinism_pct": 0.0,
     "artifact_extraction_fidelity_projection_determinism_pct": 0.0,
 }
+VNEXT_PLUS25_REPLAY_COUNT = 3
+VNEXT_PLUS25_MANIFEST_SCHEMA = "stop_gate.vnext_plus25_manifest@1"
+VNEXT_PLUS25_DEFAULT_METRICS = {
+    "artifact_core_ir_proposer_contract_valid_pct": 0.0,
+    "artifact_core_ir_proposer_provider_parity_pct": 0.0,
+}
 CROSS_IR_BRIDGE_MANIFEST_SCHEMA = "adeu_cross_ir_bridge_manifest@0.1"
 CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA = "adeu_cross_ir_coherence_diagnostics@0.1"
 CROSS_IR_QUALITY_PROJECTION_SCHEMA = "cross_ir_quality_projection.vnext_plus20@1"
@@ -185,6 +191,13 @@ SEMANTICS_V4_CANDIDATE_PROJECTION_SCHEMA = "semantics_v4_candidate_projection.vn
 EXTRACTION_FIDELITY_INPUT_SCHEMA = "adeu_projection_alignment_fidelity_input@0.1"
 EXTRACTION_FIDELITY_PACKET_SCHEMA = "adeu_projection_alignment_fidelity@0.1"
 EXTRACTION_FIDELITY_PROJECTION_SCHEMA = "projection_alignment_fidelity_projection.vnext_plus24@1"
+CORE_IR_PROPOSER_REQUEST_SCHEMA = "adeu_core_ir_proposer_request@0.1"
+CORE_IR_PROPOSER_RESPONSE_SCHEMA = "adeu_core_ir_proposer_response@0.1"
+CORE_IR_PROPOSAL_SCHEMA = "adeu_core_ir_proposal@0.1"
+CORE_IR_PROPOSER_SURFACE_ID = "adeu_core_ir.propose"
+CORE_IR_PROPOSER_FIXTURE_INVALID_CODE = "URM_ADEU_CORE_IR_PROPOSER_FIXTURE_INVALID"
+CORE_IR_PROPOSER_MANIFEST_HASH_MISMATCH_CODE = "URM_ADEU_CORE_IR_PROPOSER_MANIFEST_HASH_MISMATCH"
+CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE = "URM_ADEU_CORE_IR_PROPOSER_PAYLOAD_INVALID"
 _READ_SURFACE_LANE_CAPTURE_SCHEMA = "adeu_lane_read_surface_capture@0.1"
 _READ_SURFACE_INTEGRITY_CAPTURE_SCHEMA = "adeu_integrity_read_surface_capture@0.1"
 _FROZEN_READ_SURFACE_INTEGRITY_FAMILIES: tuple[str, ...] = (
@@ -263,6 +276,8 @@ _FROZEN_EXTRACTION_FIDELITY_SURFACES: tuple[str, ...] = (
     "adeu.extraction_fidelity.projection",
 )
 _FROZEN_EXTRACTION_FIDELITY_SURFACE_SET = frozenset(_FROZEN_EXTRACTION_FIDELITY_SURFACES)
+_FROZEN_CORE_IR_PROPOSER_SURFACES: tuple[str, ...] = (CORE_IR_PROPOSER_SURFACE_ID,)
+_FROZEN_CORE_IR_PROPOSER_SURFACE_SET = frozenset(_FROZEN_CORE_IR_PROPOSER_SURFACES)
 _FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES = frozenset(
     {
         "MISSING_CONCEPT_MAPPING",
@@ -420,6 +435,8 @@ THRESHOLDS = {
     "artifact_semantics_v4_candidate_projection_determinism_pct": 100.0,
     "artifact_extraction_fidelity_packet_determinism_pct": 100.0,
     "artifact_extraction_fidelity_projection_determinism_pct": 100.0,
+    "artifact_core_ir_proposer_contract_valid_pct": 100.0,
+    "artifact_core_ir_proposer_provider_parity_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -526,6 +543,10 @@ def _default_vnext_plus24_manifest_path() -> Path:
     return _default_manifest_path("vnext_plus24_manifest.json")
 
 
+def _default_vnext_plus25_manifest_path() -> Path:
+    return _default_manifest_path("vnext_plus25_manifest.json")
+
+
 def _default_vnext_plus24_catalog_path() -> Path:
     return _default_extraction_fidelity_catalog_path("vnext_plus24_catalog.json")
 
@@ -547,6 +568,7 @@ VNEXT_PLUS21_MANIFEST_PATH = _default_vnext_plus21_manifest_path()
 VNEXT_PLUS22_MANIFEST_PATH = _default_vnext_plus22_manifest_path()
 VNEXT_PLUS23_MANIFEST_PATH = _default_vnext_plus23_manifest_path()
 VNEXT_PLUS24_MANIFEST_PATH = _default_vnext_plus24_manifest_path()
+VNEXT_PLUS25_MANIFEST_PATH = _default_vnext_plus25_manifest_path()
 VNEXT_PLUS24_CATALOG_PATH = _default_vnext_plus24_catalog_path()
 
 
@@ -5532,6 +5554,31 @@ _VNEXT_PLUS24_EXTRACTION_FIDELITY_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...
         "artifact_extraction_fidelity_projection_determinism_pct",
         "adeu.extraction_fidelity.projection",
         ("extraction_fidelity_projection_path",),
+    ),
+)
+
+_VNEXT_PLUS25_CORE_IR_PROPOSER_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "core_ir_proposer_contract_valid_fixtures",
+        "artifact_core_ir_proposer_contract_valid_pct",
+        CORE_IR_PROPOSER_SURFACE_ID,
+        (
+            "provider",
+            "core_ir_proposer_request_path",
+            "core_ir_proposer_response_path",
+            "core_ir_proposal_packet_path",
+        ),
+    ),
+    (
+        "core_ir_proposer_provider_parity_fixtures",
+        "artifact_core_ir_proposer_provider_parity_pct",
+        CORE_IR_PROPOSER_SURFACE_ID,
+        (
+            "provider",
+            "core_ir_proposer_request_path",
+            "core_ir_proposer_response_path",
+            "core_ir_proposal_packet_path",
+        ),
     ),
 )
 
@@ -12028,6 +12075,918 @@ def _compute_vnext_plus24_metrics(
     }
 
 
+def _validate_core_ir_proposer_capture_keys(
+    *,
+    payload: Mapping[str, Any],
+    required_keys: set[str],
+    path: Path,
+    description: str,
+) -> None:
+    observed_keys = {str(key) for key in payload.keys()}
+    optional_keys = {"created_at"}
+    missing_keys = sorted(required_keys - observed_keys)
+    unexpected_keys = sorted(observed_keys - (required_keys | optional_keys))
+    if not missing_keys and not unexpected_keys:
+        return
+    raise ValueError(
+        _issue(
+            "URM_STOP_GATE_INPUT_INVALID",
+            f"{description} payload has unexpected key shape",
+            context={
+                "path": str(path),
+                "missing_keys": missing_keys,
+                "unexpected_keys": unexpected_keys,
+            },
+        )
+    )
+
+
+def _validated_core_ir_proposer_request_payload(
+    *,
+    core_ir_proposer_request_path: Path,
+    expected_provider: str,
+) -> dict[str, Any]:
+    payload = _read_json_object(
+        core_ir_proposer_request_path,
+        description="core-ir proposer request fixture",
+    )
+    _validate_core_ir_proposer_capture_keys(
+        payload=payload,
+        required_keys={"schema", "client_request_id", "provider", "source_text"},
+        path=core_ir_proposer_request_path,
+        description="core-ir proposer request fixture",
+    )
+    if payload.get("schema") != CORE_IR_PROPOSER_REQUEST_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer request fixture has unsupported schema",
+                context={
+                    "path": str(core_ir_proposer_request_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    provider = payload.get("provider")
+    if not isinstance(provider, str) or provider not in _FROZEN_PROVIDER_KIND_SET:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer request fixture provider must be a frozen provider kind",
+                context={"path": str(core_ir_proposer_request_path)},
+            )
+        )
+    if provider != expected_provider:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer request fixture provider does not match run provider",
+                context={
+                    "path": str(core_ir_proposer_request_path),
+                    "run_provider": expected_provider,
+                    "request_provider": provider,
+                },
+            )
+        )
+    client_request_id = payload.get("client_request_id")
+    if not isinstance(client_request_id, str) or not client_request_id:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer request fixture missing client_request_id",
+                context={"path": str(core_ir_proposer_request_path)},
+            )
+        )
+    source_text = payload.get("source_text")
+    if not isinstance(source_text, str) or not source_text.strip():
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer request fixture missing non-empty source_text",
+                context={"path": str(core_ir_proposer_request_path)},
+            )
+        )
+    return payload
+
+
+def _validated_core_ir_proposal_packet_payload(
+    *,
+    core_ir_proposal_packet_path: Path,
+    expected_provider: str,
+) -> dict[str, Any]:
+    payload = _read_json_object(
+        core_ir_proposal_packet_path,
+        description="core-ir proposal packet fixture",
+    )
+    _validate_core_ir_proposer_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "client_request_id",
+            "surface_id",
+            "provider",
+            "core_ir_artifact_ref",
+            "lane_artifact_refs",
+            "integrity_artifact_refs",
+            "not_produced_reasons",
+            "summary",
+        },
+        path=core_ir_proposal_packet_path,
+        description="core-ir proposal packet fixture",
+    )
+    if payload.get("schema") != CORE_IR_PROPOSAL_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet fixture has unsupported schema",
+                context={
+                    "path": str(core_ir_proposal_packet_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    if payload.get("surface_id") != CORE_IR_PROPOSER_SURFACE_ID:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet fixture has unsupported surface_id",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+    provider = payload.get("provider")
+    if not isinstance(provider, str) or provider not in _FROZEN_PROVIDER_KIND_SET:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet fixture provider must be a frozen provider kind",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+    if provider != expected_provider:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet fixture provider does not match run provider",
+                context={
+                    "path": str(core_ir_proposal_packet_path),
+                    "run_provider": expected_provider,
+                    "packet_provider": provider,
+                },
+            )
+        )
+    for field in ("client_request_id", "core_ir_artifact_ref"):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core-ir proposal packet fixture missing required non-empty string field",
+                    context={"path": str(core_ir_proposal_packet_path), "field": field},
+                )
+            )
+
+    lane_refs = payload.get("lane_artifact_refs")
+    if not isinstance(lane_refs, list) or any(
+        not isinstance(item, str) or not item for item in lane_refs
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet lane_artifact_refs must be a non-empty string list",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+    if lane_refs != sorted(lane_refs) or len(set(lane_refs)) != len(lane_refs):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet lane_artifact_refs must be sorted and unique",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+
+    integrity_refs = payload.get("integrity_artifact_refs")
+    if not isinstance(integrity_refs, list) or any(
+        not isinstance(item, str) or not item for item in integrity_refs
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet integrity_artifact_refs must be a non-empty string list",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+    if integrity_refs != sorted(integrity_refs) or len(set(integrity_refs)) != len(integrity_refs):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet integrity_artifact_refs must be sorted and unique",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+
+    not_produced_reasons = payload.get("not_produced_reasons")
+    if not isinstance(not_produced_reasons, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet not_produced_reasons must be a list",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+    reason_pairs: list[tuple[str, str]] = []
+    for index, reason in enumerate(not_produced_reasons):
+        if not isinstance(reason, Mapping):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core-ir proposal packet not_produced_reasons entry must be an object",
+                    context={"path": str(core_ir_proposal_packet_path), "reason_index": index},
+                )
+            )
+        artifact_family = reason.get("artifact_family")
+        reason_code = reason.get("reason_code")
+        if not isinstance(artifact_family, str) or not artifact_family:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core-ir proposal packet reason missing artifact_family",
+                    context={"path": str(core_ir_proposal_packet_path), "reason_index": index},
+                )
+            )
+        if not isinstance(reason_code, str) or not reason_code:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core-ir proposal packet reason missing reason_code",
+                    context={"path": str(core_ir_proposal_packet_path), "reason_index": index},
+                )
+            )
+        message = reason.get("message")
+        if message is not None and not isinstance(message, str):
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core-ir proposal packet reason message must be a string when present",
+                    context={"path": str(core_ir_proposal_packet_path), "reason_index": index},
+                )
+            )
+        reason_pairs.append((artifact_family, reason_code))
+    if reason_pairs != sorted(reason_pairs) or len(set(reason_pairs)) != len(reason_pairs):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet not_produced_reasons must be sorted and unique",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+
+    summary = payload.get("summary")
+    if not isinstance(summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet summary must be an object",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+    for field in (
+        "candidate_count",
+        "assertion_node_count",
+        "relation_edge_count",
+        "logic_tree_max_depth",
+        "lane_ref_count",
+        "integrity_ref_count",
+    ):
+        value = summary.get(field)
+        if not isinstance(value, int) or value < 0:
+            raise ValueError(
+                _issue(
+                    "URM_STOP_GATE_INPUT_INVALID",
+                    "core-ir proposal packet summary fields must be non-negative integers",
+                    context={"path": str(core_ir_proposal_packet_path), "field": field},
+                )
+            )
+    if summary.get("lane_ref_count") != len(lane_refs):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet lane_ref_count does not match lane_artifact_refs",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+    if summary.get("integrity_ref_count") != len(integrity_refs):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                (
+                    "core-ir proposal packet integrity_ref_count "
+                    "does not match integrity_artifact_refs"
+                ),
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+    return payload
+
+
+def _validated_core_ir_proposer_response_payload(
+    *,
+    core_ir_proposer_response_path: Path,
+    expected_provider: str,
+) -> dict[str, Any]:
+    payload = _read_json_object(
+        core_ir_proposer_response_path,
+        description="core-ir proposer response fixture",
+    )
+    _validate_core_ir_proposer_capture_keys(
+        payload=payload,
+        required_keys={
+            "schema",
+            "provider",
+            "candidates",
+            "proposer_log",
+            "surface_id",
+            "proposal_packet",
+        },
+        path=core_ir_proposer_response_path,
+        description="core-ir proposer response fixture",
+    )
+    if payload.get("schema") != CORE_IR_PROPOSER_RESPONSE_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture has unsupported schema",
+                context={
+                    "path": str(core_ir_proposer_response_path),
+                    "schema": payload.get("schema"),
+                },
+            )
+        )
+    if payload.get("surface_id") != CORE_IR_PROPOSER_SURFACE_ID:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture has unsupported surface_id",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    provider = payload.get("provider")
+    if not isinstance(provider, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture provider must be an object",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    provider_kind = provider.get("kind")
+    provider_api = provider.get("api")
+    if (
+        not isinstance(provider_kind, str)
+        or provider_kind not in _FROZEN_PROVIDER_KIND_SET
+        or provider_kind != expected_provider
+    ):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture provider.kind must match run provider",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    if not isinstance(provider_api, str) or not provider_api:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture provider.api must be non-empty",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    candidates = payload.get("candidates")
+    if not isinstance(candidates, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture candidates must be a list",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    proposer_log = payload.get("proposer_log")
+    if not isinstance(proposer_log, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture proposer_log must be an object",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    log_provider = proposer_log.get("provider")
+    created_at = proposer_log.get("created_at")
+    attempts = proposer_log.get("attempts")
+    if not isinstance(log_provider, str) or log_provider != expected_provider:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture proposer_log.provider must match run provider",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    if not isinstance(created_at, str) or not created_at:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture proposer_log.created_at must be non-empty",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    if not isinstance(attempts, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture proposer_log.attempts must be a list",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    proposal_packet = payload.get("proposal_packet")
+    if not isinstance(proposal_packet, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response fixture proposal_packet must be an object",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    return payload
+
+
+def _core_ir_proposer_contract_projection(
+    *,
+    core_ir_proposer_request_path: Path,
+    core_ir_proposer_response_path: Path,
+    core_ir_proposal_packet_path: Path,
+    expected_provider: str,
+) -> tuple[str, str, int]:
+    request_payload = _validated_core_ir_proposer_request_payload(
+        core_ir_proposer_request_path=core_ir_proposer_request_path,
+        expected_provider=expected_provider,
+    )
+    response_payload = _validated_core_ir_proposer_response_payload(
+        core_ir_proposer_response_path=core_ir_proposer_response_path,
+        expected_provider=expected_provider,
+    )
+    packet_payload = _validated_core_ir_proposal_packet_payload(
+        core_ir_proposal_packet_path=core_ir_proposal_packet_path,
+        expected_provider=expected_provider,
+    )
+    response_packet = response_payload.get("proposal_packet")
+    if not isinstance(response_packet, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response proposal_packet must be an object",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    if _strip_created_at_fields(response_packet) != _strip_created_at_fields(packet_payload):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response proposal_packet does not match packet capture",
+                context={
+                    "response_path": str(core_ir_proposer_response_path),
+                    "packet_path": str(core_ir_proposal_packet_path),
+                },
+            )
+        )
+    if packet_payload["client_request_id"] != request_payload["client_request_id"]:
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer request/packet client_request_id mismatch",
+                context={
+                    "request_path": str(core_ir_proposer_request_path),
+                    "packet_path": str(core_ir_proposal_packet_path),
+                },
+            )
+        )
+    summary = packet_payload["summary"]
+    if not isinstance(summary, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal packet summary must be an object",
+                context={"path": str(core_ir_proposal_packet_path)},
+            )
+        )
+    candidates = response_payload.get("candidates")
+    if not isinstance(candidates, list):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposer response candidates must be a list",
+                context={"path": str(core_ir_proposer_response_path)},
+            )
+        )
+    candidate_count = summary.get("candidate_count")
+    if not isinstance(candidate_count, int) or candidate_count != len(candidates):
+        raise ValueError(
+            _issue(
+                "URM_STOP_GATE_INPUT_INVALID",
+                "core-ir proposal summary candidate_count must match response candidates length",
+                context={
+                    "response_path": str(core_ir_proposer_response_path),
+                    "packet_path": str(core_ir_proposal_packet_path),
+                },
+            )
+        )
+
+    not_produced_reasons = packet_payload.get("not_produced_reasons")
+    reason_pairs = []
+    if isinstance(not_produced_reasons, list):
+        for reason in not_produced_reasons:
+            if not isinstance(reason, Mapping):
+                continue
+            artifact_family = reason.get("artifact_family")
+            reason_code = reason.get("reason_code")
+            if isinstance(artifact_family, str) and isinstance(reason_code, str):
+                reason_pairs.append((artifact_family, reason_code))
+    reason_pairs = sorted(set(reason_pairs))
+
+    parity_projection = {
+        "surface_id": packet_payload.get("surface_id"),
+        "candidate_count": summary.get("candidate_count"),
+        "assertion_node_count": summary.get("assertion_node_count"),
+        "relation_edge_count": summary.get("relation_edge_count"),
+        "logic_tree_max_depth": summary.get("logic_tree_max_depth"),
+        "lane_ref_count": summary.get("lane_ref_count"),
+        "integrity_ref_count": summary.get("integrity_ref_count"),
+        "not_produced_reason_pairs": reason_pairs,
+    }
+    replay_payload = {
+        "request": request_payload,
+        "response": response_payload,
+        "proposal_packet": packet_payload,
+    }
+    run_hash = sha256_canonical_json(_strip_created_at_fields(replay_payload))
+    parity_hash = sha256_canonical_json(parity_projection)
+    bytes_hashed = (
+        _surface_projection_hash_input_bytes(request_payload)
+        + _surface_projection_hash_input_bytes(response_payload)
+        + _surface_projection_hash_input_bytes(packet_payload)
+    )
+    return run_hash, parity_hash, bytes_hashed
+
+
+def _validate_vnext_plus25_provider_coverage(
+    *,
+    fixtures: list[dict[str, Any]],
+    manifest_path: Path,
+    metric_name: str,
+) -> None:
+    for fixture_index, fixture in enumerate(fixtures):
+        fixture_id = fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = f"{metric_name}_fixture_{fixture_index}"
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            continue
+        observed_providers: list[str] = []
+        for run in runs:
+            if not isinstance(run, Mapping):
+                continue
+            provider = run.get("provider")
+            if isinstance(provider, str):
+                observed_providers.append(provider)
+        if len(observed_providers) != len(_FROZEN_PROVIDER_KINDS):
+            raise ValueError(
+                _issue(
+                    CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+                    (
+                        "vnext+25 proposer fixture provider coverage must include "
+                        "exactly one run per provider"
+                    ),
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "expected_providers": sorted(_FROZEN_PROVIDER_KINDS),
+                        "observed_providers": sorted(observed_providers),
+                    },
+                )
+            )
+        if set(observed_providers) != _FROZEN_PROVIDER_KIND_SET:
+            raise ValueError(
+                _issue(
+                    CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+                    "vnext+25 proposer fixture provider set must exactly match frozen provider set",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "expected_providers": sorted(_FROZEN_PROVIDER_KINDS),
+                        "observed_providers": sorted(observed_providers),
+                    },
+                )
+            )
+        if len(set(observed_providers)) != len(observed_providers):
+            raise ValueError(
+                _issue(
+                    CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+                    "vnext+25 proposer fixture provider entries must be unique",
+                    context={
+                        "manifest_path": str(manifest_path),
+                        "metric": metric_name,
+                        "fixture_id": fixture_id,
+                        "observed_providers": sorted(observed_providers),
+                    },
+                )
+            )
+
+
+def _load_vnext_plus25_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        payload, manifest_hash = _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+25",
+            manifest_schema=VNEXT_PLUS25_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS25_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS25_CORE_IR_PROPOSER_SPECS,
+            frozen_surface_set=_FROZEN_CORE_IR_PROPOSER_SURFACE_SET,
+            frozen_surfaces=_FROZEN_CORE_IR_PROPOSER_SURFACES,
+            surface_description="frozen core-ir proposer surface id",
+            surface_set_description="frozen core-ir proposer surface ids",
+        )
+        _validate_vnext_plus25_provider_coverage(
+            fixtures=cast(
+                list[dict[str, Any]],
+                payload["core_ir_proposer_contract_valid_fixtures"],
+            ),
+            manifest_path=manifest_path,
+            metric_name="artifact_core_ir_proposer_contract_valid_pct",
+        )
+        _validate_vnext_plus25_provider_coverage(
+            fixtures=cast(
+                list[dict[str, Any]],
+                payload["core_ir_proposer_provider_parity_fixtures"],
+            ),
+            manifest_path=manifest_path,
+            metric_name="artifact_core_ir_proposer_provider_parity_pct",
+        )
+        return payload, manifest_hash
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_STOP_GATE_INPUT_INVALID": CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    CORE_IR_PROPOSER_MANIFEST_HASH_MISMATCH_CODE
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus25_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS25_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus25_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS25_DEFAULT_METRICS,
+            "vnext_plus25_manifest_hash": "",
+            "vnext_plus25_fixture_count_total": 0,
+            "vnext_plus25_replay_count_total": 0,
+            "vnext_plus25_bytes_hashed_per_replay": 0,
+            "vnext_plus25_bytes_hashed_total": 0,
+        }
+
+    contract_fixtures = cast(
+        list[dict[str, Any]],
+        manifest["core_ir_proposer_contract_valid_fixtures"],
+    )
+    parity_fixtures = cast(
+        list[dict[str, Any]],
+        manifest["core_ir_proposer_provider_parity_fixtures"],
+    )
+
+    contract_passed = 0
+    contract_total = len(contract_fixtures) * len(_FROZEN_PROVIDER_KINDS)
+    parity_passed = 0
+    parity_total = len(parity_fixtures)
+    bytes_hashed_per_replay = 0
+
+    def _evaluate_fixture_runs(
+        *,
+        fixture: dict[str, Any],
+        metric_name: str,
+    ) -> tuple[dict[str, tuple[bool, str]], int]:
+        fixture_id = fixture.get("fixture_id")
+        if not isinstance(fixture_id, str) or not fixture_id:
+            fixture_id = metric_name
+        runs = fixture.get("runs")
+        if not isinstance(runs, list):
+            return {}, 0
+        provider_results: dict[str, tuple[bool, str]] = {}
+        fixture_bytes = 0
+        for run_index, run in enumerate(runs):
+            if not isinstance(run, Mapping):
+                continue
+            provider = run.get("provider")
+            if not isinstance(provider, str) or provider not in _FROZEN_PROVIDER_KIND_SET:
+                issues.append(
+                    _issue(
+                        CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+                        "vnext+25 proposer run provider must be a frozen provider kind",
+                        context={
+                            "manifest_path": str(resolved_manifest_path),
+                            "metric": metric_name,
+                            "fixture_id": fixture_id,
+                            "run_index": run_index,
+                        },
+                    )
+                )
+                continue
+            try:
+                request_path = _resolve_manifest_relative_path(
+                    manifest_path=resolved_manifest_path,
+                    raw_path=run.get("core_ir_proposer_request_path"),
+                )
+                response_path = _resolve_manifest_relative_path(
+                    manifest_path=resolved_manifest_path,
+                    raw_path=run.get("core_ir_proposer_response_path"),
+                )
+                packet_path = _resolve_manifest_relative_path(
+                    manifest_path=resolved_manifest_path,
+                    raw_path=run.get("core_ir_proposal_packet_path"),
+                )
+            except ValueError as exc:
+                issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+                    CORE_IR_PROPOSER_FIXTURE_INVALID_CODE,
+                    str(exc),
+                )
+                issue = _map_issue_code(
+                    issue,
+                    code_map={"URM_STOP_GATE_INPUT_INVALID": CORE_IR_PROPOSER_FIXTURE_INVALID_CODE},
+                )
+                issues.append(
+                    _issue_with_context(
+                        issue,
+                        context={
+                            "metric": metric_name,
+                            "fixture_id": fixture_id,
+                            "run_index": run_index,
+                        },
+                    )
+                )
+                continue
+
+            run_hashes: set[str] = set()
+            parity_hashes: set[str] = set()
+            run_bytes = 0
+            run_ok = True
+            for replay_index in range(VNEXT_PLUS25_REPLAY_COUNT):
+                try:
+                    run_hash, parity_hash, run_bytes = _core_ir_proposer_contract_projection(
+                        core_ir_proposer_request_path=request_path,
+                        core_ir_proposer_response_path=response_path,
+                        core_ir_proposal_packet_path=packet_path,
+                        expected_provider=provider,
+                    )
+                except ValueError as exc:
+                    issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+                        CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE,
+                        str(exc),
+                    )
+                    issue = _map_issue_code(
+                        issue,
+                        code_map={
+                            "URM_STOP_GATE_INPUT_INVALID": CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE
+                        },
+                    )
+                    issues.append(
+                        _issue_with_context(
+                            issue,
+                            context={
+                                "metric": metric_name,
+                                "fixture_id": fixture_id,
+                                "run_index": run_index,
+                                "replay_index": replay_index,
+                            },
+                        )
+                    )
+                    run_ok = False
+                    break
+                run_hashes.add(run_hash)
+                parity_hashes.add(parity_hash)
+
+            if not run_ok:
+                provider_results[provider] = (False, "")
+                continue
+            fixture_bytes += run_bytes
+            is_deterministic = len(run_hashes) == 1 and len(parity_hashes) == 1
+            parity_hash_value = next(iter(parity_hashes)) if len(parity_hashes) == 1 else ""
+            if not is_deterministic:
+                issues.append(
+                    _issue(
+                        CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE,
+                        "vnext+25 core-ir proposer run replay drift",
+                        context={
+                            "manifest_path": str(resolved_manifest_path),
+                            "metric": metric_name,
+                            "fixture_id": fixture_id,
+                            "provider": provider,
+                            "distinct_run_hash_count": len(run_hashes),
+                            "distinct_parity_hash_count": len(parity_hashes),
+                        },
+                    )
+                )
+            provider_results[provider] = (is_deterministic, parity_hash_value)
+        return provider_results, fixture_bytes
+
+    for fixture in contract_fixtures:
+        provider_results, fixture_bytes = _evaluate_fixture_runs(
+            fixture=fixture,
+            metric_name="artifact_core_ir_proposer_contract_valid_pct",
+        )
+        bytes_hashed_per_replay += fixture_bytes
+        for provider in _FROZEN_PROVIDER_KINDS:
+            run_result = provider_results.get(provider)
+            if run_result is not None and run_result[0]:
+                contract_passed += 1
+
+    for fixture in parity_fixtures:
+        provider_results, fixture_bytes = _evaluate_fixture_runs(
+            fixture=fixture,
+            metric_name="artifact_core_ir_proposer_provider_parity_pct",
+        )
+        bytes_hashed_per_replay += fixture_bytes
+        provider_hashes: list[str] = []
+        all_deterministic = True
+        for provider in _FROZEN_PROVIDER_KINDS:
+            run_result = provider_results.get(provider)
+            if run_result is None:
+                all_deterministic = False
+                continue
+            is_deterministic, parity_hash = run_result
+            if not is_deterministic or not parity_hash:
+                all_deterministic = False
+            provider_hashes.append(parity_hash)
+        if all_deterministic and len(set(provider_hashes)) == 1:
+            parity_passed += 1
+            continue
+        fixture_id = fixture.get("fixture_id")
+        issues.append(
+            _issue(
+                CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE,
+                "vnext+25 core-ir proposer provider parity drift",
+                context={
+                    "manifest_path": str(resolved_manifest_path),
+                    "fixture_id": fixture_id,
+                    "provider_hashes": {
+                        provider: provider_results.get(provider, (False, ""))[1]
+                        for provider in _FROZEN_PROVIDER_KINDS
+                    },
+                },
+            )
+        )
+
+    fixture_count_total = len(contract_fixtures) + len(parity_fixtures)
+    replay_count_total = VNEXT_PLUS25_REPLAY_COUNT * sum(
+        len(cast(list[Any], fixture.get("runs", [])))
+        for fixture in (*contract_fixtures, *parity_fixtures)
+    )
+
+    return {
+        "artifact_core_ir_proposer_contract_valid_pct": _pct(contract_passed, contract_total),
+        "artifact_core_ir_proposer_provider_parity_pct": _pct(parity_passed, parity_total),
+        "vnext_plus25_manifest_hash": manifest_hash,
+        "vnext_plus25_fixture_count_total": fixture_count_total,
+        "vnext_plus25_replay_count_total": replay_count_total,
+        "vnext_plus25_bytes_hashed_per_replay": bytes_hashed_per_replay,
+        "vnext_plus25_bytes_hashed_total": VNEXT_PLUS25_REPLAY_COUNT * bytes_hashed_per_replay,
+    }
+
+
 def build_stop_gate_metrics(
     *,
     incident_packet_paths: list[Path],
@@ -12054,6 +13013,7 @@ def build_stop_gate_metrics(
     vnext_plus22_manifest_path: Path | None = None,
     vnext_plus23_manifest_path: Path | None = None,
     vnext_plus24_manifest_path: Path | None = None,
+    vnext_plus25_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -12459,6 +13419,10 @@ def build_stop_gate_metrics(
         manifest_path=vnext_plus24_manifest_path,
         issues=issues,
     )
+    vnext_plus25_metrics = _compute_vnext_plus25_metrics(
+        manifest_path=vnext_plus25_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -12531,6 +13495,7 @@ def build_stop_gate_metrics(
             + int(vnext_plus22_metrics["vnext_plus22_fixture_count_total"])
             + int(vnext_plus23_metrics["vnext_plus23_fixture_count_total"])
             + int(vnext_plus24_metrics["vnext_plus24_fixture_count_total"])
+            + int(vnext_plus25_metrics["vnext_plus25_fixture_count_total"])
         ),
         total_replays=(
             int(vnext_plus19_metrics["vnext_plus19_replay_count_total"])
@@ -12539,6 +13504,7 @@ def build_stop_gate_metrics(
             + int(vnext_plus22_metrics["vnext_plus22_replay_count_total"])
             + int(vnext_plus23_metrics["vnext_plus23_replay_count_total"])
             + int(vnext_plus24_metrics["vnext_plus24_replay_count_total"])
+            + int(vnext_plus25_metrics["vnext_plus25_replay_count_total"])
         ),
         bytes_hashed_per_replay=(
             int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_per_replay", 0))
@@ -12547,6 +13513,7 @@ def build_stop_gate_metrics(
             + int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_per_replay", 0))
             + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_per_replay", 0))
             + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_per_replay", 0))
+            + int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_per_replay", 0))
         ),
         bytes_hashed_total=(
             int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_total", 0))
@@ -12555,6 +13522,7 @@ def build_stop_gate_metrics(
             + int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_total", 0))
             + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_total", 0))
             + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_total", 0))
+            + int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_total", 0))
         ),
         runtime_started=runtime_started,
     )
@@ -12743,6 +13711,12 @@ def build_stop_gate_metrics(
         "artifact_extraction_fidelity_projection_determinism_pct": vnext_plus24_metrics[
             "artifact_extraction_fidelity_projection_determinism_pct"
         ],
+        "artifact_core_ir_proposer_contract_valid_pct": vnext_plus25_metrics[
+            "artifact_core_ir_proposer_contract_valid_pct"
+        ],
+        "artifact_core_ir_proposer_provider_parity_pct": vnext_plus25_metrics[
+            "artifact_core_ir_proposer_provider_parity_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -12910,6 +13884,14 @@ def build_stop_gate_metrics(
             "artifact_extraction_fidelity_projection_determinism_pct"
         ]
         >= THRESHOLDS["artifact_extraction_fidelity_projection_determinism_pct"],
+        "artifact_core_ir_proposer_contract_valid": metrics[
+            "artifact_core_ir_proposer_contract_valid_pct"
+        ]
+        >= THRESHOLDS["artifact_core_ir_proposer_contract_valid_pct"],
+        "artifact_core_ir_proposer_provider_parity": metrics[
+            "artifact_core_ir_proposer_provider_parity_pct"
+        ]
+        >= THRESHOLDS["artifact_core_ir_proposer_provider_parity_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -13020,6 +14002,11 @@ def build_stop_gate_metrics(
                 if vnext_plus24_manifest_path is not None
                 else VNEXT_PLUS24_MANIFEST_PATH
             ),
+            "vnext_plus25_manifest_path": str(
+                vnext_plus25_manifest_path
+                if vnext_plus25_manifest_path is not None
+                else VNEXT_PLUS25_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -13037,6 +14024,7 @@ def build_stop_gate_metrics(
         "vnext_plus22_manifest_hash": vnext_plus22_metrics["vnext_plus22_manifest_hash"],
         "vnext_plus23_manifest_hash": vnext_plus23_metrics["vnext_plus23_manifest_hash"],
         "vnext_plus24_manifest_hash": vnext_plus24_metrics["vnext_plus24_manifest_hash"],
+        "vnext_plus25_manifest_hash": vnext_plus25_metrics["vnext_plus25_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -13076,6 +14064,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+22 manifest hash: `{report.get('vnext_plus22_manifest_hash')}`")
     lines.append(f"- vnext+23 manifest hash: `{report.get('vnext_plus23_manifest_hash')}`")
     lines.append(f"- vnext+24 manifest hash: `{report.get('vnext_plus24_manifest_hash')}`")
+    lines.append(f"- vnext+25 manifest hash: `{report.get('vnext_plus25_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -13341,6 +14330,14 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         f"`{metrics.get('artifact_extraction_fidelity_projection_determinism_pct')}`"
     )
     lines.append(
+        "- artifact core-ir proposer contract valid pct: "
+        f"`{metrics.get('artifact_core_ir_proposer_contract_valid_pct')}`"
+    )
+    lines.append(
+        "- artifact core-ir proposer provider parity pct: "
+        f"`{metrics.get('artifact_core_ir_proposer_provider_parity_pct')}`"
+    )
+    lines.append(
         "- quality delta non-negative: "
         f"`{metrics.get('quality_delta_non_negative')}`"
     )
@@ -13545,6 +14542,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=VNEXT_PLUS24_MANIFEST_PATH,
     )
+    parser.add_argument(
+        "--vnext-plus25-manifest",
+        dest="vnext_plus25_manifest_path",
+        type=Path,
+        default=VNEXT_PLUS25_MANIFEST_PATH,
+    )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
@@ -13577,6 +14580,7 @@ def main(argv: list[str] | None = None) -> int:
         vnext_plus22_manifest_path=args.vnext_plus22_manifest_path,
         vnext_plus23_manifest_path=args.vnext_plus23_manifest_path,
         vnext_plus24_manifest_path=args.vnext_plus24_manifest_path,
+        vnext_plus25_manifest_path=args.vnext_plus25_manifest_path,
     )
     payload = canonical_json(report)
     if args.out_json_path is not None:
