@@ -4095,7 +4095,75 @@ def test_build_stop_gate_metrics_rejects_vnext_plus26_manifest_hash_mismatch(
     )
 
 
-def test_build_stop_gate_metrics_normalizes_host_paths_for_vnext_plus26_parity(
+def test_vnext_plus26_allowlist_normalization_is_recursive_and_exact() -> None:
+    repo_root = _repo_root().resolve()
+    root_relative_path = "artifacts/stop_gate/metrics_v25_closeout.json"
+    abs_path_with_backslashes = str((repo_root / root_relative_path).resolve()).replace("/", "\\")
+    non_allowlisted_list = [
+        "zeta/path.json",
+        "alpha/path.json",
+    ]
+    payload = {
+        "level1": {
+            "baseline_path": abs_path_with_backslashes,
+            "quality_current_path": abs_path_with_backslashes,
+            "children": [
+                {
+                    "candidate_path": abs_path_with_backslashes,
+                    "extra_paths": list(non_allowlisted_list),
+                }
+            ],
+        }
+    }
+
+    normalized = stop_gate_tools_module._normalize_vnext_plus26_parity_paths(
+        value=payload,
+        repo_root=repo_root,
+    )
+
+    assert normalized["level1"]["baseline_path"] == root_relative_path
+    assert normalized["level1"]["children"][0]["candidate_path"] == root_relative_path
+    assert normalized["level1"]["quality_current_path"] == abs_path_with_backslashes
+    assert normalized["level1"]["children"][0]["extra_paths"] == non_allowlisted_list
+
+
+def test_vnext_plus26_locked_fixtures_have_no_non_allowlisted_pathlike_drift() -> None:
+    manifest_path = _vnext_plus26_manifest_path().resolve()
+    manifest_payload = _vnext_plus26_manifest_payload()
+    fixture_root = manifest_path.parent
+    repo_root = _repo_root().resolve()
+    fixture_keys = (
+        "stop_gate_input_model_parity_fixtures",
+        "transfer_report_builder_parity_fixtures",
+    )
+
+    for fixture_key in fixture_keys:
+        fixtures = manifest_payload.get(fixture_key)
+        assert isinstance(fixtures, list)
+        for fixture in fixtures:
+            assert isinstance(fixture, dict)
+            runs = fixture.get("runs")
+            assert isinstance(runs, list)
+            for run in runs:
+                assert isinstance(run, dict)
+                for run_field in ("baseline_path", "candidate_path"):
+                    run_path_value = run.get(run_field)
+                    assert isinstance(run_path_value, str)
+                    run_path = Path(run_path_value)
+                    if not run_path.is_absolute():
+                        run_path = (fixture_root / run_path).resolve()
+                    payload = json.loads(run_path.read_text(encoding="utf-8"))
+                    projected = stop_gate_tools_module._tooling_parity_hash_projection(payload)
+                    drift_paths = (
+                        stop_gate_tools_module._collect_vnext_plus26_non_allowlisted_pathlike_drift_paths(
+                            value=projected,
+                            repo_root=repo_root,
+                        )
+                    )
+                    assert drift_paths == []
+
+
+def test_build_stop_gate_metrics_rejects_non_allowlisted_host_paths_for_vnext_plus26_parity(
     tmp_path: Path,
 ) -> None:
     quality_current = tmp_path / "quality_current.json"
@@ -4157,12 +4225,23 @@ def test_build_stop_gate_metrics_normalizes_host_paths_for_vnext_plus26_parity(
         **manifest_kwargs,
     )
 
-    assert report["valid"] is True
-    assert report["metrics"]["artifact_stop_gate_input_model_parity_pct"] == 100.0
-    assert report["gates"]["artifact_stop_gate_input_model_parity"] is True
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_stop_gate_input_model_parity_pct"] == 0.0
+    assert report["gates"]["artifact_stop_gate_input_model_parity"] is False
+    assert any(
+        issue.get("code") == "URM_ADEU_TOOLING_FIXTURE_INVALID"
+        and issue.get("message")
+        == (
+            "vnext+26 non-allowlisted path-like normalization drift detected; "
+            "requires explicit follow-on lock decision"
+        )
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
 
 
-def test_build_stop_gate_metrics_normalizes_windows_drive_paths_for_vnext_plus26_parity(
+def test_build_stop_gate_metrics_rejects_non_allowlisted_windows_paths_for_vnext_plus26_parity(
     tmp_path: Path,
 ) -> None:
     quality_current = tmp_path / "quality_current.json"
@@ -4228,9 +4307,20 @@ def test_build_stop_gate_metrics_normalizes_windows_drive_paths_for_vnext_plus26
         **manifest_kwargs,
     )
 
-    assert report["valid"] is True
-    assert report["metrics"]["artifact_stop_gate_input_model_parity_pct"] == 100.0
-    assert report["gates"]["artifact_stop_gate_input_model_parity"] is True
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_stop_gate_input_model_parity_pct"] == 0.0
+    assert report["gates"]["artifact_stop_gate_input_model_parity"] is False
+    assert any(
+        issue.get("code") == "URM_ADEU_TOOLING_FIXTURE_INVALID"
+        and issue.get("message")
+        == (
+            "vnext+26 non-allowlisted path-like normalization drift detected; "
+            "requires explicit follow-on lock decision"
+        )
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
 
 
 def test_build_stop_gate_metrics_excludes_created_at_recursively_for_vnext_plus24(
