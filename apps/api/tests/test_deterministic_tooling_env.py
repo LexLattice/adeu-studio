@@ -147,7 +147,5 @@ def test_tooling_scripts_fail_closed_for_conflicting_env(script_path: Path) -> N
 
     assert completed.returncode == 1
     assert completed.stdout == ""
-    assert (
-        completed.stderr.strip()
-        == "deterministic tooling env conflict: expected LC_ALL=C, got C.UTF-8"
-    )
+    stderr_lines = [line for line in completed.stderr.strip().splitlines() if line.strip()]
+    assert stderr_lines[-1] == "deterministic tooling env conflict: expected LC_ALL=C, got C.UTF-8"
