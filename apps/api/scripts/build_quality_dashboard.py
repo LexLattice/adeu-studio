@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 from adeu_api.quality_dashboard import (
@@ -9,9 +10,13 @@ from adeu_api.quality_dashboard import (
     DETERMINISTIC_EVALUATION_TS,
     write_quality_dashboard,
 )
+from urm_runtime.deterministic_env import (
+    DeterministicToolingEnvError,
+    ensure_deterministic_tooling_env,
+)
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Build CI quality dashboard metrics from eval fixtures."
     )
@@ -45,11 +50,17 @@ def parse_args() -> argparse.Namespace:
         default=DETERMINISTIC_EVALUATION_TS,
         help="Deterministic evaluation timestamp to embed in generated output",
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main() -> None:
-    args = parse_args()
+def main(argv: list[str] | None = None) -> int:
+    try:
+        ensure_deterministic_tooling_env()
+    except DeterministicToolingEnvError as exc:
+        sys.stderr.write(f"{exc}\n")
+        return 1
+
+    args = parse_args(argv)
     if args.question_repeats < 1:
         raise ValueError("--question-repeats must be >= 1")
     if args.session_steps < 1:
@@ -80,7 +91,8 @@ def main() -> None:
         "non_negative_quality=",
         delta_report["non_negative_quality"],
     )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

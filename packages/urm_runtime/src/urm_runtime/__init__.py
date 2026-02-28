@@ -16,6 +16,7 @@ from .config import (
     URMRuntimeConfig,
 )
 from .copilot import URMCopilotManager
+from .deterministic_env import DeterministicToolingEnvError, ensure_deterministic_tooling_env
 from .domain_registry import (
     DomainPackMetadata,
     DomainToolMetadata,
@@ -162,6 +163,7 @@ __all__ = [
     "WorkerCancelRequest",
     "WorkerCancelResponse",
     "URMCopilotManager",
+    "DeterministicToolingEnvError",
     "DomainToolPack",
     "DomainPackMetadata",
     "DomainToolMetadata",
@@ -206,6 +208,7 @@ __all__ = [
     "run_evidence_retention_gc",
     "build_stop_gate_metrics",
     "stop_gate_markdown",
+    "ensure_deterministic_tooling_env",
 ]
 
 __version__ = "0.0.0"
