@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
+from urm_runtime.deterministic_env import (
+    DeterministicToolingEnvError,
+    ensure_deterministic_tooling_env,
+)
 from urm_runtime.hashing import canonical_json
 from urm_runtime.stop_gate_tools import (
     StopGateMetricsInput,
@@ -33,7 +38,7 @@ _ACTIVE_MANIFEST_VERSIONS: tuple[int, ...] = (
 )
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Build stop-gate metrics from persisted evidence artifacts.",
     )
@@ -125,11 +130,17 @@ def parse_args() -> argparse.Namespace:
             default=Path(f"apps/api/fixtures/stop_gate/vnext_plus{version}_manifest.json"),
             help=f"vNext+{version} frozen stop-gate fixture manifest path",
         )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main() -> None:
-    args = parse_args()
+def main(argv: list[str] | None = None) -> int:
+    try:
+        ensure_deterministic_tooling_env()
+    except DeterministicToolingEnvError as exc:
+        sys.stderr.write(f"{exc}\n")
+        return 1
+
+    args = parse_args(argv)
     manifest_kwargs = {
         f"vnext_plus{version}_manifest_path": getattr(args, f"vnext_plus{version}_manifest")
         for version in _ACTIVE_MANIFEST_VERSIONS
@@ -151,7 +162,8 @@ def main() -> None:
     args.out_md.write_text(stop_gate_markdown(report), encoding="utf-8")
     print(f"wrote {args.out_json}")
     print(f"wrote {args.out_md}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
