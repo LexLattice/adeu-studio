@@ -183,6 +183,13 @@ VNEXT_PLUS25_DEFAULT_METRICS = {
 VNEXT_PLUS26_REPLAY_COUNT = 3
 VNEXT_PLUS26_MANIFEST_SCHEMA = "stop_gate.vnext_plus26_manifest@1"
 VNEXT_PLUS26_PARITY_PROJECTION = "stop_gate_parity.v1"
+_VNEXT_PLUS26_PARITY_PATH_ALLOWLIST: tuple[str, ...] = (
+    "baseline_path",
+    "candidate_path",
+    "report_path",
+    "manifest_path",
+)
+_VNEXT_PLUS26_PARITY_PATH_ALLOWLIST_SET = frozenset(_VNEXT_PLUS26_PARITY_PATH_ALLOWLIST)
 VNEXT_PLUS26_DEFAULT_METRICS = {
     "artifact_stop_gate_input_model_parity_pct": 0.0,
     "artifact_transfer_report_builder_parity_pct": 0.0,
@@ -6694,8 +6701,42 @@ def _normalize_vnext_plus26_parity_paths(
             )
         return normalized
     if isinstance(value, list):
-        normalized_list = [
+        return [
             _normalize_vnext_plus26_parity_paths(
+                value=item,
+                repo_root=repo_root,
+                parent_key=parent_key,
+            )
+            for item in value
+        ]
+    if (
+        isinstance(value, str)
+        and parent_key is not None
+        and parent_key in _VNEXT_PLUS26_PARITY_PATH_ALLOWLIST_SET
+    ):
+        return _normalize_vnext_plus26_path_value(value=value, repo_root=repo_root)
+    return value
+
+
+def _normalize_vnext_plus26_parity_paths_legacy_suffix(
+    *,
+    value: Any,
+    repo_root: Path | None,
+    parent_key: str | None = None,
+) -> Any:
+    if isinstance(value, Mapping):
+        normalized: dict[str, Any] = {}
+        for key in sorted(value.keys()):
+            key_str = str(key)
+            normalized[key_str] = _normalize_vnext_plus26_parity_paths_legacy_suffix(
+                value=value[key],
+                repo_root=repo_root,
+                parent_key=key_str,
+            )
+        return normalized
+    if isinstance(value, list):
+        normalized_list = [
+            _normalize_vnext_plus26_parity_paths_legacy_suffix(
                 value=item,
                 repo_root=repo_root,
                 parent_key=parent_key,
@@ -6713,13 +6754,95 @@ def _normalize_vnext_plus26_parity_paths(
     return value
 
 
+def _collect_vnext_plus26_non_allowlisted_pathlike_drift_paths(
+    *,
+    value: Any,
+    repo_root: Path | None,
+    parent_key: str | None = None,
+    path: tuple[str, ...] = (),
+) -> list[str]:
+    drift_paths: list[str] = []
+    if isinstance(value, Mapping):
+        for key in sorted(value.keys()):
+            key_str = str(key)
+            drift_paths.extend(
+                _collect_vnext_plus26_non_allowlisted_pathlike_drift_paths(
+                    value=value[key],
+                    repo_root=repo_root,
+                    parent_key=key_str,
+                    path=(*path, key_str),
+                )
+            )
+        return drift_paths
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            drift_paths.extend(
+                _collect_vnext_plus26_non_allowlisted_pathlike_drift_paths(
+                    value=item,
+                    repo_root=repo_root,
+                    parent_key=parent_key,
+                    path=(*path, f"[{index}]"),
+                )
+            )
+        if (
+            parent_key is not None
+            and parent_key not in _VNEXT_PLUS26_PARITY_PATH_ALLOWLIST_SET
+            and parent_key.endswith("_paths")
+            and all(isinstance(item, str) for item in value)
+        ):
+            normalized_items = [
+                _normalize_vnext_plus26_path_value(value=item, repo_root=repo_root)
+                for item in cast(list[str], value)
+            ]
+            legacy_sorted_items = sorted(normalized_items)
+            if legacy_sorted_items != value:
+                drift_paths.append("/".join(path) if path else "<root>")
+        return drift_paths
+    if (
+        isinstance(value, str)
+        and parent_key is not None
+        and parent_key not in _VNEXT_PLUS26_PARITY_PATH_ALLOWLIST_SET
+        and (parent_key.endswith("_path") or parent_key.endswith("_paths"))
+    ):
+        normalized = _normalize_vnext_plus26_path_value(value=value, repo_root=repo_root)
+        if normalized != value:
+            drift_paths.append("/".join(path) if path else "<root>")
+    return drift_paths
+
+
 def _tooling_parity_hash_projection_vnext_plus26(
     *,
     payload: Mapping[str, Any],
     repo_root: Path | None,
 ) -> dict[str, Any]:
     projected = _tooling_parity_hash_projection(payload)
+    legacy_normalized = _normalize_vnext_plus26_parity_paths_legacy_suffix(
+        value=projected,
+        repo_root=repo_root,
+    )
     normalized = _normalize_vnext_plus26_parity_paths(value=projected, repo_root=repo_root)
+    non_allowlisted_drift_paths = sorted(
+        set(
+            _collect_vnext_plus26_non_allowlisted_pathlike_drift_paths(
+                value=projected,
+                repo_root=repo_root,
+            )
+        )
+    )
+    if non_allowlisted_drift_paths and legacy_normalized != normalized:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_TOOLING_FIXTURE_INVALID",
+                (
+                    "vnext+26 non-allowlisted path-like normalization drift detected; "
+                    "requires explicit follow-on lock decision"
+                ),
+                context={
+                    "non_allowlisted_drift_paths": non_allowlisted_drift_paths,
+                    "allowlisted_path_keys": list(_VNEXT_PLUS26_PARITY_PATH_ALLOWLIST),
+                },
+            )
+        )
     if not isinstance(normalized, dict):
         raise ValueError(
             _issue(
