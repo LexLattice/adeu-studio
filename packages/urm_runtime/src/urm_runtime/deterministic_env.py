@@ -4,7 +4,6 @@ import os
 import time
 from collections.abc import MutableMapping
 
-
 EXPECTED_DETERMINISTIC_TOOLING_ENV: dict[str, str] = {
     "TZ": "UTC",
     "LC_ALL": "C",
