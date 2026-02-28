@@ -51,20 +51,11 @@ current milestone PR sequence.
   for the planned v25 diff-viewer surface, add an explicit UI-safe render key contract
   (derived key field or constrained `match_id` profile) so frontend key props do not rely
   on opaque `match_id` content assumptions from v24.
-- `cleanup-stop-gate-metrics-input-model`:
-  replace the wide argument list for
-  `packages/urm_runtime/src/urm_runtime/stop_gate_tools.py:build_stop_gate_metrics`
-  with a typed request model (for example Pydantic/dataclass) to reduce call-site drift
-  and improve maintainability without changing metric behavior.
 - `cleanup-vnext-plus24-x4-catalog-helper-cache`:
   apply a tiny read-path optimization in
   `apps/api/tests/test_extraction_fidelity_x4_guards.py` by caching `_catalog_payload`
   (and clearing that cache in the autouse fixture) to avoid repeated fixture file I/O
   when test case count grows.
-- `cleanup-vnext-plus24-transfer-report-builder`:
-  add a dedicated v24 extraction-fidelity transfer-report builder module/script/test
-  (parity with prior arcs) so `docs/EXTRACTION_FIDELITY_TRANSFER_REPORT_vNEXT_PLUS24.md`
-  is generated mechanically from manifests/captured fixtures instead of manual updates.
 - `cleanup-read-surface-guard-harness-consolidation`:
   consolidate repeated guard-test scaffolding across read-surface families
   (`*_c4_guards.py`, `*_n4_guards.py`, `*_t4_guards.py`, `*_v4_guards.py`,
@@ -102,10 +93,6 @@ current milestone PR sequence.
   (`_core_ir_proposer_logic_tree_max_depth` in `apps/api/src/adeu_api/main.py`);
   current behavior returns depth sentinel on cycle, while stricter fail-closed
   behavior (payload-invalid on detected cycle) is deferred pending explicit lock.
-- `cleanup-vnext-plus26-s9-trigger-check-script`:
-  add and wire deterministic `apps/api/scripts/check_s9_triggers.py` so
-  S9 trigger precondition checks are executable as a standalone closeout/preflight gate
-  instead of remaining documentation-only guidance.
 - `cleanup-vnext-plus26-tooling-transfer-report-builder`:
   add a dedicated deterministic builder/script/test path for
   `docs/TOOLING_TRANSFER_REPORT_vNEXT_PLUS26.md` so v26 tooling transfer report

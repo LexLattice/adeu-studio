@@ -1,0 +1,178 @@
+# Stop-Gate Metrics
+
+- Schema: `stop_gate_metrics@1`
+- Valid: `True`
+- All Passed: `True`
+- vnext+8 manifest hash: `4eaf96111212f0b5e9276a7e2657f2bf4bef92e14c6d8980c76085103422a397`
+- vnext+9 manifest hash: `2104ff0aebd7b45fe0e6a74c29495ec44ee62d9ea97420e008aef9541b67b4de`
+- vnext+10 manifest hash: `495e664f33281435ca8d1d162e5810631cc09e6cb195dc39dec4dcb603ae3a06`
+- vnext+11 manifest hash: `a11ddda0f1faf9c039a31888b68ac7ce2780a2b81b8af94958b1227b88752ce3`
+- vnext+13 manifest hash: `4f7cc716f1aa202cf2931937812a1cef7ceaeb675be8463ef764ef003cf83aa7`
+- vnext+14 manifest hash: `70a938d3c772bee71e432aeaca9fc6d9f7194909e8cf2c0fc21e9a758a7d51ff`
+- vnext+15 manifest hash: `224eac999dbcd9a3eb411baa7576eb469b8388a7e909a360150230f43b880541`
+- vnext+16 manifest hash: `9696117b034d88b192b1c605da58f4806dcdc20f9c8f9e1bdd972b8ef57777ff`
+- vnext+17 manifest hash: `566d1d0b7f1dd11d64f1aa28bd2ad783436c343d6f92ffe748c37e55e6fbe680`
+- vnext+18 manifest hash: `de1f7fb75d0bc59307ff6de1da5afc4d15b85b2b958d79a35b74c3d5ed6f6da0`
+- vnext+19 manifest hash: `532d78b52dcbd8c3289abd5d016034916d68be6f1960d2dc0c73d804e386e5a0`
+- vnext+20 manifest hash: `721c917032a79003c2a4520962a3a0251ce1900cb1f64ba504ffb95e1f4263d9`
+- vnext+21 manifest hash: `6f6d1c66f9facd78c1ca986973b56a7451c533632040af2163ba8e932ae5ec77`
+- vnext+22 manifest hash: `449411ae6665aae84f3561c30c0fc41cf17b79281e5e0ae00be96c6f7de00e24`
+- vnext+23 manifest hash: `6ae645e5ce18e62d3a7bde3329eabbced786cdf1d789461e73c6af3a6e3a7ef2`
+- vnext+24 manifest hash: `a2d6362a0983754d517b40aaa1d60537da15fa47d95fb9fb17fb964f23a394db`
+- vnext+25 manifest hash: `a4c9942930025425047d3de95b8f431446bdf3017bcd97d7ea8d4a6c54ac0d1f`
+- vnext+26 manifest hash: `b842bb583f951321178f228f017240c269f5d8259adc40004a2ff3294d2bc120`
+
+## Metrics
+
+- policy incident reproducibility pct: `100.0`
+- child lifecycle replay determinism pct: `100.0`
+- runtime failure-code stability pct: `100.0`
+- connector snapshot replay stability pct: `100.0`
+- validator packet determinism pct: `100.0`
+- witness reconstruction determinism pct: `100.0`
+- semantics diagnostics determinism pct: `100.0`
+- policy lint determinism pct: `100.0`
+- proof replay determinism pct: `100.0`
+- policy/proof packet hash stability pct: `100.0`
+- explain diff determinism pct: `100.0`
+- explain api/cli parity pct: `100.0`
+- explain hash stability pct: `100.0`
+- scheduler dispatch replay determinism pct: `100.0`
+- orphan lease recovery determinism pct: `100.0`
+- concurrent budget/cancel stability pct: `100.0`
+- concept conflict precision pct: `100.0`
+- concept conflict recall pct: `100.0`
+- coherence permutation stability pct: `100.0`
+- concept conflict precision macro pct (non-gating): `100.0`
+- concept conflict recall macro pct (non-gating): `100.0`
+- baseline concept conflict precision pct: `99.0`
+- baseline concept conflict recall pct: `99.0`
+- concept conflict precision delta pct: `1.0`
+- concept conflict recall delta pct: `1.0`
+- semantic-depth plateau epsilon pct: `0.1`
+- semantic-depth strict improvement required: `True`
+- semantic-depth strict improvement met: `True`
+- semantic-depth plateau eligible: `False`
+- semantic-depth improvement lock passed: `True`
+- domain conformance replay determinism pct: `100.0`
+- cross-domain artifact parity pct: `100.0`
+- runtime domain coupling guard pct: `100.0`
+- adeu core IR replay determinism pct: `100.0`
+- adeu claim ledger recompute match pct: `100.0`
+- adeu lane projection determinism pct: `100.0`
+- provider route contract parity pct: `100.0`
+- codex candidate contract valid pct: `100.0`
+- provider parity replay determinism pct: `100.0`
+- adeu lane report replay determinism pct: `100.0`
+- adeu projection alignment determinism pct: `100.0`
+- adeu depth report replay determinism pct: `100.0`
+- artifact dangling-reference determinism pct: `100.0`
+- artifact cycle-policy determinism pct: `100.0`
+- artifact deontic-conflict determinism pct: `100.0`
+- artifact reference-integrity extended determinism pct: `100.0`
+- artifact cycle-policy extended determinism pct: `100.0`
+- artifact deontic-conflict extended determinism pct: `100.0`
+- artifact validation consolidation parity pct: `100.0`
+- artifact transfer-report consolidation parity pct: `100.0`
+- artifact stop-gate ci budget within ceiling pct: `100.0`
+- artifact core-ir read-surface determinism pct: `100.0`
+- artifact lane read-surface determinism pct: `100.0`
+- artifact integrity read-surface determinism pct: `100.0`
+- artifact cross-ir bridge mapping determinism pct: `100.0`
+- artifact cross-ir coherence diagnostics determinism pct: `100.0`
+- artifact cross-ir quality projection determinism pct: `100.0`
+- artifact normative advice packet determinism pct: `100.0`
+- artifact normative advice projection determinism pct: `100.0`
+- artifact trust-invariant packet determinism pct: `100.0`
+- artifact trust-invariant projection determinism pct: `100.0`
+- artifact semantics-v4 candidate packet determinism pct: `100.0`
+- artifact semantics-v4 candidate projection determinism pct: `100.0`
+- artifact extraction-fidelity packet determinism pct: `100.0`
+- artifact extraction-fidelity projection determinism pct: `100.0`
+- artifact core-ir proposer contract valid pct: `100.0`
+- artifact core-ir proposer provider parity pct: `100.0`
+- artifact stop-gate input-model parity pct: `100.0`
+- artifact transfer-report builder parity pct: `100.0`
+- quality delta non-negative: `True`
+- quality metric ruleset: `frozen_v3`
+- quality delta rule `bridge_loss_utilization_rate`: `non_decreasing`
+- quality delta rule `coherence_alert_count`: `non_increasing`
+- quality delta rule `evidence_coverage_rate`: `non_decreasing`
+- quality delta rule `redundancy_rate`: `non_increasing`
+- quality delta rule `top_k_stability@10`: `non_decreasing`
+- quality delta `bridge_loss_utilization_rate`: `0.0`
+- quality delta `coherence_alert_count`: `0.0`
+- quality delta `evidence_coverage_rate`: `0.0`
+- quality delta `redundancy_rate`: `0.0`
+- quality delta `top_k_stability@10`: `0.0`
+
+## Gates
+
+- `adeu_claim_ledger_recompute_match`: `True`
+- `adeu_core_ir_replay_determinism`: `True`
+- `adeu_depth_report_replay_determinism`: `True`
+- `adeu_lane_projection_determinism`: `True`
+- `adeu_lane_report_replay_determinism`: `True`
+- `adeu_projection_alignment_determinism`: `True`
+- `artifact_core_ir_proposer_contract_valid`: `True`
+- `artifact_core_ir_proposer_provider_parity`: `True`
+- `artifact_core_ir_read_surface_determinism`: `True`
+- `artifact_cross_ir_bridge_mapping_determinism`: `True`
+- `artifact_cross_ir_coherence_diagnostics_determinism`: `True`
+- `artifact_cross_ir_quality_projection_determinism`: `True`
+- `artifact_cycle_policy_determinism`: `True`
+- `artifact_cycle_policy_extended_determinism`: `True`
+- `artifact_dangling_reference_determinism`: `True`
+- `artifact_deontic_conflict_determinism`: `True`
+- `artifact_deontic_conflict_extended_determinism`: `True`
+- `artifact_extraction_fidelity_packet_determinism`: `True`
+- `artifact_extraction_fidelity_projection_determinism`: `True`
+- `artifact_integrity_read_surface_determinism`: `True`
+- `artifact_lane_read_surface_determinism`: `True`
+- `artifact_normative_advice_packet_determinism`: `True`
+- `artifact_normative_advice_projection_determinism`: `True`
+- `artifact_reference_integrity_extended_determinism`: `True`
+- `artifact_semantics_v4_candidate_packet_determinism`: `True`
+- `artifact_semantics_v4_candidate_projection_determinism`: `True`
+- `artifact_stop_gate_ci_budget_within_ceiling`: `True`
+- `artifact_stop_gate_input_model_parity`: `True`
+- `artifact_transfer_report_builder_parity`: `True`
+- `artifact_transfer_report_consolidation_parity`: `True`
+- `artifact_trust_invariant_packet_determinism`: `True`
+- `artifact_trust_invariant_projection_determinism`: `True`
+- `artifact_validation_consolidation_parity`: `True`
+- `child_lifecycle_replay_determinism`: `True`
+- `codex_candidate_contract_valid`: `True`
+- `coherence_permutation_stability`: `True`
+- `concept_conflict_precision`: `True`
+- `concept_conflict_recall`: `True`
+- `concurrent_budget_cancel_stability`: `True`
+- `connector_snapshot_replay_stability`: `True`
+- `cross_domain_artifact_parity`: `True`
+- `domain_conformance_replay_determinism`: `True`
+- `explain_api_cli_parity`: `True`
+- `explain_diff_determinism`: `True`
+- `explain_hash_stability`: `True`
+- `orphan_lease_recovery_determinism`: `True`
+- `policy_incident_reproducibility`: `True`
+- `policy_lint_determinism`: `True`
+- `policy_proof_packet_hash_stability`: `True`
+- `proof_replay_determinism`: `True`
+- `provider_parity_replay_determinism`: `True`
+- `provider_route_contract_parity`: `True`
+- `quality_delta_non_negative`: `True`
+- `runtime_domain_coupling_guard`: `True`
+- `runtime_failure_code_stability`: `True`
+- `scheduler_dispatch_replay_determinism`: `True`
+- `semantic_depth_improvement_lock`: `True`
+- `semantics_diagnostics_determinism`: `True`
+- `validator_packet_determinism`: `True`
+- `witness_reconstruction_determinism`: `True`
+
+## Runtime Observability
+
+- total fixtures: `21`
+- total replays: `75`
+- bytes hashed per replay: `67236`
+- bytes hashed total: `201708`
+- elapsed ms: `83`

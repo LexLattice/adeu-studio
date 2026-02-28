@@ -7,8 +7,8 @@ This document consolidates the four independent v4 planning drafts:
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_opus.md`
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_gemini.md`
 
-Status: active planning draft (v17 through v26 baselines executed; active for `vNext+27+` selection).
-Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+26` sequencing.
+Status: active planning draft (v17 through v27 baselines executed; active for `vNext+28+` selection).
+Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+27` sequencing.
 
 ## Baseline Agreement (Shared Across Drafts)
 
@@ -25,6 +25,7 @@ All four drafts converge on these baseline points:
 - `vNext+24` Path S2 (`X1`-`X4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS24.md`).
 - `vNext+25` Path S3b (`Y1`-`Y4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS25.md`).
 - `vNext+26` Path S5 follow-on (`Z1`-`Z4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS26.md`).
+- `vNext+27` Path A (`A1`-`A4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS27.md`).
 - Determinism/manifest/stop-gate closeout discipline is now mature and must carry forward.
 - Next work should remain additive-first and explicitly locked.
 - Provider parity maintenance remains a fallback path, not the default next arc.
@@ -383,14 +384,15 @@ Execution checkpoint (current state):
   - `vNext+24 = S2` (closed out)
   - `vNext+25 = S3b` (closed out)
   - `vNext+26 = S5 follow-on` (closed out)
+  - `vNext+27 = W1/Path A gate-0 hardening` (closed out)
 - active default next selection:
-  - `vNext+27 = pending lock freeze (draft selection in progress)`:
-    - `docs/LOCKED_CONTINUATION_vNEXT_PLUS26.md` (latest closed-out baseline lock)
+  - `vNext+28 = pending lock freeze (draft selection in progress)`:
+    - `docs/LOCKED_CONTINUATION_vNEXT_PLUS27.md` (latest closed-out baseline lock)
     - `S9` remains trigger-based preemption path and hard precondition gate
 
 ## Proposed Freeze Candidate (Next Step)
 
-Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS27.md` freeze content with one thin-slice continuation only (path selection pending for post-`vNext+26`):
+Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS28.md` freeze content with one thin-slice continuation only (path selection pending for post-`vNext+27`):
 
 1. freeze deterministic contract deltas for the selected post-v26 scope.
 2. keep additive-only stop-gate metric extension on `stop_gate_metrics@1`.
