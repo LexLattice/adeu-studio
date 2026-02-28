@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import time
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
@@ -15,6 +16,12 @@ from pydantic import ValidationError
 from .events_tools import replay_events, validate_events
 from .hashing import canonical_json, sha256_canonical_json
 from .models import NormalizedEvent
+from .stop_gate_registry import (
+    ACTIVE_STOP_GATE_MANIFEST_VERSIONS,
+    default_stop_gate_manifest_path,
+    discover_repo_root,
+    find_inactive_stop_gate_manifest_flags,
+)
 
 STOP_GATE_SCHEMA = "stop_gate_metrics@1"
 POLICY_INCIDENT_SCHEMA = "incident_packet@1"
@@ -474,19 +481,7 @@ _TERMINAL_CODE_EVENTS = {
 
 
 def _discover_repo_root(anchor: Path) -> Path | None:
-    resolved = anchor.resolve()
-    for parent in [resolved, *resolved.parents]:
-        if (parent / ".git").exists():
-            return parent
-    return None
-
-
-def _default_manifest_path(filename: str) -> Path:
-    module_path = Path(__file__).resolve()
-    repo_root = _discover_repo_root(module_path)
-    if repo_root is not None:
-        return repo_root / "apps" / "api" / "fixtures" / "stop_gate" / filename
-    return module_path.parent / filename
+    return discover_repo_root(anchor)
 
 
 def _default_extraction_fidelity_catalog_path(filename: str) -> Path:
@@ -497,105 +492,29 @@ def _default_extraction_fidelity_catalog_path(filename: str) -> Path:
     return module_path.parent / filename
 
 
-def _default_vnext_plus7_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus7_manifest.json")
-
-
-def _default_vnext_plus8_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus8_manifest.json")
-
-
-def _default_vnext_plus9_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus9_manifest.json")
-
-
-def _default_vnext_plus10_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus10_manifest.json")
-
-
-def _default_vnext_plus11_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus11_manifest.json")
-
-
-def _default_vnext_plus13_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus13_manifest.json")
-
-
-def _default_vnext_plus14_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus14_manifest.json")
-
-
-def _default_vnext_plus15_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus15_manifest.json")
-
-
-def _default_vnext_plus16_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus16_manifest.json")
-
-
-def _default_vnext_plus17_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus17_manifest.json")
-
-
-def _default_vnext_plus18_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus18_manifest.json")
-
-
-def _default_vnext_plus19_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus19_manifest.json")
-
-
-def _default_vnext_plus20_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus20_manifest.json")
-
-
-def _default_vnext_plus21_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus21_manifest.json")
-
-
-def _default_vnext_plus22_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus22_manifest.json")
-
-
-def _default_vnext_plus23_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus23_manifest.json")
-
-
-def _default_vnext_plus24_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus24_manifest.json")
-
-
-def _default_vnext_plus25_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus25_manifest.json")
-
-
-def _default_vnext_plus26_manifest_path() -> Path:
-    return _default_manifest_path("vnext_plus26_manifest.json")
-
-
 def _default_vnext_plus24_catalog_path() -> Path:
     return _default_extraction_fidelity_catalog_path("vnext_plus24_catalog.json")
 
 
-VNEXT_PLUS7_MANIFEST_PATH = _default_vnext_plus7_manifest_path()
-VNEXT_PLUS8_MANIFEST_PATH = _default_vnext_plus8_manifest_path()
-VNEXT_PLUS9_MANIFEST_PATH = _default_vnext_plus9_manifest_path()
-VNEXT_PLUS10_MANIFEST_PATH = _default_vnext_plus10_manifest_path()
-VNEXT_PLUS11_MANIFEST_PATH = _default_vnext_plus11_manifest_path()
-VNEXT_PLUS13_MANIFEST_PATH = _default_vnext_plus13_manifest_path()
-VNEXT_PLUS14_MANIFEST_PATH = _default_vnext_plus14_manifest_path()
-VNEXT_PLUS15_MANIFEST_PATH = _default_vnext_plus15_manifest_path()
-VNEXT_PLUS16_MANIFEST_PATH = _default_vnext_plus16_manifest_path()
-VNEXT_PLUS17_MANIFEST_PATH = _default_vnext_plus17_manifest_path()
-VNEXT_PLUS18_MANIFEST_PATH = _default_vnext_plus18_manifest_path()
-VNEXT_PLUS19_MANIFEST_PATH = _default_vnext_plus19_manifest_path()
-VNEXT_PLUS20_MANIFEST_PATH = _default_vnext_plus20_manifest_path()
-VNEXT_PLUS21_MANIFEST_PATH = _default_vnext_plus21_manifest_path()
-VNEXT_PLUS22_MANIFEST_PATH = _default_vnext_plus22_manifest_path()
-VNEXT_PLUS23_MANIFEST_PATH = _default_vnext_plus23_manifest_path()
-VNEXT_PLUS24_MANIFEST_PATH = _default_vnext_plus24_manifest_path()
-VNEXT_PLUS25_MANIFEST_PATH = _default_vnext_plus25_manifest_path()
-VNEXT_PLUS26_MANIFEST_PATH = _default_vnext_plus26_manifest_path()
+VNEXT_PLUS7_MANIFEST_PATH = default_stop_gate_manifest_path(7)
+VNEXT_PLUS8_MANIFEST_PATH = default_stop_gate_manifest_path(8)
+VNEXT_PLUS9_MANIFEST_PATH = default_stop_gate_manifest_path(9)
+VNEXT_PLUS10_MANIFEST_PATH = default_stop_gate_manifest_path(10)
+VNEXT_PLUS11_MANIFEST_PATH = default_stop_gate_manifest_path(11)
+VNEXT_PLUS13_MANIFEST_PATH = default_stop_gate_manifest_path(13)
+VNEXT_PLUS14_MANIFEST_PATH = default_stop_gate_manifest_path(14)
+VNEXT_PLUS15_MANIFEST_PATH = default_stop_gate_manifest_path(15)
+VNEXT_PLUS16_MANIFEST_PATH = default_stop_gate_manifest_path(16)
+VNEXT_PLUS17_MANIFEST_PATH = default_stop_gate_manifest_path(17)
+VNEXT_PLUS18_MANIFEST_PATH = default_stop_gate_manifest_path(18)
+VNEXT_PLUS19_MANIFEST_PATH = default_stop_gate_manifest_path(19)
+VNEXT_PLUS20_MANIFEST_PATH = default_stop_gate_manifest_path(20)
+VNEXT_PLUS21_MANIFEST_PATH = default_stop_gate_manifest_path(21)
+VNEXT_PLUS22_MANIFEST_PATH = default_stop_gate_manifest_path(22)
+VNEXT_PLUS23_MANIFEST_PATH = default_stop_gate_manifest_path(23)
+VNEXT_PLUS24_MANIFEST_PATH = default_stop_gate_manifest_path(24)
+VNEXT_PLUS25_MANIFEST_PATH = default_stop_gate_manifest_path(25)
+VNEXT_PLUS26_MANIFEST_PATH = default_stop_gate_manifest_path(26)
 VNEXT_PLUS24_CATALOG_PATH = _default_vnext_plus24_catalog_path()
 
 
@@ -15138,127 +15057,35 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--quality-current", dest="quality_current_path", type=Path, required=True)
     parser.add_argument("--quality-baseline", dest="quality_baseline_path", type=Path)
-    parser.add_argument(
-        "--vnext-plus7-manifest",
-        dest="vnext_plus7_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS7_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus8-manifest",
-        dest="vnext_plus8_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS8_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus9-manifest",
-        dest="vnext_plus9_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS9_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus10-manifest",
-        dest="vnext_plus10_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS10_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus11-manifest",
-        dest="vnext_plus11_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS11_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus13-manifest",
-        dest="vnext_plus13_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS13_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus14-manifest",
-        dest="vnext_plus14_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS14_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus15-manifest",
-        dest="vnext_plus15_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS15_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus16-manifest",
-        dest="vnext_plus16_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS16_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus17-manifest",
-        dest="vnext_plus17_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS17_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus18-manifest",
-        dest="vnext_plus18_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS18_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus19-manifest",
-        dest="vnext_plus19_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS19_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus20-manifest",
-        dest="vnext_plus20_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS20_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus21-manifest",
-        dest="vnext_plus21_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS21_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus22-manifest",
-        dest="vnext_plus22_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS22_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus23-manifest",
-        dest="vnext_plus23_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS23_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus24-manifest",
-        dest="vnext_plus24_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS24_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus25-manifest",
-        dest="vnext_plus25_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS25_MANIFEST_PATH,
-    )
-    parser.add_argument(
-        "--vnext-plus26-manifest",
-        dest="vnext_plus26_manifest_path",
-        type=Path,
-        default=VNEXT_PLUS26_MANIFEST_PATH,
-    )
+    for version in ACTIVE_STOP_GATE_MANIFEST_VERSIONS:
+        parser.add_argument(
+            f"--vnext-plus{version}-manifest",
+            dest=f"vnext_plus{version}_manifest_path",
+            type=Path,
+            default=default_stop_gate_manifest_path(version),
+        )
     parser.add_argument("--out-json", dest="out_json_path", type=Path)
     parser.add_argument("--out-md", dest="out_md_path", type=Path)
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
-    args = _parse_args(argv)
+    raw_argv = list(sys.argv[1:] if argv is None else argv)
+    inactive_flags = find_inactive_stop_gate_manifest_flags(raw_argv)
+    if inactive_flags:
+        active_versions = ",".join(str(version) for version in ACTIVE_STOP_GATE_MANIFEST_VERSIONS)
+        rendered_flags = ", ".join(inactive_flags)
+        sys.stderr.write(
+            "inactive stop-gate manifest flags are unsupported: "
+            f"{rendered_flags} (active versions: {active_versions})\n"
+        )
+        return 1
+
+    args = _parse_args(raw_argv)
+    manifest_kwargs = {
+        f"vnext_plus{version}_manifest_path": getattr(args, f"vnext_plus{version}_manifest_path")
+        for version in ACTIVE_STOP_GATE_MANIFEST_VERSIONS
+    }
     stop_gate_input = StopGateMetricsInput.from_legacy_kwargs(
         incident_packet_paths=list(args.incident_packet_paths or []),
         event_stream_paths=list(args.event_stream_paths or []),
@@ -15267,25 +15094,7 @@ def main(argv: list[str] | None = None) -> int:
         semantics_diagnostics_paths=list(args.semantics_diagnostics_paths or []),
         quality_current_path=args.quality_current_path,
         quality_baseline_path=args.quality_baseline_path,
-        vnext_plus7_manifest_path=args.vnext_plus7_manifest_path,
-        vnext_plus8_manifest_path=args.vnext_plus8_manifest_path,
-        vnext_plus9_manifest_path=args.vnext_plus9_manifest_path,
-        vnext_plus10_manifest_path=args.vnext_plus10_manifest_path,
-        vnext_plus11_manifest_path=args.vnext_plus11_manifest_path,
-        vnext_plus13_manifest_path=args.vnext_plus13_manifest_path,
-        vnext_plus14_manifest_path=args.vnext_plus14_manifest_path,
-        vnext_plus15_manifest_path=args.vnext_plus15_manifest_path,
-        vnext_plus16_manifest_path=args.vnext_plus16_manifest_path,
-        vnext_plus17_manifest_path=args.vnext_plus17_manifest_path,
-        vnext_plus18_manifest_path=args.vnext_plus18_manifest_path,
-        vnext_plus19_manifest_path=args.vnext_plus19_manifest_path,
-        vnext_plus20_manifest_path=args.vnext_plus20_manifest_path,
-        vnext_plus21_manifest_path=args.vnext_plus21_manifest_path,
-        vnext_plus22_manifest_path=args.vnext_plus22_manifest_path,
-        vnext_plus23_manifest_path=args.vnext_plus23_manifest_path,
-        vnext_plus24_manifest_path=args.vnext_plus24_manifest_path,
-        vnext_plus25_manifest_path=args.vnext_plus25_manifest_path,
-        vnext_plus26_manifest_path=args.vnext_plus26_manifest_path,
+        **manifest_kwargs,
     )
     report = build_stop_gate_metrics_from_input(stop_gate_input)
     payload = canonical_json(report)

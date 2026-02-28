@@ -20,6 +20,10 @@ from urm_runtime.extraction_fidelity_transfer_report_vnext_plus24 import (
     EXTRACTION_FIDELITY_TRANSFER_REPORT_VNEXT_PLUS24_SCHEMA,
     build_extraction_fidelity_transfer_report_vnext_plus24_payload,
 )
+from urm_runtime.stop_gate_registry import (
+    ACTIVE_STOP_GATE_MANIFEST_VERSIONS,
+    default_stop_gate_manifest_path,
+)
 from urm_runtime.stop_gate_tools import STOP_GATE_SCHEMA, build_stop_gate_metrics
 
 _MATERIALIZATION_POLICY_FLOW_TARGETS: tuple[str, ...] = (
@@ -61,39 +65,11 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 
 def _stop_gate_manifest_path(version: int) -> Path:
-    return (
-        _repo_root()
-        / "apps"
-        / "api"
-        / "fixtures"
-        / "stop_gate"
-        / f"vnext_plus{version}_manifest.json"
-    ).resolve()
+    return default_stop_gate_manifest_path(version).resolve()
 
 
 def _base_stop_gate_kwargs() -> dict[str, Any]:
     repo_root = _repo_root()
-    manifest_versions = (
-        7,
-        8,
-        9,
-        10,
-        11,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-    )
     return {
         "incident_packet_paths": [
             repo_root / "examples" / "eval" / "stop_gate" / "incident_packet_case_a_1.json",
@@ -132,7 +108,7 @@ def _base_stop_gate_kwargs() -> dict[str, Any]:
         "quality_baseline_path": repo_root / "artifacts" / "quality_dashboard_v24_closeout.json",
         **{
             f"vnext_plus{version}_manifest_path": _stop_gate_manifest_path(version)
-            for version in manifest_versions
+            for version in ACTIVE_STOP_GATE_MANIFEST_VERSIONS
         },
     }
 
