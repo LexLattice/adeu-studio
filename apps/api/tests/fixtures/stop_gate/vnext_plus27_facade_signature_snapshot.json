@@ -1,0 +1,75 @@
+{
+  "schema": "stop_gate_facade_signature_snapshot@1",
+  "symbols": {
+    "StopGateMetricsInput": {
+      "params": [
+        {"default": "__required__", "kind": "POSITIONAL_OR_KEYWORD", "name": "incident_packet_paths"},
+        {"default": "__required__", "kind": "POSITIONAL_OR_KEYWORD", "name": "event_stream_paths"},
+        {"default": "__required__", "kind": "POSITIONAL_OR_KEYWORD", "name": "connector_snapshot_paths"},
+        {"default": "__required__", "kind": "POSITIONAL_OR_KEYWORD", "name": "validator_evidence_packet_paths"},
+        {"default": "__required__", "kind": "POSITIONAL_OR_KEYWORD", "name": "semantics_diagnostics_paths"},
+        {"default": "__required__", "kind": "POSITIONAL_OR_KEYWORD", "name": "quality_current_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "quality_baseline_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus7_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus8_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus9_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus10_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus11_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus13_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus14_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus15_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus16_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus17_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus18_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus19_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus20_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus21_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus22_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus23_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus24_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus25_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus26_manifest_path"}
+      ]
+    },
+    "build_stop_gate_metrics": {
+      "params": [
+        {"default": "__required__", "kind": "KEYWORD_ONLY", "name": "incident_packet_paths"},
+        {"default": "__required__", "kind": "KEYWORD_ONLY", "name": "event_stream_paths"},
+        {"default": "__required__", "kind": "KEYWORD_ONLY", "name": "connector_snapshot_paths"},
+        {"default": "__required__", "kind": "KEYWORD_ONLY", "name": "validator_evidence_packet_paths"},
+        {"default": "__required__", "kind": "KEYWORD_ONLY", "name": "semantics_diagnostics_paths"},
+        {"default": "__required__", "kind": "KEYWORD_ONLY", "name": "quality_current_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "quality_baseline_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus7_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus8_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus9_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus10_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus11_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus13_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus14_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus15_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus16_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus17_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus18_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus19_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus20_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus21_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus22_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus23_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus24_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus25_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus26_manifest_path"}
+      ]
+    },
+    "build_stop_gate_metrics_from_input": {
+      "params": [
+        {"default": "__required__", "kind": "POSITIONAL_OR_KEYWORD", "name": "stop_gate_input"}
+      ]
+    },
+    "stop_gate_markdown": {
+      "params": [
+        {"default": "__required__", "kind": "POSITIONAL_OR_KEYWORD", "name": "report"}
+      ]
+    }
+  }
+}
