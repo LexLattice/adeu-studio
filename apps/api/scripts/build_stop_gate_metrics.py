@@ -9,32 +9,15 @@ from urm_runtime.deterministic_env import (
     ensure_deterministic_tooling_env,
 )
 from urm_runtime.hashing import canonical_json
+from urm_runtime.stop_gate_registry import (
+    ACTIVE_STOP_GATE_MANIFEST_VERSIONS,
+    default_stop_gate_manifest_path,
+    find_inactive_stop_gate_manifest_flags,
+)
 from urm_runtime.stop_gate_tools import (
     StopGateMetricsInput,
     build_stop_gate_metrics_from_input,
     stop_gate_markdown,
-)
-
-_ACTIVE_MANIFEST_VERSIONS: tuple[int, ...] = (
-    7,
-    8,
-    9,
-    10,
-    11,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22,
-    23,
-    24,
-    25,
-    26,
 )
 
 
@@ -122,28 +105,39 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ],
         help="Semantics diagnostics artifact path (repeatable)",
     )
-    for version in _ACTIVE_MANIFEST_VERSIONS:
+    for version in ACTIVE_STOP_GATE_MANIFEST_VERSIONS:
         parser.add_argument(
             f"--vnext-plus{version}-manifest",
             dest=f"vnext_plus{version}_manifest",
             type=Path,
-            default=Path(f"apps/api/fixtures/stop_gate/vnext_plus{version}_manifest.json"),
+            default=default_stop_gate_manifest_path(version),
             help=f"vNext+{version} frozen stop-gate fixture manifest path",
         )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
+    raw_argv = list(sys.argv[1:] if argv is None else argv)
+    inactive_flags = find_inactive_stop_gate_manifest_flags(raw_argv)
+    if inactive_flags:
+        active_versions = ",".join(str(version) for version in ACTIVE_STOP_GATE_MANIFEST_VERSIONS)
+        rendered_flags = ", ".join(inactive_flags)
+        sys.stderr.write(
+            "inactive stop-gate manifest flags are unsupported: "
+            f"{rendered_flags} (active versions: {active_versions})\n"
+        )
+        return 1
+
     try:
         ensure_deterministic_tooling_env()
     except DeterministicToolingEnvError as exc:
         sys.stderr.write(f"{exc}\n")
         return 1
 
-    args = parse_args(argv)
+    args = parse_args(raw_argv)
     manifest_kwargs = {
         f"vnext_plus{version}_manifest_path": getattr(args, f"vnext_plus{version}_manifest")
-        for version in _ACTIVE_MANIFEST_VERSIONS
+        for version in ACTIVE_STOP_GATE_MANIFEST_VERSIONS
     }
     stop_gate_input = StopGateMetricsInput.from_legacy_kwargs(
         incident_packet_paths=list(args.incident_packet_paths),
