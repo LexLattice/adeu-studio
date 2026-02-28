@@ -11,8 +11,8 @@ from urm_runtime.deterministic_env import (
 from urm_runtime.hashing import canonical_json
 from urm_runtime.stop_gate_registry import (
     ACTIVE_STOP_GATE_MANIFEST_VERSIONS,
-    find_inactive_stop_gate_manifest_flags,
     default_stop_gate_manifest_path,
+    find_inactive_stop_gate_manifest_flags,
 )
 from urm_runtime.stop_gate_tools import (
     StopGateMetricsInput,

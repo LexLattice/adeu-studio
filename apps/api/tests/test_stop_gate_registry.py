@@ -6,6 +6,7 @@ from pathlib import Path
 from types import ModuleType
 
 import pytest
+import urm_runtime.stop_gate_registry as stop_gate_registry_module
 import urm_runtime.stop_gate_tools as stop_gate_tools_module
 from urm_runtime.stop_gate_registry import (
     ACTIVE_STOP_GATE_MANIFEST_VERSIONS,
@@ -95,6 +96,17 @@ def test_registry_default_paths_are_repo_root_anchored_and_byte_identical() -> N
         assert str(resolved_path) == str(expected_path)
 
 
+def test_registry_default_path_fails_closed_when_repo_root_is_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(stop_gate_registry_module, "discover_repo_root", lambda anchor: None)
+    with pytest.raises(
+        FileNotFoundError,
+        match="repository root not found; stop-gate manifest paths cannot be resolved",
+    ):
+        default_stop_gate_manifest_path(7)
+
+
 def test_registry_consumers_share_active_version_ordering_and_defaults(tmp_path: Path) -> None:
     script_module = _load_build_stop_gate_metrics_module()
     parsed = script_module.parse_args([])
@@ -134,7 +146,7 @@ def test_inactive_manifest_cli_flags_fail_closed_before_output(
     )
     assert exit_code == 1
     captured = capsys.readouterr()
-    assert captured.stdout == ""
+    assert captured.out == ""
     assert captured.err.strip() == (
         "inactive stop-gate manifest flags are unsupported: --vnext-plus12-manifest "
         "(active versions: 7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26)"
@@ -151,7 +163,7 @@ def test_stop_gate_tools_cli_rejects_inactive_manifest_flags(
     )
     assert exit_code == 1
     captured = capsys.readouterr()
-    assert captured.stdout == ""
+    assert captured.out == ""
     assert captured.err.strip() == (
         "inactive stop-gate manifest flags are unsupported: --vnext-plus12-manifest "
         "(active versions: 7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26)"

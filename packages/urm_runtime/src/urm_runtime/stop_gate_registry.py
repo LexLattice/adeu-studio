@@ -28,7 +28,9 @@ ACTIVE_STOP_GATE_MANIFEST_VERSIONS: tuple[int, ...] = (
 ACTIVE_STOP_GATE_MANIFEST_VERSION_SET: frozenset[int] = frozenset(
     ACTIVE_STOP_GATE_MANIFEST_VERSIONS
 )
-STOP_GATE_MANIFEST_RELATIVE_TEMPLATE = "apps/api/fixtures/stop_gate/vnext_plus{version}_manifest.json"
+STOP_GATE_MANIFEST_RELATIVE_TEMPLATE = (
+    "apps/api/fixtures/stop_gate/vnext_plus{version}_manifest.json"
+)
 _MANIFEST_FLAG_PATTERN = re.compile(r"^--vnext-plus(?P<version>\d+)-manifest$")
 
 
@@ -45,10 +47,12 @@ def default_stop_gate_manifest_path(version: int) -> Path:
         raise ValueError(f"unsupported active stop-gate manifest version: {version}")
     module_path = Path(__file__).resolve()
     repo_root = discover_repo_root(module_path)
+    if repo_root is None:
+        raise FileNotFoundError(
+            "repository root not found; stop-gate manifest paths cannot be resolved"
+        )
     relative_path = STOP_GATE_MANIFEST_RELATIVE_TEMPLATE.format(version=version)
-    if repo_root is not None:
-        return repo_root / relative_path
-    return module_path.parent / f"vnext_plus{version}_manifest.json"
+    return repo_root / relative_path
 
 
 def parse_stop_gate_manifest_flag_version(token: str) -> int | None:
@@ -67,4 +71,3 @@ def find_inactive_stop_gate_manifest_flags(argv: Sequence[str]) -> tuple[str, ..
         if version not in ACTIVE_STOP_GATE_MANIFEST_VERSION_SET:
             inactive.add(token)
     return tuple(sorted(inactive))
-
