@@ -107,7 +107,7 @@ def _evaluate(
         numeric_value = _numeric_metric_value(metric_key=key, value=metrics[key])
         if numeric_value < threshold:
             below.append({"key": key, "value": numeric_value})
-    below.sort(key=lambda item: str(item["key"]))
+    below.sort(key=lambda item: item["key"])
 
     summary["missing"] = missing
     summary["below"] = below

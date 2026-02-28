@@ -186,6 +186,7 @@ def test_check_s9_triggers_success_and_failure_stdout_keyset() -> None:
     assert success_completed.returncode == 0
     _assert_stdout_schema(json.loads(success_completed.stdout))
 
-    failure_completed = _run_script("--metrics-path", str(_default_metrics_path().with_suffix(".missing")))
+    missing_path = _default_metrics_path().with_suffix(".missing")
+    failure_completed = _run_script("--metrics-path", str(missing_path))
     assert failure_completed.returncode == 1
     _assert_stdout_schema(json.loads(failure_completed.stdout))
