@@ -4060,7 +4060,7 @@ def _proof_detail_hex64(details: dict[str, Any], key: str) -> str | None:
     return value
 
 
-def _mapping_id_from_row(row: ProofArtifactRow) -> str | None:
+def _mapping_id_from_row(row: ProofArtifactRow) -> tuple[str | None, str | None]:
     obligation_kind = _proof_detail_text(row.details_json, "obligation_kind")
     semantics_version = _proof_detail_text(row.details_json, "semantics_version")
     inputs_hash = _proof_detail_hex64(row.details_json, "inputs_hash")
@@ -4073,7 +4073,7 @@ def _mapping_id_from_row(row: ProofArtifactRow) -> str | None:
         or theorem_src_hash is None
         or mapping_id is None
     ):
-        return None
+        return None, "mapping_id_missing_or_invalid"
     expected = build_proof_mapping_id(
         theorem_id=row.theorem_id,
         obligation_kind=obligation_kind,
@@ -4082,8 +4082,8 @@ def _mapping_id_from_row(row: ProofArtifactRow) -> str | None:
         theorem_src_hash=theorem_src_hash,
     )
     if mapping_id != expected:
-        return None
-    return mapping_id
+        return None, "mapping_id_mismatch"
+    return mapping_id, None
 
 
 def _latest_required_proof_rows(
@@ -4136,8 +4136,10 @@ def _artifact_trust_labels(
         semantics_version = _proof_detail_text(row.details_json, "semantics_version")
         if semantics_version != _PROOF_SEMANTICS_VERSION_REQUIRED:
             return fallback_solver_trust, "lean_core_v1_partial_or_failed"
-        mapping_id = _mapping_id_from_row(row)
+        mapping_id, mapping_reason = _mapping_id_from_row(row)
         if mapping_id is None:
+            # External proof_trust taxonomy is frozen in v30; internal reasons collapse.
+            _ = mapping_reason
             return fallback_solver_trust, "lean_core_v1_partial_or_failed"
         if mapping_id in seen_mapping_ids:
             return fallback_solver_trust, "lean_core_v1_partial_or_failed"
