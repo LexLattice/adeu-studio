@@ -80,6 +80,36 @@ jobs:
           path: artifacts/urm_events
           if-no-files-found: error
 
+  lean-formal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Bootstrap
+        run: make bootstrap
+      - name: Install Lean toolchain
+        run: |
+          set -euo pipefail
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          export PATH="$HOME/.elan/bin:$PATH"
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          TOOLCHAIN="$(cat packages/adeu_lean/lean-toolchain)"
+          elan toolchain install "$TOOLCHAIN"
+          elan default "$TOOLCHAIN"
+          lean --version
+          lake --version
+      - name: Run real Lean formal-lane checks
+        env:
+          ADEU_REQUIRE_REAL_LEAN_LANE: "1"
+          ADEU_PROOF_BACKEND: "lean"
+          ADEU_LEAN_TIMEOUT_MS: "15000"
+        run: |
+          .venv/bin/pytest \
+            packages/adeu_lean/tests/test_agreement_real_lean.py \
+            apps/api/tests/test_formal_lane_real_lean.py
+
   web:
     runs-on: ubuntu-latest
     defaults:
