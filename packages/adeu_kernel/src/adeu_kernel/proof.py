@@ -13,6 +13,9 @@ from adeu_lean import (
     build_obligation_requests,
     run_lean_request,
 )
+from adeu_lean import (
+    build_proof_mapping_id as build_lean_proof_mapping_id,
+)
 
 DEFAULT_LEAN_TIMEOUT_MS = 5000
 ProofBackendKind = Literal["mock", "lean"]
@@ -57,6 +60,23 @@ def build_adeu_core_proof_requests(
         theorem_prefix=theorem_prefix,
         inputs=inputs,
         semantics_version=semantics_version,
+    )
+
+
+def build_proof_mapping_id(
+    *,
+    theorem_id: str,
+    obligation_kind: str,
+    inputs_hash: str,
+    proof_semantics_version: str,
+    theorem_src_hash: str,
+) -> str:
+    return build_lean_proof_mapping_id(
+        theorem_id=theorem_id,
+        obligation_kind=obligation_kind,
+        inputs_hash=inputs_hash,
+        proof_semantics_version=proof_semantics_version,
+        theorem_src_hash=theorem_src_hash,
     )
 
 

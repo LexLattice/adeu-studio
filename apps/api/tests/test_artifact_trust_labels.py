@@ -53,10 +53,28 @@ def _insert_proof_row(
     status: str,
     semantics_version: str = "adeu.lean.core.v1",
 ) -> None:
+    inputs_hash = hashlib.sha256(f"inputs::{theorem_id}".encode("utf-8")).hexdigest()
+    theorem_src_hash = hashlib.sha256(f"src::{theorem_id}".encode("utf-8")).hexdigest()
+    mapping_id = hashlib.sha256(
+        json.dumps(
+            {
+                "theorem_id": theorem_id,
+                "obligation_kind": obligation_kind,
+                "inputs_hash": inputs_hash,
+                "proof_semantics_version": semantics_version,
+                "theorem_src_hash": theorem_src_hash,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
     details = {
         "backend_proof_id": proof_id,
         "semantics_version": semantics_version,
         "obligation_kind": obligation_kind,
+        "inputs_hash": inputs_hash,
+        "theorem_src_hash": theorem_src_hash,
+        "mapping_id": mapping_id,
     }
     with sqlite3.connect(db_path) as con:
         con.execute(
@@ -206,6 +224,68 @@ def test_artifact_trust_requires_recomputable_proof_evidence_hash(
     )
     assert created.solver_trust == "solver_backed"
     assert created.proof_trust == "lean_core_v1_partial_or_failed"
+
+
+def test_artifact_trust_requires_mapping_id_continuity(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_PROOF_BACKEND", "lean")
+
+    class _StubLeanBackend:
+        def check(
+            self,
+            *,
+            theorem_id: str,
+            theorem_src: str,
+            inputs: list[ProofInput],
+        ) -> ProofArtifact:
+            return ProofArtifact(
+                proof_id=f"proof_{hashlib.sha256(theorem_id.encode('utf-8')).hexdigest()[:16]}",
+                backend="lean",
+                theorem_id=theorem_id,
+                status="proved",
+                proof_hash=hashlib.sha256(theorem_src.encode("utf-8")).hexdigest(),
+                inputs=inputs,
+                details={"mode": "stub-lean"},
+            )
+
+    monkeypatch.setattr(api_main, "build_proof_backend", lambda: _StubLeanBackend())
+    created = create_artifact_endpoint(
+        ArtifactCreateRequest(
+            clause_text="Supplier shall deliver goods.",
+            ir=_sample_ir(),
+            mode=KernelMode.LAX,
+        )
+    )
+    assert created.solver_trust == "proof_checked"
+    assert created.proof_trust == "lean_core_v1_proved"
+
+    with sqlite3.connect(db_path) as con:
+        con.row_factory = sqlite3.Row
+        row = con.execute(
+            """
+            SELECT proof_id, details_json
+            FROM proof_artifacts
+            WHERE artifact_id = ? AND theorem_id LIKE ?
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (created.artifact_id, "%pred_closed_world"),
+        ).fetchone()
+        assert row is not None
+        details = json.loads(str(row["details_json"]))
+        details["mapping_id"] = "0" * 64
+        con.execute(
+            "UPDATE proof_artifacts SET details_json = ? WHERE proof_id = ?",
+            (json.dumps(details, sort_keys=True), str(row["proof_id"])),
+        )
+
+    fetched = get_artifact_endpoint(created.artifact_id)
+    assert fetched.solver_trust == "solver_backed"
+    assert fetched.proof_trust == "lean_core_v1_partial_or_failed"
 
 
 def test_artifact_trust_reraises_unexpected_proof_packet_value_error(

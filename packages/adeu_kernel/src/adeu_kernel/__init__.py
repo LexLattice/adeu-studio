@@ -13,6 +13,7 @@ from .proof import (
     ProofBackend,
     build_adeu_core_proof_requests,
     build_proof_backend,
+    build_proof_mapping_id,
     build_trivial_theorem_source,
 )
 from .proof_evidence import (
@@ -70,6 +71,7 @@ __all__ = [
     "build_validator_backend",
     "build_semantics_diagnostics",
     "build_proof_backend",
+    "build_proof_mapping_id",
     "build_proof_evidence_packet",
     "proof_evidence_hash",
     "build_validator_evidence_packet",

@@ -6,6 +6,7 @@ from adeu_kernel import (
     MockProofBackend,
     build_adeu_core_proof_requests,
     build_proof_backend,
+    build_proof_mapping_id,
     build_trivial_theorem_source,
 )
 
@@ -62,3 +63,22 @@ def test_build_proof_backend_accepts_lean_bin_alias(monkeypatch) -> None:
     backend = build_proof_backend()
     assert isinstance(backend, LeanCliProofBackend)
     assert backend.lean_bin == "/tmp/lean-alias"
+
+
+def test_build_proof_mapping_id_is_stable() -> None:
+    left = build_proof_mapping_id(
+        theorem_id="ir_sample_pred_closed_world",
+        obligation_kind="pred_closed_world",
+        inputs_hash="a" * 64,
+        proof_semantics_version="adeu.lean.core.v1",
+        theorem_src_hash="b" * 64,
+    )
+    right = build_proof_mapping_id(
+        theorem_id="ir_sample_pred_closed_world",
+        obligation_kind="pred_closed_world",
+        inputs_hash="a" * 64,
+        proof_semantics_version="adeu.lean.core.v1",
+        theorem_src_hash="b" * 64,
+    )
+    assert left == right
+    assert len(left) == 64

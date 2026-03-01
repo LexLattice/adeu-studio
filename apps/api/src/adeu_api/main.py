@@ -94,6 +94,7 @@ from adeu_kernel import (
     build_adeu_core_proof_requests,
     build_proof_backend,
     build_proof_evidence_packet,
+    build_proof_mapping_id,
     build_semantics_diagnostics,
     build_validator_backend,
     build_validator_evidence_packet,
@@ -4046,6 +4047,45 @@ def _proof_detail_text(details: dict[str, Any], key: str) -> str | None:
     return None
 
 
+def _is_hex64_text(value: str) -> bool:
+    return bool(re.fullmatch(r"[a-f0-9]{64}", value))
+
+
+def _proof_detail_hex64(details: dict[str, Any], key: str) -> str | None:
+    value = _proof_detail_text(details, key)
+    if value is None:
+        return None
+    if not _is_hex64_text(value):
+        return None
+    return value
+
+
+def _mapping_id_from_row(row: ProofArtifactRow) -> str | None:
+    obligation_kind = _proof_detail_text(row.details_json, "obligation_kind")
+    semantics_version = _proof_detail_text(row.details_json, "semantics_version")
+    inputs_hash = _proof_detail_hex64(row.details_json, "inputs_hash")
+    theorem_src_hash = _proof_detail_hex64(row.details_json, "theorem_src_hash")
+    mapping_id = _proof_detail_hex64(row.details_json, "mapping_id")
+    if (
+        obligation_kind is None
+        or semantics_version is None
+        or inputs_hash is None
+        or theorem_src_hash is None
+        or mapping_id is None
+    ):
+        return None
+    expected = build_proof_mapping_id(
+        theorem_id=row.theorem_id,
+        obligation_kind=obligation_kind,
+        inputs_hash=inputs_hash,
+        proof_semantics_version=semantics_version,
+        theorem_src_hash=theorem_src_hash,
+    )
+    if mapping_id != expected:
+        return None
+    return mapping_id
+
+
 def _latest_required_proof_rows(
     proof_rows: list[ProofArtifactRow],
 ) -> dict[str, ProofArtifactRow]:
@@ -4091,10 +4131,17 @@ def _artifact_trust_labels(
     if any(row.backend != "lean" for row in required_rows):
         return fallback_solver_trust, "mock_backend_not_proof_checked"
 
+    seen_mapping_ids: set[str] = set()
     for row in required_rows:
         semantics_version = _proof_detail_text(row.details_json, "semantics_version")
         if semantics_version != _PROOF_SEMANTICS_VERSION_REQUIRED:
             return fallback_solver_trust, "lean_core_v1_partial_or_failed"
+        mapping_id = _mapping_id_from_row(row)
+        if mapping_id is None:
+            return fallback_solver_trust, "lean_core_v1_partial_or_failed"
+        if mapping_id in seen_mapping_ids:
+            return fallback_solver_trust, "lean_core_v1_partial_or_failed"
+        seen_mapping_ids.add(mapping_id)
         packet = proof_packets_by_id.get(row.proof_id)
         if packet is None:
             return fallback_solver_trust, "lean_core_v1_partial_or_failed"
@@ -4155,11 +4202,28 @@ def _persist_proof_artifact(
         details = dict(proof.details)
         if proof.status == "failed":
             details.setdefault("error_code", _PROOF_EVIDENCE_NOT_FOUND_CODE)
+        obligation_kind = str(obligation.obligation_kind or "")
+        semantics_version = str(obligation.semantics_version)
+        inputs_hash = str(obligation.metadata.get("inputs_hash") or "")
+        theorem_src_hash = str(obligation.metadata.get("theorem_src_hash") or "")
+        if (
+            obligation_kind
+            and _is_hex64_text(inputs_hash)
+            and _is_hex64_text(theorem_src_hash)
+        ):
+            mapping_id = build_proof_mapping_id(
+                theorem_id=theorem_id,
+                obligation_kind=obligation_kind,
+                inputs_hash=inputs_hash,
+                proof_semantics_version=semantics_version,
+                theorem_src_hash=theorem_src_hash,
+            )
+            details.setdefault("mapping_id", mapping_id)
         details.setdefault("backend_proof_id", proof.proof_id)
-        details.setdefault("semantics_version", obligation.semantics_version)
-        details.setdefault("inputs_hash", obligation.metadata.get("inputs_hash"))
-        details.setdefault("theorem_src_hash", obligation.metadata.get("theorem_src_hash"))
-        details.setdefault("obligation_kind", obligation.obligation_kind)
+        details.setdefault("semantics_version", semantics_version)
+        details.setdefault("inputs_hash", inputs_hash)
+        details.setdefault("theorem_src_hash", theorem_src_hash)
+        details.setdefault("obligation_kind", obligation_kind)
         persisted_rows.append(
             create_proof_artifact(
                 artifact_id=artifact_id,

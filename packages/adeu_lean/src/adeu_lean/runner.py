@@ -119,6 +119,25 @@ def build_obligation_requests(
     return requests
 
 
+def build_proof_mapping_id(
+    *,
+    theorem_id: str,
+    obligation_kind: str,
+    inputs_hash: str,
+    proof_semantics_version: str,
+    theorem_src_hash: str,
+) -> str:
+    payload = {
+        "theorem_id": theorem_id,
+        "obligation_kind": obligation_kind,
+        "inputs_hash": inputs_hash,
+        "proof_semantics_version": proof_semantics_version,
+        "theorem_src_hash": theorem_src_hash,
+    }
+    serialized = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return _sha256(serialized)
+
+
 def _run_command(
     *,
     cmd: list[str],

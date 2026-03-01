@@ -15,6 +15,7 @@ from .models import (
 )
 from .runner import (
     build_obligation_requests,
+    build_proof_mapping_id,
     build_wrapper_theorem_source,
     run_lean_request,
 )
@@ -32,6 +33,7 @@ __all__ = [
     "load_agreement_fixture_bundle",
     "validate_agreement_report",
     "build_obligation_requests",
+    "build_proof_mapping_id",
     "build_wrapper_theorem_source",
     "run_lean_request",
 ]
