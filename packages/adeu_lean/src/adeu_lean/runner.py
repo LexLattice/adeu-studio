@@ -141,10 +141,26 @@ def _run_command(
 
 
 def _resolve_project_dir(project_root: Path | None) -> Path:
-    if project_root is not None:
-        return project_root.resolve()
-    # Fixed traversal from runner.py location keeps root discovery deterministic.
-    return Path(__file__).resolve().parents[2]
+    candidate = (
+        project_root.resolve()
+        if project_root is not None
+        else Path(__file__).resolve().parents[2]
+    )
+    sentinel_checks = (
+        candidate / "pyproject.toml",
+        candidate / "AdeuCore",
+        candidate / "src" / "adeu_lean",
+    )
+    if (
+        not sentinel_checks[0].is_file()
+        or not sentinel_checks[1].is_dir()
+        or not sentinel_checks[2].is_dir()
+    ):
+        raise RuntimeError(
+            "unable to resolve adeu_lean project root: expected pyproject.toml, "
+            "AdeuCore/, and src/adeu_lean/"
+        )
+    return candidate
 
 
 def _derive_request_identity(request: LeanRequest) -> str:
