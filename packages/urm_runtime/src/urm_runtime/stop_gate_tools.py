@@ -16,6 +16,7 @@ from pydantic import ValidationError
 from .events_tools import replay_events, validate_events
 from .hashing import canonical_json, sha256_canonical_json
 from .models import NormalizedEvent
+from .stop_gate_normalization import strip_created_at_recursive
 from .stop_gate_registry import (
     ACTIVE_STOP_GATE_MANIFEST_VERSIONS,
     default_stop_gate_manifest_path,
@@ -7166,25 +7167,16 @@ def _compute_vnext_plus18_metrics(
 
 
 def _strip_created_at_fields(value: Any) -> Any:
-    if isinstance(value, Mapping):
-        normalized: dict[str, Any] = {}
-        for key in sorted(value.keys()):
-            key_str = str(key)
-            if key_str == "created_at":
-                continue
-            normalized[key_str] = _strip_created_at_fields(value[key])
-        return normalized
-    if isinstance(value, list):
-        return [_strip_created_at_fields(item) for item in value]
-    return value
+    # Compatibility shim retained while parity hashing paths are redirected.
+    return strip_created_at_recursive(value)
 
 
 def _read_surface_projection_hash(payload: Mapping[str, Any]) -> str:
-    return sha256_canonical_json(_strip_created_at_fields(payload))
+    return sha256_canonical_json(strip_created_at_recursive(payload))
 
 
 def _surface_projection_hash_input_bytes(payload: Mapping[str, Any]) -> int:
-    canonical_payload = _strip_created_at_fields(payload)
+    canonical_payload = strip_created_at_recursive(payload)
     return len(canonical_json(canonical_payload).encode("utf-8"))
 
 
@@ -12856,7 +12848,7 @@ def _core_ir_proposer_contract_projection(
                 context={"path": str(core_ir_proposer_response_path)},
             )
         )
-    if _strip_created_at_fields(response_packet) != _strip_created_at_fields(packet_payload):
+    if strip_created_at_recursive(response_packet) != strip_created_at_recursive(packet_payload):
         raise ValueError(
             _issue(
                 "URM_STOP_GATE_INPUT_INVALID",
@@ -12936,7 +12928,7 @@ def _core_ir_proposer_contract_projection(
         "response": response_payload,
         "proposal_packet": packet_payload,
     }
-    run_hash = sha256_canonical_json(_strip_created_at_fields(replay_payload))
+    run_hash = sha256_canonical_json(strip_created_at_recursive(replay_payload))
     parity_hash = sha256_canonical_json(parity_projection)
     bytes_hashed = (
         _surface_projection_hash_input_bytes(request_payload)
