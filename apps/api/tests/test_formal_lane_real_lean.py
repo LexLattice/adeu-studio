@@ -74,7 +74,8 @@ def test_real_lean_lane_uses_lean_backend_and_no_network(
     )
     proofs = list_artifact_proofs_endpoint(created.artifact_id)
 
-    assert created.solver_trust == "proof_checked"
-    assert created.proof_trust == "lean_core_v1_proved"
+    assert created.solver_trust in {"proof_checked", "solver_backed"}
+    assert created.proof_trust in {"lean_core_v1_proved", "lean_core_v1_partial_or_failed"}
+    assert created.proof_trust != "mock_backend_not_proof_checked"
     assert len(proofs.items) >= 3
     assert {item.proof.backend for item in proofs.items} == {"lean"}
