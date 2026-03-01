@@ -354,3 +354,26 @@ def test_builder_fails_closed_when_s9_required_metric_is_missing(tmp_path: Path)
         )
 
     assert "required metric is missing" in str(exc_info.value)
+
+
+@pytest.mark.parametrize("bad_surface_id", [None, "", "   ", 7])
+def test_builder_fails_closed_when_coverage_surface_id_is_invalid(
+    tmp_path: Path,
+    bad_surface_id: object,
+) -> None:
+    manifest_payload = json.loads(_manifest_path().read_text(encoding="utf-8"))
+    manifest_payload["coverage"][0]["surface_id"] = bad_surface_id
+    manifest_path = tmp_path / "vnext_plus26_manifest_invalid_surface_id.json"
+    manifest_path.write_text(
+        json.dumps(manifest_payload, separators=(",", ":"), ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ToolingTransferReportVNextPlus26Error) as exc_info:
+        build_tooling_transfer_report_vnext_plus26_payload(
+            vnext_plus26_manifest_path=manifest_path,
+            stop_gate_metrics_path=_stop_gate_metrics_path(),
+            s9_metrics_path=_s9_metrics_path(),
+        )
+
+    assert "surface_id must be a non-empty string" in str(exc_info.value)

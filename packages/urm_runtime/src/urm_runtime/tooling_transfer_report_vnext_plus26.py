@@ -142,17 +142,23 @@ def _require_coverage_surfaces(manifest: Mapping[str, Any]) -> list[dict[str, An
     for entry in coverage:
         if not isinstance(entry, Mapping):
             _raise_error("vnext+26 coverage entries must be objects")
+        surface_id = entry.get("surface_id")
+        if not isinstance(surface_id, str) or not surface_id.strip():
+            _raise_error(
+                "vnext+26 coverage entry surface_id must be a non-empty string",
+                context={"observed_surface_id": surface_id},
+            )
         fixture_ids = entry.get("fixture_ids")
         if not isinstance(fixture_ids, list) or any(
             not isinstance(value, str) for value in fixture_ids
         ):
             _raise_error(
                 "vnext+26 coverage entry fixture_ids must be list[str]",
-                context={"surface_id": entry.get("surface_id")},
+                context={"surface_id": surface_id},
             )
         surfaces.append(
             {
-                "surface_id": str(entry.get("surface_id")),
+                "surface_id": surface_id,
                 "fixture_count": len(fixture_ids),
                 "fixture_ids": list(fixture_ids),
             }
