@@ -69,6 +69,12 @@ type PrefixFilters = {
 
 type DeepLinkState = "outside_current_list_window" | "entry_unavailable" | null;
 type EvidenceExplorerTrustLane = "mapping_trust" | "proof_trust" | "solver_trust";
+type EvidencePayloadState = {
+  isLoading: boolean;
+  error: ApiErrorDetail | null;
+  payload: unknown;
+  path: string | null;
+};
 
 const TRUST_LANE_BY_FAMILY: Record<EvidenceExplorerFamily, EvidenceExplorerTrustLane> = {
   read_surface: "mapping_trust",
@@ -401,6 +407,57 @@ async function fetchEvidencePayload(path: string): Promise<unknown> {
   }
 }
 
+function useEvidencePayload(path: string | null, errorFallback: string): EvidencePayloadState {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<ApiErrorDetail | null>(null);
+  const [payload, setPayload] = useState<unknown>(null);
+  const [loadedPath, setLoadedPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!path) {
+      setLoadedPath(null);
+      setPayload(null);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
+    const pathValue = path;
+
+    let isCancelled = false;
+    setLoadedPath(pathValue);
+    setPayload(null);
+    setError(null);
+    setIsLoading(true);
+
+    async function run() {
+      try {
+        const fetchedPayload = await fetchEvidencePayload(pathValue);
+        if (isCancelled) return;
+        setPayload(fetchedPayload);
+      } catch (err) {
+        if (isCancelled) return;
+        setError(toApiErrorDetail(err, errorFallback));
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void run();
+    return () => {
+      isCancelled = true;
+    };
+  }, [errorFallback, path]);
+
+  return {
+    isLoading,
+    error,
+    payload,
+    path: loadedPath,
+  };
+}
+
 async function probeEntry(path: string): Promise<{ ok: boolean; status: number }> {
   const response = await fetch(`${apiBase()}${path}`, { method: "GET" });
   return { ok: response.ok, status: response.status };
@@ -580,15 +637,6 @@ function EvidenceExplorerPageInner() {
     core: "",
     concept: "",
   });
-  const [isLoadingPacket, setIsLoadingPacket] = useState<boolean>(false);
-  const [packetError, setPacketError] = useState<ApiErrorDetail | null>(null);
-  const [packetPayload, setPacketPayload] = useState<unknown>(null);
-  const [packetPath, setPacketPath] = useState<string | null>(null);
-
-  const [isLoadingProjection, setIsLoadingProjection] = useState<boolean>(false);
-  const [projectionError, setProjectionError] = useState<ApiErrorDetail | null>(null);
-  const [projectionPayload, setProjectionPayload] = useState<unknown>(null);
-  const [projectionPath, setProjectionPath] = useState<string | null>(null);
 
   const selectedEntry = useMemo(() => {
     if (!familyPayload || !selectedEntryId) return null;
@@ -604,6 +652,20 @@ function EvidenceExplorerPageInner() {
     if (!selectedFamily) return null;
     return deriveProjectionPath(selectedFamily, selectedEntry, selectedEntryId);
   }, [selectedEntry, selectedEntryId, selectedFamily]);
+
+  const {
+    isLoading: isLoadingPacket,
+    error: packetError,
+    payload: packetPayload,
+    path: packetPath,
+  } = useEvidencePayload(selectedPacketPath, "packet_unavailable");
+
+  const {
+    isLoading: isLoadingProjection,
+    error: projectionError,
+    payload: projectionPayload,
+    path: projectionPath,
+  } = useEvidencePayload(selectedProjectionPath, "projection_unavailable");
 
   const replaceUrlState = useCallback(
     (family: EvidenceExplorerFamily, entryId: string | null) => {
@@ -746,80 +808,6 @@ function EvidenceExplorerPageInner() {
     if (!selectedFamily) return;
     void loadFamily(selectedFamily, appliedFilters);
   }, [appliedFilters, loadFamily, selectedFamily]);
-
-  useEffect(() => {
-    if (!selectedPacketPath) {
-      setPacketPath(null);
-      setPacketPayload(null);
-      setPacketError(null);
-      setIsLoadingPacket(false);
-      return;
-    }
-    const packetPathValue = selectedPacketPath;
-
-    let isCancelled = false;
-    setPacketPath(packetPathValue);
-    setPacketPayload(null);
-    setPacketError(null);
-    setIsLoadingPacket(true);
-
-    async function run() {
-      try {
-        const payload = await fetchEvidencePayload(packetPathValue);
-        if (isCancelled) return;
-        setPacketPayload(payload);
-      } catch (error) {
-        if (isCancelled) return;
-        setPacketError(toApiErrorDetail(error, "packet_unavailable"));
-      } finally {
-        if (!isCancelled) {
-          setIsLoadingPacket(false);
-        }
-      }
-    }
-
-    void run();
-    return () => {
-      isCancelled = true;
-    };
-  }, [selectedPacketPath]);
-
-  useEffect(() => {
-    if (!selectedProjectionPath) {
-      setProjectionPath(null);
-      setProjectionPayload(null);
-      setProjectionError(null);
-      setIsLoadingProjection(false);
-      return;
-    }
-    const projectionPathValue = selectedProjectionPath;
-
-    let isCancelled = false;
-    setProjectionPath(projectionPathValue);
-    setProjectionPayload(null);
-    setProjectionError(null);
-    setIsLoadingProjection(true);
-
-    async function run() {
-      try {
-        const payload = await fetchEvidencePayload(projectionPathValue);
-        if (isCancelled) return;
-        setProjectionPayload(payload);
-      } catch (error) {
-        if (isCancelled) return;
-        setProjectionError(toApiErrorDetail(error, "projection_unavailable"));
-      } finally {
-        if (!isCancelled) {
-          setIsLoadingProjection(false);
-        }
-      }
-    }
-
-    void run();
-    return () => {
-      isCancelled = true;
-    };
-  }, [selectedProjectionPath]);
 
   function onSelectFamily(family: EvidenceExplorerFamily): void {
     setSelectedFamily(family);
