@@ -69,25 +69,114 @@ type PrefixFilters = {
 
 type DeepLinkState = "outside_current_list_window" | "entry_unavailable" | null;
 
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
+
+function isEvidenceExplorerFamily(value: unknown): value is EvidenceExplorerFamily {
+  return (
+    value === "read_surface" ||
+    value === "normative_advice" ||
+    value === "proof_trust" ||
+    value === "semantics_v4_candidate" ||
+    value === "extraction_fidelity"
+  );
+}
+
+function isEvidenceExplorerIdentityMode(value: unknown): value is EvidenceExplorerIdentityMode {
+  return value === "artifact_level" || value === "pair_level";
+}
+
+function isEndpointRef(value: unknown): value is EvidenceExplorerEndpointRef {
+  if (!isObjectRecord(value)) return false;
+  return value.kind === "endpoint" && typeof value.path === "string";
+}
+
+function isCatalogSummary(value: unknown): value is EvidenceExplorerCatalogFamilySummary {
+  if (!isObjectRecord(value)) return false;
+  if (!isEvidenceExplorerFamily(value.family)) return false;
+  if (!isEvidenceExplorerIdentityMode(value.identity_mode)) return false;
+  if (typeof value.entry_count !== "number") return false;
+  if (!isEndpointRef(value.list_ref)) return false;
+  return value.list_ref.path === `/urm/evidence-explorer/catalog/${value.family}`;
+}
+
+function isCatalogEntry(value: unknown): value is EvidenceExplorerCatalogEntry {
+  if (!isObjectRecord(value)) return false;
+  if (!isEvidenceExplorerFamily(value.family)) return false;
+  if (typeof value.entry_id !== "string") return false;
+  if (typeof value.source_text_hash !== "string") return false;
+  if (typeof value.core_ir_artifact_id !== "string") return false;
+  if (typeof value.concept_artifact_id !== "string") return false;
+  if (value.artifact_id !== undefined && typeof value.artifact_id !== "string") return false;
+  return isEndpointRef(value.ref);
+}
+
+function isCatalogResponse(value: unknown): value is EvidenceExplorerCatalogResponse {
+  if (!isObjectRecord(value)) return false;
+  if (value.schema !== "evidence_explorer.catalog@0.1") return false;
+  if (!Array.isArray(value.families)) return false;
+  return value.families.every(isCatalogSummary);
+}
+
+function isCatalogFamilyResponse(
+  value: unknown,
+  expectedFamily: EvidenceExplorerFamily,
+): value is EvidenceExplorerCatalogFamilyResponse {
+  if (!isObjectRecord(value)) return false;
+  if (value.schema !== "evidence_explorer.catalog_family@0.1") return false;
+  if (value.family !== expectedFamily) return false;
+  if (!isEvidenceExplorerIdentityMode(value.identity_mode)) return false;
+  if (typeof value.total_entries !== "number") return false;
+  if (typeof value.truncated !== "boolean") return false;
+  if (!Array.isArray(value.entries)) return false;
+  if (!value.entries.every((entry) => isCatalogEntry(entry) && entry.family === expectedFamily)) {
+    return false;
+  }
+  if (value.max_entries_per_family !== undefined && typeof value.max_entries_per_family !== "number") {
+    return false;
+  }
+  if (value.returned_entries !== undefined && typeof value.returned_entries !== "number") {
+    return false;
+  }
+  if (value.remaining_entries !== undefined && typeof value.remaining_entries !== "number") {
+    return false;
+  }
+  return true;
+}
+
+function toApiErrorDetail(error: unknown, fallbackMessage: string): ApiErrorDetail {
+  if (isObjectRecord(error)) {
+    const status = error.status;
+    const message = error.message;
+    if (typeof status === "number" && typeof message === "string") {
+      return {
+        status,
+        message,
+        code: typeof error.code === "string" ? error.code : undefined,
+        reason: typeof error.reason === "string" ? error.reason : undefined,
+      };
+    }
+  }
+  if (error instanceof Error && error.message) {
+    return { status: 500, message: error.message };
+  }
+  return { status: 500, message: fallbackMessage };
+}
+
 function sortedEntries(
   entries: EvidenceExplorerCatalogEntry[],
 ): EvidenceExplorerCatalogEntry[] {
   return entries.slice().sort((a, b) => {
     const aArtifactId = a.artifact_id ?? "";
     const bArtifactId = b.artifact_id ?? "";
-    if (a.source_text_hash !== b.source_text_hash) {
-      return a.source_text_hash.localeCompare(b.source_text_hash);
-    }
-    if (a.core_ir_artifact_id !== b.core_ir_artifact_id) {
-      return a.core_ir_artifact_id.localeCompare(b.core_ir_artifact_id);
-    }
-    if (a.concept_artifact_id !== b.concept_artifact_id) {
-      return a.concept_artifact_id.localeCompare(b.concept_artifact_id);
-    }
-    if (aArtifactId !== bArtifactId) {
-      return aArtifactId.localeCompare(bArtifactId);
-    }
-    return a.entry_id.localeCompare(b.entry_id);
+    return (
+      a.source_text_hash.localeCompare(b.source_text_hash) ||
+      a.core_ir_artifact_id.localeCompare(b.core_ir_artifact_id) ||
+      a.concept_artifact_id.localeCompare(b.concept_artifact_id) ||
+      aArtifactId.localeCompare(bArtifactId) ||
+      a.entry_id.localeCompare(b.entry_id)
+    );
   });
 }
 
@@ -122,9 +211,9 @@ function parsePairEntry(entryId: string): {
   if (segments.length !== 4 || segments[0] !== "pair") {
     return null;
   }
-  const source_text_hash = segments[1] ?? "";
-  const core_ir_artifact_id = segments[2] ?? "";
-  const concept_artifact_id = segments[3] ?? "";
+  const source_text_hash = segments[1];
+  const core_ir_artifact_id = segments[2];
+  const concept_artifact_id = segments[3];
   if (!source_text_hash || !core_ir_artifact_id || !concept_artifact_id) {
     return null;
   }
@@ -215,7 +304,15 @@ async function fetchCatalog(): Promise<EvidenceExplorerCatalogResponse> {
   if (!response.ok) {
     throw await parseApiError(response);
   }
-  return (await response.json()) as EvidenceExplorerCatalogResponse;
+  const payload: unknown = await response.json();
+  if (!isCatalogResponse(payload)) {
+    throw {
+      status: 500,
+      reason: "CATALOG_PAYLOAD_INVALID",
+      message: "catalog_payload_invalid",
+    } satisfies ApiErrorDetail;
+  }
+  return payload;
 }
 
 async function fetchCatalogFamily(
@@ -235,7 +332,15 @@ async function fetchCatalogFamily(
   if (!response.ok) {
     throw await parseApiError(response);
   }
-  return (await response.json()) as EvidenceExplorerCatalogFamilyResponse;
+  const payload: unknown = await response.json();
+  if (!isCatalogFamilyResponse(payload, family)) {
+    throw {
+      status: 500,
+      reason: "CATALOG_PAYLOAD_INVALID",
+      message: "catalog_payload_invalid",
+    } satisfies ApiErrorDetail;
+  }
+  return payload;
 }
 
 async function probeEntry(path: string): Promise<{ ok: boolean; status: number }> {
@@ -360,7 +465,7 @@ function EvidenceExplorerPageInner() {
         }
         replaceUrlState(family, selectedEntryId);
       } catch (error) {
-        const parsed = error as ApiErrorDetail;
+        const parsed = toApiErrorDetail(error, "catalog_family_unavailable");
         setFamilyPayload(null);
         setFamilyError(parsed);
       } finally {
@@ -409,7 +514,7 @@ function EvidenceExplorerPageInner() {
         setSelectedFamily(selected);
         replaceUrlState(selected, initialEntryId);
       } catch (error) {
-        const parsed = error as ApiErrorDetail;
+        const parsed = toApiErrorDetail(error, "catalog_unavailable");
         if (isCancelled) return;
         setCatalogError(parsed.message || "catalog_unavailable");
       } finally {
@@ -562,7 +667,7 @@ function EvidenceExplorerPageInner() {
             {familyPayload.entries.length === 0 ? (
               <div className="muted">family_state: empty</div>
             ) : (
-              <div style={{ marginTop: 8, maxHeight: 420, overflow: "auto" }}>
+              <div className="evidence-explorer-entry-list">
                 <table className="table">
                   <thead>
                     <tr>

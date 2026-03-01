@@ -149,6 +149,12 @@ mark {
   background: #fff;
 }
 
+.evidence-explorer-entry-list {
+  margin-top: 8px;
+  max-height: 420px;
+  overflow: auto;
+}
+
 @media (max-width: 1180px) {
   .app {
     grid-template-columns: repeat(2, minmax(0, 1fr));
