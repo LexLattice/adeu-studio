@@ -145,6 +145,27 @@ def _require_hex64(value: str, *, field_name: str) -> str:
     return value
 
 
+def _require_request_metadata_hash(
+    *,
+    request: LeanRequest,
+    key: str,
+    fixture_id: str,
+    obligation_kind: str,
+) -> str:
+    if key not in request.metadata:
+        raise AgreementHarnessError(
+            "missing deterministic metadata key "
+            f"{key!r} for {fixture_id}:{obligation_kind}"
+        )
+    value = request.metadata[key]
+    if not isinstance(value, str) or not value:
+        raise AgreementHarnessError(
+            "invalid deterministic metadata key "
+            f"{key!r} for {fixture_id}:{obligation_kind}: expected non-empty string"
+        )
+    return _require_hex64(value, field_name=key)
+
+
 def _coerce_fixture_inputs(raw_inputs: list[Any], *, fixture_id: str) -> list[ProofInput]:
     normalized_inputs: list[ProofInput] = []
     for idx, entry in enumerate(raw_inputs):
@@ -238,14 +259,18 @@ def _build_rows_for_fixture(
                 f"theorem_id drift for {fixture.fixture_id}:{obligation_kind}: "
                 f"{request.theorem_id!r} != {theorem_id_expected!r}"
             )
-        inputs_hash = str(request.metadata.get("inputs_hash") or "")
-        theorem_src_hash = str(request.metadata.get("theorem_src_hash") or "")
-        if not inputs_hash or not theorem_src_hash:
-            raise AgreementHarnessError(
-                f"missing deterministic metadata for {fixture.fixture_id}:{obligation_kind}"
-            )
-        _require_hex64(inputs_hash, field_name="inputs_hash")
-        _require_hex64(theorem_src_hash, field_name="theorem_src_hash")
+        inputs_hash = _require_request_metadata_hash(
+            request=request,
+            key="inputs_hash",
+            fixture_id=fixture.fixture_id,
+            obligation_kind=obligation_kind,
+        )
+        theorem_src_hash = _require_request_metadata_hash(
+            request=request,
+            key="theorem_src_hash",
+            fixture_id=fixture.fixture_id,
+            obligation_kind=obligation_kind,
+        )
 
         result = run_request(request)
         observed_status = _validate_result_status(result)

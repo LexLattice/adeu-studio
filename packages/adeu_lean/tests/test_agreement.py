@@ -8,6 +8,7 @@ from typing import cast
 import pytest
 from adeu_lean import (
     AgreementHarnessError,
+    LeanRequest,
     LeanResult,
     build_agreement_report,
     build_agreement_report_from_fixture_path,
@@ -31,23 +32,24 @@ def _proved_result(theorem_id: str) -> LeanResult:
     )
 
 
+def _fake_proved_run_request(request: LeanRequest) -> LeanResult:
+    return _proved_result(request.theorem_id)
+
+
 def test_build_agreement_report_is_deterministic_and_ordered() -> None:
     bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
-
-    def fake_run_request(request):  # type: ignore[no-untyped-def]
-        return _proved_result(request.theorem_id)
 
     left = build_agreement_report(
         fixture_bundle=bundle,
         timeout_ms=1000,
         lean_bin="/tmp/lean-not-used",
-        run_request=fake_run_request,
+        run_request=_fake_proved_run_request,
     )
     right = build_agreement_report(
         fixture_bundle=bundle,
         timeout_ms=1000,
         lean_bin="/tmp/lean-not-used",
-        run_request=fake_run_request,
+        run_request=_fake_proved_run_request,
     )
 
     assert left == right
@@ -76,7 +78,7 @@ def test_build_agreement_report_is_deterministic_and_ordered() -> None:
 def test_build_agreement_report_fail_closed_on_status_disagreement() -> None:
     bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
 
-    def fake_run_request(request):  # type: ignore[no-untyped-def]
+    def fake_run_request(request: LeanRequest) -> LeanResult:
         if request.theorem_id.endswith("conflict_soundness"):
             return LeanResult(
                 theorem_id=request.theorem_id,
@@ -107,7 +109,7 @@ def test_build_agreement_report_fail_closed_on_status_disagreement() -> None:
 def test_build_agreement_report_marks_identity_mismatch_as_disagreement() -> None:
     bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
 
-    def fake_run_request(request):  # type: ignore[no-untyped-def]
+    def fake_run_request(request: LeanRequest) -> LeanResult:
         if request.theorem_id.endswith("pred_closed_world"):
             return LeanResult(
                 theorem_id=request.theorem_id + "_mismatch",
@@ -135,14 +137,14 @@ def test_build_agreement_report_rejects_non_positive_timeout() -> None:
             fixture_bundle=bundle,
             timeout_ms=0,
             lean_bin="/tmp/lean-not-used",
-            run_request=lambda request: _proved_result(request.theorem_id),
+            run_request=_fake_proved_run_request,
         )
 
 
 def test_build_agreement_report_rejects_non_hex_proof_hash() -> None:
     bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
 
-    def fake_run_request(request):  # type: ignore[no-untyped-def]
+    def fake_run_request(request: LeanRequest) -> LeanResult:
         return LeanResult(
             theorem_id=request.theorem_id,
             status="proved",
@@ -165,7 +167,7 @@ def test_build_agreement_report_rejects_non_hex_proof_hash() -> None:
 def test_build_agreement_report_rejects_unknown_status() -> None:
     bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
 
-    def fake_run_request(request):  # type: ignore[no-untyped-def]
+    def fake_run_request(request: LeanRequest) -> LeanResult:
         return cast(
             LeanResult,
             LeanResult.model_construct(
@@ -227,7 +229,7 @@ def test_validate_agreement_report_rejects_summary_drift() -> None:
         fixture_bundle=bundle,
         timeout_ms=1000,
         lean_bin="/tmp/lean-not-used",
-        run_request=lambda request: _proved_result(request.theorem_id),
+        run_request=_fake_proved_run_request,
     )
     report["summary"]["disagree_rows"] = 1
 
@@ -238,20 +240,17 @@ def test_validate_agreement_report_rejects_summary_drift() -> None:
 def test_build_agreement_report_from_fixture_path_matches_direct_builder() -> None:
     bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
 
-    def fake_run_request(request):  # type: ignore[no-untyped-def]
-        return _proved_result(request.theorem_id)
-
     direct = build_agreement_report(
         fixture_bundle=bundle,
         timeout_ms=1000,
         lean_bin="/tmp/lean-not-used",
-        run_request=fake_run_request,
+        run_request=_fake_proved_run_request,
     )
     from_path = build_agreement_report_from_fixture_path(
         fixture_path=FIXTURE_PATH,
         timeout_ms=1000,
         lean_bin="/tmp/lean-not-used",
-        run_request=fake_run_request,
+        run_request=_fake_proved_run_request,
     )
 
     assert direct == from_path
