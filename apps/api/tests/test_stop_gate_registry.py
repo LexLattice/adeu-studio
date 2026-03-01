@@ -8,6 +8,7 @@ from types import ModuleType
 import pytest
 import urm_runtime.stop_gate_registry as stop_gate_registry_module
 import urm_runtime.stop_gate_tools as stop_gate_tools_module
+from path_helpers import repo_root
 from urm_runtime.stop_gate_registry import (
     ACTIVE_STOP_GATE_MANIFEST_VERSIONS,
     STOP_GATE_MANIFEST_RELATIVE_TEMPLATE,
@@ -16,11 +17,7 @@ from urm_runtime.stop_gate_registry import (
 
 
 def _repo_root() -> Path:
-    current_path = Path(__file__).resolve()
-    for parent in current_path.parents:
-        if (parent / ".git").exists():
-            return parent
-    raise FileNotFoundError("repository root not found")
+    return repo_root()
 
 
 def _load_build_stop_gate_metrics_module() -> ModuleType:
@@ -75,6 +72,33 @@ def _active_tuple_literal_occurrences_outside_registry() -> list[str]:
             for node in ast.walk(tree):
                 values = _int_sequence_literal(node)
                 if values != ACTIVE_STOP_GATE_MANIFEST_VERSIONS:
+                    continue
+                relative_path = path.relative_to(repo_root)
+                occurrences.append(f"{relative_path}:{getattr(node, 'lineno', 0)}")
+    return sorted(occurrences)
+
+
+def _manifest_template_literal_occurrences_outside_registry() -> list[str]:
+    repo_root = _repo_root()
+    registry_path = (
+        repo_root / "packages" / "urm_runtime" / "src" / "urm_runtime" / "stop_gate_registry.py"
+    ).resolve()
+    search_roots = (
+        repo_root / "apps" / "api" / "scripts",
+        repo_root / "apps" / "api" / "tests",
+        repo_root / "packages" / "urm_runtime" / "src" / "urm_runtime",
+    )
+    occurrences: list[str] = []
+    for root in search_roots:
+        for path in sorted(root.rglob("*.py")):
+            resolved_path = path.resolve()
+            if resolved_path == registry_path:
+                continue
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Constant) or not isinstance(node.value, str):
+                    continue
+                if node.value != STOP_GATE_MANIFEST_RELATIVE_TEMPLATE:
                     continue
                 relative_path = path.relative_to(repo_root)
                 occurrences.append(f"{relative_path}:{getattr(node, 'lineno', 0)}")
@@ -173,3 +197,8 @@ def test_stop_gate_tools_cli_rejects_inactive_manifest_flags(
 def test_no_duplicate_active_version_tuple_literals_outside_registry_module() -> None:
     duplicates = _active_tuple_literal_occurrences_outside_registry()
     assert not duplicates, "duplicate active-version tuple literal(s): " + ", ".join(duplicates)
+
+
+def test_no_duplicate_manifest_template_literals_outside_registry_module() -> None:
+    duplicates = _manifest_template_literal_occurrences_outside_registry()
+    assert not duplicates, "duplicate manifest path template literal(s): " + ", ".join(duplicates)
