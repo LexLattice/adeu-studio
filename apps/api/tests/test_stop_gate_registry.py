@@ -81,6 +81,33 @@ def _active_tuple_literal_occurrences_outside_registry() -> list[str]:
     return sorted(occurrences)
 
 
+def _manifest_template_literal_occurrences_outside_registry() -> list[str]:
+    repo_root = _repo_root()
+    registry_path = (
+        repo_root / "packages" / "urm_runtime" / "src" / "urm_runtime" / "stop_gate_registry.py"
+    ).resolve()
+    search_roots = (
+        repo_root / "apps" / "api" / "scripts",
+        repo_root / "apps" / "api" / "tests",
+        repo_root / "packages" / "urm_runtime" / "src" / "urm_runtime",
+    )
+    occurrences: list[str] = []
+    for root in search_roots:
+        for path in sorted(root.rglob("*.py")):
+            resolved_path = path.resolve()
+            if resolved_path == registry_path:
+                continue
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Constant) or not isinstance(node.value, str):
+                    continue
+                if node.value != STOP_GATE_MANIFEST_RELATIVE_TEMPLATE:
+                    continue
+                relative_path = path.relative_to(repo_root)
+                occurrences.append(f"{relative_path}:{getattr(node, 'lineno', 0)}")
+    return sorted(occurrences)
+
+
 def test_registry_active_version_set_matches_frozen_v27_baseline() -> None:
     expected_versions = tuple(
         int(value) for value in "7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26".split(",")
@@ -173,3 +200,8 @@ def test_stop_gate_tools_cli_rejects_inactive_manifest_flags(
 def test_no_duplicate_active_version_tuple_literals_outside_registry_module() -> None:
     duplicates = _active_tuple_literal_occurrences_outside_registry()
     assert not duplicates, "duplicate active-version tuple literal(s): " + ", ".join(duplicates)
+
+
+def test_no_duplicate_manifest_template_literals_outside_registry_module() -> None:
+    duplicates = _manifest_template_literal_occurrences_outside_registry()
+    assert not duplicates, "duplicate manifest path template literal(s): " + ", ".join(duplicates)
