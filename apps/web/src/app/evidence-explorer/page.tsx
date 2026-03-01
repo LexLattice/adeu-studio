@@ -68,6 +68,24 @@ type PrefixFilters = {
 };
 
 type DeepLinkState = "outside_current_list_window" | "entry_unavailable" | null;
+type EvidenceExplorerTrustLane = "mapping_trust" | "proof_trust" | "solver_trust";
+type EvidencePayloadState = {
+  isLoading: boolean;
+  error: ApiErrorDetail | null;
+  payload: unknown;
+  path: string | null;
+};
+
+const TRUST_LANE_BY_FAMILY: Record<EvidenceExplorerFamily, EvidenceExplorerTrustLane> = {
+  read_surface: "mapping_trust",
+  normative_advice: "mapping_trust",
+  proof_trust: "proof_trust",
+  semantics_v4_candidate: "solver_trust",
+  extraction_fidelity: "mapping_trust",
+};
+
+const EVIDENCE_EXPLORER_NON_ENFORCEMENT_LABEL =
+  "Evidence-only surface; no automatic policy enforcement or mutation is performed.";
 
 function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
@@ -220,14 +238,19 @@ function parsePairEntry(entryId: string): {
   return { source_text_hash, core_ir_artifact_id, concept_artifact_id };
 }
 
+function parseArtifactEntryId(entryId: string): string | null {
+  const prefix = "artifact:";
+  if (!entryId.startsWith(prefix)) return null;
+  const artifactId = entryId.slice(prefix.length);
+  return artifactId || null;
+}
+
 function derivePrimaryRefPath(
   family: EvidenceExplorerFamily,
   entryId: string,
 ): string | null {
   if (family === "read_surface") {
-    const prefix = "artifact:";
-    if (!entryId.startsWith(prefix)) return null;
-    const artifactId = entryId.slice(prefix.length);
+    const artifactId = parseArtifactEntryId(entryId);
     if (!artifactId) return null;
     return `/urm/core-ir/artifacts/${encodeURIComponent(artifactId)}`;
   }
@@ -252,6 +275,31 @@ function derivePrimaryRefPath(
   }
   if (family === "semantics_v4_candidate") {
     return `/urm/semantics-v4/pairs/${source}/${core}/${concept}`;
+  }
+  return null;
+}
+
+function deriveProjectionPath(
+  family: EvidenceExplorerFamily,
+  selectedEntry: EvidenceExplorerCatalogEntry | null,
+  selectedEntryId: string | null,
+): string | null {
+  if (family === "read_surface") {
+    const artifactId = selectedEntry?.artifact_id ?? (selectedEntryId ? parseArtifactEntryId(selectedEntryId) : null);
+    if (!artifactId) return null;
+    return `/urm/core-ir/artifacts/${encodeURIComponent(artifactId)}/lane-projection`;
+  }
+  if (family === "normative_advice") {
+    return "/urm/normative-advice/projection";
+  }
+  if (family === "proof_trust") {
+    return "/urm/proof-trust/projection";
+  }
+  if (family === "semantics_v4_candidate") {
+    return "/urm/semantics-v4/projection";
+  }
+  if (family === "extraction_fidelity") {
+    return "/urm/extraction-fidelity/projection";
   }
   return null;
 }
@@ -343,6 +391,73 @@ async function fetchCatalogFamily(
   return payload;
 }
 
+async function fetchEvidencePayload(path: string): Promise<unknown> {
+  const response = await fetch(`${apiBase()}${path}`, { method: "GET" });
+  if (!response.ok) {
+    throw await parseApiError(response);
+  }
+  try {
+    return await response.json();
+  } catch {
+    throw {
+      status: 500,
+      reason: "PAYLOAD_INVALID",
+      message: "payload_invalid",
+    } satisfies ApiErrorDetail;
+  }
+}
+
+function useEvidencePayload(path: string | null, errorFallback: string): EvidencePayloadState {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<ApiErrorDetail | null>(null);
+  const [payload, setPayload] = useState<unknown>(null);
+  const [loadedPath, setLoadedPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!path) {
+      setLoadedPath(null);
+      setPayload(null);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
+    const pathValue = path;
+
+    let isCancelled = false;
+    setLoadedPath(pathValue);
+    setPayload(null);
+    setError(null);
+    setIsLoading(true);
+
+    async function run() {
+      try {
+        const fetchedPayload = await fetchEvidencePayload(pathValue);
+        if (isCancelled) return;
+        setPayload(fetchedPayload);
+      } catch (err) {
+        if (isCancelled) return;
+        setError(toApiErrorDetail(err, errorFallback));
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void run();
+    return () => {
+      isCancelled = true;
+    };
+  }, [errorFallback, path]);
+
+  return {
+    isLoading,
+    error,
+    payload,
+    path: loadedPath,
+  };
+}
+
 async function probeEntry(path: string): Promise<{ ok: boolean; status: number }> {
   const response = await fetch(`${apiBase()}${path}`, { method: "GET" });
   return { ok: response.ok, status: response.status };
@@ -360,6 +475,140 @@ function familyErrorState(error: ApiErrorDetail | null): string | null {
     return "catalog_payload_invalid";
   }
   return "request_failed";
+}
+
+function readStringField(payload: unknown, field: string): string | null {
+  if (!isObjectRecord(payload)) return null;
+  const value = payload[field];
+  return typeof value === "string" ? value : null;
+}
+
+function prettyJson(payload: unknown): string {
+  try {
+    return JSON.stringify(payload, null, 2);
+  } catch {
+    return String(payload);
+  }
+}
+
+function ReadSurfaceRenderer({
+  packet,
+  projection,
+}: {
+  packet: unknown;
+  projection: unknown;
+}) {
+  return (
+    <>
+      <div className="muted mono">renderer_family: read_surface</div>
+      <div className="muted mono">packet_schema: {readStringField(packet, "schema") ?? "(unknown)"}</div>
+      <div className="muted mono">artifact_id: {readStringField(packet, "artifact_id") ?? "(unknown)"}</div>
+      <div className="muted mono">packet_payload:</div>
+      <pre>{prettyJson(packet)}</pre>
+      <div className="muted mono">projection_payload:</div>
+      <pre>{prettyJson(projection)}</pre>
+    </>
+  );
+}
+
+function NormativeAdviceRenderer({
+  packet,
+  projection,
+}: {
+  packet: unknown;
+  projection: unknown;
+}) {
+  return (
+    <>
+      <div className="muted mono">renderer_family: normative_advice</div>
+      <div className="muted mono">packet_schema: {readStringField(packet, "schema") ?? "(unknown)"}</div>
+      <div className="muted mono">packet_payload:</div>
+      <pre>{prettyJson(packet)}</pre>
+      <div className="muted mono">projection_payload:</div>
+      <pre>{prettyJson(projection)}</pre>
+    </>
+  );
+}
+
+function ProofTrustRenderer({
+  packet,
+  projection,
+}: {
+  packet: unknown;
+  projection: unknown;
+}) {
+  return (
+    <>
+      <div className="muted mono">renderer_family: proof_trust</div>
+      <div className="muted mono">packet_schema: {readStringField(packet, "schema") ?? "(unknown)"}</div>
+      <div className="muted mono">packet_payload:</div>
+      <pre>{prettyJson(packet)}</pre>
+      <div className="muted mono">projection_payload:</div>
+      <pre>{prettyJson(projection)}</pre>
+    </>
+  );
+}
+
+function SemanticsV4Renderer({
+  packet,
+  projection,
+}: {
+  packet: unknown;
+  projection: unknown;
+}) {
+  return (
+    <>
+      <div className="muted mono">renderer_family: semantics_v4_candidate</div>
+      <div className="muted mono">packet_schema: {readStringField(packet, "schema") ?? "(unknown)"}</div>
+      <div className="muted mono">packet_payload:</div>
+      <pre>{prettyJson(packet)}</pre>
+      <div className="muted mono">projection_payload:</div>
+      <pre>{prettyJson(projection)}</pre>
+    </>
+  );
+}
+
+function ExtractionFidelityRenderer({
+  packet,
+  projection,
+}: {
+  packet: unknown;
+  projection: unknown;
+}) {
+  return (
+    <>
+      <div className="muted mono">renderer_family: extraction_fidelity</div>
+      <div className="muted mono">packet_schema: {readStringField(packet, "schema") ?? "(unknown)"}</div>
+      <div className="muted mono">packet_payload:</div>
+      <pre>{prettyJson(packet)}</pre>
+      <div className="muted mono">projection_payload:</div>
+      <pre>{prettyJson(projection)}</pre>
+    </>
+  );
+}
+
+function FamilyRenderer({
+  family,
+  packet,
+  projection,
+}: {
+  family: EvidenceExplorerFamily;
+  packet: unknown;
+  projection: unknown;
+}) {
+  if (family === "read_surface") {
+    return <ReadSurfaceRenderer packet={packet} projection={projection} />;
+  }
+  if (family === "normative_advice") {
+    return <NormativeAdviceRenderer packet={packet} projection={projection} />;
+  }
+  if (family === "proof_trust") {
+    return <ProofTrustRenderer packet={packet} projection={projection} />;
+  }
+  if (family === "semantics_v4_candidate") {
+    return <SemanticsV4Renderer packet={packet} projection={projection} />;
+  }
+  return <ExtractionFidelityRenderer packet={packet} projection={projection} />;
 }
 
 function EvidenceExplorerPageInner() {
@@ -393,6 +642,30 @@ function EvidenceExplorerPageInner() {
     if (!familyPayload || !selectedEntryId) return null;
     return familyPayload.entries.find((entry) => entry.entry_id === selectedEntryId) ?? null;
   }, [familyPayload, selectedEntryId]);
+
+  const selectedPacketPath = useMemo(() => {
+    if (!selectedFamily || !selectedEntryId) return null;
+    return selectedEntry?.ref.path ?? derivePrimaryRefPath(selectedFamily, selectedEntryId);
+  }, [selectedEntry, selectedEntryId, selectedFamily]);
+
+  const selectedProjectionPath = useMemo(() => {
+    if (!selectedFamily) return null;
+    return deriveProjectionPath(selectedFamily, selectedEntry, selectedEntryId);
+  }, [selectedEntry, selectedEntryId, selectedFamily]);
+
+  const {
+    isLoading: isLoadingPacket,
+    error: packetError,
+    payload: packetPayload,
+    path: packetPath,
+  } = useEvidencePayload(selectedPacketPath, "packet_unavailable");
+
+  const {
+    isLoading: isLoadingProjection,
+    error: projectionError,
+    payload: projectionPayload,
+    path: projectionPath,
+  } = useEvidencePayload(selectedProjectionPath, "projection_unavailable");
 
   const replaceUrlState = useCallback(
     (family: EvidenceExplorerFamily, entryId: string | null) => {
@@ -552,6 +825,7 @@ function EvidenceExplorerPageInner() {
 
   const deterministicDefaultFamily = families[0]?.family ?? null;
   const familyState = familyErrorState(familyError);
+  const trustLaneLabel = selectedFamily ? TRUST_LANE_BY_FAMILY[selectedFamily] : null;
 
   return (
     <div className="app">
@@ -702,7 +976,12 @@ function EvidenceExplorerPageInner() {
       </div>
 
       <div className="panel">
-        <h2>Selection State</h2>
+        <h2>Packet / Projection Renderer</h2>
+        {selectedFamily ? <div className="muted mono">renderer_family: {selectedFamily}</div> : null}
+        {trustLaneLabel ? <div className="muted mono">trust_lane_label: {trustLaneLabel}</div> : null}
+        {selectedFamily ? (
+          <div className="muted">{EVIDENCE_EXPLORER_NON_ENFORCEMENT_LABEL}</div>
+        ) : null}
         {selectedEntryId ? <div className="muted mono">selected_entry_id: {selectedEntryId}</div> : null}
         {selectedEntry ? (
           <>
@@ -710,6 +989,8 @@ function EvidenceExplorerPageInner() {
             <div className="muted mono">encoded_entry_id: {encodeEntryId(selectedEntry.entry_id)}</div>
           </>
         ) : null}
+        {packetPath ? <div className="muted mono">packet_path: {packetPath}</div> : null}
+        {projectionPath ? <div className="muted mono">projection_path: {projectionPath}</div> : null}
 
         {deepLinkState ? <div className="muted">deep_link_state: {deepLinkState}</div> : null}
 
@@ -717,11 +998,45 @@ function EvidenceExplorerPageInner() {
           <div className="muted">entry_state: none_selected</div>
         ) : null}
 
+        {selectedEntryId ? (
+          <>
+            {isLoadingPacket ? <div className="muted">packet_state: loading</div> : null}
+            {packetError ? (
+              <div className="muted">
+                packet_state: failed ({packetError.reason ?? packetError.code ?? packetError.message})
+              </div>
+            ) : null}
+            {!isLoadingPacket && !packetError && packetPayload !== null ? (
+              <div className="muted">packet_state: loaded</div>
+            ) : null}
+          </>
+        ) : null}
+
+        {selectedProjectionPath ? (
+          <>
+            {isLoadingProjection ? <div className="muted">projection_state: loading</div> : null}
+            {projectionError ? (
+              <div className="muted">
+                projection_state: failed (
+                {projectionError.reason ?? projectionError.code ?? projectionError.message})
+              </div>
+            ) : null}
+            {!isLoadingProjection && !projectionError && projectionPayload !== null ? (
+              <div className="muted">projection_state: loaded</div>
+            ) : null}
+          </>
+        ) : null}
+
+        {selectedFamily && packetPayload !== null ? (
+          <FamilyRenderer
+            family={selectedFamily}
+            packet={packetPayload}
+            projection={projectionPayload}
+          />
+        ) : null}
+
         <div className="muted" style={{ marginTop: 8 }}>
           Deterministic view-state only: family selection, entry selection, ordering, empty/error states.
-        </div>
-        <div className="muted">
-          Evidence-only surface; no automatic policy enforcement or mutation is performed.
         </div>
       </div>
     </div>
