@@ -93,7 +93,11 @@ current milestone PR sequence.
   (`_core_ir_proposer_logic_tree_max_depth` in `apps/api/src/adeu_api/main.py`);
   current behavior returns depth sentinel on cycle, while stricter fail-closed
   behavior (payload-invalid on detected cycle) is deferred pending explicit lock.
-- `cleanup-vnext-plus26-tooling-transfer-report-builder`:
-  add a dedicated deterministic builder/script/test path for
-  `docs/TOOLING_TRANSFER_REPORT_vNEXT_PLUS26.md` so v26 tooling transfer report
-  payload regeneration is mechanical and replay-safe in the same style as v24/v25.
+- `cleanup-vnext-plus28-stop-gate-registry-externalization`:
+  evaluate externalizing active stop-gate registry data to a root-level JSON/TOML
+  source for non-Python consumers while preserving runtime-owned deterministic
+  resolution semantics and fail-closed behavior.
+- `cleanup-vnext-plus28-generic-transfer-report-pipeline`:
+  evaluate replacing per-arc transfer-report builder/script entrypoints with a
+  generic deterministic multi-arc pipeline once v26-v28 transfer-report contracts
+  are stable enough for shared template/schema orchestration.
