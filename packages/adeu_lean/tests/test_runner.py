@@ -78,6 +78,13 @@ def test_build_proof_mapping_id_is_deterministic() -> None:
     assert first != changed
 
 
+def test_frozen_obligation_tables_cover_all_obligations() -> None:
+    frozen = {"pred_closed_world", "exception_gating", "conflict_soundness"}
+    assert set(OBLIGATION_KINDS) == frozen
+    assert tuple(runner_module._OBLIGATION_TO_CORE_THEOREM.keys()) == OBLIGATION_KINDS
+    assert tuple(runner_module._OBLIGATION_TO_THEOREM_TYPE.keys()) == OBLIGATION_KINDS
+
+
 def test_run_lean_request_missing_binary_returns_failed() -> None:
     request = build_obligation_requests(theorem_prefix="ir_missing", inputs=[])[0]
     result = run_lean_request(

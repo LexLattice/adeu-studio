@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import socket
 from pathlib import Path
 from typing import cast
 
@@ -17,10 +18,23 @@ from adeu_lean import (
 )
 
 FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "agreement_fixtures_v30.json"
+_LOCKED_PROVED_REPORT_HASH = "8756d9b7255db1e26b2b18c5979c2f393c043e33ed8a9425ab57dfb67721070f"
 
 
 def _proof_hash(seed: str) -> str:
     return hashlib.sha256(seed.encode("utf-8")).hexdigest()
+
+
+def _canonical_sha256(payload: object) -> str:
+    serialized = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    return hashlib.sha256(
+        serialized.encode("utf-8")
+    ).hexdigest()
 
 
 def _proved_result(theorem_id: str) -> LeanResult:
@@ -73,6 +87,17 @@ def test_build_agreement_report_is_deterministic_and_ordered() -> None:
     }
     assert all(len(row["mapping_id"]) == 64 for row in rows)
     assert all(len(row["proof_hash"]) == 64 for row in rows)
+
+
+def test_build_agreement_report_matches_locked_hash_baseline() -> None:
+    bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
+    report = build_agreement_report(
+        fixture_bundle=bundle,
+        timeout_ms=1000,
+        lean_bin="/tmp/lean-not-used",
+        run_request=_fake_proved_run_request,
+    )
+    assert _canonical_sha256(report) == _LOCKED_PROVED_REPORT_HASH
 
 
 def test_build_agreement_report_fail_closed_on_status_disagreement() -> None:
@@ -254,3 +279,38 @@ def test_build_agreement_report_from_fixture_path_matches_direct_builder() -> No
     )
 
     assert direct == from_path
+
+
+def test_build_agreement_report_from_fixture_path_does_not_mutate_fixture_snapshot() -> None:
+    before = FIXTURE_PATH.read_bytes()
+    report = build_agreement_report_from_fixture_path(
+        fixture_path=FIXTURE_PATH,
+        timeout_ms=1000,
+        lean_bin="/tmp/lean-not-used",
+        run_request=_fake_proved_run_request,
+    )
+    after = FIXTURE_PATH.read_bytes()
+
+    assert report["summary"]["all_agree"] is True
+    assert before == after
+
+
+def test_build_agreement_report_no_network_calls(monkeypatch: pytest.MonkeyPatch) -> None:
+    bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
+
+    def deny_create_connection(*args: object, **kwargs: object) -> None:
+        raise AssertionError(f"unexpected outbound network call: {args} {kwargs}")
+
+    def deny_socket_connect(self: socket.socket, *args: object, **kwargs: object) -> None:
+        raise AssertionError(f"unexpected outbound socket connect: {args} {kwargs}")
+
+    monkeypatch.setattr(socket, "create_connection", deny_create_connection)
+    monkeypatch.setattr(socket.socket, "connect", deny_socket_connect)
+    report = build_agreement_report(
+        fixture_bundle=bundle,
+        timeout_ms=1000,
+        lean_bin="/tmp/lean-not-used",
+        run_request=_fake_proved_run_request,
+    )
+
+    assert report["summary"]["all_agree"] is True
