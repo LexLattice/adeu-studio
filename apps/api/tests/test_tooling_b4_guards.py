@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
+from path_helpers import repo_root
 from urm_runtime.tooling_transfer_report_vnext_plus26 import (
     TOOLING_TRANSFER_REPORT_VNEXT_PLUS26_SCHEMA,
     build_tooling_transfer_report_vnext_plus26_payload,
@@ -13,11 +15,7 @@ from urm_runtime.tooling_transfer_report_vnext_plus26 import (
 
 
 def _repo_root() -> Path:
-    current_path = Path(__file__).resolve()
-    for parent in current_path.parents:
-        if (parent / ".git").exists():
-            return parent
-    raise FileNotFoundError("repository root not found")
+    return repo_root()
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -47,6 +45,20 @@ def _locked_v26_transfer_payload() -> dict[str, Any]:
     )
 
 
+@pytest.fixture(scope="module")
+def _regenerated_v26_transfer_payload() -> dict[str, Any]:
+    return build_tooling_transfer_report_vnext_plus26_payload(
+        vnext_plus26_manifest_path=_v26_manifest_path(),
+        stop_gate_metrics_path=_v26_closeout_metrics_path(),
+        s9_metrics_path=_v25_closeout_metrics_path(),
+    )
+
+
+@pytest.fixture(scope="module")
+def _locked_v26_payload() -> dict[str, Any]:
+    return _locked_v26_transfer_payload()
+
+
 def test_b4_historical_continuity_metrics_remain_frozen_in_v26_closeout_metrics() -> None:
     metrics_payload = _load_json(_v26_closeout_metrics_path())
     assert metrics_payload["schema"] == "stop_gate_metrics@1"
@@ -56,24 +68,20 @@ def test_b4_historical_continuity_metrics_remain_frozen_in_v26_closeout_metrics(
     assert metrics["artifact_transfer_report_builder_parity_pct"] == 100.0
 
 
-def test_b4_transfer_report_regeneration_matches_locked_payload_hash() -> None:
-    regenerated_payload = build_tooling_transfer_report_vnext_plus26_payload(
-        vnext_plus26_manifest_path=_v26_manifest_path(),
-        stop_gate_metrics_path=_v26_closeout_metrics_path(),
-        s9_metrics_path=_v25_closeout_metrics_path(),
-    )
-    locked_payload = _locked_v26_transfer_payload()
-
+def test_b4_transfer_report_regeneration_matches_locked_payload_hash(
+    _regenerated_v26_transfer_payload: dict[str, Any],
+    _locked_v26_payload: dict[str, Any],
+) -> None:
+    regenerated_payload = _regenerated_v26_transfer_payload
+    locked_payload = _locked_v26_payload
     assert regenerated_payload["schema"] == TOOLING_TRANSFER_REPORT_VNEXT_PLUS26_SCHEMA
     assert canonical_payload_hash(regenerated_payload) == canonical_payload_hash(locked_payload)
 
 
-def test_b4_historical_continuity_metrics_remain_frozen_in_v26_transfer_payload() -> None:
-    payload = build_tooling_transfer_report_vnext_plus26_payload(
-        vnext_plus26_manifest_path=_v26_manifest_path(),
-        stop_gate_metrics_path=_v26_closeout_metrics_path(),
-        s9_metrics_path=_v25_closeout_metrics_path(),
-    )
+def test_b4_historical_continuity_metrics_remain_frozen_in_v26_transfer_payload(
+    _regenerated_v26_transfer_payload: dict[str, Any],
+) -> None:
+    payload = _regenerated_v26_transfer_payload
 
     stop_gate_input_model_parity = payload["stop_gate_input_model_parity_summary"]
     transfer_builder_parity = payload["transfer_report_builder_parity_summary"]

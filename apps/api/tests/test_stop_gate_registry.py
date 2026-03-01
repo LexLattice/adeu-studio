@@ -8,6 +8,7 @@ from types import ModuleType
 import pytest
 import urm_runtime.stop_gate_registry as stop_gate_registry_module
 import urm_runtime.stop_gate_tools as stop_gate_tools_module
+from path_helpers import repo_root
 from urm_runtime.stop_gate_registry import (
     ACTIVE_STOP_GATE_MANIFEST_VERSIONS,
     STOP_GATE_MANIFEST_RELATIVE_TEMPLATE,
@@ -16,11 +17,7 @@ from urm_runtime.stop_gate_registry import (
 
 
 def _repo_root() -> Path:
-    current_path = Path(__file__).resolve()
-    for parent in current_path.parents:
-        if (parent / ".git").exists():
-            return parent
-    raise FileNotFoundError("repository root not found")
+    return repo_root()
 
 
 def _load_build_stop_gate_metrics_module() -> ModuleType:
