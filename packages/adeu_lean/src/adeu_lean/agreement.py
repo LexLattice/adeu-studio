@@ -139,10 +139,6 @@ def _sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
-def _canonical_json(value: Any) -> str:
-    return json.dumps(value, separators=(",", ":"), sort_keys=True)
-
-
 def _require_hex64(value: str, *, field_name: str) -> str:
     if _HEX_64_RE.match(value) is None:
         raise AgreementHarnessError(f"{field_name} must be 64-char lowercase SHA-256 hex")
@@ -195,14 +191,16 @@ def _mapping_id(
     theorem_src_hash: str,
 ) -> str:
     return _sha256_text(
-        _canonical_json(
+        json.dumps(
             {
                 "theorem_id": theorem_id,
                 "obligation_kind": obligation_kind,
                 "inputs_hash": inputs_hash,
                 "proof_semantics_version": proof_semantics_version,
                 "theorem_src_hash": theorem_src_hash,
-            }
+            },
+            separators=(",", ":"),
+            sort_keys=True,
         )
     )
 
