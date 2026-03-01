@@ -155,6 +155,8 @@ def test_create_artifact_allows_multiple_same_ir_id_proof_rows(
         assert isinstance(details["inputs_hash"], str) and len(details["inputs_hash"]) == 64
         assert isinstance(details["theorem_src_hash"], str)
         assert len(details["theorem_src_hash"]) == 64
+        assert isinstance(details["mapping_id"], str)
+        assert len(details["mapping_id"]) == 64
         backend_proof_ids.add(backend_proof_id)
     assert len(backend_proof_ids) == 3
 
@@ -195,3 +197,5 @@ def test_create_artifact_failed_proof_uses_configured_backend(
         assert details["error_code"] == "URM_PROOF_BACKEND_UNAVAILABLE"
         assert details["semantics_version"] == "adeu.lean.core.v1"
         assert isinstance(details["backend_proof_id"], str)
+        assert isinstance(details["mapping_id"], str)
+        assert len(details["mapping_id"]) == 64

@@ -10,6 +10,7 @@ from adeu_lean import (
     DEFAULT_SEMANTICS_VERSION,
     OBLIGATION_KINDS,
     build_obligation_requests,
+    build_proof_mapping_id,
     run_lean_request,
 )
 from adeu_lean import runner as runner_module
@@ -36,6 +37,45 @@ def test_build_obligation_requests_is_deterministic() -> None:
     assert [request.theorem_src for request in left] == [request.theorem_src for request in right]
     assert all("inputs_hash" in request.metadata for request in left)
     assert all("theorem_src_hash" in request.metadata for request in left)
+
+
+def test_build_obligation_requests_uses_frozen_theorem_mappings() -> None:
+    requests = build_obligation_requests(theorem_prefix="ir_map", inputs=[])
+    expected_core_theorems = {
+        "pred_closed_world": "AdeuCore.pred_closed_world_missing_false",
+        "exception_gating": "AdeuCore.exception_gating_false_not_defeat",
+        "conflict_soundness": "AdeuCore.conflict_soundness",
+    }
+    for request in requests:
+        assert request.obligation_kind in expected_core_theorems
+        assert expected_core_theorems[str(request.obligation_kind)] in request.theorem_src
+
+
+def test_build_proof_mapping_id_is_deterministic() -> None:
+    first = build_proof_mapping_id(
+        theorem_id="ir_map_pred_closed_world",
+        obligation_kind="pred_closed_world",
+        inputs_hash="a" * 64,
+        proof_semantics_version=DEFAULT_SEMANTICS_VERSION,
+        theorem_src_hash="b" * 64,
+    )
+    second = build_proof_mapping_id(
+        theorem_id="ir_map_pred_closed_world",
+        obligation_kind="pred_closed_world",
+        inputs_hash="a" * 64,
+        proof_semantics_version=DEFAULT_SEMANTICS_VERSION,
+        theorem_src_hash="b" * 64,
+    )
+    changed = build_proof_mapping_id(
+        theorem_id="ir_map_pred_closed_world",
+        obligation_kind="pred_closed_world",
+        inputs_hash="a" * 64,
+        proof_semantics_version=DEFAULT_SEMANTICS_VERSION,
+        theorem_src_hash="c" * 64,
+    )
+    assert first == second
+    assert len(first) == 64
+    assert first != changed
 
 
 def test_run_lean_request_missing_binary_returns_failed() -> None:

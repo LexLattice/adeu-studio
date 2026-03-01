@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 from collections.abc import Callable, Mapping
@@ -11,7 +10,7 @@ from adeu_ir import ProofInput
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from .models import OBLIGATION_KINDS, LeanRequest, LeanResult, LeanResultStatus
-from .runner import build_obligation_requests, run_lean_request
+from .runner import build_obligation_requests, build_proof_mapping_id, run_lean_request
 
 AGREEMENT_FIXTURE_SCHEMA = "odeu_agreement.fixtures@0.1"
 AGREEMENT_REPORT_SCHEMA = "odeu_agreement.report@0.1"
@@ -135,10 +134,6 @@ class AgreementReport(BaseModel):
         return self
 
 
-def _sha256_text(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8")).hexdigest()
-
-
 def _require_hex64(value: str, *, field_name: str) -> str:
     if _HEX_64_RE.match(value) is None:
         raise AgreementHarnessError(f"{field_name} must be 64-char lowercase SHA-256 hex")
@@ -203,29 +198,6 @@ def load_agreement_fixture_bundle(path: Path | str) -> AgreementFixtureBundle:
     return _parse_fixture_bundle(payload)
 
 
-def _mapping_id(
-    *,
-    theorem_id: str,
-    obligation_kind: str,
-    inputs_hash: str,
-    proof_semantics_version: str,
-    theorem_src_hash: str,
-) -> str:
-    return _sha256_text(
-        json.dumps(
-            {
-                "theorem_id": theorem_id,
-                "obligation_kind": obligation_kind,
-                "inputs_hash": inputs_hash,
-                "proof_semantics_version": proof_semantics_version,
-                "theorem_src_hash": theorem_src_hash,
-            },
-            separators=(",", ":"),
-            sort_keys=True,
-        )
-    )
-
-
 def _validate_result_status(result: LeanResult) -> LeanResultStatus:
     if result.status not in _STATUS_VALUES:
         raise AgreementHarnessError(f"unsupported lean_observed_status: {result.status!r}")
@@ -275,7 +247,7 @@ def _build_rows_for_fixture(
         result = run_request(request)
         observed_status = _validate_result_status(result)
         proof_hash = _require_hex64(result.proof_hash, field_name="proof_hash")
-        mapping_id = _mapping_id(
+        mapping_id = build_proof_mapping_id(
             theorem_id=request.theorem_id,
             obligation_kind=obligation_kind,
             inputs_hash=inputs_hash,
