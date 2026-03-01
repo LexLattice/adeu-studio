@@ -44,12 +44,12 @@ from adeu_core_ir import (
     AdeuIntegrityDanglingReference,
     AdeuIntegrityDeonticConflict,
     AdeuIntegrityDeonticConflictExtended,
-    AdeuProjectionAlignment,
-    AdeuProjectionAlignmentFidelityInput,
     AdeuIntegrityReferenceIntegrityExtended,
     AdeuLaneReport,
     AdeuNormativeAdvicePacket,
+    AdeuProjectionAlignment,
     AdeuProjectionAlignmentFidelity,
+    AdeuProjectionAlignmentFidelityInput,
     AdeuSemanticsV4CandidatePacket,
     AdeuTrustInvariantPacket,
     build_core_ir_from_source_text,
@@ -153,10 +153,10 @@ from .explain_builder import (
     input_ref_for_side,
 )
 from .extraction_fidelity_vnext_plus24 import (
+    VNEXT_PLUS24_CATALOG_PATH,
     ExtractionFidelityCatalog,
     ExtractionFidelityVnextPlus24Error,
     ProjectionAlignmentFidelityProjectionVnextPlus24,
-    VNEXT_PLUS24_CATALOG_PATH,
     build_extraction_fidelity_packet_vnext_plus24,
     build_extraction_fidelity_projection_vnext_plus24,
     extraction_fidelity_non_enforcement_context,
@@ -7519,9 +7519,9 @@ def get_urm_evidence_explorer_catalog_endpoint(
 def get_urm_evidence_explorer_catalog_family_endpoint(
     family: str,
     response: Response,
-    source_text_hash_prefix: str | None = Query(default=None),
-    core_ir_artifact_id_prefix: str | None = Query(default=None),
-    concept_artifact_id_prefix: str | None = Query(default=None),
+    source_text_hash_prefix: str | None = None,
+    core_ir_artifact_id_prefix: str | None = None,
+    concept_artifact_id_prefix: str | None = None,
 ) -> EvidenceExplorerCatalogFamilyResponse:
     supported_family = _evidence_explorer_supported_family_or_http(family)
     entries = _evidence_explorer_entries_for_family_or_http(family=supported_family)
