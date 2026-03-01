@@ -292,7 +292,7 @@ Commit plan:
 ## Arc vNext+29 (W3 / Path B)
 
 Readiness:
-- draft lock candidate.
+- closed out on `main` (`C1`-`C4` merged; see `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS29.md`).
 
 Goal:
 - ship read-only evidence UX over existing evidence families.
@@ -325,7 +325,7 @@ Commit plan:
 ## Arc vNext+30 (W4 / Path C)
 
 Readiness:
-- planning-only research arc; requires pre-lock evidence before freezing.
+- active planning candidate after v29 closeout; draft lock seed exists at `docs/LOCKED_CONTINUATION_vNEXT_PLUS30.md`; still requires pre-lock evidence before freezing.
 
 Goal:
 - advance additive formal ODEU lane with deterministic agreement checks.
