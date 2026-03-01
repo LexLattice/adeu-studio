@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from importlib import resources as importlib_resources
 from pathlib import Path
-from typing import Any, Callable, Literal, Mapping, NamedTuple
+from typing import Any, Callable, Literal, Mapping, NamedTuple, cast
 
 from adeu_concepts import (
     DEFAULT_MAX_ANSWERS_PER_QUESTION,
@@ -44,6 +44,8 @@ from adeu_core_ir import (
     AdeuIntegrityDanglingReference,
     AdeuIntegrityDeonticConflict,
     AdeuIntegrityDeonticConflictExtended,
+    AdeuProjectionAlignment,
+    AdeuProjectionAlignmentFidelityInput,
     AdeuIntegrityReferenceIntegrityExtended,
     AdeuLaneReport,
     AdeuNormativeAdvicePacket,
@@ -141,14 +143,20 @@ from .adeu_concept_bridge import (
 from .concept_id_canonicalization import canonicalize_concept_ids
 from .concept_mock_provider import get_concept_fixture_bundle
 from .concept_source_features import extract_concept_source_features
+from .cross_ir_bridge_vnext_plus20 import (
+    CrossIRBridgeVnextPlus20Error,
+    list_cross_ir_catalog_pairs_vnext_plus20,
+)
 from .explain_builder import (
     as_explain_artifact_ref,
     build_explain_packet_payload,
     input_ref_for_side,
 )
 from .extraction_fidelity_vnext_plus24 import (
+    ExtractionFidelityCatalog,
     ExtractionFidelityVnextPlus24Error,
     ProjectionAlignmentFidelityProjectionVnextPlus24,
+    VNEXT_PLUS24_CATALOG_PATH,
     build_extraction_fidelity_packet_vnext_plus24,
     build_extraction_fidelity_projection_vnext_plus24,
     extraction_fidelity_non_enforcement_context,
@@ -484,6 +492,90 @@ _READ_SURFACE_INTEGRITY_SCHEMAS: tuple[str, ...] = tuple(
         "deontic_conflict_extended",
     )
 )
+EvidenceExplorerFamily = Literal[
+    "read_surface",
+    "normative_advice",
+    "proof_trust",
+    "semantics_v4_candidate",
+    "extraction_fidelity",
+]
+EvidenceExplorerIdentityMode = Literal["artifact_level", "pair_level"]
+_EVIDENCE_EXPLORER_CATALOG_SCHEMA = "evidence_explorer.catalog@0.1"
+_EVIDENCE_EXPLORER_CATALOG_FAMILY_SCHEMA = "evidence_explorer.catalog_family@0.1"
+_EVIDENCE_EXPLORER_MAX_ENTRIES_PER_FAMILY = 1000
+_EVIDENCE_EXPLORER_LIST_REF_PATH_TEMPLATE = "/urm/evidence-explorer/catalog/{family}"
+_EVIDENCE_EXPLORER_UNSUPPORTED_FAMILY_REASON = "UNSUPPORTED_FAMILY"
+_EVIDENCE_EXPLORER_FAMILIES: tuple[EvidenceExplorerFamily, ...] = (
+    "read_surface",
+    "normative_advice",
+    "proof_trust",
+    "semantics_v4_candidate",
+    "extraction_fidelity",
+)
+_EVIDENCE_EXPLORER_FAMILIES_SORTED: tuple[EvidenceExplorerFamily, ...] = tuple(
+    sorted(_EVIDENCE_EXPLORER_FAMILIES)
+)
+_EVIDENCE_EXPLORER_IDENTITY_MODE_BY_FAMILY: dict[
+    EvidenceExplorerFamily, EvidenceExplorerIdentityMode
+] = {
+    "read_surface": "artifact_level",
+    "normative_advice": "pair_level",
+    "proof_trust": "pair_level",
+    "semantics_v4_candidate": "pair_level",
+    "extraction_fidelity": "pair_level",
+}
+_EVIDENCE_EXPLORER_PAIR_DETAIL_PATH_TEMPLATE_BY_FAMILY: dict[EvidenceExplorerFamily, str] = {
+    "normative_advice": (
+        "/urm/normative-advice/pairs/{source_text_hash}/{core_ir_artifact_id}/{concept_artifact_id}"
+    ),
+    "proof_trust": (
+        "/urm/proof-trust/pairs/{source_text_hash}/{core_ir_artifact_id}/{concept_artifact_id}"
+    ),
+    "semantics_v4_candidate": (
+        "/urm/semantics-v4/pairs/{source_text_hash}/{core_ir_artifact_id}/{concept_artifact_id}"
+    ),
+}
+_EVIDENCE_EXPLORER_READ_SURFACE_DETAIL_PATH_TEMPLATE = "/urm/core-ir/artifacts/{artifact_id}"
+_EVIDENCE_EXPLORER_EXTRACTION_FIDELITY_DETAIL_PATH_TEMPLATE = (
+    "/urm/extraction-fidelity/sources/{source_text_hash}"
+)
+_EXTRACTION_FIDELITY_PACKET_SCHEMA = "adeu_projection_alignment@0.1"
+_EXTRACTION_FIDELITY_INPUT_SCHEMA = "adeu_projection_alignment_fidelity_input@0.1"
+
+
+class _EvidenceExplorerFamilyCodes(NamedTuple):
+    request_invalid_code: str
+    artifact_not_found_code: str
+    payload_invalid_code: str
+
+
+_EVIDENCE_EXPLORER_FAMILY_CODES: dict[EvidenceExplorerFamily, _EvidenceExplorerFamilyCodes] = {
+    "read_surface": _EvidenceExplorerFamilyCodes(
+        request_invalid_code=_READ_SURFACE_REQUEST_INVALID_CODE,
+        artifact_not_found_code=_READ_SURFACE_ARTIFACT_NOT_FOUND_CODE,
+        payload_invalid_code=_READ_SURFACE_PAYLOAD_INVALID_CODE,
+    ),
+    "normative_advice": _EvidenceExplorerFamilyCodes(
+        request_invalid_code=_NORMATIVE_ADVICE_REQUEST_INVALID_CODE,
+        artifact_not_found_code=_NORMATIVE_ADVICE_ARTIFACT_NOT_FOUND_CODE,
+        payload_invalid_code=_NORMATIVE_ADVICE_PAYLOAD_INVALID_CODE,
+    ),
+    "proof_trust": _EvidenceExplorerFamilyCodes(
+        request_invalid_code=_TRUST_INVARIANT_REQUEST_INVALID_CODE,
+        artifact_not_found_code=_TRUST_INVARIANT_ARTIFACT_NOT_FOUND_CODE,
+        payload_invalid_code=_TRUST_INVARIANT_PAYLOAD_INVALID_CODE,
+    ),
+    "semantics_v4_candidate": _EvidenceExplorerFamilyCodes(
+        request_invalid_code=_SEMANTICS_V4_REQUEST_INVALID_CODE,
+        artifact_not_found_code=_SEMANTICS_V4_ARTIFACT_NOT_FOUND_CODE,
+        payload_invalid_code=_SEMANTICS_V4_PAYLOAD_INVALID_CODE,
+    ),
+    "extraction_fidelity": _EvidenceExplorerFamilyCodes(
+        request_invalid_code=_EXTRACTION_FIDELITY_REQUEST_INVALID_CODE,
+        artifact_not_found_code=_EXTRACTION_FIDELITY_ARTIFACT_NOT_FOUND_CODE,
+        payload_invalid_code=_EXTRACTION_FIDELITY_PAYLOAD_INVALID_CODE,
+    ),
+}
 
 
 class _CoreIRProposerIdempotencyRecord(NamedTuple):
@@ -1746,6 +1838,113 @@ class ReadSurfaceIntegrityResponse(BaseModel):
     integrity_artifact: dict[str, Any]
 
 
+class EvidenceExplorerEndpointRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: Literal["endpoint"] = "endpoint"
+    path: str = Field(min_length=1)
+
+
+class EvidenceExplorerCatalogFamilySummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    family: EvidenceExplorerFamily
+    identity_mode: EvidenceExplorerIdentityMode
+    entry_count: int = Field(ge=0)
+    list_ref: EvidenceExplorerEndpointRef
+
+
+class EvidenceExplorerCatalogResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["evidence_explorer.catalog@0.1"] = _EVIDENCE_EXPLORER_CATALOG_SCHEMA
+    families: list[EvidenceExplorerCatalogFamilySummary] = Field(default_factory=list)
+
+
+class EvidenceExplorerCatalogEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    family: EvidenceExplorerFamily
+    entry_id: str = Field(min_length=1)
+    source_text_hash: str
+    core_ir_artifact_id: str
+    concept_artifact_id: str
+    ref: EvidenceExplorerEndpointRef
+    artifact_id: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_family_contract(self) -> "EvidenceExplorerCatalogEntry":
+        if self.family == "read_surface":
+            if not self.artifact_id:
+                raise ValueError("read_surface entries require artifact_id")
+            if self.core_ir_artifact_id != self.artifact_id:
+                raise ValueError("read_surface core_ir_artifact_id must match artifact_id")
+            if self.concept_artifact_id != "":
+                raise ValueError("read_surface concept_artifact_id must be an empty string")
+        return self
+
+
+class EvidenceExplorerCatalogFamilyResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: Literal["evidence_explorer.catalog_family@0.1"] = (
+        _EVIDENCE_EXPLORER_CATALOG_FAMILY_SCHEMA
+    )
+    family: EvidenceExplorerFamily
+    identity_mode: EvidenceExplorerIdentityMode
+    total_entries: int = Field(ge=0)
+    truncated: bool
+    entries: list[EvidenceExplorerCatalogEntry] = Field(default_factory=list)
+    max_entries_per_family: int | None = Field(default=None, ge=1)
+    returned_entries: int | None = Field(default=None, ge=0)
+    remaining_entries: int | None = Field(default=None, ge=0)
+
+    @model_validator(mode="after")
+    def _validate_truncation_contract(self) -> "EvidenceExplorerCatalogFamilyResponse":
+        has_truncation_fields = (
+            self.max_entries_per_family is not None
+            or self.returned_entries is not None
+            or self.remaining_entries is not None
+        )
+        if self.truncated:
+            if (
+                self.max_entries_per_family is None
+                or self.returned_entries is None
+                or self.remaining_entries is None
+            ):
+                raise ValueError("truncated responses must include truncation metadata")
+        elif has_truncation_fields:
+            raise ValueError(
+                "non-truncated responses may not include truncation metadata fields"
+            )
+        return self
+
+
+class _EvidenceExplorerEntry(NamedTuple):
+    family: EvidenceExplorerFamily
+    source_text_hash: str
+    core_ir_artifact_id: str
+    concept_artifact_id: str
+    artifact_id: str | None
+    ref_path: str
+
+
+class _EvidenceExplorerCatalogError(RuntimeError):
+    def __init__(
+        self,
+        *,
+        status_code: int,
+        code: str,
+        reason: str,
+        context: Mapping[str, Any] | None = None,
+    ) -> None:
+        super().__init__(reason)
+        self.status_code = status_code
+        self.code = code
+        self.reason = reason
+        self.context = dict(context or {})
+
+
 class _ReadSurfaceCatalogError(RuntimeError):
     def __init__(self, *, code: str, reason: str, context: Mapping[str, Any] | None = None) -> None:
         super().__init__(reason)
@@ -2246,6 +2445,516 @@ def _extraction_fidelity_status_code(code: str) -> int:
     ):
         return 500
     return 500
+
+
+def _evidence_explorer_error_detail(
+    *,
+    code: str,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    detail: dict[str, Any] = {"code": code, "reason": reason}
+    if context:
+        detail["context"] = dict(context)
+    return detail
+
+
+def _evidence_explorer_catalog_error(
+    *,
+    status_code: int,
+    code: str,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> _EvidenceExplorerCatalogError:
+    return _EvidenceExplorerCatalogError(
+        status_code=status_code,
+        code=code,
+        reason=reason,
+        context=context,
+    )
+
+
+def _is_missing_backing_input_reason(reason: str) -> bool:
+    return "missing" in reason.lower()
+
+
+def _evidence_explorer_cross_ir_error_for_family(
+    *,
+    family: EvidenceExplorerFamily,
+    exc: CrossIRBridgeVnextPlus20Error,
+) -> _EvidenceExplorerCatalogError:
+    codes = _EVIDENCE_EXPLORER_FAMILY_CODES[family]
+    if exc.code == "URM_ADEU_CROSS_IR_REQUEST_INVALID":
+        return _evidence_explorer_catalog_error(
+            status_code=400,
+            code=codes.request_invalid_code,
+            reason=exc.reason,
+            context=exc.context,
+        )
+    if exc.code == "URM_ADEU_CROSS_IR_ARTIFACT_NOT_FOUND":
+        return _evidence_explorer_catalog_error(
+            status_code=404,
+            code=codes.artifact_not_found_code,
+            reason=exc.reason,
+            context=exc.context,
+        )
+    if exc.code == "URM_ADEU_CROSS_IR_FIXTURE_INVALID" and _is_missing_backing_input_reason(
+        exc.reason
+    ):
+        return _evidence_explorer_catalog_error(
+            status_code=404,
+            code=codes.artifact_not_found_code,
+            reason=exc.reason,
+            context=exc.context,
+        )
+    return _evidence_explorer_catalog_error(
+        status_code=400,
+        code=codes.payload_invalid_code,
+        reason=exc.reason,
+        context=exc.context,
+    )
+
+
+def _evidence_explorer_read_surface_error(
+    *,
+    exc: _ReadSurfaceCatalogError,
+) -> _EvidenceExplorerCatalogError:
+    codes = _EVIDENCE_EXPLORER_FAMILY_CODES["read_surface"]
+    if exc.code == _READ_SURFACE_REQUEST_INVALID_CODE:
+        return _evidence_explorer_catalog_error(
+            status_code=400,
+            code=codes.request_invalid_code,
+            reason=exc.reason,
+            context=exc.context,
+        )
+    if exc.code == _READ_SURFACE_ARTIFACT_NOT_FOUND_CODE:
+        return _evidence_explorer_catalog_error(
+            status_code=404,
+            code=codes.artifact_not_found_code,
+            reason=exc.reason,
+            context=exc.context,
+        )
+    if exc.code == _READ_SURFACE_FIXTURE_INVALID_CODE and _is_missing_backing_input_reason(
+        exc.reason
+    ):
+        return _evidence_explorer_catalog_error(
+            status_code=404,
+            code=codes.artifact_not_found_code,
+            reason=exc.reason,
+            context=exc.context,
+        )
+    return _evidence_explorer_catalog_error(
+        status_code=400,
+        code=codes.payload_invalid_code,
+        reason=exc.reason,
+        context=exc.context,
+    )
+
+
+def _read_json_object_for_evidence_explorer(
+    *,
+    path: Path,
+    not_found_code: str,
+    not_found_reason: str,
+    invalid_code: str,
+    invalid_reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    context_payload = dict(context or {})
+    try:
+        raw = path.read_text(encoding="utf-8")
+    except FileNotFoundError as exc:
+        raise _evidence_explorer_catalog_error(
+            status_code=404,
+            code=not_found_code,
+            reason=not_found_reason,
+            context={**context_payload, "path": str(path)},
+        ) from exc
+    except OSError as exc:
+        raise _evidence_explorer_catalog_error(
+            status_code=400,
+            code=invalid_code,
+            reason=f"{invalid_reason} (unreadable)",
+            context={**context_payload, "path": str(path), "error": str(exc)},
+        ) from exc
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise _evidence_explorer_catalog_error(
+            status_code=400,
+            code=invalid_code,
+            reason=invalid_reason,
+            context={**context_payload, "path": str(path), "error": exc.msg},
+        ) from exc
+
+    if not isinstance(payload, dict):
+        raise _evidence_explorer_catalog_error(
+            status_code=400,
+            code=invalid_code,
+            reason=f"{invalid_reason} (payload must be an object)",
+            context={**context_payload, "path": str(path)},
+        )
+    return payload
+
+
+def _resolve_evidence_explorer_artifact_path(*, catalog_path: Path, artifact_path: str) -> Path:
+    candidate = Path(artifact_path)
+    if not candidate.is_absolute():
+        candidate = catalog_path.parent / candidate
+    return candidate.resolve()
+
+
+def _evidence_explorer_entry_id(entry: _EvidenceExplorerEntry) -> str:
+    if entry.family == "read_surface":
+        if entry.artifact_id is None or entry.artifact_id == "":
+            raise _evidence_explorer_catalog_error(
+                status_code=400,
+                code=_READ_SURFACE_PAYLOAD_INVALID_CODE,
+                reason="read_surface entry missing artifact_id",
+                context={
+                    "family": entry.family,
+                    "source_text_hash": entry.source_text_hash,
+                    "core_ir_artifact_id": entry.core_ir_artifact_id,
+                },
+            )
+        return f"artifact:{entry.artifact_id}"
+    return (
+        f"pair:{entry.source_text_hash}:"
+        f"{entry.core_ir_artifact_id}:"
+        f"{entry.concept_artifact_id}"
+    )
+
+
+def _evidence_explorer_order_key(entry: _EvidenceExplorerEntry) -> tuple[str, str, str, str]:
+    artifact_id_or_empty = entry.artifact_id if entry.artifact_id is not None else ""
+    return (
+        entry.source_text_hash,
+        entry.core_ir_artifact_id,
+        entry.concept_artifact_id,
+        artifact_id_or_empty,
+    )
+
+
+def _evidence_explorer_entry_matches_prefix_filters(
+    entry: _EvidenceExplorerEntry,
+    *,
+    source_text_hash_prefix: str | None,
+    core_ir_artifact_id_prefix: str | None,
+    concept_artifact_id_prefix: str | None,
+) -> bool:
+    if (
+        source_text_hash_prefix is not None
+        and not entry.source_text_hash.startswith(source_text_hash_prefix)
+    ):
+        return False
+    if (
+        core_ir_artifact_id_prefix is not None
+        and not entry.core_ir_artifact_id.startswith(core_ir_artifact_id_prefix)
+    ):
+        return False
+    if (
+        concept_artifact_id_prefix is not None
+        and not entry.concept_artifact_id.startswith(concept_artifact_id_prefix)
+    ):
+        return False
+    return True
+
+
+def _evidence_explorer_entries_for_read_surface() -> list[_EvidenceExplorerEntry]:
+    try:
+        index = _read_surface_catalog_index()
+    except _ReadSurfaceCatalogError as exc:
+        raise _evidence_explorer_read_surface_error(exc=exc) from exc
+
+    entries: list[_EvidenceExplorerEntry] = []
+    for artifact_id in sorted(index.entries_by_core_ir_id):
+        catalog_entry = index.entries_by_core_ir_id[artifact_id]
+        entries.append(
+            _EvidenceExplorerEntry(
+                family="read_surface",
+                source_text_hash=catalog_entry.source_text_hash,
+                core_ir_artifact_id=catalog_entry.core_ir_artifact_id,
+                concept_artifact_id="",
+                artifact_id=catalog_entry.core_ir_artifact_id,
+                ref_path=_EVIDENCE_EXPLORER_READ_SURFACE_DETAIL_PATH_TEMPLATE.format(
+                    artifact_id=catalog_entry.core_ir_artifact_id
+                ),
+            )
+        )
+    return entries
+
+
+def _evidence_explorer_cross_ir_pairs_for_family(
+    *,
+    family: EvidenceExplorerFamily,
+) -> list[dict[str, str]]:
+    try:
+        return list_cross_ir_catalog_pairs_vnext_plus20()
+    except CrossIRBridgeVnextPlus20Error as exc:
+        raise _evidence_explorer_cross_ir_error_for_family(family=family, exc=exc) from exc
+
+
+def _evidence_explorer_entries_for_pair_family(
+    *,
+    family: EvidenceExplorerFamily,
+) -> list[_EvidenceExplorerEntry]:
+    path_template = _EVIDENCE_EXPLORER_PAIR_DETAIL_PATH_TEMPLATE_BY_FAMILY.get(family)
+    if path_template is None:
+        raise _evidence_explorer_catalog_error(
+            status_code=400,
+            code=_EVIDENCE_EXPLORER_FAMILY_CODES[family].request_invalid_code,
+            reason="pair-level family missing endpoint path template",
+            context={"family": family},
+        )
+
+    pairs = _evidence_explorer_cross_ir_pairs_for_family(family=family)
+    entries: list[_EvidenceExplorerEntry] = []
+    for pair in pairs:
+        source_text_hash = str(pair["source_text_hash"])
+        core_ir_artifact_id = str(pair["core_ir_artifact_id"])
+        concept_artifact_id = str(pair["concept_artifact_id"])
+        entries.append(
+            _EvidenceExplorerEntry(
+                family=family,
+                source_text_hash=source_text_hash,
+                core_ir_artifact_id=core_ir_artifact_id,
+                concept_artifact_id=concept_artifact_id,
+                artifact_id=None,
+                ref_path=path_template.format(
+                    source_text_hash=source_text_hash,
+                    core_ir_artifact_id=core_ir_artifact_id,
+                    concept_artifact_id=concept_artifact_id,
+                ),
+            )
+        )
+    return entries
+
+
+def _evidence_explorer_extraction_fidelity_entries() -> list[_EvidenceExplorerEntry]:
+    codes = _EVIDENCE_EXPLORER_FAMILY_CODES["extraction_fidelity"]
+    catalog_path = VNEXT_PLUS24_CATALOG_PATH.resolve()
+    catalog_payload = _read_json_object_for_evidence_explorer(
+        path=catalog_path,
+        not_found_code=codes.artifact_not_found_code,
+        not_found_reason="extraction-fidelity catalog fixture is missing",
+        invalid_code=codes.payload_invalid_code,
+        invalid_reason="extraction-fidelity catalog JSON is invalid",
+    )
+    try:
+        catalog = ExtractionFidelityCatalog.model_validate(catalog_payload)
+    except Exception as exc:
+        raise _evidence_explorer_catalog_error(
+            status_code=400,
+            code=codes.payload_invalid_code,
+            reason="extraction-fidelity catalog payload failed schema validation",
+            context={"path": str(catalog_path), "error": str(exc)},
+        ) from exc
+
+    source_to_pair: dict[str, tuple[str, str]] = {}
+    for pair in _evidence_explorer_cross_ir_pairs_for_family(family="extraction_fidelity"):
+        source_text_hash = str(pair["source_text_hash"])
+        core_ir_artifact_id = str(pair["core_ir_artifact_id"])
+        concept_artifact_id = str(pair["concept_artifact_id"])
+        if source_text_hash in source_to_pair:
+            raise _evidence_explorer_catalog_error(
+                status_code=400,
+                code=codes.payload_invalid_code,
+                reason="cross-ir source_text_hash maps to multiple pair identities",
+                context={"source_text_hash": source_text_hash},
+            )
+        source_to_pair[source_text_hash] = (core_ir_artifact_id, concept_artifact_id)
+
+    entries: list[_EvidenceExplorerEntry] = []
+    seen_sources: set[str] = set()
+    for catalog_entry in catalog.entries:
+        source_text_hash = catalog_entry.source_text_hash
+        if source_text_hash in seen_sources:
+            raise _evidence_explorer_catalog_error(
+                status_code=400,
+                code=codes.payload_invalid_code,
+                reason="extraction-fidelity catalog contains duplicate source_text_hash entries",
+                context={"source_text_hash": source_text_hash},
+            )
+        seen_sources.add(source_text_hash)
+
+        identity_pair = source_to_pair.get(source_text_hash)
+        if identity_pair is None:
+            raise _evidence_explorer_catalog_error(
+                status_code=400,
+                code=codes.payload_invalid_code,
+                reason="extraction-fidelity catalog entry has no matching cross-ir pair identity",
+                context={"source_text_hash": source_text_hash},
+            )
+
+        projection_alignment_path = _resolve_evidence_explorer_artifact_path(
+            catalog_path=catalog_path,
+            artifact_path=catalog_entry.projection_alignment_path,
+        )
+        projection_alignment_payload = _read_json_object_for_evidence_explorer(
+            path=projection_alignment_path,
+            not_found_code=codes.artifact_not_found_code,
+            not_found_reason="extraction-fidelity projection-alignment artifact is missing",
+            invalid_code=codes.payload_invalid_code,
+            invalid_reason="extraction-fidelity projection-alignment artifact JSON is invalid",
+            context={"source_text_hash": source_text_hash},
+        )
+        fidelity_input_path = _resolve_evidence_explorer_artifact_path(
+            catalog_path=catalog_path,
+            artifact_path=catalog_entry.projection_alignment_fidelity_input_path,
+        )
+        fidelity_input_payload = _read_json_object_for_evidence_explorer(
+            path=fidelity_input_path,
+            not_found_code=codes.artifact_not_found_code,
+            not_found_reason="extraction-fidelity fidelity-input artifact is missing",
+            invalid_code=codes.payload_invalid_code,
+            invalid_reason="extraction-fidelity fidelity-input artifact JSON is invalid",
+            context={"source_text_hash": source_text_hash},
+        )
+
+        try:
+            normalized_alignment = AdeuProjectionAlignment.model_validate(
+                projection_alignment_payload
+            )
+            normalized_fidelity_input = AdeuProjectionAlignmentFidelityInput.model_validate(
+                fidelity_input_payload
+            )
+        except Exception as exc:
+            raise _evidence_explorer_catalog_error(
+                status_code=400,
+                code=codes.payload_invalid_code,
+                reason="extraction-fidelity backing artifact failed schema validation",
+                context={"source_text_hash": source_text_hash, "error": str(exc)},
+            ) from exc
+
+        alignment_payload = normalized_alignment.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude_none=True,
+        )
+        alignment_source_text_hash = alignment_payload.get("source_text_hash")
+        fidelity_input_source_text_hash = normalized_fidelity_input.source_text_hash
+        if alignment_source_text_hash != source_text_hash:
+            raise _evidence_explorer_catalog_error(
+                status_code=400,
+                code=codes.payload_invalid_code,
+                reason="projection-alignment source_text_hash mismatch",
+                context={
+                    "source_text_hash": source_text_hash,
+                    "projection_alignment_source_text_hash": alignment_source_text_hash,
+                },
+            )
+        if fidelity_input_source_text_hash != source_text_hash:
+            raise _evidence_explorer_catalog_error(
+                status_code=400,
+                code=codes.payload_invalid_code,
+                reason="fidelity-input source_text_hash mismatch",
+                context={
+                    "source_text_hash": source_text_hash,
+                    "fidelity_input_source_text_hash": fidelity_input_source_text_hash,
+                },
+            )
+        if alignment_payload.get("schema") != _EXTRACTION_FIDELITY_PACKET_SCHEMA:
+            raise _evidence_explorer_catalog_error(
+                status_code=400,
+                code=codes.payload_invalid_code,
+                reason="projection-alignment schema mismatch",
+                context={
+                    "source_text_hash": source_text_hash,
+                    "schema": alignment_payload.get("schema"),
+                },
+            )
+        if normalized_fidelity_input.schema != _EXTRACTION_FIDELITY_INPUT_SCHEMA:
+            raise _evidence_explorer_catalog_error(
+                status_code=400,
+                code=codes.payload_invalid_code,
+                reason="fidelity-input schema mismatch",
+                context={
+                    "source_text_hash": source_text_hash,
+                    "schema": normalized_fidelity_input.schema,
+                },
+            )
+
+        core_ir_artifact_id, concept_artifact_id = identity_pair
+        entries.append(
+            _EvidenceExplorerEntry(
+                family="extraction_fidelity",
+                source_text_hash=source_text_hash,
+                core_ir_artifact_id=core_ir_artifact_id,
+                concept_artifact_id=concept_artifact_id,
+                artifact_id=None,
+                ref_path=_EVIDENCE_EXPLORER_EXTRACTION_FIDELITY_DETAIL_PATH_TEMPLATE.format(
+                    source_text_hash=source_text_hash
+                ),
+            )
+        )
+    return entries
+
+
+def _evidence_explorer_entries_for_family(
+    *,
+    family: EvidenceExplorerFamily,
+) -> list[_EvidenceExplorerEntry]:
+    if family == "read_surface":
+        return _evidence_explorer_entries_for_read_surface()
+    if family in ("normative_advice", "proof_trust", "semantics_v4_candidate"):
+        return _evidence_explorer_entries_for_pair_family(family=family)
+    if family == "extraction_fidelity":
+        return _evidence_explorer_extraction_fidelity_entries()
+    raise _evidence_explorer_catalog_error(
+        status_code=400,
+        code=_READ_SURFACE_REQUEST_INVALID_CODE,
+        reason=_EVIDENCE_EXPLORER_UNSUPPORTED_FAMILY_REASON,
+        context={"family": family, "supported_families": list(_EVIDENCE_EXPLORER_FAMILIES_SORTED)},
+    )
+
+
+def _evidence_explorer_entries_for_family_or_http(
+    *,
+    family: EvidenceExplorerFamily,
+) -> list[_EvidenceExplorerEntry]:
+    try:
+        return _evidence_explorer_entries_for_family(family=family)
+    except _EvidenceExplorerCatalogError as exc:
+        raise HTTPException(
+            status_code=exc.status_code,
+            detail=_evidence_explorer_error_detail(
+                code=exc.code,
+                reason=exc.reason,
+                context=exc.context,
+            ),
+        ) from exc
+
+
+def _evidence_explorer_catalog_entry_model(
+    *,
+    entry: _EvidenceExplorerEntry,
+) -> EvidenceExplorerCatalogEntry:
+    return EvidenceExplorerCatalogEntry(
+        family=entry.family,
+        entry_id=_evidence_explorer_entry_id(entry),
+        source_text_hash=entry.source_text_hash,
+        core_ir_artifact_id=entry.core_ir_artifact_id,
+        concept_artifact_id=entry.concept_artifact_id,
+        ref=EvidenceExplorerEndpointRef(path=entry.ref_path),
+        artifact_id=entry.artifact_id,
+    )
+
+
+def _evidence_explorer_supported_family_or_http(family: str) -> EvidenceExplorerFamily:
+    if family in _EVIDENCE_EXPLORER_FAMILIES:
+        return cast(EvidenceExplorerFamily, family)
+    raise HTTPException(
+        status_code=400,
+        detail=_evidence_explorer_error_detail(
+            code=_READ_SURFACE_REQUEST_INVALID_CODE,
+            reason=_EVIDENCE_EXPLORER_UNSUPPORTED_FAMILY_REASON,
+            context={
+                "family": family,
+                "supported_families": list(_EVIDENCE_EXPLORER_FAMILIES_SORTED),
+            },
+        ),
+    )
 
 
 def _core_ir_proposer_error_detail(
@@ -6775,6 +7484,78 @@ def get_urm_core_ir_integrity_endpoint(
         schema=integrity_ref.schema,
         created_at=entry.created_at,
         integrity_artifact=integrity_payload,
+    )
+
+
+@app.get(
+    "/urm/evidence-explorer/catalog",
+    response_model=EvidenceExplorerCatalogResponse,
+)
+def get_urm_evidence_explorer_catalog_endpoint(
+    response: Response,
+) -> EvidenceExplorerCatalogResponse:
+    families: list[EvidenceExplorerCatalogFamilySummary] = []
+    for family in _EVIDENCE_EXPLORER_FAMILIES_SORTED:
+        entries = _evidence_explorer_entries_for_family_or_http(family=family)
+        families.append(
+            EvidenceExplorerCatalogFamilySummary(
+                family=family,
+                identity_mode=_EVIDENCE_EXPLORER_IDENTITY_MODE_BY_FAMILY[family],
+                entry_count=len(entries),
+                list_ref=EvidenceExplorerEndpointRef(
+                    path=_EVIDENCE_EXPLORER_LIST_REF_PATH_TEMPLATE
+                ),
+            )
+        )
+
+    _set_read_surface_cache_header(response)
+    return EvidenceExplorerCatalogResponse(families=families)
+
+
+@app.get(
+    "/urm/evidence-explorer/catalog/{family}",
+    response_model=EvidenceExplorerCatalogFamilyResponse,
+)
+def get_urm_evidence_explorer_catalog_family_endpoint(
+    family: str,
+    response: Response,
+    source_text_hash_prefix: str | None = Query(default=None),
+    core_ir_artifact_id_prefix: str | None = Query(default=None),
+    concept_artifact_id_prefix: str | None = Query(default=None),
+) -> EvidenceExplorerCatalogFamilyResponse:
+    supported_family = _evidence_explorer_supported_family_or_http(family)
+    entries = _evidence_explorer_entries_for_family_or_http(family=supported_family)
+
+    filtered_entries = [
+        entry
+        for entry in entries
+        if _evidence_explorer_entry_matches_prefix_filters(
+            entry,
+            source_text_hash_prefix=source_text_hash_prefix,
+            core_ir_artifact_id_prefix=core_ir_artifact_id_prefix,
+            concept_artifact_id_prefix=concept_artifact_id_prefix,
+        )
+    ]
+    ordered_entries = sorted(filtered_entries, key=_evidence_explorer_order_key)
+    total_entries = len(ordered_entries)
+    truncated = total_entries > _EVIDENCE_EXPLORER_MAX_ENTRIES_PER_FAMILY
+    returned_entries = ordered_entries[:_EVIDENCE_EXPLORER_MAX_ENTRIES_PER_FAMILY]
+    response_entries = [
+        _evidence_explorer_catalog_entry_model(entry=entry) for entry in returned_entries
+    ]
+
+    _set_read_surface_cache_header(response)
+    return EvidenceExplorerCatalogFamilyResponse(
+        family=supported_family,
+        identity_mode=_EVIDENCE_EXPLORER_IDENTITY_MODE_BY_FAMILY[supported_family],
+        total_entries=total_entries,
+        truncated=truncated,
+        entries=response_entries,
+        max_entries_per_family=(
+            _EVIDENCE_EXPLORER_MAX_ENTRIES_PER_FAMILY if truncated else None
+        ),
+        returned_entries=len(response_entries) if truncated else None,
+        remaining_entries=(total_entries - len(response_entries)) if truncated else None,
     )
 
 
