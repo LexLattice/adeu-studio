@@ -1,4 +1,4 @@
-# Locked Continuation vNext+30 (Draft Lock)
+# Locked Continuation vNext+30 (Closed Lock)
 
 This document drafts the next arc after:
 
@@ -9,7 +9,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: closed lock (implemented on `main`, March 1, 2026 UTC).
 
 Decision basis:
 
@@ -21,6 +21,7 @@ Decision basis:
   - fixture-backed Python↔Lean agreement harness second
   - first structural invariant theorem set and evidence mapping third
   - parity/regression guard rails and continuity proof fourth
+- `vNext+30` (`D1`-`D4`) is now merged on `main` with green CI and closeout `all_passed = true` in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS30.md`.
 
 ## Global Locks
 
@@ -392,7 +393,7 @@ Prove `D1`-`D3` activation is deterministic, behavior-preserving, and non-enforc
 4. Existing proof backend interfaces remain callable in CI at v30 start.
 5. No L2 release is introduced in this arc.
 
-## Exit Criteria (Draft)
+## Exit Criteria (Locked)
 
 - `D1` through `D4` merged with green CI.
 - No new stop-gate metric keys introduced.
@@ -401,3 +402,8 @@ Prove `D1`-`D3` activation is deterministic, behavior-preserving, and non-enforc
 - Existing continuity thresholds remain at required values.
 - v30 closeout evidence includes runtime-observability comparison row against v29 baseline.
 - No solver semantics contract delta and no trust-lane regression introduced.
+
+Completion status:
+
+- all frozen v30 exit criteria are satisfied at closeout.
+- authoritative closeout evidence is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS30.md`.

@@ -7,8 +7,8 @@ This document consolidates the four independent v4 planning drafts:
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_opus.md`
 - `docs/archives/next_arc_options_v4/DRAFT_NEXT_ARC_OPTIONS_v4_gemini.md`
 
-Status: active planning draft (v17 through v29 baselines executed; active for `vNext+30+` selection).
-Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+29` sequencing.
+Status: active planning draft (v17 through v30 baselines executed; active for `vNext+31+` selection).
+Goal: capture all high-level next-arc path families raised across drafts, then provide a single planning map for post-`vNext+30` sequencing.
 
 ## Baseline Agreement (Shared Across Drafts)
 
@@ -28,6 +28,7 @@ All four drafts converge on these baseline points:
 - `vNext+27` Path A (`A1`-`A4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS27.md`).
 - `vNext+28` Path A / W2 (`B1`-`B4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS28.md`).
 - `vNext+29` Path B / W3 (`C1`-`C4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS29.md`).
+- `vNext+30` Path C / W4 (`D1`-`D4`) is complete and green (`docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS30.md`).
 - Determinism/manifest/stop-gate closeout discipline is now mature and must carry forward.
 - Next work should remain additive-first and explicitly locked.
 - Provider parity maintenance remains a fallback path, not the default next arc.
@@ -389,21 +390,21 @@ Execution checkpoint (current state):
   - `vNext+27 = W1/Path A gate-0 hardening` (closed out)
   - `vNext+28 = W2/Path A tooling sustainability consolidation` (closed out)
   - `vNext+29 = W3/Path B read-only evidence explorer activation` (closed out)
+  - `vNext+30 = W4/Path C additive formal ODEU lane` (closed out)
 - active default next selection:
-  - `vNext+30 = W4/Path C draft lock candidate (freeze refinement next)`:
-    - `docs/LOCKED_CONTINUATION_vNEXT_PLUS30.md` (active draft lock candidate)
-    - `docs/CONSOLIDATED_TERRITORY_PLAN_v4.md` (W4/Path C planning baseline)
-    - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS29.md` (latest closed-out baseline decision)
-    - `docs/LOCKED_CONTINUATION_vNEXT_PLUS29.md` (latest executed lock baseline)
+  - `vNext+31 = draft lock candidate (path selection pending)`:
+    - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS30.md` (latest closed-out baseline decision)
+    - `docs/LOCKED_CONTINUATION_vNEXT_PLUS30.md` (latest executed lock baseline)
+    - `docs/CONSOLIDATED_TERRITORY_PLAN_v4.md` (planning baseline source)
     - `S9` remains trigger-based preemption path and hard precondition gate
 
 ## Proposed Freeze Candidate (Next Step)
 
-Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS30.md` freeze content for the selected `W4 / Path C` thin-slice continuation:
+Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS31.md` freeze content for the selected post-`vNext+30` thin-slice continuation:
 
-1. freeze deterministic contract deltas for the selected post-v29 scope.
+1. freeze deterministic contract deltas for the selected post-v30 scope.
 2. keep additive-only stop-gate metric extension on `stop_gate_metrics@1`.
-3. preserve v14-v29 continuity locks unless an explicit release is approved.
+3. preserve v14-v30 continuity locks unless an explicit release is approved.
 4. keep non-enforcement/no-mutation/no-provider-expansion boundaries explicit where applicable.
 
 ## Historical Freeze Candidate (v19 Reference)
