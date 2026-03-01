@@ -1,0 +1,32 @@
+{
+  "schema": "odeu_agreement.fixtures@0.1",
+  "proof_semantics_version": "adeu.lean.core.v1",
+  "fixtures": [
+    {
+      "fixture_id": "fixture_alpha",
+      "theorem_prefix": "ir_fixture_alpha",
+      "inputs": [
+        {
+          "object_id": "dn1",
+          "json_path": "/D_norm/statements/0",
+          "formula_hash": "f1"
+        }
+      ],
+      "python_expected_status": {
+        "conflict_soundness": "proved",
+        "exception_gating": "proved",
+        "pred_closed_world": "proved"
+      }
+    },
+    {
+      "fixture_id": "fixture_beta",
+      "theorem_prefix": "ir_fixture_beta",
+      "inputs": [],
+      "python_expected_status": {
+        "conflict_soundness": "proved",
+        "exception_gating": "proved",
+        "pred_closed_world": "proved"
+      }
+    }
+  ]
+}
