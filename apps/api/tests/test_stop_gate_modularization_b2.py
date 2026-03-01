@@ -129,6 +129,16 @@ def test_created_at_normalization_helper_matches_legacy_helpers_on_corpus() -> N
             assert helper(payload) == expected
 
 
+def test_created_at_normalization_fails_closed_on_string_key_collisions() -> None:
+    payload = {1: "alpha", "1": "beta"}
+    try:
+        strip_created_at_recursive(payload)
+    except TypeError as exc:
+        assert str(exc) == "mapping contains keys that collide when converted to string"
+    else:
+        raise AssertionError("expected TypeError for string-key collision")
+
+
 def test_stop_gate_created_at_paths_use_shared_runtime_helper() -> None:
     source = Path(stop_gate_tools.__file__).read_text(encoding="utf-8")
     module = ast.parse(source)
