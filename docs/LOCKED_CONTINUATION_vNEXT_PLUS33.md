@@ -7,19 +7,19 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: draft lock implemented on `main` (PR `#212` and PR `#213` merged on March 2, 2026 UTC); closeout evidence is captured in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS33.md`.
 
 Decision basis:
 
 - `vNext+32` (`F1`-`F2`) is merged on `main` via PR `#210` and PR `#211` with green CI checks.
-- `vNext+32` closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS32.md`; this v33 document remains in feedback-cycle drafting ahead of freeze.
-- v33 freeze precondition requires v32 closeout decision merge and a passing closeout-consistency lint on the resulting closeout chain.
+- `vNext+32` closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS32.md`.
 - Post-v32 planning baseline is `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`.
 - Selected v33 thin-slice default is worker CLI safety tightening (`V31-E` path family from options menu).
 - `vNext+33` is constrained to deterministic additive hardening only:
   - no solver/runtime semantics release,
   - no policy-enforcement expansion,
   - no L2 boundary release.
+- `vNext+33` (`G1`-`G2`) is now merged on `main` via PR `#212` and PR `#213` with green CI checks.
 
 ## Global Locks
 
@@ -248,3 +248,8 @@ Prove the `G1` fail-closed policy is deterministic, test-covered, and resistant 
 - Worker CLI unsupported required-flag behavior is fail-closed, deterministic, and test-covered.
 - v33 closeout evidence includes runtime-observability comparison row against v32 baseline.
 - No solver semantics contract delta and no trust-lane regression introduced.
+
+Implementation status (March 2, 2026 UTC):
+
+- `G1` and `G2` are merged on `main` with green CI checks.
+- v33 closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS33.md`.
