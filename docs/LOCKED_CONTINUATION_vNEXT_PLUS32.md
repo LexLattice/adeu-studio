@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock implemented on `main` (PR `#210` and PR `#211` merged on March 2, 2026 UTC); v32 closeout decision doc is pending.
+Status: draft lock implemented on `main` (PR `#210` and PR `#211` merged on March 2, 2026 UTC); closeout evidence is captured in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS32.md`.
 
 Decision basis:
 
@@ -281,4 +281,4 @@ Prove `F1` consolidation is deterministic, behavior-preserving, and free from hi
 Implementation status (March 2, 2026 UTC):
 
 - `F1` and `F2` are merged on `main` with green CI checks.
-- v32 closeout decision capture in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS32.md` remains pending.
+- v32 closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS32.md`.
