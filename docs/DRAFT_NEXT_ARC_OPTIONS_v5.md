@@ -2,8 +2,8 @@
 
 This document is the fresh consolidated planning baseline for post-`vNext+34` sequencing.
 
-Status: active planning draft (v17 through v34 baselines executed; active for `vNext+35+` selection).
-Goal: define thin-slice, lock-respecting candidate paths for `vNext+35` and onward, while preserving the standard multi-implementation review sequence before lock freeze.
+Status: active planning draft (v17 through v34 baselines executed, v35 `I1` contract closure landed in docs; active for v35 `I2` and `vNext+36+` selection).
+Goal: define thin-slice, lock-respecting candidate paths for remaining v35 work and onward sequencing while preserving the standard multi-implementation review sequence before lock freeze.
 
 ## Naming Convention (Paths vs Bundles)
 
@@ -74,6 +74,14 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 - `vNext+34` closeout evidence is recorded in:
   - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
 - Planning default now advances to `vNext+35` candidate selection.
+
+## v35 I1 Checkpoint
+
+- v35 selected thin-slice remains explicit `L2` boundary-lock preparation for `V31-F`/`V31-G` with no boundary release in-arc.
+- `I1` contract closure is now captured in:
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`
+  - `docs/ASSESSMENT_vNEXT_PLUS35_EDGES.md`
+- Remaining v35 implementation scope is `I2` (boundary-readiness lint + anti-release guard execution).
 
 ## Confirmed Post-v34 Remaining Gaps (Worth Addressing)
 
@@ -288,30 +296,30 @@ Acceptance:
 | `V31-C` | `V31-C` | `L1` | closed in v34 | Closed formal lane evidence contract + guard suite | med/high |
 | `V31-D` | `V31-D` | `L0` | closed in v32 | Consolidated repo-root resolution and added determinism guards | low |
 | `V31-E` | `V31-E` | `L1` | closed in v33 | Closed worker CLI safety fail-closed policy and deterministic guard coverage | med |
-| `V31-F` | `V31-F` | `L2` | deferred boundary | Closes governance gap | high |
-| `V31-G` | `V31-G` | `L2` | deferred boundary | Closes proposer idempotency boundary | high |
+| `V31-F` | `V31-F` | `L2` | precondition lock closed in v35 `I1`; release deferred | Closes governance gap | high |
+| `V31-G` | `V31-G` | `L2` | precondition lock closed in v35 `I1`; release deferred | Closes proposer idempotency boundary | high |
 
 ## Recommended Sequencing (Default)
 
-1. `vNext+35`: explicit `L2` boundary-lock preparation sequence for `V31-F`/`V31-G` (no boundary release yet).
-2. `vNext+36`: evaluate first boundary release candidate (`V31-F` or `V31-G`) only after boundary-lock approval.
-3. `vNext+37+`: complete remaining `L2` release track under explicit boundary lock.
+1. `vNext+35`: complete `I2` deterministic guard suite on top of already-closed `I1` boundary-precondition contract (`V31-F`/`V31-G` prep only; no boundary release yet).
+2. `vNext+36`: evaluate first boundary release candidate (`V31-F` default) only after v35 `I2` guard evidence is merged.
+3. `vNext+37+`: complete remaining `L2` release track (`V31-G` default) under explicit release lock updates.
 
 ## Standard Multi-Implementation Sequence (Required)
 
-For each selected arc candidate (starting with `vNext+35`):
+For each selected arc candidate (next active implementation slice: v35 `I2`):
 
 1. Draft parallel implementation briefs for multiple implementers (`codex`, `gpt`, `gemini`, `opus`) with identical locks/acceptance.
 2. Run independent implementations and collect deterministic evidence bundles.
 3. Produce comparative assessment (risk, lock adherence, determinism evidence, CI impact).
-4. Consolidate into one lock candidate (next default: `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`).
+4. Consolidate into one lock candidate (v35 authority: `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`).
 5. Execute small-green PR sequence and close out with stop-gate decision note.
 
-## Proposed Freeze Candidate (Next Step)
+## Proposed Next Step
 
-Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md` for selected post-v34 candidate (`L2` boundary-lock preparation by default, or reprioritized candidate path if approved):
+Execute v35 `I2` against already-implemented v35 `I1` lock text:
 
-1. Freeze deterministic contract deltas for selected v35 scope.
-2. Preserve v14-v34 continuity locks unless explicit release is approved.
+1. Implement deterministic boundary-readiness lint and anti-release guard suite.
+2. Preserve all v14-v35 continuity locks unless an explicit future release lock is approved.
 3. Keep non-enforcement/no-mutation/no-provider-expansion boundaries explicit.
-4. Preserve v31 continuity clauses for template-path contract closure (`V31-A`) and closeout consistency lint guards (`V31-B`), plus v32 repo-root consolidation continuity (`V31-D`), v33 worker CLI fail-closed continuity (`V31-E`), and v34 formal-lane continuity (`V31-C`).
+4. Close v35 with stop-gate evidence after `I2` merges green.

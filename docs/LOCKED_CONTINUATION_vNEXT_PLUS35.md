@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: draft lock with `I1` contract closure implemented (docs-only, no runtime behavior changes); `I2` guard implementation remains pending.
 
 Decision basis:
 
@@ -314,6 +314,19 @@ Lock-class rationale:
 - No runtime behavior changes are introduced while preparing L2 release prerequisites.
 - Future release preconditions (authority surfaces, source-of-truth, rollback/denial semantics) are explicit enough to block ambiguous L2 implementation starts.
 
+### I1 Implementation Snapshot
+
+- Contract authority is now frozen in this document through:
+  - `## L2 Boundary Readiness Assertions (Machine-Checkable)`,
+  - `## Release Blocker Registry (v35)`,
+  - `## I1) L2 Boundary-Release Precondition Contract Closure`.
+- Boundary-preparation edge assessment and repository-state verification are recorded in:
+  - `docs/ASSESSMENT_vNEXT_PLUS35_EDGES.md`.
+- This `I1` implementation remains docs-only by design:
+  - no runtime endpoint behavior changes,
+  - no persistence wiring changes,
+  - no API/output contract changes.
+
 ## I2) Boundary-Precondition Determinism/Regression Guards (`V31-F` + `V31-G` Prep)
 
 ### Goal
@@ -422,8 +435,8 @@ Prove v35 boundary-preparation remains deterministic, fail-closed, and resistant
 
 ## Commit / PR Plan (Small Green PRs)
 
-1. `docs: freeze v35 L2 boundary-release precondition contract for V31-F/V31-G`
-2. `tests/docs: add v35 boundary-readiness lint, no-touch diff guard, and behavior sentinel checks`
+1. `docs: freeze v35 L2 boundary-release precondition contract for V31-F/V31-G` (implemented)
+2. `tests/docs: add v35 boundary-readiness lint, no-touch diff guard, and behavior sentinel checks` (pending)
 
 ## Intermediate Preconditions (for v35 start)
 
