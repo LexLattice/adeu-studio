@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import shutil
 import sqlite3
 import threading
@@ -609,24 +610,41 @@ def test_worker_runner_marks_invalid_schema_with_errors(
     assert result.schema_validation_errors
 
 
-def test_worker_runner_omits_ask_for_approval_when_flag_unsupported(
+def test_worker_runner_fails_closed_when_ask_for_approval_flag_unsupported(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
     config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
     fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    counter_path = tmp_path / "counter.txt"
     monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
     monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
     monkeypatch.setenv("FAKE_CODEX_EXEC_HELP_NO_ASK_FOR_APPROVAL", "1")
+    monkeypatch.setenv("FAKE_CODEX_CALL_COUNTER_PATH", str(counter_path))
 
     runner = CodexExecWorkerRunner(config=config)
-    result = runner.run(
-        _worker_request(
-            client_request_id="req-no-ask-flag-1",
-            role="pipeline_worker",
-            prompt="run without ask-for-approval",
+    with pytest.raises(URMError) as exc_info:
+        runner.run(
+            _worker_request(
+                client_request_id="req-no-ask-flag-1",
+                role="pipeline_worker",
+                prompt="run without ask-for-approval",
+            )
         )
-    )
 
-    assert result.status == "ok"
+    assert exc_info.value.detail.code == "URM_WORKER_START_FAILED"
+    assert (
+        exc_info.value.detail.message
+        == "UNSUPPORTED_REQUIRED_FLAG:--ask-for-approval:FLAG_ABSENT"
+    )
+    assert not counter_path.exists()
+    assert runner._active_processes == {}
+
+    stderr_output = capsys.readouterr().err
+    assert (
+        "URM_WORKER_START_FAILED "
+        "UNSUPPORTED_REQUIRED_FLAG:--ask-for-approval:FLAG_ABSENT"
+    ) in stderr_output
+    assert re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}", stderr_output) is None
