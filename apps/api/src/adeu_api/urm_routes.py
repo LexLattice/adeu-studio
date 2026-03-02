@@ -198,14 +198,7 @@ def _resolve_worker_cancel_policy_action() -> str:
 
 
 def _resolve_worker_route_authorization_role() -> str:
-    role = "copilot"
-    if not role:
-        raise URMError(
-            code="URM_POLICY_DENIED",
-            message="worker authorization role unavailable",
-            context={"endpoint": "urm.worker"},
-        )
-    return role
+    return "copilot"
 
 
 def _to_worker_authorization_http_exception(
