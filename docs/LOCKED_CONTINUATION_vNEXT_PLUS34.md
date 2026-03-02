@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock implemented on `main` (PR `#214` and PR `#215` merged on March 2, 2026 UTC); v34 closeout decision doc is pending.
+Status: draft lock implemented on `main` (PR `#214` and PR `#215` merged on March 2, 2026 UTC); closeout evidence is captured in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`.
 
 Decision basis:
 
@@ -20,6 +20,7 @@ Decision basis:
   - no policy-enforcement expansion,
   - no L2 boundary release.
 - `vNext+34` (`H1`-`H2`) is now merged on `main` via PR `#214` and PR `#215` with green CI checks.
+- `vNext+34` closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md` with `all_passed = true`.
 
 ## Global Locks
 
@@ -289,4 +290,4 @@ Prove `H1` formal evidence flow is deterministic, regression-resistant, and cont
 Implementation status (March 2, 2026 UTC):
 
 - `H1` and `H2` are merged on `main` with green CI checks.
-- v34 closeout decision capture in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md` remains pending.
+- v34 closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`.

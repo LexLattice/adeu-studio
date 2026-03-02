@@ -29,6 +29,7 @@ Goal: define thin-slice, lock-respecting candidate paths for `vNext+35` and onwa
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS31.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS32.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS33.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
 - archived GPT Pro snapshot inputs:
   - `docs/archives/next_arc_options_v5/DRAFT_NEXT_ARC_OPTIONS_v5_gpt_pro_snapshot.md`
   - `docs/archives/next_arc_options_v5/REVIEW_v5_gpt_pro_snapshot.md`
@@ -38,9 +39,9 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 ## Baseline Agreement (Current Ground Truth)
 
 - Locked continuation implementation baseline is `vNext+34` (`V31-C`, `H1`-`H2`) and is merged on `main`.
-- Latest closeout decision remains `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS33.md` (`vNext+34` closeout decision doc is pending).
+- Latest closeout decision is `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`.
 - Stop-gate schema family remains `stop_gate_metrics@1`.
-- v29 through v33 closeout artifacts are present in workspace:
+- v29 through v34 closeout artifacts are present in workspace:
   - `artifacts/quality_dashboard_v29_closeout.json`
   - `artifacts/stop_gate/metrics_v29_closeout.json`
   - `artifacts/stop_gate/report_v29_closeout.md`
@@ -56,6 +57,9 @@ This is a planning document only. It is not a lock doc and does not authorize ru
   - `artifacts/quality_dashboard_v33_closeout.json`
   - `artifacts/stop_gate/metrics_v33_closeout.json`
   - `artifacts/stop_gate/report_v33_closeout.md`
+  - `artifacts/quality_dashboard_v34_closeout.json`
+  - `artifacts/stop_gate/metrics_v34_closeout.json`
+  - `artifacts/stop_gate/report_v34_closeout.md`
 
 ## Lock Class Semantics (Operational)
 
@@ -67,7 +71,7 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 
 - `V31-C` is complete on `main` via `H1` and `H2`:
   - PR `#214` (`H1`) and PR `#215` (`H2`) merged with green CI.
-- `vNext+34` closeout decision doc is pending:
+- `vNext+34` closeout evidence is recorded in:
   - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
 - Planning default now advances to `vNext+35` candidate selection.
 
