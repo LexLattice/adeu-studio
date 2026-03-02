@@ -2,7 +2,7 @@
 
 This document records v35 implementation status for `V31-F`/`V31-G` boundary-preparation, with `I1` contract closure and `I2` deterministic guard execution artifacts.
 
-Status: `I1` + `I2` implemented on branch; pending merge and stop-gate closeout.
+Status: `I1` + `I2` merged on `main`; stop-gate closeout draft in progress.
 
 ## Scope
 
@@ -35,6 +35,9 @@ Status: `I1` + `I2` implemented on branch; pending merge and stop-gate closeout.
    - `apps/api/tests/test_l2_boundary_readiness_lint.py`
 4. CI enforcement is wired:
    - `.github/workflows/ci.yml` runs frozen lint CLI with `TZ=UTC` and `LC_ALL=C`.
+5. Merge evidence:
+   - PR `#216` merged at `17b40760b838ec9fc80c891e26ee5efd9c2c1a91`.
+   - PR `#217` merged at `ac5f1897f9855234a3a9988691370ebdae3a50fe`.
 
 ## Guard Contract Checks Covered by I2 Implementation
 
@@ -63,12 +66,12 @@ Status: `I1` + `I2` implemented on branch; pending merge and stop-gate closeout.
 
 ## Residual Risks to Close in Stop-Gate Phase
 
-1. Final merge evidence still depends on green CI execution of new boundary lint step.
-2. v35 closeout document still needs runtime-observability comparison row against v34 baseline.
+1. v35 closeout decision note must remain aligned with merged CI evidence and generated v35 stop-gate artifacts.
+2. Runtime-observability comparison row against v34 baseline must stay machine-checkable in the closeout note.
 3. No-release posture must remain explicit in closeout language (boundary prep only).
 
 ## Next Actions
 
-1. Merge v35 `I2` implementation PR after green CI.
-2. Draft `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md` with required machine-checkable row against v34 baseline.
-3. Re-baseline `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md` for v36 release-candidate sequencing after v35 closeout.
+1. Merge `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md` with required machine-checkable row against v34 baseline.
+2. Re-baseline `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md` for v36 release-candidate sequencing after v35 closeout.
+3. Preserve all v35 anti-release guard contracts as mandatory entry criteria for v36+ release drafts.

@@ -1,8 +1,8 @@
-# Draft Next Arc Options v5 (Post vNext+34)
+# Draft Next Arc Options v5 (Post vNext+35)
 
-This document is the fresh consolidated planning baseline for post-`vNext+34` sequencing.
+This document is the fresh consolidated planning baseline for post-`vNext+35` sequencing.
 
-Status: active planning draft (v17 through v34 baselines executed; v35 `I1` + `I2` implementation landed on branch, pending closeout merge and `vNext+36+` selection).
+Status: active planning draft (v17 through v35 baselines executed; v35 `I1` + `I2` merged on `main`; `vNext+36+` selection in progress).
 Goal: define lock-respecting candidate paths for post-v35 release sequencing while preserving the standard multi-implementation review sequence before lock freeze.
 
 ## Naming Convention (Paths vs Bundles)
@@ -22,6 +22,7 @@ Goal: define lock-respecting candidate paths for post-v35 release sequencing whi
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS32.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS33.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS34.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS27.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS28.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS29.md`
@@ -30,6 +31,7 @@ Goal: define lock-respecting candidate paths for post-v35 release sequencing whi
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS32.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS33.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md`
 - archived GPT Pro snapshot inputs:
   - `docs/archives/next_arc_options_v5/DRAFT_NEXT_ARC_OPTIONS_v5_gpt_pro_snapshot.md`
   - `docs/archives/next_arc_options_v5/REVIEW_v5_gpt_pro_snapshot.md`
@@ -38,10 +40,10 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Locked continuation implementation baseline is `vNext+34` (`V31-C`, `H1`-`H2`) and is merged on `main`.
-- Latest closeout decision is `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`.
+- Locked continuation implementation baseline is `vNext+35` (`V31-F`/`V31-G` precondition prep, `I1`-`I2`) and is merged on `main`.
+- Latest closeout decision draft is `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md`.
 - Stop-gate schema family remains `stop_gate_metrics@1`.
-- v29 through v34 closeout artifacts are present in workspace:
+- v29 through v35 closeout artifacts are present in workspace:
   - `artifacts/quality_dashboard_v29_closeout.json`
   - `artifacts/stop_gate/metrics_v29_closeout.json`
   - `artifacts/stop_gate/report_v29_closeout.md`
@@ -60,6 +62,9 @@ This is a planning document only. It is not a lock doc and does not authorize ru
   - `artifacts/quality_dashboard_v34_closeout.json`
   - `artifacts/stop_gate/metrics_v34_closeout.json`
   - `artifacts/stop_gate/report_v34_closeout.md`
+  - `artifacts/quality_dashboard_v35_closeout.json`
+  - `artifacts/stop_gate/metrics_v35_closeout.json`
+  - `artifacts/stop_gate/report_v35_closeout.md`
 
 ## Lock Class Semantics (Operational)
 
@@ -73,17 +78,21 @@ This is a planning document only. It is not a lock doc and does not authorize ru
   - PR `#214` (`H1`) and PR `#215` (`H2`) merged with green CI.
 - `vNext+34` closeout evidence is recorded in:
   - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
-- Planning default now advances to `vNext+35` candidate selection.
+- Planning default now advances to `vNext+36` candidate selection.
 
-## v35 I1 + I2 Checkpoint
+## v35 I1 + I2 Completion Checkpoint
 
 - v35 selected thin-slice remains explicit `L2` boundary-lock preparation for `V31-F`/`V31-G` with no boundary release in-arc.
-- `I1` contract closure and `I2` guard implementation are captured in:
+- `I1` contract closure and `I2` guard suite are merged on `main`:
+  - PR `#216` (`I1`) merge commit `17b40760b838ec9fc80c891e26ee5efd9c2c1a91`
+  - PR `#217` (`I2`) merge commit `ac5f1897f9855234a3a9988691370ebdae3a50fe`
+- v35 lock and edge assessment artifacts are captured in:
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`
   - `docs/ASSESSMENT_vNEXT_PLUS35_EDGES.md`
-- Remaining v35 scope before release sequencing is stop-gate closeout and merge confirmation.
+- v35 closeout evidence draft is captured in:
+  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md`
 
-## Confirmed Post-v34 Remaining Gaps (Worth Addressing)
+## Confirmed Post-v35 Remaining Gaps (Worth Addressing)
 
 1. `/urm/worker/run` and `/urm/worker/{worker_id}/cancel` are not policy-gated via `authorize_action`.
    - evidence anchors:
@@ -301,9 +310,9 @@ Acceptance:
 
 ## Recommended Sequencing (Default)
 
-1. `vNext+35`: merge `I2` guard evidence and close out v35 stop-gate decision (`V31-F`/`V31-G` prep only; no boundary release).
-2. `vNext+36`: evaluate first boundary release candidate (`V31-F` default) only after v35 closeout is merged green.
-3. `vNext+37+`: complete remaining `L2` release track (`V31-G` default) under explicit release lock updates.
+1. `vNext+36`: evaluate first boundary release candidate (`V31-F` default) only after v35 closeout decision is merged green.
+2. `vNext+37+`: complete remaining `L2` release track (`V31-G` default) under explicit release lock updates.
+3. maintain v35 anti-release guard contracts as mandatory continuity gates for all `L2` release arcs.
 
 ## Standard Multi-Implementation Sequence (Required)
 
@@ -312,14 +321,14 @@ For each selected arc candidate (next active release planning slice: `vNext+36+`
 1. Draft parallel implementation briefs for multiple implementers (`codex`, `gpt`, `gemini`, `opus`) with identical locks/acceptance.
 2. Run independent implementations and collect deterministic evidence bundles.
 3. Produce comparative assessment (risk, lock adherence, determinism evidence, CI impact).
-4. Consolidate into one lock candidate (v35 authority: `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`).
+4. Consolidate into one lock candidate (current authority baseline: `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`).
 5. Execute small-green PR sequence and close out with stop-gate decision note.
 
 ## Proposed Next Step
 
-Close out v35 and prepare v36 release-selection baseline:
+Prepare v36 release-selection baseline:
 
-1. Merge v35 `I2` implementation with green CI.
-2. Draft and merge `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md` with required machine-checkable v34 comparison row.
+1. Merge/finalize `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md` with required machine-checkable v34 comparison row.
+2. Preserve all v35 anti-release locks (`no-touch`, callgraph guard, sentinel drift guard, blocker-registry membership) as continuity gates.
 3. Preserve all v14-v35 continuity locks unless an explicit future release lock is approved.
 4. Start v36 release-candidate lock drafting (`V31-F` default) only after v35 closeout merge.

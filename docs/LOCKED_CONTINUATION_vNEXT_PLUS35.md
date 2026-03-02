@@ -7,12 +7,13 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock with `I1` contract closure and `I2` guard implementation landed (pending merge/freeze closeout).
+Status: draft lock with `I1` + `I2` merged on `main`; pending stop-gate closeout freeze.
 
 Decision basis:
 
 - `vNext+34` (`H1`-`H2`) is merged on `main` via PR `#214` and PR `#215` with green CI checks.
 - `vNext+34` closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md` with `all_passed = true`.
+- `vNext+35` (`I1`-`I2`) is merged on `main` via PR `#216` and PR `#217` with green CI checks.
 - Post-v34 planning baseline is `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`.
 - Selected v35 thin-slice default is explicit L2 boundary-lock preparation for:
   - `V31-F` (`/urm/worker/run` governance alignment),
@@ -322,6 +323,8 @@ Lock-class rationale:
   - `## I1) L2 Boundary-Release Precondition Contract Closure`.
 - Boundary-preparation edge assessment and repository-state verification are recorded in:
   - `docs/ASSESSMENT_vNEXT_PLUS35_EDGES.md`.
+- Merge evidence:
+  - PR `#216` merged at `17b40760b838ec9fc80c891e26ee5efd9c2c1a91`.
 - This `I1` implementation remains docs-only by design:
   - no runtime endpoint behavior changes,
   - no persistence wiring changes,
@@ -429,6 +432,8 @@ Prove v35 boundary-preparation remains deterministic, fail-closed, and resistant
 - Deterministic guard test suite added:
   - `apps/api/tests/test_l2_boundary_readiness_lint.py`.
 - CI wiring added in `.github/workflows/ci.yml` with frozen lint CLI and deterministic env posture (`TZ=UTC`, `LC_ALL=C`).
+- Merge evidence:
+  - PR `#217` merged at `ac5f1897f9855234a3a9988691370ebdae3a50fe`.
 
 ## Stop-Gate Impact (v35)
 
