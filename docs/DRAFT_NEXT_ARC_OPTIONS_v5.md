@@ -52,10 +52,25 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 1. Evidence Explorer API/web contract mismatch:
    - API returns template `"/urm/evidence-explorer/catalog/{family}"`.
    - web validator currently expects expanded `"/urm/evidence-explorer/catalog/${family}"`.
+   - evidence anchors:
+     - `apps/api/src/adeu_api/main.py` (`_EVIDENCE_EXPLORER_LIST_REF_PATH_TEMPLATE`)
+     - `apps/web/src/app/evidence-explorer/page.tsx` (`isCatalogSummary` path comparison)
 2. `/urm/worker/run` and `/urm/worker/{worker_id}/cancel` are not policy-gated via `authorize_action`.
+   - evidence anchors:
+     - `apps/api/src/adeu_api/urm_routes.py` (`@router.post("/worker/run")`, `@router.post("/worker/{worker_id}/cancel")`)
 3. Repo-root discovery remains duplicated and `.git`-dependent in several scripts/tests/runtime helpers.
+   - evidence anchors:
+     - `apps/api/scripts/check_s9_triggers.py` (`_repo_root`)
+     - `apps/api/tests/path_helpers.py` (`repo_root`)
+     - `apps/api/tests/test_check_s9_triggers.py` (`_repo_root`)
+     - `apps/api/tests/test_canonical_json_conformance_vnext_plus27.py` (`_repo_root`)
+     - `packages/urm_runtime/src/urm_runtime/stop_gate_registry.py` (`discover_repo_root`)
 4. Worker CLI handling is compatibility-first, not fail-closed, when `--ask-for-approval` is unsupported.
+   - evidence anchors:
+     - `packages/urm_runtime/src/urm_runtime/worker.py` (`_supports_exec_flag`, conditional `include_ask_for_approval_flag`)
 5. Proposer idempotency remains process-local in-memory cache for one API path.
+   - evidence anchor:
+     - `apps/api/src/adeu_api/main.py` (`_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY`)
 
 ## Gap-to-Path Mapping (Total)
 
@@ -76,10 +91,24 @@ Goal:
 
 Scope:
 - Freeze contract interpretation: `families[].list_ref.path` is a URI template string using literal `{family}` placeholder.
+- Freeze authoritative family enum for this path to exactly:
+  - `read_surface`
+  - `normative_advice`
+  - `proof_trust`
+  - `semantics_v4_candidate`
+  - `extraction_fidelity`
+- Authoritative enum source for this path is API-side `_EVIDENCE_EXPLORER_FAMILIES`; web-side family typing must be value-identical to that frozen set.
 - Update web validator/expander to support the frozen template form deterministically.
+- Expansion authority boundary is frozen:
+  - API continues returning template form only;
+  - frontend performs expansion for request dispatch;
+  - dual-contract acceptance (`{family}` and pre-expanded forms) is out-of-scope for this path.
 - Expansion rules are frozen:
+  - accept only frozen family enum values as expansion inputs;
   - replace exact substring `{family}` only;
   - fail closed if placeholder is missing or appears more than once;
+  - fail closed if template contains any placeholder token other than exact `{family}`;
+  - URL-encode expanded family token before insertion;
   - fail closed if expanded path does not preserve expected endpoint prefix.
 - Add frontend contract fixture test for catalog payload shape.
 
@@ -101,7 +130,21 @@ Goal:
 Scope:
 - Add deterministic docs-reference lint over `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS*.md`.
 - Assert referenced `artifacts/...` files exist.
-- Optionally assert declared metric-key continuity claims against referenced metrics artifacts.
+- Parse referenced JSON artifacts and fail closed on invalid JSON.
+- Validate referenced stop-gate metrics artifacts have `schema == "stop_gate_metrics@1"`.
+- Validate declared metric-key continuity claims against referenced metrics artifacts.
+- Normalize v29/v30 closeout docs by adding the frozen continuity-assertion block (same content, machine-checkable form) so current baseline docs remain guard-compatible.
+- Metric-key continuity claim extraction grammar is frozen:
+  - claim source is one fenced JSON block under heading `## Metric-Key Continuity Assertion`;
+  - required block schema is docs-only `metric_key_continuity_assertion@1`;
+  - required keys:
+    - `schema`
+    - `baseline_metrics_path`
+    - `current_metrics_path`
+    - `expected_relation`
+  - allowed `expected_relation` value in this path:
+    - `exact_keyset_equality`
+  - this grammar is docs-validation-only and is not a runtime/public schema-family addition.
 
 Locks:
 - No new stop-gate metric keys.
@@ -109,6 +152,7 @@ Locks:
 
 Acceptance:
 - Guard fails closed on missing referenced artifact paths.
+- Guard fails closed when required continuity-assertion block is missing or schema-invalid.
 - Guard passes on current v29/v30 closeout chain.
 
 ### Path V31-C: Formal ODEU Template Activation v0.2 (Evidence-Only)
@@ -117,6 +161,8 @@ Lock class: `L1`
 
 Goal:
 - Start a deterministic artifact-to-Lean proof-packet flow for core contract checks without enforcement release.
+- Lock-class rationale:
+  - path is treated as `L1` because it introduces a new committed proof-packet evidence contract surface (artifact schema/shape), even while runtime enforcement remains unchanged.
 
 Scope:
 - Fix ODEU prep compile issues (for example, `CoreNode` accessor usage).
@@ -139,7 +185,16 @@ Goal:
 - Replace fragmented repo-root discovery logic with one shared resolver path.
 
 Scope:
-- Consolidate script/test/runtime root discovery to shared helper behavior.
+- Consolidate script/test/runtime root discovery to one canonical helper path.
+- Preferred canonical helper: `packages/adeu_ir/src/adeu_ir/repo.py` (`repo_root`), with consistent marker fallback behavior and env override support.
+- Root-resolution precedence is frozen:
+  - `ADEU_REPO_ROOT` when set and valid,
+  - otherwise nearest ancestor satisfying `pyproject.toml` + `packages/`,
+  - otherwise nearest ancestor containing `.git/`,
+  - otherwise fail closed.
+- Marker disagreement behavior is frozen:
+  - if `ADEU_REPO_ROOT` is set but does not satisfy required markers, fail closed;
+  - no silent fallback away from an explicitly configured env root.
 - Preserve deterministic env override semantics.
 
 Locks:
@@ -156,7 +211,10 @@ Goal:
 - Decide and lock explicit behavior when required `codex exec` flags are unsupported.
 
 Scope:
-- Define fail-closed vs compatibility-mode policy for `--ask-for-approval` and related execution flags.
+- Freeze worker CLI safety policy to fail-closed:
+  - when execution requires `--ask-for-approval` and support probe reports unsupported, worker run fails deterministically before spawn.
+- Freeze support-detection mechanism to explicit `codex exec --help` flag probing via `_supports_exec_flag`.
+- Compatibility-mode fallback for unsupported required flags is out-of-scope for this path.
 - Add explicit tests for chosen policy path.
 
 Locks:
@@ -193,9 +251,11 @@ Goal:
 Scope:
 - Persist proposer idempotency records.
 - Preserve existing response semantics under replay/conflict.
+- Remove process-local proposer idempotency memory cache in the same boundary-release slice (no dual-source operation).
 
 Locks:
 - Requires explicit boundary-release lock text.
+- Lock text must define one source of truth for idempotency state during and after migration.
 
 Acceptance:
 - Multi-process behavior is deterministic and conflict-safe.
@@ -206,6 +266,8 @@ Acceptance:
   - newly authorized surface(s),
   - persistence-authority change(s),
   - rollback and deterministic denial semantics.
+- `L2` scaffolding prohibition is frozen:
+  - no partial implementation of `L2` authority/persistence surfaces may land under `L0/L1` arcs prior to boundary lock approval.
 
 ## Decision Matrix (Thin-slice Selection)
 
@@ -222,7 +284,7 @@ Acceptance:
 
 ## Recommended Sequencing (Default)
 
-1. `vNext+31`: `B31-AB` (`V31-A + V31-B`)
+1. `vNext+31`: `B31-AB`
    - fixes active explorer usability gap and adds closeout consistency guard rails.
 2. `vNext+32`: `V31-C` (formal lane) or `V31-D` (repo-root consolidation), based on active velocity blocker.
 3. `vNext+33`: complete whichever of `V31-C`/`V31-D` remains, then `V31-E`.
