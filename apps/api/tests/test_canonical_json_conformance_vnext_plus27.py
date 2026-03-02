@@ -11,8 +11,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
-from adeu_ir.repo import repo_root as canonical_repo_root
 import pytest
+from adeu_ir.repo import repo_root as canonical_repo_root
 
 _CANONICAL_SYMBOLS = frozenset({"canonical_json", "_canonical_json"})
 _SHA256_SYMBOL = "sha256_canonical_json"

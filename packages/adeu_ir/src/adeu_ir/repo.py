@@ -45,13 +45,14 @@ def _resolve_env_root(raw_value: str) -> Path:
 
 
 def _walk_root_candidates(start: Path) -> Path:
-    candidates = (start, *start.parents)
-    for candidate in candidates:
+    git_root_candidate: Path | None = None
+    for candidate in (start, *start.parents):
         if _has_required_structural_markers(candidate):
             return candidate
-    for candidate in candidates:
-        if _has_git_marker(candidate):
-            return candidate
+        if git_root_candidate is None and _has_git_marker(candidate):
+            git_root_candidate = candidate
+    if git_root_candidate is not None:
+        return git_root_candidate
     raise _fail(f"could not locate repository root from anchor {start}")
 
 
@@ -65,4 +66,3 @@ def repo_root(*, anchor: Path | None = None) -> Path:
         anchor = Path.cwd()
     start = _resolve_strict(Path(anchor), label="anchor")
     return _walk_root_candidates(start)
-

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from adeu_ir.repo import repo_root
 import pytest
+from adeu_ir.repo import repo_root
 
 
 def _touch(path: Path) -> None:
