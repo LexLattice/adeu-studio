@@ -115,79 +115,17 @@ def _subprocess_guard_report(*, cwd: Path) -> dict[str, str]:
         pythonpath_parts.append(existing_pythonpath)
     env["PYTHONPATH"] = os.pathsep.join(pythonpath_parts)
     env["F2_REPO_ROOT"] = str(root)
-
-    script = """
-import importlib.util
-import json
-import os
-import sys
-import warnings
-from pathlib import Path
-
-from adeu_ir.repo import repo_root as canonical_repo_root
-from path_helpers import repo_root as tests_path_helper_repo_root
-import urm_runtime.stop_gate_registry as stop_gate_registry_module
-
-repo_root = Path(os.environ["F2_REPO_ROOT"]).resolve()
-
-def load_module(path: Path, module_name: str):
-    spec = importlib.util.spec_from_file_location(module_name, path)
-    assert spec is not None
-    assert spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
-    spec.loader.exec_module(module)
-    return module
-
-check_s9_module = load_module(
-    repo_root / "apps" / "api" / "scripts" / "check_s9_triggers.py",
-    "f2_subprocess_check_s9_script",
-)
-tests_check_s9_module = load_module(
-    repo_root / "apps" / "api" / "tests" / "test_check_s9_triggers.py",
-    "f2_subprocess_test_check_s9",
-)
-tests_canonical_module = load_module(
-    repo_root / "apps" / "api" / "tests" / "test_canonical_json_conformance_vnext_plus27.py",
-    "f2_subprocess_test_canonical",
-)
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", DeprecationWarning)
-    stop_gate_registry_root = stop_gate_registry_module.discover_repo_root(
-        repo_root
-        / "packages"
-        / "urm_runtime"
-        / "src"
-        / "urm_runtime"
-        / "stop_gate_registry.py"
+    script_path = (
+        root
+        / "apps"
+        / "api"
+        / "tests"
+        / "fixtures"
+        / "stop_gate"
+        / "repo_root_resolution_f2_subprocess_probe.py"
     )
-
-assert stop_gate_registry_root is not None
-resolved = {
-    "canonical_helper": canonical_repo_root(
-        anchor=(
-            repo_root
-            / "apps"
-            / "api"
-            / "tests"
-            / "test_repo_root_resolution_f2_guards_vnext_plus32.py"
-        )
-    ),
-    "check_s9_script": check_s9_module._repo_root(),
-    "stop_gate_registry": stop_gate_registry_root,
-    "tests_canonical_json_v27": tests_canonical_module._repo_root(),
-    "tests_check_s9": tests_check_s9_module._repo_root(),
-    "tests_path_helpers": tests_path_helper_repo_root(),
-}
-normalized = {
-    key: resolved[key].resolve().relative_to(repo_root).as_posix()
-    for key in sorted(resolved)
-}
-print(json.dumps(normalized, sort_keys=True))
-""".strip()
     completed = subprocess.run(
-        [sys.executable, "-c", script],
+        [sys.executable, str(script_path)],
         check=False,
         capture_output=True,
         text=True,
@@ -201,7 +139,6 @@ print(json.dumps(normalized, sort_keys=True))
 def test_f2_in_scope_callsite_report_is_sorted_and_posix_normalized() -> None:
     report = _build_normalized_in_scope_report()
     assert tuple(report.keys()) == _IN_SCOPE_RESOLVER_KEYS
-    assert report == {key: report[key] for key in sorted(report)}
     assert set(report.values()) == {"."}
     assert all("\\" not in value for value in report.values())
 
