@@ -20,7 +20,11 @@ from urm_runtime.models import WorkerCancelResponse, WorkerRunResult
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    current = Path(__file__).resolve()
+    for parent in current.parents:
+        if (parent / ".git").is_dir():
+            return parent
+    raise RuntimeError("repository root not found")
 
 
 def _worker_run_payload(
@@ -119,7 +123,14 @@ def _asgi_post_json(*, app: FastAPI, path: str, payload: dict[str, Any]) -> tupl
 
     asyncio.run(_invoke())
 
-    start_message = next(message for message in sent if message["type"] == "http.response.start")
+    try:
+        start_message = next(
+            message for message in sent if message["type"] == "http.response.start"
+        )
+    except StopIteration:
+        raise AssertionError(
+            "No 'http.response.start' message was sent by the application."
+        ) from None
     body = b"".join(
         message.get("body", b"") for message in sent if message["type"] == "http.response.body"
     )

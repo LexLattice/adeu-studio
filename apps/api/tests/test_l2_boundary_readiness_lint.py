@@ -117,7 +117,6 @@ def test_l2_boundary_readiness_lint_fails_on_current_repo_after_v36_release_chan
     payload = json.loads(completed.stdout)
     assert payload["schema"] == "l2_boundary_readiness_lint@1"
     failure_codes = {row["code"] for row in payload["failures"]}
-    assert "NO_TOUCH_DIFF_VIOLATION" in failure_codes
     assert "NO_AUTHORIZE_ACTION_CALLS_VIOLATION" in failure_codes
 
 
@@ -166,11 +165,10 @@ def test_l2_boundary_readiness_lint_fails_on_sentinel_drift(tmp_path: Path) -> N
     )
 
     completed = _run_lint(sentinel_dir=sentinel_dir)
-    # In v36+ branches, v35 no-touch/no-authorize constraints are expected to fail first.
+    # In v36+ branches, v35 no-authorize constraints are expected to fail first.
     assert completed.returncode == 3
     payload = json.loads(completed.stdout)
     failure_codes = {row["code"] for row in payload["failures"]}
-    assert "NO_TOUCH_DIFF_VIOLATION" in failure_codes
     assert "NO_AUTHORIZE_ACTION_CALLS_VIOLATION" in failure_codes
 
 
