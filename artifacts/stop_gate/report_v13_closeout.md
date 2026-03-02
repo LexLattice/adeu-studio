@@ -1,0 +1,91 @@
+# Stop-Gate Metrics
+
+- Schema: `stop_gate_metrics@1`
+- Valid: `True`
+- All Passed: `True`
+- vnext+8 manifest hash: `4eaf96111212f0b5e9276a7e2657f2bf4bef92e14c6d8980c76085103422a397`
+- vnext+9 manifest hash: `2104ff0aebd7b45fe0e6a74c29495ec44ee62d9ea97420e008aef9541b67b4de`
+- vnext+10 manifest hash: `495e664f33281435ca8d1d162e5810631cc09e6cb195dc39dec4dcb603ae3a06`
+- vnext+11 manifest hash: `a11ddda0f1faf9c039a31888b68ac7ce2780a2b81b8af94958b1227b88752ce3`
+- vnext+13 manifest hash: `4f7cc716f1aa202cf2931937812a1cef7ceaeb675be8463ef764ef003cf83aa7`
+
+## Metrics
+
+- policy incident reproducibility pct: `100.0`
+- child lifecycle replay determinism pct: `100.0`
+- runtime failure-code stability pct: `100.0`
+- connector snapshot replay stability pct: `100.0`
+- validator packet determinism pct: `100.0`
+- witness reconstruction determinism pct: `100.0`
+- semantics diagnostics determinism pct: `100.0`
+- policy lint determinism pct: `100.0`
+- proof replay determinism pct: `100.0`
+- policy/proof packet hash stability pct: `100.0`
+- explain diff determinism pct: `100.0`
+- explain api/cli parity pct: `100.0`
+- explain hash stability pct: `100.0`
+- scheduler dispatch replay determinism pct: `100.0`
+- orphan lease recovery determinism pct: `100.0`
+- concurrent budget/cancel stability pct: `100.0`
+- concept conflict precision pct: `100.0`
+- concept conflict recall pct: `100.0`
+- coherence permutation stability pct: `100.0`
+- concept conflict precision macro pct (non-gating): `100.0`
+- concept conflict recall macro pct (non-gating): `100.0`
+- baseline concept conflict precision pct: `99.0`
+- baseline concept conflict recall pct: `99.0`
+- concept conflict precision delta pct: `1.0`
+- concept conflict recall delta pct: `1.0`
+- semantic-depth plateau epsilon pct: `0.1`
+- semantic-depth strict improvement required: `True`
+- semantic-depth strict improvement met: `True`
+- semantic-depth plateau eligible: `False`
+- semantic-depth improvement lock passed: `True`
+- domain conformance replay determinism pct: `100.0`
+- cross-domain artifact parity pct: `100.0`
+- runtime domain coupling guard pct: `100.0`
+- adeu core IR replay determinism pct: `100.0`
+- adeu claim ledger recompute match pct: `100.0`
+- adeu lane projection determinism pct: `100.0`
+- quality delta non-negative: `True`
+- quality metric ruleset: `frozen_v3`
+- quality delta rule `bridge_loss_utilization_rate`: `non_decreasing`
+- quality delta rule `coherence_alert_count`: `non_increasing`
+- quality delta rule `evidence_coverage_rate`: `non_decreasing`
+- quality delta rule `redundancy_rate`: `non_increasing`
+- quality delta rule `top_k_stability@10`: `non_decreasing`
+- quality delta `bridge_loss_utilization_rate`: `0.0`
+- quality delta `coherence_alert_count`: `0.0`
+- quality delta `evidence_coverage_rate`: `0.0`
+- quality delta `redundancy_rate`: `0.0`
+- quality delta `top_k_stability@10`: `0.0`
+
+## Gates
+
+- `adeu_claim_ledger_recompute_match`: `True`
+- `adeu_core_ir_replay_determinism`: `True`
+- `adeu_lane_projection_determinism`: `True`
+- `child_lifecycle_replay_determinism`: `True`
+- `coherence_permutation_stability`: `True`
+- `concept_conflict_precision`: `True`
+- `concept_conflict_recall`: `True`
+- `concurrent_budget_cancel_stability`: `True`
+- `connector_snapshot_replay_stability`: `True`
+- `cross_domain_artifact_parity`: `True`
+- `domain_conformance_replay_determinism`: `True`
+- `explain_api_cli_parity`: `True`
+- `explain_diff_determinism`: `True`
+- `explain_hash_stability`: `True`
+- `orphan_lease_recovery_determinism`: `True`
+- `policy_incident_reproducibility`: `True`
+- `policy_lint_determinism`: `True`
+- `policy_proof_packet_hash_stability`: `True`
+- `proof_replay_determinism`: `True`
+- `quality_delta_non_negative`: `True`
+- `runtime_domain_coupling_guard`: `True`
+- `runtime_failure_code_stability`: `True`
+- `scheduler_dispatch_replay_determinism`: `True`
+- `semantic_depth_improvement_lock`: `True`
+- `semantics_diagnostics_determinism`: `True`
+- `validator_packet_determinism`: `True`
+- `witness_reconstruction_determinism`: `True`

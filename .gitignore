@@ -19,8 +19,17 @@ node_modules/
 .next/
 out/
 apps/api/var/
+
+# Artifacts policy:
+# - Keep deterministic versioned closeout artifacts in git.
+# - Ignore transient/manual/generated-by-default artifacts unless explicitly whitelisted.
 artifacts/*
 !artifacts/.gitkeep
+!artifacts/quality_dashboard_v*_closeout*.json
+!artifacts/stop_gate/
+artifacts/stop_gate/*
+!artifacts/stop_gate/metrics_v*_closeout*.json
+!artifacts/stop_gate/report_v*_closeout*.md
 
 # Editors
 .idea/
