@@ -91,6 +91,35 @@ def test_build_agreement_report_is_deterministic_and_ordered() -> None:
     assert all(len(row["proof_hash"]) == 64 for row in rows)
 
 
+def test_build_agreement_report_replay_identity_is_stable_across_three_runs() -> None:
+    bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
+    reports = [
+        build_agreement_report(
+            fixture_bundle=bundle,
+            timeout_ms=1000,
+            lean_bin="/tmp/lean-not-used",
+            run_request=_fake_proved_run_request,
+        )
+        for _ in range(3)
+    ]
+    canonical_payloads = [
+        json.dumps(
+            report,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+        for report in reports
+    ]
+    digests = [
+        hashlib.sha256(payload.encode("utf-8")).hexdigest()
+        for payload in canonical_payloads
+    ]
+
+    assert canonical_payloads[0] == canonical_payloads[1] == canonical_payloads[2]
+    assert digests[0] == digests[1] == digests[2]
+
+
 def test_build_agreement_report_matches_locked_hash_baseline() -> None:
     bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
     report = build_agreement_report(
@@ -341,3 +370,30 @@ def test_build_agreement_report_fails_closed_on_semantics_mismatch(
             lean_bin="/tmp/lean-not-used",
             run_request=_fake_proved_run_request,
         )
+
+
+def test_build_agreement_report_uses_single_effective_semantics_version(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
+    seen_versions: set[str] = set()
+
+    def recording_build_obligation_requests(*args, **kwargs):  # type: ignore[no-untyped-def]
+        requests = runner_module.build_obligation_requests(*args, **kwargs)
+        seen_versions.update(request.semantics_version for request in requests)
+        return requests
+
+    monkeypatch.setattr(
+        agreement_module,
+        "build_obligation_requests",
+        recording_build_obligation_requests,
+    )
+    report = build_agreement_report(
+        fixture_bundle=bundle,
+        timeout_ms=1000,
+        lean_bin="/tmp/lean-not-used",
+        run_request=_fake_proved_run_request,
+    )
+
+    assert report["proof_semantics_version"] == "adeu.lean.core.v1"
+    assert seen_versions == {"adeu.lean.core.v1"}
