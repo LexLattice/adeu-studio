@@ -648,3 +648,118 @@ def test_worker_runner_fails_closed_when_ask_for_approval_flag_unsupported(
         "UNSUPPORTED_REQUIRED_FLAG:--ask-for-approval:FLAG_ABSENT"
     ) in stderr_output
     assert re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}", stderr_output) is None
+
+
+@pytest.mark.parametrize(
+    ("env_overrides", "expected_reason"),
+    [
+        ({"FAKE_CODEX_EXEC_HELP_EXIT_CODE": "9"}, "PROBE_NONZERO_EXIT"),
+        ({"FAKE_CODEX_EXEC_HELP_SLEEP_SECS": "0.05"}, "PROBE_TIMEOUT"),
+    ],
+)
+def test_worker_runner_fails_closed_when_exec_help_probe_errors(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    env_overrides: dict[str, str],
+    expected_reason: str,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    counter_path = tmp_path / "counter.txt"
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+    monkeypatch.setenv("FAKE_CODEX_CALL_COUNTER_PATH", str(counter_path))
+    for key, value in env_overrides.items():
+        monkeypatch.setenv(key, value)
+    if expected_reason == "PROBE_TIMEOUT":
+        monkeypatch.setattr("urm_runtime.worker.WORKER_EXEC_HELP_TIMEOUT_SECS", 0.01)
+
+    runner = CodexExecWorkerRunner(config=config)
+    with pytest.raises(URMError) as exc_info:
+        runner.run(
+            _worker_request(
+                client_request_id=f"req-help-probe-fail-{expected_reason}",
+                role="pipeline_worker",
+                prompt="run with help probe failure",
+            )
+        )
+
+    expected_message = f"UNSUPPORTED_REQUIRED_FLAG:--ask-for-approval:{expected_reason}"
+    assert exc_info.value.detail.code == "URM_WORKER_START_FAILED"
+    assert exc_info.value.detail.message == expected_message
+    assert not counter_path.exists()
+    assert runner._active_processes == {}
+
+    stderr_output = capsys.readouterr().err
+    assert f"URM_WORKER_START_FAILED {expected_message}" in stderr_output
+    assert re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}", stderr_output) is None
+
+
+def test_worker_runner_fails_closed_when_exec_help_probe_launch_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    codex_bin.chmod(0o644)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    counter_path = tmp_path / "counter.txt"
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+    monkeypatch.setenv("FAKE_CODEX_CALL_COUNTER_PATH", str(counter_path))
+
+    runner = CodexExecWorkerRunner(config=config)
+    with pytest.raises(URMError) as exc_info:
+        runner.run(
+            _worker_request(
+                client_request_id="req-help-probe-launch-fail-1",
+                role="pipeline_worker",
+                prompt="run with help launch failure",
+            )
+        )
+
+    expected_message = "UNSUPPORTED_REQUIRED_FLAG:--ask-for-approval:PROBE_LAUNCH_FAILED"
+    assert exc_info.value.detail.code == "URM_WORKER_START_FAILED"
+    assert exc_info.value.detail.message == expected_message
+    assert not counter_path.exists()
+    assert runner._active_processes == {}
+
+    stderr_output = capsys.readouterr().err
+    assert f"URM_WORKER_START_FAILED {expected_message}" in stderr_output
+    assert re.search(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}", stderr_output) is None
+
+
+def test_worker_runner_supported_branch_uses_single_two_token_ask_for_approval_shape(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    config = _runtime_config(tmp_path=tmp_path, codex_bin=codex_bin)
+    fixture_path = Path(__file__).resolve().parent / "fixtures" / "codex_exec" / "success.jsonl"
+    argv_snapshot_path = tmp_path / "argv.snapshot.txt"
+    monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
+    monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
+    monkeypatch.setenv("FAKE_CODEX_ARGV_SNAPSHOT_PATH", str(argv_snapshot_path))
+
+    runner = CodexExecWorkerRunner(config=config)
+    result = runner.run(
+        _worker_request(
+            client_request_id="req-ask-shape-1",
+            role="pipeline_worker",
+            prompt="validate ask-for-approval argv shape",
+        )
+    )
+
+    assert result.status == "ok"
+    argv_tokens = argv_snapshot_path.read_text(encoding="utf-8").splitlines()
+    ask_positions = [idx for idx, token in enumerate(argv_tokens) if token == "--ask-for-approval"]
+    assert len(ask_positions) == 1
+    ask_index = ask_positions[0]
+    assert ask_index + 1 < len(argv_tokens)
+    assert argv_tokens[ask_index + 1] == "never"
+    assert all(
+        not token.startswith("--ask-for-approval=") for token in argv_tokens
+    )

@@ -16,8 +16,27 @@ def _append_counter(path: str | None) -> None:
         handle.write("1\n")
 
 
+def _write_argv_snapshot(path: str | None, argv: list[str]) -> None:
+    if not path:
+        return
+    snapshot = Path(path)
+    snapshot.parent.mkdir(parents=True, exist_ok=True)
+    snapshot.write_text("\n".join(argv), encoding="utf-8")
+
+
 def main() -> int:
     if len(sys.argv) >= 3 and sys.argv[1] == "exec" and sys.argv[2] == "--help":
+        help_sleep_s = float(os.environ.get("FAKE_CODEX_EXEC_HELP_SLEEP_SECS", "0"))
+        if help_sleep_s > 0:
+            time.sleep(help_sleep_s)
+        help_exit_code_raw = os.environ.get("FAKE_CODEX_EXEC_HELP_EXIT_CODE")
+        if help_exit_code_raw is not None:
+            try:
+                help_exit_code = int(help_exit_code_raw)
+            except ValueError:
+                help_exit_code = 1
+            print("forced exec --help failure", file=sys.stderr)
+            return help_exit_code if help_exit_code != 0 else 1
         ask_supported = os.environ.get("FAKE_CODEX_EXEC_HELP_NO_ASK_FOR_APPROVAL") != "1"
         if os.environ.get("FAKE_CODEX_EXEC_HELP_NO_OUTPUT_SCHEMA") != "1":
             print(
@@ -60,6 +79,7 @@ def main() -> int:
         print("output-schema flag unsupported", file=sys.stderr)
         return 24
 
+    _write_argv_snapshot(os.environ.get("FAKE_CODEX_ARGV_SNAPSHOT_PATH"), argv)
     _append_counter(os.environ.get("FAKE_CODEX_CALL_COUNTER_PATH"))
     sleep_s = float(os.environ.get("FAKE_CODEX_SLEEP_SECS", "0"))
     if sleep_s > 0:
