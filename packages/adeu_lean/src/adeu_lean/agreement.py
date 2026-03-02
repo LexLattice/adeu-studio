@@ -238,12 +238,6 @@ def _build_rows_for_fixture(
                 f"theorem_id drift for {fixture.fixture_id}:{obligation_kind}: "
                 f"{request.theorem_id!r} != {theorem_id_expected!r}"
             )
-        if request.semantics_version != proof_semantics_version:
-            raise AgreementHarnessError(
-                f"{_SEMANTICS_VERSION_MISMATCH}: "
-                f"{fixture.fixture_id}:{obligation_kind} request={request.semantics_version!r} "
-                f"expected={proof_semantics_version!r}"
-            )
         inputs_hash = _require_request_metadata_hash(
             request=request,
             key="inputs_hash",

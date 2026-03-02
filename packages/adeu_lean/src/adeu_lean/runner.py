@@ -4,8 +4,8 @@ import hashlib
 import json
 import os
 import re
-import signal
 import shutil
+import signal
 import subprocess
 from pathlib import Path
 
