@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test:contracts": "node --test tests/evidence-explorer-contract.test.ts",
     "test:smoke": "node --test tests/routes.smoke.test.mjs"
   },
   "dependencies": {

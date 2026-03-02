@@ -5,13 +5,13 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { apiBase } from "../lib/api-base";
-
-type EvidenceExplorerFamily =
-  | "read_surface"
-  | "normative_advice"
-  | "proof_trust"
-  | "semantics_v4_candidate"
-  | "extraction_fidelity";
+import {
+  expandCatalogListRefTemplate,
+  isCatalogListRefTemplate,
+  isEvidenceExplorerFamily,
+  sortFamiliesLexicographic,
+  type EvidenceExplorerFamily,
+} from "./catalog-contract";
 
 type EvidenceExplorerIdentityMode = "artifact_level" | "pair_level";
 
@@ -91,16 +91,6 @@ function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
 }
 
-function isEvidenceExplorerFamily(value: unknown): value is EvidenceExplorerFamily {
-  return (
-    value === "read_surface" ||
-    value === "normative_advice" ||
-    value === "proof_trust" ||
-    value === "semantics_v4_candidate" ||
-    value === "extraction_fidelity"
-  );
-}
-
 function isEvidenceExplorerIdentityMode(value: unknown): value is EvidenceExplorerIdentityMode {
   return value === "artifact_level" || value === "pair_level";
 }
@@ -116,7 +106,7 @@ function isCatalogSummary(value: unknown): value is EvidenceExplorerCatalogFamil
   if (!isEvidenceExplorerIdentityMode(value.identity_mode)) return false;
   if (typeof value.entry_count !== "number") return false;
   if (!isEndpointRef(value.list_ref)) return false;
-  return value.list_ref.path === `/urm/evidence-explorer/catalog/${value.family}`;
+  return isCatalogListRefTemplate(value.list_ref.path);
 }
 
 function isCatalogEntry(value: unknown): value is EvidenceExplorerCatalogEntry {
@@ -364,24 +354,32 @@ async function fetchCatalog(): Promise<EvidenceExplorerCatalogResponse> {
 }
 
 async function fetchCatalogFamily(
-  family: EvidenceExplorerFamily,
+  summary: EvidenceExplorerCatalogFamilySummary,
   filters: PrefixFilters,
 ): Promise<EvidenceExplorerCatalogFamilyResponse> {
+  const resolvedPath = expandCatalogListRefTemplate(summary.list_ref.path, summary.family);
+  if (!resolvedPath) {
+    throw {
+      status: 500,
+      reason: "CATALOG_PAYLOAD_INVALID",
+      message: "catalog_payload_invalid",
+    } satisfies ApiErrorDetail;
+  }
   const params = new URLSearchParams();
   if (filters.source) params.set("source_text_hash_prefix", filters.source);
   if (filters.core) params.set("core_ir_artifact_id_prefix", filters.core);
   if (filters.concept) params.set("concept_artifact_id_prefix", filters.concept);
   const query = params.toString();
   const path = query
-    ? `${apiBase()}/urm/evidence-explorer/catalog/${family}?${query}`
-    : `${apiBase()}/urm/evidence-explorer/catalog/${family}`;
+    ? `${apiBase()}${resolvedPath}?${query}`
+    : `${apiBase()}${resolvedPath}`;
 
   const response = await fetch(path, { method: "GET" });
   if (!response.ok) {
     throw await parseApiError(response);
   }
   const payload: unknown = await response.json();
-  if (!isCatalogFamilyResponse(payload, family)) {
+  if (!isCatalogFamilyResponse(payload, summary.family)) {
     throw {
       status: 500,
       reason: "CATALOG_PAYLOAD_INVALID",
@@ -692,7 +690,15 @@ function EvidenceExplorerPageInner() {
       setIsLoadingFamily(true);
       setFamilyError(null);
       try {
-        const payload = await fetchCatalogFamily(family, filters);
+        const summary = families.find((item) => item.family === family);
+        if (!summary) {
+          throw {
+            status: 500,
+            reason: "CATALOG_PAYLOAD_INVALID",
+            message: "catalog_payload_invalid",
+          } satisfies ApiErrorDetail;
+        }
+        const payload = await fetchCatalogFamily(summary, filters);
         const orderedEntries = sortedEntries(payload.entries);
         const normalizedPayload: EvidenceExplorerCatalogFamilyResponse = {
           ...payload,
@@ -745,7 +751,7 @@ function EvidenceExplorerPageInner() {
         setIsLoadingFamily(false);
       }
     },
-    [replaceUrlState, selectedEntryId],
+    [families, replaceUrlState, selectedEntryId],
   );
 
   const initializedRef = useRef<boolean>(false);
@@ -770,7 +776,7 @@ function EvidenceExplorerPageInner() {
         const payload = await fetchCatalog();
         if (isCancelled) return;
 
-        const orderedFamilies = payload.families;
+        const orderedFamilies = sortFamiliesLexicographic(payload.families);
         setFamilies(orderedFamilies);
 
         if (orderedFamilies.length === 0) {
