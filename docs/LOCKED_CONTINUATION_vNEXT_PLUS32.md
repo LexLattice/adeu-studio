@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: draft lock implemented on `main` (PR `#210` and PR `#211` merged on March 2, 2026 UTC); v32 closeout decision doc is pending.
 
 Decision basis:
 
@@ -19,6 +19,7 @@ Decision basis:
   - no solver/runtime semantics release,
   - no policy-enforcement expansion,
   - no L2 boundary release.
+- `vNext+32` (`F1`-`F2`) is now merged on `main` via PR `#210` and PR `#211` with green CI checks.
 
 ## Global Locks
 
@@ -276,3 +277,8 @@ Prove `F1` consolidation is deterministic, behavior-preserving, and free from hi
 - Resolver guard suites pass deterministically on baseline and reruns.
 - v32 closeout evidence includes runtime-observability comparison row against v31 baseline.
 - No solver semantics contract delta and no trust-lane regression introduced.
+
+Implementation status (March 2, 2026 UTC):
+
+- `F1` and `F2` are merged on `main` with green CI checks.
+- v32 closeout decision capture in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS32.md` remains pending.
