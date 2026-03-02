@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+from adeu_ir.repo import repo_root as canonical_repo_root
 import pytest
 
 _CANONICAL_SYMBOLS = frozenset({"canonical_json", "_canonical_json"})
@@ -113,11 +114,7 @@ _RUNTIME_DEPS_AVAILABLE = importlib.util.find_spec("pydantic") is not None
 
 
 def _repo_root() -> Path:
-    current_path = Path(__file__).resolve()
-    for parent in current_path.parents:
-        if (parent / ".git").exists():
-            return parent
-    raise FileNotFoundError("repository root not found")
+    return canonical_repo_root(anchor=Path(__file__).resolve())
 
 
 def _sha256_text(value: str) -> str:
