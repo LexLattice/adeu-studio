@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "captured_from_commit": "fd9a48de8ab7852d371080659c9fc15aa24b8b70",
+    "captured_by_script": "apps/api/scripts/lint_l2_boundary_readiness.py",
+    "captured_at": "2026-03-02T00:00:00Z"
+  },
+  "response": {
+    "status_code": 200,
+    "body": {
+      "worker_id": "worker-v34-baseline",
+      "status": "ok",
+      "exit_code": 0,
+      "evidence_id": "evidence-v34-baseline",
+      "raw_jsonl_path": "evidence/codex/worker-v34-baseline/codex_raw.ndjson",
+      "urm_events_path": "evidence/codex/worker-v34-baseline/urm_events.ndjson",
+      "normalized_event_count": 2,
+      "artifact_candidate": {
+        "artifact": {
+          "kind": "demo",
+          "value": 1
+        }
+      },
+      "parse_degraded": false,
+      "invalid_schema": false,
+      "schema_validation_errors": [],
+      "error": null,
+      "idempotent_replay": false
+    }
+  }
+}

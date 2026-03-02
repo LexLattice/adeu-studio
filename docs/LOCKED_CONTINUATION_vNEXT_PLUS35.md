@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock with `I1` contract closure implemented (docs-only, no runtime behavior changes); `I2` guard implementation remains pending.
+Status: draft lock with `I1` contract closure and `I2` guard implementation landed (pending merge/freeze closeout).
 
 Decision basis:
 
@@ -88,7 +88,7 @@ Out-of-scope note:
 Location lock:
 
 - boundary-readiness assertions are emitted only in this document under this heading.
-- exactly two fenced `json` blocks are required under this heading:
+- exactly two fenced `json` blocks with schema `l2_boundary_readiness_assertion@1` are required under this heading:
   - one block with `target = "V31-F"`,
   - one block with `target = "V31-G"`.
 - no additional `l2_boundary_readiness_assertion@1` blocks are allowed elsewhere in v35 lock artifacts.
@@ -129,7 +129,7 @@ Schema lock (`docs-only`):
   - `denial_semantics.deterministic_fields` must include only structured fields (`code`, `reason`, `context`) in this arc.
   - prose field `message` is non-authoritative and must not be included in deterministic-field assertions.
 
-## Release Blocker Registry (v35)
+### Release Blocker Registry (v35)
 
 | Blocker ID | Evidence Ref Type | Evidence Ref |
 |---|---|---|
@@ -419,6 +419,17 @@ Prove v35 boundary-preparation remains deterministic, fail-closed, and resistant
 - No runtime behavior implementation files from the frozen no-touch list are modified in v35 PR scope.
 - No partial L2 release/scaffolding behavior lands under v35 preparatory scope.
 
+### I2 Implementation Snapshot
+
+- Boundary-readiness lint entrypoint implemented:
+  - `apps/api/scripts/lint_l2_boundary_readiness.py`.
+- Frozen sentinel fixtures added:
+  - `apps/api/tests/fixtures/l2_boundary_sentinels/v35_worker_run_response_v34_baseline.json`
+  - `apps/api/tests/fixtures/l2_boundary_sentinels/v35_worker_cancel_response_v34_baseline.json`
+- Deterministic guard test suite added:
+  - `apps/api/tests/test_l2_boundary_readiness_lint.py`.
+- CI wiring added in `.github/workflows/ci.yml` with frozen lint CLI and deterministic env posture (`TZ=UTC`, `LC_ALL=C`).
+
 ## Stop-Gate Impact (v35)
 
 - No new metric keys.
@@ -436,7 +447,7 @@ Prove v35 boundary-preparation remains deterministic, fail-closed, and resistant
 ## Commit / PR Plan (Small Green PRs)
 
 1. `docs: freeze v35 L2 boundary-release precondition contract for V31-F/V31-G` (implemented)
-2. `tests/docs: add v35 boundary-readiness lint, no-touch diff guard, and behavior sentinel checks` (pending)
+2. `tests/docs: add v35 boundary-readiness lint, no-touch diff guard, and behavior sentinel checks` (implemented)
 
 ## Intermediate Preconditions (for v35 start)
 

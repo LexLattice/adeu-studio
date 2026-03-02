@@ -52,6 +52,17 @@ jobs:
         run: |
           PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python \
             apps/api/scripts/lint_closeout_consistency.py
+      - name: Lint v35 L2 boundary readiness
+        env:
+          TZ: UTC
+          LC_ALL: C
+        run: |
+          git fetch --no-tags --prune --depth=200 origin +refs/heads/main:refs/remotes/origin/main
+          PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python \
+            apps/api/scripts/lint_l2_boundary_readiness.py \
+            --lock-doc docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md \
+            --base-ref origin/main \
+            --sentinel-dir apps/api/tests/fixtures/l2_boundary_sentinels
       - name: Upload quality dashboard artifact
         uses: actions/upload-artifact@v4
         with:

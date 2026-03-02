@@ -2,8 +2,8 @@
 
 This document is the fresh consolidated planning baseline for post-`vNext+34` sequencing.
 
-Status: active planning draft (v17 through v34 baselines executed, v35 `I1` contract closure landed in docs; active for v35 `I2` and `vNext+36+` selection).
-Goal: define thin-slice, lock-respecting candidate paths for remaining v35 work and onward sequencing while preserving the standard multi-implementation review sequence before lock freeze.
+Status: active planning draft (v17 through v34 baselines executed; v35 `I1` + `I2` implementation landed on branch, pending closeout merge and `vNext+36+` selection).
+Goal: define lock-respecting candidate paths for post-v35 release sequencing while preserving the standard multi-implementation review sequence before lock freeze.
 
 ## Naming Convention (Paths vs Bundles)
 
@@ -75,13 +75,13 @@ This is a planning document only. It is not a lock doc and does not authorize ru
   - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
 - Planning default now advances to `vNext+35` candidate selection.
 
-## v35 I1 Checkpoint
+## v35 I1 + I2 Checkpoint
 
 - v35 selected thin-slice remains explicit `L2` boundary-lock preparation for `V31-F`/`V31-G` with no boundary release in-arc.
-- `I1` contract closure is now captured in:
+- `I1` contract closure and `I2` guard implementation are captured in:
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`
   - `docs/ASSESSMENT_vNEXT_PLUS35_EDGES.md`
-- Remaining v35 implementation scope is `I2` (boundary-readiness lint + anti-release guard execution).
+- Remaining v35 scope before release sequencing is stop-gate closeout and merge confirmation.
 
 ## Confirmed Post-v34 Remaining Gaps (Worth Addressing)
 
@@ -296,18 +296,18 @@ Acceptance:
 | `V31-C` | `V31-C` | `L1` | closed in v34 | Closed formal lane evidence contract + guard suite | med/high |
 | `V31-D` | `V31-D` | `L0` | closed in v32 | Consolidated repo-root resolution and added determinism guards | low |
 | `V31-E` | `V31-E` | `L1` | closed in v33 | Closed worker CLI safety fail-closed policy and deterministic guard coverage | med |
-| `V31-F` | `V31-F` | `L2` | precondition lock closed in v35 `I1`; release deferred | Closes governance gap | high |
-| `V31-G` | `V31-G` | `L2` | precondition lock closed in v35 `I1`; release deferred | Closes proposer idempotency boundary | high |
+| `V31-F` | `V31-F` | `L2` | v35 precondition lock + guard suite implemented; release deferred | Closes governance gap | high |
+| `V31-G` | `V31-G` | `L2` | v35 precondition lock + guard suite implemented; release deferred | Closes proposer idempotency boundary | high |
 
 ## Recommended Sequencing (Default)
 
-1. `vNext+35`: complete `I2` deterministic guard suite on top of already-closed `I1` boundary-precondition contract (`V31-F`/`V31-G` prep only; no boundary release yet).
-2. `vNext+36`: evaluate first boundary release candidate (`V31-F` default) only after v35 `I2` guard evidence is merged.
+1. `vNext+35`: merge `I2` guard evidence and close out v35 stop-gate decision (`V31-F`/`V31-G` prep only; no boundary release).
+2. `vNext+36`: evaluate first boundary release candidate (`V31-F` default) only after v35 closeout is merged green.
 3. `vNext+37+`: complete remaining `L2` release track (`V31-G` default) under explicit release lock updates.
 
 ## Standard Multi-Implementation Sequence (Required)
 
-For each selected arc candidate (next active implementation slice: v35 `I2`):
+For each selected arc candidate (next active release planning slice: `vNext+36+`):
 
 1. Draft parallel implementation briefs for multiple implementers (`codex`, `gpt`, `gemini`, `opus`) with identical locks/acceptance.
 2. Run independent implementations and collect deterministic evidence bundles.
@@ -317,9 +317,9 @@ For each selected arc candidate (next active implementation slice: v35 `I2`):
 
 ## Proposed Next Step
 
-Execute v35 `I2` against already-implemented v35 `I1` lock text:
+Close out v35 and prepare v36 release-selection baseline:
 
-1. Implement deterministic boundary-readiness lint and anti-release guard suite.
-2. Preserve all v14-v35 continuity locks unless an explicit future release lock is approved.
-3. Keep non-enforcement/no-mutation/no-provider-expansion boundaries explicit.
-4. Close v35 with stop-gate evidence after `I2` merges green.
+1. Merge v35 `I2` implementation with green CI.
+2. Draft and merge `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md` with required machine-checkable v34 comparison row.
+3. Preserve all v14-v35 continuity locks unless an explicit future release lock is approved.
+4. Start v36 release-candidate lock drafting (`V31-F` default) only after v35 closeout merge.
