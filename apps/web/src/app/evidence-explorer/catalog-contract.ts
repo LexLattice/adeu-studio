@@ -36,14 +36,14 @@ export function isEvidenceExplorerFamily(value: unknown): value is EvidenceExplo
 
 export function isCatalogListRefTemplate(path: unknown): path is string {
   if (typeof path !== "string") return false;
-  if (path !== EVIDENCE_EXPLORER_LIST_REF_PATH_TEMPLATE) return false;
   if (!path.startsWith(EVIDENCE_EXPLORER_LIST_REF_PATH_PREFIX)) return false;
   const tokens = extractBraceTokens(path);
   if (!tokens || tokens.length !== 1) return false;
   if (tokens[0] !== FAMILY_PLACEHOLDER) return false;
   const first = path.indexOf(FAMILY_PLACEHOLDER);
   if (first < 0) return false;
-  return first === path.lastIndexOf(FAMILY_PLACEHOLDER);
+  if (first !== path.lastIndexOf(FAMILY_PLACEHOLDER)) return false;
+  return path === EVIDENCE_EXPLORER_LIST_REF_PATH_TEMPLATE;
 }
 
 export function expandCatalogListRefTemplate(
