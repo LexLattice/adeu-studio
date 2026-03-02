@@ -3,14 +3,17 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+import adeu_api.urm_routes as urm_routes_module
 import pytest
 from adeu_api.urm_routes import (
     _reset_manager_for_tests,
     urm_tool_call_endpoint,
+    urm_worker_cancel_endpoint,
     urm_worker_run_endpoint,
 )
 from fastapi import HTTPException
-from urm_runtime.models import ToolCallRequest, WorkerRunRequest
+from urm_runtime.errors import URMError
+from urm_runtime.models import ToolCallRequest, WorkerCancelRequest, WorkerRunRequest
 
 
 def _prepare_fake_codex_exec(*, tmp_path: Path) -> Path:
@@ -60,6 +63,98 @@ def test_urm_worker_run_endpoint_idempotent_replay(
     assert replay.worker_id == first.worker_id
     assert replay.idempotent_replay is True
     _reset_manager_for_tests()
+
+
+def test_urm_worker_run_endpoint_rejects_non_codex_before_authorize(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    called = False
+
+    def _fake_authorize_action(**_: object) -> object:
+        nonlocal called
+        called = True
+        return object()
+
+    def _fail_get_worker_runner() -> object:
+        raise AssertionError("_get_worker_runner should not be called for invalid provider")
+
+    monkeypatch.setattr(urm_routes_module, "authorize_action", _fake_authorize_action)
+    monkeypatch.setattr(urm_routes_module, "_get_worker_runner", _fail_get_worker_runner)
+
+    request = WorkerRunRequest.model_construct(
+        provider="other",
+        role="pipeline_worker",
+        client_request_id="worker-route-invalid-provider",
+        prompt="domain tool worker route",
+        template_id="adeu.workflow.pipeline_worker.v0",
+        template_version="v0",
+        schema_version="urm.workflow.v0",
+        domain_pack_id="urm_domain_adeu",
+        domain_pack_version="0.0.0",
+    )
+    with pytest.raises(HTTPException) as exc_info:
+        urm_worker_run_endpoint(request)
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_POLICY_DENIED"
+    assert exc_info.value.detail["context"]["provider"] == "other"
+    assert called is False
+
+
+def test_urm_worker_run_endpoint_auth_denial_injects_role_and_action(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _DummyRunner:
+        def run(self, _: WorkerRunRequest) -> object:
+            raise AssertionError("runner should not execute when authorization fails")
+
+    def _fake_authorize_action(**_: object) -> object:
+        raise URMError(code="URM_POLICY_DENIED", message="denied", context={})
+
+    monkeypatch.setattr(urm_routes_module, "_get_worker_runner", lambda: _DummyRunner())
+    monkeypatch.setattr(urm_routes_module, "authorize_action", _fake_authorize_action)
+
+    request = WorkerRunRequest(
+        provider="codex",
+        role="pipeline_worker",
+        client_request_id="worker-route-denied",
+        prompt="domain tool worker route",
+        template_id="adeu.workflow.pipeline_worker.v0",
+        template_version="v0",
+        schema_version="urm.workflow.v0",
+        domain_pack_id="urm_domain_adeu",
+        domain_pack_version="0.0.0",
+    )
+    with pytest.raises(HTTPException) as exc_info:
+        urm_worker_run_endpoint(request)
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_POLICY_DENIED"
+    assert exc_info.value.detail["context"]["role"] == "copilot"
+    assert exc_info.value.detail["context"]["action"] == "urm.spawn_worker"
+
+
+def test_urm_worker_cancel_endpoint_auth_denial_injects_role_and_action(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class _DummyRunner:
+        def cancel(self, *, worker_id: str) -> object:
+            raise AssertionError(f"runner should not execute when authorization fails: {worker_id}")
+
+    def _fake_authorize_action(**_: object) -> object:
+        raise URMError(code="URM_POLICY_DENIED", message="denied", context={})
+
+    monkeypatch.setattr(urm_routes_module, "_get_worker_runner", lambda: _DummyRunner())
+    monkeypatch.setattr(urm_routes_module, "authorize_action", _fake_authorize_action)
+
+    request = WorkerCancelRequest(provider="codex")
+    with pytest.raises(HTTPException) as exc_info:
+        urm_worker_cancel_endpoint(worker_id="worker-123", request=request)
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_POLICY_DENIED"
+    assert exc_info.value.detail["context"]["role"] == "copilot"
+    assert exc_info.value.detail["context"]["action"] == "urm.agent.cancel"
 
 
 def test_urm_tool_call_list_templates_and_app_state(

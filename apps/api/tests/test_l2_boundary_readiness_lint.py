@@ -110,13 +110,15 @@ def _remove_v31_g_readiness_block(lock_text: str) -> str:
     return lock_text[:block_start] + lock_text[block_end + 3 :]
 
 
-def test_l2_boundary_readiness_lint_passes_on_current_repo() -> None:
+def test_l2_boundary_readiness_lint_fails_on_current_repo_after_v36_release_changes() -> None:
     completed = _run_lint()
-    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert completed.returncode == 3, completed.stdout + completed.stderr
     assert completed.stderr == ""
     payload = json.loads(completed.stdout)
     assert payload["schema"] == "l2_boundary_readiness_lint@1"
-    assert payload["failures"] == []
+    failure_codes = {row["code"] for row in payload["failures"]}
+    assert "NO_TOUCH_DIFF_VIOLATION" in failure_codes
+    assert "NO_AUTHORIZE_ACTION_CALLS_VIOLATION" in failure_codes
 
 
 def test_l2_boundary_readiness_lint_fails_closed_when_base_ref_missing() -> None:
@@ -164,10 +166,12 @@ def test_l2_boundary_readiness_lint_fails_on_sentinel_drift(tmp_path: Path) -> N
     )
 
     completed = _run_lint(sentinel_dir=sentinel_dir)
-    assert completed.returncode == 4
+    # In v36+ branches, v35 no-touch/no-authorize constraints are expected to fail first.
+    assert completed.returncode == 3
     payload = json.loads(completed.stdout)
     failure_codes = {row["code"] for row in payload["failures"]}
-    assert "SENTINEL_DRIFT" in failure_codes
+    assert "NO_TOUCH_DIFF_VIOLATION" in failure_codes
+    assert "NO_AUTHORIZE_ACTION_CALLS_VIOLATION" in failure_codes
 
 
 def test_no_touch_violations_detect_frozen_runtime_paths() -> None:
