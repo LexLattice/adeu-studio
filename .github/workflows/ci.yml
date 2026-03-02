@@ -48,6 +48,10 @@ jobs:
           .venv/bin/events summary --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out-json artifacts/urm_events/summary.json --out-md artifacts/urm_events/summary.md
       - name: Verify generated instruction policy docs are up to date
         run: .venv/bin/python apps/api/scripts/generate_instruction_policy_views.py --check
+      - name: Lint closeout consistency
+        run: |
+          PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python \
+            apps/api/scripts/lint_closeout_consistency.py
       - name: Upload quality dashboard artifact
         uses: actions/upload-artifact@v4
         with:
