@@ -158,7 +158,7 @@ def _extract_json_blocks(text: str) -> list[str]:
             block_lines.append(lines[index])
             index += 1
         if index >= len(lines):
-            blocks.append("")
+            blocks.append("\n".join(block_lines).strip())
             break
         blocks.append("\n".join(block_lines).strip())
         index += 1
@@ -373,8 +373,7 @@ def _validate_readiness_payload(
         deterministic_fields = denial.get("deterministic_fields")
         if (
             not isinstance(deterministic_fields, list)
-            or [item for item in deterministic_fields if isinstance(item, str)]
-            != list(EXPECTED_DETERMINISTIC_FIELDS)
+            or deterministic_fields != list(EXPECTED_DETERMINISTIC_FIELDS)
         ):
             result.add_failure(
                 category="schema",

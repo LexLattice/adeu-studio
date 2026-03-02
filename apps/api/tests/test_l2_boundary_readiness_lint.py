@@ -163,3 +163,10 @@ def test_no_touch_violations_detect_frozen_runtime_paths() -> None:
     }
     violations = module._no_touch_violations(changed_paths)
     assert violations == ["apps/api/src/adeu_api/main.py"]
+
+
+def test_extract_json_blocks_keeps_unclosed_block_payload() -> None:
+    module = _load_script_module()
+    block_text = "```json\n{\"schema\": \"x\""
+    blocks = module._extract_json_blocks(block_text)
+    assert blocks == ['{"schema": "x"']
