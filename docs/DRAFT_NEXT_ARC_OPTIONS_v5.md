@@ -1,9 +1,9 @@
-# Draft Next Arc Options v5 (Post vNext+33)
+# Draft Next Arc Options v5 (Post vNext+34)
 
-This document is the fresh consolidated planning baseline for post-`vNext+33` sequencing.
+This document is the fresh consolidated planning baseline for post-`vNext+34` sequencing.
 
-Status: active planning draft (v17 through v33 baselines executed; active for `vNext+34+` selection).
-Goal: define thin-slice, lock-respecting candidate paths for `vNext+34` and onward, while preserving the standard multi-implementation review sequence before lock freeze.
+Status: active planning draft (v17 through v34 baselines executed; active for `vNext+35+` selection).
+Goal: define thin-slice, lock-respecting candidate paths for `vNext+35` and onward, while preserving the standard multi-implementation review sequence before lock freeze.
 
 ## Naming Convention (Paths vs Bundles)
 
@@ -21,6 +21,7 @@ Goal: define thin-slice, lock-respecting candidate paths for `vNext+34` and onwa
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS31.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS32.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS33.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS34.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS27.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS28.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS29.md`
@@ -36,8 +37,8 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Locked continuation implementation baseline is `vNext+33` (`V31-E`, `G1`-`G2`) and is merged on `main`.
-- Latest closeout decision is `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS33.md`.
+- Locked continuation implementation baseline is `vNext+34` (`V31-C`, `H1`-`H2`) and is merged on `main`.
+- Latest closeout decision remains `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS33.md` (`vNext+34` closeout decision doc is pending).
 - Stop-gate schema family remains `stop_gate_metrics@1`.
 - v29 through v33 closeout artifacts are present in workspace:
   - `artifacts/quality_dashboard_v29_closeout.json`
@@ -62,14 +63,15 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 - `L1`: externally visible contract closure/behavior change on an existing surface (API/web/CLI/artifact contract), without boundary release.
 - `L2`: boundary release (governance authority, persistence authority, provider/proposer surface expansion).
 
-## v33 Completion Checkpoint
+## v34 Completion Checkpoint
 
-- `V31-E` is complete on `main` via `G1` and `G2`:
-  - PR `#212` (`G1`) and PR `#213` (`G2`) merged with green CI.
-- `vNext+33` closeout evidence is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS33.md`.
-- Planning default now advances to `vNext+34` candidate selection.
+- `V31-C` is complete on `main` via `H1` and `H2`:
+  - PR `#214` (`H1`) and PR `#215` (`H2`) merged with green CI.
+- `vNext+34` closeout decision doc is pending:
+  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
+- Planning default now advances to `vNext+35` candidate selection.
 
-## Confirmed Post-v33 Remaining Gaps (Worth Addressing)
+## Confirmed Post-v34 Remaining Gaps (Worth Addressing)
 
 1. `/urm/worker/run` and `/urm/worker/{worker_id}/cancel` are not policy-gated via `authorize_action`.
    - evidence anchors:
@@ -83,7 +85,7 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 - Gap 1 -> `V31-F`
 - Gap 2 -> `V31-G`
 
-## Consolidated Path Families (v34+ Candidate Menu)
+## Consolidated Path Families (v35+ Candidate Menu)
 
 ### Path V31-A: Evidence Explorer Contract Closure
 
@@ -279,7 +281,7 @@ Acceptance:
 | `V31-A` | `V31-A` | `L1` | closed in v31 | Restored v29 explorer usability | low |
 | `V31-B` | `V31-B` | `L0` | closed in v31 | Added closeout drift guard rail | low |
 | `B31-AB` | `V31-A + V31-B` | `L1` | closed in v31 | Product + operational hardening together | low/med |
-| `V31-C` | `V31-C` | `L1` | candidate | Extends formal lane evidence value | med/high |
+| `V31-C` | `V31-C` | `L1` | closed in v34 | Closed formal lane evidence contract + guard suite | med/high |
 | `V31-D` | `V31-D` | `L0` | closed in v32 | Consolidated repo-root resolution and added determinism guards | low |
 | `V31-E` | `V31-E` | `L1` | closed in v33 | Closed worker CLI safety fail-closed policy and deterministic guard coverage | med |
 | `V31-F` | `V31-F` | `L2` | deferred boundary | Closes governance gap | high |
@@ -287,25 +289,25 @@ Acceptance:
 
 ## Recommended Sequencing (Default)
 
-1. `vNext+34`: `V31-C` (formal lane evidence) or explicit `L2` boundary-lock preparation sequence for `V31-F`/`V31-G`.
-2. `vNext+35`: complete whichever of `V31-C` or boundary-precondition track remains.
-3. `vNext+36+`: evaluate `L2` releases (`V31-F`, `V31-G`) only via explicit boundary lock.
+1. `vNext+35`: explicit `L2` boundary-lock preparation sequence for `V31-F`/`V31-G` (no boundary release yet).
+2. `vNext+36`: evaluate first boundary release candidate (`V31-F` or `V31-G`) only after boundary-lock approval.
+3. `vNext+37+`: complete remaining `L2` release track under explicit boundary lock.
 
 ## Standard Multi-Implementation Sequence (Required)
 
-For each selected arc candidate (starting with `vNext+34`):
+For each selected arc candidate (starting with `vNext+35`):
 
 1. Draft parallel implementation briefs for multiple implementers (`codex`, `gpt`, `gemini`, `opus`) with identical locks/acceptance.
 2. Run independent implementations and collect deterministic evidence bundles.
 3. Produce comparative assessment (risk, lock adherence, determinism evidence, CI impact).
-4. Consolidate into one lock candidate (next default: `docs/LOCKED_CONTINUATION_vNEXT_PLUS34.md`).
+4. Consolidate into one lock candidate (next default: `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`).
 5. Execute small-green PR sequence and close out with stop-gate decision note.
 
 ## Proposed Freeze Candidate (Next Step)
 
-Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS34.md` for selected post-v33 candidate (`V31-C` by default, or explicit boundary-lock-prep sequence if reprioritized):
+Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md` for selected post-v34 candidate (`L2` boundary-lock preparation by default, or reprioritized candidate path if approved):
 
-1. Freeze deterministic contract deltas for selected v34 scope.
-2. Preserve v14-v33 continuity locks unless explicit release is approved.
+1. Freeze deterministic contract deltas for selected v35 scope.
+2. Preserve v14-v34 continuity locks unless explicit release is approved.
 3. Keep non-enforcement/no-mutation/no-provider-expansion boundaries explicit.
-4. Preserve v31 continuity clauses for template-path contract closure (`V31-A`) and closeout consistency lint guards (`V31-B`), plus v32 repo-root consolidation continuity (`V31-D`) and v33 worker CLI fail-closed continuity (`V31-E`).
+4. Preserve v31 continuity clauses for template-path contract closure (`V31-A`) and closeout consistency lint guards (`V31-B`), plus v32 repo-root consolidation continuity (`V31-D`), v33 worker CLI fail-closed continuity (`V31-E`), and v34 formal-lane continuity (`V31-C`).
