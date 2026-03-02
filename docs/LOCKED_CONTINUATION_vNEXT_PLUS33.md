@@ -125,6 +125,9 @@ Lock deterministic fail-closed behavior when required `codex exec` safety flags 
     - `PROBE_TIMEOUT`
     - `PROBE_LAUNCH_FAILED`
     - `PROBE_NONZERO_EXIT`
+  - reason-token mapping is frozen:
+    - `FLAG_ABSENT` is valid only when help probe launch succeeds, does not timeout, returns exit code `0`, and parsed help text lacks `--ask-for-approval`.
+    - probe execution failures (`timeout`, launch failure, non-zero exit) must map to their corresponding probe-failure reason token and may not be collapsed to `FLAG_ABSENT`.
 - Probe-timeout budget lock is frozen:
   - help probe timeout is frozen to `help_probe_timeout_ms = 10000` in this arc.
   - timeout enforcement must use monotonic elapsed-time semantics (wall-clock independent).
@@ -190,6 +193,7 @@ Prove the `G1` fail-closed policy is deterministic, test-covered, and resistant 
 - Deterministic-probe lock is frozen:
   - tests pin support/unsupported branches via deterministic fake `codex exec --help` fixtures only.
   - tests cover non-zero/timeout/launch-failure probe outcomes as unsupported with the same deterministic fail-closed path and expected reason suffix token.
+  - tests must enforce that `FLAG_ABSENT` appears only in successful-help/no-flag branch and not in probe-failure branches.
 - Error-contract regression lock is frozen:
   - expected failure code/message contract for unsupported required flag remains explicit and deterministic.
 - Rejection-audit regression lock is frozen:

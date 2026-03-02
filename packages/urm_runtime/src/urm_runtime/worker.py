@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import sys
 import threading
 import time
 import uuid
@@ -34,8 +35,10 @@ from .storage import (
 WORKER_RUN_ENDPOINT_NAME = "urm.worker.run"
 WORKER_GRACE_SECS = 5
 WORKER_CANCEL_WAIT_SECS = 6
-WORKER_EXEC_HELP_TIMEOUT_SECS = 5
+WORKER_EXEC_HELP_TIMEOUT_MS = 10_000
+WORKER_EXEC_HELP_TIMEOUT_SECS = WORKER_EXEC_HELP_TIMEOUT_MS / 1000
 _TERMINAL_WORKER_STATUSES = {"ok", "failed", "cancelled"}
+UNSUPPORTED_REQUIRED_FLAG_PREFIX = "UNSUPPORTED_REQUIRED_FLAG:--ask-for-approval"
 
 
 class CodexExecWorkerRunner:
@@ -45,6 +48,7 @@ class CodexExecWorkerRunner:
         self._active_processes: dict[str, subprocess.Popen[str]] = {}
         self._cancel_requested: set[str] = set()
         self._exec_help_text: str | None = None
+        self._exec_help_failure_reason: str | None = None
 
     def _build_command(
         self,
@@ -70,6 +74,7 @@ class CodexExecWorkerRunner:
     def _exec_help(self) -> str:
         if self._exec_help_text is not None:
             return self._exec_help_text
+        failure_reason: str | None = None
         try:
             completed = subprocess.run(
                 [self.config.codex_bin, "exec", "--help"],
@@ -83,9 +88,15 @@ class CodexExecWorkerRunner:
             output = (completed.stdout or "") + "\n" + (completed.stderr or "")
             if completed.returncode != 0:
                 output = ""
-        except (OSError, subprocess.TimeoutExpired):
+                failure_reason = "PROBE_NONZERO_EXIT"
+        except subprocess.TimeoutExpired:
             output = ""
+            failure_reason = "PROBE_TIMEOUT"
+        except OSError:
+            output = ""
+            failure_reason = "PROBE_LAUNCH_FAILED"
         self._exec_help_text = output
+        self._exec_help_failure_reason = failure_reason
         return output
 
     def _supports_exec_flag(self, flag: str) -> bool:
@@ -386,17 +397,29 @@ class CodexExecWorkerRunner:
             request.output_schema_path and supports_output_schema_flag
         )
         use_ask_for_approval_flag = supports_ask_for_approval_flag
-        command = self._build_command(
-            request,
-            include_output_schema_flag=use_output_schema_flag,
-            include_ask_for_approval_flag=use_ask_for_approval_flag,
-        )
+        error_code: str | None = None
+        error_message: str | None = None
+        status = "failed"
+        if not supports_ask_for_approval_flag:
+            reason = self._exec_help_failure_reason or "FLAG_ABSENT"
+            error_code = "URM_WORKER_START_FAILED"
+            error_message = f"{UNSUPPORTED_REQUIRED_FLAG_PREFIX}:{reason}"
+            print(
+                f"URM_WORKER_START_FAILED {UNSUPPORTED_REQUIRED_FLAG_PREFIX}:{reason} "
+                f"codex_path={self.config.codex_bin}",
+                file=sys.stderr,
+                flush=True,
+            )
+        command: list[str] | None = None
+        if error_code is None:
+            command = self._build_command(
+                request,
+                include_output_schema_flag=use_output_schema_flag,
+                include_ask_for_approval_flag=use_ask_for_approval_flag,
+            )
         started_at = datetime.now(tz=timezone.utc).isoformat()
         events = []
         parse_degraded = False
-        status = "failed"
-        error_code: str | None = None
-        error_message: str | None = None
         exit_code: int | None = None
         stream_id = f"worker:{worker_id}"
         seq = 0
@@ -449,46 +472,48 @@ class CodexExecWorkerRunner:
             )
 
             process: subprocess.Popen[str] | None = None
-            try:
-                process = subprocess.Popen(
-                    command,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    encoding="utf-8",
-                    errors="replace",
-                    cwd=request.cwd,
-                    env=self._build_subprocess_env(),
-                )
-                self._set_process_running(worker_id=worker_id, process=process)
-            except FileNotFoundError as exc:
-                error_code = "URM_CODEX_BIN_NOT_FOUND"
-                error_message = f"codex executable not found: {self.config.codex_bin}"
-                status = "failed"
-                _emit_internal_event(
-                    event="WORKER_FAIL",
-                    detail={
-                        "worker_id": worker_id,
-                        "status": "failed",
-                        "code": "URM_CODEX_BIN_NOT_FOUND",
-                        "error": str(exc),
-                    },
-                )
-                process = None
-            except OSError as exc:
-                error_code = "URM_WORKER_START_FAILED"
-                error_message = f"failed to start worker: {exc}"
-                status = "failed"
-                _emit_internal_event(
-                    event="WORKER_FAIL",
-                    detail={
-                        "worker_id": worker_id,
-                        "status": "failed",
-                        "code": "URM_WORKER_START_FAILED",
-                        "error": str(exc),
-                    },
-                )
-                process = None
+            if error_code is None:
+                assert command is not None
+                try:
+                    process = subprocess.Popen(
+                        command,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        text=True,
+                        encoding="utf-8",
+                        errors="replace",
+                        cwd=request.cwd,
+                        env=self._build_subprocess_env(),
+                    )
+                    self._set_process_running(worker_id=worker_id, process=process)
+                except FileNotFoundError as exc:
+                    error_code = "URM_CODEX_BIN_NOT_FOUND"
+                    error_message = f"codex executable not found: {self.config.codex_bin}"
+                    status = "failed"
+                    _emit_internal_event(
+                        event="WORKER_FAIL",
+                        detail={
+                            "worker_id": worker_id,
+                            "status": "failed",
+                            "code": "URM_CODEX_BIN_NOT_FOUND",
+                            "error": str(exc),
+                        },
+                    )
+                    process = None
+                except OSError as exc:
+                    error_code = "URM_WORKER_START_FAILED"
+                    error_message = f"failed to start worker: {exc}"
+                    status = "failed"
+                    _emit_internal_event(
+                        event="WORKER_FAIL",
+                        detail={
+                            "worker_id": worker_id,
+                            "status": "failed",
+                            "code": "URM_WORKER_START_FAILED",
+                            "error": str(exc),
+                        },
+                    )
+                    process = None
 
             if process is not None:
                 assert process.stdout is not None
