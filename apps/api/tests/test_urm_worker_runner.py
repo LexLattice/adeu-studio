@@ -675,7 +675,6 @@ def test_worker_runner_fails_closed_when_exec_help_probe_errors(
         monkeypatch.setenv(key, value)
     if expected_reason == "PROBE_TIMEOUT":
         monkeypatch.setattr("urm_runtime.worker.WORKER_EXEC_HELP_TIMEOUT_SECS", 0.01)
-        monkeypatch.setattr("urm_runtime.worker.WORKER_EXEC_HELP_TIMEOUT_MS", 10)
 
     runner = CodexExecWorkerRunner(config=config)
     with pytest.raises(URMError) as exc_info:
