@@ -131,6 +131,26 @@ def test_registry_default_path_fails_closed_when_repo_root_is_missing(
         default_stop_gate_manifest_path(7)
 
 
+def test_discover_repo_root_delegates_and_emits_deterministic_deprecation_warning() -> None:
+    anchor = (
+        _repo_root() / "packages" / "urm_runtime" / "src" / "urm_runtime" / "stop_gate_registry.py"
+    ).resolve()
+    with pytest.deprecated_call(match="discover_repo_root is deprecated"):
+        resolved = stop_gate_registry_module.discover_repo_root(anchor)
+    assert resolved == _repo_root()
+
+
+def test_registry_default_path_fails_closed_for_relative_env_override(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_REPO_ROOT", ".")
+    with pytest.raises(
+        FileNotFoundError,
+        match="repository root not found; stop-gate manifest paths cannot be resolved",
+    ):
+        default_stop_gate_manifest_path(7)
+
+
 def test_registry_consumers_share_active_version_ordering_and_defaults(tmp_path: Path) -> None:
     script_module = _load_build_stop_gate_metrics_module()
     parsed = script_module.parse_args([])

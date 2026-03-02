@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from types import ModuleType
 
+from adeu_ir.repo import repo_root as canonical_repo_root
 from urm_runtime.hashing import canonical_json
 
 REQUIRED_KEYS = [
@@ -18,11 +19,7 @@ REQUIRED_KEYS = [
 
 
 def _repo_root() -> Path:
-    current_path = Path(__file__).resolve()
-    for parent in current_path.parents:
-        if (parent / ".git").exists():
-            return parent
-    raise FileNotFoundError("repository root not found")
+    return canonical_repo_root(anchor=Path(__file__).resolve())
 
 
 def _script_path() -> Path:
@@ -38,6 +35,7 @@ def _pythonpath_env() -> dict[str, str]:
     existing = os.environ.get("PYTHONPATH")
     paths = [
         str(repo_root / "apps" / "api" / "src"),
+        str(repo_root / "packages" / "adeu_ir" / "src"),
         str(repo_root / "packages" / "urm_runtime" / "src"),
     ]
     if existing:

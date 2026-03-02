@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import re
+import warnings
 from collections.abc import Sequence
 from pathlib import Path
+
+from adeu_ir.repo import repo_root as canonical_repo_root
 
 ACTIVE_STOP_GATE_MANIFEST_VERSIONS: tuple[int, ...] = (
     7,
@@ -32,14 +35,17 @@ STOP_GATE_MANIFEST_RELATIVE_TEMPLATE = (
     "apps/api/fixtures/stop_gate/vnext_plus{version}_manifest.json"
 )
 _MANIFEST_FLAG_PATTERN = re.compile(r"^--vnext-plus(?P<version>\d+)-manifest$")
+_DEPRECATION_WARNING_PREFIX = (
+    "discover_repo_root is deprecated; use adeu_ir.repo.repo_root for canonical resolution"
+)
 
 
 def discover_repo_root(anchor: Path) -> Path | None:
-    resolved = anchor.resolve()
-    for parent in (resolved, *resolved.parents):
-        if (parent / ".git").exists():
-            return parent
-    return None
+    warnings.warn(_DEPRECATION_WARNING_PREFIX, DeprecationWarning, stacklevel=2)
+    try:
+        return canonical_repo_root(anchor=Path(anchor).resolve(strict=True))
+    except (FileNotFoundError, RuntimeError):
+        return None
 
 
 def default_stop_gate_manifest_path(version: int) -> Path:

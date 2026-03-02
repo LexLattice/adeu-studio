@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from adeu_ir.repo import repo_root as canonical_repo_root
 from urm_runtime.hashing import canonical_json
 
 S9_TRIGGER_CHECK_SCHEMA = "s9_trigger_check@1"
@@ -40,11 +41,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def _repo_root() -> Path:
-    current_path = Path(__file__).resolve()
-    for parent in current_path.parents:
-        if (parent / ".git").exists():
-            return parent
-    raise FileNotFoundError("repository root not found from script location")
+    return canonical_repo_root(anchor=Path(__file__).resolve())
 
 
 def _default_metrics_path(repo_root: Path) -> Path:
