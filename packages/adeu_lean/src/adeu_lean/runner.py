@@ -5,6 +5,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 from pathlib import Path
 
@@ -38,6 +39,9 @@ _RUNNER_TEMP_ROOT_NAME = ".adeu_lean_tmp"
 _LEAN_WORKSPACE_TOKEN = "<LEAN_WORKSPACE>"
 _LEAN_SOURCE_TOKEN = "<LEAN_SOURCE>"
 _ANSI_ESCAPE_RE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+_LEAN_REASON_TIMEOUT = "LEAN_TIMEOUT"
+_LEAN_REASON_NONZERO_EXIT = "LEAN_NONZERO_EXIT"
+_LEAN_REASON_LAUNCH_FAILED = "LEAN_LAUNCH_FAILED"
 
 
 def _sha256(value: str) -> str:
@@ -148,14 +152,37 @@ def _run_command(
     env.setdefault("NO_COLOR", "1")
     env.setdefault("CLICOLOR", "0")
     env.setdefault("CLICOLOR_FORCE", "0")
-    return subprocess.run(
+    proc = subprocess.Popen(
         cmd,
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
-        check=False,
         cwd=str(cwd),
-        timeout=timeout_s,
         env=env,
+        start_new_session=True,
+    )
+    try:
+        stdout, stderr = proc.communicate(timeout=timeout_s)
+    except subprocess.TimeoutExpired as exc:
+        if os.name == "posix":
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except (ProcessLookupError, PermissionError):
+                proc.kill()
+        else:
+            proc.kill()
+        stdout, stderr = proc.communicate()
+        raise subprocess.TimeoutExpired(
+            cmd=cmd,
+            timeout=timeout_s,
+            output=stdout,
+            stderr=stderr,
+        ) from exc
+    return subprocess.CompletedProcess(
+        args=cmd,
+        returncode=proc.returncode,
+        stdout=stdout,
+        stderr=stderr,
     )
 
 
@@ -368,6 +395,10 @@ def run_lean_request(
                 errors.append(f"binary not found: {cmd[0]}")
                 continue
             except subprocess.TimeoutExpired:
+                projected_cmd = _normalize_command_for_hash(
+                    used_cmd=cmd,
+                    source_argument=source_argument,
+                )
                 return LeanResult(
                     theorem_id=request.theorem_id,
                     status="failed",
@@ -378,8 +409,12 @@ def run_lean_request(
                         lean_bin=lean_bin,
                         timeout_s=1.0,
                     ),
-                        details={"error": "lean proof-check timeout"},
-                    )
+                    details={
+                        "error": "lean proof-check timeout",
+                        "reason": _LEAN_REASON_TIMEOUT,
+                        "command": projected_cmd,
+                    },
+                )
 
         if proc is None or used_cmd is None:
             return LeanResult(
@@ -387,7 +422,10 @@ def run_lean_request(
                 status="failed",
                 proof_hash=_sha256(request.theorem_src + "::missing_binary"),
                 lean_version=None,
-                details={"error": "; ".join(sorted(set(errors)))},
+                details={
+                    "error": "; ".join(sorted(set(errors))),
+                    "reason": _LEAN_REASON_LAUNCH_FAILED,
+                },
             )
 
         replacements = _build_projection_replacements(
@@ -421,6 +459,8 @@ def run_lean_request(
             details["stdout"] = projected_stdout
         if projected_stderr:
             details["stderr"] = projected_stderr
+        if status == "failed":
+            details["reason"] = _LEAN_REASON_NONZERO_EXIT
         return LeanResult(
             theorem_id=request.theorem_id,
             status=status,

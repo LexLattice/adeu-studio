@@ -96,6 +96,7 @@ def test_run_lean_request_missing_binary_returns_failed() -> None:
     )
     assert result.status == "failed"
     assert "binary not found" in str(result.details.get("error", "")).lower()
+    assert result.details.get("reason") == "LEAN_LAUNCH_FAILED"
     assert len(result.proof_hash) == 64
 
 
@@ -204,11 +205,44 @@ def test_run_lean_request_collision_is_fail_closed(monkeypatch, tmp_path: Path) 
     assert result.details.get("reason") == "DETERMINISTIC_PATH_COLLISION"
 
 
+def test_run_lean_request_nonzero_exit_sets_reason(monkeypatch, tmp_path: Path) -> None:
+    request = build_obligation_requests(theorem_prefix="ir_nonzero", inputs=[])[0]
+    project_root = tmp_path / "project"
+    _seed_project_root(project_root)
+    monkeypatch.setattr(runner_module, "_lean_version", lambda **_: None)
+
+    def fake_run_command(
+        *,
+        cmd: list[str],
+        cwd: Path,
+        timeout_s: float,
+    ) -> subprocess.CompletedProcess[str]:
+        del cwd, timeout_s
+        return subprocess.CompletedProcess(
+            args=cmd,
+            returncode=2,
+            stdout="",
+            stderr="type mismatch",
+        )
+
+    monkeypatch.setattr(runner_module, "_run_command", fake_run_command)
+    result = run_lean_request(
+        request,
+        timeout_ms=1000,
+        lake_bin="lake",
+        lean_bin="lean",
+        project_root=project_root,
+    )
+    assert result.status == "failed"
+    assert result.details.get("reason") == "LEAN_NONZERO_EXIT"
+    assert isinstance(result.details.get("command"), list)
+
+
 @pytest.mark.parametrize(
-    ("side_effect", "error_fragment"),
+    ("side_effect", "error_fragment", "expected_reason"),
     [
-        (subprocess.TimeoutExpired(cmd="lean", timeout=1.0), "timeout"),
-        (FileNotFoundError("missing binary"), "binary not found"),
+        (subprocess.TimeoutExpired(cmd="lean", timeout=1.0), "timeout", "LEAN_TIMEOUT"),
+        (FileNotFoundError("missing binary"), "binary not found", "LEAN_LAUNCH_FAILED"),
     ],
 )
 def test_run_lean_request_cleans_up_workspace_on_failures(
@@ -216,6 +250,7 @@ def test_run_lean_request_cleans_up_workspace_on_failures(
     tmp_path: Path,
     side_effect: Exception,
     error_fragment: str,
+    expected_reason: str,
 ) -> None:
     request = build_obligation_requests(theorem_prefix="ir_cleanup", inputs=[])[0]
     project_root = tmp_path / "project"
@@ -236,6 +271,7 @@ def test_run_lean_request_cleans_up_workspace_on_failures(
     )
     assert result.status == "failed"
     assert error_fragment in str(result.details.get("error", "")).lower()
+    assert result.details.get("reason") == expected_reason
     assert not list(temp_root.rglob("*.lean"))
 
 
@@ -267,3 +303,42 @@ def test_run_lean_request_smoke_with_env_binary() -> None:
     )
     assert result.status in {"proved", "failed"}
     assert len(result.proof_hash) == 64
+
+
+def test_run_command_timeout_kills_process_group(monkeypatch, tmp_path: Path) -> None:
+    calls: dict[str, object] = {}
+    killpg_calls: list[tuple[int, int]] = []
+
+    class _FakePopen:
+        def __init__(self, *args, **kwargs):  # type: ignore[no-untyped-def]
+            del args
+            self.pid = 4242
+            self.returncode = -9
+            self._first = True
+            calls["start_new_session"] = kwargs.get("start_new_session")
+
+        def communicate(self, timeout: float | None = None) -> tuple[str, str]:
+            if self._first:
+                self._first = False
+                raise subprocess.TimeoutExpired(cmd=["lean"], timeout=timeout)
+            return ("", "")
+
+        def kill(self) -> None:
+            calls["kill_called"] = True
+
+    monkeypatch.setattr(runner_module.subprocess, "Popen", _FakePopen)
+    monkeypatch.setattr(
+        runner_module.os,
+        "killpg",
+        lambda pid, sig: killpg_calls.append((pid, sig)),
+    )
+
+    with pytest.raises(subprocess.TimeoutExpired):
+        runner_module._run_command(
+            cmd=["lean", "--version"],
+            cwd=tmp_path,
+            timeout_s=0.01,
+        )
+
+    assert calls["start_new_session"] is True
+    assert killpg_calls == [(4242, runner_module.signal.SIGKILL)]
