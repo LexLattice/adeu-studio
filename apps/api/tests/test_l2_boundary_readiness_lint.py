@@ -37,10 +37,25 @@ def _pythonpath_env() -> dict[str, str]:
     return env
 
 
+def _default_base_ref() -> str:
+    repo_root = _repo_root()
+    for candidate in ("origin/main", "HEAD"):
+        completed = subprocess.run(
+            ["git", "rev-parse", "--verify", "--quiet", f"{candidate}^{{commit}}"],
+            cwd=repo_root,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if completed.returncode == 0:
+            return candidate
+    return "HEAD"
+
+
 def _run_lint(
     *,
     lock_doc: Path | None = None,
-    base_ref: str = "origin/main",
+    base_ref: str | None = None,
     sentinel_dir: Path | None = None,
 ) -> subprocess.CompletedProcess[str]:
     repo_root = _repo_root()
@@ -49,6 +64,7 @@ def _run_lint(
         sentinel_dir
         or repo_root / "apps" / "api" / "tests" / "fixtures" / "l2_boundary_sentinels"
     )
+    base_ref_value = base_ref or _default_base_ref()
     return subprocess.run(
         [
             sys.executable,
@@ -56,7 +72,7 @@ def _run_lint(
             "--lock-doc",
             str(lock_doc_path),
             "--base-ref",
-            base_ref,
+            base_ref_value,
             "--sentinel-dir",
             str(sentinel_dir_path),
         ],
