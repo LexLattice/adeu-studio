@@ -16,6 +16,7 @@ AGREEMENT_FIXTURE_SCHEMA = "odeu_agreement.fixtures@0.1"
 AGREEMENT_REPORT_SCHEMA = "odeu_agreement.report@0.1"
 _HEX_64_RE = re.compile(r"^[a-f0-9]{64}$")
 _STATUS_VALUES = frozenset({"proved", "failed"})
+_SEMANTICS_VERSION_MISMATCH = "SEMANTICS_VERSION_MISMATCH"
 
 
 class AgreementHarnessError(ValueError):
@@ -215,6 +216,12 @@ def _build_rows_for_fixture(
         inputs=_coerce_fixture_inputs(fixture.inputs, fixture_id=fixture.fixture_id),
         semantics_version=proof_semantics_version,
     )
+    effective_semantics_versions = sorted({request.semantics_version for request in requests})
+    if effective_semantics_versions != [proof_semantics_version]:
+        raise AgreementHarnessError(
+            f"{_SEMANTICS_VERSION_MISMATCH}: "
+            f"expected={[proof_semantics_version]} observed={effective_semantics_versions}"
+        )
     requests_by_kind = {str(req.obligation_kind): req for req in requests}
     if set(requests_by_kind.keys()) != set(OBLIGATION_KINDS):
         raise AgreementHarnessError(
@@ -230,6 +237,12 @@ def _build_rows_for_fixture(
             raise AgreementHarnessError(
                 f"theorem_id drift for {fixture.fixture_id}:{obligation_kind}: "
                 f"{request.theorem_id!r} != {theorem_id_expected!r}"
+            )
+        if request.semantics_version != proof_semantics_version:
+            raise AgreementHarnessError(
+                f"{_SEMANTICS_VERSION_MISMATCH}: "
+                f"{fixture.fixture_id}:{obligation_kind} request={request.semantics_version!r} "
+                f"expected={proof_semantics_version!r}"
             )
         inputs_hash = _require_request_metadata_hash(
             request=request,

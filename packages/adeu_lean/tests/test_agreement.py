@@ -16,6 +16,8 @@ from adeu_lean import (
     load_agreement_fixture_bundle,
     validate_agreement_report,
 )
+from adeu_lean import agreement as agreement_module
+from adeu_lean import runner as runner_module
 
 FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "agreement_fixtures_v30.json"
 _LOCKED_PROVED_REPORT_HASH = "8756d9b7255db1e26b2b18c5979c2f393c043e33ed8a9425ab57dfb67721070f"
@@ -314,3 +316,28 @@ def test_build_agreement_report_no_network_calls(monkeypatch: pytest.MonkeyPatch
     )
 
     assert report["summary"]["all_agree"] is True
+
+
+def test_build_agreement_report_fails_closed_on_semantics_mismatch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = load_agreement_fixture_bundle(FIXTURE_PATH)
+
+    def fake_build_obligation_requests(*args, **kwargs):  # type: ignore[no-untyped-def]
+        requests = runner_module.build_obligation_requests(*args, **kwargs)
+        requests[0].semantics_version = "adeu.lean.core.v2"
+        return requests
+
+    monkeypatch.setattr(
+        agreement_module,
+        "build_obligation_requests",
+        fake_build_obligation_requests,
+    )
+
+    with pytest.raises(AgreementHarnessError, match="SEMANTICS_VERSION_MISMATCH"):
+        build_agreement_report(
+            fixture_bundle=bundle,
+            timeout_ms=1000,
+            lean_bin="/tmp/lean-not-used",
+            run_request=_fake_proved_run_request,
+        )
