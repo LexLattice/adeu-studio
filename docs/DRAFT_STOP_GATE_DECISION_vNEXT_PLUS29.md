@@ -53,6 +53,17 @@ Summary:
 - `issues = []`
 - `vnext_plus26_manifest_hash = b842bb583f951321178f228f017240c269f5d8259adc40004a2ff3294d2bc120`
 
+## Metric-Key Continuity Assertion
+
+```json
+{
+  "schema": "metric_key_continuity_assertion@1",
+  "baseline_metrics_path": "artifacts/stop_gate/metrics_v28_closeout.json",
+  "current_metrics_path": "artifacts/stop_gate/metrics_v29_closeout.json",
+  "expected_relation": "exact_keyset_equality"
+}
+```
+
 ## Runtime Observability Comparison (v28 Baseline vs v29 Closeout)
 
 ```json
