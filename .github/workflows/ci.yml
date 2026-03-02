@@ -54,7 +54,29 @@ jobs:
         run: |
           PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python \
             apps/api/scripts/lint_closeout_consistency.py
+      - name: Detect v35 boundary lint scope
+        id: v35_boundary_scope
+        env:
+          TZ: UTC
+          LC_ALL: C
+        run: |
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git fetch --no-tags --prune --depth=200 origin +refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}
+            BASE_REF="origin/${{ github.base_ref }}"
+          else
+            git fetch --no-tags --prune --depth=200 origin +refs/heads/main:refs/remotes/origin/main
+            BASE_REF="origin/main"
+          fi
+          MERGE_BASE="$(git merge-base "${BASE_REF}" HEAD)"
+          CHANGED_FILES="$(git diff --name-only --diff-filter=ACDMRTUXB "${MERGE_BASE}..HEAD")"
+          if printf '%s\n' "${CHANGED_FILES}" | rg -q '^(docs/LOCKED_CONTINUATION_vNEXT_PLUS35\.md|apps/api/scripts/lint_l2_boundary_readiness\.py|apps/api/tests/test_l2_boundary_readiness_lint\.py|apps/api/tests/fixtures/l2_boundary_sentinels/)'; then
+            echo "run_lint=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_lint=false" >> "$GITHUB_OUTPUT"
+          fi
       - name: Lint v35 L2 boundary readiness
+        if: steps.v35_boundary_scope.outputs.run_lint == 'true'
         env:
           TZ: UTC
           LC_ALL: C
