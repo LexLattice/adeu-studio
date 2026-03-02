@@ -12,6 +12,12 @@ from urm_domain_adeu import ADEUDomainTools
 from urm_domain_digest import DigestDomainTools
 from urm_domain_paper import PaperDomainTools
 from urm_runtime.capability_policy import (
+    POLICY_ACTION_URM_AGENT_CANCEL,
+    POLICY_ACTION_URM_AGENT_SPAWN,
+    POLICY_ACTION_URM_CONNECTORS_SNAPSHOT_CREATE,
+    POLICY_ACTION_URM_CONNECTORS_SNAPSHOT_GET,
+    POLICY_ACTION_URM_TURN_STEER,
+    POLICY_ACTION_URM_WORKER_RUN,
     PolicyEvalEventCallback,
     PolicyEvalEventName,
     authorize_action,
@@ -72,6 +78,9 @@ _MANAGER: URMCopilotManager | None = None
 _WORKER_RUNNER: CodexExecWorkerRunner | None = None
 _DOMAIN_REGISTRY: DomainToolRegistry | None = None
 _MANAGER_ENV_KEY: tuple[str, str] | None = None
+_AUTHORIZATION_DENIAL_CODES: frozenset[str] = frozenset(
+    {"URM_POLICY_DENIED", "URM_APPROVAL_REQUIRED", "URM_APPROVAL_INVALID", "URM_APPROVAL_EXPIRED"}
+)
 
 
 def _manager_env_key() -> tuple[str, str]:
@@ -161,23 +170,61 @@ def _resolve_tool_policy_action(request: ToolCallRequest) -> str:
 
 
 def _resolve_steer_policy_action() -> str:
-    return "urm.turn.steer"
+    return POLICY_ACTION_URM_TURN_STEER
 
 
 def _resolve_spawn_policy_action() -> str:
-    return "urm.agent.spawn"
+    return POLICY_ACTION_URM_AGENT_SPAWN
 
 
 def _resolve_cancel_policy_action() -> str:
-    return "urm.agent.cancel"
+    return POLICY_ACTION_URM_AGENT_CANCEL
 
 
 def _resolve_connector_snapshot_create_policy_action() -> str:
-    return "urm.connectors.snapshot.create"
+    return POLICY_ACTION_URM_CONNECTORS_SNAPSHOT_CREATE
 
 
 def _resolve_connector_snapshot_get_policy_action() -> str:
-    return "urm.connectors.snapshot.get"
+    return POLICY_ACTION_URM_CONNECTORS_SNAPSHOT_GET
+
+
+def _resolve_worker_run_policy_action() -> str:
+    return POLICY_ACTION_URM_WORKER_RUN
+
+
+def _resolve_worker_cancel_policy_action() -> str:
+    return POLICY_ACTION_URM_AGENT_CANCEL
+
+
+def _resolve_worker_route_authorization_role() -> str:
+    role = "copilot"
+    if not role:
+        raise URMError(
+            code="URM_POLICY_DENIED",
+            message="worker authorization role unavailable",
+            context={"endpoint": "urm.worker"},
+        )
+    return role
+
+
+def _to_worker_authorization_http_exception(
+    error: URMError,
+    *,
+    role: str,
+    action: str,
+) -> HTTPException:
+    if error.detail.code not in _AUTHORIZATION_DENIAL_CODES:
+        return _to_http_exception(error)
+
+    detail = error.detail.model_dump(mode="json")
+    raw_context = detail.get("context")
+    context = raw_context if isinstance(raw_context, dict) else {}
+    shaped_context = dict(context)
+    shaped_context.setdefault("role", role)
+    shaped_context.setdefault("action", action)
+    detail["context"] = shaped_context
+    return HTTPException(status_code=error.status_code, detail=detail)
 
 
 def _load_session_writes_allowed(session_id: str | None) -> bool:
@@ -555,7 +602,23 @@ def urm_approval_revoke_endpoint(request: ApprovalRevokeRequest) -> ApprovalRevo
 
 @router.post("/worker/run", response_model=WorkerRunResult)
 def urm_worker_run_endpoint(request: WorkerRunRequest) -> WorkerRunResult:
+    _require_codex_provider(request.provider)
     runner = _get_worker_runner()
+    role = _resolve_worker_route_authorization_role()
+    action = _resolve_worker_run_policy_action()
+    try:
+        _ = authorize_action(
+            role=role,
+            action=action,
+            writes_allowed=False,
+            approval_provided=False,
+            action_payload={"client_request_id": request.client_request_id},
+            session_active=False,
+            emit_policy_event=_policy_event_emitter(session_id=None),
+        )
+    except URMError as exc:
+        raise _to_worker_authorization_http_exception(exc, role=role, action=action) from exc
+
     try:
         return runner.run(request)
     except URMError as exc:
@@ -569,6 +632,21 @@ def urm_worker_cancel_endpoint(
 ) -> WorkerCancelResponse:
     _require_codex_provider(request.provider)
     runner = _get_worker_runner()
+    role = _resolve_worker_route_authorization_role()
+    action = _resolve_worker_cancel_policy_action()
+    try:
+        _ = authorize_action(
+            role=role,
+            action=action,
+            writes_allowed=False,
+            approval_provided=False,
+            action_payload={"worker_id": worker_id},
+            session_active=False,
+            emit_policy_event=_policy_event_emitter(session_id=None),
+        )
+    except URMError as exc:
+        raise _to_worker_authorization_http_exception(exc, role=role, action=action) from exc
+
     try:
         return runner.cancel(worker_id=worker_id)
     except URMError as exc:

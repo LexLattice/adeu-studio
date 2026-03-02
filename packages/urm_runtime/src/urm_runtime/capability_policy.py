@@ -31,6 +31,13 @@ ALLOW_POLICY_FILE = "urm.allow.v1.json"
 HARD_GATE_TRACE_VERSION = "urm.hard-gate.v1"
 PROOF_BACKEND_UNAVAILABLE_CODE = "URM_PROOF_BACKEND_UNAVAILABLE"
 PROOF_EVIDENCE_NOT_FOUND_CODE = "URM_PROOF_EVIDENCE_NOT_FOUND"
+# Centralized action identifiers consumed by API route policy gates.
+POLICY_ACTION_URM_TURN_STEER = "urm.turn.steer"
+POLICY_ACTION_URM_AGENT_SPAWN = "urm.agent.spawn"
+POLICY_ACTION_URM_AGENT_CANCEL = "urm.agent.cancel"
+POLICY_ACTION_URM_WORKER_RUN = "urm.spawn_worker"
+POLICY_ACTION_URM_CONNECTORS_SNAPSHOT_CREATE = "urm.connectors.snapshot.create"
+POLICY_ACTION_URM_CONNECTORS_SNAPSHOT_GET = "urm.connectors.snapshot.get"
 PolicyEvalEventName = Literal[
     "POLICY_EVAL_START",
     "POLICY_EVAL_PASS",
