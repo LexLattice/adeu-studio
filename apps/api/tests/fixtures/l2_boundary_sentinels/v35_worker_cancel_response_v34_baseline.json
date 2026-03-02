@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "captured_from_commit": "fd9a48de8ab7852d371080659c9fc15aa24b8b70",
+    "captured_by_script": "apps/api/scripts/lint_l2_boundary_readiness.py",
+    "captured_at": "2026-03-02T00:00:00Z"
+  },
+  "response": {
+    "status_code": 200,
+    "body": {
+      "worker_id": "worker-v34-baseline",
+      "status": "cancelled",
+      "idempotent_replay": false,
+      "error": null
+    }
+  }
+}

@@ -1,12 +1,12 @@
-# Assessment vNext+35 Edges (I1 Closure)
+# Assessment vNext+35 Edges (I1 + I2 Implementation)
 
-This document records `I1` closure status for v35 (`V31-F` + `V31-G` boundary-preparation arc) and isolates remaining `I2` implementation work.
+This document records v35 implementation status for `V31-F`/`V31-G` boundary-preparation, with `I1` contract closure and `I2` deterministic guard execution artifacts.
 
-Status: `I1` contract closure implemented (docs-only, no runtime behavior changes); `I2` implementation pending.
+Status: `I1` + `I2` implemented on branch; pending merge and stop-gate closeout.
 
 ## Scope
 
-- In scope: deterministic L2 boundary-release precondition contract closure and guard design readiness.
+- In scope: deterministic boundary-precondition contracts and anti-release guard enforcement.
 - Out of scope: runtime boundary release for `V31-F`/`V31-G`.
 
 ## Inputs
@@ -16,62 +16,59 @@ Status: `I1` contract closure implemented (docs-only, no runtime behavior change
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS34.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
 
-## I1 Closure Checks (Completed)
+## I1 Contract Closure (Implemented)
 
-1. Boundary candidate surfaces are frozen and addressable in contract text.
-   - `V31-F` candidate surfaces:
-     - `apps/api/src/adeu_api/urm_routes.py#urm_worker_run_endpoint`
-     - `apps/api/src/adeu_api/urm_routes.py#urm_worker_cancel_endpoint`
-     - `packages/urm_runtime/src/urm_runtime/capability_policy.py#authorize_action`
-   - `V31-G` candidate surfaces:
-     - `apps/api/src/adeu_api/main.py#_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY`
-     - `apps/api/src/adeu_api/main.py#urm_core_ir_propose_endpoint`
-     - `apps/api/src/adeu_api/storage.py#transaction`
+1. Boundary inventory for deferred release surfaces is frozen and target-separated (`V31-F`, `V31-G`).
+2. `l2_boundary_readiness_assertion@1` lock grammar is machine-checkable with frozen keysets and ordering rules.
+3. `l2_boundary_blocker_registry@1` authority and blocker membership linkage are frozen.
+4. Single-source-of-truth and rollback preconditions are explicit for both deferred release paths.
+5. No-scaffolding and no-touch runtime constraints are frozen in lock text.
 
-2. Boundary readiness assertion contract is machine-checkable and target-separated.
-   - exactly two `l2_boundary_readiness_assertion@1` blocks are present (`V31-F`, `V31-G`),
-   - required keyset, ordering, enum, and uniqueness constraints are frozen,
-   - `V31-F`/`V31-G` assertions remain independent (no merged block).
+## I2 Guard Suite (Implemented)
 
-3. Release blocker authority is machine-mapped and deterministic.
-   - authoritative blocker set is frozen in `l2_boundary_blocker_registry@1`,
-   - readiness blocks reference blocker IDs from that registry only.
+1. Boundary-readiness lint entrypoint is implemented:
+   - `apps/api/scripts/lint_l2_boundary_readiness.py`
+2. Frozen sentinel fixtures are implemented:
+   - `apps/api/tests/fixtures/l2_boundary_sentinels/v35_worker_run_response_v34_baseline.json`
+   - `apps/api/tests/fixtures/l2_boundary_sentinels/v35_worker_cancel_response_v34_baseline.json`
+3. Deterministic lint/guard tests are implemented:
+   - `apps/api/tests/test_l2_boundary_readiness_lint.py`
+4. CI enforcement is wired:
+   - `.github/workflows/ci.yml` runs frozen lint CLI with `TZ=UTC` and `LC_ALL=C`.
 
-4. Source-of-truth and rollback preconditions are frozen.
-   - `V31-F` source-of-truth: `capability_policy_authority`,
-   - `V31-G` source-of-truth: `persisted_store_only`,
-   - dual-read/dual-write remains forbidden unless explicitly authorized by a future lock update.
+## Guard Contract Checks Covered by I2 Implementation
 
-5. No-scaffolding and no-touch constraints are frozen in lock text.
-   - no runtime release behavior is allowed in v35,
-   - frozen no-touch runtime file list is explicitly defined for subsequent guard enforcement.
+1. Readiness assertion checks:
+   - exactly two readiness blocks required under `## L2 Boundary Readiness Assertions (Machine-Checkable)`,
+   - target set must be exactly `V31-F` and `V31-G`,
+   - keyset/enum/ordering validation is fail-closed.
+2. Blocker registry checks:
+   - exactly one `l2_boundary_blocker_registry@1` block required,
+   - readiness `release_blockers` must resolve to registry IDs.
+3. Merge-base diff guard checks:
+   - no-touch runtime file modifications are merge-blocking,
+   - base-ref unresolvable state fails closed with deterministic exit code `5`.
+4. Callgraph and behavior checks:
+   - no-authorize-action-calls guard for worker run/cancel paths is fail-closed,
+   - sentinel behavior drift checks are deterministic and fail-closed.
+5. Sentinel provenance/normalization checks:
+   - fixture metadata contract is validated,
+   - recursive high-entropy exclusion is enforced during response comparison.
 
-## Repository Baseline Confirmations
+## Repository Baseline Confirmations (Unchanged by v35)
 
-1. Worker endpoints remain ungated by `authorize_action`.
-   - `urm_worker_run_endpoint` and `urm_worker_cancel_endpoint` are not policy-gated in baseline.
+1. Worker run/cancel endpoints remain ungated by `authorize_action`.
+2. Proposer idempotency authority remains process-local (`_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY`).
+3. No runtime behavior implementation files from the frozen no-touch list are modified in v35 scope.
 
-2. Proposer idempotency remains process-local.
-   - `_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY` remains in-memory authority in baseline.
+## Residual Risks to Close in Stop-Gate Phase
 
-## Decisions Recorded
+1. Final merge evidence still depends on green CI execution of new boundary lint step.
+2. v35 closeout document still needs runtime-observability comparison row against v34 baseline.
+3. No-release posture must remain explicit in closeout language (boundary prep only).
 
-1. v36 release priority remains `V31-F` first; `V31-G` remains follow-on by default.
-2. v35 boundary lock authority remains centralized in `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md` (no standalone parallel lock artifact in this arc).
-3. Future release locks must include explicit rollback guarantees:
-   - `V31-F`: deterministic denial payload contract plus all-or-nothing route-gate rollback semantics.
-   - `V31-G`: single-source rollback semantics plus explicit migration-down contract requirement before release.
+## Next Actions
 
-## Residual Risks Carried Into I2
-
-1. Docs-contract drift risk remains until boundary lint is implemented and CI-enforced.
-2. Accidental early release risk remains until no-touch diff and callgraph guards are executable.
-3. Sentinel drift risk remains until baseline fixtures and normalization checks are implemented.
-
-## I2 Implementation Readiness Checks (Planned)
-
-1. Implement and gate `apps/api/scripts/lint_l2_boundary_readiness.py` with frozen CLI + exit-code contract.
-2. Add no-touch merge-base diff guard enforcement for frozen runtime files.
-3. Add worker run/cancel no-authorize-action callgraph guard.
-4. Add behavior sentinel fixtures and deterministic normalization checks.
-5. Keep closeout continuity lint green alongside new boundary lint.
+1. Merge v35 `I2` implementation PR after green CI.
+2. Draft `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md` with required machine-checkable row against v34 baseline.
+3. Re-baseline `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md` for v36 release-candidate sequencing after v35 closeout.
