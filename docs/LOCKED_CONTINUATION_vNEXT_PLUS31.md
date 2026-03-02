@@ -1,4 +1,4 @@
-# Locked Continuation vNext+31 (Draft Lock)
+# Locked Continuation vNext+31 (Closed Lock)
 
 This document drafts the next arc after:
 
@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: closed lock (implemented on `main`, March 2, 2026 UTC).
 
 Decision basis:
 
@@ -20,6 +20,7 @@ Decision basis:
   - no solver/runtime semantics release,
   - no policy-enforcement expansion,
   - no L2 boundary release.
+- `vNext+31` (`E1`-`E2`) is now merged on `main` with green CI and closeout `all_passed = true` in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS31.md`.
 
 ## Global Locks
 
@@ -277,7 +278,7 @@ Prevent closeout-doc drift between claimed continuity assertions and committed a
    - `artifacts/stop_gate/metrics_v30_closeout.json`
 5. No L2 boundary release is introduced in this arc.
 
-## Exit Criteria (Draft)
+## Exit Criteria (Locked)
 
 - `E1` and `E2` merged with green CI.
 - No new stop-gate metric keys introduced.
@@ -286,3 +287,8 @@ Prevent closeout-doc drift between claimed continuity assertions and committed a
 - Closeout consistency guard passes deterministically on baseline and reruns.
 - v31 closeout evidence includes runtime-observability comparison row against v30 baseline.
 - No solver semantics contract delta and no trust-lane regression introduced.
+
+Completion status:
+
+- all frozen v31 exit criteria are satisfied at closeout.
+- authoritative closeout evidence is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS31.md`.
