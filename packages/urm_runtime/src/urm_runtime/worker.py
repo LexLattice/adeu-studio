@@ -404,11 +404,12 @@ class CodexExecWorkerRunner:
             reason = self._exec_help_failure_reason or "FLAG_ABSENT"
             error_code = "URM_WORKER_START_FAILED"
             error_message = f"{UNSUPPORTED_REQUIRED_FLAG_PREFIX}:{reason}"
-            sys.stderr.write(
+            print(
                 f"URM_WORKER_START_FAILED {UNSUPPORTED_REQUIRED_FLAG_PREFIX}:{reason} "
-                f"codex_path={self.config.codex_bin}\n",
+                f"codex_path={self.config.codex_bin}",
+                file=sys.stderr,
+                flush=True,
             )
-            sys.stderr.flush()
         command: list[str] | None = None
         if error_code is None:
             command = self._build_command(
