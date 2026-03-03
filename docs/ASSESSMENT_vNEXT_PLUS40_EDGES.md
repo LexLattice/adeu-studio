@@ -2,7 +2,22 @@
 
 This document records pre-implementation edge analysis for `vNext+40` (`V32-C` compiler core pass pipeline), aligned to `docs/DRAFT_NEXT_ARC_OPTIONS_v6.md`.
 
-Status: planning assessment (lock drafted, implementation not started).
+Status: historical planning assessment (implementation completed on `main`, March 3, 2026 UTC).
+
+## Closeout Addendum (Post-Implementation)
+
+- `O1` (`V32-C` compiler core pass pipeline MVP) merged via PR `#226`.
+- `O2` (`V32-C` compiler core determinism/fail-closed guards) merged via PR `#227`.
+- Semantic-compiler package now exists at `packages/adeu_semantic_compiler`.
+- v40 closeout artifacts are present:
+  - `artifacts/quality_dashboard_v40_closeout.json`
+  - `artifacts/stop_gate/metrics_v40_closeout.json`
+  - `artifacts/stop_gate/report_v40_closeout.md`
+- Compiler-core closeout artifacts are generated deterministically at:
+  - `artifacts/semantic_compiler/v40/commitments_ir.json`
+  - `artifacts/semantic_compiler/v40/semantic_compiler.diagnostics.json`
+  - `artifacts/semantic_compiler/v40/pass_manifest.json`
+- Stop-gate metric keyset continuity is preserved (`v39` -> `v40` exact-set equality; cardinality `79`).
 
 ## Scope
 
@@ -32,8 +47,9 @@ Status: planning assessment (lock drafted, implementation not started).
    - `spec/adeu_commitments_ir.schema.json`
 3. Deterministic canonical JSON profile is frozen and available:
    - `canonical_json`/`sha256_canonical_json` in `apps/api/src/adeu_api/hashing.py` and `packages/urm_runtime/src/urm_runtime/hashing.py`.
-4. Compiler-core package remains greenfield in current `main`:
-   - no package named `packages/adeu_semantic_compiler` exists yet.
+4. Compiler-core package baseline is now implemented:
+   - `packages/adeu_semantic_compiler/src/adeu_semantic_compiler/compile.py`
+   - deterministic guard suite in `packages/adeu_semantic_compiler/tests/test_semantic_compiler_guards.py`.
 5. Stop-gate schema family and keyset continuity are active constraints:
    - `stop_gate_metrics@1` remains the only schema family,
    - v39 closeout preserved exact v38 keyset equality with derived cardinality `79`,
@@ -124,10 +140,10 @@ Status: planning assessment (lock drafted, implementation not started).
 - Partial-run compiler ergonomics (`--stop-after`, intermediate IR dumps) are deferred to explicit follow-on lock text.
 - Resolver namespace aliasing/workspace-scoped bindings are deferred to explicit follow-on lock text.
 
-## Next Actions
+## Completion Trace
 
-1. Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS40.md` selecting only `V32-C`.
-2. Execute `v40` as two small-green PRs:
-   - compiler core pass pipeline implementation,
-   - deterministic/fail-closed guard suite.
-3. Keep v36/v37/v38/v39 continuity checks mandatory during both PRs.
+1. `docs/LOCKED_CONTINUATION_vNEXT_PLUS40.md` was finalized to `V32-C` scope and closed post-merge.
+2. `v40` executed as two small-green PRs:
+   - PR `#226`: compiler core pass pipeline MVP.
+   - PR `#227`: compiler core deterministic/fail-closed guard suite.
+3. v36/v37/v38/v39 continuity checks remained mandatory and green throughout v40 closeout.
