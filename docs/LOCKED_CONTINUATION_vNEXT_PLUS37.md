@@ -1,4 +1,4 @@
-# Locked Continuation vNext+37 (Draft Lock)
+# Locked Continuation vNext+37 (Closed Lock)
 
 This document drafts the next arc after:
 
@@ -7,7 +7,7 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: closed lock (implemented on `main`, March 3, 2026 UTC).
 
 Decision basis:
 
@@ -19,6 +19,8 @@ Decision basis:
 - `vNext+37` is constrained to deterministic additive hardening for `V31-G` only:
   - no solver/runtime semantics release,
   - no additional governance boundary release expansion in this arc.
+- `vNext+37` (`K1`-`K2`) is now merged on `main` via PR `#220` and PR `#221` with green CI checks.
+- `vNext+37` closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS37.md` with `all_passed = true`.
 
 ## Global Locks
 
@@ -394,7 +396,7 @@ Prove the `V31-G` boundary release is deterministic, fail-closed, and regression
    - `apps/api/src/adeu_api/main.py#urm_core_ir_propose_endpoint` currently reads/writes process-local `_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY`.
 9. No additional `L2` boundary release beyond `V31-G` is introduced in this arc.
 
-## Exit Criteria (Draft)
+## Exit Criteria (Locked)
 
 - `K1` and `K2` merged with green CI.
 - No new stop-gate metric keys introduced.

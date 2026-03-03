@@ -1,9 +1,9 @@
-# Draft Next Arc Options v5 (Post vNext+36)
+# Draft Next Arc Options v5 (Post vNext+37)
 
-This document is the fresh consolidated planning baseline for post-`vNext+36` sequencing.
+This document is the fresh consolidated planning baseline for post-`vNext+37` sequencing.
 
-Status: active planning draft (v17 through v36 baselines executed; v36 `J1` + `J2` merged on `main`; `vNext+37+` selection in progress).
-Goal: define lock-respecting candidate paths for post-v36 release sequencing while preserving the standard multi-implementation review sequence before lock freeze.
+Status: active planning draft (v17 through v37 baselines executed; v37 `K1` + `K2` merged on `main`; `vNext+38+` selection in progress).
+Goal: define lock-respecting candidate paths for post-v37 release sequencing while preserving the standard multi-implementation review sequence before lock freeze.
 
 ## Naming Convention (Paths vs Bundles)
 
@@ -24,6 +24,7 @@ Goal: define lock-respecting candidate paths for post-v36 release sequencing whi
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS34.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS36.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS37.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS27.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS28.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS29.md`
@@ -34,6 +35,7 @@ Goal: define lock-respecting candidate paths for post-v36 release sequencing whi
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS36.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS37.md`
 - archived GPT Pro snapshot inputs:
   - `docs/archives/next_arc_options_v5/DRAFT_NEXT_ARC_OPTIONS_v5_gpt_pro_snapshot.md`
   - `docs/archives/next_arc_options_v5/REVIEW_v5_gpt_pro_snapshot.md`
@@ -42,10 +44,10 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Locked continuation implementation baseline is `vNext+36` (`V31-F` governance boundary release, `J1`-`J2`) and is merged on `main`.
-- Latest closeout decision draft is `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS36.md`.
+- Locked continuation implementation baseline is `vNext+37` (`V31-G` persistence boundary release, `K1`-`K2`) and is merged on `main`.
+- Latest closeout decision draft is `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS37.md`.
 - Stop-gate schema family remains `stop_gate_metrics@1`.
-- v29 through v36 closeout artifacts are present in workspace:
+- v29 through v37 closeout artifacts are present in workspace:
   - `artifacts/quality_dashboard_v29_closeout.json`
   - `artifacts/stop_gate/metrics_v29_closeout.json`
   - `artifacts/stop_gate/report_v29_closeout.md`
@@ -70,6 +72,9 @@ This is a planning document only. It is not a lock doc and does not authorize ru
   - `artifacts/quality_dashboard_v36_closeout.json`
   - `artifacts/stop_gate/metrics_v36_closeout.json`
   - `artifacts/stop_gate/report_v36_closeout.md`
+  - `artifacts/quality_dashboard_v37_closeout.json`
+  - `artifacts/stop_gate/metrics_v37_closeout.json`
+  - `artifacts/stop_gate/report_v37_closeout.md`
 
 ## Lock Class Semantics (Operational)
 
@@ -83,7 +88,7 @@ This is a planning document only. It is not a lock doc and does not authorize ru
   - PR `#214` (`H1`) and PR `#215` (`H2`) merged with green CI.
 - `vNext+34` closeout evidence is recorded in:
   - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS34.md`
-- Planning default now advances to `vNext+37` candidate selection.
+- Planning default now advances to `vNext+38` candidate selection.
 
 ## v35 I1 + I2 Completion Checkpoint
 
@@ -109,17 +114,29 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 - v36 closeout evidence draft is captured in:
   - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS36.md`
 
-## Confirmed Post-v36 Remaining Gaps (Worth Addressing)
+## v37 K1 + K2 Completion Checkpoint
 
-1. Proposer idempotency remains process-local in-memory cache for one API path.
-   - evidence anchor:
-     - `apps/api/src/adeu_api/main.py` (`_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY`)
+- v37 selected thin-slice is explicit `L2` persistence boundary release for `V31-G` with governance continuity preserved from v36.
+- `K1` release and `K2` guard suite are merged on `main`:
+  - PR `#220` (`K1`) merge commit `cd8044051e2b496203a9579b5c49f175eb46d6e7`
+  - PR `#221` (`K2`) merge commit `2a16498c88c1f7660f63caba43e2399a15d01db8`
+- v37 lock and edge assessment artifacts are captured in:
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS37.md`
+  - `docs/ASSESSMENT_vNEXT_PLUS37_EDGES.md`
+- v37 closeout evidence draft is captured in:
+  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS37.md`
+
+## Confirmed Post-v37 Remaining Gaps (Worth Addressing)
+
+1. No unresolved `V31-*` boundary-release gaps remain.
+   - `V31-F` closed in v36 (`J1`-`J2`).
+   - `V31-G` closed in v37 (`K1`-`K2`).
 
 ## Gap-to-Path Mapping (Total)
 
-- Gap 1 -> `V31-G`
+- Gap 1 -> none (`V31` path family is fully closed at v37 closeout).
 
-## Consolidated Path Families (v36+ Candidate Menu)
+## Consolidated Path Families (v37+ Candidate Menu)
 
 ### Path V31-A: Evidence Explorer Contract Closure
 
@@ -319,29 +336,29 @@ Acceptance:
 | `V31-D` | `V31-D` | `L0` | closed in v32 | Consolidated repo-root resolution and added determinism guards | low |
 | `V31-E` | `V31-E` | `L1` | closed in v33 | Closed worker CLI safety fail-closed policy and deterministic guard coverage | med |
 | `V31-F` | `V31-F` | `L2` | closed in v36 (`J1` + `J2`) | Closed governance gap | high |
-| `V31-G` | `V31-G` | `L2` | v35 precondition lock + guard suite implemented; release deferred | Closes proposer idempotency boundary | high |
+| `V31-G` | `V31-G` | `L2` | closed in v37 (`K1` + `K2`) | Closed proposer idempotency persistence boundary | high |
 
 ## Recommended Sequencing (Default)
 
-1. `vNext+37`: evaluate remaining boundary release candidate (`V31-G` default) only after v36 closeout decision is merged green.
-2. `vNext+38+`: evaluate follow-on policy operations hardening under explicit release lock updates.
-3. Maintain v36 governance-release guard contracts and v35 anti-coupling contracts as mandatory continuity gates for remaining `L2` release arcs.
+1. `vNext+38`: evaluate follow-on policy operations hardening under explicit release lock updates.
+2. Preserve v37 persistence-release continuity contracts (single-source idempotency authority, replay/conflict determinism, process-restart continuity) as mandatory gates in the next arc.
+3. Preserve v36 governance-release continuity contracts (`authorize_action` callgraph requirements and deterministic denial fields) as cross-arc invariants.
 
 ## Standard Multi-Implementation Sequence (Required)
 
-For each selected arc candidate (next active release planning slice: `vNext+37+`):
+For each selected arc candidate (next active release planning slice: `vNext+38+`):
 
 1. Draft parallel implementation briefs for multiple implementers (`codex`, `gpt`, `gemini`, `opus`) with identical locks/acceptance.
 2. Run independent implementations and collect deterministic evidence bundles.
 3. Produce comparative assessment (risk, lock adherence, determinism evidence, CI impact).
-4. Consolidate into one lock candidate (current authority baseline: `docs/LOCKED_CONTINUATION_vNEXT_PLUS36.md`).
+4. Consolidate into one lock candidate (current authority baseline: `docs/LOCKED_CONTINUATION_vNEXT_PLUS37.md`).
 5. Execute small-green PR sequence and close out with stop-gate decision note.
 
 ## Proposed Next Step
 
-Prepare v37 release-selection baseline:
+Prepare v38 release-selection baseline:
 
-1. Merge/finalize `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS36.md` with required machine-checkable v35 comparison row.
-2. Preserve all v36 governance-release locks (`required-callgraph`, provider-precheck ordering, deterministic denial fields, allow-path proof) as continuity gates.
-3. Preserve all v35 anti-coupling locks (`V31-G` deferred persistence) unless an explicit future release lock is approved.
-4. Start v37 release-candidate lock drafting (`V31-G` default) only after v36 closeout merge.
+1. Merge/finalize `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS37.md` with required machine-checkable v36 comparison row.
+2. Preserve all v37 persistence-release locks (`source_of_truth`, replay/conflict deterministic context fields, cache non-authority, process-restart continuity) as merge-blocking continuity gates.
+3. Preserve all v36 governance-release locks (`required-callgraph`, provider-precheck ordering, deterministic denial fields, allow-path proof) as cross-arc invariants.
+4. Start v38 release-candidate lock drafting only after v37 closeout merge.
