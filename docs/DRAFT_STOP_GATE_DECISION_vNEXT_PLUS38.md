@@ -4,7 +4,7 @@ This note records the arc-completion decision for:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS38.md`
 
-Status: draft decision note (pre-closeout scaffold, March 3, 2026 UTC).
+Status: draft decision note (interim closeout update, March 3, 2026 UTC).
 
 ## Decision Guardrail (Frozen)
 
@@ -13,86 +13,119 @@ Status: draft decision note (pre-closeout scaffold, March 3, 2026 UTC).
 - Any `vNext+39` lock/release decision remains a separate follow-on artifact and is not pre-committed by this note.
 - Runtime-observability comparison row is required closeout evidence and is informational-only in v38 (no new timing threshold gate in this arc).
 
-## Evidence Source (To Be Captured at Closeout)
+## Evidence Source
 
 - CI workflow: `ci` on `main`
-- arc-completion merge commit: `TBD`
+- arc-completion merge commit: `036ade253b76dbfd835c6c2c47e3262e6e584e11`
 - arc-completion CI run:
-  - Run ID: `TBD`
-  - URL: `TBD`
-  - conclusion: `TBD`
+  - Run ID: `22628465627`
+  - URL: `https://github.com/LexLattice/adeu-studio/actions/runs/22628465627`
+  - conclusion: `success`
 - merged implementation PR sequence:
-  - `TBD` (`M1`) merge commit `TBD`
-  - `TBD` (`M2`) merge commit `TBD`
-- deterministic closeout artifacts (expected):
+  - `#222` (`M1`) merge commit `2b4765320fdec48a0c887eee52eb1ecf92c15d35`
+  - `#223` (`M2`) merge commit `036ade253b76dbfd835c6c2c47e3262e6e584e11`
+- deterministic closeout artifacts (reproducible):
   - quality dashboard JSON: `artifacts/quality_dashboard_v38_closeout.json`
   - stop-gate JSON: `artifacts/stop_gate/metrics_v38_closeout.json`
   - stop-gate Markdown: `artifacts/stop_gate/report_v38_closeout.md`
+- closeout commands:
+  - `TZ=UTC LC_ALL=C PYTHONWARNINGS=ignore PYTHONPATH=apps/api/src:packages/urm_runtime/src:packages/adeu_core_ir/src:packages/adeu_commitments_ir/src .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard_v38_closeout.json`
+  - `TZ=UTC LC_ALL=C PYTHONWARNINGS=ignore PYTHONPATH=apps/api/src:packages/urm_runtime/src:packages/adeu_core_ir/src:packages/adeu_commitments_ir/src .venv/bin/python apps/api/scripts/build_stop_gate_metrics.py --quality-current artifacts/quality_dashboard_v38_closeout.json --quality-baseline artifacts/quality_dashboard_v37_closeout.json --out-json artifacts/stop_gate/metrics_v38_closeout.json --out-md artifacts/stop_gate/report_v38_closeout.md`
 
 ## Exit-Criteria Check (vNext+38)
 
 | Criterion | Threshold | Result | Evidence |
 |---|---|---|---|
-| `M1`-`M2` merged with green CI | required | `pending` | `TBD` |
-| No new stop-gate metric keys introduced | required | `pending` | `TBD` |
-| No stop-gate schema-family fork | required | `pending` | `TBD` |
-| Deterministic commitments IR contract bootstrap (`V32-A`) closed and test-covered | required | `pending` | `TBD` |
-| Commitments schema parity-hash evidence block included | required | `pending` | `TBD` |
-| Existing continuity thresholds remain at required values | required | `pending` | `TBD` |
-| Runtime observability comparison row vs v37 baseline included | required | `pending` | `TBD` |
-| v36 governance and v37 persistence continuity remain green and unreverted | required | `pending` | `TBD` |
-| No solver semantics contract delta and no trust-lane regression introduced | required | `pending` | `TBD` |
+| `M1`-`M2` merged with green CI | required | `pass` | PRs `#222`-`#223` merged; arc-completion merge CI run `22628465627` is `success` |
+| No new stop-gate metric keys introduced | required | `pass` | metric key set in `artifacts/stop_gate/metrics_v38_closeout.json` equals v37 key set exactly; derived cardinality remains `79` |
+| No stop-gate schema-family fork | required | `pass` | `schema = "stop_gate_metrics@1"` in `artifacts/stop_gate/metrics_v38_closeout.json` |
+| Deterministic commitments IR contract bootstrap (`V32-A`) closed and test-covered | required | `pass` | M1/M2 merged in PRs `#222` and `#223` with passing `python` lane at arc closeout |
+| Commitments schema parity-hash evidence block included | required | `pass` | machine-checkable JSON block in this note (`v32a_schema_export_parity_evidence@1`) |
+| Existing continuity thresholds remain at required values | required | `pass` | continuity metrics in `artifacts/stop_gate/metrics_v38_closeout.json` pass with `issues = []` |
+| Runtime observability comparison row vs v37 baseline included | required | `pass` | machine-checkable JSON block in this note (`runtime_observability_comparison@1`) |
+| v36 governance and v37 persistence continuity remain green and unreverted | required | `pass` | v36/v37 continuity guard coverage remains green under v38 closeout test lane and merged CI |
+| No solver semantics contract delta and no trust-lane regression introduced | required | `pass` | v38 scope is `V32-A` commitments IR contract/bootstrap and deterministic guards; `SEMANTICS_v3` runtime authority retained |
 
-Summary (pending closeout):
+Summary:
 
 - `schema = "stop_gate_metrics@1"`
-- `valid = TBD`
-- `all_passed = TBD`
-- `issues = TBD`
+- `valid = true`
+- `all_passed = true`
+- `issues = []`
 
-## Pending Machine-Checkable Blocks (To Fill at Closeout)
+## Metric-Key Continuity Assertion
 
-At closeout, this note must include:
+```json
+{
+  "schema": "metric_key_continuity_assertion@1",
+  "baseline_metrics_path": "artifacts/stop_gate/metrics_v37_closeout.json",
+  "current_metrics_path": "artifacts/stop_gate/metrics_v38_closeout.json",
+  "expected_relation": "exact_keyset_equality"
+}
+```
 
-1. `## Metric-Key Continuity Assertion` JSON block (`metric_key_continuity_assertion@1`) for v37 -> v38 keyset equality.
-2. `## Runtime Observability Comparison (v37 Baseline vs v38 Closeout)` JSON block (`runtime_observability_comparison@1`) with required keys.
-3. `## Commitments Schema Export Parity Evidence` JSON block (`v32a_schema_export_parity_evidence@1`) with required keys:
-   - `schema`
-   - `authoritative_schema_path`
-   - `mirror_schema_path`
-   - `authoritative_sha256`
-   - `mirror_sha256`
-   - `byte_equal`
-   - `notes`
+## Runtime Observability Comparison (v37 Baseline vs v38 Closeout)
 
-These blocks are intentionally deferred until closeout artifacts exist.
+```json
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+37",
+  "current_arc": "vNext+38",
+  "baseline_source": "artifacts/stop_gate/report_v37_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v38_closeout.md",
+  "baseline_elapsed_ms": 111,
+  "current_elapsed_ms": 108,
+  "delta_ms": -3,
+  "baseline_total_fixtures": 21,
+  "current_total_fixtures": 21,
+  "baseline_total_replays": 75,
+  "current_total_replays": 75,
+  "baseline_bytes_hashed_per_replay": 67236,
+  "current_bytes_hashed_per_replay": 67236,
+  "baseline_bytes_hashed_total": 201708,
+  "current_bytes_hashed_total": 201708,
+  "notes": "Fixture/replay volume and hashed-byte footprint remain stable; elapsed_ms decreased by 3ms under fixed deterministic inputs. This row remains informational-only in v38."
+}
+```
 
-Keyset extraction method (frozen for closeout fill):
+| Arc | Source | total_fixtures | total_replays | elapsed_ms | bytes_hashed_per_replay | bytes_hashed_total | valid | all_passed |
+|---|---|---:|---:|---:|---:|---:|---|---|
+| `vNext+37` baseline | `artifacts/stop_gate/metrics_v37_closeout.json` | `21` | `75` | `111` | `67236` | `201708` | `true` | `true` |
+| `vNext+38` closeout | `artifacts/stop_gate/metrics_v38_closeout.json` | `21` | `75` | `108` | `67236` | `201708` | `true` | `true` |
 
-- derive keysets from top-level `metrics` object keys in:
-  - `artifacts/stop_gate/metrics_v37_closeout.json`
-  - `artifacts/stop_gate/metrics_v38_closeout.json`
-- artifacts are generated by `apps/api/scripts/build_stop_gate_metrics.py`,
-- set comparison is exact-set equality and is validated by `apps/api/scripts/lint_closeout_consistency.py`.
+## Commitments Schema Export Parity Evidence
+
+```json
+{
+  "schema": "v32a_schema_export_parity_evidence@1",
+  "authoritative_schema_path": "packages/adeu_commitments_ir/schema/adeu_commitments_ir.v0_1.json",
+  "mirror_schema_path": "spec/adeu_commitments_ir.schema.json",
+  "authoritative_sha256": "40c752c7df8c66c9bd89b8e2fee132a38f1ec9b54bcc87d1f1b47436ff0b1a03",
+  "mirror_sha256": "40c752c7df8c66c9bd89b8e2fee132a38f1ec9b54bcc87d1f1b47436ff0b1a03",
+  "byte_equal": true,
+  "notes": "Authoritative package schema and spec mirror are byte-identical under frozen v38 schema-export writer profile."
+}
+```
 
 ## M-Track Result Summary
 
 - `M1` commitments IR contract/bootstrap package (`V32-A`):
-  - status: `pending`
-  - evidence: `TBD`
+  - status: `done`
+  - evidence: PR `#222`
 - `M2` commitments IR determinism/parity guard suite (`V32-A`):
-  - status: `pending`
-  - evidence: `TBD`
+  - status: `done`
+  - evidence: PR `#223`
 
 ## Recommendation (`vNext+39` Planning Gate)
 
 - gate decision:
-  - `PENDING_VNEXT_PLUS38_CLOSEOUT`
+  - `GO_VNEXT_PLUS39_PLANNING_DRAFT`
 - rationale:
-  - gate cannot be resolved until v38 implementation PRs merge and deterministic closeout artifacts are generated.
+  - all frozen v38 criteria are satisfied with deterministic closeout evidence.
+  - merged CI on `main` is green at arc completion.
 
 ## Suggested Next Artifacts
 
-1. Complete v38 implementation PR sequence (`M1`, `M2`) with green CI.
-2. Generate v38 closeout artifacts and populate pending machine-checkable blocks in this note.
-3. Draft `docs/LOCKED_CONTINUATION_vNEXT_PLUS39.md` only after this note records `all_passed = true`.
+1. Draft `docs/LOCKED_CONTINUATION_vNEXT_PLUS39.md` scoped to `V32-B` (semantic source grammar/parser/normalizer) while preserving v36/v37/v38 continuity locks.
+2. Re-baseline `docs/DRAFT_NEXT_ARC_OPTIONS_v6.md` as post-v38 planning authority and mark `V32-A` as closed in the decision matrix.
+3. Preserve v38 commitments IR locks (`module_kind` discriminator freeze, schema mirror authority direction, strict fail-closed model posture, and deterministic export profile) as mandatory continuity gates in v39+.

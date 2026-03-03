@@ -2,7 +2,21 @@
 
 This document records pre-implementation edge analysis for `vNext+38` (`V32-A` commitments IR contract bootstrap), aligned to `docs/DRAFT_NEXT_ARC_OPTIONS_v6.md`.
 
-Status: planning assessment (lock drafted, implementation not started).
+Status: historical planning assessment (implementation completed on `main`, March 3, 2026 UTC).
+
+## Closeout Addendum (Post-Implementation)
+
+- `M1` (`V32-A` contract/bootstrap) merged via PR `#222`.
+- `M2` (`V32-A` determinism/parity guards) merged via PR `#223`.
+- Commitments IR contract package now exists at `packages/adeu_commitments_ir`.
+- Authoritative/mirror schema pair is present:
+  - `packages/adeu_commitments_ir/schema/adeu_commitments_ir.v0_1.json`
+  - `spec/adeu_commitments_ir.schema.json`
+- v38 closeout artifacts are present:
+  - `artifacts/quality_dashboard_v38_closeout.json`
+  - `artifacts/stop_gate/metrics_v38_closeout.json`
+  - `artifacts/stop_gate/report_v38_closeout.md`
+- Stop-gate metric keyset continuity is preserved (`v37` -> `v38` exact-set equality; cardinality `79`).
 
 ## Scope
 
@@ -28,8 +42,8 @@ Status: planning assessment (lock drafted, implementation not started).
    - `canonical_json`/`sha256_canonical_json` in `apps/api/src/adeu_api/hashing.py` and `packages/urm_runtime/src/urm_runtime/hashing.py`.
 3. Deterministic fixture testing style is established:
    - exact JSON equality fixture checks in `packages/adeu_kernel/tests/test_fixtures.py`.
-4. No commitments-IR package exists yet:
-   - `packages/adeu_commitments_ir` is greenfield in current main.
+4. Commitments-IR package was greenfield at planning time:
+   - `packages/adeu_commitments_ir` is now implemented on `main` via PRs `#222` and `#223`.
 5. v36/v37 continuity contracts are active and must remain green through v38:
    - governance continuity from v36,
    - persisted idempotency continuity from v37.
@@ -87,10 +101,10 @@ Status: planning assessment (lock drafted, implementation not started).
    - export/mirror wiring,
    - deterministic parity/rerun tests.
 
-## Next Actions
+## Completion Trace
 
-1. Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS38.md` selecting only `V32-A`.
-2. Execute `v38` as two small-green PRs:
-   - contract package + schema export,
-   - deterministic guard/test suite.
-3. Keep v36/v37 continuity checks mandatory during both PRs.
+1. `docs/LOCKED_CONTINUATION_vNEXT_PLUS38.md` was finalized to `V32-A` scope and closed post-merge.
+2. `v38` executed as two small-green PRs:
+   - PR `#222`: contract package + schema export.
+   - PR `#223`: deterministic guard/test suite.
+3. v36/v37 continuity checks remained mandatory and green throughout v38 closeout.

@@ -1,4 +1,4 @@
-# Locked Continuation vNext+38 (Draft Lock)
+# Locked Continuation vNext+38 (Closed Lock)
 
 This document drafts the next arc after:
 
@@ -8,7 +8,7 @@ This document drafts the next arc after:
 - `docs/SEMANTICS_v3.md`
 - `docs/ARCHITECTURE_ADEU_SEMANTIC_COMPILER_v0.md`
 
-Status: draft lock (not frozen yet).
+Status: closed lock (implemented on `main`, March 3, 2026 UTC).
 
 Decision basis:
 
@@ -21,6 +21,8 @@ Decision basis:
   - no solver/runtime semantics release,
   - no governance/persistence boundary release expansion,
   - no semantic parser/compiler pipeline release in this arc.
+- `vNext+38` (`M1`-`M2`) is now merged on `main` via PR `#222` and PR `#223` with green CI checks.
+- `vNext+38` closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS38.md` with `all_passed = true`.
 
 ## Global Locks
 
