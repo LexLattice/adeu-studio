@@ -78,16 +78,28 @@ def test_generated_artifact_cleanliness_guard_passes_when_files_match(tmp_path: 
     assert_artifacts_clean(inputs=["docs/a.md"], repo_root_path=root)
 
 
-def test_generated_artifact_cleanliness_guard_fails_on_tampered_output(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("tamper_target_attr", "error_match"),
+    [
+        ("normalized_output_path", "normalized artifact is out of date"),
+        ("diagnostics_output_path", "diagnostics artifact is out of date"),
+    ],
+)
+def test_generated_artifact_cleanliness_guard_fails_on_tampered_output(
+    tmp_path: Path,
+    tamper_target_attr: str,
+    error_match: str,
+) -> None:
     root = _base_repo(tmp_path)
     _write(root / "docs" / "a.md", "```adeu\nmodule_id: a\n```\n")
 
     result = compile_semantic_source(inputs=["docs/a.md"], repo_root_path=root)
     assert result.success is True
 
-    result.normalized_output_path.write_text("{}\n", encoding="utf-8")
+    tampered_path = getattr(result, tamper_target_attr)
+    tampered_path.write_text("{}\n", encoding="utf-8")
 
-    with pytest.raises(RuntimeError, match="normalized artifact is out of date"):
+    with pytest.raises(RuntimeError, match=error_match):
         assert_artifacts_clean(inputs=["docs/a.md"], repo_root_path=root)
 
 
