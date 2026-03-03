@@ -82,6 +82,8 @@ Out-of-scope note:
 - semantic-compiler CI gate integration release (`V32-E`) in this arc,
 - stop-gate metric-key expansion for semantic compiler evidence (`V32-F`) in this arc,
 - compiler partial-execution CLI (`--stop-after`) in this arc,
+- bootstrap overflow circuit-breaker / PR split chunk-size policy release in this arc,
+- semantic-equivalency delta-evaluation release in this arc,
 - resolver namespace aliasing/workspace-scoped bindings in this arc,
 - any provider or proposer endpoint expansion,
 - new stop-gate metric keys or schema-family forks.
@@ -92,6 +94,8 @@ Out-of-scope note:
 - v43+ optional stop-gate metric extension for semantic compiler evidence (`V32-F`) via explicit lock update.
 - v44+ compiler developer ergonomics (`--stop-after`, intermediate IR dumps) under explicit lock text.
 - v45+ resolver namespace aliasing/workspace-scoped bindings under explicit lock text.
+- v46+ deterministic bootstrap overflow controls + PR split chunking under explicit lock text.
+- v47+ semantic-equivalency delta evaluation lane for structured surfaces under explicit lock text.
 
 ## V40 Continuity Consumption (Machine-Checkable)
 
@@ -167,6 +171,11 @@ Consumption lock:
     "collapse_dot_segments": true,
     "allow_absolute_paths": false,
     "symlink_resolution": "forbidden_for_signature_basis"
+  },
+  "surface_symlink_policy": {
+    "file_surface_symlink_entries": "error",
+    "link_path_hashing": "forbidden",
+    "resolved_target_signature_basis": "forbidden"
   },
   "surface_registry_ordering": "surface_id_lexicographic",
   "delta_rule_modes": [
@@ -291,7 +300,8 @@ Lock-class rationale:
   - `schema`: parse JSON then hash canonical JSON bytes,
   - `manifest`: parse JSON then hash canonical JSON bytes,
   - `markdown_json_block`: extract blocks by schema selector, canonicalize each block, order by `(schema, block_index)`, then hash canonical aggregate bytes,
-  - `file`: hash raw file bytes.
+  - `file`: hash raw file bytes,
+  - `file` surfaces that point to symlink entries are invalid and fail closed in this arc.
 - Freeze deterministic surface delta policy:
   - supported delta-rule modes are `freeze`, `additive_only`, and `exact_set`,
   - delta evaluation domain is frozen:
@@ -303,7 +313,8 @@ Lock-class rationale:
   - deterministic `no_baseline` diff shape is frozen as:
     - `baseline_present = false`,
     - `delta_eval_mode = "no_baseline"`,
-    - `adds = all_current_surfaces`, `removes = []`, `changes = []`.
+    - `adds = all_current_surfaces`, `removes = []`, `changes = []`,
+  - bootstrap overflow circuit-breakers and PR split chunk-size policies are deferred (non-v41) and not part of this lock.
 - Freeze deterministic output artifact boundary:
   - `surface_snapshot`: `artifacts/semantic_compiler/v41/surface_snapshot.json`,
   - `surface_diff`: `artifacts/semantic_compiler/v41/surface_diff.json`,
@@ -344,6 +355,9 @@ Lock-class rationale:
   - dot segments are collapsed deterministically,
   - absolute paths are forbidden,
   - symlink resolution is not used in signature basis.
+- Surface-symlink policy lock is frozen:
+  - `file` surface selectors resolving to symlink entries are invalid and fail closed.
+  - hashing the symlink link-path or resolved target bytes as a signature basis is forbidden in v41.
 - Surface-signature-basis lock is frozen:
   - `schema` and `manifest` signatures are hash(canonical JSON bytes),
   - `markdown_json_block` signature is hash(canonical aggregate of schema-selected JSON blocks in stable order),
@@ -362,6 +376,7 @@ Lock-class rationale:
     - `baseline_present = false`,
     - `delta_eval_mode = "no_baseline"`,
     - `adds = all_current_surfaces`, `removes = []`, `changes = []`.
+  - bootstrap overflow circuit-breakers and PR split chunk-size policies are deferred and non-authoritative in v41.
 - Output-contract lock is frozen:
   - compiler outputs are exactly `surface_snapshot`, `surface_diff`, `evidence_manifest`, and `PR_SPLITS` in v41 paths.
   - writes outside frozen v41 artifact/doc generated roots are invalid and fail closed.
@@ -410,6 +425,9 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
     - absolute paths are rejected,
     - dot-segment normalization is deterministic,
     - selector normalization remains POSIX,
+  - symlink policy assertions:
+    - `file` surface selectors resolving to symlink entries are rejected (fail closed),
+    - symlink link-path hashing and resolved-target hashing are both rejected as signature basis in v41,
   - signature-basis assertions:
     - `schema` and `manifest` signatures are canonical-JSON hash based,
     - `markdown_json_block` signatures are derived from schema-selected block aggregates in stable order,
@@ -419,6 +437,7 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
     - additive-only breaking deltas fail closed,
     - exact-set violations fail closed,
     - delta evaluation domains are enforced per kind/rule (keyset domain for structured kinds, hash-only for `file`),
+    - semantic-equivalency bypass paths are forbidden in v41,
   - baseline-bootstrap assertions:
     - absent baseline snapshot yields deterministic `no_baseline` diff mode,
     - absent-baseline diff shape is deterministic (`baseline_present=false`, `adds=all`, `removes=[]`, `changes=[]`),
@@ -457,10 +476,14 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
   - v41 guards fail closed if selector authority drifts from commitments-IR declared surfaces or if implicit discovery is accepted.
 - Required-signature-basis lock is frozen:
   - v41 guards fail closed if per-kind signature-basis rules drift.
+- Required-symlink-policy lock is frozen:
+  - v41 guards fail closed if symlink rejection semantics drift.
 - Required-delta-policy lock is frozen:
   - v41 guards fail closed if freeze/additive/exact-set semantics drift from frozen contract.
 - Required-delta-domain lock is frozen:
   - v41 guards fail closed if per-kind delta evaluation domains drift from frozen mapping.
+- Required-delta-semantic-equivalency lock is frozen:
+  - v41 guards fail closed if semantic-equivalency bypass behavior is introduced in this arc.
 - Required-bootstrap-policy lock is frozen:
   - v41 guards fail closed if missing-baseline handling drifts from deterministic `no_baseline` mode.
 - Required-bootstrap-diff-shape lock is frozen:

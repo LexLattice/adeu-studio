@@ -76,15 +76,25 @@ Status: active planning assessment (pre-implementation, March 3, 2026 UTC).
     - regenerated artifacts can diverge from committed bytes without explicit cleanliness guards.
 16. Continuity regression risk:
     - v41 toolchain changes can weaken existing v36/v37/v38/v39/v40 guard expectations.
+17. Symlink signature ambiguity:
+    - file-surface selectors that resolve to symlink entries can produce implementation divergence unless symlink handling is explicitly fail-closed.
+18. Bootstrap review flooding risk:
+    - deterministic `no_baseline` mode marks all current surfaces as adds and can produce unreviewable first-run PR split artifacts in large selector sets.
+19. PR split reviewability drift:
+    - module-scoped grouping can become too large for practical review unless deterministic chunking policy is explicitly introduced in a future lock.
+20. Semantic-equivalency ambiguity:
+    - strict hash-equality deltas can flag cosmetically equivalent structured content unless a future semantic-equivalency lane is explicitly designed and locked.
 
 ## Required Guardrails
 
 - Input-handoff lock: v41 consumes only frozen v40 compiler outputs; v40 `ERROR` diagnostics and incomplete pass-manifest chain fail closed.
 - Surface-kind lock: supported kinds are exactly `schema`, `manifest`, `file`, `markdown_json_block`.
 - Selector-normalization lock: POSIX normalization, deterministic dot-segment collapse, no absolute paths, no symlink-based signature basis.
+- Symlink policy lock: `file` surface selectors resolving to symlink entries are invalid and fail-closed in v41.
 - Surface-registry ordering lock: deterministic `surface_id` lexicographic ordering.
 - Baseline-bootstrap lock: absent v40 baseline snapshot triggers deterministic `no_baseline` diff mode.
 - Delta-policy lock: `freeze`, `additive_only`, `exact_set` are the only supported rule modes and violations are fail-closed.
+- Delta-equivalency lock: semantic-equivalency bypass behavior is out-of-scope in v41 and must remain absent.
 - Output-contract lock: v41 emits only `surface_snapshot`, `surface_diff`, `evidence_manifest`, and `PR_SPLITS` at frozen paths.
 - Output-path lock: writes outside `artifacts/semantic_compiler/v41` and `docs/generated/semantic_compiler/v41` are invalid.
 - Evidence-manifest lock: required top-level key set and artifact-hash section behavior are frozen and deterministic.
@@ -117,3 +127,5 @@ Status: active planning assessment (pre-implementation, March 3, 2026 UTC).
 - CI/closeout lane integration is deferred to explicit `V32-E` lock text.
 - Stop-gate metric-key additions for semantic-compiler evidence are deferred to explicit `V32-F` lock text.
 - Resolver namespace aliasing/workspace-scoped bindings remain deferred and out of this arc.
+- Bootstrap overflow controls and deterministic PR split chunking are deferred to explicit follow-on lock text.
+- Semantic-equivalency delta evaluation for structured surfaces is deferred to explicit follow-on lock text.
