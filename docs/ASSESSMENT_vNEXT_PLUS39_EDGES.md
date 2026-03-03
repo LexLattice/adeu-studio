@@ -2,7 +2,21 @@
 
 This document records pre-implementation edge analysis for `vNext+39` (`V32-B` semantic source grammar/parser/normalizer), aligned to `docs/DRAFT_NEXT_ARC_OPTIONS_v6.md`.
 
-Status: planning assessment (lock drafted, implementation not started).
+Status: historical planning assessment (implementation completed on `main`, March 3, 2026 UTC).
+
+## Closeout Addendum (Post-Implementation)
+
+- `N1` (`V32-B` parser/normalizer MVP) merged via PR `#224`.
+- `N2` (`V32-B` determinism/fail-closed guards) merged via PR `#225`.
+- Semantic-source package now exists at `packages/adeu_semantic_source`.
+- v39 closeout artifacts are present:
+  - `artifacts/quality_dashboard_v39_closeout.json`
+  - `artifacts/stop_gate/metrics_v39_closeout.json`
+  - `artifacts/stop_gate/report_v39_closeout.md`
+- Semantic-source closeout artifacts are generated deterministically at:
+  - `artifacts/semantic_compiler/v39/semantic_source.normalized.json`
+  - `artifacts/semantic_compiler/v39/semantic_source.diagnostics.json`
+- Stop-gate metric keyset continuity is preserved (`v38` -> `v39` exact-set equality; cardinality `79`).
 
 ## Scope
 
@@ -29,8 +43,8 @@ Status: planning assessment (lock drafted, implementation not started).
 3. Stop-gate schema family and keyset continuity are active constraints:
    - `stop_gate_metrics@1` remains the only schema family,
    - v38 closeout preserved exact v37 keyset equality with derived cardinality `79`.
-4. Semantic-source parsing remains greenfield in current `main`:
-   - no deterministic parser/normalizer implementation exists yet for lock-doc semantic blocks.
+4. Semantic-source parsing is now implemented in current `main`:
+   - deterministic parser/normalizer entrypoint and contract are present in `packages/adeu_semantic_source/src/adeu_semantic_source/compile.py`.
 5. v36/v37/v38 continuity contracts are active and must remain green through v39.
 
 ## V32-B Edge Set
@@ -108,10 +122,10 @@ Status: planning assessment (lock drafted, implementation not started).
    - parser + normalization payload model,
    - deterministic/fail-closed guard suite.
 
-## Next Actions
+## Completion Trace
 
-1. Finalize `docs/LOCKED_CONTINUATION_vNEXT_PLUS39.md` selecting only `V32-B`.
-2. Execute `v39` as two small-green PRs:
-   - parser/normalizer contract implementation,
-   - deterministic/fail-closed guard suite.
-3. Keep v36/v37/v38 continuity checks mandatory during both PRs.
+1. `docs/LOCKED_CONTINUATION_vNEXT_PLUS39.md` was finalized to `V32-B` scope and closed post-merge.
+2. `v39` executed as two small-green PRs:
+   - PR `#224`: semantic-source grammar/parser/normalizer MVP.
+   - PR `#225`: deterministic/fail-closed guard/test suite.
+3. v36/v37/v38 continuity checks remained mandatory and green throughout v39 closeout.
