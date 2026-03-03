@@ -137,12 +137,23 @@ Consumption lock:
     "pass_manifest_chain_complete": "required",
     "pass_hash_subject_continuity": "canonical_json_bytes_of_pass_value"
   },
+  "surface_input_boundary": {
+    "selector_authority": "v40_commitments_ir_declared_surfaces_only",
+    "signature_content_reads": "workspace_reads_allowed_for_declared_selectors_only",
+    "implicit_surface_discovery": "forbidden"
+  },
   "surface_kinds_enabled": [
     "schema",
     "manifest",
     "file",
     "markdown_json_block"
   ],
+  "surface_signature_basis": {
+    "schema": "parse_json_then_sha256_canonical_json_bytes",
+    "manifest": "parse_json_then_sha256_canonical_json_bytes",
+    "markdown_json_block": "extract_json_blocks_by_schema_selector_then_canonicalize_each_then_order_by_schema_then_block_index_then_sha256_canonical_json_bytes",
+    "file": "sha256_raw_file_bytes"
+  },
   "surface_selector_normalization": {
     "path_separator": "posix",
     "collapse_dot_segments": true,
@@ -160,10 +171,32 @@ Consumption lock:
     "additive_break_violation": "error",
     "exact_set_violation": "error"
   },
+  "delta_evaluation_domain": {
+    "freeze": "signature_hash_equality",
+    "exact_set": {
+      "schema": "extracted_keyset_exact_equality",
+      "manifest": "extracted_keyset_exact_equality",
+      "markdown_json_block": "extracted_keyset_exact_equality",
+      "file": "signature_hash_equality_only"
+    },
+    "additive_only": {
+      "schema": "baseline_extracted_keyset_subset_of_current",
+      "manifest": "baseline_extracted_keyset_subset_of_current",
+      "markdown_json_block": "baseline_extracted_keyset_subset_of_current",
+      "file": "signature_hash_equality_only"
+    }
+  },
   "baseline_snapshot_policy": {
     "preferred_baseline_snapshot": "artifacts/semantic_compiler/v40/surface_snapshot.json",
     "when_missing": "bootstrap_no_baseline",
-    "bootstrap_surface_diff_mode": "no_baseline"
+    "bootstrap_surface_diff_mode": "no_baseline",
+    "bootstrap_diff_shape": {
+      "baseline_present": false,
+      "delta_eval_mode": "no_baseline",
+      "adds": "all_current_surfaces",
+      "removes": [],
+      "changes": []
+    }
   },
   "output_artifacts": {
     "surface_snapshot": "artifacts/semantic_compiler/v41/surface_snapshot.json",
@@ -191,6 +224,15 @@ Consumption lock:
     "artifacts",
     "artifact_hashes"
   ],
+  "evidence_manifest_source_set_hash_basis": "sha256_canonical_json(ordered_surface_selectors_plus_surface_signature_hashes_plus_pass_manifest_payload_hash)",
+  "required_evidence_policy": {
+    "arc_scope": "docs_only_no_ci_wiring_in_v41",
+    "semantics": "declarative_requirements_only_not_stop_gate_metric_inputs"
+  },
+  "pr_splits_derivation": {
+    "source": "surface_diff_changed_surfaces_mapped_to_owning_modules_from_commitments_ir",
+    "implicit_regrouping": "forbidden"
+  },
   "pr_splits_ordering": {
     "primary": "slice_id",
     "secondary": "module_id"
@@ -228,23 +270,42 @@ Lock-class rationale:
   - `markdown_json_block` surfaces.
 - Freeze v41 input boundary:
   - v41 surface/codegen flow consumes v40 compiler-core artifacts (`commitments_ir`, `semantic_compiler.diagnostics`, `pass_manifest`) only,
+  - selector authority derives only from surfaces declared by v40 commitments IR (no implicit selector authority from filesystem scanning),
+  - workspace content reads are allowed only to compute signatures for IR-declared selectors,
+  - implicit surface discovery beyond IR-declared selectors is forbidden,
   - input diagnostics handoff is strict: any v40 compiler diagnostic with severity `ERROR` fails closed,
   - input pass-manifest chain completeness is required and fail-closed.
 - Freeze deterministic surface registry/order policy:
   - normalized surface selectors are deterministic and path-normalized,
   - surface registry ordering is lexicographic by `surface_id`.
+- Freeze surface signature basis by kind:
+  - `schema`: parse JSON then hash canonical JSON bytes,
+  - `manifest`: parse JSON then hash canonical JSON bytes,
+  - `markdown_json_block`: extract blocks by schema selector, canonicalize each block, order by `(schema, block_index)`, then hash canonical aggregate bytes,
+  - `file`: hash raw file bytes.
 - Freeze deterministic surface delta policy:
   - supported delta-rule modes are `freeze`, `additive_only`, and `exact_set`,
+  - delta evaluation domain is frozen:
+    - `freeze` compares signature-hash equality,
+    - `exact_set` and `additive_only` evaluate extracted keysets for `schema`, `manifest`, and `markdown_json_block`,
+    - `file` kind uses signature-hash equality-only domain for all delta rules in v41,
   - any freeze/additive/exact-set rule violation fails closed,
-  - baseline snapshot policy is deterministic bootstrap: if `artifacts/semantic_compiler/v40/surface_snapshot.json` is absent, v41 emits deterministic `no_baseline` diff mode rather than implicit behavior.
+  - baseline snapshot policy is deterministic bootstrap: if `artifacts/semantic_compiler/v40/surface_snapshot.json` is absent, v41 emits deterministic `no_baseline` diff mode rather than implicit behavior,
+  - deterministic `no_baseline` diff shape is frozen as:
+    - `baseline_present = false`,
+    - `delta_eval_mode = "no_baseline"`,
+    - `adds = all_current_surfaces`, `removes = []`, `changes = []`.
 - Freeze deterministic output artifact boundary:
   - `surface_snapshot`: `artifacts/semantic_compiler/v41/surface_snapshot.json`,
   - `surface_diff`: `artifacts/semantic_compiler/v41/surface_diff.json`,
   - `evidence_manifest`: `artifacts/semantic_compiler/v41/evidence_manifest.json`,
   - `PR_SPLITS`: `docs/generated/semantic_compiler/v41/PR_SPLITS.md`.
 - Freeze codegen determinism:
+  - `PR_SPLITS` derivation source is frozen to changed surfaces in `surface_diff` mapped to owning modules from commitments IR,
   - `PR_SPLITS` ordering is deterministic (`slice_id`, `module_id`),
-  - evidence-manifest required-field set is fixed and deterministic in this arc.
+  - evidence-manifest required-field set is fixed and deterministic in this arc,
+  - evidence-manifest `source_set_hash` basis is frozen to canonical hash over ordered selectors, selector signatures, and pass-manifest payload hash,
+  - `required_evidence` entries are declarative in v41 and are not stop-gate metric inputs in this arc.
 - Freeze fail-closed core behavior:
   - unknown surface kinds fail closed,
   - ambiguous surface extraction results fail closed,
@@ -262,6 +323,8 @@ Lock-class rationale:
   - compile command authority remains single-entrypoint (`python -m adeu_semantic_compiler.compile`); alternate entrypoints are non-authoritative.
 - Input-boundary lock is frozen:
   - v41 surface/codegen flow consumes only v40 compiler artifacts (`commitments_ir`, `semantic_compiler.diagnostics`, `pass_manifest`).
+  - selector authority is IR-declared surfaces only; implicit discovery is forbidden.
+  - workspace content reads are allowed only for IR-declared selectors when computing signatures.
   - v40 compiler diagnostics containing any `ERROR` are fail-closed for v41 input handoff.
   - pass-manifest chain completeness is required.
 - Surface-kind lock is frozen:
@@ -271,20 +334,34 @@ Lock-class rationale:
   - dot segments are collapsed deterministically,
   - absolute paths are forbidden,
   - symlink resolution is not used in signature basis.
+- Surface-signature-basis lock is frozen:
+  - `schema` and `manifest` signatures are hash(canonical JSON bytes),
+  - `markdown_json_block` signature is hash(canonical aggregate of schema-selected JSON blocks in stable order),
+  - `file` signature is hash(raw file bytes).
 - Surface-registry ordering lock is frozen:
   - surfaces are serialized in deterministic `surface_id` lexicographic order.
 - Delta-policy lock is frozen:
   - supported rule modes are exactly `freeze`, `additive_only`, `exact_set`.
+  - `freeze` evaluation domain is signature-hash equality.
+  - `exact_set`/`additive_only` domains are extracted keysets for `schema`/`manifest`/`markdown_json_block`; `file` uses signature-hash equality-only.
   - violations of any locked rule mode are invalid and fail closed.
 - Baseline-bootstrap lock is frozen:
   - preferred baseline snapshot is `artifacts/semantic_compiler/v40/surface_snapshot.json`.
   - if absent, deterministic `no_baseline` diff mode is required.
+  - deterministic `no_baseline` diff shape is frozen:
+    - `baseline_present = false`,
+    - `delta_eval_mode = "no_baseline"`,
+    - `adds = all_current_surfaces`, `removes = []`, `changes = []`.
 - Output-contract lock is frozen:
   - compiler outputs are exactly `surface_snapshot`, `surface_diff`, `evidence_manifest`, and `PR_SPLITS` in v41 paths.
   - writes outside frozen v41 artifact/doc generated roots are invalid and fail closed.
 - Evidence-manifest lock is frozen:
   - required top-level field set is frozen for this arc.
+  - `source_set_hash` basis is frozen to canonical hash over ordered selectors, signatures, and pass-manifest payload hash.
+  - `required_evidence` remains declarative in v41 and is not consumed as stop-gate metric input.
 - PR-splits lock is frozen:
+  - derivation source is changed surfaces from `surface_diff` mapped to owning commitments-IR modules.
+  - implicit regrouping rules are forbidden.
   - generated PR split ordering is deterministic by `(slice_id, module_id)`.
 - Diagnostics continuity lock is frozen:
   - diagnostics namespace continuity remains `SCC[0-9]{4}`.
@@ -313,6 +390,9 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
 
 - Add/adjust deterministic tests/guards for:
   - v41 rerun determinism (repeat runs yield byte-identical `surface_snapshot`, `surface_diff`, `evidence_manifest`, and `PR_SPLITS` outputs),
+  - selector-authority assertions:
+    - selector set derives only from commitments-IR declared surfaces,
+    - implicit filesystem surface discovery is rejected,
   - frozen surface-kind assertions:
     - only `schema`, `manifest`, `file`, `markdown_json_block` are accepted,
     - unknown surface kinds fail closed,
@@ -320,17 +400,26 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
     - absolute paths are rejected,
     - dot-segment normalization is deterministic,
     - selector normalization remains POSIX,
+  - signature-basis assertions:
+    - `schema` and `manifest` signatures are canonical-JSON hash based,
+    - `markdown_json_block` signatures are derived from schema-selected block aggregates in stable order,
+    - `file` signatures are raw-byte hash based,
   - strict delta-policy assertions:
     - freeze-rule violations fail closed,
     - additive-only breaking deltas fail closed,
     - exact-set violations fail closed,
+    - delta evaluation domains are enforced per kind/rule (keyset domain for structured kinds, hash-only for `file`),
   - baseline-bootstrap assertions:
     - absent baseline snapshot yields deterministic `no_baseline` diff mode,
+    - absent-baseline diff shape is deterministic (`baseline_present=false`, `adds=all`, `removes=[]`, `changes=[]`),
     - baseline-present mode remains deterministic and byte-stable,
   - deterministic evidence-manifest assertions:
     - required top-level field set is present and stable,
+    - `source_set_hash` basis follows frozen canonical-hash composition inputs,
+    - `required_evidence` remains declarative-only in this no-CI arc,
     - artifact hash sections are deterministic across reruns,
   - deterministic PR split assertions:
+    - derivation source is changed surfaces mapped to owning commitments-IR modules,
     - `PR_SPLITS.md` ordering follows frozen `(slice_id, module_id)` ordering,
     - equal inputs reproduce byte-identical markdown output,
   - output-path policy assertions:
@@ -354,10 +443,22 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
   - v41 guards fail closed if invalid surface selectors/kinds/deltas are silently accepted.
 - Required-input-handoff lock is frozen:
   - v41 guards fail closed when v40 input diagnostics contain any `ERROR` or pass-manifest chain completeness drifts.
+- Required-selector-authority lock is frozen:
+  - v41 guards fail closed if selector authority drifts from commitments-IR declared surfaces or if implicit discovery is accepted.
+- Required-signature-basis lock is frozen:
+  - v41 guards fail closed if per-kind signature-basis rules drift.
 - Required-delta-policy lock is frozen:
   - v41 guards fail closed if freeze/additive/exact-set semantics drift from frozen contract.
+- Required-delta-domain lock is frozen:
+  - v41 guards fail closed if per-kind delta evaluation domains drift from frozen mapping.
 - Required-bootstrap-policy lock is frozen:
   - v41 guards fail closed if missing-baseline handling drifts from deterministic `no_baseline` mode.
+- Required-bootstrap-diff-shape lock is frozen:
+  - v41 guards fail closed if `no_baseline` diff shape drifts from frozen deterministic structure.
+- Required-evidence-manifest-semantics lock is frozen:
+  - v41 guards fail closed if `source_set_hash` basis or declarative-only `required_evidence` semantics drift.
+- Required-pr-splits-derivation lock is frozen:
+  - v41 guards fail closed if PR split derivation source/grouping drifts from frozen mapping.
 - Required-output-path lock is frozen:
   - v41 guards fail closed if artifact writes escape frozen output roots.
 - Generated-artifact cleanliness lock is frozen:
@@ -382,6 +483,7 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
 - No new metric keys.
 - No schema-family fork.
 - Existing thresholds and continuity checks remain required.
+- `required_evidence` entries in v41 evidence manifests are declarative-only and do not add stop-gate metric inputs in this arc.
 - v41 closeout must include runtime-observability comparison row against v40 baseline.
 - v41 closeout must include surface-governance/codegen artifact evidence block:
   - block schema is docs-only `v32d_surface_codegen_evidence@1`,
