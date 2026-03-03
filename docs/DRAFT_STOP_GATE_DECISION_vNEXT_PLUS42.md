@@ -1,0 +1,97 @@
+# Draft Stop-Gate Decision (Planning Gate vNext+42)
+
+This note records the planning-gate decision for:
+
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS42.md`
+
+Status: draft planning decision note (pre-implementation, March 4, 2026 UTC).
+
+## Decision Guardrail (Frozen)
+
+- This draft records `vNext+42` planning-gate authorization only.
+- It must not redefine semantics, locks, or scope from `docs/LOCKED_CONTINUATION_vNEXT_PLUS42.md`.
+- This note is not `vNext+42` closeout evidence and must not claim `all_passed = true` for v42 implementation criteria.
+- Runtime-observability comparison and metric-key continuity evidence for v42 must be captured in a post-implementation update of this file.
+- Bundle closeout posture for planning is frozen:
+  - v42 planning bundle is closed for freeze-review handoff after final lock/assessment alignment.
+
+## Evidence Source (Planning Baseline)
+
+- Prior closed arc evidence source:
+  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS41.md`
+- v41 completion baseline:
+  - arc-completion merge commit: `ebb6b6f40ff876750058e416b9e6a1363af72e90`
+  - arc-completion CI run ID: `22644799322`
+  - conclusion: `success`
+- baseline semantic-compiler closeout artifacts available from v41:
+  - `artifacts/semantic_compiler/v41/surface_snapshot.json`
+  - `artifacts/semantic_compiler/v41/surface_diff.json`
+  - `artifacts/semantic_compiler/v41/evidence_manifest.json`
+  - `docs/generated/semantic_compiler/v41/PR_SPLITS.md`
+- baseline stop-gate closeout artifacts:
+  - `artifacts/quality_dashboard_v41_closeout.json`
+  - `artifacts/stop_gate/metrics_v41_closeout.json`
+  - `artifacts/stop_gate/report_v41_closeout.md`
+
+## Planning Preconditions Check (vNext+42 Start)
+
+| Precondition | Threshold | Result | Evidence |
+|---|---|---|---|
+| v41 lock is closed and merged on `main` | required | `pass` | `docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md` status is closed lock; PRs `#228` and `#229` merged |
+| v41 closeout decision is green | required | `pass` | `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS41.md` records `all_passed = true` |
+| v41 semantic compiler artifacts are present | required | `pass` | all four v41 semantic compiler artifacts exist under `artifacts/semantic_compiler/v41` and `docs/generated/semantic_compiler/v41` |
+| Stop-gate schema-family continuity remains frozen | required | `pass` | `stop_gate_metrics@1` retained in `artifacts/stop_gate/metrics_v41_closeout.json` |
+| Stop-gate keyset continuity/cardinality remains frozen | required | `pass` | v41 closeout reports exact-set continuity and derived cardinality `79` |
+| v36/v37/v38/v39/v40/v41 continuity stack remains green | required | `pass` | preserved by v41 closeout and frozen in v42 lock preconditions |
+| No `L2` boundary release is authorized for v42 | required | `pass` | explicit boundary lock in `docs/LOCKED_CONTINUATION_vNEXT_PLUS42.md` |
+
+Planning summary:
+
+- `schema = "next_arc_planning_gate@1"`
+- `target_arc = "vNext+42"`
+- `target_path = "V32-E"`
+- `bundle_status = "closed_for_freeze_review"`
+- `preconditions_satisfied = true`
+
+## Planning Gate Assertion
+
+```json
+{
+  "schema": "next_arc_planning_gate@1",
+  "baseline_arc": "vNext+41",
+  "target_arc": "vNext+42",
+  "target_path": "V32-E",
+  "bundle_status": "closed_for_freeze_review",
+  "baseline_lock_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+  "target_lock_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS42.md",
+  "baseline_decision_doc": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS41.md",
+  "decision": "GO_VNEXT_PLUS42_IMPLEMENTATION_DRAFT",
+  "preconditions_satisfied": true,
+  "notes": "Planning gate only. v42 closeout evidence (runtime observability row, metric-key continuity assertion, and v32e CI-wiring evidence block) is required in a post-implementation update."
+}
+```
+
+## Baseline P-Track Closure Reference
+
+- `P1` surface snapshot/delta + PR/evidence codegen MVP (`V32-D`):
+  - status: `done`
+  - evidence: PR `#228`
+- `P2` surface governance determinism/fail-closed guard suite (`V32-D`):
+  - status: `done`
+  - evidence: PR `#229`
+
+## Recommendation (`vNext+42` Implementation Gate)
+
+- gate decision:
+  - `GO_VNEXT_PLUS42_IMPLEMENTATION_DRAFT`
+- rationale:
+  - v41 closeout is complete and green.
+  - v42 lock scope is explicit (`V32-E`, `Q1`/`Q2`) and preserves v36-v41 continuity constraints.
+- explicit guard:
+  - if continuity artifacts, keyset continuity, or v41 closeout provenance drifts, decision becomes `HOLD_VNEXT_PLUS42_IMPLEMENTATION` until corrected.
+
+## Suggested Next Artifacts
+
+1. Implement `Q1` (`V32-E`) on a dedicated branch with deterministic CI/docs closeout wiring checks.
+2. Implement `Q2` (`V32-E`) guard suite to freeze fail-closed and replay-deterministic lint behavior.
+3. Update this file after merge as a closeout decision note with v42 evidence blocks and runtime observability comparison vs v41 baseline.
