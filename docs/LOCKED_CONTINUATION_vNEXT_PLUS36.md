@@ -7,13 +7,15 @@ This document drafts the next arc after:
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`
 - `docs/SEMANTICS_v3.md`
 
-Status: draft lock (not frozen yet).
+Status: draft lock with `J1` + `J2` merged on `main`; pending stop-gate closeout freeze.
 
 Decision basis:
 
 - `vNext+35` (`I1`-`I2`) is merged on `main` via PR `#216` and PR `#217` with green CI checks.
 - `vNext+35` closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md` with `all_passed = true`.
-- Post-v35 planning baseline is `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`.
+- `vNext+36` (`J1`-`J2`) is merged on `main` via PR `#218` and PR `#219` with green CI checks.
+- `vNext+36` closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS36.md` with `all_passed = true`.
+- Post-v36 planning baseline is `docs/DRAFT_NEXT_ARC_OPTIONS_v5.md`.
 - Selected v36 thin-slice default is first boundary-release candidate:
   - `V31-F` (`/urm/worker/run` governance alignment).
 - `vNext+36` is constrained to deterministic additive hardening for `V31-F` only:

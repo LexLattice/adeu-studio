@@ -6,15 +6,16 @@ This document freezes the next continuation arc after:
 - `LOCKED_CROSS_REPO_IMPORTS_v0.md`
 - `LOCKED_ROADMAP_vNEXT_PLUS2.md`
 
-Status: archival baseline pointer; active continuation chain is `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md` (as of March 2, 2026).
+Status: archival baseline pointer; active continuation chain is `docs/LOCKED_CONTINUATION_vNEXT_PLUS36.md` (as of March 3, 2026).
 
 Continuity pointer update:
 
 - authoritative active lock chain has advanced to:
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS34.md`
   - `docs/LOCKED_CONTINUATION_vNEXT_PLUS35.md`
+  - `docs/LOCKED_CONTINUATION_vNEXT_PLUS36.md`
 - latest closeout decision draft in the active chain:
-  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS35.md`
+  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS36.md`
 
 ## Global Locks
 
