@@ -53,31 +53,67 @@ Status: active planning assessment (pre-implementation, March 4, 2026 UTC).
    - schema IDs in referenced artifacts can drift from frozen contract IDs.
 6. Artifact hash drift:
    - evidence blocks can embed non-matching hashes without deterministic recomputation checks.
-7. Stop-gate keyset drift:
+7. Artifact hash-subject drift:
+   - teams can disagree on canonical-object hashing vs raw-file hashing unless hash subject is frozen.
+8. Stop-gate keyset drift:
    - CI wiring work can accidentally alter keyset extraction or introduce new keys.
-8. Cardinality drift masking:
+9. Cardinality drift masking:
    - keyset additions/removals can be missed if only pass/fail aggregate is checked.
-9. Cross-arc provenance drift:
+10. Cross-arc provenance drift:
    - v42 closeout can accidentally compare against wrong baseline artifacts.
-10. Runtime-observability row drift:
+11. Runtime-observability row drift:
    - v42 closeout can omit v41-v42 comparison or report non-deterministic values.
-11. Non-deterministic lint output:
+12. Non-deterministic lint output:
    - unordered diagnostics can produce flaky CI outcomes and review noise.
-12. False-green risk on malformed JSON blocks:
+13. False-green risk on malformed JSON blocks:
    - parsable-but-invalid block grammar can bypass naïve validators.
-13. Over-scope risk into `V32-F`:
+14. Lint severity ambiguity:
+   - required contract violations can be misclassified as warnings and silently tolerated.
+15. Dual-lint replacement risk:
+   - new semantic-compiler closeout lint can accidentally replace rather than complement existing closeout consistency lint.
+16. Over-scope risk into `V32-F`:
    - CI wiring can unintentionally ship metric-key additions.
-14. Continuity regression risk:
+17. Continuity regression risk:
    - v42 wiring changes can weaken prior v36-v41 mandatory guard posture.
+18. Coverage-signature spoofing risk:
+   - comment text, echo-only script strings, or non-executable YAML fragments can falsely satisfy naïve required-check extraction.
+19. Conditional-skip drift risk:
+   - required Python-lane checks can appear present in workflow config but be skipped through `if` gating.
+20. Structural-warning leakage risk:
+   - malformed JSON/schema/hash failures can be downgraded into warnings if required-error channel boundaries are not strict.
+21. Remediation ambiguity risk:
+   - hash mismatch failures can be hard to repair quickly when diagnostics omit authoritative regeneration/check commands.
+22. Check-identity ambiguity risk:
+   - coverage extractors can disagree unless required-check identity tuple fields are frozen.
+23. Indirection drift risk:
+   - wrapper scripts or reusable `uses:` actions can obscure direct required-lint execution if accepted as equivalent.
+24. Run-command normalization drift:
+   - inconsistent whitespace/line-ending normalization can produce signature drift across toolchains.
+25. Artifact-family scope creep risk:
+   - v42 can accidentally add new required semantic-compiler artifact families or schema IDs while claiming wiring-only scope.
 
 ## Required Guardrails
 
 - CI-lane lock: required checks execute in default Python lane.
+- Deterministic-env lock: `TZ=UTC`, `LC_ALL=C`, and `PYTHONHASHSEED=0` are required for deterministic closeout tooling.
 - Entrypoint lock: one authoritative closeout lint entrypoint for v42 semantic-compiler evidence checks.
+- Dual-lint lock: `lint_closeout_consistency.py` and semantic-compiler closeout lint both run in Python lane; order is irrelevant.
+- Coverage-signature lock: CI-equivalence is enforced by canonical required-check signature hash, not workflow/job naming.
+- Check-identity tuple lock: coverage signature input check identity fields are frozen and deterministic.
+- Coverage-extraction lock: required checks are extracted from YAML AST executable Python-lane `run` steps only; comment/non-executable text matches are forbidden.
+- Direct-invocation lock: each required lint must match a direct executable `run` command; wrapper indirection is forbidden in v42.
+- Uses-step substitution lock: required lints executed via `uses:` actions are invalid in v42.
+- Run-command normalization lock: coverage-signature run-command normalization is frozen to trim, CRLF->LF, and no shell-quote normalization.
+- Conditional-reachability lock: required checks must remain unconditionally reachable in Python lane for coverage-signature equivalence.
 - Closeout-block lock: required JSON block families are present and machine-checkable.
 - Artifact-existence lock: referenced semantic-compiler artifacts must exist at frozen paths.
 - Artifact-schema lock: referenced artifacts must match frozen schema IDs.
 - Artifact-hash lock: referenced hashes must match deterministic recomputation.
+- Artifact-hash-subject lock: hashes are computed from canonical JSON bytes of parsed artifact objects, not raw file bytes.
+- Lint-severity lock: required contract violations are errors; informational fields may warn and remain non-blocking.
+- Required-error-channel lock: required structural violations cannot flow through warning channel and must terminate with non-zero exit.
+- Remediation-diagnostics lock: hash-mismatch errors include deterministic remediation command hints for authoritative regeneration/check entrypoints.
+- Artifact-family scope lock: no new required semantic-compiler artifact families or required schema IDs are introduced in v42.
 - Keyset-continuity lock: exact-set equality against v41 keyset is required.
 - Cardinality lock: derived metric-key cardinality must remain `79`.
 - Runtime-observability lock: v42 closeout row vs v41 baseline is required and informational-only.
@@ -108,3 +144,4 @@ Status: active planning assessment (pre-implementation, March 4, 2026 UTC).
 - Semantic-compiler contract evolution (`V32-D` surface behaviors) remains deferred.
 - Resolver namespace aliasing/workspace-scoped bindings remain deferred.
 - Semantic-equivalency/deep-path keyset semantics remain deferred.
+- Optional matrix-lane coverage-signature validation (cross-OS required-check equivalence) remains deferred.

@@ -93,5 +93,12 @@ Planning summary:
 ## Suggested Next Artifacts
 
 1. Implement `Q1` (`V32-E`) on a dedicated branch with deterministic CI/docs closeout wiring checks.
+   - include canonical `coverage_signature_sha256` enforcement and require both closeout lints in Python lane (order irrelevant).
+   - derive required-check coverage from `.github/workflows/ci.yml` YAML AST executable Python-lane `run` steps only; comment/echo-only matches must be non-authoritative.
+   - freeze required-check identity tuple for coverage signature and require direct executable `run` command matches for required lints.
+   - enforce frozen run-command normalization (trim, CRLF->LF, no shell-quote normalization); `uses:`-step substitution for required lints is invalid in v42.
+   - enforce required structural violations as error-channel/non-zero-exit only; warning-channel downgrade is invalid.
 2. Implement `Q2` (`V32-E`) guard suite to freeze fail-closed and replay-deterministic lint behavior.
+   - include deterministic remediation command hints for hash mismatch failures so correction paths are explicit and reproducible.
+   - fail closed on new required semantic-compiler artifact families/schema IDs (v42 remains verification-only over frozen v41 families).
 3. Update this file after merge as a closeout decision note with v42 evidence blocks and runtime observability comparison vs v41 baseline.
