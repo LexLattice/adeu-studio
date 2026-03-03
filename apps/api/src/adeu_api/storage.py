@@ -1126,11 +1126,16 @@ def get_core_ir_proposer_idempotency_by_client_request_id(
     db_path: Path | None = None,
     connection: sqlite3.Connection | None = None,
 ) -> CoreIRProposerIdempotencyRow | None:
-    if connection is not None:
-        connection.row_factory = sqlite3.Row
-        row = connection.execute(
+    def _query(con: sqlite3.Connection) -> CoreIRProposerIdempotencyRow | None:
+        con.row_factory = sqlite3.Row
+        row = con.execute(
             """
-            SELECT client_request_id, provider, request_payload_hash, response_payload_json, created_at
+            SELECT
+              client_request_id,
+              provider,
+              request_payload_hash,
+              response_payload_json,
+              created_at
             FROM core_ir_proposer_idempotency
             WHERE client_request_id = ?
             """,
@@ -1138,23 +1143,13 @@ def get_core_ir_proposer_idempotency_by_client_request_id(
         ).fetchone()
         return _core_ir_proposer_idempotency_from_row(row) if row is not None else None
 
-    if db_path is None:
-        db_path = _default_db_path()
+    if connection is not None:
+        return _query(connection)
 
-    with sqlite3.connect(db_path) as con:
+    resolved_db_path = _resolve_db_path(db_path)
+    with sqlite3.connect(resolved_db_path) as con:
         _ensure_schema(con)
-        con.row_factory = sqlite3.Row
-        row = con.execute(
-            """
-            SELECT client_request_id, provider, request_payload_hash, response_payload_json, created_at
-            FROM core_ir_proposer_idempotency
-            WHERE client_request_id = ?
-            """,
-            (client_request_id,),
-        ).fetchone()
-        if row is None:
-            return None
-        return _core_ir_proposer_idempotency_from_row(row)
+        return _query(con)
 
 
 def get_semantic_depth_report_by_client_request_id(
