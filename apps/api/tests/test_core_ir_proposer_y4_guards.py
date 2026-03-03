@@ -239,12 +239,26 @@ def _exercise_core_ir_proposer_endpoint_under_y4_guards(
     return response.model_dump(mode="json")
 
 
+def _clear_provider_parity_cache() -> None:
+    cache_clear = getattr(
+        api_main._provider_parity_supported_providers_by_surface,
+        "cache_clear",
+        None,
+    )
+    if callable(cache_clear):
+        cache_clear()
+
+
 @pytest.fixture(autouse=True)
-def _clear_core_ir_proposer_caches() -> None:
-    api_main._provider_parity_supported_providers_by_surface.cache_clear()
+def _clear_core_ir_proposer_caches(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_API_DB_PATH", str((tmp_path / "api.sqlite3").resolve()))
+    _clear_provider_parity_cache()
     api_main._CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY.clear()
     yield
-    api_main._provider_parity_supported_providers_by_surface.cache_clear()
+    _clear_provider_parity_cache()
     api_main._CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY.clear()
 
 
