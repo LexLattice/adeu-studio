@@ -19,6 +19,7 @@ bootstrap:
 		-e "packages/adeu_core_ir[dev]" \
 		-e "packages/adeu_commitments_ir[dev]" \
 		-e "packages/adeu_semantic_source[dev]" \
+		-e "packages/adeu_semantic_compiler[dev]" \
 		-e packages/urm_runtime \
 		-e packages/urm_domain_adeu \
 		-e packages/urm_domain_digest \
