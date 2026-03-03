@@ -12,6 +12,8 @@ Status: draft planning decision note (pre-implementation, March 3, 2026 UTC).
 - It must not redefine semantics, locks, or scope from `docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md`.
 - This note is not `vNext+41` closeout evidence and must not claim `all_passed = true` for v41 implementation criteria.
 - Runtime-observability comparison and metric-key continuity evidence for v41 must be captured in a post-implementation update of this file.
+- Bundle closeout posture for planning is frozen:
+  - v41 planning bundle is closed for freeze-review handoff after final lock/assessment alignment.
 
 ## Evidence Source (Planning Baseline)
 
@@ -47,6 +49,7 @@ Planning summary:
 - `schema = "next_arc_planning_gate@1"`
 - `target_arc = "vNext+41"`
 - `target_path = "V32-D"`
+- `bundle_status = "closed_for_freeze_review"`
 - `preconditions_satisfied = true`
 
 ## Planning Gate Assertion
@@ -57,6 +60,7 @@ Planning summary:
   "baseline_arc": "vNext+40",
   "target_arc": "vNext+41",
   "target_path": "V32-D",
+  "bundle_status": "closed_for_freeze_review",
   "baseline_lock_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS40.md",
   "target_lock_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
   "baseline_decision_doc": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS40.md",

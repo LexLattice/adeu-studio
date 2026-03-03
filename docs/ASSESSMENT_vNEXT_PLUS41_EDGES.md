@@ -84,21 +84,36 @@ Status: active planning assessment (pre-implementation, March 3, 2026 UTC).
     - module-scoped grouping can become too large for practical review unless deterministic chunking policy is explicitly introduced in a future lock.
 20. Semantic-equivalency ambiguity:
     - strict hash-equality deltas can flag cosmetically equivalent structured content unless a future semantic-equivalency lane is explicitly designed and locked.
+21. Keyset extraction ambiguity:
+    - structured-surface keyset deltas can fork if extraction depth (top-level vs deep paths) is not explicitly frozen.
+22. Markdown selector policy ambiguity:
+    - missing schema selectors or duplicate selector/index pairs can produce non-deterministic markdown_json_block extraction unless explicitly fail-closed.
+23. Selector text normalization ambiguity:
+    - Unicode path normalization differences across environments can produce selector mismatches without explicit UTF-8/NFC normalization policy.
+24. Evidence ordering ambiguity:
+    - declarative `required_evidence` lists can serialize differently unless deterministic ordering is frozen.
+25. Multi-owner split ambiguity:
+    - changed surfaces referenced by multiple modules can create non-deterministic PR split ownership unless tie handling is explicit.
 
 ## Required Guardrails
 
 - Input-handoff lock: v41 consumes only frozen v40 compiler outputs; v40 `ERROR` diagnostics and incomplete pass-manifest chain fail closed.
 - Surface-kind lock: supported kinds are exactly `schema`, `manifest`, `file`, `markdown_json_block`.
 - Selector-normalization lock: POSIX normalization, deterministic dot-segment collapse, no absolute paths, no symlink-based signature basis.
+- Selector-encoding lock: selector paths are UTF-8 with deterministic NFC normalization.
 - Symlink policy lock: `file` surface selectors resolving to symlink entries are invalid and fail-closed in v41.
+- Markdown selector lock: missing schema-selector and duplicate selector/index conditions are invalid and fail-closed.
 - Surface-registry ordering lock: deterministic `surface_id` lexicographic ordering.
 - Baseline-bootstrap lock: absent v40 baseline snapshot triggers deterministic `no_baseline` diff mode.
 - Delta-policy lock: `freeze`, `additive_only`, `exact_set` are the only supported rule modes and violations are fail-closed.
+- Keyset-extraction lock: structured surfaces use top-level-object-keys-only extraction in v41.
 - Delta-equivalency lock: semantic-equivalency bypass behavior is out-of-scope in v41 and must remain absent.
 - Output-contract lock: v41 emits only `surface_snapshot`, `surface_diff`, `evidence_manifest`, and `PR_SPLITS` at frozen paths.
 - Output-path lock: writes outside `artifacts/semantic_compiler/v41` and `docs/generated/semantic_compiler/v41` are invalid.
 - Evidence-manifest lock: required top-level key set and artifact-hash section behavior are frozen and deterministic.
+- Evidence-ordering lock: `required_evidence` serialization ordering is deterministic and frozen.
 - PR-splits lock: stable ordering by `(slice_id, module_id)` is required.
+- PR-ownership lock: multi-owner surface mappings are invalid and fail-closed in v41.
 - Diagnostics continuity lock: compiler diagnostics namespace continuity remains `SCC[0-9]{4}`.
 - Hash-profile continuity lock: canonical JSON SHA-256 profile remains frozen and reused.
 - Scope fence: no `V32-E` CI/closeout integration behavior in v41.

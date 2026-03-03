@@ -84,6 +84,7 @@ Out-of-scope note:
 - compiler partial-execution CLI (`--stop-after`) in this arc,
 - bootstrap overflow circuit-breaker / PR split chunk-size policy release in this arc,
 - semantic-equivalency delta-evaluation release in this arc,
+- deep-path keyset extraction semantics release in this arc,
 - resolver namespace aliasing/workspace-scoped bindings in this arc,
 - any provider or proposer endpoint expansion,
 - new stop-gate metric keys or schema-family forks.
@@ -96,6 +97,7 @@ Out-of-scope note:
 - v45+ resolver namespace aliasing/workspace-scoped bindings under explicit lock text.
 - v46+ deterministic bootstrap overflow controls + PR split chunking under explicit lock text.
 - v47+ semantic-equivalency delta evaluation lane for structured surfaces under explicit lock text.
+- v48+ deep-path keyset extraction semantics under explicit lock text.
 
 ## V40 Continuity Consumption (Machine-Checkable)
 
@@ -142,7 +144,8 @@ Consumption lock:
     "materialization_env": {
       "TZ": "UTC",
       "LC_ALL": "C"
-    }
+    },
+    "overwrite_existing_inputs": "forbidden"
   },
   "input_handoff_policy": {
     "compiler_diagnostics_errors": "fail_closed",
@@ -170,12 +173,19 @@ Consumption lock:
     "path_separator": "posix",
     "collapse_dot_segments": true,
     "allow_absolute_paths": false,
-    "symlink_resolution": "forbidden_for_signature_basis"
+    "symlink_resolution": "forbidden_for_signature_basis",
+    "path_encoding": "utf-8",
+    "unicode_normalization": "nfc"
   },
   "surface_symlink_policy": {
     "file_surface_symlink_entries": "error",
     "link_path_hashing": "forbidden",
     "resolved_target_signature_basis": "forbidden"
+  },
+  "markdown_json_block_selector_policy": {
+    "schema_selector_required": "true",
+    "missing_schema_selector": "error",
+    "duplicate_schema_block_index": "error"
   },
   "surface_registry_ordering": "surface_id_lexicographic",
   "delta_rule_modes": [
@@ -202,6 +212,10 @@ Consumption lock:
       "markdown_json_block": "baseline_extracted_keyset_subset_of_current",
       "file": "signature_hash_equality_only"
     }
+  },
+  "keyset_extraction_policy": {
+    "mode": "top_level_object_keys_only",
+    "deep_path_extraction": "deferred_non_v41"
   },
   "baseline_snapshot_policy": {
     "preferred_baseline_snapshot": "artifacts/semantic_compiler/v40/surface_snapshot.json",
@@ -246,9 +260,11 @@ Consumption lock:
     "arc_scope": "docs_only_no_ci_wiring_in_v41",
     "semantics": "declarative_requirements_only_not_stop_gate_metric_inputs"
   },
+  "required_evidence_ordering": "lexicographic_by_evidence_type_then_surface_id",
   "pr_splits_derivation": {
     "source": "surface_diff_changed_surfaces_mapped_to_owning_modules_from_commitments_ir",
-    "implicit_regrouping": "forbidden"
+    "implicit_regrouping": "forbidden",
+    "multi_owner_surface_policy": "error"
   },
   "pr_splits_ordering": {
     "primary": "slice_id",
@@ -288,6 +304,7 @@ Lock-class rationale:
 - Freeze v41 input boundary:
   - v41 surface/codegen flow consumes v40 compiler-core artifacts (`commitments_ir`, `semantic_compiler.diagnostics`, `pass_manifest`) only,
   - if v40 artifacts are absent in working tree, they must be materialized deterministically via the authoritative compiler entrypoint before v41 execution,
+  - if v40 artifacts are already present, v41 must not overwrite them during materialization checks,
   - selector authority derives only from surfaces declared by v40 commitments IR (no implicit selector authority from filesystem scanning),
   - workspace content reads are allowed only to compute signatures for IR-declared selectors,
   - implicit surface discovery beyond IR-declared selectors is forbidden,
@@ -295,11 +312,14 @@ Lock-class rationale:
   - input pass-manifest chain completeness is required and fail-closed.
 - Freeze deterministic surface registry/order policy:
   - normalized surface selectors are deterministic and path-normalized,
+  - selector path encoding is UTF-8 with deterministic NFC normalization,
   - surface registry ordering is lexicographic by `surface_id`.
 - Freeze surface signature basis by kind:
   - `schema`: parse JSON then hash canonical JSON bytes,
   - `manifest`: parse JSON then hash canonical JSON bytes,
   - `markdown_json_block`: extract blocks by schema selector, canonicalize each block, order by `(schema, block_index)`, then hash canonical aggregate bytes,
+  - `markdown_json_block` entries with missing schema selector fail closed,
+  - duplicate `(schema, block_index)` entries fail closed,
   - `file`: hash raw file bytes,
   - `file` surfaces that point to symlink entries are invalid and fail closed in this arc.
 - Freeze deterministic surface delta policy:
@@ -308,6 +328,8 @@ Lock-class rationale:
     - `freeze` compares signature-hash equality,
     - `exact_set` and `additive_only` evaluate extracted keysets for `schema`, `manifest`, and `markdown_json_block`,
     - `file` kind uses signature-hash equality-only domain for all delta rules in v41,
+  - extracted keyset mode for structured kinds is top-level object keys only in v41,
+  - deep-path keyset extraction semantics are deferred to a future lock,
   - any freeze/additive/exact-set rule violation fails closed,
   - baseline snapshot policy is deterministic bootstrap: if `artifacts/semantic_compiler/v40/surface_snapshot.json` is absent, v41 emits deterministic `no_baseline` diff mode rather than implicit behavior,
   - deterministic `no_baseline` diff shape is frozen as:
@@ -322,9 +344,11 @@ Lock-class rationale:
   - `PR_SPLITS`: `docs/generated/semantic_compiler/v41/PR_SPLITS.md`.
 - Freeze codegen determinism:
   - `PR_SPLITS` derivation source is frozen to changed surfaces in `surface_diff` mapped to owning modules from commitments IR,
+  - surfaces mapped to multiple owning modules are invalid and fail closed in v41,
   - `PR_SPLITS` ordering is deterministic (`slice_id`, `module_id`),
   - evidence-manifest required-field set is fixed and deterministic in this arc,
   - evidence-manifest `source_set_hash` basis is frozen to canonical hash over ordered selectors, selector signatures, and pass-manifest payload hash,
+  - `required_evidence` serialization is deterministic lexicographic order by `(evidence_type, surface_id)`,
   - `required_evidence` entries are declarative in v41 and are not stop-gate metric inputs in this arc.
 - Freeze fail-closed core behavior:
   - unknown surface kinds fail closed,
@@ -344,6 +368,7 @@ Lock-class rationale:
 - Input-boundary lock is frozen:
   - v41 surface/codegen flow consumes only v40 compiler artifacts (`commitments_ir`, `semantic_compiler.diagnostics`, `pass_manifest`).
   - when missing from working tree, v40 artifacts are materialized deterministically via `python -m adeu_semantic_compiler.compile` under `TZ=UTC` and `LC_ALL=C`.
+  - existing v40 input artifacts must not be overwritten by v41 materialization checks.
   - selector authority is IR-declared surfaces only; implicit discovery is forbidden.
   - workspace content reads are allowed only for IR-declared selectors when computing signatures.
   - v40 compiler diagnostics containing any `ERROR` are fail-closed for v41 input handoff.
@@ -353,8 +378,12 @@ Lock-class rationale:
 - Surface-selector-normalization lock is frozen:
   - selectors are normalized with POSIX separators,
   - dot segments are collapsed deterministically,
+  - path encoding is UTF-8 with NFC normalization,
   - absolute paths are forbidden,
   - symlink resolution is not used in signature basis.
+- Markdown-json-block-selector lock is frozen:
+  - schema selector is required for `markdown_json_block` signature extraction.
+  - missing schema selector and duplicate `(schema, block_index)` entries are invalid and fail closed.
 - Surface-symlink policy lock is frozen:
   - `file` surface selectors resolving to symlink entries are invalid and fail closed.
   - hashing the symlink link-path or resolved target bytes as a signature basis is forbidden in v41.
@@ -368,6 +397,8 @@ Lock-class rationale:
   - supported rule modes are exactly `freeze`, `additive_only`, `exact_set`.
   - `freeze` evaluation domain is signature-hash equality.
   - `exact_set`/`additive_only` domains are extracted keysets for `schema`/`manifest`/`markdown_json_block`; `file` uses signature-hash equality-only.
+  - extracted keyset mode for structured kinds is top-level object keys only in v41.
+  - deep-path keyset extraction semantics are deferred and non-authoritative in v41.
   - violations of any locked rule mode are invalid and fail closed.
 - Baseline-bootstrap lock is frozen:
   - preferred baseline snapshot is `artifacts/semantic_compiler/v40/surface_snapshot.json`.
@@ -383,9 +414,11 @@ Lock-class rationale:
 - Evidence-manifest lock is frozen:
   - required top-level field set is frozen for this arc.
   - `source_set_hash` basis is frozen to canonical hash over ordered selectors, signatures, and pass-manifest payload hash.
+  - `required_evidence` serialization order is deterministic lexicographic `(evidence_type, surface_id)`.
   - `required_evidence` remains declarative in v41 and is not consumed as stop-gate metric input.
 - PR-splits lock is frozen:
   - derivation source is changed surfaces from `surface_diff` mapped to owning commitments-IR modules.
+  - multi-owner surface mappings are invalid and fail closed.
   - implicit regrouping rules are forbidden.
   - generated PR split ordering is deterministic by `(slice_id, module_id)`.
 - Diagnostics continuity lock is frozen:
@@ -424,7 +457,11 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
   - deterministic selector normalization assertions:
     - absolute paths are rejected,
     - dot-segment normalization is deterministic,
+    - UTF-8 NFC path normalization is enforced,
     - selector normalization remains POSIX,
+  - markdown-json-block selector assertions:
+    - schema selector is required for `markdown_json_block` extraction,
+    - missing schema selector and duplicate `(schema, block_index)` entries fail closed,
   - symlink policy assertions:
     - `file` surface selectors resolving to symlink entries are rejected (fail closed),
     - symlink link-path hashing and resolved-target hashing are both rejected as signature basis in v41,
@@ -437,6 +474,7 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
     - additive-only breaking deltas fail closed,
     - exact-set violations fail closed,
     - delta evaluation domains are enforced per kind/rule (keyset domain for structured kinds, hash-only for `file`),
+    - extracted keyset mode for structured kinds is top-level object keys only,
     - semantic-equivalency bypass paths are forbidden in v41,
   - baseline-bootstrap assertions:
     - absent baseline snapshot yields deterministic `no_baseline` diff mode,
@@ -445,10 +483,12 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
   - deterministic evidence-manifest assertions:
     - required top-level field set is present and stable,
     - `source_set_hash` basis follows frozen canonical-hash composition inputs,
+    - `required_evidence` entries are deterministically ordered by `(evidence_type, surface_id)`,
     - `required_evidence` remains declarative-only in this no-CI arc,
     - artifact hash sections are deterministic across reruns,
   - deterministic PR split assertions:
     - derivation source is changed surfaces mapped to owning commitments-IR modules,
+    - multi-owner surface mappings fail closed,
     - `PR_SPLITS.md` ordering follows frozen `(slice_id, module_id)` ordering,
     - equal inputs reproduce byte-identical markdown output,
   - output-path policy assertions:
@@ -472,8 +512,14 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
   - v41 guards fail closed if invalid surface selectors/kinds/deltas are silently accepted.
 - Required-input-handoff lock is frozen:
   - v41 guards fail closed when v40 input diagnostics contain any `ERROR` or pass-manifest chain completeness drifts.
+- Required-input-artifact-preservation lock is frozen:
+  - v41 guards fail closed if materialization overwrites existing v40 input artifacts.
 - Required-selector-authority lock is frozen:
   - v41 guards fail closed if selector authority drifts from commitments-IR declared surfaces or if implicit discovery is accepted.
+- Required-selector-encoding-normalization lock is frozen:
+  - v41 guards fail closed if UTF-8/NFC selector normalization semantics drift.
+- Required-markdown-json-block-selector lock is frozen:
+  - v41 guards fail closed if required schema-selector/missing-selector/duplicate-index semantics drift.
 - Required-signature-basis lock is frozen:
   - v41 guards fail closed if per-kind signature-basis rules drift.
 - Required-symlink-policy lock is frozen:
@@ -482,6 +528,8 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
   - v41 guards fail closed if freeze/additive/exact-set semantics drift from frozen contract.
 - Required-delta-domain lock is frozen:
   - v41 guards fail closed if per-kind delta evaluation domains drift from frozen mapping.
+- Required-keyset-extraction-mode lock is frozen:
+  - v41 guards fail closed if structured keyset extraction drifts from top-level-keys-only mode.
 - Required-delta-semantic-equivalency lock is frozen:
   - v41 guards fail closed if semantic-equivalency bypass behavior is introduced in this arc.
 - Required-bootstrap-policy lock is frozen:
@@ -490,8 +538,12 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
   - v41 guards fail closed if `no_baseline` diff shape drifts from frozen deterministic structure.
 - Required-evidence-manifest-semantics lock is frozen:
   - v41 guards fail closed if `source_set_hash` basis or declarative-only `required_evidence` semantics drift.
+- Required-evidence-ordering lock is frozen:
+  - v41 guards fail closed if deterministic `required_evidence` ordering drifts.
 - Required-pr-splits-derivation lock is frozen:
   - v41 guards fail closed if PR split derivation source/grouping drifts from frozen mapping.
+- Required-pr-splits-ownership lock is frozen:
+  - v41 guards fail closed if multi-owner surface mapping is accepted instead of failing closed.
 - Required-output-path lock is frozen:
   - v41 guards fail closed if artifact writes escape frozen output roots.
 - Generated-artifact cleanliness lock is frozen:
