@@ -2,7 +2,22 @@
 
 This document records pre-implementation edge analysis for `vNext+41` (`V32-D` surface snapshot/delta + PR/evidence codegen), aligned to `docs/DRAFT_NEXT_ARC_OPTIONS_v6.md`.
 
-Status: active planning assessment (pre-implementation, March 3, 2026 UTC).
+Status: historical planning assessment (implementation completed on `main`, March 4, 2026 UTC).
+
+## Closeout Addendum (Post-Implementation)
+
+- `P1` (`V32-D` surface snapshot/delta + PR/evidence codegen MVP) merged via PR `#228`.
+- `P2` (`V32-D` surface governance determinism/fail-closed guards) merged via PR `#229`.
+- v41 closeout artifacts are present:
+  - `artifacts/quality_dashboard_v41_closeout.json`
+  - `artifacts/stop_gate/metrics_v41_closeout.json`
+  - `artifacts/stop_gate/report_v41_closeout.md`
+- Stop-gate metric keyset continuity is preserved (`v40` -> `v41` exact-set equality; cardinality `79`).
+- v41 surface-governance/codegen outputs are generated deterministically at:
+  - `artifacts/semantic_compiler/v41/surface_snapshot.json`
+  - `artifacts/semantic_compiler/v41/surface_diff.json`
+  - `artifacts/semantic_compiler/v41/evidence_manifest.json`
+  - `docs/generated/semantic_compiler/v41/PR_SPLITS.md`
 
 ## Scope
 
@@ -30,11 +45,11 @@ Status: active planning assessment (pre-implementation, March 3, 2026 UTC).
    - `artifacts/semantic_compiler/v40/pass_manifest.json`
 2. Semantic compiler package baseline is implemented and authoritative:
    - `packages/adeu_semantic_compiler/src/adeu_semantic_compiler/compile.py`
-3. `V32-D` output family is currently absent and remains greenfield for v41:
-   - no committed `artifacts/semantic_compiler/v41/surface_snapshot.json`
-   - no committed `artifacts/semantic_compiler/v41/surface_diff.json`
-   - no committed `artifacts/semantic_compiler/v41/evidence_manifest.json`
-   - no committed `docs/generated/semantic_compiler/v41/PR_SPLITS.md`
+3. `V32-D` output family is now implemented in v41:
+   - `artifacts/semantic_compiler/v41/surface_snapshot.json`
+   - `artifacts/semantic_compiler/v41/surface_diff.json`
+   - `artifacts/semantic_compiler/v41/evidence_manifest.json`
+   - `docs/generated/semantic_compiler/v41/PR_SPLITS.md`
 4. Deterministic canonical JSON profile remains frozen and available:
    - `canonical_json` / `sha256_canonical_json` in `apps/api/src/adeu_api/hashing.py` and `packages/urm_runtime/src/urm_runtime/hashing.py`.
 5. Stop-gate schema/keyset continuity remains active and must be preserved:
@@ -144,3 +159,11 @@ Status: active planning assessment (pre-implementation, March 3, 2026 UTC).
 - Resolver namespace aliasing/workspace-scoped bindings remain deferred and out of this arc.
 - Bootstrap overflow controls and deterministic PR split chunking are deferred to explicit follow-on lock text.
 - Semantic-equivalency delta evaluation for structured surfaces is deferred to explicit follow-on lock text.
+
+## Completion Trace
+
+1. `docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md` was finalized to `V32-D` scope and closed post-merge.
+2. `v41` executed as two small-green PRs:
+   - PR `#228`: surface snapshot/delta + PR/evidence codegen MVP.
+   - PR `#229`: deterministic/fail-closed surface-governance guard suite.
+3. v36/v37/v38/v39/v40 continuity checks remained mandatory and green throughout v41 closeout.
