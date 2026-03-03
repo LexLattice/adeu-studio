@@ -608,7 +608,10 @@ def test_v41_surface_snapshot_uses_top_level_keyset_mode(tmp_path: Path) -> None
                                 {
                                     "surface_id": "surface_markdown",
                                     "surface_kind": "markdown_json_block",
-                                    "selector": {"path": "docs/guide.md", "schema": "surface.schema"},
+                                    "selector": {
+                                        "path": "docs/guide.md",
+                                        "schema": "surface.schema",
+                                    },
                                 },
                                 {
                                     "surface_id": "surface_schema",
@@ -660,6 +663,84 @@ def test_v41_file_surface_symlink_entries_fail_closed(tmp_path: Path) -> None:
                                     "surface_id": "surface_link",
                                     "surface_kind": "file",
                                     "selector": "docs/link.txt",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is False
+    assert SCC0017_SURFACE_SIGNATURE_INVALID in _codes(result.diagnostics_payload)
+
+
+def test_v41_surface_selector_symlink_parent_traversal_fails_closed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    outside_dir = tmp_path / "outside"
+    _write(outside_dir / "data.json", '{"k": 1}\n')
+    (root / "docs").mkdir(parents=True, exist_ok=True)
+    (root / "docs" / "evil").symlink_to(outside_dir)
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_escape",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/evil/data.json",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is False
+    assert SCC0017_SURFACE_SIGNATURE_INVALID in _codes(result.diagnostics_payload)
+
+
+def test_v41_surface_large_file_fails_closed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    huge_size = (8 * 1024 * 1024) + 1
+    huge_path = root / "docs" / "huge.bin"
+    huge_path.parent.mkdir(parents=True, exist_ok=True)
+    huge_path.write_bytes(b"x" * huge_size)
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_large",
+                                    "surface_kind": "file",
+                                    "selector": "docs/huge.bin",
                                 }
                             ],
                         },

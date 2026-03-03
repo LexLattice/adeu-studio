@@ -41,6 +41,7 @@ _DEFAULT_OUTPUT_EVIDENCE_MANIFEST = f"{_DEFAULT_OUTPUT_V41_BASE_DIR}/evidence_ma
 _DEFAULT_OUTPUT_V41_DOCS_BASE_DIR = "docs/generated/semantic_compiler/v41"
 _DEFAULT_OUTPUT_PR_SPLITS = f"{_DEFAULT_OUTPUT_V41_DOCS_BASE_DIR}/PR_SPLITS.md"
 _DEFAULT_BASELINE_SURFACE_SNAPSHOT = "artifacts/semantic_compiler/v40/surface_snapshot.json"
+_MAX_SURFACE_FILE_BYTES = 8 * 1024 * 1024
 
 _EXPORT_CALL_PATTERN = "python -m adeu_semantic_compiler.compile"
 
@@ -289,10 +290,13 @@ def _validate_v41_output_paths(*, root: Path) -> tuple[Path, Path, Path, Path]:
     for artifact_rel in (surface_snapshot_rel, surface_diff_rel, evidence_manifest_rel):
         if not _is_within_root(artifact_rel, artifacts_base_rel):
             raise ValueError(
-                f"output path {artifact_rel!r} violates artifacts_base policy {artifacts_base_rel!r}"
+                "output path "
+                f"{artifact_rel!r} violates artifacts_base policy {artifacts_base_rel!r}"
             )
     if not _is_within_root(pr_splits_rel, docs_base_rel):
-        raise ValueError(f"output path {pr_splits_rel!r} violates docs_base policy {docs_base_rel!r}")
+        raise ValueError(
+            f"output path {pr_splits_rel!r} violates docs_base policy {docs_base_rel!r}"
+        )
 
     return (
         root / surface_snapshot_rel,
@@ -322,6 +326,19 @@ def _read_json_object(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise ValueError("json payload must be an object")
     return payload
+
+
+def _read_limited_bytes(path: Path, *, kind: str) -> bytes:
+    size = path.stat().st_size
+    if size > _MAX_SURFACE_FILE_BYTES:
+        raise ValueError(
+            f"{kind} exceeds max bytes {_MAX_SURFACE_FILE_BYTES} for deterministic v41 reads"
+        )
+    return path.read_bytes()
+
+
+def _read_limited_text(path: Path, *, kind: str) -> str:
+    return _read_limited_bytes(path, kind=kind).decode("utf-8")
 
 
 def _load_json_artifact(
@@ -1650,6 +1667,24 @@ def _normalize_surface_selector_path(raw_selector: str) -> str:
     return _normalize_relative_path(normalized)
 
 
+def _resolve_surface_selector_path(*, root: Path, selector_path: str) -> Path:
+    target = root / selector_path
+    root_resolved = root.resolve()
+    current = root
+    for segment in Path(selector_path).parts:
+        current = current / segment
+        if current.is_symlink():
+            raise ValueError("selector path contains symlink component")
+    if not target.is_file():
+        raise ValueError("selector path does not resolve to file")
+    resolved = target.resolve(strict=True)
+    try:
+        resolved.relative_to(root_resolved)
+    except ValueError as exc:
+        raise ValueError("selector path escapes repository root") from exc
+    return resolved
+
+
 def _parse_markdown_surface_selector(selector: str) -> tuple[str, str]:
     selector_text = _normalize_utf8_nfc(selector.strip())
     if not selector_text:
@@ -1731,13 +1766,16 @@ def _extract_markdown_json_blocks(
         selected.append((block_schema, block_index, _canonical_clone(decoded)))
 
     if not selected:
-        raise ValueError(f"no markdown_json_block entries found for schema selector {schema_selector!r}")
+        raise ValueError(
+            "no markdown_json_block entries found for schema selector "
+            f"{schema_selector!r}"
+        )
     selected.sort(key=lambda row: (row[0], row[1]))
     return selected
 
 
 def _parse_json_file(path: Path) -> dict[str, Any]:
-    raw_text = path.read_text(encoding="utf-8")
+    raw_text = _read_limited_text(path, kind="json surface")
     payload = json.loads(raw_text)
     if not isinstance(payload, dict):
         raise ValueError("json surface payload must be an object")
@@ -1880,23 +1918,30 @@ def _build_surface_records(
             try:
                 if surface_kind in {"schema", "manifest"}:
                     selector_path = _normalize_surface_selector_path(selector)
-                    absolute_path = root / selector_path
+                    absolute_path = _resolve_surface_selector_path(
+                        root=root,
+                        selector_path=selector_path,
+                    )
                     payload = _parse_json_file(absolute_path)
                     signature_sha = sha256_canonical_json(payload)
                     keyset = _extract_top_level_keyset(payload)
                 elif surface_kind == "file":
                     selector_path = _normalize_surface_selector_path(selector)
-                    absolute_path = root / selector_path
-                    if absolute_path.is_symlink():
-                        raise ValueError("file surface selector resolves to symlink entry")
-                    if not absolute_path.is_file():
-                        raise ValueError("file surface selector does not resolve to file")
-                    signature_sha = _sha256_bytes(absolute_path.read_bytes())
+                    absolute_path = _resolve_surface_selector_path(
+                        root=root,
+                        selector_path=selector_path,
+                    )
+                    signature_sha = _sha256_bytes(
+                        _read_limited_bytes(absolute_path, kind="file surface")
+                    )
                     keyset = tuple()
                 else:
                     selector_path, schema_selector = _parse_markdown_surface_selector(selector)
-                    absolute_path = root / selector_path
-                    markdown_text = absolute_path.read_text(encoding="utf-8")
+                    absolute_path = _resolve_surface_selector_path(
+                        root=root,
+                        selector_path=selector_path,
+                    )
+                    markdown_text = _read_limited_text(absolute_path, kind="markdown surface")
                     blocks = _extract_markdown_json_blocks(
                         markdown_text=markdown_text,
                         schema_selector=schema_selector,
@@ -2028,7 +2073,9 @@ def _load_baseline_surface_snapshot(
             )
             continue
         raw_keyset = row.get("keyset", [])
-        if not isinstance(raw_keyset, list) or not all(isinstance(item, str) for item in raw_keyset):
+        if not isinstance(raw_keyset, list) or not all(
+            isinstance(item, str) for item in raw_keyset
+        ):
             diagnostics.append(
                 _new_diag(
                     code=SCC0015_INPUT_HANDOFF_INVALID,
@@ -2391,7 +2438,10 @@ def _build_v41_surface_artifacts(
         commitments_ir_payload=commitments_ir_payload,
         diagnostics=diagnostics,
     )
-    baseline_present, baseline_map = _load_baseline_surface_snapshot(root=root, diagnostics=diagnostics)
+    baseline_present, baseline_map = _load_baseline_surface_snapshot(
+        root=root,
+        diagnostics=diagnostics,
+    )
     known_surface_ids = set(baseline_map) | {record.surface_id for record in current_records}
     surface_modes = _collect_surface_rule_modes(
         commitments_ir_payload=commitments_ir_payload,
@@ -2512,7 +2562,12 @@ def compile_semantic_compiler(
         existing_diag_rel = _normalize_relative_path(_DEFAULT_OUTPUT_DIAGNOSTICS)
         existing_manifest_rel = _normalize_relative_path(_DEFAULT_OUTPUT_PASS_MANIFEST)
         had_existing_v40_inputs = all(
-            (root / rel).is_file() for rel in (existing_ir_rel, existing_diag_rel, existing_manifest_rel)
+            (root / rel).is_file()
+            for rel in (
+                existing_ir_rel,
+                existing_diag_rel,
+                existing_manifest_rel,
+            )
         )
     except ValueError:
         had_existing_v40_inputs = False
