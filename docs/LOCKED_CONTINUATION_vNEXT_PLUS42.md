@@ -131,7 +131,7 @@ Consumption lock:
 ```json
 {
   "schema": "v32e_ci_closeout_contract@1",
-  "target_arc": "vnext_plus42",
+  "target_arc": "vNext+42",
   "target_path": "V32-E",
   "semantic_compiler_entrypoint": "python -m adeu_semantic_compiler.compile",
   "input_artifacts": {
