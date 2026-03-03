@@ -1,0 +1,820 @@
+{
+  "$defs": {
+    "ArcLockModule": {
+      "additionalProperties": false,
+      "properties": {
+        "arc_id": {
+          "minLength": 1,
+          "title": "Arc Id",
+          "type": "string"
+        },
+        "assertions": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsAssertion"
+          },
+          "title": "Assertions",
+          "type": "array"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Depends On",
+          "type": "array"
+        },
+        "effects_declared": {
+          "items": {
+            "enum": [
+              "schema_export",
+              "contract_validation",
+              "continuity_check",
+              "artifact_generation",
+              "diagnostics_emission"
+            ],
+            "type": "string"
+          },
+          "title": "Effects Declared",
+          "type": "array"
+        },
+        "evidence_requirements": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsEvidenceRequirement"
+          },
+          "title": "Evidence Requirements",
+          "type": "array"
+        },
+        "locks": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsLock"
+          },
+          "title": "Locks",
+          "type": "array"
+        },
+        "module_hash": {
+          "minLength": 1,
+          "title": "Module Hash",
+          "type": "string"
+        },
+        "module_id": {
+          "minLength": 1,
+          "title": "Module Id",
+          "type": "string"
+        },
+        "module_kind": {
+          "const": "arc_lock",
+          "default": "arc_lock",
+          "title": "Module Kind",
+          "type": "string"
+        },
+        "odeu": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommitmentsODEUSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source": {
+          "$ref": "#/$defs/CommitmentsModuleSource"
+        },
+        "status": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "frozen",
+            "superseded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "surfaces": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsSurfaceRef"
+          },
+          "title": "Surfaces",
+          "type": "array"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "module_id",
+        "title",
+        "source",
+        "module_hash",
+        "arc_id"
+      ],
+      "title": "ArcLockModule",
+      "type": "object"
+    },
+    "CommitmentsAssertion": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion_id": {
+          "minLength": 1,
+          "title": "Assertion Id",
+          "type": "string"
+        },
+        "assertion_type": {
+          "enum": [
+            "schema_contract",
+            "continuity_guard",
+            "surface_match",
+            "determinism"
+          ],
+          "title": "Assertion Type",
+          "type": "string"
+        },
+        "expected": {
+          "additionalProperties": true,
+          "title": "Expected",
+          "type": "object"
+        },
+        "target": {
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        }
+      },
+      "required": [
+        "assertion_id",
+        "assertion_type",
+        "target"
+      ],
+      "title": "CommitmentsAssertion",
+      "type": "object"
+    },
+    "CommitmentsCompiler": {
+      "additionalProperties": false,
+      "properties": {
+        "config_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Config Hash"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "pass_versions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Pass Versions",
+          "type": "array"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "title": "CommitmentsCompiler",
+      "type": "object"
+    },
+    "CommitmentsDiagnostic": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "minLength": 1,
+          "pattern": "^ASC-CIR-[0-9]{4}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "module_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Module Id"
+        },
+        "severity": {
+          "enum": [
+            "ERROR",
+            "WARN",
+            "INFO"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommitmentsModuleSource"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "title": "CommitmentsDiagnostic",
+      "type": "object"
+    },
+    "CommitmentsEvidenceRequirement": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "minLength": 1,
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "evidence_type": {
+          "enum": [
+            "test_report",
+            "lint_output",
+            "ci_run",
+            "artifact_hash",
+            "doc_json"
+          ],
+          "title": "Evidence Type",
+          "type": "string"
+        },
+        "quality": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Quality",
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "trust_lane": {
+          "enum": [
+            "mapping",
+            "solver",
+            "proof",
+            "tooling"
+          ],
+          "title": "Trust Lane",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "evidence_type",
+        "trust_lane",
+        "quality"
+      ],
+      "title": "CommitmentsEvidenceRequirement",
+      "type": "object"
+    },
+    "CommitmentsLock": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "freeze",
+            "required",
+            "forbidden",
+            "additive_only",
+            "exact_set"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "lock_id": {
+          "minLength": 1,
+          "title": "Lock Id",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "severity": {
+          "enum": [
+            "ERROR",
+            "WARN"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommitmentsModuleSource"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "target": {
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lock_id",
+        "kind",
+        "severity",
+        "target"
+      ],
+      "title": "CommitmentsLock",
+      "type": "object"
+    },
+    "CommitmentsModuleSource": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "span": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceSpan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "title": "CommitmentsModuleSource",
+      "type": "object"
+    },
+    "CommitmentsODEUSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "D_norm": {
+          "items": {
+            "type": "string"
+          },
+          "title": "D Norm",
+          "type": "array"
+        },
+        "E": {
+          "items": {
+            "type": "string"
+          },
+          "title": "E",
+          "type": "array"
+        },
+        "O": {
+          "items": {
+            "type": "string"
+          },
+          "title": "O",
+          "type": "array"
+        },
+        "U": {
+          "items": {
+            "type": "string"
+          },
+          "title": "U",
+          "type": "array"
+        }
+      },
+      "title": "CommitmentsODEUSummary",
+      "type": "object"
+    },
+    "CommitmentsSourceFile": {
+      "additionalProperties": false,
+      "properties": {
+        "file_hash": {
+          "minLength": 1,
+          "title": "File Hash",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "semantic_source_hash": {
+          "minLength": 1,
+          "title": "Semantic Source Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "semantic_source_hash",
+        "file_hash"
+      ],
+      "title": "CommitmentsSourceFile",
+      "type": "object"
+    },
+    "CommitmentsSourceSet": {
+      "additionalProperties": false,
+      "properties": {
+        "files": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsSourceFile"
+          },
+          "title": "Files",
+          "type": "array"
+        },
+        "repo_root_rel": {
+          "minLength": 1,
+          "title": "Repo Root Rel",
+          "type": "string"
+        },
+        "source_set_hash": {
+          "minLength": 1,
+          "title": "Source Set Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo_root_rel",
+        "source_set_hash"
+      ],
+      "title": "CommitmentsSourceSet",
+      "type": "object"
+    },
+    "CommitmentsSurfaceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "selector": {
+          "minLength": 1,
+          "title": "Selector",
+          "type": "string"
+        },
+        "surface_id": {
+          "minLength": 1,
+          "title": "Surface Id",
+          "type": "string"
+        },
+        "surface_kind": {
+          "enum": [
+            "schema",
+            "manifest",
+            "file",
+            "markdown_json_block"
+          ],
+          "title": "Surface Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_id",
+        "surface_kind",
+        "selector"
+      ],
+      "title": "CommitmentsSurfaceRef",
+      "type": "object"
+    },
+    "SliceSpecModule": {
+      "additionalProperties": false,
+      "properties": {
+        "arc_id": {
+          "minLength": 1,
+          "title": "Arc Id",
+          "type": "string"
+        },
+        "assertions": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsAssertion"
+          },
+          "title": "Assertions",
+          "type": "array"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Depends On",
+          "type": "array"
+        },
+        "effects_declared": {
+          "items": {
+            "enum": [
+              "schema_export",
+              "contract_validation",
+              "continuity_check",
+              "artifact_generation",
+              "diagnostics_emission"
+            ],
+            "type": "string"
+          },
+          "title": "Effects Declared",
+          "type": "array"
+        },
+        "evidence_requirements": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsEvidenceRequirement"
+          },
+          "title": "Evidence Requirements",
+          "type": "array"
+        },
+        "locks": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsLock"
+          },
+          "title": "Locks",
+          "type": "array"
+        },
+        "module_hash": {
+          "minLength": 1,
+          "title": "Module Hash",
+          "type": "string"
+        },
+        "module_id": {
+          "minLength": 1,
+          "title": "Module Id",
+          "type": "string"
+        },
+        "module_kind": {
+          "const": "slice_spec",
+          "default": "slice_spec",
+          "title": "Module Kind",
+          "type": "string"
+        },
+        "odeu": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommitmentsODEUSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "slice_id": {
+          "minLength": 1,
+          "title": "Slice Id",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/CommitmentsModuleSource"
+        },
+        "status": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "frozen",
+            "superseded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "surfaces": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsSurfaceRef"
+          },
+          "title": "Surfaces",
+          "type": "array"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "module_id",
+        "title",
+        "source",
+        "module_hash",
+        "arc_id",
+        "slice_id"
+      ],
+      "title": "SliceSpecModule",
+      "type": "object"
+    },
+    "SourceSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "SourceSpan",
+      "type": "object"
+    },
+    "StopGateModule": {
+      "additionalProperties": false,
+      "properties": {
+        "arc_id": {
+          "minLength": 1,
+          "title": "Arc Id",
+          "type": "string"
+        },
+        "assertions": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsAssertion"
+          },
+          "title": "Assertions",
+          "type": "array"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Depends On",
+          "type": "array"
+        },
+        "effects_declared": {
+          "items": {
+            "enum": [
+              "schema_export",
+              "contract_validation",
+              "continuity_check",
+              "artifact_generation",
+              "diagnostics_emission"
+            ],
+            "type": "string"
+          },
+          "title": "Effects Declared",
+          "type": "array"
+        },
+        "evidence_requirements": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsEvidenceRequirement"
+          },
+          "title": "Evidence Requirements",
+          "type": "array"
+        },
+        "locks": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsLock"
+          },
+          "title": "Locks",
+          "type": "array"
+        },
+        "module_hash": {
+          "minLength": 1,
+          "title": "Module Hash",
+          "type": "string"
+        },
+        "module_id": {
+          "minLength": 1,
+          "title": "Module Id",
+          "type": "string"
+        },
+        "module_kind": {
+          "const": "stop_gate",
+          "default": "stop_gate",
+          "title": "Module Kind",
+          "type": "string"
+        },
+        "odeu": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommitmentsODEUSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source": {
+          "$ref": "#/$defs/CommitmentsModuleSource"
+        },
+        "status": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "frozen",
+            "superseded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "stop_gate_id": {
+          "minLength": 1,
+          "title": "Stop Gate Id",
+          "type": "string"
+        },
+        "surfaces": {
+          "items": {
+            "$ref": "#/$defs/CommitmentsSurfaceRef"
+          },
+          "title": "Surfaces",
+          "type": "array"
+        },
+        "title": {
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "module_id",
+        "title",
+        "source",
+        "module_hash",
+        "arc_id",
+        "stop_gate_id"
+      ],
+      "title": "StopGateModule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "compiler": {
+      "$ref": "#/$defs/CommitmentsCompiler"
+    },
+    "diagnostics": {
+      "items": {
+        "$ref": "#/$defs/CommitmentsDiagnostic"
+      },
+      "title": "Diagnostics",
+      "type": "array"
+    },
+    "modules": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "arc_lock": "#/$defs/ArcLockModule",
+            "slice_spec": "#/$defs/SliceSpecModule",
+            "stop_gate": "#/$defs/StopGateModule"
+          },
+          "propertyName": "module_kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ArcLockModule"
+          },
+          {
+            "$ref": "#/$defs/SliceSpecModule"
+          },
+          {
+            "$ref": "#/$defs/StopGateModule"
+          }
+        ]
+      },
+      "title": "Modules",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_commitments_ir@0.1",
+      "default": "adeu_commitments_ir@0.1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_set": {
+      "$ref": "#/$defs/CommitmentsSourceSet"
+    }
+  },
+  "required": [
+    "compiler",
+    "source_set"
+  ],
+  "title": "AdeuCommitmentsIR",
+  "type": "object"
+}
