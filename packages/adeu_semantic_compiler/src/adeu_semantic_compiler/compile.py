@@ -141,6 +141,16 @@ def _canonical_clone(value: Any) -> Any:
     return json.loads(canonical_json(value))
 
 
+def _json_safe(value: Any) -> Any:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, dict):
+        return {str(key): _json_safe(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_json_safe(item) for item in value]
+    return repr(value)
+
+
 def _serialize_payload(payload: dict[str, Any]) -> bytes:
     return (canonical_json(payload) + "\n").encode("utf-8")
 
@@ -1358,12 +1368,13 @@ def _pass_build_ir(state: dict[str, Any], diagnostics: list[CompilerDiagnostic])
     try:
         normalized_ir = canonicalize_commitments_ir_payload(ir_payload)
     except ValidationError as exc:
+        validation_errors = _json_safe(exc.errors(include_url=False))
         diagnostics.append(
             _new_diag(
                 code=SCC0008_MODULE_DECLARATION_INVALID,
                 severity="ERROR",
                 message="compiled commitments IR payload is invalid",
-                details={"validation_errors": exc.errors(include_url=False)},
+                details={"validation_errors": validation_errors},
             )
         )
         return {
