@@ -848,7 +848,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     result = compile_semantic_source(
-        inputs=list(args.input),
+        inputs=args.input,
         inputs_manifest=args.inputs_manifest,
         docs_root=args.docs_root,
         write_outputs=True,
