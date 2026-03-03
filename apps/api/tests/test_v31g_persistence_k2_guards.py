@@ -7,7 +7,6 @@ import subprocess
 import sys
 from contextlib import contextmanager
 from pathlib import Path
-from textwrap import dedent
 from typing import Any
 
 import adeu_api.main as api_main
@@ -52,6 +51,18 @@ def _repo_root() -> Path:
         if (parent / ".git").is_dir():
             return parent
     raise FileNotFoundError("repository root not found")
+
+
+def _restart_probe_script_path() -> Path:
+    return (
+        _repo_root()
+        / "apps"
+        / "api"
+        / "tests"
+        / "fixtures"
+        / "v31g_persistence"
+        / "restart_replay_probe.py"
+    )
 
 
 def _mock_provider_for_tests() -> str:
@@ -335,80 +346,14 @@ def test_v37_k2_replay_is_deterministic_after_process_restart() -> None:
 
     api_main._CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY.clear()
 
-    probe = dedent(
-        """
-        import asyncio
-        import json
-        import sys
-
-        import adeu_api.main as api_main
-
-        payload = json.loads(sys.argv[1])
-        cache_clear = getattr(
-            api_main._provider_parity_supported_providers_by_surface,
-            "cache_clear",
-            None,
-        )
-        if callable(cache_clear):
-            cache_clear()
-        api_main._CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY.clear()
-
-        body = json.dumps(payload).encode("utf-8")
-        scope = {
-            "type": "http",
-            "asgi": {"version": "3.0", "spec_version": "2.3"},
-            "http_version": "1.1",
-            "method": "POST",
-            "scheme": "http",
-            "path": "/urm/core-ir/propose",
-            "raw_path": b"/urm/core-ir/propose",
-            "query_string": b"",
-            "headers": [
-                (b"host", b"testserver"),
-                (b"content-type", b"application/json"),
-                (b"content-length", str(len(body)).encode("ascii")),
-            ],
-            "client": ("testclient", 50000),
-            "server": ("testserver", 80),
-        }
-        events = [{"type": "http.request", "body": body, "more_body": False}]
-        sent = []
-
-        async def _receive():
-            if events:
-                return events.pop(0)
-            return {"type": "http.disconnect"}
-
-        async def _send(message):
-            sent.append(message)
-
-        async def _invoke():
-            await api_main.app(scope, _receive, _send)
-
-        asyncio.run(_invoke())
-
-        start = next(message for message in sent if message["type"] == "http.response.start")
-        payload_bytes = b"".join(
-            message.get("body", b"")
-            for message in sent
-            if message["type"] == "http.response.body"
-        )
-        print(
-            json.dumps(
-                {
-                    "status_code": int(start["status"]),
-                    "body": json.loads(payload_bytes.decode("utf-8")),
-                },
-                sort_keys=True,
-            )
-        )
-        """
-    )
-
     env = _pythonpath_env()
     env["ADEU_API_DB_PATH"] = os.environ["ADEU_API_DB_PATH"]
     completed = subprocess.run(
-        [sys.executable, "-c", probe, json.dumps(payload, sort_keys=True)],
+        [
+            sys.executable,
+            str(_restart_probe_script_path()),
+            json.dumps(payload, sort_keys=True),
+        ],
         check=False,
         capture_output=True,
         text=True,
