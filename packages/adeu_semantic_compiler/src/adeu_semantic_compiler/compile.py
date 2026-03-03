@@ -918,8 +918,8 @@ def _pass_build_ir(state: dict[str, Any], diagnostics: list[CompilerDiagnostic])
                         "source": {
                             "path": path,
                             "span": {
-                                "start": max(0, start_line),
-                                "end": max(start_line + 1, end_line),
+                                "start": start_line,
+                                "end": end_line,
                             },
                         },
                     }
@@ -1213,8 +1213,8 @@ def _pass_build_ir(state: dict[str, Any], diagnostics: list[CompilerDiagnostic])
                 "source": {
                     "path": path,
                     "span": {
-                        "start": max(0, start_line),
-                        "end": max(start_line + 1, end_line),
+                        "start": start_line,
+                        "end": end_line,
                     },
                 },
                 "depends_on": depends_on,

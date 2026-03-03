@@ -276,7 +276,7 @@ def test_missing_module_id_fails_closed_with_empty_module_id_sort_value(tmp_path
     assert entries[0]["start_line"] == 1
 
 
-def test_mutating_pass_hash_identity_violation_is_reported_when_hashes_match(
+def test_mutating_passes_correctly_mutate_state_on_empty_input(
     tmp_path: Path,
 ) -> None:
     root = _base_repo(tmp_path)
