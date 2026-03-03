@@ -542,6 +542,10 @@ def _build_diagnostics_payload(*, diagnostics: list[Diagnostic]) -> dict[str, An
     }
 
 
+def _serialize_payload(payload: dict[str, Any]) -> bytes:
+    return (canonical_json(payload) + "\n").encode("utf-8")
+
+
 def _validate_output_paths(*, root: Path) -> tuple[Path, Path]:
     normalized_rel = _normalize_relative_path(_DEFAULT_NORMALIZED_OUTPUT)
     diagnostics_rel = _normalize_relative_path(_DEFAULT_DIAGNOSTICS_OUTPUT)
@@ -797,16 +801,10 @@ def compile_semantic_source(
 
     if write_outputs:
         diagnostics_output_path.parent.mkdir(parents=True, exist_ok=True)
-        diagnostics_output_path.write_text(
-            canonical_json(diagnostics_payload) + "\n",
-            encoding="utf-8",
-        )
+        diagnostics_output_path.write_bytes(_serialize_payload(diagnostics_payload))
         if normalized_payload is not None:
             normalized_output_path.parent.mkdir(parents=True, exist_ok=True)
-            normalized_output_path.write_text(
-                canonical_json(normalized_payload) + "\n",
-                encoding="utf-8",
-            )
+            normalized_output_path.write_bytes(_serialize_payload(normalized_payload))
 
     return CompileResult(
         success=success,
@@ -815,6 +813,50 @@ def compile_semantic_source(
         normalized_output_path=normalized_output_path,
         diagnostics_output_path=diagnostics_output_path,
     )
+
+
+def assert_artifacts_clean(
+    *,
+    inputs: list[str],
+    inputs_manifest: str | None = None,
+    repo_root_path: Path | None = None,
+    docs_root: str = _DEFAULT_DOCS_ROOT,
+) -> None:
+    result = compile_semantic_source(
+        inputs=inputs,
+        inputs_manifest=inputs_manifest,
+        repo_root_path=repo_root_path,
+        docs_root=docs_root,
+        write_outputs=False,
+    )
+    if not result.success or result.normalized_payload is None:
+        raise RuntimeError(canonical_json(result.diagnostics_payload))
+
+    expected_normalized = _serialize_payload(result.normalized_payload)
+    expected_diagnostics = _serialize_payload(result.diagnostics_payload)
+
+    if not result.normalized_output_path.is_file():
+        raise RuntimeError(
+            f"missing generated normalized artifact: {result.normalized_output_path.as_posix()}"
+        )
+    if not result.diagnostics_output_path.is_file():
+        raise RuntimeError(
+            f"missing generated diagnostics artifact: {result.diagnostics_output_path.as_posix()}"
+        )
+
+    observed_normalized = result.normalized_output_path.read_bytes()
+    observed_diagnostics = result.diagnostics_output_path.read_bytes()
+
+    if observed_normalized != expected_normalized:
+        raise RuntimeError(
+            "generated semantic-source normalized artifact is out of date: "
+            f"{result.normalized_output_path.as_posix()}"
+        )
+    if observed_diagnostics != expected_diagnostics:
+        raise RuntimeError(
+            "generated semantic-source diagnostics artifact is out of date: "
+            f"{result.diagnostics_output_path.as_posix()}"
+        )
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
