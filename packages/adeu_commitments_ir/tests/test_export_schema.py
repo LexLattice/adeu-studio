@@ -72,10 +72,24 @@ def test_exported_schema_has_no_absolute_path_material() -> None:
     root = repo_root(anchor=Path(__file__))
     root_text = root.as_posix()
 
-    for path in (authoritative, mirror):
-        content = path.read_text(encoding="utf-8")
-        normalized = content.replace("\\", "/")
+    def _check_node(node: object) -> None:
+        if isinstance(node, dict):
+            for key in sorted(node):
+                _check_node(node[key])
+            return
+        if isinstance(node, list):
+            for item in node:
+                _check_node(item)
+            return
+        if not isinstance(node, str):
+            return
+
+        normalized = node.replace("\\", "/")
         assert root_text not in normalized
-        assert "/home/" not in normalized
-        assert "/Users/" not in normalized
-        assert _WINDOWS_ABSOLUTE_PATH_RE.search(content) is None
+        assert not normalized.startswith("/home/")
+        assert not normalized.startswith("/Users/")
+        assert _WINDOWS_ABSOLUTE_PATH_RE.search(node) is None
+
+    for path in (authoritative, mirror):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        _check_node(payload)
