@@ -132,6 +132,14 @@ Consumption lock:
     "diagnostics": "artifacts/semantic_compiler/v40/semantic_compiler.diagnostics.json",
     "pass_manifest": "artifacts/semantic_compiler/v40/pass_manifest.json"
   },
+  "input_artifact_availability_policy": {
+    "mode": "materialize_if_missing_deterministically",
+    "materialization_entrypoint": "python -m adeu_semantic_compiler.compile",
+    "materialization_env": {
+      "TZ": "UTC",
+      "LC_ALL": "C"
+    }
+  },
   "input_handoff_policy": {
     "compiler_diagnostics_errors": "fail_closed",
     "pass_manifest_chain_complete": "required",
@@ -270,6 +278,7 @@ Lock-class rationale:
   - `markdown_json_block` surfaces.
 - Freeze v41 input boundary:
   - v41 surface/codegen flow consumes v40 compiler-core artifacts (`commitments_ir`, `semantic_compiler.diagnostics`, `pass_manifest`) only,
+  - if v40 artifacts are absent in working tree, they must be materialized deterministically via the authoritative compiler entrypoint before v41 execution,
   - selector authority derives only from surfaces declared by v40 commitments IR (no implicit selector authority from filesystem scanning),
   - workspace content reads are allowed only to compute signatures for IR-declared selectors,
   - implicit surface discovery beyond IR-declared selectors is forbidden,
@@ -323,6 +332,7 @@ Lock-class rationale:
   - compile command authority remains single-entrypoint (`python -m adeu_semantic_compiler.compile`); alternate entrypoints are non-authoritative.
 - Input-boundary lock is frozen:
   - v41 surface/codegen flow consumes only v40 compiler artifacts (`commitments_ir`, `semantic_compiler.diagnostics`, `pass_manifest`).
+  - when missing from working tree, v40 artifacts are materialized deterministically via `python -m adeu_semantic_compiler.compile` under `TZ=UTC` and `LC_ALL=C`.
   - selector authority is IR-declared surfaces only; implicit discovery is forbidden.
   - workspace content reads are allowed only for IR-declared selectors when computing signatures.
   - v40 compiler diagnostics containing any `ERROR` are fail-closed for v41 input handoff.
@@ -542,6 +552,8 @@ Prove v41 surface-governance/codegen behavior is deterministic, fail-closed, and
    - `artifacts/semantic_compiler/v40/commitments_ir.json`
    - `artifacts/semantic_compiler/v40/semantic_compiler.diagnostics.json`
    - `artifacts/semantic_compiler/v40/pass_manifest.json`
+   - if absent from working tree, materialize deterministically before v41 execution:
+     - `TZ=UTC LC_ALL=C PYTHONWARNINGS=ignore PYTHONPATH=packages/adeu_semantic_compiler/src:packages/adeu_commitments_ir/src:packages/adeu_semantic_source/src:packages/adeu_ir/src:packages/urm_runtime/src .venv/bin/python -m adeu_semantic_compiler.compile`
 6. Existing closeout consistency lint remains enabled:
    - `apps/api/scripts/lint_closeout_consistency.py`
 7. Existing v31g persistence continuity lint remains enabled:
