@@ -81,16 +81,16 @@ Summary:
   "baseline_source": "artifacts/stop_gate/report_v40_closeout.md",
   "current_source": "artifacts/stop_gate/report_v41_closeout.md",
   "baseline_elapsed_ms": 87,
-  "current_elapsed_ms": 90,
-  "delta_ms": 3,
-  "notes": "Fixture/replay volume and hashed-byte footprint remain stable; elapsed_ms increased by 3ms under fixed deterministic inputs. This row remains informational-only in v41."
+  "current_elapsed_ms": 85,
+  "delta_ms": -2,
+  "notes": "Fixture/replay volume and hashed-byte footprint remain stable; elapsed_ms decreased by 2ms under fixed deterministic inputs. `bytes_hashed_*` reflects the v19-v26 manifest-governed hashing workload (fixed 3-cycle aggregate), not a direct `total_replays` multiplier. This row remains informational-only in v41."
 }
 ```
 
 | Arc | Source | total_fixtures | total_replays | elapsed_ms | bytes_hashed_per_replay | bytes_hashed_total | valid | all_passed |
 |---|---|---:|---:|---:|---:|---:|---|---|
 | `vNext+40` baseline | `artifacts/stop_gate/metrics_v40_closeout.json` | `21` | `75` | `87` | `67236` | `201708` | `true` | `true` |
-| `vNext+41` closeout | `artifacts/stop_gate/metrics_v41_closeout.json` | `21` | `75` | `90` | `67236` | `201708` | `true` | `true` |
+| `vNext+41` closeout | `artifacts/stop_gate/metrics_v41_closeout.json` | `21` | `75` | `85` | `67236` | `201708` | `true` | `true` |
 
 ## Surface-Governance/Codegen Artifact Evidence
 

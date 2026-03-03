@@ -4637,6 +4637,18 @@ def test_stop_gate_cli_writes_json_and_markdown(tmp_path: Path) -> None:
     payload = json.loads(out_json.read_text(encoding="utf-8"))
     assert payload["schema"] == "stop_gate_metrics@1"
     assert payload["valid"] is True
+    inputs = payload["inputs"]
+    manifest_path_keys = sorted(
+        key
+        for key in inputs
+        if key.startswith("vnext_plus") and key.endswith("_manifest_path")
+    )
+    assert manifest_path_keys
+    for key in manifest_path_keys:
+        rendered = inputs[key]
+        assert isinstance(rendered, str)
+        assert rendered.startswith("apps/api/fixtures/stop_gate/")
+        assert not Path(rendered).is_absolute()
     assert out_md.is_file()
     assert "Stop-Gate Metrics" in out_md.read_text(encoding="utf-8")
 

@@ -175,4 +175,4 @@
 - total replays: `75`
 - bytes hashed per replay: `67236`
 - bytes hashed total: `201708`
-- elapsed ms: `90`
+- elapsed ms: `85`

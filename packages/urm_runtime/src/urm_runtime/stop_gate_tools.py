@@ -14433,114 +14433,126 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
         is THRESHOLDS["quality_delta_non_negative"],
     }
 
+    inputs_repo_root = _discover_repo_root(Path(__file__).resolve())
+
+    def _render_input_path(path: Path) -> str:
+        return _normalize_vnext_plus26_path_value(
+            value=str(path),
+            repo_root=inputs_repo_root,
+        )
+
     return {
         "schema": STOP_GATE_SCHEMA,
         "valid": len(issues) == 0,
         "inputs": {
-            "incident_packet_paths": [str(path) for path in sorted(incident_packet_paths)],
-            "event_stream_paths": [str(path) for path in sorted(event_stream_paths)],
-            "connector_snapshot_paths": [str(path) for path in sorted(connector_snapshot_paths)],
+            "incident_packet_paths": [
+                _render_input_path(path) for path in sorted(incident_packet_paths)
+            ],
+            "event_stream_paths": [_render_input_path(path) for path in sorted(event_stream_paths)],
+            "connector_snapshot_paths": [
+                _render_input_path(path) for path in sorted(connector_snapshot_paths)
+            ],
             "validator_evidence_packet_paths": [
-                str(path) for path in sorted(validator_evidence_packet_paths)
+                _render_input_path(path) for path in sorted(validator_evidence_packet_paths)
             ],
             "semantics_diagnostics_paths": [
-                str(path) for path in sorted(semantics_diagnostics_paths)
+                _render_input_path(path) for path in sorted(semantics_diagnostics_paths)
             ],
-            "quality_current_path": str(quality_current_path),
-            "quality_baseline_path": str(
+            "quality_current_path": _render_input_path(quality_current_path),
+            "quality_baseline_path": _render_input_path(
                 quality_baseline_path if quality_baseline_path is not None else quality_current_path
             ),
-            "vnext_plus7_manifest_path": str(
+            "vnext_plus7_manifest_path": _render_input_path(
                 vnext_plus7_manifest_path
                 if vnext_plus7_manifest_path is not None
                 else VNEXT_PLUS7_MANIFEST_PATH
             ),
-            "vnext_plus8_manifest_path": str(
+            "vnext_plus8_manifest_path": _render_input_path(
                 vnext_plus8_manifest_path
                 if vnext_plus8_manifest_path is not None
                 else VNEXT_PLUS8_MANIFEST_PATH
             ),
-            "vnext_plus9_manifest_path": str(
+            "vnext_plus9_manifest_path": _render_input_path(
                 vnext_plus9_manifest_path
                 if vnext_plus9_manifest_path is not None
                 else VNEXT_PLUS9_MANIFEST_PATH
             ),
-            "vnext_plus10_manifest_path": str(
+            "vnext_plus10_manifest_path": _render_input_path(
                 vnext_plus10_manifest_path
                 if vnext_plus10_manifest_path is not None
                 else VNEXT_PLUS10_MANIFEST_PATH
             ),
-            "vnext_plus11_manifest_path": str(
+            "vnext_plus11_manifest_path": _render_input_path(
                 vnext_plus11_manifest_path
                 if vnext_plus11_manifest_path is not None
                 else VNEXT_PLUS11_MANIFEST_PATH
             ),
-            "vnext_plus13_manifest_path": str(
+            "vnext_plus13_manifest_path": _render_input_path(
                 vnext_plus13_manifest_path
                 if vnext_plus13_manifest_path is not None
                 else VNEXT_PLUS13_MANIFEST_PATH
             ),
-            "vnext_plus14_manifest_path": str(
+            "vnext_plus14_manifest_path": _render_input_path(
                 vnext_plus14_manifest_path
                 if vnext_plus14_manifest_path is not None
                 else VNEXT_PLUS14_MANIFEST_PATH
             ),
-            "vnext_plus15_manifest_path": str(
+            "vnext_plus15_manifest_path": _render_input_path(
                 vnext_plus15_manifest_path
                 if vnext_plus15_manifest_path is not None
                 else VNEXT_PLUS15_MANIFEST_PATH
             ),
-            "vnext_plus16_manifest_path": str(
+            "vnext_plus16_manifest_path": _render_input_path(
                 vnext_plus16_manifest_path
                 if vnext_plus16_manifest_path is not None
                 else VNEXT_PLUS16_MANIFEST_PATH
             ),
-            "vnext_plus17_manifest_path": str(
+            "vnext_plus17_manifest_path": _render_input_path(
                 vnext_plus17_manifest_path
                 if vnext_plus17_manifest_path is not None
                 else VNEXT_PLUS17_MANIFEST_PATH
             ),
-            "vnext_plus18_manifest_path": str(
+            "vnext_plus18_manifest_path": _render_input_path(
                 vnext_plus18_manifest_path
                 if vnext_plus18_manifest_path is not None
                 else VNEXT_PLUS18_MANIFEST_PATH
             ),
-            "vnext_plus19_manifest_path": str(
+            "vnext_plus19_manifest_path": _render_input_path(
                 vnext_plus19_manifest_path
                 if vnext_plus19_manifest_path is not None
                 else VNEXT_PLUS19_MANIFEST_PATH
             ),
-            "vnext_plus20_manifest_path": str(
+            "vnext_plus20_manifest_path": _render_input_path(
                 vnext_plus20_manifest_path
                 if vnext_plus20_manifest_path is not None
                 else VNEXT_PLUS20_MANIFEST_PATH
             ),
-            "vnext_plus21_manifest_path": str(
+            "vnext_plus21_manifest_path": _render_input_path(
                 vnext_plus21_manifest_path
                 if vnext_plus21_manifest_path is not None
                 else VNEXT_PLUS21_MANIFEST_PATH
             ),
-            "vnext_plus22_manifest_path": str(
+            "vnext_plus22_manifest_path": _render_input_path(
                 vnext_plus22_manifest_path
                 if vnext_plus22_manifest_path is not None
                 else VNEXT_PLUS22_MANIFEST_PATH
             ),
-            "vnext_plus23_manifest_path": str(
+            "vnext_plus23_manifest_path": _render_input_path(
                 vnext_plus23_manifest_path
                 if vnext_plus23_manifest_path is not None
                 else VNEXT_PLUS23_MANIFEST_PATH
             ),
-            "vnext_plus24_manifest_path": str(
+            "vnext_plus24_manifest_path": _render_input_path(
                 vnext_plus24_manifest_path
                 if vnext_plus24_manifest_path is not None
                 else VNEXT_PLUS24_MANIFEST_PATH
             ),
-            "vnext_plus25_manifest_path": str(
+            "vnext_plus25_manifest_path": _render_input_path(
                 vnext_plus25_manifest_path
                 if vnext_plus25_manifest_path is not None
                 else VNEXT_PLUS25_MANIFEST_PATH
             ),
-            "vnext_plus26_manifest_path": str(
+            "vnext_plus26_manifest_path": _render_input_path(
                 vnext_plus26_manifest_path
                 if vnext_plus26_manifest_path is not None
                 else VNEXT_PLUS26_MANIFEST_PATH
