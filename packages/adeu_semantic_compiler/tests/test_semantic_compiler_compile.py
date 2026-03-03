@@ -278,6 +278,63 @@ def test_compile_rerun_is_byte_identical(tmp_path: Path) -> None:
     assert pr_splits_before == pr_splits_after
 
 
+def test_v41_does_not_overwrite_existing_v40_input_artifacts(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS40.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus40",
+                            "arc_id": "vnext_plus40",
+                        },
+                        "identifier": "arc:vnext_plus40",
+                    }
+                ],
+            }
+        ],
+    )
+
+    first = compile_semantic_compiler(repo_root_path=root)
+    assert first.success is True
+    ir_before = first.commitments_ir_output_path.read_bytes()
+    diagnostics_before = first.diagnostics_output_path.read_bytes()
+    pass_manifest_before = first.pass_manifest_output_path.read_bytes()
+
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    second = compile_semantic_compiler(repo_root_path=root)
+
+    assert second.success is True
+    assert first.commitments_ir_payload != second.commitments_ir_payload
+    assert second.commitments_ir_output_path.read_bytes() == ir_before
+    assert second.diagnostics_output_path.read_bytes() == diagnostics_before
+    assert second.pass_manifest_output_path.read_bytes() == pass_manifest_before
+
+
 def test_missing_module_id_fails_closed_with_empty_module_id_sort_value(tmp_path: Path) -> None:
     root = _base_repo(tmp_path)
     _write_semantic_source_artifacts(
