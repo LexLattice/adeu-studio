@@ -1,17 +1,34 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import adeu_api.main as api_main
 import pytest
 from adeu_api.main import CoreIRProposerRequest, urm_core_ir_propose_endpoint
+from adeu_api.storage import get_core_ir_proposer_idempotency_by_client_request_id
 from fastapi import HTTPException
 
 
+def _clear_provider_parity_cache() -> None:
+    cache_clear = getattr(
+        api_main._provider_parity_supported_providers_by_surface,
+        "cache_clear",
+        None,
+    )
+    if callable(cache_clear):
+        cache_clear()
+
+
 @pytest.fixture(autouse=True)
-def _clear_caches() -> None:
-    api_main._provider_parity_supported_providers_by_surface.cache_clear()
+def _clear_caches(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("ADEU_API_DB_PATH", str((tmp_path / "api.sqlite3").resolve()))
+    _clear_provider_parity_cache()
     api_main._CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY.clear()
     yield
-    api_main._provider_parity_supported_providers_by_surface.cache_clear()
+    _clear_provider_parity_cache()
     api_main._CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY.clear()
 
 
@@ -46,6 +63,11 @@ def test_core_ir_proposer_endpoint_idempotent_replay_is_byte_identical() -> None
     second = urm_core_ir_propose_endpoint(request).model_dump(mode="json")
 
     assert second == first
+    persisted = get_core_ir_proposer_idempotency_by_client_request_id(
+        client_request_id=request.client_request_id
+    )
+    assert persisted is not None
+    assert persisted.request_payload_hash
 
 
 def test_core_ir_proposer_endpoint_idempotency_conflict_on_semantic_payload_change() -> None:
@@ -68,7 +90,9 @@ def test_core_ir_proposer_endpoint_idempotency_conflict_on_semantic_payload_chan
 
     assert exc_info.value.status_code == 400
     assert exc_info.value.detail["code"] == "URM_ADEU_CORE_IR_PROPOSER_REQUEST_INVALID"
-    assert "different semantic payload" in exc_info.value.detail["reason"]
+    assert exc_info.value.detail["context"]["client_request_id"] == second.client_request_id
+    assert "request_payload_hash_expected" in exc_info.value.detail["context"]
+    assert "request_payload_hash_observed" in exc_info.value.detail["context"]
 
 
 def test_core_ir_proposer_endpoint_same_client_request_id_different_provider_fails_closed() -> None:
@@ -91,7 +115,9 @@ def test_core_ir_proposer_endpoint_same_client_request_id_different_provider_fai
 
     assert exc_info.value.status_code == 400
     assert exc_info.value.detail["code"] == "URM_ADEU_CORE_IR_PROPOSER_REQUEST_INVALID"
-    assert "different provider" in exc_info.value.detail["reason"]
+    assert exc_info.value.detail["context"]["client_request_id"] == second.client_request_id
+    assert exc_info.value.detail["context"]["provider_expected"] == "mock"
+    assert exc_info.value.detail["context"]["provider_observed"] == "codex"
 
 
 def test_core_ir_proposer_surface_provider_unsupported_fails_closed(

@@ -96,6 +96,15 @@ class SemanticDepthReportRow:
 
 
 @dataclass(frozen=True)
+class CoreIRProposerIdempotencyRow:
+    client_request_id: str
+    provider: str
+    request_payload_hash: str
+    response_payload: dict[str, Any]
+    created_at: str
+
+
+@dataclass(frozen=True)
 class ConceptArtifactRow:
     artifact_id: str
     created_at: str
@@ -430,6 +439,31 @@ def _ensure_semantic_depth_report_indexes(con: sqlite3.Connection) -> None:
     )
 
 
+def _ensure_core_ir_proposer_idempotency_schema(con: sqlite3.Connection) -> None:
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS core_ir_proposer_idempotency (
+          client_request_id TEXT PRIMARY KEY,
+          provider TEXT NOT NULL,
+          request_payload_hash TEXT NOT NULL,
+          response_payload_json TEXT NOT NULL,
+          created_at TEXT NOT NULL
+        )
+        """
+    )
+
+
+def _ensure_core_ir_proposer_idempotency_indexes(con: sqlite3.Connection) -> None:
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_core_ir_proposer_idempotency_created_at "
+        "ON core_ir_proposer_idempotency(created_at)"
+    )
+    con.execute(
+        "CREATE INDEX IF NOT EXISTS idx_core_ir_proposer_idempotency_provider "
+        "ON core_ir_proposer_idempotency(provider)"
+    )
+
+
 def _ensure_concept_artifact_schema(con: sqlite3.Connection) -> None:
     con.execute(
         """
@@ -514,6 +548,8 @@ def _ensure_schema(con: sqlite3.Connection) -> None:
     _ensure_explain_artifact_indexes(con)
     _ensure_semantic_depth_report_schema(con)
     _ensure_semantic_depth_report_indexes(con)
+    _ensure_core_ir_proposer_idempotency_schema(con)
+    _ensure_core_ir_proposer_idempotency_indexes(con)
 
 
 def _normalize_datetime_filter(value: str) -> str:
@@ -1038,6 +1074,89 @@ def create_semantic_depth_report(
     )
 
 
+def create_core_ir_proposer_idempotency_if_absent(
+    *,
+    client_request_id: str,
+    provider: str,
+    request_payload_hash: str,
+    response_payload: dict[str, Any],
+    db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
+) -> bool:
+    resolved_db_path = _resolve_db_path(db_path)
+    created_at = datetime.now(tz=timezone.utc).isoformat()
+
+    def _insert(con: sqlite3.Connection) -> bool:
+        con.execute(
+            """
+            INSERT INTO core_ir_proposer_idempotency (
+              client_request_id,
+              provider,
+              request_payload_hash,
+              response_payload_json,
+              created_at
+            )
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(client_request_id) DO NOTHING
+            """,
+            (
+                client_request_id,
+                provider,
+                request_payload_hash,
+                json.dumps(response_payload, sort_keys=True),
+                created_at,
+            ),
+        )
+        changed_row = con.execute("SELECT changes()").fetchone()
+        changed = int(changed_row[0]) if changed_row is not None else 0
+        return changed == 1
+
+    if connection is not None:
+        return _insert(connection)
+
+    with sqlite3.connect(resolved_db_path) as con:
+        con.execute("PRAGMA foreign_keys=ON")
+        _ensure_schema(con)
+        return _insert(con)
+
+
+def get_core_ir_proposer_idempotency_by_client_request_id(
+    *,
+    client_request_id: str,
+    db_path: Path | None = None,
+    connection: sqlite3.Connection | None = None,
+) -> CoreIRProposerIdempotencyRow | None:
+    if connection is not None:
+        connection.row_factory = sqlite3.Row
+        row = connection.execute(
+            """
+            SELECT client_request_id, provider, request_payload_hash, response_payload_json, created_at
+            FROM core_ir_proposer_idempotency
+            WHERE client_request_id = ?
+            """,
+            (client_request_id,),
+        ).fetchone()
+        return _core_ir_proposer_idempotency_from_row(row) if row is not None else None
+
+    if db_path is None:
+        db_path = _default_db_path()
+
+    with sqlite3.connect(db_path) as con:
+        _ensure_schema(con)
+        con.row_factory = sqlite3.Row
+        row = con.execute(
+            """
+            SELECT client_request_id, provider, request_payload_hash, response_payload_json, created_at
+            FROM core_ir_proposer_idempotency
+            WHERE client_request_id = ?
+            """,
+            (client_request_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return _core_ir_proposer_idempotency_from_row(row)
+
+
 def get_semantic_depth_report_by_client_request_id(
     *,
     client_request_id: str,
@@ -1335,6 +1454,18 @@ def _semantic_depth_report_from_row(row: sqlite3.Row) -> SemanticDepthReportRow:
         report_json=json.loads(row["report_json"]),
         parent_stream_id=row["parent_stream_id"],
         parent_seq=int(row["parent_seq"]),
+    )
+
+
+def _core_ir_proposer_idempotency_from_row(
+    row: sqlite3.Row,
+) -> CoreIRProposerIdempotencyRow:
+    return CoreIRProposerIdempotencyRow(
+        client_request_id=row["client_request_id"],
+        provider=row["provider"],
+        request_payload_hash=row["request_payload_hash"],
+        response_payload=json.loads(row["response_payload_json"]),
+        created_at=row["created_at"],
     )
 
 

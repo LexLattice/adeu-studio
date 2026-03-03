@@ -190,12 +190,14 @@ from .semantics_v4_candidate_vnext_plus23 import (
 )
 from .source_features import extract_source_features
 from .storage import (
+    CoreIRProposerIdempotencyRow,
     ExplainArtifactRow,
     ProofArtifactRow,
     SemanticDepthReportRow,
     ValidatorRunRow,
     create_artifact,
     create_concept_artifact,
+    create_core_ir_proposer_idempotency_if_absent,
     create_document,
     create_explain_artifact,
     create_proof_artifact,
@@ -203,6 +205,7 @@ from .storage import (
     create_validator_run,
     get_artifact,
     get_concept_artifact,
+    get_core_ir_proposer_idempotency_by_client_request_id,
     get_document,
     get_explain_artifact_by_client_request_id,
     get_semantic_depth_report_by_client_request_id,
@@ -2985,6 +2988,90 @@ def _core_ir_proposer_status_code(code: str) -> int:
     ):
         return 500
     return 500
+
+
+def _core_ir_proposer_payload_invalid_http(
+    *,
+    reason: str,
+    context: Mapping[str, Any] | None = None,
+) -> HTTPException:
+    return HTTPException(
+        status_code=_core_ir_proposer_status_code(_CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE),
+        detail=_core_ir_proposer_error_detail(
+            code=_CORE_IR_PROPOSER_PAYLOAD_INVALID_CODE,
+            reason=reason,
+            context=context,
+        ),
+    )
+
+
+def _core_ir_proposer_mismatch_http(
+    *,
+    client_request_id: str,
+    provider_expected: str,
+    provider_observed: str,
+    request_payload_hash_expected: str,
+    request_payload_hash_observed: str,
+) -> HTTPException:
+    return HTTPException(
+        status_code=_core_ir_proposer_status_code(_CORE_IR_PROPOSER_REQUEST_INVALID_CODE),
+        detail=_core_ir_proposer_error_detail(
+            code=_CORE_IR_PROPOSER_REQUEST_INVALID_CODE,
+            reason="client_request_id already used with a different provider or semantic payload",
+            context={
+                "surface_id": _CORE_IR_PROPOSER_SURFACE_ID,
+                "client_request_id": client_request_id,
+                "provider_expected": provider_expected,
+                "provider_observed": provider_observed,
+                "request_payload_hash_expected": request_payload_hash_expected,
+                "request_payload_hash_observed": request_payload_hash_observed,
+            },
+        ),
+    )
+
+
+def _core_ir_proposer_response_from_persisted_row_or_raise(
+    *,
+    request: CoreIRProposerRequest,
+    request_payload_hash: str,
+    row: CoreIRProposerIdempotencyRow,
+) -> CoreIRProposerResponse:
+    if (
+        not isinstance(row.client_request_id, str)
+        or not row.client_request_id
+        or not isinstance(row.provider, str)
+        or not row.provider
+        or not isinstance(row.request_payload_hash, str)
+        or not row.request_payload_hash
+        or not isinstance(row.response_payload, dict)
+        or not isinstance(row.created_at, str)
+        or not row.created_at
+    ):
+        raise _core_ir_proposer_payload_invalid_http(
+            reason="persisted proposer idempotency row missing required fields",
+            context={"client_request_id": request.client_request_id},
+        )
+
+    if row.provider != request.provider or row.request_payload_hash != request_payload_hash:
+        raise _core_ir_proposer_mismatch_http(
+            client_request_id=request.client_request_id,
+            provider_expected=row.provider,
+            provider_observed=request.provider,
+            request_payload_hash_expected=row.request_payload_hash,
+            request_payload_hash_observed=request_payload_hash,
+        )
+
+    try:
+        return CoreIRProposerResponse.model_validate(row.response_payload)
+    except Exception as exc:
+        raise _core_ir_proposer_payload_invalid_http(
+            reason="persisted proposer response payload failed schema validation",
+            context={
+                "client_request_id": request.client_request_id,
+                "provider": request.provider,
+                "error": str(exc),
+            },
+        ) from exc
 
 
 def _core_ir_proposer_logic_tree_max_depth(core_ir: AdeuCoreIR) -> int:
@@ -7346,38 +7433,26 @@ def concepts_semantic_depth_endpoint(
 
 @app.post("/urm/core-ir/propose", response_model=CoreIRProposerResponse)
 def urm_core_ir_propose_endpoint(req: CoreIRProposerRequest) -> CoreIRProposerResponse:
-    cache_key = (_CORE_IR_PROPOSER_SURFACE_ID, req.client_request_id)
     request_payload_hash = sha256_canonical_json(req.idempotency_payload())
-    existing = _CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY.get(cache_key)
+    try:
+        existing = get_core_ir_proposer_idempotency_by_client_request_id(
+            client_request_id=req.client_request_id
+        )
+    except Exception as exc:
+        raise _core_ir_proposer_payload_invalid_http(
+            reason="failed to load persisted proposer idempotency row",
+            context={
+                "client_request_id": req.client_request_id,
+                "provider": req.provider,
+                "error": str(exc),
+            },
+        ) from exc
     if existing is not None:
-        if existing.provider != req.provider:
-            raise HTTPException(
-                status_code=_core_ir_proposer_status_code(_CORE_IR_PROPOSER_REQUEST_INVALID_CODE),
-                detail=_core_ir_proposer_error_detail(
-                    code=_CORE_IR_PROPOSER_REQUEST_INVALID_CODE,
-                    reason="client_request_id already used with a different provider",
-                    context={
-                        "surface_id": _CORE_IR_PROPOSER_SURFACE_ID,
-                        "client_request_id": req.client_request_id,
-                        "provider": req.provider,
-                        "existing_provider": existing.provider,
-                    },
-                ),
-            )
-        if existing.request_payload_hash != request_payload_hash:
-            raise HTTPException(
-                status_code=_core_ir_proposer_status_code(_CORE_IR_PROPOSER_REQUEST_INVALID_CODE),
-                detail=_core_ir_proposer_error_detail(
-                    code=_CORE_IR_PROPOSER_REQUEST_INVALID_CODE,
-                    reason="client_request_id already used with a different semantic payload",
-                    context={
-                        "surface_id": _CORE_IR_PROPOSER_SURFACE_ID,
-                        "client_request_id": req.client_request_id,
-                        "provider": req.provider,
-                    },
-                ),
-            )
-        return CoreIRProposerResponse.model_validate(existing.response_payload)
+        return _core_ir_proposer_response_from_persisted_row_or_raise(
+            request=req,
+            request_payload_hash=request_payload_hash,
+            row=existing,
+        )
 
     _assert_provider_supported_for_surface(
         surface_id=_CORE_IR_PROPOSER_SURFACE_ID,
@@ -7429,12 +7504,43 @@ def urm_core_ir_propose_endpoint(req: CoreIRProposerRequest) -> CoreIRProposerRe
             ),
         ) from exc
 
-    _CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY[cache_key] = _CoreIRProposerIdempotencyRecord(
-        provider=req.provider,
-        request_payload_hash=request_payload_hash,
-        response_payload=response_payload,
-    )
-    return CoreIRProposerResponse.model_validate(response_payload)
+    try:
+        with storage_transaction() as con:
+            _ = create_core_ir_proposer_idempotency_if_absent(
+                client_request_id=req.client_request_id,
+                provider=req.provider,
+                request_payload_hash=request_payload_hash,
+                response_payload=response_payload,
+                connection=con,
+            )
+            persisted = get_core_ir_proposer_idempotency_by_client_request_id(
+                client_request_id=req.client_request_id,
+                connection=con,
+            )
+            if persisted is None:
+                raise _core_ir_proposer_payload_invalid_http(
+                    reason="persisted proposer idempotency row missing after write",
+                    context={
+                        "client_request_id": req.client_request_id,
+                        "provider": req.provider,
+                    },
+                )
+            return _core_ir_proposer_response_from_persisted_row_or_raise(
+                request=req,
+                request_payload_hash=request_payload_hash,
+                row=persisted,
+            )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise _core_ir_proposer_payload_invalid_http(
+            reason="failed to persist proposer idempotency row",
+            context={
+                "client_request_id": req.client_request_id,
+                "provider": req.provider,
+                "error": str(exc),
+            },
+        ) from exc
 
 
 @app.get(
