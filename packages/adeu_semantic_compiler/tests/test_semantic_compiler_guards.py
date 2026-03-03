@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from pathlib import Path
 
 import pytest
@@ -109,6 +110,41 @@ def _write_semantic_source_artifacts(
     _write(source_path, canonical_json(source_payload) + "\n")
     _write(diagnostics_path, canonical_json(diagnostics_payload) + "\n")
     return source_path, diagnostics_path
+
+
+def _write_v40_surface_baseline(
+    root: Path,
+    *,
+    surface_id: str,
+    surface_kind: str,
+    selector: str,
+    signature_sha256: str,
+    keyset: list[str],
+) -> None:
+    _write(
+        root / "artifacts" / "semantic_compiler" / "v40" / "surface_snapshot.json",
+        canonical_json(
+            {
+                "schema": "semantic_compiler_surface_snapshot@0.1",
+                "arc": "vnext_plus40",
+                "compiler_entrypoint": "python -m adeu_semantic_compiler.compile",
+                "surfaces": [
+                    {
+                        "surface_id": surface_id,
+                        "module_id": "arc:vnext_plus40",
+                        "module_kind": "arc_lock",
+                        "slice_id": "",
+                        "surface_kind": surface_kind,
+                        "selector": selector,
+                        "selector_path": selector,
+                        "signature_sha256": signature_sha256,
+                        "keyset": keyset,
+                    }
+                ],
+            }
+        )
+        + "\n",
+    )
 
 
 def test_input_diagnostic_warnings_are_carried_forward_deterministically(
@@ -641,6 +677,209 @@ def test_v41_surface_snapshot_uses_top_level_keyset_mode(tmp_path: Path) -> None
     assert result.surface_diff_payload["delta_eval_mode"] == "no_baseline"
 
 
+def test_v41_surface_selector_dot_segments_are_normalized_deterministically(
+    tmp_path: Path,
+) -> None:
+    root = _base_repo(tmp_path)
+    _write(root / "docs" / "nested" / "schema.json", '{"k":1}\n')
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_schema",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/nested/../nested/./schema.json",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is True
+    assert result.surface_snapshot_payload is not None
+    assert (
+        result.surface_snapshot_payload["surfaces"][0]["selector_path"]
+        == "docs/nested/schema.json"
+    )
+
+
+def test_v41_surface_selector_absolute_paths_fail_closed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_schema",
+                                    "surface_kind": "schema",
+                                    "selector": "/tmp/absolute.json",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is False
+    assert SCC0017_SURFACE_SIGNATURE_INVALID in _codes(result.diagnostics_payload)
+
+
+def test_v41_surface_selector_utf8_nfc_normalization_is_enforced(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    nfc_name = unicodedata.normalize("NFC", "café")
+    nfd_name = unicodedata.normalize("NFD", "café")
+    _write(root / "docs" / f"{nfc_name}.json", '{"ok": true}\n')
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_schema",
+                                    "surface_kind": "schema",
+                                    "selector": f"docs/{nfd_name}.json",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is True
+    assert result.surface_snapshot_payload is not None
+    assert (
+        result.surface_snapshot_payload["surfaces"][0]["selector_path"]
+        == f"docs/{nfc_name}.json"
+    )
+
+
+def test_v41_markdown_surface_missing_schema_selector_fails_closed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write(root / "docs" / "guide.md", '```json\n{"block_index":0,"value":1}\n```\n')
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_markdown",
+                                    "surface_kind": "markdown_json_block",
+                                    "selector": {
+                                        "path": "docs/guide.md",
+                                        "schema": "surface.schema",
+                                    },
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is False
+    assert SCC0017_SURFACE_SIGNATURE_INVALID in _codes(result.diagnostics_payload)
+
+
+def test_v41_markdown_surface_duplicate_schema_block_index_fails_closed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write(
+        root / "docs" / "guide.md",
+        (
+            '```json\n{"schema":"surface.schema","block_index":0,"value":1}\n```\n'
+            '```json\n{"schema":"surface.schema","block_index":0,"value":2}\n```\n'
+        ),
+    )
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_markdown",
+                                    "surface_kind": "markdown_json_block",
+                                    "selector": {
+                                        "path": "docs/guide.md",
+                                        "schema": "surface.schema",
+                                    },
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is False
+    assert SCC0017_SURFACE_SIGNATURE_INVALID in _codes(result.diagnostics_payload)
+
+
 def test_v41_file_surface_symlink_entries_fail_closed(tmp_path: Path) -> None:
     root = _base_repo(tmp_path)
     _write(root / "docs" / "target.txt", "target\n")
@@ -814,29 +1053,13 @@ def test_v41_freeze_delta_violation_is_fail_closed_when_baseline_present(
 ) -> None:
     root = _base_repo(tmp_path)
     _write(root / "docs" / "schema.json", '{"new":2}\n')
-    _write(
-        root / "artifacts" / "semantic_compiler" / "v40" / "surface_snapshot.json",
-        canonical_json(
-            {
-                "schema": "semantic_compiler_surface_snapshot@0.1",
-                "arc": "vnext_plus40",
-                "compiler_entrypoint": "python -m adeu_semantic_compiler.compile",
-                "surfaces": [
-                    {
-                        "surface_id": "surface_schema",
-                        "module_id": "arc:vnext_plus40",
-                        "module_kind": "arc_lock",
-                        "slice_id": "",
-                        "surface_kind": "schema",
-                        "selector": "docs/schema.json",
-                        "selector_path": "docs/schema.json",
-                        "signature_sha256": "0" * 64,
-                        "keyset": ["old"],
-                    }
-                ],
-            }
-        )
-        + "\n",
+    _write_v40_surface_baseline(
+        root,
+        surface_id="surface_schema",
+        surface_kind="schema",
+        selector="docs/schema.json",
+        signature_sha256="0" * 64,
+        keyset=["old"],
     )
     _write_semantic_source_artifacts(
         root,
@@ -876,6 +1099,417 @@ def test_v41_freeze_delta_violation_is_fail_closed_when_baseline_present(
 
     assert result.success is False
     assert SCC0018_DELTA_RULE_VIOLATION in _codes(result.diagnostics_payload)
+
+
+def test_v41_exact_set_structured_keyset_violation_fails_closed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write(root / "docs" / "schema.json", '{"new":2}\n')
+    _write_v40_surface_baseline(
+        root,
+        surface_id="surface_schema",
+        surface_kind="schema",
+        selector="docs/schema.json",
+        signature_sha256="1" * 64,
+        keyset=["old"],
+    )
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "locks": [
+                                {
+                                    "kind": "exact_set",
+                                    "severity": "ERROR",
+                                    "target": "surface_schema",
+                                    "params": {"allowed": ["legacy"]},
+                                }
+                            ],
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_schema",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/schema.json",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is False
+    assert SCC0018_DELTA_RULE_VIOLATION in _codes(result.diagnostics_payload)
+
+
+def test_v41_additive_only_structured_keyset_violation_fails_closed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write(root / "docs" / "schema.json", '{"only_new":2}\n')
+    _write_v40_surface_baseline(
+        root,
+        surface_id="surface_schema",
+        surface_kind="schema",
+        selector="docs/schema.json",
+        signature_sha256="2" * 64,
+        keyset=["legacy", "only_new"],
+    )
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "locks": [
+                                {
+                                    "kind": "additive_only",
+                                    "severity": "ERROR",
+                                    "target": "surface_schema",
+                                }
+                            ],
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_schema",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/schema.json",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is False
+    assert SCC0018_DELTA_RULE_VIOLATION in _codes(result.diagnostics_payload)
+
+
+def test_v41_additive_only_structured_superset_keyset_is_allowed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write(root / "docs" / "schema.json", '{"legacy":1,"only_new":2}\n')
+    _write_v40_surface_baseline(
+        root,
+        surface_id="surface_schema",
+        surface_kind="schema",
+        selector="docs/schema.json",
+        signature_sha256="3" * 64,
+        keyset=["legacy"],
+    )
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "locks": [
+                                {
+                                    "kind": "additive_only",
+                                    "severity": "ERROR",
+                                    "target": "surface_schema",
+                                }
+                            ],
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_schema",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/schema.json",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is True
+    assert SCC0018_DELTA_RULE_VIOLATION not in _codes(result.diagnostics_payload)
+
+
+def test_v41_exact_set_file_signature_violation_fails_closed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write(root / "docs" / "payload.bin", "new bytes\n")
+    _write_v40_surface_baseline(
+        root,
+        surface_id="surface_file",
+        surface_kind="file",
+        selector="docs/payload.bin",
+        signature_sha256="4" * 64,
+        keyset=[],
+    )
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "locks": [
+                                {
+                                    "kind": "exact_set",
+                                    "severity": "ERROR",
+                                    "target": "surface_file",
+                                    "params": {"allowed": ["bytes"]},
+                                }
+                            ],
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_file",
+                                    "surface_kind": "file",
+                                    "selector": "docs/payload.bin",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is False
+    assert SCC0018_DELTA_RULE_VIOLATION in _codes(result.diagnostics_payload)
+
+
+def test_v41_additive_only_file_signature_violation_fails_closed(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write(root / "docs" / "payload.bin", "new bytes\n")
+    _write_v40_surface_baseline(
+        root,
+        surface_id="surface_file",
+        surface_kind="file",
+        selector="docs/payload.bin",
+        signature_sha256="5" * 64,
+        keyset=[],
+    )
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "locks": [
+                                {
+                                    "kind": "additive_only",
+                                    "severity": "ERROR",
+                                    "target": "surface_file",
+                                }
+                            ],
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_file",
+                                    "surface_kind": "file",
+                                    "selector": "docs/payload.bin",
+                                }
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is False
+    assert SCC0018_DELTA_RULE_VIOLATION in _codes(result.diagnostics_payload)
+
+
+def test_v41_required_evidence_entries_are_deterministically_ordered(
+    tmp_path: Path,
+) -> None:
+    root = _base_repo(tmp_path)
+    _write(root / "docs" / "schema.json", '{"k":1}\n')
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_schema",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/schema.json",
+                                }
+                            ],
+                            "evidence_requirements": [
+                                {
+                                    "evidence_id": "z",
+                                    "evidence_type": "doc_json",
+                                    "surface_id": "surface_schema",
+                                    "trust_lane": "tooling",
+                                    "quality": "high",
+                                    "required": True,
+                                },
+                                {
+                                    "evidence_id": "a",
+                                    "evidence_type": "artifact_hash",
+                                    "surface_id": "surface_schema",
+                                    "trust_lane": "tooling",
+                                    "quality": "high",
+                                    "required": True,
+                                },
+                                {
+                                    "evidence_id": "b",
+                                    "evidence_type": "artifact_hash",
+                                    "surface_id": "",
+                                    "trust_lane": "tooling",
+                                    "quality": "high",
+                                    "required": True,
+                                },
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    }
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is True
+    assert result.evidence_manifest_payload is not None
+    rows = result.evidence_manifest_payload["required_evidence"]
+    tuples = [
+        (row["evidence_type"], row["surface_id"], row["module_id"], row["evidence_id"])
+        for row in rows
+    ]
+    assert tuples == sorted(tuples)
+
+
+def test_v41_pr_splits_markdown_is_sorted_by_slice_module_and_surface(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _write(root / "docs" / "a.json", '{"a":1}\n')
+    _write(root / "docs" / "z.json", '{"z":1}\n')
+    _write(root / "docs" / "p1.json", '{"p1":1}\n')
+    _write(root / "docs" / "p2.json", '{"p2":1}\n')
+    _write_semantic_source_artifacts(
+        root,
+        files=[
+            {
+                "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md",
+                "frontmatter_semantic": {},
+                "blocks": [
+                    {
+                        "label": "adeu.arc_lock",
+                        "payload": {
+                            "module_id": "arc:vnext_plus41",
+                            "arc_id": "vnext_plus41",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_z",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/z.json",
+                                },
+                                {
+                                    "surface_id": "surface_a",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/a.json",
+                                },
+                            ],
+                        },
+                        "identifier": "arc:vnext_plus41",
+                    },
+                    {
+                        "label": "adeu.slice_spec",
+                        "payload": {
+                            "module_id": "slice:vnext_plus41:p2",
+                            "arc_id": "vnext_plus41",
+                            "slice_id": "p2",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_p2",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/p2.json",
+                                }
+                            ],
+                        },
+                        "identifier": "slice:vnext_plus41:p2",
+                    },
+                    {
+                        "label": "adeu.slice_spec",
+                        "payload": {
+                            "module_id": "slice:vnext_plus41:p1",
+                            "arc_id": "vnext_plus41",
+                            "slice_id": "p1",
+                            "surfaces": [
+                                {
+                                    "surface_id": "surface_p1",
+                                    "surface_kind": "schema",
+                                    "selector": "docs/p1.json",
+                                }
+                            ],
+                        },
+                        "identifier": "slice:vnext_plus41:p1",
+                    },
+                ],
+            }
+        ],
+    )
+
+    result = compile_semantic_compiler(repo_root_path=root)
+
+    assert result.success is True
+    assert result.pr_splits_markdown is not None
+    markdown = result.pr_splits_markdown
+    head_arc = "## Slice `<none>` / Module `arc:vnext_plus41`"
+    head_p1 = "## Slice `p1` / Module `slice:vnext_plus41:p1`"
+    head_p2 = "## Slice `p2` / Module `slice:vnext_plus41:p2`"
+    assert markdown.index(head_arc) < markdown.index(head_p1) < markdown.index(head_p2)
+    assert markdown.index("- `surface_a` (`schema`) `add`") < markdown.index(
+        "- `surface_z` (`schema`) `add`"
+    )
 
 
 def test_generated_artifact_cleanliness_guard_passes_when_outputs_match(tmp_path: Path) -> None:
