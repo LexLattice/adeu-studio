@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -19,6 +21,9 @@ SEMANTIC_SOURCE_COLLECTION_SCHEMA = "semantic_source_collection@0.1"
 SEMANTIC_SOURCE_DIAGNOSTICS_SCHEMA = "semantic_source_diagnostics@0.1"
 SEMANTIC_COMPILER_DIAGNOSTICS_SCHEMA = "semantic_compiler_diagnostics@0.1"
 SEMANTIC_COMPILER_PASS_MANIFEST_SCHEMA = "semantic_compiler_pass_manifest@0.1"
+SEMANTIC_COMPILER_SURFACE_SNAPSHOT_SCHEMA = "semantic_compiler_surface_snapshot@0.1"
+SEMANTIC_COMPILER_SURFACE_DIFF_SCHEMA = "semantic_compiler_surface_diff@0.1"
+SEMANTIC_COMPILER_EVIDENCE_MANIFEST_SCHEMA = "semantic_compiler_evidence_manifest@0.1"
 
 _DEFAULT_INPUT_SEMANTIC_SOURCE = "artifacts/semantic_compiler/v39/semantic_source.normalized.json"
 _DEFAULT_INPUT_SEMANTIC_DIAGNOSTICS = (
@@ -29,6 +34,13 @@ _DEFAULT_OUTPUT_BASE_DIR = "artifacts/semantic_compiler/v40"
 _DEFAULT_OUTPUT_IR = f"{_DEFAULT_OUTPUT_BASE_DIR}/commitments_ir.json"
 _DEFAULT_OUTPUT_DIAGNOSTICS = f"{_DEFAULT_OUTPUT_BASE_DIR}/semantic_compiler.diagnostics.json"
 _DEFAULT_OUTPUT_PASS_MANIFEST = f"{_DEFAULT_OUTPUT_BASE_DIR}/pass_manifest.json"
+_DEFAULT_OUTPUT_V41_BASE_DIR = "artifacts/semantic_compiler/v41"
+_DEFAULT_OUTPUT_SURFACE_SNAPSHOT = f"{_DEFAULT_OUTPUT_V41_BASE_DIR}/surface_snapshot.json"
+_DEFAULT_OUTPUT_SURFACE_DIFF = f"{_DEFAULT_OUTPUT_V41_BASE_DIR}/surface_diff.json"
+_DEFAULT_OUTPUT_EVIDENCE_MANIFEST = f"{_DEFAULT_OUTPUT_V41_BASE_DIR}/evidence_manifest.json"
+_DEFAULT_OUTPUT_V41_DOCS_BASE_DIR = "docs/generated/semantic_compiler/v41"
+_DEFAULT_OUTPUT_PR_SPLITS = f"{_DEFAULT_OUTPUT_V41_DOCS_BASE_DIR}/PR_SPLITS.md"
+_DEFAULT_BASELINE_SURFACE_SNAPSHOT = "artifacts/semantic_compiler/v40/surface_snapshot.json"
 
 _EXPORT_CALL_PATTERN = "python -m adeu_semantic_compiler.compile"
 
@@ -81,6 +93,12 @@ SCC0011_UNKNOWN_TOKEN = "SCC0011"
 SCC0012_LOCK_TYPECHECK_INVALID = "SCC0012"
 SCC0013_OUTPUT_PATH_POLICY_VIOLATION = "SCC0013"
 SCC0014_PASS_HASH_IDENTITY_VIOLATION = "SCC0014"
+SCC0015_INPUT_HANDOFF_INVALID = "SCC0015"
+SCC0016_SURFACE_SELECTOR_INVALID = "SCC0016"
+SCC0017_SURFACE_SIGNATURE_INVALID = "SCC0017"
+SCC0018_DELTA_RULE_VIOLATION = "SCC0018"
+SCC0019_EVIDENCE_MANIFEST_INVALID = "SCC0019"
+SCC0020_PR_SPLIT_INVALID = "SCC0020"
 
 
 @dataclass(frozen=True)
@@ -132,9 +150,17 @@ class CompileResult:
     commitments_ir_payload: dict[str, Any] | None
     diagnostics_payload: dict[str, Any]
     pass_manifest_payload: dict[str, Any]
+    surface_snapshot_payload: dict[str, Any] | None
+    surface_diff_payload: dict[str, Any] | None
+    evidence_manifest_payload: dict[str, Any] | None
+    pr_splits_markdown: str | None
     commitments_ir_output_path: Path
     diagnostics_output_path: Path
     pass_manifest_output_path: Path
+    surface_snapshot_output_path: Path
+    surface_diff_output_path: Path
+    evidence_manifest_output_path: Path
+    pr_splits_output_path: Path
 
 
 def _canonical_clone(value: Any) -> Any:
@@ -153,6 +179,18 @@ def _json_safe(value: Any) -> Any:
 
 def _serialize_payload(payload: dict[str, Any]) -> bytes:
     return (canonical_json(payload) + "\n").encode("utf-8")
+
+
+def _sha256_bytes(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def _normalize_utf8_nfc(text: str) -> str:
+    try:
+        encoded = text.encode("utf-8")
+    except UnicodeEncodeError as exc:
+        raise ValueError(f"path is not utf-8 encodable: {exc}") from exc
+    return unicodedata.normalize("NFC", encoded.decode("utf-8"))
 
 
 def _is_absolute_like(path_text: str) -> bool:
@@ -237,6 +275,31 @@ def _validate_output_paths(*, root: Path) -> tuple[Path, Path, Path]:
             raise ValueError(f"output path {candidate!r} violates base_dir policy {base_rel!r}")
 
     return root / ir_rel, root / diagnostics_rel, root / pass_manifest_rel
+
+
+def _validate_v41_output_paths(*, root: Path) -> tuple[Path, Path, Path, Path]:
+    artifacts_base_rel = _normalize_relative_path(_DEFAULT_OUTPUT_V41_BASE_DIR)
+    docs_base_rel = _normalize_relative_path(_DEFAULT_OUTPUT_V41_DOCS_BASE_DIR)
+
+    surface_snapshot_rel = _normalize_relative_path(_DEFAULT_OUTPUT_SURFACE_SNAPSHOT)
+    surface_diff_rel = _normalize_relative_path(_DEFAULT_OUTPUT_SURFACE_DIFF)
+    evidence_manifest_rel = _normalize_relative_path(_DEFAULT_OUTPUT_EVIDENCE_MANIFEST)
+    pr_splits_rel = _normalize_relative_path(_DEFAULT_OUTPUT_PR_SPLITS)
+
+    for artifact_rel in (surface_snapshot_rel, surface_diff_rel, evidence_manifest_rel):
+        if not _is_within_root(artifact_rel, artifacts_base_rel):
+            raise ValueError(
+                f"output path {artifact_rel!r} violates artifacts_base policy {artifacts_base_rel!r}"
+            )
+    if not _is_within_root(pr_splits_rel, docs_base_rel):
+        raise ValueError(f"output path {pr_splits_rel!r} violates docs_base policy {docs_base_rel!r}")
+
+    return (
+        root / surface_snapshot_rel,
+        root / surface_diff_rel,
+        root / evidence_manifest_rel,
+        root / pr_splits_rel,
+    )
 
 
 def _build_diagnostics_payload(*, diagnostics: list[CompilerDiagnostic]) -> dict[str, Any]:
@@ -1554,6 +1617,884 @@ def _run_pass_pipeline(
     return state, entries
 
 
+@dataclass(frozen=True)
+class SurfaceRecord:
+    surface_id: str
+    module_id: str
+    module_kind: str
+    slice_id: str
+    surface_kind: str
+    selector: str
+    selector_path: str
+    signature_sha256: str
+    keyset: tuple[str, ...]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "surface_id": self.surface_id,
+            "module_id": self.module_id,
+            "module_kind": self.module_kind,
+            "slice_id": self.slice_id,
+            "surface_kind": self.surface_kind,
+            "selector": self.selector,
+            "selector_path": self.selector_path,
+            "signature_sha256": self.signature_sha256,
+            "keyset": list(self.keyset),
+        }
+
+
+def _normalize_surface_selector_path(raw_selector: str) -> str:
+    normalized = _normalize_utf8_nfc(raw_selector.strip().replace("\\", "/"))
+    if not normalized:
+        raise ValueError("selector path must not be empty")
+    return _normalize_relative_path(normalized)
+
+
+def _parse_markdown_surface_selector(selector: str) -> tuple[str, str]:
+    selector_text = _normalize_utf8_nfc(selector.strip())
+    if not selector_text:
+        raise ValueError("markdown_json_block selector must not be empty")
+
+    selector_payload: dict[str, Any] | None = None
+    if selector_text.startswith("{"):
+        try:
+            decoded = json.loads(selector_text)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"invalid markdown selector json: {exc}") from exc
+        if not isinstance(decoded, dict):
+            raise ValueError("markdown selector json must be an object")
+        selector_payload = decoded
+    elif "#" in selector_text:
+        path_raw, schema_raw = selector_text.split("#", 1)
+        selector_payload = {"path": path_raw, "schema": schema_raw}
+    else:
+        raise ValueError("markdown selector must be object-json or '<path>#<schema>'")
+
+    path_candidate = selector_payload.get("path")
+    schema_candidate = selector_payload.get("schema")
+    if schema_candidate is None:
+        schema_candidate = selector_payload.get("schema_selector")
+    if not isinstance(path_candidate, str) or not path_candidate.strip():
+        raise ValueError("markdown selector path is required")
+    if not isinstance(schema_candidate, str) or not schema_candidate.strip():
+        raise ValueError("markdown selector schema is required")
+
+    return (
+        _normalize_surface_selector_path(path_candidate),
+        schema_candidate.strip(),
+    )
+
+
+def _extract_top_level_keyset(value: Any) -> tuple[str, ...]:
+    if not isinstance(value, dict):
+        raise ValueError("structured keyset extraction requires object payload")
+    keyset = sorted({str(key) for key in value.keys()})
+    return tuple(keyset)
+
+
+_MARKDOWN_JSON_BLOCK_RE = re.compile(r"```(?:json)?[ \t]*\n(.*?)\n```", re.IGNORECASE | re.DOTALL)
+
+
+def _extract_markdown_json_blocks(
+    *,
+    markdown_text: str,
+    schema_selector: str,
+) -> list[tuple[str, int, dict[str, Any]]]:
+    selected: list[tuple[str, int, dict[str, Any]]] = []
+    seen_keys: set[tuple[str, int]] = set()
+    ordinal = 0
+
+    for match in _MARKDOWN_JSON_BLOCK_RE.finditer(markdown_text):
+        block_text = match.group(1).strip()
+        if not block_text:
+            continue
+        try:
+            decoded = json.loads(block_text)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(decoded, dict):
+            continue
+        block_schema = decoded.get("schema")
+        if not isinstance(block_schema, str) or not block_schema.strip():
+            raise ValueError("markdown_json_block entry missing schema selector")
+        block_schema = block_schema.strip()
+        block_index = decoded.get("block_index", ordinal)
+        ordinal += 1
+        if not isinstance(block_index, int) or block_index < 0:
+            raise ValueError("markdown_json_block block_index must be non-negative integer")
+        unique_key = (block_schema, block_index)
+        if unique_key in seen_keys:
+            raise ValueError(f"duplicate markdown_json_block key detected: {unique_key!r}")
+        seen_keys.add(unique_key)
+        if block_schema != schema_selector:
+            continue
+        selected.append((block_schema, block_index, _canonical_clone(decoded)))
+
+    if not selected:
+        raise ValueError(f"no markdown_json_block entries found for schema selector {schema_selector!r}")
+    selected.sort(key=lambda row: (row[0], row[1]))
+    return selected
+
+
+def _parse_json_file(path: Path) -> dict[str, Any]:
+    raw_text = path.read_text(encoding="utf-8")
+    payload = json.loads(raw_text)
+    if not isinstance(payload, dict):
+        raise ValueError("json surface payload must be an object")
+    return payload
+
+
+def _validate_v40_pass_manifest_contract(
+    *,
+    pass_manifest_payload: dict[str, Any],
+) -> tuple[bool, str]:
+    if pass_manifest_payload.get("schema") != SEMANTIC_COMPILER_PASS_MANIFEST_SCHEMA:
+        return False, "pass manifest schema mismatch"
+    sequence = pass_manifest_payload.get("pass_sequence")
+    entries = pass_manifest_payload.get("pass_manifest")
+    if sequence != list(_PASS_SEQUENCE):
+        return False, "pass sequence does not match frozen contract"
+    if not isinstance(entries, list) or len(entries) != len(_PASS_SEQUENCE):
+        return False, "pass manifest entries are missing or incomplete"
+    for index, entry in enumerate(entries):
+        if not isinstance(entry, dict):
+            return False, "pass manifest entry is not an object"
+        expected_keys = {"name", "index", "input_sha256", "output_sha256"}
+        if set(entry) != expected_keys:
+            return False, "pass manifest entry fields drift from frozen contract"
+        if entry.get("name") != _PASS_SEQUENCE[index]:
+            return False, "pass manifest name/order drift detected"
+        if entry.get("index") != index:
+            return False, "pass manifest index drift detected"
+        in_hash = entry.get("input_sha256")
+        out_hash = entry.get("output_sha256")
+        if not isinstance(in_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", in_hash):
+            return False, "pass manifest input_sha256 is invalid"
+        if not isinstance(out_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", out_hash):
+            return False, "pass manifest output_sha256 is invalid"
+    return True, ""
+
+
+def _build_surface_records(
+    *,
+    root: Path,
+    commitments_ir_payload: dict[str, Any],
+    diagnostics: list[CompilerDiagnostic],
+) -> tuple[list[SurfaceRecord], dict[str, dict[str, Any]]]:
+    modules = commitments_ir_payload.get("modules")
+    if not isinstance(modules, list):
+        diagnostics.append(
+            _new_diag(
+                code=SCC0015_INPUT_HANDOFF_INVALID,
+                severity="ERROR",
+                message="commitments ir modules must be a list for v41 surface extraction",
+            )
+        )
+        return [], {}
+
+    records: list[SurfaceRecord] = []
+    owners: dict[str, dict[str, Any]] = {}
+
+    for module in modules:
+        if not isinstance(module, dict):
+            continue
+        module_id = module.get("module_id")
+        module_kind = module.get("module_kind")
+        if not isinstance(module_id, str) or not isinstance(module_kind, str):
+            continue
+        slice_id = module.get("slice_id")
+        if not isinstance(slice_id, str):
+            slice_id = ""
+        raw_surfaces = module.get("surfaces", [])
+        if not isinstance(raw_surfaces, list):
+            diagnostics.append(
+                _new_diag(
+                    code=SCC0016_SURFACE_SELECTOR_INVALID,
+                    severity="ERROR",
+                    message="compiled module surfaces must be a list",
+                    module_id=module_id,
+                )
+            )
+            continue
+
+        for surface in raw_surfaces:
+            if not isinstance(surface, dict):
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0016_SURFACE_SELECTOR_INVALID,
+                        severity="ERROR",
+                        message="surface entry must be an object",
+                        module_id=module_id,
+                    )
+                )
+                continue
+            surface_id = surface.get("surface_id")
+            surface_kind = surface.get("surface_kind")
+            selector = surface.get("selector")
+            if not isinstance(surface_id, str) or not surface_id.strip():
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0016_SURFACE_SELECTOR_INVALID,
+                        severity="ERROR",
+                        message="surface_id must be a non-empty string",
+                        module_id=module_id,
+                    )
+                )
+                continue
+            if surface_kind not in _ALLOWED_SURFACE_KINDS:
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0016_SURFACE_SELECTOR_INVALID,
+                        severity="ERROR",
+                        message=f"unknown surface_kind in v41 surface extraction: {surface_kind!r}",
+                        module_id=module_id,
+                    )
+                )
+                continue
+            if not isinstance(selector, str) or not selector.strip():
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0016_SURFACE_SELECTOR_INVALID,
+                        severity="ERROR",
+                        message="surface selector must be a non-empty string",
+                        module_id=module_id,
+                    )
+                )
+                continue
+            surface_id = surface_id.strip()
+            if surface_id in owners:
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0020_PR_SPLIT_INVALID,
+                        severity="ERROR",
+                        message=(
+                            f"surface ownership is ambiguous for {surface_id!r}; "
+                            "multi-owner surfaces are forbidden in v41"
+                        ),
+                        module_id=module_id,
+                        details={"existing_owner": owners[surface_id]["module_id"]},
+                    )
+                )
+                continue
+
+            try:
+                if surface_kind in {"schema", "manifest"}:
+                    selector_path = _normalize_surface_selector_path(selector)
+                    absolute_path = root / selector_path
+                    payload = _parse_json_file(absolute_path)
+                    signature_sha = sha256_canonical_json(payload)
+                    keyset = _extract_top_level_keyset(payload)
+                elif surface_kind == "file":
+                    selector_path = _normalize_surface_selector_path(selector)
+                    absolute_path = root / selector_path
+                    if absolute_path.is_symlink():
+                        raise ValueError("file surface selector resolves to symlink entry")
+                    if not absolute_path.is_file():
+                        raise ValueError("file surface selector does not resolve to file")
+                    signature_sha = _sha256_bytes(absolute_path.read_bytes())
+                    keyset = tuple()
+                else:
+                    selector_path, schema_selector = _parse_markdown_surface_selector(selector)
+                    absolute_path = root / selector_path
+                    markdown_text = absolute_path.read_text(encoding="utf-8")
+                    blocks = _extract_markdown_json_blocks(
+                        markdown_text=markdown_text,
+                        schema_selector=schema_selector,
+                    )
+                    signature_payload = {
+                        "schema_selector": schema_selector,
+                        "blocks": [
+                            {
+                                "schema": schema_name,
+                                "block_index": block_index,
+                                "payload": block_payload,
+                            }
+                            for schema_name, block_index, block_payload in blocks
+                        ],
+                    }
+                    signature_sha = sha256_canonical_json(signature_payload)
+                    merged_keyset: set[str] = set()
+                    for _, _, payload in blocks:
+                        merged_keyset.update(_extract_top_level_keyset(payload))
+                    keyset = tuple(sorted(merged_keyset))
+            except (OSError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0017_SURFACE_SIGNATURE_INVALID,
+                        severity="ERROR",
+                        message=f"surface signature extraction failed: {exc}",
+                        module_id=module_id,
+                        details={
+                            "surface_id": surface_id,
+                            "surface_kind": surface_kind,
+                        },
+                    )
+                )
+                continue
+
+            owners[surface_id] = {
+                "module_id": module_id,
+                "module_kind": module_kind,
+                "slice_id": slice_id,
+            }
+            records.append(
+                SurfaceRecord(
+                    surface_id=surface_id,
+                    module_id=module_id,
+                    module_kind=module_kind,
+                    slice_id=slice_id,
+                    surface_kind=surface_kind,
+                    selector=selector,
+                    selector_path=selector_path,
+                    signature_sha256=signature_sha,
+                    keyset=keyset,
+                )
+            )
+
+    records.sort(key=lambda item: item.surface_id)
+    return records, owners
+
+
+def _load_baseline_surface_snapshot(
+    *,
+    root: Path,
+    diagnostics: list[CompilerDiagnostic],
+) -> tuple[bool, dict[str, dict[str, Any]]]:
+    baseline_rel = _normalize_relative_path(_DEFAULT_BASELINE_SURFACE_SNAPSHOT)
+    baseline_path = root / baseline_rel
+    if not baseline_path.is_file():
+        return False, {}
+
+    try:
+        payload = _read_json_object(baseline_path)
+    except (ValueError, json.JSONDecodeError) as exc:
+        diagnostics.append(
+            _new_diag(
+                code=SCC0015_INPUT_HANDOFF_INVALID,
+                severity="ERROR",
+                message=f"baseline surface snapshot is invalid: {exc}",
+                path=baseline_rel,
+            )
+        )
+        return True, {}
+
+    if payload.get("schema") != SEMANTIC_COMPILER_SURFACE_SNAPSHOT_SCHEMA:
+        diagnostics.append(
+            _new_diag(
+                code=SCC0015_INPUT_HANDOFF_INVALID,
+                severity="ERROR",
+                message=(
+                    "baseline surface snapshot schema mismatch: expected "
+                    f"{SEMANTIC_COMPILER_SURFACE_SNAPSHOT_SCHEMA!r}"
+                ),
+                path=baseline_rel,
+            )
+        )
+        return True, {}
+
+    rows = payload.get("surfaces")
+    if not isinstance(rows, list):
+        diagnostics.append(
+            _new_diag(
+                code=SCC0015_INPUT_HANDOFF_INVALID,
+                severity="ERROR",
+                message="baseline surface snapshot must contain surfaces list",
+                path=baseline_rel,
+            )
+        )
+        return True, {}
+
+    baseline_map: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        surface_id = row.get("surface_id")
+        surface_kind = row.get("surface_kind")
+        signature_sha = row.get("signature_sha256")
+        if (
+            not isinstance(surface_id, str)
+            or not surface_id
+            or surface_kind not in _ALLOWED_SURFACE_KINDS
+            or not isinstance(signature_sha, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", signature_sha)
+        ):
+            diagnostics.append(
+                _new_diag(
+                    code=SCC0015_INPUT_HANDOFF_INVALID,
+                    severity="ERROR",
+                    message="baseline surface snapshot entry is invalid",
+                    path=baseline_rel,
+                )
+            )
+            continue
+        raw_keyset = row.get("keyset", [])
+        if not isinstance(raw_keyset, list) or not all(isinstance(item, str) for item in raw_keyset):
+            diagnostics.append(
+                _new_diag(
+                    code=SCC0015_INPUT_HANDOFF_INVALID,
+                    severity="ERROR",
+                    message="baseline keyset must be list[str]",
+                    path=baseline_rel,
+                )
+            )
+            continue
+        baseline_map[surface_id] = {
+            "surface_id": surface_id,
+            "surface_kind": surface_kind,
+            "signature_sha256": signature_sha,
+            "keyset": tuple(sorted(set(raw_keyset))),
+        }
+    return True, baseline_map
+
+
+def _collect_surface_rule_modes(
+    *,
+    commitments_ir_payload: dict[str, Any],
+    known_surface_ids: set[str],
+    diagnostics: list[CompilerDiagnostic],
+) -> dict[str, str]:
+    modules = commitments_ir_payload.get("modules")
+    if not isinstance(modules, list):
+        return {}
+    modes: dict[str, str] = {}
+    for module in modules:
+        if not isinstance(module, dict):
+            continue
+        module_id = module.get("module_id")
+        if not isinstance(module_id, str):
+            module_id = ""
+        locks = module.get("locks", [])
+        if not isinstance(locks, list):
+            continue
+        for lock in locks:
+            if not isinstance(lock, dict):
+                continue
+            kind = lock.get("kind")
+            if kind not in {"freeze", "additive_only", "exact_set"}:
+                continue
+            target = lock.get("target")
+            if not isinstance(target, str) or target not in known_surface_ids:
+                continue
+            previous = modes.get(target)
+            if previous is not None and previous != kind:
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0018_DELTA_RULE_VIOLATION,
+                        severity="ERROR",
+                        message=(
+                            f"surface {target!r} has ambiguous delta lock modes: "
+                            f"{previous!r} vs {kind!r}"
+                        ),
+                        module_id=module_id,
+                    )
+                )
+                continue
+            modes[target] = kind
+    return modes
+
+
+def _evaluate_surface_diff(
+    *,
+    current_records: list[SurfaceRecord],
+    baseline_present: bool,
+    baseline_map: dict[str, dict[str, Any]],
+    surface_modes: dict[str, str],
+    diagnostics: list[CompilerDiagnostic],
+) -> dict[str, Any]:
+    current_map = {item.surface_id: item for item in current_records}
+    if not baseline_present:
+        return {
+            "schema": SEMANTIC_COMPILER_SURFACE_DIFF_SCHEMA,
+            "baseline_present": False,
+            "delta_eval_mode": "no_baseline",
+            "adds": [item.to_payload() for item in current_records],
+            "removes": [],
+            "changes": [],
+        }
+
+    adds: list[dict[str, Any]] = []
+    removes: list[dict[str, Any]] = []
+    changes: list[dict[str, Any]] = []
+
+    all_ids = sorted(set(current_map) | set(baseline_map))
+    for surface_id in all_ids:
+        mode = surface_modes.get(surface_id, "freeze")
+        current = current_map.get(surface_id)
+        baseline = baseline_map.get(surface_id)
+
+        if baseline is None and current is not None:
+            adds.append(current.to_payload())
+            continue
+
+        if baseline is not None and current is None:
+            removes.append(_canonical_clone(baseline))
+            diagnostics.append(
+                _new_diag(
+                    code=SCC0018_DELTA_RULE_VIOLATION,
+                    severity="ERROR",
+                    message=f"surface removed under locked delta mode {mode!r}: {surface_id}",
+                    details={"surface_id": surface_id, "mode": mode},
+                )
+            )
+            continue
+
+        if baseline is None or current is None:
+            continue
+
+        signature_changed = current.signature_sha256 != baseline["signature_sha256"]
+        if signature_changed:
+            changes.append(
+                {
+                    "surface_id": surface_id,
+                    "surface_kind": current.surface_kind,
+                    "selector": current.selector,
+                    "module_id": current.module_id,
+                    "slice_id": current.slice_id,
+                    "previous_signature_sha256": baseline["signature_sha256"],
+                    "current_signature_sha256": current.signature_sha256,
+                }
+            )
+
+        baseline_keyset = set(baseline["keyset"])
+        current_keyset = set(current.keyset)
+        if mode == "freeze":
+            if signature_changed:
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0018_DELTA_RULE_VIOLATION,
+                        severity="ERROR",
+                        message=f"freeze violation for surface {surface_id!r}",
+                        module_id=current.module_id,
+                        details={
+                            "surface_id": surface_id,
+                            "previous_signature_sha256": baseline["signature_sha256"],
+                            "current_signature_sha256": current.signature_sha256,
+                        },
+                    )
+                )
+        elif mode == "exact_set":
+            if current.surface_kind == "file":
+                if signature_changed:
+                    diagnostics.append(
+                        _new_diag(
+                            code=SCC0018_DELTA_RULE_VIOLATION,
+                            severity="ERROR",
+                            message=f"exact_set violation for file surface {surface_id!r}",
+                            module_id=current.module_id,
+                        )
+                    )
+            elif baseline_keyset != current_keyset:
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0018_DELTA_RULE_VIOLATION,
+                        severity="ERROR",
+                        message=f"exact_set keyset violation for surface {surface_id!r}",
+                        module_id=current.module_id,
+                        details={
+                            "baseline_keyset": sorted(baseline_keyset),
+                            "current_keyset": sorted(current_keyset),
+                        },
+                    )
+                )
+        elif mode == "additive_only":
+            if current.surface_kind == "file":
+                if signature_changed:
+                    diagnostics.append(
+                        _new_diag(
+                            code=SCC0018_DELTA_RULE_VIOLATION,
+                            severity="ERROR",
+                            message=f"additive_only violation for file surface {surface_id!r}",
+                            module_id=current.module_id,
+                        )
+                    )
+            elif not baseline_keyset.issubset(current_keyset):
+                diagnostics.append(
+                    _new_diag(
+                        code=SCC0018_DELTA_RULE_VIOLATION,
+                        severity="ERROR",
+                        message=f"additive_only keyset violation for surface {surface_id!r}",
+                        module_id=current.module_id,
+                        details={
+                            "baseline_keyset": sorted(baseline_keyset),
+                            "current_keyset": sorted(current_keyset),
+                        },
+                    )
+                )
+
+    return {
+        "schema": SEMANTIC_COMPILER_SURFACE_DIFF_SCHEMA,
+        "baseline_present": True,
+        "delta_eval_mode": "baseline_compare",
+        "adds": adds,
+        "removes": removes,
+        "changes": changes,
+    }
+
+
+def _collect_required_evidence(commitments_ir_payload: dict[str, Any]) -> list[dict[str, Any]]:
+    modules = commitments_ir_payload.get("modules")
+    if not isinstance(modules, list):
+        return []
+    required: list[dict[str, Any]] = []
+    for module in modules:
+        if not isinstance(module, dict):
+            continue
+        module_id = module.get("module_id")
+        if not isinstance(module_id, str):
+            continue
+        evidence_requirements = module.get("evidence_requirements", [])
+        if not isinstance(evidence_requirements, list):
+            continue
+        for evidence in evidence_requirements:
+            if not isinstance(evidence, dict):
+                continue
+            evidence_type = evidence.get("evidence_type")
+            if not isinstance(evidence_type, str):
+                continue
+            surface_id = evidence.get("surface_id")
+            if not isinstance(surface_id, str):
+                surface_id = ""
+            required.append(
+                {
+                    "module_id": module_id,
+                    "evidence_id": str(evidence.get("evidence_id", "")),
+                    "evidence_type": evidence_type,
+                    "surface_id": surface_id,
+                    "trust_lane": str(evidence.get("trust_lane", "")),
+                    "quality": str(evidence.get("quality", "")),
+                    "required": bool(evidence.get("required", True)),
+                }
+            )
+    required.sort(
+        key=lambda row: (
+            row["evidence_type"],
+            row["surface_id"],
+            row["module_id"],
+            row["evidence_id"],
+        )
+    )
+    return required
+
+
+def _build_pr_splits_markdown(
+    *,
+    diff_payload: dict[str, Any],
+    current_records: list[SurfaceRecord],
+    diagnostics: list[CompilerDiagnostic],
+) -> str:
+    by_surface_id = {item.surface_id: item for item in current_records}
+    changed: list[tuple[str, str]] = []
+    for row in diff_payload.get("adds", []):
+        if isinstance(row, dict) and isinstance(row.get("surface_id"), str):
+            changed.append((row["surface_id"], "add"))
+    for row in diff_payload.get("changes", []):
+        if isinstance(row, dict) and isinstance(row.get("surface_id"), str):
+            changed.append((row["surface_id"], "change"))
+    for row in diff_payload.get("removes", []):
+        if isinstance(row, dict) and isinstance(row.get("surface_id"), str):
+            changed.append((row["surface_id"], "remove"))
+
+    changed.sort(key=lambda row: (row[0], row[1]))
+    grouped: dict[tuple[str, str], list[tuple[str, str, str]]] = {}
+    for surface_id, change_type in changed:
+        owner = by_surface_id.get(surface_id)
+        if owner is None:
+            diagnostics.append(
+                _new_diag(
+                    code=SCC0020_PR_SPLIT_INVALID,
+                    severity="ERROR",
+                    message=(
+                        f"unable to map changed surface {surface_id!r} to owning module "
+                        "from commitments ir"
+                    ),
+                )
+            )
+            continue
+        group_key = (owner.slice_id, owner.module_id)
+        grouped.setdefault(group_key, []).append((surface_id, owner.surface_kind, change_type))
+
+    lines = [
+        "# Semantic Compiler v41 PR Splits",
+        "",
+        "Generated from `surface_diff` and commitments IR ownership mapping.",
+        "",
+    ]
+    if not grouped:
+        lines.extend(["No changed surfaces.", ""])
+        return "\n".join(lines)
+
+    for slice_id, module_id in sorted(grouped.keys(), key=lambda row: (row[0], row[1])):
+        display_slice = slice_id if slice_id else "<none>"
+        lines.append(f"## Slice `{display_slice}` / Module `{module_id}`")
+        lines.append("")
+        for surface_id, surface_kind, change_type in sorted(grouped[(slice_id, module_id)]):
+            lines.append(f"- `{surface_id}` (`{surface_kind}`) `{change_type}`")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _build_v41_surface_artifacts(
+    *,
+    root: Path,
+    commitments_ir_payload: dict[str, Any],
+    diagnostics_payload: dict[str, Any],
+    pass_manifest_payload: dict[str, Any],
+    diagnostics: list[CompilerDiagnostic],
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None, str | None]:
+    if diagnostics_payload.get("schema") != SEMANTIC_COMPILER_DIAGNOSTICS_SCHEMA:
+        diagnostics.append(
+            _new_diag(
+                code=SCC0015_INPUT_HANDOFF_INVALID,
+                severity="ERROR",
+                message="v40 diagnostics payload schema mismatch",
+            )
+        )
+        return None, None, None, None
+    diagnostic_rows = diagnostics_payload.get("diagnostics")
+    if not isinstance(diagnostic_rows, list):
+        diagnostics.append(
+            _new_diag(
+                code=SCC0015_INPUT_HANDOFF_INVALID,
+                severity="ERROR",
+                message="v40 diagnostics payload must contain diagnostics list",
+            )
+        )
+        return None, None, None, None
+    if any(
+        isinstance(row, dict) and str(row.get("severity", "")).upper() == "ERROR"
+        for row in diagnostic_rows
+    ):
+        diagnostics.append(
+            _new_diag(
+                code=SCC0015_INPUT_HANDOFF_INVALID,
+                severity="ERROR",
+                message="v40 diagnostics contain error-level entries; v41 fail-closed",
+            )
+        )
+        return None, None, None, None
+
+    pass_manifest_ok, pass_manifest_error = _validate_v40_pass_manifest_contract(
+        pass_manifest_payload=pass_manifest_payload
+    )
+    if not pass_manifest_ok:
+        diagnostics.append(
+            _new_diag(
+                code=SCC0015_INPUT_HANDOFF_INVALID,
+                severity="ERROR",
+                message=f"v40 pass manifest continuity check failed: {pass_manifest_error}",
+            )
+        )
+        return None, None, None, None
+
+    current_records, owners = _build_surface_records(
+        root=root,
+        commitments_ir_payload=commitments_ir_payload,
+        diagnostics=diagnostics,
+    )
+    baseline_present, baseline_map = _load_baseline_surface_snapshot(root=root, diagnostics=diagnostics)
+    known_surface_ids = set(baseline_map) | {record.surface_id for record in current_records}
+    surface_modes = _collect_surface_rule_modes(
+        commitments_ir_payload=commitments_ir_payload,
+        known_surface_ids=known_surface_ids,
+        diagnostics=diagnostics,
+    )
+
+    snapshot_payload = {
+        "schema": SEMANTIC_COMPILER_SURFACE_SNAPSHOT_SCHEMA,
+        "arc": "vnext_plus41",
+        "compiler_entrypoint": _EXPORT_CALL_PATTERN,
+        "surfaces": [record.to_payload() for record in current_records],
+    }
+    diff_payload = _evaluate_surface_diff(
+        current_records=current_records,
+        baseline_present=baseline_present,
+        baseline_map=baseline_map,
+        surface_modes=surface_modes,
+        diagnostics=diagnostics,
+    )
+    pr_splits_markdown = _build_pr_splits_markdown(
+        diff_payload=diff_payload,
+        current_records=current_records,
+        diagnostics=diagnostics,
+    )
+
+    ordered_surface_selectors = [
+        {
+            "surface_id": record.surface_id,
+            "surface_kind": record.surface_kind,
+            "selector": record.selector,
+        }
+        for record in current_records
+    ]
+    ordered_surface_signatures = [
+        {
+            "surface_id": record.surface_id,
+            "signature_sha256": record.signature_sha256,
+        }
+        for record in current_records
+    ]
+    source_set_hash = sha256_canonical_json(
+        {
+            "ordered_surface_selectors": ordered_surface_selectors,
+            "ordered_surface_signature_hashes": ordered_surface_signatures,
+            "pass_manifest_payload_hash": sha256_canonical_json(pass_manifest_payload),
+        }
+    )
+    required_evidence = _collect_required_evidence(commitments_ir_payload)
+
+    snapshot_bytes = _serialize_payload(snapshot_payload)
+    diff_bytes = _serialize_payload(diff_payload)
+    pr_splits_bytes = pr_splits_markdown.encode("utf-8")
+    evidence_manifest_payload = {
+        "schema": SEMANTIC_COMPILER_EVIDENCE_MANIFEST_SCHEMA,
+        "arc": "vnext_plus41",
+        "compiler_entrypoint": _EXPORT_CALL_PATTERN,
+        "source_set_hash": source_set_hash,
+        "required_evidence": required_evidence,
+        "artifacts": {
+            "surface_snapshot": _DEFAULT_OUTPUT_SURFACE_SNAPSHOT,
+            "surface_diff": _DEFAULT_OUTPUT_SURFACE_DIFF,
+            "evidence_manifest": _DEFAULT_OUTPUT_EVIDENCE_MANIFEST,
+            "pr_splits_markdown": _DEFAULT_OUTPUT_PR_SPLITS,
+        },
+        "artifact_hashes": {
+            "surface_snapshot": _sha256_bytes(snapshot_bytes),
+            "surface_diff": _sha256_bytes(diff_bytes),
+            "pr_splits_markdown": _sha256_bytes(pr_splits_bytes),
+        },
+    }
+
+    required_fields = {
+        "schema",
+        "arc",
+        "compiler_entrypoint",
+        "source_set_hash",
+        "required_evidence",
+        "artifacts",
+        "artifact_hashes",
+    }
+    if set(evidence_manifest_payload) != required_fields:
+        diagnostics.append(
+            _new_diag(
+                code=SCC0019_EVIDENCE_MANIFEST_INVALID,
+                severity="ERROR",
+                message="evidence manifest fields drift from frozen contract",
+            )
+        )
+
+    # Ensure the internal owner-map assignment remains deterministic and complete.
+    if set(owners) != {record.surface_id for record in current_records}:
+        diagnostics.append(
+            _new_diag(
+                code=SCC0020_PR_SPLIT_INVALID,
+                severity="ERROR",
+                message="surface ownership map is inconsistent with extracted surface registry",
+            )
+        )
+
+    return snapshot_payload, diff_payload, evidence_manifest_payload, pr_splits_markdown
+
+
 def compile_semantic_compiler(
     *,
     semantic_source_path: str = _DEFAULT_INPUT_SEMANTIC_SOURCE,
@@ -1564,6 +2505,17 @@ def compile_semantic_compiler(
     root = repo_root(anchor=Path(__file__)) if repo_root_path is None else repo_root_path
 
     diagnostics: list[CompilerDiagnostic] = []
+
+    had_existing_v40_inputs = False
+    try:
+        existing_ir_rel = _normalize_relative_path(_DEFAULT_OUTPUT_IR)
+        existing_diag_rel = _normalize_relative_path(_DEFAULT_OUTPUT_DIAGNOSTICS)
+        existing_manifest_rel = _normalize_relative_path(_DEFAULT_OUTPUT_PASS_MANIFEST)
+        had_existing_v40_inputs = all(
+            (root / rel).is_file() for rel in (existing_ir_rel, existing_diag_rel, existing_manifest_rel)
+        )
+    except ValueError:
+        had_existing_v40_inputs = False
 
     try:
         (
@@ -1583,6 +2535,27 @@ def compile_semantic_compiler(
         commitments_ir_output_path = fallback_base / "commitments_ir.json"
         diagnostics_output_path = fallback_base / "semantic_compiler.diagnostics.json"
         pass_manifest_output_path = fallback_base / "pass_manifest.json"
+
+    try:
+        (
+            surface_snapshot_output_path,
+            surface_diff_output_path,
+            evidence_manifest_output_path,
+            pr_splits_output_path,
+        ) = _validate_v41_output_paths(root=root)
+    except ValueError as exc:
+        diagnostics.append(
+            _new_diag(
+                code=SCC0013_OUTPUT_PATH_POLICY_VIOLATION,
+                severity="ERROR",
+                message=str(exc),
+            )
+        )
+        fallback_base = root / _DEFAULT_OUTPUT_V41_BASE_DIR
+        surface_snapshot_output_path = fallback_base / "surface_snapshot.json"
+        surface_diff_output_path = fallback_base / "surface_diff.json"
+        evidence_manifest_output_path = fallback_base / "evidence_manifest.json"
+        pr_splits_output_path = root / _DEFAULT_OUTPUT_PR_SPLITS
 
     _, semantic_source_payload = _load_json_artifact(
         root=root,
@@ -1713,25 +2686,82 @@ def compile_semantic_compiler(
     has_error = any(item.severity == "ERROR" for item in diagnostics)
     success = (not has_error) and commitments_ir_payload is not None
 
+    surface_snapshot_payload: dict[str, Any] | None = None
+    surface_diff_payload: dict[str, Any] | None = None
+    evidence_manifest_payload: dict[str, Any] | None = None
+    pr_splits_markdown: str | None = None
+    if success and commitments_ir_payload is not None:
+        (
+            surface_snapshot_payload,
+            surface_diff_payload,
+            evidence_manifest_payload,
+            pr_splits_markdown,
+        ) = _build_v41_surface_artifacts(
+            root=root,
+            commitments_ir_payload=commitments_ir_payload,
+            diagnostics_payload=diagnostics_payload,
+            pass_manifest_payload=pass_manifest_payload,
+            diagnostics=diagnostics,
+        )
+        diagnostics = _sort_diagnostics(diagnostics)
+        diagnostics_payload = _build_diagnostics_payload(diagnostics=diagnostics)
+        has_error = any(item.severity == "ERROR" for item in diagnostics)
+        success = (
+            (not has_error)
+            and commitments_ir_payload is not None
+            and surface_snapshot_payload is not None
+            and surface_diff_payload is not None
+            and evidence_manifest_payload is not None
+            and pr_splits_markdown is not None
+        )
+
     if write_outputs:
-        diagnostics_output_path.parent.mkdir(parents=True, exist_ok=True)
-        diagnostics_output_path.write_bytes(_serialize_payload(diagnostics_payload))
+        if not had_existing_v40_inputs:
+            diagnostics_output_path.parent.mkdir(parents=True, exist_ok=True)
+            diagnostics_output_path.write_bytes(_serialize_payload(diagnostics_payload))
 
-        pass_manifest_output_path.parent.mkdir(parents=True, exist_ok=True)
-        pass_manifest_output_path.write_bytes(_serialize_payload(pass_manifest_payload))
+            pass_manifest_output_path.parent.mkdir(parents=True, exist_ok=True)
+            pass_manifest_output_path.write_bytes(_serialize_payload(pass_manifest_payload))
 
-        if success and commitments_ir_payload is not None:
-            commitments_ir_output_path.parent.mkdir(parents=True, exist_ok=True)
-            commitments_ir_output_path.write_bytes(_serialize_payload(commitments_ir_payload))
+            if commitments_ir_payload is not None:
+                commitments_ir_output_path.parent.mkdir(parents=True, exist_ok=True)
+                commitments_ir_output_path.write_bytes(_serialize_payload(commitments_ir_payload))
+
+        if (
+            success
+            and surface_snapshot_payload is not None
+            and surface_diff_payload is not None
+            and evidence_manifest_payload is not None
+            and pr_splits_markdown is not None
+        ):
+            surface_snapshot_output_path.parent.mkdir(parents=True, exist_ok=True)
+            surface_snapshot_output_path.write_bytes(_serialize_payload(surface_snapshot_payload))
+
+            surface_diff_output_path.parent.mkdir(parents=True, exist_ok=True)
+            surface_diff_output_path.write_bytes(_serialize_payload(surface_diff_payload))
+
+            evidence_manifest_output_path.parent.mkdir(parents=True, exist_ok=True)
+            evidence_manifest_output_path.write_bytes(_serialize_payload(evidence_manifest_payload))
+
+            pr_splits_output_path.parent.mkdir(parents=True, exist_ok=True)
+            pr_splits_output_path.write_text(pr_splits_markdown, encoding="utf-8")
 
     return CompileResult(
         success=success,
         commitments_ir_payload=commitments_ir_payload if success else None,
         diagnostics_payload=diagnostics_payload,
         pass_manifest_payload=pass_manifest_payload,
+        surface_snapshot_payload=surface_snapshot_payload if success else None,
+        surface_diff_payload=surface_diff_payload if success else None,
+        evidence_manifest_payload=evidence_manifest_payload if success else None,
+        pr_splits_markdown=pr_splits_markdown if success else None,
         commitments_ir_output_path=commitments_ir_output_path,
         diagnostics_output_path=diagnostics_output_path,
         pass_manifest_output_path=pass_manifest_output_path,
+        surface_snapshot_output_path=surface_snapshot_output_path,
+        surface_diff_output_path=surface_diff_output_path,
+        evidence_manifest_output_path=evidence_manifest_output_path,
+        pr_splits_output_path=pr_splits_output_path,
     )
 
 
@@ -1740,7 +2770,7 @@ def assert_artifacts_clean(
     semantic_source_path: str = _DEFAULT_INPUT_SEMANTIC_SOURCE,
     semantic_source_diagnostics_path: str = _DEFAULT_INPUT_SEMANTIC_DIAGNOSTICS,
     repo_root_path: Path | None = None,
-) -> None:
+    ) -> None:
     result = compile_semantic_compiler(
         semantic_source_path=semantic_source_path,
         semantic_source_diagnostics_path=semantic_source_diagnostics_path,
@@ -1748,12 +2778,23 @@ def assert_artifacts_clean(
         write_outputs=False,
     )
 
-    if not result.success or result.commitments_ir_payload is None:
+    if (
+        not result.success
+        or result.commitments_ir_payload is None
+        or result.surface_snapshot_payload is None
+        or result.surface_diff_payload is None
+        or result.evidence_manifest_payload is None
+        or result.pr_splits_markdown is None
+    ):
         raise RuntimeError(canonical_json(result.diagnostics_payload))
 
     expected_ir = _serialize_payload(result.commitments_ir_payload)
     expected_diagnostics = _serialize_payload(result.diagnostics_payload)
     expected_pass_manifest = _serialize_payload(result.pass_manifest_payload)
+    expected_surface_snapshot = _serialize_payload(result.surface_snapshot_payload)
+    expected_surface_diff = _serialize_payload(result.surface_diff_payload)
+    expected_evidence_manifest = _serialize_payload(result.evidence_manifest_payload)
+    expected_pr_splits = result.pr_splits_markdown.encode("utf-8")
 
     if not result.commitments_ir_output_path.is_file():
         raise RuntimeError(
@@ -1770,10 +2811,34 @@ def assert_artifacts_clean(
             f"missing generated pass manifest artifact: "
             f"{result.pass_manifest_output_path.as_posix()}"
         )
+    if not result.surface_snapshot_output_path.is_file():
+        raise RuntimeError(
+            f"missing generated surface snapshot artifact: "
+            f"{result.surface_snapshot_output_path.as_posix()}"
+        )
+    if not result.surface_diff_output_path.is_file():
+        raise RuntimeError(
+            f"missing generated surface diff artifact: "
+            f"{result.surface_diff_output_path.as_posix()}"
+        )
+    if not result.evidence_manifest_output_path.is_file():
+        raise RuntimeError(
+            f"missing generated evidence manifest artifact: "
+            f"{result.evidence_manifest_output_path.as_posix()}"
+        )
+    if not result.pr_splits_output_path.is_file():
+        raise RuntimeError(
+            f"missing generated pr splits artifact: "
+            f"{result.pr_splits_output_path.as_posix()}"
+        )
 
     observed_ir = result.commitments_ir_output_path.read_bytes()
     observed_diagnostics = result.diagnostics_output_path.read_bytes()
     observed_pass_manifest = result.pass_manifest_output_path.read_bytes()
+    observed_surface_snapshot = result.surface_snapshot_output_path.read_bytes()
+    observed_surface_diff = result.surface_diff_output_path.read_bytes()
+    observed_evidence_manifest = result.evidence_manifest_output_path.read_bytes()
+    observed_pr_splits = result.pr_splits_output_path.read_bytes()
 
     if observed_ir != expected_ir:
         raise RuntimeError(
@@ -1790,14 +2855,34 @@ def assert_artifacts_clean(
             "generated pass manifest artifact is out of date: "
             f"{result.pass_manifest_output_path.as_posix()}"
         )
+    if observed_surface_snapshot != expected_surface_snapshot:
+        raise RuntimeError(
+            "generated surface snapshot artifact is out of date: "
+            f"{result.surface_snapshot_output_path.as_posix()}"
+        )
+    if observed_surface_diff != expected_surface_diff:
+        raise RuntimeError(
+            "generated surface diff artifact is out of date: "
+            f"{result.surface_diff_output_path.as_posix()}"
+        )
+    if observed_evidence_manifest != expected_evidence_manifest:
+        raise RuntimeError(
+            "generated evidence manifest artifact is out of date: "
+            f"{result.evidence_manifest_output_path.as_posix()}"
+        )
+    if observed_pr_splits != expected_pr_splits:
+        raise RuntimeError(
+            "generated pr splits artifact is out of date: "
+            f"{result.pr_splits_output_path.as_posix()}"
+        )
 
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="adeu_semantic_compiler.compile",
         description=(
-            "Compile deterministic v40 compiler-core artifacts "
-            "from semantic source inputs."
+            "Compile deterministic semantic compiler artifacts "
+            "(v40 core outputs + v41 surface governance outputs)."
         ),
     )
     parser.add_argument(
