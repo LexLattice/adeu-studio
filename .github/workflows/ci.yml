@@ -51,9 +51,21 @@ jobs:
       - name: Verify generated instruction policy docs are up to date
         run: .venv/bin/python apps/api/scripts/generate_instruction_policy_views.py --check
       - name: Lint closeout consistency
+        env:
+          TZ: UTC
+          LC_ALL: C
+          PYTHONHASHSEED: "0"
         run: |
           PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python \
             apps/api/scripts/lint_closeout_consistency.py
+      - name: Lint semantic compiler closeout wiring
+        env:
+          TZ: UTC
+          LC_ALL: C
+          PYTHONHASHSEED: "0"
+        run: |
+          PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python \
+            apps/api/scripts/lint_semantic_compiler_closeout.py
       - name: Detect v35 boundary lint scope
         id: v35_boundary_scope
         env:
