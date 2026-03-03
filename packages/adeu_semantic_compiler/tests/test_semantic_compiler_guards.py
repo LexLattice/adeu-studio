@@ -53,7 +53,14 @@ def _write_semantic_source_artifacts(
         blocks = file_item.get("blocks", [])
         semantic_hash_basis = {
             "frontmatter_semantic": frontmatter,
-            "blocks": blocks,
+            "blocks": [
+                {
+                    "label": block.get("label"),
+                    "payload": block.get("payload"),
+                    "identifier": block.get("identifier"),
+                }
+                for block in blocks
+            ],
         }
         normalized_files.append(
             {
