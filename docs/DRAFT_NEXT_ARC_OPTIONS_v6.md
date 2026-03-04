@@ -1,9 +1,9 @@
-# Draft Next Arc Options v6 (Post vNext+38, ASC Baseline)
+# Draft Next Arc Options v6 (Post vNext+43, ASC Baseline)
 
-This document is the fresh consolidated planning baseline for post-`vNext+38` sequencing, grounded to `docs/ARCHITECTURE_ADEU_SEMANTIC_COMPILER_v0.md` and current repo reality.
+This document is the consolidated planning baseline for post-`vNext+43` sequencing, grounded to `docs/ARCHITECTURE_ADEU_SEMANTIC_COMPILER_v0.md` and current repo reality.
 
-Status: active planning draft (`v17` through `v38` baselines executed; `v38` `M1` + `M2` merged on `main`; `vNext+39+` selection in progress).
-Goal: define lock-respecting candidate paths for advancing deterministic semantic compilation after `V32-A` commitments IR closure, without regressing v36/v37/v38 continuity.
+Status: active planning baseline (`v17` through `v43` executed; `V32-A` through `V32-F` merged on `main`; post-v43 selection in progress).
+Goal: retain the authoritative mapping of `V32-*` path families and define lock-respecting follow-on sequencing after `V32-F` closure, without regressing historical continuity.
 
 ## Naming Convention (Paths vs Bundles)
 
@@ -19,28 +19,49 @@ Goal: define lock-respecting candidate paths for advancing deterministic semanti
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS36.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS37.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS38.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS39.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS40.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS41.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS42.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS43.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS36.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS37.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS38.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS39.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS40.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS41.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS42.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS43.md`
 - `docs/ASSESSMENT_vNEXT_PLUS37_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS38_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS43_EDGES.md`
 
 This is a planning document only. It is not a lock doc and does not authorize runtime behavior changes.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Locked continuation implementation baseline is `vNext+38` (`V32-A` commitments IR contract bootstrap, `M1`-`M2`) and is merged on `main`.
-- Latest closeout decision draft is `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS38.md`.
+- Locked continuation implementation baseline is `vNext+43` (`V32-F` stop-gate metric extension) and is merged on `main`.
+- Latest closeout decision draft is `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS43.md`.
 - Stop-gate schema family remains `stop_gate_metrics@1`.
 - `V31` path family closure status is complete:
   - `V31-F` closed in `v36` (`J1` + `J2`).
   - `V31-G` closed in `v37` (`K1` + `K2`).
-- `V32-A` closure status is complete:
+- `V32` closure status through current baseline:
   - `V32-A` closed in `v38` (`M1` + `M2`).
-- Cross-arc continuity gates that must remain green in all `v39+` candidates:
+  - `V32-B` closed in `v39` (`N1` + `N2`).
+  - `V32-C` closed in `v40` (`O1` + `O2`).
+  - `V32-D` closed in `v41` (`P1` + `P2`).
+  - `V32-E` closed in `v42` (`Q1` + `Q2`).
+  - `V32-F` closed in `v43` (`R1` + `R2`).
+- Cross-arc continuity gates that must remain green in all post-v43 candidates:
   - v36 worker governance callgraph and deterministic denial contracts,
   - v37 proposer persistence source-of-truth and process-restart determinism contracts,
-  - v38 commitments IR schema authority/mirror parity and strict fail-closed model posture.
+  - v38 commitments IR schema authority/mirror parity and strict fail-closed model posture,
+  - v39 semantic-source parser/normalizer determinism posture,
+  - v40 compiler-core determinism/fail-closed posture,
+  - v41 surface governance/codegen determinism posture,
+  - v42 CI/closeout wiring determinism posture,
+  - v43 additive key-migration and semantic-compiler parity-metric posture.
 
 ## ASC Semantic Interpretation Boundary (Planning Invariant)
 
@@ -64,11 +85,12 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 
 ### Remaining Greenfield Scope Introduced by `docs/ARCHITECTURE_ADEU_SEMANTIC_COMPILER_v0.md`
 
-- `packages/adeu_commitments_ir` is now implemented and no longer greenfield (`V32-A` closed in v38).
-- No current package named `packages/adeu_semantic_compiler`.
-- No existing semantic source blocks (` ```adeu... ` / semantic frontmatter) in lock docs outside architecture examples.
-- No existing compiler artifact family under `artifacts/semantic_compiler/<arc>/...`.
-- No existing CI lane or lint entrypoint for semantic compiler governance checks.
+- `packages/adeu_commitments_ir` is implemented (`V32-A`, v38).
+- `packages/adeu_semantic_compiler` is implemented (`V32-C`, v40).
+- Semantic source grammar/parser normalization path is implemented (`V32-B`, v39).
+- Semantic compiler artifact family under `artifacts/semantic_compiler/<arc>/...` is implemented (`V32-D`, v41).
+- CI lane + closeout lint wiring for semantic compiler evidence is implemented (`V32-E`, v42).
+- Optional stop-gate metric extension for semantic compiler evidence is implemented (`V32-F`, v43).
 
 ### Lock Constraints That ASC Follow-on Paths Must Respect in This Repo
 
@@ -83,25 +105,25 @@ This is a planning document only. It is not a lock doc and does not authorize ru
 - `L1`: externally visible contract closure/behavior change on an existing surface (API/web/CLI/artifact contract), without boundary release.
 - `L2`: boundary release (governance authority, persistence authority, provider/proposer surface expansion).
 
-## Confirmed Post-v38 Gap Set (ASC-Oriented)
+## Confirmed Post-v38 Gap Set (ASC-Oriented, Historical Closure)
 
-1. No deterministic semantic source grammar/parser exists for lock docs.
-2. No deterministic compiler pass pipeline exists for source discovery -> parse -> normalize -> lock/reference checks.
-3. No surface snapshot/delta engine exists for lock-declared surfaces in planning docs.
-4. No deterministic PR-split/evidence-manifest artifact generation exists from a compiled lock model.
-5. No CI/closeout integration exists for semantic compiler artifacts.
+1. Deterministic semantic source grammar/parser gap: closed by `V32-B` in `v39`.
+2. Deterministic compiler pass pipeline gap: closed by `V32-C` in `v40`.
+3. Surface snapshot/delta governance gap: closed by `V32-D` in `v41`.
+4. Deterministic PR-split/evidence-manifest generation gap: closed by `V32-D` in `v41`.
+5. CI/closeout semantic-compiler wiring gap: closed by `V32-E` in `v42` and extended by `V32-F` in `v43`.
 
 ## Gap-to-Path Mapping (Total)
 
-- Gap 1 -> `V32-B`
-- Gap 2 -> `V32-C`
-- Gap 3 -> `V32-D`
-- Gap 4 -> `V32-D`
-- Gap 5 -> `V32-E` (and optional `V32-F` for stop-gate metric integration)
+- Gap 1 -> `V32-B` (closed in `v39`)
+- Gap 2 -> `V32-C` (closed in `v40`)
+- Gap 3 -> `V32-D` (closed in `v41`)
+- Gap 4 -> `V32-D` (closed in `v41`)
+- Gap 5 -> `V32-E` (closed in `v42`) with optional metric extension `V32-F` (closed in `v43`)
 
 Path dependency chain (planning authority):
 
-- `V32-A(closed) -> V32-B -> V32-C -> V32-D -> V32-E -> V32-F(optional)`
+- `V32-A(closed) -> V32-B(closed) -> V32-C(closed) -> V32-D(closed) -> V32-E(closed) -> V32-F(closed)`
 - bundle selections (`B32-*`) may collapse steps only when all included path locks/acceptance remain explicitly preserved.
 
 ## Consolidated Path Families (v39+ Candidate Menu)
@@ -238,9 +260,12 @@ Acceptance:
 - CI fails closed on missing/mismatched compiler evidence artifacts.
 - Keyset continuity against current stop-gate baseline remains intact.
 
-### Path V32-F: Optional Stop-Gate Metric Extension for Semantic Compiler
+### Path V32-F: Stop-Gate Metric Extension for Semantic Compiler
 
 Lock class: `L1`
+
+Implementation status:
+- closed in `vNext+43` via PR `#233`.
 
 Goal:
 - Add semantic compiler evidence hashes into stop-gate metrics as explicit machine-checkable gating inputs.
@@ -272,21 +297,22 @@ Acceptance:
 | Option ID | Includes | Max lock class | Status | Benefit | Risk |
 |---|---|---:|---|---|---|
 | `V32-A` | `V32-A` | `L1` | closed in `v38` | Established typed commitments contract and schema discipline | low (closed) |
-| `V32-B` | `V32-B` | `L1` | open candidate | Defines deterministic semantic source grammar and parser baseline | med |
-| `V32-C` | `V32-C` | `L1` | open candidate | Introduces compiler core pass pipeline with fail-closed typing | med/high |
-| `V32-D` | `V32-D` | `L1` | open candidate | Adds surface governance and deterministic PR/evidence generation | high |
-| `V32-E` | `V32-E` | `L0` | open candidate | Adds CI/docs guard wiring without metric-key churn | med |
-| `V32-F` | `V32-F` | `L1` | optional candidate | Adds first-class stop-gate metrics for compiler evidence | high |
+| `V32-B` | `V32-B` | `L1` | closed in `v39` | Defines deterministic semantic source grammar and parser baseline | low (closed) |
+| `V32-C` | `V32-C` | `L1` | closed in `v40` | Introduces compiler core pass pipeline with fail-closed typing | low (closed) |
+| `V32-D` | `V32-D` | `L1` | closed in `v41` | Adds surface governance and deterministic PR/evidence generation | low (closed) |
+| `V32-E` | `V32-E` | `L0` | closed in `v42` | Adds CI/docs guard wiring without metric-key churn | low (closed) |
+| `V32-F` | `V32-F` | `L1` | closed in `v43` | Adds first-class stop-gate metrics for compiler evidence | low (closed) |
 | `B32-ABC` | `V32-A + V32-B + V32-C` | `L1` | optional bundle | End-to-end semantic compile MVP in one arc family | high |
 | `B32-CDE` | `V32-C + V32-D + V32-E` | `L1` | optional bundle | Full compiler + governance artifacts + CI integration | very high |
 
 ## Recommended Sequencing (Default)
 
-1. `vNext+39` default: `V32-B` (semantic source grammar + parser/normalizer).
-2. `vNext+40` default: `V32-C` (compiler core passes).
-3. `vNext+41` candidate: `V32-D` (surface delta + PR/evidence generation).
-4. `vNext+42` candidate: `V32-E` (CI/closeout integration, keyset-preserving).
-5. Evaluate `V32-F` only after `V32-E` proves stable and only with explicit metric-key lock update.
+1. `vNext+39` closed: `V32-B` (semantic source grammar + parser/normalizer).
+2. `vNext+40` closed: `V32-C` (compiler core passes).
+3. `vNext+41` closed: `V32-D` (surface delta + PR/evidence generation).
+4. `vNext+42` closed: `V32-E` (CI/closeout integration, keyset-preserving).
+5. `vNext+43` closed: `V32-F` (additive stop-gate key extension for semantic-compiler evidence parity).
+6. Post-v43 default: select the next path via explicit new lock text; no implicit keyset expansion authority carries forward.
 
 ## Standard Multi-Implementation Sequence (Required)
 
@@ -300,9 +326,9 @@ For each selected arc candidate (`vNext+39+`):
 
 ## Proposed Next Step
 
-Prepare `vNext+39` release-selection baseline on `V32-B`:
+Prepare post-v43 selection baseline:
 
-1. Create `docs/ASSESSMENT_vNEXT_PLUS39_EDGES.md` scoped only to `V32-B` semantic-source grammar/parser edges.
-2. Draft `docs/LOCKED_CONTINUATION_vNEXT_PLUS39.md` selecting `V32-B` only (single thin-slice default).
-3. Keep v36/v37 continuity guards and v38 commitments IR continuity guards merge-blocking during `v39` implementation.
-4. Defer compiler/surface/codegen work (`V32-C+`) to follow-on arcs unless explicitly bundled by lock decision.
+1. Keep v43 post-hoc docs synchronized (`LOCKED_CONTINUATION_vNEXT_PLUS43`, `DRAFT_STOP_GATE_DECISION_vNEXT_PLUS43`, `ASSESSMENT_vNEXT_PLUS43_EDGES`).
+2. Execute a post-hoc feedback loop against merged `V32-F` implementation and record any contract/evidence drift.
+3. If drift is found, ship a focused remediation PR with explicit lock-safe scope.
+4. Draft the next arc lock only after remediation state is green.
