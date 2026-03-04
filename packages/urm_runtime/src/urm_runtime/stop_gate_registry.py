@@ -27,6 +27,7 @@ ACTIVE_STOP_GATE_MANIFEST_VERSIONS: tuple[int, ...] = (
     24,
     25,
     26,
+    27,
 )
 ACTIVE_STOP_GATE_MANIFEST_VERSION_SET: frozenset[int] = frozenset(
     ACTIVE_STOP_GATE_MANIFEST_VERSIONS

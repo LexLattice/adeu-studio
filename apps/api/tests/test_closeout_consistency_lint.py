@@ -71,13 +71,21 @@ def _write_metrics(
     )
 
 
-def _assertion_block(*, baseline_metrics_path: str, current_metrics_path: str) -> str:
-    payload = {
+def _assertion_block(
+    *,
+    baseline_metrics_path: str,
+    current_metrics_path: str,
+    expected_relation: str = "exact_keyset_equality",
+    required_additive_keys: list[str] | None = None,
+) -> str:
+    payload: dict[str, object] = {
         "schema": "metric_key_continuity_assertion@1",
         "baseline_metrics_path": baseline_metrics_path,
         "current_metrics_path": current_metrics_path,
-        "expected_relation": "exact_keyset_equality",
+        "expected_relation": expected_relation,
     }
+    if required_additive_keys is not None:
+        payload["required_additive_keys"] = required_additive_keys
     return (
         "## Metric-Key Continuity Assertion\n\n```json\n"
         + json.dumps(payload, sort_keys=True, indent=2)
@@ -246,3 +254,52 @@ def test_lint_additional_doc_with_invalid_block_is_checked_and_fails(tmp_path: P
         "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS31.md",
         "BLOCK_SCHEMA_INVALID",
     ) in failure_codes
+
+
+def test_lint_additive_relation_passes_with_required_added_keys(tmp_path: Path) -> None:
+    repo_root = _make_repo_fixture(tmp_path)
+    _write_metrics(
+        path=repo_root / "artifacts" / "stop_gate" / "metrics_v31_closeout.json",
+        metric_keys=["a", "b", "c"],
+        quality_baseline="artifacts/quality_dashboard_v30_closeout.json",
+        quality_current="artifacts/quality_dashboard_v31_closeout.json",
+    )
+    _write_doc(
+        repo_root / "docs" / "DRAFT_STOP_GATE_DECISION_vNEXT_PLUS31.md",
+        include_block=True,
+        block_text=_assertion_block(
+            baseline_metrics_path="artifacts/stop_gate/metrics_v30_closeout.json",
+            current_metrics_path="artifacts/stop_gate/metrics_v31_closeout.json",
+            expected_relation="baseline_subset_with_required_additions",
+            required_additive_keys=["c"],
+        ),
+    )
+    completed = _run_lint(repo_root=repo_root)
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    payload = json.loads(completed.stdout)
+    assert payload["failures"] == []
+
+
+def test_lint_additive_relation_fails_when_added_keys_do_not_match(tmp_path: Path) -> None:
+    repo_root = _make_repo_fixture(tmp_path)
+    _write_metrics(
+        path=repo_root / "artifacts" / "stop_gate" / "metrics_v31_closeout.json",
+        metric_keys=["a", "b", "c"],
+        quality_baseline="artifacts/quality_dashboard_v30_closeout.json",
+        quality_current="artifacts/quality_dashboard_v31_closeout.json",
+    )
+    _write_doc(
+        repo_root / "docs" / "DRAFT_STOP_GATE_DECISION_vNEXT_PLUS31.md",
+        include_block=True,
+        block_text=_assertion_block(
+            baseline_metrics_path="artifacts/stop_gate/metrics_v30_closeout.json",
+            current_metrics_path="artifacts/stop_gate/metrics_v31_closeout.json",
+            expected_relation="baseline_subset_with_required_additions",
+            required_additive_keys=["d"],
+        ),
+    )
+    completed = _run_lint(repo_root=repo_root)
+    assert completed.returncode == 1
+    payload = json.loads(completed.stdout)
+    failure_codes = [(row["doc_path"], row["code"]) for row in payload["failures"]]
+    assert ("docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS31.md", "KEYSET_MISMATCH") in failure_codes

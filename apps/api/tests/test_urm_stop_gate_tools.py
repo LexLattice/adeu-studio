@@ -120,6 +120,10 @@ def _vnext_plus26_manifest_path() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus26_manifest.json"
 
 
+def _vnext_plus27_manifest_path() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "stop_gate" / "vnext_plus27_manifest.json"
+
+
 _DOMAIN_CONFORMANCE_HASH_EXCLUDED_FIELDS = {
     "domain_conformance_hash",
     "hash_excluded_fields",
@@ -635,6 +639,10 @@ def _vnext_plus26_manifest_payload() -> dict[str, object]:
     return json.loads(_vnext_plus26_manifest_path().read_text(encoding="utf-8"))
 
 
+def _vnext_plus27_manifest_payload() -> dict[str, object]:
+    return json.loads(_vnext_plus27_manifest_path().read_text(encoding="utf-8"))
+
+
 def _write_vnext_plus14_manifest_payload(
     *,
     tmp_path: Path,
@@ -1052,6 +1060,27 @@ def _write_vnext_plus26_manifest_payload(
     )
 
 
+def _write_vnext_plus27_manifest_payload(
+    *,
+    tmp_path: Path,
+    payload: dict[str, object],
+    filename: str = "vnext_plus27_manifest.json",
+) -> Path:
+    return _write_manifest_payload_with_rewritten_runs(
+        tmp_path=tmp_path,
+        payload=payload,
+        filename=filename,
+        manifest_label="vnext+27",
+        fixture_manifest_root=_vnext_plus27_manifest_path().parent,
+        fixture_specs=(
+            (
+                "semantic_compiler_evidence_hash_fixtures",
+                ("baseline_path", "candidate_path"),
+            ),
+        ),
+    )
+
+
 def _normalize_runtime_observability(report: dict[str, object]) -> dict[str, object]:
     normalized = json.loads(json.dumps(report))
     runtime_observability = normalized.get("runtime_observability")
@@ -1117,6 +1146,7 @@ def _vnext_plus13_to_19_manifest_kwargs() -> dict[str, Path]:
         "vnext_plus24_manifest_path": _vnext_plus24_manifest_path(),
         "vnext_plus25_manifest_path": _vnext_plus25_manifest_path(),
         "vnext_plus26_manifest_path": _vnext_plus26_manifest_path(),
+        "vnext_plus27_manifest_path": _vnext_plus27_manifest_path(),
     }
 
 
@@ -1247,6 +1277,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["metrics"]["artifact_core_ir_proposer_provider_parity_pct"] == 100.0
     assert first["metrics"]["artifact_stop_gate_input_model_parity_pct"] == 100.0
     assert first["metrics"]["artifact_transfer_report_builder_parity_pct"] == 100.0
+    assert first["metrics"]["artifact_semantic_compiler_evidence_hash_parity_pct"] == 100.0
     assert first["metrics"]["semantic_depth_improvement_lock_passed"] is True
     assert first["metrics"]["quality_delta_non_negative"] is True
     assert isinstance(first["vnext_plus8_manifest_hash"], str)
@@ -1285,9 +1316,11 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert len(first["vnext_plus25_manifest_hash"]) == 64
     assert isinstance(first["vnext_plus26_manifest_hash"], str)
     assert len(first["vnext_plus26_manifest_hash"]) == 64
+    assert isinstance(first["vnext_plus27_manifest_hash"], str)
+    assert len(first["vnext_plus27_manifest_hash"]) == 64
     runtime_observability = first["runtime_observability"]
-    assert runtime_observability["total_fixtures"] == 21
-    assert runtime_observability["total_replays"] == 75
+    assert runtime_observability["total_fixtures"] == 22
+    assert runtime_observability["total_replays"] == 78
     assert isinstance(runtime_observability["bytes_hashed_per_replay"], int)
     assert runtime_observability["bytes_hashed_per_replay"] > 0
     assert isinstance(runtime_observability["bytes_hashed_total"], int)
@@ -1316,6 +1349,7 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert first["gates"]["artifact_core_ir_proposer_provider_parity"] is True
     assert first["gates"]["artifact_stop_gate_input_model_parity"] is True
     assert first["gates"]["artifact_transfer_report_builder_parity"] is True
+    assert first["gates"]["artifact_semantic_compiler_evidence_hash_parity"] is True
 
 
 def test_build_stop_gate_metrics_from_input_matches_legacy_wrapper(tmp_path: Path) -> None:
@@ -4090,6 +4124,41 @@ def test_build_stop_gate_metrics_rejects_vnext_plus26_manifest_hash_mismatch(
     assert any(
         issue.get("code") == "URM_ADEU_TOOLING_MANIFEST_HASH_MISMATCH"
         and issue.get("message") == "vnext+26 manifest_hash mismatch"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus27_manifest_hash_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    manifest_payload = _vnext_plus27_manifest_payload()
+    manifest_payload["manifest_hash"] = "0" * 64
+    manifest_path = tmp_path / "vnext_plus27_manifest_bad_hash.json"
+    _write_json(manifest_path, manifest_payload)
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus27_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["metrics"]["artifact_semantic_compiler_evidence_hash_parity_pct"] == 0.0
+    assert report["vnext_plus27_manifest_hash"] == ""
+    assert any(
+        issue.get("code") == "URM_ADEU_SEMANTIC_COMPILER_MANIFEST_HASH_MISMATCH"
+        and issue.get("message") == "vnext+27 manifest_hash mismatch"
         for issue in report["issues"]
         if isinstance(issue, dict)
     )
