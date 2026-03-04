@@ -2,6 +2,7 @@ __all__ = [
     "PIPELINE_PROFILE_SCHEMA",
     "TASKPACK_PROFILE_REGISTRY_SCHEMA",
     "compile_taskpack",
+    "verify_taskpack_bundle",
 ]
 
 
