@@ -6980,7 +6980,10 @@ def _semantic_compiler_hash_capture_projection(
         raise ValueError(
             _issue(
                 "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
-                "semantic-compiler hash capture fixture artifact_hashes keys must match frozen vnext+27 keyset",
+                (
+                    "semantic-compiler hash capture fixture artifact_hashes keys must match "
+                    "frozen vnext+27 keyset"
+                ),
                 context={
                     "path": str(path),
                     "expected_keys": sorted(
@@ -7058,7 +7061,10 @@ def _validate_vnext_plus27_baseline_fixture_authenticity(
         raise ValueError(
             _issue(
                 "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
-                "vnext+27 semantic-compiler baseline fixture hashes must match committed v41 artifacts",
+                (
+                    "vnext+27 semantic-compiler baseline fixture hashes must match "
+                    "committed v41 artifacts"
+                ),
                 context={
                     "path": str(baseline_path),
                     "mismatch_keys": mismatch_keys,

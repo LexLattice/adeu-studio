@@ -4148,7 +4148,9 @@ def test_build_stop_gate_metrics_detects_vnext_plus27_candidate_parity_drift(
     artifact_hashes = candidate_payload.get("artifact_hashes")
     assert isinstance(artifact_hashes, dict)
     artifact_hashes["v41_surface_snapshot_sha256"] = "0" * 64
-    drift_candidate_path = tmp_path / "semantic_compiler_evidence_hashes_candidate_case_a_1_drift.json"
+    drift_candidate_path = (
+        tmp_path / "semantic_compiler_evidence_hashes_candidate_case_a_1_drift.json"
+    )
     _write_json(drift_candidate_path, candidate_payload)
 
     manifest_payload = _vnext_plus27_manifest_payload()
@@ -4267,7 +4269,9 @@ def test_build_stop_gate_metrics_rejects_vnext_plus27_hash_keyset_drift(
     artifact_hashes = candidate_payload.get("artifact_hashes")
     assert isinstance(artifact_hashes, dict)
     artifact_hashes.pop("v41_surface_snapshot_sha256")
-    drift_candidate_path = tmp_path / "semantic_compiler_evidence_hashes_candidate_case_a_1_keyset_drift.json"
+    drift_candidate_path = (
+        tmp_path / "semantic_compiler_evidence_hashes_candidate_case_a_1_keyset_drift.json"
+    )
     _write_json(drift_candidate_path, candidate_payload)
 
     manifest_payload = _vnext_plus27_manifest_payload()
@@ -4302,7 +4306,10 @@ def test_build_stop_gate_metrics_rejects_vnext_plus27_hash_keyset_drift(
     assert any(
         issue.get("code") == "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID"
         and issue.get("message")
-        == "semantic-compiler hash capture fixture artifact_hashes keys must match frozen vnext+27 keyset"
+        == (
+            "semantic-compiler hash capture fixture artifact_hashes keys must match "
+            "frozen vnext+27 keyset"
+        )
         for issue in report["issues"]
         if isinstance(issue, dict)
     )
