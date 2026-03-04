@@ -26,6 +26,13 @@ apps/api/var/
 artifacts/*
 !artifacts/.gitkeep
 !artifacts/quality_dashboard_v*_closeout*.json
+!artifacts/semantic_compiler/
+artifacts/semantic_compiler/*
+!artifacts/semantic_compiler/v41/
+artifacts/semantic_compiler/v41/*
+!artifacts/semantic_compiler/v41/surface_snapshot.json
+!artifacts/semantic_compiler/v41/surface_diff.json
+!artifacts/semantic_compiler/v41/evidence_manifest.json
 !artifacts/stop_gate/
 artifacts/stop_gate/*
 !artifacts/stop_gate/metrics_v*_closeout*.json

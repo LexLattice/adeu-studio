@@ -11,7 +11,7 @@ Status: draft planning decision note (pre-implementation, March 4, 2026 UTC).
 - This draft records `vNext+42` planning-gate authorization only.
 - It must not redefine semantics, locks, or scope from `docs/LOCKED_CONTINUATION_vNEXT_PLUS42.md`.
 - This note is not `vNext+42` closeout evidence and must not claim `all_passed = true` for v42 implementation criteria.
-- Runtime-observability comparison and metric-key continuity evidence for v42 must be captured in a post-implementation update of this file.
+- Runtime-observability comparison and metric-key continuity blocks in this note are provisional wiring evidence for Q1 lint coverage and must be refreshed in post-implementation closeout.
 - Bundle closeout posture for planning is frozen:
   - v42 planning bundle is closed for freeze-review handoff after final lock/assessment alignment.
 
@@ -68,6 +68,55 @@ Planning summary:
   "decision": "GO_VNEXT_PLUS42_IMPLEMENTATION_DRAFT",
   "preconditions_satisfied": true,
   "notes": "Planning gate only. v42 closeout evidence (runtime observability row, metric-key continuity assertion, and v32e CI-wiring evidence block) is required in a post-implementation update."
+}
+```
+
+## Metric-Key Continuity Assertion
+
+```json
+{
+  "schema": "metric_key_continuity_assertion@1",
+  "baseline_metrics_path": "artifacts/stop_gate/metrics_v41_closeout.json",
+  "current_metrics_path": "artifacts/stop_gate/metrics_v42_closeout.json",
+  "expected_relation": "exact_keyset_equality"
+}
+```
+
+## Runtime Observability Comparison (v41 Baseline vs v42 Wiring Snapshot)
+
+```json
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+41",
+  "current_arc": "vNext+42",
+  "baseline_source": "artifacts/stop_gate/report_v41_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v42_closeout.md",
+  "baseline_elapsed_ms": 85,
+  "current_elapsed_ms": 79,
+  "delta_ms": -6,
+  "notes": "Q1 provisional wiring snapshot under deterministic tooling env; informational-only and subject to post-implementation closeout refresh."
+}
+```
+
+## CI Wiring Evidence
+
+```json
+{
+  "schema": "v32e_ci_wiring_evidence@1",
+  "lint_entrypoint": "apps/api/scripts/lint_semantic_compiler_closeout.py",
+  "workflow_path": ".github/workflows/ci.yml",
+  "required_lane": "python",
+  "coverage_signature_sha256": "9dc4f720e7884d0e8819fa6d4936c074215691557c9d607864f3d09376f06169",
+  "required_lints": [
+    "apps/api/scripts/lint_closeout_consistency.py",
+    "apps/api/scripts/lint_semantic_compiler_closeout.py"
+  ],
+  "closeout_doc": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS42.md",
+  "required_blocks_present": true,
+  "artifact_hashes_verified": true,
+  "metric_key_cardinality": 79,
+  "metric_key_exact_set_equal_v41": true,
+  "notes": "Coverage signature derived from YAML AST executable python-lane run steps with direct required-lint invocation and deterministic env subset."
 }
 ```
 
