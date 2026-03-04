@@ -118,6 +118,6 @@ Summary:
 
 ## Suggested Next Artifacts
 
-1. Draft `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md` with `V33-B` runner-surface planning and explicit anti-injection/runtime-boundary lock text.
+1. Draft `docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md`, `docs/ASSESSMENT_vNEXT_PLUS45_EDGES.md`, and `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS45.md` for `V33-B` planning inside the existing `v7` path family baseline.
 2. Keep v44 closeout artifacts stable; rerun closeout commands only under frozen deterministic env contract.
 3. Begin v45 lock drafting only after runner boundary/authority model is explicitly frozen (no implicit carryover from v44).
