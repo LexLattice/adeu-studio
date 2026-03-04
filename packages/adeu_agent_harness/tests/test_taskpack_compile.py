@@ -14,6 +14,8 @@ from adeu_agent_harness.compile import (
 )
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
+_DEFAULT_OUT_DIR = "artifacts/agent_harness/v44/taskpacks/v41/v44_default"
+
 
 def _write(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -169,7 +171,7 @@ def _compile_default(root: Path, registry_file: Path):
         profile_registry_path=registry_file.relative_to(root),
         profile_id="v44_default",
         source_semantic_arc="v41",
-        out_dir="artifacts/agent_harness/v44/taskpacks/v41/v44_default",
+        out_dir=_DEFAULT_OUT_DIR,
         repo_root_path=root,
     )
 
@@ -179,7 +181,7 @@ def test_compile_taskpack_emits_required_bundle_and_is_deterministic(tmp_path: P
     _seed_semantic_authority_artifacts(root)
     _, registry_file = _seed_profile_and_registry(root)
 
-    out_dir = "artifacts/agent_harness/v44/taskpacks/v41/v44_default"
+    out_dir = _DEFAULT_OUT_DIR
     first = compile_taskpack(
         profile_registry_path=registry_file.relative_to(root),
         profile_id="v44_default",
@@ -247,7 +249,7 @@ def test_compile_taskpack_fails_closed_on_profile_hash_mismatch(tmp_path: Path) 
             profile_registry_path=registry_file.relative_to(root),
             profile_id="v44_default",
             source_semantic_arc="v41",
-            out_dir="artifacts/agent_harness/v44/taskpacks/v41/v44_default",
+            out_dir=_DEFAULT_OUT_DIR,
             repo_root_path=root,
         )
 
@@ -276,7 +278,7 @@ def test_compile_taskpack_sanitizes_marker_like_payload_text(tmp_path: Path) -> 
         profile_registry_path=registry_file.relative_to(root),
         profile_id="v44_default",
         source_semantic_arc="v41",
-        out_dir="artifacts/agent_harness/v44/taskpacks/v41/v44_default",
+        out_dir=_DEFAULT_OUT_DIR,
         repo_root_path=root,
     )
 
@@ -325,7 +327,7 @@ def test_compile_taskpack_fails_closed_on_markdown_section_order_drift(
             profile_registry_path=registry_file.relative_to(root),
             profile_id="v44_default",
             source_semantic_arc="v41",
-            out_dir="artifacts/agent_harness/v44/taskpacks/v41/v44_default",
+            out_dir=_DEFAULT_OUT_DIR,
             repo_root_path=root,
         )
 
@@ -391,7 +393,7 @@ def test_compile_taskpack_fails_closed_on_ad_hoc_profile_path_rejection(tmp_path
             profile_registry_path=registry_file.resolve(),
             profile_id="v44_default",
             source_semantic_arc="v41",
-            out_dir="artifacts/agent_harness/v44/taskpacks/v41/v44_default",
+            out_dir=_DEFAULT_OUT_DIR,
             repo_root_path=root,
         )
 
@@ -616,7 +618,7 @@ def test_main_emits_required_error_channel_without_warning_downgrade(
             "--source-semantic-arc",
             "v41",
             "--out-dir",
-            "artifacts/agent_harness/v44/taskpacks/v41/v44_default",
+            _DEFAULT_OUT_DIR,
             "--repo-root",
             str(root),
         ]
