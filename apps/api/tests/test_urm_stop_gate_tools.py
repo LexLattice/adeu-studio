@@ -4129,6 +4129,192 @@ def test_build_stop_gate_metrics_rejects_vnext_plus26_manifest_hash_mismatch(
     )
 
 
+def test_build_stop_gate_metrics_detects_vnext_plus27_candidate_parity_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    candidate_payload = json.loads(
+        (
+            _vnext_plus27_manifest_path().parent
+            / "vnext_plus27"
+            / "semantic_compiler_evidence_hashes_candidate_case_a_1.json"
+        ).read_text(encoding="utf-8")
+    )
+    artifact_hashes = candidate_payload.get("artifact_hashes")
+    assert isinstance(artifact_hashes, dict)
+    artifact_hashes["v41_surface_snapshot_sha256"] = "0" * 64
+    drift_candidate_path = (
+        tmp_path / "semantic_compiler_evidence_hashes_candidate_case_a_1_drift.json"
+    )
+    _write_json(drift_candidate_path, candidate_payload)
+
+    manifest_payload = _vnext_plus27_manifest_payload()
+    fixtures = manifest_payload.get("semantic_compiler_evidence_hash_fixtures")
+    assert isinstance(fixtures, list) and fixtures
+    fixture = fixtures[0]
+    assert isinstance(fixture, dict)
+    runs = fixture.get("runs")
+    assert isinstance(runs, list) and runs
+    first_run = runs[0]
+    assert isinstance(first_run, dict)
+    first_run["candidate_path"] = str(drift_candidate_path)
+    manifest_path = _write_vnext_plus27_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus27_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_semantic_compiler_evidence_hash_parity_pct"] == 0.0
+    assert report["gates"]["artifact_semantic_compiler_evidence_hash_parity"] is False
+    assert any(
+        issue.get("code") == "URM_ADEU_SEMANTIC_COMPILER_PARITY_DRIFT"
+        and issue.get("message") == "vnext+27 semantic-compiler evidence hash parity drift"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus27_baseline_authenticity_mismatch(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    baseline_payload = json.loads(
+        (
+            _vnext_plus27_manifest_path().parent
+            / "vnext_plus27"
+            / "semantic_compiler_evidence_hashes_baseline_case_a.json"
+        ).read_text(encoding="utf-8")
+    )
+    artifact_hashes = baseline_payload.get("artifact_hashes")
+    assert isinstance(artifact_hashes, dict)
+    artifact_hashes["v41_evidence_manifest_sha256"] = "0" * 64
+    drift_baseline_path = tmp_path / "semantic_compiler_evidence_hashes_baseline_case_a_drift.json"
+    _write_json(drift_baseline_path, baseline_payload)
+
+    manifest_payload = _vnext_plus27_manifest_payload()
+    fixtures = manifest_payload.get("semantic_compiler_evidence_hash_fixtures")
+    assert isinstance(fixtures, list) and fixtures
+    fixture = fixtures[0]
+    assert isinstance(fixture, dict)
+    runs = fixture.get("runs")
+    assert isinstance(runs, list) and runs
+    first_run = runs[0]
+    assert isinstance(first_run, dict)
+    first_run["baseline_path"] = str(drift_baseline_path)
+    manifest_path = _write_vnext_plus27_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus27_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_semantic_compiler_evidence_hash_parity_pct"] == 0.0
+    assert report["gates"]["artifact_semantic_compiler_evidence_hash_parity"] is False
+    assert any(
+        issue.get("code") == "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID"
+        and issue.get("message")
+        == "vnext+27 semantic-compiler baseline fixture hashes must match committed v41 artifacts"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
+def test_build_stop_gate_metrics_rejects_vnext_plus27_hash_keyset_drift(
+    tmp_path: Path,
+) -> None:
+    quality_current = tmp_path / "quality_current.json"
+    quality_baseline = tmp_path / "quality_baseline.json"
+    quality_payload = _legacy_quality_payload()
+    _write_json(quality_current, quality_payload)
+    _write_json(quality_baseline, quality_payload)
+
+    candidate_payload = json.loads(
+        (
+            _vnext_plus27_manifest_path().parent
+            / "vnext_plus27"
+            / "semantic_compiler_evidence_hashes_candidate_case_a_1.json"
+        ).read_text(encoding="utf-8")
+    )
+    artifact_hashes = candidate_payload.get("artifact_hashes")
+    assert isinstance(artifact_hashes, dict)
+    artifact_hashes.pop("v41_surface_snapshot_sha256")
+    drift_candidate_path = (
+        tmp_path / "semantic_compiler_evidence_hashes_candidate_case_a_1_keyset_drift.json"
+    )
+    _write_json(drift_candidate_path, candidate_payload)
+
+    manifest_payload = _vnext_plus27_manifest_payload()
+    fixtures = manifest_payload.get("semantic_compiler_evidence_hash_fixtures")
+    assert isinstance(fixtures, list) and fixtures
+    fixture = fixtures[0]
+    assert isinstance(fixture, dict)
+    runs = fixture.get("runs")
+    assert isinstance(runs, list) and runs
+    first_run = runs[0]
+    assert isinstance(first_run, dict)
+    first_run["candidate_path"] = str(drift_candidate_path)
+    manifest_path = _write_vnext_plus27_manifest_payload(
+        tmp_path=tmp_path,
+        payload=manifest_payload,
+    )
+
+    manifest_kwargs = _vnext_plus13_to_19_manifest_kwargs()
+    manifest_kwargs["vnext_plus27_manifest_path"] = manifest_path
+    report = build_stop_gate_metrics(
+        **_base_stop_gate_kwargs(
+            quality_current=quality_current,
+            quality_baseline=quality_baseline,
+        ),
+        **manifest_kwargs,
+    )
+
+    assert report["valid"] is False
+    assert report["all_passed"] is False
+    assert report["metrics"]["artifact_semantic_compiler_evidence_hash_parity_pct"] == 0.0
+    assert report["gates"]["artifact_semantic_compiler_evidence_hash_parity"] is False
+    assert any(
+        issue.get("code") == "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID"
+        and issue.get("message")
+        == (
+            "semantic-compiler hash capture fixture artifact_hashes keys must match "
+            "frozen vnext+27 keyset"
+        )
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_build_stop_gate_metrics_rejects_vnext_plus27_manifest_hash_mismatch(
     tmp_path: Path,
 ) -> None:
