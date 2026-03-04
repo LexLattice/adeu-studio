@@ -118,6 +118,8 @@ Summary:
 2. The current parity check confirms fixture-to-fixture consistency and does not yet independently recompute fixture claims from committed semantic-compiler source artifacts.
 3. v43 fixture coverage is intentionally narrow (single fixture id / single surface id) for the first additive migration.
 4. Closeout command examples include `PYTHONWARNINGS=ignore` as operational convenience, while deterministic lock env contract remains keyed to `TZ`, `LC_ALL`, and `PYTHONHASHSEED`.
+5. Additive relation grammar (`baseline_subset_with_required_additions`) is now active and should be arc-authorized explicitly to avoid generic key-growth loopholes.
+6. `semantic_compiler_hash_capture@1` currently validates non-empty hash mapping shape/format, but required hash-key semantics are not yet frozen.
 
 ## Recommendation (Post v43)
 
@@ -133,5 +135,7 @@ Summary:
 2. Run a post-hoc feedback pass on v43 implementation and capture remediation deltas in a focused follow-on PR:
    - add negative-parity guard-inversion fixture/test,
    - add authenticity recompute guard from committed artifacts,
-   - decide/document `PYTHONWARNINGS=ignore` contract posture.
+   - decide/document `PYTHONWARNINGS=ignore` contract posture,
+   - add additive-relation authorization guard tied to explicit arc lock/contract block,
+   - freeze required hash-key semantics for `semantic_compiler_hash_capture@1` (exact-set or required-subset).
 3. Start v44 planning only after the post-hoc feedback loop outcome is recorded (no implicit carryover of key-expansion authority).

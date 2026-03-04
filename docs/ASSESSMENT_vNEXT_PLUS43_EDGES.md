@@ -20,7 +20,7 @@ Status: post-hoc assessment (March 4, 2026 UTC).
 - `apps/api/fixtures/stop_gate/vnext_plus27_manifest.json`
 - `artifacts/stop_gate/metrics_v42_closeout.json`
 - `artifacts/stop_gate/metrics_v43_closeout.json`
-- post-hoc reviewer feedback (Opus + Gemini, March 4, 2026 UTC)
+- post-hoc reviewer feedback (Opus + Gemini + GPT, March 4, 2026 UTC)
 
 ## Post-Hoc Edge Set (V32-F)
 
@@ -54,6 +54,10 @@ Status: post-hoc assessment (March 4, 2026 UTC).
    - closeout command convenience flags (for example warning suppression) can diverge from frozen deterministic env contract text.
 15. Capture-scope narrowing risk:
    - v43 parity captures focus on v41 artifact hash set and do not independently prove earlier-stage artifact lineage integrity.
+16. Additive-relation authorization loophole risk:
+   - once `baseline_subset_with_required_additions` grammar is available, future docs could over-authorize key growth unless additive relation use is arc-scoped by lock contract.
+17. Hash-capture keyset under-specification risk:
+   - `semantic_compiler_hash_capture@1` currently enforces non-empty hash mapping but does not yet freeze required hash-key set semantics.
 
 ## Guardrail Evaluation (Observed)
 
@@ -78,6 +82,8 @@ Status: post-hoc assessment (March 4, 2026 UTC).
 - Fixture breadth is intentionally narrow in v43 (`semantic_compiler.evidence_hashes.v41.case_a`, single frozen surface id).
 - Closeout command examples use `PYTHONWARNINGS=ignore` as operational convenience while deterministic-env lock text remains focused on `TZ`, `LC_ALL`, and `PYTHONHASHSEED`.
 - v43 hash-capture scope is intentionally constrained to frozen v41 semantic-compiler evidence hashes for this first additive key migration.
+- additive relation governance is currently enforced by process discipline and lock text; arc-level machine enforcement for additive authorization remains a follow-on hardening item.
+- `semantic_compiler_hash_capture@1` currently validates mapping shape and hash format; strict required-key semantics remain a follow-on hardening item.
 
 ## Post-Hoc Variance vs v6 Planning
 
@@ -100,4 +106,6 @@ Status: post-hoc assessment (March 4, 2026 UTC).
 2. Add an authenticity guard that recomputes at least one captured hash from committed source artifacts and compares against fixture claims.
 3. Decide and document whether `PYTHONWARNINGS=ignore` is part of deterministic env contract or explicit non-contract operational convenience.
 4. Consider adding `case_b` fixture coverage for `adeu.semantic_compiler.evidence_hashes` after first post-hoc feedback loop completion.
-5. Keep additive-key migrations explicitly enumerated per arc and block further key additions without explicit lock text.
+5. Add an arc-authorization guard so additive relation is accepted only when an explicit lock/contract block authorizes that migration for the current arc.
+6. Define required hash-key semantics for `semantic_compiler_hash_capture@1` (exact-set or required-subset) and enforce via deterministic validation.
+7. Keep additive-key migrations explicitly enumerated per arc and block further key additions without explicit lock text.
