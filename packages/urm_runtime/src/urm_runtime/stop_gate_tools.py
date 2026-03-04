@@ -208,6 +208,27 @@ SEMANTIC_COMPILER_HASH_CAPTURE_SCHEMA = "semantic_compiler_hash_capture@1"
 VNEXT_PLUS27_DEFAULT_METRICS = {
     "artifact_semantic_compiler_evidence_hash_parity_pct": 0.0,
 }
+_VNEXT_PLUS27_SEMANTIC_COMPILER_ARTIFACT_HASH_SOURCES: tuple[tuple[str, str], ...] = (
+    (
+        "v41_evidence_manifest_sha256",
+        "artifacts/semantic_compiler/v41/evidence_manifest.json",
+    ),
+    (
+        "v41_stop_gate_metrics_sha256",
+        "artifacts/stop_gate/metrics_v41_closeout.json",
+    ),
+    (
+        "v41_surface_diff_sha256",
+        "artifacts/semantic_compiler/v41/surface_diff.json",
+    ),
+    (
+        "v41_surface_snapshot_sha256",
+        "artifacts/semantic_compiler/v41/surface_snapshot.json",
+    ),
+)
+_FROZEN_VNEXT_PLUS27_SEMANTIC_COMPILER_ARTIFACT_HASH_KEYS = frozenset(
+    key for key, _ in _VNEXT_PLUS27_SEMANTIC_COMPILER_ARTIFACT_HASH_SOURCES
+)
 CROSS_IR_BRIDGE_MANIFEST_SCHEMA = "adeu_cross_ir_bridge_manifest@0.1"
 CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA = "adeu_cross_ir_coherence_diagnostics@0.1"
 CROSS_IR_QUALITY_PROJECTION_SCHEMA = "cross_ir_quality_projection.vnext_plus20@1"
@@ -6954,6 +6975,21 @@ def _semantic_compiler_hash_capture_projection(
                 )
             )
         normalized_artifact_hashes[key] = value
+    observed_keys = frozenset(normalized_artifact_hashes.keys())
+    if observed_keys != _FROZEN_VNEXT_PLUS27_SEMANTIC_COMPILER_ARTIFACT_HASH_KEYS:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+                "semantic-compiler hash capture fixture artifact_hashes keys must match frozen vnext+27 keyset",
+                context={
+                    "path": str(path),
+                    "expected_keys": sorted(
+                        _FROZEN_VNEXT_PLUS27_SEMANTIC_COMPILER_ARTIFACT_HASH_KEYS
+                    ),
+                    "observed_keys": sorted(observed_keys),
+                },
+            )
+        )
     return {
         "schema": SEMANTIC_COMPILER_HASH_CAPTURE_SCHEMA,
         "hash_profile": "sha256_canonical_json_frozen",
@@ -6961,6 +6997,78 @@ def _semantic_compiler_hash_capture_projection(
             key: normalized_artifact_hashes[key] for key in sorted(normalized_artifact_hashes)
         },
     }
+
+
+def _resolve_vnext_plus27_semantic_compiler_repo_root(*, fixture_path: Path) -> Path:
+    repo_root = _discover_repo_root(fixture_path) or _discover_repo_root(Path(__file__).resolve())
+    if repo_root is None:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+                "vnext+27 semantic-compiler fixture verification requires repository root",
+                context={"path": str(fixture_path)},
+            )
+        )
+    return repo_root
+
+
+def _recompute_vnext_plus27_semantic_compiler_artifact_hashes(
+    *,
+    repo_root: Path,
+) -> dict[str, str]:
+    recomputed: dict[str, str] = {}
+    for key, relative_path in _VNEXT_PLUS27_SEMANTIC_COMPILER_ARTIFACT_HASH_SOURCES:
+        artifact_path = repo_root / relative_path
+        payload = _read_tooling_parity_payload(
+            path=artifact_path,
+            description=f"vnext+27 semantic-compiler source artifact for {key}",
+            invalid_code="URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+        )
+        recomputed[key] = sha256_canonical_json(payload)
+    return recomputed
+
+
+def _validate_vnext_plus27_baseline_fixture_authenticity(
+    *,
+    baseline_projection: Mapping[str, Any],
+    baseline_path: Path,
+) -> None:
+    baseline_artifact_hashes_raw = baseline_projection.get("artifact_hashes")
+    if not isinstance(baseline_artifact_hashes_raw, Mapping):
+        raise ValueError(
+            _issue(
+                "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+                "vnext+27 semantic-compiler baseline fixture projection missing artifact_hashes",
+                context={"path": str(baseline_path)},
+            )
+        )
+    baseline_artifact_hashes = {
+        str(key): str(value) for key, value in baseline_artifact_hashes_raw.items()
+    }
+    repo_root = _resolve_vnext_plus27_semantic_compiler_repo_root(fixture_path=baseline_path)
+    expected_artifact_hashes = _recompute_vnext_plus27_semantic_compiler_artifact_hashes(
+        repo_root=repo_root
+    )
+    mismatch_keys = sorted(
+        key
+        for key in sorted(expected_artifact_hashes)
+        if baseline_artifact_hashes.get(key) != expected_artifact_hashes[key]
+    )
+    if mismatch_keys:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+                "vnext+27 semantic-compiler baseline fixture hashes must match committed v41 artifacts",
+                context={
+                    "path": str(baseline_path),
+                    "mismatch_keys": mismatch_keys,
+                    "artifact_hash_sources": {
+                        key: path
+                        for key, path in _VNEXT_PLUS27_SEMANTIC_COMPILER_ARTIFACT_HASH_SOURCES
+                    },
+                },
+            )
+        )
 
 
 def _semantic_compiler_vnext_plus27_fixture_hash(
@@ -6985,6 +7093,10 @@ def _semantic_compiler_vnext_plus27_fixture_hash(
     candidate_projection = _semantic_compiler_hash_capture_projection(
         payload=candidate_payload,
         path=candidate_path,
+    )
+    _validate_vnext_plus27_baseline_fixture_authenticity(
+        baseline_projection=baseline_projection,
+        baseline_path=baseline_path,
     )
     baseline_hash = sha256_canonical_json(baseline_projection)
     candidate_hash = sha256_canonical_json(candidate_projection)
