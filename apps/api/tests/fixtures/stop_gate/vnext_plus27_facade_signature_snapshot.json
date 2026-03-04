@@ -28,7 +28,8 @@
         {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus23_manifest_path"},
         {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus24_manifest_path"},
         {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus25_manifest_path"},
-        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus26_manifest_path"}
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus26_manifest_path"},
+        {"default": "None", "kind": "POSITIONAL_OR_KEYWORD", "name": "vnext_plus27_manifest_path"}
       ]
     },
     "build_stop_gate_metrics": {
@@ -58,7 +59,8 @@
         {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus23_manifest_path"},
         {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus24_manifest_path"},
         {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus25_manifest_path"},
-        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus26_manifest_path"}
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus26_manifest_path"},
+        {"default": "None", "kind": "KEYWORD_ONLY", "name": "vnext_plus27_manifest_path"}
       ]
     },
     "build_stop_gate_metrics_from_input": {
