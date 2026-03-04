@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
+from adeu_ir.repo import repo_root as canonical_repo_root
 from adeu_kernel import strip_nonsemantic_proof_fields, strip_nonsemantic_validator_fields
 from adeu_semantic_depth import SemanticDepthError, validate_semantic_depth_report
 from pydantic import ValidationError
@@ -7003,16 +7004,16 @@ def _semantic_compiler_hash_capture_projection(
 
 
 def _resolve_vnext_plus27_semantic_compiler_repo_root(*, fixture_path: Path) -> Path:
-    repo_root = _discover_repo_root(fixture_path) or _discover_repo_root(Path(__file__).resolve())
-    if repo_root is None:
+    try:
+        return canonical_repo_root(anchor=Path(__file__).resolve())
+    except RuntimeError as exc:
         raise ValueError(
             _issue(
                 "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
                 "vnext+27 semantic-compiler fixture verification requires repository root",
                 context={"path": str(fixture_path)},
             )
-        )
-    return repo_root
+        ) from exc
 
 
 def _recompute_vnext_plus27_semantic_compiler_artifact_hashes(
