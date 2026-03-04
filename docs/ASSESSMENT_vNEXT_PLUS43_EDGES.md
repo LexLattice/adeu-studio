@@ -20,6 +20,7 @@ Status: post-hoc assessment (March 4, 2026 UTC).
 - `apps/api/fixtures/stop_gate/vnext_plus27_manifest.json`
 - `artifacts/stop_gate/metrics_v42_closeout.json`
 - `artifacts/stop_gate/metrics_v43_closeout.json`
+- post-hoc reviewer feedback (Opus + Gemini, March 4, 2026 UTC)
 
 ## Post-Hoc Edge Set (V32-F)
 
@@ -43,6 +44,16 @@ Status: post-hoc assessment (March 4, 2026 UTC).
    - teams could misread additive migration as permission for unrestricted key growth.
 10. CI red/green coupling risk:
    - facade signature snapshots can lag behind newly added v43 input parameters.
+11. Fixture discrimination risk:
+   - candidate fixtures can remain parity-equal to baseline while never exercising a negative drift case.
+12. Fixture authenticity gap:
+   - parity checks can pass even if baseline/candidate fixtures share the same incorrect captured hashes.
+13. Coverage breadth risk:
+   - one fixture id and one semantic-compiler surface id limit breadth of parity assertions.
+14. Deterministic-env documentation drift:
+   - closeout command convenience flags (for example warning suppression) can diverge from frozen deterministic env contract text.
+15. Capture-scope narrowing risk:
+   - v43 parity captures focus on v41 artifact hash set and do not independently prove earlier-stage artifact lineage integrity.
 
 ## Guardrail Evaluation (Observed)
 
@@ -59,6 +70,14 @@ Status: post-hoc assessment (March 4, 2026 UTC).
   - `artifact_semantic_compiler_evidence_hash_parity` evaluates `true` at closeout.
 - CI health guard: pass after snapshot refresh.
   - facade signature snapshot updated to include `vnext_plus27_manifest_path`.
+
+## Known Limits (Accepted in v43)
+
+- Negative parity case is not currently part of the v43 fixture set.
+- Fixture parity currently proves deterministic equivalence between baseline/candidate captures, not independent authenticity against source artifacts.
+- Fixture breadth is intentionally narrow in v43 (`semantic_compiler.evidence_hashes.v41.case_a`, single frozen surface id).
+- Closeout command examples use `PYTHONWARNINGS=ignore` as operational convenience while deterministic-env lock text remains focused on `TZ`, `LC_ALL`, and `PYTHONHASHSEED`.
+- v43 hash-capture scope is intentionally constrained to frozen v41 semantic-compiler evidence hashes for this first additive key migration.
 
 ## Post-Hoc Variance vs v6 Planning
 
@@ -77,6 +96,8 @@ Status: post-hoc assessment (March 4, 2026 UTC).
 
 ## Follow-on Recommendation
 
-1. Keep additive-key migrations explicitly enumerated per arc in lock and decision docs.
-2. Preserve post-hoc audit pass after each merged additive extension.
-3. Gate any further stop-gate key additions behind dedicated lock text (no implicit expansion from this arc).
+1. Add a guard-inversion test with a deliberately wrong candidate hash fixture so parity drift rejection is directly exercised.
+2. Add an authenticity guard that recomputes at least one captured hash from committed source artifacts and compares against fixture claims.
+3. Decide and document whether `PYTHONWARNINGS=ignore` is part of deterministic env contract or explicit non-contract operational convenience.
+4. Consider adding `case_b` fixture coverage for `adeu.semantic_compiler.evidence_hashes` after first post-hoc feedback loop completion.
+5. Keep additive-key migrations explicitly enumerated per arc and block further key additions without explicit lock text.

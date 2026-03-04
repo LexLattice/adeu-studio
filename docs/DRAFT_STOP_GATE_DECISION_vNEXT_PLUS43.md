@@ -112,6 +112,13 @@ Summary:
 }
 ```
 
+## Post-Hoc Reviewer Findings (Non-Blocking for v43 Closeout)
+
+1. The current v43 parity fixtures validate deterministic baseline/candidate equivalence, but do not yet include a deliberate negative-parity candidate case.
+2. The current parity check confirms fixture-to-fixture consistency and does not yet independently recompute fixture claims from committed semantic-compiler source artifacts.
+3. v43 fixture coverage is intentionally narrow (single fixture id / single surface id) for the first additive migration.
+4. Closeout command examples include `PYTHONWARNINGS=ignore` as operational convenience, while deterministic lock env contract remains keyed to `TZ`, `LC_ALL`, and `PYTHONHASHSEED`.
+
 ## Recommendation (Post v43)
 
 - gate decision:
@@ -123,5 +130,8 @@ Summary:
 ## Suggested Next Artifacts
 
 1. Keep v43 post-hoc lock and assessment docs aligned with merged implementation details.
-2. Run a post-hoc feedback pass on v43 implementation and capture any remediation deltas in a focused follow-on PR.
-3. Start v44 planning with explicit lock text for whichever path is selected next (no implicit carryover of key-expansion authority).
+2. Run a post-hoc feedback pass on v43 implementation and capture remediation deltas in a focused follow-on PR:
+   - add negative-parity guard-inversion fixture/test,
+   - add authenticity recompute guard from committed artifacts,
+   - decide/document `PYTHONWARNINGS=ignore` contract posture.
+3. Start v44 planning only after the post-hoc feedback loop outcome is recorded (no implicit carryover of key-expansion authority).
