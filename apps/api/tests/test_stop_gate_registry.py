@@ -107,7 +107,10 @@ def _manifest_template_literal_occurrences_outside_registry() -> list[str]:
 
 def test_registry_active_version_set_matches_frozen_v27_baseline() -> None:
     expected_versions = tuple(
-        int(value) for value in "7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26".split(",")
+        int(value)
+        for value in "7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27".split(
+            ","
+        )
     )
     assert ACTIVE_STOP_GATE_MANIFEST_VERSIONS == expected_versions
 
@@ -193,7 +196,7 @@ def test_inactive_manifest_cli_flags_fail_closed_before_output(
     assert captured.out == ""
     assert captured.err.strip() == (
         "inactive stop-gate manifest flags are unsupported: --vnext-plus12-manifest "
-        "(active versions: 7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26)"
+        "(active versions: 7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27)"
     )
     assert not out_json.exists()
     assert not out_md.exists()
@@ -210,7 +213,7 @@ def test_stop_gate_tools_cli_rejects_inactive_manifest_flags(
     assert captured.out == ""
     assert captured.err.strip() == (
         "inactive stop-gate manifest flags are unsupported: --vnext-plus12-manifest "
-        "(active versions: 7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26)"
+        "(active versions: 7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27)"
     )
 
 

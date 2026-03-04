@@ -12,7 +12,8 @@ from urm_runtime.hashing import canonical_json
 
 LINT_SCHEMA = "closeout_consistency_lint@1"
 ASSERTION_SCHEMA = "metric_key_continuity_assertion@1"
-EXPECTED_RELATION = "exact_keyset_equality"
+EXACT_RELATION = "exact_keyset_equality"
+ADDITIVE_RELATION = "baseline_subset_with_required_additions"
 
 REQUIRED_DOCS: tuple[str, ...] = (
     "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS29.md",
@@ -53,6 +54,8 @@ PROVENANCE_BY_REQUIRED_DOC: dict[str, dict[str, str]] = {
 class ContinuityAssertion:
     baseline_metrics_path: str
     current_metrics_path: str
+    expected_relation: str
+    required_additive_keys: tuple[str, ...]
 
 
 @dataclass
@@ -174,12 +177,30 @@ def _parse_assertion_block(block_text: str) -> ContinuityAssertion:
         "expected_relation",
     }
     payload_keys = set(payload.keys())
-    if payload_keys != required_keys:
-        raise ValueError("assertion keys must match frozen grammar")
     if payload.get("schema") != ASSERTION_SCHEMA:
         raise ValueError("assertion schema mismatch")
-    if payload.get("expected_relation") != EXPECTED_RELATION:
+    expected_relation = payload.get("expected_relation")
+    if expected_relation not in (EXACT_RELATION, ADDITIVE_RELATION):
         raise ValueError("assertion relation mismatch")
+    if expected_relation == EXACT_RELATION:
+        if payload_keys != required_keys:
+            raise ValueError("assertion keys must match frozen grammar for exact relation")
+        required_additive_keys: tuple[str, ...] = ()
+    else:
+        relation_keys = required_keys | {"required_additive_keys"}
+        if payload_keys != relation_keys:
+            raise ValueError("assertion keys must match frozen grammar for additive relation")
+        raw_required_additive_keys = payload.get("required_additive_keys")
+        if not isinstance(raw_required_additive_keys, list) or not raw_required_additive_keys:
+            raise ValueError("required_additive_keys must be a non-empty list")
+        normalized_additive_keys: list[str] = []
+        for item in raw_required_additive_keys:
+            if not isinstance(item, str) or not item:
+                raise ValueError("required_additive_keys entries must be non-empty strings")
+            normalized_additive_keys.append(item)
+        if len(set(normalized_additive_keys)) != len(normalized_additive_keys):
+            raise ValueError("required_additive_keys entries must be unique")
+        required_additive_keys = tuple(sorted(normalized_additive_keys))
 
     baseline = payload.get("baseline_metrics_path")
     current = payload.get("current_metrics_path")
@@ -189,6 +210,8 @@ def _parse_assertion_block(block_text: str) -> ContinuityAssertion:
     return ContinuityAssertion(
         baseline_metrics_path=baseline,
         current_metrics_path=current,
+        expected_relation=expected_relation,
+        required_additive_keys=required_additive_keys,
     )
 
 
@@ -323,15 +346,43 @@ def _lint_single_doc(
     current_metrics = current_payload["metrics"]
     baseline_keys = set(baseline_metrics.keys())
     current_keys = set(current_metrics.keys())
-    if baseline_keys != current_keys:
-        result.add_failure(
-            doc_path=doc_path,
-            code="KEYSET_MISMATCH",
-            details={
-                "baseline_metrics_path": assertion.baseline_metrics_path,
-                "current_metrics_path": assertion.current_metrics_path,
-            },
-        )
+    if assertion.expected_relation == EXACT_RELATION:
+        if baseline_keys != current_keys:
+            result.add_failure(
+                doc_path=doc_path,
+                code="KEYSET_MISMATCH",
+                details={
+                    "baseline_metrics_path": assertion.baseline_metrics_path,
+                    "current_metrics_path": assertion.current_metrics_path,
+                    "expected_relation": EXACT_RELATION,
+                },
+            )
+    elif assertion.expected_relation == ADDITIVE_RELATION:
+        if not baseline_keys.issubset(current_keys):
+            result.add_failure(
+                doc_path=doc_path,
+                code="KEYSET_MISMATCH",
+                details={
+                    "baseline_metrics_path": assertion.baseline_metrics_path,
+                    "current_metrics_path": assertion.current_metrics_path,
+                    "expected_relation": ADDITIVE_RELATION,
+                    "reason": "baseline_not_subset_of_current",
+                },
+            )
+        added_keys = current_keys - baseline_keys
+        expected_added_keys = set(assertion.required_additive_keys)
+        if added_keys != expected_added_keys:
+            result.add_failure(
+                doc_path=doc_path,
+                code="KEYSET_MISMATCH",
+                details={
+                    "baseline_metrics_path": assertion.baseline_metrics_path,
+                    "current_metrics_path": assertion.current_metrics_path,
+                    "expected_relation": ADDITIVE_RELATION,
+                    "expected_added_keys": sorted(expected_added_keys),
+                    "actual_added_keys": sorted(added_keys),
+                },
+            )
 
     expected_provenance = PROVENANCE_BY_REQUIRED_DOC.get(doc_path)
     if expected_provenance is None:

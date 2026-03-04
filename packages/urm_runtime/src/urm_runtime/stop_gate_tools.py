@@ -202,6 +202,12 @@ VNEXT_PLUS26_DEFAULT_METRICS = {
     "artifact_stop_gate_input_model_parity_pct": 0.0,
     "artifact_transfer_report_builder_parity_pct": 0.0,
 }
+VNEXT_PLUS27_REPLAY_COUNT = 3
+VNEXT_PLUS27_MANIFEST_SCHEMA = "stop_gate.vnext_plus27_manifest@1"
+SEMANTIC_COMPILER_HASH_CAPTURE_SCHEMA = "semantic_compiler_hash_capture@1"
+VNEXT_PLUS27_DEFAULT_METRICS = {
+    "artifact_semantic_compiler_evidence_hash_parity_pct": 0.0,
+}
 CROSS_IR_BRIDGE_MANIFEST_SCHEMA = "adeu_cross_ir_bridge_manifest@0.1"
 CROSS_IR_COHERENCE_DIAGNOSTICS_SCHEMA = "adeu_cross_ir_coherence_diagnostics@0.1"
 CROSS_IR_QUALITY_PROJECTION_SCHEMA = "cross_ir_quality_projection.vnext_plus20@1"
@@ -306,6 +312,12 @@ _FROZEN_VNEXT_PLUS26_TOOLING_SURFACES: tuple[str, ...] = (
     "adeu.tooling.transfer_report_builder_parity",
 )
 _FROZEN_VNEXT_PLUS26_TOOLING_SURFACE_SET = frozenset(_FROZEN_VNEXT_PLUS26_TOOLING_SURFACES)
+_FROZEN_VNEXT_PLUS27_SEMANTIC_COMPILER_SURFACES: tuple[str, ...] = (
+    "adeu.semantic_compiler.evidence_hashes",
+)
+_FROZEN_VNEXT_PLUS27_SEMANTIC_COMPILER_SURFACE_SET = frozenset(
+    _FROZEN_VNEXT_PLUS27_SEMANTIC_COMPILER_SURFACES
+)
 _FROZEN_VNEXT_PLUS20_NON_EMPTY_ISSUE_CODES = frozenset(
     {
         "MISSING_CONCEPT_MAPPING",
@@ -467,6 +479,7 @@ THRESHOLDS = {
     "artifact_core_ir_proposer_provider_parity_pct": 100.0,
     "artifact_stop_gate_input_model_parity_pct": 100.0,
     "artifact_transfer_report_builder_parity_pct": 100.0,
+    "artifact_semantic_compiler_evidence_hash_parity_pct": 100.0,
     "semantic_depth_improvement_lock": True,
     "quality_delta_non_negative": True,
 }
@@ -516,6 +529,7 @@ VNEXT_PLUS23_MANIFEST_PATH = default_stop_gate_manifest_path(23)
 VNEXT_PLUS24_MANIFEST_PATH = default_stop_gate_manifest_path(24)
 VNEXT_PLUS25_MANIFEST_PATH = default_stop_gate_manifest_path(25)
 VNEXT_PLUS26_MANIFEST_PATH = default_stop_gate_manifest_path(26)
+VNEXT_PLUS27_MANIFEST_PATH = default_stop_gate_manifest_path(27)
 VNEXT_PLUS24_CATALOG_PATH = _default_vnext_plus24_catalog_path()
 
 
@@ -5577,6 +5591,14 @@ _VNEXT_PLUS26_TOOLING_PARITY_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
         ("baseline_path", "candidate_path"),
     ),
 )
+_VNEXT_PLUS27_SEMANTIC_COMPILER_SPECS: tuple[_IntegritySurfaceFixtureSpec, ...] = (
+    (
+        "semantic_compiler_evidence_hash_fixtures",
+        "artifact_semantic_compiler_evidence_hash_parity_pct",
+        "adeu.semantic_compiler.evidence_hashes",
+        ("baseline_path", "candidate_path"),
+    ),
+)
 
 
 def _validate_integrity_surface_fixtures(
@@ -6872,6 +6894,136 @@ def _tooling_vnext_plus26_parity_hash_input_bytes(
     candidate_projection = _tooling_parity_hash_projection_vnext_plus26(
         payload=candidate_payload,
         repo_root=repo_root,
+    )
+    return len(canonical_json(baseline_projection).encode("utf-8")) + len(
+        canonical_json(candidate_projection).encode("utf-8")
+    )
+
+
+def _semantic_compiler_hash_capture_projection(
+    *,
+    payload: Mapping[str, Any],
+    path: Path,
+) -> dict[str, Any]:
+    schema = payload.get("schema")
+    if schema != SEMANTIC_COMPILER_HASH_CAPTURE_SCHEMA:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+                "semantic-compiler hash capture fixture has unsupported schema",
+                context={"path": str(path), "schema": schema},
+            )
+        )
+    hash_profile = payload.get("hash_profile")
+    if hash_profile != "sha256_canonical_json_frozen":
+        raise ValueError(
+            _issue(
+                "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+                "semantic-compiler hash capture fixture has unsupported hash_profile",
+                context={"path": str(path), "hash_profile": hash_profile},
+            )
+        )
+    artifact_hashes = payload.get("artifact_hashes")
+    if not isinstance(artifact_hashes, Mapping) or not artifact_hashes:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+                "semantic-compiler hash capture fixture requires non-empty artifact_hashes object",
+                context={"path": str(path)},
+            )
+        )
+    normalized_artifact_hashes: dict[str, str] = {}
+    for key, value in artifact_hashes.items():
+        if not isinstance(key, str) or not key:
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+                    "semantic-compiler hash capture fixture artifact_hashes keys must be strings",
+                    context={"path": str(path)},
+                )
+            )
+        if not isinstance(value, str) or not _is_lower_sha256(value):
+            raise ValueError(
+                _issue(
+                    "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+                    (
+                        "semantic-compiler hash capture fixture artifact_hashes values "
+                        "must be lowercase sha256 strings"
+                    ),
+                    context={"path": str(path), "artifact_key": key},
+                )
+            )
+        normalized_artifact_hashes[key] = value
+    return {
+        "schema": SEMANTIC_COMPILER_HASH_CAPTURE_SCHEMA,
+        "hash_profile": "sha256_canonical_json_frozen",
+        "artifact_hashes": {
+            key: normalized_artifact_hashes[key] for key in sorted(normalized_artifact_hashes)
+        },
+    }
+
+
+def _semantic_compiler_vnext_plus27_fixture_hash(
+    *,
+    baseline_path: Path,
+    candidate_path: Path,
+) -> str:
+    baseline_payload = _read_tooling_parity_payload(
+        path=baseline_path,
+        description="vnext+27 semantic-compiler hash baseline artifact",
+        invalid_code="URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+    )
+    candidate_payload = _read_tooling_parity_payload(
+        path=candidate_path,
+        description="vnext+27 semantic-compiler hash candidate artifact",
+        invalid_code="URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+    )
+    baseline_projection = _semantic_compiler_hash_capture_projection(
+        payload=baseline_payload,
+        path=baseline_path,
+    )
+    candidate_projection = _semantic_compiler_hash_capture_projection(
+        payload=candidate_payload,
+        path=candidate_path,
+    )
+    baseline_hash = sha256_canonical_json(baseline_projection)
+    candidate_hash = sha256_canonical_json(candidate_projection)
+    if baseline_hash != candidate_hash:
+        raise ValueError(
+            _issue(
+                "URM_ADEU_SEMANTIC_COMPILER_PARITY_DRIFT",
+                "vnext+27 semantic-compiler evidence hash parity drift",
+                context={
+                    "baseline_path": str(baseline_path),
+                    "candidate_path": str(candidate_path),
+                },
+            )
+        )
+    return candidate_hash
+
+
+def _semantic_compiler_vnext_plus27_hash_input_bytes(
+    *,
+    baseline_path: Path,
+    candidate_path: Path,
+) -> int:
+    baseline_payload = _read_tooling_parity_payload(
+        path=baseline_path,
+        description="vnext+27 semantic-compiler hash baseline artifact",
+        invalid_code="URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+    )
+    candidate_payload = _read_tooling_parity_payload(
+        path=candidate_path,
+        description="vnext+27 semantic-compiler hash candidate artifact",
+        invalid_code="URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+    )
+    baseline_projection = _semantic_compiler_hash_capture_projection(
+        payload=baseline_payload,
+        path=baseline_path,
+    )
+    candidate_projection = _semantic_compiler_hash_capture_projection(
+        payload=candidate_payload,
+        path=candidate_path,
     )
     return len(canonical_json(baseline_projection).encode("utf-8")) + len(
         canonical_json(candidate_projection).encode("utf-8")
@@ -13408,6 +13560,105 @@ def _compute_vnext_plus26_metrics(
     }
 
 
+def _load_vnext_plus27_manifest_payload(
+    *,
+    manifest_path: Path,
+) -> tuple[dict[str, Any], str]:
+    try:
+        return _load_integrity_manifest_payload(
+            manifest_path=manifest_path,
+            manifest_label="vnext+27",
+            manifest_schema=VNEXT_PLUS27_MANIFEST_SCHEMA,
+            replay_count=VNEXT_PLUS27_REPLAY_COUNT,
+            surface_specs=_VNEXT_PLUS27_SEMANTIC_COMPILER_SPECS,
+            frozen_surface_set=_FROZEN_VNEXT_PLUS27_SEMANTIC_COMPILER_SURFACE_SET,
+            frozen_surfaces=_FROZEN_VNEXT_PLUS27_SEMANTIC_COMPILER_SURFACES,
+            surface_description="frozen vnext+27 semantic-compiler surface id",
+            surface_set_description="frozen vnext+27 semantic-compiler surface ids",
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+            str(exc),
+        )
+        issue = _map_issue_code(
+            issue,
+            code_map={
+                "URM_ADEU_INTEGRITY_FIXTURE_INVALID": (
+                    "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID"
+                ),
+                "URM_ADEU_INTEGRITY_MANIFEST_HASH_MISMATCH": (
+                    "URM_ADEU_SEMANTIC_COMPILER_MANIFEST_HASH_MISMATCH"
+                ),
+            },
+        )
+        raise ValueError(issue) from exc
+
+
+def _compute_vnext_plus27_metrics(
+    *,
+    manifest_path: Path | None,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any]:
+    resolved_manifest_path = (
+        manifest_path if manifest_path is not None else VNEXT_PLUS27_MANIFEST_PATH
+    )
+    try:
+        manifest, manifest_hash = _load_vnext_plus27_manifest_payload(
+            manifest_path=resolved_manifest_path
+        )
+    except ValueError as exc:
+        issue = exc.args[0] if exc.args and isinstance(exc.args[0], dict) else _issue(
+            "URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+            str(exc),
+        )
+        issues.append(issue)
+        return {
+            **VNEXT_PLUS27_DEFAULT_METRICS,
+            "vnext_plus27_manifest_hash": "",
+            "vnext_plus27_fixture_count_total": 0,
+            "vnext_plus27_replay_count_total": 0,
+            "vnext_plus27_bytes_hashed_per_replay": 0,
+            "vnext_plus27_bytes_hashed_total": 0,
+        }
+
+    fixtures = cast(
+        list[dict[str, Any]],
+        manifest["semantic_compiler_evidence_hash_fixtures"],
+    )
+    metric_name = "artifact_semantic_compiler_evidence_hash_parity_pct"
+    metric_value = _manifest_metric_pct(
+        manifest_path=resolved_manifest_path,
+        metric_name=metric_name,
+        fixtures=fixtures,
+        replay_count=VNEXT_PLUS27_REPLAY_COUNT,
+        required_run_fields=("baseline_path", "candidate_path"),
+        run_hash_builder=_semantic_compiler_vnext_plus27_fixture_hash,
+        issues=issues,
+        invalid_issue_code="URM_ADEU_SEMANTIC_COMPILER_FIXTURE_INVALID",
+        drift_issue_code="URM_ADEU_SEMANTIC_COMPILER_PARITY_DRIFT",
+        drift_issue_message="vnext+27 semantic-compiler evidence hash parity drift",
+    )
+    bytes_hashed_per_replay = _manifest_pair_bytes_hashed_per_replay(
+        manifest_path=resolved_manifest_path,
+        fixtures=fixtures,
+        first_run_field="baseline_path",
+        second_run_field="candidate_path",
+        run_bytes_builder=_semantic_compiler_vnext_plus27_hash_input_bytes,
+    )
+    fixture_count_total = len(fixtures)
+    replay_count_total = sum(len(cast(list[Any], fixture.get("runs", []))) for fixture in fixtures)
+    return {
+        metric_name: metric_value,
+        "vnext_plus27_manifest_hash": manifest_hash,
+        "vnext_plus27_fixture_count_total": fixture_count_total,
+        "vnext_plus27_replay_count_total": replay_count_total,
+        "vnext_plus27_bytes_hashed_per_replay": bytes_hashed_per_replay,
+        "vnext_plus27_bytes_hashed_total": VNEXT_PLUS27_REPLAY_COUNT
+        * bytes_hashed_per_replay,
+    }
+
+
 @dataclass(frozen=True)
 class StopGateMetricsInput:
     incident_packet_paths: tuple[Path, ...]
@@ -13436,6 +13687,7 @@ class StopGateMetricsInput:
     vnext_plus24_manifest_path: Path | None = None
     vnext_plus25_manifest_path: Path | None = None
     vnext_plus26_manifest_path: Path | None = None
+    vnext_plus27_manifest_path: Path | None = None
 
     @classmethod
     def from_legacy_kwargs(
@@ -13467,6 +13719,7 @@ class StopGateMetricsInput:
         vnext_plus24_manifest_path: Path | None = None,
         vnext_plus25_manifest_path: Path | None = None,
         vnext_plus26_manifest_path: Path | None = None,
+        vnext_plus27_manifest_path: Path | None = None,
     ) -> "StopGateMetricsInput":
         return cls(
             incident_packet_paths=tuple(incident_packet_paths),
@@ -13495,6 +13748,7 @@ class StopGateMetricsInput:
             vnext_plus24_manifest_path=vnext_plus24_manifest_path,
             vnext_plus25_manifest_path=vnext_plus25_manifest_path,
             vnext_plus26_manifest_path=vnext_plus26_manifest_path,
+            vnext_plus27_manifest_path=vnext_plus27_manifest_path,
         )
 
 
@@ -13525,6 +13779,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
     vnext_plus24_manifest_path = stop_gate_input.vnext_plus24_manifest_path
     vnext_plus25_manifest_path = stop_gate_input.vnext_plus25_manifest_path
     vnext_plus26_manifest_path = stop_gate_input.vnext_plus26_manifest_path
+    vnext_plus27_manifest_path = stop_gate_input.vnext_plus27_manifest_path
 
     runtime_started = time.monotonic()
     issues: list[dict[str, Any]] = []
@@ -13938,6 +14193,10 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
         manifest_path=vnext_plus26_manifest_path,
         issues=issues,
     )
+    vnext_plus27_metrics = _compute_vnext_plus27_metrics(
+        manifest_path=vnext_plus27_manifest_path,
+        issues=issues,
+    )
 
     quality_current_metrics = quality_current.get("metrics")
     quality_baseline_metrics = quality_baseline.get("metrics")
@@ -14012,6 +14271,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             + int(vnext_plus24_metrics["vnext_plus24_fixture_count_total"])
             + int(vnext_plus25_metrics["vnext_plus25_fixture_count_total"])
             + int(vnext_plus26_metrics["vnext_plus26_fixture_count_total"])
+            + int(vnext_plus27_metrics["vnext_plus27_fixture_count_total"])
         ),
         total_replays=(
             int(vnext_plus19_metrics["vnext_plus19_replay_count_total"])
@@ -14022,6 +14282,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             + int(vnext_plus24_metrics["vnext_plus24_replay_count_total"])
             + int(vnext_plus25_metrics["vnext_plus25_replay_count_total"])
             + int(vnext_plus26_metrics["vnext_plus26_replay_count_total"])
+            + int(vnext_plus27_metrics["vnext_plus27_replay_count_total"])
         ),
         bytes_hashed_per_replay=(
             int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_per_replay", 0))
@@ -14032,6 +14293,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_per_replay", 0))
             + int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_per_replay", 0))
             + int(vnext_plus26_metrics.get("vnext_plus26_bytes_hashed_per_replay", 0))
+            + int(vnext_plus27_metrics.get("vnext_plus27_bytes_hashed_per_replay", 0))
         ),
         bytes_hashed_total=(
             int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_total", 0))
@@ -14042,6 +14304,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_total", 0))
             + int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_total", 0))
             + int(vnext_plus26_metrics.get("vnext_plus26_bytes_hashed_total", 0))
+            + int(vnext_plus27_metrics.get("vnext_plus27_bytes_hashed_total", 0))
         ),
         runtime_started=runtime_started,
     )
@@ -14242,6 +14505,9 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
         "artifact_transfer_report_builder_parity_pct": vnext_plus26_metrics[
             "artifact_transfer_report_builder_parity_pct"
         ],
+        "artifact_semantic_compiler_evidence_hash_parity_pct": vnext_plus27_metrics[
+            "artifact_semantic_compiler_evidence_hash_parity_pct"
+        ],
     }
     gates = {
         "policy_incident_reproducibility": metrics["policy_incident_reproducibility_pct"]
@@ -14425,6 +14691,10 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             "artifact_transfer_report_builder_parity_pct"
         ]
         >= THRESHOLDS["artifact_transfer_report_builder_parity_pct"],
+        "artifact_semantic_compiler_evidence_hash_parity": metrics[
+            "artifact_semantic_compiler_evidence_hash_parity_pct"
+        ]
+        >= THRESHOLDS["artifact_semantic_compiler_evidence_hash_parity_pct"],
         VNEXT_PLUS18_CI_BUDGET_GATE_KEY: (
             metrics[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
             >= THRESHOLDS[VNEXT_PLUS18_CI_BUDGET_METRIC_KEY]
@@ -14557,6 +14827,11 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
                 if vnext_plus26_manifest_path is not None
                 else VNEXT_PLUS26_MANIFEST_PATH
             ),
+            "vnext_plus27_manifest_path": _render_input_path(
+                vnext_plus27_manifest_path
+                if vnext_plus27_manifest_path is not None
+                else VNEXT_PLUS27_MANIFEST_PATH
+            ),
         },
         "vnext_plus8_manifest_hash": vnext_plus8_metrics["vnext_plus8_manifest_hash"],
         "vnext_plus9_manifest_hash": vnext_plus9_metrics["vnext_plus9_manifest_hash"],
@@ -14576,6 +14851,7 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
         "vnext_plus24_manifest_hash": vnext_plus24_metrics["vnext_plus24_manifest_hash"],
         "vnext_plus25_manifest_hash": vnext_plus25_metrics["vnext_plus25_manifest_hash"],
         "vnext_plus26_manifest_hash": vnext_plus26_metrics["vnext_plus26_manifest_hash"],
+        "vnext_plus27_manifest_hash": vnext_plus27_metrics["vnext_plus27_manifest_hash"],
         "thresholds": THRESHOLDS,
         "metrics": metrics,
         "gates": gates,
@@ -14620,6 +14896,7 @@ def build_stop_gate_metrics(
     vnext_plus24_manifest_path: Path | None = None,
     vnext_plus25_manifest_path: Path | None = None,
     vnext_plus26_manifest_path: Path | None = None,
+    vnext_plus27_manifest_path: Path | None = None,
 ) -> dict[str, Any]:
     return build_stop_gate_metrics_from_input(
         StopGateMetricsInput.from_legacy_kwargs(
@@ -14649,6 +14926,7 @@ def build_stop_gate_metrics(
             vnext_plus24_manifest_path=vnext_plus24_manifest_path,
             vnext_plus25_manifest_path=vnext_plus25_manifest_path,
             vnext_plus26_manifest_path=vnext_plus26_manifest_path,
+            vnext_plus27_manifest_path=vnext_plus27_manifest_path,
         )
     )
 
@@ -14678,6 +14956,7 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(f"- vnext+24 manifest hash: `{report.get('vnext_plus24_manifest_hash')}`")
     lines.append(f"- vnext+25 manifest hash: `{report.get('vnext_plus25_manifest_hash')}`")
     lines.append(f"- vnext+26 manifest hash: `{report.get('vnext_plus26_manifest_hash')}`")
+    lines.append(f"- vnext+27 manifest hash: `{report.get('vnext_plus27_manifest_hash')}`")
     lines.append("")
     lines.append("## Metrics")
     lines.append("")
@@ -14957,6 +15236,10 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
     lines.append(
         "- artifact transfer-report builder parity pct: "
         f"`{metrics.get('artifact_transfer_report_builder_parity_pct')}`"
+    )
+    lines.append(
+        "- artifact semantic-compiler evidence hash parity pct: "
+        f"`{metrics.get('artifact_semantic_compiler_evidence_hash_parity_pct')}`"
     )
     lines.append(
         "- quality delta non-negative: "
