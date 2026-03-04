@@ -20,6 +20,7 @@ bootstrap:
 		-e "packages/adeu_commitments_ir[dev]" \
 		-e "packages/adeu_semantic_source[dev]" \
 		-e "packages/adeu_semantic_compiler[dev]" \
+		-e "packages/adeu_agent_harness[dev]" \
 		-e packages/urm_runtime \
 		-e packages/urm_domain_adeu \
 		-e packages/urm_domain_digest \
