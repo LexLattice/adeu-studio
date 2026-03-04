@@ -328,7 +328,10 @@ def _validate_artifact_family_scope_policy(
                 "actual": scope_policy.get("new_required_semantic_compiler_artifact_families"),
             },
         )
-    if scope_policy.get("new_required_semantic_compiler_artifact_schema_ids") != "forbidden_non_v42":
+    if (
+        scope_policy.get("new_required_semantic_compiler_artifact_schema_ids")
+        != "forbidden_non_v42"
+    ):
         result.add_failure(
             code="NEW_REQUIRED_SEMANTIC_COMPILER_ARTIFACT_SCHEMA_INTRODUCED",
             details={
@@ -635,7 +638,10 @@ def _validate_runtime_observability_block(
         if not _is_safe_repo_relative_path(source_path):
             result.add_failure(
                 code="REQUIRED_CLOSEOUT_BLOCK_MISSING",
-                details={"context": "runtime_observability_source_path_invalid", "path": source_path},
+                details={
+                    "context": "runtime_observability_source_path_invalid",
+                    "path": source_path,
+                },
             )
             continue
         full_path = repo_root / source_path
@@ -811,10 +817,16 @@ def _compute_required_check_identity(
                 if not isinstance(step, dict):
                     continue
                 run_value = step.get("run")
-                if isinstance(run_value, str) and re.search(r"(^|[\n;&|])\s*make\s+lint(\s|$)", run_value):
+                if isinstance(run_value, str) and re.search(
+                    r"(^|[\n;&|])\s*make\s+lint(\s|$)",
+                    run_value,
+                ):
                     result.add_failure(
                         code="CI_WIRING_REQUIRED_LINT_INDIRECT_INVOCATION_DETECTED",
-                        details={"lint_entrypoint": lint_entrypoint, "run": _normalize_run_command(run_value)},
+                        details={
+                            "lint_entrypoint": lint_entrypoint,
+                            "run": _normalize_run_command(run_value),
+                        },
                     )
                     break
             result.add_failure(
@@ -856,7 +868,10 @@ def _compute_required_check_identity(
             {
                 "lint_entrypoint": lint_entrypoint,
                 "run_command_normalized": _normalize_run_command(run_value),
-                "working_directory_or_repo_root": _working_directory_for_step(job=job, step=matched_step),
+                "working_directory_or_repo_root": _working_directory_for_step(
+                    job=job,
+                    step=matched_step,
+                ),
                 "env_overrides_subset": env_subset,
             }
         )
@@ -1023,7 +1038,10 @@ def _validate_closeout_decision_doc(
                     code="SEMANTIC_COMPILER_ARTIFACT_HASH_MISMATCH",
                     details={"context": "canonical_hash_invalid", "artifact": artifact_key},
                 )
-        expected_cardinality = contract.get("stop_gate_continuity_policy", {}).get("expected_cardinality")
+        expected_cardinality = contract.get(
+            "stop_gate_continuity_policy",
+            {},
+        ).get("expected_cardinality")
         if evidence_block.get("metric_key_cardinality") != expected_cardinality:
             result.add_failure(
                 code="STOP_GATE_METRIC_KEYSET_DRIFT",
@@ -1045,7 +1063,9 @@ def _validate_closeout_decision_doc(
             coverage_signature_sha256 = coverage_value
 
         workflow_path_text = ci_wiring.get("workflow_authority")
-        if not isinstance(workflow_path_text, str) or not _is_safe_repo_relative_path(workflow_path_text):
+        if not isinstance(workflow_path_text, str) or not _is_safe_repo_relative_path(
+            workflow_path_text
+        ):
             result.add_failure(
                 code="CI_WIRING_COVERAGE_DRIFT",
                 details={"reason": "workflow_authority_path_invalid"},
@@ -1090,7 +1110,10 @@ def _validate_closeout_decision_doc(
                 code="CI_WIRING_COVERAGE_SIGNATURE_MISMATCH",
                 details={"reason": "coverage_signature_unavailable"},
             )
-        elif coverage_signature_sha256 is not None and computed_signature != coverage_signature_sha256:
+        elif (
+            coverage_signature_sha256 is not None
+            and computed_signature != coverage_signature_sha256
+        ):
             result.add_failure(
                 code="CI_WIRING_COVERAGE_SIGNATURE_MISMATCH",
                 details={"expected": coverage_signature_sha256, "actual": computed_signature},
