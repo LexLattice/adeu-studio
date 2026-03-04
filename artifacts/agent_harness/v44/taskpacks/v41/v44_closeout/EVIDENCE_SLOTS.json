@@ -1,0 +1,1 @@
+{"profile_id":"v44_closeout_default","required_count":2,"schema":"taskpack/evidence_slots@1","slots":[{"description":"Capture deterministic bundle verification status.","required":true,"slot_id":"taskpack_bundle_verify_status"},{"description":"Capture canonical taskpack manifest hash.","required":true,"slot_id":"taskpack_manifest_sha256"}]}

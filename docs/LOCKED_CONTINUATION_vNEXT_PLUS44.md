@@ -1,6 +1,6 @@
-# Locked Continuation vNext+44 (Draft Lock)
+# Locked Continuation vNext+44 (Post-Hoc Lock)
 
-This document drafts the next arc after:
+This document captures the implemented arc after:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS43.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS43.md`
@@ -8,20 +8,20 @@ This document drafts the next arc after:
 - `docs/SEMANTICS_v3.md`
 - `docs/ARCHITECTURE_ADEU_SEMANTIC_COMPILER_v0.md`
 
-Status: draft lock (not frozen yet).
+Status: closed lock (post-hoc capture, March 5, 2026 UTC).
 
-## Draft-State Marker (Machine-Checkable)
+## Lock-State Marker (Machine-Checkable)
 
 ```json
 {
   "schema": "lock_artifact_state@1",
   "artifact": "docs/LOCKED_CONTINUATION_vNEXT_PLUS44.md",
-  "phase": "draft_lock",
-  "authoritative": false,
-  "authoritative_scope": "planning_intent_only",
-  "required_in_freeze_review": true,
+  "phase": "closed_lock",
+  "authoritative": true,
+  "authoritative_scope": "arc_lock_and_scope_for_v44_closeout",
+  "required_in_freeze_review": false,
   "required_in_closeout": true,
-  "notes": "Draft lock placeholder state. Freeze-review and closeout updates must promote this artifact from planning-intent-only posture."
+  "notes": "Post-hoc lock capture for v44 implementation scope and continuity posture."
 }
 ```
 
@@ -29,13 +29,10 @@ Decision basis:
 
 - `vNext+43` (`V32-F`) is merged on `main` via PR `#233` with green CI checks.
 - `vNext+43` closeout decision capture is recorded in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS43.md`.
-- Post-v43 planning baseline is `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`.
-- Selected v44 thin-slice default is agent harness contract/compiler candidate:
-  - `V33-A` (Pipeline Profile + TaskPack contracts + deterministic compiler).
-- `vNext+44` is constrained to deterministic additive hardening for `V33-A` only:
-  - no Codex SDK execution runner release (`V33-B`) in this arc,
-  - no verifier/evidence writer lane release (`V33-C`) in this arc,
-  - no integrated/standalone UX packaging release (`V33-D`) in this arc.
+- v44 planning baseline was `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`.
+- `vNext+44` (`V33-A`, `S1`) is merged on `main` via PR `#236`.
+- `vNext+44` (`V33-A`, `S2`) is merged on `main` via PR `#237`.
+- Arc-completion merge commit for v44 is `be15f3e5ece3a46a4cd17d6818d193070d059955`.
 
 ## Global Locks
 
@@ -102,9 +99,9 @@ Decision basis:
 - Closeout observability continuity lock is frozen:
   - v44 closeout must include a runtime-observability comparison row against v43 canonical baseline.
 
-## Arc Scope (Draft Lock)
+## Arc Scope (Closed)
 
-This arc proposes one thin-slice chunk with two implementation slices (one PR each):
+This arc closes one thin-slice chunk with two implementation slices:
 
 1. `S1` Pipeline Profile + TaskPack contracts + deterministic compiler MVP (`V33-A`)
 2. `S2` Determinism/fail-closed guard suite for `V33-A`
@@ -393,10 +390,10 @@ Prove v44 contract/compiler behavior is deterministic, fail-closed, and continui
 - Harness diagnostics namespace (`AHK[0-9]{4}`) in this arc is contract-diagnostics authority only.
 - Deterministic tooling/scripts/tests in this arc use deterministic exit behavior and fail closed on invalid inputs.
 
-## Commit / PR Plan (Small Green PRs)
+## Merged PRs (Closed)
 
-1. `contracts: add V33-A pipeline profile and taskpack contract/compiler MVP`
-2. `tests: add v44 taskpack determinism and fail-closed guard suite`
+1. `#236` `contracts: add V33-A pipeline profile and taskpack compiler MVP`
+2. `#237` `tests: add v44 taskpack determinism and fail-closed guard suite`
 
 ## Intermediate Preconditions (for v44 start)
 
@@ -408,12 +405,12 @@ Prove v44 contract/compiler behavior is deterministic, fail-closed, and continui
    - `apps/api/scripts/lint_closeout_consistency.py`
 5. No additional `L2` boundary release beyond v43 baseline is introduced in this arc.
 
-## Exit Criteria (Draft)
+## Exit Criteria (Closed)
 
 - `S1` and `S2` merged with green CI.
 - No new stop-gate metric keys introduced.
 - `stop_gate_metrics@1` remains the only stop-gate schema family.
-- Deterministic `V33-A` taskpack contract/compiler MVP is closed and test-covered.
-- v44 closeout evidence includes runtime-observability comparison row against v43 baseline.
+- Deterministic `V33-A` taskpack contract/compiler MVP is closed and test-covered on `main`.
+- v44 closeout evidence includes runtime-observability comparison row against v43 baseline and `v33a_taskpack_wiring_evidence@1` block.
 - v36-v43 continuity remains green and unreverted.
 - No solver semantics contract delta and no trust-lane regression introduced.

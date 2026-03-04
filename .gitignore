@@ -37,6 +37,21 @@ artifacts/semantic_compiler/v41/*
 artifacts/stop_gate/*
 !artifacts/stop_gate/metrics_v*_closeout*.json
 !artifacts/stop_gate/report_v*_closeout*.md
+!artifacts/agent_harness/
+artifacts/agent_harness/*
+!artifacts/agent_harness/v44/
+artifacts/agent_harness/v44/*
+!artifacts/agent_harness/v44/taskpack_profile_registry.json
+!artifacts/agent_harness/v44/profiles/
+artifacts/agent_harness/v44/profiles/*
+!artifacts/agent_harness/v44/profiles/v44_closeout_profile.json
+!artifacts/agent_harness/v44/taskpacks/
+artifacts/agent_harness/v44/taskpacks/*
+!artifacts/agent_harness/v44/taskpacks/v41/
+artifacts/agent_harness/v44/taskpacks/v41/*
+!artifacts/agent_harness/v44/taskpacks/v41/v44_closeout/
+artifacts/agent_harness/v44/taskpacks/v41/v44_closeout/*
+!artifacts/agent_harness/v44/taskpacks/v41/v44_closeout/*
 
 # Editors
 .idea/
