@@ -53,6 +53,39 @@ _AHK0013_TASKPACK_SECTION_ORDER_DRIFT = "AHK0013"
 _AHK0014_PROFILE_REGISTRY_DUPLICATE_PROFILE_ID = "AHK0014"
 _AHK0015_PROFILE_REGISTRY_ORDER_INVALID = "AHK0015"
 _AHK0016_PROFILE_REGISTRY_ENTRY_INVALID = "AHK0016"
+_AHK0017_TASKPACK_COMPONENT_MISSING = "AHK0017"
+_AHK0018_TASKPACK_COMPONENT_SCHEMA_ID_DRIFT = "AHK0018"
+_AHK0019_TASKPACK_MANIFEST_COMPONENT_HASH_MISMATCH = "AHK0019"
+_AHK0020_TASKPACK_BUNDLE_HASH_SUBJECT_DRIFT = "AHK0020"
+
+_SHA256_LOWER_PATTERN = re.compile(r"[0-9a-f]{64}")
+_TASKPACK_SCHEMA_ID_PATTERN = re.compile(r"taskpack/[a-z_]+@[0-9]+")
+_REQUIRED_COMPONENTS_BY_PATH = {
+    "TASKPACK.md": {
+        "component_name": "TASKPACK.md",
+        "schema_id": TASKPACK_MARKDOWN_SCHEMA,
+    },
+    "ACCEPTANCE.json": {
+        "component_name": "ACCEPTANCE.json",
+        "schema_id": TASKPACK_ACCEPTANCE_SCHEMA,
+    },
+    "ALLOWLIST.json": {
+        "component_name": "ALLOWLIST.json",
+        "schema_id": TASKPACK_ALLOWLIST_SCHEMA,
+    },
+    "FORBIDDEN.json": {
+        "component_name": "FORBIDDEN.json",
+        "schema_id": TASKPACK_FORBIDDEN_SCHEMA,
+    },
+    "COMMANDS.json": {
+        "component_name": "COMMANDS.json",
+        "schema_id": TASKPACK_COMMANDS_SCHEMA,
+    },
+    "EVIDENCE_SLOTS.json": {
+        "component_name": "EVIDENCE_SLOTS.json",
+        "schema_id": TASKPACK_EVIDENCE_SLOTS_SCHEMA,
+    },
+}
 
 
 @dataclass(frozen=True)
@@ -853,6 +886,159 @@ def _write_bytes(path: Path, data: bytes) -> None:
     path.write_bytes(data)
 
 
+def verify_taskpack_bundle(
+    *,
+    out_dir: str | Path,
+    expected_manifest_sha256: str | None = None,
+    repo_root_path: str | Path | None = None,
+) -> str:
+    root = repo_root(anchor=Path(repo_root_path) if repo_root_path is not None else Path.cwd())
+    out_rel = _normalize_relative_path(str(out_dir))
+    out_path = root / out_rel
+    manifest_path = out_path / "taskpack_manifest.json"
+    manifest_payload = _load_json_object(manifest_path)
+    _require_schema(
+        manifest_payload,
+        expected_schema=TASKPACK_MANIFEST_SCHEMA,
+        path=manifest_path,
+    )
+
+    components_raw = manifest_payload.get("components")
+    if not isinstance(components_raw, list):
+        raise _fail(
+            code=_AHK0017_TASKPACK_COMPONENT_MISSING,
+            message="taskpack manifest components must be a list",
+            details={"path": str(manifest_path)},
+        )
+
+    components_by_path: dict[str, dict[str, Any]] = {}
+    for index, component in enumerate(components_raw):
+        if not isinstance(component, dict):
+            raise _fail(
+                code=_AHK0017_TASKPACK_COMPONENT_MISSING,
+                message="taskpack component entry must be an object",
+                details={"path": str(manifest_path), "index": index},
+            )
+        if set(component.keys()) != {"component", "schema_id", "relative_path", "sha256"}:
+            raise _fail(
+                code=_AHK0017_TASKPACK_COMPONENT_MISSING,
+                message="taskpack component entry keys must match frozen grammar",
+                details={
+                    "path": str(manifest_path),
+                    "index": index,
+                    "keys": sorted(component.keys()),
+                },
+            )
+        relative_path_raw = component.get("relative_path")
+        if not isinstance(relative_path_raw, str):
+            raise _fail(
+                code=_AHK0017_TASKPACK_COMPONENT_MISSING,
+                message="taskpack component relative_path must be a string",
+                details={"path": str(manifest_path), "index": index},
+            )
+        relative_path = _normalize_relative_path(relative_path_raw)
+        if relative_path in components_by_path:
+            raise _fail(
+                code=_AHK0017_TASKPACK_COMPONENT_MISSING,
+                message="taskpack component relative_path values must be unique",
+                details={"path": str(manifest_path), "relative_path": relative_path},
+            )
+        components_by_path[relative_path] = component
+
+    expected_paths = sorted(_REQUIRED_COMPONENTS_BY_PATH.keys())
+    observed_paths = sorted(components_by_path.keys())
+    if observed_paths != expected_paths:
+        raise _fail(
+            code=_AHK0017_TASKPACK_COMPONENT_MISSING,
+            message="taskpack required component set mismatch",
+            details={
+                "expected_paths": expected_paths,
+                "observed_paths": observed_paths,
+            },
+        )
+
+    for relative_path in expected_paths:
+        expected_component = _REQUIRED_COMPONENTS_BY_PATH[relative_path]
+        component = components_by_path[relative_path]
+        component_name = component.get("component")
+        if component_name != expected_component["component_name"]:
+            raise _fail(
+                code=_AHK0018_TASKPACK_COMPONENT_SCHEMA_ID_DRIFT,
+                message="taskpack component name drift detected",
+                details={
+                    "relative_path": relative_path,
+                    "expected_component_name": expected_component["component_name"],
+                    "observed_component_name": component_name,
+                },
+            )
+
+        schema_id = component.get("schema_id")
+        if not isinstance(schema_id, str) or not _TASKPACK_SCHEMA_ID_PATTERN.fullmatch(schema_id):
+            raise _fail(
+                code=_AHK0018_TASKPACK_COMPONENT_SCHEMA_ID_DRIFT,
+                message="taskpack component schema_id violates frozen format",
+                details={"relative_path": relative_path, "observed_schema_id": schema_id},
+            )
+        if schema_id != expected_component["schema_id"]:
+            raise _fail(
+                code=_AHK0018_TASKPACK_COMPONENT_SCHEMA_ID_DRIFT,
+                message="taskpack component schema_id drift detected",
+                details={
+                    "relative_path": relative_path,
+                    "expected_schema_id": expected_component["schema_id"],
+                    "observed_schema_id": schema_id,
+                },
+            )
+
+        recorded_sha256 = component.get("sha256")
+        if not isinstance(recorded_sha256, str) or not _SHA256_LOWER_PATTERN.fullmatch(
+            recorded_sha256
+        ):
+            raise _fail(
+                code=_AHK0019_TASKPACK_MANIFEST_COMPONENT_HASH_MISMATCH,
+                message="taskpack component sha256 field is invalid",
+                details={"relative_path": relative_path, "recorded_sha256": recorded_sha256},
+            )
+
+        component_path = out_path / relative_path
+        if not component_path.is_file():
+            raise _fail(
+                code=_AHK0017_TASKPACK_COMPONENT_MISSING,
+                message="taskpack component file is missing",
+                details={"relative_path": relative_path, "path": str(component_path)},
+            )
+        computed_sha256 = _sha256_bytes(component_path.read_bytes())
+        if computed_sha256 != recorded_sha256:
+            raise _fail(
+                code=_AHK0019_TASKPACK_MANIFEST_COMPONENT_HASH_MISMATCH,
+                message="taskpack component sha256 mismatch",
+                details={
+                    "relative_path": relative_path,
+                    "recorded_sha256": recorded_sha256,
+                    "computed_sha256": computed_sha256,
+                },
+            )
+
+    observed_manifest_sha256 = sha256_canonical_json(manifest_payload)
+    if expected_manifest_sha256 is not None:
+        if not _SHA256_LOWER_PATTERN.fullmatch(expected_manifest_sha256):
+            raise _fail(
+                code=_AHK0020_TASKPACK_BUNDLE_HASH_SUBJECT_DRIFT,
+                message="expected manifest sha256 must be lowercase 64-char sha256",
+                details={"expected_manifest_sha256": expected_manifest_sha256},
+            )
+        if observed_manifest_sha256 != expected_manifest_sha256:
+            raise _fail(
+                code=_AHK0020_TASKPACK_BUNDLE_HASH_SUBJECT_DRIFT,
+                message="taskpack bundle hash subject drift detected",
+                details={
+                    "expected_manifest_sha256": expected_manifest_sha256,
+                    "observed_manifest_sha256": observed_manifest_sha256,
+                },
+            )
+    return observed_manifest_sha256
+
+
 def compile_taskpack(
     *,
     profile_registry_path: str | Path,
@@ -1098,6 +1284,11 @@ def compile_taskpack(
     _write_bytes(commands_path, component_bytes["COMMANDS"])
     _write_bytes(evidence_slots_path, component_bytes["EVIDENCE_SLOTS"])
     _write_bytes(manifest_path, manifest_bytes)
+    verify_taskpack_bundle(
+        out_dir=out_rel,
+        expected_manifest_sha256=manifest_hash,
+        repo_root_path=root,
+    )
 
     return TaskpackCompileResult(
         out_dir=out_path,
