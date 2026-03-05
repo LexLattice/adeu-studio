@@ -15,8 +15,10 @@ from adeu_agent_harness._v48_signing_common import (
     AHK4804_CROSS_ARTIFACT_HASH_MISMATCH,
     AHK4805_ALGORITHM_POLICY_VIOLATION,
     AHK4806_KEY_LIFECYCLE_POLICY_VIOLATION,
+    AHK4807_SIGNATURE_VERIFICATION_RESULT_INVALID,
     AHK4808_CONTRACT_REGISTRY_INVALID,
     load_diagnostic_registry,
+    project_repo_root,
 )
 from adeu_agent_harness.compile import (
     PIPELINE_PROFILE_SCHEMA,
@@ -25,6 +27,7 @@ from adeu_agent_harness.compile import (
 )
 from adeu_agent_harness.verify_taskpack_signature import (
     SIGNATURE_VERIFICATION_RESULT_SCHEMA,
+    SIGNING_CONTRACT_SCHEMA,
     TRUST_ANCHOR_REGISTRY_SCHEMA,
     TaskpackSigningError,
     validate_signature_verification_result_for_downstream,
@@ -723,6 +726,60 @@ def test_signature_verification_result_schema_required_for_downstream(tmp_path: 
     assert payload["code"] == AHK4802_SCHEMA_MISMATCH
 
 
+@pytest.mark.parametrize(
+    ("field", "value"),
+    (
+        ("contract_schema", "wrong_contract@1"),
+        ("verification_library", "unknown_library"),
+    ),
+)
+def test_signature_verification_result_fixed_contract_fields_required_for_downstream(
+    tmp_path: Path,
+    field: str,
+    value: str,
+) -> None:
+    root, taskpack_dir_rel, diagnostic_registry_rel = _setup_repo(tmp_path)
+    manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
+    envelope_rel, trust_registry_rel = _seed_ed25519_material(
+        root,
+        manifest_hash=manifest_hash,
+        bundle_hash=bundle_hash,
+    )
+
+    result = verify_taskpack_signature(
+        taskpack_dir=taskpack_dir_rel,
+        signature_envelope_path=envelope_rel,
+        trust_anchor_registry_path=trust_registry_rel,
+        verification_reference_time_utc="2026-03-05T00:00:00Z",
+        verification_output_root="artifacts/agent_harness/v48/signing",
+        diagnostic_registry_path=diagnostic_registry_rel,
+        repo_root_path=root,
+    )
+    result_path = result.verification_result_path
+    result_payload = _read_json(result_path)
+    assert result_payload["contract_schema"] == SIGNING_CONTRACT_SCHEMA
+    result_payload[field] = value
+    _write_json(result_path, result_payload)
+
+    signature_envelope_hash = sha256_canonical_json(_read_json(root / envelope_rel))
+    trust_anchor_registry_hash = sha256_canonical_json(_read_json(root / trust_registry_rel))
+
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        validate_signature_verification_result_for_downstream(
+            signature_verification_result_path=_relative(root, result_path),
+            taskpack_manifest_hash=manifest_hash,
+            taskpack_bundle_hash=bundle_hash,
+            signature_envelope_hash=signature_envelope_hash,
+            trust_anchor_registry_hash=trust_anchor_registry_hash,
+            verification_reference_time_utc="2026-03-05T00:00:00Z",
+            signer_key_id="key_ed25519_default",
+            algorithm="ed25519",
+            repo_root_path=root,
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4807_SIGNATURE_VERIFICATION_RESULT_INVALID
+
+
 def test_signature_verification_result_source_binding_rejects_unbound_artifact(
     tmp_path: Path,
 ) -> None:
@@ -838,13 +895,13 @@ def test_signing_required_violations_are_error_channel_only(tmp_path: Path) -> N
 
 
 def test_stop_gate_metric_keyset_exact_equal_v47() -> None:
-    repo_root = Path(__file__).resolve().parents[3]
+    repo_root = project_repo_root(anchor=Path(__file__))
     baseline_path = repo_root / "artifacts" / "stop_gate" / "metrics_v47_closeout.json"
     candidate_path = repo_root / "artifacts" / "stop_gate" / "metrics_v47_closeout.json"
     _assert_stop_gate_keyset_equal(baseline_path=baseline_path, candidate_path=candidate_path)
 
 
 def test_stop_gate_metric_cardinality_equals_80_from_metrics_keys_only() -> None:
-    repo_root = Path(__file__).resolve().parents[3]
+    repo_root = project_repo_root(anchor=Path(__file__))
     metrics_path = repo_root / "artifacts" / "stop_gate" / "metrics_v47_closeout.json"
     _assert_stop_gate_cardinality_80(metrics_path=metrics_path)

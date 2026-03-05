@@ -67,17 +67,6 @@ _SIGNATURE_RESULT_REQUIRED_KEYS = {
     "verified",
     "verification_library",
 }
-_SIGNATURE_RESULT_AUTHORITY_FIELDS = {
-    "taskpack_manifest_hash",
-    "taskpack_bundle_hash",
-    "signature_envelope_hash",
-    "trust_anchor_registry_hash",
-    "verification_reference_time_utc",
-    "preflight_invocation_binding_hash",
-    "signer_key_id",
-    "algorithm",
-    "verified",
-}
 _NONDETERMINISTIC_RESULT_FIELDS = {
     "wall_clock_timestamp",
     "host_identity",
@@ -876,6 +865,28 @@ def validate_signature_verification_result_for_downstream(
             policy_source="signature_verification_result",
         )
 
+    expected_fixed_fields: dict[str, str] = {
+        "contract_schema": SIGNING_CONTRACT_SCHEMA,
+        "verification_library": "openssl_cli",
+    }
+    for field, expected in expected_fixed_fields.items():
+        observed = payload.get(field)
+        if observed != expected:
+            raise fail(
+                code=AHK4807_SIGNATURE_VERIFICATION_RESULT_INVALID,
+                message="signature verification result fixed contract field mismatch",
+                details={
+                    "path": str(result_path),
+                    "field": field,
+                    "expected": expected,
+                    "observed": observed,
+                },
+                artifact_path=str(result_path),
+                signer_key_id=signer_key_id,
+                algorithm=algorithm,
+                policy_source="signature_verification_result",
+            )
+
     expected_bindings: dict[str, Any] = {
         "taskpack_manifest_hash": taskpack_manifest_hash,
         "taskpack_bundle_hash": taskpack_bundle_hash,
@@ -884,7 +895,6 @@ def validate_signature_verification_result_for_downstream(
         "verification_reference_time_utc": verification_reference_time_utc,
         "signer_key_id": signer_key_id,
         "algorithm": algorithm,
-        "verified": True,
     }
     for field, expected in expected_bindings.items():
         observed = payload.get(field)
@@ -903,20 +913,6 @@ def validate_signature_verification_result_for_downstream(
                 algorithm=algorithm,
                 policy_source="signature_verification_result",
             )
-
-    observed_authority_fields = {
-        field for field in payload.keys() if field in _SIGNATURE_RESULT_AUTHORITY_FIELDS
-    }
-    if observed_authority_fields != _SIGNATURE_RESULT_AUTHORITY_FIELDS:
-        raise fail(
-            code=AHK4807_SIGNATURE_VERIFICATION_RESULT_INVALID,
-            message="signature verification authority-field set drift detected",
-            details={"observed_authority_fields": sorted(observed_authority_fields)},
-            artifact_path=str(result_path),
-            signer_key_id=signer_key_id,
-            algorithm=algorithm,
-            policy_source="signature_verification_result",
-        )
 
     expected_preflight_hash = _compute_preflight_invocation_binding_hash(
         manifest_hash=taskpack_manifest_hash,
