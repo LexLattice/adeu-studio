@@ -639,10 +639,11 @@ def test_package_ux_emits_rejection_diagnostic_and_no_partial_package_on_failure
     assert rejection_payload["schema"] == "v33d_packaging_rejection_diagnostic@1"
     assert rejection_payload["issues"][0]["issue_code"] == AHK4704_CROSS_ARTIFACT_HASH_MISMATCH
 
-    packaging_output_path = (
+    packaging_output_root = (
         _repo_root_path(packaging_repo) / packaging_repo["packaging_output_root"]
     )
-    assert not packaging_output_path.exists() or not list(packaging_output_path.rglob("*.json"))
+    mode_output_path = packaging_output_root / DEPLOYMENT_MODE_INTEGRATED
+    assert not mode_output_path.exists() or not any(mode_output_path.iterdir())
 
 
 def test_package_ux_fails_closed_on_registry_prefix_drift(
@@ -789,16 +790,29 @@ def test_emit_rejection_diagnostic_orders_and_normalizes_paths(tmp_path: Path) -
 
     emitted_payload = _load_json(emitted)
     rows = emitted_payload["issues"]
-    assert rows == sorted(
-        rows,
-        key=lambda row: (
-            row["issue_code"],
-            row["artifact_path"],
-            row["deployment_mode"],
-            row["policy_source"],
-        ),
-    )
-    assert any(row["artifact_path"] == "b/file.json" for row in rows)
+    assert rows == [
+        {
+            "issue_code": "AHK4701",
+            "reason": "first by code/path",
+            "artifact_path": "a/file.json",
+            "deployment_mode": "adeu_integrated",
+            "policy_source": "verified_result",
+        },
+        {
+            "issue_code": "AHK4702",
+            "reason": "earlier policy source",
+            "artifact_path": "b/file.json",
+            "deployment_mode": "standalone",
+            "policy_source": "packaging_manifest",
+        },
+        {
+            "issue_code": "AHK4702",
+            "reason": "later policy source",
+            "artifact_path": "b/file.json",
+            "deployment_mode": "standalone",
+            "policy_source": "stop_gate_metrics",
+        },
+    ]
 
 
 def test_emit_rejection_diagnostic_fails_on_policy_source_outside_closed_enum(
