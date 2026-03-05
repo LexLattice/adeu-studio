@@ -1,8 +1,8 @@
-# Assessment vNext+46 Edges (V33-C Draft)
+# Assessment vNext+46 Edges (V33-C Post-Hoc)
 
-This document records pre-implementation edge analysis for `vNext+46` (`V33-C` deterministic auditor/verifier + evidence writer).
+This document records post-implementation edge analysis for `vNext+46` (`V33-C` deterministic auditor/verifier + evidence writer).
 
-Status: draft assessment (March 5, 2026 UTC).
+Status: post-hoc assessment (March 5, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,11 +10,11 @@ Status: draft assessment (March 5, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md",
-  "phase": "draft_assessment",
+  "phase": "post_hoc_assessment",
   "authoritative": true,
-  "authoritative_scope": "v46_planning_edge_analysis",
+  "authoritative_scope": "v46_closeout_edge_analysis",
   "required_in_closeout": true,
-  "notes": "Pre-implementation edge assessment for V33-C scope and fail-closed planning posture."
+  "notes": "Post-hoc assessment refreshed against merged v46 implementation and closeout artifacts."
 }
 ```
 
@@ -26,17 +26,25 @@ Status: draft assessment (March 5, 2026 UTC).
 ## Inputs
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS46.md`
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS45.md`
-- `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`
-- `packages/adeu_agent_harness/src/adeu_agent_harness/run_taskpack.py`
-- `packages/adeu_agent_harness/tests/test_taskpack_runner.py`
+- PR `#240` (`contracts: add V33-C deterministic verifier lane + evidence writer MVP`)
+- PR `#241` (`tests: add v46 verifier determinism and fail-closed guard suite`)
+- `packages/adeu_agent_harness/src/adeu_agent_harness/verify_taskpack_run.py`
+- `packages/adeu_agent_harness/src/adeu_agent_harness/write_closeout_evidence.py`
+- `packages/adeu_agent_harness/tests/test_taskpack_verifier.py`
 - `apps/api/scripts/lint_closeout_consistency.py`
-- `artifacts/quality_dashboard_v45_closeout.json`
-- `artifacts/stop_gate/metrics_v45_closeout.json`
-- `artifacts/stop_gate/report_v45_closeout.md`
+- `artifacts/quality_dashboard_v46_closeout.json`
+- `artifacts/stop_gate/metrics_v46_closeout.json`
+- `artifacts/stop_gate/report_v46_closeout.md`
+- `artifacts/agent_harness/v46/taskpack_profile_registry.json`
+- `artifacts/agent_harness/v46/profiles/v46_closeout_profile.json`
+- `artifacts/agent_harness/v46/closeout_runner_result_run1.json`
+- `artifacts/agent_harness/v46/closeout_runner_result_run2.json`
+- `artifacts/agent_harness/v46/closeout_verify_result_run1.json`
+- `artifacts/agent_harness/v46/closeout_verify_result_run2.json`
+- `artifacts/agent_harness/v46/closeout_evidence_result_run1.json`
+- `artifacts/agent_harness/v46/closeout_evidence_result_run2.json`
 
-## Draft Edge Set (V33-C)
+## Post-Hoc Edge Set (V33-C)
 
 1. Verifier-input authority drift risk (non-artifact input accepted as authority).
 2. Verifier input schema drift risk across runner result/provenance/candidate plan artifacts.
@@ -57,66 +65,92 @@ Status: draft assessment (March 5, 2026 UTC).
 17. Dual-entrypoint orchestration drift risk (evidence writer invoked independently without prior verified-result artifact).
 18. Arc-scoped diagnostic prefix drift risk (`AHK46xx`) from parent namespace contract (`AHK[0-9]{4}`).
 
-## Planned Guardrail Strategy
+## Guardrail Evaluation (Observed)
 
-- Freeze verifier authority to canonical artifacts only; reject natural-language authority inputs fail closed.
-- Freeze verifier role to auditor-only behavior; policy validation recomputation is forbidden in v46.
-- Freeze dual-entrypoint control flow:
-  - default path is deterministic `verify -> evidence_write`,
-  - independent evidence-writer reruns are allowed only with prior verified-result artifact.
-- Enforce strict schema/version checks for runner output and provenance artifacts.
-- Require deterministic cross-hash checks before evidence write path is reachable.
-- Enforce cross-hash semantics as recomputation from canonical artifact payloads (recorded hash strings alone are non-authoritative).
-- Couple evidence emission to verifier pass state via single no-bypass gate (no partial closeout blocks on verification failure).
-- Enforce evidence-slot authority from `EVIDENCE_SLOTS.json` only with required-slot completeness checks.
-- Enforce writable evidence schema allowlist to v46 closeout block set only.
-- Freeze `evidence_bundle_hash` subject definition and ordering semantics.
-- Enforce canonical JSON serialization (`canonical_json`) for each evidence block and each rejection diagnostic before bundle-hash subject assembly.
-- Emit deterministic structured rejection diagnostics with stable key ordering.
-- Enforce verifier diagnostics code namespace/prefix and authoritative code registry use.
-- Enforce explicit `AHK46xx` subset mapping under global `AHK[0-9]{4}` namespace.
-- Enforce `policy_source` closed-enum typing in verifier rejection diagnostics for machine-joinable downstream evidence analysis.
-- Enforce required-violation error channel (non-zero exit) without warning downgrade.
-- Preserve stop-gate continuity (`stop_gate_metrics@1`, exact keyset equality, cardinality `80` computed from `metrics` keys).
+- Verifier authority lock: pass.
+  - verifier input is canonical artifact-only; non-authoritative inputs fail closed.
+- Auditor-only boundary lock: pass.
+  - verifier checks policy-validation consistency from runner artifacts and does not recompute policy validation in v46.
+- Dual-entrypoint control-flow lock: pass.
+  - closeout reruns followed deterministic `verify -> evidence_write` sequence.
+- Schema and frozen-grammar enforcement lock: pass.
+  - runner result/provenance/verified-result/evidence blocks enforce strict schema + key sets.
+- Cross-artifact recomputation hash-check lock: pass.
+  - verifier recomputes canonical hashes and rejects mismatches fail closed.
+- No-bypass evidence emission lock: pass.
+  - evidence writer requires `verification_result.passed = true` and empty issue set.
+- Evidence-slot authority lock: pass.
+  - required slot set and `required_count` are enforced against `EVIDENCE_SLOTS.json`.
+- Evidence schema allowlist lock: pass.
+  - emitted block set is constrained to the frozen v46 three-schema allowlist.
+- Canonical serialization + hash-subject lock: pass.
+  - evidence blocks and diagnostics are canonicalized before bundle hash assembly.
+- Diagnostics namespace/policy-source lock: pass.
+  - `AHK46xx` prefix and registry validation enforced; policy source closed-enum enforced.
+- Required error-channel lock: pass.
+  - required violations are emitted as errors with non-zero exit.
+- Stop-gate continuity lock: pass.
+  - `stop_gate_metrics@1` retained; v45-v46 metric keysets are exact-set equal with derived cardinality `80`.
 
-## Planned Validation Signals for Closeout
+## Closeout Validation Signals (Observed)
 
-- deterministic verifier output rerun parity:
-  - `artifacts/agent_harness/v46/verification/closeout_verify_result_run1.json`
-  - `artifacts/agent_harness/v46/verification/closeout_verify_result_run2.json`
-- deterministic evidence bundle hash parity:
-  - `artifacts/agent_harness/v46/evidence/closeout_evidence_bundle.json`
-  - `artifacts/agent_harness/v46/evidence/closeout_evidence_bundle.sha256`
-- verification-failure no-evidence emission invariant:
-  - failed verify fixture emits no closeout blocks under `artifacts/agent_harness/v46/evidence` (rejection diagnostics only)
-- deterministic provenance parity:
-  - `artifacts/agent_harness/v46/evidence/provenance/closeout_verifier_provenance.json`
-- stop-gate continuity evidence:
+- deterministic verifier rerun parity: pass.
+  - `artifacts/agent_harness/v46/closeout_verify_result_run1.json`
+  - `artifacts/agent_harness/v46/closeout_verify_result_run2.json`
+  - byte-identical across reruns.
+- deterministic evidence writer rerun parity: pass.
+  - `artifacts/agent_harness/v46/closeout_evidence_result_run1.json`
+  - `artifacts/agent_harness/v46/closeout_evidence_result_run2.json`
+  - byte-identical across reruns.
+- deterministic runner rerun parity (v46 closeout lane inputs): pass.
+  - `artifacts/agent_harness/v46/closeout_runner_result_run1.json`
+  - `artifacts/agent_harness/v46/closeout_runner_result_run2.json`
+  - byte-identical across reruns.
+- deterministic evidence bundle + provenance generation: pass.
+  - bundle hash: `eb50c46cdd214b8c462e6e415a4f96d902ac5a0c03e7401c285dc968428f8775`
+  - verifier provenance hash: `c4b22bf472d0e2fd0cad14b580ce088046845ef4c712a1197248187efa8ccf3e`
+- verification-failure no-evidence emission invariant: pass.
+  - enforced by guard test `test_write_closeout_evidence_fails_closed_with_no_partial_evidence_emission`.
+- stop-gate continuity evidence: pass.
   - `artifacts/quality_dashboard_v46_closeout.json`
   - `artifacts/stop_gate/metrics_v46_closeout.json`
   - `artifacts/stop_gate/report_v46_closeout.md`
 
-## Residual Risks (Pre-Implementation)
+## Coverage Snapshot
 
-1. Adapter evolution can silently alter verifier semantics if adapter-boundary contracts are not kept strict.
-2. v46 verifier is auditor-only and does not independently recompute policy validation; a compromised runner that emits internally consistent but incorrect policy results remains a deferred trust-model risk.
-3. Runtime-observability comparison remains informational-only unless future lock text converts it to thresholded gating.
+- v46 verifier guard file covers `19` deterministic/fail-closed cases.
+- Closeout verification run executed `19` tests in:
+  - `packages/adeu_agent_harness/tests/test_taskpack_verifier.py`
+- closeout consistency lint is green with v46 decision doc included in checked docs.
+
+## Known Limits (Accepted in v46)
+
+- `V33-D` integrated/standalone UX packaging remains deferred.
+- Independent zero-trust policy-validation recomputation remains deferred beyond v46.
+- Automated rejection-feedback retry orchestration remains deferred beyond v46.
+- Remote/enclave attested verifier execution remains deferred beyond v46.
+
+## Residual Risks
+
+1. Verifier trust model is transitional in v46 (consistency verification over runner outputs, not independent policy recompute).
+2. Adapter and registry evolution can re-open authority boundaries if frozen contracts drift.
+3. Runtime-observability comparison remains informational-only unless future lock text promotes thresholded gating.
 
 ## Feedback Disposition (Gemini)
 
-1. Independent policy recomputation in verifier: deferred (non-v46) to preserve frozen v46 scope and avoid runner-policy-engine duplication in this arc.
-2. Canonical JSON bundle-hash input enforcement: accepted and locked in v46 contract text.
+1. Independent policy recomputation in verifier: deferred (non-v46) to preserve frozen scope.
+2. Canonical JSON bundle-hash input enforcement: accepted and implemented in v46 contract + runtime checks.
 3. Rejection-diagnostic retry-context feeder: deferred follow-on candidate (non-v46).
 4. Multi-party attested verifier execution: deferred follow-on candidate (non-v46).
 
 ## Feedback Disposition (Opus)
 
-1. Dual-entrypoint sequencing ambiguity: accepted and locked with deterministic default `verify -> evidence_write`, plus guarded independent rerun semantics.
-2. Transitional trust model risk: accepted as explicit v46 tradeoff; independent zero-trust recompute remains deferred to non-v46 lock.
-3. AHK46 namespace mapping ambiguity: accepted and locked as `AHK46xx` subset of global `AHK[0-9]{4}` with registry authority.
+1. Dual-entrypoint sequencing ambiguity: accepted and implemented with deterministic default `verify -> evidence_write` plus guarded independent rerun semantics.
+2. Transitional trust model risk: accepted as explicit v46 tradeoff; independent zero-trust recompute remains deferred.
+3. AHK46 namespace mapping ambiguity: accepted and implemented as `AHK46xx` subset of `AHK[0-9]{4}` with registry authority.
 
 ## Follow-on Recommendation
 
-1. Implement `U1` first with strict no-bypass verification-to-evidence control flow and deterministic provenance subject.
-2. Implement `U2` immediately after `U1` with explicit fail-closed tests for each locked condition.
-3. Keep all v46 closeout regeneration commands under frozen deterministic env contract (`TZ=UTC`, `LC_ALL=C`, `PYTHONHASHSEED=0`).
+1. Start `vNext+47` planning for `V33-D` with explicit packaging boundary locks.
+2. Preserve v46 verifier/evidence closeout artifacts as baseline fixtures for verifier-lane parity checks.
+3. Keep v46 deterministic env contract (`TZ=UTC`, `LC_ALL=C`, `PYTHONHASHSEED=0`) mandatory for all closeout regeneration paths.

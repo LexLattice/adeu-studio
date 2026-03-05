@@ -101,3 +101,9 @@ current milestone PR sequence.
   evaluate replacing per-arc transfer-report builder/script entrypoints with a
   generic deterministic multi-arc pipeline once v26-v28 transfer-report contracts
   are stable enough for shared template/schema orchestration.
+- `cleanup-vnext-plus46-closeout-command-script-extraction`:
+  extract long inline `python -c` payloads from closeout decision-doc command
+  blocks (for example in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS46.md`) into
+  dedicated helper scripts under `apps/api/scripts/`, while preserving deterministic
+  env requirements and exact artifact outputs. Add a lightweight doc/lint guard to
+  flag oversized embedded script commands in future closeout docs.
