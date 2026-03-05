@@ -1,109 +1,312 @@
-# Future Cleanups Tracker
+# Future Cleanups and Open Edges
 
-This note tracks small follow-up cleanups that are intentionally out of scope for the
-current milestone PR sequence.
+This tracker is the current-state cleanup and open-edge view for the repo.
 
-## Pending
+It supersedes the older mixed backlog format. The goal is to keep only items that are
+still open in the current implementation, or still intentionally deferred as explicit
+future-path work.
 
-- `cleanup-policy-cli-strictness-defaults`:
-  align `policy validate`, `policy eval`, and `policy diff` strictness defaults and
-  preserve explicit compatibility flags. This is the separate cleanup PR noted during N2 planning.
-- `cleanup-copilot-child-queue-method-extraction`:
-  refactor large `URMCopilotManager` methods in
-  `packages/urm_runtime/src/urm_runtime/copilot.py` into smaller helpers without behavior
-  changes:
-  - `_run_child_workflow_v2`
-  - `_spawn_child_v2`
-  - `_recover_stale_child_runs`
-  This was deferred from PR3/PR4 as maintainability-only follow-up work.
-- `cleanup-vnext-plus16-schema-consolidation-evaluation`:
-  evaluate whether `adeu_integrity_dangling_reference@0.1`,
-  `adeu_integrity_cycle_policy@0.1`, and `adeu_integrity_deontic_conflict@0.1`
-  should remain separate or move to a unified `adeu_integrity@0.1` family with a
-  deterministic discriminator, after v16 stability evidence is available.
-- `cleanup-vnext-plus16-drift-error-granularity`:
-  evaluate splitting shared `URM_ADEU_INTEGRITY_DIAGNOSTIC_DRIFT` into
-  per-diagnostic-family drift codes if debugging signal is insufficient in production.
-- `cleanup-vnext-plus16-stop-gate-ci-budget`:
-  assess CI/runtime budget impact from cumulative stop-gate metric growth (30+ metrics),
-  and propose bounded runtime strategies (fixture scheduling, selective lanes, or
-  deterministic parallelization) without reducing gate guarantees.
-- `cleanup-vnext-plus16-d2-d-lane-cycle-expansion`:
-  evaluate whether integrity cycle diagnostics should expand beyond `E`-layer
-  `depends_on` edges to include `D`-lane policy/exception cyclic structures in a follow-on arc.
-- `cleanup-vnext-plus16-d3-condition-alias-policy`:
-  revisit whether normalized condition aliases beyond current baseline should include or
-  exclude additional semantic tokens; confirm long-term handling of `"always"`/`"none"` style
-  condition encodings against real fixture distributions.
-- `cleanup-vnext-plus16-hostile-fixture-generation`:
-  evaluate adding deterministic procedural hostile fixture generation for integrity diagnostics
-  (malformed/dangling/cyclic payload families) to improve defense-in-depth coverage while
-  preserving replay determinism.
-- `cleanup-vnext-plus16-diagnostic-delta-tracking`:
-  evaluate additive baseline-to-baseline diagnostic delta tracking (deterministic hash or
-  counts diff) in transfer-report tooling for faster regression triage across arcs.
-- `cleanup-vnext-plus16-shared-validation-module`:
-  extract duplicated v16 manifest/artifact validation logic currently mirrored between
-  `packages/urm_runtime/src/urm_runtime/stop_gate_tools.py` and
-  `apps/api/src/adeu_api/integrity_transfer_report_vnext_plus16.py` into shared helpers
-  (runtime-owned) to reduce maintenance drift risk without changing validation behavior.
-- `cleanup-vnext-plus25-extraction-fidelity-ui-render-keys`:
-  for the planned v25 diff-viewer surface, add an explicit UI-safe render key contract
-  (derived key field or constrained `match_id` profile) so frontend key props do not rely
-  on opaque `match_id` content assumptions from v24.
-- `cleanup-vnext-plus24-x4-catalog-helper-cache`:
-  apply a tiny read-path optimization in
-  `apps/api/tests/test_extraction_fidelity_x4_guards.py` by caching `_catalog_payload`
-  (and clearing that cache in the autouse fixture) to avoid repeated fixture file I/O
-  when test case count grows.
-- `cleanup-read-surface-guard-harness-consolidation`:
-  consolidate repeated guard-test scaffolding across read-surface families
-  (`*_c4_guards.py`, `*_n4_guards.py`, `*_t4_guards.py`, `*_v4_guards.py`,
-  `test_extraction_fidelity_x4_guards.py`) into shared helper utilities for
-  materialization-target lists, fixture-surface hashing, and non-enforcement key scans.
-- `cleanup-next-arc-options-rollover-discipline`:
-  reduce stale planning-state drift in `docs/DRAFT_NEXT_ARC_OPTIONS_v4.md` by
-  introducing a lightweight update checklist/script that is run whenever an arc
-  closeout decision doc is merged (execution checkpoint + proposed freeze candidate
-  sections must be advanced in the same follow-up commit).
-- `cleanup-vnext-plus25-s3b-metric-key-finalization`:
-  before freezing `docs/LOCKED_CONTINUATION_vNEXT_PLUS25.md`, validate and align
-  proposed v25 S3b stop-gate metric key names against runtime conventions to avoid
-  lock/doc naming drift during implementation.
-- `cleanup-vnext-plus25-provider-telemetry-capture`:
-  evaluate adding optional proposer provider telemetry capture for S3b follow-on arcs
-  (`remote_latency_ms`, token counters, and capture-time provider metadata) with
-  deterministic replay-safe exclusion rules so observability can improve without
-  destabilizing lock-level determinism contracts.
-- `cleanup-vnext-plus25-parity-topology-strengthening`:
-  evaluate extending v25 contract-level parity fingerprinting with deterministic
-  topology-sensitive invariants (beyond count-based summaries) to reduce false-positive
-  parity passes where structurally distinct graphs share identical summary counts.
-- `cleanup-vnext-plus25-surface-id-naming-normalization`:
-  evaluate long-term surface-id naming normalization for proposer families
-  (for example `adeu_core_ir.propose` vs flatter dot-token patterns) and define
-  an additive migration/alias policy before any cross-family renaming.
-- `cleanup-vnext-plus25-proposer-idempotency-shared-store`:
-  replace process-local proposer idempotency cache
-  (`_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY` in `apps/api/src/adeu_api/main.py`)
-  with shared persistence (runtime DB/redis-backed) so idempotent replay/conflict
-  behavior remains correct across multi-worker and multi-instance deployments.
-- `cleanup-vnext-plus25-logic-tree-cycle-fail-closed`:
-  decide and lock cycle handling policy for proposer summary depth computation
-  (`_core_ir_proposer_logic_tree_max_depth` in `apps/api/src/adeu_api/main.py`);
-  current behavior returns depth sentinel on cycle, while stricter fail-closed
-  behavior (payload-invalid on detected cycle) is deferred pending explicit lock.
-- `cleanup-vnext-plus28-stop-gate-registry-externalization`:
-  evaluate externalizing active stop-gate registry data to a root-level JSON/TOML
-  source for non-Python consumers while preserving runtime-owned deterministic
-  resolution semantics and fail-closed behavior.
-- `cleanup-vnext-plus28-generic-transfer-report-pipeline`:
-  evaluate replacing per-arc transfer-report builder/script entrypoints with a
-  generic deterministic multi-arc pipeline once v26-v28 transfer-report contracts
-  are stable enough for shared template/schema orchestration.
-- `cleanup-vnext-plus46-closeout-command-script-extraction`:
-  extract long inline `python -c` payloads from closeout decision-doc command
-  blocks (for example in `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS46.md`) into
-  dedicated helper scripts under `apps/api/scripts/`, while preserving deterministic
-  env requirements and exact artifact outputs. Add a lightweight doc/lint guard to
-  flag oversized embedded script commands in future closeout docs.
+## Audit Basis
+
+This rewrite was produced by auditing:
+
+- `docs/ASSESSMENT_vNEXT_PLUS34_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS35_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS37_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS38_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS39_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS40_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS41_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS42_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS43_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS44_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS45_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
+- the prior version of this file
+- current implementation under `apps/` and `packages/`
+
+Notes:
+
+- `docs/ASSESSMENT_vNEXT_PLUS36_EDGES.md` is not present in the repository, so there was
+  no v36 assessment file to audit directly.
+- Many edge docs in this range are historical or post-closeout and no longer describe
+  active blocking issues. This file tracks only the still-open residue.
+
+## 1. Active Open Edges
+
+### 1.1 P1: Trust-Boundary and Correctness Gaps
+
+- `EDGE-P1-01` downstream v48 signature-result adoption is still incomplete.
+  - Source: `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
+  - Current evidence:
+    - `packages/adeu_agent_harness/src/adeu_agent_harness/verify_taskpack_signature.py`
+      exposes `validate_signature_verification_result_for_downstream(...)`.
+    - current repo references are limited to
+      `packages/adeu_agent_harness/tests/test_taskpack_signature.py`.
+    - runner, verifier, and packaging entrypoints do not currently invoke that helper.
+  - Why it is still open:
+    - the v48 signing contract exists, but future downstream lanes can bypass the shared
+      validator unless the handoff is enforced centrally.
+  - Next action:
+    - wire the helper into downstream harness orchestration, or enforce the
+      `signature_verification_result@1` handoff contract at every later entrypoint.
+
+- `EDGE-P1-02` logic-tree cycle handling is still sentinel-based rather than fail-closed.
+  - Source: prior `FUTURE_CLEANUPS.md`
+  - Current evidence:
+    - `_core_ir_proposer_logic_tree_max_depth` in
+      `apps/api/src/adeu_api/main.py` returns `1` when revisiting a node.
+  - Why it is still open:
+    - cycle presence is collapsed into a depth value instead of being surfaced as a
+      policy/contract decision.
+  - Next action:
+    - either freeze the current sentinel behavior explicitly, or add a fail-closed cycle
+      policy under future lock text.
+
+- `EDGE-P1-03` one v48 stop-gate continuity test is weaker than the closeout claim.
+  - Source: current audit, tied to the v48 edge family
+  - Current evidence:
+    - `packages/adeu_agent_harness/tests/test_taskpack_signature.py`
+      `test_stop_gate_metric_keyset_exact_equal_v47` compares
+      `metrics_v47_closeout.json` to itself.
+  - Why it is still open:
+    - the local test is a sentinel, not an actual v47-to-v48 continuity check.
+  - Next action:
+    - compare the v47 baseline against the v48 artifact or regenerated continuity evidence.
+
+### 1.2 P2: Governance and Operational Hardening
+
+- `EDGE-P2-01` runtime observability is still informational-only.
+  - Source:
+    - `docs/ASSESSMENT_vNEXT_PLUS43_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS44_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS45_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
+  - Current evidence:
+    - closeout decision docs in this family continue to state that
+      `runtime_observability_comparison@1` is required evidence but non-gating.
+  - Why it is still open:
+    - runtime regressions are visible, but not promoted to pass/fail policy.
+  - Next action:
+    - either keep this explicitly non-gating, or introduce bounded thresholds in a future
+      lock rather than leaving it implicit.
+
+- `EDGE-P2-02` closeout artifact regeneration and command hygiene still depend on operator discipline.
+  - Source:
+    - `docs/ASSESSMENT_vNEXT_PLUS43_EDGES.md`
+    - prior `FUTURE_CLEANUPS.md`
+  - Current evidence:
+    - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS46.md` and
+      `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS47.md` still embed long inline `python -c`
+      commands.
+  - Why it is still open:
+    - stale artifacts and inline-script drift remain possible even under deterministic env
+      requirements.
+  - Next action:
+    - extract closeout helper scripts into `apps/api/scripts/` and lint for oversized
+      embedded commands in future decision docs.
+
+- `EDGE-P2-03` signing verification is portable only where `openssl` CLI behavior matches the frozen contract.
+  - Source: `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
+  - Current evidence:
+    - `_verify_with_openssl(...)` in
+      `packages/adeu_agent_harness/src/adeu_agent_harness/verify_taskpack_signature.py`
+    - emitted verifier field `verification_library = "openssl_cli"`
+    - signing tests skip when `openssl` is unavailable.
+  - Why it is still open:
+    - the current v48 trust lane is deterministic, but its portability and provider
+      behavior are pinned to one CLI toolchain.
+  - Next action:
+    - either explicitly pin and document the required OpenSSL contract more tightly, or
+      add a deterministic library-backed verifier under future lock text.
+
+- `EDGE-P2-04` policy CLI strictness defaults are inconsistent.
+  - Source: prior `FUTURE_CLEANUPS.md`
+  - Current evidence:
+    - `policy validate` exposes opt-in `--strict`
+    - `policy eval`, `policy explain`, `policy diff`, and `policy materialize` default to
+      strict mode and expose `--lax`
+    - implementation lives in `packages/urm_runtime/src/urm_runtime/policy_tools.py`
+  - Why it is still open:
+    - CLI behavior is harder to reason about and easier to misuse across subcommands.
+  - Next action:
+    - align defaults and keep explicit compatibility flags where needed.
+
+### 1.3 P3: Maintainability Backlog With Ongoing Value
+
+- `EDGE-P3-01` shared validation logic is still duplicated across older tooling paths.
+  - Source: prior `FUTURE_CLEANUPS.md`
+  - Current evidence:
+    - the old tracker item for shared extraction between
+      `packages/urm_runtime/src/urm_runtime/stop_gate_tools.py`
+      and
+      `apps/api/src/adeu_api/integrity_transfer_report_vnext_plus16.py`
+      has not been retired by later lock docs.
+  - Why it is still open:
+    - this is mainly maintenance drift risk, not a current correctness break.
+  - Next action:
+    - extract shared runtime-owned helpers only if those older tool paths still need active
+      maintenance.
+
+- `EDGE-P3-02` read-surface guard scaffolding remains repetitive.
+  - Source: prior `FUTURE_CLEANUPS.md`
+  - Current evidence:
+    - the repo still carries many family-specific guard harness tests rather than one shared
+      helper layer.
+  - Why it is still open:
+    - maintenance cost is higher than necessary, but this is not a release-blocking issue.
+  - Next action:
+    - consolidate common guard-test helper patterns when that area is touched next.
+
+- `EDGE-P3-03` legacy core-IR proposer cache residue still exists after the persistence release.
+  - Source:
+    - `docs/ASSESSMENT_vNEXT_PLUS37_EDGES.md`
+    - current audit
+  - Current evidence:
+    - `_CORE_IR_PROPOSER_IDEMPOTENCY_BY_KEY` still exists in
+      `apps/api/src/adeu_api/main.py`
+    - the live `/urm/core-ir/propose` endpoint now uses
+      `get_core_ir_proposer_idempotency_by_client_request_id(...)` and
+      `create_core_ir_proposer_idempotency_if_absent(...)`
+    - several tests still clear or mutate the old in-memory symbol.
+  - Why it is still open:
+    - the runtime authority path is persisted, but the leftover cache symbol makes the
+      authority model look less clear than it really is.
+  - Next action:
+    - remove or quarantine the legacy cache symbol and trim tests that still treat it as a
+      meaningful surface unless it is intentionally retained as a non-authoritative sentinel.
+
+## 2. Explicitly Deferred Follow-On Paths
+
+These are intentionally deferred capabilities, not regressions. They remain open only in
+the sense that the roadmap still names them and current code does not implement them.
+
+### 2.1 Harness and Trust Roadmap
+
+- independent zero-trust policy recomputation in the verifier
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
+- cross-adapter and matrix-lane parity beyond current released adapter/mode sets
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS45_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
+- rejection-diagnostic retry-context feeder automation
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
+- remote or enclave-attested verifier execution
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
+- multi-signer or quorum signature policy
+  - Source:
+    - `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
+
+### 2.2 Semantic Compiler and CI Depth
+
+- compiler partial-run ergonomics such as `--stop-after` and intermediate IR dumps
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS40_EDGES.md`
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`
+- resolver namespace aliasing and workspace-scoped bindings
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS40_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS41_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS42_EDGES.md`
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`
+- semantic-equivalency and deep-path keyset semantics for structured surfaces
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS41_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS42_EDGES.md`
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`
+- optional cross-OS required-check or coverage-signature matrix validation
+  - Source:
+    - `docs/ASSESSMENT_vNEXT_PLUS42_EDGES.md`
+
+## 3. Archived Low-Priority Legacy Evaluations
+
+These items came from the prior cleanup tracker, but the v34-v48 audit does not support
+keeping them as active current-state edges. They are not closed by proof, but they should
+not compete with the active backlog unless a future lock or incident revives them.
+
+- integrity-diagnostics schema-family consolidation evaluation
+  - old theme:
+    - unify older integrity packet families under one discriminator-driven schema
+  - current status:
+    - archived unless a new lock explicitly reopens that contract family
+
+- integrity drift-error granularity expansion
+  - old theme:
+    - split older shared drift codes into per-family codes
+  - current status:
+    - archived unless debugging signal proves insufficient in production
+
+- D-lane cycle expansion and condition-alias policy review
+  - old theme:
+    - expand older integrity cycle semantics and revisit normalized condition aliases
+  - current status:
+    - archived as semantic-evolution work, not a current implementation edge
+
+- hostile fixture generation and additive diagnostic-delta tracking
+  - old theme:
+    - broaden deterministic adversarial coverage and delta triage tooling
+  - current status:
+    - archived as optional hardening work
+
+- provider telemetry capture, parity topology strengthening, and surface-id naming normalization
+  - old theme:
+    - older proposer-family observability and naming improvements from the v25 era
+  - current status:
+    - archived unless that proposer family becomes the active frontier again
+
+- stop-gate registry externalization and generic transfer-report pipeline
+  - old theme:
+    - external consumer support and multi-arc pipeline consolidation
+  - current status:
+    - archived as strategic tooling work, not current edge closure
+
+## 4. Items Retired or Superseded by Current Repo State
+
+These older tracker items were removed from the active backlog because the current repo
+state no longer supports them as open work items.
+
+- `cleanup-copilot-child-queue-method-extraction`
+  - retired: `URMCopilotManager` now delegates `_run_child_workflow_v2` and
+    `_spawn_child_v2` through extracted implementation helpers in
+    `packages/urm_runtime/src/urm_runtime/copilot.py`.
+
+- v42-v48 follow-on slices that were deferred in earlier assessments and later shipped
+  - retired from the cleanup tracker:
+    - v42 deferred stop-gate metric-key extension was realized in v43
+    - v44 deferred runner work was realized in v45
+    - v45 deferred verifier/evidence work was realized in v46
+    - v46 deferred packaging work was realized in v47
+    - v47 deferred signing/trust-anchor work was realized in v48
+    - v37 persistence release was realized; only cache-residue cleanup remains
+
+- old speculative or arc-local naming/finalization items that are no longer useful as
+  current-state tracker entries
+  - examples:
+    - v25 metric-key finalization naming cleanup
+    - tiny test-only cache micro-optimization items
+    - already-closed planning-rollover bookkeeping tied to older arc drafts
+
+## 5. Summary
+
+After auditing `v34` through `v48`, the repo does not appear to have an unresolved
+historical blocking edge carried directly from those assessment docs. What remains is a
+smaller set of current-state issues:
+
+- one real v48 trust-boundary adoption gap,
+- one cycle-policy ambiguity in proposer summary handling,
+- one weak continuity sentinel test,
+- several governance and portability hardening items,
+- and a separate bucket of intentionally deferred future-path work.
+
+That is the set this tracker should carry forward.
