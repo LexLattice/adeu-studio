@@ -58,6 +58,11 @@ _AHK1015_NETWORK_GUARD_UNAVAILABLE = "AHK1015"
 _AHK1016_REJECTION_DIAGNOSTIC_INVALID = "AHK1016"
 _AHK1017_CANDIDATE_PLAN_AST_INVALID = "AHK1017"
 _AHK1018_FORBIDDEN_EFFECT_DETECTED = "AHK1018"
+_REQUIRED_DETERMINISTIC_ENV = {
+    "TZ": "UTC",
+    "LC_ALL": "C",
+    "PYTHONHASHSEED": "0",
+}
 
 
 @dataclass(frozen=True)
@@ -745,6 +750,16 @@ def _load_commands_payload(path: Path) -> tuple[dict[str, str], dict[str, dict[s
                 details={"path": str(path)},
             )
         deterministic_env[key] = value
+    if deterministic_env != _REQUIRED_DETERMINISTIC_ENV:
+        raise _fail(
+            code=_AHK1004_TASKPACK_COMPONENT_INVALID,
+            message="COMMANDS deterministic_env must match frozen deterministic env contract",
+            details={
+                "path": str(path),
+                "required_deterministic_env": _REQUIRED_DETERMINISTIC_ENV,
+                "observed_deterministic_env": deterministic_env,
+            },
+        )
 
     commands_raw = payload.get("commands")
     if not isinstance(commands_raw, list) or not commands_raw:
@@ -807,6 +822,18 @@ def _load_commands_payload(path: Path) -> tuple[dict[str, str], dict[str, dict[s
                     code=_AHK1004_TASKPACK_COMPONENT_INVALID,
                     message="command env_overrides entries must be string:string",
                     details={"path": str(path), "run": run},
+                )
+            if key in _REQUIRED_DETERMINISTIC_ENV and value != _REQUIRED_DETERMINISTIC_ENV[key]:
+                raise _fail(
+                    code=_AHK1004_TASKPACK_COMPONENT_INVALID,
+                    message="command env_overrides may not drift frozen deterministic env values",
+                    details={
+                        "path": str(path),
+                        "run": run,
+                        "env_key": key,
+                        "required_value": _REQUIRED_DETERMINISTIC_ENV[key],
+                        "observed_value": value,
+                    },
                 )
             env_overrides[key] = value
 
@@ -1279,15 +1306,29 @@ def _execute_authorized_commands(
         env = os.environ.copy()
         env.update(deterministic_env)
         env.update(dict(command["env_overrides"]))
-        process = subprocess.run(
-            run,
-            shell=True,
-            cwd=cwd,
-            env=env,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        subprocess_run = getattr(subprocess, "run", None)
+        if not callable(subprocess_run):
+            raise _fail(
+                code=_AHK1011_COMMAND_AUTHORITY_VIOLATION,
+                message="command execution interception is unavailable",
+                details={"run": run},
+            )
+        try:
+            process = subprocess_run(
+                run,
+                shell=True,
+                cwd=cwd,
+                env=env,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        except Exception as exc:
+            raise _fail(
+                code=_AHK1011_COMMAND_AUTHORITY_VIOLATION,
+                message="command execution interception failed",
+                details={"run": run, "error": str(exc)},
+            ) from exc
         if process.returncode != 0:
             raise _fail(
                 code=_AHK1011_COMMAND_AUTHORITY_VIOLATION,
