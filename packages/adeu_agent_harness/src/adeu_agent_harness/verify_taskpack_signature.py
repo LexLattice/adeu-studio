@@ -67,6 +67,23 @@ _SIGNATURE_RESULT_REQUIRED_KEYS = {
     "verified",
     "verification_library",
 }
+_SIGNATURE_RESULT_AUTHORITY_FIELDS = {
+    "taskpack_manifest_hash",
+    "taskpack_bundle_hash",
+    "signature_envelope_hash",
+    "trust_anchor_registry_hash",
+    "verification_reference_time_utc",
+    "preflight_invocation_binding_hash",
+    "signer_key_id",
+    "algorithm",
+    "verified",
+}
+_NONDETERMINISTIC_RESULT_FIELDS = {
+    "wall_clock_timestamp",
+    "host_identity",
+    "absolute_paths",
+    "random_nonce",
+}
 
 _REQUIRED_ENVELOPE_KEYS = {
     "schema",
@@ -803,6 +820,129 @@ def verify_taskpack_signature(
         details=details,
         issue=issue,
     ) from signing_error
+
+
+def validate_signature_verification_result_for_downstream(
+    *,
+    signature_verification_result_path: str,
+    taskpack_manifest_hash: str,
+    taskpack_bundle_hash: str,
+    signature_envelope_hash: str,
+    trust_anchor_registry_hash: str,
+    verification_reference_time_utc: str,
+    signer_key_id: str,
+    algorithm: str,
+    repo_root_path: str | Path | None = None,
+) -> dict[str, Any]:
+    root = project_repo_root(
+        anchor=Path(repo_root_path) if repo_root_path is not None else Path.cwd(),
+    )
+    result_path = coerce_artifact_path(root, signature_verification_result_path)
+    payload = load_json_object(result_path)
+    require_schema(payload, expected_schema=SIGNATURE_VERIFICATION_RESULT_SCHEMA, path=result_path)
+
+    keys = set(payload.keys())
+    if keys != _SIGNATURE_RESULT_REQUIRED_KEYS:
+        raise fail(
+            code=AHK4807_SIGNATURE_VERIFICATION_RESULT_INVALID,
+            message="signature verification result keys must match frozen grammar",
+            details={"path": str(result_path), "keys": sorted(keys)},
+            artifact_path=str(result_path),
+            signer_key_id=signer_key_id,
+            algorithm=algorithm,
+            policy_source="signature_verification_result",
+        )
+
+    forbidden_observed = sorted(keys.intersection(_NONDETERMINISTIC_RESULT_FIELDS))
+    if forbidden_observed:
+        raise fail(
+            code=AHK4807_SIGNATURE_VERIFICATION_RESULT_INVALID,
+            message="signature verification result contains forbidden non-deterministic fields",
+            details={"path": str(result_path), "fields": forbidden_observed},
+            artifact_path=str(result_path),
+            signer_key_id=signer_key_id,
+            algorithm=algorithm,
+            policy_source="signature_verification_result",
+        )
+
+    if payload.get("verified") is not True:
+        raise fail(
+            code=AHK4807_SIGNATURE_VERIFICATION_RESULT_INVALID,
+            message="signature verification result verified must be true for downstream execution",
+            details={"path": str(result_path), "verified": payload.get("verified")},
+            artifact_path=str(result_path),
+            signer_key_id=signer_key_id,
+            algorithm=algorithm,
+            policy_source="signature_verification_result",
+        )
+
+    expected_bindings: dict[str, Any] = {
+        "taskpack_manifest_hash": taskpack_manifest_hash,
+        "taskpack_bundle_hash": taskpack_bundle_hash,
+        "signature_envelope_hash": signature_envelope_hash,
+        "trust_anchor_registry_hash": trust_anchor_registry_hash,
+        "verification_reference_time_utc": verification_reference_time_utc,
+        "signer_key_id": signer_key_id,
+        "algorithm": algorithm,
+        "verified": True,
+    }
+    for field, expected in expected_bindings.items():
+        observed = payload.get(field)
+        if observed != expected:
+            raise fail(
+                code=AHK4804_CROSS_ARTIFACT_HASH_MISMATCH,
+                message="signature verification result binding mismatch",
+                details={
+                    "path": str(result_path),
+                    "field": field,
+                    "expected": expected,
+                    "observed": observed,
+                },
+                artifact_path=str(result_path),
+                signer_key_id=signer_key_id,
+                algorithm=algorithm,
+                policy_source="signature_verification_result",
+            )
+
+    observed_authority_fields = {
+        field for field in payload.keys() if field in _SIGNATURE_RESULT_AUTHORITY_FIELDS
+    }
+    if observed_authority_fields != _SIGNATURE_RESULT_AUTHORITY_FIELDS:
+        raise fail(
+            code=AHK4807_SIGNATURE_VERIFICATION_RESULT_INVALID,
+            message="signature verification authority-field set drift detected",
+            details={"observed_authority_fields": sorted(observed_authority_fields)},
+            artifact_path=str(result_path),
+            signer_key_id=signer_key_id,
+            algorithm=algorithm,
+            policy_source="signature_verification_result",
+        )
+
+    expected_preflight_hash = _compute_preflight_invocation_binding_hash(
+        manifest_hash=taskpack_manifest_hash,
+        bundle_hash=taskpack_bundle_hash,
+        signature_envelope_hash=signature_envelope_hash,
+        trust_anchor_registry_hash=trust_anchor_registry_hash,
+        verification_reference_time_utc=verification_reference_time_utc,
+    )
+    if payload.get("preflight_invocation_binding_hash") != expected_preflight_hash:
+        raise fail(
+            code=AHK4804_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="signature verification result preflight invocation binding mismatch",
+            details={
+                "path": str(result_path),
+                "expected_preflight_invocation_binding_hash": expected_preflight_hash,
+                "observed_preflight_invocation_binding_hash": payload.get(
+                    "preflight_invocation_binding_hash"
+                ),
+            },
+            artifact_path=str(result_path),
+            signer_key_id=signer_key_id,
+            algorithm=algorithm,
+            policy_source="signature_verification_result",
+        )
+
+    return payload
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:

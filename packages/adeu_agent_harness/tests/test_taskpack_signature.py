@@ -4,13 +4,19 @@ import base64
 import json
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
 import pytest
 from adeu_agent_harness._v48_signing_common import (
+    AHK4802_SCHEMA_MISMATCH,
+    AHK4803_ARTIFACT_INVALID,
     AHK4804_CROSS_ARTIFACT_HASH_MISMATCH,
+    AHK4805_ALGORITHM_POLICY_VIOLATION,
     AHK4806_KEY_LIFECYCLE_POLICY_VIOLATION,
+    AHK4808_CONTRACT_REGISTRY_INVALID,
+    load_diagnostic_registry,
 )
 from adeu_agent_harness.compile import (
     PIPELINE_PROFILE_SCHEMA,
@@ -21,6 +27,7 @@ from adeu_agent_harness.verify_taskpack_signature import (
     SIGNATURE_VERIFICATION_RESULT_SCHEMA,
     TRUST_ANCHOR_REGISTRY_SCHEMA,
     TaskpackSigningError,
+    validate_signature_verification_result_for_downstream,
     verify_taskpack_signature,
 )
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
@@ -395,6 +402,23 @@ def _error_payload(exc: TaskpackSigningError) -> dict[str, Any]:
     return payload
 
 
+def _assert_stop_gate_keyset_equal(*, baseline_path: Path, candidate_path: Path) -> None:
+    baseline_payload = _read_json(baseline_path)
+    candidate_payload = _read_json(candidate_path)
+    baseline_metrics = baseline_payload.get("metrics")
+    candidate_metrics = candidate_payload.get("metrics")
+    assert isinstance(baseline_metrics, dict)
+    assert isinstance(candidate_metrics, dict)
+    assert set(candidate_metrics.keys()) == set(baseline_metrics.keys())
+
+
+def _assert_stop_gate_cardinality_80(*, metrics_path: Path) -> None:
+    metrics_payload = _read_json(metrics_path)
+    metrics = metrics_payload.get("metrics")
+    assert isinstance(metrics, dict)
+    assert len(set(metrics.keys())) == 80
+
+
 def test_verify_taskpack_signature_ed25519_success(tmp_path: Path) -> None:
     root, taskpack_dir_rel, diagnostic_registry_rel = _setup_repo(tmp_path)
     manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
@@ -509,3 +533,318 @@ def test_verify_taskpack_signature_revoked_key_fails_closed(tmp_path: Path) -> N
     assert payload["code"] == AHK4806_KEY_LIFECYCLE_POLICY_VIOLATION
     rejection_path = root / payload["details"]["rejection_diagnostic_path"]
     assert rejection_path.is_file()
+
+
+def test_signature_envelope_requires_single_signature(tmp_path: Path) -> None:
+    root, taskpack_dir_rel, diagnostic_registry_rel = _setup_repo(tmp_path)
+    manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
+    envelope_rel, trust_registry_rel = _seed_ed25519_material(
+        root,
+        manifest_hash=manifest_hash,
+        bundle_hash=bundle_hash,
+    )
+
+    envelope_path = root / envelope_rel
+    envelope_payload = _read_json(envelope_path)
+    envelope_payload["signatures"] = [envelope_payload["signature"]]
+    _write_json(envelope_path, envelope_payload)
+
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        verify_taskpack_signature(
+            taskpack_dir=taskpack_dir_rel,
+            signature_envelope_path=envelope_rel,
+            trust_anchor_registry_path=trust_registry_rel,
+            verification_reference_time_utc="2026-03-05T00:00:00Z",
+            verification_output_root="artifacts/agent_harness/v48/signing",
+            diagnostic_registry_path=diagnostic_registry_rel,
+            repo_root_path=root,
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4803_ARTIFACT_INVALID
+
+
+def test_signature_manifest_hash_redundant_binding_must_match(tmp_path: Path) -> None:
+    root, taskpack_dir_rel, diagnostic_registry_rel = _setup_repo(tmp_path)
+    manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
+    envelope_rel, trust_registry_rel = _seed_ed25519_material(
+        root,
+        manifest_hash=manifest_hash,
+        bundle_hash=bundle_hash,
+    )
+
+    envelope_path = root / envelope_rel
+    envelope_payload = _read_json(envelope_path)
+    envelope_payload["taskpack_manifest_hash"] = "f" * 64
+    _write_json(envelope_path, envelope_payload)
+
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        verify_taskpack_signature(
+            taskpack_dir=taskpack_dir_rel,
+            signature_envelope_path=envelope_rel,
+            trust_anchor_registry_path=trust_registry_rel,
+            verification_reference_time_utc="2026-03-05T00:00:00Z",
+            verification_output_root="artifacts/agent_harness/v48/signing",
+            diagnostic_registry_path=diagnostic_registry_rel,
+            repo_root_path=root,
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4804_CROSS_ARTIFACT_HASH_MISMATCH
+
+
+def test_algorithm_key_binding_mismatch_fails_closed(tmp_path: Path) -> None:
+    root, taskpack_dir_rel, diagnostic_registry_rel = _setup_repo(tmp_path)
+    manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
+    envelope_rel, trust_registry_rel = _seed_ed25519_material(
+        root,
+        manifest_hash=manifest_hash,
+        bundle_hash=bundle_hash,
+    )
+
+    trust_registry_path = root / trust_registry_rel
+    trust_registry_payload = _read_json(trust_registry_path)
+    trust_registry_payload["keys"][0]["algorithm"] = "p256"
+    _write_json(trust_registry_path, trust_registry_payload)
+
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        verify_taskpack_signature(
+            taskpack_dir=taskpack_dir_rel,
+            signature_envelope_path=envelope_rel,
+            trust_anchor_registry_path=trust_registry_rel,
+            verification_reference_time_utc="2026-03-05T00:00:00Z",
+            verification_output_root="artifacts/agent_harness/v48/signing",
+            diagnostic_registry_path=diagnostic_registry_rel,
+            repo_root_path=root,
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4805_ALGORITHM_POLICY_VIOLATION
+
+
+def test_unknown_signer_key_id_fails_closed(tmp_path: Path) -> None:
+    root, taskpack_dir_rel, diagnostic_registry_rel = _setup_repo(tmp_path)
+    manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
+    envelope_rel, trust_registry_rel = _seed_ed25519_material(
+        root,
+        manifest_hash=manifest_hash,
+        bundle_hash=bundle_hash,
+    )
+
+    envelope_path = root / envelope_rel
+    envelope_payload = _read_json(envelope_path)
+    envelope_payload["signer_key_id"] = "key_missing"
+    _write_json(envelope_path, envelope_payload)
+
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        verify_taskpack_signature(
+            taskpack_dir=taskpack_dir_rel,
+            signature_envelope_path=envelope_rel,
+            trust_anchor_registry_path=trust_registry_rel,
+            verification_reference_time_utc="2026-03-05T00:00:00Z",
+            verification_output_root="artifacts/agent_harness/v48/signing",
+            diagnostic_registry_path=diagnostic_registry_rel,
+            repo_root_path=root,
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4803_ARTIFACT_INVALID
+
+
+def test_expired_signer_key_fails_closed_with_explicit_verification_time(tmp_path: Path) -> None:
+    root, taskpack_dir_rel, diagnostic_registry_rel = _setup_repo(tmp_path)
+    manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
+    envelope_rel, trust_registry_rel = _seed_ed25519_material(
+        root,
+        manifest_hash=manifest_hash,
+        bundle_hash=bundle_hash,
+    )
+
+    trust_registry_path = root / trust_registry_rel
+    trust_registry_payload = _read_json(trust_registry_path)
+    trust_registry_payload["keys"][0]["expires_at_utc"] = "2026-03-05T00:00:00Z"
+    _write_json(trust_registry_path, trust_registry_payload)
+
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        verify_taskpack_signature(
+            taskpack_dir=taskpack_dir_rel,
+            signature_envelope_path=envelope_rel,
+            trust_anchor_registry_path=trust_registry_rel,
+            verification_reference_time_utc="2026-03-05T00:00:00Z",
+            verification_output_root="artifacts/agent_harness/v48/signing",
+            diagnostic_registry_path=diagnostic_registry_rel,
+            repo_root_path=root,
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4806_KEY_LIFECYCLE_POLICY_VIOLATION
+
+
+def test_signature_verification_result_schema_required_for_downstream(tmp_path: Path) -> None:
+    root, taskpack_dir_rel, diagnostic_registry_rel = _setup_repo(tmp_path)
+    manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
+    envelope_rel, trust_registry_rel = _seed_ed25519_material(
+        root,
+        manifest_hash=manifest_hash,
+        bundle_hash=bundle_hash,
+    )
+
+    result = verify_taskpack_signature(
+        taskpack_dir=taskpack_dir_rel,
+        signature_envelope_path=envelope_rel,
+        trust_anchor_registry_path=trust_registry_rel,
+        verification_reference_time_utc="2026-03-05T00:00:00Z",
+        verification_output_root="artifacts/agent_harness/v48/signing",
+        diagnostic_registry_path=diagnostic_registry_rel,
+        repo_root_path=root,
+    )
+
+    result_path = result.verification_result_path
+    result_payload = _read_json(result_path)
+    result_payload["schema"] = "wrong_schema@1"
+    _write_json(result_path, result_payload)
+
+    signature_envelope_hash = sha256_canonical_json(_read_json(root / envelope_rel))
+    trust_anchor_registry_hash = sha256_canonical_json(_read_json(root / trust_registry_rel))
+
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        validate_signature_verification_result_for_downstream(
+            signature_verification_result_path=_relative(root, result_path),
+            taskpack_manifest_hash=manifest_hash,
+            taskpack_bundle_hash=bundle_hash,
+            signature_envelope_hash=signature_envelope_hash,
+            trust_anchor_registry_hash=trust_anchor_registry_hash,
+            verification_reference_time_utc="2026-03-05T00:00:00Z",
+            signer_key_id="key_ed25519_default",
+            algorithm="ed25519",
+            repo_root_path=root,
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4802_SCHEMA_MISMATCH
+
+
+def test_signature_verification_result_source_binding_rejects_unbound_artifact(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir_rel, diagnostic_registry_rel = _setup_repo(tmp_path)
+    manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
+    envelope_rel, trust_registry_rel = _seed_ed25519_material(
+        root,
+        manifest_hash=manifest_hash,
+        bundle_hash=bundle_hash,
+    )
+
+    result = verify_taskpack_signature(
+        taskpack_dir=taskpack_dir_rel,
+        signature_envelope_path=envelope_rel,
+        trust_anchor_registry_path=trust_registry_rel,
+        verification_reference_time_utc="2026-03-05T00:00:00Z",
+        verification_output_root="artifacts/agent_harness/v48/signing",
+        diagnostic_registry_path=diagnostic_registry_rel,
+        repo_root_path=root,
+    )
+    result_path = result.verification_result_path
+    result_payload = _read_json(result_path)
+    result_payload["preflight_invocation_binding_hash"] = "0" * 64
+    _write_json(result_path, result_payload)
+
+    signature_envelope_hash = sha256_canonical_json(_read_json(root / envelope_rel))
+    trust_anchor_registry_hash = sha256_canonical_json(_read_json(root / trust_registry_rel))
+
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        validate_signature_verification_result_for_downstream(
+            signature_verification_result_path=_relative(root, result_path),
+            taskpack_manifest_hash=manifest_hash,
+            taskpack_bundle_hash=bundle_hash,
+            signature_envelope_hash=signature_envelope_hash,
+            trust_anchor_registry_hash=trust_anchor_registry_hash,
+            verification_reference_time_utc="2026-03-05T00:00:00Z",
+            signer_key_id="key_ed25519_default",
+            algorithm="ed25519",
+            repo_root_path=root,
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4804_CROSS_ARTIFACT_HASH_MISMATCH
+
+
+def test_preflight_signature_verification_is_required_before_runner(tmp_path: Path) -> None:
+    root, _, _ = _setup_repo(tmp_path)
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        validate_signature_verification_result_for_downstream(
+            signature_verification_result_path="artifacts/agent_harness/v48/signing/missing.json",
+            taskpack_manifest_hash="0" * 64,
+            taskpack_bundle_hash="1" * 64,
+            signature_envelope_hash="2" * 64,
+            trust_anchor_registry_hash="3" * 64,
+            verification_reference_time_utc="2026-03-05T00:00:00Z",
+            signer_key_id="missing",
+            algorithm="ed25519",
+            repo_root_path=root,
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK4800"
+
+
+def test_signing_diagnostics_enforce_ahk48_registry(tmp_path: Path) -> None:
+    root, _, _ = _setup_repo(tmp_path)
+    invalid_registry = root / _DIAGNOSTIC_REGISTRY_REL
+    payload = _read_json(invalid_registry)
+    payload["codes"][0]["issue_code"] = "AHK4700"
+    _write_json(invalid_registry, payload)
+
+    with pytest.raises(TaskpackSigningError) as exc_info:
+        load_diagnostic_registry(root=root, registry_rel_path=_DIAGNOSTIC_REGISTRY_REL)
+    error_payload = _error_payload(exc_info.value)
+    assert error_payload["code"] == AHK4808_CONTRACT_REGISTRY_INVALID
+
+
+def test_signing_required_violations_are_error_channel_only(tmp_path: Path) -> None:
+    root, taskpack_dir_rel, _ = _setup_repo(tmp_path)
+    manifest_hash, bundle_hash = _compute_taskpack_hashes(root / taskpack_dir_rel)
+    envelope_rel, trust_registry_rel = _seed_ed25519_material(
+        root,
+        manifest_hash=manifest_hash,
+        bundle_hash=bundle_hash,
+    )
+
+    envelope_path = root / envelope_rel
+    envelope_payload = _read_json(envelope_path)
+    envelope_payload["taskpack_bundle_hash"] = "0" * 64
+    _write_json(envelope_path, envelope_payload)
+
+    command = [
+        sys.executable,
+        "-m",
+        "adeu_agent_harness.verify_taskpack_signature",
+        "--taskpack-dir",
+        taskpack_dir_rel,
+        "--signature-envelope",
+        envelope_rel,
+        "--trust-anchor-registry",
+        trust_registry_rel,
+        "--verification-reference-time-utc",
+        "2026-03-05T00:00:00Z",
+        "--diagnostic-registry",
+        _DIAGNOSTIC_REGISTRY_REL,
+        "--repo-root",
+        str(root),
+    ]
+    completed = subprocess.run(command, cwd=root, capture_output=True, text=True, check=False)
+    assert completed.returncode != 0
+    assert completed.stdout == ""
+    stderr_payload = json.loads(completed.stderr.strip())
+    assert stderr_payload["schema"] == "taskpack_signing_error@1"
+    assert stderr_payload["code"] == AHK4804_CROSS_ARTIFACT_HASH_MISMATCH
+
+
+def test_stop_gate_metric_keyset_exact_equal_v47() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    baseline_path = repo_root / "artifacts" / "stop_gate" / "metrics_v47_closeout.json"
+    candidate_path = repo_root / "artifacts" / "stop_gate" / "metrics_v47_closeout.json"
+    _assert_stop_gate_keyset_equal(baseline_path=baseline_path, candidate_path=candidate_path)
+
+
+def test_stop_gate_metric_cardinality_equals_80_from_metrics_keys_only() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    metrics_path = repo_root / "artifacts" / "stop_gate" / "metrics_v47_closeout.json"
+    _assert_stop_gate_cardinality_80(metrics_path=metrics_path)
