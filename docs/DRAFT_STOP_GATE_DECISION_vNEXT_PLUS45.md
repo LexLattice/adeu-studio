@@ -83,16 +83,16 @@ Summary:
   "baseline_source": "artifacts/stop_gate/report_v44_closeout.md",
   "current_source": "artifacts/stop_gate/report_v45_closeout.md",
   "baseline_elapsed_ms": 105,
-  "current_elapsed_ms": 133,
-  "delta_ms": 28,
-  "notes": "v45 adds constrained-runner and deterministic fail-closed guard coverage with closeout runner artifact generation; timing delta remains informational-only in this arc."
+  "current_elapsed_ms": 93,
+  "delta_ms": -12,
+  "notes": "v45 closeout remains informational-only for timing. Runtime byte observability uses a fixed replay-cycle aggregate (`bytes_hashed_replay_cycles = 3`) and is not a direct `total_replays` multiplier."
 }
 ```
 
 | Arc | Source | total_fixtures | total_replays | elapsed_ms | bytes_hashed_per_replay | bytes_hashed_total | valid | all_passed |
 |---|---|---:|---:|---:|---:|---:|---|---|
 | `vNext+44` baseline | `artifacts/stop_gate/metrics_v44_closeout.json` | `22` | `78` | `105` | `68230` | `204690` | `true` | `true` |
-| `vNext+45` closeout | `artifacts/stop_gate/metrics_v45_closeout.json` | `22` | `78` | `133` | `68230` | `204690` | `true` | `true` |
+| `vNext+45` closeout | `artifacts/stop_gate/metrics_v45_closeout.json` | `22` | `78` | `93` | `68230` | `204690` | `true` | `true` |
 
 ## V33-B Runner Wiring Evidence
 

@@ -1323,10 +1323,12 @@ def test_build_stop_gate_metrics_is_deterministic_and_passes(tmp_path: Path) -> 
     assert runtime_observability["total_replays"] == 78
     assert isinstance(runtime_observability["bytes_hashed_per_replay"], int)
     assert runtime_observability["bytes_hashed_per_replay"] > 0
+    assert runtime_observability["bytes_hashed_replay_cycles"] == 3
     assert isinstance(runtime_observability["bytes_hashed_total"], int)
     assert (
         runtime_observability["bytes_hashed_total"]
-        == 3 * runtime_observability["bytes_hashed_per_replay"]
+        == runtime_observability["bytes_hashed_replay_cycles"]
+        * runtime_observability["bytes_hashed_per_replay"]
     )
     assert isinstance(runtime_observability["elapsed_ms"], int)
     assert runtime_observability["elapsed_ms"] >= 0

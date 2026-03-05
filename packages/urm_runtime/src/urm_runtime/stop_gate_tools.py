@@ -6453,6 +6453,7 @@ def _runtime_observability_payload(
     total_replays: int,
     bytes_hashed_per_replay: int = 0,
     bytes_hashed_total: int = 0,
+    bytes_hashed_replay_cycles: int = 0,
     runtime_started: float,
 ) -> dict[str, int]:
     return {
@@ -6460,6 +6461,7 @@ def _runtime_observability_payload(
         "total_replays": int(total_replays),
         "bytes_hashed_per_replay": int(bytes_hashed_per_replay),
         "bytes_hashed_total": int(bytes_hashed_total),
+        "bytes_hashed_replay_cycles": int(bytes_hashed_replay_cycles),
         "elapsed_ms": max(0, int(round((time.monotonic() - runtime_started) * 1000.0))),
     }
 
@@ -14380,6 +14382,124 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
                 )
             quality_delta_non_negative = bool(quality_checks) and all(quality_checks)
 
+    runtime_bytes_components: tuple[tuple[str, int, int], ...] = (
+        (
+            "vnext_plus19",
+            int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_per_replay", 0)),
+            int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_total", 0)),
+        ),
+        (
+            "vnext_plus20",
+            int(vnext_plus20_metrics.get("vnext_plus20_bytes_hashed_per_replay", 0)),
+            int(vnext_plus20_metrics.get("vnext_plus20_bytes_hashed_total", 0)),
+        ),
+        (
+            "vnext_plus21",
+            int(vnext_plus21_metrics.get("vnext_plus21_bytes_hashed_per_replay", 0)),
+            int(vnext_plus21_metrics.get("vnext_plus21_bytes_hashed_total", 0)),
+        ),
+        (
+            "vnext_plus22",
+            int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_per_replay", 0)),
+            int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_total", 0)),
+        ),
+        (
+            "vnext_plus23",
+            int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_per_replay", 0)),
+            int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_total", 0)),
+        ),
+        (
+            "vnext_plus24",
+            int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_per_replay", 0)),
+            int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_total", 0)),
+        ),
+        (
+            "vnext_plus25",
+            int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_per_replay", 0)),
+            int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_total", 0)),
+        ),
+        (
+            "vnext_plus26",
+            int(vnext_plus26_metrics.get("vnext_plus26_bytes_hashed_per_replay", 0)),
+            int(vnext_plus26_metrics.get("vnext_plus26_bytes_hashed_total", 0)),
+        ),
+        (
+            "vnext_plus27",
+            int(vnext_plus27_metrics.get("vnext_plus27_bytes_hashed_per_replay", 0)),
+            int(vnext_plus27_metrics.get("vnext_plus27_bytes_hashed_total", 0)),
+        ),
+    )
+    runtime_bytes_hashed_per_replay = sum(component[1] for component in runtime_bytes_components)
+    runtime_bytes_hashed_total = sum(component[2] for component in runtime_bytes_components)
+    runtime_bytes_replay_cycles_set: set[int] = set()
+    runtime_bytes_components_invalid: list[dict[str, Any]] = []
+    for component_name, component_per_replay, component_total in runtime_bytes_components:
+        if component_per_replay < 0 or component_total < 0:
+            runtime_bytes_components_invalid.append(
+                {
+                    "component": component_name,
+                    "bytes_hashed_per_replay": component_per_replay,
+                    "bytes_hashed_total": component_total,
+                    "reason": "negative_values_forbidden",
+                }
+            )
+            continue
+        if component_per_replay == 0 and component_total == 0:
+            continue
+        if component_per_replay == 0 or component_total % component_per_replay != 0:
+            runtime_bytes_components_invalid.append(
+                {
+                    "component": component_name,
+                    "bytes_hashed_per_replay": component_per_replay,
+                    "bytes_hashed_total": component_total,
+                    "reason": "non_integer_replay_cycle_ratio",
+                }
+            )
+            continue
+        runtime_bytes_replay_cycles_set.add(component_total // component_per_replay)
+
+    runtime_bytes_hashed_replay_cycles = 0
+    if runtime_bytes_components_invalid:
+        issues.append(
+            _issue(
+                "URM_STOP_GATE_RUNTIME_OBSERVABILITY_INVALID",
+                "runtime observability byte aggregation components are invalid",
+                context={"components": runtime_bytes_components_invalid},
+            )
+        )
+    elif not runtime_bytes_replay_cycles_set:
+        runtime_bytes_hashed_replay_cycles = 0
+    elif len(runtime_bytes_replay_cycles_set) != 1:
+        issues.append(
+            _issue(
+                "URM_STOP_GATE_RUNTIME_OBSERVABILITY_INVALID",
+                "runtime observability byte aggregation replay cycles are inconsistent",
+                context={"observed_replay_cycles": sorted(runtime_bytes_replay_cycles_set)},
+            )
+        )
+    else:
+        runtime_bytes_hashed_replay_cycles = next(iter(runtime_bytes_replay_cycles_set))
+
+    if (
+        runtime_bytes_hashed_replay_cycles > 0
+        and runtime_bytes_hashed_total
+        != runtime_bytes_hashed_per_replay * runtime_bytes_hashed_replay_cycles
+    ):
+        issues.append(
+            _issue(
+                "URM_STOP_GATE_RUNTIME_OBSERVABILITY_INVALID",
+                "runtime observability byte totals fail derived arithmetic invariant",
+                context={
+                    "bytes_hashed_per_replay": runtime_bytes_hashed_per_replay,
+                    "bytes_hashed_replay_cycles": runtime_bytes_hashed_replay_cycles,
+                    "bytes_hashed_total": runtime_bytes_hashed_total,
+                    "derived_bytes_hashed_total": (
+                        runtime_bytes_hashed_per_replay * runtime_bytes_hashed_replay_cycles
+                    ),
+                },
+            )
+        )
+
     runtime_observability = _runtime_observability_payload(
         total_fixtures=(
             int(vnext_plus19_metrics["vnext_plus19_fixture_count_total"])
@@ -14403,28 +14523,9 @@ def build_stop_gate_metrics_from_input(stop_gate_input: StopGateMetricsInput) ->
             + int(vnext_plus26_metrics["vnext_plus26_replay_count_total"])
             + int(vnext_plus27_metrics["vnext_plus27_replay_count_total"])
         ),
-        bytes_hashed_per_replay=(
-            int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_per_replay", 0))
-            + int(vnext_plus20_metrics.get("vnext_plus20_bytes_hashed_per_replay", 0))
-            + int(vnext_plus21_metrics.get("vnext_plus21_bytes_hashed_per_replay", 0))
-            + int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_per_replay", 0))
-            + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_per_replay", 0))
-            + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_per_replay", 0))
-            + int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_per_replay", 0))
-            + int(vnext_plus26_metrics.get("vnext_plus26_bytes_hashed_per_replay", 0))
-            + int(vnext_plus27_metrics.get("vnext_plus27_bytes_hashed_per_replay", 0))
-        ),
-        bytes_hashed_total=(
-            int(vnext_plus19_metrics.get("vnext_plus19_bytes_hashed_total", 0))
-            + int(vnext_plus20_metrics.get("vnext_plus20_bytes_hashed_total", 0))
-            + int(vnext_plus21_metrics.get("vnext_plus21_bytes_hashed_total", 0))
-            + int(vnext_plus22_metrics.get("vnext_plus22_bytes_hashed_total", 0))
-            + int(vnext_plus23_metrics.get("vnext_plus23_bytes_hashed_total", 0))
-            + int(vnext_plus24_metrics.get("vnext_plus24_bytes_hashed_total", 0))
-            + int(vnext_plus25_metrics.get("vnext_plus25_bytes_hashed_total", 0))
-            + int(vnext_plus26_metrics.get("vnext_plus26_bytes_hashed_total", 0))
-            + int(vnext_plus27_metrics.get("vnext_plus27_bytes_hashed_total", 0))
-        ),
+        bytes_hashed_per_replay=runtime_bytes_hashed_per_replay,
+        bytes_hashed_total=runtime_bytes_hashed_total,
+        bytes_hashed_replay_cycles=runtime_bytes_hashed_replay_cycles,
         runtime_started=runtime_started,
     )
     runtime_budget_metric_pct, runtime_budget_issue = _runtime_budget_metric_pct(
@@ -15401,6 +15502,10 @@ def stop_gate_markdown(report: dict[str, Any]) -> str:
         lines.append(
             "- bytes hashed per replay: "
             f"`{runtime_observability.get('bytes_hashed_per_replay')}`"
+        )
+        lines.append(
+            "- bytes hashed replay cycles: "
+            f"`{runtime_observability.get('bytes_hashed_replay_cycles')}`"
         )
         lines.append(
             "- bytes hashed total: "

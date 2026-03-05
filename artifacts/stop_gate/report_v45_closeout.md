@@ -177,5 +177,6 @@
 - total fixtures: `22`
 - total replays: `78`
 - bytes hashed per replay: `68230`
+- bytes hashed replay cycles: `3`
 - bytes hashed total: `204690`
-- elapsed ms: `133`
+- elapsed ms: `93`
