@@ -30,6 +30,7 @@ from adeu_agent_harness.write_closeout_evidence import (
     VERIFIER_PROVENANCE_SCHEMA,
     write_closeout_evidence,
 )
+from adeu_ir.repo import repo_root
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 _OUT_DIR = "artifacts/agent_harness/v46/taskpacks/v41/v46_default"
@@ -567,7 +568,13 @@ def test_verifier_entrypoints_are_present() -> None:
 
 
 def test_verifier_kernel_has_no_apps_api_imports() -> None:
-    module_root = Path(__file__).resolve().parents[1] / "src" / "adeu_agent_harness"
+    module_root = (
+        repo_root(anchor=Path(__file__))
+        / "packages"
+        / "adeu_agent_harness"
+        / "src"
+        / "adeu_agent_harness"
+    )
     targets = [
         module_root / "_v46_verifier_common.py",
         module_root / "verify_taskpack_run.py",
@@ -923,9 +930,9 @@ def test_verifier_cli_returns_non_zero_on_required_violation(tmp_path: Path) -> 
 
 
 def test_stop_gate_keyset_continuity_and_cardinality_v45_to_v46() -> None:
-    repo_root = Path(__file__).resolve().parents[3]
-    v45_payload = _read_json(repo_root / "artifacts/stop_gate/metrics_v45_closeout.json")
-    v46_payload = _read_json(repo_root / "artifacts/stop_gate/metrics_v46_closeout.json")
+    resolved_repo_root = repo_root(anchor=Path(__file__))
+    v45_payload = _read_json(resolved_repo_root / "artifacts/stop_gate/metrics_v45_closeout.json")
+    v46_payload = _read_json(resolved_repo_root / "artifacts/stop_gate/metrics_v46_closeout.json")
     assert v45_payload["schema"] == "stop_gate_metrics@1"
     assert v46_payload["schema"] == "stop_gate_metrics@1"
 
