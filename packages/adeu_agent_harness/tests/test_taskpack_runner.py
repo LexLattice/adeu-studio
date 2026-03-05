@@ -1026,7 +1026,7 @@ def test_harness_kernel_has_no_apps_api_imports() -> None:
     module_root = (
         Path(__file__).resolve().parents[1] / "src" / "adeu_agent_harness"
     )
-    py_files = sorted(module_root.glob("*.py"))
+    py_files = sorted(module_root.rglob("*.py"))
     assert py_files
 
     violations: list[str] = []
