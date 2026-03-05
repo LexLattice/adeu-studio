@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -46,6 +47,11 @@ AHK4615_VERIFICATION_FAILURE_WITHOUT_REJECTION_DIAGNOSTIC = "AHK4615"
 
 _AHK46_PATTERN = re.compile(r"AHK46[0-9]{2}")
 _SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
+_REQUIRED_DETERMINISTIC_ENV_V46 = {
+    "TZ": "UTC",
+    "LC_ALL": "C",
+    "PYTHONHASHSEED": "0",
+}
 
 
 @dataclass(frozen=True)
@@ -262,6 +268,23 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def project_repo_root(anchor: Path | None) -> Path:
     return repo_root(anchor=anchor)
+
+
+def require_deterministic_env_v46() -> None:
+    observed = {
+        key: os.environ.get(key) for key in sorted(_REQUIRED_DETERMINISTIC_ENV_V46.keys())
+    }
+    if observed != _REQUIRED_DETERMINISTIC_ENV_V46:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="deterministic environment contract drift detected",
+            details={
+                "required_deterministic_env": _REQUIRED_DETERMINISTIC_ENV_V46,
+                "observed_deterministic_env": observed,
+            },
+            artifact_path="environment",
+            policy_source="stop_gate_metrics",
+        )
 
 
 def load_diagnostic_registry(
