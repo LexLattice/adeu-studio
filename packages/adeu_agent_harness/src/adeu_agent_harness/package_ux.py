@@ -174,6 +174,23 @@ def _write_canonical_json_file(
     write_json(path, payload)
 
 
+def _normalize_issue_artifact_path_for_diagnostic(*, root: Path, artifact_path: str) -> str:
+    candidate_text = artifact_path.strip()
+    if not candidate_text:
+        return "packaging"
+
+    candidate_path = Path(candidate_text)
+    if not candidate_path.is_absolute():
+        return candidate_text
+
+    root_resolved = root.resolve()
+    resolved = candidate_path.resolve()
+    try:
+        return resolved.relative_to(root_resolved).as_posix()
+    except ValueError:
+        return "packaging"
+
+
 def _copy_taskpack_component(
     *,
     taskpack_path: Path,
@@ -861,6 +878,16 @@ def package_ux_surface(
             artifact_path=exc.details.get("path", "packaging"),
             deployment_mode=deployment_mode,
             policy_source="packaging_manifest",
+        )
+        issue = PackagingIssue(
+            issue_code=issue.issue_code,
+            reason=issue.reason,
+            artifact_path=_normalize_issue_artifact_path_for_diagnostic(
+                root=root,
+                artifact_path=issue.artifact_path,
+            ),
+            deployment_mode=issue.deployment_mode,
+            policy_source=issue.policy_source,
         )
 
         if issue.policy_source not in POLICY_SOURCE_ENUM_V47:
