@@ -141,7 +141,8 @@ Consumption lock:
     "taskpack_bundle_hash": "required_manifest_authority_subject",
     "taskpack_manifest_hash": "required_redundant_binding",
     "signature_envelope": "taskpack_signature_envelope@1_required",
-    "trust_anchor_registry": "taskpack_trust_anchor_registry@1_required"
+    "trust_anchor_registry": "taskpack_trust_anchor_registry@1_required",
+    "verification_reference_time_utc": "required_explicit_input_no_wall_clock_default"
   },
   "signing_execution_interface": {
     "kernel_package_authority": "packages/adeu_agent_harness",
@@ -152,6 +153,8 @@ Consumption lock:
       "taskpack_bundle_hash",
       "signature_envelope_hash",
       "trust_anchor_registry_hash",
+      "verification_reference_time_utc",
+      "preflight_invocation_binding_hash",
       "signer_key_id",
       "algorithm",
       "verified"
@@ -159,6 +162,7 @@ Consumption lock:
     "verification_phase": "pre_runner_verifier_packaging_required",
     "downstream_consumption_policy": "consume_signature_verification_result@1_with_verified_true_required",
     "downstream_binding_check_policy": "required_exact_hash_binding_check_before_execution",
+    "preflight_handoff_policy": "in_process_orchestrated_handoff_required_no_user_supplied_signature_verification_result_path",
     "input_mode": "artifact_only_non_interactive",
     "single_signature_only": true,
     "algorithm_policy_enum": [
@@ -186,10 +190,25 @@ Consumption lock:
     "authoritative_instruction_source": "canonical_artifacts_only",
     "trust_anchor_registry_single_source_required": true,
     "trust_anchor_registry_key_id_uniqueness_required": true,
+    "trust_anchor_registry_required_key_fields": [
+      "key_id",
+      "algorithm",
+      "public_key",
+      "revoked",
+      "expires_at_utc"
+    ],
+    "trust_anchor_key_lifecycle_policy": {
+      "revoked_key_outcome": "fail_closed",
+      "expired_key_outcome": "fail_closed",
+      "expiry_evaluation_time_source": "verification_reference_time_utc_explicit_input_only",
+      "wall_clock_time_as_expiry_source": "forbidden_non_v48"
+    },
     "signer_key_selection_policy": "exactly_one_key_id_match_required_else_fail_closed",
     "crypto_library_selection_policy": "verification_library_must_be_explicitly_declared_and_dependency_pinned_no_dynamic_provider_fallback",
     "multi_signer_quorum_policy": "forbidden_non_v48",
     "verification_bypass": "forbidden_non_v48",
+    "signature_verification_result_source_policy": "must_be_emitted_by_current_preflight_invocation",
+    "user_supplied_signature_verification_result_artifact": "forbidden_non_v48",
     "verification_failure_outcome": "fail_closed_no_downstream_execution",
     "deterministic_signature_verification_result_required": true,
     "signature_verification_result_nondeterministic_fields_forbidden": [
@@ -239,8 +258,14 @@ Consumption lock:
     "preflight_verification_bypass_detected",
     "signature_verification_result_missing_or_malformed",
     "signature_verification_result_input_hash_binding_mismatch",
+    "signature_verification_result_source_untrusted_or_unbound",
+    "user_supplied_signature_verification_result_path_detected",
     "signature_verification_result_verified_false_for_downstream_execution",
     "signature_verification_result_contains_nondeterministic_fields",
+    "verification_reference_time_missing_or_malformed",
+    "verification_reference_time_wall_clock_default_detected",
+    "trust_anchor_key_marked_revoked",
+    "trust_anchor_key_expired_for_verification_reference_time",
     "required_contract_violation_reported_as_warning",
     "stop_gate_metric_keyset_drift",
     "stop_gate_metric_cardinality_authority_drift"
@@ -258,9 +283,11 @@ Introduce deterministic pre-flight signature verification over canonical taskpac
 ### Scope
 
 - add signature envelope schema (`taskpack_signature_envelope@1`), single-signature semantics only;
-- add trust-anchor registry schema (`taskpack_trust_anchor_registry@1`) with key-id to algorithm pinning;
+- add trust-anchor registry schema (`taskpack_trust_anchor_registry@1`) with key-id to algorithm pinning and lifecycle fields (`revoked`, `expires_at_utc`);
 - add pre-flight verification entrypoint to validate subject/hash bindings and signature correctness;
+- require explicit `verification_reference_time_utc` input for key-expiry evaluation (no wall-clock default);
 - emit deterministic `signature_verification_result@1` for downstream consumption;
+- bind `signature_verification_result@1` to the current pre-flight invocation via deterministic invocation binding hash;
 - fail closed on missing/invalid/ambiguous signing inputs.
 
 ### Locks
@@ -269,8 +296,10 @@ Introduce deterministic pre-flight signature verification over canonical taskpac
 - signature subject is `taskpack_bundle_hash` only;
 - algorithm/key downgrade attempts fail closed;
 - signer key selection requires exactly one `signer_key_id` match in registry; zero or multi-match fails closed;
+- revoked or expired signer keys fail closed using explicit `verification_reference_time_utc` evaluation;
 - downstream lanes may proceed only when `signature_verification_result@1.verified == true`;
 - downstream lanes must perform exact hash-binding checks between current inputs and `signature_verification_result@1` authority fields before execution;
+- downstream lanes must reject user-supplied or unbound `signature_verification_result@1` artifacts that were not emitted by the current pre-flight invocation;
 - cryptographic verification library must be explicitly declared and dependency-pinned; dynamic provider fallback is forbidden;
 - downstream execution without valid pre-flight verification is forbidden.
 
@@ -294,7 +323,9 @@ Prove deterministic signature verification behavior and downgrade-protection pos
   - single-signature-only enforcement,
   - signature subject and redundant binding validation,
   - algorithm/key pinning enforcement,
+  - signer key lifecycle checks (`revoked`, `expires_at_utc`) with explicit verification-time evaluation,
   - pre-flight verification no-bypass control flow,
+  - pre-flight artifact source-binding enforcement (reject spoofed/user-supplied verification artifacts),
   - deterministic diagnostics emission and ordering,
   - required error-channel enforcement,
   - stop-gate keyset/cardinality continuity assertions (`80`, keys only authority),

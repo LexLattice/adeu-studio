@@ -49,7 +49,9 @@ Status: pre-lock assessment (March 5, 2026 UTC).
 9. Required violation severity downgrade risk (errors emitted as warnings).
 10. Canonical hash profile drift risk (non-frozen JSON serializer introduced in signing path).
 11. Deterministic environment drift risk (`TZ`, `LC_ALL`, `PYTHONHASHSEED` not enforced in guard lanes).
-12. Stop-gate keyset/cardinality continuity regression risk.
+12. Verification-result spoofing risk (forged `signature_verification_result@1` injected as user-supplied artifact).
+13. Trust-anchor lifecycle drift risk (revoked/expired keys accepted without deterministic explicit-time evaluation).
+14. Stop-gate keyset/cardinality continuity regression risk.
 
 ## Guardrail Evaluation (Planned)
 
@@ -63,8 +65,12 @@ Status: pre-lock assessment (March 5, 2026 UTC).
   - envelope cardinality > 1 fails closed.
 - Pre-flight no-bypass lock: planned.
   - signature verification artifact required before downstream execution.
+- Pre-flight artifact source-binding lock: planned.
+  - downstream must reject user-supplied/unbound `signature_verification_result@1` artifacts.
 - Cross-lane policy identity lock: planned.
   - downstream components consume `signature_verification_result@1` rather than redefining policy.
+- Trust-anchor lifecycle lock: planned.
+  - revoked/expired keys fail closed under explicit `verification_reference_time_utc` evaluation.
 - Schema + canonicalization lock: planned.
   - strict schema validation + frozen canonical JSON hash profile.
 - Diagnostic namespace/severity lock: planned.
@@ -81,15 +87,18 @@ Status: pre-lock assessment (March 5, 2026 UTC).
 5. `test_unknown_signer_key_id_fails_closed`
 6. `test_preflight_signature_verification_is_required_before_runner`
 7. `test_signature_verification_result_schema_required_for_downstream`
-8. `test_signing_diagnostics_enforce_AHK48_registry`
-9. `test_signing_required_violations_are_error_channel_only`
-10. `test_stop_gate_metric_keyset_exact_equal_v47`
-11. `test_stop_gate_metric_cardinality_equals_80_from_metrics_keys_only`
+8. `test_signature_verification_result_source_binding_rejects_user_supplied_or_unbound_artifact`
+9. `test_revoked_signer_key_fails_closed`
+10. `test_expired_signer_key_fails_closed_with_explicit_verification_time`
+11. `test_signing_diagnostics_enforce_AHK48_registry`
+12. `test_signing_required_violations_are_error_channel_only`
+13. `test_stop_gate_metric_keyset_exact_equal_v47`
+14. `test_stop_gate_metric_cardinality_equals_80_from_metrics_keys_only`
 
 ## Residual Risks (Post-Lock, Pre-Implementation)
 
 1. Registry migration risk if key-id format is underspecified in `taskpack_trust_anchor_registry@1`.
-2. Tooling adoption risk if downstream callers do not uniformly require pre-flight artifact consumption.
+2. Tooling adoption risk if downstream callers do not uniformly require pre-flight artifact source-binding checks.
 3. Future multi-signer pressure risk unless explicitly deferred in v48 lock and tests.
 
 ## Recommendation (Pre-Lock)
