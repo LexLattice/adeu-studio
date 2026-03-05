@@ -1,8 +1,8 @@
-# Assessment vNext+45 Edges (V33-B Draft)
+# Assessment vNext+45 Edges (V33-B Post-Hoc)
 
-This document captures draft edge analysis for `vNext+45` (`V33-B` constrained runner path).
+This document records post-implementation edge analysis for `vNext+45` (`V33-B` constrained runner + deterministic fail-closed guard suite).
 
-Status: draft assessment (pre-implementation, March 5, 2026 UTC).
+Status: post-hoc assessment (March 5, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,84 +10,98 @@ Status: draft assessment (pre-implementation, March 5, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS45_EDGES.md",
-  "phase": "draft_assessment",
-  "authoritative": false,
-  "required_in_freeze_review": true,
+  "phase": "post_hoc_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v45_closeout_edge_analysis",
   "required_in_closeout": true,
-  "notes": "Draft edge set for V33-B planning/freeze review before implementation."
+  "notes": "Post-hoc assessment refreshed against merged v45 implementation and closeout artifacts."
 }
 ```
 
 ## Scope
 
-- In scope: `V33-B` planning (`T1` constrained runner wiring, `T2` determinism/fail-closed guard design).
-- Out of scope: `V33-C` auditor/evidence-writer lane, `V33-D` packaging lane, stop-gate metric expansion, and runtime/provider/proposer boundary changes.
+- In scope: `V33-B` constrained runner implementation (`T1`) and determinism/fail-closed guard suite (`T2`).
+- Out of scope: `V33-C` auditor/evidence-writer lane, `V33-D` packaging lane, stop-gate metric-key expansion, and runtime/provider/proposer boundary changes.
 
 ## Inputs
 
-- `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS44.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS44.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md`
-- `packages/adeu_agent_harness/src/adeu_agent_harness/compile.py`
-- `packages/adeu_agent_harness/tests/test_taskpack_compile.py`
+- PR `#238` (`contracts: add V33-B constrained taskpack runner + candidate-change-plan policy validation`)
+- PR `#239` (`tests: add v45 runner determinism and fail-closed guard suite`)
+- `packages/adeu_agent_harness/src/adeu_agent_harness/run_taskpack.py`
+- `packages/adeu_agent_harness/tests/test_taskpack_runner.py`
+- `artifacts/quality_dashboard_v45_closeout.json`
+- `artifacts/stop_gate/metrics_v45_closeout.json`
+- `artifacts/stop_gate/report_v45_closeout.md`
+- `artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json`
+- `artifacts/agent_harness/v45/candidate_change_plan_closeout.json`
+- `artifacts/agent_harness/v45/closeout_runner_result_run1.json`
+- `artifacts/agent_harness/v45/closeout_runner_result_run2.json`
 
-## Draft Edge Set (V33-B)
+## Post-Hoc Edge Set (V33-B)
 
-1. Taskpack authority bypass risk (runner accepts undeclared/mutated taskpack components).
-2. Candidate-change-plan ambiguity risk (policy checks free-form prose instead of canonical artifact/AST).
-3. Pre-write validation ordering risk (workspace mutations occur before policy validation).
-4. Validation/apply divergence risk (validator approves canonicalized plan but patcher applies raw/fuzzy diff).
-5. Candidate-plan file-operation ordering drift risk (canonicalizers disagree on deterministic ordering).
-6. Allowlist drift risk (path normalization or glob semantics diverge between compiler and runner).
-7. Forbidden-effect under-detection risk (runner must enforce forbidden touches/operation kinds explicitly in v45 scope).
-8. Forbidden-operation-kind enum drift risk (closed enum behavior drifts into open/custom values).
-9. Adapter-boundary coupling risk (`packages/adeu_agent_harness` directly imports `apps/api` runtime modules).
-10. Adapter-resolution ambiguity risk (missing/malformed registry or ambiguous/unknown adapter selection).
-11. Adapter-match looseness risk (prefix/partial/case-insensitive matching bypasses exact id lock).
-12. Dry-run determinism-domain drift risk (determinism claims become invalid if dry-run invokes model generation).
-13. Dry-run network-guard scope leak risk (subprocesses bypass Python-level HTTP/socket patching).
-14. Command-authority bypass risk (runner executes model-suggested or undeclared commands).
-15. Rejection-diagnostics opacity risk (policy failures lack structured path/hunk diagnostics for remediation loops).
-16. Rejection-diagnostics ordering drift risk (`hunk_index` tie-break not deterministic).
-17. Provenance incompleteness risk (missing manifest hash, adapter id, or candidate plan hash).
-18. Severity downgrade risk (required policy failures emitted as warning-only outcomes).
-19. Continuity regression risk (v36-v44 frozen suites regress while adding runner surface).
+1. Taskpack authority bypass risk.
+2. Adapter-registry schema/order/uniqueness drift risk.
+3. Non-exact adapter-id matching risk.
+4. Candidate-plan schema/canonicalization drift risk.
+5. Candidate-plan AST malformed/overlap risk.
+6. Candidate-plan apply/validate divergence risk.
+7. Pre-write no-bypass failure risk under exception paths.
+8. COMMANDS authority bypass risk.
+9. Dry-run subprocess/network side-effect risk.
+10. Dry-run guard initialization failure risk.
+11. Rejection-diagnostic missing/malformed ordering drift risk.
+12. Provenance hash-subject nondeterminism risk.
+13. Stop-gate continuity/keyset regression risk.
 
-## Planning Guardrail Evaluation (Expected)
+## Guardrail Evaluation (Observed)
 
-- Authority model clarity: pass (taskpack-driven authority, non-authoritative repo prose/model claims).
-- Candidate-plan canonicalization requirement: pass in lock intent; implementation verifier required in `T2`.
-- Candidate-plan AST coupling requirement: pass in lock intent; validator/apply same-AST proof required in `T2`.
-- Candidate-plan file-operation ordering requirement: pass in lock intent; ordering determinism proof required in `T2`.
-- Pre-write fail-closed requirement: pass in lock intent; no-bypass control-flow proof required in `T2`.
-- Adapter boundary portability requirement: pass in lock intent; exact-match adapter-registry selection and import-boundary tests required in `T2`.
-- Dry-run determinism and side-effect prohibition: pass in lock intent (model-free dry-run, no subprocess execution, no outbound network, no workspace mutation outside preview root except preview-root directory creation/file writes); network-guard initialization and deterministic artifact checks required in `T2`.
-- Stop-gate continuity posture: pass (schema family `stop_gate_metrics@1`, keyset/cardinality frozen `80`).
+- Taskpack component and manifest integrity lock: pass.
+  - runner verifies bundle via `verify_taskpack_bundle(...)` before policy/apply execution.
+- Adapter-registry lock: pass.
+  - schema/entry grammar, uniqueness, and lexicographic `adapter_id` ordering are enforced fail-closed (`AHK1003`/`AHK1005`/`AHK1007`).
+- Exact adapter-id match lock: pass.
+  - adapter resolution uses exact case-sensitive equality and rejects unknown id (`AHK1006`).
+- Candidate-plan canonicalization + ordering lock: pass.
+  - canonical payload hash and deterministic `file_operations` ordering stability are covered by runner tests.
+- Candidate-plan AST coupling lock: pass.
+  - malformed/overlapping hunk structures fail closed (`AHK1017`); apply path consumes parsed canonical AST only.
+- Pre-write no-bypass lock: pass.
+  - policy validation executes before apply/commands; forced pre-apply exception path confirms no command execution bypass.
+- Command-authority lock: pass.
+  - undeclared/model-suggested commands fail closed; interception unavailability fails closed (`AHK1011`).
+- Dry-run lock: pass.
+  - dry-run forbids subprocess execution and outbound socket/HTTP calls, with explicit guard initialization and fail-closed behavior (`AHK1012`/`AHK1015`).
+- Rejection diagnostics lock: pass.
+  - policy failures emit deterministic structured diagnostics with stable `(issue_code, target_path, hunk_index)` ordering.
+- Provenance hash-subject lock: pass.
+  - deterministic provenance excludes nondeterministic fields and validates stored `provenance_hash` round-trip.
+- Continuity lock: pass.
+  - stop-gate schema family remains `stop_gate_metrics@1`; v44-v45 metric keysets are exact-set equal with cardinality `80`.
 
-## Recommended Hardening Focus (v45)
+## Coverage Snapshot
 
-1. Freeze canonical candidate-change-plan schema and normalization rules in code and tests before adapter integration.
-2. Enforce canonical candidate-plan `file_operations` ordering (`path`, then `operation_kind`) and fail closed on ordering drift.
-3. Enforce validator/apply coupling to the same canonical AST and prohibit raw/fuzzy patch-application paths.
-4. Enforce deterministic pre-write policy-validation ordering via explicit state-machine checks with exception-path no-bypass coverage.
-5. Add adapter-registry/adapter-resolution tests for missing, malformed, ambiguous, and unknown adapter id outcomes.
-6. Add exact adapter-id match tests (case-sensitive equality; no prefix/partial matching).
-7. Add static import-boundary guard test that fails if harness kernel imports `apps/api` directly.
-8. Add dry-run negative tests proving model-invocation prohibition, subprocess-execution prohibition, no outbound network execution, and no workspace mutation outside preview root.
-9. Require deterministic structured rejection-diagnostic artifacts for policy failures (path/hunk/line-range context) with integer-ascending `hunk_index` ordering.
-10. Require command-authority enforcement tests (`COMMANDS.json` only; model-suggested/undeclared commands fail closed via subprocess interception).
-11. Require deterministic provenance hash-subject tests that exclude non-deterministic fields.
+- v45 runner guard file covers 19 deterministic/fail-closed cases.
+- v44/v45 compiler guard file remains green at 20 deterministic/fail-closed cases.
+- Closeout verification run executed `39` tests total across:
+  - `packages/adeu_agent_harness/tests/test_taskpack_runner.py`
+  - `packages/adeu_agent_harness/tests/test_taskpack_compile.py`
 
-## Residual Planning Risks
+## Known Limits (Accepted in v45)
 
-1. Runner adapters can reintroduce hidden authority channels if adapter interfaces or adapter registry contracts are underspecified.
-2. Equivalent behavior across future integrated/standalone modes (`V33-D`) can drift if provenance schema is not fixed early.
-3. Runtime observability deltas remain informational-only unless a later arc introduces explicit thresholds.
-4. Cross-adapter deterministic matrix parity remains deferred; lock posture should keep adapter contracts strict ahead of v49 parity work.
+- Auditor/verifier/evidence-writer release remains deferred to `V33-C`.
+- Integrated/standalone UX packaging release remains deferred to `V33-D`.
+- Semantic-inference forbidden-effect lane remains deferred; v45 keeps closed-enum forbidden operation kinds only.
+- Stop-gate metric-key set remains frozen; no key expansion was introduced.
+
+## Residual Risks
+
+1. Future adapter kinds can re-open authority boundaries if registry semantics are loosened.
+2. Cross-adapter parity checks are deferred; deterministic behavior remains validated on the currently released adapter kind.
+3. Runtime-observability deltas remain informational unless a later arc introduces threshold enforcement.
 
 ## Follow-on Recommendation
 
-1. Freeze `vNext+45` lock and planning decision bundle for `V33-B` (`T1`/`T2`) only.
-2. Implement constrained runner and guard suite in two small green PRs with deterministic provenance artifacts.
-3. Keep `V33-C`/`V33-D` deferred until v45 closeout confirms runner boundary integrity and continuity preservation.
+1. Start `vNext+46` planning for `V33-C` with explicit lock text for deterministic auditor/verifier and evidence-writer artifacts.
+2. Preserve v45 runner closeout artifacts as baseline fixtures for adapter-parity work.
+3. Keep v45 deterministic env contract (`TZ=UTC`, `LC_ALL=C`, `PYTHONHASHSEED=0`) mandatory for all closeout regeneration paths.

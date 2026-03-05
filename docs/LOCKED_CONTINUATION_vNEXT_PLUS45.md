@@ -1,6 +1,6 @@
-# Locked Continuation vNext+45 (Draft Lock)
+# Locked Continuation vNext+45 (Post-Hoc Lock)
 
-This document drafts the next arc after:
+This document captures the implemented arc after:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS44.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS44.md`
@@ -8,7 +8,22 @@ This document drafts the next arc after:
 - `docs/SEMANTICS_v3.md`
 - `docs/ARCHITECTURE_ADEU_SEMANTIC_COMPILER_v0.md`
 
-Status: draft lock (not frozen yet).
+Status: closed lock (post-hoc capture, March 5, 2026 UTC).
+
+## Lock-State Marker (Machine-Checkable)
+
+```json
+{
+  "schema": "lock_artifact_state@1",
+  "artifact": "docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md",
+  "phase": "closed_lock",
+  "authoritative": true,
+  "authoritative_scope": "arc_lock_and_scope_for_v45_closeout",
+  "required_in_freeze_review": false,
+  "required_in_closeout": true,
+  "notes": "Post-hoc lock capture for v45 implementation scope and continuity posture."
+}
+```
 
 Decision basis:
 
@@ -21,6 +36,9 @@ Decision basis:
   - no auditor/evidence-writer lane release (`V33-C`),
   - no integrated/standalone UX packaging release (`V33-D`),
   - no stop-gate metric-key expansion release in this arc.
+- `vNext+45` (`V33-B`, `T1`) is merged on `main` via PR `#238`.
+- `vNext+45` (`V33-B`, `T2`) is merged on `main` via PR `#239`.
+- Arc-completion merge commit for v45 is `c43da3bb3a3d29fbb3b47b375e03dfdad220f9bf`.
 
 ## Global Locks
 
@@ -63,9 +81,9 @@ Decision basis:
 - Closeout observability continuity lock is frozen:
   - v45 closeout must include a runtime-observability comparison row against v44 canonical baseline.
 
-## Arc Scope (Draft Lock)
+## Arc Scope (Closed)
 
-This arc proposes one thin-slice chunk with two implementation slices (one PR each):
+This arc closes one thin-slice chunk with two implementation slices:
 
 1. `T1` Codex SDK constrained runner + candidate-change-plan policy-validation MVP (`V33-B`)
 2. `T2` Runner determinism/fail-closed guard suite (`V33-B`)
@@ -518,10 +536,10 @@ Prove v45 runner integration behavior is deterministic, fail-closed, and continu
 - Harness diagnostics namespace (`AHK[0-9]{4}`) in this arc is contract-diagnostics authority only and is not a URM runtime error-code family.
 - Deterministic tooling/scripts/tests in this arc use deterministic exit behavior and fail closed on invalid inputs.
 
-## Commit / PR Plan (Small Green PRs)
+## Merged PRs (Closed)
 
-1. `contracts: add V33-B constrained taskpack runner + candidate-change-plan policy validation`
-2. `tests: add v45 runner determinism and fail-closed guard suite`
+1. `#238` `contracts: add V33-B constrained taskpack runner + candidate-change-plan policy validation`
+2. `#239` `tests: add v45 runner determinism and fail-closed guard suite`
 
 ## Intermediate Preconditions (for v45 start)
 
@@ -538,7 +556,7 @@ Prove v45 runner integration behavior is deterministic, fail-closed, and continu
    - `apps/api/scripts/lint_closeout_consistency.py`
 6. No additional `L2` boundary release beyond v44 baseline is introduced in this arc.
 
-## Exit Criteria (Draft)
+## Exit Criteria (Closed)
 
 - `T1` and `T2` merged with green CI.
 - No new stop-gate metric keys introduced.

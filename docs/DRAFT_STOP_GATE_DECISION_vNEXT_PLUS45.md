@@ -1,103 +1,66 @@
-# Draft Stop-Gate Decision (Planning Gate vNext+45)
+# Draft Stop-Gate Decision (Post vNext+45)
 
-This note records the planning-gate decision for:
+This note records the arc-completion decision for:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md`
 
-Status: draft planning decision note (pre-implementation, March 5, 2026 UTC).
+Status: draft decision note (post-hoc closeout capture, March 5, 2026 UTC).
 
 ## Decision Guardrail (Frozen)
 
-- This draft records `vNext+45` planning-gate authorization only.
+- This draft records `vNext+45` closeout evidence only.
 - It must not redefine semantics, locks, or scope from `docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md`.
-- This note is not `vNext+45` closeout evidence and must not claim `all_passed = true` for v45 implementation criteria.
-- Metric-key continuity and runtime-observability blocks in this note are provisional planning placeholders to keep continuity wiring explicit; they must be refreshed in post-implementation closeout.
-- Planning bundle posture is frozen:
-  - v45 planning bundle is closed for freeze-review handoff after final lock/assessment alignment.
+- This note captures `V33-B` (`T1`/`T2`) closeout evidence only; it does not authorize `V33-C`/`V33-D` behavior release.
+- Runtime-observability comparison row is required evidence and remains informational-only in this arc.
 
-## Planning-to-Closeout Required Updates
+## Evidence Source
 
-- Replace planning placeholders with implementation evidence for:
-  - `metric_key_continuity_assertion@1`
-  - `runtime_observability_comparison@1`
-  - `v33b_runner_wiring_evidence@1`
-- Update `current_arc` evidence sources from v44 placeholders to v45 closeout artifacts.
-- Keep `decision` values planning-specific in this note; set closeout go/hold and `all_passed` posture only in the post-implementation closeout update.
-
-## Evidence Source (Planning Baseline)
-
-- Prior closed arc evidence source:
-  - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS44.md`
-- v44 completion baseline:
-  - arc-completion merge commit: `be15f3e5ece3a46a4cd17d6818d193070d059955`
-  - arc-completion CI run ID: `22692642914`
+- CI workflow: `ci` on `main`
+- arc-completion merge commit: `c43da3bb3a3d29fbb3b47b375e03dfdad220f9bf`
+- arc-completion CI run:
+  - Run ID: `22696439074`
+  - URL: `https://github.com/LexLattice/adeu-studio/actions/runs/22696439074`
   - conclusion: `success`
-- baseline closeout artifacts available from v44:
-  - `artifacts/quality_dashboard_v44_closeout.json`
-  - `artifacts/stop_gate/metrics_v44_closeout.json`
-  - `artifacts/stop_gate/report_v44_closeout.md`
-- v45 planning baseline:
-  - `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`
-  - `docs/ASSESSMENT_vNEXT_PLUS45_EDGES.md`
-- planning bundle fingerprint (freeze-review handoff):
-  - source docs (ordered):
-    - `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`
-    - `docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md`
-    - `docs/ASSESSMENT_vNEXT_PLUS45_EDGES.md`
-  - raw-byte rule:
-    - raw bytes are read exactly as stored in git (no newline normalization),
-    - concatenation order is exactly as listed above.
-  - hash rule: `sha256(raw-byte-concatenation_of_ordered_sources)`
-  - planning bundle sha256: `ee630a1d79c098de0f646dedaf02b5d5629675a38bcc318a4f512c775dc7f164`
+- merged implementation PRs:
+  - `#238` (`contracts: add V33-B constrained taskpack runner + candidate-change-plan policy validation`)
+  - `#239` (`tests: add v45 runner determinism and fail-closed guard suite`)
+- deterministic closeout artifacts (reproducible):
+  - quality dashboard JSON: `artifacts/quality_dashboard_v45_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v45_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v45_closeout.md`
+  - runner adapter registry: `artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json`
+  - runner candidate change plan: `artifacts/agent_harness/v45/candidate_change_plan_closeout.json`
+  - runner result run1: `artifacts/agent_harness/v45/closeout_runner_result_run1.json`
+  - runner result run2: `artifacts/agent_harness/v45/closeout_runner_result_run2.json`
+  - dry-run preview artifact: `artifacts/agent_harness/v45/dry_run_preview/70737c664c5d4263d1d300e7be7224a908619435d756fce044d1f213c8af4aa0_3c339250e058b8b9392fba75d3a34524a1a0fa40a07f5493bd2c21d66d958780.json`
+  - runner provenance artifact: `artifacts/agent_harness/v45/dry_run_preview/provenance/70737c664c5d4263d1d300e7be7224a908619435d756fce044d1f213c8af4aa0_3c339250e058b8b9392fba75d3a34524a1a0fa40a07f5493bd2c21d66d958780.json`
 
-## Planning Preconditions Check (vNext+45 Start)
+- closeout commands:
+  - `TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONWARNINGS=ignore PYTHONPATH=apps/api/src:packages/urm_runtime/src:packages/adeu_core_ir/src:packages/adeu_commitments_ir/src:packages/adeu_semantic_source/src:packages/adeu_semantic_compiler/src:packages/adeu_ir/src:packages/adeu_agent_harness/src .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard_v45_closeout.json --baseline artifacts/quality_dashboard_v44_closeout.json`
+  - `TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONWARNINGS=ignore PYTHONPATH=apps/api/src:packages/urm_runtime/src:packages/adeu_core_ir/src:packages/adeu_commitments_ir/src:packages/adeu_semantic_source/src:packages/adeu_semantic_compiler/src:packages/adeu_ir/src:packages/adeu_agent_harness/src .venv/bin/python apps/api/scripts/build_stop_gate_metrics.py --quality-current artifacts/quality_dashboard_v45_closeout.json --quality-baseline artifacts/quality_dashboard_v44_closeout.json --out-json artifacts/stop_gate/metrics_v45_closeout.json --out-md artifacts/stop_gate/report_v45_closeout.md`
+  - `TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONPATH=packages/adeu_agent_harness/src:packages/adeu_ir/src:packages/urm_runtime/src .venv/bin/python -m adeu_agent_harness.run_taskpack --taskpack-dir artifacts/agent_harness/v44/taskpacks/v41/v44_closeout --adapter-registry artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json --adapter-id v45_default --candidate-change-plan artifacts/agent_harness/v45/candidate_change_plan_closeout.json --dry-run > artifacts/agent_harness/v45/closeout_runner_result_run1.json`
+  - `TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONPATH=packages/adeu_agent_harness/src:packages/adeu_ir/src:packages/urm_runtime/src .venv/bin/python -m adeu_agent_harness.run_taskpack --taskpack-dir artifacts/agent_harness/v44/taskpacks/v41/v44_closeout --adapter-registry artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json --adapter-id v45_default --candidate-change-plan artifacts/agent_harness/v45/candidate_change_plan_closeout.json --dry-run > artifacts/agent_harness/v45/closeout_runner_result_run2.json`
 
-| Precondition | Threshold | Result | Evidence |
+## Exit-Criteria Check (vNext+45)
+
+| Criterion | Threshold | Result | Evidence |
 |---|---|---|---|
-| v44 lock is closed and merged on `main` | required | `pass` | `docs/LOCKED_CONTINUATION_vNEXT_PLUS44.md` is closed; PRs `#236`/`#237` merged |
-| v44 closeout decision is green | required | `pass` | `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS44.md` records `all_passed = true` |
-| v45 lock doc exists and baseline references resolve | required | `pass` | `docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md` exists and references v44/v7 baseline docs |
-| Stop-gate schema-family continuity remains frozen | required | `pass` | `stop_gate_metrics@1` retained in `artifacts/stop_gate/metrics_v44_closeout.json` |
-| Stop-gate keyset/cardinality baseline is stable at v45 start | required | `pass` | v44 closeout reports derived cardinality `80` |
-| v36-v44 continuity stack remains green | required | `pass` | continuity posture preserved by v44 closeout and required by v45 lock |
-| `V33-B` scope is isolated from `V33-C`/`V33-D` release | required | `pass` | v45 lock explicitly fences `V33-C` and `V33-D` |
-| No `L2` boundary release is authorized for v45 | required | `pass` | explicit boundary lock in `docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md` |
-| Planning bundle fingerprint is captured for freeze-review handoff | required | `pass` | `sha256(raw-byte-concatenation_of_ordered_sources)` over v45 planning source docs is recorded in Evidence Source |
+| `T1` merged with green CI | required | `pass` | PR `#238` merged; CI run `22695904167` is `success` |
+| `T2` merged with green CI | required | `pass` | PR `#239` merged; CI run `22696439074` is `success` |
+| Stop-gate schema-family continuity retained | required | `pass` | `schema = "stop_gate_metrics@1"` in v44 and v45 closeout metrics |
+| Stop-gate metric-key continuity retained | required | `pass` | v44 and v45 keysets are exact-set equal (`added_keys = []`, `removed_keys = []`) |
+| Deterministic cardinality continuity retained | required | `pass` | metric-key cardinality computed from `metrics` keys is `80 -> 80` |
+| V33-B runner dry-run/provenance evidence is deterministic and fail-closed | required | `pass` | run1/run2 runner result payloads are byte-identical; preview/provenance artifacts are byte-identical |
+| Historical continuity posture remains green | required | `pass` | v45 closeout `issues = []`, `valid = true`, `all_passed = true` |
+| No boundary-release expansion introduced | required | `pass` | v45 scope remains `V33-B` only (`T1`/`T2`) |
 
-Planning summary:
+Summary:
 
-- `schema = "next_arc_planning_gate@1"`
-- `target_arc = "vNext+45"`
-- `target_path = "V33-B"`
-- `bundle_status = "closed_for_freeze_review"`
-- `preconditions_satisfied = true`
-
-## Planning Gate Assertion
-
-```json
-{
-  "schema": "next_arc_planning_gate@1",
-  "baseline_arc": "vNext+44",
-  "target_arc": "vNext+45",
-  "target_path": "V33-B",
-  "bundle_status": "closed_for_freeze_review",
-  "baseline_lock_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS44.md",
-  "target_lock_doc": "docs/LOCKED_CONTINUATION_vNEXT_PLUS45.md",
-  "baseline_decision_doc": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS44.md",
-  "planning_bundle_sha256": "ee630a1d79c098de0f646dedaf02b5d5629675a38bcc318a4f512c775dc7f164",
-  "authorized_slices": [
-    "T1",
-    "T2"
-  ],
-  "forbidden_paths": [
-    "V33-C",
-    "V33-D"
-  ],
-  "decision": "GO_VNEXT_PLUS45_IMPLEMENTATION_DRAFT",
-  "preconditions_satisfied": true,
-  "notes": "Planning gate only. v45 closeout evidence (runtime observability row, metric-key continuity assertion, and v33b runner wiring evidence block) is required in a post-implementation update."
-}
-```
+- `schema = "stop_gate_metrics@1"`
+- `valid = true`
+- `all_passed = true`
+- `issues = []`
+- `derived_cardinality = 80` (computed from `metrics` keyset cardinality)
 
 ## Metric-Key Continuity Assertion
 
@@ -105,76 +68,61 @@ Planning summary:
 {
   "schema": "metric_key_continuity_assertion@1",
   "baseline_metrics_path": "artifacts/stop_gate/metrics_v44_closeout.json",
-  "current_metrics_path": "artifacts/stop_gate/metrics_v44_closeout.json",
+  "current_metrics_path": "artifacts/stop_gate/metrics_v45_closeout.json",
   "expected_relation": "exact_keyset_equality"
 }
 ```
 
-Continuity placeholder note:
-
-- This block uses frozen lint grammar (`metric_key_continuity_assertion@1`) and is planning-placeholder evidence only for v45 start gating.
-- v45 post-implementation closeout must replace baseline/current paths with v44->v45 implementation evidence paths.
-
-## Runtime Observability Comparison (v44 Baseline vs v45 Planning Snapshot)
+## Runtime Observability Comparison (v44 Baseline vs v45 Closeout)
 
 ```json
 {
   "schema": "runtime_observability_comparison@1",
   "baseline_arc": "vNext+44",
   "current_arc": "vNext+45",
-  "authoritative": false,
-  "phase": "planning_placeholder",
   "baseline_source": "artifacts/stop_gate/report_v44_closeout.md",
-  "current_source": "artifacts/stop_gate/report_v44_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v45_closeout.md",
   "baseline_elapsed_ms": 105,
-  "current_elapsed_ms": 105,
-  "delta_ms": 0,
-  "notes": "Planning-gate placeholder using v44 baseline artifact values. Informational-only and mandatory refresh in v45 post-implementation closeout."
+  "current_elapsed_ms": 133,
+  "delta_ms": 28,
+  "notes": "v45 adds constrained-runner and deterministic fail-closed guard coverage with closeout runner artifact generation; timing delta remains informational-only in this arc."
 }
 ```
 
-## V33-B Runner Wiring Evidence (Planning Placeholder)
+| Arc | Source | total_fixtures | total_replays | elapsed_ms | bytes_hashed_per_replay | bytes_hashed_total | valid | all_passed |
+|---|---|---:|---:|---:|---:|---:|---|---|
+| `vNext+44` baseline | `artifacts/stop_gate/metrics_v44_closeout.json` | `22` | `78` | `105` | `68230` | `204690` | `true` | `true` |
+| `vNext+45` closeout | `artifacts/stop_gate/metrics_v45_closeout.json` | `22` | `78` | `133` | `68230` | `204690` | `true` | `true` |
+
+## V33-B Runner Wiring Evidence
 
 ```json
 {
   "schema": "v33b_runner_wiring_evidence@1",
-  "phase": "planning_placeholder",
-  "required_in_closeout": true,
-  "runner_entrypoint": "pending_v45_implementation",
-  "adapter_surface": "pending_v45_implementation",
-  "dry_run_supported": false,
-  "candidate_change_plan_schema": "pending_v45_implementation",
-  "pre_write_policy_validation_passed": false,
-  "allowlist_enforcement_passed": false,
-  "forbidden_effect_enforcement_passed": false,
-  "provenance_hash": "pending_v45_implementation",
+  "runner_entrypoint": "python -m adeu_agent_harness.run_taskpack",
+  "adapter_surface": "taskpack_runner_adapter_registry@1/candidate_plan_passthrough",
+  "dry_run_supported": true,
+  "candidate_change_plan_schema": "candidate_change_plan@1",
+  "pre_write_policy_validation_passed": true,
+  "allowlist_enforcement_passed": true,
+  "forbidden_effect_enforcement_passed": true,
+  "provenance_hash": "891a56f0fcb46aaf8abe1b618289c323f8875ce38269c9a9e92817f726678414",
   "metric_key_cardinality": 80,
   "metric_key_exact_set_equal_v44": true,
-  "notes": "Planning placeholder only. Values above must be replaced by implementation evidence in v45 closeout."
+  "notes": "Runner closeout dry-run reruns produced byte-identical runner result payload, dry-run preview artifact, and provenance artifact for identical taskpack+candidate-plan input bytes."
 }
 ```
 
-## Baseline R-Track Closure Reference
-
-- `R1` V33-A taskpack contract/compiler MVP (`vNext+44`, `S1`):
-  - status: `done`
-  - evidence: PR `#236`, merge commit `6ea47e7`
-- `R2` V33-A determinism/fail-closed guard suite (`vNext+44`, `S2`):
-  - status: `done`
-  - evidence: PR `#237`, merge commit `be15f3e`
-
-## Recommendation (`vNext+45` Implementation Gate)
+## Recommendation (Post v45)
 
 - gate decision:
-  - `GO_VNEXT_PLUS45_IMPLEMENTATION_DRAFT`
+  - `GO_VNEXT_PLUS46_PLANNING_DRAFT`
 - rationale:
-  - v44 closeout is complete and green.
-  - v45 lock scope is explicit (`V33-B`, `T1`/`T2`) and preserves v36-v44 continuity constraints.
-- explicit guard:
-  - if continuity artifacts, keyset continuity, or v44 closeout provenance drifts, decision becomes `HOLD_VNEXT_PLUS45_IMPLEMENTATION` until corrected.
+  - v45 closes `V33-B` (`T1`/`T2`) with deterministic constrained-runner wiring and fail-closed guard coverage on `main`.
+  - no continuity or boundary regressions were observed in closeout evidence.
 
 ## Suggested Next Artifacts
 
-1. Implement `T1` (`V33-B`) on a dedicated branch with deterministic constrained-runner interface, canonical candidate-change-plan generation/normalization + canonical AST coupling (validator/apply same AST), deterministic file-operation ordering, deterministic adapter-registry selection with exact case-sensitive `adapter_id` matching, `COMMANDS.json`-only command authority via subprocess interception, and pre-write no-bypass policy validation.
-2. Implement `T2` (`V33-B`) guard suite to freeze model-free dry-run behavior, subprocess-execution prohibition plus network-guard initialization and outbound-network/workspace-mutation prohibition (preview root allows directory creation + file writes only), policy-validation fail-closed outcomes (including exception-path no-bypass), deterministic policy-rejection diagnostics artifacts with integer-ascending `hunk_index` ordering, provenance hash-subject constraints, and adapter-boundary static import-graph enforcement.
-3. Update this file after merge as a closeout decision note with v45 implementation evidence blocks and refreshed runtime-observability comparison vs v44 baseline.
+1. Draft `docs/LOCKED_CONTINUATION_vNEXT_PLUS46.md`, `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`, and `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS46.md` for `V33-C` planning.
+2. Keep v45 closeout artifacts stable; rerun closeout commands only under frozen deterministic env contract.
+3. Start v46 lock drafting with explicit deterministic auditor/verifier + evidence-writer authority boundaries.
