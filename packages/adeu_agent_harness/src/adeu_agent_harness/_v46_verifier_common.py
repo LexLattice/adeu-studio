@@ -261,7 +261,7 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def project_repo_root(anchor: Path | None) -> Path:
-    return repo_root(anchor=anchor if anchor is not None else Path.cwd())
+    return repo_root(anchor=anchor)
 
 
 def load_diagnostic_registry(
