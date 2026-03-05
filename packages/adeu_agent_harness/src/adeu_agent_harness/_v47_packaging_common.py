@@ -90,8 +90,8 @@ def fail(
     *,
     code: str,
     message: str,
+    artifact_path: str,
     details: dict[str, Any] | None = None,
-    artifact_path: str = "",
     deployment_mode: str = "",
     policy_source: str = "packaging_manifest",
 ) -> TaskpackPackagingError:

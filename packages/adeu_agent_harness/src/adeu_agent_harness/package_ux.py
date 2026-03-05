@@ -100,6 +100,21 @@ _POLICY_EQUIVALENCE_SUBJECT_KEYS = {
     "forbidden_effects_detected",
 }
 
+_ALLOWLIST_VIOLATION_ISSUE_CODES = frozenset(
+    {
+        "allowlist_violation",
+    }
+)
+
+_FORBIDDEN_EFFECT_ISSUE_CODES = frozenset(
+    {
+        "forbidden_path_violation",
+        "forbidden_operation_kind",
+        "model_suggested_command_execution_detected",
+        "dry_run_subprocess_execution_detected",
+    }
+)
+
 _TASKPACK_CANONICAL_COMPONENTS = (
     "TASKPACK.md",
     "ACCEPTANCE.json",
@@ -432,22 +447,28 @@ def _extract_policy_equivalence(
             if isinstance(issue, dict) and isinstance(issue.get("issue_code"), str):
                 issue_code_set.add(issue["issue_code"])
 
+    runner_policy_issue_codes: set[str] = set()
     allowlist_violations: set[str] = set()
     verification_result = verified_result_payload.get("verification_result")
     if isinstance(verification_result, dict):
         for issue in verification_result.get("issues", []):
             if not isinstance(issue, dict):
                 continue
+            issue_code = issue.get("issue_code")
+            if isinstance(issue_code, str):
+                runner_policy_issue_codes.add(issue_code)
             target = issue.get("target_path")
-            if isinstance(target, str) and target:
+            if (
+                isinstance(issue_code, str)
+                and issue_code in _ALLOWLIST_VIOLATION_ISSUE_CODES
+                and isinstance(target, str)
+                and target
+            ):
                 normalized = normalize_relative_path(target)
-                if "allowlist" in str(issue.get("reason", "")).lower() or "allowlist" in str(
-                    issue.get("issue_code", "")
-                ).lower():
-                    allowlist_violations.add(normalized)
+                allowlist_violations.add(normalized)
 
-    forbidden_effects_detected = any(
-        code.lower().find("forbidden") >= 0 for code in issue_code_set
+    forbidden_effects_detected = not _FORBIDDEN_EFFECT_ISSUE_CODES.isdisjoint(
+        issue_code_set.union(runner_policy_issue_codes)
     )
 
     parity_subject = {
