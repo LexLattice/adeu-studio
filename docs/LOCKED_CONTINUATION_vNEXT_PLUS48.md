@@ -147,8 +147,18 @@ Consumption lock:
     "kernel_package_authority": "packages/adeu_agent_harness",
     "preflight_entrypoint": "python -m adeu_agent_harness.verify_taskpack_signature",
     "signature_verification_result_schema": "signature_verification_result@1",
+    "signature_verification_result_authority_fields": [
+      "taskpack_manifest_hash",
+      "taskpack_bundle_hash",
+      "signature_envelope_hash",
+      "trust_anchor_registry_hash",
+      "signer_key_id",
+      "algorithm",
+      "verified"
+    ],
     "verification_phase": "pre_runner_verifier_packaging_required",
     "downstream_consumption_policy": "consume_signature_verification_result@1_with_verified_true_required",
+    "downstream_binding_check_policy": "required_exact_hash_binding_check_before_execution",
     "input_mode": "artifact_only_non_interactive",
     "single_signature_only": true,
     "algorithm_policy_enum": [
@@ -177,6 +187,7 @@ Consumption lock:
     "trust_anchor_registry_single_source_required": true,
     "trust_anchor_registry_key_id_uniqueness_required": true,
     "signer_key_selection_policy": "exactly_one_key_id_match_required_else_fail_closed",
+    "crypto_library_selection_policy": "verification_library_must_be_explicitly_declared_and_dependency_pinned_no_dynamic_provider_fallback",
     "multi_signer_quorum_policy": "forbidden_non_v48",
     "verification_bypass": "forbidden_non_v48",
     "verification_failure_outcome": "fail_closed_no_downstream_execution",
@@ -227,6 +238,7 @@ Consumption lock:
     "signature_cryptographic_verification_failed",
     "preflight_verification_bypass_detected",
     "signature_verification_result_missing_or_malformed",
+    "signature_verification_result_input_hash_binding_mismatch",
     "signature_verification_result_verified_false_for_downstream_execution",
     "signature_verification_result_contains_nondeterministic_fields",
     "required_contract_violation_reported_as_warning",
@@ -237,7 +249,7 @@ Consumption lock:
 }
 ```
 
-## W1) Deterministic Signing + Trust-Anchor Pre-Flight MVP (`V34-A`)
+## X1) Deterministic Signing + Trust-Anchor Pre-Flight MVP (`V34-A`)
 
 ### Goal
 
@@ -258,6 +270,8 @@ Introduce deterministic pre-flight signature verification over canonical taskpac
 - algorithm/key downgrade attempts fail closed;
 - signer key selection requires exactly one `signer_key_id` match in registry; zero or multi-match fails closed;
 - downstream lanes may proceed only when `signature_verification_result@1.verified == true`;
+- downstream lanes must perform exact hash-binding checks between current inputs and `signature_verification_result@1` authority fields before execution;
+- cryptographic verification library must be explicitly declared and dependency-pinned; dynamic provider fallback is forbidden;
 - downstream execution without valid pre-flight verification is forbidden.
 
 ### Acceptance
@@ -266,7 +280,7 @@ Introduce deterministic pre-flight signature verification over canonical taskpac
 - invalid/malformed signatures fail closed with deterministic diagnostics;
 - pre-flight verification artifact is required and consumed by downstream lanes.
 
-## W2) Signing Determinism + Fail-Closed Guard Suite (`V34-A`)
+## X2) Signing Determinism + Fail-Closed Guard Suite (`V34-A`)
 
 ### Goal
 
