@@ -140,8 +140,10 @@ Consumption lock:
     "taskpack_manifest": "required",
     "taskpack_bundle_hash": "required_manifest_authority_subject",
     "taskpack_manifest_hash": "required_redundant_binding",
-    "signature_envelope": "taskpack_signature_envelope@1_required",
-    "trust_anchor_registry": "taskpack_trust_anchor_registry@1_required",
+    "signature_envelope_schema": "taskpack_signature_envelope@1",
+    "signature_envelope_required": true,
+    "trust_anchor_registry_schema": "taskpack_trust_anchor_registry@1",
+    "trust_anchor_registry_required": true,
     "verification_reference_time_utc": "required_explicit_input_no_wall_clock_default"
   },
   "signing_execution_interface": {
@@ -162,6 +164,17 @@ Consumption lock:
     "verification_phase": "pre_runner_verifier_packaging_required",
     "downstream_consumption_policy": "consume_signature_verification_result@1_with_verified_true_required",
     "downstream_binding_check_policy": "required_exact_hash_binding_check_before_execution",
+    "downstream_required_binding_checks": [
+      "taskpack_manifest_hash",
+      "taskpack_bundle_hash",
+      "signature_envelope_hash",
+      "trust_anchor_registry_hash",
+      "verification_reference_time_utc",
+      "preflight_invocation_binding_hash",
+      "signer_key_id",
+      "algorithm",
+      "verified"
+    ],
     "preflight_handoff_policy": "in_process_orchestrated_handoff_required_no_user_supplied_signature_verification_result_path",
     "input_mode": "artifact_only_non_interactive",
     "single_signature_only": true,
@@ -181,6 +194,7 @@ Consumption lock:
       }
     },
     "algorithm_key_binding_policy": "required_exact_algorithm_match_between_envelope_and_registry_key_record",
+    "preflight_invocation_binding_hash_definition": "sha256_canonical_json(preflight_entrypoint,taskpack_manifest_hash,taskpack_bundle_hash,signature_envelope_hash,trust_anchor_registry_hash,verification_reference_time_utc)",
     "signature_subject": "taskpack_bundle_hash",
     "redundant_bound_fields": [
       "taskpack_manifest_hash"
@@ -198,6 +212,8 @@ Consumption lock:
       "expires_at_utc"
     ],
     "trust_anchor_key_lifecycle_policy": {
+      "revoked_field_type": "boolean_required",
+      "expires_at_utc_format": "rfc3339_utc_z_required_second_precision",
       "revoked_key_outcome": "fail_closed",
       "expired_key_outcome": "fail_closed",
       "expiry_evaluation_time_source": "verification_reference_time_utc_explicit_input_only",
@@ -264,6 +280,8 @@ Consumption lock:
     "signature_verification_result_contains_nondeterministic_fields",
     "verification_reference_time_missing_or_malformed",
     "verification_reference_time_wall_clock_default_detected",
+    "trust_anchor_key_revoked_field_type_invalid",
+    "trust_anchor_key_expires_at_utc_format_invalid",
     "trust_anchor_key_marked_revoked",
     "trust_anchor_key_expired_for_verification_reference_time",
     "required_contract_violation_reported_as_warning",
@@ -286,6 +304,7 @@ Introduce deterministic pre-flight signature verification over canonical taskpac
 - add trust-anchor registry schema (`taskpack_trust_anchor_registry@1`) with key-id to algorithm pinning and lifecycle fields (`revoked`, `expires_at_utc`);
 - add pre-flight verification entrypoint to validate subject/hash bindings and signature correctness;
 - require explicit `verification_reference_time_utc` input for key-expiry evaluation (no wall-clock default);
+- freeze invocation binding hash subject as `sha256_canonical_json(preflight_entrypoint, taskpack_manifest_hash, taskpack_bundle_hash, signature_envelope_hash, trust_anchor_registry_hash, verification_reference_time_utc)`;
 - emit deterministic `signature_verification_result@1` for downstream consumption;
 - bind `signature_verification_result@1` to the current pre-flight invocation via deterministic invocation binding hash;
 - fail closed on missing/invalid/ambiguous signing inputs.
@@ -296,9 +315,10 @@ Introduce deterministic pre-flight signature verification over canonical taskpac
 - signature subject is `taskpack_bundle_hash` only;
 - algorithm/key downgrade attempts fail closed;
 - signer key selection requires exactly one `signer_key_id` match in registry; zero or multi-match fails closed;
+- trust-anchor lifecycle field types are frozen (`revoked` boolean required; `expires_at_utc` RFC3339 UTC `Z` second-precision required);
 - revoked or expired signer keys fail closed using explicit `verification_reference_time_utc` evaluation;
 - downstream lanes may proceed only when `signature_verification_result@1.verified == true`;
-- downstream lanes must perform exact hash-binding checks between current inputs and `signature_verification_result@1` authority fields before execution;
+- downstream lanes must perform exact binding checks on `taskpack_manifest_hash`, `taskpack_bundle_hash`, `signature_envelope_hash`, `trust_anchor_registry_hash`, `verification_reference_time_utc`, `preflight_invocation_binding_hash`, `signer_key_id`, `algorithm`, and `verified` before execution;
 - downstream lanes must reject user-supplied or unbound `signature_verification_result@1` artifacts that were not emitted by the current pre-flight invocation;
 - cryptographic verification library must be explicitly declared and dependency-pinned; dynamic provider fallback is forbidden;
 - downstream execution without valid pre-flight verification is forbidden.
@@ -323,7 +343,9 @@ Prove deterministic signature verification behavior and downgrade-protection pos
   - single-signature-only enforcement,
   - signature subject and redundant binding validation,
   - algorithm/key pinning enforcement,
+  - invocation-binding hash subject-definition enforcement,
   - signer key lifecycle checks (`revoked`, `expires_at_utc`) with explicit verification-time evaluation,
+  - trust-anchor lifecycle field-type/format enforcement (`revoked` boolean, `expires_at_utc` RFC3339 UTC `Z`),
   - pre-flight verification no-bypass control flow,
   - pre-flight artifact source-binding enforcement (reject spoofed/user-supplied verification artifacts),
   - deterministic diagnostics emission and ordering,
