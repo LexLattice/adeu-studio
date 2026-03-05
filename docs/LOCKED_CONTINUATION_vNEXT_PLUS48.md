@@ -140,21 +140,32 @@ Consumption lock:
     "taskpack_manifest": "required",
     "taskpack_bundle_hash": "required_manifest_authority_subject",
     "taskpack_manifest_hash": "required_redundant_binding",
-    "signature_envelope": "required_schema_taskpack_signature_envelope@1",
-    "trust_anchor_registry": "required_schema_taskpack_trust_anchor_registry@1"
+    "signature_envelope": "taskpack_signature_envelope@1_required",
+    "trust_anchor_registry": "taskpack_trust_anchor_registry@1_required"
   },
   "signing_execution_interface": {
     "kernel_package_authority": "packages/adeu_agent_harness",
     "preflight_entrypoint": "python -m adeu_agent_harness.verify_taskpack_signature",
     "signature_verification_result_schema": "signature_verification_result@1",
     "verification_phase": "pre_runner_verifier_packaging_required",
-    "downstream_consumption_policy": "consume_signature_verification_result@1_required",
+    "downstream_consumption_policy": "consume_signature_verification_result@1_with_verified_true_required",
     "input_mode": "artifact_only_non_interactive",
     "single_signature_only": true,
     "algorithm_policy_enum": [
       "ed25519",
       "p256"
     ],
+    "algorithm_profile": {
+      "ed25519": {
+        "public_key_format": "raw_32b_base64",
+        "signature_format": "raw_64b_base64"
+      },
+      "p256": {
+        "curve": "secp256r1",
+        "public_key_format": "spki_der_base64",
+        "signature_format": "der_ecdsa"
+      }
+    },
     "algorithm_key_binding_policy": "required_exact_algorithm_match_between_envelope_and_registry_key_record",
     "signature_subject": "taskpack_bundle_hash",
     "redundant_bound_fields": [
@@ -164,9 +175,18 @@ Consumption lock:
   "signing_policy": {
     "authoritative_instruction_source": "canonical_artifacts_only",
     "trust_anchor_registry_single_source_required": true,
+    "trust_anchor_registry_key_id_uniqueness_required": true,
+    "signer_key_selection_policy": "exactly_one_key_id_match_required_else_fail_closed",
     "multi_signer_quorum_policy": "forbidden_non_v48",
     "verification_bypass": "forbidden_non_v48",
-    "verification_failure_outcome": "fail_closed_no_downstream_execution"
+    "verification_failure_outcome": "fail_closed_no_downstream_execution",
+    "deterministic_signature_verification_result_required": true,
+    "signature_verification_result_nondeterministic_fields_forbidden": [
+      "wall_clock_timestamp",
+      "host_identity",
+      "absolute_paths",
+      "random_nonce"
+    ]
   },
   "diagnostics_policy": {
     "schema": "v34a_signing_rejection_diagnostic@1",
@@ -201,10 +221,14 @@ Consumption lock:
     "signature_subject_mismatch_detected",
     "taskpack_manifest_hash_binding_missing_or_mismatch",
     "signer_key_id_not_found",
+    "signer_key_id_non_unique_in_registry",
+    "signer_key_selection_ambiguous",
     "algorithm_key_binding_mismatch_detected",
     "signature_cryptographic_verification_failed",
     "preflight_verification_bypass_detected",
     "signature_verification_result_missing_or_malformed",
+    "signature_verification_result_verified_false_for_downstream_execution",
+    "signature_verification_result_contains_nondeterministic_fields",
     "required_contract_violation_reported_as_warning",
     "stop_gate_metric_keyset_drift",
     "stop_gate_metric_cardinality_authority_drift"
@@ -232,6 +256,8 @@ Introduce deterministic pre-flight signature verification over canonical taskpac
 - single-signature envelope only in v48;
 - signature subject is `taskpack_bundle_hash` only;
 - algorithm/key downgrade attempts fail closed;
+- signer key selection requires exactly one `signer_key_id` match in registry; zero or multi-match fails closed;
+- downstream lanes may proceed only when `signature_verification_result@1.verified == true`;
 - downstream execution without valid pre-flight verification is forbidden.
 
 ### Acceptance

@@ -6,6 +6,20 @@ This note records the start-of-arc decision for:
 
 Status: draft decision note (pre-implementation start capture, March 5, 2026 UTC).
 
+## Decision-State Marker (Machine-Checkable)
+
+```json
+{
+  "schema": "decision_artifact_state@1",
+  "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS48.md",
+  "phase": "pre_start_decision",
+  "authoritative": true,
+  "authoritative_scope": "v48_start_gate_decision",
+  "required_in_closeout": true,
+  "notes": "Pre-start decision marker for v48; post-closeout values must supersede this draft status."
+}
+```
+
 ## Decision Guardrail (Frozen)
 
 - This draft records `vNext+48` start authorization only.
@@ -46,6 +60,8 @@ Summary:
 ```json
 {
   "schema": "stop_gate_start_decision@1",
+  "phase": "pre_start_decision",
+  "authoritative": true,
   "arc": "vNext+48",
   "selected_path": "V34-A",
   "selected_slices": [
