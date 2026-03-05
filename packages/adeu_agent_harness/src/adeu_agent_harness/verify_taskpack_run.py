@@ -31,6 +31,7 @@ from ._v46_verifier_common import (
     load_json_object,
     normalize_relative_path,
     project_repo_root,
+    require_deterministic_env_v46,
     require_schema,
     write_json,
 )
@@ -427,6 +428,7 @@ def verify_taskpack_run(
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
 ) -> TaskpackVerifierResult:
+    require_deterministic_env_v46()
     root = project_repo_root(Path(repo_root_path) if repo_root_path is not None else None)
 
     manifest_hash: str | None = None
