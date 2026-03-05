@@ -1,10 +1,10 @@
-# Draft Stop-Gate Decision (Pre vNext+48 Start)
+# Draft Stop-Gate Decision (Post vNext+48)
 
-This note records the start-of-arc decision for:
+This note records the arc-completion decision for:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS48.md`
 
-Status: draft decision note (pre-implementation start capture, March 5, 2026 UTC).
+Status: draft decision note (post-hoc closeout capture, March 5, 2026 UTC).
 
 ## Decision-State Marker (Machine-Checkable)
 
@@ -12,97 +12,130 @@ Status: draft decision note (pre-implementation start capture, March 5, 2026 UTC
 {
   "schema": "decision_artifact_state@1",
   "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS48.md",
-  "phase": "pre_start_decision",
+  "phase": "post_closeout_decision",
   "authoritative": true,
-  "authoritative_scope": "v48_start_gate_decision",
+  "authoritative_scope": "v48_closeout_stop_gate_decision",
   "required_in_closeout": true,
-  "notes": "Pre-start decision marker for v48; post-closeout values must supersede this draft status."
+  "all_passed": true,
+  "notes": "Pre-start markers are superseded by post-closeout evidence and final decision values in this document."
 }
 ```
 
 ## Decision Guardrail (Frozen)
 
-- This draft records `vNext+48` start authorization only.
+- This draft records `vNext+48` closeout evidence only.
 - It must not redefine semantics, locks, or scope from `docs/LOCKED_CONTINUATION_vNEXT_PLUS48.md`.
-- This note authorizes `V34-A` (`X1`/`X2`) implementation planning/execution only.
-- This note does not authorize `V34-B`..`V34-G` behavior release.
-- `stop_gate_metrics@1` continuity and metric-key cardinality continuity (`80`) remain mandatory in this arc.
+- This note captures `V34-A` (`X1`/`X2`) closeout evidence only; it does not authorize `V34-B`..`V34-G` behavior release.
+- Signature pre-flight remains artifact-authoritative, deterministic, and fail-closed under frozen lock text.
+- Runtime-observability comparison row remains required evidence and informational-only in this arc.
 
-## Decision Basis Source
+## Evidence Source
 
-- prior arc lock: `docs/LOCKED_CONTINUATION_vNEXT_PLUS47.md`
-- prior arc closeout decision: `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS47.md`
-- next-arc planning baseline: `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
-- current arc lock draft: `docs/LOCKED_CONTINUATION_vNEXT_PLUS48.md`
-- current arc edge assessment: `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
+- CI workflow: `ci` on `main`
+- arc-completion merge commit: `f9114b5c2e883fa50289083683b2fd19ae8c76b9`
+- arc-completion CI run:
+  - Run ID: `22731407840`
+  - URL: `https://github.com/LexLattice/adeu-studio/actions/runs/22731407840`
+  - conclusion: `success`
+- merged implementation PRs:
+  - `#245` (`contracts: add V34-A signing pre-flight verifier MVP`)
+  - `#246` (`tests: add v48 signing determinism and fail-closed guard suite`)
+- deterministic closeout artifacts (reproducible):
+  - quality dashboard JSON: `artifacts/quality_dashboard_v48_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v48_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v48_closeout.md`
+  - runtime observability evidence input: `artifacts/agent_harness/v48/evidence_inputs/runtime_observability_comparison_v48.json`
+  - metric-key continuity evidence input: `artifacts/agent_harness/v48/evidence_inputs/metric_key_continuity_assertion_v48.json`
+  - signing wiring evidence input: `artifacts/agent_harness/v48/evidence_inputs/v34a_signing_wiring_evidence_v48.json`
+- closeout edge assessment:
+  - `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
 
-## Pre-Start Gate Check (vNext+48)
+- closeout commands:
+  - `TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONWARNINGS=ignore PYTHONPATH=apps/api/src:packages/urm_runtime/src:packages/adeu_core_ir/src:packages/adeu_commitments_ir/src:packages/adeu_semantic_source/src:packages/adeu_semantic_compiler/src:packages/adeu_ir/src:packages/adeu_agent_harness/src .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard_v48_closeout.json --baseline artifacts/quality_dashboard_v47_closeout.json`
+  - `TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONWARNINGS=ignore PYTHONPATH=apps/api/src:packages/urm_runtime/src:packages/adeu_core_ir/src:packages/adeu_commitments_ir/src:packages/adeu_semantic_source/src:packages/adeu_semantic_compiler/src:packages/adeu_ir/src:packages/adeu_agent_harness/src .venv/bin/python apps/api/scripts/build_stop_gate_metrics.py --quality-current artifacts/quality_dashboard_v48_closeout.json --quality-baseline artifacts/quality_dashboard_v47_closeout.json --out-json artifacts/stop_gate/metrics_v48_closeout.json --out-md artifacts/stop_gate/report_v48_closeout.md`
 
-| Check | Threshold | Result | Evidence |
+## Exit-Criteria Check (vNext+48)
+
+| Criterion | Threshold | Result | Evidence |
 |---|---|---|---|
-| v47 closeout decision exists and is green | required | `pass` | `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS47.md` (`all_passed = true`) |
-| v48 path selection is explicit and single-path | required | `pass` | `V34-A` selected in `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md` and `docs/LOCKED_CONTINUATION_vNEXT_PLUS48.md` |
-| v48 scope excludes non-selected V34 paths | required | `pass` | `V34-B`..`V34-G` listed out of scope in `docs/LOCKED_CONTINUATION_vNEXT_PLUS48.md` |
-| stop-gate schema-family continuity preserved | required | `pass` | `stop_gate_metrics@1` retained in v8 baseline and v48 lock draft |
-| metric-key continuity lock preserved | required | `pass` | v48 lock draft requires exact set equality to v47 and derived cardinality `80` |
-| no implicit `L2` release | required | `pass` | v48 lock draft forbids boundary release expansion |
-| authority model remains artifact-only | required | `pass` | v48 lock draft explicitly forbids prose/self-claim authority |
+| `X1` merged with green CI | required | `pass` | PR `#245` merged; CI run `22731053789` is `success` |
+| `X2` merged with green CI | required | `pass` | PR `#246` merged; CI run `22731407840` is `success` |
+| Stop-gate schema-family continuity retained | required | `pass` | `schema = "stop_gate_metrics@1"` in v47 and v48 closeout metrics |
+| Stop-gate metric-key continuity retained | required | `pass` | v47 and v48 keysets are exact-set equal (`added_keys = []`, `removed_keys = []`) |
+| Deterministic cardinality continuity retained | required | `pass` | metric-key cardinality computed from `metrics` keys is `80 -> 80` |
+| V34-A signing pre-flight and fail-closed guard suite are merged and test-covered | required | `pass` | PR `#245`, PR `#246`, and `packages/adeu_agent_harness/tests/test_taskpack_signature.py` (`18` passing tests on closeout rerun) |
+| Required closeout JSON blocks are present | required | `pass` | `runtime_observability_comparison@1`, `metric_key_continuity_assertion@1`, `v34a_signing_wiring_evidence@1` under `artifacts/agent_harness/v48/evidence_inputs/` |
+| Historical continuity posture remains green | required | `pass` | v48 closeout `issues = []`, `valid = true`, `all_passed = true` |
+| No boundary-release expansion introduced | required | `pass` | v48 scope remains `V34-A` only (`X1`/`X2`) |
 
 Summary:
 
-- `decision_phase = pre_start`
-- `scope = V34-A_only`
-- `all_pre_start_checks_passed = true`
-- `blocking_issues = []`
+- `schema = "stop_gate_metrics@1"`
+- `valid = true`
+- `all_passed = true`
+- `issues = []`
+- `derived_cardinality = 80` (computed from `metrics` keyset cardinality)
 
-## Pre-Start Decision Snapshot (Machine-Checkable)
-
-```json
-{
-  "schema": "stop_gate_start_decision@1",
-  "phase": "pre_start_decision",
-  "authoritative": true,
-  "arc": "vNext+48",
-  "selected_path": "V34-A",
-  "selected_slices": [
-    "X1",
-    "X2"
-  ],
-  "pre_start_checks_passed": true,
-  "blocking_issues": [],
-  "scope_constraint": "V34-A_only",
-  "stop_gate_schema_family": "stop_gate_metrics@1",
-  "metric_key_cardinality_baseline": 80,
-  "metric_key_expansion_authorized": false,
-  "l2_boundary_release_authorized": false
-}
-```
-
-## Required Closeout Evidence Blocks (v48)
+## Metric-Key Continuity Assertion
 
 ```json
 {
-  "schema": "v48_closeout_required_blocks@1",
-  "decision_doc": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS48.md",
-  "required_json_blocks": [
-    "runtime_observability_comparison@1",
-    "metric_key_continuity_assertion@1",
-    "v34a_signing_wiring_evidence@1"
-  ]
+  "schema": "metric_key_continuity_assertion@1",
+  "baseline_metrics_artifact": "artifacts/stop_gate/metrics_v47_closeout.json",
+  "current_metrics_artifact": "artifacts/stop_gate/metrics_v48_closeout.json",
+  "expected_relation": "exact_keyset_equality",
+  "metric_key_exact_set_equal_v47": true,
+  "metric_key_cardinality": 80
 }
 ```
 
-## Start Recommendation
+## Runtime Observability Comparison (v47 Baseline vs v48 Closeout)
+
+```json
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+47",
+  "current_arc": "vNext+48",
+  "baseline_source": "artifacts/stop_gate/report_v47_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v48_closeout.md",
+  "baseline_elapsed_ms": 105,
+  "current_elapsed_ms": 111,
+  "delta_ms": 6,
+  "notes": "v48 closeout remains informational-only for timing. Runtime byte observability uses a fixed replay-cycle aggregate (`bytes_hashed_replay_cycles = 3`)."
+}
+```
+
+| Arc | Source | total_fixtures | total_replays | elapsed_ms | bytes_hashed_per_replay | bytes_hashed_total | valid | all_passed |
+|---|---|---:|---:|---:|---:|---:|---|---|
+| `vNext+47` baseline | `artifacts/stop_gate/metrics_v47_closeout.json` | `22` | `78` | `105` | `68230` | `204690` | `true` | `true` |
+| `vNext+48` closeout | `artifacts/stop_gate/metrics_v48_closeout.json` | `22` | `78` | `111` | `68230` | `204690` | `true` | `true` |
+
+## V34-A Signing Wiring Evidence
+
+```json
+{
+  "schema": "v34a_signing_wiring_evidence@1",
+  "preflight_entrypoint": "python -m adeu_agent_harness.verify_taskpack_signature",
+  "signature_subject": "taskpack_bundle_hash",
+  "single_signature_only": true,
+  "algorithm_key_binding_enforced": true,
+  "verification_passed": true,
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v47": true,
+  "notes": "v48 X1/X2 merged with deterministic pre-flight signing verification and fail-closed downstream binding guards on main."
+}
+```
+
+## Recommendation (Post v48)
 
 - gate decision:
-  - `GO_VNEXT_PLUS48_IMPLEMENTATION_DRAFT`
+  - `GO_VNEXT_PLUS49_PLANNING_DRAFT`
 - rationale:
-  - v47 closeout is green and continuity posture is stable.
-  - v48 scope is explicit, thin-slice, and constrained to additive `V34-A` hardening.
-  - non-selected V34 paths remain deferred and unauthorized for v48.
+  - v48 closes `V34-A` (`X1`/`X2`) with deterministic signing pre-flight and fail-closed guard coverage on `main`.
+  - no continuity, schema-family, or metric-key regressions were observed in closeout evidence.
 
-## Suggested Next Actions
+## Suggested Next Artifacts
 
-1. Implement `X1` (`V34-A` signing envelope + trust-anchor + pre-flight artifact) with deterministic fail-closed behavior.
-2. Implement `X2` guard suite with downgrade-protection, no-bypass, and continuity checks.
-3. Refresh this decision note post-merge with closeout evidence and final `all_passed` capture.
+1. Draft `docs/LOCKED_CONTINUATION_vNEXT_PLUS49.md`, `docs/ASSESSMENT_vNEXT_PLUS49_EDGES.md`, and `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS49.md` for `V34-B` selection (or justified alternate).
+2. Keep v48 closeout artifacts stable; rerun closeout commands only under frozen deterministic env contract.
+3. Keep `V34-C`..`V34-G` deferred until explicitly locked in later arcs.

@@ -1,0 +1,1 @@
+{"baseline_metrics_artifact":"artifacts/stop_gate/metrics_v47_closeout.json","current_metrics_artifact":"artifacts/stop_gate/metrics_v48_closeout.json","expected_relation":"exact_keyset_equality","metric_key_cardinality":80,"metric_key_exact_set_equal_v47":true,"schema":"metric_key_continuity_assertion@1"}

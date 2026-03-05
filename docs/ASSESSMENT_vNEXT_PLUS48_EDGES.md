@@ -1,8 +1,8 @@
-# Assessment vNext+48 Edges (V34-A Pre-Lock)
+# Assessment vNext+48 Edges (Post Closeout)
 
-This document records pre-implementation edge analysis for `vNext+48` (`V34-A` deterministic signing + trust-anchor pre-flight hardening).
+This document records edge disposition for `vNext+48` (`V34-A` deterministic signing + trust-anchor pre-flight hardening) after arc closeout.
 
-Status: pre-lock assessment (March 5, 2026 UTC).
+Status: post-closeout assessment (March 5, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -10,99 +10,118 @@ Status: pre-lock assessment (March 5, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md",
-  "phase": "pre_lock_assessment",
+  "phase": "post_closeout_assessment",
   "authoritative": true,
-  "authoritative_scope": "v48_prelock_edge_analysis",
-  "required_in_lock": true,
-  "notes": "Pre-lock assessment aligned to V34-A scope from DRAFT_NEXT_ARC_OPTIONS_v8.md."
+  "authoritative_scope": "v48_closeout_edge_disposition",
+  "required_in_decision": true,
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
 ## Scope
 
-- In scope: `V34-A` signing/trust-anchor pre-flight implementation planning (`X1`) and guard-suite planning (`X2`).
+- In scope: `V34-A` signing/trust-anchor pre-flight implementation (`X1`) and guard-suite implementation (`X2`).
 - Out of scope: `V34-B` through `V34-G`, stop-gate schema-family fork, metric-key expansion, and `L2` boundary release.
 
 ## Inputs
 
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS48.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS48.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS47.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS47.md`
-- `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
-- `docs/SEMANTICS_v3.md`
-- `packages/adeu_agent_harness/src/adeu_agent_harness/run_taskpack.py`
-- `packages/adeu_agent_harness/src/adeu_agent_harness/package_ux.py`
-- `packages/adeu_agent_harness/tests/test_taskpack_packaging.py`
-- `artifacts/quality_dashboard_v47_closeout.json`
-- `artifacts/stop_gate/metrics_v47_closeout.json`
+- `packages/adeu_agent_harness/src/adeu_agent_harness/_v48_signing_common.py`
+- `packages/adeu_agent_harness/src/adeu_agent_harness/verify_taskpack_signature.py`
+- `packages/adeu_agent_harness/tests/test_taskpack_signature.py`
+- `packages/adeu_agent_harness/src/adeu_agent_harness/diagnostic_registry_v48.json`
+- `artifacts/quality_dashboard_v48_closeout.json`
+- `artifacts/stop_gate/metrics_v48_closeout.json`
+- `artifacts/agent_harness/v48/evidence_inputs/runtime_observability_comparison_v48.json`
+- `artifacts/agent_harness/v48/evidence_inputs/metric_key_continuity_assertion_v48.json`
+- `artifacts/agent_harness/v48/evidence_inputs/v34a_signing_wiring_evidence_v48.json`
+- merged PRs: `#245`, `#246`
 
-## Pre-Lock Edge Set (V34-A)
+## Pre-Lock Edge Set Outcome (v48 Closeout)
 
-1. Signature subject drift risk (`taskpack_bundle_hash` substituted or recomputed from non-authoritative bytes).
-2. Trust-anchor split-brain risk (multiple registries or non-authoritative key sources).
-3. Algorithm downgrade risk (envelope algorithm differs from key-pinned algorithm in registry).
-4. Single-signature scope creep risk (implicit multi-signature behavior appears without lock authorization).
-5. Pre-flight verification bypass risk (runner/verifier/packaging invoked without `signature_verification_result@1`).
-6. Cross-component verification-policy drift risk (runner/verifier/packaging each re-interpret signature validity).
-7. Envelope/registry schema drift risk (weak parsing or permissive extras accepted).
-8. Deterministic diagnostics ordering/namespace drift risk (`AHK48xx` policy drift).
-9. Required violation severity downgrade risk (errors emitted as warnings).
-10. Canonical hash profile drift risk (non-frozen JSON serializer introduced in signing path).
-11. Deterministic environment drift risk (`TZ`, `LC_ALL`, `PYTHONHASHSEED` not enforced in guard lanes).
-12. Verification-result spoofing risk (forged `signature_verification_result@1` injected as user-supplied artifact).
-13. Trust-anchor lifecycle drift risk (revoked/expired keys accepted without deterministic explicit-time evaluation).
-14. Stop-gate keyset/cardinality continuity regression risk.
+1. Signature subject drift risk: `resolved`.
+   - `taskpack_bundle_hash` enforced as signed subject; mismatches fail closed.
+2. Trust-anchor split-brain risk: `resolved`.
+   - single registry artifact input and strict schema/key constraints.
+3. Algorithm downgrade risk: `resolved`.
+   - exact key-id + algorithm binding checks enforced.
+4. Single-signature scope creep risk: `resolved`.
+   - envelope grammar is strict; multi-signature-shaped payloads fail closed.
+5. Pre-flight verification bypass risk: `resolved` (for v48 lane scope).
+   - downstream validator requires pre-flight artifact and binding checks.
+6. Cross-component verification-policy drift risk: `resolved` (v48 lane scope).
+   - shared downstream validator captures fixed-field and binding invariants.
+7. Envelope/registry schema drift risk: `resolved`.
+   - strict keyset/schema validation with fail-closed behavior.
+8. Deterministic diagnostics ordering/namespace drift risk: `resolved`.
+   - `AHK48xx` registry contract enforced.
+9. Required violation severity downgrade risk: `resolved`.
+   - CLI failure path emits error payload on stderr with non-zero exit.
+10. Canonical hash profile drift risk: `resolved`.
+   - canonical JSON hashing retained for authoritative comparisons.
+11. Deterministic environment drift risk: `resolved`.
+   - deterministic env contract required in signing path/tests.
+12. Verification-result spoofing risk: `resolved`.
+   - downstream binding validator enforces preflight binding hash + authority fields.
+13. Trust-anchor lifecycle drift risk: `resolved`.
+   - revoked/expired keys fail closed under explicit reference time.
+14. Stop-gate keyset/cardinality continuity regression risk: `resolved`.
+   - keyset equality with v47 and cardinality `80` verified.
 
-## Guardrail Evaluation (Planned)
+## Post-Merge Review Feedback Disposition
 
-- Signature subject lock: planned.
-  - enforce `taskpack_bundle_hash` exact-match subject verification.
-- Trust-anchor single-source lock: planned.
-  - accept trust anchors from canonical registry artifact only.
-- Algorithm/key pinning lock: planned.
-  - key-id lookup must enforce exact allowed algorithm; mismatch fails closed.
-- Single-signature lock: planned.
-  - envelope cardinality > 1 fails closed.
-- Pre-flight no-bypass lock: planned.
-  - signature verification artifact required before downstream execution.
-- Pre-flight artifact source-binding lock: planned.
-  - downstream must reject user-supplied/unbound `signature_verification_result@1` artifacts.
-- Cross-lane policy identity lock: planned.
-  - downstream components consume `signature_verification_result@1` rather than redefining policy.
-- Trust-anchor lifecycle lock: planned.
-  - revoked/expired keys fail closed under explicit `verification_reference_time_utc` evaluation.
-- Schema + canonicalization lock: planned.
-  - strict schema validation + frozen canonical JSON hash profile.
-- Diagnostic namespace/severity lock: planned.
-  - `AHK48xx` registry mapping and error-only channel for required violations.
-- Stop-gate continuity lock: planned.
-  - exact keyset equality with v47 and derived cardinality `80`.
+1. `Codex` (`P1`): downstream validator accepted altered fixed contract fields (`contract_schema`, `verification_library`).
+   - disposition: `resolved`.
+   - change: downstream validator now enforces fixed values for both fields before downstream acceptance.
+2. `Gemini`: authority-field subset check was redundant/unreachable.
+   - disposition: `resolved`.
+   - change: redundant authority-field subset block removed.
+3. `Gemini`: `verified` check duplicated in `expected_bindings`.
+   - disposition: `resolved`.
+   - change: explicit `verified is True` check retained; duplicate binding removed.
+4. `Gemini`: test repo-root resolution via `parents[3]` is fragile.
+   - disposition: `resolved`.
+   - change: tests now use `project_repo_root(anchor=Path(__file__))`.
+5. `Gemini`: duplicate repo-root fragility finding in second test.
+   - disposition: `resolved`.
+   - change: same fix applied to both stop-gate continuity tests.
 
-## Required Guard Additions (v48)
+## Guard Coverage Outcome
 
-1. `test_signature_envelope_requires_single_signature`
-2. `test_signature_subject_must_equal_taskpack_bundle_hash`
-3. `test_signature_manifest_hash_redundant_binding_must_match`
-4. `test_algorithm_key_binding_mismatch_fails_closed`
-5. `test_unknown_signer_key_id_fails_closed`
-6. `test_preflight_signature_verification_is_required_before_runner`
-7. `test_signature_verification_result_schema_required_for_downstream`
-8. `test_signature_verification_result_source_binding_rejects_user_supplied_or_unbound_artifact`
-9. `test_revoked_signer_key_fails_closed`
-10. `test_expired_signer_key_fails_closed_with_explicit_verification_time`
-11. `test_signing_diagnostics_enforce_AHK48_registry`
-12. `test_signing_required_violations_are_error_channel_only`
-13. `test_stop_gate_metric_keyset_exact_equal_v47`
-14. `test_stop_gate_metric_cardinality_equals_80_from_metrics_keys_only`
+- implemented guard suite includes all required v48 checks listed in pre-lock planning set.
+- closeout test signal:
+  - `packages/adeu_agent_harness/tests/test_taskpack_signature.py`: `18` passing tests
+  - `packages/adeu_agent_harness/tests`: `98` passing tests
 
-## Residual Risks (Post-Lock, Pre-Implementation)
+## Stop-Gate Continuity Outcome
 
-1. Registry migration risk if key-id format is underspecified in `taskpack_trust_anchor_registry@1`.
-2. Tooling adoption risk if downstream callers do not uniformly require pre-flight artifact source-binding checks.
-3. Future multi-signer pressure risk unless explicitly deferred in v48 lock and tests.
+```json
+{
+  "schema": "v48_edge_closeout_summary@1",
+  "arc": "vNext+48",
+  "target_path": "V34-A",
+  "prelock_edge_count": 14,
+  "resolved_edge_count": 14,
+  "open_blocking_edges": 0,
+  "review_feedback_items_resolved": 5,
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v47": true,
+  "all_passed": true,
+  "blocking_issues": []
+}
+```
 
-## Recommendation (Pre-Lock)
+## Residual Risks (Post v48)
 
-1. Proceed with `V34-A` lock drafting for `vNext+48`.
-2. Freeze single-signature semantics and key-algorithm pinning in lock JSON before implementation.
-3. Treat all `V34-B` through `V34-G` proposals as deferred and non-authoritative for v48 implementation scope.
+1. Multi-signer policy/quorum remains intentionally deferred and requires explicit future lock text.
+2. Downstream adoption risk remains if future lanes bypass the shared validator helper instead of consuming it.
+3. Crypto-provider portability remains deferred; v48 verifier implementation is pinned to deterministic OpenSSL CLI behavior.
+
+## Recommendation (Post Closeout)
+
+1. Mark v48 edge set as closed with no blocking issues.
+2. Carry residual risks as explicit inputs into `vNext+49` edge planning.
+3. Keep `V34-A` constraints frozen while evaluating `V34-B` selection in the next lock.
