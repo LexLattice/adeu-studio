@@ -25,6 +25,7 @@ from adeu_agent_harness.matrix_parity import (
     ADAPTER_MATRIX_SCHEMA,
 )
 from adeu_agent_harness.policy_recompute import (
+    DEFAULT_POLICY_RECOMPUTE_OUTPUT_ROOT,
     POLICY_RECOMPUTE_RESULT_SCHEMA,
     SHARED_RECOMPUTE_ENGINE,
 )
@@ -560,6 +561,26 @@ def _add_matrix_parity_slot(taskpack_dir: Path) -> None:
     _sync_manifest_component_hash(taskpack_dir, relative_path="EVIDENCE_SLOTS.json")
 
 
+def _add_policy_recompute_slot(taskpack_dir: Path) -> None:
+    evidence_slots_path = taskpack_dir / "EVIDENCE_SLOTS.json"
+    evidence_slots_payload = _read_json(evidence_slots_path)
+    evidence_slots_payload["slots"].append(
+        {
+            "slot_id": "v34c_policy_recompute_evidence",
+            "description": "Policy recompute evidence block.",
+            "required": True,
+        }
+    )
+    evidence_slots_payload["slots"] = sorted(
+        evidence_slots_payload["slots"], key=lambda row: row["slot_id"]
+    )
+    evidence_slots_payload["required_count"] = len(
+        [slot for slot in evidence_slots_payload["slots"] if slot["required"] is True]
+    )
+    _write_json(evidence_slots_path, evidence_slots_payload)
+    _sync_manifest_component_hash(taskpack_dir, relative_path="EVIDENCE_SLOTS.json")
+
+
 def _seed_v50_matrix_parity_payloads(
     root: Path,
     *,
@@ -768,6 +789,81 @@ def _seed_v50_matrix_parity_payloads(
     return matrix_registry_path, matrix_report_path, matrix_evidence_path
 
 
+def _seed_v51_policy_recompute_evidence_payload(
+    root: Path,
+    *,
+    verified_result_path: Path,
+) -> Path:
+    verified_result_payload = _read_json(verified_result_path)
+    policy_recompute_result_path = (
+        root
+        / DEFAULT_POLICY_RECOMPUTE_OUTPUT_ROOT
+        / (
+            f"{verified_result_payload['taskpack_manifest_hash']}_"
+            f"{verified_result_payload['candidate_change_plan_hash']}.json"
+        )
+    )
+    policy_recompute_result_payload = _read_json(policy_recompute_result_path)
+    evidence_path = (
+        root
+        / "artifacts"
+        / "agent_harness"
+        / "v51"
+        / "evidence_inputs"
+        / "v34c_policy_recompute_evidence_v51.json"
+    )
+    _write_json(
+        evidence_path,
+        {
+            "schema": "v34c_policy_recompute_evidence@1",
+            "contract_source": (
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS51.md#v34c_policy_recompute_contract@1"
+            ),
+            "recompute_entrypoint": SHARED_RECOMPUTE_ENGINE,
+            "shared_recompute_engine_used": SHARED_RECOMPUTE_ENGINE,
+            "verifier_entrypoint": "python -m adeu_agent_harness.verify_taskpack_run",
+            "policy_recompute_result_path": _relative(root, policy_recompute_result_path),
+            "policy_recompute_result_hash": policy_recompute_result_payload["result_hash"],
+            "comparison_subject_fields": ["passed", "issues", "exit_status"],
+            "exit_status_subject_policy": (
+                "runner_policy_verdict_status_under_frozen_validator_scope_"
+                "not_verifier_process_exit_code"
+            ),
+            "issue_tuple_fields": ["issue_code", "target_path", "hunk_index"],
+            "issue_tuple_order_policy": "lexicographic_over_issue_code_target_path_hunk_index",
+            "issues_representation_policy": (
+                "lexicographically_sorted_unique_issue_tuple_list_with_repo_relative_"
+                "posix_target_paths"
+            ),
+            "duplicate_issue_tuples_forbidden": True,
+            "allowed_issue_codes": [
+                "allowlist_violation",
+                "dry_run_subprocess_execution_detected",
+                "forbidden_operation_kind",
+                "forbidden_path_violation",
+                "model_suggested_command_execution_detected",
+            ],
+            "allowed_issue_codes_closed_exact": True,
+            "candidate_change_plan_binding_policy": (
+                "recompute_binds_to_runner_recorded_canonical_candidate_change_plan_hash_"
+                "runner_result_dry_run_supplies_execution_mode_only"
+            ),
+            "runner_policy_failure_input_materialization_required": True,
+            "runner_reason_line_range_non_authoritative": True,
+            "mismatch_fail_closed": True,
+            "exact_match_requires_empty_deltas": True,
+            "policy_recompute_result_emitted": True,
+            "typed_diff_summary_emitted": True,
+            "success_class_verification_result_forbidden_on_mismatch": True,
+            "verification_passed": True,
+            "metric_key_cardinality": 80,
+            "metric_key_exact_set_equal_v50": True,
+            "notes": "v51 Z2 closeout evidence fixture.",
+        },
+    )
+    return evidence_path
+
+
 def _write_evidence_with_seeded_payloads(
     *,
     root: Path,
@@ -775,6 +871,7 @@ def _write_evidence_with_seeded_payloads(
     verified_result_path: Path,
     diagnostic_registry_rel: str,
     matrix_parity_evidence_path: Path | None = None,
+    policy_recompute_evidence_path: Path | None = None,
     evidence_output_root: str = "artifacts/agent_harness/v46/evidence",
 ):
     runtime_path, continuity_path, handoff_path = _seed_u2_evidence_payloads(root)
@@ -788,6 +885,11 @@ def _write_evidence_with_seeded_payloads(
             None
             if matrix_parity_evidence_path is None
             else _relative(root, matrix_parity_evidence_path)
+        ),
+        policy_recompute_evidence_path=(
+            None
+            if policy_recompute_evidence_path is None
+            else _relative(root, policy_recompute_evidence_path)
         ),
         evidence_output_root=evidence_output_root,
         diagnostic_registry_path=diagnostic_registry_rel,
@@ -913,7 +1015,7 @@ def test_verify_taskpack_run_emits_policy_recompute_result_on_runner_policy_fail
     assert recompute_payload["typed_diff_summary"]["exact_match"] is True
 
 
-def test_verify_taskpack_run_emits_policy_recompute_result_on_mismatch_without_enforcement(
+def test_verify_taskpack_run_fails_closed_on_policy_recompute_mismatch_after_emission(
     tmp_path: Path,
 ) -> None:
     (
@@ -953,18 +1055,22 @@ def test_verify_taskpack_run_emits_policy_recompute_result_on_mismatch_without_e
     runner_result_payload["provenance_hash"] = runner_provenance_payload["provenance_hash"]
     _write_json(runner_result_path, runner_result_payload)
 
-    verify_result = _verify_taskpack_run_signed(
-        root,
-        taskpack_dir=taskpack_dir,
-        candidate_change_plan_path=candidate_path,
-        runner_result_path=runner_result_path,
-        runner_provenance_path=runner_provenance_path,
-        policy_rejection_diagnostics_path=rejection_diagnostic_path,
-        verification_output_root="artifacts/agent_harness/v46/verification",
-        diagnostic_registry_path=diagnostic_registry_rel,
-    )
+    verification_output_root = "artifacts/agent_harness/v51/verification_mismatch_case"
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _verify_taskpack_run_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            candidate_change_plan_path=candidate_path,
+            runner_result_path=runner_result_path,
+            runner_provenance_path=runner_provenance_path,
+            policy_rejection_diagnostics_path=rejection_diagnostic_path,
+            verification_output_root=verification_output_root,
+            diagnostic_registry_path=diagnostic_registry_rel,
+        )
 
-    recompute_payload = _read_json(verify_result.policy_recompute_result_path)
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK4605"
+    recompute_payload = _read_json(Path(payload["details"]["policy_recompute_result_path"]))
     assert recompute_payload["typed_diff_summary"]["exact_match"] is False
     assert recompute_payload["typed_diff_summary"]["mismatch_fields"] == ["issues"]
     assert recompute_payload["typed_diff_summary"]["runner_only_issues"] == [
@@ -986,7 +1092,15 @@ def test_verify_taskpack_run_emits_policy_recompute_result_on_mismatch_without_e
             "hunk_index": 0,
         },
     ]
-    assert verify_result.verification_result_path.is_file()
+    verification_result_path = (
+        root
+        / verification_output_root
+        / (
+            f"{recompute_payload['taskpack_manifest_hash']}_"
+            f"{recompute_payload['candidate_change_plan_hash']}.json"
+        )
+    )
+    assert not verification_result_path.exists()
 
 
 def test_verify_taskpack_run_translates_runner_errors_during_policy_recompute_generation(
@@ -1249,6 +1363,52 @@ def test_write_closeout_evidence_emits_matrix_parity_block_when_required(
     )["report_hash"]
 
 
+def test_write_closeout_evidence_emits_policy_recompute_block_when_required(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+
+    result = _write_evidence_with_seeded_payloads(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+        matrix_parity_evidence_path=matrix_evidence_path,
+        policy_recompute_evidence_path=policy_recompute_evidence_path,
+        evidence_output_root="artifacts/agent_harness/v51/evidence_matrix_and_recompute",
+    )
+
+    bundle_payload = _read_json(result.evidence_bundle_path)
+    assert [block["slot_id"] for block in bundle_payload["ordered_evidence_blocks"]] == [
+        "metric_key_continuity_assertion",
+        "runtime_observability_comparison",
+        "v34a_handoff_completion_evidence",
+        "v34b_matrix_parity_evidence",
+        "v34c_policy_recompute_evidence",
+    ]
+    recompute_block = next(
+        block
+        for block in bundle_payload["ordered_evidence_blocks"]
+        if block["slot_id"] == "v34c_policy_recompute_evidence"
+    )
+    assert recompute_block["payload"]["schema"] == "v34c_policy_recompute_evidence@1"
+
+
 def test_write_closeout_evidence_fails_closed_with_no_partial_evidence_emission(
     tmp_path: Path,
 ) -> None:
@@ -1500,6 +1660,34 @@ def test_write_closeout_evidence_fails_closed_when_matrix_slot_required_but_miss
             verified_result_path=verified_result_path,
             diagnostic_registry_rel=diagnostic_registry_rel,
             evidence_output_root="artifacts/agent_harness/v50/evidence_missing_matrix",
+    )
+    assert _error_payload(exc_info.value)["code"] == "AHK4611"
+
+
+def test_write_closeout_evidence_fails_closed_when_policy_recompute_slot_required_but_missing(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v51/evidence_missing_recompute",
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4611"
 
@@ -1580,8 +1768,44 @@ def test_write_closeout_evidence_fails_closed_on_invalid_matrix_parity_evidence(
             diagnostic_registry_rel=diagnostic_registry_rel,
             matrix_parity_evidence_path=matrix_evidence_path,
             evidence_output_root="artifacts/agent_harness/v50/evidence_invalid_matrix",
-        )
+    )
     assert _error_payload(exc_info.value)["code"] == "AHK4604"
+
+
+def test_write_closeout_evidence_fails_closed_on_invalid_policy_recompute_evidence(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_payload = _read_json(policy_recompute_evidence_path)
+    policy_recompute_payload["verification_passed"] = False
+    _write_json(policy_recompute_evidence_path, policy_recompute_payload)
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            policy_recompute_evidence_path=policy_recompute_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v51/evidence_invalid_recompute",
+        )
+    assert _error_payload(exc_info.value)["code"] == "AHK4603"
 
 
 def test_write_closeout_evidence_fails_closed_on_registry_prefix_drift(tmp_path: Path) -> None:
