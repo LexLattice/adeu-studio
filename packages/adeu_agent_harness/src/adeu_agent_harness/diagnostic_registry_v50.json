@@ -1,0 +1,50 @@
+{
+  "schema": "taskpack_matrix_diagnostic_registry@1",
+  "codes": [
+    {
+      "issue_code": "AHK5000",
+      "title": "PATH_POLICY_VIOLATION",
+      "description": "Path violates repository-relative artifact policy."
+    },
+    {
+      "issue_code": "AHK5001",
+      "title": "JSON_OBJECT_REQUIRED",
+      "description": "JSON artifact payload is missing, malformed, or not an object."
+    },
+    {
+      "issue_code": "AHK5002",
+      "title": "SCHEMA_MISMATCH",
+      "description": "Artifact schema does not match the required matrix schema."
+    },
+    {
+      "issue_code": "AHK5003",
+      "title": "MATRIX_REGISTRY_INVALID",
+      "description": "Declared adapter matrix registry violates the frozen v50 contract."
+    },
+    {
+      "issue_code": "AHK5004",
+      "title": "MATRIX_INPUT_INVALID",
+      "description": "Matrix evaluation input payload is missing or violates the frozen grammar."
+    },
+    {
+      "issue_code": "AHK5005",
+      "title": "MATRIX_REPORT_INVALID",
+      "description": "Matrix parity report data is invalid or violates the frozen parity contract."
+    },
+    {
+      "issue_code": "AHK5006",
+      "title": "CROSS_ARTIFACT_HASH_MISMATCH",
+      "description": "Cross-artifact hash or identity binding drift was detected while building the matrix report."
+    },
+    {
+      "issue_code": "AHK5007",
+      "title": "MATRIX_LANE_COMPLETENESS_VIOLATION",
+      "description": "Declared matrix lanes are missing, duplicated, or otherwise incomplete."
+    },
+    {
+      "issue_code": "AHK5008",
+      "title": "CONTRACT_REGISTRY_INVALID",
+      "description": "Matrix diagnostic registry contract is missing or invalid."
+    }
+  ]
+}
