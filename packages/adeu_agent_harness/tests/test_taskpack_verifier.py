@@ -20,6 +20,10 @@ from adeu_agent_harness.compile import (
     TASKPACK_PROFILE_REGISTRY_SCHEMA,
     compile_taskpack,
 )
+from adeu_agent_harness.matrix_parity import (
+    ADAPTER_MATRIX_PARITY_REPORT_SCHEMA,
+    ADAPTER_MATRIX_SCHEMA,
+)
 from adeu_agent_harness.run_taskpack import RUNNER_RESULT_SCHEMA, run_taskpack
 from adeu_agent_harness.verify_taskpack_run import (
     VERIFICATION_RESULT_SCHEMA,
@@ -450,12 +454,241 @@ def _seed_u2_evidence_payloads(root: Path) -> tuple[Path, Path, Path]:
     return runtime_path, continuity_path, handoff_path
 
 
+def _add_matrix_parity_slot(taskpack_dir: Path) -> None:
+    evidence_slots_path = taskpack_dir / "EVIDENCE_SLOTS.json"
+    evidence_slots_payload = _read_json(evidence_slots_path)
+    evidence_slots_payload["slots"].append(
+        {
+            "slot_id": "v34b_matrix_parity_evidence",
+            "description": "Matrix parity evidence block.",
+            "required": True,
+        }
+    )
+    evidence_slots_payload["slots"] = sorted(
+        evidence_slots_payload["slots"], key=lambda row: row["slot_id"]
+    )
+    evidence_slots_payload["required_count"] = len(
+        [slot for slot in evidence_slots_payload["slots"] if slot["required"] is True]
+    )
+    _write_json(evidence_slots_path, evidence_slots_payload)
+    _sync_manifest_component_hash(taskpack_dir, relative_path="EVIDENCE_SLOTS.json")
+
+
+def _seed_v50_matrix_parity_payloads(
+    root: Path,
+    *,
+    verified_result_path: Path,
+) -> tuple[Path, Path, Path]:
+    adapter_registry_path = (
+        root / "artifacts" / "agent_harness" / "v45" / "taskpack_runner_adapter_registry.json"
+    )
+    adapter_registry_payload = _read_json(adapter_registry_path)
+    adapter_registry_hash = sha256_canonical_json(adapter_registry_payload)
+
+    matrix_registry_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix.json"
+    matrix_registry_path = root / matrix_registry_rel
+    matrix_rows = [
+        {
+            "deployment_mode": "adeu_integrated",
+            "adapter_id": "default",
+            "runtime_id": "local_python_cli",
+            "adapter_kind": "candidate_plan_passthrough",
+        },
+        {
+            "deployment_mode": "standalone",
+            "adapter_id": "default",
+            "runtime_id": "local_python_cli",
+            "adapter_kind": "candidate_plan_passthrough",
+        },
+    ]
+    matrix_registry_hash_subject = {
+        "lane_id_tuple": ["deployment_mode", "adapter_id", "runtime_id"],
+        "declared_registry_only": True,
+        "enabled_row_policy": "registry_is_enabled_only_disabled_rows_forbidden_non_v50",
+        "tuple_order_policy": "lexicographic_over_deployment_mode_adapter_id_runtime_id",
+        "deployment_mode_enum": ["adeu_integrated", "standalone"],
+        "adapter_id_source_policy": "must_reference_declared_runner_adapter_registry_ids_only",
+        "adapter_kind_policy": "candidate_plan_passthrough_only_non_v50_expansion_forbidden",
+        "runtime_id_policy": "singleton_only_for_v50",
+        "singleton_runtime_id": "local_python_cli",
+        "runtime_id_source_policy": "contract_derived_only_no_host_environment_inference",
+        "runtime_id_override_policy": (
+            "explicit_override_must_equal_singleton_case_sensitive_before_adapter_execution_"
+            "else_fail_closed"
+        ),
+        "lane_pairing_policy": (
+            "for_each_declared_adapter_id_exactly_two_deployment_mode_rows_required_under_"
+            "singleton_runtime_id"
+        ),
+        "lane_count_authority": "all_registry_rows_only_because_disabled_rows_are_forbidden",
+        "source_runner_adapter_registry_path": _relative(root, adapter_registry_path),
+        "source_runner_adapter_registry_hash": adapter_registry_hash,
+        "rows": matrix_rows,
+    }
+    matrix_registry_hash = sha256_canonical_json(matrix_registry_hash_subject)
+    _write_json(
+        matrix_registry_path,
+        {
+            "schema": ADAPTER_MATRIX_SCHEMA,
+            **matrix_registry_hash_subject,
+            "matrix_registry_hash": matrix_registry_hash,
+        },
+    )
+
+    verified_result_payload = _read_json(verified_result_path)
+    matrix_report_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix_parity_report.json"
+    matrix_report_path = root / matrix_report_rel
+    lane_rows = [
+        {
+            "deployment_mode": "adeu_integrated",
+            "adapter_id": "default",
+            "runtime_id": "local_python_cli",
+            "taskpack_manifest_hash": verified_result_payload["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": verified_result_payload["candidate_change_plan_hash"],
+            "runner_provenance_hash": verified_result_payload["runner_provenance_hash"],
+            "packaging_manifest_path": (
+                "artifacts/agent_harness/v50/matrix/adeu_integrated/packaging_manifest.json"
+            ),
+            "packaging_provenance_path": (
+                "artifacts/agent_harness/v50/matrix/adeu_integrated/packaging_provenance.json"
+            ),
+            "canonical_subtree_hash": "a" * 64,
+            "policy_equivalence_hash": "b" * 64,
+        },
+        {
+            "deployment_mode": "standalone",
+            "adapter_id": "default",
+            "runtime_id": "local_python_cli",
+            "taskpack_manifest_hash": verified_result_payload["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": verified_result_payload["candidate_change_plan_hash"],
+            "runner_provenance_hash": verified_result_payload["runner_provenance_hash"],
+            "packaging_manifest_path": (
+                "artifacts/agent_harness/v50/matrix/standalone/packaging_manifest.json"
+            ),
+            "packaging_provenance_path": (
+                "artifacts/agent_harness/v50/matrix/standalone/packaging_provenance.json"
+            ),
+            "canonical_subtree_hash": "a" * 64,
+            "policy_equivalence_hash": "b" * 64,
+        },
+    ]
+    pairwise_parity = [
+        {
+            "adapter_id": "default",
+            "runtime_id": "local_python_cli",
+            "deployment_modes": ["adeu_integrated", "standalone"],
+            "taskpack_manifest_hash": verified_result_payload["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": verified_result_payload["candidate_change_plan_hash"],
+            "canonical_subtree_exact_match": True,
+            "policy_equivalence_exact_match": True,
+        }
+    ]
+    matrix_report_hash_subject = {
+        "matrix_registry_path": matrix_registry_rel,
+        "matrix_registry_hash": matrix_registry_hash,
+        "lane_id_tuple": ["deployment_mode", "adapter_id", "runtime_id"],
+        "enabled_row_policy": "registry_is_enabled_only_disabled_rows_forbidden_non_v50",
+        "declared_registry_only": True,
+        "lexicographic_lane_order_enforced": True,
+        "runtime_id_source_policy": "contract_derived_only_no_host_environment_inference",
+        "runtime_id_host_inference_forbidden": True,
+        "canonical_subtree_exact_match_required": True,
+        "canonical_subtree_source_policy": (
+            "existing_frozen_packaging_and_verifier_canonical_artifact_subject_family_only"
+        ),
+        "policy_equivalence_exact_match_required": True,
+        "policy_equivalence_subject_keys_verified": [
+            "allowlist_violations",
+            "forbidden_effects_detected",
+            "issue_code_set",
+            "required_evidence_slots_filled",
+        ],
+        "policy_equivalence_value_shapes_verified": {
+            "issue_code_set": "lexicographically_sorted_unique_string_list_canonical_form",
+            "required_evidence_slots_filled": "boolean",
+            "allowlist_violations": "lexicographically_sorted_unique_normalized_posix_path_list",
+            "forbidden_effects_detected": "boolean",
+        },
+        "report_covers_all_declared_lanes": True,
+        "lane_rows": lane_rows,
+        "pairwise_parity": pairwise_parity,
+    }
+    matrix_report_hash = sha256_canonical_json(matrix_report_hash_subject)
+    _write_json(
+        matrix_report_path,
+        {
+            "schema": ADAPTER_MATRIX_PARITY_REPORT_SCHEMA,
+            **matrix_report_hash_subject,
+            "report_hash": matrix_report_hash,
+        },
+    )
+
+    matrix_evidence_path = (
+        root
+        / "artifacts"
+        / "agent_harness"
+        / "v50"
+        / "evidence_inputs"
+        / "v34b_matrix_parity_evidence_v50.json"
+    )
+    _write_json(
+        matrix_evidence_path,
+        {
+            "schema": "v34b_matrix_parity_evidence@1",
+            "contract_source": (
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS50.md#v34b_matrix_baseline_contract@1"
+            ),
+            "matrix_registry_path": matrix_registry_rel,
+            "matrix_report_path": matrix_report_rel,
+            "matrix_report_hash": matrix_report_hash,
+            "lane_id_tuple": ["deployment_mode", "adapter_id", "runtime_id"],
+            "enabled_row_policy": "registry_is_enabled_only_disabled_rows_forbidden_non_v50",
+            "lane_count_authority": "all_registry_rows_only_because_disabled_rows_are_forbidden",
+            "lane_count": 2,
+            "deployment_modes_covered": ["adeu_integrated", "standalone"],
+            "adapter_ids_covered": ["default"],
+            "runtime_ids_covered": ["local_python_cli"],
+            "singleton_runtime_id_enforced": True,
+            "runtime_id_source_policy": "contract_derived_only_no_host_environment_inference",
+            "runtime_id_host_inference_forbidden": True,
+            "declared_registry_only": True,
+            "lexicographic_lane_order_enforced": True,
+            "canonical_subtree_exact_match_required": True,
+            "canonical_subtree_source_policy": (
+                "existing_frozen_packaging_and_verifier_canonical_artifact_subject_family_only"
+            ),
+            "policy_equivalence_exact_match_required": True,
+            "policy_equivalence_subject_keys_verified": [
+                "allowlist_violations",
+                "forbidden_effects_detected",
+                "issue_code_set",
+                "required_evidence_slots_filled",
+            ],
+            "policy_equivalence_value_shapes_verified": {
+                "issue_code_set": "lexicographically_sorted_unique_string_list_canonical_form",
+                "required_evidence_slots_filled": "boolean",
+                "allowlist_violations": (
+                    "lexicographically_sorted_unique_normalized_posix_path_list"
+                ),
+                "forbidden_effects_detected": "boolean",
+            },
+            "report_covers_all_declared_lanes": True,
+            "verification_passed": True,
+            "metric_key_cardinality": 80,
+            "metric_key_exact_set_equal_v49": True,
+            "notes": "v50 Y2 closeout evidence fixture.",
+        },
+    )
+    return matrix_registry_path, matrix_report_path, matrix_evidence_path
+
+
 def _write_evidence_with_seeded_payloads(
     *,
     root: Path,
     taskpack_dir: Path,
     verified_result_path: Path,
     diagnostic_registry_rel: str,
+    matrix_parity_evidence_path: Path | None = None,
     evidence_output_root: str = "artifacts/agent_harness/v46/evidence",
 ):
     runtime_path, continuity_path, handoff_path = _seed_u2_evidence_payloads(root)
@@ -465,6 +698,11 @@ def _write_evidence_with_seeded_payloads(
         runtime_observability_comparison_path=_relative(root, runtime_path),
         metric_key_continuity_assertion_path=_relative(root, continuity_path),
         handoff_completion_evidence_path=_relative(root, handoff_path),
+        matrix_parity_evidence_path=(
+            None
+            if matrix_parity_evidence_path is None
+            else _relative(root, matrix_parity_evidence_path)
+        ),
         evidence_output_root=evidence_output_root,
         diagnostic_registry_path=diagnostic_registry_rel,
         repo_root_path=root,
@@ -711,6 +949,48 @@ def test_write_closeout_evidence_emits_deterministic_bundle_and_provenance(
     assert provenance_payload["evidence_bundle_hash"] == bundle_payload["evidence_bundle_hash"]
 
 
+def test_write_closeout_evidence_emits_matrix_parity_block_when_required(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+
+    result = _write_evidence_with_seeded_payloads(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+        matrix_parity_evidence_path=matrix_evidence_path,
+        evidence_output_root="artifacts/agent_harness/v50/evidence",
+    )
+
+    bundle_payload = _read_json(result.evidence_bundle_path)
+    assert [block["slot_id"] for block in bundle_payload["ordered_evidence_blocks"]] == [
+        "metric_key_continuity_assertion",
+        "runtime_observability_comparison",
+        "v34a_handoff_completion_evidence",
+        "v34b_matrix_parity_evidence",
+    ]
+    matrix_block = next(
+        block
+        for block in bundle_payload["ordered_evidence_blocks"]
+        if block["slot_id"] == "v34b_matrix_parity_evidence"
+    )
+    assert matrix_block["payload"]["report_covers_all_declared_lanes"] is True
+    assert matrix_block["payload"]["matrix_report_hash"] == _read_json(
+        root / matrix_block["payload"]["matrix_report_path"]
+    )["report_hash"]
+
+
 def test_write_closeout_evidence_fails_closed_with_no_partial_evidence_emission(
     tmp_path: Path,
 ) -> None:
@@ -944,6 +1224,28 @@ def test_write_closeout_evidence_fails_closed_on_required_evidence_slot_missing(
     assert _error_payload(exc_info.value)["code"] == "AHK4611"
 
 
+def test_write_closeout_evidence_fails_closed_when_matrix_slot_required_but_missing(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            evidence_output_root="artifacts/agent_harness/v50/evidence_missing_matrix",
+        )
+    assert _error_payload(exc_info.value)["code"] == "AHK4611"
+
+
 def test_write_closeout_evidence_fails_closed_on_malformed_evidence_slot(tmp_path: Path) -> None:
     root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(
         tmp_path
@@ -992,6 +1294,36 @@ def test_write_closeout_evidence_fails_closed_on_invalid_handoff_completion_evid
             repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4603"
+
+
+def test_write_closeout_evidence_fails_closed_on_invalid_matrix_parity_evidence(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    matrix_payload = _read_json(matrix_evidence_path)
+    matrix_payload["matrix_report_hash"] = "f" * 64
+    _write_json(matrix_evidence_path, matrix_payload)
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v50/evidence_invalid_matrix",
+        )
+    assert _error_payload(exc_info.value)["code"] == "AHK4604"
 
 
 def test_write_closeout_evidence_fails_closed_on_registry_prefix_drift(tmp_path: Path) -> None:

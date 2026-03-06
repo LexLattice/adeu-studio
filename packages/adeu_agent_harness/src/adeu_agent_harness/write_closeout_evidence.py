@@ -49,17 +49,22 @@ DEFAULT_EVIDENCE_ROOT = "artifacts/agent_harness/v46/evidence"
 RUNTIME_OBSERVABILITY_SCHEMA = "runtime_observability_comparison@1"
 METRIC_KEY_CONTINUITY_SCHEMA = "metric_key_continuity_assertion@1"
 HANDOFF_COMPLETION_EVIDENCE_SCHEMA = "v34a_handoff_completion_evidence@1"
+MATRIX_PARITY_EVIDENCE_SCHEMA = "v34b_matrix_parity_evidence@1"
+ADAPTER_MATRIX_SCHEMA = "adapter_matrix@1"
+ADAPTER_MATRIX_PARITY_REPORT_SCHEMA = "adapter_matrix_parity_report@1"
 
 EVIDENCE_SCHEMA_ALLOWLIST = (
     RUNTIME_OBSERVABILITY_SCHEMA,
     METRIC_KEY_CONTINUITY_SCHEMA,
     HANDOFF_COMPLETION_EVIDENCE_SCHEMA,
+    MATRIX_PARITY_EVIDENCE_SCHEMA,
 )
 
 EVIDENCE_SCHEMA_TO_SLOT_ID = {
     RUNTIME_OBSERVABILITY_SCHEMA: "runtime_observability_comparison",
     METRIC_KEY_CONTINUITY_SCHEMA: "metric_key_continuity_assertion",
     HANDOFF_COMPLETION_EVIDENCE_SCHEMA: "v34a_handoff_completion_evidence",
+    MATRIX_PARITY_EVIDENCE_SCHEMA: "v34b_matrix_parity_evidence",
 }
 
 _HANDOFF_COMPLETION_SHARED_BINDING_VALIDATOR = (
@@ -101,6 +106,69 @@ _HANDOFF_COMPLETION_REQUIRED_KEYS = {
     "metric_key_exact_set_equal_v48",
     "notes",
 }
+
+_MATRIX_PARITY_REQUIRED_KEYS = {
+    "schema",
+    "contract_source",
+    "matrix_registry_path",
+    "matrix_report_path",
+    "matrix_report_hash",
+    "lane_id_tuple",
+    "enabled_row_policy",
+    "lane_count_authority",
+    "lane_count",
+    "deployment_modes_covered",
+    "adapter_ids_covered",
+    "runtime_ids_covered",
+    "singleton_runtime_id_enforced",
+    "runtime_id_source_policy",
+    "runtime_id_host_inference_forbidden",
+    "declared_registry_only",
+    "lexicographic_lane_order_enforced",
+    "canonical_subtree_exact_match_required",
+    "canonical_subtree_source_policy",
+    "policy_equivalence_exact_match_required",
+    "policy_equivalence_subject_keys_verified",
+    "policy_equivalence_value_shapes_verified",
+    "report_covers_all_declared_lanes",
+    "verification_passed",
+    "metric_key_cardinality",
+    "metric_key_exact_set_equal_v49",
+    "notes",
+}
+_BASE_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
+    (
+        EVIDENCE_SCHEMA_TO_SLOT_ID[RUNTIME_OBSERVABILITY_SCHEMA],
+        EVIDENCE_SCHEMA_TO_SLOT_ID[METRIC_KEY_CONTINUITY_SCHEMA],
+        EVIDENCE_SCHEMA_TO_SLOT_ID[HANDOFF_COMPLETION_EVIDENCE_SCHEMA],
+    )
+)
+_V50_REQUIRED_EVIDENCE_SLOT_IDS = sorted(EVIDENCE_SCHEMA_TO_SLOT_ID.values())
+_MATRIX_REQUIRED_LANE_ID_TUPLE = [
+    "deployment_mode",
+    "adapter_id",
+    "runtime_id",
+]
+_MATRIX_ENABLED_ROW_POLICY = "registry_is_enabled_only_disabled_rows_forbidden_non_v50"
+_MATRIX_LANE_COUNT_AUTHORITY = "all_registry_rows_only_because_disabled_rows_are_forbidden"
+_MATRIX_RUNTIME_ID_SOURCE_POLICY = "contract_derived_only_no_host_environment_inference"
+_MATRIX_CANONICAL_SUBTREE_SOURCE_POLICY = (
+    "existing_frozen_packaging_and_verifier_canonical_artifact_subject_family_only"
+)
+_MATRIX_POLICY_EQUIVALENCE_SUBJECT_KEYS = [
+    "allowlist_violations",
+    "forbidden_effects_detected",
+    "issue_code_set",
+    "required_evidence_slots_filled",
+]
+_MATRIX_POLICY_EQUIVALENCE_VALUE_SHAPES = {
+    "issue_code_set": "lexicographically_sorted_unique_string_list_canonical_form",
+    "required_evidence_slots_filled": "boolean",
+    "allowlist_violations": "lexicographically_sorted_unique_normalized_posix_path_list",
+    "forbidden_effects_detected": "boolean",
+}
+_MATRIX_DEPLOYMENT_MODES = ["adeu_integrated", "standalone"]
+_MATRIX_RUNTIME_IDS = ["local_python_cli"]
 
 _REQUIRED_VERIFIED_RESULT_KEYS = {
     "schema",
@@ -229,7 +297,7 @@ def _load_verified_result(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _load_evidence_slots(path: Path) -> dict[str, Any]:
+def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
     payload = load_json_object(path)
     require_schema(payload, expected_schema=EVIDENCE_SLOTS_SCHEMA, path=path)
     if set(payload.keys()) != {"schema", "profile_id", "required_count", "slots"}:
@@ -297,38 +365,57 @@ def _load_evidence_slots(path: Path) -> dict[str, Any]:
             policy_source="evidence_slots",
         )
 
-    expected_required_slot_ids = sorted(EVIDENCE_SCHEMA_TO_SLOT_ID.values())
     required_slot_ids = sorted(
         slot["slot_id"] for slot in normalized_slots if slot["required"] is True
     )
-    if required_slot_ids != expected_required_slot_ids:
+    if required_slot_ids not in (
+        _BASE_REQUIRED_EVIDENCE_SLOT_IDS,
+        _V50_REQUIRED_EVIDENCE_SLOT_IDS,
+    ):
         raise fail(
             code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
-            message="required evidence slots do not match frozen closeout required slot set",
+            message="required evidence slots do not match an allowed frozen closeout slot set",
             details={
                 "path": str(path),
                 "required_slot_ids": required_slot_ids,
-                "expected_required_slot_ids": expected_required_slot_ids,
+                "allowed_required_slot_sets": [
+                    _BASE_REQUIRED_EVIDENCE_SLOT_IDS,
+                    _V50_REQUIRED_EVIDENCE_SLOT_IDS,
+                ],
             },
             artifact_path=str(path),
             policy_source="evidence_slots",
         )
 
     required_count = payload.get("required_count")
-    if required_count != len(expected_required_slot_ids):
+    if required_count != len(required_slot_ids):
         raise fail(
             code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
-            message="required_count does not match expected required slot cardinality",
+            message="required_count does not match required slot cardinality",
             details={
                 "path": str(path),
                 "required_count": required_count,
-                "expected_required_count": len(expected_required_slot_ids),
+                "expected_required_count": len(required_slot_ids),
             },
             artifact_path=str(path),
             policy_source="evidence_slots",
         )
 
-    return payload
+    return payload, required_slot_ids
+
+
+def _validate_evidence_schema_allowlist() -> None:
+    if set(EVIDENCE_SCHEMA_ALLOWLIST) != set(EVIDENCE_SCHEMA_TO_SLOT_ID):
+        raise fail(
+            code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+            message="evidence schema allowlist drift detected",
+            details={
+                "evidence_schema_allowlist": sorted(EVIDENCE_SCHEMA_ALLOWLIST),
+                "evidence_schema_to_slot_id": sorted(EVIDENCE_SCHEMA_TO_SLOT_ID),
+            },
+            artifact_path="EVIDENCE_SLOTS.json",
+            policy_source="evidence_slots",
+        )
 
 
 def _load_block(path: Path, *, expected_schema: str) -> dict[str, Any]:
@@ -451,6 +538,311 @@ def _load_handoff_completion_evidence(path: Path) -> dict[str, Any]:
     return payload
 
 
+def _load_matrix_parity_evidence(root: Path, path: Path) -> dict[str, Any]:
+    payload = _load_block(path, expected_schema=MATRIX_PARITY_EVIDENCE_SCHEMA)
+    if set(payload.keys()) != _MATRIX_PARITY_REQUIRED_KEYS:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence keys must match frozen grammar",
+            details={"path": str(path), "keys": sorted(payload.keys())},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "contract_source",
+        "matrix_registry_path",
+        "matrix_report_path",
+        "runtime_id_source_policy",
+        "canonical_subtree_source_policy",
+        "notes",
+    ):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="matrix parity evidence string field must be non-empty",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("matrix_report_hash") is None or not is_sha256(payload["matrix_report_hash"]):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence matrix_report_hash must be a sha256 string",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    if payload.get("lane_id_tuple") != _MATRIX_REQUIRED_LANE_ID_TUPLE:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence lane_id_tuple mismatch",
+            details={"path": str(path), "lane_id_tuple": payload.get("lane_id_tuple")},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("enabled_row_policy") != _MATRIX_ENABLED_ROW_POLICY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence enabled_row_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("lane_count_authority") != _MATRIX_LANE_COUNT_AUTHORITY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence lane_count_authority mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("runtime_id_source_policy") != _MATRIX_RUNTIME_ID_SOURCE_POLICY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence runtime_id_source_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("canonical_subtree_source_policy")
+        != _MATRIX_CANONICAL_SUBTREE_SOURCE_POLICY
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence canonical_subtree_source_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("policy_equivalence_subject_keys_verified")
+        != _MATRIX_POLICY_EQUIVALENCE_SUBJECT_KEYS
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence policy_equivalence_subject_keys_verified mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("policy_equivalence_value_shapes_verified")
+        != _MATRIX_POLICY_EQUIVALENCE_VALUE_SHAPES
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence policy_equivalence_value_shapes_verified mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    if payload.get("deployment_modes_covered") != _MATRIX_DEPLOYMENT_MODES:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence deployment_modes_covered mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("runtime_ids_covered") != _MATRIX_RUNTIME_IDS:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence runtime_ids_covered mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    adapter_ids_covered = payload.get("adapter_ids_covered")
+    if (
+        not isinstance(adapter_ids_covered, list)
+        or not adapter_ids_covered
+        or any(not isinstance(value, str) or not value for value in adapter_ids_covered)
+        or adapter_ids_covered != sorted(set(adapter_ids_covered))
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence adapter_ids_covered must be sorted unique strings",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "singleton_runtime_id_enforced",
+        "runtime_id_host_inference_forbidden",
+        "declared_registry_only",
+        "lexicographic_lane_order_enforced",
+        "canonical_subtree_exact_match_required",
+        "policy_equivalence_exact_match_required",
+        "report_covers_all_declared_lanes",
+        "verification_passed",
+        "metric_key_exact_set_equal_v49",
+    ):
+        if payload.get(field) is not True:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="matrix parity evidence boolean field must be true",
+                details={"path": str(path), "field": field, "value": payload.get(field)},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    lane_count = payload.get("lane_count")
+    if not isinstance(lane_count, int) or lane_count <= 0:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence lane_count must be a positive integer",
+            details={"path": str(path), "lane_count": lane_count},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("metric_key_cardinality") != 80:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="matrix parity evidence metric_key_cardinality must equal 80",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    matrix_registry_path = coerce_artifact_path(root, payload["matrix_registry_path"])
+    matrix_report_path = coerce_artifact_path(root, payload["matrix_report_path"])
+    matrix_registry_payload = load_json_object(matrix_registry_path)
+    require_schema(
+        matrix_registry_payload,
+        expected_schema=ADAPTER_MATRIX_SCHEMA,
+        path=matrix_registry_path,
+    )
+    matrix_report_payload = load_json_object(matrix_report_path)
+    require_schema(
+        matrix_report_payload,
+        expected_schema=ADAPTER_MATRIX_PARITY_REPORT_SCHEMA,
+        path=matrix_report_path,
+    )
+
+    if matrix_report_payload.get("report_hash") != payload["matrix_report_hash"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="matrix parity evidence report hash does not match matrix report payload",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if matrix_report_payload.get("matrix_registry_path") != payload["matrix_registry_path"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="matrix parity evidence registry path does not match matrix report payload",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        matrix_report_payload.get("matrix_registry_hash")
+        != matrix_registry_payload.get("matrix_registry_hash")
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="matrix report matrix_registry_hash does not match matrix registry payload",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    lane_rows = matrix_report_payload.get("lane_rows")
+    if not isinstance(lane_rows, list) or len(lane_rows) != lane_count:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="matrix parity evidence lane_count does not match matrix report lane rows",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if len(matrix_registry_payload.get("rows", [])) != lane_count:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="matrix parity evidence lane_count does not match matrix registry rows",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    report_adapter_ids = sorted(
+        {
+            row["adapter_id"]
+            for row in lane_rows
+            if isinstance(row, dict) and isinstance(row.get("adapter_id"), str)
+        }
+    )
+    report_runtime_ids = sorted(
+        {
+            row["runtime_id"]
+            for row in lane_rows
+            if isinstance(row, dict) and isinstance(row.get("runtime_id"), str)
+        }
+    )
+    report_deployment_modes = sorted(
+        {
+            row["deployment_mode"]
+            for row in lane_rows
+            if isinstance(row, dict) and isinstance(row.get("deployment_mode"), str)
+        }
+    )
+    if report_adapter_ids != adapter_ids_covered:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="matrix parity evidence adapter_ids_covered mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if report_runtime_ids != payload["runtime_ids_covered"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="matrix parity evidence runtime_ids_covered mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if report_deployment_modes != payload["deployment_modes_covered"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="matrix parity evidence deployment_modes_covered mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    pairwise_parity = matrix_report_payload.get("pairwise_parity")
+    if (
+        not isinstance(pairwise_parity, list)
+        or not pairwise_parity
+        or any(
+            not isinstance(row, dict)
+            or row.get("canonical_subtree_exact_match") is not True
+            or row.get("policy_equivalence_exact_match") is not True
+            for row in pairwise_parity
+        )
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message=(
+                "matrix parity evidence requires pairwise parity rows with exact-match "
+                "booleans"
+            ),
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    return payload
+
+
 def _emit_verifier_provenance(
     *,
     root: Path,
@@ -518,6 +910,7 @@ def write_closeout_evidence(
     runtime_observability_comparison_path: str | Path,
     metric_key_continuity_assertion_path: str | Path,
     handoff_completion_evidence_path: str | Path,
+    matrix_parity_evidence_path: str | Path | None = None,
     evidence_output_root: str | Path,
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
@@ -531,6 +924,7 @@ def write_closeout_evidence(
     rejection_diagnostic_path: Path | None = None
 
     try:
+        _validate_evidence_schema_allowlist()
         _, registry_codes = load_diagnostic_registry(
             root=root,
             registry_rel_path=normalize_relative_path(str(diagnostic_registry_path)),
@@ -541,6 +935,11 @@ def write_closeout_evidence(
         runtime_rel = normalize_relative_path(str(runtime_observability_comparison_path))
         continuity_rel = normalize_relative_path(str(metric_key_continuity_assertion_path))
         handoff_rel = normalize_relative_path(str(handoff_completion_evidence_path))
+        matrix_rel = (
+            None
+            if matrix_parity_evidence_path is None
+            else normalize_relative_path(str(matrix_parity_evidence_path))
+        )
         evidence_output_rel = normalize_relative_path(str(evidence_output_root))
 
         taskpack_path = coerce_artifact_path(root, taskpack_rel)
@@ -548,6 +947,7 @@ def write_closeout_evidence(
         runtime_path = coerce_artifact_path(root, runtime_rel)
         continuity_path = coerce_artifact_path(root, continuity_rel)
         handoff_path = coerce_artifact_path(root, handoff_rel)
+        matrix_path = None if matrix_rel is None else coerce_artifact_path(root, matrix_rel)
         evidence_root = coerce_artifact_path(root, evidence_output_rel)
 
         try:
@@ -572,7 +972,26 @@ def write_closeout_evidence(
                 policy_source="taskpack_manifest",
             )
 
-        _load_evidence_slots(taskpack_path / "EVIDENCE_SLOTS.json")
+        _, required_slot_ids = _load_evidence_slots(taskpack_path / "EVIDENCE_SLOTS.json")
+        matrix_slot_required = (
+            EVIDENCE_SCHEMA_TO_SLOT_ID[MATRIX_PARITY_EVIDENCE_SCHEMA] in required_slot_ids
+        )
+        if matrix_slot_required and matrix_path is None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="matrix parity evidence block is required by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if not matrix_slot_required and matrix_path is not None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="matrix parity evidence block is not authorized by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
 
         blocks = [
             {
@@ -594,14 +1013,31 @@ def write_closeout_evidence(
                 "payload": _load_handoff_completion_evidence(handoff_path),
             },
         ]
+        if matrix_slot_required:
+            assert matrix_path is not None
+            blocks.append(
+                {
+                    "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[MATRIX_PARITY_EVIDENCE_SCHEMA],
+                    "schema": MATRIX_PARITY_EVIDENCE_SCHEMA,
+                    "payload": _load_matrix_parity_evidence(root, matrix_path),
+                }
+            )
         blocks = sorted(blocks, key=lambda row: (row["slot_id"], row["schema"]))
 
         emitted_schemas = tuple(block["schema"] for block in blocks)
-        if set(emitted_schemas) != set(EVIDENCE_SCHEMA_ALLOWLIST):
+        expected_schemas = {
+            schema
+            for schema, slot_id in EVIDENCE_SCHEMA_TO_SLOT_ID.items()
+            if slot_id in required_slot_ids
+        }
+        if set(emitted_schemas) != expected_schemas:
             raise fail(
                 code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
                 message="emitted evidence schema set must match frozen closeout allowlist",
-                details={"emitted_schemas": emitted_schemas},
+                details={
+                    "emitted_schemas": emitted_schemas,
+                    "expected_schemas": sorted(expected_schemas),
+                },
                 artifact_path=evidence_output_rel,
                 policy_source="evidence_slots",
             )
@@ -762,6 +1198,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Repo-relative path to v34a_handoff_completion_evidence@1 payload.",
     )
     parser.add_argument(
+        "--matrix-parity-evidence",
+        default=None,
+        help="Optional repo-relative path to v34b_matrix_parity_evidence@1 payload.",
+    )
+    parser.add_argument(
         "--evidence-output-root",
         default=DEFAULT_EVIDENCE_ROOT,
         help="Repo-relative output root for evidence bundle/provenance artifacts.",
@@ -788,6 +1229,7 @@ def main(argv: list[str] | None = None) -> int:
             runtime_observability_comparison_path=args.runtime_observability_comparison,
             metric_key_continuity_assertion_path=args.metric_key_continuity_assertion,
             handoff_completion_evidence_path=args.handoff_completion_evidence,
+            matrix_parity_evidence_path=args.matrix_parity_evidence,
             evidence_output_root=args.evidence_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             repo_root_path=args.repo_root,
