@@ -24,6 +24,7 @@ This rewrite was produced by auditing:
 - `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS49_EDGES.md`
 - the prior version of this file
 - current implementation under `apps/` and `packages/`
 
@@ -38,22 +39,7 @@ Notes:
 
 ### 1.1 P1: Trust-Boundary and Correctness Gaps
 
-- `EDGE-P1-01` downstream v48 signature-result adoption is still incomplete.
-  - Source: `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
-  - Current evidence:
-    - `packages/adeu_agent_harness/src/adeu_agent_harness/verify_taskpack_signature.py`
-      exposes `validate_signature_verification_result_for_downstream(...)`.
-    - current repo references are limited to
-      `packages/adeu_agent_harness/tests/test_taskpack_signature.py`.
-    - runner, verifier, and packaging entrypoints do not currently invoke that helper.
-  - Why it is still open:
-    - the v48 signing contract exists, but future downstream lanes can bypass the shared
-      validator unless the handoff is enforced centrally.
-  - Next action:
-    - wire the helper into downstream harness orchestration, or enforce the
-      `signature_verification_result@1` handoff contract at every later entrypoint.
-
-- `EDGE-P1-02` logic-tree cycle handling is still sentinel-based rather than fail-closed.
+- `EDGE-P1-01` logic-tree cycle handling is still sentinel-based rather than fail-closed.
   - Source: prior `FUTURE_CLEANUPS.md`
   - Current evidence:
     - `_core_ir_proposer_logic_tree_max_depth` in
@@ -64,17 +50,6 @@ Notes:
   - Next action:
     - either freeze the current sentinel behavior explicitly, or add a fail-closed cycle
       policy under future lock text.
-
-- `EDGE-P1-03` one v48 stop-gate continuity test is weaker than the closeout claim.
-  - Source: current audit, tied to the v48 edge family
-  - Current evidence:
-    - `packages/adeu_agent_harness/tests/test_taskpack_signature.py`
-      `test_stop_gate_metric_keyset_exact_equal_v47` compares
-      `metrics_v47_closeout.json` to itself.
-  - Why it is still open:
-    - the local test is a sentinel, not an actual v47-to-v48 continuity check.
-  - Next action:
-    - compare the v47 baseline against the v48 artifact or regenerated continuity evidence.
 
 ### 1.2 P2: Governance and Operational Hardening
 
