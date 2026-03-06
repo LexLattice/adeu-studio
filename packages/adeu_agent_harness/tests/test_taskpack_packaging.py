@@ -27,11 +27,25 @@ from adeu_agent_harness.compile import (
     TASKPACK_PROFILE_REGISTRY_SCHEMA,
     compile_taskpack,
 )
+from adeu_agent_harness.matrix_parity import (
+    ADAPTER_MATRIX_EVALUATION_INPUTS_SCHEMA,
+    ADAPTER_MATRIX_PARITY_REPORT_SCHEMA,
+    ADAPTER_MATRIX_SCHEMA,
+    AHK5003_MATRIX_REGISTRY_INVALID,
+    AHK5007_MATRIX_LANE_COMPLETENESS_VIOLATION,
+    TaskpackMatrixError,
+    build_adapter_matrix,
+    build_adapter_matrix_parity_report,
+)
+from adeu_agent_harness.matrix_parity import (
+    DEFAULT_DIAGNOSTIC_REGISTRY_PATH as _V50_DIAGNOSTIC_REGISTRY_REL,
+)
 from adeu_agent_harness.package_ux import (
     DEPLOYMENT_MODE_INTEGRATED,
     DEPLOYMENT_MODE_STANDALONE,
     PACKAGING_MANIFEST_SCHEMA,
     PACKAGING_PROVENANCE_SCHEMA,
+    PACKAGING_RESULT_SCHEMA,
     package_ux_surface,
 )
 from adeu_agent_harness.run_taskpack import RUNNER_RESULT_SCHEMA, run_taskpack
@@ -312,6 +326,25 @@ def _seed_v47_diagnostic_registry(root: Path) -> str:
     return _V47_DIAGNOSTIC_REGISTRY_REL
 
 
+def _seed_v50_diagnostic_registry(root: Path) -> str:
+    path = root / _V50_DIAGNOSTIC_REGISTRY_REL
+    _write_json(
+        path,
+        {
+            "schema": "taskpack_matrix_diagnostic_registry@1",
+            "codes": [
+                {
+                    "issue_code": f"AHK50{index:02d}",
+                    "title": f"V50_{index:02d}",
+                    "description": "v50 matrix diagnostic code",
+                }
+                for index in range(9)
+            ],
+        },
+    )
+    return _V50_DIAGNOSTIC_REGISTRY_REL
+
+
 def _write_candidate_change_plan(root: Path, *, rel_path: str) -> Path:
     path = root / "artifacts" / "agent_harness" / "v46" / "candidate_change_plan.json"
     _write_json(
@@ -323,11 +356,7 @@ def _write_candidate_change_plan(root: Path, *, rel_path: str) -> Path:
                     "path": rel_path,
                     "operation_kind": "update",
                     "unified_diff": (
-                        f"--- a/{rel_path}\n"
-                        f"+++ b/{rel_path}\n"
-                        "@@ -1,1 +1,1 @@\n"
-                        "-before\n"
-                        "+after\n"
+                        f"--- a/{rel_path}\n+++ b/{rel_path}\n@@ -1,1 +1,1 @@\n-before\n+after\n"
                     ),
                 }
             ],
@@ -360,6 +389,49 @@ def _write_runner_result_artifact(root: Path, *, run_result: Any) -> Path:
     return path
 
 
+def _write_packaging_result_artifact(
+    root: Path,
+    *,
+    rel_path: str,
+    packaging_result: Any,
+) -> Path:
+    path = root / rel_path
+    payload = {
+        "schema": PACKAGING_RESULT_SCHEMA,
+        "deployment_mode": packaging_result.deployment_mode,
+        "packaging_manifest_path": packaging_result.packaging_manifest_path.as_posix(),
+        "packaging_bundle_hash": packaging_result.packaging_bundle_hash,
+        "packaging_provenance_path": packaging_result.packaging_provenance_path.as_posix(),
+        "packaging_provenance_hash": packaging_result.packaging_provenance_hash,
+        "rejection_diagnostic_path": (
+            packaging_result.rejection_diagnostic_path.as_posix()
+            if packaging_result.rejection_diagnostic_path is not None
+            else None
+        ),
+    }
+    _write_json(path, payload)
+    return path
+
+
+def _write_matrix_evaluation_inputs(
+    root: Path,
+    *,
+    matrix_registry_path: str,
+    lane_inputs: list[dict[str, str]],
+    rel_path: str = "artifacts/agent_harness/v50/matrix/adapter_matrix_evaluation_inputs.json",
+) -> Path:
+    path = root / rel_path
+    _write_json(
+        path,
+        {
+            "schema": ADAPTER_MATRIX_EVALUATION_INPUTS_SCHEMA,
+            "matrix_registry_path": matrix_registry_path,
+            "lane_inputs": lane_inputs,
+        },
+    )
+    return path
+
+
 def _seed_evidence_payloads(root: Path) -> tuple[Path, Path, Path]:
     runtime_path = root / "artifacts" / "stop_gate" / "runtime_observability_comparison_v46.json"
     _write_json(
@@ -383,16 +455,13 @@ def _seed_evidence_payloads(root: Path) -> tuple[Path, Path, Path]:
         },
     )
 
-    handoff_path = (
-        root / "artifacts" / "stop_gate" / "v34a_handoff_completion_evidence_v49.json"
-    )
+    handoff_path = root / "artifacts" / "stop_gate" / "v34a_handoff_completion_evidence_v49.json"
     _write_json(
         handoff_path,
         {
             "schema": "v34a_handoff_completion_evidence@1",
             "contract_source": (
-                "docs/LOCKED_CONTINUATION_vNEXT_PLUS49.md"
-                "#v34a_handoff_completion_contract@1"
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS49.md#v34a_handoff_completion_contract@1"
             ),
             "preflight_entrypoint": "python -m adeu_agent_harness.verify_taskpack_signature",
             "runner_entrypoint": "python -m adeu_agent_harness.run_taskpack",
@@ -441,6 +510,7 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
 
     v46_diagnostic_registry_rel = _seed_v46_diagnostic_registry(root)
     v47_diagnostic_registry_rel = _seed_v47_diagnostic_registry(root)
+    v50_diagnostic_registry_rel = _seed_v50_diagnostic_registry(root)
 
     registry_path = _seed_profile_and_registry(root)
     taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
@@ -492,6 +562,8 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
     return {
         "repo_root": str(root),
         "taskpack_dir": _relative(root, taskpack_dir),
+        "adapter_registry": _relative(root, adapter_registry_path),
+        "runner_provenance": _relative(root, run_result.provenance_path),
         "signature_verification_result": signing.signature_verification_result_path,
         "signature_envelope": signing.signature_envelope_path,
         "trust_anchor_registry": signing.trust_anchor_registry_path,
@@ -502,6 +574,7 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
         "runtime_observability": _relative(root, runtime_path),
         "metric_key_continuity": _relative(root, continuity_path),
         "diagnostic_registry": v47_diagnostic_registry_rel,
+        "matrix_diagnostic_registry": v50_diagnostic_registry_rel,
         "packaging_output_root": "artifacts/agent_harness/v47/packaging_test",
     }
 
@@ -526,8 +599,7 @@ def test_package_ux_integrated_is_deterministic(packaging_repo: dict[str, str]) 
     assert result1.packaging_bundle_hash == result2.packaging_bundle_hash
 
     assert (
-        result1.packaging_manifest_path.read_bytes()
-        == result2.packaging_manifest_path.read_bytes()
+        result1.packaging_manifest_path.read_bytes() == result2.packaging_manifest_path.read_bytes()
     )
     assert (
         result1.packaging_provenance_path.read_bytes()
@@ -789,6 +861,239 @@ def test_package_ux_cross_mode_parity_domain_and_bundle_boundary(
         integrated_provenance["parity_result"]["policy_equivalence"]
         == standalone_provenance["parity_result"]["policy_equivalence"]
     )
+
+
+def test_build_adapter_matrix_emits_deterministic_registry(
+    packaging_repo: dict[str, str],
+) -> None:
+    root = _repo_root_path(packaging_repo)
+
+    first_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix_first.json"
+    second_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix_second.json"
+
+    first = build_adapter_matrix(
+        adapter_registry_path=packaging_repo["adapter_registry"],
+        matrix_output_path=first_rel,
+        repo_root_path=root,
+    )
+    second = build_adapter_matrix(
+        adapter_registry_path=packaging_repo["adapter_registry"],
+        matrix_output_path=second_rel,
+        repo_root_path=root,
+    )
+
+    first_path = root / first_rel
+    second_path = root / second_rel
+    first_payload = _load_json(first_path)
+
+    assert first_payload["schema"] == ADAPTER_MATRIX_SCHEMA
+    assert (
+        first_payload["source_runner_adapter_registry_path"] == packaging_repo["adapter_registry"]
+    )
+    assert first_payload["lane_id_tuple"] == [
+        "deployment_mode",
+        "adapter_id",
+        "runtime_id",
+    ]
+    assert first_payload["rows"] == [
+        {
+            "deployment_mode": DEPLOYMENT_MODE_INTEGRATED,
+            "adapter_id": "default",
+            "runtime_id": "local_python_cli",
+            "adapter_kind": "candidate_plan_passthrough",
+        },
+        {
+            "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
+            "adapter_id": "default",
+            "runtime_id": "local_python_cli",
+            "adapter_kind": "candidate_plan_passthrough",
+        },
+    ]
+    assert first_payload["matrix_registry_hash"] == first.matrix_registry_hash
+    assert second.matrix_registry_hash == first.matrix_registry_hash
+    assert first_path.read_bytes() == second_path.read_bytes()
+
+
+def test_build_adapter_matrix_parity_report_is_deterministic_and_complete(
+    packaging_repo: dict[str, str],
+) -> None:
+    root = _repo_root_path(packaging_repo)
+    matrix_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix.json"
+    matrix_result = build_adapter_matrix(
+        adapter_registry_path=packaging_repo["adapter_registry"],
+        matrix_output_path=matrix_rel,
+        repo_root_path=root,
+    )
+
+    integrated = _run_packaging(
+        packaging_repo,
+        expected_mode=DEPLOYMENT_MODE_INTEGRATED,
+        deployment_mode=DEPLOYMENT_MODE_INTEGRATED,
+    )
+    standalone = _run_packaging(
+        packaging_repo,
+        expected_mode=DEPLOYMENT_MODE_STANDALONE,
+        deployment_mode=DEPLOYMENT_MODE_STANDALONE,
+    )
+    integrated_result_path = _write_packaging_result_artifact(
+        root,
+        rel_path="artifacts/agent_harness/v50/matrix/packaging_result_integrated.json",
+        packaging_result=integrated,
+    )
+    standalone_result_path = _write_packaging_result_artifact(
+        root,
+        rel_path="artifacts/agent_harness/v50/matrix/packaging_result_standalone.json",
+        packaging_result=standalone,
+    )
+    evaluation_inputs_path = _write_matrix_evaluation_inputs(
+        root,
+        matrix_registry_path=matrix_rel,
+        lane_inputs=[
+            {
+                "deployment_mode": DEPLOYMENT_MODE_INTEGRATED,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, integrated_result_path),
+            },
+            {
+                "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, standalone_result_path),
+            },
+        ],
+    )
+
+    first_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix_parity_report_first.json"
+    second_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix_parity_report_second.json"
+    first = build_adapter_matrix_parity_report(
+        matrix_registry_path=matrix_rel,
+        evaluation_inputs_path=_relative(root, evaluation_inputs_path),
+        report_output_path=first_rel,
+        repo_root_path=root,
+    )
+    second = build_adapter_matrix_parity_report(
+        matrix_registry_path=matrix_rel,
+        evaluation_inputs_path=_relative(root, evaluation_inputs_path),
+        report_output_path=second_rel,
+        repo_root_path=root,
+    )
+
+    first_path = root / first_rel
+    second_path = root / second_rel
+    first_payload = _load_json(first_path)
+
+    assert first_payload["schema"] == ADAPTER_MATRIX_PARITY_REPORT_SCHEMA
+    assert first_payload["matrix_registry_path"] == _relative(
+        root, matrix_result.matrix_registry_path
+    )
+    assert first_payload["matrix_registry_hash"] == matrix_result.matrix_registry_hash
+    assert first_payload["report_covers_all_declared_lanes"] is True
+    assert first_payload["runtime_id_host_inference_forbidden"] is True
+    assert first_payload["policy_equivalence_value_shapes_verified"] == {
+        "issue_code_set": "lexicographically_sorted_unique_string_list_canonical_form",
+        "required_evidence_slots_filled": "boolean",
+        "allowlist_violations": "lexicographically_sorted_unique_normalized_posix_path_list",
+        "forbidden_effects_detected": "boolean",
+    }
+    assert len(first_payload["lane_rows"]) == 2
+    assert len(first_payload["pairwise_parity"]) == 1
+    assert first_payload["pairwise_parity"] == [
+        {
+            "adapter_id": "default",
+            "runtime_id": "local_python_cli",
+            "deployment_modes": [
+                DEPLOYMENT_MODE_INTEGRATED,
+                DEPLOYMENT_MODE_STANDALONE,
+            ],
+            "taskpack_manifest_hash": first_payload["lane_rows"][0]["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": first_payload["lane_rows"][0][
+                "candidate_change_plan_hash"
+            ],
+            "canonical_subtree_exact_match": True,
+            "policy_equivalence_exact_match": True,
+        }
+    ]
+    assert all(
+        not row["packaging_manifest_path"].startswith("/") for row in first_payload["lane_rows"]
+    )
+    assert all(
+        not row["packaging_provenance_path"].startswith("/") for row in first_payload["lane_rows"]
+    )
+    assert first_payload["report_hash"] == first.matrix_report_hash
+    assert second.matrix_report_hash == first.matrix_report_hash
+    assert first_path.read_bytes() == second_path.read_bytes()
+
+
+def test_build_adapter_matrix_parity_report_rejects_missing_declared_lane(
+    packaging_repo: dict[str, str],
+) -> None:
+    root = _repo_root_path(packaging_repo)
+    matrix_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix.json"
+    build_adapter_matrix(
+        adapter_registry_path=packaging_repo["adapter_registry"],
+        matrix_output_path=matrix_rel,
+        repo_root_path=root,
+    )
+
+    integrated = _run_packaging(
+        packaging_repo,
+        expected_mode=DEPLOYMENT_MODE_INTEGRATED,
+        deployment_mode=DEPLOYMENT_MODE_INTEGRATED,
+    )
+    integrated_result_path = _write_packaging_result_artifact(
+        root,
+        rel_path="artifacts/agent_harness/v50/matrix/packaging_result_integrated.json",
+        packaging_result=integrated,
+    )
+    evaluation_inputs_path = _write_matrix_evaluation_inputs(
+        root,
+        matrix_registry_path=matrix_rel,
+        lane_inputs=[
+            {
+                "deployment_mode": DEPLOYMENT_MODE_INTEGRATED,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, integrated_result_path),
+            }
+        ],
+    )
+
+    with pytest.raises(TaskpackMatrixError) as exc_info:
+        build_adapter_matrix_parity_report(
+            matrix_registry_path=matrix_rel,
+            evaluation_inputs_path=_relative(root, evaluation_inputs_path),
+            repo_root_path=root,
+        )
+    assert exc_info.value.code == AHK5007_MATRIX_LANE_COMPLETENESS_VIOLATION
+
+
+def test_build_adapter_matrix_parity_report_rejects_tampered_matrix_registry_hash(
+    packaging_repo: dict[str, str],
+) -> None:
+    root = _repo_root_path(packaging_repo)
+    matrix_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix.json"
+    build_adapter_matrix(
+        adapter_registry_path=packaging_repo["adapter_registry"],
+        matrix_output_path=matrix_rel,
+        repo_root_path=root,
+    )
+
+    matrix_path = root / matrix_rel
+    matrix_payload = _load_json(matrix_path)
+    matrix_payload["matrix_registry_hash"] = "f" * 64
+    _write_json(matrix_path, matrix_payload)
+
+    with pytest.raises(TaskpackMatrixError) as exc_info:
+        build_adapter_matrix_parity_report(
+            matrix_registry_path=matrix_rel,
+            evaluation_inputs_path="artifacts/agent_harness/v50/matrix/missing_inputs.json",
+            repo_root_path=root,
+        )
+    assert exc_info.value.code == AHK5003_MATRIX_REGISTRY_INVALID
 
 
 def test_packaging_manifest_and_bundle_hash_subject_are_deterministic(
