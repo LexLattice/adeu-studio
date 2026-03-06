@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
-import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -40,8 +40,12 @@ from ._v47_packaging_common import (
     require_schema,
     write_json,
 )
-from .compile import TaskpackCompileError, verify_taskpack_bundle
+from .compile import TaskpackCompileError
 from .verify_taskpack_run import VERIFICATION_RESULT_SCHEMA
+from .verify_taskpack_signature import (
+    TaskpackSigningError,
+    load_validated_downstream_signature_handoff,
+)
 from .write_closeout_evidence import (
     EVIDENCE_BUNDLE_SCHEMA,
     METRIC_KEY_CONTINUITY_SCHEMA,
@@ -141,6 +145,36 @@ def _read_canonical_json(path: Path) -> dict[str, Any]:
     return payload
 
 
+def _read_canonical_json_bytes(*, payload_bytes: bytes, source_path: Path) -> dict[str, Any]:
+    try:
+        parsed = json.loads(payload_bytes.decode("utf-8"))
+    except UnicodeDecodeError as exc:
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="json artifact is not valid utf-8",
+            details={"path": str(source_path), "error": str(exc)},
+            artifact_path=str(source_path),
+            policy_source="taskpack_manifest",
+        ) from exc
+    except json.JSONDecodeError as exc:
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="json artifact is invalid",
+            details={"path": str(source_path), "error": str(exc)},
+            artifact_path=str(source_path),
+            policy_source="taskpack_manifest",
+        ) from exc
+    if not isinstance(parsed, dict):
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="json artifact must decode to an object",
+            details={"path": str(source_path)},
+            artifact_path=str(source_path),
+            policy_source="taskpack_manifest",
+        )
+    return parsed
+
+
 def _normalize_repo_relative_path_for_hash(*, root: Path, absolute_path: Path) -> str:
     root_resolved = root.resolve()
     resolved = absolute_path.resolve()
@@ -193,19 +227,21 @@ def _normalize_issue_artifact_path_for_diagnostic(*, root: Path, artifact_path: 
 
 def _copy_taskpack_component(
     *,
-    taskpack_path: Path,
     mode_root: Path,
     component_name: str,
+    component_bytes: bytes,
 ) -> Path:
-    source_path = taskpack_path / component_name
     destination_path = mode_root / "canonical" / component_name
     destination_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if source_path.suffix.lower() == ".json":
-        payload = _read_canonical_json(source_path)
+    if destination_path.suffix.lower() == ".json":
+        payload = _read_canonical_json_bytes(
+            payload_bytes=component_bytes,
+            source_path=destination_path,
+        )
         _write_canonical_json_file(path=destination_path, payload=payload)
     else:
-        shutil.copy2(source_path, destination_path)
+        destination_path.write_bytes(component_bytes)
     return destination_path
 
 
@@ -219,6 +255,43 @@ def _emit_canonical_artifact_file(
     require_schema(payload, expected_schema=expected_schema, path=source_path)
     _write_canonical_json_file(path=destination_path, payload=payload)
     return destination_path
+
+
+def _load_packaging_signature_handoff(
+    *,
+    taskpack_dir: str | Path,
+    signature_verification_result_path: str | Path,
+    signature_envelope_path: str | Path,
+    trust_anchor_registry_path: str | Path,
+    verification_reference_time_utc: str,
+    repo_root_path: str | Path | None,
+):
+    try:
+        return load_validated_downstream_signature_handoff(
+            taskpack_dir=taskpack_dir,
+            signature_verification_result_path=signature_verification_result_path,
+            signature_envelope_path=signature_envelope_path,
+            trust_anchor_registry_path=trust_anchor_registry_path,
+            verification_reference_time_utc=verification_reference_time_utc,
+            repo_root_path=repo_root_path,
+        )
+    except (TaskpackCompileError, TaskpackSigningError) as exc:
+        failure_code = (
+            AHK4704_CROSS_ARTIFACT_HASH_MISMATCH
+            if exc.code in {"AHK0019", "AHK0020", "AHK4804"}
+            else AHK4703_ARTIFACT_INVALID
+        )
+        raise fail(
+            code=failure_code,
+            message="packaging signing handoff validation failed",
+            details={
+                "signing_error_code": exc.code,
+                "signing_error": exc.message,
+                "signing_details": exc.details,
+            },
+            artifact_path=str(signature_verification_result_path),
+            policy_source="taskpack_manifest",
+        ) from exc
 
 
 def _load_verified_result(path: Path) -> dict[str, Any]:
@@ -434,11 +507,11 @@ def _load_metric_key_continuity(path: Path) -> dict[str, Any]:
 
 def _extract_policy_equivalence(
     *,
-    taskpack_path: Path,
+    evidence_slots_payload: dict[str, Any],
+    evidence_slots_artifact_path: Path,
     verified_result_payload: dict[str, Any],
     evidence_bundle_payload: dict[str, Any],
 ) -> dict[str, Any]:
-    evidence_slots_payload = load_json_object(taskpack_path / "EVIDENCE_SLOTS.json")
     required_slot_ids = {
         slot["slot_id"]
         for slot in evidence_slots_payload.get("slots", [])
@@ -500,7 +573,7 @@ def _extract_policy_equivalence(
             code=AHK4706_MODE_CONTRACT_IDENTITY_MISMATCH,
             message="policy-equivalence subject keys must match frozen grammar",
             details={"keys": sorted(parity_subject.keys())},
-            artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+            artifact_path=str(evidence_slots_artifact_path),
             policy_source="packaging_manifest",
         )
     return parity_subject
@@ -601,6 +674,10 @@ def package_ux_surface(
     expected_mode: str,
     deployment_mode: str,
     taskpack_dir: str | Path,
+    signature_verification_result_path: str | Path,
+    signature_envelope_path: str | Path,
+    trust_anchor_registry_path: str | Path,
+    verification_reference_time_utc: str,
     verified_result_path: str | Path,
     evidence_bundle_path: str | Path,
     verifier_provenance_path: str | Path,
@@ -672,31 +749,32 @@ def package_ux_surface(
         continuity_rel = normalize_relative_path(str(metric_key_continuity_assertion_path))
         packaging_output_rel = normalize_relative_path(str(packaging_output_root))
 
-        taskpack_path = coerce_artifact_path(root, taskpack_rel)
+        handoff = _load_packaging_signature_handoff(
+            taskpack_dir=taskpack_rel,
+            signature_verification_result_path=signature_verification_result_path,
+            signature_envelope_path=signature_envelope_path,
+            trust_anchor_registry_path=trust_anchor_registry_path,
+            verification_reference_time_utc=verification_reference_time_utc,
+            repo_root_path=root,
+        )
+        taskpack_path = handoff.taskpack_snapshot.out_dir
         verified_result_artifact = coerce_artifact_path(root, verified_result_rel)
         evidence_bundle_artifact = coerce_artifact_path(root, evidence_bundle_rel)
         verifier_provenance_artifact = coerce_artifact_path(root, verifier_provenance_rel)
         runtime_artifact = coerce_artifact_path(root, runtime_rel)
         continuity_artifact = coerce_artifact_path(root, continuity_rel)
         packaging_root = coerce_artifact_path(root, packaging_output_rel)
-
-        try:
-            manifest_hash = verify_taskpack_bundle(out_dir=taskpack_rel, repo_root_path=root)
-        except TaskpackCompileError as exc:
-            raise fail(
-                code=AHK4703_ARTIFACT_INVALID,
-                message="taskpack bundle verification failed",
-                details={"error": str(exc), "taskpack_dir": taskpack_rel},
-                artifact_path=taskpack_rel,
-                deployment_mode=deployment_mode,
-                policy_source="taskpack_manifest",
-            ) from exc
+        manifest_hash = handoff.taskpack_snapshot.manifest_hash
 
         verified_result_payload = _load_verified_result(verified_result_artifact)
         evidence_bundle_payload = _load_evidence_bundle(evidence_bundle_artifact)
         verifier_provenance_payload = _load_verifier_provenance(verifier_provenance_artifact)
         runtime_payload = _load_runtime_observability(runtime_artifact)
         continuity_payload = _load_metric_key_continuity(continuity_artifact)
+        evidence_slots_payload = _read_canonical_json_bytes(
+            payload_bytes=handoff.taskpack_snapshot.component_bytes_by_path["EVIDENCE_SLOTS.json"],
+            source_path=taskpack_path / "EVIDENCE_SLOTS.json",
+        )
 
         verified_result_hash = verified_result_payload["verified_result_hash"]
 
@@ -749,9 +827,13 @@ def package_ux_surface(
         for component in _TASKPACK_CANONICAL_COMPONENTS:
             emitted_paths.append(
                 _copy_taskpack_component(
-                    taskpack_path=taskpack_path,
                     mode_root=mode_root,
                     component_name=component,
+                    component_bytes=(
+                        handoff.taskpack_snapshot.manifest_bytes
+                        if component == "taskpack_manifest.json"
+                        else handoff.taskpack_snapshot.component_bytes_by_path[component]
+                    ),
                 )
             )
 
@@ -827,7 +909,8 @@ def package_ux_surface(
         )
 
         policy_equivalence = _extract_policy_equivalence(
-            taskpack_path=taskpack_path,
+            evidence_slots_payload=evidence_slots_payload,
+            evidence_slots_artifact_path=taskpack_path / "EVIDENCE_SLOTS.json",
             verified_result_payload=verified_result_payload,
             evidence_bundle_payload=evidence_bundle_payload,
         )
@@ -950,6 +1033,26 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Repo-relative taskpack directory containing manifest/components.",
     )
     parser.add_argument(
+        "--signature-verification-result",
+        required=True,
+        help="Repo-relative path to signature_verification_result@1 JSON artifact.",
+    )
+    parser.add_argument(
+        "--signature-envelope",
+        required=True,
+        help="Repo-relative path to taskpack_signature_envelope@1 JSON artifact.",
+    )
+    parser.add_argument(
+        "--trust-anchor-registry",
+        required=True,
+        help="Repo-relative path to taskpack_trust_anchor_registry@1 JSON artifact.",
+    )
+    parser.add_argument(
+        "--verification-reference-time-utc",
+        required=True,
+        help="Explicit RFC3339 UTC Z reference time used for v48/v49 signing lifecycle checks.",
+    )
+    parser.add_argument(
         "--verified-result",
         required=True,
         help="Repo-relative path to taskpack_verification_result@1 artifact.",
@@ -1004,6 +1107,10 @@ def main_for_mode(*, expected_mode: str, argv: list[str] | None = None) -> int:
             expected_mode=expected_mode,
             deployment_mode=args.deployment_mode,
             taskpack_dir=args.taskpack_dir,
+            signature_verification_result_path=args.signature_verification_result,
+            signature_envelope_path=args.signature_envelope,
+            trust_anchor_registry_path=args.trust_anchor_registry,
+            verification_reference_time_utc=args.verification_reference_time_utc,
             verified_result_path=args.verified_result,
             evidence_bundle_path=args.evidence_bundle,
             verifier_provenance_path=args.verifier_provenance,

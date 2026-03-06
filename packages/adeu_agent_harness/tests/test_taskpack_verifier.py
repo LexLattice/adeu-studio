@@ -9,6 +9,7 @@ from typing import Any
 import adeu_agent_harness.verify_taskpack_run as verifier_mod
 import adeu_agent_harness.write_closeout_evidence as evidence_writer_mod
 import pytest
+from adeu_agent_harness._test_signing_handoff import seed_signing_handoff_fixture
 from adeu_agent_harness._v46_verifier_common import (
     VerifierIssue,
     emit_rejection_diagnostic,
@@ -71,6 +72,62 @@ def _sync_manifest_component_hash(taskpack_dir: Path, *, relative_path: str) -> 
 
 def _relative(root: Path, path: Path) -> str:
     return path.relative_to(root).as_posix()
+
+
+def _relative_input(root: Path, value: Path | str) -> str:
+    if isinstance(value, Path):
+        return value.relative_to(root).as_posix() if value.is_absolute() else value.as_posix()
+    return value
+
+
+def _run_taskpack_signed(
+    root: Path,
+    *,
+    taskpack_dir: Path | str,
+    adapter_registry_path: Path | str,
+    adapter_id: str,
+    candidate_change_plan_path: Path | str,
+    dry_run: bool,
+):
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+    return run_taskpack(
+        taskpack_dir=_relative_input(root, taskpack_dir),
+        adapter_registry_path=_relative_input(root, adapter_registry_path),
+        adapter_id=adapter_id,
+        candidate_change_plan_path=_relative_input(root, candidate_change_plan_path),
+        dry_run=dry_run,
+        repo_root_path=root,
+        **signing.as_kwargs(),
+    )
+
+
+def _verify_taskpack_run_signed(
+    root: Path,
+    *,
+    taskpack_dir: Path | str,
+    candidate_change_plan_path: Path | str,
+    runner_result_path: Path | str,
+    runner_provenance_path: Path | str,
+    policy_rejection_diagnostics_path: Path | str | None,
+    verification_output_root: Path | str,
+    diagnostic_registry_path: Path | str,
+):
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+    return verify_taskpack_run(
+        taskpack_dir=_relative_input(root, taskpack_dir),
+        candidate_change_plan_path=_relative_input(root, candidate_change_plan_path),
+        runner_result_path=_relative_input(root, runner_result_path),
+        runner_provenance_path=_relative_input(root, runner_provenance_path),
+        policy_rejection_diagnostics_path=(
+            None
+            if policy_rejection_diagnostics_path is None
+            else _relative_input(root, policy_rejection_diagnostics_path)
+        ),
+        verification_output_root=_relative_input(root, verification_output_root),
+        diagnostic_registry_path=_relative_input(root, diagnostic_registry_path),
+        repo_root_path=root,
+        **signing.as_kwargs(),
+    )
 
 
 def _base_repo(tmp_path: Path) -> Path:
@@ -298,26 +355,26 @@ def _prepare_verified_success(tmp_path: Path) -> tuple[Path, Path, Path, str]:
     fixture_path = root / rel_path
     _write(fixture_path, "before\n")
     candidate_path = _write_candidate_change_plan(root, rel_path=rel_path)
-    run_result = run_taskpack(
-        taskpack_dir=_relative(root, taskpack_dir),
-        adapter_registry_path=_relative(root, adapter_registry_path),
+    run_result = _run_taskpack_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        adapter_registry_path=adapter_registry_path,
         adapter_id="default",
-        candidate_change_plan_path=_relative(root, candidate_path),
+        candidate_change_plan_path=candidate_path,
         dry_run=True,
-        repo_root_path=root,
     )
     assert fixture_path.read_text(encoding="utf-8") == "before\n"
 
     runner_result_path = _write_runner_result_artifact(root, run_result=run_result)
-    verify_result = verify_taskpack_run(
-        taskpack_dir=_relative(root, taskpack_dir),
-        candidate_change_plan_path=_relative(root, candidate_path),
-        runner_result_path=_relative(root, runner_result_path),
-        runner_provenance_path=_relative(root, run_result.provenance_path),
+    verify_result = _verify_taskpack_run_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        candidate_change_plan_path=candidate_path,
+        runner_result_path=runner_result_path,
+        runner_provenance_path=run_result.provenance_path,
         policy_rejection_diagnostics_path=None,
         verification_output_root="artifacts/agent_harness/v46/verification",
         diagnostic_registry_path=diagnostic_registry_rel,
-        repo_root_path=root,
     )
     return root, taskpack_dir, verify_result.verification_result_path, diagnostic_registry_rel
 
@@ -388,24 +445,24 @@ def _reverify_with_current_taskpack(
     adapter_registry_path = (
         root / "artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json"
     )
-    run_result = run_taskpack(
-        taskpack_dir=_relative(root, taskpack_dir),
-        adapter_registry_path=_relative(root, adapter_registry_path),
+    run_result = _run_taskpack_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        adapter_registry_path=adapter_registry_path,
         adapter_id="default",
-        candidate_change_plan_path=_relative(root, candidate_path),
+        candidate_change_plan_path=candidate_path,
         dry_run=True,
-        repo_root_path=root,
     )
     runner_result_path = _write_runner_result_artifact(root, run_result=run_result)
-    verify_result = verify_taskpack_run(
-        taskpack_dir=_relative(root, taskpack_dir),
-        candidate_change_plan_path=_relative(root, candidate_path),
-        runner_result_path=_relative(root, runner_result_path),
-        runner_provenance_path=_relative(root, run_result.provenance_path),
+    verify_result = _verify_taskpack_run_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        candidate_change_plan_path=candidate_path,
+        runner_result_path=runner_result_path,
+        runner_provenance_path=run_result.provenance_path,
         policy_rejection_diagnostics_path=None,
         verification_output_root="artifacts/agent_harness/v46/verification",
         diagnostic_registry_path=diagnostic_registry_rel,
-        repo_root_path=root,
     )
     return verify_result.verification_result_path
 
@@ -425,15 +482,15 @@ def test_verify_taskpack_run_emits_deterministic_verified_result(tmp_path: Path)
         "exit_status_consistency",
     ]
 
-    second = verify_taskpack_run(
-        taskpack_dir=_relative(root, taskpack_dir),
+    second = _verify_taskpack_run_signed(
+        root,
+        taskpack_dir=taskpack_dir,
         candidate_change_plan_path=verified_payload["verified_artifacts"]["candidate_change_plan_path"],
         runner_result_path=verified_payload["verified_artifacts"]["runner_result_path"],
         runner_provenance_path=verified_payload["verified_artifacts"]["runner_provenance_path"],
         policy_rejection_diagnostics_path=None,
         verification_output_root="artifacts/agent_harness/v46/verification",
         diagnostic_registry_path=diagnostic_registry_rel,
-        repo_root_path=root,
     )
 
     assert second.verification_result_path == verified_result_path
@@ -454,15 +511,15 @@ def test_verify_taskpack_run_fails_closed_on_hash_mismatch(tmp_path: Path) -> No
     _write_json(runner_result_path, runner_result_payload)
 
     with pytest.raises(TaskpackVerifierError) as exc_info:
-        verify_taskpack_run(
-            taskpack_dir=_relative(root, taskpack_dir),
-            candidate_change_plan_path=_relative(root, candidate_path),
-            runner_result_path=_relative(root, runner_result_path),
-            runner_provenance_path=_relative(root, runner_provenance_path),
+        _verify_taskpack_run_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            candidate_change_plan_path=candidate_path,
+            runner_result_path=runner_result_path,
+            runner_provenance_path=runner_provenance_path,
             policy_rejection_diagnostics_path=None,
             verification_output_root="artifacts/agent_harness/v46/verification",
             diagnostic_registry_path=diagnostic_registry_rel,
-            repo_root_path=root,
         )
 
     payload = _error_payload(exc_info.value)
@@ -471,6 +528,103 @@ def test_verify_taskpack_run_fails_closed_on_hash_mismatch(tmp_path: Path) -> No
     rejection_payload = _read_json(rejection_path)
     assert rejection_payload["schema"] == "v33c_verifier_rejection_diagnostic@1"
     assert rejection_payload["issues"][0]["issue_code"] == "AHK4604"
+
+
+def test_verify_taskpack_run_fails_closed_on_taskpack_snapshot_drift_after_preflight(
+    tmp_path: Path,
+) -> None:
+    root = _base_repo(tmp_path)
+    _seed_semantic_authority_artifacts(root)
+    diagnostic_registry_rel = _seed_diagnostic_registry(root)
+    registry_path = _seed_profile_and_registry(root)
+    taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
+    adapter_registry_path = _seed_adapter_registry(root)
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+
+    rel_path = "packages/adeu_agent_harness/src/adeu_agent_harness/v46_snapshot_drift_fixture.txt"
+    fixture_path = root / rel_path
+    _write(fixture_path, "before\n")
+    candidate_path = _write_candidate_change_plan(root, rel_path=rel_path)
+    run_result = _run_taskpack_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        adapter_registry_path=adapter_registry_path,
+        adapter_id="default",
+        candidate_change_plan_path=candidate_path,
+        dry_run=True,
+    )
+    assert fixture_path.read_text(encoding="utf-8") == "before\n"
+    runner_result_path = _write_runner_result_artifact(root, run_result=run_result)
+
+    taskpack_markdown_path = taskpack_dir / "TASKPACK.md"
+    taskpack_markdown_path.write_text(
+        taskpack_markdown_path.read_text(encoding="utf-8") + "\npost-preflight drift\n",
+        encoding="utf-8",
+    )
+    _sync_manifest_component_hash(taskpack_dir, relative_path="TASKPACK.md")
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        verify_taskpack_run(
+            taskpack_dir=_relative(root, taskpack_dir),
+            candidate_change_plan_path=_relative(root, candidate_path),
+            runner_result_path=_relative(root, runner_result_path),
+            runner_provenance_path=_relative(root, run_result.provenance_path),
+            policy_rejection_diagnostics_path=None,
+            signature_verification_result_path=signing.signature_verification_result_path,
+            signature_envelope_path=signing.signature_envelope_path,
+            trust_anchor_registry_path=signing.trust_anchor_registry_path,
+            verification_reference_time_utc=signing.verification_reference_time_utc,
+            verification_output_root="artifacts/agent_harness/v46/verification",
+            diagnostic_registry_path=diagnostic_registry_rel,
+            repo_root_path=root,
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK4604"
+    assert payload["details"]["signing_error_code"] == "AHK4804"
+
+
+def test_verify_taskpack_run_fails_closed_on_missing_taskpack_component_after_preflight(
+    tmp_path: Path,
+) -> None:
+    root = _base_repo(tmp_path)
+    _seed_semantic_authority_artifacts(root)
+    diagnostic_registry_rel = _seed_diagnostic_registry(root)
+    registry_path = _seed_profile_and_registry(root)
+    taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
+    adapter_registry_path = _seed_adapter_registry(root)
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+    rel_path = "packages/adeu_agent_harness/src/adeu_agent_harness/v46_compile_drift_fixture.txt"
+    fixture_path = root / rel_path
+    _write(fixture_path, "before\n")
+    candidate_path = _write_candidate_change_plan(root, rel_path=rel_path)
+    run_result = run_taskpack(
+        taskpack_dir=_relative(root, taskpack_dir),
+        adapter_registry_path=_relative(root, adapter_registry_path),
+        adapter_id="default",
+        candidate_change_plan_path=_relative(root, candidate_path),
+        dry_run=True,
+        repo_root_path=root,
+        **signing.as_kwargs(),
+    )
+    assert fixture_path.read_text(encoding="utf-8") == "before\n"
+    runner_result_path = _write_runner_result_artifact(root, run_result=run_result)
+    (taskpack_dir / "ALLOWLIST.json").unlink()
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        verify_taskpack_run(
+            taskpack_dir=_relative(root, taskpack_dir),
+            candidate_change_plan_path=_relative(root, candidate_path),
+            runner_result_path=_relative(root, runner_result_path),
+            runner_provenance_path=_relative(root, run_result.provenance_path),
+            policy_rejection_diagnostics_path=None,
+            repo_root_path=root,
+            **signing.as_kwargs(),
+            verification_output_root="artifacts/agent_harness/v46/verification",
+            diagnostic_registry_path=diagnostic_registry_rel,
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK4603"
+    assert payload["details"]["signing_error_code"] == "AHK0017"
 
 
 def test_write_closeout_evidence_emits_deterministic_bundle_and_provenance(
@@ -606,15 +760,15 @@ def test_verify_taskpack_run_fails_closed_on_deterministic_env_drift(
     monkeypatch.setenv("TZ", "Europe/Bucharest")
 
     with pytest.raises(TaskpackVerifierError) as exc_info:
-        verify_taskpack_run(
-            taskpack_dir=_relative(root, taskpack_dir),
+        _verify_taskpack_run_signed(
+            root,
+            taskpack_dir=taskpack_dir,
             candidate_change_plan_path=verified_payload["verified_artifacts"]["candidate_change_plan_path"],
             runner_result_path=verified_payload["verified_artifacts"]["runner_result_path"],
             runner_provenance_path=verified_payload["verified_artifacts"]["runner_provenance_path"],
             policy_rejection_diagnostics_path=None,
             verification_output_root="artifacts/agent_harness/v46/verification",
             diagnostic_registry_path=diagnostic_registry_rel,
-            repo_root_path=root,
         )
 
     payload = _error_payload(exc_info.value)
@@ -633,15 +787,15 @@ def test_verify_taskpack_run_fails_closed_on_runner_result_schema_drift(tmp_path
     _write_json(runner_result_path, runner_payload)
 
     with pytest.raises(TaskpackVerifierError) as exc_info:
-        verify_taskpack_run(
-            taskpack_dir=_relative(root, taskpack_dir),
+        _verify_taskpack_run_signed(
+            root,
+            taskpack_dir=taskpack_dir,
             candidate_change_plan_path=verified_payload["verified_artifacts"]["candidate_change_plan_path"],
             runner_result_path=verified_payload["verified_artifacts"]["runner_result_path"],
             runner_provenance_path=verified_payload["verified_artifacts"]["runner_provenance_path"],
             policy_rejection_diagnostics_path=None,
             verification_output_root="artifacts/agent_harness/v46/verification",
             diagnostic_registry_path=diagnostic_registry_rel,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4602"
 
@@ -657,15 +811,15 @@ def test_verify_taskpack_run_fails_closed_on_runner_provenance_schema_drift(tmp_
     _write_json(runner_provenance_path, runner_provenance_payload)
 
     with pytest.raises(TaskpackVerifierError) as exc_info:
-        verify_taskpack_run(
-            taskpack_dir=_relative(root, taskpack_dir),
+        _verify_taskpack_run_signed(
+            root,
+            taskpack_dir=taskpack_dir,
             candidate_change_plan_path=verified_payload["verified_artifacts"]["candidate_change_plan_path"],
             runner_result_path=verified_payload["verified_artifacts"]["runner_result_path"],
             runner_provenance_path=verified_payload["verified_artifacts"]["runner_provenance_path"],
             policy_rejection_diagnostics_path=None,
             verification_output_root="artifacts/agent_harness/v46/verification",
             diagnostic_registry_path=diagnostic_registry_rel,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4602"
 
@@ -681,15 +835,15 @@ def test_verify_taskpack_run_fails_closed_on_candidate_plan_schema_drift(tmp_pat
     _write_json(candidate_path, candidate_payload)
 
     with pytest.raises(TaskpackVerifierError) as exc_info:
-        verify_taskpack_run(
-            taskpack_dir=_relative(root, taskpack_dir),
+        _verify_taskpack_run_signed(
+            root,
+            taskpack_dir=taskpack_dir,
             candidate_change_plan_path=verified_payload["verified_artifacts"]["candidate_change_plan_path"],
             runner_result_path=verified_payload["verified_artifacts"]["runner_result_path"],
             runner_provenance_path=verified_payload["verified_artifacts"]["runner_provenance_path"],
             policy_rejection_diagnostics_path=None,
             verification_output_root="artifacts/agent_harness/v46/verification",
             diagnostic_registry_path=diagnostic_registry_rel,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4603"
 
@@ -707,15 +861,15 @@ def test_verify_taskpack_run_fails_closed_on_policy_validation_consistency_misma
     _write_json(runner_result_path, runner_payload)
 
     with pytest.raises(TaskpackVerifierError) as exc_info:
-        verify_taskpack_run(
-            taskpack_dir=_relative(root, taskpack_dir),
+        _verify_taskpack_run_signed(
+            root,
+            taskpack_dir=taskpack_dir,
             candidate_change_plan_path=verified_payload["verified_artifacts"]["candidate_change_plan_path"],
             runner_result_path=verified_payload["verified_artifacts"]["runner_result_path"],
             runner_provenance_path=verified_payload["verified_artifacts"]["runner_provenance_path"],
             policy_rejection_diagnostics_path=None,
             verification_output_root="artifacts/agent_harness/v46/verification",
             diagnostic_registry_path=diagnostic_registry_rel,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4605"
 
@@ -902,6 +1056,7 @@ def test_verifier_cli_returns_non_zero_on_required_violation(tmp_path: Path) -> 
     root, taskpack_dir, verified_result_path, diagnostic_registry_rel = _prepare_verified_success(
         tmp_path
     )
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
     verified_payload = _read_json(verified_result_path)
     runner_result_path = root / verified_payload["verified_artifacts"]["runner_result_path"]
     runner_payload = _read_json(runner_result_path)
@@ -918,6 +1073,14 @@ def test_verifier_cli_returns_non_zero_on_required_violation(tmp_path: Path) -> 
             verified_payload["verified_artifacts"]["runner_result_path"],
             "--runner-provenance",
             verified_payload["verified_artifacts"]["runner_provenance_path"],
+            "--signature-verification-result",
+            signing.signature_verification_result_path,
+            "--signature-envelope",
+            signing.signature_envelope_path,
+            "--trust-anchor-registry",
+            signing.trust_anchor_registry_path,
+            "--verification-reference-time-utc",
+            signing.verification_reference_time_utc,
             "--verification-output-root",
             "artifacts/agent_harness/v46/verification",
             "--diagnostic-registry",

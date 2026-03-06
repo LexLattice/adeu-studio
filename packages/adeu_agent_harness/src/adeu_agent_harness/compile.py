@@ -101,6 +101,18 @@ class TaskpackCompileResult:
     taskpack_manifest_sha256: str
 
 
+@dataclass(frozen=True)
+class VerifiedTaskpackSnapshot:
+    repo_root: Path
+    out_dir: Path
+    manifest_path: Path
+    manifest_bytes: bytes
+    manifest_payload: dict[str, Any]
+    manifest_hash: str
+    bundle_hash: str
+    component_bytes_by_path: dict[str, bytes]
+
+
 class TaskpackCompileError(RuntimeError):
     def __init__(self, *, code: str, message: str, details: dict[str, Any] | None = None) -> None:
         self.code = code
@@ -892,11 +904,38 @@ def verify_taskpack_bundle(
     expected_manifest_sha256: str | None = None,
     repo_root_path: str | Path | None = None,
 ) -> str:
+    snapshot = load_verified_taskpack_snapshot(out_dir=out_dir, repo_root_path=repo_root_path)
+    observed_manifest_sha256 = snapshot.manifest_hash
+    if expected_manifest_sha256 is not None:
+        if not _SHA256_LOWER_PATTERN.fullmatch(expected_manifest_sha256):
+            raise _fail(
+                code=_AHK0020_TASKPACK_BUNDLE_HASH_SUBJECT_DRIFT,
+                message="expected manifest sha256 must be lowercase 64-char sha256",
+                details={"expected_manifest_sha256": expected_manifest_sha256},
+            )
+        if observed_manifest_sha256 != expected_manifest_sha256:
+            raise _fail(
+                code=_AHK0020_TASKPACK_BUNDLE_HASH_SUBJECT_DRIFT,
+                message="taskpack bundle hash subject drift detected",
+                details={
+                    "expected_manifest_sha256": expected_manifest_sha256,
+                    "observed_manifest_sha256": observed_manifest_sha256,
+                },
+            )
+    return observed_manifest_sha256
+
+
+def load_verified_taskpack_snapshot(
+    *,
+    out_dir: str | Path,
+    repo_root_path: str | Path | None = None,
+) -> VerifiedTaskpackSnapshot:
     root = repo_root(anchor=Path(repo_root_path) if repo_root_path is not None else Path.cwd())
     out_rel = _normalize_relative_path(str(out_dir))
     out_path = root / out_rel
     manifest_path = out_path / "taskpack_manifest.json"
     manifest_payload = _load_json_object(manifest_path)
+    manifest_bytes = manifest_path.read_bytes()
     _require_schema(
         manifest_payload,
         expected_schema=TASKPACK_MANIFEST_SCHEMA,
@@ -957,6 +996,7 @@ def verify_taskpack_bundle(
             },
         )
 
+    component_bytes_by_path: dict[str, bytes] = {}
     for relative_path in expected_paths:
         expected_component = _REQUIRED_COMPONENTS_BY_PATH[relative_path]
         component = components_by_path[relative_path]
@@ -1007,7 +1047,9 @@ def verify_taskpack_bundle(
                 message="taskpack component file is missing",
                 details={"relative_path": relative_path, "path": str(component_path)},
             )
-        computed_sha256 = _sha256_bytes(component_path.read_bytes())
+        component_bytes = component_path.read_bytes()
+        component_bytes_by_path[relative_path] = component_bytes
+        computed_sha256 = _sha256_bytes(component_bytes)
         if computed_sha256 != recorded_sha256:
             raise _fail(
                 code=_AHK0019_TASKPACK_MANIFEST_COMPONENT_HASH_MISMATCH,
@@ -1020,23 +1062,24 @@ def verify_taskpack_bundle(
             )
 
     observed_manifest_sha256 = sha256_canonical_json(manifest_payload)
-    if expected_manifest_sha256 is not None:
-        if not _SHA256_LOWER_PATTERN.fullmatch(expected_manifest_sha256):
-            raise _fail(
-                code=_AHK0020_TASKPACK_BUNDLE_HASH_SUBJECT_DRIFT,
-                message="expected manifest sha256 must be lowercase 64-char sha256",
-                details={"expected_manifest_sha256": expected_manifest_sha256},
-            )
-        if observed_manifest_sha256 != expected_manifest_sha256:
-            raise _fail(
-                code=_AHK0020_TASKPACK_BUNDLE_HASH_SUBJECT_DRIFT,
-                message="taskpack bundle hash subject drift detected",
-                details={
-                    "expected_manifest_sha256": expected_manifest_sha256,
-                    "observed_manifest_sha256": observed_manifest_sha256,
-                },
-            )
-    return observed_manifest_sha256
+    bundle_subject = [
+        {
+            "path": relative_path,
+            "sha256": components_by_path[relative_path]["sha256"],
+        }
+        for relative_path in expected_paths
+    ]
+
+    return VerifiedTaskpackSnapshot(
+        repo_root=root,
+        out_dir=out_path,
+        manifest_path=manifest_path,
+        manifest_bytes=manifest_bytes,
+        manifest_payload=manifest_payload,
+        manifest_hash=observed_manifest_sha256,
+        bundle_hash=sha256_canonical_json(bundle_subject),
+        component_bytes_by_path=component_bytes_by_path,
+    )
 
 
 def compile_taskpack(

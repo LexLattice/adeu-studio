@@ -41,7 +41,13 @@ from ._v48_signing_common import (
     safe_join,
     write_json,
 )
-from .compile import TASKPACK_MANIFEST_SCHEMA, TaskpackCompileError, verify_taskpack_bundle
+from .compile import (
+    TASKPACK_MANIFEST_SCHEMA,
+    TaskpackCompileError,
+    VerifiedTaskpackSnapshot,
+    load_verified_taskpack_snapshot,
+    verify_taskpack_bundle,
+)
 
 SIGNATURE_ENVELOPE_SCHEMA = "taskpack_signature_envelope@1"
 TRUST_ANCHOR_REGISTRY_SCHEMA = "taskpack_trust_anchor_registry@1"
@@ -110,6 +116,21 @@ class TaskpackSignatureVerificationResult:
     verification_result_path: Path
     verification_result_hash: str
     rejection_diagnostic_path: Path | None
+
+
+@dataclass(frozen=True)
+class ValidatedDownstreamSignatureHandoff:
+    taskpack_snapshot: VerifiedTaskpackSnapshot
+    signature_verification_result_path: Path
+    signature_verification_result_payload: dict[str, Any]
+    signature_envelope_path: Path
+    signature_envelope_payload: dict[str, Any]
+    signature_envelope_hash: str
+    trust_anchor_registry_path: Path
+    trust_anchor_registry_hash: str
+    verification_reference_time_utc: str
+    signer_key_id: str
+    algorithm: str
 
 
 def _decode_base64_field(*, value: str, field: str, artifact_path: str) -> bytes:
@@ -265,8 +286,9 @@ def _load_signature_envelope(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _load_trust_anchor_registry(path: Path) -> dict[str, TrustAnchorKeyRecord]:
-    payload = load_json_object(path)
+def _validate_trust_anchor_registry_payload(
+    payload: dict[str, Any], *, path: Path
+) -> dict[str, TrustAnchorKeyRecord]:
     require_schema(payload, expected_schema=TRUST_ANCHOR_REGISTRY_SCHEMA, path=path)
     if set(payload.keys()) != _REQUIRED_TRUST_ANCHOR_REGISTRY_KEYS:
         raise fail(
@@ -383,6 +405,11 @@ def _load_trust_anchor_registry(path: Path) -> dict[str, TrustAnchorKeyRecord]:
         )
 
     return records
+
+
+def _load_trust_anchor_registry(path: Path) -> dict[str, TrustAnchorKeyRecord]:
+    payload = load_json_object(path)
+    return _validate_trust_anchor_registry_payload(payload, path=path)
 
 
 def _verify_with_openssl(
@@ -939,6 +966,82 @@ def validate_signature_verification_result_for_downstream(
         )
 
     return payload
+
+
+def load_validated_downstream_signature_handoff(
+    *,
+    taskpack_dir: str | Path,
+    signature_verification_result_path: str | Path,
+    signature_envelope_path: str | Path,
+    trust_anchor_registry_path: str | Path,
+    verification_reference_time_utc: str,
+    repo_root_path: str | Path | None = None,
+) -> ValidatedDownstreamSignatureHandoff:
+    root = project_repo_root(
+        anchor=Path(repo_root_path) if repo_root_path is not None else Path.cwd(),
+    )
+    taskpack_rel = normalize_relative_path(str(taskpack_dir))
+    taskpack_snapshot = load_verified_taskpack_snapshot(out_dir=taskpack_rel, repo_root_path=root)
+
+    verification_reference_time_text = require_string(
+        verification_reference_time_utc,
+        field="verification_reference_time_utc",
+        artifact_path=str(taskpack_snapshot.manifest_path),
+    )
+    parse_reference_time_utc(
+        verification_reference_time_text,
+        artifact_path=str(taskpack_snapshot.manifest_path),
+    )
+
+    signature_envelope_rel = normalize_relative_path(str(signature_envelope_path))
+    signature_envelope_artifact = coerce_artifact_path(root, signature_envelope_rel)
+    signature_envelope_payload = _load_signature_envelope(signature_envelope_artifact)
+    signature_envelope_hash = sha256_canonical_json(signature_envelope_payload)
+
+    trust_anchor_registry_rel = normalize_relative_path(str(trust_anchor_registry_path))
+    trust_anchor_registry_artifact = coerce_artifact_path(root, trust_anchor_registry_rel)
+    trust_anchor_registry_payload = load_json_object(trust_anchor_registry_artifact)
+    _validate_trust_anchor_registry_payload(
+        trust_anchor_registry_payload,
+        path=trust_anchor_registry_artifact,
+    )
+    trust_anchor_registry_hash = sha256_canonical_json(trust_anchor_registry_payload)
+
+    signer_key_id = require_string(
+        signature_envelope_payload.get("signer_key_id"),
+        field="signer_key_id",
+        artifact_path=str(signature_envelope_artifact),
+    )
+    algorithm = require_string(
+        signature_envelope_payload.get("algorithm"),
+        field="algorithm",
+        artifact_path=str(signature_envelope_artifact),
+    )
+    result_payload = validate_signature_verification_result_for_downstream(
+        signature_verification_result_path=str(signature_verification_result_path),
+        taskpack_manifest_hash=taskpack_snapshot.manifest_hash,
+        taskpack_bundle_hash=taskpack_snapshot.bundle_hash,
+        signature_envelope_hash=signature_envelope_hash,
+        trust_anchor_registry_hash=trust_anchor_registry_hash,
+        verification_reference_time_utc=verification_reference_time_text,
+        signer_key_id=signer_key_id,
+        algorithm=algorithm,
+        repo_root_path=root,
+    )
+    result_path = coerce_artifact_path(root, str(signature_verification_result_path))
+    return ValidatedDownstreamSignatureHandoff(
+        taskpack_snapshot=taskpack_snapshot,
+        signature_verification_result_path=result_path,
+        signature_verification_result_payload=result_payload,
+        signature_envelope_path=signature_envelope_artifact,
+        signature_envelope_payload=signature_envelope_payload,
+        signature_envelope_hash=signature_envelope_hash,
+        trust_anchor_registry_path=trust_anchor_registry_artifact,
+        trust_anchor_registry_hash=trust_anchor_registry_hash,
+        verification_reference_time_utc=verification_reference_time_text,
+        signer_key_id=signer_key_id,
+        algorithm=algorithm,
+    )
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:

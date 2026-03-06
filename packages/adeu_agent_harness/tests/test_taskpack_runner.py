@@ -8,6 +8,7 @@ from typing import Any
 
 import adeu_agent_harness.run_taskpack as runner_mod
 import pytest
+from adeu_agent_harness._test_signing_handoff import seed_signing_handoff_fixture
 from adeu_agent_harness.compile import (
     PIPELINE_PROFILE_SCHEMA,
     TASKPACK_PROFILE_REGISTRY_SCHEMA,
@@ -232,6 +233,33 @@ def _error_payload(exc: TaskpackRunnerError) -> dict[str, Any]:
     return payload
 
 
+def _relative_input(root: Path, value: Path | str) -> str:
+    if isinstance(value, Path):
+        return value.relative_to(root).as_posix() if value.is_absolute() else value.as_posix()
+    return value
+
+
+def _run_taskpack_signed(
+    root: Path,
+    *,
+    taskpack_dir: Path | str,
+    adapter_registry_path: Path | str,
+    adapter_id: str,
+    candidate_change_plan_path: Path | str,
+    dry_run: bool,
+) -> Any:
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+    return run_taskpack(
+        taskpack_dir=_relative_input(root, taskpack_dir),
+        adapter_registry_path=_relative_input(root, adapter_registry_path),
+        adapter_id=adapter_id,
+        candidate_change_plan_path=_relative_input(root, candidate_change_plan_path),
+        dry_run=dry_run,
+        repo_root_path=root,
+        **signing.as_kwargs(),
+    )
+
+
 def test_run_taskpack_dry_run_is_deterministic_and_side_effect_free(tmp_path: Path) -> None:
     root = _base_repo(tmp_path)
     _seed_semantic_authority_artifacts(root)
@@ -254,21 +282,21 @@ def test_run_taskpack_dry_run_is_deterministic_and_side_effect_free(tmp_path: Pa
         proposed_commands=[],
     )
 
-    first = run_taskpack(
-        taskpack_dir=taskpack_dir.relative_to(root),
-        adapter_registry_path=adapter_registry_path.relative_to(root),
+    first = _run_taskpack_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        adapter_registry_path=adapter_registry_path,
         adapter_id="default",
-        candidate_change_plan_path=candidate_path.relative_to(root),
+        candidate_change_plan_path=candidate_path,
         dry_run=True,
-        repo_root_path=root,
     )
-    second = run_taskpack(
-        taskpack_dir=taskpack_dir.relative_to(root),
-        adapter_registry_path=adapter_registry_path.relative_to(root),
+    second = _run_taskpack_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        adapter_registry_path=adapter_registry_path,
         adapter_id="default",
-        candidate_change_plan_path=candidate_path.relative_to(root),
+        candidate_change_plan_path=candidate_path,
         dry_run=True,
-        repo_root_path=root,
     )
 
     assert fixture_path.read_text(encoding="utf-8") == "before\n"
@@ -314,13 +342,13 @@ def test_run_taskpack_apply_and_authorized_command_execution(tmp_path: Path) -> 
         proposed_commands=[marker_cmd],
     )
 
-    result = run_taskpack(
-        taskpack_dir=taskpack_dir.relative_to(root),
-        adapter_registry_path=adapter_registry_path.relative_to(root),
+    result = _run_taskpack_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        adapter_registry_path=adapter_registry_path,
         adapter_id="default",
-        candidate_change_plan_path=candidate_path.relative_to(root),
+        candidate_change_plan_path=candidate_path,
         dry_run=False,
-        repo_root_path=root,
     )
 
     assert result.dry_run is False
@@ -350,13 +378,13 @@ def test_run_taskpack_policy_violation_emits_rejection_and_provenance(tmp_path: 
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
 
     error_payload = _error_payload(exc_info.value)
@@ -396,13 +424,13 @@ def test_run_taskpack_adapter_selection_is_exact_case_sensitive(tmp_path: Path) 
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="passthrough",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
 
     error_payload = _error_payload(exc_info.value)
@@ -442,13 +470,13 @@ def test_run_taskpack_dry_run_forbids_subprocess_execution(tmp_path: Path) -> No
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
 
     error_payload = _error_payload(exc_info.value)
@@ -466,15 +494,95 @@ def test_run_taskpack_fails_closed_on_missing_candidate_plan(tmp_path: Path) -> 
     adapter_registry_path = _seed_adapter_registry(root)
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
+            adapter_id="default",
+            candidate_change_plan_path="artifacts/agent_harness/v45/missing.json",
+            dry_run=True,
+        )
+    assert _error_payload(exc_info.value)["code"] == "AHK1001"
+
+
+def test_run_taskpack_fails_closed_on_missing_signature_verification_result(tmp_path: Path) -> None:
+    root = _base_repo(tmp_path)
+    _seed_semantic_authority_artifacts(root)
+    registry_path = _seed_profile_and_registry(root, commands=_default_commands())
+    taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
+    adapter_registry_path = _seed_adapter_registry(root)
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+
+    rel_path = "packages/adeu_agent_harness/src/adeu_agent_harness/signing_missing_fixture.txt"
+    _write(root / rel_path, "before\n")
+    candidate_path = _write_candidate_change_plan(
+        root,
+        operations=[
+            {
+                "path": rel_path,
+                "operation_kind": "update",
+                "unified_diff": _update_diff(rel_path=rel_path, before="before", after="after"),
+            }
+        ],
+        proposed_commands=[],
+    )
+
+    with pytest.raises(TaskpackRunnerError) as exc_info:
         run_taskpack(
             taskpack_dir=taskpack_dir.relative_to(root),
             adapter_registry_path=adapter_registry_path.relative_to(root),
             adapter_id="default",
-            candidate_change_plan_path="artifacts/agent_harness/v45/missing.json",
+            candidate_change_plan_path=candidate_path.relative_to(root),
+            signature_verification_result_path="artifacts/agent_harness/v49/test_signing/missing.json",
+            signature_envelope_path=signing.signature_envelope_path,
+            trust_anchor_registry_path=signing.trust_anchor_registry_path,
+            verification_reference_time_utc=signing.verification_reference_time_utc,
             dry_run=True,
             repo_root_path=root,
         )
-    assert _error_payload(exc_info.value)["code"] == "AHK1001"
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK1004"
+    assert payload["details"]["signing_error_code"] == "AHK4800"
+
+
+def test_run_taskpack_fails_closed_on_missing_taskpack_component_after_preflight(
+    tmp_path: Path,
+) -> None:
+    root = _base_repo(tmp_path)
+    _seed_semantic_authority_artifacts(root)
+    registry_path = _seed_profile_and_registry(root, commands=_default_commands())
+    taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
+    adapter_registry_path = _seed_adapter_registry(root)
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+
+    rel_path = "packages/adeu_agent_harness/src/adeu_agent_harness/signing_compile_fixture.txt"
+    _write(root / rel_path, "before\n")
+    candidate_path = _write_candidate_change_plan(
+        root,
+        operations=[
+            {
+                "path": rel_path,
+                "operation_kind": "update",
+                "unified_diff": _update_diff(rel_path=rel_path, before="before", after="after"),
+            }
+        ],
+        proposed_commands=[],
+    )
+    (taskpack_dir / "ALLOWLIST.json").unlink()
+
+    with pytest.raises(TaskpackRunnerError) as exc_info:
+        run_taskpack(
+            taskpack_dir=_relative_input(root, taskpack_dir),
+            adapter_registry_path=_relative_input(root, adapter_registry_path),
+            adapter_id="default",
+            candidate_change_plan_path=_relative_input(root, candidate_path),
+            dry_run=True,
+            repo_root_path=root,
+            **signing.as_kwargs(),
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK1004"
+    assert payload["details"]["signing_error_code"] == "AHK0017"
 
 
 def test_run_taskpack_fails_closed_on_adapter_registry_schema_mismatch(tmp_path: Path) -> None:
@@ -502,13 +610,13 @@ def test_run_taskpack_fails_closed_on_adapter_registry_schema_mismatch(tmp_path:
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1003"
 
@@ -541,13 +649,13 @@ def test_run_taskpack_fails_closed_on_adapter_registry_duplicate_id(tmp_path: Pa
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1007"
 
@@ -580,13 +688,13 @@ def test_run_taskpack_fails_closed_on_adapter_registry_order_drift(tmp_path: Pat
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="aa",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1005"
 
@@ -619,13 +727,13 @@ def test_run_taskpack_fails_closed_on_commands_deterministic_env_drift(tmp_path:
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=False,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1004"
 
@@ -662,13 +770,13 @@ def test_run_taskpack_fails_closed_on_candidate_plan_overlapping_hunks(tmp_path:
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1017"
 
@@ -706,13 +814,13 @@ def test_run_taskpack_fails_closed_when_dry_run_network_attempt_detected(
     monkeypatch.setattr(runner_mod, "_emit_dry_run_preview", _emit_preview_with_network_attempt)
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1012"
 
@@ -752,13 +860,13 @@ def test_run_taskpack_fails_closed_when_dry_run_network_guard_unavailable(
     monkeypatch.setattr(runner_mod, "socket", BrokenSocketModule())
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1015"
 
@@ -800,13 +908,13 @@ def test_run_taskpack_fails_closed_when_command_interception_unavailable(
     monkeypatch.setattr(runner_mod.subprocess, "run", None)
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=False,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1011"
 
@@ -858,21 +966,21 @@ def test_run_taskpack_candidate_plan_ordering_is_deterministic(tmp_path: Path) -
         rel_path="artifacts/agent_harness/v45/candidate_sorted.json",
     )
 
-    unsorted_result = run_taskpack(
-        taskpack_dir=taskpack_dir.relative_to(root),
-        adapter_registry_path=adapter_registry_path.relative_to(root),
+    unsorted_result = _run_taskpack_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        adapter_registry_path=adapter_registry_path,
         adapter_id="default",
-        candidate_change_plan_path=unsorted_candidate_path.relative_to(root),
+        candidate_change_plan_path=unsorted_candidate_path,
         dry_run=True,
-        repo_root_path=root,
     )
-    sorted_result = run_taskpack(
-        taskpack_dir=taskpack_dir.relative_to(root),
-        adapter_registry_path=adapter_registry_path.relative_to(root),
+    sorted_result = _run_taskpack_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        adapter_registry_path=adapter_registry_path,
         adapter_id="default",
-        candidate_change_plan_path=sorted_candidate_path.relative_to(root),
+        candidate_change_plan_path=sorted_candidate_path,
         dry_run=True,
-        repo_root_path=root,
     )
 
     assert unsorted_result.candidate_change_plan_hash == sorted_result.candidate_change_plan_hash
@@ -910,13 +1018,13 @@ def test_run_taskpack_rejection_diagnostics_ordering_is_stable(tmp_path: Path) -
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=True,
-            repo_root_path=root,
         )
 
     payload = _error_payload(exc_info.value)
@@ -975,13 +1083,13 @@ def test_run_taskpack_pre_write_exception_does_not_execute_commands(
     monkeypatch.setattr(runner_mod, "_apply_candidate_plan", _raise_pre_apply_failure)
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
-        run_taskpack(
-            taskpack_dir=taskpack_dir.relative_to(root),
-            adapter_registry_path=adapter_registry_path.relative_to(root),
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
             adapter_id="default",
-            candidate_change_plan_path=candidate_path.relative_to(root),
+            candidate_change_plan_path=candidate_path,
             dry_run=False,
-            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1013"
     assert not (root / marker_rel).exists()
@@ -1008,13 +1116,13 @@ def test_run_taskpack_provenance_excludes_nondeterministic_fields(tmp_path: Path
         proposed_commands=[],
     )
 
-    result = run_taskpack(
-        taskpack_dir=taskpack_dir.relative_to(root),
-        adapter_registry_path=adapter_registry_path.relative_to(root),
+    result = _run_taskpack_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        adapter_registry_path=adapter_registry_path,
         adapter_id="default",
-        candidate_change_plan_path=candidate_path.relative_to(root),
+        candidate_change_plan_path=candidate_path,
         dry_run=True,
-        repo_root_path=root,
     )
 
     provenance_payload = _read_json(result.provenance_path)
