@@ -1,10 +1,10 @@
-# Draft Stop-Gate Decision (Pre-Start vNext+51)
+# Draft Stop-Gate Decision (Post vNext+51)
 
-This note reserves the pre-start threshold scaffold for:
+This note records the arc-completion decision for:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS51.md`
 
-Status: draft decision scaffold (pre-start only, March 6, 2026 UTC).
+Status: draft decision note (post-hoc closeout capture, March 6, 2026 UTC).
 
 ## Decision-State Marker (Machine-Checkable)
 
@@ -12,121 +12,151 @@ Status: draft decision scaffold (pre-start only, March 6, 2026 UTC).
 {
   "schema": "decision_artifact_state@1",
   "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS51.md",
-  "phase": "pre_start_threshold_scaffold",
-  "authoritative": false,
-  "authoritative_scope": "v51_prestart_threshold_scaffold_only",
+  "phase": "post_closeout_decision",
+  "authoritative": true,
+  "authoritative_scope": "v51_closeout_stop_gate_decision",
   "required_in_closeout": true,
-  "all_passed": null,
-  "notes": "This is a pre-start scaffold only. Planned evidence slots below are not closeout proof."
+  "all_passed": true,
+  "notes": "Pre-start scaffold markers are superseded by post-closeout evidence and final decision values in this document."
 }
 ```
 
 ## Decision Guardrail (Frozen)
 
-- This scaffold reserves v51 closeout slots only.
+- This draft records `vNext+51` closeout evidence only.
 - It must not redefine semantics, locks, or scope from
   `docs/LOCKED_CONTINUATION_vNEXT_PLUS51.md`.
-- This note is non-authoritative until v51 closes on `main`.
-- `V34-A` downstream signing completion and `V34-B` matrix baseline remain authoritative
-  prerequisites while v51 is still planning.
-- Runtime-observability comparison evidence remains required and informational-only in this
-  arc.
+- This note captures `V34-C` verifier-lane policy-recompute closeout evidence only; it does
+  not authorize `V34-D`..`V34-G` behavior release by itself.
+- Shared canonical recompute authority, deterministic `policy_recompute_result@1` emission,
+  verifier mismatch fail-closed behavior, and cumulative closeout evidence integration remain
+  artifact-authoritative, deterministic, and fail-closed under frozen lock text.
+- Runtime-observability comparison row remains required evidence and informational-only in
+  this arc.
 
-## Planned Evidence Source Shape
+## Evidence Source
 
-- expected CI workflow:
-  - `ci` on `main`
-- expected implementation PRs:
-  - `Z1` shared canonical policy recompute engine + deterministic result baseline
-  - `Z2` verifier mismatch enforcement + canonical recompute evidence/guard suite
-- expected deterministic closeout artifacts:
-  - `artifacts/quality_dashboard_v51_closeout.json`
-  - `artifacts/stop_gate/metrics_v51_closeout.json`
-  - `artifacts/stop_gate/report_v51_closeout.md`
-- expected deterministic evidence input artifacts:
-  - `artifacts/agent_harness/v51/evidence_inputs/runtime_observability_comparison_v51.json`
-  - `artifacts/agent_harness/v51/evidence_inputs/metric_key_continuity_assertion_v51.json`
-  - `artifacts/agent_harness/v51/evidence_inputs/v34c_policy_recompute_evidence_v51.json`
-- expected deterministic recompute artifacts:
-  - `artifacts/agent_harness/v51/policy_recompute/`
+- CI workflow: `ci` on `main`
+- arc-completion merge commit: `4786aa4847c749e9a26de54d3ddbe254ec67e279`
+- arc-completion CI run:
+  - Run ID: `22773514719`
+  - URL: `https://github.com/LexLattice/adeu-studio/actions/runs/22773514719`
+  - conclusion: `success`
+- merged implementation PRs:
+  - `#251` (`contracts: add v34c policy recompute result baseline`)
+  - `#252` (`tests: add v34c verifier mismatch and evidence guards`)
+- deterministic closeout artifacts (reproducible):
+  - quality dashboard JSON: `artifacts/quality_dashboard_v51_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v51_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v51_closeout.md`
+  - runtime observability evidence input:
+    `artifacts/agent_harness/v51/evidence_inputs/runtime_observability_comparison_v51.json`
+  - metric-key continuity evidence input:
+    `artifacts/agent_harness/v51/evidence_inputs/metric_key_continuity_assertion_v51.json`
+  - policy-recompute evidence input:
+    `artifacts/agent_harness/v51/evidence_inputs/v34c_policy_recompute_evidence_v51.json`
+  - policy recompute artifact:
+    `artifacts/agent_harness/v51/recompute/3128cc9739666fbb04b57698816410a9d51cec6a1c7c535965ed9dcc9936298f_fdeccd2fa768f2f4956158aec542d20161ecaba2d8ff4f8a79e66a91a943f0ab.json`
+- supporting deterministic verifier/evidence artifacts (reproducible):
+  - closeout profile:
+    `artifacts/agent_harness/v51/profiles/v51_closeout_profile.json`
+  - taskpack profile registry:
+    `artifacts/agent_harness/v51/taskpack_profile_registry.json`
+  - compiled closeout taskpack:
+    `artifacts/agent_harness/v51/taskpacks/v41/v51_closeout/`
+  - closeout candidate change plan:
+    `artifacts/agent_harness/v51/candidate_change_plan.json`
+  - closeout runner result:
+    `artifacts/agent_harness/v51/runner_result.json`
+  - copied runner preview/provenance:
+    `artifacts/agent_harness/v51/runner/`
+  - verification result:
+    `artifacts/agent_harness/v51/verification/3128cc9739666fbb04b57698816410a9d51cec6a1c7c535965ed9dcc9936298f_fdeccd2fa768f2f4956158aec542d20161ecaba2d8ff4f8a79e66a91a943f0ab.json`
+  - closeout evidence bundle:
+    `artifacts/agent_harness/v51/evidence/3128cc9739666fbb04b57698816410a9d51cec6a1c7c535965ed9dcc9936298f_fdeccd2fa768f2f4956158aec542d20161ecaba2d8ff4f8a79e66a91a943f0ab.json`
+  - closeout evidence bundle hash sidecar:
+    `artifacts/agent_harness/v51/evidence/3128cc9739666fbb04b57698816410a9d51cec6a1c7c535965ed9dcc9936298f_fdeccd2fa768f2f4956158aec542d20161ecaba2d8ff4f8a79e66a91a943f0ab.sha256.json`
+  - verifier provenance:
+    `artifacts/agent_harness/v51/evidence/provenance/3128cc9739666fbb04b57698816410a9d51cec6a1c7c535965ed9dcc9936298f_fdeccd2fa768f2f4956158aec542d20161ecaba2d8ff4f8a79e66a91a943f0ab.json`
+- closeout edge assessment:
+  - `docs/ASSESSMENT_vNEXT_PLUS51_EDGES.md`
+- closeout commands:
+  - `TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONWARNINGS=ignore PYTHONPATH=apps/api/src:packages/urm_runtime/src:packages/adeu_core_ir/src:packages/adeu_commitments_ir/src:packages/adeu_semantic_source/src:packages/adeu_semantic_compiler/src:packages/adeu_ir/src:packages/adeu_agent_harness/src .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard_v51_closeout.json --baseline artifacts/quality_dashboard_v50_closeout.json`
+  - `TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONWARNINGS=ignore PYTHONPATH=apps/api/src:packages/urm_runtime/src:packages/adeu_core_ir/src:packages/adeu_commitments_ir/src:packages/adeu_semantic_source/src:packages/adeu_semantic_compiler/src:packages/adeu_ir/src:packages/adeu_agent_harness/src .venv/bin/python apps/api/scripts/build_stop_gate_metrics.py --quality-current artifacts/quality_dashboard_v51_closeout.json --quality-baseline artifacts/quality_dashboard_v50_closeout.json --out-json artifacts/stop_gate/metrics_v51_closeout.json --out-md artifacts/stop_gate/report_v51_closeout.md`
+  - `TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONWARNINGS=ignore PYTHONPATH=apps/api/src:packages/urm_runtime/src:packages/adeu_core_ir/src:packages/adeu_commitments_ir/src:packages/adeu_semantic_source/src:packages/adeu_semantic_compiler/src:packages/adeu_ir/src:packages/adeu_agent_harness/src .venv/bin/python - <<'PY' ... generate v51 profile/registry/taskpack, closeout candidate plan, signed dry-run runner result, verification result, policy_recompute_result@1, evidence_inputs/*.json, and closeout evidence bundle/provenance from the v50 stop-gate artifacts, current compile/run/verify/write_closeout_evidence entrypoints, and the frozen v45 adapter registry ... PY`
+  - `make closeout-lint`
 
-## Planned Exit-Criteria Check (vNext+51)
+## Exit-Criteria Check (vNext+51)
 
-| Criterion | Threshold | Planned Result Slot | Evidence Slot |
+| Criterion | Threshold | Result | Evidence |
 |---|---|---|---|
-| `Z1` merged with green CI | required | `pending` | merge commit + CI run |
-| `Z2` merged with green CI | required | `pending` | merge commit + CI run |
-| Stop-gate schema-family continuity retained | required | `pending` | `metrics_v51_closeout.json` |
-| Stop-gate metric-key continuity retained | required | `pending` | `metric_key_continuity_assertion_v51.json` |
-| Deterministic cardinality continuity retained (`80`) | required | `pending` | `metrics_v51_closeout.json` |
-| `policy_recompute_result@1` emitted and schema-valid | required | `pending` | `artifacts/agent_harness/v51/policy_recompute/` |
-| Exact-match subject remains frozen to passed/issues/exit_status | required | `pending` | `v34c_policy_recompute_evidence_v51.json` |
-| Runner reason and line-range fields remain non-authoritative | required | `pending` | `v34c_policy_recompute_evidence_v51.json` |
-| Allowed issue-code set remains frozen and exact | required | `pending` | `v34c_policy_recompute_evidence_v51.json` |
-| Duplicate issue tuples are rejected fail closed | required | `pending` | merged guard suites |
-| Recompute mismatch fails closed in verifier lane | required | `pending` | merged guard suites |
-| Recompute artifact still emits on mismatch paths | required | `pending` | merged guard suites |
-| No success-class verification result survives recompute mismatch | required | `pending` | merged guard suites |
-| No boundary-release expansion introduced | required | `pending` | lock-scope audit |
+| `Z1` merged with green CI | required | `pass` | PR `#251` merged; CI run `22772622530` is `success` |
+| `Z2` merged with green CI | required | `pass` | PR `#252` merged; CI run `22773514719` is `success` |
+| Stop-gate schema-family continuity retained | required | `pass` | `schema = "stop_gate_metrics@1"` in v50 and v51 closeout metrics |
+| Stop-gate metric-key continuity retained | required | `pass` | v50 and v51 keysets are exact-set equal (`metric_key_exact_set_equal_v50 = true`) |
+| Deterministic cardinality continuity retained (`80`) | required | `pass` | metric-key cardinality computed from `metrics` keys is `80 -> 80` |
+| `policy_recompute_result@1` emitted and schema-valid | required | `pass` | `artifacts/agent_harness/v51/recompute/3128cc9739666fbb04b57698816410a9d51cec6a1c7c535965ed9dcc9936298f_fdeccd2fa768f2f4956158aec542d20161ecaba2d8ff4f8a79e66a91a943f0ab.json` |
+| Exact-match subject remains frozen to passed/issues/exit_status | required | `pass` | `comparison_subject_fields = ["passed", "issues", "exit_status"]` in recompute artifact and v34c evidence |
+| Runner reason and line-range fields remain non-authoritative | required | `pass` | `runner_reason_line_range_non_authoritative = true` in `v34c_policy_recompute_evidence_v51.json` |
+| Allowed issue-code set remains frozen and exact | required | `pass` | `allowed_issue_codes_closed_exact = true` in `v34c_policy_recompute_evidence_v51.json` |
+| Canonical `v34c` evidence block emitted and hash-bound | required | `pass` | `policy_recompute_result_hash = 1e55b36abd3405d38f42da8456e8b8090310ac85844867212b5e94e1624b8688` in `v34c_policy_recompute_evidence_v51.json` and referenced recompute artifact |
+| Duplicate issue tuples are rejected fail closed | required | `pass` | duplicate tuple rejection is enforced in `packages/adeu_agent_harness/src/adeu_agent_harness/policy_recompute.py` and guarded in `packages/adeu_agent_harness/tests/test_taskpack_runner.py` |
+| Recompute mismatch fails closed in verifier lane | required | `pass` | guard test `test_verify_taskpack_run_fails_closed_on_policy_recompute_mismatch_after_emission` remains green in `packages/adeu_agent_harness/tests/test_taskpack_verifier.py` |
+| Recompute artifact still emits on mismatch paths | required | `pass` | mismatch guard test and runner-policy-failure guard suite remain green in `packages/adeu_agent_harness/tests/test_taskpack_verifier.py` |
+| No success-class verification result survives recompute mismatch | required | `pass` | mismatch guard test confirms verifier fails before any success-class verification result artifact remains |
+| No boundary-release expansion introduced | required | `pass` | v51 scope remains verifier-lane `V34-C` only |
 
-Summary slot (to be completed only at closeout):
+Summary:
 
 - `schema = "stop_gate_metrics@1"`
-- `valid = null`
-- `all_passed = null`
+- `valid = true`
+- `all_passed = true`
 - `issues = []`
-- `derived_cardinality = null`
+- `derived_cardinality = 80` (computed from `metrics` keyset cardinality)
 
-## Planned Metric-Key Continuity Assertion
+## Metric-Key Continuity Assertion
 
 ```json
 {
   "schema": "metric_key_continuity_assertion@1",
-  "phase": "pre_start_threshold_scaffold",
-  "authoritative": false,
-  "required_in_closeout": true,
   "baseline_metrics_path": "artifacts/stop_gate/metrics_v50_closeout.json",
   "current_metrics_path": "artifacts/stop_gate/metrics_v51_closeout.json",
-  "expected_relation": "exact_keyset_equality",
-  "expected_cardinality": 80,
-  "metric_key_exact_set_equal_v50": null,
-  "metric_key_cardinality": null
+  "expected_relation": "exact_keyset_equality"
 }
 ```
 
-## Planned Runtime Observability Comparison (v50 Baseline vs v51 Closeout)
+## Runtime Observability Comparison (v50 Baseline vs v51 Closeout)
 
 ```json
 {
   "schema": "runtime_observability_comparison@1",
-  "phase": "pre_start_threshold_scaffold",
-  "authoritative": false,
-  "required_in_closeout": true,
   "baseline_arc": "vNext+50",
   "current_arc": "vNext+51",
   "baseline_source": "artifacts/stop_gate/report_v50_closeout.md",
   "current_source": "artifacts/stop_gate/report_v51_closeout.md",
-  "baseline_elapsed_ms": null,
-  "current_elapsed_ms": null,
-  "delta_ms": null,
-  "notes": "Populate only at v51 closeout; runtime timing remains informational-only."
+  "baseline_elapsed_ms": 100,
+  "current_elapsed_ms": 93,
+  "delta_ms": -7,
+  "notes": "v51 closeout remains informational-only for runtime timing/byte observability under frozen stop-gate semantics."
 }
 ```
 
-## Planned V34-C Policy Recompute Evidence
+| Arc | Source | total_fixtures | total_replays | elapsed_ms | bytes_hashed_per_replay | bytes_hashed_total | valid | all_passed |
+|---|---|---:|---:|---:|---:|---:|---|---|
+| `vNext+50` baseline | `artifacts/stop_gate/metrics_v50_closeout.json` | `22` | `78` | `100` | `68230` | `204690` | `true` | `true` |
+| `vNext+51` closeout | `artifacts/stop_gate/metrics_v51_closeout.json` | `22` | `78` | `93` | `68230` | `204690` | `true` | `true` |
+
+## V34-C Policy Recompute Evidence
 
 ```json
 {
   "schema": "v34c_policy_recompute_evidence@1",
-  "phase": "pre_start_threshold_scaffold",
-  "authoritative": false,
-  "required_in_closeout": true,
   "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS51.md#v34c_policy_recompute_contract@1",
-  "recompute_entrypoint": "packages/adeu_agent_harness.policy_recompute.recompute_policy_validation",
-  "shared_recompute_engine_used": null,
+  "recompute_entrypoint": "adeu_agent_harness.policy_recompute.recompute_policy_validation",
+  "shared_recompute_engine_used": "adeu_agent_harness.policy_recompute.recompute_policy_validation",
   "verifier_entrypoint": "python -m adeu_agent_harness.verify_taskpack_run",
-  "policy_recompute_result_path": null,
-  "policy_recompute_result_hash": null,
+  "policy_recompute_result_path": "artifacts/agent_harness/v51/recompute/3128cc9739666fbb04b57698816410a9d51cec6a1c7c535965ed9dcc9936298f_fdeccd2fa768f2f4956158aec542d20161ecaba2d8ff4f8a79e66a91a943f0ab.json",
+  "policy_recompute_result_hash": "1e55b36abd3405d38f42da8456e8b8090310ac85844867212b5e94e1624b8688",
   "comparison_subject_fields": [
     "passed",
     "issues",
@@ -143,51 +173,104 @@ Summary slot (to be completed only at closeout):
   "duplicate_issue_tuples_forbidden": true,
   "allowed_issue_codes": [
     "allowlist_violation",
-    "forbidden_path_violation",
+    "dry_run_subprocess_execution_detected",
     "forbidden_operation_kind",
-    "model_suggested_command_execution_detected",
-    "dry_run_subprocess_execution_detected"
+    "forbidden_path_violation",
+    "model_suggested_command_execution_detected"
   ],
   "allowed_issue_codes_closed_exact": true,
   "candidate_change_plan_binding_policy": "recompute_binds_to_runner_recorded_canonical_candidate_change_plan_hash_runner_result_dry_run_supplies_execution_mode_only",
   "runner_policy_failure_input_materialization_required": true,
   "runner_reason_line_range_non_authoritative": true,
-  "mismatch_fail_closed": null,
-  "exact_match_requires_empty_deltas": null,
-  "policy_recompute_result_emitted": null,
-  "typed_diff_summary_emitted": null,
-  "success_class_verification_result_forbidden_on_mismatch": null,
-  "verification_passed": null,
-  "metric_key_cardinality": null,
-  "metric_key_exact_set_equal_v50": null,
-  "notes": "Populate only at v51 closeout after Z1/Z2 merge and recompute artifact generation."
+  "mismatch_fail_closed": true,
+  "exact_match_requires_empty_deltas": true,
+  "policy_recompute_result_emitted": true,
+  "typed_diff_summary_emitted": true,
+  "success_class_verification_result_forbidden_on_mismatch": true,
+  "verification_passed": true,
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v50": true,
+  "notes": "v51 Z1/Z2 merged with shared policy recompute emission, verifier mismatch fail-closed enforcement, and canonical recompute evidence integration on main."
 }
 ```
 
-## Pre-Start Failure Conditions (Scaffold)
+## Policy Recompute Result (Exact-Match Closeout Run)
 
-- fail closed if baseline and current metrics artifact paths are identical.
-- fail closed if planned v51 closeout attempts to claim a new stop-gate metric key without
-  explicit lock release.
-- fail closed if planned recompute source widens beyond canonical taskpack policy components,
-  canonical candidate change plan, and runner dry-run input.
-- fail closed if planned v51 recompute emits any issue code outside the frozen allowed set.
-- fail closed if planned v51 recompute emits duplicate `(issue_code, target_path, hunk_index)`
-  tuples before canonicalization.
-- fail closed if planned exact-match subject depends on runner reason text, line ranges, or
-  policy-source prose.
-- fail closed if planned verifier mismatch path omits deterministic
-  `policy_recompute_result@1`.
-- fail closed if planned verifier mismatch path still emits a success-class verification
-  result artifact.
-- fail closed if planned v51 closeout claims packaging-equivalence recomputation, matrix
-  expansion, or remote/enclave release beyond the frozen v51 scope.
+```json
+{
+  "schema": "policy_recompute_result@1",
+  "taskpack_manifest_hash": "3128cc9739666fbb04b57698816410a9d51cec6a1c7c535965ed9dcc9936298f",
+  "candidate_change_plan_hash": "fdeccd2fa768f2f4956158aec542d20161ecaba2d8ff4f8a79e66a91a943f0ab",
+  "runner_provenance_hash": "f24dfffe8a491545e111199d22cf9513998970e39ec09c67def3d3c503ab98e9",
+  "dry_run": true,
+  "shared_recompute_engine": "adeu_agent_harness.policy_recompute.recompute_policy_validation",
+  "comparison_subject_fields": [
+    "passed",
+    "issues",
+    "exit_status"
+  ],
+  "issue_tuple_fields": [
+    "issue_code",
+    "target_path",
+    "hunk_index"
+  ],
+  "issue_tuple_order_policy": "lexicographic_over_issue_code_target_path_hunk_index",
+  "issues_representation_policy": "lexicographically_sorted_unique_issue_tuple_list_with_repo_relative_posix_target_paths",
+  "allowed_issue_codes": [
+    "allowlist_violation",
+    "dry_run_subprocess_execution_detected",
+    "forbidden_operation_kind",
+    "forbidden_path_violation",
+    "model_suggested_command_execution_detected"
+  ],
+  "typed_diff_summary_fields": [
+    "exact_match",
+    "mismatch_fields",
+    "runner_only_issues",
+    "recompute_only_issues"
+  ],
+  "runner_outcome": {
+    "passed": true,
+    "issues": [],
+    "exit_status": "success"
+  },
+  "recompute_outcome": {
+    "passed": true,
+    "issues": [],
+    "exit_status": "success"
+  },
+  "typed_diff_summary": {
+    "exact_match": true,
+    "mismatch_fields": [],
+    "runner_only_issues": [],
+    "recompute_only_issues": []
+  },
+  "result_hash": "1e55b36abd3405d38f42da8456e8b8090310ac85844867212b5e94e1624b8688"
+}
+```
 
-## Recommendation (Pre-Start)
+## Recommendation (Post v51)
 
 - gate decision:
-  - `PENDING_VNEXT_PLUS51_EXECUTION`
+  - `GO_VNEXT_PLUS52_PLANNING_DRAFT`
 - rationale:
-  - v50 is closed and unblocks explicit `V34-C` evaluation,
-  - current implementation supports an honest thin verifier-lane recompute baseline,
-  - closeout proof must wait for actual Z1/Z2 implementation and evidence generation.
+  - v51 closes the verifier-lane `V34-C` baseline with shared canonical recompute
+    emission, mismatch fail-closed behavior, and canonical `v34c` evidence integrated on
+    `main`.
+  - no continuity, schema-family, or metric-key regressions were observed in closeout
+    evidence.
+  - future planning no longer needs to treat verifier-lane runner-trust closure as a
+    missing baseline.
+
+## Suggested Next Artifacts
+
+1. Draft `docs/LOCKED_CONTINUATION_vNEXT_PLUS52.md`,
+   `docs/ASSESSMENT_vNEXT_PLUS52_EDGES.md`, and
+   `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS52.md` from a fresh post-v51 planning pass.
+2. Keep v51 closeout artifacts stable; rerun closeout commands only under the frozen
+   deterministic env contract.
+3. Carry only explicit follow-on paths into future planning:
+   broader policy recomputation beyond the current runner validator,
+   packaging-surface recomputation beyond verifier-lane comparison,
+   `V34-D` retry-context automation,
+   and remote/enclave follow-on lanes under explicit future lock text.

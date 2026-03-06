@@ -26,6 +26,7 @@ This rewrite was produced by auditing:
 - `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS49_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS50_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS51_EDGES.md`
 - the prior version of this file
 - current implementation under `apps/` and `packages/`
 
@@ -162,10 +163,12 @@ the sense that the roadmap still names them and current code does not implement 
 
 ### 2.1 Harness and Trust Roadmap
 
-- independent zero-trust policy recomputation in the verifier
+- broader policy recomputation beyond the current runner validator and verifier-lane
+  comparison
   - Sources:
     - `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`
     - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS51_EDGES.md`
 - cross-adapter and matrix-lane parity beyond current released adapter/mode sets
   - Sources:
     - `docs/ASSESSMENT_vNEXT_PLUS45_EDGES.md`
