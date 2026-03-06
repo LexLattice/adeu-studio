@@ -9,6 +9,7 @@ import adeu_agent_harness.package_ux as packaging_mod
 import adeu_agent_harness.package_ux_integrated as integrated_entry_mod
 import adeu_agent_harness.package_ux_standalone as standalone_entry_mod
 import pytest
+from adeu_agent_harness._test_signing_handoff import seed_signing_handoff_fixture
 from adeu_agent_harness._v47_packaging_common import (
     AHK4703_ARTIFACT_INVALID,
     AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
@@ -91,6 +92,10 @@ def _run_packaging(
     deployment_mode: str = DEPLOYMENT_MODE_INTEGRATED,
     dry_run: bool = True,
     taskpack_dir: str | None = None,
+    signature_verification_result_path: str | None = None,
+    signature_envelope_path: str | None = None,
+    trust_anchor_registry_path: str | None = None,
+    verification_reference_time_utc: str | None = None,
     verified_result_path: str | None = None,
     evidence_bundle_path: str | None = None,
     verifier_provenance_path: str | None = None,
@@ -103,6 +108,14 @@ def _run_packaging(
         expected_mode=expected_mode,
         deployment_mode=deployment_mode,
         taskpack_dir=taskpack_dir or packaging_repo["taskpack_dir"],
+        signature_verification_result_path=(
+            signature_verification_result_path or packaging_repo["signature_verification_result"]
+        ),
+        signature_envelope_path=signature_envelope_path or packaging_repo["signature_envelope"],
+        trust_anchor_registry_path=trust_anchor_registry_path or packaging_repo["trust_anchor_registry"],
+        verification_reference_time_utc=(
+            verification_reference_time_utc or packaging_repo["verification_reference_time_utc"]
+        ),
         verified_result_path=verified_result_path or packaging_repo["verified_result"],
         evidence_bundle_path=evidence_bundle_path or packaging_repo["evidence_bundle"],
         verifier_provenance_path=verifier_provenance_path or packaging_repo["verifier_provenance"],
@@ -394,6 +407,7 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
     registry_path = _seed_profile_and_registry(root)
     taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
     adapter_registry_path = _seed_adapter_registry(root)
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
 
     rel_path = "packages/adeu_agent_harness/src/adeu_agent_harness/v47_packaging_fixture.txt"
     fixture_path = root / rel_path
@@ -405,6 +419,7 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
         adapter_registry_path=_relative(root, adapter_registry_path),
         adapter_id="default",
         candidate_change_plan_path=_relative(root, candidate_path),
+        **signing.as_kwargs(),
         dry_run=True,
         repo_root_path=root,
     )
@@ -418,6 +433,7 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
         runner_result_path=_relative(root, runner_result_path),
         runner_provenance_path=_relative(root, run_result.provenance_path),
         policy_rejection_diagnostics_path=None,
+        **signing.as_kwargs(),
         verification_output_root="artifacts/agent_harness/v46/verification",
         diagnostic_registry_path=v46_diagnostic_registry_rel,
         repo_root_path=root,
@@ -438,6 +454,10 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
     return {
         "repo_root": str(root),
         "taskpack_dir": _relative(root, taskpack_dir),
+        "signature_verification_result": signing.signature_verification_result_path,
+        "signature_envelope": signing.signature_envelope_path,
+        "trust_anchor_registry": signing.trust_anchor_registry_path,
+        "verification_reference_time_utc": signing.verification_reference_time_utc,
         "verified_result": _relative(root, verify_result.verification_result_path),
         "evidence_bundle": _relative(root, evidence_result.evidence_bundle_path),
         "verifier_provenance": _relative(root, evidence_result.verifier_provenance_path),
@@ -618,6 +638,19 @@ def test_package_ux_fails_closed_on_missing_required_input_artifact(
     payload = _error_payload(exc_info.value)
     assert payload["code"] == "AHK4700"
     assert "rejection_diagnostic_path" in payload["details"]
+
+
+def test_package_ux_fails_closed_on_missing_signature_handoff(
+    packaging_repo: dict[str, str],
+) -> None:
+    with pytest.raises(TaskpackPackagingError) as exc_info:
+        _run_packaging(
+            packaging_repo,
+            signature_verification_result_path="artifacts/agent_harness/v49/test_signing/missing.json",
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4703_ARTIFACT_INVALID
+    assert payload["details"]["signing_error_code"] == "AHK4800"
 
 
 def test_package_ux_emits_rejection_diagnostic_and_no_partial_package_on_failure(
@@ -856,6 +889,14 @@ def test_packaging_cli_returns_non_zero_on_required_violation(
             DEPLOYMENT_MODE_INTEGRATED,
             "--taskpack-dir",
             packaging_repo["taskpack_dir"],
+            "--signature-verification-result",
+            packaging_repo["signature_verification_result"],
+            "--signature-envelope",
+            packaging_repo["signature_envelope"],
+            "--trust-anchor-registry",
+            packaging_repo["trust_anchor_registry"],
+            "--verification-reference-time-utc",
+            packaging_repo["verification_reference_time_utc"],
             "--verified-result",
             packaging_repo["verified_result"],
             "--evidence-bundle",
@@ -886,6 +927,14 @@ def test_packaging_cli_requires_explicit_deployment_mode_flag(
             [
                 "--taskpack-dir",
                 packaging_repo["taskpack_dir"],
+                "--signature-verification-result",
+                packaging_repo["signature_verification_result"],
+                "--signature-envelope",
+                packaging_repo["signature_envelope"],
+                "--trust-anchor-registry",
+                packaging_repo["trust_anchor_registry"],
+                "--verification-reference-time-utc",
+                packaging_repo["verification_reference_time_utc"],
                 "--verified-result",
                 packaging_repo["verified_result"],
                 "--evidence-bundle",

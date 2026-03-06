@@ -16,7 +16,10 @@ from typing import Any, Iterator
 from adeu_ir.repo import repo_root
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
-from .compile import verify_taskpack_bundle
+from .verify_taskpack_signature import (
+    TaskpackSigningError,
+    load_validated_downstream_signature_handoff,
+)
 
 TASKPACK_MANIFEST_SCHEMA = "taskpack/manifest@1"
 TASKPACK_ALLOWLIST_SCHEMA = "taskpack/allowlist@1"
@@ -201,6 +204,30 @@ def _load_json_object(path: Path) -> dict[str, Any]:
             code=_AHK1001_PATH_POLICY_VIOLATION,
             message="required json path does not exist",
             details={"path": str(path)},
+        ) from exc
+    except json.JSONDecodeError as exc:
+        raise _fail(
+            code=_AHK1002_JSON_OBJECT_REQUIRED,
+            message="json payload is invalid",
+            details={"path": str(path), "error": str(exc)},
+        ) from exc
+    if not isinstance(payload, dict):
+        raise _fail(
+            code=_AHK1002_JSON_OBJECT_REQUIRED,
+            message="json payload must decode to an object",
+            details={"path": str(path)},
+        )
+    return payload
+
+
+def _load_json_object_from_bytes(payload_bytes: bytes, *, path: Path) -> dict[str, Any]:
+    try:
+        payload = json.loads(payload_bytes.decode("utf-8"))
+    except UnicodeDecodeError as exc:
+        raise _fail(
+            code=_AHK1002_JSON_OBJECT_REQUIRED,
+            message="json payload is not valid utf-8",
+            details={"path": str(path), "error": str(exc)},
         ) from exc
     except json.JSONDecodeError as exc:
         raise _fail(
@@ -627,8 +654,7 @@ def _load_candidate_change_plan(path: Path) -> CandidateChangePlan:
     )
 
 
-def _load_allowlist_payload(path: Path) -> list[str]:
-    payload = _load_json_object(path)
+def _validate_allowlist_payload(payload: dict[str, Any], *, path: Path) -> list[str]:
     _require_schema(payload, expected_schema=TASKPACK_ALLOWLIST_SCHEMA, path=path)
     if set(payload.keys()) != {"schema", "profile_id", "path_policy", "paths"}:
         raise _fail(
@@ -656,8 +682,17 @@ def _load_allowlist_payload(path: Path) -> list[str]:
     return sorted(set(normalized))
 
 
-def _load_forbidden_payload(path: Path) -> tuple[list[str], list[str], tuple[str, ...]]:
-    payload = _load_json_object(path)
+def _load_allowlist_payload(path: Path) -> list[str]:
+    return _validate_allowlist_payload(_load_json_object(path), path=path)
+
+
+def _load_allowlist_payload_from_bytes(*, path: Path, payload_bytes: bytes) -> list[str]:
+    return _validate_allowlist_payload(_load_json_object_from_bytes(payload_bytes, path=path), path=path)
+
+
+def _validate_forbidden_payload(
+    payload: dict[str, Any], *, path: Path
+) -> tuple[list[str], list[str], tuple[str, ...]]:
     _require_schema(payload, expected_schema=TASKPACK_FORBIDDEN_SCHEMA, path=path)
     payload_keys = set(payload.keys())
     allowed_keys = {"schema", "profile_id", "paths", "effects", "operation_kinds"}
@@ -723,8 +758,22 @@ def _load_forbidden_payload(path: Path) -> tuple[list[str], list[str], tuple[str
     )
 
 
-def _load_commands_payload(path: Path) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
-    payload = _load_json_object(path)
+def _load_forbidden_payload(path: Path) -> tuple[list[str], list[str], tuple[str, ...]]:
+    return _validate_forbidden_payload(_load_json_object(path), path=path)
+
+
+def _load_forbidden_payload_from_bytes(
+    *, path: Path, payload_bytes: bytes
+) -> tuple[list[str], list[str], tuple[str, ...]]:
+    return _validate_forbidden_payload(
+        _load_json_object_from_bytes(payload_bytes, path=path),
+        path=path,
+    )
+
+
+def _validate_commands_payload(
+    payload: dict[str, Any], *, path: Path
+) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
     _require_schema(payload, expected_schema=TASKPACK_COMMANDS_SCHEMA, path=path)
     if set(payload.keys()) != {"schema", "profile_id", "deterministic_env", "commands"}:
         raise _fail(
@@ -849,6 +898,46 @@ def _load_commands_payload(path: Path) -> tuple[dict[str, str], dict[str, dict[s
         }
 
     return deterministic_env, commands_by_run
+
+
+def _load_commands_payload(path: Path) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
+    return _validate_commands_payload(_load_json_object(path), path=path)
+
+
+def _load_commands_payload_from_bytes(
+    *, path: Path, payload_bytes: bytes
+) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
+    return _validate_commands_payload(_load_json_object_from_bytes(payload_bytes, path=path), path=path)
+
+
+def _load_runner_signature_handoff(
+    *,
+    taskpack_dir: str | Path,
+    signature_verification_result_path: str | Path,
+    signature_envelope_path: str | Path,
+    trust_anchor_registry_path: str | Path,
+    verification_reference_time_utc: str,
+    repo_root_path: str | Path | None,
+):
+    try:
+        return load_validated_downstream_signature_handoff(
+            taskpack_dir=taskpack_dir,
+            signature_verification_result_path=signature_verification_result_path,
+            signature_envelope_path=signature_envelope_path,
+            trust_anchor_registry_path=trust_anchor_registry_path,
+            verification_reference_time_utc=verification_reference_time_utc,
+            repo_root_path=repo_root_path,
+        )
+    except TaskpackSigningError as exc:
+        raise _fail(
+            code=_AHK1004_TASKPACK_COMPONENT_INVALID,
+            message="runner signing handoff validation failed",
+            details={
+                "signing_error_code": exc.code,
+                "signing_error": exc.message,
+                "signing_details": exc.details,
+            },
+        ) from exc
 
 
 def _load_adapter_registry(path: Path) -> list[dict[str, str]]:
@@ -1425,23 +1514,38 @@ def run_taskpack(
     adapter_registry_path: str | Path,
     adapter_id: str,
     candidate_change_plan_path: str | Path,
+    signature_verification_result_path: str | Path,
+    signature_envelope_path: str | Path,
+    trust_anchor_registry_path: str | Path,
+    verification_reference_time_utc: str,
     dry_run: bool,
     repo_root_path: str | Path | None = None,
 ) -> TaskpackRunnerResult:
     root = repo_root(anchor=Path(repo_root_path) if repo_root_path is not None else Path.cwd())
 
-    taskpack_rel = _normalize_relative_path(str(taskpack_dir))
-    taskpack_path = _safe_join(root, taskpack_rel)
-    taskpack_manifest_hash = verify_taskpack_bundle(
-        out_dir=taskpack_rel,
+    handoff = _load_runner_signature_handoff(
+        taskpack_dir=taskpack_dir,
+        signature_verification_result_path=signature_verification_result_path,
+        signature_envelope_path=signature_envelope_path,
+        trust_anchor_registry_path=trust_anchor_registry_path,
+        verification_reference_time_utc=verification_reference_time_utc,
         repo_root_path=root,
     )
+    taskpack_path = handoff.taskpack_snapshot.out_dir
+    taskpack_manifest_hash = handoff.taskpack_snapshot.manifest_hash
 
-    allowlist_paths = _load_allowlist_payload(taskpack_path / "ALLOWLIST.json")
-    forbidden_paths, _forbidden_effects, forbidden_operation_kinds = _load_forbidden_payload(
-        taskpack_path / "FORBIDDEN.json"
+    allowlist_paths = _load_allowlist_payload_from_bytes(
+        path=taskpack_path / "ALLOWLIST.json",
+        payload_bytes=handoff.taskpack_snapshot.component_bytes_by_path["ALLOWLIST.json"],
     )
-    deterministic_env, commands_by_run = _load_commands_payload(taskpack_path / "COMMANDS.json")
+    forbidden_paths, _forbidden_effects, forbidden_operation_kinds = _load_forbidden_payload_from_bytes(
+        path=taskpack_path / "FORBIDDEN.json",
+        payload_bytes=handoff.taskpack_snapshot.component_bytes_by_path["FORBIDDEN.json"],
+    )
+    deterministic_env, commands_by_run = _load_commands_payload_from_bytes(
+        path=taskpack_path / "COMMANDS.json",
+        payload_bytes=handoff.taskpack_snapshot.component_bytes_by_path["COMMANDS.json"],
+    )
 
     adapter_registry_rel = _normalize_relative_path(str(adapter_registry_path))
     adapter_registry = _load_adapter_registry(_safe_join(root, adapter_registry_rel))
@@ -1579,6 +1683,26 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Repo-relative path to candidate_change_plan@1 JSON artifact.",
     )
     parser.add_argument(
+        "--signature-verification-result",
+        required=True,
+        help="Repo-relative path to signature_verification_result@1 JSON artifact.",
+    )
+    parser.add_argument(
+        "--signature-envelope",
+        required=True,
+        help="Repo-relative path to taskpack_signature_envelope@1 JSON artifact.",
+    )
+    parser.add_argument(
+        "--trust-anchor-registry",
+        required=True,
+        help="Repo-relative path to taskpack_trust_anchor_registry@1 JSON artifact.",
+    )
+    parser.add_argument(
+        "--verification-reference-time-utc",
+        required=True,
+        help="Explicit RFC3339 UTC Z reference time used for v48/v49 signing lifecycle checks.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Run in model-free dry-run mode with no apply and no subprocess execution.",
@@ -1599,6 +1723,10 @@ def main(argv: list[str] | None = None) -> int:
             adapter_registry_path=args.adapter_registry,
             adapter_id=args.adapter_id,
             candidate_change_plan_path=args.candidate_change_plan,
+            signature_verification_result_path=args.signature_verification_result,
+            signature_envelope_path=args.signature_envelope,
+            trust_anchor_registry_path=args.trust_anchor_registry,
+            verification_reference_time_utc=args.verification_reference_time_utc,
             dry_run=bool(args.dry_run),
             repo_root_path=args.repo_root,
         )

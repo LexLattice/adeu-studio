@@ -35,7 +35,10 @@ from ._v46_verifier_common import (
     require_schema,
     write_json,
 )
-from .compile import TaskpackCompileError, verify_taskpack_bundle
+from .verify_taskpack_signature import (
+    TaskpackSigningError,
+    load_validated_downstream_signature_handoff,
+)
 from .run_taskpack import (
     CANDIDATE_CHANGE_PLAN_SCHEMA,
     REJECTION_DIAGNOSTIC_SCHEMA,
@@ -294,6 +297,43 @@ def _recompute_runner_provenance_hash(provenance_payload: dict[str, Any]) -> str
     return sha256_canonical_json(hashed_subject)
 
 
+def _load_verifier_signature_handoff(
+    *,
+    taskpack_dir: str | Path,
+    signature_verification_result_path: str | Path,
+    signature_envelope_path: str | Path,
+    trust_anchor_registry_path: str | Path,
+    verification_reference_time_utc: str,
+    repo_root_path: str | Path | None,
+):
+    try:
+        return load_validated_downstream_signature_handoff(
+            taskpack_dir=taskpack_dir,
+            signature_verification_result_path=signature_verification_result_path,
+            signature_envelope_path=signature_envelope_path,
+            trust_anchor_registry_path=trust_anchor_registry_path,
+            verification_reference_time_utc=verification_reference_time_utc,
+            repo_root_path=repo_root_path,
+        )
+    except TaskpackSigningError as exc:
+        failure_code = (
+            AHK4604_CROSS_ARTIFACT_HASH_MISMATCH
+            if exc.code == "AHK4804"
+            else AHK4603_ARTIFACT_INVALID
+        )
+        raise fail(
+            code=failure_code,
+            message="verifier signing handoff validation failed",
+            details={
+                "signing_error_code": exc.code,
+                "signing_error": exc.message,
+                "signing_details": exc.details,
+            },
+            artifact_path=str(signature_verification_result_path),
+            policy_source="taskpack_manifest",
+        ) from exc
+
+
 def _load_runner_rejection_diagnostic(path: Path) -> dict[str, Any]:
     payload = load_json_object(path)
     require_schema(payload, expected_schema=REJECTION_DIAGNOSTIC_SCHEMA, path=path)
@@ -424,6 +464,10 @@ def verify_taskpack_run(
     runner_result_path: str | Path,
     runner_provenance_path: str | Path,
     policy_rejection_diagnostics_path: str | Path | None,
+    signature_verification_result_path: str | Path,
+    signature_envelope_path: str | Path,
+    trust_anchor_registry_path: str | Path,
+    verification_reference_time_utc: str,
     verification_output_root: str | Path,
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
@@ -448,21 +492,18 @@ def verify_taskpack_run(
         runner_provenance_rel = normalize_relative_path(str(runner_provenance_path))
         verification_output_rel = normalize_relative_path(str(verification_output_root))
 
-        coerce_artifact_path(root, taskpack_rel)
+        handoff = _load_verifier_signature_handoff(
+            taskpack_dir=taskpack_rel,
+            signature_verification_result_path=signature_verification_result_path,
+            signature_envelope_path=signature_envelope_path,
+            trust_anchor_registry_path=trust_anchor_registry_path,
+            verification_reference_time_utc=verification_reference_time_utc,
+            repo_root_path=root,
+        )
         candidate_path = coerce_artifact_path(root, candidate_rel)
         runner_result_artifact_path = coerce_artifact_path(root, runner_result_rel)
         runner_provenance_artifact_path = coerce_artifact_path(root, runner_provenance_rel)
-
-        try:
-            manifest_hash = verify_taskpack_bundle(out_dir=taskpack_rel, repo_root_path=root)
-        except TaskpackCompileError as exc:
-            raise fail(
-                code=AHK4603_ARTIFACT_INVALID,
-                message="taskpack bundle verification failed",
-                details={"error": str(exc), "taskpack_dir": taskpack_rel},
-                artifact_path=taskpack_rel,
-                policy_source="taskpack_manifest",
-            ) from exc
+        manifest_hash = handoff.taskpack_snapshot.manifest_hash
 
         try:
             candidate_plan = _load_candidate_change_plan(candidate_path)
@@ -838,6 +879,26 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Optional repo-relative path to candidate_change_plan_rejection_diagnostic@1 JSON.",
     )
     parser.add_argument(
+        "--signature-verification-result",
+        required=True,
+        help="Repo-relative path to signature_verification_result@1 JSON artifact.",
+    )
+    parser.add_argument(
+        "--signature-envelope",
+        required=True,
+        help="Repo-relative path to taskpack_signature_envelope@1 JSON artifact.",
+    )
+    parser.add_argument(
+        "--trust-anchor-registry",
+        required=True,
+        help="Repo-relative path to taskpack_trust_anchor_registry@1 JSON artifact.",
+    )
+    parser.add_argument(
+        "--verification-reference-time-utc",
+        required=True,
+        help="Explicit RFC3339 UTC Z reference time used for v48/v49 signing lifecycle checks.",
+    )
+    parser.add_argument(
         "--verification-output-root",
         default=DEFAULT_VERIFICATION_ROOT,
         help="Repo-relative output root for taskpack_verification_result@1 artifact.",
@@ -864,6 +925,10 @@ def main(argv: list[str] | None = None) -> int:
             runner_result_path=args.runner_result,
             runner_provenance_path=args.runner_provenance,
             policy_rejection_diagnostics_path=args.policy_rejection_diagnostics,
+            signature_verification_result_path=args.signature_verification_result,
+            signature_envelope_path=args.signature_envelope,
+            trust_anchor_registry_path=args.trust_anchor_registry,
+            verification_reference_time_utc=args.verification_reference_time_utc,
             verification_output_root=args.verification_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             repo_root_path=args.repo_root,
