@@ -144,7 +144,7 @@ _BASE_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
     )
 )
 _V50_REQUIRED_EVIDENCE_SLOT_IDS = sorted(EVIDENCE_SCHEMA_TO_SLOT_ID.values())
-_MATRIX_REQUIRED_LANE_ID_TUPLE = [
+_MATRIX_REQUIRED_LANE_ID_LIST = [
     "deployment_mode",
     "adapter_id",
     "runtime_id",
@@ -576,7 +576,7 @@ def _load_matrix_parity_evidence(root: Path, path: Path) -> dict[str, Any]:
             policy_source="stop_gate_metrics",
         )
 
-    if payload.get("lane_id_tuple") != _MATRIX_REQUIRED_LANE_ID_TUPLE:
+    if payload.get("lane_id_tuple") != _MATRIX_REQUIRED_LANE_ID_LIST:
         raise fail(
             code=AHK4603_ARTIFACT_INVALID,
             message="matrix parity evidence lane_id_tuple mismatch",
