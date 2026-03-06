@@ -1214,6 +1214,51 @@ def _load_policy_recompute_evidence(
     return payload
 
 
+def _retry_context_issue_identity_rows(
+    items: list[Any],
+    *,
+    path: Path,
+) -> list[tuple[str, str, int, str]]:
+    identity_rows: list[tuple[str, str, int, str]] = []
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise fail(
+                code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+                message="retry context result item must be an object",
+                details={"path": str(path), "index": index},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+        issue_reference = item.get("issue_reference")
+        if not isinstance(issue_reference, dict):
+            raise fail(
+                code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+                message="retry context result item issue_reference must be an object",
+                details={"path": str(path), "index": index},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+        issue_code = issue_reference.get("issue_code")
+        target_path = issue_reference.get("target_path")
+        hunk_index = issue_reference.get("hunk_index")
+        policy_source = issue_reference.get("policy_source")
+        if (
+            not isinstance(issue_code, str)
+            or not isinstance(target_path, str)
+            or not isinstance(hunk_index, int)
+            or not isinstance(policy_source, str)
+        ):
+            raise fail(
+                code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+                message="retry context result item issue_reference fields are malformed",
+                details={"path": str(path), "index": index},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+        identity_rows.append((issue_code, target_path, hunk_index, policy_source))
+    return identity_rows
+
+
 def _load_retry_context_evidence(
     root: Path,
     path: Path,
@@ -1545,16 +1590,11 @@ def _load_retry_context_evidence(
             artifact_path=str(path),
             policy_source="stop_gate_metrics",
         )
+    identity_rows = _retry_context_issue_identity_rows(items, path=retry_context_result_path)
     ordered_items = sorted(
-        items,
-        key=lambda row: (
-            row["issue_reference"]["issue_code"],
-            row["issue_reference"]["target_path"],
-            row["issue_reference"]["hunk_index"],
-            row["issue_reference"]["policy_source"],
-        ),
+        identity_rows,
     )
-    if items != ordered_items:
+    if identity_rows != ordered_items:
         raise fail(
             code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
             message="retry context result issues must remain in deterministic order",
@@ -1562,15 +1602,6 @@ def _load_retry_context_evidence(
             artifact_path=str(path),
             policy_source="stop_gate_metrics",
         )
-    identity_rows = [
-        (
-            row["issue_reference"]["issue_code"],
-            row["issue_reference"]["target_path"],
-            row["issue_reference"]["hunk_index"],
-            row["issue_reference"]["policy_source"],
-        )
-        for row in items
-    ]
     if len(set(identity_rows)) != len(identity_rows):
         raise fail(
             code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,

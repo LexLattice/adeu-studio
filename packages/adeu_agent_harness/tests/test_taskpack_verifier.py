@@ -2083,8 +2083,53 @@ def test_write_closeout_evidence_fails_closed_on_invalid_retry_context_evidence(
             policy_recompute_evidence_path=policy_recompute_evidence_path,
             retry_context_evidence_path=retry_context_evidence_path,
             evidence_output_root="artifacts/agent_harness/v52/evidence_invalid_retry_context",
-        )
+    )
     assert _error_payload(exc_info.value)["code"] == "AHK4603"
+
+
+def test_write_closeout_evidence_fails_closed_on_malformed_retry_context_result_item(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_payload = _read_json(retry_context_evidence_path)
+    retry_context_result_path = root / retry_context_payload["retry_context_feeder_result_path"]
+    retry_context_result_payload = _read_json(retry_context_result_path)
+    retry_context_result_payload["items"][0] = {}
+    _write_json(retry_context_result_path, retry_context_result_payload)
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            policy_recompute_evidence_path=policy_recompute_evidence_path,
+            retry_context_evidence_path=retry_context_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v52/evidence_malformed_retry_context",
+        )
+    assert _error_payload(exc_info.value)["code"] == "AHK4604"
 
 
 def test_write_closeout_evidence_fails_closed_on_registry_prefix_drift(tmp_path: Path) -> None:
