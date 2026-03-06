@@ -45,6 +45,32 @@ from .policy_recompute import (
     POLICY_RECOMPUTE_RESULT_SCHEMA,
     SHARED_RECOMPUTE_ENGINE,
 )
+from .retry_context import (
+    CONTROL_MARKER_NEUTRALIZATION,
+    DETERMINISTIC_ISSUE_ORDER_POLICY,
+    ESCAPING_POLICY,
+    MAX_EXCERPT_CHARS_PER_ISSUE,
+    MAX_EXCERPT_LINES_PER_ISSUE,
+    MAX_ISSUE_COUNT,
+    MAX_REASON_CHARS,
+    MAX_TOTAL_OUTPUT_CHARS,
+    MISSING_EXCERPT_SOURCE_POLICY,
+    OVERFLOW_POLICY,
+    RETRY_CONTEXT_FEEDER_RESULT_SCHEMA,
+    RETRY_CONTEXT_SANITIZATION_PROFILE_SCHEMA,
+    SHARED_FEEDER_ENGINE,
+    SHARED_FEEDER_ENGINE_IDENTIFIER,
+    WHITESPACE_POLICY,
+)
+from .retry_context import (
+    POLICY_SOURCE_POLICY as RETRY_CONTEXT_POLICY_SOURCE_POLICY,
+)
+from .retry_context import (
+    TARGET_PATH_NORMALIZATION_POLICY as RETRY_CONTEXT_TARGET_PATH_NORMALIZATION_POLICY,
+)
+from .retry_context import (
+    VERIFICATION_PASSED_POLICY as RETRY_CONTEXT_VERIFICATION_PASSED_POLICY,
+)
 from .verify_taskpack_run import VERIFICATION_RESULT_SCHEMA
 
 EVIDENCE_SLOTS_SCHEMA = "taskpack/evidence_slots@1"
@@ -60,6 +86,7 @@ METRIC_KEY_CONTINUITY_SCHEMA = "metric_key_continuity_assertion@1"
 HANDOFF_COMPLETION_EVIDENCE_SCHEMA = "v34a_handoff_completion_evidence@1"
 MATRIX_PARITY_EVIDENCE_SCHEMA = "v34b_matrix_parity_evidence@1"
 POLICY_RECOMPUTE_EVIDENCE_SCHEMA = "v34c_policy_recompute_evidence@1"
+RETRY_CONTEXT_EVIDENCE_SCHEMA = "v34d_retry_context_evidence@1"
 ADAPTER_MATRIX_SCHEMA = "adapter_matrix@1"
 ADAPTER_MATRIX_PARITY_REPORT_SCHEMA = "adapter_matrix_parity_report@1"
 
@@ -69,6 +96,7 @@ EVIDENCE_SCHEMA_ALLOWLIST = (
     HANDOFF_COMPLETION_EVIDENCE_SCHEMA,
     MATRIX_PARITY_EVIDENCE_SCHEMA,
     POLICY_RECOMPUTE_EVIDENCE_SCHEMA,
+    RETRY_CONTEXT_EVIDENCE_SCHEMA,
 )
 
 EVIDENCE_SCHEMA_TO_SLOT_ID = {
@@ -77,6 +105,7 @@ EVIDENCE_SCHEMA_TO_SLOT_ID = {
     HANDOFF_COMPLETION_EVIDENCE_SCHEMA: "v34a_handoff_completion_evidence",
     MATRIX_PARITY_EVIDENCE_SCHEMA: "v34b_matrix_parity_evidence",
     POLICY_RECOMPUTE_EVIDENCE_SCHEMA: "v34c_policy_recompute_evidence",
+    RETRY_CONTEXT_EVIDENCE_SCHEMA: "v34d_retry_context_evidence",
 }
 
 _HANDOFF_COMPLETION_SHARED_BINDING_VALIDATOR = (
@@ -177,6 +206,38 @@ _POLICY_RECOMPUTE_EVIDENCE_REQUIRED_KEYS = {
     "metric_key_exact_set_equal_v50",
     "notes",
 }
+_RETRY_CONTEXT_EVIDENCE_REQUIRED_KEYS = {
+    "schema",
+    "contract_source",
+    "feeder_entrypoint",
+    "shared_feeder_engine_used",
+    "shared_feeder_engine_identifier",
+    "retry_context_feeder_result_path",
+    "retry_context_feeder_result_hash",
+    "sanitization_profile_path",
+    "sanitization_profile_hash",
+    "source_rejection_diagnostic_schema",
+    "policy_source_closed_inherited_surface",
+    "runner_result_semantic_input_forbidden",
+    "advisory_only_non_authoritative",
+    "automatic_retry_dispatch_forbidden",
+    "downstream_diagnostic_aggregation_forbidden",
+    "policy_success_explicit_request_without_diagnostic_fails_closed",
+    "raw_repo_file_content_forbidden",
+    "duplicate_issue_tuples_forbidden",
+    "excerpt_bounds_enforced",
+    "overflow_policy",
+    "missing_excerpt_source_policy",
+    "total_output_bound_enforced",
+    "control_marker_neutralization_enforced",
+    "deterministic_issue_order_enforced",
+    "verification_passed",
+    "verification_passed_policy",
+    "success_path_absence_without_request_allowed",
+    "metric_key_cardinality",
+    "metric_key_exact_set_equal_v51",
+    "notes",
+}
 _BASE_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
     (
         EVIDENCE_SCHEMA_TO_SLOT_ID[RUNTIME_OBSERVABILITY_SCHEMA],
@@ -194,6 +255,12 @@ _V51_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
     (
         *_V50_REQUIRED_EVIDENCE_SLOT_IDS,
         EVIDENCE_SCHEMA_TO_SLOT_ID[POLICY_RECOMPUTE_EVIDENCE_SCHEMA],
+    )
+)
+_V52_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
+    (
+        *_V51_REQUIRED_EVIDENCE_SLOT_IDS,
+        EVIDENCE_SCHEMA_TO_SLOT_ID[RETRY_CONTEXT_EVIDENCE_SCHEMA],
     )
 )
 _MATRIX_REQUIRED_LANE_ID_LIST = [
@@ -228,6 +295,7 @@ _POLICY_RECOMPUTE_CANDIDATE_CHANGE_PLAN_BINDING_POLICY = (
     "recompute_binds_to_runner_recorded_canonical_candidate_change_plan_hash_"
     "runner_result_dry_run_supplies_execution_mode_only"
 )
+_RETRY_CONTEXT_SOURCE_REJECTION_DIAGNOSTIC_SCHEMA = "candidate_change_plan_rejection_diagnostic@1"
 
 _REQUIRED_VERIFIED_RESULT_KEYS = {
     "schema",
@@ -431,6 +499,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
         _BASE_REQUIRED_EVIDENCE_SLOT_IDS,
         _V50_REQUIRED_EVIDENCE_SLOT_IDS,
         _V51_REQUIRED_EVIDENCE_SLOT_IDS,
+        _V52_REQUIRED_EVIDENCE_SLOT_IDS,
     ):
         raise fail(
             code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
@@ -442,6 +511,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
                     _BASE_REQUIRED_EVIDENCE_SLOT_IDS,
                     _V50_REQUIRED_EVIDENCE_SLOT_IDS,
                     _V51_REQUIRED_EVIDENCE_SLOT_IDS,
+                    _V52_REQUIRED_EVIDENCE_SLOT_IDS,
                 ],
             },
             artifact_path=str(path),
@@ -1144,6 +1214,573 @@ def _load_policy_recompute_evidence(
     return payload
 
 
+def _load_retry_context_evidence(
+    root: Path,
+    path: Path,
+    *,
+    verified_result_payload: dict[str, Any],
+) -> dict[str, Any]:
+    payload = _load_block(path, expected_schema=RETRY_CONTEXT_EVIDENCE_SCHEMA)
+    if set(payload.keys()) != _RETRY_CONTEXT_EVIDENCE_REQUIRED_KEYS:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="retry context evidence keys must match frozen grammar",
+            details={"path": str(path), "keys": sorted(payload.keys())},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "contract_source",
+        "feeder_entrypoint",
+        "shared_feeder_engine_used",
+        "shared_feeder_engine_identifier",
+        "retry_context_feeder_result_path",
+        "sanitization_profile_path",
+        "source_rejection_diagnostic_schema",
+        "overflow_policy",
+        "missing_excerpt_source_policy",
+        "verification_passed_policy",
+        "notes",
+    ):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="retry context evidence string field must be non-empty",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("shared_feeder_engine_used") != SHARED_FEEDER_ENGINE:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="retry context evidence shared_feeder_engine_used mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("shared_feeder_engine_identifier") != SHARED_FEEDER_ENGINE_IDENTIFIER:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="retry context evidence shared_feeder_engine_identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("source_rejection_diagnostic_schema")
+        != _RETRY_CONTEXT_SOURCE_REJECTION_DIAGNOSTIC_SCHEMA
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="retry context evidence source_rejection_diagnostic_schema mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("overflow_policy") != OVERFLOW_POLICY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="retry context evidence overflow_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("missing_excerpt_source_policy") != MISSING_EXCERPT_SOURCE_POLICY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="retry context evidence missing_excerpt_source_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("verification_passed_policy")
+        != RETRY_CONTEXT_VERIFICATION_PASSED_POLICY
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="retry context evidence verification_passed_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "policy_source_closed_inherited_surface",
+        "runner_result_semantic_input_forbidden",
+        "advisory_only_non_authoritative",
+        "automatic_retry_dispatch_forbidden",
+        "downstream_diagnostic_aggregation_forbidden",
+        "policy_success_explicit_request_without_diagnostic_fails_closed",
+        "raw_repo_file_content_forbidden",
+        "duplicate_issue_tuples_forbidden",
+        "excerpt_bounds_enforced",
+        "total_output_bound_enforced",
+        "control_marker_neutralization_enforced",
+        "deterministic_issue_order_enforced",
+        "verification_passed",
+        "success_path_absence_without_request_allowed",
+        "metric_key_exact_set_equal_v51",
+    ):
+        if payload.get(field) is not True:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="retry context evidence boolean field must be true",
+                details={"path": str(path), "field": field, "value": payload.get(field)},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    for field in ("retry_context_feeder_result_hash", "sanitization_profile_hash"):
+        if payload.get(field) is None or not is_sha256(payload[field]):
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="retry context evidence hash field must be a sha256 string",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("metric_key_cardinality") != 80:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="retry context evidence metric_key_cardinality must equal 80",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    retry_context_result_path = coerce_artifact_path(
+        root,
+        payload["retry_context_feeder_result_path"],
+    )
+    retry_context_result_payload = load_json_object(retry_context_result_path)
+    require_schema(
+        retry_context_result_payload,
+        expected_schema=RETRY_CONTEXT_FEEDER_RESULT_SCHEMA,
+        path=retry_context_result_path,
+    )
+    if (
+        retry_context_result_payload.get("result_hash")
+        != payload["retry_context_feeder_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context evidence result hash does not match feeder result payload",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("shared_feeder_engine")
+        != payload["shared_feeder_engine_used"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context evidence shared engine does not match feeder result payload",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("shared_feeder_engine_identifier")
+        != payload["shared_feeder_engine_identifier"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context evidence shared engine identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("taskpack_manifest_hash")
+        != verified_result_payload["taskpack_manifest_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context evidence taskpack_manifest_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("source_rejection_diagnostic_schema")
+        != payload["source_rejection_diagnostic_schema"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context evidence source schema mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if retry_context_result_payload.get("advisory_only_non_authoritative") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result advisory-only posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if retry_context_result_payload.get("automatic_retry_dispatch_forbidden") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result automatic retry dispatch posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if retry_context_result_payload.get("downstream_diagnostic_aggregation_forbidden") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result downstream aggregation posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if retry_context_result_payload.get("raw_repo_file_content_forbidden") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result raw repo file content posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("target_path_normalization_policy")
+        != RETRY_CONTEXT_TARGET_PATH_NORMALIZATION_POLICY
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result target_path_normalization_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("policy_source_policy")
+        != RETRY_CONTEXT_POLICY_SOURCE_POLICY
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result policy_source_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("deterministic_issue_order_policy")
+        != DETERMINISTIC_ISSUE_ORDER_POLICY
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result deterministic_issue_order_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if retry_context_result_payload.get("overflow_policy") != payload["overflow_policy"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result overflow_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("missing_excerpt_source_policy")
+        != payload["missing_excerpt_source_policy"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result missing_excerpt_source_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("policy_success_absence_without_request_allowed")
+        is not True
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result success-path absence policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("sanitization_profile_path")
+        != payload["sanitization_profile_path"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result sanitization_profile_path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        retry_context_result_payload.get("sanitization_profile_hash")
+        != payload["sanitization_profile_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result sanitization_profile_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    items = retry_context_result_payload.get("items")
+    if not isinstance(items, list):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result items must be a list",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    ordered_items = sorted(
+        items,
+        key=lambda row: (
+            row["issue_reference"]["issue_code"],
+            row["issue_reference"]["target_path"],
+            row["issue_reference"]["hunk_index"],
+            row["issue_reference"]["policy_source"],
+        ),
+    )
+    if items != ordered_items:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result issues must remain in deterministic order",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    identity_rows = [
+        (
+            row["issue_reference"]["issue_code"],
+            row["issue_reference"]["target_path"],
+            row["issue_reference"]["hunk_index"],
+            row["issue_reference"]["policy_source"],
+        )
+        for row in items
+    ]
+    if len(set(identity_rows)) != len(identity_rows):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result duplicate issue tuples are forbidden",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    sanitization_profile_path = coerce_artifact_path(
+        root,
+        payload["sanitization_profile_path"],
+    )
+    sanitization_profile_payload = load_json_object(sanitization_profile_path)
+    require_schema(
+        sanitization_profile_payload,
+        expected_schema=RETRY_CONTEXT_SANITIZATION_PROFILE_SCHEMA,
+        path=sanitization_profile_path,
+    )
+    if (
+        sanitization_profile_payload.get("profile_hash")
+        != payload["sanitization_profile_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context evidence sanitization profile hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        sanitization_profile_payload.get("shared_feeder_engine")
+        != payload["shared_feeder_engine_used"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context evidence sanitization profile shared engine mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        sanitization_profile_payload.get("shared_feeder_engine_identifier")
+        != payload["shared_feeder_engine_identifier"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context evidence sanitization profile shared engine identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("advisory_only_non_authoritative") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile advisory-only posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("automatic_retry_dispatch_forbidden") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile automatic retry dispatch posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("downstream_diagnostic_aggregation_forbidden") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile downstream aggregation posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("raw_repo_file_content_forbidden") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile raw repo file content posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        sanitization_profile_payload.get("target_path_normalization_policy")
+        != RETRY_CONTEXT_TARGET_PATH_NORMALIZATION_POLICY
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile target_path_normalization_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        sanitization_profile_payload.get("policy_source_policy")
+        != RETRY_CONTEXT_POLICY_SOURCE_POLICY
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile policy_source_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("overflow_policy") != payload["overflow_policy"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile overflow_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        sanitization_profile_payload.get("missing_excerpt_source_policy")
+        != payload["missing_excerpt_source_policy"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile missing_excerpt_source_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        sanitization_profile_payload.get("control_marker_neutralization")
+        != CONTROL_MARKER_NEUTRALIZATION
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile control marker policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("escaping_policy") != ESCAPING_POLICY:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile escaping_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("whitespace_policy") != WHITESPACE_POLICY:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile whitespace_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("max_issue_count") != MAX_ISSUE_COUNT:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile max_issue_count mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("max_reason_chars") != MAX_REASON_CHARS:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile max_reason_chars mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        sanitization_profile_payload.get("max_excerpt_lines_per_issue")
+        != MAX_EXCERPT_LINES_PER_ISSUE
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile max_excerpt_lines_per_issue mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        sanitization_profile_payload.get("max_excerpt_chars_per_issue")
+        != MAX_EXCERPT_CHARS_PER_ISSUE
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile max_excerpt_chars_per_issue mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sanitization_profile_payload.get("max_total_output_chars") != MAX_TOTAL_OUTPUT_CHARS:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context sanitization profile max_total_output_chars mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if retry_context_result_payload.get("total_output_chars_used", 0) > MAX_TOTAL_OUTPUT_CHARS:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="retry context result exceeds max_total_output_chars",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    return payload
+
+
 def _emit_verifier_provenance(
     *,
     root: Path,
@@ -1213,6 +1850,7 @@ def write_closeout_evidence(
     handoff_completion_evidence_path: str | Path,
     matrix_parity_evidence_path: str | Path | None = None,
     policy_recompute_evidence_path: str | Path | None = None,
+    retry_context_evidence_path: str | Path | None = None,
     evidence_output_root: str | Path,
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
@@ -1247,6 +1885,11 @@ def write_closeout_evidence(
             if policy_recompute_evidence_path is None
             else normalize_relative_path(str(policy_recompute_evidence_path))
         )
+        retry_context_rel = (
+            None
+            if retry_context_evidence_path is None
+            else normalize_relative_path(str(retry_context_evidence_path))
+        )
         evidence_output_rel = normalize_relative_path(str(evidence_output_root))
 
         taskpack_path = coerce_artifact_path(root, taskpack_rel)
@@ -1259,6 +1902,11 @@ def write_closeout_evidence(
             None
             if policy_recompute_rel is None
             else coerce_artifact_path(root, policy_recompute_rel)
+        )
+        retry_context_path = (
+            None
+            if retry_context_rel is None
+            else coerce_artifact_path(root, retry_context_rel)
         )
         evidence_root = coerce_artifact_path(root, evidence_output_rel)
 
@@ -1291,6 +1939,9 @@ def write_closeout_evidence(
         policy_recompute_slot_required = (
             EVIDENCE_SCHEMA_TO_SLOT_ID[POLICY_RECOMPUTE_EVIDENCE_SCHEMA] in required_slot_ids
         )
+        retry_context_slot_required = (
+            EVIDENCE_SCHEMA_TO_SLOT_ID[RETRY_CONTEXT_EVIDENCE_SCHEMA] in required_slot_ids
+        )
         if matrix_slot_required and matrix_path is None:
             raise fail(
                 code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
@@ -1319,6 +1970,22 @@ def write_closeout_evidence(
             raise fail(
                 code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
                 message="policy recompute evidence block is not authorized by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if retry_context_slot_required and retry_context_path is None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="retry context evidence block is required by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if not retry_context_slot_required and retry_context_path is not None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="retry context evidence block is not authorized by EVIDENCE_SLOTS",
                 details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
                 artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
                 policy_source="evidence_slots",
@@ -1362,6 +2029,19 @@ def write_closeout_evidence(
                     "payload": _load_policy_recompute_evidence(
                         root,
                         policy_recompute_path,
+                        verified_result_payload=verified_result_payload,
+                    ),
+                }
+            )
+        if retry_context_slot_required:
+            assert retry_context_path is not None
+            blocks.append(
+                {
+                    "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[RETRY_CONTEXT_EVIDENCE_SCHEMA],
+                    "schema": RETRY_CONTEXT_EVIDENCE_SCHEMA,
+                    "payload": _load_retry_context_evidence(
+                        root,
+                        retry_context_path,
                         verified_result_payload=verified_result_payload,
                     ),
                 }
@@ -1552,6 +2232,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Optional repo-relative path to v34c_policy_recompute_evidence@1 payload.",
     )
     parser.add_argument(
+        "--retry-context-evidence",
+        default=None,
+        help="Optional repo-relative path to v34d_retry_context_evidence@1 payload.",
+    )
+    parser.add_argument(
         "--evidence-output-root",
         default=DEFAULT_EVIDENCE_ROOT,
         help="Repo-relative output root for evidence bundle/provenance artifacts.",
@@ -1580,6 +2265,7 @@ def main(argv: list[str] | None = None) -> int:
             handoff_completion_evidence_path=args.handoff_completion_evidence,
             matrix_parity_evidence_path=args.matrix_parity_evidence,
             policy_recompute_evidence_path=args.policy_recompute_evidence,
+            retry_context_evidence_path=args.retry_context_evidence,
             evidence_output_root=args.evidence_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             repo_root_path=args.repo_root,

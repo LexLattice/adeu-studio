@@ -29,6 +29,18 @@ from adeu_agent_harness.policy_recompute import (
     POLICY_RECOMPUTE_RESULT_SCHEMA,
     SHARED_RECOMPUTE_ENGINE,
 )
+from adeu_agent_harness.retry_context import (
+    DEFAULT_RETRY_CONTEXT_OUTPUT_ROOT,
+    MISSING_EXCERPT_SOURCE_POLICY,
+    OVERFLOW_POLICY,
+    RETRY_CONTEXT_FEEDER_RESULT_SCHEMA,
+    SHARED_FEEDER_ENGINE,
+    SHARED_FEEDER_ENGINE_IDENTIFIER,
+    generate_retry_context,
+)
+from adeu_agent_harness.retry_context import (
+    VERIFICATION_PASSED_POLICY as RETRY_CONTEXT_VERIFICATION_PASSED_POLICY,
+)
 from adeu_agent_harness.run_taskpack import RUNNER_RESULT_SCHEMA, TaskpackRunnerError, run_taskpack
 from adeu_agent_harness.verify_taskpack_run import (
     VERIFICATION_RESULT_SCHEMA,
@@ -581,6 +593,26 @@ def _add_policy_recompute_slot(taskpack_dir: Path) -> None:
     _sync_manifest_component_hash(taskpack_dir, relative_path="EVIDENCE_SLOTS.json")
 
 
+def _add_retry_context_slot(taskpack_dir: Path) -> None:
+    evidence_slots_path = taskpack_dir / "EVIDENCE_SLOTS.json"
+    evidence_slots_payload = _read_json(evidence_slots_path)
+    evidence_slots_payload["slots"].append(
+        {
+            "slot_id": "v34d_retry_context_evidence",
+            "description": "Retry-context feeder evidence block.",
+            "required": True,
+        }
+    )
+    evidence_slots_payload["slots"] = sorted(
+        evidence_slots_payload["slots"], key=lambda row: row["slot_id"]
+    )
+    evidence_slots_payload["required_count"] = len(
+        [slot for slot in evidence_slots_payload["slots"] if slot["required"] is True]
+    )
+    _write_json(evidence_slots_path, evidence_slots_payload)
+    _sync_manifest_component_hash(taskpack_dir, relative_path="EVIDENCE_SLOTS.json")
+
+
 def _seed_v50_matrix_parity_payloads(
     root: Path,
     *,
@@ -864,6 +896,106 @@ def _seed_v51_policy_recompute_evidence_payload(
     return evidence_path
 
 
+def _seed_v52_retry_context_evidence_payload(
+    root: Path,
+    *,
+    taskpack_dir: Path,
+    verified_result_path: Path,
+) -> Path:
+    adapter_registry_path = (
+        root / "artifacts" / "agent_harness" / "v45" / "taskpack_runner_adapter_registry.json"
+    )
+    blocked_rel = "apps/api/v52_retry_context_fixture.txt"
+    candidate_path = _write_candidate_change_plan(
+        root,
+        operations=[
+            {
+                "path": blocked_rel,
+                "operation_kind": "create",
+                "unified_diff": _create_diff(rel_path=blocked_rel, content="blocked"),
+            }
+        ],
+        proposed_commands=[],
+    )
+
+    with pytest.raises(TaskpackRunnerError) as exc_info:
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
+            adapter_id="default",
+            candidate_change_plan_path=candidate_path,
+            dry_run=True,
+        )
+
+    details = json.loads(str(exc_info.value))["details"]
+    runner_result_path = _write_runner_result_from_error_details(root, details=details)
+    retry_context_artifacts = generate_retry_context(
+        candidate_change_plan_path=_relative(root, candidate_path),
+        runner_result_path=_relative(root, runner_result_path),
+        retry_context_output_root=DEFAULT_RETRY_CONTEXT_OUTPUT_ROOT,
+        repo_root_path=root,
+    )
+    retry_context_payload = _read_json(retry_context_artifacts.result_path)
+    sanitization_profile_payload = _read_json(retry_context_artifacts.sanitization_profile_path)
+    verified_result_payload = _read_json(verified_result_path)
+    assert (
+        retry_context_payload["taskpack_manifest_hash"]
+        == verified_result_payload["taskpack_manifest_hash"]
+    )
+
+    evidence_path = (
+        root
+        / "artifacts"
+        / "agent_harness"
+        / "v52"
+        / "evidence_inputs"
+        / "v34d_retry_context_evidence_v52.json"
+    )
+    _write_json(
+        evidence_path,
+        {
+            "schema": "v34d_retry_context_evidence@1",
+            "contract_source": (
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS52.md#v34d_retry_context_contract@1"
+            ),
+            "feeder_entrypoint": "python -m adeu_agent_harness.retry_context",
+            "shared_feeder_engine_used": SHARED_FEEDER_ENGINE,
+            "shared_feeder_engine_identifier": SHARED_FEEDER_ENGINE_IDENTIFIER,
+            "retry_context_feeder_result_path": _relative(
+                root, retry_context_artifacts.result_path
+            ),
+            "retry_context_feeder_result_hash": retry_context_payload["result_hash"],
+            "sanitization_profile_path": _relative(
+                root, retry_context_artifacts.sanitization_profile_path
+            ),
+            "sanitization_profile_hash": sanitization_profile_payload["profile_hash"],
+            "source_rejection_diagnostic_schema": "candidate_change_plan_rejection_diagnostic@1",
+            "policy_source_closed_inherited_surface": True,
+            "runner_result_semantic_input_forbidden": True,
+            "advisory_only_non_authoritative": True,
+            "automatic_retry_dispatch_forbidden": True,
+            "downstream_diagnostic_aggregation_forbidden": True,
+            "policy_success_explicit_request_without_diagnostic_fails_closed": True,
+            "raw_repo_file_content_forbidden": True,
+            "duplicate_issue_tuples_forbidden": True,
+            "excerpt_bounds_enforced": True,
+            "overflow_policy": OVERFLOW_POLICY,
+            "missing_excerpt_source_policy": MISSING_EXCERPT_SOURCE_POLICY,
+            "total_output_bound_enforced": True,
+            "control_marker_neutralization_enforced": True,
+            "deterministic_issue_order_enforced": True,
+            "verification_passed": True,
+            "verification_passed_policy": RETRY_CONTEXT_VERIFICATION_PASSED_POLICY,
+            "success_path_absence_without_request_allowed": True,
+            "metric_key_cardinality": 80,
+            "metric_key_exact_set_equal_v51": True,
+            "notes": "v52 A2 closeout evidence fixture.",
+        },
+    )
+    return evidence_path
+
+
 def _write_evidence_with_seeded_payloads(
     *,
     root: Path,
@@ -872,6 +1004,7 @@ def _write_evidence_with_seeded_payloads(
     diagnostic_registry_rel: str,
     matrix_parity_evidence_path: Path | None = None,
     policy_recompute_evidence_path: Path | None = None,
+    retry_context_evidence_path: Path | None = None,
     evidence_output_root: str = "artifacts/agent_harness/v46/evidence",
 ):
     runtime_path, continuity_path, handoff_path = _seed_u2_evidence_payloads(root)
@@ -890,6 +1023,11 @@ def _write_evidence_with_seeded_payloads(
             None
             if policy_recompute_evidence_path is None
             else _relative(root, policy_recompute_evidence_path)
+        ),
+        retry_context_evidence_path=(
+            None
+            if retry_context_evidence_path is None
+            else _relative(root, retry_context_evidence_path)
         ),
         evidence_output_root=evidence_output_root,
         diagnostic_registry_path=diagnostic_registry_rel,
@@ -1409,6 +1547,68 @@ def test_write_closeout_evidence_emits_policy_recompute_block_when_required(
     assert recompute_block["payload"]["schema"] == "v34c_policy_recompute_evidence@1"
 
 
+def test_write_closeout_evidence_emits_retry_context_block_when_required(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+
+    result = _write_evidence_with_seeded_payloads(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+        matrix_parity_evidence_path=matrix_evidence_path,
+        policy_recompute_evidence_path=policy_recompute_evidence_path,
+        retry_context_evidence_path=retry_context_evidence_path,
+        evidence_output_root="artifacts/agent_harness/v52/evidence_full_closeout",
+    )
+
+    bundle_payload = _read_json(result.evidence_bundle_path)
+    assert [block["slot_id"] for block in bundle_payload["ordered_evidence_blocks"]] == [
+        "metric_key_continuity_assertion",
+        "runtime_observability_comparison",
+        "v34a_handoff_completion_evidence",
+        "v34b_matrix_parity_evidence",
+        "v34c_policy_recompute_evidence",
+        "v34d_retry_context_evidence",
+    ]
+    retry_context_block = next(
+        block
+        for block in bundle_payload["ordered_evidence_blocks"]
+        if block["slot_id"] == "v34d_retry_context_evidence"
+    )
+    assert retry_context_block["payload"]["schema"] == "v34d_retry_context_evidence@1"
+    assert (
+        retry_context_block["payload"]["shared_feeder_engine_identifier"]
+        == SHARED_FEEDER_ENGINE_IDENTIFIER
+    )
+    retry_context_payload = _read_json(
+        root / retry_context_block["payload"]["retry_context_feeder_result_path"]
+    )
+    assert retry_context_payload["schema"] == RETRY_CONTEXT_FEEDER_RESULT_SCHEMA
+
+
 def test_write_closeout_evidence_fails_closed_with_no_partial_evidence_emission(
     tmp_path: Path,
 ) -> None:
@@ -1688,6 +1888,40 @@ def test_write_closeout_evidence_fails_closed_when_policy_recompute_slot_require
             diagnostic_registry_rel=diagnostic_registry_rel,
             matrix_parity_evidence_path=matrix_evidence_path,
             evidence_output_root="artifacts/agent_harness/v51/evidence_missing_recompute",
+    )
+    assert _error_payload(exc_info.value)["code"] == "AHK4611"
+
+
+def test_write_closeout_evidence_fails_closed_when_retry_context_slot_required_but_missing(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            policy_recompute_evidence_path=policy_recompute_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v52/evidence_missing_retry_context",
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4611"
 
@@ -1804,6 +2038,51 @@ def test_write_closeout_evidence_fails_closed_on_invalid_policy_recompute_eviden
             matrix_parity_evidence_path=matrix_evidence_path,
             policy_recompute_evidence_path=policy_recompute_evidence_path,
             evidence_output_root="artifacts/agent_harness/v51/evidence_invalid_recompute",
+    )
+    assert _error_payload(exc_info.value)["code"] == "AHK4603"
+
+
+def test_write_closeout_evidence_fails_closed_on_invalid_retry_context_evidence(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_payload = _read_json(retry_context_evidence_path)
+    retry_context_payload["shared_feeder_engine_identifier"] = (
+        "v34d_retry_context_feeder_engine@1:drift"
+    )
+    _write_json(retry_context_evidence_path, retry_context_payload)
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            policy_recompute_evidence_path=policy_recompute_evidence_path,
+            retry_context_evidence_path=retry_context_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v52/evidence_invalid_retry_context",
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4603"
 
