@@ -220,8 +220,8 @@ def _seed_profile_and_registry(root: Path) -> Path:
                 "required": True,
             },
             {
-                "slot_id": "v33c_verifier_wiring_evidence",
-                "description": "Verifier wiring evidence block.",
+                "slot_id": "v34a_handoff_completion_evidence",
+                "description": "Signing handoff completion evidence block.",
                 "required": True,
             },
         ],
@@ -383,19 +383,55 @@ def _seed_evidence_payloads(root: Path) -> tuple[Path, Path, Path]:
         },
     )
 
-    wiring_path = root / "artifacts" / "stop_gate" / "v33c_verifier_wiring_evidence_v46.json"
+    handoff_path = (
+        root / "artifacts" / "stop_gate" / "v34a_handoff_completion_evidence_v49.json"
+    )
     _write_json(
-        wiring_path,
+        handoff_path,
         {
-            "schema": "v33c_verifier_wiring_evidence@1",
+            "schema": "v34a_handoff_completion_evidence@1",
+            "contract_source": (
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS49.md"
+                "#v34a_handoff_completion_contract@1"
+            ),
+            "preflight_entrypoint": "python -m adeu_agent_harness.verify_taskpack_signature",
+            "runner_entrypoint": "python -m adeu_agent_harness.run_taskpack",
             "verifier_entrypoint": "python -m adeu_agent_harness.verify_taskpack_run",
             "evidence_writer_entrypoint": "python -m adeu_agent_harness.write_closeout_evidence",
+            "packaging_entrypoints": [
+                "python -m adeu_agent_harness.package_ux_integrated",
+                "python -m adeu_agent_harness.package_ux_standalone",
+            ],
+            "shared_binding_validator_used": (
+                "packages/adeu_agent_harness.verify_taskpack_signature."
+                "validate_signature_verification_result_for_downstream"
+            ),
+            "binding_fields_verified": [
+                "taskpack_manifest_hash",
+                "taskpack_bundle_hash",
+                "signature_envelope_hash",
+                "trust_anchor_registry_hash",
+                "verification_reference_time_utc",
+                "preflight_invocation_binding_hash",
+                "signer_key_id",
+                "algorithm",
+                "verified",
+            ],
+            "verified_required": True,
+            "signature_result_consumed_by_runner": True,
+            "signature_result_consumed_by_verifier": True,
+            "signature_result_consumed_by_packaging": True,
+            "current_taskpack_snapshot_binding_enforced": True,
+            "detached_user_supplied_handoff_forbidden": True,
+            "historical_v47_to_v48_continuity_guard_repaired": True,
             "verification_passed": True,
-            "required_evidence_slots_filled": True,
+            "metric_key_cardinality": 80,
+            "metric_key_exact_set_equal_v48": True,
+            "notes": "v49 X4 closeout evidence fixture.",
         },
     )
 
-    return runtime_path, continuity_path, wiring_path
+    return runtime_path, continuity_path, handoff_path
 
 
 @pytest.fixture
@@ -441,13 +477,13 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
         repo_root_path=root,
     )
 
-    runtime_path, continuity_path, wiring_path = _seed_evidence_payloads(root)
+    runtime_path, continuity_path, handoff_path = _seed_evidence_payloads(root)
     evidence_result = write_closeout_evidence(
         taskpack_dir=_relative(root, taskpack_dir),
         verified_result_path=_relative(root, verify_result.verification_result_path),
         runtime_observability_comparison_path=_relative(root, runtime_path),
         metric_key_continuity_assertion_path=_relative(root, continuity_path),
-        verifier_wiring_evidence_path=_relative(root, wiring_path),
+        handoff_completion_evidence_path=_relative(root, handoff_path),
         evidence_output_root="artifacts/agent_harness/v46/evidence",
         diagnostic_registry_path=v46_diagnostic_registry_rel,
         repo_root_path=root,

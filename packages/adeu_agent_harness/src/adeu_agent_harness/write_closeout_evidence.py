@@ -48,18 +48,58 @@ DEFAULT_EVIDENCE_ROOT = "artifacts/agent_harness/v46/evidence"
 
 RUNTIME_OBSERVABILITY_SCHEMA = "runtime_observability_comparison@1"
 METRIC_KEY_CONTINUITY_SCHEMA = "metric_key_continuity_assertion@1"
-WIRING_EVIDENCE_SCHEMA = "v33c_verifier_wiring_evidence@1"
+HANDOFF_COMPLETION_EVIDENCE_SCHEMA = "v34a_handoff_completion_evidence@1"
 
 EVIDENCE_SCHEMA_ALLOWLIST = (
     RUNTIME_OBSERVABILITY_SCHEMA,
     METRIC_KEY_CONTINUITY_SCHEMA,
-    WIRING_EVIDENCE_SCHEMA,
+    HANDOFF_COMPLETION_EVIDENCE_SCHEMA,
 )
 
 EVIDENCE_SCHEMA_TO_SLOT_ID = {
     RUNTIME_OBSERVABILITY_SCHEMA: "runtime_observability_comparison",
     METRIC_KEY_CONTINUITY_SCHEMA: "metric_key_continuity_assertion",
-    WIRING_EVIDENCE_SCHEMA: "v33c_verifier_wiring_evidence",
+    HANDOFF_COMPLETION_EVIDENCE_SCHEMA: "v34a_handoff_completion_evidence",
+}
+
+_HANDOFF_COMPLETION_SHARED_BINDING_VALIDATOR = (
+    "packages/adeu_agent_harness.verify_taskpack_signature."
+    "validate_signature_verification_result_for_downstream"
+)
+
+_HANDOFF_COMPLETION_REQUIRED_BINDING_FIELDS = [
+    "taskpack_manifest_hash",
+    "taskpack_bundle_hash",
+    "signature_envelope_hash",
+    "trust_anchor_registry_hash",
+    "verification_reference_time_utc",
+    "preflight_invocation_binding_hash",
+    "signer_key_id",
+    "algorithm",
+    "verified",
+]
+
+_HANDOFF_COMPLETION_REQUIRED_KEYS = {
+    "schema",
+    "contract_source",
+    "preflight_entrypoint",
+    "runner_entrypoint",
+    "verifier_entrypoint",
+    "evidence_writer_entrypoint",
+    "packaging_entrypoints",
+    "shared_binding_validator_used",
+    "binding_fields_verified",
+    "verified_required",
+    "signature_result_consumed_by_runner",
+    "signature_result_consumed_by_verifier",
+    "signature_result_consumed_by_packaging",
+    "current_taskpack_snapshot_binding_enforced",
+    "detached_user_supplied_handoff_forbidden",
+    "historical_v47_to_v48_continuity_guard_repaired",
+    "verification_passed",
+    "metric_key_cardinality",
+    "metric_key_exact_set_equal_v48",
+    "notes",
 }
 
 _REQUIRED_VERIFIED_RESULT_KEYS = {
@@ -264,7 +304,7 @@ def _load_evidence_slots(path: Path) -> dict[str, Any]:
     if required_slot_ids != expected_required_slot_ids:
         raise fail(
             code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
-            message="required evidence slots do not match v46 closeout required slot set",
+            message="required evidence slots do not match frozen closeout required slot set",
             details={
                 "path": str(path),
                 "required_slot_ids": required_slot_ids,
@@ -304,6 +344,111 @@ def _load_block(path: Path, *, expected_schema: str) -> dict[str, Any]:
             policy_source="stop_gate_metrics",
         )
     return canonicalized
+
+
+def _load_handoff_completion_evidence(path: Path) -> dict[str, Any]:
+    payload = _load_block(path, expected_schema=HANDOFF_COMPLETION_EVIDENCE_SCHEMA)
+    if set(payload.keys()) != _HANDOFF_COMPLETION_REQUIRED_KEYS:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="handoff completion evidence keys must match frozen grammar",
+            details={"path": str(path), "keys": sorted(payload.keys())},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "contract_source",
+        "preflight_entrypoint",
+        "runner_entrypoint",
+        "verifier_entrypoint",
+        "evidence_writer_entrypoint",
+        "shared_binding_validator_used",
+        "notes",
+    ):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="handoff completion evidence string field must be non-empty",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if (
+        payload["shared_binding_validator_used"]
+        != _HANDOFF_COMPLETION_SHARED_BINDING_VALIDATOR
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="handoff completion evidence validator binding mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    packaging_entrypoints = payload.get("packaging_entrypoints")
+    if (
+        not isinstance(packaging_entrypoints, list)
+        or not packaging_entrypoints
+        or any(not isinstance(value, str) or not value for value in packaging_entrypoints)
+        or len(set(packaging_entrypoints)) != len(packaging_entrypoints)
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message=(
+                "handoff completion evidence packaging_entrypoints must be "
+                "unique non-empty strings"
+            ),
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    binding_fields_verified = payload.get("binding_fields_verified")
+    if binding_fields_verified != _HANDOFF_COMPLETION_REQUIRED_BINDING_FIELDS:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="handoff completion evidence binding_fields_verified mismatch",
+            details={"path": str(path), "binding_fields_verified": binding_fields_verified},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "verified_required",
+        "signature_result_consumed_by_runner",
+        "signature_result_consumed_by_verifier",
+        "signature_result_consumed_by_packaging",
+        "current_taskpack_snapshot_binding_enforced",
+        "detached_user_supplied_handoff_forbidden",
+        "historical_v47_to_v48_continuity_guard_repaired",
+        "verification_passed",
+        "metric_key_exact_set_equal_v48",
+    ):
+        if payload.get(field) is not True:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="handoff completion evidence boolean field must be true",
+                details={"path": str(path), "field": field, "value": payload.get(field)},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("metric_key_cardinality") != 80:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="handoff completion evidence metric_key_cardinality must equal 80",
+            details={
+                "path": str(path),
+                "metric_key_cardinality": payload.get("metric_key_cardinality"),
+            },
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    return payload
 
 
 def _emit_verifier_provenance(
@@ -372,7 +517,7 @@ def write_closeout_evidence(
     verified_result_path: str | Path,
     runtime_observability_comparison_path: str | Path,
     metric_key_continuity_assertion_path: str | Path,
-    verifier_wiring_evidence_path: str | Path,
+    handoff_completion_evidence_path: str | Path,
     evidence_output_root: str | Path,
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
@@ -395,14 +540,14 @@ def write_closeout_evidence(
         verified_result_rel = normalize_relative_path(str(verified_result_path))
         runtime_rel = normalize_relative_path(str(runtime_observability_comparison_path))
         continuity_rel = normalize_relative_path(str(metric_key_continuity_assertion_path))
-        wiring_rel = normalize_relative_path(str(verifier_wiring_evidence_path))
+        handoff_rel = normalize_relative_path(str(handoff_completion_evidence_path))
         evidence_output_rel = normalize_relative_path(str(evidence_output_root))
 
         taskpack_path = coerce_artifact_path(root, taskpack_rel)
         verified_result_artifact_path = coerce_artifact_path(root, verified_result_rel)
         runtime_path = coerce_artifact_path(root, runtime_rel)
         continuity_path = coerce_artifact_path(root, continuity_rel)
-        wiring_path = coerce_artifact_path(root, wiring_rel)
+        handoff_path = coerce_artifact_path(root, handoff_rel)
         evidence_root = coerce_artifact_path(root, evidence_output_rel)
 
         try:
@@ -444,9 +589,9 @@ def write_closeout_evidence(
                 ),
             },
             {
-                "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[WIRING_EVIDENCE_SCHEMA],
-                "schema": WIRING_EVIDENCE_SCHEMA,
-                "payload": _load_block(wiring_path, expected_schema=WIRING_EVIDENCE_SCHEMA),
+                "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[HANDOFF_COMPLETION_EVIDENCE_SCHEMA],
+                "schema": HANDOFF_COMPLETION_EVIDENCE_SCHEMA,
+                "payload": _load_handoff_completion_evidence(handoff_path),
             },
         ]
         blocks = sorted(blocks, key=lambda row: (row["slot_id"], row["schema"]))
@@ -455,7 +600,7 @@ def write_closeout_evidence(
         if set(emitted_schemas) != set(EVIDENCE_SCHEMA_ALLOWLIST):
             raise fail(
                 code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
-                message="emitted evidence schema set must match frozen v46 allowlist",
+                message="emitted evidence schema set must match frozen closeout allowlist",
                 details={"emitted_schemas": emitted_schemas},
                 artifact_path=evidence_output_rel,
                 policy_source="evidence_slots",
@@ -587,7 +732,7 @@ def write_closeout_evidence(
 def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Emit deterministic v46 closeout evidence bundle from verified-result "
+            "Emit deterministic closeout evidence bundle from verified-result "
             "artifact and allowlisted closeout block payloads."
         ),
     )
@@ -612,9 +757,9 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Repo-relative path to metric_key_continuity_assertion@1 payload.",
     )
     parser.add_argument(
-        "--verifier-wiring-evidence",
+        "--handoff-completion-evidence",
         required=True,
-        help="Repo-relative path to v33c_verifier_wiring_evidence@1 payload.",
+        help="Repo-relative path to v34a_handoff_completion_evidence@1 payload.",
     )
     parser.add_argument(
         "--evidence-output-root",
@@ -642,7 +787,7 @@ def main(argv: list[str] | None = None) -> int:
             verified_result_path=args.verified_result,
             runtime_observability_comparison_path=args.runtime_observability_comparison,
             metric_key_continuity_assertion_path=args.metric_key_continuity_assertion,
-            verifier_wiring_evidence_path=args.verifier_wiring_evidence,
+            handoff_completion_evidence_path=args.handoff_completion_evidence,
             evidence_output_root=args.evidence_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             repo_root_path=args.repo_root,

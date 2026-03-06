@@ -406,6 +406,7 @@ def _error_payload(exc: TaskpackSigningError) -> dict[str, Any]:
 
 
 def _assert_stop_gate_keyset_equal(*, baseline_path: Path, candidate_path: Path) -> None:
+    assert baseline_path.resolve() != candidate_path.resolve()
     baseline_payload = _read_json(baseline_path)
     candidate_payload = _read_json(candidate_path)
     baseline_metrics = baseline_payload.get("metrics")
@@ -897,8 +898,18 @@ def test_signing_required_violations_are_error_channel_only(tmp_path: Path) -> N
 def test_stop_gate_metric_keyset_exact_equal_v47() -> None:
     repo_root = project_repo_root(anchor=Path(__file__))
     baseline_path = repo_root / "artifacts" / "stop_gate" / "metrics_v47_closeout.json"
-    candidate_path = repo_root / "artifacts" / "stop_gate" / "metrics_v47_closeout.json"
+    candidate_path = repo_root / "artifacts" / "stop_gate" / "metrics_v48_closeout.json"
     _assert_stop_gate_keyset_equal(baseline_path=baseline_path, candidate_path=candidate_path)
+
+
+def test_stop_gate_metric_keyset_self_compare_configuration_fails_closed() -> None:
+    repo_root = project_repo_root(anchor=Path(__file__))
+    metrics_path = repo_root / "artifacts" / "stop_gate" / "metrics_v47_closeout.json"
+    with pytest.raises(AssertionError):
+        _assert_stop_gate_keyset_equal(
+            baseline_path=metrics_path,
+            candidate_path=metrics_path,
+        )
 
 
 def test_stop_gate_metric_cardinality_equals_80_from_metrics_keys_only() -> None:
