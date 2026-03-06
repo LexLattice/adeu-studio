@@ -17,6 +17,7 @@ from adeu_ir.repo import repo_root
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 from .compile import TaskpackCompileError
+from .policy_recompute import recompute_policy_validation
 from .verify_taskpack_signature import (
     TaskpackSigningError,
     load_validated_downstream_signature_handoff,
@@ -1096,77 +1097,54 @@ def _validate_policy(
         end = start + max(first_hunk.old_count - 1, 0)
         return 0, (start, end)
 
-    issues: list[PolicyIssue] = []
-    for operation in plan.file_operations:
-        hunk_index, line_range = _issue_location(operation)
-        if not any(
-            _path_matches_prefix(path=operation.path, prefix=allow_prefix)
-            for allow_prefix in allowlist_paths
-        ):
-            issues.append(
-                PolicyIssue(
-                    issue_code="allowlist_violation",
-                    reason="operation path is not under allowlist paths",
-                    target_path=operation.path,
-                    hunk_index=hunk_index,
-                    line_range=line_range,
-                    policy_source="ALLOWLIST.json",
-                )
-            )
-        if any(
-            _path_matches_prefix(path=operation.path, prefix=forbidden_prefix)
-            for forbidden_prefix in forbidden_paths
-        ):
-            issues.append(
-                PolicyIssue(
-                    issue_code="forbidden_path_violation",
-                    reason="operation path is under forbidden paths",
-                    target_path=operation.path,
-                    hunk_index=hunk_index,
-                    line_range=line_range,
-                    policy_source="FORBIDDEN.json",
-                )
-            )
-        if operation.operation_kind in forbidden_operation_kinds:
-            issues.append(
-                PolicyIssue(
-                    issue_code="forbidden_operation_kind",
-                    reason="operation kind is forbidden in v45 policy scope",
-                    target_path=operation.path,
-                    hunk_index=hunk_index,
-                    line_range=line_range,
-                    policy_source="FORBIDDEN.json",
-                )
-            )
-
-    allowed_command_runs = set(allowed_commands.keys())
-    for command in plan.proposed_commands:
-        if command not in allowed_command_runs:
-            issues.append(
-                PolicyIssue(
-                    issue_code="model_suggested_command_execution_detected",
-                    reason="proposed command is not present in COMMANDS.json authority",
-                    target_path="COMMANDS.json",
-                    hunk_index=-1,
-                    line_range=(0, 0),
-                    policy_source="COMMANDS.json",
-                )
-            )
-    if dry_run and plan.proposed_commands:
-        issues.append(
-            PolicyIssue(
-                issue_code="dry_run_subprocess_execution_detected",
-                reason="dry-run forbids subprocess execution in v45",
-                target_path="COMMANDS.json",
-                hunk_index=-1,
-                line_range=(0, 0),
-                policy_source="dry_run_enforcement_policy",
-            )
-        )
-    return sorted(
-        issues,
-        key=lambda row: (row.issue_code, row.target_path, row.hunk_index),
+    operation_locations = {
+        (operation.path, _issue_location(operation)[0]): _issue_location(operation)[1]
+        for operation in plan.file_operations
+    }
+    issue_metadata = {
+        "allowlist_violation": (
+            "operation path is not under allowlist paths",
+            "ALLOWLIST.json",
+        ),
+        "forbidden_path_violation": (
+            "operation path is under forbidden paths",
+            "FORBIDDEN.json",
+        ),
+        "forbidden_operation_kind": (
+            "operation kind is forbidden in v45 policy scope",
+            "FORBIDDEN.json",
+        ),
+        "model_suggested_command_execution_detected": (
+            "proposed command is not present in COMMANDS.json authority",
+            "COMMANDS.json",
+        ),
+        "dry_run_subprocess_execution_detected": (
+            "dry-run forbids subprocess execution in v45",
+            "dry_run_enforcement_policy",
+        ),
+    }
+    recompute_outcome = recompute_policy_validation(
+        plan=plan,
+        allowlist_paths=allowlist_paths,
+        forbidden_paths=forbidden_paths,
+        forbidden_operation_kinds=forbidden_operation_kinds,
+        allowed_command_runs=tuple(sorted(allowed_commands.keys())),
+        dry_run=dry_run,
     )
+    return [
+        PolicyIssue(
+            issue_code=issue["issue_code"],
+            reason=issue_metadata[issue["issue_code"]][0],
+            target_path=issue["target_path"],
+            hunk_index=issue["hunk_index"],
+            line_range=operation_locations.get(
+                (issue["target_path"], issue["hunk_index"]),
+                (0, 0),
+            ),
+            policy_source=issue_metadata[issue["issue_code"]][1],
+        )
+        for issue in recompute_outcome["issues"]
+    ]
 
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -1616,6 +1594,8 @@ def run_taskpack(
                 details={
                     "taskpack_manifest_hash": taskpack_manifest_hash,
                     "candidate_change_plan_hash": plan.candidate_change_plan_hash,
+                    "dry_run": dry_run,
+                    "dry_run_preview_path": None,
                     "policy_issue_count": len(policy_issues),
                     "rejection_diagnostic_path": rejection_diagnostic_path.as_posix(),
                     "provenance_path": provenance_path.as_posix(),

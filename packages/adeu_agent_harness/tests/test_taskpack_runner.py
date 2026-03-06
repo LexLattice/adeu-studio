@@ -390,6 +390,8 @@ def test_run_taskpack_policy_violation_emits_rejection_and_provenance(tmp_path: 
     error_payload = _error_payload(exc_info.value)
     assert error_payload["code"] == "AHK1010"
     details = error_payload["details"]
+    assert details["dry_run"] is True
+    assert details["dry_run_preview_path"] is None
     rejection_path = Path(details["rejection_diagnostic_path"])
     provenance_path = Path(details["provenance_path"])
     assert rejection_path.is_file()

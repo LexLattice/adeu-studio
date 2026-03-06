@@ -24,7 +24,11 @@ from adeu_agent_harness.matrix_parity import (
     ADAPTER_MATRIX_PARITY_REPORT_SCHEMA,
     ADAPTER_MATRIX_SCHEMA,
 )
-from adeu_agent_harness.run_taskpack import RUNNER_RESULT_SCHEMA, run_taskpack
+from adeu_agent_harness.policy_recompute import (
+    POLICY_RECOMPUTE_RESULT_SCHEMA,
+    SHARED_RECOMPUTE_ENGINE,
+)
+from adeu_agent_harness.run_taskpack import RUNNER_RESULT_SCHEMA, TaskpackRunnerError, run_taskpack
 from adeu_agent_harness.verify_taskpack_run import (
     VERIFICATION_RESULT_SCHEMA,
     TaskpackVerifierError,
@@ -293,29 +297,48 @@ def _seed_diagnostic_registry(root: Path) -> str:
     return _DIAGNOSTIC_REGISTRY_REL
 
 
-def _write_candidate_change_plan(root: Path, *, rel_path: str) -> Path:
+def _write_candidate_change_plan(
+    root: Path,
+    *,
+    rel_path: str = "packages/adeu_agent_harness/src/adeu_agent_harness/v46_verify_fixture.txt",
+    operations: list[dict[str, Any]] | None = None,
+    proposed_commands: list[str] | None = None,
+) -> Path:
     path = root / "artifacts" / "agent_harness" / "v46" / "candidate_change_plan.json"
     _write_json(
         path,
         {
             "schema": "candidate_change_plan@1",
-            "file_operations": [
-                {
-                    "path": rel_path,
-                    "operation_kind": "update",
-                    "unified_diff": (
-                        f"--- a/{rel_path}\n"
-                        f"+++ b/{rel_path}\n"
-                        "@@ -1,1 +1,1 @@\n"
-                        "-before\n"
-                        "+after\n"
-                    ),
-                }
-            ],
-            "proposed_commands": [],
+            "file_operations": (
+                operations
+                if operations is not None
+                else [
+                    {
+                        "path": rel_path,
+                        "operation_kind": "update",
+                        "unified_diff": (
+                            f"--- a/{rel_path}\n"
+                            f"+++ b/{rel_path}\n"
+                            "@@ -1,1 +1,1 @@\n"
+                            "-before\n"
+                            "+after\n"
+                        ),
+                    }
+                ]
+            ),
+            "proposed_commands": proposed_commands or [],
         },
     )
     return path
+
+
+def _create_diff(*, rel_path: str, content: str) -> str:
+    return (
+        "--- /dev/null\n"
+        f"+++ b/{rel_path}\n"
+        "@@ -0,0 +1,1 @@\n"
+        f"+{content}\n"
+    )
 
 
 def _write_runner_result_artifact(root: Path, *, run_result: Any) -> Path:
@@ -336,6 +359,21 @@ def _write_runner_result_artifact(root: Path, *, run_result: Any) -> Path:
             if run_result.rejection_diagnostic_path is not None
             else None
         ),
+    }
+    _write_json(path, payload)
+    return path
+
+
+def _write_runner_result_from_error_details(root: Path, *, details: dict[str, Any]) -> Path:
+    path = root / "artifacts" / "agent_harness" / "v51" / "runner_result_policy_failure.json"
+    payload = {
+        "schema": RUNNER_RESULT_SCHEMA,
+        "dry_run": details["dry_run"],
+        "candidate_change_plan_hash": details["candidate_change_plan_hash"],
+        "dry_run_preview_path": details["dry_run_preview_path"],
+        "provenance_path": details["provenance_path"],
+        "provenance_hash": details["provenance_hash"],
+        "rejection_diagnostic_path": details["rejection_diagnostic_path"],
     }
     _write_json(path, payload)
     return path
@@ -381,6 +419,54 @@ def _prepare_verified_success(tmp_path: Path) -> tuple[Path, Path, Path, str]:
         diagnostic_registry_path=diagnostic_registry_rel,
     )
     return root, taskpack_dir, verify_result.verification_result_path, diagnostic_registry_rel
+
+
+def _prepare_runner_policy_failure(
+    tmp_path: Path,
+) -> tuple[Path, Path, Path, Path, Path, Path, str, str]:
+    root = _base_repo(tmp_path)
+    _seed_semantic_authority_artifacts(root)
+    diagnostic_registry_rel = _seed_diagnostic_registry(root)
+    registry_path = _seed_profile_and_registry(root)
+    taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
+    adapter_registry_path = _seed_adapter_registry(root)
+
+    blocked_rel = "apps/api/v51_policy_failure_fixture.txt"
+    candidate_path = _write_candidate_change_plan(
+        root,
+        operations=[
+            {
+                "path": blocked_rel,
+                "operation_kind": "create",
+                "unified_diff": _create_diff(rel_path=blocked_rel, content="blocked"),
+            }
+        ],
+        proposed_commands=[],
+    )
+
+    with pytest.raises(TaskpackRunnerError) as exc_info:
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
+            adapter_id="default",
+            candidate_change_plan_path=candidate_path,
+            dry_run=True,
+        )
+
+    error_payload = json.loads(str(exc_info.value))
+    details = error_payload["details"]
+    runner_result_path = _write_runner_result_from_error_details(root, details=details)
+    return (
+        root,
+        taskpack_dir,
+        candidate_path,
+        runner_result_path,
+        Path(details["provenance_path"]),
+        Path(details["rejection_diagnostic_path"]),
+        blocked_rel,
+        diagnostic_registry_rel,
+    )
 
 
 def _seed_u2_evidence_payloads(root: Path) -> tuple[Path, Path, Path]:
@@ -769,6 +855,138 @@ def test_verify_taskpack_run_emits_deterministic_verified_result(tmp_path: Path)
 
     assert second.verification_result_path == verified_result_path
     assert verified_result_path.read_bytes() == before
+    recompute_payload = _read_json(second.policy_recompute_result_path)
+    assert recompute_payload["schema"] == POLICY_RECOMPUTE_RESULT_SCHEMA
+    assert recompute_payload["shared_recompute_engine"] == SHARED_RECOMPUTE_ENGINE
+    assert recompute_payload["typed_diff_summary"] == {
+        "exact_match": True,
+        "mismatch_fields": [],
+        "runner_only_issues": [],
+        "recompute_only_issues": [],
+    }
+    assert second.policy_recompute_result_hash == recompute_payload["result_hash"]
+
+    recompute_before = second.policy_recompute_result_path.read_bytes()
+    third = _verify_taskpack_run_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        candidate_change_plan_path=verified_payload["verified_artifacts"]["candidate_change_plan_path"],
+        runner_result_path=verified_payload["verified_artifacts"]["runner_result_path"],
+        runner_provenance_path=verified_payload["verified_artifacts"]["runner_provenance_path"],
+        policy_rejection_diagnostics_path=None,
+        verification_output_root="artifacts/agent_harness/v46/verification",
+        diagnostic_registry_path=diagnostic_registry_rel,
+    )
+    assert third.policy_recompute_result_path == second.policy_recompute_result_path
+    assert third.policy_recompute_result_path.read_bytes() == recompute_before
+
+
+def test_verify_taskpack_run_emits_policy_recompute_result_on_runner_policy_failure(
+    tmp_path: Path,
+) -> None:
+    (
+        root,
+        taskpack_dir,
+        candidate_path,
+        runner_result_path,
+        runner_provenance_path,
+        rejection_diagnostic_path,
+        _blocked_rel,
+        diagnostic_registry_rel,
+    ) = _prepare_runner_policy_failure(tmp_path)
+
+    verify_result = _verify_taskpack_run_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        candidate_change_plan_path=candidate_path,
+        runner_result_path=runner_result_path,
+        runner_provenance_path=runner_provenance_path,
+        policy_rejection_diagnostics_path=rejection_diagnostic_path,
+        verification_output_root="artifacts/agent_harness/v46/verification",
+        diagnostic_registry_path=diagnostic_registry_rel,
+    )
+
+    recompute_payload = _read_json(verify_result.policy_recompute_result_path)
+    assert recompute_payload["schema"] == POLICY_RECOMPUTE_RESULT_SCHEMA
+    assert recompute_payload["runner_outcome"]["passed"] is False
+    assert recompute_payload["runner_outcome"]["exit_status"] == "policy_validation_failed"
+    assert recompute_payload["typed_diff_summary"]["exact_match"] is True
+
+
+def test_verify_taskpack_run_emits_policy_recompute_result_on_mismatch_without_enforcement(
+    tmp_path: Path,
+) -> None:
+    (
+        root,
+        taskpack_dir,
+        candidate_path,
+        runner_result_path,
+        runner_provenance_path,
+        rejection_diagnostic_path,
+        blocked_rel,
+        diagnostic_registry_rel,
+    ) = _prepare_runner_policy_failure(tmp_path)
+
+    runner_provenance_payload = _read_json(runner_provenance_path)
+    runner_provenance_payload["policy_validation_result"] = {
+        "passed": False,
+        "issues": [
+            {
+                "issue_code": "forbidden_operation_kind",
+                "target_path": blocked_rel,
+                "hunk_index": 0,
+            }
+        ],
+    }
+    runner_provenance_payload["provenance_hash"] = sha256_canonical_json(
+        {
+            "taskpack_manifest_hash": runner_provenance_payload["taskpack_manifest_hash"],
+            "adapter_id": runner_provenance_payload["adapter_id"],
+            "candidate_change_plan_hash": runner_provenance_payload["candidate_change_plan_hash"],
+            "policy_validation_result": runner_provenance_payload["policy_validation_result"],
+            "exit_status": runner_provenance_payload["exit_status"],
+        }
+    )
+    _write_json(runner_provenance_path, runner_provenance_payload)
+
+    runner_result_payload = _read_json(runner_result_path)
+    runner_result_payload["provenance_hash"] = runner_provenance_payload["provenance_hash"]
+    _write_json(runner_result_path, runner_result_payload)
+
+    verify_result = _verify_taskpack_run_signed(
+        root,
+        taskpack_dir=taskpack_dir,
+        candidate_change_plan_path=candidate_path,
+        runner_result_path=runner_result_path,
+        runner_provenance_path=runner_provenance_path,
+        policy_rejection_diagnostics_path=rejection_diagnostic_path,
+        verification_output_root="artifacts/agent_harness/v46/verification",
+        diagnostic_registry_path=diagnostic_registry_rel,
+    )
+
+    recompute_payload = _read_json(verify_result.policy_recompute_result_path)
+    assert recompute_payload["typed_diff_summary"]["exact_match"] is False
+    assert recompute_payload["typed_diff_summary"]["mismatch_fields"] == ["issues"]
+    assert recompute_payload["typed_diff_summary"]["runner_only_issues"] == [
+        {
+            "issue_code": "forbidden_operation_kind",
+            "target_path": blocked_rel,
+            "hunk_index": 0,
+        }
+    ]
+    assert recompute_payload["typed_diff_summary"]["recompute_only_issues"] == [
+        {
+            "issue_code": "allowlist_violation",
+            "target_path": blocked_rel,
+            "hunk_index": 0,
+        },
+        {
+            "issue_code": "forbidden_path_violation",
+            "target_path": blocked_rel,
+            "hunk_index": 0,
+        },
+    ]
+    assert verify_result.verification_result_path.is_file()
 
 
 def test_verify_taskpack_run_fails_closed_on_hash_mismatch(tmp_path: Path) -> None:
