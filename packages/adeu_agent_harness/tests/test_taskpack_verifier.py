@@ -216,8 +216,8 @@ def _seed_profile_and_registry(root: Path) -> Path:
                 "required": True,
             },
             {
-                "slot_id": "v33c_verifier_wiring_evidence",
-                "description": "Verifier wiring evidence block.",
+                "slot_id": "v34a_handoff_completion_evidence",
+                "description": "Signing handoff completion evidence block.",
                 "required": True,
             },
         ],
@@ -400,18 +400,54 @@ def _seed_u2_evidence_payloads(root: Path) -> tuple[Path, Path, Path]:
             "exact_set_equal": True,
         },
     )
-    wiring_path = root / "artifacts" / "stop_gate" / "v33c_verifier_wiring_evidence_v46.json"
+    handoff_path = (
+        root / "artifacts" / "stop_gate" / "v34a_handoff_completion_evidence_v49.json"
+    )
     _write_json(
-        wiring_path,
+        handoff_path,
         {
-            "schema": "v33c_verifier_wiring_evidence@1",
+            "schema": "v34a_handoff_completion_evidence@1",
+            "contract_source": (
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS49.md"
+                "#v34a_handoff_completion_contract@1"
+            ),
+            "preflight_entrypoint": "python -m adeu_agent_harness.verify_taskpack_signature",
+            "runner_entrypoint": "python -m adeu_agent_harness.run_taskpack",
             "verifier_entrypoint": "python -m adeu_agent_harness.verify_taskpack_run",
             "evidence_writer_entrypoint": "python -m adeu_agent_harness.write_closeout_evidence",
+            "packaging_entrypoints": [
+                "python -m adeu_agent_harness.package_ux_integrated",
+                "python -m adeu_agent_harness.package_ux_standalone",
+            ],
+            "shared_binding_validator_used": (
+                "packages/adeu_agent_harness.verify_taskpack_signature."
+                "validate_signature_verification_result_for_downstream"
+            ),
+            "binding_fields_verified": [
+                "taskpack_manifest_hash",
+                "taskpack_bundle_hash",
+                "signature_envelope_hash",
+                "trust_anchor_registry_hash",
+                "verification_reference_time_utc",
+                "preflight_invocation_binding_hash",
+                "signer_key_id",
+                "algorithm",
+                "verified",
+            ],
+            "verified_required": True,
+            "signature_result_consumed_by_runner": True,
+            "signature_result_consumed_by_verifier": True,
+            "signature_result_consumed_by_packaging": True,
+            "current_taskpack_snapshot_binding_enforced": True,
+            "detached_user_supplied_handoff_forbidden": True,
+            "historical_v47_to_v48_continuity_guard_repaired": True,
             "verification_passed": True,
-            "required_evidence_slots_filled": True,
+            "metric_key_cardinality": 80,
+            "metric_key_exact_set_equal_v48": True,
+            "notes": "v49 X4 closeout evidence fixture.",
         },
     )
-    return runtime_path, continuity_path, wiring_path
+    return runtime_path, continuity_path, handoff_path
 
 
 def _write_evidence_with_seeded_payloads(
@@ -422,13 +458,13 @@ def _write_evidence_with_seeded_payloads(
     diagnostic_registry_rel: str,
     evidence_output_root: str = "artifacts/agent_harness/v46/evidence",
 ):
-    runtime_path, continuity_path, wiring_path = _seed_u2_evidence_payloads(root)
+    runtime_path, continuity_path, handoff_path = _seed_u2_evidence_payloads(root)
     return write_closeout_evidence(
         taskpack_dir=_relative(root, taskpack_dir),
         verified_result_path=_relative(root, verified_result_path),
         runtime_observability_comparison_path=_relative(root, runtime_path),
         metric_key_continuity_assertion_path=_relative(root, continuity_path),
-        verifier_wiring_evidence_path=_relative(root, wiring_path),
+        handoff_completion_evidence_path=_relative(root, handoff_path),
         evidence_output_root=evidence_output_root,
         diagnostic_registry_path=diagnostic_registry_rel,
         repo_root_path=root,
@@ -657,7 +693,7 @@ def test_write_closeout_evidence_emits_deterministic_bundle_and_provenance(
     assert [block["slot_id"] for block in bundle_payload["ordered_evidence_blocks"]] == [
         "metric_key_continuity_assertion",
         "runtime_observability_comparison",
-        "v33c_verifier_wiring_evidence",
+        "v34a_handoff_completion_evidence",
     ]
     recomputed_bundle_hash = sha256_canonical_json(
         {
@@ -690,8 +726,8 @@ def test_write_closeout_evidence_fails_closed_with_no_partial_evidence_emission(
     _write_json(runtime_path, {"schema": "runtime_observability_comparison@1"})
     continuity_path = root / "artifacts" / "stop_gate" / "metric_key_continuity_assertion_v46.json"
     _write_json(continuity_path, {"schema": "metric_key_continuity_assertion@1"})
-    wiring_path = root / "artifacts" / "stop_gate" / "v33c_verifier_wiring_evidence_v46.json"
-    _write_json(wiring_path, {"schema": "v33c_verifier_wiring_evidence@1"})
+    handoff_path = root / "artifacts" / "stop_gate" / "v34a_handoff_completion_evidence_v49.json"
+    _write_json(handoff_path, {"schema": "v34a_handoff_completion_evidence@1"})
 
     evidence_output_rel = "artifacts/agent_harness/v46/evidence_failure_case"
     evidence_output_path = root / evidence_output_rel
@@ -702,7 +738,7 @@ def test_write_closeout_evidence_fails_closed_with_no_partial_evidence_emission(
             verified_result_path=_relative(root, verified_result_path),
             runtime_observability_comparison_path=_relative(root, runtime_path),
             metric_key_continuity_assertion_path=_relative(root, continuity_path),
-            verifier_wiring_evidence_path=_relative(root, wiring_path),
+            handoff_completion_evidence_path=_relative(root, handoff_path),
             evidence_output_root=evidence_output_rel,
             diagnostic_registry_path=diagnostic_registry_rel,
             repo_root_path=root,
@@ -885,7 +921,7 @@ def test_write_closeout_evidence_fails_closed_on_required_evidence_slot_missing(
     evidence_slots_payload["slots"] = [
         slot
         for slot in evidence_slots_payload["slots"]
-        if slot["slot_id"] != "v33c_verifier_wiring_evidence"
+        if slot["slot_id"] != "v34a_handoff_completion_evidence"
     ]
     evidence_slots_payload["required_count"] = len(
         [slot for slot in evidence_slots_payload["slots"] if slot["required"] is True]
@@ -929,6 +965,31 @@ def test_write_closeout_evidence_fails_closed_on_malformed_evidence_slot(tmp_pat
             taskpack_dir=taskpack_dir,
             verified_result_path=verified_result_path,
             diagnostic_registry_rel=diagnostic_registry_rel,
+        )
+    assert _error_payload(exc_info.value)["code"] == "AHK4603"
+
+
+def test_write_closeout_evidence_fails_closed_on_invalid_handoff_completion_evidence(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, verified_result_path, diagnostic_registry_rel = _prepare_verified_success(
+        tmp_path
+    )
+    runtime_path, continuity_path, handoff_path = _seed_u2_evidence_payloads(root)
+    handoff_payload = _read_json(handoff_path)
+    handoff_payload["verification_passed"] = False
+    _write_json(handoff_path, handoff_payload)
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        write_closeout_evidence(
+            taskpack_dir=_relative(root, taskpack_dir),
+            verified_result_path=_relative(root, verified_result_path),
+            runtime_observability_comparison_path=_relative(root, runtime_path),
+            metric_key_continuity_assertion_path=_relative(root, continuity_path),
+            handoff_completion_evidence_path=_relative(root, handoff_path),
+            evidence_output_root="artifacts/agent_harness/v46/evidence_invalid_handoff_case",
+            diagnostic_registry_path=diagnostic_registry_rel,
+            repo_root_path=root,
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4603"
 
