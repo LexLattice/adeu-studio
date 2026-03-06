@@ -482,7 +482,7 @@ def _emit_policy_recompute_result_for_verification(
     candidate_change_plan_hash: str,
     runner_provenance_hash: str,
     output_dir: Path,
-) -> tuple[Path, str]:
+) -> tuple[Path, str, dict[str, Any]]:
     allowlist_paths = _load_allowlist_payload_from_bytes(
         path=taskpack_path / "ALLOWLIST.json",
         payload_bytes=taskpack_component_bytes["ALLOWLIST.json"],
@@ -538,7 +538,7 @@ def _emit_policy_recompute_result_for_verification(
             artifact_path=str(artifact.result_path),
             policy_source="runner_provenance",
         )
-    return artifact.result_path, artifact.result_hash
+    return artifact.result_path, artifact.result_hash, loaded
 
 
 def verify_taskpack_run(
@@ -812,6 +812,7 @@ def verify_taskpack_run(
             (
                 policy_recompute_result_path,
                 policy_recompute_result_hash,
+                policy_recompute_result_payload,
             ) = _emit_policy_recompute_result_for_verification(
                 taskpack_path=handoff.taskpack_snapshot.out_dir,
                 taskpack_component_bytes=handoff.taskpack_snapshot.component_bytes_by_path,
@@ -847,6 +848,47 @@ def verify_taskpack_run(
                 artifact_path=policy_recompute_output_rel,
                 policy_source="runner_provenance",
             ) from exc
+
+        typed_diff_summary = policy_recompute_result_payload.get("typed_diff_summary")
+        if not isinstance(typed_diff_summary, dict):
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="policy recompute result typed_diff_summary must be an object",
+                details={"path": str(policy_recompute_result_path)},
+                artifact_path=str(policy_recompute_result_path),
+                policy_source="runner_provenance",
+            )
+        if set(typed_diff_summary.keys()) != {
+            "exact_match",
+            "mismatch_fields",
+            "runner_only_issues",
+            "recompute_only_issues",
+        }:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="policy recompute result typed_diff_summary keys must match frozen grammar",
+                details={
+                    "path": str(policy_recompute_result_path),
+                    "keys": sorted(typed_diff_summary.keys()),
+                },
+                artifact_path=str(policy_recompute_result_path),
+                policy_source="runner_provenance",
+            )
+        if typed_diff_summary.get("exact_match") is not True:
+            raise fail(
+                code=AHK4605_POLICY_VALIDATION_CONSISTENCY_MISMATCH,
+                message="policy recompute mismatch detected",
+                details={
+                    "path": str(policy_recompute_result_path),
+                    "policy_recompute_result_path": str(policy_recompute_result_path),
+                    "policy_recompute_result_hash": policy_recompute_result_hash,
+                    "mismatch_fields": typed_diff_summary.get("mismatch_fields"),
+                    "runner_only_issues": typed_diff_summary.get("runner_only_issues"),
+                    "recompute_only_issues": typed_diff_summary.get("recompute_only_issues"),
+                },
+                artifact_path=str(policy_recompute_result_path),
+                policy_source="runner_provenance",
+            )
 
         hash_subject = _verification_hash_subject(
             taskpack_manifest_hash=manifest_hash,

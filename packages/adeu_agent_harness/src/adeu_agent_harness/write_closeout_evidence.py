@@ -36,6 +36,15 @@ from ._v46_verifier_common import (
     write_json,
 )
 from .compile import TaskpackCompileError, verify_taskpack_bundle
+from .policy_recompute import (
+    ALLOWED_ISSUE_CODES,
+    COMPARISON_SUBJECT_FIELDS,
+    ISSUE_TUPLE_FIELDS,
+    ISSUE_TUPLE_ORDER_POLICY,
+    ISSUES_REPRESENTATION_POLICY,
+    POLICY_RECOMPUTE_RESULT_SCHEMA,
+    SHARED_RECOMPUTE_ENGINE,
+)
 from .verify_taskpack_run import VERIFICATION_RESULT_SCHEMA
 
 EVIDENCE_SLOTS_SCHEMA = "taskpack/evidence_slots@1"
@@ -50,6 +59,7 @@ RUNTIME_OBSERVABILITY_SCHEMA = "runtime_observability_comparison@1"
 METRIC_KEY_CONTINUITY_SCHEMA = "metric_key_continuity_assertion@1"
 HANDOFF_COMPLETION_EVIDENCE_SCHEMA = "v34a_handoff_completion_evidence@1"
 MATRIX_PARITY_EVIDENCE_SCHEMA = "v34b_matrix_parity_evidence@1"
+POLICY_RECOMPUTE_EVIDENCE_SCHEMA = "v34c_policy_recompute_evidence@1"
 ADAPTER_MATRIX_SCHEMA = "adapter_matrix@1"
 ADAPTER_MATRIX_PARITY_REPORT_SCHEMA = "adapter_matrix_parity_report@1"
 
@@ -58,6 +68,7 @@ EVIDENCE_SCHEMA_ALLOWLIST = (
     METRIC_KEY_CONTINUITY_SCHEMA,
     HANDOFF_COMPLETION_EVIDENCE_SCHEMA,
     MATRIX_PARITY_EVIDENCE_SCHEMA,
+    POLICY_RECOMPUTE_EVIDENCE_SCHEMA,
 )
 
 EVIDENCE_SCHEMA_TO_SLOT_ID = {
@@ -65,6 +76,7 @@ EVIDENCE_SCHEMA_TO_SLOT_ID = {
     METRIC_KEY_CONTINUITY_SCHEMA: "metric_key_continuity_assertion",
     HANDOFF_COMPLETION_EVIDENCE_SCHEMA: "v34a_handoff_completion_evidence",
     MATRIX_PARITY_EVIDENCE_SCHEMA: "v34b_matrix_parity_evidence",
+    POLICY_RECOMPUTE_EVIDENCE_SCHEMA: "v34c_policy_recompute_evidence",
 }
 
 _HANDOFF_COMPLETION_SHARED_BINDING_VALIDATOR = (
@@ -136,6 +148,35 @@ _MATRIX_PARITY_REQUIRED_KEYS = {
     "metric_key_exact_set_equal_v49",
     "notes",
 }
+_POLICY_RECOMPUTE_EVIDENCE_REQUIRED_KEYS = {
+    "schema",
+    "contract_source",
+    "recompute_entrypoint",
+    "shared_recompute_engine_used",
+    "verifier_entrypoint",
+    "policy_recompute_result_path",
+    "policy_recompute_result_hash",
+    "comparison_subject_fields",
+    "exit_status_subject_policy",
+    "issue_tuple_fields",
+    "issue_tuple_order_policy",
+    "issues_representation_policy",
+    "duplicate_issue_tuples_forbidden",
+    "allowed_issue_codes",
+    "allowed_issue_codes_closed_exact",
+    "candidate_change_plan_binding_policy",
+    "runner_policy_failure_input_materialization_required",
+    "runner_reason_line_range_non_authoritative",
+    "mismatch_fail_closed",
+    "exact_match_requires_empty_deltas",
+    "policy_recompute_result_emitted",
+    "typed_diff_summary_emitted",
+    "success_class_verification_result_forbidden_on_mismatch",
+    "verification_passed",
+    "metric_key_cardinality",
+    "metric_key_exact_set_equal_v50",
+    "notes",
+}
 _BASE_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
     (
         EVIDENCE_SCHEMA_TO_SLOT_ID[RUNTIME_OBSERVABILITY_SCHEMA],
@@ -143,7 +184,18 @@ _BASE_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
         EVIDENCE_SCHEMA_TO_SLOT_ID[HANDOFF_COMPLETION_EVIDENCE_SCHEMA],
     )
 )
-_V50_REQUIRED_EVIDENCE_SLOT_IDS = sorted(EVIDENCE_SCHEMA_TO_SLOT_ID.values())
+_V50_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
+    (
+        *_BASE_REQUIRED_EVIDENCE_SLOT_IDS,
+        EVIDENCE_SCHEMA_TO_SLOT_ID[MATRIX_PARITY_EVIDENCE_SCHEMA],
+    )
+)
+_V51_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
+    (
+        *_V50_REQUIRED_EVIDENCE_SLOT_IDS,
+        EVIDENCE_SCHEMA_TO_SLOT_ID[POLICY_RECOMPUTE_EVIDENCE_SCHEMA],
+    )
+)
 _MATRIX_REQUIRED_LANE_ID_LIST = [
     "deployment_mode",
     "adapter_id",
@@ -169,6 +221,13 @@ _MATRIX_POLICY_EQUIVALENCE_VALUE_SHAPES = {
 }
 _MATRIX_DEPLOYMENT_MODES = ["adeu_integrated", "standalone"]
 _MATRIX_RUNTIME_IDS = ["local_python_cli"]
+_POLICY_RECOMPUTE_EXIT_STATUS_SUBJECT_POLICY = (
+    "runner_policy_verdict_status_under_frozen_validator_scope_not_verifier_process_exit_code"
+)
+_POLICY_RECOMPUTE_CANDIDATE_CHANGE_PLAN_BINDING_POLICY = (
+    "recompute_binds_to_runner_recorded_canonical_candidate_change_plan_hash_"
+    "runner_result_dry_run_supplies_execution_mode_only"
+)
 
 _REQUIRED_VERIFIED_RESULT_KEYS = {
     "schema",
@@ -371,6 +430,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
     if required_slot_ids not in (
         _BASE_REQUIRED_EVIDENCE_SLOT_IDS,
         _V50_REQUIRED_EVIDENCE_SLOT_IDS,
+        _V51_REQUIRED_EVIDENCE_SLOT_IDS,
     ):
         raise fail(
             code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
@@ -381,6 +441,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
                 "allowed_required_slot_sets": [
                     _BASE_REQUIRED_EVIDENCE_SLOT_IDS,
                     _V50_REQUIRED_EVIDENCE_SLOT_IDS,
+                    _V51_REQUIRED_EVIDENCE_SLOT_IDS,
                 ],
             },
             artifact_path=str(path),
@@ -843,6 +904,246 @@ def _load_matrix_parity_evidence(root: Path, path: Path) -> dict[str, Any]:
     return payload
 
 
+def _load_policy_recompute_evidence(
+    root: Path,
+    path: Path,
+    *,
+    verified_result_payload: dict[str, Any],
+) -> dict[str, Any]:
+    payload = _load_block(path, expected_schema=POLICY_RECOMPUTE_EVIDENCE_SCHEMA)
+    if set(payload.keys()) != _POLICY_RECOMPUTE_EVIDENCE_REQUIRED_KEYS:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence keys must match frozen grammar",
+            details={"path": str(path), "keys": sorted(payload.keys())},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "contract_source",
+        "recompute_entrypoint",
+        "shared_recompute_engine_used",
+        "verifier_entrypoint",
+        "policy_recompute_result_path",
+        "exit_status_subject_policy",
+        "issue_tuple_order_policy",
+        "issues_representation_policy",
+        "candidate_change_plan_binding_policy",
+        "notes",
+    ):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="policy recompute evidence string field must be non-empty",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("shared_recompute_engine_used") != SHARED_RECOMPUTE_ENGINE:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence shared_recompute_engine_used mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("comparison_subject_fields") != list(COMPARISON_SUBJECT_FIELDS):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence comparison_subject_fields mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("exit_status_subject_policy") != _POLICY_RECOMPUTE_EXIT_STATUS_SUBJECT_POLICY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence exit_status_subject_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("issue_tuple_fields") != list(ISSUE_TUPLE_FIELDS):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence issue_tuple_fields mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("issue_tuple_order_policy") != ISSUE_TUPLE_ORDER_POLICY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence issue_tuple_order_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("issues_representation_policy") != ISSUES_REPRESENTATION_POLICY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence issues_representation_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("allowed_issue_codes") != list(ALLOWED_ISSUE_CODES):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence allowed_issue_codes mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("candidate_change_plan_binding_policy")
+        != _POLICY_RECOMPUTE_CANDIDATE_CHANGE_PLAN_BINDING_POLICY
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence candidate_change_plan_binding_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    if (
+        payload.get("policy_recompute_result_hash") is None
+        or not is_sha256(payload["policy_recompute_result_hash"])
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message=(
+                "policy recompute evidence policy_recompute_result_hash must be a "
+                "sha256 string"
+            ),
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "duplicate_issue_tuples_forbidden",
+        "allowed_issue_codes_closed_exact",
+        "runner_policy_failure_input_materialization_required",
+        "runner_reason_line_range_non_authoritative",
+        "mismatch_fail_closed",
+        "exact_match_requires_empty_deltas",
+        "policy_recompute_result_emitted",
+        "typed_diff_summary_emitted",
+        "success_class_verification_result_forbidden_on_mismatch",
+        "verification_passed",
+        "metric_key_exact_set_equal_v50",
+    ):
+        if payload.get(field) is not True:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="policy recompute evidence boolean field must be true",
+                details={"path": str(path), "field": field, "value": payload.get(field)},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("metric_key_cardinality") != 80:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="policy recompute evidence metric_key_cardinality must equal 80",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    policy_recompute_result_path = coerce_artifact_path(
+        root,
+        payload["policy_recompute_result_path"],
+    )
+    policy_recompute_result_payload = load_json_object(policy_recompute_result_path)
+    require_schema(
+        policy_recompute_result_payload,
+        expected_schema=POLICY_RECOMPUTE_RESULT_SCHEMA,
+        path=policy_recompute_result_path,
+    )
+    if (
+        policy_recompute_result_payload.get("result_hash")
+        != payload["policy_recompute_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="policy recompute evidence result hash does not match policy recompute payload",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        policy_recompute_result_payload.get("shared_recompute_engine")
+        != payload["shared_recompute_engine_used"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message=(
+                "policy recompute evidence shared engine does not match policy "
+                "recompute payload"
+            ),
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        policy_recompute_result_payload.get("taskpack_manifest_hash")
+        != verified_result_payload["taskpack_manifest_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="policy recompute evidence taskpack_manifest_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        policy_recompute_result_payload.get("candidate_change_plan_hash")
+        != verified_result_payload["candidate_change_plan_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="policy recompute evidence candidate_change_plan_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        policy_recompute_result_payload.get("runner_provenance_hash")
+        != verified_result_payload["runner_provenance_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="policy recompute evidence runner_provenance_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    typed_diff_summary = policy_recompute_result_payload.get("typed_diff_summary")
+    if (
+        not isinstance(typed_diff_summary, dict)
+        or typed_diff_summary.get("exact_match") is not True
+        or typed_diff_summary.get("mismatch_fields") != []
+        or typed_diff_summary.get("runner_only_issues") != []
+        or typed_diff_summary.get("recompute_only_issues") != []
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="policy recompute evidence requires exact-match policy recompute payload",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    return payload
+
+
 def _emit_verifier_provenance(
     *,
     root: Path,
@@ -911,6 +1212,7 @@ def write_closeout_evidence(
     metric_key_continuity_assertion_path: str | Path,
     handoff_completion_evidence_path: str | Path,
     matrix_parity_evidence_path: str | Path | None = None,
+    policy_recompute_evidence_path: str | Path | None = None,
     evidence_output_root: str | Path,
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
@@ -940,6 +1242,11 @@ def write_closeout_evidence(
             if matrix_parity_evidence_path is None
             else normalize_relative_path(str(matrix_parity_evidence_path))
         )
+        policy_recompute_rel = (
+            None
+            if policy_recompute_evidence_path is None
+            else normalize_relative_path(str(policy_recompute_evidence_path))
+        )
         evidence_output_rel = normalize_relative_path(str(evidence_output_root))
 
         taskpack_path = coerce_artifact_path(root, taskpack_rel)
@@ -948,6 +1255,11 @@ def write_closeout_evidence(
         continuity_path = coerce_artifact_path(root, continuity_rel)
         handoff_path = coerce_artifact_path(root, handoff_rel)
         matrix_path = None if matrix_rel is None else coerce_artifact_path(root, matrix_rel)
+        policy_recompute_path = (
+            None
+            if policy_recompute_rel is None
+            else coerce_artifact_path(root, policy_recompute_rel)
+        )
         evidence_root = coerce_artifact_path(root, evidence_output_rel)
 
         try:
@@ -976,6 +1288,9 @@ def write_closeout_evidence(
         matrix_slot_required = (
             EVIDENCE_SCHEMA_TO_SLOT_ID[MATRIX_PARITY_EVIDENCE_SCHEMA] in required_slot_ids
         )
+        policy_recompute_slot_required = (
+            EVIDENCE_SCHEMA_TO_SLOT_ID[POLICY_RECOMPUTE_EVIDENCE_SCHEMA] in required_slot_ids
+        )
         if matrix_slot_required and matrix_path is None:
             raise fail(
                 code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
@@ -988,6 +1303,22 @@ def write_closeout_evidence(
             raise fail(
                 code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
                 message="matrix parity evidence block is not authorized by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if policy_recompute_slot_required and policy_recompute_path is None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="policy recompute evidence block is required by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if not policy_recompute_slot_required and policy_recompute_path is not None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="policy recompute evidence block is not authorized by EVIDENCE_SLOTS",
                 details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
                 artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
                 policy_source="evidence_slots",
@@ -1020,6 +1351,19 @@ def write_closeout_evidence(
                     "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[MATRIX_PARITY_EVIDENCE_SCHEMA],
                     "schema": MATRIX_PARITY_EVIDENCE_SCHEMA,
                     "payload": _load_matrix_parity_evidence(root, matrix_path),
+                }
+            )
+        if policy_recompute_slot_required:
+            assert policy_recompute_path is not None
+            blocks.append(
+                {
+                    "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[POLICY_RECOMPUTE_EVIDENCE_SCHEMA],
+                    "schema": POLICY_RECOMPUTE_EVIDENCE_SCHEMA,
+                    "payload": _load_policy_recompute_evidence(
+                        root,
+                        policy_recompute_path,
+                        verified_result_payload=verified_result_payload,
+                    ),
                 }
             )
         blocks = sorted(blocks, key=lambda row: (row["slot_id"], row["schema"]))
@@ -1203,6 +1547,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Optional repo-relative path to v34b_matrix_parity_evidence@1 payload.",
     )
     parser.add_argument(
+        "--policy-recompute-evidence",
+        default=None,
+        help="Optional repo-relative path to v34c_policy_recompute_evidence@1 payload.",
+    )
+    parser.add_argument(
         "--evidence-output-root",
         default=DEFAULT_EVIDENCE_ROOT,
         help="Repo-relative output root for evidence bundle/provenance artifacts.",
@@ -1230,6 +1579,7 @@ def main(argv: list[str] | None = None) -> int:
             metric_key_continuity_assertion_path=args.metric_key_continuity_assertion,
             handoff_completion_evidence_path=args.handoff_completion_evidence,
             matrix_parity_evidence_path=args.matrix_parity_evidence,
+            policy_recompute_evidence_path=args.policy_recompute_evidence,
             evidence_output_root=args.evidence_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             repo_root_path=args.repo_root,
