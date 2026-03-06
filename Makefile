@@ -1,8 +1,9 @@
-.PHONY: bootstrap test lint format
+.PHONY: bootstrap test lint format check closeout-lint semantic-closeout-lint instruction-policy-check
 
 VENV ?= .venv
 PY := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
+CLOSEOUT_LINT_PYTHONPATH := apps/api/src:packages/urm_runtime/src
 
 bootstrap:
 	python -m venv $(VENV)
@@ -35,3 +36,16 @@ lint:
 
 format:
 	$(PY) -m ruff format .
+
+closeout-lint:
+	TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONPATH=$(CLOSEOUT_LINT_PYTHONPATH) \
+		$(PY) apps/api/scripts/lint_closeout_consistency.py
+
+semantic-closeout-lint:
+	TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONPATH=$(CLOSEOUT_LINT_PYTHONPATH) \
+		$(PY) apps/api/scripts/lint_semantic_compiler_closeout.py
+
+instruction-policy-check:
+	$(PY) apps/api/scripts/generate_instruction_policy_views.py --check
+
+check: lint test closeout-lint semantic-closeout-lint instruction-policy-check
