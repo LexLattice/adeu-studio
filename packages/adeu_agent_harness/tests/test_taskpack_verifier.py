@@ -989,6 +989,46 @@ def test_verify_taskpack_run_emits_policy_recompute_result_on_mismatch_without_e
     assert verify_result.verification_result_path.is_file()
 
 
+def test_verify_taskpack_run_translates_runner_errors_during_policy_recompute_generation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root, taskpack_dir, verified_result_path, diagnostic_registry_rel = _prepare_verified_success(
+        tmp_path
+    )
+    verified_payload = _read_json(verified_result_path)
+
+    def _raise_runner_error(*, path: Path, payload_bytes: bytes) -> Any:
+        del path, payload_bytes
+        raise TaskpackRunnerError(
+            code="AHK1004",
+            message="forced recompute input failure",
+            details={"source": "test"},
+        )
+
+    monkeypatch.setattr(
+        verifier_mod,
+        "_load_allowlist_payload_from_bytes",
+        _raise_runner_error,
+    )
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _verify_taskpack_run_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            candidate_change_plan_path=verified_payload["verified_artifacts"]["candidate_change_plan_path"],
+            runner_result_path=verified_payload["verified_artifacts"]["runner_result_path"],
+            runner_provenance_path=verified_payload["verified_artifacts"]["runner_provenance_path"],
+            policy_rejection_diagnostics_path=None,
+            verification_output_root="artifacts/agent_harness/v46/verification",
+            diagnostic_registry_path=diagnostic_registry_rel,
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK4603"
+    assert payload["details"]["runner_error_code"] == "AHK1004"
+
+
 def test_verify_taskpack_run_fails_closed_on_hash_mismatch(tmp_path: Path) -> None:
     root, taskpack_dir, verified_result_path, diagnostic_registry_rel = _prepare_verified_success(
         tmp_path

@@ -157,6 +157,21 @@ def _normalize_issue_tuples(
     ]
 
 
+def _require_canonical_issue_tuples(
+    issues: Sequence[dict[str, Any]],
+    *,
+    context: str,
+) -> list[dict[str, Any]]:
+    normalized = _normalize_issue_tuples(issues, context=context)
+    if list(issues) != normalized:
+        raise _fail(
+            code=AHK5104_RECOMPUTE_RESULT_INVALID,
+            message="policy issue tuples must already be canonical in recompute result payload",
+            details={"context": context},
+        )
+    return normalized
+
+
 def recompute_policy_validation(
     *,
     plan: _CandidateChangePlanLike,
@@ -271,9 +286,13 @@ def build_policy_recompute_result_payload(
     runner_outcome: dict[str, Any],
     recompute_outcome: dict[str, Any],
 ) -> dict[str, Any]:
-    runner_issues = _normalize_issue_tuples(runner_outcome["issues"], context="runner_outcome")
-    recompute_issues = _normalize_issue_tuples(
-        recompute_outcome["issues"], context="recompute_outcome"
+    runner_issues = _require_canonical_issue_tuples(
+        runner_outcome["issues"],
+        context="runner_outcome",
+    )
+    recompute_issues = _require_canonical_issue_tuples(
+        recompute_outcome["issues"],
+        context="recompute_outcome",
     )
     mismatch_fields: list[str] = []
     if bool(runner_outcome["passed"]) != bool(recompute_outcome["passed"]):

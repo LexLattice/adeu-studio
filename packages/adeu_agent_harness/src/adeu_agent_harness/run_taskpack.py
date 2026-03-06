@@ -17,7 +17,7 @@ from adeu_ir.repo import repo_root
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 from .compile import TaskpackCompileError
-from .policy_recompute import recompute_policy_validation
+from .policy_recompute import TaskpackPolicyRecomputeError, recompute_policy_validation
 from .verify_taskpack_signature import (
     TaskpackSigningError,
     load_validated_downstream_signature_handoff,
@@ -1123,14 +1123,25 @@ def _validate_policy(
             "dry_run_enforcement_policy",
         ),
     }
-    recompute_outcome = recompute_policy_validation(
-        plan=plan,
-        allowlist_paths=allowlist_paths,
-        forbidden_paths=forbidden_paths,
-        forbidden_operation_kinds=forbidden_operation_kinds,
-        allowed_command_runs=tuple(sorted(allowed_commands.keys())),
-        dry_run=dry_run,
-    )
+    try:
+        recompute_outcome = recompute_policy_validation(
+            plan=plan,
+            allowlist_paths=allowlist_paths,
+            forbidden_paths=forbidden_paths,
+            forbidden_operation_kinds=forbidden_operation_kinds,
+            allowed_command_runs=allowed_commands.keys(),
+            dry_run=dry_run,
+        )
+    except TaskpackPolicyRecomputeError as exc:
+        raise _fail(
+            code=_AHK1004_TASKPACK_COMPONENT_INVALID,
+            message="runner policy recompute failed",
+            details={
+                "policy_recompute_error_code": exc.code,
+                "policy_recompute_error": exc.message,
+                "policy_recompute_details": exc.details,
+            },
+        ) from exc
     return [
         PolicyIssue(
             issue_code=issue["issue_code"],

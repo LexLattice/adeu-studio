@@ -503,7 +503,7 @@ def _emit_policy_recompute_result_for_verification(
         allowlist_paths=allowlist_paths,
         forbidden_paths=forbidden_paths,
         forbidden_operation_kinds=forbidden_operation_kinds,
-        allowed_command_runs=tuple(sorted(commands_by_run.keys())),
+        allowed_command_runs=commands_by_run.keys(),
         dry_run=runner_result_payload["dry_run"],
     )
     artifact = emit_policy_recompute_result(
@@ -831,6 +831,18 @@ def verify_taskpack_run(
                     "policy_recompute_error_code": exc.code,
                     "policy_recompute_error": exc.message,
                     "policy_recompute_details": exc.details,
+                },
+                artifact_path=policy_recompute_output_rel,
+                policy_source="runner_provenance",
+            ) from exc
+        except TaskpackRunnerError as exc:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="policy recompute baseline generation failed",
+                details={
+                    "runner_error_code": exc.code,
+                    "runner_error": exc.message,
+                    "runner_error_details": exc.details,
                 },
                 artifact_path=policy_recompute_output_rel,
                 policy_source="runner_provenance",
