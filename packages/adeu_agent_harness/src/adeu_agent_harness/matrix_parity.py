@@ -1275,11 +1275,17 @@ def build_adapter_matrix_parity_report(
         )
         observed_lanes.append(lane)
 
-    observed_lanes.sort()
     if observed_lanes != declared_lanes:
+        same_lane_set = len(observed_lanes) == len(declared_lanes) and set(observed_lanes) == set(
+            declared_lanes
+        )
         raise _fail(
             code=AHK5007_MATRIX_LANE_COMPLETENESS_VIOLATION,
-            message="evaluation inputs must cover every declared lane exactly once",
+            message=(
+                "evaluation inputs must follow the declared lexicographic lane order"
+                if same_lane_set
+                else "evaluation inputs must cover every declared lane exactly once"
+            ),
             details={
                 "declared_lanes": [lane.as_payload() for lane in declared_lanes],
                 "observed_lanes": [lane.as_payload() for lane in observed_lanes],

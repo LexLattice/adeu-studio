@@ -863,6 +863,40 @@ def test_package_ux_cross_mode_parity_domain_and_bundle_boundary(
     )
 
 
+def _prepare_matrix_lane_inputs(
+    packaging_repo: dict[str, str],
+) -> tuple[Path, str, Path, Path]:
+    root = _repo_root_path(packaging_repo)
+    matrix_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix.json"
+    build_adapter_matrix(
+        adapter_registry_path=packaging_repo["adapter_registry"],
+        matrix_output_path=matrix_rel,
+        repo_root_path=root,
+    )
+
+    integrated = _run_packaging(
+        packaging_repo,
+        expected_mode=DEPLOYMENT_MODE_INTEGRATED,
+        deployment_mode=DEPLOYMENT_MODE_INTEGRATED,
+    )
+    standalone = _run_packaging(
+        packaging_repo,
+        expected_mode=DEPLOYMENT_MODE_STANDALONE,
+        deployment_mode=DEPLOYMENT_MODE_STANDALONE,
+    )
+    integrated_result_path = _write_packaging_result_artifact(
+        root,
+        rel_path="artifacts/agent_harness/v50/matrix/packaging_result_integrated.json",
+        packaging_result=integrated,
+    )
+    standalone_result_path = _write_packaging_result_artifact(
+        root,
+        rel_path="artifacts/agent_harness/v50/matrix/packaging_result_standalone.json",
+        packaging_result=standalone,
+    )
+    return root, matrix_rel, integrated_result_path, standalone_result_path
+
+
 def test_build_adapter_matrix_emits_deterministic_registry(
     packaging_repo: dict[str, str],
 ) -> None:
@@ -917,33 +951,13 @@ def test_build_adapter_matrix_emits_deterministic_registry(
 def test_build_adapter_matrix_parity_report_is_deterministic_and_complete(
     packaging_repo: dict[str, str],
 ) -> None:
-    root = _repo_root_path(packaging_repo)
-    matrix_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix.json"
+    root, matrix_rel, integrated_result_path, standalone_result_path = _prepare_matrix_lane_inputs(
+        packaging_repo
+    )
     matrix_result = build_adapter_matrix(
         adapter_registry_path=packaging_repo["adapter_registry"],
         matrix_output_path=matrix_rel,
         repo_root_path=root,
-    )
-
-    integrated = _run_packaging(
-        packaging_repo,
-        expected_mode=DEPLOYMENT_MODE_INTEGRATED,
-        deployment_mode=DEPLOYMENT_MODE_INTEGRATED,
-    )
-    standalone = _run_packaging(
-        packaging_repo,
-        expected_mode=DEPLOYMENT_MODE_STANDALONE,
-        deployment_mode=DEPLOYMENT_MODE_STANDALONE,
-    )
-    integrated_result_path = _write_packaging_result_artifact(
-        root,
-        rel_path="artifacts/agent_harness/v50/matrix/packaging_result_integrated.json",
-        packaging_result=integrated,
-    )
-    standalone_result_path = _write_packaging_result_artifact(
-        root,
-        rel_path="artifacts/agent_harness/v50/matrix/packaging_result_standalone.json",
-        packaging_result=standalone,
     )
     evaluation_inputs_path = _write_matrix_evaluation_inputs(
         root,
@@ -1030,24 +1044,7 @@ def test_build_adapter_matrix_parity_report_is_deterministic_and_complete(
 def test_build_adapter_matrix_parity_report_rejects_missing_declared_lane(
     packaging_repo: dict[str, str],
 ) -> None:
-    root = _repo_root_path(packaging_repo)
-    matrix_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix.json"
-    build_adapter_matrix(
-        adapter_registry_path=packaging_repo["adapter_registry"],
-        matrix_output_path=matrix_rel,
-        repo_root_path=root,
-    )
-
-    integrated = _run_packaging(
-        packaging_repo,
-        expected_mode=DEPLOYMENT_MODE_INTEGRATED,
-        deployment_mode=DEPLOYMENT_MODE_INTEGRATED,
-    )
-    integrated_result_path = _write_packaging_result_artifact(
-        root,
-        rel_path="artifacts/agent_harness/v50/matrix/packaging_result_integrated.json",
-        packaging_result=integrated,
-    )
+    root, matrix_rel, integrated_result_path, _ = _prepare_matrix_lane_inputs(packaging_repo)
     evaluation_inputs_path = _write_matrix_evaluation_inputs(
         root,
         matrix_registry_path=matrix_rel,
@@ -1094,6 +1091,148 @@ def test_build_adapter_matrix_parity_report_rejects_tampered_matrix_registry_has
             repo_root_path=root,
         )
     assert exc_info.value.code == AHK5003_MATRIX_REGISTRY_INVALID
+
+
+def test_build_adapter_matrix_parity_report_rejects_duplicate_lane_tuple(
+    packaging_repo: dict[str, str],
+) -> None:
+    root, matrix_rel, integrated_result_path, _ = _prepare_matrix_lane_inputs(packaging_repo)
+    evaluation_inputs_path = _write_matrix_evaluation_inputs(
+        root,
+        matrix_registry_path=matrix_rel,
+        lane_inputs=[
+            {
+                "deployment_mode": DEPLOYMENT_MODE_INTEGRATED,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, integrated_result_path),
+            },
+            {
+                "deployment_mode": DEPLOYMENT_MODE_INTEGRATED,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, integrated_result_path),
+            },
+        ],
+    )
+
+    with pytest.raises(TaskpackMatrixError) as exc_info:
+        build_adapter_matrix_parity_report(
+            matrix_registry_path=matrix_rel,
+            evaluation_inputs_path=_relative(root, evaluation_inputs_path),
+            repo_root_path=root,
+        )
+    assert exc_info.value.code == AHK5007_MATRIX_LANE_COMPLETENESS_VIOLATION
+
+
+def test_build_adapter_matrix_parity_report_rejects_undeclared_lane(
+    packaging_repo: dict[str, str],
+) -> None:
+    root, matrix_rel, integrated_result_path, standalone_result_path = _prepare_matrix_lane_inputs(
+        packaging_repo
+    )
+    evaluation_inputs_path = _write_matrix_evaluation_inputs(
+        root,
+        matrix_registry_path=matrix_rel,
+        lane_inputs=[
+            {
+                "deployment_mode": DEPLOYMENT_MODE_INTEGRATED,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, integrated_result_path),
+            },
+            {
+                "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
+                "adapter_id": "other",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, standalone_result_path),
+            },
+        ],
+    )
+
+    with pytest.raises(TaskpackMatrixError) as exc_info:
+        build_adapter_matrix_parity_report(
+            matrix_registry_path=matrix_rel,
+            evaluation_inputs_path=_relative(root, evaluation_inputs_path),
+            repo_root_path=root,
+        )
+    assert exc_info.value.code == AHK5007_MATRIX_LANE_COMPLETENESS_VIOLATION
+
+
+def test_build_adapter_matrix_parity_report_rejects_runtime_id_outside_singleton(
+    packaging_repo: dict[str, str],
+) -> None:
+    root, matrix_rel, integrated_result_path, standalone_result_path = _prepare_matrix_lane_inputs(
+        packaging_repo
+    )
+    evaluation_inputs_path = _write_matrix_evaluation_inputs(
+        root,
+        matrix_registry_path=matrix_rel,
+        lane_inputs=[
+            {
+                "deployment_mode": DEPLOYMENT_MODE_INTEGRATED,
+                "adapter_id": "default",
+                "runtime_id": "docker_python",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, integrated_result_path),
+            },
+            {
+                "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, standalone_result_path),
+            },
+        ],
+    )
+
+    with pytest.raises(TaskpackMatrixError) as exc_info:
+        build_adapter_matrix_parity_report(
+            matrix_registry_path=matrix_rel,
+            evaluation_inputs_path=_relative(root, evaluation_inputs_path),
+            repo_root_path=root,
+        )
+    assert exc_info.value.code == AHK5007_MATRIX_LANE_COMPLETENESS_VIOLATION
+
+
+def test_build_adapter_matrix_parity_report_rejects_non_lexicographic_lane_order(
+    packaging_repo: dict[str, str],
+) -> None:
+    root, matrix_rel, integrated_result_path, standalone_result_path = _prepare_matrix_lane_inputs(
+        packaging_repo
+    )
+    evaluation_inputs_path = _write_matrix_evaluation_inputs(
+        root,
+        matrix_registry_path=matrix_rel,
+        lane_inputs=[
+            {
+                "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, standalone_result_path),
+            },
+            {
+                "deployment_mode": DEPLOYMENT_MODE_INTEGRATED,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, integrated_result_path),
+            },
+        ],
+    )
+
+    with pytest.raises(TaskpackMatrixError) as exc_info:
+        build_adapter_matrix_parity_report(
+            matrix_registry_path=matrix_rel,
+            evaluation_inputs_path=_relative(root, evaluation_inputs_path),
+            repo_root_path=root,
+        )
+    assert exc_info.value.code == AHK5007_MATRIX_LANE_COMPLETENESS_VIOLATION
 
 
 def test_packaging_manifest_and_bundle_hash_subject_are_deterministic(
