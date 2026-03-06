@@ -36,13 +36,24 @@ from ._v46_verifier_common import (
     write_json,
 )
 from .compile import TaskpackCompileError
+from .policy_recompute import (
+    DEFAULT_POLICY_RECOMPUTE_OUTPUT_ROOT,
+    POLICY_RECOMPUTE_RESULT_SCHEMA,
+    TaskpackPolicyRecomputeError,
+    emit_policy_recompute_result,
+    project_runner_policy_outcome,
+    recompute_policy_validation,
+)
 from .run_taskpack import (
     CANDIDATE_CHANGE_PLAN_SCHEMA,
     REJECTION_DIAGNOSTIC_SCHEMA,
     RUNNER_PROVENANCE_SCHEMA,
     RUNNER_RESULT_SCHEMA,
     TaskpackRunnerError,
+    _load_allowlist_payload_from_bytes,
     _load_candidate_change_plan,
+    _load_commands_payload_from_bytes,
+    _load_forbidden_payload_from_bytes,
 )
 from .verify_taskpack_signature import (
     TaskpackSigningError,
@@ -89,6 +100,8 @@ _REQUIRED_RUNNER_REJECTION_KEYS = {
 class TaskpackVerifierResult:
     verification_result_path: Path
     verified_result_hash: str
+    policy_recompute_result_path: Path
+    policy_recompute_result_hash: str
     rejection_diagnostic_path: Path | None
 
 
@@ -458,6 +471,76 @@ def _verification_hash_subject(
     }
 
 
+def _emit_policy_recompute_result_for_verification(
+    *,
+    taskpack_path: Path,
+    taskpack_component_bytes: dict[str, bytes],
+    candidate_plan: Any,
+    runner_result_payload: dict[str, Any],
+    runner_provenance_payload: dict[str, Any],
+    taskpack_manifest_hash: str,
+    candidate_change_plan_hash: str,
+    runner_provenance_hash: str,
+    output_dir: Path,
+) -> tuple[Path, str]:
+    allowlist_paths = _load_allowlist_payload_from_bytes(
+        path=taskpack_path / "ALLOWLIST.json",
+        payload_bytes=taskpack_component_bytes["ALLOWLIST.json"],
+    )
+    forbidden_paths, _forbidden_effects, forbidden_operation_kinds = (
+        _load_forbidden_payload_from_bytes(
+            path=taskpack_path / "FORBIDDEN.json",
+            payload_bytes=taskpack_component_bytes["FORBIDDEN.json"],
+        )
+    )
+    _deterministic_env, commands_by_run = _load_commands_payload_from_bytes(
+        path=taskpack_path / "COMMANDS.json",
+        payload_bytes=taskpack_component_bytes["COMMANDS.json"],
+    )
+    runner_outcome = project_runner_policy_outcome(runner_provenance_payload)
+    recompute_outcome = recompute_policy_validation(
+        plan=candidate_plan,
+        allowlist_paths=allowlist_paths,
+        forbidden_paths=forbidden_paths,
+        forbidden_operation_kinds=forbidden_operation_kinds,
+        allowed_command_runs=commands_by_run.keys(),
+        dry_run=runner_result_payload["dry_run"],
+    )
+    artifact = emit_policy_recompute_result(
+        output_dir=output_dir,
+        taskpack_manifest_hash=taskpack_manifest_hash,
+        candidate_change_plan_hash=candidate_change_plan_hash,
+        runner_provenance_hash=runner_provenance_hash,
+        dry_run=runner_result_payload["dry_run"],
+        runner_outcome=runner_outcome,
+        recompute_outcome=recompute_outcome,
+    )
+    loaded = load_json_object(artifact.result_path)
+    require_schema(
+        loaded,
+        expected_schema=POLICY_RECOMPUTE_RESULT_SCHEMA,
+        path=artifact.result_path,
+    )
+    loaded_hash = loaded.get("result_hash")
+    if not isinstance(loaded_hash, str) or not is_sha256(loaded_hash):
+        raise fail(
+            code=AHK4607_VERIFICATION_RESULT_INVALID,
+            message="policy recompute result hash is missing or invalid",
+            details={"path": str(artifact.result_path)},
+            artifact_path=str(artifact.result_path),
+            policy_source="runner_provenance",
+        )
+    if loaded_hash != artifact.result_hash:
+        raise fail(
+            code=AHK4607_VERIFICATION_RESULT_INVALID,
+            message="policy recompute result hash drift detected",
+            details={"path": str(artifact.result_path)},
+            artifact_path=str(artifact.result_path),
+            policy_source="runner_provenance",
+        )
+    return artifact.result_path, artifact.result_hash
+
+
 def verify_taskpack_run(
     *,
     taskpack_dir: str | Path,
@@ -470,6 +553,7 @@ def verify_taskpack_run(
     trust_anchor_registry_path: str | Path,
     verification_reference_time_utc: str,
     verification_output_root: str | Path,
+    policy_recompute_output_root: str | Path = DEFAULT_POLICY_RECOMPUTE_OUTPUT_ROOT,
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
 ) -> TaskpackVerifierResult:
@@ -492,6 +576,7 @@ def verify_taskpack_run(
         runner_result_rel = normalize_relative_path(str(runner_result_path))
         runner_provenance_rel = normalize_relative_path(str(runner_provenance_path))
         verification_output_rel = normalize_relative_path(str(verification_output_root))
+        policy_recompute_output_rel = normalize_relative_path(str(policy_recompute_output_root))
 
         handoff = _load_verifier_signature_handoff(
             taskpack_dir=taskpack_rel,
@@ -723,6 +808,46 @@ def verify_taskpack_run(
                     policy_source="runner_result",
                 )
 
+        try:
+            (
+                policy_recompute_result_path,
+                policy_recompute_result_hash,
+            ) = _emit_policy_recompute_result_for_verification(
+                taskpack_path=handoff.taskpack_snapshot.out_dir,
+                taskpack_component_bytes=handoff.taskpack_snapshot.component_bytes_by_path,
+                candidate_plan=candidate_plan,
+                runner_result_payload=runner_result_payload,
+                runner_provenance_payload=runner_provenance_payload,
+                taskpack_manifest_hash=manifest_hash,
+                candidate_change_plan_hash=candidate_hash,
+                runner_provenance_hash=recomputed_provenance_hash,
+                output_dir=coerce_artifact_path(root, policy_recompute_output_rel),
+            )
+        except TaskpackPolicyRecomputeError as exc:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="policy recompute baseline generation failed",
+                details={
+                    "policy_recompute_error_code": exc.code,
+                    "policy_recompute_error": exc.message,
+                    "policy_recompute_details": exc.details,
+                },
+                artifact_path=policy_recompute_output_rel,
+                policy_source="runner_provenance",
+            ) from exc
+        except TaskpackRunnerError as exc:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="policy recompute baseline generation failed",
+                details={
+                    "runner_error_code": exc.code,
+                    "runner_error": exc.message,
+                    "runner_error_details": exc.details,
+                },
+                artifact_path=policy_recompute_output_rel,
+                policy_source="runner_provenance",
+            ) from exc
+
         hash_subject = _verification_hash_subject(
             taskpack_manifest_hash=manifest_hash,
             candidate_change_plan_hash=candidate_hash,
@@ -778,6 +903,8 @@ def verify_taskpack_run(
         return TaskpackVerifierResult(
             verification_result_path=verification_result_path,
             verified_result_hash=verified_result_hash,
+            policy_recompute_result_path=policy_recompute_result_path,
+            policy_recompute_result_hash=policy_recompute_result_hash,
             rejection_diagnostic_path=None,
         )
 
@@ -905,6 +1032,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Repo-relative output root for taskpack_verification_result@1 artifact.",
     )
     parser.add_argument(
+        "--policy-recompute-output-root",
+        default=DEFAULT_POLICY_RECOMPUTE_OUTPUT_ROOT,
+        help="Repo-relative output root for policy_recompute_result@1 artifact.",
+    )
+    parser.add_argument(
         "--diagnostic-registry",
         default=DEFAULT_DIAGNOSTIC_REGISTRY_PATH,
         help="Repo-relative path to authoritative v46 diagnostic registry JSON.",
@@ -931,6 +1063,7 @@ def main(argv: list[str] | None = None) -> int:
             trust_anchor_registry_path=args.trust_anchor_registry,
             verification_reference_time_utc=args.verification_reference_time_utc,
             verification_output_root=args.verification_output_root,
+            policy_recompute_output_root=args.policy_recompute_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             repo_root_path=args.repo_root,
         )
@@ -942,6 +1075,8 @@ def main(argv: list[str] | None = None) -> int:
         "schema": VERIFIER_RESULT_SCHEMA,
         "verification_result_path": result.verification_result_path.as_posix(),
         "verified_result_hash": result.verified_result_hash,
+        "policy_recompute_result_path": result.policy_recompute_result_path.as_posix(),
+        "policy_recompute_result_hash": result.policy_recompute_result_hash,
         "rejection_diagnostic_path": (
             result.rejection_diagnostic_path.as_posix()
             if result.rejection_diagnostic_path is not None

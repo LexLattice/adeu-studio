@@ -14,6 +14,7 @@ from adeu_agent_harness.compile import (
     TASKPACK_PROFILE_REGISTRY_SCHEMA,
     compile_taskpack,
 )
+from adeu_agent_harness.policy_recompute import TaskpackPolicyRecomputeError
 from adeu_agent_harness.run_taskpack import TaskpackRunnerError, run_taskpack
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
@@ -390,6 +391,8 @@ def test_run_taskpack_policy_violation_emits_rejection_and_provenance(tmp_path: 
     error_payload = _error_payload(exc_info.value)
     assert error_payload["code"] == "AHK1010"
     details = error_payload["details"]
+    assert details["dry_run"] is True
+    assert details["dry_run_preview_path"] is None
     rejection_path = Path(details["rejection_diagnostic_path"])
     provenance_path = Path(details["provenance_path"])
     assert rejection_path.is_file()
@@ -1093,6 +1096,54 @@ def test_run_taskpack_pre_write_exception_does_not_execute_commands(
         )
     assert _error_payload(exc_info.value)["code"] == "AHK1013"
     assert not (root / marker_rel).exists()
+
+
+def test_run_taskpack_recompute_errors_fail_as_structured_runner_errors(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _base_repo(tmp_path)
+    _seed_semantic_authority_artifacts(root)
+    registry_path = _seed_profile_and_registry(root, commands=_default_commands())
+    taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
+    adapter_registry_path = _seed_adapter_registry(root)
+
+    rel_path = "packages/adeu_agent_harness/src/adeu_agent_harness/recompute_fixture.txt"
+    _write(root / rel_path, "before\n")
+    candidate_path = _write_candidate_change_plan(
+        root,
+        operations=[
+            {
+                "path": rel_path,
+                "operation_kind": "update",
+                "unified_diff": _update_diff(rel_path=rel_path, before="before", after="after"),
+            }
+        ],
+        proposed_commands=[],
+    )
+
+    def _raise_recompute_error(**_: Any) -> dict[str, Any]:
+        raise TaskpackPolicyRecomputeError(
+            code="AHK5101",
+            message="forced recompute failure",
+            details={"source": "test"},
+        )
+
+    monkeypatch.setattr(runner_mod, "recompute_policy_validation", _raise_recompute_error)
+
+    with pytest.raises(TaskpackRunnerError) as exc_info:
+        _run_taskpack_signed(
+            root,
+            taskpack_dir=taskpack_dir,
+            adapter_registry_path=adapter_registry_path,
+            adapter_id="default",
+            candidate_change_plan_path=candidate_path,
+            dry_run=True,
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK1004"
+    assert payload["details"]["policy_recompute_error_code"] == "AHK5101"
 
 
 def test_run_taskpack_provenance_excludes_nondeterministic_fields(tmp_path: Path) -> None:
