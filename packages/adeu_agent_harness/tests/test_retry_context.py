@@ -21,7 +21,12 @@ from adeu_agent_harness.retry_context import (
     TaskpackRetryContextError,
     generate_retry_context,
 )
-from adeu_agent_harness.run_taskpack import RUNNER_RESULT_SCHEMA, TaskpackRunnerError, run_taskpack
+from adeu_agent_harness.run_taskpack import (
+    RUNNER_RESULT_SCHEMA,
+    TaskpackRunnerError,
+    TaskpackRunnerResult,
+    run_taskpack,
+)
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 _OUT_DIR = "artifacts/agent_harness/v52/taskpacks/v41/v52_default"
@@ -202,7 +207,7 @@ def _run_taskpack_signed(
     adapter_registry_path: Path,
     candidate_change_plan_path: Path,
     dry_run: bool,
-) -> Any:
+) -> TaskpackRunnerResult:
     signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
     return run_taskpack(
         taskpack_dir=taskpack_dir.relative_to(root).as_posix(),
@@ -230,7 +235,7 @@ def _write_runner_result_from_error_details(root: Path, *, details: dict[str, An
     return path
 
 
-def _write_runner_result(root: Path, *, run_result: Any) -> Path:
+def _write_runner_result(root: Path, *, run_result: TaskpackRunnerResult) -> Path:
     path = root / "artifacts" / "agent_harness" / "v52" / "runner_result_success.json"
     payload = {
         "schema": RUNNER_RESULT_SCHEMA,
@@ -499,3 +504,39 @@ def test_generate_retry_context_explicit_rejection_input_must_match_runner_resul
 
     payload = _error_payload(exc_info.value)
     assert payload["code"] == "AHK5204"
+
+
+def test_generate_retry_context_rejects_output_root_with_trailing_parent_segment(
+    tmp_path: Path,
+) -> None:
+    root, candidate_path, runner_result_path, _ = _prepare_runner_policy_failure_artifacts(tmp_path)
+
+    with pytest.raises(TaskpackRetryContextError) as exc_info:
+        generate_retry_context(
+            candidate_change_plan_path=candidate_path.relative_to(root).as_posix(),
+            runner_result_path=runner_result_path.relative_to(root).as_posix(),
+            retry_context_output_root="artifacts/..",
+            repo_root_path=root,
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK5201"
+
+
+def test_generate_retry_context_wraps_directory_inputs_as_structured_errors(
+    tmp_path: Path,
+) -> None:
+    root, candidate_path, _, _ = _prepare_runner_policy_failure_artifacts(tmp_path)
+    directory_path = root / "artifacts" / "agent_harness" / "v52" / "not_a_json_payload"
+    directory_path.mkdir(parents=True, exist_ok=True)
+
+    with pytest.raises(TaskpackRetryContextError) as exc_info:
+        generate_retry_context(
+            candidate_change_plan_path=candidate_path.relative_to(root).as_posix(),
+            runner_result_path=directory_path.relative_to(root).as_posix(),
+            retry_context_output_root=DEFAULT_RETRY_CONTEXT_OUTPUT_ROOT,
+            repo_root_path=root,
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK5201"

@@ -112,13 +112,14 @@ def _normalize_relative_path(raw_path: str) -> str:
             message="path must be repo-relative posix",
             details={"path": raw_path},
         )
-    if "/../" in f"/{path_text}":
+    raw_segments = path_text.split("/")
+    if any(segment == ".." for segment in raw_segments):
         raise _fail(
             code=AHK5201_INPUT_INVALID,
             message="path must not escape repository root",
             details={"path": raw_path},
         )
-    segments = [segment for segment in path_text.split("/") if segment and segment != "."]
+    segments = [segment for segment in raw_segments if segment and segment != "."]
     if not segments:
         raise _fail(
             code=AHK5201_INPUT_INVALID,
@@ -168,6 +169,12 @@ def _load_json_object(path: Path) -> dict[str, Any]:
             code=AHK5201_INPUT_INVALID,
             message="required json path does not exist",
             details={"path": str(path)},
+        ) from exc
+    except OSError as exc:
+        raise _fail(
+            code=AHK5201_INPUT_INVALID,
+            message="required json path cannot be read",
+            details={"path": str(path), "error": str(exc)},
         ) from exc
     except json.JSONDecodeError as exc:
         raise _fail(
@@ -385,7 +392,7 @@ def _normalize_issue_entries(issues: list[Any], *, path: Path) -> list[dict[str,
 
 def _build_candidate_plan_hunk_map(
     candidate_plan_path: Path,
-) -> tuple[Any, dict[tuple[str, int], str]]:
+) -> tuple[runner_mod.CandidateChangePlan, dict[tuple[str, int], str]]:
     try:
         plan = runner_mod._load_candidate_change_plan(candidate_plan_path)
     except runner_mod.TaskpackRunnerError as exc:
