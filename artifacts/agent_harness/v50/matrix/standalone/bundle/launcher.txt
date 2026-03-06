@@ -1,0 +1,2 @@
+schema=taskpack_ux_mode_bundle@1
+deployment_mode=standalone

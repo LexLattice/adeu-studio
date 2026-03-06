@@ -25,6 +25,7 @@ This rewrite was produced by auditing:
 - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS49_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS50_EDGES.md`
 - the prior version of this file
 - current implementation under `apps/` and `packages/`
 
@@ -169,6 +170,7 @@ the sense that the roadmap still names them and current code does not implement 
   - Sources:
     - `docs/ASSESSMENT_vNEXT_PLUS45_EDGES.md`
     - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS50_EDGES.md`
     - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
 - rejection-diagnostic retry-context feeder automation
   - Sources:
