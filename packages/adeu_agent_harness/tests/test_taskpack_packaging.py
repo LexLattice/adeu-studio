@@ -112,7 +112,9 @@ def _run_packaging(
             signature_verification_result_path or packaging_repo["signature_verification_result"]
         ),
         signature_envelope_path=signature_envelope_path or packaging_repo["signature_envelope"],
-        trust_anchor_registry_path=trust_anchor_registry_path or packaging_repo["trust_anchor_registry"],
+        trust_anchor_registry_path=(
+            trust_anchor_registry_path or packaging_repo["trust_anchor_registry"]
+        ),
         verification_reference_time_utc=(
             verification_reference_time_utc or packaging_repo["verification_reference_time_utc"]
         ),
@@ -651,6 +653,19 @@ def test_package_ux_fails_closed_on_missing_signature_handoff(
     payload = _error_payload(exc_info.value)
     assert payload["code"] == AHK4703_ARTIFACT_INVALID
     assert payload["details"]["signing_error_code"] == "AHK4800"
+
+
+def test_package_ux_fails_closed_on_missing_taskpack_component_after_preflight(
+    packaging_repo: dict[str, str],
+) -> None:
+    taskpack_dir = _artifact_path(packaging_repo, "taskpack_dir")
+    (taskpack_dir / "ALLOWLIST.json").unlink()
+
+    with pytest.raises(TaskpackPackagingError) as exc_info:
+        _run_packaging(packaging_repo)
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == AHK4703_ARTIFACT_INVALID
+    assert payload["details"]["signing_error_code"] == "AHK0017"
 
 
 def test_package_ux_emits_rejection_diagnostic_and_no_partial_package_on_failure(

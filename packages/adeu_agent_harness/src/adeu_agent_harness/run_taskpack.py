@@ -16,6 +16,7 @@ from typing import Any, Iterator
 from adeu_ir.repo import repo_root
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
+from .compile import TaskpackCompileError
 from .verify_taskpack_signature import (
     TaskpackSigningError,
     load_validated_downstream_signature_handoff,
@@ -687,7 +688,8 @@ def _load_allowlist_payload(path: Path) -> list[str]:
 
 
 def _load_allowlist_payload_from_bytes(*, path: Path, payload_bytes: bytes) -> list[str]:
-    return _validate_allowlist_payload(_load_json_object_from_bytes(payload_bytes, path=path), path=path)
+    payload = _load_json_object_from_bytes(payload_bytes, path=path)
+    return _validate_allowlist_payload(payload, path=path)
 
 
 def _validate_forbidden_payload(
@@ -907,7 +909,8 @@ def _load_commands_payload(path: Path) -> tuple[dict[str, str], dict[str, dict[s
 def _load_commands_payload_from_bytes(
     *, path: Path, payload_bytes: bytes
 ) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
-    return _validate_commands_payload(_load_json_object_from_bytes(payload_bytes, path=path), path=path)
+    payload = _load_json_object_from_bytes(payload_bytes, path=path)
+    return _validate_commands_payload(payload, path=path)
 
 
 def _load_runner_signature_handoff(
@@ -928,7 +931,7 @@ def _load_runner_signature_handoff(
             verification_reference_time_utc=verification_reference_time_utc,
             repo_root_path=repo_root_path,
         )
-    except TaskpackSigningError as exc:
+    except (TaskpackCompileError, TaskpackSigningError) as exc:
         raise _fail(
             code=_AHK1004_TASKPACK_COMPONENT_INVALID,
             message="runner signing handoff validation failed",
@@ -1538,7 +1541,11 @@ def run_taskpack(
         path=taskpack_path / "ALLOWLIST.json",
         payload_bytes=handoff.taskpack_snapshot.component_bytes_by_path["ALLOWLIST.json"],
     )
-    forbidden_paths, _forbidden_effects, forbidden_operation_kinds = _load_forbidden_payload_from_bytes(
+    (
+        forbidden_paths,
+        _forbidden_effects,
+        forbidden_operation_kinds,
+    ) = _load_forbidden_payload_from_bytes(
         path=taskpack_path / "FORBIDDEN.json",
         payload_bytes=handoff.taskpack_snapshot.component_bytes_by_path["FORBIDDEN.json"],
     )

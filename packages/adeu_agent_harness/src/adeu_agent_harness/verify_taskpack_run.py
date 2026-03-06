@@ -35,10 +35,7 @@ from ._v46_verifier_common import (
     require_schema,
     write_json,
 )
-from .verify_taskpack_signature import (
-    TaskpackSigningError,
-    load_validated_downstream_signature_handoff,
-)
+from .compile import TaskpackCompileError
 from .run_taskpack import (
     CANDIDATE_CHANGE_PLAN_SCHEMA,
     REJECTION_DIAGNOSTIC_SCHEMA,
@@ -46,6 +43,10 @@ from .run_taskpack import (
     RUNNER_RESULT_SCHEMA,
     TaskpackRunnerError,
     _load_candidate_change_plan,
+)
+from .verify_taskpack_signature import (
+    TaskpackSigningError,
+    load_validated_downstream_signature_handoff,
 )
 
 VERIFICATION_RESULT_SCHEMA = "taskpack_verification_result@1"
@@ -315,10 +316,10 @@ def _load_verifier_signature_handoff(
             verification_reference_time_utc=verification_reference_time_utc,
             repo_root_path=repo_root_path,
         )
-    except TaskpackSigningError as exc:
+    except (TaskpackCompileError, TaskpackSigningError) as exc:
         failure_code = (
             AHK4604_CROSS_ARTIFACT_HASH_MISMATCH
-            if exc.code == "AHK4804"
+            if exc.code in {"AHK0019", "AHK0020", "AHK4804"}
             else AHK4603_ARTIFACT_INVALID
         )
         raise fail(

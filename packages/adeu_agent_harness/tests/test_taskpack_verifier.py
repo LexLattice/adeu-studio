@@ -583,6 +583,50 @@ def test_verify_taskpack_run_fails_closed_on_taskpack_snapshot_drift_after_prefl
     assert payload["details"]["signing_error_code"] == "AHK4804"
 
 
+def test_verify_taskpack_run_fails_closed_on_missing_taskpack_component_after_preflight(
+    tmp_path: Path,
+) -> None:
+    root = _base_repo(tmp_path)
+    _seed_semantic_authority_artifacts(root)
+    diagnostic_registry_rel = _seed_diagnostic_registry(root)
+    registry_path = _seed_profile_and_registry(root)
+    taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
+    adapter_registry_path = _seed_adapter_registry(root)
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+    rel_path = "packages/adeu_agent_harness/src/adeu_agent_harness/v46_compile_drift_fixture.txt"
+    fixture_path = root / rel_path
+    _write(fixture_path, "before\n")
+    candidate_path = _write_candidate_change_plan(root, rel_path=rel_path)
+    run_result = run_taskpack(
+        taskpack_dir=_relative(root, taskpack_dir),
+        adapter_registry_path=_relative(root, adapter_registry_path),
+        adapter_id="default",
+        candidate_change_plan_path=_relative(root, candidate_path),
+        dry_run=True,
+        repo_root_path=root,
+        **signing.as_kwargs(),
+    )
+    assert fixture_path.read_text(encoding="utf-8") == "before\n"
+    runner_result_path = _write_runner_result_artifact(root, run_result=run_result)
+    (taskpack_dir / "ALLOWLIST.json").unlink()
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        verify_taskpack_run(
+            taskpack_dir=_relative(root, taskpack_dir),
+            candidate_change_plan_path=_relative(root, candidate_path),
+            runner_result_path=_relative(root, runner_result_path),
+            runner_provenance_path=_relative(root, run_result.provenance_path),
+            policy_rejection_diagnostics_path=None,
+            repo_root_path=root,
+            **signing.as_kwargs(),
+            verification_output_root="artifacts/agent_harness/v46/verification",
+            diagnostic_registry_path=diagnostic_registry_rel,
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK4603"
+    assert payload["details"]["signing_error_code"] == "AHK0017"
+
+
 def test_write_closeout_evidence_emits_deterministic_bundle_and_provenance(
     tmp_path: Path,
 ) -> None:

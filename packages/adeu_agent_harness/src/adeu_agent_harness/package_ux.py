@@ -40,11 +40,12 @@ from ._v47_packaging_common import (
     require_schema,
     write_json,
 )
+from .compile import TaskpackCompileError
+from .verify_taskpack_run import VERIFICATION_RESULT_SCHEMA
 from .verify_taskpack_signature import (
     TaskpackSigningError,
     load_validated_downstream_signature_handoff,
 )
-from .verify_taskpack_run import VERIFICATION_RESULT_SCHEMA
 from .write_closeout_evidence import (
     EVIDENCE_BUNDLE_SCHEMA,
     METRIC_KEY_CONTINUITY_SCHEMA,
@@ -274,10 +275,10 @@ def _load_packaging_signature_handoff(
             verification_reference_time_utc=verification_reference_time_utc,
             repo_root_path=repo_root_path,
         )
-    except TaskpackSigningError as exc:
+    except (TaskpackCompileError, TaskpackSigningError) as exc:
         failure_code = (
             AHK4704_CROSS_ARTIFACT_HASH_MISMATCH
-            if exc.code == "AHK4804"
+            if exc.code in {"AHK0019", "AHK0020", "AHK4804"}
             else AHK4703_ARTIFACT_INVALID
         )
         raise fail(

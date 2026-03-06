@@ -286,8 +286,9 @@ def _load_signature_envelope(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _load_trust_anchor_registry(path: Path) -> dict[str, TrustAnchorKeyRecord]:
-    payload = load_json_object(path)
+def _validate_trust_anchor_registry_payload(
+    payload: dict[str, Any], *, path: Path
+) -> dict[str, TrustAnchorKeyRecord]:
     require_schema(payload, expected_schema=TRUST_ANCHOR_REGISTRY_SCHEMA, path=path)
     if set(payload.keys()) != _REQUIRED_TRUST_ANCHOR_REGISTRY_KEYS:
         raise fail(
@@ -404,6 +405,11 @@ def _load_trust_anchor_registry(path: Path) -> dict[str, TrustAnchorKeyRecord]:
         )
 
     return records
+
+
+def _load_trust_anchor_registry(path: Path) -> dict[str, TrustAnchorKeyRecord]:
+    payload = load_json_object(path)
+    return _validate_trust_anchor_registry_payload(payload, path=path)
 
 
 def _verify_with_openssl(
@@ -995,12 +1001,10 @@ def load_validated_downstream_signature_handoff(
     trust_anchor_registry_rel = normalize_relative_path(str(trust_anchor_registry_path))
     trust_anchor_registry_artifact = coerce_artifact_path(root, trust_anchor_registry_rel)
     trust_anchor_registry_payload = load_json_object(trust_anchor_registry_artifact)
-    require_schema(
+    _validate_trust_anchor_registry_payload(
         trust_anchor_registry_payload,
-        expected_schema=TRUST_ANCHOR_REGISTRY_SCHEMA,
         path=trust_anchor_registry_artifact,
     )
-    _load_trust_anchor_registry(trust_anchor_registry_artifact)
     trust_anchor_registry_hash = sha256_canonical_json(trust_anchor_registry_payload)
 
     signer_key_id = require_string(

@@ -8,12 +8,12 @@ from typing import Any
 
 import adeu_agent_harness.run_taskpack as runner_mod
 import pytest
+from adeu_agent_harness._test_signing_handoff import seed_signing_handoff_fixture
 from adeu_agent_harness.compile import (
     PIPELINE_PROFILE_SCHEMA,
     TASKPACK_PROFILE_REGISTRY_SCHEMA,
     compile_taskpack,
 )
-from adeu_agent_harness._test_signing_handoff import seed_signing_handoff_fixture
 from adeu_agent_harness.run_taskpack import TaskpackRunnerError, run_taskpack
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
@@ -543,6 +543,46 @@ def test_run_taskpack_fails_closed_on_missing_signature_verification_result(tmp_
     payload = _error_payload(exc_info.value)
     assert payload["code"] == "AHK1004"
     assert payload["details"]["signing_error_code"] == "AHK4800"
+
+
+def test_run_taskpack_fails_closed_on_missing_taskpack_component_after_preflight(
+    tmp_path: Path,
+) -> None:
+    root = _base_repo(tmp_path)
+    _seed_semantic_authority_artifacts(root)
+    registry_path = _seed_profile_and_registry(root, commands=_default_commands())
+    taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
+    adapter_registry_path = _seed_adapter_registry(root)
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+
+    rel_path = "packages/adeu_agent_harness/src/adeu_agent_harness/signing_compile_fixture.txt"
+    _write(root / rel_path, "before\n")
+    candidate_path = _write_candidate_change_plan(
+        root,
+        operations=[
+            {
+                "path": rel_path,
+                "operation_kind": "update",
+                "unified_diff": _update_diff(rel_path=rel_path, before="before", after="after"),
+            }
+        ],
+        proposed_commands=[],
+    )
+    (taskpack_dir / "ALLOWLIST.json").unlink()
+
+    with pytest.raises(TaskpackRunnerError) as exc_info:
+        run_taskpack(
+            taskpack_dir=_relative_input(root, taskpack_dir),
+            adapter_registry_path=_relative_input(root, adapter_registry_path),
+            adapter_id="default",
+            candidate_change_plan_path=_relative_input(root, candidate_path),
+            dry_run=True,
+            repo_root_path=root,
+            **signing.as_kwargs(),
+        )
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK1004"
+    assert payload["details"]["signing_error_code"] == "AHK0017"
 
 
 def test_run_taskpack_fails_closed_on_adapter_registry_schema_mismatch(tmp_path: Path) -> None:
