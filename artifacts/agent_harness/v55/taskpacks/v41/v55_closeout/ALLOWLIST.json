@@ -1,0 +1,1 @@
+{"path_policy":"repo_relative_only","paths":["artifacts/stop_gate","packages/adeu_agent_harness/src/adeu_agent_harness","packages/adeu_agent_harness/tests"],"profile_id":"v55_closeout_default","schema":"taskpack/allowlist@1"}

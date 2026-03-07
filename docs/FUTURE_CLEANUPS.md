@@ -29,6 +29,8 @@ This rewrite was produced by auditing:
 - `docs/ASSESSMENT_vNEXT_PLUS51_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS52_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS53_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS54_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS55_EDGES.md`
 - the prior version of this file
 - current implementation under `apps/` and `packages/`
 
@@ -197,14 +199,22 @@ the sense that the roadmap still names them and current code does not implement 
 - live provider adapters beyond the frozen singleton test-provider surface
   - Sources:
     - `docs/ASSESSMENT_vNEXT_PLUS53_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS55_EDGES.md`
     - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
 - network transport and remote job dispatch for attested verifier lanes
   - Sources:
     - `docs/ASSESSMENT_vNEXT_PLUS53_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS55_EDGES.md`
     - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
 - attested verifier ingestion without exact local-equivalence fallback
   - Sources:
     - `docs/ASSESSMENT_vNEXT_PLUS53_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS55_EDGES.md`
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
+- broader remote-enclave execution beyond the current local-artifact-ingestion-only
+  deployment-mode packaging baseline
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS55_EDGES.md`
     - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
 - additive trust-anchor registry extension only if the existing V34-A registry contract
   proves insufficient
