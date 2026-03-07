@@ -46,6 +46,9 @@ SHARED_ATTESTATION_VALIDATOR_IDENTIFIER = (
     "v34e_attestation_validator@1:"
     "adeu_agent_harness.attestation.validate_attested_verification"
 )
+SHARED_ATTESTATION_VALIDATOR_IDENTIFIER_POLICY = (
+    "frozen_module_function_path_or_registry_key_no_free_text"
+)
 PROVIDER_ID = "deterministic_test_enclave"
 PROVIDER_ID_COMPARISON_POLICY = (
     "exact_case_sensitive_equality_against_deterministic_test_enclave"
