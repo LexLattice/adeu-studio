@@ -67,6 +67,18 @@ from adeu_agent_harness.retry_context import (
     VERIFICATION_PASSED_POLICY as RETRY_CONTEXT_VERIFICATION_PASSED_POLICY,
 )
 from adeu_agent_harness.run_taskpack import RUNNER_RESULT_SCHEMA, TaskpackRunnerError, run_taskpack
+from adeu_agent_harness.standalone_integrity import (
+    DEPLOYMENT_MODE_STANDALONE,
+    INTEGRITY_CHECKER_ENTRYPOINT,
+    SHARED_INTEGRITY_CHECKER,
+    SHARED_INTEGRITY_CHECKER_IDENTIFIER,
+    SHARED_INTEGRITY_CHECKER_IDENTIFIER_POLICY,
+    STANDALONE_INTEGRITY_VERIFICATION_RESULT_SCHEMA,
+    verify_standalone_integrity,
+)
+from adeu_agent_harness.standalone_integrity import (
+    VERIFICATION_PASSED_POLICY as STANDALONE_INTEGRITY_VERIFICATION_PASSED_POLICY,
+)
 from adeu_agent_harness.verify_taskpack_run import (
     VERIFICATION_RESULT_SCHEMA,
     TaskpackVerifierError,
@@ -82,6 +94,12 @@ from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 _OUT_DIR = "artifacts/agent_harness/v46/taskpacks/v41/v46_default"
 _DIAGNOSTIC_REGISTRY_REL = "artifacts/agent_harness/v46/diagnostic_registry_v46.json"
+_PACKAGING_DIAGNOSTIC_REGISTRY_REL = (
+    "packages/adeu_agent_harness/src/adeu_agent_harness/diagnostic_registry_v47.json"
+)
+_STANDALONE_INTEGRITY_DIAGNOSTIC_REGISTRY_REL = (
+    "packages/adeu_agent_harness/src/adeu_agent_harness/diagnostic_registry_v54.json"
+)
 
 
 @pytest.fixture(autouse=True)
@@ -333,6 +351,44 @@ def _seed_diagnostic_registry(root: Path) -> str:
         },
     )
     return _DIAGNOSTIC_REGISTRY_REL
+
+
+def _seed_packaging_diagnostic_registry(root: Path) -> str:
+    path = root / _PACKAGING_DIAGNOSTIC_REGISTRY_REL
+    _write_json(
+        path,
+        {
+            "schema": "taskpack_packaging_diagnostic_registry@1",
+            "codes": [
+                {
+                    "issue_code": f"AHK47{index:02d}",
+                    "title": f"V47_{index:02d}",
+                    "description": "v47 packaging diagnostic code",
+                }
+                for index in range(14)
+            ],
+        },
+    )
+    return _PACKAGING_DIAGNOSTIC_REGISTRY_REL
+
+
+def _seed_standalone_integrity_diagnostic_registry(root: Path) -> str:
+    path = root / _STANDALONE_INTEGRITY_DIAGNOSTIC_REGISTRY_REL
+    _write_json(
+        path,
+        {
+            "schema": "taskpack_standalone_integrity_diagnostic_registry@1",
+            "codes": [
+                {
+                    "issue_code": f"AHK54{index:02d}",
+                    "title": f"V54_{index:02d}",
+                    "description": "v54 standalone integrity diagnostic code",
+                }
+                for index in range(1, 10)
+            ],
+        },
+    )
+    return _STANDALONE_INTEGRITY_DIAGNOSTIC_REGISTRY_REL
 
 
 def _write_candidate_change_plan(
@@ -646,6 +702,26 @@ def _add_attestation_slot(taskpack_dir: Path) -> None:
         {
             "slot_id": "v34e_attestation_evidence",
             "description": "Attested verifier equivalence evidence block.",
+            "required": True,
+        }
+    )
+    evidence_slots_payload["slots"] = sorted(
+        evidence_slots_payload["slots"], key=lambda row: row["slot_id"]
+    )
+    evidence_slots_payload["required_count"] = len(
+        [slot for slot in evidence_slots_payload["slots"] if slot["required"] is True]
+    )
+    _write_json(evidence_slots_path, evidence_slots_payload)
+    _sync_manifest_component_hash(taskpack_dir, relative_path="EVIDENCE_SLOTS.json")
+
+
+def _add_standalone_integrity_slot(taskpack_dir: Path) -> None:
+    evidence_slots_path = taskpack_dir / "EVIDENCE_SLOTS.json"
+    evidence_slots_payload = _read_json(evidence_slots_path)
+    evidence_slots_payload["slots"].append(
+        {
+            "slot_id": "v34f_standalone_integrity_evidence",
+            "description": "Standalone integrity evidence block.",
             "required": True,
         }
     )
@@ -1183,6 +1259,306 @@ def _seed_v53_attestation_evidence_payload(
     return evidence_path
 
 
+def _seed_v54_standalone_integrity_evidence_payload(
+    root: Path,
+    *,
+    taskpack_dir: Path,
+    verified_result_path: Path,
+    diagnostic_registry_rel: str,
+) -> Path:
+    packaging_diagnostic_registry_rel = _seed_packaging_diagnostic_registry(root)
+    standalone_integrity_diagnostic_registry_rel = _seed_standalone_integrity_diagnostic_registry(
+        root
+    )
+    runtime_path, continuity_path, handoff_path = _seed_u2_evidence_payloads(root)
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+    attestation_evidence_path = _seed_v53_attestation_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+
+    verified_result_payload = _read_json(verified_result_path)
+    ordered_evidence_blocks = [
+        {
+            "slot_id": "metric_key_continuity_assertion",
+            "schema": "metric_key_continuity_assertion@1",
+            "payload": _read_json(continuity_path),
+        },
+        {
+            "slot_id": "runtime_observability_comparison",
+            "schema": "runtime_observability_comparison@1",
+            "payload": _read_json(runtime_path),
+        },
+        {
+            "slot_id": "v34a_handoff_completion_evidence",
+            "schema": "v34a_handoff_completion_evidence@1",
+            "payload": _read_json(handoff_path),
+        },
+        {
+            "slot_id": "v34b_matrix_parity_evidence",
+            "schema": "v34b_matrix_parity_evidence@1",
+            "payload": _read_json(matrix_evidence_path),
+        },
+        {
+            "slot_id": "v34c_policy_recompute_evidence",
+            "schema": "v34c_policy_recompute_evidence@1",
+            "payload": _read_json(policy_recompute_evidence_path),
+        },
+        {
+            "slot_id": "v34d_retry_context_evidence",
+            "schema": "v34d_retry_context_evidence@1",
+            "payload": _read_json(retry_context_evidence_path),
+        },
+        {
+            "slot_id": "v34e_attestation_evidence",
+            "schema": "v34e_attestation_evidence@1",
+            "payload": _read_json(attestation_evidence_path),
+        },
+    ]
+    ordered_evidence_blocks = sorted(
+        ordered_evidence_blocks,
+        key=lambda row: (row["slot_id"], row["schema"]),
+    )
+    evidence_bundle_hash = sha256_canonical_json(
+        {
+            "taskpack_manifest_hash": verified_result_payload["taskpack_manifest_hash"],
+            "ordered_evidence_blocks": ordered_evidence_blocks,
+            "ordered_rejection_diagnostics_optional": [],
+        }
+    )
+    evidence_bundle_path = (
+        root
+        / "artifacts"
+        / "agent_harness"
+        / "v54"
+        / "evidence_inputs"
+        / "seeded_v53_closeout_evidence_bundle.json"
+    )
+    _write_json(
+        evidence_bundle_path,
+        {
+            "schema": "taskpack_closeout_evidence_bundle@1",
+            "taskpack_manifest_hash": verified_result_payload["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": verified_result_payload[
+                "candidate_change_plan_hash"
+            ],
+            "ordered_evidence_blocks": ordered_evidence_blocks,
+            "ordered_rejection_diagnostics_optional": [],
+            "evidence_bundle_hash": evidence_bundle_hash,
+        },
+    )
+
+    verifier_provenance_path = (
+        root
+        / "artifacts"
+        / "agent_harness"
+        / "v54"
+        / "evidence_inputs"
+        / "seeded_v53_verifier_provenance.json"
+    )
+    verifier_provenance_hash = sha256_canonical_json(
+        {
+            "taskpack_manifest_hash": verified_result_payload["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": verified_result_payload[
+                "candidate_change_plan_hash"
+            ],
+            "runner_provenance_hash": verified_result_payload["runner_provenance_hash"],
+            "verification_result": verified_result_payload["verification_result"],
+            "evidence_bundle_hash": evidence_bundle_hash,
+            "exit_status": "success",
+        }
+    )
+    _write_json(
+        verifier_provenance_path,
+        {
+            "schema": "taskpack_verifier_provenance@1",
+            "taskpack_manifest_hash": verified_result_payload["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": verified_result_payload[
+                "candidate_change_plan_hash"
+            ],
+            "runner_provenance_hash": verified_result_payload["runner_provenance_hash"],
+            "verification_result": verified_result_payload["verification_result"],
+            "evidence_bundle_hash": evidence_bundle_hash,
+            "exit_status": "success",
+            "provenance_hash": verifier_provenance_hash,
+        },
+    )
+
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+    packaging_output_root = "artifacts/agent_harness/v54/packaging_for_evidence"
+    standalone_integrity_artifacts = verify_standalone_integrity(
+        taskpack_dir=_relative(root, taskpack_dir),
+        verified_result_path=_relative(root, verified_result_path),
+        evidence_bundle_path=_relative(root, evidence_bundle_path),
+        verifier_provenance_path=_relative(root, verifier_provenance_path),
+        runtime_observability_comparison_path=_relative(root, runtime_path),
+        metric_key_continuity_assertion_path=_relative(root, continuity_path),
+        bundle_root=f"{packaging_output_root}/{DEPLOYMENT_MODE_STANDALONE}",
+        packaging_output_root=packaging_output_root,
+        integrity_output_root="artifacts/agent_harness/v54/standalone_integrity_for_evidence",
+        diagnostic_registry_path=standalone_integrity_diagnostic_registry_rel,
+        packaging_diagnostic_registry_path=packaging_diagnostic_registry_rel,
+        repo_root_path=root,
+        **signing.as_kwargs(),
+    )
+    standalone_integrity_payload = _read_json(
+        standalone_integrity_artifacts.standalone_integrity_verification_result_path
+    )
+    assert (
+        standalone_integrity_payload["schema"]
+        == STANDALONE_INTEGRITY_VERIFICATION_RESULT_SCHEMA
+    )
+
+    evidence_path = (
+        root
+        / "artifacts"
+        / "agent_harness"
+        / "v54"
+        / "evidence_inputs"
+        / "v34f_standalone_integrity_evidence_v54.json"
+    )
+    _write_json(
+        evidence_path,
+        {
+            "schema": "v34f_standalone_integrity_evidence@1",
+            "contract_source": (
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS54.md"
+                "#v34f_standalone_integrity_contract@1"
+            ),
+            "integrity_checker_entrypoint": INTEGRITY_CHECKER_ENTRYPOINT,
+            "shared_integrity_checker_used": SHARED_INTEGRITY_CHECKER,
+            "shared_integrity_checker_identifier": SHARED_INTEGRITY_CHECKER_IDENTIFIER,
+            "shared_integrity_checker_identifier_policy": (
+                SHARED_INTEGRITY_CHECKER_IDENTIFIER_POLICY
+            ),
+            "standalone_packaging_result_path": standalone_integrity_payload[
+                "standalone_packaging_result_path"
+            ],
+            "standalone_packaging_manifest_path": standalone_integrity_payload[
+                "standalone_packaging_manifest_path"
+            ],
+            "standalone_packaging_provenance_path": standalone_integrity_payload[
+                "standalone_packaging_provenance_path"
+            ],
+            "standalone_packaging_provenance_hash": standalone_integrity_payload[
+                "standalone_packaging_provenance_hash"
+            ],
+            "standalone_packaging_bundle_hash": standalone_integrity_payload[
+                "standalone_packaging_bundle_hash"
+            ],
+            "recomputed_manifest_bundle_hash": standalone_integrity_payload[
+                "recomputed_manifest_bundle_hash"
+            ],
+            "standalone_integrity_verification_result_path": _relative(
+                root,
+                standalone_integrity_artifacts.standalone_integrity_verification_result_path,
+            ),
+            "standalone_integrity_verification_result_hash": standalone_integrity_payload[
+                "result_hash"
+            ],
+            "deployment_mode": standalone_integrity_payload["deployment_mode"],
+            "deployment_mode_standalone_only": standalone_integrity_payload[
+                "deployment_mode_standalone_only"
+            ],
+            "verification_result_semantic_input_forbidden": standalone_integrity_payload[
+                "verification_result_semantic_input_forbidden"
+            ],
+            "packaging_manifest_schema_validated": standalone_integrity_payload[
+                "packaging_manifest_schema_validated"
+            ],
+            "packaging_manifest_bundle_hash_subject_verified": (
+                standalone_integrity_payload[
+                    "packaging_manifest_bundle_hash_subject_verified"
+                ]
+            ),
+            "packaging_provenance_binding_verified": standalone_integrity_payload[
+                "packaging_provenance_binding_verified"
+            ],
+            "packaging_provenance_artifact_hash_verified": standalone_integrity_payload[
+                "packaging_provenance_artifact_hash_verified"
+            ],
+            "current_packaging_materialization_recomputed": standalone_integrity_payload[
+                "current_packaging_materialization_recomputed"
+            ],
+            "current_packaging_materialization_failure_fails_closed": (
+                standalone_integrity_payload[
+                    "current_packaging_materialization_failure_fails_closed"
+                ]
+            ),
+            "bundle_root_input_explicit": standalone_integrity_payload[
+                "bundle_root_input_explicit"
+            ],
+            "manifest_paths_bundle_relative": standalone_integrity_payload[
+                "manifest_paths_bundle_relative"
+            ],
+            "manifest_normalized_path_duplicates_forbidden": (
+                standalone_integrity_payload[
+                    "manifest_normalized_path_duplicates_forbidden"
+                ]
+            ),
+            "normalized_emitted_path_duplicates_forbidden": (
+                standalone_integrity_payload[
+                    "normalized_emitted_path_duplicates_forbidden"
+                ]
+            ),
+            "bundle_root_escape_forbidden": standalone_integrity_payload[
+                "bundle_root_escape_forbidden"
+            ],
+            "symlinks_forbidden": standalone_integrity_payload["symlinks_forbidden"],
+            "regular_files_only": standalone_integrity_payload["regular_files_only"],
+            "actual_emitted_file_hashes_recomputed": standalone_integrity_payload[
+                "actual_emitted_file_hashes_recomputed"
+            ],
+            "emitted_file_inventory_exact_match_verified": (
+                standalone_integrity_payload[
+                    "emitted_file_inventory_exact_match_verified"
+                ]
+            ),
+            "missing_or_extra_bundle_files_fail_closed": (
+                standalone_integrity_payload[
+                    "missing_or_extra_bundle_files_fail_closed"
+                ]
+            ),
+            "integrity_result_emitted_on_failure": standalone_integrity_payload[
+                "integrity_result_emitted_on_failure"
+            ],
+            "integrity_result_emitted_on_input_validation_failure": (
+                standalone_integrity_payload[
+                    "integrity_result_emitted_on_input_validation_failure"
+                ]
+            ),
+            "raw_repo_reads_forbidden": standalone_integrity_payload[
+                "raw_repo_reads_forbidden"
+            ],
+            "auto_fetch_or_unpack_forbidden": standalone_integrity_payload[
+                "auto_fetch_or_unpack_forbidden"
+            ],
+            "verification_passed": standalone_integrity_payload["verification_passed"],
+            "verification_passed_policy": (
+                STANDALONE_INTEGRITY_VERIFICATION_PASSED_POLICY
+            ),
+            "metric_key_cardinality": 80,
+            "metric_key_exact_set_equal_v53": True,
+            "notes": "v54 C2 closeout evidence fixture.",
+        },
+    )
+    return evidence_path
+
+
 def _write_self_hashed_payload(
     path: Path,
     payload: dict[str, Any],
@@ -1226,6 +1602,7 @@ def _write_evidence_with_seeded_payloads(
     policy_recompute_evidence_path: Path | None = None,
     retry_context_evidence_path: Path | None = None,
     attestation_evidence_path: Path | None = None,
+    standalone_integrity_evidence_path: Path | None = None,
     evidence_output_root: str = "artifacts/agent_harness/v46/evidence",
 ):
     runtime_path, continuity_path, handoff_path = _seed_u2_evidence_payloads(root)
@@ -1254,6 +1631,11 @@ def _write_evidence_with_seeded_payloads(
             None
             if attestation_evidence_path is None
             else _relative(root, attestation_evidence_path)
+        ),
+        standalone_integrity_evidence_path=(
+            None
+            if standalone_integrity_evidence_path is None
+            else _relative(root, standalone_integrity_evidence_path)
         ),
         evidence_output_root=evidence_output_root,
         diagnostic_registry_path=diagnostic_registry_rel,
@@ -1906,6 +2288,91 @@ def test_write_closeout_evidence_emits_attestation_block_when_required(
     assert remote_attestation_payload["schema"] == REMOTE_ENCLAVE_ATTESTATION_SCHEMA
 
 
+def test_write_closeout_evidence_emits_standalone_integrity_block_when_required(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    _add_attestation_slot(taskpack_dir)
+    _add_standalone_integrity_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+    attestation_evidence_path = _seed_v53_attestation_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    standalone_integrity_evidence_path = _seed_v54_standalone_integrity_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+
+    result = _write_evidence_with_seeded_payloads(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+        matrix_parity_evidence_path=matrix_evidence_path,
+        policy_recompute_evidence_path=policy_recompute_evidence_path,
+        retry_context_evidence_path=retry_context_evidence_path,
+        attestation_evidence_path=attestation_evidence_path,
+        standalone_integrity_evidence_path=standalone_integrity_evidence_path,
+        evidence_output_root="artifacts/agent_harness/v54/evidence_full_closeout",
+    )
+
+    bundle_payload = _read_json(result.evidence_bundle_path)
+    assert [block["slot_id"] for block in bundle_payload["ordered_evidence_blocks"]] == [
+        "metric_key_continuity_assertion",
+        "runtime_observability_comparison",
+        "v34a_handoff_completion_evidence",
+        "v34b_matrix_parity_evidence",
+        "v34c_policy_recompute_evidence",
+        "v34d_retry_context_evidence",
+        "v34e_attestation_evidence",
+        "v34f_standalone_integrity_evidence",
+    ]
+    standalone_integrity_block = next(
+        block
+        for block in bundle_payload["ordered_evidence_blocks"]
+        if block["slot_id"] == "v34f_standalone_integrity_evidence"
+    )
+    assert standalone_integrity_block["payload"]["schema"] == (
+        "v34f_standalone_integrity_evidence@1"
+    )
+    assert (
+        standalone_integrity_block["payload"]["shared_integrity_checker_identifier"]
+        == SHARED_INTEGRITY_CHECKER_IDENTIFIER
+    )
+    standalone_integrity_result_rel = standalone_integrity_block["payload"][
+        "standalone_integrity_verification_result_path"
+    ]
+    standalone_integrity_payload = _read_json(
+        root / standalone_integrity_result_rel
+    )
+    assert standalone_integrity_payload["schema"] == STANDALONE_INTEGRITY_VERIFICATION_RESULT_SCHEMA
+
+
 def test_write_closeout_evidence_fails_closed_with_no_partial_evidence_emission(
     tmp_path: Path,
 ) -> None:
@@ -2260,7 +2727,57 @@ def test_write_closeout_evidence_fails_closed_when_attestation_slot_required_but
             policy_recompute_evidence_path=policy_recompute_evidence_path,
             retry_context_evidence_path=retry_context_evidence_path,
             evidence_output_root="artifacts/agent_harness/v53/evidence_missing_attestation",
+    )
+    assert _error_payload(exc_info.value)["code"] == "AHK4611"
+
+
+def test_write_closeout_evidence_fails_closed_when_standalone_integrity_slot_required_but_missing(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    _add_attestation_slot(taskpack_dir)
+    _add_standalone_integrity_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+    attestation_evidence_path = _seed_v53_attestation_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            policy_recompute_evidence_path=policy_recompute_evidence_path,
+            retry_context_evidence_path=retry_context_evidence_path,
+            attestation_evidence_path=attestation_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v54/evidence_missing_standalone",
         )
+
     assert _error_payload(exc_info.value)["code"] == "AHK4611"
 
 
@@ -2476,8 +2993,78 @@ def test_write_closeout_evidence_fails_closed_on_invalid_attestation_evidence(
             retry_context_evidence_path=retry_context_evidence_path,
             attestation_evidence_path=attestation_evidence_path,
             evidence_output_root="artifacts/agent_harness/v53/evidence_invalid_attestation",
-        )
+    )
     assert _error_payload(exc_info.value)["code"] == "AHK4604"
+
+
+def test_write_closeout_evidence_fails_closed_on_invalid_standalone_integrity_evidence(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    _add_attestation_slot(taskpack_dir)
+    _add_standalone_integrity_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+    attestation_evidence_path = _seed_v53_attestation_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    standalone_integrity_evidence_path = _seed_v54_standalone_integrity_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    standalone_integrity_payload = _read_json(standalone_integrity_evidence_path)
+    standalone_integrity_result_path = root / standalone_integrity_payload[
+        "standalone_integrity_verification_result_path"
+    ]
+    standalone_integrity_result_payload = _read_json(standalone_integrity_result_path)
+    standalone_integrity_result_payload["recomputed_manifest_bundle_hash"] = "f" * 64
+    _write_self_hashed_payload(
+        standalone_integrity_result_path,
+        standalone_integrity_result_payload,
+        hash_field="result_hash",
+    )
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            policy_recompute_evidence_path=policy_recompute_evidence_path,
+            retry_context_evidence_path=retry_context_evidence_path,
+            attestation_evidence_path=attestation_evidence_path,
+            standalone_integrity_evidence_path=standalone_integrity_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v54/evidence_invalid_standalone",
+    )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK4604"
+    assert payload["message"] == "standalone integrity result hash mismatch"
 
 
 def test_write_closeout_evidence_fails_closed_on_non_equivalent_attested_result(

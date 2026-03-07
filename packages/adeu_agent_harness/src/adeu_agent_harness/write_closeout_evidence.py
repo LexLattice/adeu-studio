@@ -115,6 +115,7 @@ MATRIX_PARITY_EVIDENCE_SCHEMA = "v34b_matrix_parity_evidence@1"
 POLICY_RECOMPUTE_EVIDENCE_SCHEMA = "v34c_policy_recompute_evidence@1"
 RETRY_CONTEXT_EVIDENCE_SCHEMA = "v34d_retry_context_evidence@1"
 ATTESTATION_EVIDENCE_SCHEMA = "v34e_attestation_evidence@1"
+STANDALONE_INTEGRITY_EVIDENCE_SCHEMA = "v34f_standalone_integrity_evidence@1"
 ADAPTER_MATRIX_SCHEMA = "adapter_matrix@1"
 ADAPTER_MATRIX_PARITY_REPORT_SCHEMA = "adapter_matrix_parity_report@1"
 
@@ -126,6 +127,7 @@ EVIDENCE_SCHEMA_ALLOWLIST = (
     POLICY_RECOMPUTE_EVIDENCE_SCHEMA,
     RETRY_CONTEXT_EVIDENCE_SCHEMA,
     ATTESTATION_EVIDENCE_SCHEMA,
+    STANDALONE_INTEGRITY_EVIDENCE_SCHEMA,
 )
 
 EVIDENCE_SCHEMA_TO_SLOT_ID = {
@@ -136,6 +138,7 @@ EVIDENCE_SCHEMA_TO_SLOT_ID = {
     POLICY_RECOMPUTE_EVIDENCE_SCHEMA: "v34c_policy_recompute_evidence",
     RETRY_CONTEXT_EVIDENCE_SCHEMA: "v34d_retry_context_evidence",
     ATTESTATION_EVIDENCE_SCHEMA: "v34e_attestation_evidence",
+    STANDALONE_INTEGRITY_EVIDENCE_SCHEMA: "v34f_standalone_integrity_evidence",
 }
 
 _HANDOFF_COMPLETION_SHARED_BINDING_VALIDATOR = (
@@ -309,6 +312,50 @@ _ATTESTATION_EVIDENCE_REQUIRED_KEYS = {
     "metric_key_exact_set_equal_v52",
     "notes",
 }
+_STANDALONE_INTEGRITY_EVIDENCE_REQUIRED_KEYS = {
+    "schema",
+    "contract_source",
+    "integrity_checker_entrypoint",
+    "shared_integrity_checker_used",
+    "shared_integrity_checker_identifier",
+    "shared_integrity_checker_identifier_policy",
+    "standalone_packaging_result_path",
+    "standalone_packaging_manifest_path",
+    "standalone_packaging_provenance_path",
+    "standalone_packaging_provenance_hash",
+    "standalone_packaging_bundle_hash",
+    "recomputed_manifest_bundle_hash",
+    "standalone_integrity_verification_result_path",
+    "standalone_integrity_verification_result_hash",
+    "deployment_mode",
+    "deployment_mode_standalone_only",
+    "verification_result_semantic_input_forbidden",
+    "packaging_manifest_schema_validated",
+    "packaging_manifest_bundle_hash_subject_verified",
+    "packaging_provenance_binding_verified",
+    "packaging_provenance_artifact_hash_verified",
+    "current_packaging_materialization_recomputed",
+    "current_packaging_materialization_failure_fails_closed",
+    "bundle_root_input_explicit",
+    "manifest_paths_bundle_relative",
+    "manifest_normalized_path_duplicates_forbidden",
+    "normalized_emitted_path_duplicates_forbidden",
+    "bundle_root_escape_forbidden",
+    "symlinks_forbidden",
+    "regular_files_only",
+    "actual_emitted_file_hashes_recomputed",
+    "emitted_file_inventory_exact_match_verified",
+    "missing_or_extra_bundle_files_fail_closed",
+    "integrity_result_emitted_on_failure",
+    "integrity_result_emitted_on_input_validation_failure",
+    "raw_repo_reads_forbidden",
+    "auto_fetch_or_unpack_forbidden",
+    "verification_passed",
+    "verification_passed_policy",
+    "metric_key_cardinality",
+    "metric_key_exact_set_equal_v53",
+    "notes",
+}
 _BASE_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
     (
         EVIDENCE_SCHEMA_TO_SLOT_ID[RUNTIME_OBSERVABILITY_SCHEMA],
@@ -338,6 +385,12 @@ _V53_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
     (
         *_V52_REQUIRED_EVIDENCE_SLOT_IDS,
         EVIDENCE_SCHEMA_TO_SLOT_ID[ATTESTATION_EVIDENCE_SCHEMA],
+    )
+)
+_V54_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
+    (
+        *_V53_REQUIRED_EVIDENCE_SLOT_IDS,
+        EVIDENCE_SCHEMA_TO_SLOT_ID[STANDALONE_INTEGRITY_EVIDENCE_SCHEMA],
     )
 )
 _MATRIX_REQUIRED_LANE_ID_LIST = [
@@ -636,6 +689,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
         _V51_REQUIRED_EVIDENCE_SLOT_IDS,
         _V52_REQUIRED_EVIDENCE_SLOT_IDS,
         _V53_REQUIRED_EVIDENCE_SLOT_IDS,
+        _V54_REQUIRED_EVIDENCE_SLOT_IDS,
     ):
         raise fail(
             code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
@@ -649,6 +703,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
                     _V51_REQUIRED_EVIDENCE_SLOT_IDS,
                     _V52_REQUIRED_EVIDENCE_SLOT_IDS,
                     _V53_REQUIRED_EVIDENCE_SLOT_IDS,
+                    _V54_REQUIRED_EVIDENCE_SLOT_IDS,
                 ],
             },
             artifact_path=str(path),
@@ -2616,6 +2671,508 @@ def _load_attestation_evidence(
     return payload
 
 
+def _load_standalone_integrity_evidence(
+    root: Path,
+    path: Path,
+    *,
+    verified_result_payload: dict[str, Any],
+) -> dict[str, Any]:
+    from . import standalone_integrity as standalone_integrity_mod
+
+    deployment_mode_standalone = standalone_integrity_mod.DEPLOYMENT_MODE_STANDALONE
+    integrity_checker_entrypoint = standalone_integrity_mod.INTEGRITY_CHECKER_ENTRYPOINT
+    packaging_manifest_schema = standalone_integrity_mod.PACKAGING_MANIFEST_SCHEMA
+    packaging_provenance_schema = standalone_integrity_mod.PACKAGING_PROVENANCE_SCHEMA
+    packaging_result_schema = standalone_integrity_mod.PACKAGING_RESULT_SCHEMA
+    shared_integrity_checker = standalone_integrity_mod.SHARED_INTEGRITY_CHECKER
+    shared_integrity_checker_identifier = (
+        standalone_integrity_mod.SHARED_INTEGRITY_CHECKER_IDENTIFIER
+    )
+    shared_integrity_checker_identifier_policy = (
+        standalone_integrity_mod.SHARED_INTEGRITY_CHECKER_IDENTIFIER_POLICY
+    )
+    standalone_integrity_verification_result_schema = (
+        standalone_integrity_mod.STANDALONE_INTEGRITY_VERIFICATION_RESULT_SCHEMA
+    )
+    standalone_integrity_verification_passed_policy = (
+        standalone_integrity_mod.VERIFICATION_PASSED_POLICY
+    )
+
+    payload = _load_block(path, expected_schema=STANDALONE_INTEGRITY_EVIDENCE_SCHEMA)
+    if set(payload.keys()) != _STANDALONE_INTEGRITY_EVIDENCE_REQUIRED_KEYS:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="standalone integrity evidence keys must match frozen grammar",
+            details={"path": str(path), "keys": sorted(payload.keys())},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "contract_source",
+        "integrity_checker_entrypoint",
+        "shared_integrity_checker_used",
+        "shared_integrity_checker_identifier",
+        "shared_integrity_checker_identifier_policy",
+        "standalone_packaging_result_path",
+        "standalone_packaging_manifest_path",
+        "standalone_packaging_provenance_path",
+        "standalone_integrity_verification_result_path",
+        "deployment_mode",
+        "verification_passed_policy",
+        "notes",
+    ):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="standalone integrity evidence string field must be non-empty",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("integrity_checker_entrypoint") != integrity_checker_entrypoint:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="standalone integrity evidence entrypoint mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("shared_integrity_checker_used") != shared_integrity_checker:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="standalone integrity evidence shared_integrity_checker_used mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("shared_integrity_checker_identifier")
+        != shared_integrity_checker_identifier
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="standalone integrity evidence checker identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("shared_integrity_checker_identifier_policy")
+        != shared_integrity_checker_identifier_policy
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="standalone integrity evidence checker identifier policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("deployment_mode") != deployment_mode_standalone:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="standalone integrity evidence deployment_mode mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("verification_passed_policy")
+        != standalone_integrity_verification_passed_policy
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="standalone integrity evidence verification_passed_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "standalone_packaging_provenance_hash",
+        "standalone_packaging_bundle_hash",
+        "recomputed_manifest_bundle_hash",
+        "standalone_integrity_verification_result_hash",
+    ):
+        if payload.get(field) is None or not is_sha256(payload[field]):
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="standalone integrity evidence hash field must be a sha256 string",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    for field in (
+        "deployment_mode_standalone_only",
+        "verification_result_semantic_input_forbidden",
+        "packaging_manifest_schema_validated",
+        "packaging_manifest_bundle_hash_subject_verified",
+        "packaging_provenance_binding_verified",
+        "packaging_provenance_artifact_hash_verified",
+        "current_packaging_materialization_recomputed",
+        "current_packaging_materialization_failure_fails_closed",
+        "bundle_root_input_explicit",
+        "manifest_paths_bundle_relative",
+        "manifest_normalized_path_duplicates_forbidden",
+        "normalized_emitted_path_duplicates_forbidden",
+        "bundle_root_escape_forbidden",
+        "symlinks_forbidden",
+        "regular_files_only",
+        "actual_emitted_file_hashes_recomputed",
+        "emitted_file_inventory_exact_match_verified",
+        "missing_or_extra_bundle_files_fail_closed",
+        "integrity_result_emitted_on_failure",
+        "integrity_result_emitted_on_input_validation_failure",
+        "raw_repo_reads_forbidden",
+        "auto_fetch_or_unpack_forbidden",
+        "verification_passed",
+        "metric_key_exact_set_equal_v53",
+    ):
+        if payload.get(field) is not True:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="standalone integrity evidence boolean field must be true",
+                details={"path": str(path), "field": field, "value": payload.get(field)},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("metric_key_cardinality") != 80:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="standalone integrity evidence metric_key_cardinality must equal 80",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    packaging_result_path = coerce_artifact_path(root, payload["standalone_packaging_result_path"])
+    packaging_result_payload = _load_block(
+        packaging_result_path,
+        expected_schema=packaging_result_schema,
+    )
+    if set(packaging_result_payload.keys()) != {
+        "schema",
+        "deployment_mode",
+        "packaging_manifest_path",
+        "packaging_bundle_hash",
+        "packaging_provenance_path",
+        "packaging_provenance_hash",
+        "rejection_diagnostic_path",
+    }:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging result keys must match frozen grammar",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if packaging_result_payload.get("deployment_mode") != deployment_mode_standalone:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging result deployment_mode mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_result_payload.get("packaging_manifest_path")
+        != payload["standalone_packaging_manifest_path"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging result manifest path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_result_payload.get("packaging_bundle_hash")
+        != payload["standalone_packaging_bundle_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging result bundle hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_result_payload.get("packaging_provenance_path")
+        != payload["standalone_packaging_provenance_path"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging result provenance path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if packaging_result_payload.get("rejection_diagnostic_path") is not None:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging result must not carry rejection_diagnostic_path",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    packaging_manifest_path = coerce_artifact_path(
+        root, payload["standalone_packaging_manifest_path"]
+    )
+    packaging_manifest_payload = _load_block(
+        packaging_manifest_path,
+        expected_schema=packaging_manifest_schema,
+    )
+    if set(packaging_manifest_payload.keys()) != {
+        "schema",
+        "deployment_mode",
+        "authority_artifact_hashes",
+        "emitted_files",
+        "packaging_bundle_hash",
+    }:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging manifest keys must match frozen grammar",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if packaging_manifest_payload.get("deployment_mode") != deployment_mode_standalone:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging manifest deployment_mode mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    emitted_files = packaging_manifest_payload.get("emitted_files")
+    if not isinstance(emitted_files, list) or not emitted_files:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging manifest emitted_files must be a non-empty array",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    recomputed_manifest_bundle_hash = sha256_canonical_json(emitted_files)
+    if (
+        packaging_manifest_payload.get("packaging_bundle_hash")
+        != payload["standalone_packaging_bundle_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging manifest bundle hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if recomputed_manifest_bundle_hash != payload["recomputed_manifest_bundle_hash"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone integrity evidence recomputed manifest bundle hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if recomputed_manifest_bundle_hash != payload["standalone_packaging_bundle_hash"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="recomputed manifest bundle hash must equal standalone packaging bundle hash",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    packaging_provenance_path = coerce_artifact_path(
+        root, payload["standalone_packaging_provenance_path"]
+    )
+    packaging_provenance_payload = _load_block(
+        packaging_provenance_path,
+        expected_schema=packaging_provenance_schema,
+    )
+    if set(packaging_provenance_payload.keys()) != {
+        "schema",
+        "taskpack_manifest_hash",
+        "verified_result_hash",
+        "evidence_bundle_hash",
+        "deployment_mode",
+        "parity_result",
+        "exit_status",
+        "provenance_hash",
+    }:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging provenance keys must match frozen grammar",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if packaging_provenance_payload.get("deployment_mode") != deployment_mode_standalone:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging provenance deployment_mode mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_provenance_payload.get("taskpack_manifest_hash")
+        != verified_result_payload["taskpack_manifest_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging provenance taskpack_manifest_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_provenance_payload.get("verified_result_hash")
+        != verified_result_payload["verified_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging provenance verified_result_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    provenance_hash_subject = {
+        "taskpack_manifest_hash": packaging_provenance_payload["taskpack_manifest_hash"],
+        "verified_result_hash": packaging_provenance_payload["verified_result_hash"],
+        "evidence_bundle_hash": packaging_provenance_payload["evidence_bundle_hash"],
+        "deployment_mode": packaging_provenance_payload["deployment_mode"],
+        "parity_result": packaging_provenance_payload["parity_result"],
+        "exit_status": packaging_provenance_payload["exit_status"],
+    }
+    recomputed_provenance_hash = sha256_canonical_json(provenance_hash_subject)
+    if packaging_provenance_payload.get("provenance_hash") != recomputed_provenance_hash:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging provenance hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if packaging_result_payload.get("packaging_provenance_hash") != recomputed_provenance_hash:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging result provenance binding mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sha256_canonical_json(packaging_provenance_payload) != payload[
+        "standalone_packaging_provenance_hash"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone packaging provenance artifact hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    integrity_result_path = coerce_artifact_path(
+        root, payload["standalone_integrity_verification_result_path"]
+    )
+    integrity_result_payload = _load_block(
+        integrity_result_path,
+        expected_schema=standalone_integrity_verification_result_schema,
+    )
+    if (
+        integrity_result_payload.get("result_hash")
+        != payload["standalone_integrity_verification_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone integrity result hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if _recompute_self_hash(integrity_result_payload, hash_field="result_hash") != payload[
+        "standalone_integrity_verification_result_hash"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="standalone integrity result self-hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    for field, expected in (
+        ("shared_integrity_checker", payload["shared_integrity_checker_used"]),
+        ("shared_integrity_checker_identifier", payload["shared_integrity_checker_identifier"]),
+        (
+            "shared_integrity_checker_identifier_policy",
+            payload["shared_integrity_checker_identifier_policy"],
+        ),
+        ("integrity_checker_entrypoint", payload["integrity_checker_entrypoint"]),
+        ("standalone_packaging_result_path", payload["standalone_packaging_result_path"]),
+        ("standalone_packaging_manifest_path", payload["standalone_packaging_manifest_path"]),
+        (
+            "standalone_packaging_provenance_path",
+            payload["standalone_packaging_provenance_path"],
+        ),
+        (
+            "standalone_packaging_provenance_hash",
+            payload["standalone_packaging_provenance_hash"],
+        ),
+        ("standalone_packaging_bundle_hash", payload["standalone_packaging_bundle_hash"]),
+        ("recomputed_manifest_bundle_hash", payload["recomputed_manifest_bundle_hash"]),
+        ("deployment_mode", payload["deployment_mode"]),
+        ("verification_passed_policy", payload["verification_passed_policy"]),
+    ):
+        if integrity_result_payload.get(field) != expected:
+            raise fail(
+                code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+                message="standalone integrity result field mismatch",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+    for field in (
+        "deployment_mode_standalone_only",
+        "verification_result_semantic_input_forbidden",
+        "packaging_manifest_schema_validated",
+        "packaging_manifest_bundle_hash_subject_verified",
+        "packaging_provenance_binding_verified",
+        "packaging_provenance_artifact_hash_verified",
+        "current_packaging_materialization_recomputed",
+        "current_packaging_materialization_failure_fails_closed",
+        "bundle_root_input_explicit",
+        "manifest_paths_bundle_relative",
+        "manifest_normalized_path_duplicates_forbidden",
+        "normalized_emitted_path_duplicates_forbidden",
+        "bundle_root_escape_forbidden",
+        "symlinks_forbidden",
+        "regular_files_only",
+        "actual_emitted_file_hashes_recomputed",
+        "emitted_file_inventory_exact_match_verified",
+        "missing_or_extra_bundle_files_fail_closed",
+        "integrity_result_emitted_on_failure",
+        "integrity_result_emitted_on_input_validation_failure",
+        "raw_repo_reads_forbidden",
+        "auto_fetch_or_unpack_forbidden",
+        "verification_passed",
+    ):
+        if integrity_result_payload.get(field) is not True:
+            raise fail(
+                code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+                message="standalone integrity result boolean field must be true",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    return payload
+
+
 def _emit_verifier_provenance(
     *,
     root: Path,
@@ -2687,6 +3244,7 @@ def write_closeout_evidence(
     policy_recompute_evidence_path: str | Path | None = None,
     retry_context_evidence_path: str | Path | None = None,
     attestation_evidence_path: str | Path | None = None,
+    standalone_integrity_evidence_path: str | Path | None = None,
     evidence_output_root: str | Path,
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
@@ -2731,6 +3289,11 @@ def write_closeout_evidence(
             if attestation_evidence_path is None
             else normalize_relative_path(str(attestation_evidence_path))
         )
+        standalone_integrity_rel = (
+            None
+            if standalone_integrity_evidence_path is None
+            else normalize_relative_path(str(standalone_integrity_evidence_path))
+        )
         evidence_output_rel = normalize_relative_path(str(evidence_output_root))
 
         taskpack_path = coerce_artifact_path(root, taskpack_rel)
@@ -2753,6 +3316,11 @@ def write_closeout_evidence(
             None
             if attestation_rel is None
             else coerce_artifact_path(root, attestation_rel)
+        )
+        standalone_integrity_path = (
+            None
+            if standalone_integrity_rel is None
+            else coerce_artifact_path(root, standalone_integrity_rel)
         )
         evidence_root = coerce_artifact_path(root, evidence_output_rel)
 
@@ -2790,6 +3358,10 @@ def write_closeout_evidence(
         )
         attestation_slot_required = (
             EVIDENCE_SCHEMA_TO_SLOT_ID[ATTESTATION_EVIDENCE_SCHEMA] in required_slot_ids
+        )
+        standalone_integrity_slot_required = (
+            EVIDENCE_SCHEMA_TO_SLOT_ID[STANDALONE_INTEGRITY_EVIDENCE_SCHEMA]
+            in required_slot_ids
         )
         if matrix_slot_required and matrix_path is None:
             raise fail(
@@ -2851,6 +3423,25 @@ def write_closeout_evidence(
             raise fail(
                 code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
                 message="attestation evidence block is not authorized by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if standalone_integrity_slot_required and standalone_integrity_path is None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="standalone integrity evidence block is required by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if (
+            not standalone_integrity_slot_required
+            and standalone_integrity_path is not None
+        ):
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="standalone integrity evidence block is not authorized by EVIDENCE_SLOTS",
                 details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
                 artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
                 policy_source="evidence_slots",
@@ -2920,6 +3511,21 @@ def write_closeout_evidence(
                     "payload": _load_attestation_evidence(
                         root,
                         attestation_path,
+                        verified_result_payload=verified_result_payload,
+                    ),
+                }
+            )
+        if standalone_integrity_slot_required:
+            assert standalone_integrity_path is not None
+            blocks.append(
+                {
+                    "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[
+                        STANDALONE_INTEGRITY_EVIDENCE_SCHEMA
+                    ],
+                    "schema": STANDALONE_INTEGRITY_EVIDENCE_SCHEMA,
+                    "payload": _load_standalone_integrity_evidence(
+                        root,
+                        standalone_integrity_path,
                         verified_result_payload=verified_result_payload,
                     ),
                 }
@@ -3120,6 +3726,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Optional repo-relative path to v34e_attestation_evidence@1 payload.",
     )
     parser.add_argument(
+        "--standalone-integrity-evidence",
+        default=None,
+        help="Optional repo-relative path to v34f_standalone_integrity_evidence@1 payload.",
+    )
+    parser.add_argument(
         "--evidence-output-root",
         default=DEFAULT_EVIDENCE_ROOT,
         help="Repo-relative output root for evidence bundle/provenance artifacts.",
@@ -3150,6 +3761,7 @@ def main(argv: list[str] | None = None) -> int:
             policy_recompute_evidence_path=args.policy_recompute_evidence,
             retry_context_evidence_path=args.retry_context_evidence,
             attestation_evidence_path=args.attestation_evidence,
+            standalone_integrity_evidence_path=args.standalone_integrity_evidence,
             evidence_output_root=args.evidence_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             repo_root_path=args.repo_root,
