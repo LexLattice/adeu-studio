@@ -7,6 +7,7 @@ from typing import Any
 
 import adeu_agent_harness.package_ux as packaging_mod
 import adeu_agent_harness.package_ux_integrated as integrated_entry_mod
+import adeu_agent_harness.package_ux_remote_enclave as remote_enclave_entry_mod
 import adeu_agent_harness.package_ux_standalone as standalone_entry_mod
 import adeu_agent_harness.standalone_integrity as standalone_integrity_mod
 import pytest
@@ -22,6 +23,10 @@ from adeu_agent_harness._v47_packaging_common import (
     TaskpackPackagingError,
     emit_rejection_diagnostic,
     load_diagnostic_registry,
+)
+from adeu_agent_harness.attestation import (
+    PROVIDER_ATTESTATION_INPUT_SCHEMA,
+    validate_attested_verification,
 )
 from adeu_agent_harness.compile import (
     PIPELINE_PROFILE_SCHEMA,
@@ -43,6 +48,7 @@ from adeu_agent_harness.matrix_parity import (
 )
 from adeu_agent_harness.package_ux import (
     DEPLOYMENT_MODE_INTEGRATED,
+    DEPLOYMENT_MODE_REMOTE_ENCLAVE,
     DEPLOYMENT_MODE_STANDALONE,
     PACKAGING_MANIFEST_SCHEMA,
     PACKAGING_PROVENANCE_SCHEMA,
@@ -132,6 +138,8 @@ def _run_packaging(
     verifier_provenance_path: str | None = None,
     runtime_observability_comparison_path: str | None = None,
     metric_key_continuity_assertion_path: str | None = None,
+    remote_enclave_attestation_path: str | None = None,
+    attestation_verification_result_path: str | None = None,
     packaging_output_root: str | None = None,
     diagnostic_registry_path: str | None = None,
 ) -> Any:
@@ -158,6 +166,8 @@ def _run_packaging(
         metric_key_continuity_assertion_path=(
             metric_key_continuity_assertion_path or packaging_repo["metric_key_continuity"]
         ),
+        remote_enclave_attestation_path=remote_enclave_attestation_path,
+        attestation_verification_result_path=attestation_verification_result_path,
         packaging_output_root=packaging_output_root or packaging_repo["packaging_output_root"],
         diagnostic_registry_path=diagnostic_registry_path or packaging_repo["diagnostic_registry"],
         dry_run=dry_run,
@@ -491,6 +501,93 @@ def _write_packaging_result_artifact(
     return path
 
 
+def _seed_remote_enclave_attestation_artifacts(
+    root: Path,
+    *,
+    taskpack_dir: Path,
+    candidate_change_plan_path: Path,
+    runner_result_path: Path,
+    runner_provenance_path: Path,
+    verified_result_path: Path,
+    diagnostic_registry_path: str,
+    signing: Any,
+) -> dict[str, str]:
+    verified_result_payload = _load_json(verified_result_path)
+    runner_provenance_payload = _load_json(runner_provenance_path)
+    provider_attestation_input_path = (
+        root
+        / "artifacts"
+        / "agent_harness"
+        / "v55"
+        / "attestation"
+        / "provider_attestation_input.json"
+    )
+    _write_json(
+        provider_attestation_input_path,
+        {
+            "schema": PROVIDER_ATTESTATION_INPUT_SCHEMA,
+            "provider_id": "deterministic_test_enclave",
+            "attestation_key_id": "key_ed25519_test",
+            "algorithm": "ed25519",
+            "verification_reference_time_utc": signing.verification_reference_time_utc,
+            "taskpack_manifest_hash": verified_result_payload["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": verified_result_payload["candidate_change_plan_hash"],
+            "runner_provenance_hash": sha256_canonical_json(runner_provenance_payload),
+            "verified_result_hash": verified_result_payload["verified_result_hash"],
+            "attestation_verified": True,
+            "opaque_provider_evidence": "deterministic test enclave attestation",
+        },
+    )
+    artifacts = validate_attested_verification(
+        taskpack_dir=_relative(root, taskpack_dir),
+        candidate_change_plan_path=_relative(root, candidate_change_plan_path),
+        runner_result_path=_relative(root, runner_result_path),
+        runner_provenance_path=_relative(root, runner_provenance_path),
+        attested_verified_result_path=_relative(root, verified_result_path),
+        provider_attestation_input_path=_relative(root, provider_attestation_input_path),
+        signature_verification_result_path=signing.signature_verification_result_path,
+        signature_envelope_path=signing.signature_envelope_path,
+        trust_anchor_registry_path=signing.trust_anchor_registry_path,
+        verification_reference_time_utc=signing.verification_reference_time_utc,
+        attestation_output_root="artifacts/agent_harness/v55/attestation",
+        local_verification_output_root="artifacts/agent_harness/v55/local_verification",
+        local_policy_recompute_output_root="artifacts/agent_harness/v55/local_recompute",
+        diagnostic_registry_path=diagnostic_registry_path,
+        repo_root_path=root,
+    )
+    return {
+        "remote_enclave_attestation": _relative(
+            root, artifacts.remote_enclave_attestation_path
+        ),
+        "attestation_verification_result": _relative(
+            root, artifacts.attestation_verification_result_path
+        ),
+    }
+
+
+def _run_remote_enclave_packaging(
+    packaging_repo: dict[str, str],
+    *,
+    remote_enclave_attestation_path: str | None = None,
+    attestation_verification_result_path: str | None = None,
+    dry_run: bool = True,
+) -> Any:
+    return _run_packaging(
+        packaging_repo,
+        expected_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+        deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+        remote_enclave_attestation_path=(
+            remote_enclave_attestation_path
+            or packaging_repo["remote_enclave_attestation"]
+        ),
+        attestation_verification_result_path=(
+            attestation_verification_result_path
+            or packaging_repo["attestation_verification_result"]
+        ),
+        dry_run=dry_run,
+    )
+
+
 def _write_matrix_evaluation_inputs(
     root: Path,
     *,
@@ -637,6 +734,16 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
         diagnostic_registry_path=v46_diagnostic_registry_rel,
         repo_root_path=root,
     )
+    attestation_artifacts = _seed_remote_enclave_attestation_artifacts(
+        root,
+        taskpack_dir=taskpack_dir,
+        candidate_change_plan_path=candidate_path,
+        runner_result_path=runner_result_path,
+        runner_provenance_path=run_result.provenance_path,
+        verified_result_path=verify_result.verification_result_path,
+        diagnostic_registry_path=v46_diagnostic_registry_rel,
+        signing=signing,
+    )
 
     return {
         "repo_root": str(root),
@@ -652,6 +759,11 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
         "verifier_provenance": _relative(root, evidence_result.verifier_provenance_path),
         "runtime_observability": _relative(root, runtime_path),
         "metric_key_continuity": _relative(root, continuity_path),
+        "remote_enclave_attestation": attestation_artifacts["remote_enclave_attestation"],
+        "attestation_verification_result": attestation_artifacts[
+            "attestation_verification_result"
+        ],
+        "verifier_diagnostic_registry": v46_diagnostic_registry_rel,
         "diagnostic_registry": v47_diagnostic_registry_rel,
         "matrix_diagnostic_registry": v50_diagnostic_registry_rel,
         "integrity_diagnostic_registry": v54_diagnostic_registry_rel,
@@ -714,9 +826,116 @@ def test_packaging_entrypoints_are_present() -> None:
     assert callable(packaging_mod.package_ux_surface)
     assert callable(packaging_mod.main_for_mode)
     assert callable(integrated_entry_mod.main)
+    assert callable(remote_enclave_entry_mod.main)
     assert callable(standalone_entry_mod.main)
     assert callable(standalone_integrity_mod.verify_standalone_integrity)
     assert callable(standalone_integrity_mod.main)
+
+
+def test_package_ux_remote_enclave_is_deterministic_and_attestation_bound(
+    packaging_repo: dict[str, str],
+) -> None:
+    integrated_result = _run_packaging(
+        packaging_repo,
+        expected_mode=DEPLOYMENT_MODE_INTEGRATED,
+        deployment_mode=DEPLOYMENT_MODE_INTEGRATED,
+    )
+    result1 = _run_remote_enclave_packaging(packaging_repo)
+    result2 = _run_remote_enclave_packaging(packaging_repo)
+
+    manifest_payload = _load_json(result1.packaging_manifest_path)
+    assert manifest_payload["schema"] == PACKAGING_MANIFEST_SCHEMA
+    assert manifest_payload["deployment_mode"] == DEPLOYMENT_MODE_REMOTE_ENCLAVE
+    assert result1.packaging_bundle_hash == result2.packaging_bundle_hash
+    assert (
+        result1.packaging_manifest_path.read_bytes()
+        == result2.packaging_manifest_path.read_bytes()
+    )
+    assert (
+        result1.packaging_provenance_path.read_bytes()
+        == result2.packaging_provenance_path.read_bytes()
+    )
+
+    output_root = _repo_root_path(packaging_repo) / packaging_repo["packaging_output_root"]
+    integrated_canonical = output_root / DEPLOYMENT_MODE_INTEGRATED / "canonical"
+    remote_canonical = output_root / DEPLOYMENT_MODE_REMOTE_ENCLAVE / "canonical"
+    integrated_files = sorted(
+        path.relative_to(integrated_canonical).as_posix()
+        for path in integrated_canonical.rglob("*")
+        if path.is_file()
+    )
+    remote_files = sorted(
+        path.relative_to(remote_canonical).as_posix()
+        for path in remote_canonical.rglob("*")
+        if path.is_file()
+    )
+    assert integrated_files == remote_files
+    for rel_path in integrated_files:
+        assert (integrated_canonical / rel_path).read_bytes() == (
+            remote_canonical / rel_path
+        ).read_bytes()
+
+    integrated_bundle = output_root / DEPLOYMENT_MODE_INTEGRATED / "bundle" / "launcher.txt"
+    remote_bundle = output_root / DEPLOYMENT_MODE_REMOTE_ENCLAVE / "bundle" / "launcher.txt"
+    assert integrated_bundle.read_text(encoding="utf-8") != remote_bundle.read_text(
+        encoding="utf-8"
+    )
+    integrated_provenance = _load_json(integrated_result.packaging_provenance_path)
+    remote_provenance = _load_json(result1.packaging_provenance_path)
+    assert (
+        integrated_provenance["parity_result"]["policy_equivalence"]
+        == remote_provenance["parity_result"]["policy_equivalence"]
+    )
+
+
+def test_package_ux_remote_enclave_requires_attestation_prerequisites(
+    packaging_repo: dict[str, str],
+) -> None:
+    with pytest.raises(TaskpackPackagingError) as exc_info:
+        _run_packaging(
+            packaging_repo,
+            expected_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            remote_enclave_attestation_path=None,
+            attestation_verification_result_path=None,
+        )
+    assert exc_info.value.code == AHK4705_DEPLOYMENT_MODE_POLICY_VIOLATION
+
+
+def test_package_ux_remote_enclave_rejects_provider_outside_singleton(
+    packaging_repo: dict[str, str],
+) -> None:
+    attestation_verification_path = _artifact_path(
+        packaging_repo, "attestation_verification_result"
+    )
+    payload = _load_json(attestation_verification_path)
+    payload["provider_id"] = "DETERMINISTIC_TEST_ENCLAVE"
+    payload["result_hash"] = sha256_canonical_json(
+        {key: value for key, value in payload.items() if key != "result_hash"}
+    )
+    _write_json(attestation_verification_path, payload)
+
+    with pytest.raises(TaskpackPackagingError) as exc_info:
+        _run_remote_enclave_packaging(packaging_repo)
+    assert exc_info.value.code == AHK4705_DEPLOYMENT_MODE_POLICY_VIOLATION
+
+
+def test_package_ux_remote_enclave_rejects_attestation_binding_drift(
+    packaging_repo: dict[str, str],
+) -> None:
+    remote_attestation_path = _artifact_path(packaging_repo, "remote_enclave_attestation")
+    payload = _load_json(remote_attestation_path)
+    normalized_claims = dict(payload["normalized_claims"])
+    normalized_claims["verified_result_hash"] = "f" * 64
+    payload["normalized_claims"] = normalized_claims
+    payload["attestation_hash"] = sha256_canonical_json(
+        {key: value for key, value in payload.items() if key != "attestation_hash"}
+    )
+    _write_json(remote_attestation_path, payload)
+
+    with pytest.raises(TaskpackPackagingError) as exc_info:
+        _run_remote_enclave_packaging(packaging_repo)
+    assert exc_info.value.code == AHK4704_CROSS_ARTIFACT_HASH_MISMATCH
 
 
 def test_standalone_integrity_is_deterministic(packaging_repo: dict[str, str]) -> None:
@@ -890,6 +1109,7 @@ def test_packaging_kernel_has_no_apps_api_imports() -> None:
         module_root / "_v47_packaging_common.py",
         module_root / "package_ux.py",
         module_root / "package_ux_integrated.py",
+        module_root / "package_ux_remote_enclave.py",
         module_root / "package_ux_standalone.py",
         module_root / "standalone_integrity.py",
     ]
