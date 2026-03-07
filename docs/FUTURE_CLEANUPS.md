@@ -27,6 +27,7 @@ This rewrite was produced by auditing:
 - `docs/ASSESSMENT_vNEXT_PLUS49_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS50_EDGES.md`
 - `docs/ASSESSMENT_vNEXT_PLUS51_EDGES.md`
+- `docs/ASSESSMENT_vNEXT_PLUS52_EDGES.md`
 - the prior version of this file
 - current implementation under `apps/` and `packages/`
 
@@ -175,10 +176,19 @@ the sense that the roadmap still names them and current code does not implement 
     - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
     - `docs/ASSESSMENT_vNEXT_PLUS50_EDGES.md`
     - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
-- rejection-diagnostic retry-context feeder automation
+- verifier/package rejection-diagnostic aggregation beyond the current runner surface
   - Sources:
-    - `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`
-    - `docs/ASSESSMENT_vNEXT_PLUS47_EDGES.md`
+    - `docs/ASSESSMENT_vNEXT_PLUS52_EDGES.md`
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
+- automatic retry prompt assembly or execution orchestration
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS52_EDGES.md`
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
+- richer retry-context excerpt families beyond rejection diagnostics and canonical
+  candidate-plan hunks
+  - Sources:
+    - `docs/ASSESSMENT_vNEXT_PLUS52_EDGES.md`
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
 - remote or enclave-attested verifier execution
   - Sources:
     - `docs/ASSESSMENT_vNEXT_PLUS46_EDGES.md`

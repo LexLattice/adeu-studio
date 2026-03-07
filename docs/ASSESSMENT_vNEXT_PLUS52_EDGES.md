@@ -1,9 +1,9 @@
-# Assessment vNext+52 Edges (Pre-Lock)
+# Assessment vNext+52 Edges (Post Closeout)
 
-This document records pre-lock edge planning for `vNext+52` (`V34-D`
-rejection-diagnostic retry-context feeder baseline).
+This document records edge disposition for `vNext+52` (`V34-D` advisory retry-context
+feeder baseline + canonical evidence integration) after arc closeout.
 
-Status: pre-lock assessment (March 6, 2026 UTC).
+Status: post-closeout assessment (March 7, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -11,167 +11,152 @@ Status: pre-lock assessment (March 6, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS52_EDGES.md",
-  "phase": "pre_lock_assessment",
+  "phase": "post_closeout_assessment",
   "authoritative": true,
-  "authoritative_scope": "v52_prelock_edge_planning",
+  "authoritative_scope": "v52_closeout_edge_disposition",
   "required_in_decision": true,
-  "notes": "This document is authoritative for v52 pre-lock edge planning until superseded by post-closeout disposition."
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
 ## Scope
 
-- In scope: thin `V34-D` baseline over structured runner rejection diagnostics, deterministic
-  retry-context feeder artifacts, sanitization profile freezing, and closeout evidence/guard
-  integration.
-- Out of scope: automatic retry dispatch, verifier/package rejection-diagnostic aggregation,
-  broader `V34-C` recomputation, `V34-E` through `V34-G`, stop-gate schema-family fork,
-  metric-key expansion, and `L2` boundary release.
+- In scope: `V34-D` shared canonical advisory retry-context feeder and deterministic
+  sanitization-profile baseline (`A1`) plus canonical retry-context evidence integration and
+  advisory-only guard suite (`A2`).
+- Out of scope: automatic retry prompt dispatch, verifier/package rejection-diagnostic
+  aggregation, broader `V34-C` recomputation, `V34-E` through `V34-G`, stop-gate
+  schema-family fork, metric-key expansion, and `L2` boundary release.
 
 ## Inputs
 
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS51.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS51.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS52.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS52.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
-- `docs/FUTURE_CLEANUPS.md`
+- `packages/adeu_agent_harness/src/adeu_agent_harness/retry_context.py`
 - `packages/adeu_agent_harness/src/adeu_agent_harness/run_taskpack.py`
 - `packages/adeu_agent_harness/src/adeu_agent_harness/verify_taskpack_run.py`
-- `packages/adeu_agent_harness/src/adeu_agent_harness/package_ux.py`
 - `packages/adeu_agent_harness/src/adeu_agent_harness/write_closeout_evidence.py`
-- `packages/adeu_agent_harness/tests/test_taskpack_runner.py`
+- `packages/adeu_agent_harness/tests/test_retry_context.py`
 - `packages/adeu_agent_harness/tests/test_taskpack_verifier.py`
-- `packages/adeu_agent_harness/tests/test_taskpack_packaging.py`
-- `artifacts/quality_dashboard_v51_closeout.json`
-- `artifacts/stop_gate/metrics_v51_closeout.json`
-- `artifacts/agent_harness/v51/evidence_inputs/runtime_observability_comparison_v51.json`
-- `artifacts/agent_harness/v51/evidence_inputs/metric_key_continuity_assertion_v51.json`
-- `artifacts/agent_harness/v51/evidence_inputs/v34c_policy_recompute_evidence_v51.json`
+- `artifacts/quality_dashboard_v52_closeout.json`
+- `artifacts/stop_gate/metrics_v52_closeout.json`
+- `artifacts/agent_harness/v52/evidence_inputs/runtime_observability_comparison_v52.json`
+- `artifacts/agent_harness/v52/evidence_inputs/metric_key_continuity_assertion_v52.json`
+- `artifacts/agent_harness/v52/evidence_inputs/v34c_policy_recompute_evidence_v52.json`
+- `artifacts/agent_harness/v52/evidence_inputs/v34d_retry_context_evidence_v52.json`
+- `artifacts/agent_harness/v52/retry_context/ee0acc17f3994c841e84bd53da218e13d1e2318c9bf8cdaffbe6a4cc2655f944_837b83267ebbd0531dc9ea75c1c18965c23bb598f582416dce6f493aac3bc3e8.json`
+- `artifacts/agent_harness/v52/retry_context/retry_context_sanitization_profile.json`
+- `artifacts/agent_harness/v52/evidence/ee0acc17f3994c841e84bd53da218e13d1e2318c9bf8cdaffbe6a4cc2655f944_59b1d0cb1087b70f3fd181b8819db2ac20b3b60e4ba0b184b416ccebbdaecdf7.json`
+- merged PRs: `#253`, `#254`
 
-## Current Repo Reality
+## Pre-Lock Edge Set Outcome (v52 Closeout)
 
-1. Structured runner rejection diagnostics already exist on `main`.
-   - `run_taskpack.py` emits `candidate_change_plan_rejection_diagnostic@1` with the current
-     issue surface:
-     `issue_code`, `reason`, `target_path`, `hunk_index`, `line_range`, `policy_source`.
-2. Verifier and packaging also emit rejection diagnostics, but they are distinct downstream
-   schemas and would widen authority if folded into a first retry-context baseline.
-3. No released `retry_context_feeder_result@1` artifact exists on `main`.
-4. No released `retry_context_sanitization_profile@1` contract exists on `main`.
-5. No shared canonical retry-context feeder helper exists on `main`.
-6. Closeout evidence currently records policy recompute, matrix, signing, and stop-gate
-   continuity surfaces, but no retry-context feeder artifact.
+1. Ad hoc retry-context construction risk: `resolved`.
+   - `retry_context.py` now exposes the shared canonical feeder engine and deterministic CLI
+     entrypoint rather than relying on caller-local prompt assembly.
+2. Authority-surface ambiguity risk: `resolved`.
+   - v52 freezes feeder authority to the runner rejection-diagnostic contract plus canonical
+     candidate-plan/taskpack references only; verifier and packaging rejection-diagnostic
+     families remain out of scope.
+3. Raw repo-content leakage risk: `resolved`.
+   - the feeder contract and emitted evidence both encode `raw_repo_file_content_forbidden`
+     and the generated artifacts are sourced from canonical rejection/candidate-plan
+     surfaces only.
+4. Sanitization-profile drift risk: `resolved`.
+   - `retry_context_sanitization_profile@1` is now emitted deterministically and hash-bound
+     into canonical v52 closeout evidence.
+5. Excerpt-boundary and control-marker ambiguity risk: `resolved`.
+   - v52 freezes excerpt bounds, total-output bounds, deterministic truncation, and control
+     marker neutralization under the emitted sanitization profile.
+6. Advisory-only versus policy-authority confusion risk: `resolved`.
+   - `retry_context_feeder_result@1` is now explicitly non-authoritative and tests/evidence
+     enforce that verifier, packaging, and policy pass/fail behavior do not consume it in
+     this arc.
+7. Automatic retry dispatch overreach risk: `resolved`.
+   - v52 remains artifact-only; automatic retry dispatch is explicitly forbidden in both the
+     lock and the emitted evidence payloads.
+8. Closeout evidence integration gap: `resolved`.
+   - canonical `v34d_retry_context_evidence@1` now exists, is hash-bound to the retry
+     context result/profile artifacts, and is included in the cumulative closeout evidence
+     path.
+9. Stop-gate churn risk: `resolved`.
+   - v52 closes with `stop_gate_metrics@1`, no new metric keys, and cardinality retained at
+     `80`.
+10. Runner-result authority ambiguity risk: `resolved`.
+   - `taskpack_runner_result@1` is now fenced as a binding/continuity sibling artifact only
+     and is not a semantic feeder input.
+11. Duplicate issue-tuple byte-stability risk: `resolved`.
+   - duplicate feeder tuples are now rejected after repo-relative posix path normalization
+     rather than silently deduplicated or left order-dependent.
+12. Success-path request ambiguity risk: `resolved`.
+   - v52 freezes the success-path rule: no feeder artifact is expected without a rejection
+     diagnostic, and an explicit generation request without that diagnostic fails closed.
+13. Bound-overflow determinism risk: `resolved`.
+   - overflow behavior is now frozen to deterministic truncation under the emitted
+     sanitization profile.
+14. Missing excerpt-source resolution risk: `resolved`.
+   - unresolved candidate-plan excerpts now emit deterministic typed null excerpts with no
+     repo fallback.
+15. `policy_source` surface drift risk: `resolved`.
+   - `policy_source` is now a closed inherited runner-diagnostic surface in v52 rather than
+     an expandable feeder-local field family.
+16. Shared feeder-engine proof ambiguity risk: `resolved`.
+   - closeout evidence now includes a frozen shared feeder engine identifier in addition to
+     the engine entrypoint/path proof.
 
-## Pre-Lock Edge Set (Draft)
+## Guard Coverage Outcome
 
-1. Ad hoc retry-context construction risk: `open`.
-   - current repo state has structured rejection diagnostics, but no canonical feeder
-     artifact; retry-context assembly would otherwise drift across callers.
-2. Authority-surface ambiguity risk: `open`.
-   - runner rejection diagnostics, verifier rejection diagnostics, and packaging rejection
-     diagnostics are different schema families; a thin v52 slice should choose one frozen
-     authority surface rather than aggregate all three.
-3. Raw repo-content leakage risk: `open`.
-   - `V34-D` explicitly forbids raw repository file-content inclusion, but current code has
-     no dedicated retry-context surface enforcing that bound.
-4. Sanitization-profile drift risk: `open`.
-   - reflected diagnostic text is untrusted input, and no released
-     `retry_context_sanitization_profile@1` exists yet to freeze bounds and escaping.
-5. Excerpt-boundary and control-marker ambiguity risk: `open`.
-   - without a frozen bounded-excerpt rule, one implementation could reflect oversized or
-     control-marker-bearing diagnostic text while another truncates or escapes it
-     differently.
-6. Advisory-only versus policy-authority confusion risk: `open`.
-   - a retry-context feeder that is not clearly fenced could be misused as a policy or
-     verifier input rather than an advisory artifact.
-7. Automatic retry dispatch overreach risk: `open`.
-   - “retry-context feeder automation” can easily widen into prompt dispatch or model
-     orchestration unless the baseline is explicitly kept artifact-only.
-8. Closeout evidence integration gap: `open`.
-   - current closeout surfaces have no canonical `v34d` evidence slot, so even a good
-     feeder implementation would not yet be provable on `main`.
-9. Stop-gate churn risk: `open`.
-   - the feeder lane should not widen stop-gate metric families or cardinality.
-10. Runner-result authority ambiguity risk: `open`.
-   - current repo state preserves `taskpack_runner_result@1` alongside rejection diagnostics,
-     but v52 needs an explicit fence so runner-result prose or extra fields cannot become
-     feeder-content authority.
-11. Duplicate issue-tuple byte-stability risk: `open`.
-   - without an explicit duplicate-tuple fail-closed rule, one implementation could silently
-     deduplicate repeated tuples while another preserves input order.
-12. Success-path request ambiguity risk: `open`.
-   - v52 must freeze whether an explicit generation request on a policy-success path with no
-     runner rejection diagnostic fails closed or emits an empty artifact.
-13. Bound-overflow determinism risk: `open`.
-   - excerpt and total-output bounds need a frozen overflow rule or two implementations can
-     diverge on large diagnostics.
-14. Missing excerpt-source resolution risk: `open`.
-   - if candidate-plan hunks or referenced excerpt ranges cannot be resolved from canonical
-     artifacts, v52 must freeze whether generation fails closed or emits a typed missing
-     excerpt marker.
-15. `policy_source` surface drift risk: `open`.
-   - v52 ordering and duplicate identity depend on `policy_source`, so that surface must
-     remain a closed inherited runner-diagnostic contract.
-16. Shared feeder-engine proof ambiguity risk: `open`.
-   - `shared_feeder_engine_used` alone is weaker than a frozen engine identifier in closeout
-     evidence and could allow near-duplicate helpers to satisfy the evidence loosely.
+- merged `A1`/`A2` guard suites cover the required v52 feeder-baseline and advisory-only
+  evidence conditions listed in the pre-lock planning set.
+- merged guard files:
+  - `packages/adeu_agent_harness/tests/test_retry_context.py`
+  - `packages/adeu_agent_harness/tests/test_taskpack_verifier.py`
+- v52 closeout artifact regeneration on `main` emitted:
+  - `retry_context_feeder_result@1`
+  - `retry_context_sanitization_profile@1`
+  - `v34d_retry_context_evidence@1`
+  - cumulative closeout evidence bundle and verifier provenance
+- repo-wide local gate at merge:
+  - PR `#253` local verification used `make check`: `1153` passing tests, `6` skipped
+  - PR `#254` local verification used `make check`: `1157` passing tests, `6` skipped
 
-## Recommended Thin Slice
-
-1. Treat `v52` as a feeder-artifact baseline only.
-   - shared canonical feeder helper
-   - deterministic `retry_context_feeder_result@1`
-   - deterministic `retry_context_sanitization_profile@1`
-2. Freeze authority to the current runner rejection-diagnostic surface plus canonical
-   candidate-plan/taskpack references.
-   - do not aggregate verifier or packaging rejection diagnostics in v52
-   - preserve `taskpack_runner_result@1` as binding/continuity only, not feeder semantic
-     authority
-3. Make advisory-only posture explicit and test-backed.
-   - no verifier/package consumption
-   - no automatic retry prompt dispatch
-   - no feeder artifact required on policy-success paths unless generation is explicitly
-     requested
-   - explicit request without runner rejection diagnostics still fails closed
-4. Add canonical closeout evidence and guard suites in the same arc.
-   - the lane is not real until closeout can prove it on `main`
-   - closeout should also bind a frozen shared feeder-engine identifier
-5. Restart PR slice naming at `A1`/`A2`.
-
-## Pre-Lock Summary (Machine-Checkable)
+## Stop-Gate Continuity Outcome
 
 ```json
 {
-  "schema": "v52_prelock_edge_summary@1",
+  "schema": "v52_edge_closeout_summary@1",
   "arc": "vNext+52",
   "target_path": "V34-D",
-  "identified_edge_count": 16,
-  "recommended_scope": "thin_v34d_baseline_only",
+  "prelock_edge_count": 16,
+  "resolved_edge_count": 16,
+  "open_blocking_edges": 0,
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality": 80,
-  "blocking_themes": [
-    "authority_surface_must_be_frozen",
-    "sibling_artifact_non_authority_must_be_explicit",
-    "sanitization_profile_must_be_frozen",
-    "duplicate_issue_tuple_handling_must_fail_closed",
-    "success_path_request_behavior_must_be_frozen",
-    "overflow_handling_must_be_frozen",
-    "missing_excerpt_resolution_must_be_frozen",
-    "policy_source_surface_must_remain_closed",
-    "shared_feeder_engine_proof_must_be_unambiguous",
-    "advisory_only_boundary_must_be_explicit",
-    "closeout_evidence_slot_must_be_added"
-  ]
+  "metric_key_exact_set_equal_v51": true,
+  "all_passed": true,
+  "blocking_issues": []
 }
 ```
 
-## Recommendation
+## Residual Risks (Post v52)
 
-1. Draft `v52` as a thin `V34-D` baseline over runner rejection diagnostics only.
-2. Keep verifier/package diagnostic aggregation, prompt dispatch, and broader retry-loop
-   orchestration deferred.
-3. Require deterministic feeder and sanitization-profile artifacts plus canonical `v34d`
-   evidence before treating the lane as closed.
-4. Freeze duplicate tuple handling and the non-authoritative role of `taskpack_runner_result@1`
-   before implementation starts.
-5. Freeze success-path explicit-request behavior, overflow handling, missing excerpt
-   resolution, and the shared feeder-engine identifier before implementation starts.
+1. Verifier/package rejection-diagnostic aggregation beyond the current runner surface
+   remains intentionally deferred; v52 does not claim broader `V34-D` authority coverage.
+2. Automatic retry prompt assembly or execution orchestration remains deferred; v52 is
+   advisory-only and artifact-scoped by design.
+3. Richer excerpt families beyond rejection diagnostics and canonical candidate-plan hunks
+   remain deferred.
+4. Remote/enclave attestation, standalone integrity self-verification, and optional
+   `remote_enclave` mode remain deferred beyond v52.
+5. Runtime observability remains required evidence but still informational-only rather than a
+   gating threshold family.
+
+## Recommendation (Post Closeout)
+
+1. Mark the v52 edge set as closed with no blocking issues.
+2. Treat `retry_context_feeder_result@1`, `retry_context_sanitization_profile@1`, canonical
+   `v34d_retry_context_evidence@1`, and cumulative closeout evidence bundle emission as part
+   of the released closeout surface going forward.
+3. Move future planning to a fresh post-v52 pass rather than re-opening the advisory
+   retry-context feeder baseline.
