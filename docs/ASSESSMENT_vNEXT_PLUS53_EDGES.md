@@ -1,9 +1,9 @@
-# Assessment vNext+53 Edges (Pre-Lock)
+# Assessment vNext+53 Edges (Post Closeout)
 
-This document records pre-lock edge planning for `vNext+53` (`V34-E`
-remote/enclave-attested verifier ingestion baseline).
+This document records edge disposition for `vNext+53` (`V34-E` provider-neutral attested
+verifier-ingestion baseline + canonical evidence integration) after arc closeout.
 
-Status: pre-lock assessment (March 7, 2026 UTC).
+Status: post-closeout assessment (March 7, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -11,11 +11,11 @@ Status: pre-lock assessment (March 7, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS53_EDGES.md",
-  "phase": "pre_lock_assessment",
+  "phase": "post_closeout_assessment",
   "authoritative": true,
-  "authoritative_scope": "v53_prelock_edge_planning",
+  "authoritative_scope": "v53_closeout_edge_disposition",
   "required_in_decision": true,
-  "notes": "This document is authoritative for v53 pre-lock edge planning until superseded by post-closeout disposition."
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
@@ -30,204 +30,157 @@ Status: pre-lock assessment (March 7, 2026 UTC).
 
 ## Inputs
 
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS52.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS52.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS53.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS53.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v8.md`
-- `docs/FUTURE_CLEANUPS.md`
+- `packages/adeu_agent_harness/src/adeu_agent_harness/attestation.py`
 - `packages/adeu_agent_harness/src/adeu_agent_harness/verify_taskpack_signature.py`
 - `packages/adeu_agent_harness/src/adeu_agent_harness/verify_taskpack_run.py`
 - `packages/adeu_agent_harness/src/adeu_agent_harness/write_closeout_evidence.py`
-- `packages/adeu_agent_harness/src/adeu_agent_harness/matrix_parity.py`
+- `packages/adeu_agent_harness/src/adeu_agent_harness/retry_context.py`
+- `packages/adeu_agent_harness/tests/test_attestation.py`
 - `packages/adeu_agent_harness/tests/test_taskpack_verifier.py`
-- `packages/adeu_agent_harness/tests/test_taskpack_signature.py`
-- `artifacts/quality_dashboard_v52_closeout.json`
-- `artifacts/stop_gate/metrics_v52_closeout.json`
-- `artifacts/agent_harness/v52/evidence_inputs/runtime_observability_comparison_v52.json`
-- `artifacts/agent_harness/v52/evidence_inputs/metric_key_continuity_assertion_v52.json`
-- `artifacts/agent_harness/v52/evidence_inputs/v34c_policy_recompute_evidence_v52.json`
-- `artifacts/agent_harness/v52/evidence_inputs/v34d_retry_context_evidence_v52.json`
-- `artifacts/agent_harness/v52/verification/ee0acc17f3994c841e84bd53da218e13d1e2318c9bf8cdaffbe6a4cc2655f944_59b1d0cb1087b70f3fd181b8819db2ac20b3b60e4ba0b184b416ccebbdaecdf7.json`
+- `artifacts/quality_dashboard_v53_closeout.json`
+- `artifacts/stop_gate/metrics_v53_closeout.json`
+- `artifacts/agent_harness/v53/evidence_inputs/runtime_observability_comparison_v53.json`
+- `artifacts/agent_harness/v53/evidence_inputs/metric_key_continuity_assertion_v53.json`
+- `artifacts/agent_harness/v53/evidence_inputs/v34c_policy_recompute_evidence_v53.json`
+- `artifacts/agent_harness/v53/evidence_inputs/v34d_retry_context_evidence_v53.json`
+- `artifacts/agent_harness/v53/evidence_inputs/v34e_attestation_evidence_v53.json`
+- `artifacts/agent_harness/v53/attestation/remote_enclave_attestation/77990fbcddbed768d6708f67859d852ca854fb4673298115be40136513562950_d9121144921a28fa56df72fc9d957926cbc5fecd484329ac787976f329e9cb8d.json`
+- `artifacts/agent_harness/v53/attestation/verification/77990fbcddbed768d6708f67859d852ca854fb4673298115be40136513562950_d9121144921a28fa56df72fc9d957926cbc5fecd484329ac787976f329e9cb8d.json`
+- `artifacts/agent_harness/v53/evidence/77990fbcddbed768d6708f67859d852ca854fb4673298115be40136513562950_d9121144921a28fa56df72fc9d957926cbc5fecd484329ac787976f329e9cb8d.json`
+- merged PRs: `#255`, `#256`
 
-## Current Repo Reality
+## Pre-Lock Edge Set Outcome (v53 Closeout)
 
-1. Local verifier execution is real and deterministic on `main`.
-   - `verify_taskpack_run.py` emits `taskpack_verification_result@1` over current local
-     authoritative inputs.
-2. V34-A signing and trust-anchor registry reuse are real and deterministic on `main`.
-   - `verify_taskpack_signature.py` already validates trust-anchor registry bindings and
-     emits deterministic `signature_verification_result@1`.
-3. No released `remote_enclave_attestation@1` artifact exists on `main`.
-4. No released `attestation_verification_result@1` artifact exists on `main`.
-5. No shared provider-neutral attestation normalizer/validator exists on `main`.
-6. No verifier path currently accepts externally supplied attested verifier outputs on
-   `main`.
-7. Deployment mode remains frozen to `adeu_integrated` / `standalone` and singleton runtime
-   `local_python_cli`; `remote_enclave` is not a released runtime or packaging mode.
-
-## Pre-Lock Edge Set (Draft)
-
-1. Provider-specific attestation format drift risk: `open`.
-   - no provider-neutral attestation schema exists on `main`; accepting provider-native
-     evidence directly would make authority shape caller-dependent.
-2. Parallel trust-anchor system risk: `open`.
-   - V34-A already established a trust-anchor registry contract; a second attestation-only
-     registry would fragment authority unless explicitly forbidden.
-3. External attested-result without local-equivalence risk: `open`.
-   - no current path proves that an externally supplied attested verifier result exactly
-     matches the current local verifier output for identical inputs.
-4. Remote transport/job dispatch overreach risk: `open`.
-   - `V34-E` can easily widen into remote execution orchestration unless the first slice is
-     held to ingestion/validation only.
-5. Deployment-mode creep risk: `open`.
-   - `remote_enclave` deployment mode is a separate deferred path and should not bleed into
-     the first attestation baseline.
-6. Provider-id surface ambiguity risk: `open`.
-   - no closed provider-id enum exists on `main`; leaving it open would create false
-     generality and unstable fixtures.
-7. Reference-time wall-clock drift risk: `open`.
-   - attestation validation needs explicit reference time and must not default to wall clock
-     or environment-derived time.
-8. Non-normalized provider-evidence authority risk: `open`.
-   - raw provider claims or transport wrappers are not currently fenced from becoming
-     authority input.
-9. Attested/local verified-result hash mismatch acceptance risk: `open`.
-   - externally supplied verified results could be accepted without current local verifier
-     equivalence unless the path is explicitly fail-closed.
-10. Closeout evidence integration gap: `open`.
-   - current closeout surfaces contain no canonical v34e attestation evidence slot.
-11. Stop-gate churn risk: `open`.
-   - the attestation lane should not widen stop-gate schema family or metric cardinality.
-12. Nondeterministic environment-field leakage risk: `open`.
-   - provider evidence often carries wall-clock, host, endpoint, or nonce fields that would
-     destabilize replay if not frozen as non-authoritative.
-13. Attested verified-result schema divergence risk: `open`.
-   - the safest thin baseline should reuse the current `taskpack_verification_result@1`
-     contract rather than define a parallel remote-only verifier output family.
-14. Over-broad `L2` release interpretation risk: `open`.
-   - `V34-E` is an `L2-candidate`, but the first slice should authorize only the attested
-     ingestion lane, not generalized remote execution authority.
-15. `attestation_verified` truth-value ambiguity risk: `open`.
-   - a first attestation slice must require `attestation_verified == true`; field presence
-     alone is not enough for acceptance.
-16. Stale local-equivalence baseline reuse risk: `open`.
-   - local equivalence must compare against a local verifier result materialized in the
-     current v53 flow rather than whatever prior verification artifact happens to exist.
-17. Shared verification-result schema authority ambiguity risk: `open`.
-   - `taskpack_verification_result@1` should remain a shared schema contract for both local
-     and attested outputs, while authority comes from explicit hashed artifacts, not a
-     generic verifier artifact reference.
-18. Malformed-but-hashable attested result acceptance risk: `open`.
-   - the attested verifier output must validate against `taskpack_verification_result@1`
-     before its hash participates in local-equivalence evaluation.
-19. Raw provider-evidence hash subject creep risk: `open`.
-   - `opaque_provider_evidence_hash` should bind normalized attestation to raw provider
-     bytes for audit only and must not become part of the exact local-equivalence subject.
-20. Duplicate/conflicting normalized-claim resolution drift risk: `open`.
-   - normalization must fail closed on duplicate or conflicting normalized claims rather
-     than silently choose one representation.
-21. Artifact-ingestion-only rule ambiguity risk: `open`.
-   - forbidding network transport is not sufficient unless the positive rule is also frozen:
-     v53 attestation inputs must come from explicit local artifact paths only.
-22. `runner_provenance_hash` subject ambiguity risk: `open`.
-   - v53 uses `runner_provenance_hash` in normalized claims and binding checks, so the hash
-     subject must be frozen to the full canonical `taskpack_runner_provenance@1` artifact.
-23. Current local verifier materialization failure ambiguity risk: `open`.
-   - if the current local verifier result cannot be materialized in the v53 flow, the arc
-     must fail closed instead of silently weakening local equivalence.
-24. Shared attestation-validator identifier comparability risk: `open`.
-   - closeout evidence should require a frozen comparable identifier format rather than free
+1. Provider-specific attestation format drift risk: `resolved`.
+   - `attestation.py` now emits provider-neutral `remote_enclave_attestation@1` rather than
+     accepting provider-native authority formats directly.
+2. Parallel trust-anchor system risk: `resolved`.
+   - v53 reuses the existing V34-A trust-anchor registry and does not introduce a second
+     attestation-only trust system.
+3. External attested-result without local-equivalence risk: `resolved`.
+   - acceptance now requires exact attested/local `verified_result_hash` equality in the
+     current v53 flow.
+4. Remote transport/job dispatch overreach risk: `resolved`.
+   - v53 remains local artifact ingestion only; no live transport or job dispatch was
+     released.
+5. Deployment-mode creep risk: `resolved`.
+   - `remote_enclave` remains deferred; v53 does not widen deployment modes.
+6. Provider-id surface ambiguity risk: `resolved`.
+   - provider scope is frozen to exact case-sensitive equality against
+     `deterministic_test_enclave`.
+7. Reference-time wall-clock drift risk: `resolved`.
+   - attestation validation remains bound to an explicit verification reference time and does
+     not infer from wall clock.
+8. Non-normalized provider-evidence authority risk: `resolved`.
+   - provider evidence is non-authoritative until normalized into the provider-neutral
+     attestation schema.
+9. Attested/local verified-result hash mismatch acceptance risk: `resolved`.
+   - local-equivalence mismatch now fails closed in both validation and closeout evidence
+     paths.
+10. Closeout evidence integration gap: `resolved`.
+   - canonical `v34e_attestation_evidence@1` now exists, is hash-bound to v53 attestation
+     artifacts, and is included in the cumulative closeout bundle.
+11. Stop-gate churn risk: `resolved`.
+   - v53 closes with `stop_gate_metrics@1`, no new metric keys, and cardinality retained at
+     `80`.
+12. Nondeterministic environment-field leakage risk: `resolved`.
+   - nondeterministic provider fields are excluded from authority and the attestation lane
+     stays deterministic under the frozen local-ingestion contract.
+13. Attested verified-result schema divergence risk: `resolved`.
+   - v53 reuses `taskpack_verification_result@1` for both attested and local outputs.
+14. Over-broad `L2` release interpretation risk: `resolved`.
+   - v53 closes only the attested-ingestion lane; it does not release generalized remote
+     execution authority.
+15. `attestation_verified` truth-value ambiguity risk: `resolved`.
+   - `attestation_verified == true` is required and enforced in validation/evidence.
+16. Stale local-equivalence baseline reuse risk: `resolved`.
+   - the current local verifier result is recomputed in-flow during v53 validation.
+17. Shared verification-result schema authority ambiguity risk: `resolved`.
+   - authority is now bound to explicit hashed local/attested artifacts rather than a
+     generic preexisting verifier artifact.
+18. Malformed-but-hashable attested result acceptance risk: `resolved`.
+   - attested outputs must validate against `taskpack_verification_result@1` before their
+     hash participates in equivalence.
+19. Raw provider-evidence hash subject creep risk: `resolved`.
+   - `opaque_provider_evidence_hash` is audit-only and does not participate in exact local
+     equivalence.
+20. Duplicate/conflicting normalized-claim resolution drift risk: `resolved`.
+   - duplicate or conflicting normalized claims now fail closed.
+21. Artifact-ingestion-only rule ambiguity risk: `resolved`.
+   - v53 explicitly requires local artifact-path ingestion and rejects missing required
+     paths.
+22. `runner_provenance_hash` subject ambiguity risk: `resolved`.
+   - `runner_provenance_hash` is now frozen to the full canonical
+     `taskpack_runner_provenance@1` artifact hash.
+23. Current local verifier materialization failure ambiguity risk: `resolved`.
+   - inability to materialize the current local verifier result now fails closed.
+24. Shared attestation-validator identifier comparability risk: `resolved`.
+   - closeout evidence records a frozen comparable validator identifier rather than free
      text.
-25. Provider-id comparison normalization risk: `open`.
-   - the singleton provider check should be exact and case-sensitive rather than relying on
-     helpful normalization.
-26. Post-normalization duplicate/conflict timing ambiguity risk: `open`.
-   - duplicate/conflicting claim rejection must happen after normalization into the
-     provider-neutral schema, not before.
-27. Equivalence-subject versus binding-envelope ambiguity risk: `open`.
-   - the exact local-equivalence subject should stay limited to `verified_result_hash`,
-     while the binding fields separately guard input identity.
+25. Provider-id comparison normalization risk: `resolved`.
+   - singleton provider comparison is exact and case-sensitive.
+26. Post-normalization duplicate/conflict timing ambiguity risk: `resolved`.
+   - duplicate/conflicting claim detection is frozen after normalization into the
+     provider-neutral schema.
+27. Equivalence-subject versus binding-envelope ambiguity risk: `resolved`.
+   - v53 freezes `verified_result_hash` as the exact equivalence subject while separate
+     binding fields guard input identity.
 
-## Recommended Thin Slice
+## Guard Coverage Outcome
 
-1. Treat `v53` as an attested verifier-ingestion baseline only.
-   - shared provider-neutral attestation normalizer/validator
-   - deterministic `remote_enclave_attestation@1`
-   - deterministic `attestation_verification_result@1`
-2. Freeze authority to current local verifier outputs plus existing V34-A trust-anchor
-   registry.
-   - reuse `taskpack_verification_result@1`
-   - reuse `taskpack_trust_anchor_registry@1`
-   - no parallel attestation registry in v53
-3. Keep provider scope intentionally tiny.
-   - singleton `provider_id` only
-   - no live provider adapters or network transport in v53
-4. Make exact local-equivalence required and test-backed.
-   - attested verified result hash must equal current local verified result hash for
-     identical authoritative inputs
-5. Add canonical closeout evidence and guard suites in the same arc.
-   - the lane is not real until closeout can prove the normalized attestation, validation
-     result, and exact local-equivalence posture on `main`
-6. Freeze attestation truth, schema validation, and current-flow equivalence posture before
-   implementation starts.
-   - `attestation_verified == true` required
-   - attested result must validate against `taskpack_verification_result@1` before hashing
-   - local verifier result must be recomputed in the current v53 flow
-7. Freeze artifact-ingestion-only and normalized-claim conflict posture before implementation
-   starts.
-   - explicit local artifact paths only
-   - duplicate/conflicting normalized claims fail closed
-   - `opaque_provider_evidence_hash` remains audit-only and non-equivalence-bearing
-8. Freeze hash-subject and equivalence-envelope semantics before implementation starts.
-   - `runner_provenance_hash` means the full canonical `taskpack_runner_provenance@1`
-     artifact hash
-   - current local verifier materialization failure fails closed
-   - exact equivalence subject remains `verified_result_hash` only
-9. Freeze singleton identifier semantics before implementation starts.
-   - `provider_id` comparison is exact and case-sensitive
-   - `shared_attestation_validator_identifier` must be a frozen comparable module/function
-     path or registry key, not free text
+- merged `B1`/`B2` guard suites cover the required v53 attestation-baseline and
+  local-equivalence evidence conditions listed in the pre-lock planning set.
+- merged guard files:
+  - `packages/adeu_agent_harness/tests/test_attestation.py`
+  - `packages/adeu_agent_harness/tests/test_taskpack_verifier.py`
+- v53 closeout artifact regeneration on `main` emitted:
+  - `remote_enclave_attestation@1`
+  - `attestation_verification_result@1`
+  - current local verification and policy-recompute artifacts for equivalence
+  - canonical `v34e_attestation_evidence@1`
+  - cumulative closeout evidence bundle and verifier provenance
+- repo-wide local gate at merge:
+  - PR `#255` local verification used `make check`: `1164` passing tests, `6` skipped
+  - PR `#256` local verification used `make check`: `1168` passing tests, `6` skipped
 
-## Pre-Lock Summary (Machine-Checkable)
+## Stop-Gate Continuity Outcome
 
 ```json
 {
-  "schema": "v53_prelock_edge_summary@1",
+  "schema": "v53_edge_closeout_summary@1",
   "arc": "vNext+53",
   "target_path": "V34-E",
-  "identified_edge_count": 27,
-  "recommended_scope": "thin_v34e_attested_ingestion_baseline_only",
+  "prelock_edge_count": 27,
+  "resolved_edge_count": 27,
+  "open_blocking_edges": 0,
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality": 80,
-  "blocking_themes": [
-    "provider_neutral_normalization_must_be_frozen",
-    "runner_provenance_hash_subject_must_be_frozen",
-    "trust_anchor_reuse_must_remain_single_source",
-    "provider_scope_must_stay_singleton_for_v53",
-    "provider_id_comparison_must_be_exact_case_sensitive",
-    "attestation_verified_must_equal_true",
-    "attested_result_schema_validation_must_precede_hash_equivalence",
-    "exact_local_equivalence_must_be_required",
-    "current_local_equivalence_baseline_must_be_recomputed_in_flow",
-    "local_materialization_failure_must_fail_closed",
-    "shared_attestation_validator_identifier_must_be_comparable",
-    "artifact_ingestion_only_rule_must_be_explicit",
-    "opaque_provider_evidence_hash_must_remain_audit_only",
-    "normalized_claim_conflicts_must_fail_closed",
-    "equivalence_subject_and_binding_envelope_must_remain_distinct",
-    "remote_transport_and_job_dispatch_must_be_forbidden",
-    "deployment_mode_expansion_must_remain_deferred",
-    "attestation_reference_time_must_be_explicit",
-    "closeout_evidence_slot_must_be_added"
-  ]
+  "metric_key_exact_set_equal_v52": true,
+  "all_passed": true,
+  "blocking_issues": []
 }
 ```
 
-## Recommendation
+## Residual Risks (Post v53)
 
-1. Draft `v53` as a thin `V34-E` baseline over attested verifier-output ingestion only.
-2. Keep live provider adapters, remote execution transport, and `remote_enclave`
-   deployment-mode release deferred.
-3. Require exact local-equivalence against the current local verifier output before treating
-   attested output as acceptable in this arc.
-4. Require deterministic attestation, validation-result, and canonical `v34e` evidence
-   artifacts before treating the lane as closed.
+1. Live provider adapters beyond the singleton `deterministic_test_enclave` surface remain
+   intentionally deferred; v53 does not claim broader provider coverage.
+2. Network transport and remote job dispatch remain deferred; v53 is artifact-ingestion-only
+   by design.
+3. Attested verifier ingestion without the exact local-equivalence brake remains deferred.
+4. Optional `remote_enclave` deployment mode and standalone integrity self-verification
+   remain deferred beyond v53.
+5. Runtime observability remains required evidence but still informational-only rather than a
+   gating threshold family.
+
+## Recommendation (Post Closeout)
+
+1. Mark the v53 edge set as closed with no blocking issues.
+2. Treat `remote_enclave_attestation@1`, `attestation_verification_result@1`, canonical
+   `v34e_attestation_evidence@1`, and cumulative closeout evidence bundle emission as part
+   of the released closeout surface going forward.
+3. Move future planning to a fresh post-v53 pass rather than re-opening the thin attested
+   verifier-ingestion baseline.

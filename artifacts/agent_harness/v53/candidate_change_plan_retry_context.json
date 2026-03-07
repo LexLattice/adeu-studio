@@ -1,0 +1,1 @@
+{"file_operations":[{"operation_kind":"create","path":"apps/api/v53_retry_context_blocked.txt","unified_diff":"--- /dev/null\n+++ b/apps/api/v53_retry_context_blocked.txt\n@@ -0,0 +1,1 @@\n+blocked\n"}],"proposed_commands":[],"schema":"candidate_change_plan@1"}
