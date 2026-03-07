@@ -15,6 +15,31 @@ from adeu_agent_harness._v46_verifier_common import (
     emit_rejection_diagnostic,
     load_diagnostic_registry,
 )
+from adeu_agent_harness.attestation import (
+    DEFAULT_ATTESTATION_OUTPUT_ROOT,
+    LOCAL_EQUIVALENCE_BINDING_FIELDS,
+    LOCAL_EQUIVALENCE_SUBJECT_FIELDS,
+    LOCAL_EQUIVALENCE_SUBJECT_POLICY,
+    PROVIDER_ID,
+    PROVIDER_ID_COMPARISON_POLICY,
+    REMOTE_ENCLAVE_ATTESTATION_SCHEMA,
+    SHARED_ATTESTATION_VALIDATOR,
+    SHARED_ATTESTATION_VALIDATOR_IDENTIFIER,
+    SHARED_ATTESTATION_VALIDATOR_IDENTIFIER_POLICY,
+    validate_attested_verification,
+)
+from adeu_agent_harness.attestation import (
+    DEFAULT_LOCAL_POLICY_RECOMPUTE_OUTPUT_ROOT as ATTESTATION_LOCAL_POLICY_RECOMPUTE_OUTPUT_ROOT,
+)
+from adeu_agent_harness.attestation import (
+    DEFAULT_LOCAL_VERIFICATION_OUTPUT_ROOT as ATTESTATION_LOCAL_VERIFICATION_OUTPUT_ROOT,
+)
+from adeu_agent_harness.attestation import (
+    RUNNER_PROVENANCE_HASH_POLICY as ATTESTATION_RUNNER_PROVENANCE_HASH_POLICY,
+)
+from adeu_agent_harness.attestation import (
+    VERIFICATION_PASSED_POLICY as ATTESTATION_VERIFICATION_PASSED_POLICY,
+)
 from adeu_agent_harness.compile import (
     PIPELINE_PROFILE_SCHEMA,
     TASKPACK_PROFILE_REGISTRY_SCHEMA,
@@ -316,8 +341,9 @@ def _write_candidate_change_plan(
     rel_path: str = "packages/adeu_agent_harness/src/adeu_agent_harness/v46_verify_fixture.txt",
     operations: list[dict[str, Any]] | None = None,
     proposed_commands: list[str] | None = None,
+    artifact_rel_path: str = "artifacts/agent_harness/v46/candidate_change_plan.json",
 ) -> Path:
-    path = root / "artifacts" / "agent_harness" / "v46" / "candidate_change_plan.json"
+    path = root / artifact_rel_path
     _write_json(
         path,
         {
@@ -600,6 +626,26 @@ def _add_retry_context_slot(taskpack_dir: Path) -> None:
         {
             "slot_id": "v34d_retry_context_evidence",
             "description": "Retry-context feeder evidence block.",
+            "required": True,
+        }
+    )
+    evidence_slots_payload["slots"] = sorted(
+        evidence_slots_payload["slots"], key=lambda row: row["slot_id"]
+    )
+    evidence_slots_payload["required_count"] = len(
+        [slot for slot in evidence_slots_payload["slots"] if slot["required"] is True]
+    )
+    _write_json(evidence_slots_path, evidence_slots_payload)
+    _sync_manifest_component_hash(taskpack_dir, relative_path="EVIDENCE_SLOTS.json")
+
+
+def _add_attestation_slot(taskpack_dir: Path) -> None:
+    evidence_slots_path = taskpack_dir / "EVIDENCE_SLOTS.json"
+    evidence_slots_payload = _read_json(evidence_slots_path)
+    evidence_slots_payload["slots"].append(
+        {
+            "slot_id": "v34e_attestation_evidence",
+            "description": "Attested verifier equivalence evidence block.",
             "required": True,
         }
     )
@@ -916,6 +962,7 @@ def _seed_v52_retry_context_evidence_payload(
             }
         ],
         proposed_commands=[],
+        artifact_rel_path="artifacts/agent_harness/v52/candidate_change_plan_retry_context.json",
     )
 
     with pytest.raises(TaskpackRunnerError) as exc_info:
@@ -996,6 +1043,179 @@ def _seed_v52_retry_context_evidence_payload(
     return evidence_path
 
 
+def _seed_v53_attestation_evidence_payload(
+    root: Path,
+    *,
+    taskpack_dir: Path,
+    verified_result_path: Path,
+    diagnostic_registry_rel: str,
+) -> Path:
+    signing = seed_signing_handoff_fixture(root, taskpack_dir=taskpack_dir)
+    verified_result_payload = _read_json(verified_result_path)
+    candidate_change_plan_path = root / verified_result_payload["verified_artifacts"][
+        "candidate_change_plan_path"
+    ]
+    runner_result_path = root / verified_result_payload["verified_artifacts"]["runner_result_path"]
+    runner_provenance_path = root / verified_result_payload["verified_artifacts"][
+        "runner_provenance_path"
+    ]
+    provider_attestation_input_path = (
+        root
+        / "artifacts"
+        / "agent_harness"
+        / "v53"
+        / "attested"
+        / "provider_attestation_input.json"
+    )
+    _write_json(
+        provider_attestation_input_path,
+        {
+            "schema": "deterministic_test_enclave_attestation_input@1",
+            "provider_id": PROVIDER_ID,
+            "attestation_key_id": "key_ed25519_test",
+            "algorithm": "ed25519",
+            "verification_reference_time_utc": signing.verification_reference_time_utc,
+            "taskpack_manifest_hash": verified_result_payload["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": verified_result_payload["candidate_change_plan_hash"],
+            "runner_provenance_hash": sha256_canonical_json(_read_json(runner_provenance_path)),
+            "verified_result_hash": verified_result_payload["verified_result_hash"],
+            "attestation_verified": True,
+            "opaque_provider_evidence": "raw-provider-proof::deterministic_test_enclave",
+        },
+    )
+
+    attestation_artifacts = validate_attested_verification(
+        taskpack_dir=_relative(root, taskpack_dir),
+        candidate_change_plan_path=_relative(root, candidate_change_plan_path),
+        runner_result_path=_relative(root, runner_result_path),
+        runner_provenance_path=_relative(root, runner_provenance_path),
+        attested_verified_result_path=_relative(root, verified_result_path),
+        provider_attestation_input_path=_relative(root, provider_attestation_input_path),
+        attestation_output_root=DEFAULT_ATTESTATION_OUTPUT_ROOT,
+        local_verification_output_root=ATTESTATION_LOCAL_VERIFICATION_OUTPUT_ROOT,
+        local_policy_recompute_output_root=ATTESTATION_LOCAL_POLICY_RECOMPUTE_OUTPUT_ROOT,
+        diagnostic_registry_path=diagnostic_registry_rel,
+        repo_root_path=root,
+        **signing.as_kwargs(),
+    )
+    remote_attestation_payload = _read_json(
+        attestation_artifacts.remote_enclave_attestation_path
+    )
+    assert remote_attestation_payload["schema"] == REMOTE_ENCLAVE_ATTESTATION_SCHEMA
+    attestation_verification_payload = _read_json(
+        attestation_artifacts.attestation_verification_result_path
+    )
+
+    evidence_path = (
+        root
+        / "artifacts"
+        / "agent_harness"
+        / "v53"
+        / "evidence_inputs"
+        / "v34e_attestation_evidence_v53.json"
+    )
+    _write_json(
+        evidence_path,
+        {
+            "schema": "v34e_attestation_evidence@1",
+            "contract_source": (
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS53.md#v34e_attested_verifier_contract@1"
+            ),
+            "attestation_entrypoint": "python -m adeu_agent_harness.attestation",
+            "shared_attestation_validator_used": SHARED_ATTESTATION_VALIDATOR,
+            "shared_attestation_validator_identifier": SHARED_ATTESTATION_VALIDATOR_IDENTIFIER,
+            "shared_attestation_validator_identifier_policy": (
+                SHARED_ATTESTATION_VALIDATOR_IDENTIFIER_POLICY
+            ),
+            "local_verifier_entrypoint": attestation_verification_payload[
+                "local_verifier_entrypoint"
+            ],
+            "remote_enclave_attestation_path": _relative(
+                root, attestation_artifacts.remote_enclave_attestation_path
+            ),
+            "remote_enclave_attestation_hash": (
+                attestation_artifacts.remote_enclave_attestation_hash
+            ),
+            "attested_verified_result_path": _relative(
+                root, attestation_artifacts.attested_verified_result_path
+            ),
+            "attested_verified_result_hash": attestation_artifacts.attested_verified_result_hash,
+            "local_verified_result_path": _relative(
+                root, attestation_artifacts.local_verified_result_path
+            ),
+            "local_verified_result_hash": attestation_artifacts.local_verified_result_hash,
+            "attestation_verification_result_path": _relative(
+                root, attestation_artifacts.attestation_verification_result_path
+            ),
+            "attestation_verification_result_hash": (
+                attestation_artifacts.attestation_verification_result_hash
+            ),
+            "provider_id": PROVIDER_ID,
+            "provider_id_closed_singleton_enforced": True,
+            "provider_id_comparison_policy": PROVIDER_ID_COMPARISON_POLICY,
+            "attestation_trust_anchor_registry_reused": True,
+            "runner_provenance_hash_policy": ATTESTATION_RUNNER_PROVENANCE_HASH_POLICY,
+            "attestation_verified_required": True,
+            "input_mode_artifact_ingestion_only": True,
+            "attested_verified_result_schema_validated": True,
+            "current_local_verification_recomputed": True,
+            "current_local_verification_materialization_failure_fails_closed": True,
+            "local_equivalence_required": True,
+            "local_equivalence_subject_fields_verified": list(
+                LOCAL_EQUIVALENCE_SUBJECT_FIELDS
+            ),
+            "local_equivalence_binding_fields_verified": list(
+                LOCAL_EQUIVALENCE_BINDING_FIELDS
+            ),
+            "local_equivalence_subject_policy": LOCAL_EQUIVALENCE_SUBJECT_POLICY,
+            "local_equivalence_verified": True,
+            "opaque_provider_evidence_hash_audit_only": True,
+            "normalized_claim_conflicts_forbidden": True,
+            "remote_transport_or_job_dispatch_forbidden": True,
+            "deployment_mode_expansion_forbidden": True,
+            "verification_passed": True,
+            "verification_passed_policy": ATTESTATION_VERIFICATION_PASSED_POLICY,
+            "metric_key_cardinality": 80,
+            "metric_key_exact_set_equal_v52": True,
+            "notes": "v53 B2 closeout evidence fixture.",
+        },
+    )
+    return evidence_path
+
+
+def _write_self_hashed_payload(
+    path: Path,
+    payload: dict[str, Any],
+    *,
+    hash_field: str,
+) -> dict[str, Any]:
+    payload[hash_field] = sha256_canonical_json(
+        {key: value for key, value in payload.items() if key != hash_field}
+    )
+    _write_json(path, payload)
+    return payload
+
+
+def _write_non_equivalent_verified_result(path: Path) -> tuple[Path, dict[str, Any]]:
+    payload = _read_json(path)
+    drifted_runner_provenance_hash = "0" * 64
+    if payload["runner_provenance_hash"] == drifted_runner_provenance_hash:
+        drifted_runner_provenance_hash = "1" * 64
+    payload["runner_provenance_hash"] = drifted_runner_provenance_hash
+    payload["verified_result_hash"] = sha256_canonical_json(
+        {
+            "taskpack_manifest_hash": payload["taskpack_manifest_hash"],
+            "candidate_change_plan_hash": payload["candidate_change_plan_hash"],
+            "runner_provenance_hash": payload["runner_provenance_hash"],
+            "verification_result": payload["verification_result"],
+            "exit_status": payload["exit_status"],
+        }
+    )
+    drifted_path = path.with_name(f"{path.stem}_attested_drift{path.suffix}")
+    _write_json(drifted_path, payload)
+    return drifted_path, payload
+
+
 def _write_evidence_with_seeded_payloads(
     *,
     root: Path,
@@ -1005,6 +1225,7 @@ def _write_evidence_with_seeded_payloads(
     matrix_parity_evidence_path: Path | None = None,
     policy_recompute_evidence_path: Path | None = None,
     retry_context_evidence_path: Path | None = None,
+    attestation_evidence_path: Path | None = None,
     evidence_output_root: str = "artifacts/agent_harness/v46/evidence",
 ):
     runtime_path, continuity_path, handoff_path = _seed_u2_evidence_payloads(root)
@@ -1028,6 +1249,11 @@ def _write_evidence_with_seeded_payloads(
             None
             if retry_context_evidence_path is None
             else _relative(root, retry_context_evidence_path)
+        ),
+        attestation_evidence_path=(
+            None
+            if attestation_evidence_path is None
+            else _relative(root, attestation_evidence_path)
         ),
         evidence_output_root=evidence_output_root,
         diagnostic_registry_path=diagnostic_registry_rel,
@@ -1609,6 +1835,77 @@ def test_write_closeout_evidence_emits_retry_context_block_when_required(
     assert retry_context_payload["schema"] == RETRY_CONTEXT_FEEDER_RESULT_SCHEMA
 
 
+def test_write_closeout_evidence_emits_attestation_block_when_required(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    _add_attestation_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+    attestation_evidence_path = _seed_v53_attestation_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+
+    result = _write_evidence_with_seeded_payloads(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+        matrix_parity_evidence_path=matrix_evidence_path,
+        policy_recompute_evidence_path=policy_recompute_evidence_path,
+        retry_context_evidence_path=retry_context_evidence_path,
+        attestation_evidence_path=attestation_evidence_path,
+        evidence_output_root="artifacts/agent_harness/v53/evidence_full_closeout",
+    )
+
+    bundle_payload = _read_json(result.evidence_bundle_path)
+    assert [block["slot_id"] for block in bundle_payload["ordered_evidence_blocks"]] == [
+        "metric_key_continuity_assertion",
+        "runtime_observability_comparison",
+        "v34a_handoff_completion_evidence",
+        "v34b_matrix_parity_evidence",
+        "v34c_policy_recompute_evidence",
+        "v34d_retry_context_evidence",
+        "v34e_attestation_evidence",
+    ]
+    attestation_block = next(
+        block
+        for block in bundle_payload["ordered_evidence_blocks"]
+        if block["slot_id"] == "v34e_attestation_evidence"
+    )
+    assert attestation_block["payload"]["schema"] == "v34e_attestation_evidence@1"
+    assert (
+        attestation_block["payload"]["shared_attestation_validator_identifier"]
+        == SHARED_ATTESTATION_VALIDATOR_IDENTIFIER
+    )
+    remote_attestation_payload = _read_json(
+        root / attestation_block["payload"]["remote_enclave_attestation_path"]
+    )
+    assert remote_attestation_payload["schema"] == REMOTE_ENCLAVE_ATTESTATION_SCHEMA
+
+
 def test_write_closeout_evidence_fails_closed_with_no_partial_evidence_emission(
     tmp_path: Path,
 ) -> None:
@@ -1922,6 +2219,47 @@ def test_write_closeout_evidence_fails_closed_when_retry_context_slot_required_b
             matrix_parity_evidence_path=matrix_evidence_path,
             policy_recompute_evidence_path=policy_recompute_evidence_path,
             evidence_output_root="artifacts/agent_harness/v52/evidence_missing_retry_context",
+    )
+    assert _error_payload(exc_info.value)["code"] == "AHK4611"
+
+
+def test_write_closeout_evidence_fails_closed_when_attestation_slot_required_but_missing(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    _add_attestation_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            policy_recompute_evidence_path=policy_recompute_evidence_path,
+            retry_context_evidence_path=retry_context_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v53/evidence_missing_attestation",
         )
     assert _error_payload(exc_info.value)["code"] == "AHK4611"
 
@@ -2085,6 +2423,164 @@ def test_write_closeout_evidence_fails_closed_on_invalid_retry_context_evidence(
             evidence_output_root="artifacts/agent_harness/v52/evidence_invalid_retry_context",
     )
     assert _error_payload(exc_info.value)["code"] == "AHK4603"
+
+
+def test_write_closeout_evidence_fails_closed_on_invalid_attestation_evidence(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    _add_attestation_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+    attestation_evidence_path = _seed_v53_attestation_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    attestation_payload = _read_json(attestation_evidence_path)
+    attestation_verification_result_path = root / attestation_payload[
+        "attestation_verification_result_path"
+    ]
+    attestation_verification_result_payload = _read_json(attestation_verification_result_path)
+    attestation_verification_result_payload["provider_id"] = "deterministic_test_enclave_drift"
+    _write_json(attestation_verification_result_path, attestation_verification_result_payload)
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            policy_recompute_evidence_path=policy_recompute_evidence_path,
+            retry_context_evidence_path=retry_context_evidence_path,
+            attestation_evidence_path=attestation_evidence_path,
+            evidence_output_root="artifacts/agent_harness/v53/evidence_invalid_attestation",
+        )
+    assert _error_payload(exc_info.value)["code"] == "AHK4604"
+
+
+def test_write_closeout_evidence_fails_closed_on_non_equivalent_attested_result(
+    tmp_path: Path,
+) -> None:
+    root, taskpack_dir, _, diagnostic_registry_rel = _prepare_verified_success(tmp_path)
+    _add_matrix_parity_slot(taskpack_dir)
+    _add_policy_recompute_slot(taskpack_dir)
+    _add_retry_context_slot(taskpack_dir)
+    _add_attestation_slot(taskpack_dir)
+    verified_result_path = _reverify_with_current_taskpack(
+        root=root,
+        taskpack_dir=taskpack_dir,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    _, _, matrix_evidence_path = _seed_v50_matrix_parity_payloads(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    policy_recompute_evidence_path = _seed_v51_policy_recompute_evidence_payload(
+        root,
+        verified_result_path=verified_result_path,
+    )
+    retry_context_evidence_path = _seed_v52_retry_context_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+    )
+    attestation_evidence_path = _seed_v53_attestation_evidence_payload(
+        root,
+        taskpack_dir=taskpack_dir,
+        verified_result_path=verified_result_path,
+        diagnostic_registry_rel=diagnostic_registry_rel,
+    )
+    attestation_payload = _read_json(attestation_evidence_path)
+    drifted_attested_result_path, drifted_attested_result_payload = (
+        _write_non_equivalent_verified_result(
+            root / attestation_payload["attested_verified_result_path"]
+        )
+    )
+
+    remote_attestation_path = root / attestation_payload["remote_enclave_attestation_path"]
+    remote_attestation_payload = _read_json(remote_attestation_path)
+    remote_attestation_payload["normalized_claims"]["verified_result_hash"] = (
+        drifted_attested_result_payload["verified_result_hash"]
+    )
+    remote_attestation_payload = _write_self_hashed_payload(
+        remote_attestation_path,
+        remote_attestation_payload,
+        hash_field="attestation_hash",
+    )
+
+    attestation_verification_result_path = root / attestation_payload[
+        "attestation_verification_result_path"
+    ]
+    attestation_verification_result_payload = _read_json(attestation_verification_result_path)
+    attestation_verification_result_payload["attested_verified_result_path"] = _relative(
+        root, drifted_attested_result_path
+    )
+    attestation_verification_result_payload["attested_verified_result_hash"] = (
+        drifted_attested_result_payload["verified_result_hash"]
+    )
+    attestation_verification_result_payload = _write_self_hashed_payload(
+        attestation_verification_result_path,
+        attestation_verification_result_payload,
+        hash_field="result_hash",
+    )
+
+    attestation_payload["attested_verified_result_path"] = _relative(
+        root, drifted_attested_result_path
+    )
+    attestation_payload["attested_verified_result_hash"] = drifted_attested_result_payload[
+        "verified_result_hash"
+    ]
+    attestation_payload["remote_enclave_attestation_hash"] = remote_attestation_payload[
+        "attestation_hash"
+    ]
+    attestation_payload["attestation_verification_result_hash"] = (
+        attestation_verification_result_payload["result_hash"]
+    )
+    _write_json(attestation_evidence_path, attestation_payload)
+
+    with pytest.raises(TaskpackVerifierError) as exc_info:
+        _write_evidence_with_seeded_payloads(
+            root=root,
+            taskpack_dir=taskpack_dir,
+            verified_result_path=verified_result_path,
+            diagnostic_registry_rel=diagnostic_registry_rel,
+            matrix_parity_evidence_path=matrix_evidence_path,
+            policy_recompute_evidence_path=policy_recompute_evidence_path,
+            retry_context_evidence_path=retry_context_evidence_path,
+            attestation_evidence_path=attestation_evidence_path,
+            evidence_output_root=(
+                "artifacts/agent_harness/v53/evidence_non_equivalent_attestation"
+            ),
+        )
+
+    payload = _error_payload(exc_info.value)
+    assert payload["code"] == "AHK4604"
+    assert (
+        payload["message"]
+        == "attested verified result must exactly match current local verified result"
+    )
 
 
 def test_write_closeout_evidence_fails_closed_on_malformed_retry_context_result_item(

@@ -35,6 +35,28 @@ from ._v46_verifier_common import (
     require_schema,
     write_json,
 )
+from .attestation import (
+    ATTESTATION_BINDING_FIELDS,
+    ATTESTATION_VERIFICATION_RESULT_SCHEMA,
+    LOCAL_EQUIVALENCE_BINDING_FIELDS,
+    LOCAL_EQUIVALENCE_SUBJECT_FIELDS,
+    LOCAL_EQUIVALENCE_SUBJECT_POLICY,
+    LOCAL_VERIFIER_ENTRYPOINT,
+    NORMALIZED_CLAIM_FIELDS,
+    PROVIDER_ATTESTATION_INPUT_SCHEMA,
+    PROVIDER_ID,
+    PROVIDER_ID_COMPARISON_POLICY,
+    REMOTE_ENCLAVE_ATTESTATION_SCHEMA,
+    SHARED_ATTESTATION_VALIDATOR,
+    SHARED_ATTESTATION_VALIDATOR_IDENTIFIER,
+    SHARED_ATTESTATION_VALIDATOR_IDENTIFIER_POLICY,
+)
+from .attestation import (
+    RUNNER_PROVENANCE_HASH_POLICY as ATTESTATION_RUNNER_PROVENANCE_HASH_POLICY,
+)
+from .attestation import (
+    VERIFICATION_PASSED_POLICY as ATTESTATION_VERIFICATION_PASSED_POLICY,
+)
 from .compile import TaskpackCompileError, verify_taskpack_bundle
 from .policy_recompute import (
     ALLOWED_ISSUE_CODES,
@@ -71,7 +93,12 @@ from .retry_context import (
 from .retry_context import (
     VERIFICATION_PASSED_POLICY as RETRY_CONTEXT_VERIFICATION_PASSED_POLICY,
 )
-from .verify_taskpack_run import VERIFICATION_RESULT_SCHEMA
+from .verify_taskpack_run import (
+    RUNNER_PROVENANCE_SCHEMA as TASKPACK_RUNNER_PROVENANCE_SCHEMA,
+)
+from .verify_taskpack_run import (
+    VERIFICATION_RESULT_SCHEMA,
+)
 
 EVIDENCE_SLOTS_SCHEMA = "taskpack/evidence_slots@1"
 
@@ -87,6 +114,7 @@ HANDOFF_COMPLETION_EVIDENCE_SCHEMA = "v34a_handoff_completion_evidence@1"
 MATRIX_PARITY_EVIDENCE_SCHEMA = "v34b_matrix_parity_evidence@1"
 POLICY_RECOMPUTE_EVIDENCE_SCHEMA = "v34c_policy_recompute_evidence@1"
 RETRY_CONTEXT_EVIDENCE_SCHEMA = "v34d_retry_context_evidence@1"
+ATTESTATION_EVIDENCE_SCHEMA = "v34e_attestation_evidence@1"
 ADAPTER_MATRIX_SCHEMA = "adapter_matrix@1"
 ADAPTER_MATRIX_PARITY_REPORT_SCHEMA = "adapter_matrix_parity_report@1"
 
@@ -97,6 +125,7 @@ EVIDENCE_SCHEMA_ALLOWLIST = (
     MATRIX_PARITY_EVIDENCE_SCHEMA,
     POLICY_RECOMPUTE_EVIDENCE_SCHEMA,
     RETRY_CONTEXT_EVIDENCE_SCHEMA,
+    ATTESTATION_EVIDENCE_SCHEMA,
 )
 
 EVIDENCE_SCHEMA_TO_SLOT_ID = {
@@ -106,6 +135,7 @@ EVIDENCE_SCHEMA_TO_SLOT_ID = {
     MATRIX_PARITY_EVIDENCE_SCHEMA: "v34b_matrix_parity_evidence",
     POLICY_RECOMPUTE_EVIDENCE_SCHEMA: "v34c_policy_recompute_evidence",
     RETRY_CONTEXT_EVIDENCE_SCHEMA: "v34d_retry_context_evidence",
+    ATTESTATION_EVIDENCE_SCHEMA: "v34e_attestation_evidence",
 }
 
 _HANDOFF_COMPLETION_SHARED_BINDING_VALIDATOR = (
@@ -238,6 +268,47 @@ _RETRY_CONTEXT_EVIDENCE_REQUIRED_KEYS = {
     "metric_key_exact_set_equal_v51",
     "notes",
 }
+_ATTESTATION_EVIDENCE_REQUIRED_KEYS = {
+    "schema",
+    "contract_source",
+    "attestation_entrypoint",
+    "shared_attestation_validator_used",
+    "shared_attestation_validator_identifier",
+    "shared_attestation_validator_identifier_policy",
+    "local_verifier_entrypoint",
+    "remote_enclave_attestation_path",
+    "remote_enclave_attestation_hash",
+    "attested_verified_result_path",
+    "attested_verified_result_hash",
+    "local_verified_result_path",
+    "local_verified_result_hash",
+    "attestation_verification_result_path",
+    "attestation_verification_result_hash",
+    "provider_id",
+    "provider_id_closed_singleton_enforced",
+    "provider_id_comparison_policy",
+    "attestation_trust_anchor_registry_reused",
+    "runner_provenance_hash_policy",
+    "attestation_verified_required",
+    "input_mode_artifact_ingestion_only",
+    "attested_verified_result_schema_validated",
+    "current_local_verification_recomputed",
+    "current_local_verification_materialization_failure_fails_closed",
+    "local_equivalence_required",
+    "local_equivalence_subject_fields_verified",
+    "local_equivalence_binding_fields_verified",
+    "local_equivalence_subject_policy",
+    "local_equivalence_verified",
+    "opaque_provider_evidence_hash_audit_only",
+    "normalized_claim_conflicts_forbidden",
+    "remote_transport_or_job_dispatch_forbidden",
+    "deployment_mode_expansion_forbidden",
+    "verification_passed",
+    "verification_passed_policy",
+    "metric_key_cardinality",
+    "metric_key_exact_set_equal_v52",
+    "notes",
+}
 _BASE_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
     (
         EVIDENCE_SCHEMA_TO_SLOT_ID[RUNTIME_OBSERVABILITY_SCHEMA],
@@ -261,6 +332,12 @@ _V52_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
     (
         *_V51_REQUIRED_EVIDENCE_SLOT_IDS,
         EVIDENCE_SCHEMA_TO_SLOT_ID[RETRY_CONTEXT_EVIDENCE_SCHEMA],
+    )
+)
+_V53_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
+    (
+        *_V52_REQUIRED_EVIDENCE_SLOT_IDS,
+        EVIDENCE_SCHEMA_TO_SLOT_ID[ATTESTATION_EVIDENCE_SCHEMA],
     )
 )
 _MATRIX_REQUIRED_LANE_ID_LIST = [
@@ -315,6 +392,64 @@ _EXPECTED_VERIFICATION_CROSS_CHECKS = [
     "policy_validation_result_consistency",
     "exit_status_consistency",
 ]
+_REMOTE_ATTESTATION_REQUIRED_KEYS = {
+    "schema",
+    "shared_attestation_validator",
+    "shared_attestation_validator_identifier",
+    "source_provider_schema",
+    "input_mode_artifact_ingestion_only",
+    "provider_id_comparison_policy",
+    "provider_id_closed_singleton_enforced",
+    "opaque_provider_evidence_hash_audit_only",
+    "normalized_claim_conflicts_forbidden",
+    "normalized_claim_fields",
+    "normalized_claims",
+    "attestation_verified",
+    "attestation_hash",
+}
+_ATTESTATION_VERIFICATION_RESULT_REQUIRED_KEYS = {
+    "schema",
+    "contract_schema",
+    "shared_attestation_validator",
+    "shared_attestation_validator_identifier",
+    "local_verifier_entrypoint",
+    "remote_enclave_attestation_path",
+    "remote_enclave_attestation_hash",
+    "attested_verified_result_path",
+    "attested_verified_result_hash",
+    "local_verified_result_path",
+    "local_verified_result_hash",
+    "taskpack_manifest_hash",
+    "candidate_change_plan_hash",
+    "runner_provenance_hash",
+    "trust_anchor_registry_hash",
+    "verification_reference_time_utc",
+    "provider_id",
+    "provider_id_closed_singleton_enforced",
+    "provider_id_comparison_policy",
+    "attestation_trust_anchor_registry_reused",
+    "attestation_key_id",
+    "algorithm",
+    "runner_provenance_hash_policy",
+    "attestation_binding_fields_verified",
+    "attestation_verified",
+    "input_mode_artifact_ingestion_only",
+    "attested_verified_result_schema_validated",
+    "current_local_verification_recomputed",
+    "current_local_verification_materialization_failure_fails_closed",
+    "local_equivalence_required",
+    "local_equivalence_subject_fields_verified",
+    "local_equivalence_binding_fields_verified",
+    "local_equivalence_subject_policy",
+    "local_equivalence_verified",
+    "opaque_provider_evidence_hash_audit_only",
+    "normalized_claim_conflicts_forbidden",
+    "remote_transport_or_job_dispatch_forbidden",
+    "deployment_mode_expansion_forbidden",
+    "verification_passed",
+    "verification_passed_policy",
+    "result_hash",
+}
 
 
 @dataclass(frozen=True)
@@ -500,6 +635,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
         _V50_REQUIRED_EVIDENCE_SLOT_IDS,
         _V51_REQUIRED_EVIDENCE_SLOT_IDS,
         _V52_REQUIRED_EVIDENCE_SLOT_IDS,
+        _V53_REQUIRED_EVIDENCE_SLOT_IDS,
     ):
         raise fail(
             code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
@@ -512,6 +648,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
                     _V50_REQUIRED_EVIDENCE_SLOT_IDS,
                     _V51_REQUIRED_EVIDENCE_SLOT_IDS,
                     _V52_REQUIRED_EVIDENCE_SLOT_IDS,
+                    _V53_REQUIRED_EVIDENCE_SLOT_IDS,
                 ],
             },
             artifact_path=str(path),
@@ -562,6 +699,12 @@ def _load_block(path: Path, *, expected_schema: str) -> dict[str, Any]:
             policy_source="stop_gate_metrics",
         )
     return canonicalized
+
+
+def _recompute_self_hash(payload: dict[str, Any], *, hash_field: str) -> str:
+    hash_subject = dict(payload)
+    hash_subject.pop(hash_field, None)
+    return sha256_canonical_json(hash_subject)
 
 
 def _load_handoff_completion_evidence(path: Path) -> dict[str, Any]:
@@ -1812,6 +1955,667 @@ def _load_retry_context_evidence(
     return payload
 
 
+def _load_attestation_evidence(
+    root: Path,
+    path: Path,
+    *,
+    verified_result_payload: dict[str, Any],
+) -> dict[str, Any]:
+    payload = _load_block(path, expected_schema=ATTESTATION_EVIDENCE_SCHEMA)
+    if set(payload.keys()) != _ATTESTATION_EVIDENCE_REQUIRED_KEYS:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence keys must match frozen grammar",
+            details={"path": str(path), "keys": sorted(payload.keys())},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "contract_source",
+        "attestation_entrypoint",
+        "shared_attestation_validator_used",
+        "shared_attestation_validator_identifier",
+        "shared_attestation_validator_identifier_policy",
+        "local_verifier_entrypoint",
+        "remote_enclave_attestation_path",
+        "attested_verified_result_path",
+        "local_verified_result_path",
+        "attestation_verification_result_path",
+        "provider_id",
+        "provider_id_comparison_policy",
+        "runner_provenance_hash_policy",
+        "local_equivalence_subject_policy",
+        "verification_passed_policy",
+        "notes",
+    ):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="attestation evidence string field must be non-empty",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("shared_attestation_validator_used") != SHARED_ATTESTATION_VALIDATOR:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence shared_attestation_validator_used mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("shared_attestation_validator_identifier")
+        != SHARED_ATTESTATION_VALIDATOR_IDENTIFIER
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence shared_attestation_validator_identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("shared_attestation_validator_identifier_policy")
+        != SHARED_ATTESTATION_VALIDATOR_IDENTIFIER_POLICY
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence shared_attestation_validator_identifier_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("local_verifier_entrypoint") != LOCAL_VERIFIER_ENTRYPOINT:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence local_verifier_entrypoint mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("provider_id") != PROVIDER_ID:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence provider_id mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("provider_id_comparison_policy")
+        != PROVIDER_ID_COMPARISON_POLICY
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence provider_id_comparison_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("runner_provenance_hash_policy")
+        != ATTESTATION_RUNNER_PROVENANCE_HASH_POLICY
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence runner_provenance_hash_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("verification_passed_policy")
+        != ATTESTATION_VERIFICATION_PASSED_POLICY
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence verification_passed_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    if payload.get("local_equivalence_subject_policy") != LOCAL_EQUIVALENCE_SUBJECT_POLICY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence local_equivalence_subject_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "provider_id_closed_singleton_enforced",
+        "attestation_trust_anchor_registry_reused",
+        "attestation_verified_required",
+        "input_mode_artifact_ingestion_only",
+        "attested_verified_result_schema_validated",
+        "current_local_verification_recomputed",
+        "current_local_verification_materialization_failure_fails_closed",
+        "local_equivalence_required",
+        "local_equivalence_verified",
+        "opaque_provider_evidence_hash_audit_only",
+        "normalized_claim_conflicts_forbidden",
+        "remote_transport_or_job_dispatch_forbidden",
+        "deployment_mode_expansion_forbidden",
+        "verification_passed",
+        "metric_key_exact_set_equal_v52",
+    ):
+        if payload.get(field) is not True:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="attestation evidence boolean field must be true",
+                details={"path": str(path), "field": field, "value": payload.get(field)},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("metric_key_cardinality") != 80:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence metric_key_cardinality must equal 80",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "remote_enclave_attestation_hash",
+        "attested_verified_result_hash",
+        "local_verified_result_hash",
+        "attestation_verification_result_hash",
+    ):
+        if payload.get(field) is None or not is_sha256(payload[field]):
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="attestation evidence hash field must be a sha256 string",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("local_equivalence_subject_fields_verified") != list(
+        LOCAL_EQUIVALENCE_SUBJECT_FIELDS
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence local_equivalence_subject_fields_verified mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("local_equivalence_binding_fields_verified") != list(
+        LOCAL_EQUIVALENCE_BINDING_FIELDS
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="attestation evidence local_equivalence_binding_fields_verified mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    remote_attestation_path = coerce_artifact_path(
+        root, payload["remote_enclave_attestation_path"]
+    )
+    remote_attestation_payload = _load_block(
+        remote_attestation_path, expected_schema=REMOTE_ENCLAVE_ATTESTATION_SCHEMA
+    )
+    if set(remote_attestation_payload.keys()) != _REMOTE_ATTESTATION_REQUIRED_KEYS:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation keys must match frozen grammar",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        remote_attestation_payload.get("attestation_hash")
+        != payload["remote_enclave_attestation_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation evidence remote attestation hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if _recompute_self_hash(remote_attestation_payload, hash_field="attestation_hash") != payload[
+        "remote_enclave_attestation_hash"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation self-hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        remote_attestation_payload.get("shared_attestation_validator")
+        != SHARED_ATTESTATION_VALIDATOR
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation shared validator mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        remote_attestation_payload.get("shared_attestation_validator_identifier")
+        != SHARED_ATTESTATION_VALIDATOR_IDENTIFIER
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation validator identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        remote_attestation_payload.get("source_provider_schema")
+        != PROVIDER_ATTESTATION_INPUT_SCHEMA
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation source_provider_schema mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if remote_attestation_payload.get("input_mode_artifact_ingestion_only") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation input mode posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        remote_attestation_payload.get("provider_id_comparison_policy")
+        != PROVIDER_ID_COMPARISON_POLICY
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation provider_id_comparison_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if remote_attestation_payload.get("provider_id_closed_singleton_enforced") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation singleton provider posture mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if remote_attestation_payload.get("opaque_provider_evidence_hash_audit_only") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation opaque provider evidence policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if remote_attestation_payload.get("normalized_claim_conflicts_forbidden") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation normalized claim conflict policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if remote_attestation_payload.get("attestation_verified") is not True:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation attestation_verified mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if remote_attestation_payload.get("normalized_claim_fields") != list(NORMALIZED_CLAIM_FIELDS):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation normalized_claim_fields mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    normalized_claims = remote_attestation_payload.get("normalized_claims")
+    if not isinstance(normalized_claims, dict):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation normalized_claims must be an object",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if normalized_claims.get("provider_id") != payload["provider_id"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation provider_id mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        normalized_claims.get("taskpack_manifest_hash")
+        != verified_result_payload["taskpack_manifest_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation taskpack_manifest_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        normalized_claims.get("candidate_change_plan_hash")
+        != verified_result_payload["candidate_change_plan_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation candidate_change_plan_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    attested_verified_result_path = coerce_artifact_path(
+        root, payload["attested_verified_result_path"]
+    )
+    attested_verified_result_payload = _load_verified_result(attested_verified_result_path)
+    if (
+        attested_verified_result_payload["verified_result_hash"]
+        != payload["attested_verified_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation evidence attested_verified_result_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    local_verified_result_path = coerce_artifact_path(root, payload["local_verified_result_path"])
+    local_verified_result_payload = _load_verified_result(local_verified_result_path)
+    if (
+        local_verified_result_payload["verified_result_hash"]
+        != payload["local_verified_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation evidence local_verified_result_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        local_verified_result_payload["verified_result_hash"]
+        != verified_result_payload["verified_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message=(
+                "attestation evidence local verified result must match closeout "
+                "verified result"
+            ),
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attested_verified_result_payload["verified_result_hash"]
+        != local_verified_result_payload["verified_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message=(
+                "attested verified result must exactly match current local "
+                "verified result"
+            ),
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    local_runner_provenance_rel = local_verified_result_payload["verified_artifacts"].get(
+        "runner_provenance_path"
+    )
+    if not isinstance(local_runner_provenance_rel, str) or not local_runner_provenance_rel:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="local verified result runner_provenance_path is missing or invalid",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    local_runner_provenance_path = coerce_artifact_path(root, local_runner_provenance_rel)
+    local_runner_provenance_payload = load_json_object(local_runner_provenance_path)
+    require_schema(
+        local_runner_provenance_payload,
+        expected_schema=TASKPACK_RUNNER_PROVENANCE_SCHEMA,
+        path=local_runner_provenance_path,
+    )
+    full_runner_provenance_hash = sha256_canonical_json(local_runner_provenance_payload)
+    if normalized_claims.get("runner_provenance_hash") != full_runner_provenance_hash:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation runner_provenance_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    attestation_verification_result_path = coerce_artifact_path(
+        root, payload["attestation_verification_result_path"]
+    )
+    attestation_verification_result_payload = _load_block(
+        attestation_verification_result_path,
+        expected_schema=ATTESTATION_VERIFICATION_RESULT_SCHEMA,
+    )
+    if (
+        set(attestation_verification_result_payload.keys())
+        != _ATTESTATION_VERIFICATION_RESULT_REQUIRED_KEYS
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result keys must match frozen grammar",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("result_hash")
+        != payload["attestation_verification_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation evidence verification result hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if _recompute_self_hash(
+        attestation_verification_result_payload, hash_field="result_hash"
+    ) != payload["attestation_verification_result_hash"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result self-hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("shared_attestation_validator")
+        != payload["shared_attestation_validator_used"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result shared validator mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("shared_attestation_validator_identifier")
+        != payload["shared_attestation_validator_identifier"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result validator identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("local_verifier_entrypoint")
+        != payload["local_verifier_entrypoint"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result local verifier entrypoint mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("remote_enclave_attestation_path")
+        != payload["remote_enclave_attestation_path"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result attestation path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    for field in (
+        "remote_enclave_attestation_hash",
+        "attested_verified_result_path",
+        "attested_verified_result_hash",
+        "local_verified_result_path",
+        "local_verified_result_hash",
+        "provider_id",
+        "provider_id_comparison_policy",
+        "runner_provenance_hash_policy",
+        "local_equivalence_subject_policy",
+        "verification_passed_policy",
+    ):
+        if attestation_verification_result_payload.get(field) != payload[field]:
+            raise fail(
+                code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+                message="attestation verification result field mismatch",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+    if (
+        attestation_verification_result_payload.get("runner_provenance_hash")
+        != full_runner_provenance_hash
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result runner_provenance_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("taskpack_manifest_hash")
+        != verified_result_payload["taskpack_manifest_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result taskpack_manifest_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("candidate_change_plan_hash")
+        != verified_result_payload["candidate_change_plan_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result candidate_change_plan_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("attestation_binding_fields_verified")
+        != list(ATTESTATION_BINDING_FIELDS)
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result attestation_binding_fields_verified mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("local_equivalence_subject_fields_verified")
+        != payload["local_equivalence_subject_fields_verified"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result subject fields mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        attestation_verification_result_payload.get("local_equivalence_binding_fields_verified")
+        != payload["local_equivalence_binding_fields_verified"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result binding fields mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    for field in (
+        "provider_id_closed_singleton_enforced",
+        "attestation_trust_anchor_registry_reused",
+        "attestation_verified",
+        "input_mode_artifact_ingestion_only",
+        "attested_verified_result_schema_validated",
+        "current_local_verification_recomputed",
+        "current_local_verification_materialization_failure_fails_closed",
+        "local_equivalence_required",
+        "local_equivalence_verified",
+        "opaque_provider_evidence_hash_audit_only",
+        "normalized_claim_conflicts_forbidden",
+        "remote_transport_or_job_dispatch_forbidden",
+        "deployment_mode_expansion_forbidden",
+        "verification_passed",
+    ):
+        if attestation_verification_result_payload.get(field) is not True:
+            raise fail(
+                code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+                message="attestation verification result boolean field must be true",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if normalized_claims.get("verified_result_hash") != payload["attested_verified_result_hash"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation verified_result_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    return payload
+
+
 def _emit_verifier_provenance(
     *,
     root: Path,
@@ -1882,6 +2686,7 @@ def write_closeout_evidence(
     matrix_parity_evidence_path: str | Path | None = None,
     policy_recompute_evidence_path: str | Path | None = None,
     retry_context_evidence_path: str | Path | None = None,
+    attestation_evidence_path: str | Path | None = None,
     evidence_output_root: str | Path,
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
@@ -1921,6 +2726,11 @@ def write_closeout_evidence(
             if retry_context_evidence_path is None
             else normalize_relative_path(str(retry_context_evidence_path))
         )
+        attestation_rel = (
+            None
+            if attestation_evidence_path is None
+            else normalize_relative_path(str(attestation_evidence_path))
+        )
         evidence_output_rel = normalize_relative_path(str(evidence_output_root))
 
         taskpack_path = coerce_artifact_path(root, taskpack_rel)
@@ -1938,6 +2748,11 @@ def write_closeout_evidence(
             None
             if retry_context_rel is None
             else coerce_artifact_path(root, retry_context_rel)
+        )
+        attestation_path = (
+            None
+            if attestation_rel is None
+            else coerce_artifact_path(root, attestation_rel)
         )
         evidence_root = coerce_artifact_path(root, evidence_output_rel)
 
@@ -1972,6 +2787,9 @@ def write_closeout_evidence(
         )
         retry_context_slot_required = (
             EVIDENCE_SCHEMA_TO_SLOT_ID[RETRY_CONTEXT_EVIDENCE_SCHEMA] in required_slot_ids
+        )
+        attestation_slot_required = (
+            EVIDENCE_SCHEMA_TO_SLOT_ID[ATTESTATION_EVIDENCE_SCHEMA] in required_slot_ids
         )
         if matrix_slot_required and matrix_path is None:
             raise fail(
@@ -2017,6 +2835,22 @@ def write_closeout_evidence(
             raise fail(
                 code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
                 message="retry context evidence block is not authorized by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if attestation_slot_required and attestation_path is None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="attestation evidence block is required by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if not attestation_slot_required and attestation_path is not None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="attestation evidence block is not authorized by EVIDENCE_SLOTS",
                 details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
                 artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
                 policy_source="evidence_slots",
@@ -2073,6 +2907,19 @@ def write_closeout_evidence(
                     "payload": _load_retry_context_evidence(
                         root,
                         retry_context_path,
+                        verified_result_payload=verified_result_payload,
+                    ),
+                }
+            )
+        if attestation_slot_required:
+            assert attestation_path is not None
+            blocks.append(
+                {
+                    "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[ATTESTATION_EVIDENCE_SCHEMA],
+                    "schema": ATTESTATION_EVIDENCE_SCHEMA,
+                    "payload": _load_attestation_evidence(
+                        root,
+                        attestation_path,
                         verified_result_payload=verified_result_payload,
                     ),
                 }
@@ -2268,6 +3115,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Optional repo-relative path to v34d_retry_context_evidence@1 payload.",
     )
     parser.add_argument(
+        "--attestation-evidence",
+        default=None,
+        help="Optional repo-relative path to v34e_attestation_evidence@1 payload.",
+    )
+    parser.add_argument(
         "--evidence-output-root",
         default=DEFAULT_EVIDENCE_ROOT,
         help="Repo-relative output root for evidence bundle/provenance artifacts.",
@@ -2297,6 +3149,7 @@ def main(argv: list[str] | None = None) -> int:
             matrix_parity_evidence_path=args.matrix_parity_evidence,
             policy_recompute_evidence_path=args.policy_recompute_evidence,
             retry_context_evidence_path=args.retry_context_evidence,
+            attestation_evidence_path=args.attestation_evidence,
             evidence_output_root=args.evidence_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             repo_root_path=args.repo_root,
