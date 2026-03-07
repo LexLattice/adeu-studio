@@ -40,6 +40,19 @@ from ._v47_packaging_common import (
     require_schema,
     write_json,
 )
+from .attestation import (
+    ATTESTATION_BINDING_FIELDS,
+    ATTESTATION_VERIFICATION_RESULT_SCHEMA,
+    PROVIDER_ATTESTATION_INPUT_SCHEMA,
+    REMOTE_ENCLAVE_ATTESTATION_SCHEMA,
+    SHARED_ATTESTATION_VALIDATOR_IDENTIFIER,
+)
+from .attestation import (
+    PROVIDER_ID as REMOTE_ENCLAVE_PROVIDER_ID,
+)
+from .attestation import (
+    PROVIDER_ID_COMPARISON_POLICY as REMOTE_ENCLAVE_PROVIDER_ID_COMPARISON_POLICY,
+)
 from .compile import TaskpackCompileError
 from .verify_taskpack_run import VERIFICATION_RESULT_SCHEMA
 from .verify_taskpack_signature import (
@@ -60,8 +73,13 @@ PACKAGING_RESULT_SCHEMA = "taskpack_packaging_result@1"
 DEFAULT_PACKAGING_ROOT = "artifacts/agent_harness/v47/packaging"
 
 DEPLOYMENT_MODE_INTEGRATED = "adeu_integrated"
+DEPLOYMENT_MODE_REMOTE_ENCLAVE = "remote_enclave"
 DEPLOYMENT_MODE_STANDALONE = "standalone"
-DEPLOYMENT_MODES = (DEPLOYMENT_MODE_INTEGRATED, DEPLOYMENT_MODE_STANDALONE)
+DEPLOYMENT_MODES = (
+    DEPLOYMENT_MODE_INTEGRATED,
+    DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+    DEPLOYMENT_MODE_STANDALONE,
+)
 
 _SUBPROCESS_DELEGATION_ENV_OVERRIDE = "ADEU_DEPLOYMENT_MODE_OVERRIDE"
 
@@ -128,6 +146,66 @@ _TASKPACK_CANONICAL_COMPONENTS = (
     "EVIDENCE_SLOTS.json",
     "taskpack_manifest.json",
 )
+
+_REQUIRED_REMOTE_ENCLAVE_ATTESTATION_KEYS = {
+    "schema",
+    "shared_attestation_validator",
+    "shared_attestation_validator_identifier",
+    "source_provider_schema",
+    "input_mode_artifact_ingestion_only",
+    "provider_id_comparison_policy",
+    "provider_id_closed_singleton_enforced",
+    "opaque_provider_evidence_hash_audit_only",
+    "normalized_claim_conflicts_forbidden",
+    "normalized_claim_fields",
+    "normalized_claims",
+    "attestation_verified",
+    "attestation_hash",
+}
+
+_REQUIRED_ATTESTATION_VERIFICATION_RESULT_KEYS = {
+    "schema",
+    "contract_schema",
+    "shared_attestation_validator",
+    "shared_attestation_validator_identifier",
+    "local_verifier_entrypoint",
+    "remote_enclave_attestation_path",
+    "remote_enclave_attestation_hash",
+    "attested_verified_result_path",
+    "attested_verified_result_hash",
+    "local_verified_result_path",
+    "local_verified_result_hash",
+    "taskpack_manifest_hash",
+    "candidate_change_plan_hash",
+    "runner_provenance_hash",
+    "trust_anchor_registry_hash",
+    "verification_reference_time_utc",
+    "provider_id",
+    "provider_id_closed_singleton_enforced",
+    "provider_id_comparison_policy",
+    "attestation_trust_anchor_registry_reused",
+    "attestation_key_id",
+    "algorithm",
+    "runner_provenance_hash_policy",
+    "attestation_binding_fields_verified",
+    "attestation_verified",
+    "input_mode_artifact_ingestion_only",
+    "attested_verified_result_schema_validated",
+    "current_local_verification_recomputed",
+    "current_local_verification_materialization_failure_fails_closed",
+    "local_equivalence_required",
+    "local_equivalence_subject_fields_verified",
+    "local_equivalence_binding_fields_verified",
+    "local_equivalence_subject_policy",
+    "local_equivalence_verified",
+    "opaque_provider_evidence_hash_audit_only",
+    "normalized_claim_conflicts_forbidden",
+    "remote_transport_or_job_dispatch_forbidden",
+    "deployment_mode_expansion_forbidden",
+    "verification_passed",
+    "verification_passed_policy",
+    "result_hash",
+}
 
 
 @dataclass(frozen=True)
@@ -505,6 +583,466 @@ def _load_metric_key_continuity(path: Path) -> dict[str, Any]:
     return payload
 
 
+def _require_bool_field(
+    *,
+    payload: dict[str, Any],
+    field: str,
+    path: Path,
+    code: str,
+    policy_source: str,
+) -> bool:
+    value = payload.get(field)
+    if not isinstance(value, bool):
+        raise fail(
+            code=code,
+            message="required boolean field is missing or invalid",
+            details={"path": str(path), "field": field},
+            artifact_path=str(path),
+            policy_source=policy_source,
+        )
+    return value
+
+
+def _require_string_field(
+    *,
+    payload: dict[str, Any],
+    field: str,
+    path: Path,
+    code: str,
+    policy_source: str,
+) -> str:
+    value = payload.get(field)
+    if not isinstance(value, str) or not value:
+        raise fail(
+            code=code,
+            message="required string field is missing or invalid",
+            details={"path": str(path), "field": field},
+            artifact_path=str(path),
+            policy_source=policy_source,
+        )
+    return value
+
+
+def _require_sha256_field(
+    *,
+    payload: dict[str, Any],
+    field: str,
+    path: Path,
+    code: str,
+    policy_source: str,
+) -> str:
+    value = _require_string_field(
+        payload=payload,
+        field=field,
+        path=path,
+        code=code,
+        policy_source=policy_source,
+    )
+    if not is_sha256(value):
+        raise fail(
+            code=code,
+            message="required sha256 field is missing or invalid",
+            details={"path": str(path), "field": field},
+            artifact_path=str(path),
+            policy_source=policy_source,
+        )
+    return value
+
+
+def _load_remote_enclave_attestation(path: Path) -> dict[str, Any]:
+    payload = load_json_object(path)
+    require_schema(payload, expected_schema=REMOTE_ENCLAVE_ATTESTATION_SCHEMA, path=path)
+    if set(payload.keys()) != _REQUIRED_REMOTE_ENCLAVE_ATTESTATION_KEYS:
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="remote enclave attestation keys must match frozen grammar",
+            details={"path": str(path), "keys": sorted(payload.keys())},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    if (
+        payload.get("shared_attestation_validator_identifier")
+        != SHARED_ATTESTATION_VALIDATOR_IDENTIFIER
+    ):
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="remote enclave attestation validator identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    if payload.get("source_provider_schema") != PROVIDER_ATTESTATION_INPUT_SCHEMA:
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="remote enclave attestation source provider schema mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    if (
+        _require_bool_field(
+            payload=payload,
+            field="input_mode_artifact_ingestion_only",
+            path=path,
+            code=AHK4703_ARTIFACT_INVALID,
+            policy_source="packaging_manifest",
+        )
+        is not True
+    ):
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="remote enclave attestation must remain artifact-ingestion only",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    if (
+        payload.get("provider_id_comparison_policy")
+        != REMOTE_ENCLAVE_PROVIDER_ID_COMPARISON_POLICY
+    ):
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="remote enclave attestation provider comparison policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    for field in (
+        "provider_id_closed_singleton_enforced",
+        "opaque_provider_evidence_hash_audit_only",
+        "normalized_claim_conflicts_forbidden",
+        "attestation_verified",
+    ):
+        if (
+            _require_bool_field(
+                payload=payload,
+                field=field,
+                path=path,
+                code=AHK4703_ARTIFACT_INVALID,
+                policy_source="packaging_manifest",
+            )
+            is not True
+        ):
+            raise fail(
+                code=AHK4703_ARTIFACT_INVALID,
+                message="remote enclave attestation required boolean must be true",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="packaging_manifest",
+            )
+    normalized_claims = payload.get("normalized_claims")
+    if not isinstance(normalized_claims, dict):
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="remote enclave attestation normalized_claims must be an object",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    for field in (
+        "provider_id",
+        "taskpack_manifest_hash",
+        "candidate_change_plan_hash",
+        "runner_provenance_hash",
+        "verified_result_hash",
+        "opaque_provider_evidence_hash",
+    ):
+        if field == "provider_id":
+            _require_string_field(
+                payload=normalized_claims,
+                field=field,
+                path=path,
+                code=AHK4703_ARTIFACT_INVALID,
+                policy_source="packaging_manifest",
+            )
+        else:
+            _require_sha256_field(
+                payload=normalized_claims,
+                field=field,
+                path=path,
+                code=AHK4703_ARTIFACT_INVALID,
+                policy_source="packaging_manifest",
+            )
+    attestation_hash = _require_sha256_field(
+        payload=payload,
+        field="attestation_hash",
+        path=path,
+        code=AHK4703_ARTIFACT_INVALID,
+        policy_source="packaging_manifest",
+    )
+    hash_subject = {key: payload[key] for key in payload if key != "attestation_hash"}
+    if sha256_canonical_json(hash_subject) != attestation_hash:
+        raise fail(
+            code=AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave attestation hash recomputation mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    return payload
+
+
+def _load_attestation_verification_result(path: Path) -> dict[str, Any]:
+    payload = load_json_object(path)
+    require_schema(payload, expected_schema=ATTESTATION_VERIFICATION_RESULT_SCHEMA, path=path)
+    if set(payload.keys()) != _REQUIRED_ATTESTATION_VERIFICATION_RESULT_KEYS:
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="attestation verification result keys must match frozen grammar",
+            details={"path": str(path), "keys": sorted(payload.keys())},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    if payload.get("contract_schema") != "v34e_attested_verifier_contract@1":
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="attestation verification contract schema mismatch",
+            details={"path": str(path), "contract_schema": payload.get("contract_schema")},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    if (
+        payload.get("shared_attestation_validator_identifier")
+        != SHARED_ATTESTATION_VALIDATOR_IDENTIFIER
+    ):
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="attestation verification validator identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    if (
+        payload.get("provider_id_comparison_policy")
+        != REMOTE_ENCLAVE_PROVIDER_ID_COMPARISON_POLICY
+    ):
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="attestation verification provider comparison policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    for field in (
+        "taskpack_manifest_hash",
+        "candidate_change_plan_hash",
+        "runner_provenance_hash",
+        "trust_anchor_registry_hash",
+        "remote_enclave_attestation_hash",
+        "attested_verified_result_hash",
+        "local_verified_result_hash",
+        "result_hash",
+    ):
+        _require_sha256_field(
+            payload=payload,
+            field=field,
+            path=path,
+            code=AHK4703_ARTIFACT_INVALID,
+            policy_source="packaging_manifest",
+        )
+    for field in (
+        "provider_id_closed_singleton_enforced",
+        "attestation_trust_anchor_registry_reused",
+        "attestation_verified",
+        "input_mode_artifact_ingestion_only",
+        "attested_verified_result_schema_validated",
+        "current_local_verification_recomputed",
+        "current_local_verification_materialization_failure_fails_closed",
+        "local_equivalence_required",
+        "local_equivalence_verified",
+        "opaque_provider_evidence_hash_audit_only",
+        "normalized_claim_conflicts_forbidden",
+        "remote_transport_or_job_dispatch_forbidden",
+        "deployment_mode_expansion_forbidden",
+        "verification_passed",
+    ):
+        if (
+            _require_bool_field(
+                payload=payload,
+                field=field,
+                path=path,
+                code=AHK4703_ARTIFACT_INVALID,
+                policy_source="packaging_manifest",
+            )
+            is not True
+        ):
+            raise fail(
+                code=AHK4703_ARTIFACT_INVALID,
+                message="attestation verification required boolean must be true",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="packaging_manifest",
+            )
+    if payload.get("provider_id") != REMOTE_ENCLAVE_PROVIDER_ID:
+        raise fail(
+            code=AHK4705_DEPLOYMENT_MODE_POLICY_VIOLATION,
+            message="remote enclave provider_id is outside frozen singleton policy",
+            details={"path": str(path), "provider_id": payload.get("provider_id")},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    if payload.get("attestation_binding_fields_verified") != list(ATTESTATION_BINDING_FIELDS):
+        raise fail(
+            code=AHK4703_ARTIFACT_INVALID,
+            message="attestation verification binding fields must match frozen v34e contract",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    hash_subject = {key: payload[key] for key in payload if key != "result_hash"}
+    if sha256_canonical_json(hash_subject) != payload["result_hash"]:
+        raise fail(
+            code=AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result hash recomputation mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="packaging_manifest",
+        )
+    return payload
+
+
+def _validate_remote_enclave_attestation_prerequisites(
+    *,
+    root: Path,
+    remote_enclave_attestation_path: str | Path | None,
+    attestation_verification_result_path: str | Path | None,
+    taskpack_manifest_hash: str,
+    verified_result_payload: dict[str, Any],
+) -> None:
+    if remote_enclave_attestation_path is None or attestation_verification_result_path is None:
+        raise fail(
+            code=AHK4705_DEPLOYMENT_MODE_POLICY_VIOLATION,
+            message="remote_enclave packaging requires explicit attestation prerequisite paths",
+            details={},
+            artifact_path="packaging",
+            deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            policy_source="packaging_manifest",
+        )
+    remote_attestation_artifact = coerce_artifact_path(
+        root, normalize_relative_path(str(remote_enclave_attestation_path))
+    )
+    attestation_verification_artifact = coerce_artifact_path(
+        root, normalize_relative_path(str(attestation_verification_result_path))
+    )
+    remote_attestation_payload = _load_remote_enclave_attestation(remote_attestation_artifact)
+    attestation_verification_payload = _load_attestation_verification_result(
+        attestation_verification_artifact
+    )
+    remote_attestation_rel = _normalize_repo_relative_path_for_hash(
+        root=root,
+        absolute_path=remote_attestation_artifact,
+    )
+    if (
+        attestation_verification_payload["remote_enclave_attestation_path"]
+        != remote_attestation_rel
+    ):
+        raise fail(
+            code=AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
+            message=(
+                "attestation verification result path must bind to current "
+                "attestation artifact"
+            ),
+            details={"path": str(attestation_verification_artifact)},
+            artifact_path=str(attestation_verification_artifact),
+            deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            policy_source="packaging_manifest",
+        )
+    if (
+        attestation_verification_payload["remote_enclave_attestation_hash"]
+        != remote_attestation_payload["attestation_hash"]
+    ):
+        raise fail(
+            code=AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verification result hash must bind to attestation artifact hash",
+            details={"path": str(attestation_verification_artifact)},
+            artifact_path=str(attestation_verification_artifact),
+            deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            policy_source="packaging_manifest",
+        )
+    if (
+        remote_attestation_payload["normalized_claims"]["provider_id"]
+        != REMOTE_ENCLAVE_PROVIDER_ID
+    ):
+        raise fail(
+            code=AHK4705_DEPLOYMENT_MODE_POLICY_VIOLATION,
+            message="remote enclave attestation provider_id is outside frozen singleton policy",
+            details={"path": str(remote_attestation_artifact)},
+            artifact_path=str(remote_attestation_artifact),
+            deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            policy_source="packaging_manifest",
+        )
+    expected_hash_fields = {
+        "taskpack_manifest_hash": taskpack_manifest_hash,
+        "candidate_change_plan_hash": verified_result_payload["candidate_change_plan_hash"],
+    }
+    for field, expected_value in expected_hash_fields.items():
+        if remote_attestation_payload["normalized_claims"][field] != expected_value:
+            raise fail(
+                code=AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
+                message=(
+                    "remote enclave attestation normalized claims must match "
+                    "current authoritative inputs"
+                ),
+                details={"path": str(remote_attestation_artifact), "field": field},
+                artifact_path=str(remote_attestation_artifact),
+                deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+                policy_source="packaging_manifest",
+            )
+        if attestation_verification_payload[field] != expected_value:
+            raise fail(
+                code=AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
+                message="attestation verification result must match current authoritative inputs",
+                details={"path": str(attestation_verification_artifact), "field": field},
+                artifact_path=str(attestation_verification_artifact),
+                deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+                policy_source="packaging_manifest",
+            )
+    if (
+        remote_attestation_payload["normalized_claims"]["runner_provenance_hash"]
+        != attestation_verification_payload["runner_provenance_hash"]
+    ):
+        raise fail(
+            code=AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
+            message=(
+                "remote enclave attestation runner_provenance_hash must match "
+                "attestation verification prerequisite binding"
+            ),
+            details={"path": str(attestation_verification_artifact)},
+            artifact_path=str(attestation_verification_artifact),
+            deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            policy_source="packaging_manifest",
+        )
+    if (
+        remote_attestation_payload["normalized_claims"]["verified_result_hash"]
+        != verified_result_payload["verified_result_hash"]
+    ):
+        raise fail(
+            code=AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
+            message=(
+                "remote enclave attestation verified_result_hash must match "
+                "current verified result"
+            ),
+            details={"path": str(remote_attestation_artifact)},
+            artifact_path=str(remote_attestation_artifact),
+            deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            policy_source="packaging_manifest",
+        )
+    if (
+        attestation_verification_payload["attested_verified_result_hash"]
+        != verified_result_payload["verified_result_hash"]
+        or attestation_verification_payload["local_verified_result_hash"]
+        != verified_result_payload["verified_result_hash"]
+    ):
+        raise fail(
+            code=AHK4704_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="attestation verified result hashes must bind to current verified result",
+            details={"path": str(attestation_verification_artifact)},
+            artifact_path=str(attestation_verification_artifact),
+            deployment_mode=DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            policy_source="packaging_manifest",
+        )
+
+
 def _extract_policy_equivalence(
     *,
     evidence_slots_payload: dict[str, Any],
@@ -683,6 +1221,8 @@ def package_ux_surface(
     verifier_provenance_path: str | Path,
     runtime_observability_comparison_path: str | Path,
     metric_key_continuity_assertion_path: str | Path,
+    remote_enclave_attestation_path: str | Path | None = None,
+    attestation_verification_result_path: str | Path | None = None,
     packaging_output_root: str | Path,
     diagnostic_registry_path: str | Path,
     dry_run: bool,
@@ -777,6 +1317,15 @@ def package_ux_surface(
         )
 
         verified_result_hash = verified_result_payload["verified_result_hash"]
+
+        if deployment_mode == DEPLOYMENT_MODE_REMOTE_ENCLAVE:
+            _validate_remote_enclave_attestation_prerequisites(
+                root=root,
+                remote_enclave_attestation_path=remote_enclave_attestation_path,
+                attestation_verification_result_path=attestation_verification_result_path,
+                taskpack_manifest_hash=manifest_hash,
+                verified_result_payload=verified_result_payload,
+            )
 
         if verified_result_payload["taskpack_manifest_hash"] != manifest_hash:
             raise fail(
@@ -1078,6 +1627,22 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Repo-relative path to metric_key_continuity_assertion@1 payload.",
     )
     parser.add_argument(
+        "--remote-enclave-attestation",
+        default=None,
+        help=(
+            "Repo-relative path to remote_enclave_attestation@1 artifact. "
+            "Required for remote_enclave deployment mode."
+        ),
+    )
+    parser.add_argument(
+        "--attestation-verification-result",
+        default=None,
+        help=(
+            "Repo-relative path to attestation_verification_result@1 artifact. "
+            "Required for remote_enclave deployment mode."
+        ),
+    )
+    parser.add_argument(
         "--packaging-output-root",
         default=DEFAULT_PACKAGING_ROOT,
         help="Repo-relative output root for v47 packaging artifacts.",
@@ -1116,6 +1681,8 @@ def main_for_mode(*, expected_mode: str, argv: list[str] | None = None) -> int:
             verifier_provenance_path=args.verifier_provenance,
             runtime_observability_comparison_path=args.runtime_observability_comparison,
             metric_key_continuity_assertion_path=args.metric_key_continuity_assertion,
+            remote_enclave_attestation_path=args.remote_enclave_attestation,
+            attestation_verification_result_path=args.attestation_verification_result,
             packaging_output_root=args.packaging_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             dry_run=bool(args.dry_run),
