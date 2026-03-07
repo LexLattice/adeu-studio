@@ -1329,7 +1329,7 @@ def test_package_ux_cross_mode_parity_domain_and_bundle_boundary(
 
 def _prepare_matrix_lane_inputs(
     packaging_repo: dict[str, str],
-) -> tuple[Path, str, Path, Path]:
+) -> tuple[Path, str, Path, Path, Path]:
     root = _repo_root_path(packaging_repo)
     matrix_rel = "artifacts/agent_harness/v50/matrix/adapter_matrix.json"
     build_adapter_matrix(
@@ -1343,6 +1343,7 @@ def _prepare_matrix_lane_inputs(
         expected_mode=DEPLOYMENT_MODE_INTEGRATED,
         deployment_mode=DEPLOYMENT_MODE_INTEGRATED,
     )
+    remote_enclave = _run_remote_enclave_packaging(packaging_repo)
     standalone = _run_packaging(
         packaging_repo,
         expected_mode=DEPLOYMENT_MODE_STANDALONE,
@@ -1353,12 +1354,23 @@ def _prepare_matrix_lane_inputs(
         rel_path="artifacts/agent_harness/v50/matrix/packaging_result_integrated.json",
         packaging_result=integrated,
     )
+    remote_enclave_result_path = _write_packaging_result_artifact(
+        root,
+        rel_path="artifacts/agent_harness/v50/matrix/packaging_result_remote_enclave.json",
+        packaging_result=remote_enclave,
+    )
     standalone_result_path = _write_packaging_result_artifact(
         root,
         rel_path="artifacts/agent_harness/v50/matrix/packaging_result_standalone.json",
         packaging_result=standalone,
     )
-    return root, matrix_rel, integrated_result_path, standalone_result_path
+    return (
+        root,
+        matrix_rel,
+        integrated_result_path,
+        remote_enclave_result_path,
+        standalone_result_path,
+    )
 
 
 def test_build_adapter_matrix_emits_deterministic_registry(
@@ -1401,6 +1413,12 @@ def test_build_adapter_matrix_emits_deterministic_registry(
             "adapter_kind": "candidate_plan_passthrough",
         },
         {
+            "deployment_mode": DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+            "adapter_id": "default",
+            "runtime_id": "local_python_cli",
+            "adapter_kind": "candidate_plan_passthrough",
+        },
+        {
             "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
             "adapter_id": "default",
             "runtime_id": "local_python_cli",
@@ -1415,9 +1433,13 @@ def test_build_adapter_matrix_emits_deterministic_registry(
 def test_build_adapter_matrix_parity_report_is_deterministic_and_complete(
     packaging_repo: dict[str, str],
 ) -> None:
-    root, matrix_rel, integrated_result_path, standalone_result_path = _prepare_matrix_lane_inputs(
-        packaging_repo
-    )
+    (
+        root,
+        matrix_rel,
+        integrated_result_path,
+        remote_enclave_result_path,
+        standalone_result_path,
+    ) = _prepare_matrix_lane_inputs(packaging_repo)
     matrix_result = build_adapter_matrix(
         adapter_registry_path=packaging_repo["adapter_registry"],
         matrix_output_path=matrix_rel,
@@ -1433,6 +1455,13 @@ def test_build_adapter_matrix_parity_report_is_deterministic_and_complete(
                 "runtime_id": "local_python_cli",
                 "runner_provenance_path": packaging_repo["runner_provenance"],
                 "packaging_result_path": _relative(root, integrated_result_path),
+            },
+            {
+                "deployment_mode": DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, remote_enclave_result_path),
             },
             {
                 "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
@@ -1476,7 +1505,7 @@ def test_build_adapter_matrix_parity_report_is_deterministic_and_complete(
         "allowlist_violations": "lexicographically_sorted_unique_normalized_posix_path_list",
         "forbidden_effects_detected": "boolean",
     }
-    assert len(first_payload["lane_rows"]) == 2
+    assert len(first_payload["lane_rows"]) == 3
     assert len(first_payload["pairwise_parity"]) == 1
     assert first_payload["pairwise_parity"] == [
         {
@@ -1484,6 +1513,7 @@ def test_build_adapter_matrix_parity_report_is_deterministic_and_complete(
             "runtime_id": "local_python_cli",
             "deployment_modes": [
                 DEPLOYMENT_MODE_INTEGRATED,
+                DEPLOYMENT_MODE_REMOTE_ENCLAVE,
                 DEPLOYMENT_MODE_STANDALONE,
             ],
             "taskpack_manifest_hash": first_payload["lane_rows"][0]["taskpack_manifest_hash"],
@@ -1508,7 +1538,7 @@ def test_build_adapter_matrix_parity_report_is_deterministic_and_complete(
 def test_build_adapter_matrix_parity_report_rejects_missing_declared_lane(
     packaging_repo: dict[str, str],
 ) -> None:
-    root, matrix_rel, integrated_result_path, _ = _prepare_matrix_lane_inputs(packaging_repo)
+    root, matrix_rel, integrated_result_path, _, _ = _prepare_matrix_lane_inputs(packaging_repo)
     evaluation_inputs_path = _write_matrix_evaluation_inputs(
         root,
         matrix_registry_path=matrix_rel,
@@ -1560,7 +1590,7 @@ def test_build_adapter_matrix_parity_report_rejects_tampered_matrix_registry_has
 def test_build_adapter_matrix_parity_report_rejects_duplicate_lane_tuple(
     packaging_repo: dict[str, str],
 ) -> None:
-    root, matrix_rel, integrated_result_path, _ = _prepare_matrix_lane_inputs(packaging_repo)
+    root, matrix_rel, integrated_result_path, _, _ = _prepare_matrix_lane_inputs(packaging_repo)
     evaluation_inputs_path = _write_matrix_evaluation_inputs(
         root,
         matrix_registry_path=matrix_rel,
@@ -1594,9 +1624,13 @@ def test_build_adapter_matrix_parity_report_rejects_duplicate_lane_tuple(
 def test_build_adapter_matrix_parity_report_rejects_undeclared_lane(
     packaging_repo: dict[str, str],
 ) -> None:
-    root, matrix_rel, integrated_result_path, standalone_result_path = _prepare_matrix_lane_inputs(
-        packaging_repo
-    )
+    (
+        root,
+        matrix_rel,
+        integrated_result_path,
+        remote_enclave_result_path,
+        standalone_result_path,
+    ) = _prepare_matrix_lane_inputs(packaging_repo)
     evaluation_inputs_path = _write_matrix_evaluation_inputs(
         root,
         matrix_registry_path=matrix_rel,
@@ -1607,6 +1641,13 @@ def test_build_adapter_matrix_parity_report_rejects_undeclared_lane(
                 "runtime_id": "local_python_cli",
                 "runner_provenance_path": packaging_repo["runner_provenance"],
                 "packaging_result_path": _relative(root, integrated_result_path),
+            },
+            {
+                "deployment_mode": DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, remote_enclave_result_path),
             },
             {
                 "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
@@ -1630,9 +1671,13 @@ def test_build_adapter_matrix_parity_report_rejects_undeclared_lane(
 def test_build_adapter_matrix_parity_report_rejects_runtime_id_outside_singleton(
     packaging_repo: dict[str, str],
 ) -> None:
-    root, matrix_rel, integrated_result_path, standalone_result_path = _prepare_matrix_lane_inputs(
-        packaging_repo
-    )
+    (
+        root,
+        matrix_rel,
+        integrated_result_path,
+        remote_enclave_result_path,
+        standalone_result_path,
+    ) = _prepare_matrix_lane_inputs(packaging_repo)
     evaluation_inputs_path = _write_matrix_evaluation_inputs(
         root,
         matrix_registry_path=matrix_rel,
@@ -1643,6 +1688,13 @@ def test_build_adapter_matrix_parity_report_rejects_runtime_id_outside_singleton
                 "runtime_id": "docker_python",
                 "runner_provenance_path": packaging_repo["runner_provenance"],
                 "packaging_result_path": _relative(root, integrated_result_path),
+            },
+            {
+                "deployment_mode": DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, remote_enclave_result_path),
             },
             {
                 "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
@@ -1666,13 +1718,24 @@ def test_build_adapter_matrix_parity_report_rejects_runtime_id_outside_singleton
 def test_build_adapter_matrix_parity_report_rejects_non_lexicographic_lane_order(
     packaging_repo: dict[str, str],
 ) -> None:
-    root, matrix_rel, integrated_result_path, standalone_result_path = _prepare_matrix_lane_inputs(
-        packaging_repo
-    )
+    (
+        root,
+        matrix_rel,
+        integrated_result_path,
+        remote_enclave_result_path,
+        standalone_result_path,
+    ) = _prepare_matrix_lane_inputs(packaging_repo)
     evaluation_inputs_path = _write_matrix_evaluation_inputs(
         root,
         matrix_registry_path=matrix_rel,
         lane_inputs=[
+            {
+                "deployment_mode": DEPLOYMENT_MODE_REMOTE_ENCLAVE,
+                "adapter_id": "default",
+                "runtime_id": "local_python_cli",
+                "runner_provenance_path": packaging_repo["runner_provenance"],
+                "packaging_result_path": _relative(root, remote_enclave_result_path),
+            },
             {
                 "deployment_mode": DEPLOYMENT_MODE_STANDALONE,
                 "adapter_id": "default",

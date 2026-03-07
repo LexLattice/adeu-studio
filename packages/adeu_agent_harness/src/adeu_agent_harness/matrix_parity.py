@@ -14,6 +14,7 @@ from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 from .package_ux import (
     DEPLOYMENT_MODE_INTEGRATED,
+    DEPLOYMENT_MODE_REMOTE_ENCLAVE,
     DEPLOYMENT_MODE_STANDALONE,
     PACKAGING_MANIFEST_SCHEMA,
     PACKAGING_PROVENANCE_SCHEMA,
@@ -45,6 +46,7 @@ LANE_ID_TUPLE = (
 )
 DEPLOYMENT_MODES = (
     DEPLOYMENT_MODE_INTEGRATED,
+    DEPLOYMENT_MODE_REMOTE_ENCLAVE,
     DEPLOYMENT_MODE_STANDALONE,
 )
 ENABLED_ROW_POLICY = "registry_is_enabled_only_disabled_rows_forbidden_non_v50"
@@ -59,7 +61,7 @@ RUNTIME_ID_OVERRIDE_POLICY = (
     "else_fail_closed"
 )
 LANE_PAIRING_POLICY = (
-    "for_each_declared_adapter_id_exactly_two_deployment_mode_rows_required_under_"
+    "for_each_declared_adapter_id_exactly_three_deployment_mode_rows_required_under_"
     "singleton_runtime_id"
 )
 LANE_COUNT_AUTHORITY = "all_registry_rows_only_because_disabled_rows_are_forbidden"
@@ -1298,11 +1300,11 @@ def build_adapter_matrix_parity_report(
     for row in lane_rows:
         grouped.setdefault((row["adapter_id"], row["runtime_id"]), []).append(row)
     for (adapter_id, runtime_id), rows in sorted(grouped.items()):
-        if len(rows) != 2:
+        if len(rows) != len(DEPLOYMENT_MODES):
             raise _fail(
                 code=AHK5007_MATRIX_LANE_COMPLETENESS_VIOLATION,
                 message=(
-                    "each declared adapter/runtime pair must have exactly two "
+                    "each declared adapter/runtime pair must have exactly three "
                     "deployment mode rows"
                 ),
                 details={
@@ -1315,7 +1317,7 @@ def build_adapter_matrix_parity_report(
         if modes != list(DEPLOYMENT_MODES):
             raise _fail(
                 code=AHK5007_MATRIX_LANE_COMPLETENESS_VIOLATION,
-                message="matrix report pair must cover both released deployment modes in order",
+                message="matrix report pair must cover all released deployment modes in order",
                 details={
                     "adapter_id": adapter_id,
                     "runtime_id": runtime_id,
