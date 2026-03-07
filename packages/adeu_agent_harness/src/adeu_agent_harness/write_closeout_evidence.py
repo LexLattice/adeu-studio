@@ -2368,6 +2368,20 @@ def _load_attestation_evidence(
             artifact_path=str(path),
             policy_source="stop_gate_metrics",
         )
+    if (
+        attested_verified_result_payload["verified_result_hash"]
+        != local_verified_result_payload["verified_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message=(
+                "attested verified result must exactly match current local "
+                "verified result"
+            ),
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
     local_runner_provenance_rel = local_verified_result_payload["verified_artifacts"].get(
         "runner_provenance_path"
     )
