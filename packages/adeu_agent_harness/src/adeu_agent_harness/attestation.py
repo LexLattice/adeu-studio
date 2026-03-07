@@ -13,6 +13,7 @@ from adeu_ir.repo import repo_root
 from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 from ._v46_verifier_common import DEFAULT_DIAGNOSTIC_REGISTRY_PATH
+from ._v48_signing_common import parse_reference_time_utc
 from .compile import TaskpackCompileError
 from .verify_taskpack_run import (
     RUNNER_PROVENANCE_SCHEMA,
@@ -318,20 +319,6 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def _load_provider_attestation_input(path: Path) -> tuple[dict[str, Any], str]:
-    try:
-        raw_bytes = path.read_bytes()
-    except FileNotFoundError as exc:
-        raise _fail(
-            code=AHK5301_INPUT_INVALID,
-            message="required attestation input path does not exist",
-            details={"path": str(path)},
-        ) from exc
-    except OSError as exc:
-        raise _fail(
-            code=AHK5301_INPUT_INVALID,
-            message="required attestation input path cannot be read",
-            details={"path": str(path), "error": str(exc)},
-        ) from exc
     payload = _load_json_object(path)
     _require_schema(payload, expected_schema=PROVIDER_ATTESTATION_INPUT_SCHEMA, path=path)
     if set(payload.keys()) != _PROVIDER_ATTESTATION_REQUIRED_KEYS:
@@ -393,7 +380,8 @@ def _load_provider_attestation_input(path: Path) -> tuple[dict[str, Any], str]:
         path=path,
         code=AHK5303_ATTESTATION_INVALID,
     )
-    return payload, hashlib.sha256(raw_bytes).hexdigest()
+    opaque_provider_evidence = payload["opaque_provider_evidence"].encode("utf-8")
+    return payload, hashlib.sha256(opaque_provider_evidence).hexdigest()
 
 
 def _load_verified_result(path: Path) -> dict[str, Any]:
@@ -564,8 +552,6 @@ def _validate_attestation_key(
                 "validator_verification_reference_time_utc": verification_reference_time_utc,
             },
         )
-    from ._v48_signing_common import parse_reference_time_utc
-
     reference_time = parse_reference_time_utc(
         verification_reference_time_utc,
         artifact_path=str(path),

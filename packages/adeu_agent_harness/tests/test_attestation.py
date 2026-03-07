@@ -657,3 +657,70 @@ def test_validate_attested_verification_rejects_conflicting_normalized_claims(
 
     payload = _error_payload(exc_info.value)
     assert payload["code"] == "AHK5304"
+
+
+def test_validate_attested_verification_hashes_only_opaque_provider_evidence(
+    tmp_path: Path,
+) -> None:
+    (
+        root,
+        taskpack_dir,
+        candidate_change_plan_path,
+        runner_result_path,
+        runner_provenance_path,
+        attested_verified_result_path,
+        provider_attestation_input_path,
+        signing,
+    ) = _prepare_attestation_inputs(tmp_path)
+
+    first = _validate_attested_verification(
+        root,
+        taskpack_dir=taskpack_dir,
+        candidate_change_plan_path=candidate_change_plan_path,
+        runner_result_path=runner_result_path,
+        runner_provenance_path=runner_provenance_path,
+        attested_verified_result_path=attested_verified_result_path,
+        provider_attestation_input_path=provider_attestation_input_path,
+        signing=signing,
+    )
+    first_payload = _read_json(first.remote_enclave_attestation_path)
+    first_hash = first_payload["normalized_claims"]["opaque_provider_evidence_hash"]
+
+    provider_input = _read_json(provider_attestation_input_path)
+    provider_attestation_input_path.write_text(
+        json.dumps(provider_input, indent=2, sort_keys=False) + "\n",
+        encoding="utf-8",
+    )
+
+    second = _validate_attested_verification(
+        root,
+        taskpack_dir=taskpack_dir,
+        candidate_change_plan_path=candidate_change_plan_path,
+        runner_result_path=runner_result_path,
+        runner_provenance_path=runner_provenance_path,
+        attested_verified_result_path=attested_verified_result_path,
+        provider_attestation_input_path=provider_attestation_input_path,
+        signing=signing,
+    )
+    second_payload = _read_json(second.remote_enclave_attestation_path)
+    second_hash = second_payload["normalized_claims"]["opaque_provider_evidence_hash"]
+
+    assert second_hash == first_hash
+
+    provider_input["opaque_provider_evidence"] = "raw-provider-proof::changed"
+    _write_json(provider_attestation_input_path, provider_input)
+
+    third = _validate_attested_verification(
+        root,
+        taskpack_dir=taskpack_dir,
+        candidate_change_plan_path=candidate_change_plan_path,
+        runner_result_path=runner_result_path,
+        runner_provenance_path=runner_provenance_path,
+        attested_verified_result_path=attested_verified_result_path,
+        provider_attestation_input_path=provider_attestation_input_path,
+        signing=signing,
+    )
+    third_payload = _read_json(third.remote_enclave_attestation_path)
+    third_hash = third_payload["normalized_claims"]["opaque_provider_evidence_hash"]
+
+    assert third_hash != first_hash
