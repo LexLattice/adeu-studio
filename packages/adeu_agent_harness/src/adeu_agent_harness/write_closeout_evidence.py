@@ -116,6 +116,7 @@ POLICY_RECOMPUTE_EVIDENCE_SCHEMA = "v34c_policy_recompute_evidence@1"
 RETRY_CONTEXT_EVIDENCE_SCHEMA = "v34d_retry_context_evidence@1"
 ATTESTATION_EVIDENCE_SCHEMA = "v34e_attestation_evidence@1"
 STANDALONE_INTEGRITY_EVIDENCE_SCHEMA = "v34f_standalone_integrity_evidence@1"
+REMOTE_ENCLAVE_MODE_EVIDENCE_SCHEMA = "v34g_remote_enclave_mode_evidence@1"
 ADAPTER_MATRIX_SCHEMA = "adapter_matrix@1"
 ADAPTER_MATRIX_PARITY_REPORT_SCHEMA = "adapter_matrix_parity_report@1"
 
@@ -128,6 +129,7 @@ EVIDENCE_SCHEMA_ALLOWLIST = (
     RETRY_CONTEXT_EVIDENCE_SCHEMA,
     ATTESTATION_EVIDENCE_SCHEMA,
     STANDALONE_INTEGRITY_EVIDENCE_SCHEMA,
+    REMOTE_ENCLAVE_MODE_EVIDENCE_SCHEMA,
 )
 
 EVIDENCE_SCHEMA_TO_SLOT_ID = {
@@ -139,6 +141,7 @@ EVIDENCE_SCHEMA_TO_SLOT_ID = {
     RETRY_CONTEXT_EVIDENCE_SCHEMA: "v34d_retry_context_evidence",
     ATTESTATION_EVIDENCE_SCHEMA: "v34e_attestation_evidence",
     STANDALONE_INTEGRITY_EVIDENCE_SCHEMA: "v34f_standalone_integrity_evidence",
+    REMOTE_ENCLAVE_MODE_EVIDENCE_SCHEMA: "v34g_remote_enclave_mode_evidence",
 }
 
 _HANDOFF_COMPLETION_SHARED_BINDING_VALIDATOR = (
@@ -356,6 +359,58 @@ _STANDALONE_INTEGRITY_EVIDENCE_REQUIRED_KEYS = {
     "metric_key_exact_set_equal_v53",
     "notes",
 }
+_REMOTE_ENCLAVE_MODE_EVIDENCE_REQUIRED_KEYS = {
+    "schema",
+    "contract_source",
+    "remote_enclave_packager_entrypoint",
+    "shared_remote_enclave_packager_used",
+    "shared_remote_enclave_packager_identifier",
+    "matrix_registry_path",
+    "matrix_report_path",
+    "matrix_report_hash",
+    "remote_enclave_packaging_result_path",
+    "remote_enclave_packaging_result_hash",
+    "remote_enclave_packaging_manifest_path",
+    "remote_enclave_packaging_manifest_hash",
+    "remote_enclave_packaging_provenance_path",
+    "remote_enclave_packaging_provenance_hash",
+    "remote_enclave_attestation_path",
+    "remote_enclave_attestation_hash",
+    "attestation_verification_result_path",
+    "attestation_verification_result_hash",
+    "deployment_mode_enum",
+    "deployment_modes_covered",
+    "deployment_modes_covered_policy",
+    "remote_enclave_mode_present",
+    "provider_id_singleton",
+    "provider_id_singleton_enforced",
+    "provider_id_comparison_policy",
+    "attestation_contract_reused",
+    "attestation_artifact_ingestion_only",
+    "attestation_verified_required",
+    "attestation_binding_fields",
+    "attestation_binding_fields_verified",
+    "attestation_binding_fields_verified_policy",
+    "remote_transport_or_job_dispatch_forbidden",
+    "deployment_mode_exact_case_sensitive",
+    "deployment_mode_source_required",
+    "deployment_mode_dual_source_conflict_rejected",
+    "runtime_id_comparison_policy",
+    "lexicographic_lane_order_enforced",
+    "lane_count_formula",
+    "declared_adapter_count_source_policy",
+    "canonical_subtree_exact_match_required",
+    "allowed_noncanonical_mode_difference_scope",
+    "attestation_metadata_canonical_leakage_forbidden",
+    "policy_equivalence_exact_match_required",
+    "lane_count",
+    "report_covers_all_declared_lanes",
+    "verification_passed",
+    "verification_passed_policy",
+    "metric_key_cardinality",
+    "metric_key_exact_set_equal_v54",
+    "notes",
+}
 _BASE_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
     (
         EVIDENCE_SCHEMA_TO_SLOT_ID[RUNTIME_OBSERVABILITY_SCHEMA],
@@ -393,6 +448,12 @@ _V54_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
         EVIDENCE_SCHEMA_TO_SLOT_ID[STANDALONE_INTEGRITY_EVIDENCE_SCHEMA],
     )
 )
+_V55_REQUIRED_EVIDENCE_SLOT_IDS = sorted(
+    (
+        *_V54_REQUIRED_EVIDENCE_SLOT_IDS,
+        EVIDENCE_SCHEMA_TO_SLOT_ID[REMOTE_ENCLAVE_MODE_EVIDENCE_SCHEMA],
+    )
+)
 _MATRIX_REQUIRED_LANE_ID_LIST = [
     "deployment_mode",
     "adapter_id",
@@ -416,7 +477,12 @@ _MATRIX_POLICY_EQUIVALENCE_VALUE_SHAPES = {
     "allowlist_violations": "lexicographically_sorted_unique_normalized_posix_path_list",
     "forbidden_effects_detected": "boolean",
 }
-_MATRIX_DEPLOYMENT_MODES = ["adeu_integrated", "standalone"]
+_LEGACY_MATRIX_DEPLOYMENT_MODES = ["adeu_integrated", "standalone"]
+_V55_MATRIX_DEPLOYMENT_MODES = ["adeu_integrated", "remote_enclave", "standalone"]
+_ALLOWED_MATRIX_DEPLOYMENT_MODES = (
+    _LEGACY_MATRIX_DEPLOYMENT_MODES,
+    _V55_MATRIX_DEPLOYMENT_MODES,
+)
 _MATRIX_RUNTIME_IDS = ["local_python_cli"]
 _POLICY_RECOMPUTE_EXIT_STATUS_SUBJECT_POLICY = (
     "runner_policy_verdict_status_under_frozen_validator_scope_not_verifier_process_exit_code"
@@ -690,6 +756,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
         _V52_REQUIRED_EVIDENCE_SLOT_IDS,
         _V53_REQUIRED_EVIDENCE_SLOT_IDS,
         _V54_REQUIRED_EVIDENCE_SLOT_IDS,
+        _V55_REQUIRED_EVIDENCE_SLOT_IDS,
     ):
         raise fail(
             code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
@@ -704,6 +771,7 @@ def _load_evidence_slots(path: Path) -> tuple[dict[str, Any], list[str]]:
                     _V52_REQUIRED_EVIDENCE_SLOT_IDS,
                     _V53_REQUIRED_EVIDENCE_SLOT_IDS,
                     _V54_REQUIRED_EVIDENCE_SLOT_IDS,
+                    _V55_REQUIRED_EVIDENCE_SLOT_IDS,
                 ],
             },
             artifact_path=str(path),
@@ -971,11 +1039,16 @@ def _load_matrix_parity_evidence(root: Path, path: Path) -> dict[str, Any]:
             policy_source="stop_gate_metrics",
         )
 
-    if payload.get("deployment_modes_covered") != _MATRIX_DEPLOYMENT_MODES:
+    deployment_modes_covered = payload.get("deployment_modes_covered")
+    if deployment_modes_covered not in _ALLOWED_MATRIX_DEPLOYMENT_MODES:
         raise fail(
             code=AHK4603_ARTIFACT_INVALID,
             message="matrix parity evidence deployment_modes_covered mismatch",
-            details={"path": str(path)},
+            details={
+                "path": str(path),
+                "deployment_modes_covered": deployment_modes_covered,
+                "allowed": list(_ALLOWED_MATRIX_DEPLOYMENT_MODES),
+            },
             artifact_path=str(path),
             policy_source="stop_gate_metrics",
         )
@@ -1138,7 +1211,7 @@ def _load_matrix_parity_evidence(root: Path, path: Path) -> dict[str, Any]:
             artifact_path=str(path),
             policy_source="stop_gate_metrics",
         )
-    if report_deployment_modes != payload["deployment_modes_covered"]:
+    if report_deployment_modes != deployment_modes_covered:
         raise fail(
             code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
             message="matrix parity evidence deployment_modes_covered mismatch",
@@ -3173,6 +3246,629 @@ def _load_standalone_integrity_evidence(
     return payload
 
 
+def _load_remote_enclave_mode_evidence(
+    root: Path,
+    path: Path,
+    *,
+    verified_result_payload: dict[str, Any],
+    matrix_parity_evidence_payload: dict[str, Any],
+    attestation_evidence_payload: dict[str, Any],
+) -> dict[str, Any]:
+    from . import package_ux as package_ux_mod
+
+    runtime_id_comparison_policy = (
+        "exact_case_sensitive_singleton_no_aliases_or_normalization"
+    )
+    deployment_modes_covered_policy = (
+        "lexicographically_sorted_exact_list_equal_to_deployment_mode_enum"
+    )
+    attestation_binding_fields_verified_policy = (
+        "refers_only_to_current_v55_attestation_prerequisite_set"
+    )
+    lane_count_formula = "3_times_declared_adapter_count_under_singleton_runtime"
+    declared_adapter_count_source_policy = (
+        "derived_only_from_adapter_matrix_at_1_not_from_report_rows_or_runtime_discovery"
+    )
+    allowed_noncanonical_mode_difference_scope = (
+        "bundle_wrapper_and_taskpack_ux_mode_bundle_surface_only"
+    )
+
+    payload = _load_block(path, expected_schema=REMOTE_ENCLAVE_MODE_EVIDENCE_SCHEMA)
+    if set(payload.keys()) != _REMOTE_ENCLAVE_MODE_EVIDENCE_REQUIRED_KEYS:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence keys must match frozen grammar",
+            details={"path": str(path), "keys": sorted(payload.keys())},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "contract_source",
+        "remote_enclave_packager_entrypoint",
+        "shared_remote_enclave_packager_used",
+        "shared_remote_enclave_packager_identifier",
+        "matrix_registry_path",
+        "matrix_report_path",
+        "remote_enclave_packaging_result_path",
+        "remote_enclave_packaging_manifest_path",
+        "remote_enclave_packaging_provenance_path",
+        "remote_enclave_attestation_path",
+        "attestation_verification_result_path",
+        "deployment_modes_covered_policy",
+        "provider_id_singleton",
+        "provider_id_comparison_policy",
+        "attestation_binding_fields_verified_policy",
+        "runtime_id_comparison_policy",
+        "lane_count_formula",
+        "declared_adapter_count_source_policy",
+        "allowed_noncanonical_mode_difference_scope",
+        "verification_passed_policy",
+        "notes",
+    ):
+        value = payload.get(field)
+        if not isinstance(value, str) or not value:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="remote enclave mode evidence string field must be non-empty",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if (
+        payload.get("remote_enclave_packager_entrypoint")
+        != package_ux_mod.REMOTE_ENCLAVE_PACKAGER_ENTRYPOINT
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence entrypoint mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("shared_remote_enclave_packager_used")
+        != package_ux_mod.SHARED_REMOTE_ENCLAVE_PACKAGER
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence shared packager mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("shared_remote_enclave_packager_identifier")
+        != package_ux_mod.SHARED_REMOTE_ENCLAVE_PACKAGER_IDENTIFIER
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence packager identifier mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("deployment_mode_enum") != _V55_MATRIX_DEPLOYMENT_MODES:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence deployment_mode_enum mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("deployment_modes_covered") != _V55_MATRIX_DEPLOYMENT_MODES:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence deployment_modes_covered mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("deployment_modes_covered_policy")
+        != deployment_modes_covered_policy
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence deployment_modes_covered_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("provider_id_singleton") != PROVIDER_ID:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence provider_id_singleton mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("provider_id_comparison_policy") != PROVIDER_ID_COMPARISON_POLICY:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence provider_id_comparison_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("attestation_binding_fields") != list(ATTESTATION_BINDING_FIELDS):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence attestation_binding_fields mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("attestation_binding_fields_verified_policy")
+        != attestation_binding_fields_verified_policy
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence attestation binding policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("runtime_id_comparison_policy")
+        != runtime_id_comparison_policy
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence runtime_id_comparison_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload.get("lane_count_formula") != lane_count_formula:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence lane_count_formula mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("declared_adapter_count_source_policy")
+        != declared_adapter_count_source_policy
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence adapter count source policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("allowed_noncanonical_mode_difference_scope")
+        != allowed_noncanonical_mode_difference_scope
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message=(
+                "remote enclave mode evidence "
+                "allowed_noncanonical_mode_difference_scope mismatch"
+            ),
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        payload.get("verification_passed_policy")
+        != package_ux_mod.REMOTE_ENCLAVE_VERIFICATION_PASSED_POLICY
+    ):
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence verification_passed_policy mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    for field in (
+        "matrix_report_hash",
+        "remote_enclave_packaging_result_hash",
+        "remote_enclave_packaging_manifest_hash",
+        "remote_enclave_packaging_provenance_hash",
+        "remote_enclave_attestation_hash",
+        "attestation_verification_result_hash",
+    ):
+        value = payload.get(field)
+        if not isinstance(value, str) or not is_sha256(value):
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="remote enclave mode evidence hash field must be a sha256 string",
+                details={"path": str(path), "field": field},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    for field in (
+        "remote_enclave_mode_present",
+        "provider_id_singleton_enforced",
+        "attestation_contract_reused",
+        "attestation_artifact_ingestion_only",
+        "attestation_verified_required",
+        "attestation_binding_fields_verified",
+        "remote_transport_or_job_dispatch_forbidden",
+        "deployment_mode_exact_case_sensitive",
+        "deployment_mode_source_required",
+        "deployment_mode_dual_source_conflict_rejected",
+        "lexicographic_lane_order_enforced",
+        "canonical_subtree_exact_match_required",
+        "attestation_metadata_canonical_leakage_forbidden",
+        "policy_equivalence_exact_match_required",
+        "report_covers_all_declared_lanes",
+        "verification_passed",
+        "metric_key_exact_set_equal_v54",
+    ):
+        if payload.get(field) is not True:
+            raise fail(
+                code=AHK4603_ARTIFACT_INVALID,
+                message="remote enclave mode evidence boolean field must be true",
+                details={"path": str(path), "field": field, "value": payload.get(field)},
+                artifact_path=str(path),
+                policy_source="stop_gate_metrics",
+            )
+
+    if payload.get("metric_key_cardinality") != 80:
+        raise fail(
+            code=AHK4603_ARTIFACT_INVALID,
+            message="remote enclave mode evidence metric_key_cardinality must equal 80",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    if payload["matrix_registry_path"] != matrix_parity_evidence_payload["matrix_registry_path"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence matrix_registry_path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload["matrix_report_path"] != matrix_parity_evidence_payload["matrix_report_path"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence matrix_report_path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload["matrix_report_hash"] != matrix_parity_evidence_payload["matrix_report_hash"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence matrix_report_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload["remote_enclave_attestation_path"] != attestation_evidence_payload[
+        "remote_enclave_attestation_path"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence attestation path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload["remote_enclave_attestation_hash"] != attestation_evidence_payload[
+        "remote_enclave_attestation_hash"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence attestation hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload["attestation_verification_result_path"] != attestation_evidence_payload[
+        "attestation_verification_result_path"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence attestation verification path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if payload["attestation_verification_result_hash"] != attestation_evidence_payload[
+        "attestation_verification_result_hash"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence attestation verification hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    matrix_registry_path = coerce_artifact_path(root, payload["matrix_registry_path"])
+    matrix_report_path = coerce_artifact_path(root, payload["matrix_report_path"])
+    matrix_registry_payload = load_json_object(matrix_registry_path)
+    require_schema(
+        matrix_registry_payload,
+        expected_schema=ADAPTER_MATRIX_SCHEMA,
+        path=matrix_registry_path,
+    )
+    matrix_report_payload = load_json_object(matrix_report_path)
+    require_schema(
+        matrix_report_payload,
+        expected_schema=ADAPTER_MATRIX_PARITY_REPORT_SCHEMA,
+        path=matrix_report_path,
+    )
+    if matrix_report_payload.get("report_hash") != payload["matrix_report_hash"]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence matrix report hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    matrix_rows = matrix_registry_payload.get("rows")
+    if not isinstance(matrix_rows, list) or not matrix_rows:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence matrix rows must be non-empty",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    declared_adapter_ids = sorted(
+        {
+            row.get("adapter_id")
+            for row in matrix_rows
+            if isinstance(row, dict) and isinstance(row.get("adapter_id"), str)
+        }
+    )
+    expected_lane_count = len(_V55_MATRIX_DEPLOYMENT_MODES) * len(declared_adapter_ids)
+    if payload.get("lane_count") != expected_lane_count:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence lane_count mismatch",
+            details={
+                "path": str(path),
+                "lane_count": payload.get("lane_count"),
+                "expected_lane_count": expected_lane_count,
+            },
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    lane_rows = matrix_report_payload.get("lane_rows")
+    if not isinstance(lane_rows, list) or len(lane_rows) != expected_lane_count:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence matrix report lane_count mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    report_modes = sorted(
+        {
+            row.get("deployment_mode")
+            for row in lane_rows
+            if isinstance(row, dict) and isinstance(row.get("deployment_mode"), str)
+        }
+    )
+    if report_modes != _V55_MATRIX_DEPLOYMENT_MODES:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence matrix report deployment modes mismatch",
+            details={"path": str(path), "deployment_modes": report_modes},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    remote_lane_rows = [
+        row
+        for row in lane_rows
+        if isinstance(row, dict)
+        and row.get("deployment_mode") == package_ux_mod.DEPLOYMENT_MODE_REMOTE_ENCLAVE
+    ]
+    if not remote_lane_rows:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence matrix report must include remote_enclave lane",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if not any(
+        row.get("packaging_manifest_path") == payload["remote_enclave_packaging_manifest_path"]
+        and row.get("packaging_provenance_path")
+        == payload["remote_enclave_packaging_provenance_path"]
+        for row in remote_lane_rows
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging paths must appear in matrix report remote lane rows",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    packaging_result_path = coerce_artifact_path(
+        root, payload["remote_enclave_packaging_result_path"]
+    )
+    packaging_result_payload = _load_block(
+        packaging_result_path,
+        expected_schema=package_ux_mod.PACKAGING_RESULT_SCHEMA,
+    )
+    if set(packaging_result_payload.keys()) != {
+        "schema",
+        "deployment_mode",
+        "packaging_manifest_path",
+        "packaging_bundle_hash",
+        "packaging_provenance_path",
+        "packaging_provenance_hash",
+        "rejection_diagnostic_path",
+    }:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging result keys must match frozen grammar",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_result_payload.get("deployment_mode")
+        != package_ux_mod.DEPLOYMENT_MODE_REMOTE_ENCLAVE
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging result deployment_mode mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sha256_canonical_json(packaging_result_payload) != payload[
+        "remote_enclave_packaging_result_hash"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging result artifact hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_result_payload.get("packaging_manifest_path")
+        != payload["remote_enclave_packaging_manifest_path"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging result manifest path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_result_payload.get("packaging_provenance_path")
+        != payload["remote_enclave_packaging_provenance_path"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging result provenance path mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if packaging_result_payload.get("rejection_diagnostic_path") is not None:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging result must not carry rejection_diagnostic_path",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    packaging_manifest_path = coerce_artifact_path(
+        root, payload["remote_enclave_packaging_manifest_path"]
+    )
+    packaging_manifest_payload = _load_block(
+        packaging_manifest_path,
+        expected_schema=package_ux_mod.PACKAGING_MANIFEST_SCHEMA,
+    )
+    if (
+        packaging_manifest_payload.get("deployment_mode")
+        != package_ux_mod.DEPLOYMENT_MODE_REMOTE_ENCLAVE
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging manifest deployment_mode mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sha256_canonical_json(packaging_manifest_payload) != payload[
+        "remote_enclave_packaging_manifest_hash"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging manifest artifact hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    packaging_provenance_path = coerce_artifact_path(
+        root, payload["remote_enclave_packaging_provenance_path"]
+    )
+    packaging_provenance_payload = _load_block(
+        packaging_provenance_path,
+        expected_schema=package_ux_mod.PACKAGING_PROVENANCE_SCHEMA,
+    )
+    if (
+        packaging_provenance_payload.get("deployment_mode")
+        != package_ux_mod.DEPLOYMENT_MODE_REMOTE_ENCLAVE
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging provenance deployment_mode mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if sha256_canonical_json(packaging_provenance_payload) != payload[
+        "remote_enclave_packaging_provenance_hash"
+    ]:
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging provenance artifact hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_provenance_payload.get("taskpack_manifest_hash")
+        != verified_result_payload["taskpack_manifest_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging provenance taskpack_manifest_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+    if (
+        packaging_provenance_payload.get("verified_result_hash")
+        != verified_result_payload["verified_result_hash"]
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave packaging provenance verified_result_hash mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    attestation_verification_result_path = coerce_artifact_path(
+        root, payload["attestation_verification_result_path"]
+    )
+    attestation_verification_result_payload = _load_block(
+        attestation_verification_result_path,
+        expected_schema=ATTESTATION_VERIFICATION_RESULT_SCHEMA,
+    )
+    if (
+        attestation_verification_result_payload.get("attestation_binding_fields_verified")
+        != list(ATTESTATION_BINDING_FIELDS)
+    ):
+        raise fail(
+            code=AHK4604_CROSS_ARTIFACT_HASH_MISMATCH,
+            message="remote enclave mode evidence attestation binding fields mismatch",
+            details={"path": str(path)},
+            artifact_path=str(path),
+            policy_source="stop_gate_metrics",
+        )
+
+    return payload
+
+
 def _emit_verifier_provenance(
     *,
     root: Path,
@@ -3245,6 +3941,7 @@ def write_closeout_evidence(
     retry_context_evidence_path: str | Path | None = None,
     attestation_evidence_path: str | Path | None = None,
     standalone_integrity_evidence_path: str | Path | None = None,
+    remote_enclave_mode_evidence_path: str | Path | None = None,
     evidence_output_root: str | Path,
     diagnostic_registry_path: str | Path,
     repo_root_path: str | Path | None = None,
@@ -3294,6 +3991,11 @@ def write_closeout_evidence(
             if standalone_integrity_evidence_path is None
             else normalize_relative_path(str(standalone_integrity_evidence_path))
         )
+        remote_enclave_mode_rel = (
+            None
+            if remote_enclave_mode_evidence_path is None
+            else normalize_relative_path(str(remote_enclave_mode_evidence_path))
+        )
         evidence_output_rel = normalize_relative_path(str(evidence_output_root))
 
         taskpack_path = coerce_artifact_path(root, taskpack_rel)
@@ -3321,6 +4023,11 @@ def write_closeout_evidence(
             None
             if standalone_integrity_rel is None
             else coerce_artifact_path(root, standalone_integrity_rel)
+        )
+        remote_enclave_mode_path = (
+            None
+            if remote_enclave_mode_rel is None
+            else coerce_artifact_path(root, remote_enclave_mode_rel)
         )
         evidence_root = coerce_artifact_path(root, evidence_output_rel)
 
@@ -3362,6 +4069,9 @@ def write_closeout_evidence(
         standalone_integrity_slot_required = (
             EVIDENCE_SCHEMA_TO_SLOT_ID[STANDALONE_INTEGRITY_EVIDENCE_SCHEMA]
             in required_slot_ids
+        )
+        remote_enclave_mode_slot_required = (
+            EVIDENCE_SCHEMA_TO_SLOT_ID[REMOTE_ENCLAVE_MODE_EVIDENCE_SCHEMA] in required_slot_ids
         )
         if matrix_slot_required and matrix_path is None:
             raise fail(
@@ -3446,6 +4156,22 @@ def write_closeout_evidence(
                 artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
                 policy_source="evidence_slots",
             )
+        if remote_enclave_mode_slot_required and remote_enclave_mode_path is None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="remote enclave mode evidence block is required by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
+        if not remote_enclave_mode_slot_required and remote_enclave_mode_path is not None:
+            raise fail(
+                code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                message="remote enclave mode evidence block is not authorized by EVIDENCE_SLOTS",
+                details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                policy_source="evidence_slots",
+            )
 
         blocks = [
             {
@@ -3467,13 +4193,15 @@ def write_closeout_evidence(
                 "payload": _load_handoff_completion_evidence(handoff_path),
             },
         ]
+        matrix_payload = None
         if matrix_slot_required:
             assert matrix_path is not None
+            matrix_payload = _load_matrix_parity_evidence(root, matrix_path)
             blocks.append(
                 {
                     "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[MATRIX_PARITY_EVIDENCE_SCHEMA],
                     "schema": MATRIX_PARITY_EVIDENCE_SCHEMA,
-                    "payload": _load_matrix_parity_evidence(root, matrix_path),
+                    "payload": matrix_payload,
                 }
             )
         if policy_recompute_slot_required:
@@ -3502,17 +4230,19 @@ def write_closeout_evidence(
                     ),
                 }
             )
+        attestation_payload = None
         if attestation_slot_required:
             assert attestation_path is not None
+            attestation_payload = _load_attestation_evidence(
+                root,
+                attestation_path,
+                verified_result_payload=verified_result_payload,
+            )
             blocks.append(
                 {
                     "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[ATTESTATION_EVIDENCE_SCHEMA],
                     "schema": ATTESTATION_EVIDENCE_SCHEMA,
-                    "payload": _load_attestation_evidence(
-                        root,
-                        attestation_path,
-                        verified_result_payload=verified_result_payload,
-                    ),
+                    "payload": attestation_payload,
                 }
             )
         if standalone_integrity_slot_required:
@@ -3527,6 +4257,34 @@ def write_closeout_evidence(
                         root,
                         standalone_integrity_path,
                         verified_result_payload=verified_result_payload,
+                    ),
+                }
+            )
+        if remote_enclave_mode_slot_required:
+            assert remote_enclave_mode_path is not None
+            if matrix_payload is None or attestation_payload is None:
+                raise fail(
+                    code=AHK4611_EVIDENCE_SLOT_OR_SCHEMA_VIOLATION,
+                    message=(
+                        "remote enclave mode evidence requires validated matrix parity "
+                        "and attestation evidence blocks"
+                    ),
+                    details={"path": str(taskpack_path / 'EVIDENCE_SLOTS.json')},
+                    artifact_path=str(taskpack_path / "EVIDENCE_SLOTS.json"),
+                    policy_source="evidence_slots",
+                )
+            blocks.append(
+                {
+                    "slot_id": EVIDENCE_SCHEMA_TO_SLOT_ID[
+                        REMOTE_ENCLAVE_MODE_EVIDENCE_SCHEMA
+                    ],
+                    "schema": REMOTE_ENCLAVE_MODE_EVIDENCE_SCHEMA,
+                    "payload": _load_remote_enclave_mode_evidence(
+                        root,
+                        remote_enclave_mode_path,
+                        verified_result_payload=verified_result_payload,
+                        matrix_parity_evidence_payload=matrix_payload,
+                        attestation_evidence_payload=attestation_payload,
                     ),
                 }
             )
@@ -3731,6 +4489,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Optional repo-relative path to v34f_standalone_integrity_evidence@1 payload.",
     )
     parser.add_argument(
+        "--remote-enclave-mode-evidence",
+        default=None,
+        help="Optional repo-relative path to v34g_remote_enclave_mode_evidence@1 payload.",
+    )
+    parser.add_argument(
         "--evidence-output-root",
         default=DEFAULT_EVIDENCE_ROOT,
         help="Repo-relative output root for evidence bundle/provenance artifacts.",
@@ -3762,6 +4525,7 @@ def main(argv: list[str] | None = None) -> int:
             retry_context_evidence_path=args.retry_context_evidence,
             attestation_evidence_path=args.attestation_evidence,
             standalone_integrity_evidence_path=args.standalone_integrity_evidence,
+            remote_enclave_mode_evidence_path=args.remote_enclave_mode_evidence,
             evidence_output_root=args.evidence_output_root,
             diagnostic_registry_path=args.diagnostic_registry,
             repo_root_path=args.repo_root,

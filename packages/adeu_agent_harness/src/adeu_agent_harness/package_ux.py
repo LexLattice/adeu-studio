@@ -80,6 +80,20 @@ DEPLOYMENT_MODES = (
     DEPLOYMENT_MODE_REMOTE_ENCLAVE,
     DEPLOYMENT_MODE_STANDALONE,
 )
+REMOTE_ENCLAVE_PACKAGER_ENTRYPOINT = "python -m adeu_agent_harness.package_ux_remote_enclave"
+SHARED_REMOTE_ENCLAVE_PACKAGER = "adeu_agent_harness.package_ux.package_ux_surface"
+SHARED_REMOTE_ENCLAVE_PACKAGER_IDENTIFIER = (
+    "v34g_remote_enclave_packager@1:"
+    "adeu_agent_harness.package_ux.package_ux_surface"
+)
+SHARED_REMOTE_ENCLAVE_PACKAGER_IDENTIFIER_POLICY = (
+    "frozen_module_function_path_or_registry_key_no_free_text"
+)
+REMOTE_ENCLAVE_VERIFICATION_PASSED_POLICY = (
+    "true_means_v55_deployment_mode_extension_guard_suite_and_closeout_validation_"
+    "passed_not_live_remote_execution_provider_expansion_or_attestation_semantics_"
+    "beyond_frozen_prerequisite_checks"
+)
 
 _SUBPROCESS_DELEGATION_ENV_OVERRIDE = "ADEU_DEPLOYMENT_MODE_OVERRIDE"
 
