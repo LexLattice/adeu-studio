@@ -559,13 +559,24 @@ def _validate_packaging_manifest(
     return manifest_payload, normalized_rows, recomputed_bundle_hash
 
 
-def _is_ignored_packaging_artifact(relative_path: str) -> bool:
-    return relative_path == "taskpack_ux_packaging_manifest.json" or relative_path.startswith(
-        "provenance/"
-    )
+def _normalize_bundle_relative_path(
+    *,
+    bundle_root: Path,
+    artifact_path: Path,
+    code: str = AHK5406_INTEGRITY_POLICY_VIOLATION,
+) -> str:
+    try:
+        relative_path = artifact_path.relative_to(bundle_root).as_posix()
+    except ValueError as exc:
+        raise _fail(
+            code=code,
+            message="artifact path escapes declared bundle root",
+            details={"path": str(artifact_path), "bundle_root": str(bundle_root)},
+        ) from exc
+    return _normalize_relative_path(relative_path, code=code)
 
 
-def _build_actual_inventory(*, bundle_root: Path) -> list[dict[str, str]]:
+def _build_actual_inventory(*, bundle_root: Path, ignored_paths: set[str]) -> list[dict[str, str]]:
     inventory: list[dict[str, str]] = []
     seen_paths: set[str] = set()
     for dirpath, dirnames, filenames in os.walk(bundle_root, topdown=True, followlinks=False):
@@ -596,7 +607,7 @@ def _build_actual_inventory(*, bundle_root: Path) -> list[dict[str, str]]:
                 child.relative_to(bundle_root).as_posix(),
                 code=AHK5406_INTEGRITY_POLICY_VIOLATION,
             )
-            if _is_ignored_packaging_artifact(relative_path):
+            if relative_path in ignored_paths:
                 continue
             if relative_path in seen_paths:
                 raise _fail(
@@ -743,7 +754,7 @@ def _build_failure_issue(
                 root, artifact_path, code=AHK5401_INPUT_INVALID
             )
             emitted_path = artifact_candidate.relative_to(bundle_root).as_posix()
-        except Exception:
+        except (TaskpackStandaloneIntegrityError, ValueError):
             emitted_path = ""
     if not isinstance(emitted_path, str):
         emitted_path = ""
@@ -843,14 +854,6 @@ def verify_standalone_integrity(
                 details={"path": str(packaging_result.rejection_diagnostic_path)},
             )
 
-        mode_root = packaging_output_root_path / DEPLOYMENT_MODE_STANDALONE
-        if bundle_root_path != mode_root.resolve():
-            raise _fail(
-                code=AHK5406_INTEGRITY_POLICY_VIOLATION,
-                message="bundle_root is inconsistent with materialized standalone packaging root",
-                details={"path": str(bundle_root_path), "materialized_bundle_root": str(mode_root)},
-            )
-
         packaging_result_path, packaging_result_payload = _write_packaging_result_artifact(
             root=root,
             packaging_result=packaging_result,
@@ -940,7 +943,20 @@ def verify_standalone_integrity(
         payload["packaging_provenance_binding_verified"] = True
         payload["packaging_provenance_artifact_hash_verified"] = True
 
-        actual_inventory = _build_actual_inventory(bundle_root=bundle_root_path)
+        ignored_paths = {
+            _normalize_bundle_relative_path(
+                bundle_root=bundle_root_path,
+                artifact_path=packaging_manifest_path,
+            ),
+            _normalize_bundle_relative_path(
+                bundle_root=bundle_root_path,
+                artifact_path=packaging_provenance_path,
+            ),
+        }
+        actual_inventory = _build_actual_inventory(
+            bundle_root=bundle_root_path,
+            ignored_paths=ignored_paths,
+        )
         payload["actual_emitted_file_hashes_recomputed"] = True
         if actual_inventory != manifest_normalized_rows:
             raise _fail(

@@ -771,10 +771,9 @@ def test_standalone_integrity_requires_explicit_bundle_root_match(
 
     payload = _integrity_error_payload(exc_info.value)
     assert payload["code"] == AHK5406_INTEGRITY_POLICY_VIOLATION
-    result_path = _artifact_path(
-        packaging_repo,
-        "standalone_integrity_output_root",
-    ) / "verification" / f"{'0'*64}_{'0'*64}.json"
+    result_path = _repo_root_path(packaging_repo) / payload["details"][
+        "standalone_integrity_verification_result_path"
+    ]
     result_payload = _load_json(result_path)
     assert result_payload["schema"] == STANDALONE_INTEGRITY_VERIFICATION_RESULT_SCHEMA
     assert result_payload["verification_passed"] is False
@@ -792,6 +791,32 @@ def test_standalone_integrity_rejects_extra_bundle_file_and_emits_result(
     extra_path = bundle_root / "bundle" / "unexpected.txt"
     extra_path.parent.mkdir(parents=True, exist_ok=True)
     extra_path.write_text("unexpected\n", encoding="utf-8")
+
+    with pytest.raises(TaskpackStandaloneIntegrityError) as exc_info:
+        _run_standalone_integrity(packaging_repo)
+
+    payload = _integrity_error_payload(exc_info.value)
+    assert payload["code"] == AHK5406_INTEGRITY_POLICY_VIOLATION
+    result_path = _repo_root_path(packaging_repo) / payload["details"][
+        "standalone_integrity_verification_result_path"
+    ]
+    result_payload = _load_json(result_path)
+    assert result_payload["verification_passed"] is False
+    assert result_payload["integrity_result_emitted_on_failure"] is True
+    assert result_payload["actual_emitted_file_hashes_recomputed"] is True
+
+
+def test_standalone_integrity_rejects_extra_provenance_file_and_emits_result(
+    packaging_repo: dict[str, str],
+) -> None:
+    _run_standalone_integrity(packaging_repo)
+    bundle_root = (
+        _artifact_path(packaging_repo, "standalone_integrity_packaging_output_root")
+        / DEPLOYMENT_MODE_STANDALONE
+    )
+    extra_path = bundle_root / "provenance" / "unexpected.json"
+    extra_path.parent.mkdir(parents=True, exist_ok=True)
+    extra_path.write_text('{"schema":"unexpected"}\n', encoding="utf-8")
 
     with pytest.raises(TaskpackStandaloneIntegrityError) as exc_info:
         _run_standalone_integrity(packaging_repo)
