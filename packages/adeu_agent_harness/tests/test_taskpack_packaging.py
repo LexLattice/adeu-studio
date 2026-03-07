@@ -8,6 +8,7 @@ from typing import Any
 import adeu_agent_harness.package_ux as packaging_mod
 import adeu_agent_harness.package_ux_integrated as integrated_entry_mod
 import adeu_agent_harness.package_ux_standalone as standalone_entry_mod
+import adeu_agent_harness.standalone_integrity as standalone_integrity_mod
 import pytest
 from adeu_agent_harness._test_signing_handoff import seed_signing_handoff_fixture
 from adeu_agent_harness._v47_packaging_common import (
@@ -49,6 +50,13 @@ from adeu_agent_harness.package_ux import (
     package_ux_surface,
 )
 from adeu_agent_harness.run_taskpack import RUNNER_RESULT_SCHEMA, run_taskpack
+from adeu_agent_harness.standalone_integrity import (
+    AHK5401_INPUT_INVALID,
+    AHK5406_INTEGRITY_POLICY_VIOLATION,
+    STANDALONE_INTEGRITY_VERIFICATION_RESULT_SCHEMA,
+    TaskpackStandaloneIntegrityError,
+    verify_standalone_integrity,
+)
 from adeu_agent_harness.verify_taskpack_run import verify_taskpack_run
 from adeu_agent_harness.write_closeout_evidence import write_closeout_evidence
 from adeu_ir.repo import repo_root
@@ -58,6 +66,9 @@ _OUT_DIR = "artifacts/agent_harness/v46/taskpacks/v41/v46_default"
 _V46_DIAGNOSTIC_REGISTRY_REL = "artifacts/agent_harness/v46/diagnostic_registry_v46.json"
 _V47_DIAGNOSTIC_REGISTRY_REL = (
     "packages/adeu_agent_harness/src/adeu_agent_harness/diagnostic_registry_v47.json"
+)
+_V54_DIAGNOSTIC_REGISTRY_REL = (
+    "packages/adeu_agent_harness/src/adeu_agent_harness/diagnostic_registry_v54.json"
 )
 
 
@@ -84,6 +95,12 @@ def _load_json(path: Path) -> dict[str, Any]:
 def _error_payload(exc: TaskpackPackagingError) -> dict[str, Any]:
     payload = json.loads(str(exc))
     assert payload["schema"] == "taskpack_packaging_error@1"
+    return payload
+
+
+def _integrity_error_payload(exc: TaskpackStandaloneIntegrityError) -> dict[str, Any]:
+    payload = json.loads(str(exc))
+    assert payload["schema"] == "taskpack_standalone_integrity_error@1"
     return payload
 
 
@@ -143,6 +160,48 @@ def _run_packaging(
         ),
         packaging_output_root=packaging_output_root or packaging_repo["packaging_output_root"],
         diagnostic_registry_path=diagnostic_registry_path or packaging_repo["diagnostic_registry"],
+        dry_run=dry_run,
+        repo_root_path=packaging_repo["repo_root"],
+    )
+
+
+def _run_standalone_integrity(
+    packaging_repo: dict[str, str],
+    *,
+    bundle_root: str | None = None,
+    packaging_output_root: str | None = None,
+    integrity_output_root: str | None = None,
+    diagnostic_registry_path: str | None = None,
+    dry_run: bool = True,
+) -> Any:
+    effective_packaging_output_root = (
+        packaging_output_root or packaging_repo["standalone_integrity_packaging_output_root"]
+    )
+    effective_bundle_root = (
+        bundle_root
+        if bundle_root is not None
+        else f"{effective_packaging_output_root}/{DEPLOYMENT_MODE_STANDALONE}"
+    )
+    return verify_standalone_integrity(
+        taskpack_dir=packaging_repo["taskpack_dir"],
+        signature_verification_result_path=packaging_repo["signature_verification_result"],
+        signature_envelope_path=packaging_repo["signature_envelope"],
+        trust_anchor_registry_path=packaging_repo["trust_anchor_registry"],
+        verification_reference_time_utc=packaging_repo["verification_reference_time_utc"],
+        verified_result_path=packaging_repo["verified_result"],
+        evidence_bundle_path=packaging_repo["evidence_bundle"],
+        verifier_provenance_path=packaging_repo["verifier_provenance"],
+        runtime_observability_comparison_path=packaging_repo["runtime_observability"],
+        metric_key_continuity_assertion_path=packaging_repo["metric_key_continuity"],
+        bundle_root=effective_bundle_root,
+        packaging_output_root=effective_packaging_output_root,
+        integrity_output_root=(
+            integrity_output_root or packaging_repo["standalone_integrity_output_root"]
+        ),
+        diagnostic_registry_path=(
+            diagnostic_registry_path or packaging_repo["integrity_diagnostic_registry"]
+        ),
+        packaging_diagnostic_registry_path=packaging_repo["diagnostic_registry"],
         dry_run=dry_run,
         repo_root_path=packaging_repo["repo_root"],
     )
@@ -345,6 +404,25 @@ def _seed_v50_diagnostic_registry(root: Path) -> str:
     return _V50_DIAGNOSTIC_REGISTRY_REL
 
 
+def _seed_v54_diagnostic_registry(root: Path) -> str:
+    path = root / _V54_DIAGNOSTIC_REGISTRY_REL
+    _write_json(
+        path,
+        {
+            "schema": "taskpack_standalone_integrity_diagnostic_registry@1",
+            "codes": [
+                {
+                    "issue_code": f"AHK54{index:02d}",
+                    "title": f"V54_{index:02d}",
+                    "description": "v54 standalone integrity diagnostic code",
+                }
+                for index in range(1, 10)
+            ],
+        },
+    )
+    return _V54_DIAGNOSTIC_REGISTRY_REL
+
+
 def _write_candidate_change_plan(root: Path, *, rel_path: str) -> Path:
     path = root / "artifacts" / "agent_harness" / "v46" / "candidate_change_plan.json"
     _write_json(
@@ -511,6 +589,7 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
     v46_diagnostic_registry_rel = _seed_v46_diagnostic_registry(root)
     v47_diagnostic_registry_rel = _seed_v47_diagnostic_registry(root)
     v50_diagnostic_registry_rel = _seed_v50_diagnostic_registry(root)
+    v54_diagnostic_registry_rel = _seed_v54_diagnostic_registry(root)
 
     registry_path = _seed_profile_and_registry(root)
     taskpack_dir = _compile_taskpack(root, registry_path=registry_path)
@@ -575,7 +654,10 @@ def packaging_repo(tmp_path: Path) -> dict[str, str]:
         "metric_key_continuity": _relative(root, continuity_path),
         "diagnostic_registry": v47_diagnostic_registry_rel,
         "matrix_diagnostic_registry": v50_diagnostic_registry_rel,
+        "integrity_diagnostic_registry": v54_diagnostic_registry_rel,
         "packaging_output_root": "artifacts/agent_harness/v47/packaging_test",
+        "standalone_integrity_packaging_output_root": "artifacts/agent_harness/v54/packaging_test",
+        "standalone_integrity_output_root": "artifacts/agent_harness/v54/standalone_integrity_test",
     }
 
 
@@ -633,6 +715,167 @@ def test_packaging_entrypoints_are_present() -> None:
     assert callable(packaging_mod.main_for_mode)
     assert callable(integrated_entry_mod.main)
     assert callable(standalone_entry_mod.main)
+    assert callable(standalone_integrity_mod.verify_standalone_integrity)
+    assert callable(standalone_integrity_mod.main)
+
+
+def test_standalone_integrity_is_deterministic(packaging_repo: dict[str, str]) -> None:
+    result1 = _run_standalone_integrity(packaging_repo)
+    result2 = _run_standalone_integrity(packaging_repo)
+
+    payload1 = _load_json(result1.standalone_integrity_verification_result_path)
+    payload2 = _load_json(result2.standalone_integrity_verification_result_path)
+
+    assert payload1["schema"] == STANDALONE_INTEGRITY_VERIFICATION_RESULT_SCHEMA
+    assert payload1["verification_passed"] is True
+    assert payload1["deployment_mode"] == DEPLOYMENT_MODE_STANDALONE
+    assert payload1["packaging_manifest_schema_validated"] is True
+    assert payload1["packaging_manifest_bundle_hash_subject_verified"] is True
+    assert payload1["packaging_provenance_binding_verified"] is True
+    assert payload1["packaging_provenance_artifact_hash_verified"] is True
+    assert payload1["bundle_root_input_explicit"] is True
+    assert payload1["manifest_paths_bundle_relative"] is True
+    assert payload1["actual_emitted_file_hashes_recomputed"] is True
+    assert payload1["emitted_file_inventory_exact_match_verified"] is True
+    assert payload1["integrity_result_emitted_on_failure"] is True
+    assert payload1["integrity_result_emitted_on_input_validation_failure"] is True
+    assert (
+        payload1["standalone_packaging_bundle_hash"]
+        == payload1["recomputed_manifest_bundle_hash"]
+    )
+    assert payload1["issues"] == []
+
+    assert payload1 == payload2
+    assert (
+        result1.standalone_integrity_verification_result_path.read_bytes()
+        == result2.standalone_integrity_verification_result_path.read_bytes()
+    )
+    assert (
+        result1.standalone_packaging_manifest_path.read_bytes()
+        == result2.standalone_packaging_manifest_path.read_bytes()
+    )
+    assert (
+        result1.standalone_packaging_provenance_path.read_bytes()
+        == result2.standalone_packaging_provenance_path.read_bytes()
+    )
+
+
+def test_standalone_integrity_requires_explicit_bundle_root_match(
+    packaging_repo: dict[str, str],
+) -> None:
+    with pytest.raises(TaskpackStandaloneIntegrityError) as exc_info:
+        _run_standalone_integrity(
+            packaging_repo,
+            bundle_root="artifacts/agent_harness/v54/not_the_standalone_root",
+        )
+
+    payload = _integrity_error_payload(exc_info.value)
+    assert payload["code"] == AHK5406_INTEGRITY_POLICY_VIOLATION
+    result_path = _repo_root_path(packaging_repo) / payload["details"][
+        "standalone_integrity_verification_result_path"
+    ]
+    result_payload = _load_json(result_path)
+    assert result_payload["schema"] == STANDALONE_INTEGRITY_VERIFICATION_RESULT_SCHEMA
+    assert result_payload["verification_passed"] is False
+    assert result_payload["integrity_result_emitted_on_input_validation_failure"] is True
+
+
+def test_standalone_integrity_rejects_extra_bundle_file_and_emits_result(
+    packaging_repo: dict[str, str],
+) -> None:
+    _run_standalone_integrity(packaging_repo)
+    bundle_root = (
+        _artifact_path(packaging_repo, "standalone_integrity_packaging_output_root")
+        / DEPLOYMENT_MODE_STANDALONE
+    )
+    extra_path = bundle_root / "bundle" / "unexpected.txt"
+    extra_path.parent.mkdir(parents=True, exist_ok=True)
+    extra_path.write_text("unexpected\n", encoding="utf-8")
+
+    with pytest.raises(TaskpackStandaloneIntegrityError) as exc_info:
+        _run_standalone_integrity(packaging_repo)
+
+    payload = _integrity_error_payload(exc_info.value)
+    assert payload["code"] == AHK5406_INTEGRITY_POLICY_VIOLATION
+    result_path = _repo_root_path(packaging_repo) / payload["details"][
+        "standalone_integrity_verification_result_path"
+    ]
+    result_payload = _load_json(result_path)
+    assert result_payload["verification_passed"] is False
+    assert result_payload["integrity_result_emitted_on_failure"] is True
+    assert result_payload["actual_emitted_file_hashes_recomputed"] is True
+
+
+def test_standalone_integrity_rejects_extra_provenance_file_and_emits_result(
+    packaging_repo: dict[str, str],
+) -> None:
+    _run_standalone_integrity(packaging_repo)
+    bundle_root = (
+        _artifact_path(packaging_repo, "standalone_integrity_packaging_output_root")
+        / DEPLOYMENT_MODE_STANDALONE
+    )
+    extra_path = bundle_root / "provenance" / "unexpected.json"
+    extra_path.parent.mkdir(parents=True, exist_ok=True)
+    extra_path.write_text('{"schema":"unexpected"}\n', encoding="utf-8")
+
+    with pytest.raises(TaskpackStandaloneIntegrityError) as exc_info:
+        _run_standalone_integrity(packaging_repo)
+
+    payload = _integrity_error_payload(exc_info.value)
+    assert payload["code"] == AHK5406_INTEGRITY_POLICY_VIOLATION
+    result_path = _repo_root_path(packaging_repo) / payload["details"][
+        "standalone_integrity_verification_result_path"
+    ]
+    result_payload = _load_json(result_path)
+    assert result_payload["verification_passed"] is False
+    assert result_payload["integrity_result_emitted_on_failure"] is True
+    assert result_payload["actual_emitted_file_hashes_recomputed"] is True
+
+
+def test_standalone_integrity_rejects_symlink_bundle_entries(
+    packaging_repo: dict[str, str],
+) -> None:
+    _run_standalone_integrity(packaging_repo)
+    bundle_root = (
+        _artifact_path(packaging_repo, "standalone_integrity_packaging_output_root")
+        / DEPLOYMENT_MODE_STANDALONE
+    )
+    symlink_path = bundle_root / "bundle" / "linked_launcher.txt"
+    target_path = bundle_root / "bundle" / "launcher.txt"
+    if not hasattr(Path, "symlink_to"):
+        pytest.skip("symlink support unavailable")
+    try:
+        symlink_path.symlink_to(target_path)
+    except OSError:
+        pytest.skip("symlink creation unavailable")
+
+    with pytest.raises(TaskpackStandaloneIntegrityError) as exc_info:
+        _run_standalone_integrity(packaging_repo)
+
+    payload = _integrity_error_payload(exc_info.value)
+    assert payload["code"] == AHK5406_INTEGRITY_POLICY_VIOLATION
+    result_path = _repo_root_path(packaging_repo) / payload["details"][
+        "standalone_integrity_verification_result_path"
+    ]
+    result_payload = _load_json(result_path)
+    assert result_payload["verification_passed"] is False
+    assert result_payload["symlinks_forbidden"] is True
+
+
+def test_standalone_integrity_missing_bundle_root_input_emits_failure_result(
+    packaging_repo: dict[str, str],
+) -> None:
+    with pytest.raises(TaskpackStandaloneIntegrityError) as exc_info:
+        _run_standalone_integrity(packaging_repo, bundle_root="")
+
+    payload = _integrity_error_payload(exc_info.value)
+    assert payload["code"] == AHK5401_INPUT_INVALID
+    result_path = _repo_root_path(packaging_repo) / payload["details"][
+        "standalone_integrity_verification_result_path"
+    ]
+    result_payload = _load_json(result_path)
+    assert result_payload["verification_passed"] is False
+    assert result_payload["integrity_result_emitted_on_input_validation_failure"] is True
 
 
 def test_packaging_kernel_has_no_apps_api_imports() -> None:
@@ -648,6 +891,7 @@ def test_packaging_kernel_has_no_apps_api_imports() -> None:
         module_root / "package_ux.py",
         module_root / "package_ux_integrated.py",
         module_root / "package_ux_standalone.py",
+        module_root / "standalone_integrity.py",
     ]
     violations: list[str] = []
     for path in targets:
