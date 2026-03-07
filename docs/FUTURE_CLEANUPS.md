@@ -81,12 +81,16 @@ Notes:
     - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS46.md` and
       `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS47.md` still embed long inline `python -c`
       commands.
+    - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md` now captures the scoped post-v54
+      proposal for extracting deterministic closeout glue without automating semantic
+      adjudication.
   - Why it is still open:
     - stale artifacts and inline-script drift remain possible even under deterministic env
       requirements.
   - Next action:
-    - extract closeout helper scripts into `apps/api/scripts/` and lint for oversized
-      embedded commands in future decision docs.
+    - follow the bundle order in `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`:
+      extract closeout helper scripts into `apps/api/scripts/`, add a closeout artifact
+      index plus lint, and keep any adjudication scaffold explicitly advisory.
 
 - `EDGE-P2-03` signing verification is portable only where `openssl` CLI behavior matches the frozen contract.
   - Source: `docs/ASSESSMENT_vNEXT_PLUS48_EDGES.md`

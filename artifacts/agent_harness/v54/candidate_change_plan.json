@@ -1,0 +1,1 @@
+{"file_operations":[{"operation_kind":"create","path":"packages/adeu_agent_harness/src/adeu_agent_harness/v54_closeout_fixture.txt","unified_diff":"--- /dev/null\n+++ b/packages/adeu_agent_harness/src/adeu_agent_harness/v54_closeout_fixture.txt\n@@ -0,0 +1,1 @@\n+v54 closeout fixture\n"}],"proposed_commands":[],"schema":"candidate_change_plan@1"}
