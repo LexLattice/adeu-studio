@@ -14,13 +14,15 @@ or boundary expansion. It does not supersede `V34-G` planning.
 - name the safe optimization surface precisely;
 - define a small future bundle that mechanizes deterministic closeout glue without
   weakening semantic adjudication or auditability.
+- require explicit no-regression proof against the currently accepted closeout baseline
+  before any hardening slice is treated as safe.
 
 ## Baseline Finding
 
 The current closeout lane is already structurally correct.
 
 - deterministic builders already exist for quality dashboard, stop-gate metrics, and
-  closeout continuity lint;
+  closeout consistency lint;
 - artifact-authoritative validators already exist for harness evidence, attestation, retry
   context, and standalone integrity;
 - the main remaining inefficiency is the orchestration shell around those deterministic
@@ -48,8 +50,10 @@ Current issue:
 Safe change:
 
 - extract that orchestration into a dedicated script under `apps/api/scripts/`;
-- keep the script transparent by printing or recording its resolved subcommands and output
-  targets.
+- keep the script transparent by printing or recording its fully resolved execution plan,
+  subcommands, inputs, and output targets before mutation;
+- fail closed on missing inputs, unexpected outputs, unresolved arc parameters, or path
+  inputs outside approved repo roots.
 
 Preserved invariants:
 
@@ -68,9 +72,12 @@ Safe change:
 
 - emit a deterministic closeout artifact index JSON listing:
   - artifact path,
-  - schema,
-  - sha256 hash,
-  - immediate provenance/binding relation where already known.
+  - schema_id,
+  - sha256,
+  - `binding_ref` or `null`,
+  - `provenance_ref` or `null`;
+- forbid volatile or narrative fields unless they already come from authoritative
+  deterministic artifacts.
 
 Preserved invariants:
 
@@ -92,6 +99,8 @@ Safe change:
   - assessment converted from pre-lock to post-closeout,
   - cleanup retirements justified,
   - no overclaim in decision language.
+- any generated scaffold may pre-structure prompts, headings, and checkpoints only; it must
+  not auto-assert closure, retirement, or final gate language.
 
 Preserved invariants:
 
@@ -118,7 +127,18 @@ Scope:
   - `--baseline-arc`,
   - required evidence input paths,
   - output roots;
-- print or persist the resolved execution plan before mutation.
+- require all path inputs to resolve inside approved repo roots without expanding authority
+  beyond the current closeout lane;
+- print or persist the fully resolved execution plan before mutation and fail closed on
+  unresolved inputs or outputs.
+
+Acceptance / no-regression proof:
+
+- replay a previously closed arc such as `v53` through both the historical inline
+  orchestration path and the extracted builder;
+- byte-diff all emitted artifacts and fail on divergence;
+- confirm that the builder does not change schema families, slot allowlists, or closeout
+  adjudication responsibilities.
 
 Out of scope:
 
@@ -140,6 +160,15 @@ Scope:
   - listed hashes match file bytes,
   - required schemas/slots named in the index are present.
 
+Acceptance / no-regression proof:
+
+- recompute hashes from the listed files and fail if any index entry diverges from actual
+  bytes;
+- fail if any required artifact is omitted or any index record includes unauthorized
+  volatile fields;
+- confirm that the index remains a witness surface only and does not replace artifact-local
+  validation.
+
 Out of scope:
 
 - changing stop-gate semantics;
@@ -156,6 +185,15 @@ Scope:
 
 - add a short checklist doc or generated scaffold for closeout adjudication;
 - keep it explicitly non-authoritative and non-substitutive.
+
+Acceptance / no-regression proof:
+
+- the scaffold must remain non-authoritative and contain no auto-filled closure claims;
+- the scaffold may generate structure/prompts/checkpoints only, never adjudicated
+  conclusions;
+- compare one scaffold-assisted closeout against a prior high-quality closeout of the same
+  class and verify equivalent coverage of lock satisfaction, edge disposition, cleanup
+  retirement, and overclaim review.
 
 Out of scope:
 
@@ -191,8 +229,8 @@ Reason:
 
 - `v54` should close under the currently accepted process so the operational hardening work
   has a stable baseline;
-- changing the closeout lane before closing `v54` would blur whether the arc or the process
-  changed.
+- changing the closeout lane before `v54` closes would blur whether a later quality delta
+  came from the slice itself or from the process mutation.
 
 ## Recommendation
 
