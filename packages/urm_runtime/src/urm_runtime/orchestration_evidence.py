@@ -1325,11 +1325,7 @@ def _validate_v35c_progress_fields(
             "progress fields must be derived from canonical state and child identity"
         )
     for worker in visibility_state.workers:
-        child_role = child_roles.get(worker.worker_id)
-        if child_role is None:
-            raise OrchestrationEvidenceError(
-                "progress fields must be derived from canonical state and child identity"
-            )
+        child_role = child_roles[worker.worker_id]
         if worker.parent_session_id != snapshot.parent_session_id:
             raise OrchestrationEvidenceError(
                 "progress fields must be derived from canonical state and child identity"
