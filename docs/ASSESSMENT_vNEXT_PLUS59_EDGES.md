@@ -78,7 +78,8 @@ Status: pre-lock assessment (March 11, 2026 UTC).
      governance-equivalent blockers.
 8. Provenance-linked drilldown gap: `open`.
    - no released topology surface links rendered node/edge state back to canonical
-     orchestration, visibility, handoff, or event-stream sources.
+     orchestration, visibility, handoff, or event-stream drilldown targets while still
+     keeping topology projection truth anchored in canonical artifacts.
 9. Continuation-bridge and compaction visibility gap: `open`.
    - canonical state records bridge/seam data, but no released topology/duty surface
      renders that continuity explicitly.
@@ -106,10 +107,15 @@ Status: pre-lock assessment (March 11, 2026 UTC).
   - missing or unresolvable provenance refs,
   - invented topology node or edge state,
   - incorrect current write-lease holder rendering,
+  - current duty rendered as an authority surface rather than explanatory state,
   - advisory blockers rendered as governance-equivalent blockers,
   - silent continuation-bridge or compaction flattening,
   - topology rendering treated as authoritative,
   - worker direct user-boundary drift in topology surfaces.
+- planned topology proof shape must keep event streams in a narrower role:
+  - event streams may be drilldown provenance targets,
+  - topology projection truth must still come from canonical execution/visibility/lease and
+    handoff artifacts.
 - planned topology implementation should be exercised against both:
   - a delegated builder/support path where advisory and implementation duties coexist,
   - a continuation-bridge or compaction-seam path where topology continuity spans recovered

@@ -80,8 +80,8 @@ Status: draft decision scaffold (pre-start, March 11, 2026 UTC).
 | Deterministic cardinality continuity retained (`80`) | required | `pending` | v58/v59 stop-gate metrics comparison |
 | Canonical topology/duty evidence emitted and hash-bound | required | `pending` | `artifacts/agent_harness/v59/evidence_inputs/v35d_topology_duty_map_evidence_v59.json` |
 | Topology/duty view remains derived from canonical execution state only | required | `pending` | `topology_duty_map_state.json` plus v35d evidence booleans |
-| Current write-lease holder and duties are projected correctly | required | `pending` | committed v59 topology fixture plus evidence booleans |
-| Node and edge provenance markers plus provenance refs are materialized | required | `pending` | committed v59 topology fixture |
+| Current write-lease holder and explanatory duties are projected correctly without authority inflation | required | `pending` | committed v59 topology fixture plus evidence booleans |
+| Node and edge provenance markers plus artifact/event-stream provenance refs are materialized | required | `pending` | committed v59 topology fixture |
 | Advisory blockers remain non-governance in topology rendering | required | `pending` | v35d evidence plus guard coverage |
 | Continuation/compaction visibility remains explicit where present | required | `pending` | committed v59 topology fixture |
 | Runtime observability comparison captured | required | `pending` | `artifacts/agent_harness/v59/evidence_inputs/runtime_observability_comparison_v59.json` |
@@ -118,8 +118,9 @@ Summary:
   "required_booleans": [
     "derived_from_canonical_execution_state_only",
     "current_write_lease_holder_projected",
+    "current_duty_not_authority_inflating",
     "provenance_markers_materialized",
-    "provenance_refs_resolve",
+    "artifact_and_event_stream_provenance_refs_resolve",
     "advisory_blockers_not_rendered_as_governance_blockers",
     "continuation_bridge_and_compaction_visibility_preserved",
     "non_authoritative_topology_surface_preserved",

@@ -166,6 +166,7 @@ Consumption lock:
     "write_lease_state_schema": "write_lease_state@1",
     "worker_visibility_state_schema": "worker_visibility_state@1",
     "role_handoff_envelope_schema": "role_handoff_envelope@1",
+    "normalized_event_schema": "urm-events@1",
     "copilot_visibility_endpoint": "apps/api/src/adeu_api/urm_routes.py::urm_copilot_visibility_endpoint",
     "v35c_transcript_visibility_evidence": "required_frozen_precondition"
   },
@@ -175,6 +176,7 @@ Consumption lock:
     "topology_duty_map_foundation_package": "packages/urm_runtime",
     "read_only_topology_required": true,
     "topology_surface_authority_policy": "derived_from_canonical_execution_state_only_non_authoritative_visualization",
+    "event_stream_drilldown_policy": "event_streams_are_provenance_targets_only_not_topology_projection_truth_inputs",
     "canonical_input_schemas": [
       "execution_topology_state@1",
       "write_lease_state@1",
@@ -239,8 +241,9 @@ Consumption lock:
       "worker_visibility_state_hash",
       "derived_from_canonical_execution_state_only",
       "current_write_lease_holder_projected",
+      "current_duty_not_authority_inflating",
       "provenance_markers_materialized",
-      "provenance_refs_resolve",
+      "artifact_and_event_stream_provenance_refs_resolve",
       "advisory_blockers_not_rendered_as_governance_blockers",
       "continuation_bridge_and_compaction_visibility_preserved",
       "non_authoritative_topology_surface_preserved",
@@ -252,8 +255,9 @@ Consumption lock:
   },
   "test_requirements": {
     "topology_duty_map_state_deterministic": true,
-    "topology_route_parity": true,
+    "topology_route_payload_parity_with_topology_duty_map_state": true,
     "write_lease_holder_projection_recorded": true,
+    "current_duty_not_authority_inflating": true,
     "node_and_edge_provenance_markers_present": true,
     "provenance_refs_resolve_to_materialized_artifacts_or_event_streams": true,
     "advisory_support_blocker_rendered_as_advisory": true,
@@ -267,6 +271,7 @@ Consumption lock:
     "topology_node_or_edge_missing_required_provenance_markers",
     "topology_view_invents_state_not_present_in_canonical_artifacts",
     "current_write_lease_holder_rendered_incorrectly",
+    "current_duty_rendered_as_authority_surface",
     "advisory_blocker_rendered_as_governance_equivalent",
     "provenance_ref_missing_or_unresolvable",
     "compaction_or_continuation_bridge_visibility_silently_flattened",
@@ -284,6 +289,8 @@ Interpretive notes:
   and handoff inputs rather than a new authority source.
 - `current_duty` is explanatory only in v59. It helps the user inspect what a node is
   doing, but it does not change role authority, lease ownership, or acceptance authority.
+- `urm-events@1` may be linked as a drilldown provenance target in v59, but event streams do
+  not become topology projection-truth inputs for the derived map.
 - support-role blockers remain advisory unless explicitly elevated by `main_orchestrator`;
   topology rendering must not make advisory blockers look governance-equivalent.
 - provenance refs must resolve into the committed canonical artifacts or event streams that
@@ -312,6 +319,8 @@ state, delegation, and visibility substrate.
   - continuation-bridge and compaction-seam continuity where present;
 - derive the topology/duty map from canonical execution-state, write-lease, visibility, and
   handoff artifacts only;
+- allow event streams as drilldown provenance targets only; they must not become projection
+  truth inputs for the topology/duty map;
 - expose one read-only route or equivalent surface backed by the same canonical payload;
 - keep the topology/duty map observational-only and pre-enforcement in this arc.
 
