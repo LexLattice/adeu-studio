@@ -65,6 +65,7 @@ from urm_runtime.models import (
 from urm_runtime.orchestration_evidence import (
     OrchestrationEvidenceError,
     materialize_v35a_orchestration_state_evidence,
+    materialize_v35b_delegation_handoff_evidence,
 )
 from urm_runtime.orchestration_state import MaterializedOrchestrationArtifacts, RoleHandoffEntry
 from urm_runtime.policy_governance import materialize_policy
@@ -193,9 +194,12 @@ def _budget_snapshot_v1(
     }
 
 
-def _write_stop_gate_metrics_fixture(*, repo_root: Path) -> tuple[str, str]:
-    baseline_rel = "artifacts/stop_gate/metrics_v55_closeout.json"
-    current_rel = "artifacts/stop_gate/metrics_v56_closeout.json"
+def _write_stop_gate_metrics_fixture(
+    *,
+    repo_root: Path,
+    baseline_rel: str = "artifacts/stop_gate/metrics_v55_closeout.json",
+    current_rel: str = "artifacts/stop_gate/metrics_v56_closeout.json",
+) -> tuple[str, str]:
     metric_keys = [f"metric_{index:02d}" for index in range(80)]
     payload = {
         "schema": "stop_gate_metrics@1",
@@ -234,6 +238,133 @@ def _materialize_v35a_evidence(
         "artifact": evidence,
         "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
     }
+
+
+def _materialize_v35b_evidence(
+    *,
+    repo_root: Path,
+    config: URMRuntimeConfig,
+    artifacts: MaterializedOrchestrationArtifacts,
+) -> dict[str, object]:
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel="artifacts/stop_gate/metrics_v56_closeout.json",
+        current_rel="artifacts/stop_gate/metrics_v57_closeout.json",
+    )
+    evidence = materialize_v35b_delegation_handoff_evidence(
+        repo_root=repo_root,
+        var_root=config.var_root,
+        artifacts=artifacts,
+        output_path="artifacts/agent_harness/v57/evidence_inputs/v35b_delegation_handoff_evidence_v57.json",
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _materialize_v35b_builder_support_artifacts(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[URMRuntimeConfig, MaterializedOrchestrationArtifacts]:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.4")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="v35b-evidence-start-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="v35b-evidence-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "v35b-evidence-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    support_spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="v35b-evidence-support-spawn-1",
+            prompt="inspect the api lane",
+            target_turn_id="turn-v35b-support-1",
+        )
+    )
+
+    manager = _get_manager()
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(support_spawn.child_id)) is not None
+            and child.status == "completed"
+            and child.persisted
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+
+    builder_spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="v35b-evidence-builder-spawn-1",
+            prompt="implement the api lane",
+            target_turn_id="turn-v35b-builder-1",
+            requested_role="builder_worker",
+            delegation_task_kind="write_task",
+            delegated_scope=_delegated_scope_payload(
+                kind="subtree",
+                values=["apps/api"],
+                artifact_surfaces=["implementation"],
+                rationale="scoped implementation write task",
+            ),
+        )
+    )
+
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(builder_spawn.child_id)) is not None
+            and child.status == "completed"
+            and child.persisted
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=session_id)
+    return config, artifacts
 
 
 def _rewrite_orchestration_artifact(
@@ -3090,6 +3221,100 @@ def test_materialize_orchestration_state_records_write_authority_transition(
     _reset_manager_for_tests()
 
 
+def test_materialize_orchestration_state_records_sequential_builder_transitions(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "1.0")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-builder-seq-start-1")
+    )
+    session_id = start.session_id
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="orch-builder-seq-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "orch-builder-seq-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    manager = _get_manager()
+    for index, subtree in enumerate(("apps/api", "packages/urm_runtime"), start=1):
+        spawn = urm_agent_spawn_endpoint(
+            AgentSpawnRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id=f"orch-builder-seq-spawn-{index}",
+                prompt=f"implement {subtree}",
+                target_turn_id=f"turn-builder-seq-{index}",
+                requested_role="builder_worker",
+                delegation_task_kind="write_task",
+                delegated_scope=_delegated_scope_payload(
+                    kind="subtree",
+                    values=[subtree],
+                    artifact_surfaces=["implementation"],
+                    rationale=f"scoped implementation write task {index}",
+                ),
+            )
+        )
+        assert spawn.authoritative_write_lease_granted is True
+        assert _wait_for(
+            lambda: (
+                (child := manager._child_runs.get(spawn.child_id)) is not None
+                and child.status == "completed"
+                and child.persisted
+            ),
+            timeout_secs=5.0,
+            interval_secs=0.05,
+        )
+
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=session_id)
+    transitions = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.role_transition_record.path,
+    )
+
+    assert [entry["to_role"] for entry in transitions["entries"]] == [
+        "builder_worker",
+        "main_orchestrator",
+        "builder_worker",
+        "main_orchestrator",
+    ]
+    assert transitions["entries"][0]["scope_owned"][0]["values"] == ["apps/api"]
+    assert transitions["entries"][2]["scope_owned"][0]["values"] == ["packages/urm_runtime"]
+    _reset_manager_for_tests()
+
+
 def test_materialize_orchestration_state_records_audit_bridge_for_restart_recovery(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -3651,6 +3876,306 @@ def test_materialize_v35a_orchestration_state_evidence_fails_closed_on_worker_us
 
     with pytest.raises(OrchestrationEvidenceError, match="direct user boundary"):
         _materialize_v35a_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_is_deterministic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+
+    first = _materialize_v35b_evidence(
+        repo_root=tmp_path,
+        config=config,
+        artifacts=artifacts,
+    )
+    second = _materialize_v35b_evidence(
+        repo_root=tmp_path,
+        config=config,
+        artifacts=artifacts,
+    )
+
+    assert first["artifact"].hash == second["artifact"].hash
+    payload = first["payload"]
+    assert payload["schema"] == "v35b_delegation_handoff_evidence@1"
+    assert payload["builder_role_materialized"] is True
+    assert payload["support_roles_materialized"] is True
+    assert payload["delegated_scope_kind_recorded"] is True
+    assert payload["single_builder_default_enforced"] is True
+    assert payload["support_workers_non_authoritative"] is True
+    assert payload["handoff_artifact_materialized"] is True
+    assert payload["handoff_reconciliation_required"] is True
+    assert payload["unreconciled_worker_output_non_authoritative"] is True
+    assert payload["worker_direct_user_boundary_forbidden"] is True
+    assert payload["verification_passed"] is True
+    assert payload["metric_key_cardinality"] == 80
+    assert payload["metric_key_exact_set_equal_v56"] is True
+    assert payload["zero_occurrence_empty_artifacts_materialized"] is True
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_missing_requested_role(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    snapshot_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.orchestration_state_snapshot.path,
+    )
+    builder_role = next(
+        role for role in snapshot_payload["current_roles"] if role["role"] == "builder_worker"
+    )
+    builder_role["requested_role"] = None
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="orchestration_state_snapshot",
+        payload=snapshot_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError, match="requested_role must be recorded"
+    ):
+        _materialize_v35b_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_fails_closed_without_builder_write_lease(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    write_lease_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.write_lease_state.path,
+    )
+    builder_observation = next(
+        observation
+        for observation in write_lease_payload["dispatch_lease_observations"]
+        if observation["granted_role"] == "builder_worker"
+    )
+    builder_observation["authoritative_write_access"] = False
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="write_lease_state",
+        payload=write_lease_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError, match="authoritative write lease"
+    ):
+        _materialize_v35b_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_missing_handoff_entry(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    handoff_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.role_handoff_envelope.path,
+    )
+    handoff_payload["entries"] = [
+        entry for entry in handoff_payload["entries"] if entry["role"] != "builder_worker"
+    ]
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="role_handoff_envelope",
+        payload=handoff_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError, match="completed child handoff entry is required"
+    ):
+        _materialize_v35b_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_extra_handoff_entry(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    handoff_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.role_handoff_envelope.path,
+    )
+    extra_entry = dict(handoff_payload["entries"][0])
+    extra_entry["role"] = "docs_helper"
+    handoff_payload["entries"].append(extra_entry)
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="role_handoff_envelope",
+        payload=handoff_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="handoff entries must exactly match completed delegated work",
+    ):
+        _materialize_v35b_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_support_authority_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    snapshot_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.orchestration_state_snapshot.path,
+    )
+    support_role = next(
+        role for role in snapshot_payload["current_roles"] if role["role"] == "explorer"
+    )
+    support_role["authority_domain"] = "implementation"
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="orchestration_state_snapshot",
+        payload=snapshot_payload,
+    )
+
+    with pytest.raises(OrchestrationEvidenceError, match="support-worker authority"):
+        _materialize_v35b_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_unreconciled_truth_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    handoff_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.role_handoff_envelope.path,
+    )
+    handoff_payload["trust_model"] = "accepted_without_reconciliation"
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="role_handoff_envelope",
+        payload=handoff_payload,
+    )
+
+    with pytest.raises(OrchestrationEvidenceError, match="handoff trust model drift detected"):
+        _materialize_v35b_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_multiple_builder_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    write_lease_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.write_lease_state.path,
+    )
+    write_lease_payload["active_authoritative_writer_count"] = 2
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="write_lease_state",
+        payload=write_lease_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError, match="multiple authoritative builders active by default"
+    ):
+        _materialize_v35b_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_worker_user_boundary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    snapshot_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.orchestration_state_snapshot.path,
+    )
+    support_role = next(
+        role for role in snapshot_payload["current_roles"] if role["role"] == "explorer"
+    )
+    support_role["user_facing_boundary"] = True
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="orchestration_state_snapshot",
+        payload=snapshot_payload,
+    )
+
+    with pytest.raises(OrchestrationEvidenceError, match="direct user boundary"):
+        _materialize_v35b_evidence(
             repo_root=tmp_path,
             config=config,
             artifacts=artifacts,

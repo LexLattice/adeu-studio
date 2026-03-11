@@ -511,7 +511,6 @@ def build_orchestration_artifacts(
     event_streams: list[EventStreamHeadInput],
     repo_root: str,
     branch_or_head: str,
-    prior_transition_entries: list[dict[str, Any]] | None = None,
 ) -> tuple[
     OrchestrationStateSnapshot,
     ExecutionTopologyState,
@@ -574,9 +573,10 @@ def build_orchestration_artifacts(
         ],
     )
     transition_record = _build_role_transition_record(
+        children=children,
         current_write_lease_state=write_lease_state,
+        repo_root=repo_root,
         effective_time=effective_time,
-        prior_entries=prior_transition_entries or [],
     )
     handoff_envelope = _build_role_handoff_envelope(
         children=children,
@@ -648,8 +648,6 @@ def materialize_orchestration_artifacts(
     repo_root: str,
     branch_or_head: str,
 ) -> MaterializedOrchestrationArtifacts:
-    previous_transition_record_path = output_root / "role_transition_record.json"
-    prior_transition_entries = _load_prior_transition_entries(path=previous_transition_record_path)
     (
         orchestration_state_snapshot,
         execution_topology_state,
@@ -662,7 +660,6 @@ def materialize_orchestration_artifacts(
         event_streams=event_streams,
         repo_root=repo_root,
         branch_or_head=branch_or_head,
-        prior_transition_entries=prior_transition_entries,
     )
     output_root.mkdir(parents=True, exist_ok=True)
     snapshot_artifact = _write_artifact(
@@ -994,66 +991,101 @@ def _build_role_handoff_envelope(
     return RoleHandoffEnvelope(entries=entries)
 
 
-def _load_prior_transition_entries(*, path: Path) -> list[dict[str, Any]]:
-    if not path.exists():
-        return []
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        raise OrchestrationStateError("invalid prior role_transition_record artifact") from exc
-    record = RoleTransitionRecord.model_validate(payload)
-    return [entry.model_dump(mode="json") for entry in record.entries]
-
-
 def _build_role_transition_record(
     *,
+    children: list[ChildStateInput],
     current_write_lease_state: WriteLeaseState,
+    repo_root: str,
     effective_time: str,
-    prior_entries: list[dict[str, Any]],
 ) -> RoleTransitionRecord:
-    entries = [RoleTransitionEntry.model_validate(entry) for entry in prior_entries]
-    previous = entries[-1] if entries else None
-    previous_role = previous.to_role if previous is not None else "main_orchestrator"
-    previous_authority = (
-        previous.authority_level_after
-        if previous is not None
-        else "governance_authority_without_write_lease"
-    )
+    builder_history = [
+        child
+        for child in sorted(children, key=_child_order_key)
+        if child.granted_role == "builder_worker" and child.authoritative_write_lease_granted
+    ]
     current_holder = current_write_lease_state.current_authoritative_holder
+    entries: list[RoleTransitionEntry] = []
+
+    if builder_history:
+        for index, builder in enumerate(builder_history):
+            entries.append(
+                RoleTransitionEntry(
+                    from_role="main_orchestrator",
+                    to_role="builder_worker",
+                    authority_level_before="governance_authority",
+                    authority_level_after="implementation_write_lease_holder_pending_reconciliation",
+                    scope_owned=[_child_scope(child=builder)],
+                    reason="authoritative_write_access_changed",
+                    effective_time=builder.started_at,
+                    granted_by=CONTROL_PLANE_OWNER,
+                )
+            )
+            builder_still_holds_authority = (
+                current_holder is not None
+                and current_holder.actor_id == builder.child_id
+                and index == len(builder_history) - 1
+            )
+            if builder_still_holds_authority:
+                continue
+            if index < len(builder_history) - 1:
+                restored_role = "main_orchestrator"
+                restored_authority = "governance_authority"
+                restored_scope = [_orchestrator_scope(repo_root=repo_root, writes_allowed=True)]
+                restoration_time = builder.ended_at or builder_history[index + 1].started_at
+            else:
+                restored_scope = (
+                    [current_holder.scope_owned]
+                    if current_holder is not None
+                    else [
+                        ScopeDescriptor(
+                            kind="artifact_surface_only",
+                            values=[],
+                            artifact_surfaces=["governance"],
+                            rationale="authoritative write lease absent",
+                        )
+                    ]
+                )
+                restored_role = (
+                    current_holder.role if current_holder is not None else "main_orchestrator"
+                )
+                restored_authority = (
+                    current_holder.authority_level
+                    if current_holder is not None
+                    else "governance_authority_without_write_lease"
+                )
+                restoration_time = builder.ended_at or effective_time
+            entries.append(
+                RoleTransitionEntry(
+                    from_role="builder_worker",
+                    to_role=restored_role,
+                    authority_level_before="implementation_write_lease_holder_pending_reconciliation",
+                    authority_level_after=restored_authority,
+                    scope_owned=restored_scope,
+                    reason="authoritative_write_access_changed",
+                    effective_time=restoration_time,
+                    granted_by=CONTROL_PLANE_OWNER,
+                )
+            )
+        return RoleTransitionRecord(entries=entries)
+
     current_role = current_holder.role if current_holder is not None else "main_orchestrator"
     current_authority = (
         current_holder.authority_level
         if current_holder is not None
         else "governance_authority_without_write_lease"
     )
-    authority_changed = (previous is None and current_holder is not None) or (
-        previous is not None and previous.authority_level_after != current_authority
+    if current_holder is None:
+        return RoleTransitionRecord(entries=[])
+    entries.append(
+        RoleTransitionEntry(
+            from_role="main_orchestrator",
+            to_role=current_role,
+            authority_level_before="governance_authority_without_write_lease",
+            authority_level_after=current_authority,
+            scope_owned=[current_holder.scope_owned],
+            reason="authoritative_write_access_changed",
+            effective_time=effective_time,
+            granted_by=CONTROL_PLANE_OWNER,
+        )
     )
-    if previous is None and current_holder is None:
-        authority_changed = False
-    if authority_changed:
-        scope_owned = (
-            [current_holder.scope_owned]
-            if current_holder is not None
-            else [
-                ScopeDescriptor(
-                    kind="artifact_surface_only",
-                    values=[],
-                    artifact_surfaces=["governance"],
-                    rationale="authoritative write lease absent",
-                )
-            ]
-        )
-        entries.append(
-            RoleTransitionEntry(
-                from_role=previous_role,
-                to_role=current_role,
-                authority_level_before=previous_authority,
-                authority_level_after=current_authority,
-                scope_owned=scope_owned,
-                reason="authoritative_write_access_changed",
-                effective_time=effective_time,
-                granted_by=CONTROL_PLANE_OWNER,
-            )
-        )
     return RoleTransitionRecord(entries=entries)
