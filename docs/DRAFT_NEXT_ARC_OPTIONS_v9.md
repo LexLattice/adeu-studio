@@ -465,9 +465,11 @@ bundle. The current recommendation remains:
 1. `V35-A`
    - closed on `vNext+56`; keep the state baseline frozen.
 2. `V35-B`
-   - next default candidate; make one-builder delegation real under that state model.
+   - closed on `vNext+57`; keep the single-builder delegation and reconciled-handoff
+     baseline frozen.
 3. `V35-C`
-   - expose worker visibility once worker state is canonical.
+   - next default candidate; expose read-only worker visibility once worker state and
+     delegated handoff state are canonical.
 4. `V35-D`
    - add the dynamic map once the topology/state model exists.
 5. `V35-E`
@@ -486,10 +488,13 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- select `V35-B` as the next default candidate after `V35-A` closure;
+- select `V35-C` as the next default candidate after `V35-B` closure;
 - keep the family narrow and constitutional at first:
-  make delegated builder/support execution and reconciled handoffs explicit before building
-  richer visibility or topology UX on top;
+  make worker transcript/progress visibility read-only and explicitly epistemic before
+  building topology or enforcement releases on top;
 - preserve the design rule established by the multi-role bundle:
   the orchestrator owns governance, the builder holds the current scoped write lease, and
-  support workers remain observable but non-authoritative unless explicitly re-roled.
+  support workers remain observable but non-authoritative unless explicitly re-roled;
+- require worker visibility to stay derived from canonical runtime state, events, and
+  reconciled-or-pending handoff surfaces rather than ad hoc summaries or implicit truth
+  promotion.
