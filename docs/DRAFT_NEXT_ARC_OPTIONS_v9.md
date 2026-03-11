@@ -1,14 +1,16 @@
-# Draft Next Arc Options v9 (Post vNext+55, Post V34 Closure)
+# Draft Next Arc Options v9 (Post vNext+56, Post V35-A Closure)
 
 This document defines the post-`vNext+55` planning baseline for the next ADEU-governed
 implementation family.
 
-Status: active planning draft (`V34-A` through `V34-G` closed; next family selection in
-progress).
+Status: active planning draft (`V34-A` through `V34-G` and `V35-A` closed; next family
+selection in progress).
 
 Goal:
 
 - carry forward the completed `V34` trust/distribution line without reopening it;
+- carry forward the completed `V35-A` orchestration-state baseline without widening it
+  implicitly;
 - turn the multi-role execution constitution into an actual implementation roadmap;
 - make the main orchestrator the primary user-facing surface while preserving ADEU
   governance authority;
@@ -24,6 +26,9 @@ behavior changes.
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS55.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS55.md`
 - `docs/ASSESSMENT_vNEXT_PLUS55_EDGES.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS56.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS56.md`
+- `docs/ASSESSMENT_vNEXT_PLUS56_EDGES.md`
 - `docs/MULTI_ROLE_EXECUTION_CONTRACTS_v0.json`
 - `docs/DRAFT_MULTI_ROLE_EXECUTION_LOCK_v0.md`
 - `docs/DRAFT_MULTI_ROLE_EXECUTION_POLICY_v0.md`
@@ -33,8 +38,8 @@ behavior changes.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+55` (`V34-G`) on `main`.
-- `V34-A` through `V34-G` are closed.
+- Baseline implementation is `vNext+56` (`V35-A`) on `main`.
+- `V34-A` through `V34-G` and `V35-A` are closed.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
   keys only).
@@ -125,10 +130,10 @@ behavior changes.
   "next_path_family": "V35",
   "v35_path_count": 5,
   "v35_default_arc_span": {
-    "from": "vNext+56",
+    "from": "vNext+57",
     "to": "vNext+60"
   },
-  "default_next_arc_candidate": "V35-A",
+  "default_next_arc_candidate": "V35-B",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -452,9 +457,9 @@ bundle. The current recommendation remains:
 ## Recommended Default Order
 
 1. `V35-A`
-   - make orchestration state canonical first.
+   - closed on `vNext+56`; keep the state baseline frozen.
 2. `V35-B`
-   - make one-builder delegation real under that state model.
+   - next default candidate; make one-builder delegation real under that state model.
 3. `V35-C`
    - expose worker visibility once worker state is canonical.
 4. `V35-D`
@@ -475,9 +480,10 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- select `V35-A` as the next default candidate after `V34` closure;
+- select `V35-B` as the next default candidate after `V35-A` closure;
 - keep the family narrow and constitutional at first:
-  make role state and handoff state explicit before building richer UX on top;
+  make delegated builder/support execution and reconciled handoffs explicit before building
+  richer visibility or topology UX on top;
 - preserve the design rule established by the multi-role bundle:
   the orchestrator owns governance, the builder holds the current scoped write lease, and
   support workers remain observable but non-authoritative unless explicitly re-roled.
