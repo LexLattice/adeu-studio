@@ -1,9 +1,9 @@
-# Assessment vNext+56 Edges (Pre-Lock)
+# Assessment vNext+56 Edges (Post Closeout)
 
-This document records the pre-lock edge assessment for `vNext+56` (`V35-A`
-orchestration-state baseline).
+This document records edge disposition for `vNext+56` (`V35-A` orchestration-state
+baseline) after arc closeout.
 
-Status: pre-lock assessment (March 11, 2026 UTC).
+Status: post-closeout assessment (March 11, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -11,11 +11,11 @@ Status: pre-lock assessment (March 11, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS56_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
-  "authoritative_scope": "v56_pre_lock_edge_assessment",
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v56_closeout_edge_disposition",
   "required_in_decision": true,
-  "notes": "This pre-lock edge set is superseded by post-closeout disposition once v56 closes."
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
@@ -26,139 +26,148 @@ Status: pre-lock assessment (March 11, 2026 UTC).
   evidence integration.
 - Out of scope: delegated implementation UX beyond state materialization, worker transcript
   visibility, topology/duty map UX, runtime enforcement promotion, multi-writer release,
-  direct worker/user interaction, stop-gate schema-family fork, and metric-key expansion.
+  direct worker/user interaction, stop-gate schema-family fork, metric-key expansion, and
+  the separate `O1`/`O2`/`O3` closeout-hardening bundle.
 
 ## Inputs
 
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v9.md`
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS55.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS55.md`
-- `docs/ASSESSMENT_vNEXT_PLUS55_EDGES.md`
-- `docs/MULTI_ROLE_EXECUTION_CONTRACTS_v0.json`
-- `docs/DRAFT_MULTI_ROLE_EXECUTION_LOCK_v0.md`
-- `docs/DRAFT_MULTI_ROLE_EXECUTION_POLICY_v0.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS56.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS56.md`
+- `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - `docs/FUTURE_CLEANUPS.md`
-- `packages/urm_runtime/src/urm_runtime/models.py`
-- `packages/urm_runtime/src/urm_runtime/roles.py`
-- `packages/urm_runtime/src/urm_runtime/child_dispatch.py`
-- `packages/urm_runtime/src/urm_runtime/storage.py`
-- `packages/urm_runtime/src/urm_runtime/events_tools.py`
+- `packages/urm_runtime/src/urm_runtime/orchestration_state.py`
+- `packages/urm_runtime/src/urm_runtime/orchestration_evidence.py`
 - `packages/urm_runtime/src/urm_runtime/copilot.py`
+- `packages/urm_runtime/src/urm_runtime/storage.py`
+- `apps/api/tests/test_urm_copilot_routes.py`
+- `artifacts/quality_dashboard_v56_closeout.json`
+- `artifacts/stop_gate/metrics_v56_closeout.json`
+- `artifacts/agent_harness/v56/evidence_inputs/metric_key_continuity_assertion_v56.json`
+- `artifacts/agent_harness/v56/evidence_inputs/runtime_observability_comparison_v56.json`
+- `artifacts/agent_harness/v56/evidence_inputs/v35a_orchestration_state_evidence_v56.json`
+- `artifacts/agent_harness/v56/runtime/evidence/codex/orchestration_state/v56-closeout-main-1/`
+- merged PRs: `#261`, `#262`
 
-## Current-State Assessment
+## Pre-Lock Edge Set Outcome (v56 Closeout)
 
-- `urm_runtime` already contains real worker lifecycle, dispatch, persistence, and event
-  foundations.
-- The constitutional multi-role bundle already defines the intended authority, write-lease,
-  role-transition, artifact-class, and handoff model.
-- The missing surface is not “sub-agent primitives exist or not”; it is whether the current
-  runtime materializes one canonical orchestration-state artifact family with sufficient
-  identity, lease, transition, and reconciliation state for ADEU governance and later UX.
+1. Canonical orchestration-state artifact absence: `resolved`.
+   - `orchestration_state_snapshot@1` is now emitted under the committed v56 runtime
+     evidence tree.
+2. Canonical execution-topology artifact absence: `resolved`.
+   - `execution_topology_state@1` is now emitted and recorded in closeout evidence.
+3. Explicit write-lease-state artifact absence: `resolved`.
+   - `write_lease_state@1` is now emitted and records the single authoritative writer plus
+     the child dispatch observation.
+4. Explicit role-transition record absence: `resolved`.
+   - `role_transition_record@1` is now emitted and records the authoritative-write-access
+     transition for the main orchestrator.
+5. Canonical role-handoff envelope absence: `resolved`.
+   - `role_handoff_envelope@1` is now emitted even when empty, with frozen required fields
+     and empty-value policies recorded.
+6. Session/event identity gap: `resolved`.
+   - canonical state now freezes `orchestrator_session_id`, `worker_session_id`,
+     `parent_session_id`, `event_cursor`, and `last_reconciled_event`.
+7. Compaction-lineage gap: `resolved`.
+   - the committed runtime fixture records `continuation_bridge_ref` and one explicit audit
+     compaction seam.
+8. Scope-kind ambiguity risk: `resolved`.
+   - `scope_granularity_enum` is now frozen in the snapshot and validated in v35a evidence.
+9. Self-report reconciliation gap: `resolved`.
+   - the handoff envelope now records `reconciliation_required = true` and the frozen
+     reconciliation minimum checks even when `entries = []`.
+10. Worker direct user-boundary drift risk: `resolved`.
+    - support-worker state remains non-user-facing in the committed fixture and the merged
+      guard suite fails closed on worker-boundary drift.
+11. Runtime-event truth ambiguity risk: `resolved`.
+    - the snapshot now records the frozen runtime-event truth policy that events are source
+      surfaces only until reconciliation or explicit governance acceptance.
+12. Topology truth gap: `resolved`.
+    - v56 now releases canonical topology state only and explicitly keeps rendered topology
+      UX out of scope.
+13. Evidence integration gap: `resolved`.
+    - canonical `v35a_orchestration_state_evidence@1` now exists on `main` and is linked to
+      committed state artifact hashes.
+14. Placement/accretion risk: `resolved`.
+    - the implementation landed in `packages/urm_runtime` rather than accreting new
+      orchestration governance logic into `packages/adeu_agent_harness`.
+15. Zero-occurrence and handoff-empty-value semantics ambiguity risk: `resolved`.
+    - deterministic empty artifacts and canonical handoff empty-value policies are now
+      emitted and guarded.
+16. Worker identity scope ambiguity risk: `resolved`.
+    - v56 now freezes `worker_session_id` as current-active worker state in the released
+      baseline.
+17. Continuation-bridge reference scope ambiguity risk: `resolved`.
+    - v56 now freezes `continuation_bridge_ref` as current/latest bridge state in the
+      released baseline rather than implying a future bridge graph.
+18. Execution-topology state vs UX graph ambiguity risk: `resolved`.
+    - `execution_topology_state@1` now carries the explicit state-only policy and no UX
+      graph claim.
+19. Closeout evidence determinism explicitness gap: `resolved`.
+    - `v35a_orchestration_state_evidence@1` now exists as a deterministic closeout input
+      artifact and is guarded for malformed/missing state inputs.
 
-## Pre-Lock Edge Set (v56)
+## Guard Coverage Outcome
 
-1. Canonical orchestration-state artifact absence: `open`.
-   - no `orchestration_state_snapshot@1` exists on `main`.
-2. Canonical execution-topology artifact absence: `open`.
-   - no `execution_topology_state@1` exists on `main`.
-3. Explicit write-lease-state artifact absence: `open`.
-   - current dispatch tokens and worker-run rows exist, but no released `write_lease_state@1`
-     exists on `main`.
-4. Explicit role-transition record absence: `open`.
-   - no released `role_transition_record@1` exists on `main`.
-5. Canonical role-handoff envelope absence: `open`.
-   - the multi-role draft defines `role_handoff_envelope@1`, but no released runtime
-     artifact currently materializes it.
-6. Session/event identity gap: `open`.
-   - canonical state does not yet freeze `orchestrator_session_id`, `worker_session_id`,
-     `parent_session_id`, `event_cursor`, and `last_reconciled_event` as one released
-     artifact surface.
-7. Compaction-lineage gap: `open`.
-   - `continuation_bridge_ref` is now part of the planning family, but no released
-     orchestration-state artifact binds pre/post-compaction continuity on `main`.
-8. Scope-kind ambiguity risk: `open`.
-   - current state does not freeze the scope-granularity enum in a released orchestration
-     artifact surface.
-9. Self-report reconciliation gap: `open`.
-   - the draft constitution requires reconciliation of handoff claims, but no released
-     orchestration artifact currently proves that state.
-10. Worker direct user-boundary drift risk: `open`.
-    - the planning family freezes this as forbidden, but no released orchestration-state
-      evidence currently proves the boundary.
-11. Runtime-event truth ambiguity risk: `open`.
-    - `urm-events@1` exists, but no released orchestration-state contract yet marks events
-      as source surfaces only rather than accepted truth.
-12. Topology truth gap: `open`.
-    - topology/duty visualization is explicitly out of scope for v56, so no canonical
-      topology UX surface exists yet.
-13. Evidence integration gap: `open`.
-    - no released `v35a_orchestration_state_evidence@1` block exists on `main`.
-14. Placement/accretion risk: `open`.
-    - `adeu_agent_harness` is already dense; without explicit placement discipline, V35-A
-      could wrongly accrete governance state into pipeline modules rather than building on
-      `urm_runtime`.
-15. Zero-occurrence and handoff-empty-value semantics ambiguity risk: `open`.
-    - current repo state does not yet define whether no transition or no handoff should
-      yield deterministic empty artifacts or omission, nor does it yet freeze canonical
-      empty encodings for required but not-applicable handoff fields.
-16. Worker identity scope ambiguity risk: `open`.
-    - current repo state does not yet freeze whether `worker_session_id` is current-active
-      state only or complete future multiworker lineage.
-17. Continuation-bridge reference scope ambiguity risk: `open`.
-    - current repo state does not yet freeze whether `continuation_bridge_ref` is
-      current/latest state only or a future bridge graph.
-18. Execution-topology state vs UX graph ambiguity risk: `open`.
-    - current repo state does not yet distinguish canonical topology state from a future
-      rendered topology UX surface.
-19. Closeout evidence determinism explicitness gap: `open`.
-    - current repo state does not yet release deterministic
-      `v35a_orchestration_state_evidence@1` bytes because the artifact family does not yet
-      exist.
+- merged `A1`/`A2` guard suites cover the required v56 orchestration-state baseline and
+  closeout-evidence conditions listed in the pre-lock planning set.
+- merged implementation files:
+  - `packages/urm_runtime/src/urm_runtime/orchestration_state.py`
+  - `packages/urm_runtime/src/urm_runtime/orchestration_evidence.py`
+  - `packages/urm_runtime/src/urm_runtime/copilot.py`
+- merged guard file:
+  - `apps/api/tests/test_urm_copilot_routes.py`
+- v56 closeout artifact regeneration on `main` emitted:
+  - committed orchestration-state snapshot / topology / write-lease / transition / handoff
+    artifacts
+  - committed parent / child / audit URM event streams backing the closeout fixture
+  - canonical `metric_key_continuity_assertion@1`
+  - canonical `runtime_observability_comparison@1`
+  - canonical `v35a_orchestration_state_evidence@1`
+- closeout posture remains intentionally lighter than the separate hardening bundle:
+  - no new cumulative closeout bundle, index, or adjudication scaffold was added in v56
+    because `O1`/`O2`/`O3` remain explicitly deferred.
 
-## Guard and Sequencing Recommendation
-
-- The next safe step is still `V35-A` only.
-- `v56` should remain a state-materialization and evidence slice, not a visibility or
-  enforcement slice.
-- `A1` should establish canonical orchestration-state artifacts and identity fields.
-- `A1` should treat `worker_session_id` and `continuation_bridge_ref` as current-state
-  baseline fields only and should materialize deterministic empty transition/handoff
-  artifacts rather than relying on omission.
-- `A2` should prove them via evidence integration and guards.
-- `A2` should keep `execution_topology_state@1` as a reconciliation/state artifact only,
-  not a rendered topology UX surface, and should prove closeout evidence determinism.
-- `V35-B` through `V35-E` should remain deferred until the state substrate is real.
-
-## Stop-Gate Continuity Expectation
+## Stop-Gate Continuity Outcome
 
 ```json
 {
-  "schema": "v56_prelock_edge_summary@1",
+  "schema": "v56_edge_closeout_summary@1",
   "arc": "vNext+56",
   "target_path": "V35-A",
   "prelock_edge_count": 19,
+  "resolved_edge_count": 19,
+  "open_blocking_edges": 0,
   "stop_gate_schema_family": "stop_gate_metrics@1",
-  "metric_key_cardinality_baseline": 80,
-  "expected_metric_key_exact_set_equal_v55": true,
-  "blocking_edges_before_lock": [
-    "canonical_orchestration_state_artifact_absence",
-    "session_event_identity_gap",
-    "compaction_lineage_gap",
-    "scope_kind_ambiguity_risk",
-    "evidence_integration_gap",
-    "zero_occurrence_and_handoff_empty_value_semantics_ambiguity_risk",
-    "execution_topology_state_vs_ux_graph_ambiguity_risk"
-  ]
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v55": true,
+  "all_passed": true,
+  "blocking_issues": []
 }
 ```
 
-## Recommendation
+## Residual Risks (Post v56)
 
-1. Proceed with a thin `V35-A` baseline only.
-2. Treat `packages/urm_runtime` as the preferred orchestration foundation for the arc.
-3. Keep worker transcript visibility, topology UX, and runtime enforcement out of scope for
-   `v56`.
-4. Require deterministic empty transition/handoff artifacts for zero-occurrence cases and
-   frozen canonical empty-value encodings for required but not-applicable handoff fields.
-5. Require canonical evidence integration and guard coverage before later `V35` paths are
-   considered.
+1. Worker transcript visibility remains intentionally deferred; v56 does not release any
+   transcript UX or worker-facing user surface.
+2. Topology/duty visualization remains deferred; v56 releases state artifacts only, not a
+   topology UI.
+3. Runtime constitutional enforcement remains deferred; v56 proves the invariants through
+   materialized state plus guards, not runtime promotion logic.
+4. Multi-writer execution and direct worker/user interaction remain deferred; v56 closes a
+   single-writer orchestrator-mediated baseline only.
+5. Closeout hardening remains incomplete by design; `O1` closeout extraction, `O2`
+   artifact index/lint, and `O3` advisory adjudication are still separate operational
+   follow-ons.
+
+## Recommendation (Post Closeout)
+
+1. Mark the v56 edge set as closed with no blocking issues.
+2. Treat the committed orchestration-state artifacts, committed runtime event streams, and
+   canonical `v35a_orchestration_state_evidence@1` as part of the released closeout
+   surface going forward.
+3. Keep worker transcript visibility, topology UX, runtime enforcement, multi-writer
+   execution, and direct worker/user interaction explicitly deferred unless released under
+   new lock text.
+4. Treat any next step as a fresh `V35-B` planning/lock pass rather than re-opening or
+   widening the closed `V35-A` state-materialization baseline.
