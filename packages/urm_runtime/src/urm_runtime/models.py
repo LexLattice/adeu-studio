@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class TaskEnvelope(BaseModel):
@@ -289,6 +289,54 @@ class CopilotSteerResponse(BaseModel):
     idempotent_replay: bool = False
 
 
+DelegatedScopeKind = Literal[
+    "repo_wide",
+    "subtree",
+    "module_set",
+    "file_set",
+    "artifact_surface_only",
+]
+DelegatedArtifactSurface = Literal["implementation", "governance", "mixed", "none"]
+ChildDelegationRole = Literal["builder_worker", "explorer", "validator", "docs_helper"]
+DelegationTaskKind = Literal["write_task", "analysis_task", "validation_task", "docs_task"]
+
+
+class DelegatedScopeDescriptor(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: DelegatedScopeKind
+    values: list[str] = Field(default_factory=list)
+    artifact_surfaces: list[DelegatedArtifactSurface] = Field(default_factory=list)
+    rationale: str | None = None
+
+    @model_validator(mode="after")
+    def _normalize_and_validate(self) -> "DelegatedScopeDescriptor":
+        normalized_values = sorted({value.strip() for value in self.values if value.strip()})
+        normalized_surfaces = sorted({surface for surface in self.artifact_surfaces})
+        self.values = normalized_values
+        self.artifact_surfaces = normalized_surfaces
+        if self.kind == "artifact_surface_only":
+            if self.values:
+                raise ValueError("artifact_surface_only scope must not declare values")
+            if not self.artifact_surfaces:
+                self.artifact_surfaces = ["none"]
+        elif not self.values:
+            raise ValueError(f"{self.kind} scope must declare at least one value")
+        return self
+
+
+def _default_support_scope() -> DelegatedScopeDescriptor:
+    return DelegatedScopeDescriptor(
+        kind="artifact_surface_only",
+        values=[],
+        artifact_surfaces=["none"],
+        rationale=(
+            "bounded support delegation remains advisory_or_scratch_only_by_default "
+            "unless explicitly re-roled"
+        ),
+    )
+
+
 class AgentSpawnRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -299,6 +347,16 @@ class AgentSpawnRequest(BaseModel):
     target_turn_id: str | None = Field(default=None, min_length=1)
     use_last_turn: bool = False
     profile_id: str | None = Field(default=None, min_length=1)
+    requested_role: ChildDelegationRole = "explorer"
+    granted_role: ChildDelegationRole | None = None
+    delegation_task_kind: DelegationTaskKind = "analysis_task"
+    delegated_scope: DelegatedScopeDescriptor = Field(default_factory=_default_support_scope)
+
+    @model_validator(mode="after")
+    def _apply_granted_role_default(self) -> "AgentSpawnRequest":
+        if self.granted_role is None:
+            self.granted_role = self.requested_role
+        return self
 
     def idempotency_payload(self) -> dict[str, Any]:
         return self.model_dump(mode="json", exclude={"client_request_id"})
@@ -320,6 +378,11 @@ class AgentSpawnResponse(BaseModel):
     error: dict[str, Any] | None = None
     budget_snapshot: dict[str, Any] = Field(default_factory=dict)
     inherited_policy_hash: str | None = None
+    requested_role: ChildDelegationRole
+    granted_role: ChildDelegationRole
+    delegation_task_kind: DelegationTaskKind
+    delegated_scope: DelegatedScopeDescriptor
+    authoritative_write_lease_granted: bool = False
 
 
 class AgentCancelRequest(BaseModel):

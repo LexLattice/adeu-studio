@@ -111,6 +111,14 @@ class ChildStateInput:
     started_at: str
     ended_at: str | None
     runtime_role: str
+    requested_role: str
+    granted_role: str
+    delegation_task_kind: str
+    delegated_scope_kind: str
+    delegated_scope_values: tuple[str, ...]
+    delegated_scope_artifact_surfaces: tuple[str, ...]
+    delegated_scope_rationale: str | None
+    authoritative_write_lease_granted: bool
     parent_turn_id: str | None
     parent_stream_id: str
     child_stream_id: str
@@ -194,6 +202,9 @@ class ActorState(BaseModel):
     stream_id: str = Field(min_length=1)
     worker_session_id: str | None = None
     scope_owned: ScopeDescriptor
+    requested_role: str | None = None
+    granted_role: str | None = None
+    delegation_task_kind: str | None = None
 
 
 class CompactionSeam(BaseModel):
@@ -217,6 +228,9 @@ class TopologyEdge(BaseModel):
     dispatch_seq: int | None = Field(default=None, ge=1)
     lease_id: str | None = None
     authoritative_write_access: bool = False
+    requested_role: str | None = None
+    granted_role: str | None = None
+    delegation_task_kind: str | None = None
 
 
 class LeaseHolderState(BaseModel):
@@ -229,6 +243,9 @@ class LeaseHolderState(BaseModel):
     authority_domain: AuthorityDomain
     lease_kind: Literal["exclusive"] = "exclusive"
     scope_owned: ScopeDescriptor
+    requested_role: str | None = None
+    granted_role: str | None = None
+    delegation_task_kind: str | None = None
 
 
 class DispatchLeaseObservation(BaseModel):
@@ -246,6 +263,9 @@ class DispatchLeaseObservation(BaseModel):
     phase: str | None = None
     authoritative_write_access: bool = False
     scope_owned: ScopeDescriptor
+    requested_role: str | None = None
+    granted_role: str | None = None
+    delegation_task_kind: str | None = None
 
 
 class RoleTransitionEntry(BaseModel):
@@ -499,7 +519,6 @@ def build_orchestration_artifacts(
     RoleTransitionRecord,
     RoleHandoffEnvelope,
 ]:
-    del branch_or_head  # reserved for future handoff materialization.
     event_cursor = _build_event_cursor(event_streams=event_streams)
     last_reconciled_event, effective_time = _resolve_last_reconciled_event(
         event_streams=event_streams,
@@ -515,6 +534,7 @@ def build_orchestration_artifacts(
     )
     current_authoritative_holder = _build_current_authoritative_holder(
         session=session,
+        children=children,
         repo_root=repo_root,
     )
     active_authoritative_writer_count = 1 if current_authoritative_holder is not None else 0
@@ -526,7 +546,7 @@ def build_orchestration_artifacts(
         session=session,
         children=children,
         repo_root=repo_root,
-        writes_allowed=session.writes_allowed,
+        current_authoritative_holder=current_authoritative_holder,
     )
     write_lease_state = WriteLeaseState(
         single_writer_default_enforced=active_authoritative_writer_count <= 1,
@@ -544,8 +564,11 @@ def build_orchestration_artifacts(
                 dispatch_seq=child.dispatch_seq,
                 lease_id=child.lease_id,
                 phase=child.dispatch_phase,
-                authoritative_write_access=False,
-                scope_owned=_support_worker_scope(),
+                authoritative_write_access=child.authoritative_write_lease_granted,
+                scope_owned=_child_scope(child=child),
+                requested_role=child.requested_role,
+                granted_role=child.granted_role,
+                delegation_task_kind=child.delegation_task_kind,
             )
             for child in sorted(children, key=_child_order_key)
         ],
@@ -555,7 +578,11 @@ def build_orchestration_artifacts(
         effective_time=effective_time,
         prior_entries=prior_transition_entries or [],
     )
-    handoff_envelope = RoleHandoffEnvelope(entries=[])
+    handoff_envelope = _build_role_handoff_envelope(
+        children=children,
+        repo_root=repo_root,
+        branch_or_head=branch_or_head,
+    )
     snapshot = OrchestrationStateSnapshot(
         single_writer_default_enforced=write_lease_state.single_writer_default_enforced,
         orchestrator_session_id=session.session_id,
@@ -588,7 +615,10 @@ def build_orchestration_artifacts(
                 queue_seq=child.queue_seq,
                 dispatch_seq=child.dispatch_seq,
                 lease_id=child.lease_id,
-                authoritative_write_access=False,
+                authoritative_write_access=child.authoritative_write_lease_granted,
+                requested_role=child.requested_role,
+                granted_role=child.granted_role,
+                delegation_task_kind=child.delegation_task_kind,
             )
             for child in sorted(children, key=_child_order_key)
         ],
@@ -750,8 +780,29 @@ def _build_continuation_bridge_ref(
 def _build_current_authoritative_holder(
     *,
     session: SessionStateInput,
+    children: list[ChildStateInput],
     repo_root: str,
 ) -> LeaseHolderState | None:
+    active_builders = [
+        child
+        for child in children
+        if child.authoritative_write_lease_granted and child.status in {"queued", "running"}
+    ]
+    if len(active_builders) > 1:
+        raise OrchestrationStateError("multiple authoritative builders active by default")
+    if active_builders:
+        builder = active_builders[0]
+        return LeaseHolderState(
+            actor_id=builder.child_id,
+            role=builder.granted_role,
+            runtime_role=builder.runtime_role,
+            authority_level="implementation_write_lease_holder_pending_reconciliation",
+            authority_domain="implementation",
+            scope_owned=_child_scope(child=builder),
+            requested_role=builder.requested_role,
+            granted_role=builder.granted_role,
+            delegation_task_kind=builder.delegation_task_kind,
+        )
     if not session.writes_allowed:
         return None
     return LeaseHolderState(
@@ -769,8 +820,12 @@ def _build_actor_states(
     session: SessionStateInput,
     children: list[ChildStateInput],
     repo_root: str,
-    writes_allowed: bool,
+    current_authoritative_holder: LeaseHolderState | None,
 ) -> list[ActorState]:
+    current_holder_actor_id = (
+        current_authoritative_holder.actor_id if current_authoritative_holder is not None else None
+    )
+    orchestrator_has_writes = current_holder_actor_id == session.session_id
     actors = [
         ActorState(
             actor_id=session.session_id,
@@ -780,30 +835,40 @@ def _build_actor_states(
             authority_domain="governance",
             status=session.status,
             user_facing_boundary=True,
-            authoritative_write_access=writes_allowed,
+            authoritative_write_access=orchestrator_has_writes,
             session_id=session.session_id,
             parent_session_id=None,
             stream_id=f"copilot:{session.session_id}",
             worker_session_id=session.runtime_thread_id,
-            scope_owned=_orchestrator_scope(repo_root=repo_root, writes_allowed=writes_allowed),
+            scope_owned=_orchestrator_scope(
+                repo_root=repo_root,
+                writes_allowed=orchestrator_has_writes,
+            ),
         )
     ]
     for child in sorted(children, key=_child_order_key):
+        authority_domain = _child_authority_domain(child=child)
         actors.append(
             ActorState(
                 actor_id=child.child_id,
-                role="support_worker",
+                role=child.granted_role,
                 runtime_role=child.runtime_role,
-                authority_level="advisory_information_only",
-                authority_domain="advisory",
+                authority_level=_child_authority_level(
+                    child=child,
+                    authoritative_write_access=current_holder_actor_id == child.child_id,
+                ),
+                authority_domain=authority_domain,
                 status=child.status,
                 user_facing_boundary=False,
-                authoritative_write_access=False,
+                authoritative_write_access=current_holder_actor_id == child.child_id,
                 session_id=child.parent_session_id,
                 parent_session_id=child.parent_session_id,
                 stream_id=child.child_stream_id,
                 worker_session_id=child.child_thread_id,
-                scope_owned=_support_worker_scope(),
+                scope_owned=_child_scope(child=child),
+                requested_role=child.requested_role,
+                granted_role=child.granted_role,
+                delegation_task_kind=child.delegation_task_kind,
             )
         )
     return actors
@@ -831,16 +896,31 @@ def _orchestrator_scope(*, repo_root: str, writes_allowed: bool) -> ScopeDescrip
     )
 
 
-def _support_worker_scope() -> ScopeDescriptor:
+def _child_scope(*, child: ChildStateInput) -> ScopeDescriptor:
     return ScopeDescriptor(
-        kind="artifact_surface_only",
-        values=[],
-        artifact_surfaces=["none"],
-        rationale=(
-            "support workers remain advisory_or_scratch_only_by_default "
-            "unless explicitly re-roled"
-        ),
+        kind=child.delegated_scope_kind,
+        values=list(child.delegated_scope_values),
+        artifact_surfaces=list(child.delegated_scope_artifact_surfaces),
+        rationale=child.delegated_scope_rationale,
     )
+
+
+def _child_authority_domain(*, child: ChildStateInput) -> AuthorityDomain:
+    if child.granted_role == "builder_worker":
+        return "implementation"
+    return "advisory"
+
+
+def _child_authority_level(
+    *,
+    child: ChildStateInput,
+    authoritative_write_access: bool,
+) -> str:
+    if child.granted_role == "builder_worker":
+        if authoritative_write_access:
+            return "implementation_write_lease_holder_pending_reconciliation"
+        return "implementation_delegated_pending_reconciliation"
+    return "advisory_information_only"
 
 
 def _select_current_worker(*, children: list[ChildStateInput]) -> ChildStateInput | None:
@@ -866,6 +946,52 @@ def _current_worker_order_key(child: ChildStateInput) -> tuple[int, int, int, st
 def _child_order_key(child: ChildStateInput) -> tuple[int, int, str]:
     dispatch_rank = child.dispatch_seq if child.dispatch_seq is not None else 2**30
     return (dispatch_rank, child.queue_seq, child.child_id)
+
+
+def _build_role_handoff_envelope(
+    *,
+    children: list[ChildStateInput],
+    repo_root: str,
+    branch_or_head: str,
+) -> RoleHandoffEnvelope:
+    entries: list[RoleHandoffEntry] = []
+    for child in sorted(children, key=_child_order_key):
+        if child.status != "completed":
+            continue
+        artifacts_produced = [path for path in [child.raw_jsonl_path] if path]
+        evidence_refs = [path for path in [child.urm_events_path] if path]
+        if not artifacts_produced and not evidence_refs:
+            continue
+        entries.append(
+            RoleHandoffEntry(
+                role=child.granted_role,
+                authority_level=(
+                    "implementation_completed_pending_reconciliation"
+                    if child.granted_role == "builder_worker"
+                    else "advisory_completed_pending_reconciliation"
+                ),
+                authority_domain=_child_authority_domain(child=child),
+                artifact_class="advisory",
+                artifact_surface="implementation"
+                if child.granted_role == "builder_worker"
+                else "none",
+                repo_root=repo_root,
+                branch_or_head=branch_or_head,
+                scope_owned=[_child_scope(child=child)],
+                scope_remaining=[],
+                files_changed=[],
+                commands_run=[],
+                artifacts_produced=artifacts_produced,
+                evidence_refs=evidence_refs,
+                status=child.status,
+                blocking_state="non_blocking",
+                blockers=[],
+                open_risks=["explicit_orchestrator_reconciliation_required"],
+                escalation_reason=None,
+                recommended_next_action="explicit_orchestrator_reconciliation_required",
+            )
+        )
+    return RoleHandoffEnvelope(entries=entries)
 
 
 def _load_prior_transition_entries(*, path: Path) -> list[dict[str, Any]]:

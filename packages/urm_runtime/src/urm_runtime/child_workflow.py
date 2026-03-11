@@ -170,6 +170,15 @@ def run_child_workflow_v2(
                         "status": "completed",
                     },
                 )
+                manager._record_parent_or_audit_event(
+                    parent_session_id=parent_session_id,
+                    event_kind="WORKER_RECONCILIATION_REQUIRED",
+                    payload={
+                        "child_id": child_id,
+                        "status": "completed",
+                        **manager._child_delegation_payload(child=current),
+                    },
+                )
             manager._persist_child_terminal_state(child=current)
     except URMError as exc:
         with manager._lock:

@@ -112,6 +112,7 @@ def start_child_execution_thread_unlocked(
             "queue_seq": child.queue_seq,
             "dispatch_seq": child.dispatch_seq,
             "lease_id": child.lease_id,
+            **manager._child_delegation_payload(child=child),
         },
     )
     with transaction(db_path=manager.config.db_path) as con:
@@ -288,6 +289,13 @@ def spawn_child_v2(
             target_turn_id=request.target_turn_id,
             use_last_turn=request.use_last_turn,
         )
+        (
+            requested_role,
+            granted_role,
+            delegation_task_kind,
+            delegated_scope,
+            authoritative_write_lease_granted,
+        ) = manager._resolve_child_delegation_unlocked(request=request)
         manager._bootstrap_runtime(runtime=runtime)
         if runtime.thread_id is None:
             raise URMError(
@@ -349,6 +357,11 @@ def spawn_child_v2(
             ),
             raw_jsonl_path=raw_rel_path,
             urm_events_path=events_rel_path,
+            requested_role=requested_role,
+            granted_role=granted_role,
+            delegation_task_kind=delegation_task_kind,
+            delegated_scope=delegated_scope,
+            authoritative_write_lease_granted=authoritative_write_lease_granted,
             status="queued",
             parent_seq=token.parent_seq,
             queue_seq=token.queue_seq,
@@ -377,6 +390,7 @@ def spawn_child_v2(
                 "queue_seq": child.queue_seq,
                 "parent_stream_id": child.parent_stream_id,
                 "parent_seq": child.parent_seq,
+                **manager._child_delegation_payload(child=child),
             },
         )
         manager._record_child_event(
@@ -388,6 +402,7 @@ def spawn_child_v2(
                 "queue_seq": child.queue_seq,
                 "dispatch_seq": child.dispatch_seq,
                 "lease_id": child.lease_id,
+                **manager._child_delegation_payload(child=child),
             },
         )
         with transaction(db_path=manager.config.db_path) as con:
@@ -420,6 +435,11 @@ def spawn_child_v2(
             error=None,
             budget_snapshot=child.budget_snapshot,
             inherited_policy_hash=child.inherited_policy_hash,
+            requested_role=child.requested_role,  # type: ignore[arg-type]
+            granted_role=child.granted_role,  # type: ignore[arg-type]
+            delegation_task_kind=child.delegation_task_kind,  # type: ignore[arg-type]
+            delegated_scope=child.delegated_scope,
+            authoritative_write_lease_granted=child.authoritative_write_lease_granted,
         )
         with transaction(db_path=manager.config.db_path) as con:
             persist_idempotency_response(
