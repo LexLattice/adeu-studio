@@ -240,7 +240,7 @@ Consumption lock:
       "delegated_scope_kind_recorded",
       "single_builder_default_enforced",
       "support_workers_non_authoritative",
-      "handoff_entry_materialized",
+      "handoff_artifact_materialized",
       "handoff_reconciliation_required",
       "unreconciled_worker_output_non_authoritative",
       "worker_direct_user_boundary_forbidden",
@@ -253,13 +253,13 @@ Consumption lock:
   },
   "test_requirements": {
     "builder_role_recorded": true,
-    "support_role_recorded": true,
+    "at_least_one_support_role_path_recorded": true,
     "delegated_scope_kind_recorded": true,
     "single_builder_write_lease_enforced": true,
     "completed_child_handoff_entry_materialized": true,
     "zero_occurrence_empty_artifacts_materialized": true,
     "handoff_reconciliation_required": true,
-    "support_worker_non_authoritative": true,
+    "support_workers_non_authoritative": true,
     "worker_direct_user_boundary_forbidden": true,
     "v35b_delegation_handoff_evidence_deterministic": true
   },
@@ -273,6 +273,7 @@ Consumption lock:
     "builder_write_lease_missing_for_authoritative_write_task",
     "role_transition_record_missing_or_omitted",
     "role_handoff_envelope_missing_or_omitted",
+    "zero_occurrence_empty_artifact_missing_or_noncanonical",
     "completed_child_handoff_entry_missing_when_claimed_work_present",
     "worker_output_treated_as_accepted_truth_without_reconciliation",
     "support_worker_authority_drift_without_explicit_rerole",
@@ -287,6 +288,8 @@ Interpretive notes:
 - `support_roles_materialized` means the bounded support-role surface is released and at
   least one support-worker path is proven in v57; it does not require every enumerated
   support role to be exercised in this arc.
+- `handoff_artifact_materialized` means the canonical handoff artifact exists in all
+  cases and is non-empty if and only if claimed work is present.
 - `write_lease_state@1` proves current authoritative write ownership for the delegated
   lane.
 - `role_transition_record@1` proves authority-surface transitions and explicit re-roles.
@@ -438,7 +441,7 @@ and prove the constitutional delegation invariants hold under the current narrow
     - `delegated_scope_kind_recorded`
     - `single_builder_default_enforced`
     - `support_workers_non_authoritative`
-    - `handoff_entry_materialized`
+    - `handoff_artifact_materialized`
     - `handoff_reconciliation_required`
     - `unreconciled_worker_output_non_authoritative`
     - `worker_direct_user_boundary_forbidden`

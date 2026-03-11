@@ -125,7 +125,7 @@ Status: draft decision scaffold (pre-start, March 11, 2026 UTC).
   "delegated_scope_kind_recorded": null,
   "single_builder_default_enforced": null,
   "support_workers_non_authoritative": null,
-  "handoff_entry_materialized": null,
+  "handoff_artifact_materialized": null,
   "handoff_reconciliation_required": null,
   "unreconciled_worker_output_non_authoritative": null,
   "worker_direct_user_boundary_forbidden": null,
@@ -133,7 +133,7 @@ Status: draft decision scaffold (pre-start, March 11, 2026 UTC).
   "metric_key_cardinality": null,
   "metric_key_exact_set_equal_v56": null,
   "zero_occurrence_empty_artifacts_materialized": null,
-  "notes": "Populate on closeout. `write_lease_state@1` proves current authoritative write ownership, `role_transition_record@1` proves authority-surface transitions and explicit re-roles, and completed delegated work must emit typed handoff entries and remain non-authoritative until explicit orchestrator reconciliation rather than relying on raw worker output alone. `support_roles_materialized` means the support-role surface is released and at least one bounded support-worker path is proven, not that every enumerated support role was exercised."
+  "notes": "Populate on closeout. `write_lease_state@1` proves current authoritative write ownership, `role_transition_record@1` proves authority-surface transitions and explicit re-roles, `handoff_artifact_materialized` means the canonical handoff artifact exists in all cases and is non-empty if and only if claimed work is present, and completed delegated work must emit typed handoff entries and remain non-authoritative until explicit orchestrator reconciliation rather than relying on raw worker output alone. `support_roles_materialized` means the support-role surface is released and at least one bounded support-worker path is proven, not that every enumerated support role was exercised."
 }
 ```
 
