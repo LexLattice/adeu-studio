@@ -281,11 +281,9 @@ def _match_handoff_entries(
         for index, entry in enumerate(handoff_entries):
             if index in consumed:
                 continue
-            if child.raw_jsonl_path and child.raw_jsonl_path in entry.artifacts_produced:
-                matched[child.child_id] = entry
-                consumed.add(index)
-                break
-            if child.urm_events_path and child.urm_events_path in entry.evidence_refs:
+            if (child.raw_jsonl_path and child.raw_jsonl_path in entry.artifacts_produced) or (
+                child.urm_events_path and child.urm_events_path in entry.evidence_refs
+            ):
                 matched[child.child_id] = entry
                 consumed.add(index)
                 break
