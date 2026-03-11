@@ -116,6 +116,9 @@ Status: pre-lock assessment (March 11, 2026 UTC).
   or enforcement slice.
 - `B1` should establish released builder/support roles, delegated role/scope recording, and
   explicit single-builder lease posture.
+- `B1` should define claimed-work presence explicitly as any non-empty `files_changed`,
+  `commands_run`, `artifacts_produced`, or `evidence_refs` field and should require
+  deterministic empty transition/handoff artifacts in zero-occurrence cases.
 - `B1` should keep worker outputs non-authoritative until explicit orchestrator
   reconciliation and should emit typed handoff entries when delegated work claims concrete
   outputs.

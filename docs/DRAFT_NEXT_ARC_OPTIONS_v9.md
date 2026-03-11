@@ -258,7 +258,9 @@ Goal:
 Scope:
 
 - support builder-task delegation from the orchestrator into an implementation repo;
-- support bounded `explorer`, `validator`, and `docs_helper` workers;
+- support bounded `explorer`, `validator`, and `docs_helper` workers:
+  - at least one bounded support-worker path must be proven,
+  - not every enumerated support role needs to be exercised in the first release;
 - leverage existing `urm_runtime` primitives for:
   - child dispatch,
   - child workflow,
@@ -268,6 +270,8 @@ Scope:
   - event capture;
 - require typed handoff envelopes and explicit orchestrator reconciliation before any
   support-worker claim is treated as evidence;
+- require deterministic empty transition/handoff artifacts when no rerole or no handoff
+  occurs rather than treating omission as valid;
 - require all delegated scopes to declare canonical scope kind:
   - `repo_wide`,
   - `subtree`,
@@ -291,9 +295,11 @@ Locks:
 Acceptance:
 
 - the orchestrator can run one end-to-end delegated implementation loop with:
-  - one builder,
-  - at least one support worker,
+  - one authoritative builder write lease on a write task,
+  - at least one bounded non-authoritative support-worker path,
   - typed handoff envelopes,
+  - one reconciled completed child handoff when claimed work is present,
+  - deterministic empty transition/handoff artifacts in zero-occurrence cases,
   - explicit reconciliation,
   - no authority drift.
 

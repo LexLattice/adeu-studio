@@ -75,8 +75,8 @@ Status: draft lock (not frozen yet, March 11, 2026 UTC).
   - this arc authorizes one `L1` delegation/handoff release lane only,
   - no `L2` boundary release is authorized in this arc,
   - no worker direct user-boundary release is authorized in this arc,
-  - no governance authority, acceptance authority, or closeout authority is released beyond
-    `main_orchestrator`,
+  - no new governance authority, acceptance authority, or closeout authority surface is
+    released beyond `main_orchestrator`,
   - no multi-builder or multi-writer release is authorized in this arc.
 - `V35-A` state artifacts and evidence surfaces remain frozen prerequisites and are not
   redefined by this arc.
@@ -178,6 +178,7 @@ Consumption lock:
       "validator",
       "docs_helper"
     ],
+    "support_role_exercise_policy": "at_least_one_released_support_role_path_proven_not_all_enumerated_support_roles_required_to_be_exercised",
     "requested_role_field_required": true,
     "granted_role_field_required": true,
     "delegation_task_kind_field_required": true,
@@ -196,13 +197,25 @@ Consumption lock:
     "support_worker_surface_policy": "advisory_or_scratch_only_by_default_unless_explicitly_re_roled",
     "worker_direct_user_boundary_forbidden": true,
     "delegation_request_truth_policy": "delegation_requests_record_intent_only_not_accepted_effects_without_runtime_execution_and_reconciliation",
+    "claimed_work_presence_fields": [
+      "files_changed",
+      "commands_run",
+      "artifacts_produced",
+      "evidence_refs"
+    ],
     "completed_child_handoff_entry_required_when_claimed_work_present": true,
+    "zero_occurrence_empty_artifacts_required": [
+      "role_transition_record@1",
+      "role_handoff_envelope@1"
+    ],
+    "zero_occurrence_empty_artifact_policy": "deterministic_canonical_empty_artifacts_emitted_not_omitted",
     "handoff_reconciliation_required": true,
     "unreconciled_worker_output_non_authoritative": true,
     "reconciliation_minimum_checks": [
       "verify_requested_role_and_granted_role_are_recorded",
       "verify_scope_descriptor_kind_is_present_and_valid",
       "verify_evidence_refs_resolve_to_actual_outputs",
+      "verify_handoff_claimed_files_changed_or_commands_run_match_materialized_child_outputs_or_runtime_records",
       "reject_child_claims_as_authoritative_without_explicit_orchestrator_reconciliation"
     ],
     "execution_state_source_policy": "derived_from_urm_runtime_session_worker_dispatch_event_and_handoff_state_only_no_ad_hoc_ui_inference"
@@ -234,6 +247,7 @@ Consumption lock:
       "verification_passed",
       "metric_key_cardinality",
       "metric_key_exact_set_equal_v56",
+      "zero_occurrence_empty_artifacts_materialized",
       "notes"
     ]
   },
@@ -265,6 +279,17 @@ Consumption lock:
 }
 ```
 
+Interpretive notes:
+
+- `support_roles_materialized` means the bounded support-role surface is released and at
+  least one support-worker path is proven in v57; it does not require every enumerated
+  support role to be exercised in this arc.
+- `write_lease_state@1` proves current authoritative write ownership for the delegated
+  lane.
+- `role_transition_record@1` proves authority-surface transitions and explicit re-roles.
+- zero-occurrence transition or handoff cases still require deterministic empty canonical
+  artifacts rather than omission.
+
 ## B1) Single-Builder Delegation Role/Scope/Lease Baseline (`V35-B`)
 
 ### Goal
@@ -279,16 +304,24 @@ v56 orchestration-state substrate.
   - granted role,
   - delegation task kind,
   - canonical delegated scope descriptor;
-- release one authoritative `builder_worker` role and bounded non-authoritative support
-  roles:
+- release one authoritative `builder_worker` role and a bounded non-authoritative
+  support-role surface:
   - `explorer`
   - `validator`
-  - `docs_helper`;
+  - `docs_helper`
+  - v57 must prove at least one bounded support-worker path; it does not need to exercise
+    every listed support role;
 - require explicit write-lease transfer state when the delegated builder is expected to
   perform authoritative implementation work;
+- treat `write_lease_state@1` as the proof of current authoritative write ownership and
+  `role_transition_record@1` as the proof of authority-surface transitions or re-roles;
 - keep support workers advisory or scratch-only by default unless explicitly re-roled;
 - materialize non-empty `role_handoff_envelope@1` entries when completed delegated work
-  claims changed files, commands run, artifacts produced, or evidence refs;
+  claims work in any non-empty `files_changed`, `commands_run`, `artifacts_produced`, or
+  `evidence_refs` field;
+- require deterministic empty canonical `role_transition_record@1` and
+  `role_handoff_envelope@1` artifacts when no transition or no handoff occurs rather than
+  treating omission as valid;
 - keep worker output non-authoritative until explicit orchestrator reconciliation;
 - keep the main orchestrator as the sole user-facing authority surface.
 
@@ -309,10 +342,11 @@ v56 orchestration-state substrate.
 ### Acceptance
 
 - the orchestrator can run one end-to-end delegated implementation loop with:
-  - one builder,
-  - at least one support worker,
+  - one authoritative builder write lease on a write task,
+  - at least one bounded support-worker path that remains non-authoritative,
   - typed delegated scope recording,
-  - typed handoff envelope entries,
+  - one reconciled completed child handoff when claimed work is present,
+  - deterministic empty transition/handoff artifacts in zero-occurrence cases,
   - explicit orchestrator reconciliation,
   - no authority drift.
 
@@ -344,9 +378,12 @@ and prove the constitutional delegation invariants hold under the current narrow
   runtime enforcement semantics.
 - closeout proof must distinguish between:
   - delegated child-run request/lease state,
+  - authority-surface transition state,
   - typed handoff emission,
   - orchestrator reconciliation,
   - docs-side `v35b_delegation_handoff_evidence@1`.
+- `write_lease_state@1` proves current authoritative write ownership, while
+  `role_transition_record@1` proves authority-surface transitions and explicit re-roles.
 - runtime-observability evidence remains required and informational-only.
 
 ### Acceptance
@@ -356,6 +393,8 @@ and prove the constitutional delegation invariants hold under the current narrow
   remain intact;
 - completed delegated work emits typed handoff entries and explicit reconciliation
   requirement rather than relying on raw worker output alone;
+- zero-occurrence transition/handoff cases still materialize deterministic empty canonical
+  artifacts rather than relying on omission;
 - no transcript visibility or topology UX surface is required for the arc to pass.
 
 ## Stop-Gate Impact (v57)
@@ -372,6 +411,11 @@ and prove the constitutional delegation invariants hold under the current narrow
   - schema is docs-defined, but the evidence content must be materialized as a
     deterministic JSON evidence input artifact, included in the canonical closeout path,
     and treated as closeout-authoritative only after implementation,
+  - `support_roles_materialized` means the support-role surface is released and at least
+    one bounded support-worker path is proven; it does not require all enumerated support
+    roles to be exercised,
+  - `write_lease_state@1` proves current authoritative write ownership, while
+    `role_transition_record@1` proves authority-surface transitions and explicit re-roles,
   - required keys are:
     - `schema`
     - `contract_source`
@@ -396,6 +440,7 @@ and prove the constitutional delegation invariants hold under the current narrow
     - `verification_passed`
     - `metric_key_cardinality`
     - `metric_key_exact_set_equal_v56`
+    - `zero_occurrence_empty_artifacts_materialized`
     - `notes`
 
 ## Error/Exit Policy (v57)

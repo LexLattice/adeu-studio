@@ -62,8 +62,10 @@ Status: draft decision scaffold (pre-start, March 11, 2026 UTC).
 | Canonical delegation/handoff evidence emitted | required | `pending` | `v35b_delegation_handoff_evidence@1` |
 | Builder role and delegated scope are recorded canonically | required | `pending` | Requested/granted role plus scope-kind required |
 | Single-builder default remains enforced | required | `pending` | No multi-builder or multi-writer release |
+| Support-role surface is released with at least one proven support path | required | `pending` | At least one bounded support-worker path is required; not all enumerated support roles need to be exercised |
 | Support workers remain non-authoritative | required | `pending` | Advisory/scratch only unless explicitly re-roled |
 | Handoff entries and reconciliation are required | required | `pending` | Completed claimed work must not rely on raw worker output alone |
+| Zero-occurrence transition/handoff artifacts still materialize deterministically | required | `pending` | Empty canonical transition/handoff artifacts are required rather than omission |
 | Worker direct user-boundary remains forbidden | required | `pending` | No worker authoritative chat surface |
 | Runtime observability comparison captured | required | `pending` | Informational only |
 
@@ -130,7 +132,8 @@ Status: draft decision scaffold (pre-start, March 11, 2026 UTC).
   "verification_passed": null,
   "metric_key_cardinality": null,
   "metric_key_exact_set_equal_v56": null,
-  "notes": "Populate on closeout. Completed delegated work must emit typed handoff entries and remain non-authoritative until explicit orchestrator reconciliation rather than relying on raw worker output alone."
+  "zero_occurrence_empty_artifacts_materialized": null,
+  "notes": "Populate on closeout. `write_lease_state@1` proves current authoritative write ownership, `role_transition_record@1` proves authority-surface transitions and explicit re-roles, and completed delegated work must emit typed handoff entries and remain non-authoritative until explicit orchestrator reconciliation rather than relying on raw worker output alone. `support_roles_materialized` means the support-role surface is released and at least one bounded support-worker path is proven, not that every enumerated support role was exercised."
 }
 ```
 
@@ -141,6 +144,8 @@ Status: draft decision scaffold (pre-start, March 11, 2026 UTC).
 - `stop_gate_metrics@1` remains the only stop-gate schema family.
 - canonical delegated role/scope/lease and reconciled-handoff surfaces exist and are
   deterministic.
+- zero-occurrence transition/handoff cases emit deterministic empty canonical artifacts
+  rather than omission.
 - completed delegated work emits typed handoff entries and explicit reconciliation
   requirement rather than omission.
 - support workers remain non-authoritative and worker direct user-boundary release does not
