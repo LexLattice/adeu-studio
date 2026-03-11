@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from .hashing import canonical_json, sha256_canonical_json
 from .orchestration_state import (
@@ -231,7 +231,7 @@ def _load_validated_artifact(
         raise OrchestrationEvidenceError(f"{artifact_name} hash mismatch")
     try:
         model = model_type.model_validate(payload)
-    except Exception as exc:  # pragma: no cover - pydantic surface
+    except ValidationError as exc:  # pragma: no cover - pydantic surface
         raise OrchestrationEvidenceError(f"{artifact_name} payload is invalid") from exc
     return payload, model
 
