@@ -1,21 +1,24 @@
-# Draft Next Arc Options v9 (Post vNext+56, Post V35-A Closure)
+# Draft Next Arc Options v9 (Post vNext+58, Post V35-C Closure)
 
-This document defines the post-`vNext+55` planning baseline for the next ADEU-governed
+This document defines the post-`vNext+58` planning baseline for the next ADEU-governed
 implementation family.
 
-Status: active planning draft (`V34-A` through `V34-G` and `V35-A` closed; next family
-selection in progress).
+Status: active planning draft (`V34-A` through `V34-G` and `V35-A` through `V35-C`
+closed; next family selection in progress).
 
 Goal:
 
 - carry forward the completed `V34` trust/distribution line without reopening it;
 - carry forward the completed `V35-A` orchestration-state baseline without widening it
   implicitly;
+- carry forward the completed `V35-B` delegation baseline without widening it implicitly;
+- carry forward the completed `V35-C` worker visibility baseline without widening it
+  implicitly;
 - turn the multi-role execution constitution into an actual implementation roadmap;
 - make the main orchestrator the primary user-facing surface while preserving ADEU
   governance authority;
-- add worker visibility and topology observability without weakening single-writer
-  discipline, auditability, or closeout rigor.
+- add topology observability and bounded runtime hardening without weakening
+  single-writer discipline, auditability, or closeout rigor.
 
 This is a planning document only. It is not a lock doc and does not authorize runtime
 behavior changes.
@@ -38,8 +41,8 @@ behavior changes.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+56` (`V35-A`) on `main`.
-- `V34-A` through `V34-G` and `V35-A` are closed.
+- Baseline implementation is `vNext+58` (`V35-C`) on `main`.
+- `V34-A` through `V34-G` and `V35-A` through `V35-C` are closed.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
   keys only).
@@ -133,7 +136,7 @@ behavior changes.
     "from": "vNext+57",
     "to": "vNext+60"
   },
-  "default_next_arc_candidate": "V35-B",
+  "default_next_arc_candidate": "V35-D",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -468,10 +471,9 @@ bundle. The current recommendation remains:
    - closed on `vNext+57`; keep the single-builder delegation and reconciled-handoff
      baseline frozen.
 3. `V35-C`
-   - next default candidate; expose read-only worker visibility once worker state and
-     delegated handoff state are canonical.
+   - closed on `vNext+58`; keep the read-only worker visibility baseline frozen.
 4. `V35-D`
-   - add the dynamic map once the topology/state model exists.
+   - next default candidate; add the dynamic map once the visibility/state model exists.
 5. `V35-E`
    - promote bounded enforcement last, once the observable model is stable.
 
@@ -488,13 +490,13 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- select `V35-C` as the next default candidate after `V35-B` closure;
-- keep the family narrow and constitutional at first:
-  make worker transcript/progress visibility read-only and explicitly epistemic before
-  building topology or enforcement releases on top;
+- select `V35-D` as the next default candidate after `V35-C` closure;
+- keep the family narrow and constitutional:
+  make topology/duty visualization read-only and provenance-linked before building
+  runtime enforcement releases on top;
 - preserve the design rule established by the multi-role bundle:
   the orchestrator owns governance, the builder holds the current scoped write lease, and
   support workers remain observable but non-authoritative unless explicitly re-roled;
-- require worker visibility to stay derived from canonical runtime state, events, and
-  reconciled-or-pending handoff surfaces rather than ad hoc summaries or implicit truth
-  promotion.
+- require topology/duty visualization to stay derived from canonical execution-state,
+  visibility, and reconciled-or-pending handoff surfaces rather than ad hoc summaries,
+  UI-only graph state, or implicit authority promotion.
