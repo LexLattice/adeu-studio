@@ -1417,6 +1417,61 @@ def get_worker_run(
     )
 
 
+def list_copilot_child_runs_for_parent(
+    *,
+    con: sqlite3.Connection,
+    parent_session_id: str,
+) -> list[WorkerRunRow]:
+    rows = con.execute(
+        """
+        SELECT
+          worker_id,
+          created_at,
+          ended_at,
+          role,
+          provider,
+          status,
+          template_id,
+          template_version,
+          schema_version,
+          domain_pack_id,
+          domain_pack_version,
+          raw_jsonl_path,
+          exit_code,
+          error_code,
+          error_message,
+          result_json
+        FROM urm_worker_run
+        WHERE role = 'copilot_child'
+        ORDER BY created_at ASC, worker_id ASC
+        """
+    ).fetchall()
+    matching_rows: list[WorkerRunRow] = []
+    for row in rows:
+        parsed = WorkerRunRow(
+            worker_id=str(row[0]),
+            created_at=str(row[1]),
+            ended_at=str(row[2]) if row[2] is not None else None,
+            role=str(row[3]),
+            provider=str(row[4]),
+            status=str(row[5]),
+            template_id=str(row[6]) if row[6] is not None else None,
+            template_version=str(row[7]) if row[7] is not None else None,
+            schema_version=str(row[8]) if row[8] is not None else None,
+            domain_pack_id=str(row[9]) if row[9] is not None else None,
+            domain_pack_version=str(row[10]) if row[10] is not None else None,
+            raw_jsonl_path=str(row[11]) if row[11] is not None else None,
+            exit_code=int(row[12]) if row[12] is not None else None,
+            error_code=str(row[13]) if row[13] is not None else None,
+            error_message=str(row[14]) if row[14] is not None else None,
+            result_json=json.loads(str(row[15])) if row[15] is not None else None,
+        )
+        metadata = parsed.result_json if isinstance(parsed.result_json, dict) else {}
+        if metadata.get("parent_session_id") == parent_session_id:
+            matching_rows.append(parsed)
+    return matching_rows
+
+
 def get_connector_snapshot(
     *,
     con: sqlite3.Connection,
