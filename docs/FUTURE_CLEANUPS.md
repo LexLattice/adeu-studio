@@ -246,6 +246,72 @@ the sense that the roadmap still names them and current code does not implement 
   - Source:
     - `docs/ASSESSMENT_vNEXT_PLUS42_EDGES.md`
 
+### 2.3 Multi-Role Orchestration Follow-Ons
+
+- builder dry-run execution mode before granting authoritative write lease on sensitive scopes
+  - Sources:
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v9.md`
+    - prior Gemini assessment of `docs/DRAFT_NEXT_ARC_OPTIONS_v9.md`
+  - Current status:
+    - intentionally not part of the `V35` baseline family
+  - Why it is deferred:
+    - the first safe priority is canonical orchestration state, single-builder delegation,
+      read-only worker observability, and bounded enforcement;
+    - virtualized patch rehearsal or intercepted write execution is a larger execution-mode
+      expansion and should not blur the initial builder lease model.
+
+- direct user-to-worker interaction beyond orchestrator-mediated visibility
+  - Sources:
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v9.md`
+    - `docs/MULTI_ROLE_EXECUTION_CONTRACTS_v0.json`
+  - Current status:
+    - explicitly out of scope for the `V35` baseline family
+  - Why it is deferred:
+    - the orchestrator is the sole user-facing authority boundary in the baseline model;
+    - any future worker/user chat surface would need explicit mediation, provenance, and
+      authority labeling rules so it does not fragment governance.
+
+- multi-writer or split-lease implementation execution beyond the single-writer default
+  - Sources:
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v9.md`
+    - `docs/DRAFT_MULTI_ROLE_EXECUTION_LOCK_v0.md`
+    - `docs/MULTI_ROLE_EXECUTION_CONTRACTS_v0.json`
+  - Current status:
+    - explicitly out of scope for the `V35` baseline family
+  - Why it is deferred:
+    - the current constitutional model is intentionally built around one builder lease plus
+      non-authoritative support roles;
+    - multi-writer execution should only be reconsidered after canonical orchestration
+      state, handoff reconciliation, transcript visibility, and topology observability are
+      stable enough to judge the real cost/benefit.
+
+- stronger write-lease enforcement mechanisms beyond post-hoc reconciliation
+  - Sources:
+    - `docs/MULTI_ROLE_EXECUTION_CONTRACTS_v0.json`
+    - `docs/DRAFT_MULTI_ROLE_EXECUTION_LOCK_v0.md`
+    - prior Gemini/Opus assessments of the multi-role bundle
+  - Current status:
+    - not part of the baseline constitutional draft or `V35` planning family
+  - Why it is deferred:
+    - the current model is explicit about design-time governance plus post-hoc
+      reconciliation;
+    - if that proves insufficient, future work could explore stronger runtime lease
+      capability mechanisms or more explicit enforcement-state tokens under separate lock
+      text.
+
+- orchestration-package decomposition if `packages/urm_runtime` proves insufficient and
+  `packages/adeu_agent_harness` remains too dense for governance/UX logic
+  - Sources:
+    - `docs/DRAFT_NEXT_ARC_OPTIONS_v9.md`
+    - current repo audit of `packages/adeu_agent_harness`
+  - Current status:
+    - deferred architectural contingency
+  - Why it is deferred:
+    - `V35` should first prefer existing `urm_runtime` foundations;
+    - a dedicated orchestration package is worth reconsidering only if real implementation
+      pressure shows that orchestration state, visibility UX, and enforcement cannot stay
+      legible on top of the current package split.
+
 ## 3. Archived Low-Priority Legacy Evaluations
 
 These items came from the prior cleanup tracker, but the v34-v48 audit does not support

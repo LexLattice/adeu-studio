@@ -1,0 +1,390 @@
+{
+  "schema": "adeu_multi_role_execution_contracts@1",
+  "purpose": "Define authority, write-lease, artifact, handoff, and role-transition rules for ADEU-governed Codex multi-role execution.",
+  "status": "draft_non_authoritative",
+  "canonical_precedence": "This JSON artifact is the canonical contract surface. The lock and policy docs are derived interpretive layers and must not weaken or contradict this contract.",
+  "architectural_positioning": {
+    "governance_axis": "This contract family governs role authority and execution jurisdiction. It is orthogonal to the V33/V34 pipeline-contract family, which governs deterministic harness stages such as compile, verify, package, sign, and parity.",
+    "control_execution_split": "ADEU is the control plane and Codex is the execution plane.",
+    "current_enforcement_status": "design_time_contract_with_posthoc_reconciliation_only"
+  },
+  "platform_assumption": "Current Codex provides real session, tool, and sub-agent primitives but does not hard-enforce these role boundaries; ADEU orchestration is authoritative.",
+  "closed_value_sets": {
+    "role_names": [
+      "main_orchestrator",
+      "builder",
+      "explorer",
+      "validator",
+      "docs_helper"
+    ],
+    "authority_domains": [
+      "implementation",
+      "governance",
+      "advisory"
+    ],
+    "artifact_classes": [
+      "authoritative",
+      "advisory",
+      "scratch"
+    ],
+    "artifact_surfaces": [
+      "implementation",
+      "governance",
+      "mixed",
+      "none"
+    ],
+    "blocking_states": [
+      "blocking",
+      "non_blocking"
+    ]
+  },
+  "authority_tiers": [
+    [
+      "main_orchestrator"
+    ],
+    [
+      "builder"
+    ],
+    [
+      "explorer",
+      "validator",
+      "docs_helper"
+    ]
+  ],
+  "global_invariants": {
+    "governance_authority_owner": "main_orchestrator",
+    "single_writer_default": true,
+    "support_roles_non_authoritative": true,
+    "write_authority_transfer_requires_explicit_re_role": true,
+    "acceptance_authority_non_delegable": true,
+    "cross_role_artifact_execution_does_not_transfer_authority": true,
+    "self_reported_handoffs_non_authoritative_until_reconciled": true
+  },
+  "artifact_classes": {
+    "authoritative": {
+      "definition": "Artifacts that can change implementation truth or ADEU governance truth.",
+      "examples": [
+        "production code",
+        "tests treated as release gates",
+        "lock or closeout artifacts",
+        "accepted evidence inputs"
+      ],
+      "default_writers": [
+        "builder",
+        "main_orchestrator"
+      ]
+    },
+    "advisory": {
+      "definition": "Artifacts that inform judgment but do not by themselves change implementation or governance truth.",
+      "examples": [
+        "exploration reports",
+        "validation summaries",
+        "review notes",
+        "draft implementation evidence before acceptance"
+      ],
+      "default_writers": [
+        "explorer",
+        "validator",
+        "docs_helper",
+        "builder",
+        "main_orchestrator"
+      ]
+    },
+    "scratch": {
+      "definition": "Ephemeral or local working artifacts with no authority unless explicitly promoted.",
+      "examples": [
+        "temporary notes",
+        "local repro logs",
+        "throwaway scripts",
+        "private intermediate outputs"
+      ],
+      "default_writers": [
+        "main_orchestrator",
+        "builder",
+        "explorer",
+        "validator",
+        "docs_helper"
+      ]
+    }
+  },
+  "authoritative_surfaces": {
+    "implementation": {
+      "definition": "Authoritative artifacts that change implementation truth inside the implementation repo.",
+      "examples": [
+        "production code",
+        "tests treated as release gates",
+        "accepted implementation evidence inputs"
+      ]
+    },
+    "governance": {
+      "definition": "Authoritative artifacts that change ADEU governance truth.",
+      "examples": [
+        "lock artifacts",
+        "assessment artifacts",
+        "closeout artifacts",
+        "accepted governance evidence inputs"
+      ]
+    }
+  },
+  "promotion_rule": "No advisory or scratch artifact becomes authoritative without explicit main_orchestrator acceptance.",
+  "cross_role_artifact_execution_policy": {
+    "rule": "Executing an advisory or scratch artifact consumes the authority of the executor, not the author.",
+    "builder_liability_rule": "If a builder executes a support-role script or other artifact, all resulting mutations are attributed to the builder's implementation write lease.",
+    "authority_transfer_forbidden": true
+  },
+  "roles": {
+    "main_orchestrator": {
+      "lives_in": "ADEU_harness",
+      "authority_level": "governance_authority",
+      "authority_domain": "governance",
+      "write_lease": {
+        "holds_write_lease": false,
+        "may_issue_write_lease": true
+      },
+      "allowed_actions": [
+        "interpret user intent",
+        "interpret ADEU lock and governance state",
+        "decompose work",
+        "assign roles and scope",
+        "issue or revoke write lease",
+        "spawn and coordinate workers",
+        "review handoffs",
+        "accept or reject evidence",
+        "update ADEU governance artifacts",
+        "decide PR readiness, merge readiness, and closeout readiness"
+      ],
+      "forbidden_actions": [
+        "delegate final acceptance authority",
+        "delegate closeout authority",
+        "treat advisory worker output as self-authenticating"
+      ],
+      "artifact_write_classes": [
+        "authoritative",
+        "advisory",
+        "scratch"
+      ],
+      "authoritative_surfaces": [
+        "governance"
+      ]
+    },
+    "builder": {
+      "lives_in": "implementation_repo",
+      "authority_level": "implementation_authority_scoped",
+      "authority_domain": "implementation",
+      "write_lease": {
+        "holds_write_lease": true,
+        "lease_kind": "exclusive",
+        "lease_scope": "assigned_files_or_modules_only",
+        "lease_owner_count": 1,
+        "lease_transfer": "explicit_main_orchestrator_only"
+      },
+      "allowed_actions": [
+        "edit production code within leased scope",
+        "edit tests within leased scope",
+        "run repo-local gates",
+        "integrate accepted support findings",
+        "prepare branch, commit, and PR updates",
+        "emit implementation evidence"
+      ],
+      "forbidden_actions": [
+        "modify ADEU governance artifacts",
+        "declare slice accepted or closed",
+        "expand scope without approval",
+        "spawn another writer without approval"
+      ],
+      "must_not_claim": [
+        "acceptance",
+        "closure",
+        "governance sufficiency"
+      ],
+      "artifact_write_classes": [
+        "authoritative",
+        "advisory",
+        "scratch"
+      ],
+      "authoritative_surfaces": [
+        "implementation"
+      ]
+    },
+    "explorer": {
+      "lives_in": "implementation_repo",
+      "authority_level": "advisory_information_only",
+      "authority_domain": "advisory",
+      "write_lease": {
+        "holds_write_lease": false,
+        "may_hold_scratch_lease": true
+      },
+      "allowed_actions": [
+        "inspect files",
+        "search symbols and history",
+        "answer bounded codebase questions",
+        "identify risks and dependencies",
+        "emit advisory reports"
+      ],
+      "forbidden_actions": [
+        "edit authoritative implementation artifacts by default",
+        "declare completion or acceptance",
+        "self-upgrade into writer"
+      ],
+      "must_not_claim": [
+        "implementation_complete",
+        "evidence_sufficient_for_acceptance"
+      ],
+      "artifact_write_classes": [
+        "advisory",
+        "scratch"
+      ]
+    },
+    "validator": {
+      "lives_in": "implementation_repo",
+      "authority_level": "evidence_authority_non_acceptance",
+      "authority_domain": "advisory",
+      "write_lease": {
+        "holds_write_lease": false,
+        "may_hold_scratch_lease": true
+      },
+      "allowed_actions": [
+        "run tests, lint, build, repro, and targeted checks",
+        "report pass or fail outcomes",
+        "report gaps and residual risks",
+        "emit evidence reports"
+      ],
+      "forbidden_actions": [
+        "edit authoritative implementation artifacts by default",
+        "declare evidence sufficient for acceptance",
+        "quietly fix failures unless re-roled"
+      ],
+      "must_not_claim": [
+        "acceptance",
+        "closure"
+      ],
+      "artifact_write_classes": [
+        "advisory",
+        "scratch"
+      ]
+    },
+    "docs_helper": {
+      "lives_in": "implementation_repo",
+      "authority_level": "advisory_documentation_only",
+      "authority_domain": "advisory",
+      "write_lease": {
+        "holds_write_lease": false,
+        "may_hold_doc_draft_scope": true
+      },
+      "allowed_actions": [
+        "draft repo-local docs",
+        "summarize implementation changes",
+        "prepare non-authoritative release notes"
+      ],
+      "forbidden_actions": [
+        "modify ADEU governance artifacts by default",
+        "change implementation code by default",
+        "declare closure or acceptance"
+      ],
+      "must_not_claim": [
+        "accepted",
+        "closed"
+      ],
+      "artifact_write_classes": [
+        "advisory",
+        "scratch"
+      ]
+    }
+  },
+  "write_lease_rules": [
+    "There is exactly one exclusive authoritative implementation write lease by default.",
+    "The builder holds the current write lease for the assigned scope only.",
+    "The write lease is bounded by scope, time, and ownership surface.",
+    "The main_orchestrator may revoke, narrow, or transfer the lease explicitly.",
+    "Support roles may not self-upgrade into lease holders.",
+    "If a support role must edit authoritative implementation artifacts, it must be explicitly re-roled and granted a new lease.",
+    "Prior advisory output from a re-roled worker remains advisory unless separately accepted."
+  ],
+  "role_transition_protocol": {
+    "transition_rules": [
+      "No role may self-upgrade authority_level.",
+      "Any transition that changes authoritative write rights requires explicit main_orchestrator approval.",
+      "Every transition must declare new role, new scope_owned, and whether authoritative write access is granted.",
+      "A support role becoming a builder is a new lease event, not an implicit continuation.",
+      "A builder losing scope or authority must have the lease explicitly revoked or narrowed.",
+      "Role transition records are part of orchestration state and may be cited in closeout reasoning."
+    ],
+    "required_transition_fields": [
+      "from_role",
+      "to_role",
+      "authority_level_before",
+      "authority_level_after",
+      "scope_owned",
+      "reason",
+      "effective_time",
+      "granted_by"
+    ]
+  },
+  "shared_handoff_envelope": {
+    "schema": "role_handoff_envelope@1",
+    "trust_model": "Worker-supplied handoff envelopes are self-reported claims until main_orchestrator reconciles them against observed repo state, command output, and emitted artifacts.",
+    "required_fields": [
+      "role",
+      "authority_level",
+      "authority_domain",
+      "artifact_class",
+      "artifact_surface",
+      "repo_root",
+      "branch_or_head",
+      "scope_owned",
+      "scope_remaining",
+      "files_changed",
+      "commands_run",
+      "artifacts_produced",
+      "evidence_refs",
+      "status",
+      "blocking_state",
+      "blockers",
+      "open_risks",
+      "escalation_reason",
+      "recommended_next_action"
+    ],
+    "field_policies": {
+      "authority_level": "must reflect current contract role, not claimed importance",
+      "authority_domain": "must be one of implementation, governance, or advisory",
+      "artifact_class": "must classify produced output as authoritative, advisory, or scratch",
+      "artifact_surface": "must identify the relevant surface as implementation, governance, mixed, or none",
+      "evidence_refs": "must point to concrete files, logs, or command outputs where applicable",
+      "blocking_state": "must be either blocking or non_blocking and must describe urgency to the orchestrator, not subjective effort",
+      "escalation_reason": "always required; must be an empty string when no escalation exists and a non-empty explanation when escalation exists",
+      "files_changed": "self-reported and non-authoritative until reconciled against observed repo state",
+      "commands_run": "self-reported and non-authoritative until reconciled against observed execution evidence",
+      "artifacts_produced": "self-reported and non-authoritative until reconciled against actual emitted artifacts"
+    }
+  },
+  "handoff_reconciliation_rules": {
+    "required": true,
+    "performed_by": "main_orchestrator",
+    "minimum_checks": [
+      "recompute effective files_changed from observed repo diff or equivalent state witness",
+      "compare claimed scope_owned against observed mutation surface",
+      "verify evidence_refs resolve to actual files, logs, or outputs where applicable",
+      "reject lease-scope sufficiency claims based on self-report alone"
+    ]
+  },
+  "acceptance_boundary": [
+    "Only main_orchestrator may decide that evidence is sufficient for acceptance.",
+    "Validator may report pass, fail, or unresolved gaps, but may not declare acceptance.",
+    "Explorer may report likely truth, but may not declare acceptance.",
+    "Builder may report implementation completion within scope, but may not declare slice acceptance or closure.",
+    "Docs_helper may draft explanatory text, but may not generate authoritative closeout language."
+  ],
+  "default_operating_topology": {
+    "main_orchestrator_count": 1,
+    "builder_count": 1,
+    "explorer_count": "0_or_more",
+    "validator_count": "0_or_more",
+    "docs_helper_count": "0_or_more"
+  },
+  "default_rules": [
+    "Single builder is the default for one implementation repo.",
+    "Multiple writers are forbidden unless explicitly authorized by main_orchestrator.",
+    "Support roles should prefer advisory and evidence output over direct mutation.",
+    "ADEU remains the governance and closeout authority layer."
+  ]
+}
