@@ -67,6 +67,7 @@ from urm_runtime.orchestration_evidence import (
     OrchestrationEvidenceError,
     materialize_v35a_orchestration_state_evidence,
     materialize_v35b_delegation_handoff_evidence,
+    materialize_v35c_transcript_visibility_evidence,
 )
 from urm_runtime.orchestration_state import MaterializedOrchestrationArtifacts, RoleHandoffEntry
 from urm_runtime.policy_governance import materialize_policy
@@ -82,6 +83,7 @@ from urm_runtime.storage import (
     update_copilot_session_status,
     upsert_dispatch_token_queued,
 )
+from urm_runtime.worker_visibility import MaterializedWorkerVisibilityArtifacts
 
 
 def _prepare_fake_codex(*, tmp_path: Path) -> Path:
@@ -266,6 +268,33 @@ def _materialize_v35b_evidence(
     }
 
 
+def _materialize_v35c_evidence(
+    *,
+    repo_root: Path,
+    config: URMRuntimeConfig,
+    orchestration_artifacts: MaterializedOrchestrationArtifacts,
+    visibility_artifacts: MaterializedWorkerVisibilityArtifacts,
+) -> dict[str, object]:
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel="artifacts/stop_gate/metrics_v57_closeout.json",
+        current_rel="artifacts/stop_gate/metrics_v58_closeout.json",
+    )
+    evidence = materialize_v35c_transcript_visibility_evidence(
+        repo_root=repo_root,
+        var_root=config.var_root,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+        output_path="artifacts/agent_harness/v58/evidence_inputs/v35c_transcript_visibility_evidence_v58.json",
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
 def _materialize_v35b_builder_support_artifacts(
     *,
     tmp_path: Path,
@@ -368,6 +397,166 @@ def _materialize_v35b_builder_support_artifacts(
     return config, artifacts
 
 
+def _materialize_v35c_builder_support_artifacts(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[
+    URMRuntimeConfig,
+    MaterializedOrchestrationArtifacts,
+    MaterializedWorkerVisibilityArtifacts,
+]:
+    config, orchestration_artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    manager = _get_manager()
+    visibility_artifacts = manager.materialize_worker_visibility_state(
+        session_id=orchestration_artifacts.session_id
+    )
+    return config, orchestration_artifacts, visibility_artifacts
+
+
+def _materialize_v35c_bridge_artifacts(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[
+    URMRuntimeConfig,
+    MaterializedOrchestrationArtifacts,
+    MaterializedWorkerVisibilityArtifacts,
+]:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "v35c-bridge-child-1"
+    parent_session_id = "v35c-bridge-parent-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    events_path.write_text("", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="running",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-v35c-bridge-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "queue_seq": 1,
+                "dispatch_seq": 1,
+                "lease_id": child_id,
+                "phase": "started",
+                "parent_seq": 9,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=9,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+        set_dispatch_token_phase(con=con, child_id=child_id, phase="started")
+
+    manager = _get_manager()
+    orchestration_artifacts = manager.materialize_orchestration_state(
+        session_id=parent_session_id
+    )
+    visibility_artifacts = manager.materialize_worker_visibility_state(
+        session_id=parent_session_id
+    )
+    return config, orchestration_artifacts, visibility_artifacts
+
+
+def _materialize_v35c_running_artifacts(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[
+    URMRuntimeConfig,
+    MaterializedOrchestrationArtifacts,
+    MaterializedWorkerVisibilityArtifacts,
+]:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "1.0")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="v35c-running-start-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="v35c-running-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "v35c-running-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+    spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="v35c-running-spawn-1",
+            prompt="inspect the api lane",
+            target_turn_id="turn-v35c-running-1",
+        )
+    )
+
+    manager = _get_manager()
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(spawn.child_id)) is not None
+            and child.status == "running"
+            and child.child_thread_id is not None
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    config = URMRuntimeConfig.from_env()
+    orchestration_artifacts = manager.materialize_orchestration_state(session_id=session_id)
+    visibility_artifacts = manager.materialize_worker_visibility_state(session_id=session_id)
+    return config, orchestration_artifacts, visibility_artifacts
+
+
 def _rewrite_orchestration_artifact(
     *,
     config: URMRuntimeConfig,
@@ -384,6 +573,25 @@ def _rewrite_orchestration_artifact(
         payload=payload,
     )
     return replace(artifacts, **{field_name: updated_artifact})
+
+
+def _rewrite_visibility_artifact(
+    *,
+    config: URMRuntimeConfig,
+    artifacts: MaterializedWorkerVisibilityArtifacts,
+    payload: dict[str, object],
+) -> MaterializedWorkerVisibilityArtifacts:
+    artifact = artifacts.worker_visibility_state
+    path = config.var_root / artifact.path
+    path.write_text(canonical_json(payload), encoding="utf-8")
+    return replace(
+        artifacts,
+        worker_visibility_state=replace(
+            artifact,
+            hash=sha256_canonical_json(payload),
+            payload=payload,
+        ),
+    )
 
 
 def test_materialize_policy_rejects_conflicting_payload_for_existing_hash(
@@ -4412,6 +4620,363 @@ def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_worker_use
             repo_root=tmp_path,
             config=config,
             artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_transcript_visibility_evidence_is_deterministic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = (
+        _materialize_v35c_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+
+    first = _materialize_v35c_evidence(
+        repo_root=tmp_path,
+        config=config,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+    )
+    second = _materialize_v35c_evidence(
+        repo_root=tmp_path,
+        config=config,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+    )
+
+    assert first["artifact"].hash == second["artifact"].hash
+    payload = first["payload"]
+    assert payload["schema"] == "v35c_transcript_visibility_evidence@1"
+    assert payload["read_only_visibility_preserved"] is True
+    assert payload["epistemic_lane_labels_present"] is True
+    assert payload["explicit_lane_absence_materialized"] is True
+    assert payload["explicit_divergence_state_materialized"] is True
+    assert payload["continuation_bridge_visibility_present_when_available"] is False
+    assert payload["no_ad_hoc_progress_summary_bypass"] is True
+    assert payload["raw_transcript_non_authoritative"] is True
+    assert payload["worker_self_report_non_authoritative_until_reconciled"] is True
+    assert payload["worker_direct_user_boundary_forbidden"] is True
+    assert payload["verification_passed"] is True
+    assert payload["metric_key_cardinality"] == 80
+    assert payload["metric_key_exact_set_equal_v57"] is True
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_transcript_visibility_evidence_records_bridge_when_present(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = _materialize_v35c_bridge_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+
+    evidence = _materialize_v35c_evidence(
+        repo_root=tmp_path,
+        config=config,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+    )
+
+    assert evidence["payload"]["continuation_bridge_visibility_present_when_available"] is True
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_visibility_evidence_fails_closed_on_missing_visibility_artifact(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = (
+        _materialize_v35c_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    (config.var_root / visibility_artifacts.worker_visibility_state.path).unlink()
+
+    with pytest.raises(OrchestrationEvidenceError, match="worker_visibility_state.json"):
+        _materialize_v35c_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_transcript_visibility_evidence_fails_closed_on_missing_lane_label(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = (
+        _materialize_v35c_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    visibility_payload["epistemic_lane_enum"][0] = "worker_self_report"
+    visibility_artifacts = _rewrite_visibility_artifact(
+        config=config,
+        artifacts=visibility_artifacts,
+        payload=visibility_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError, match="epistemic lane labels must remain frozen"
+    ):
+        _materialize_v35c_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_transcript_visibility_evidence_fails_closed_on_omitted_absent_lane(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = (
+        _materialize_v35c_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    visibility_payload["workers"][0]["epistemic_lanes"] = [
+        lane
+        for lane in visibility_payload["workers"][0]["epistemic_lanes"]
+        if lane["lane"] != "orchestrator_judgment"
+    ]
+    visibility_artifacts = _rewrite_visibility_artifact(
+        config=config,
+        artifacts=visibility_artifacts,
+        payload=visibility_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError, match="lane absence may not be silently omitted"
+    ):
+        _materialize_v35c_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_transcript_visibility_evidence_fails_closed_on_missing_divergence_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = _materialize_v35c_running_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    visibility_payload["workers"][0]["divergence_state"] = "aligned"
+    visibility_artifacts = _rewrite_visibility_artifact(
+        config=config,
+        artifacts=visibility_artifacts,
+        payload=visibility_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="divergence state must be explicit when lanes do not align",
+    ):
+        _materialize_v35c_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_transcript_visibility_evidence_fails_closed_on_flattened_continuity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = _materialize_v35c_bridge_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    visibility_payload["compaction_seams"] = []
+    visibility_artifacts = _rewrite_visibility_artifact(
+        config=config,
+        artifacts=visibility_artifacts,
+        payload=visibility_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="compaction or continuation bridge continuity silently flattened",
+    ):
+        _materialize_v35c_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_transcript_visibility_evidence_fails_closed_on_progress_bypass(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = (
+        _materialize_v35c_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    builder_worker = next(
+        worker for worker in visibility_payload["workers"] if worker["role"] == "builder_worker"
+    )
+    builder_worker["requested_role"] = "docs_helper"
+    visibility_artifacts = _rewrite_visibility_artifact(
+        config=config,
+        artifacts=visibility_artifacts,
+        payload=visibility_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="progress fields must be derived from canonical state and child role",
+    ):
+        _materialize_v35c_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_transcript_visibility_evidence_fails_closed_on_raw_authority_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = (
+        _materialize_v35c_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    visibility_payload["workers"][0]["raw_transcript_non_authoritative"] = False
+    visibility_artifacts = _rewrite_visibility_artifact(
+        config=config,
+        artifacts=visibility_artifacts,
+        payload=visibility_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="raw transcript rendered as authoritative",
+    ):
+        _materialize_v35c_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_visibility_evidence_fails_closed_on_self_report_authority_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = (
+        _materialize_v35c_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    builder_worker = next(
+        worker for worker in visibility_payload["workers"] if worker["role"] == "builder_worker"
+    )
+    builder_worker["worker_self_report_non_authoritative_until_reconciled"] = False
+    visibility_artifacts = _rewrite_visibility_artifact(
+        config=config,
+        artifacts=visibility_artifacts,
+        payload=visibility_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="worker self-report rendered as reconciled without explicit reconciliation",
+    ):
+        _materialize_v35c_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35c_transcript_visibility_evidence_fails_closed_on_worker_user_boundary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = (
+        _materialize_v35c_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    visibility_payload["workers"][0]["direct_user_boundary_established"] = True
+    visibility_artifacts = _rewrite_visibility_artifact(
+        config=config,
+        artifacts=visibility_artifacts,
+        payload=visibility_payload,
+    )
+
+    with pytest.raises(OrchestrationEvidenceError, match="worker direct user boundary established"):
+        _materialize_v35c_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
         )
     _reset_manager_for_tests()
 
