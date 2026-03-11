@@ -1,9 +1,9 @@
-# Assessment vNext+57 Edges (Pre-Lock)
+# Assessment vNext+57 Edges (Post Closeout)
 
-This document records the pre-lock edge assessment for `vNext+57` (`V35-B`
-single-builder delegation and reconciled handoffs).
+This document records edge disposition for `vNext+57` (`V35-B` single-builder delegation
+and reconciled handoffs) after arc closeout.
 
-Status: pre-lock assessment (March 11, 2026 UTC).
+Status: post-closeout assessment (March 11, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -11,19 +11,20 @@ Status: pre-lock assessment (March 11, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS57_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
-  "authoritative_scope": "v57_pre_lock_edge_assessment",
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v57_closeout_edge_disposition",
   "required_in_decision": true,
-  "notes": "This pre-lock edge set is superseded by post-closeout disposition once v57 closes."
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
 ## Scope
 
-- In scope: thin `V35-B` baseline over delegated builder/support roles, canonical delegated
-  scope recording, single-builder write-lease posture, typed handoff emission, explicit
-  orchestrator reconciliation, and closeout evidence integration.
+- In scope: thin `V35-B` baseline over released builder/support roles, canonical delegated
+  role/scope recording, single-builder write-lease posture, typed completed-work handoff
+  emission, explicit orchestrator reconciliation requirement, and closeout evidence
+  integration.
 - Out of scope: worker transcript visibility, topology/duty map UX, runtime enforcement
   promotion, multi-builder release, direct worker/user interaction, stop-gate schema-family
   fork, metric-key expansion, and the separate `O1`/`O2`/`O3` closeout-hardening bundle.
@@ -31,135 +32,145 @@ Status: pre-lock assessment (March 11, 2026 UTC).
 ## Inputs
 
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v9.md`
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS56.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS56.md`
-- `docs/ASSESSMENT_vNEXT_PLUS56_EDGES.md`
-- `docs/MULTI_ROLE_EXECUTION_CONTRACTS_v0.json`
-- `docs/DRAFT_MULTI_ROLE_EXECUTION_LOCK_v0.md`
-- `docs/DRAFT_MULTI_ROLE_EXECUTION_POLICY_v0.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS57.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS57.md`
+- `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - `docs/FUTURE_CLEANUPS.md`
 - `packages/urm_runtime/src/urm_runtime/models.py`
 - `packages/urm_runtime/src/urm_runtime/roles.py`
 - `packages/urm_runtime/src/urm_runtime/child_dispatch.py`
-- `packages/urm_runtime/src/urm_runtime/child_workflow.py`
-- `packages/urm_runtime/src/urm_runtime/child_recovery.py`
-- `packages/urm_runtime/src/urm_runtime/storage.py`
 - `packages/urm_runtime/src/urm_runtime/orchestration_state.py`
 - `packages/urm_runtime/src/urm_runtime/orchestration_evidence.py`
 - `packages/urm_runtime/src/urm_runtime/copilot.py`
+- `packages/urm_runtime/src/urm_runtime/storage.py`
+- `apps/api/src/adeu_api/urm_routes.py`
+- `apps/api/tests/test_urm_copilot_routes.py`
+- `artifacts/quality_dashboard_v57_closeout.json`
+- `artifacts/stop_gate/metrics_v57_closeout.json`
+- `artifacts/agent_harness/v57/evidence_inputs/metric_key_continuity_assertion_v57.json`
+- `artifacts/agent_harness/v57/evidence_inputs/runtime_observability_comparison_v57.json`
+- `artifacts/agent_harness/v57/evidence_inputs/v35b_delegation_handoff_evidence_v57.json`
+- `artifacts/agent_harness/v57/runtime/evidence/codex/orchestration_state/v57-closeout-main-1/`
+- merged PRs: `#263`, `#264`
 
-## Current-State Assessment
+## Pre-Lock Edge Set Outcome (v57 Closeout)
 
-- `v56` now provides real canonical orchestration-state artifacts and closeout evidence, so
-  `V35-B` no longer needs to solve the state-materialization problem first.
-- `urm_runtime` already contains real child dispatch, workflow, recovery, budgeting,
-  capability policy, event tracking, and persisted child-run foundations.
-- The missing surface is not “delegation primitives exist or not”; it is whether the
-  current runtime materializes one released delegated-builder and reconciled-handoff lane
-  with explicit role, scope, lease, and reconciliation state suitable for ADEU governance
-  and later visibility UX.
+1. Released builder role absence: `resolved`.
+   - `builder_worker` now exists as a released runtime role and is exercised in the
+     committed v57 closeout fixture.
+2. Released support-role enum absence: `resolved`.
+   - released support roles now exist on `main`, and the closeout fixture proves one
+     bounded support path via `explorer`.
+3. Delegation request role gap: `resolved`.
+   - requested and granted roles are now recorded canonically on spawn, persisted child
+     rows, topology edges, snapshot roles, write-lease observations, and handoff evidence.
+4. Delegation task-kind gap: `resolved`.
+   - canonical `delegation_task_kind` now survives across runtime state and evidence.
+5. Delegated scope descriptor gap: `resolved`.
+   - delegated scope kind, values, artifact surfaces, and rationale are now carried through
+     canonical runtime state and evidence.
+6. Builder write-lease transfer gap: `resolved`.
+   - the committed v57 write-lease fixture records one authoritative builder
+     `write_task` dispatch observation and restoration of authoritative ownership to the
+     main orchestrator after completion.
+7. Builder/support role distinction gap: `resolved`.
+   - canonical snapshot/topology state now differentiates `builder_worker` from advisory
+     support roles instead of collapsing all child runs into one generic child role.
+8. Typed completed-work handoff gap: `resolved`.
+   - `role_handoff_envelope@1` now emits non-empty typed entries for both completed child
+     paths in the committed fixture.
+9. Explicit orchestrator reconciliation gap: `resolved`.
+   - committed v57 handoff entries require explicit orchestrator reconciliation and remain
+     pending reconciliation by default.
+10. Unreconciled worker-output truth ambiguity risk: `resolved`.
+    - v57 evidence now fails closed if worker output is treated as accepted truth without
+      the frozen reconciliation posture.
+11. Single-builder default guard gap: `resolved`.
+    - v57 runtime/evidence now proves one-builder default and fails closed on multi-builder
+      drift.
+12. Support-worker authority drift risk: `resolved`.
+    - v57 evidence now fails closed if support workers drift into authoritative
+      implementation authority without explicit rerole.
+13. Worker direct user-boundary drift risk under delegated execution: `resolved`.
+    - v57 evidence now fails closed on worker direct user-boundary drift, and the committed
+      fixture keeps both child actors non-user-facing.
+14. Evidence integration gap: `resolved`.
+    - canonical `v35b_delegation_handoff_evidence@1` now exists on `main` and is linked to
+      committed runtime artifact hashes.
+15. Placement/accretion risk: `resolved`.
+    - the delegation/handoff baseline landed in `packages/urm_runtime` rather than
+      accreting new delegation governance into `packages/adeu_agent_harness`.
+16. Guard coverage gap for role/scope/handoff failures: `resolved`.
+    - merged B2 guards now cover missing requested roles, missing builder leases, extra or
+      missing handoff entries, support authority drift, unreconciled truth drift,
+      multi-builder drift, and worker boundary drift.
 
-## Pre-Lock Edge Set (v57)
+## Guard Coverage Outcome
 
-1. Released builder role absence: `open`.
-   - no `builder_worker` role exists in `urm_runtime.roles.ROLE_REGISTRY`.
-2. Released support-role enum absence: `open`.
-   - no released `explorer` / `validator` / `docs_helper` runtime role set exists on
-     `main`.
-3. Delegation request role gap: `open`.
-   - `AgentSpawnRequest` does not currently record requested role or granted role.
-4. Delegation task-kind gap: `open`.
-   - current child-run request state does not record a canonical delegation task kind.
-5. Delegated scope descriptor gap: `open`.
-   - current child-run request state does not record canonical scope kind or scoped values
-     at the delegation boundary.
-6. Builder write-lease transfer gap: `open`.
-   - current runtime records only parent `writes_allowed` and generic dispatch leases, not
-     an explicit authoritative builder write-lease transfer baseline.
-7. Builder/support role distinction gap: `open`.
-   - current runtime materializes all child runs as generic `support_worker` state in the
-     canonical snapshot.
-8. Typed completed-work handoff gap: `open`.
-   - `role_handoff_envelope@1` exists, but no released runtime path currently emits
-     non-empty typed handoff entries for completed delegated work.
-9. Explicit orchestrator reconciliation gap: `open`.
-   - current repo state does not yet record an explicit orchestrator reconciliation step
-     before worker output is treated as evidence-bearing delegated work.
-10. Unreconciled worker-output truth ambiguity risk: `open`.
-    - current child workflow can complete generic delegated work, but no released runtime
-      contract yet fail-closes on treating raw child output as accepted truth without
-      reconciliation.
-11. Single-builder default guard gap: `open`.
-    - v56 proves single-writer default at orchestration-state level, but no released v57
-      lane yet guards against multiple authoritative builders in delegated execution.
-12. Support-worker authority drift risk: `open`.
-    - current generic child workflow does not yet distinguish support-worker advisory output
-      from authoritative builder output in released runtime policy/state.
-13. Worker direct user-boundary drift risk under delegated execution: `open`.
-    - v56 proves the current boundary posture, but no released `V35-B` evidence lane yet
-      proves that delegated builder/support execution preserves it.
-14. Evidence integration gap: `open`.
-    - no released `v35b_delegation_handoff_evidence@1` block exists on `main`.
-15. Placement/accretion risk: `open`.
-    - `adeu_agent_harness` is already dense; without explicit placement discipline, V35-B
-      could wrongly accrete delegation governance into pipeline modules rather than
-      extending `urm_runtime`.
-16. Guard coverage gap for role/scope/handoff failures: `open`.
-    - current repo state does not yet release deterministic guard coverage for invalid
-      requested roles, missing scope kind, missing handoff entries, unreconciled output
-      acceptance, or support-worker authority drift.
+- merged `B1`/`B2` guard suites cover the required v57 delegation/handoff baseline and
+  closeout-evidence conditions listed in the pre-lock planning set.
+- merged implementation files:
+  - `packages/urm_runtime/src/urm_runtime/models.py`
+  - `packages/urm_runtime/src/urm_runtime/roles.py`
+  - `packages/urm_runtime/src/urm_runtime/child_dispatch.py`
+  - `packages/urm_runtime/src/urm_runtime/orchestration_state.py`
+  - `packages/urm_runtime/src/urm_runtime/orchestration_evidence.py`
+  - `packages/urm_runtime/src/urm_runtime/copilot.py`
+  - `packages/urm_runtime/src/urm_runtime/storage.py`
+  - `apps/api/src/adeu_api/urm_routes.py`
+- merged guard file:
+  - `apps/api/tests/test_urm_copilot_routes.py`
+- v57 closeout artifact regeneration on `main` emitted:
+  - committed parent/support/builder URM event streams backing the closeout fixture
+  - committed orchestration-state snapshot / topology / write-lease / transition / handoff
+    artifacts
+  - canonical `metric_key_continuity_assertion@1`
+  - canonical `runtime_observability_comparison@1`
+  - canonical `v35b_delegation_handoff_evidence@1`
+- closeout posture remains intentionally lighter than the separate hardening bundle:
+  - no new cumulative closeout bundle, index, or adjudication scaffold was added in v57
+    because `O1`/`O2`/`O3` remain explicitly deferred.
 
-## Guard and Sequencing Recommendation
-
-- The next safe step is still `V35-B` only.
-- `v57` should remain a delegated-execution and reconciled-handoff slice, not a visibility
-  or enforcement slice.
-- `B1` should establish released builder/support roles, delegated role/scope recording, and
-  explicit single-builder lease posture.
-- `B1` should define claimed-work presence explicitly as any non-empty `files_changed`,
-  `commands_run`, `artifacts_produced`, or `evidence_refs` field and should require
-  deterministic empty transition/handoff artifacts in zero-occurrence cases.
-- `B1` should keep worker outputs non-authoritative until explicit orchestrator
-  reconciliation and should emit typed handoff entries when delegated work claims concrete
-  outputs.
-- `B2` should prove those invariants via closeout evidence integration and guards.
-- `B2` should keep transcript visibility, topology UX, and runtime promotion hardening out
-  of scope.
-- `V35-C` through `V35-E` should remain deferred until the delegated builder/handoff
-  substrate is real.
-
-## Stop-Gate Continuity Expectation
+## Stop-Gate Continuity Outcome
 
 ```json
 {
-  "schema": "v57_prelock_edge_summary@1",
+  "schema": "v57_edge_closeout_summary@1",
   "arc": "vNext+57",
   "target_path": "V35-B",
   "prelock_edge_count": 16,
+  "resolved_edge_count": 16,
+  "open_blocking_edges": 0,
   "stop_gate_schema_family": "stop_gate_metrics@1",
-  "metric_key_cardinality_baseline": 80,
-  "expected_metric_key_exact_set_equal_v56": true,
-  "blocking_edges_before_lock": [
-    "released_builder_role_absence",
-    "delegation_request_role_gap",
-    "delegated_scope_descriptor_gap",
-    "builder_write_lease_transfer_gap",
-    "typed_completed_work_handoff_gap",
-    "explicit_orchestrator_reconciliation_gap",
-    "evidence_integration_gap",
-    "guard_coverage_gap_for_role_scope_handoff_failures"
-  ]
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v56": true,
+  "all_passed": true,
+  "blocking_issues": []
 }
 ```
 
-## Recommendation
+## Residual Risks (Post v57)
 
-1. Proceed with a thin `V35-B` baseline only.
-2. Treat `packages/urm_runtime` as the preferred delegation/handoff foundation for the arc.
-3. Keep transcript visibility, topology UX, runtime enforcement, and multi-builder release
-   out of scope for `v57`.
-4. Require explicit delegated role and scope recording, single-builder lease posture, typed
-   handoff emission, and explicit orchestrator reconciliation before later `V35` paths are
-   considered.
-5. Require canonical evidence integration and deterministic guard coverage before richer
-   visibility or enforcement slices are considered.
+1. Worker transcript visibility remains intentionally deferred; v57 does not release any
+   transcript UX or worker-facing user surface.
+2. Topology/duty visualization remains deferred; v57 releases delegation/handoff state and
+   topology artifacts only, not a topology UI.
+3. Runtime constitutional enforcement remains deferred; v57 proves the delegation
+   invariants through materialized state plus guards, not runtime promotion logic.
+4. Multi-builder execution and direct worker/user interaction remain deferred; v57 closes a
+   single-builder orchestrator-mediated delegation baseline only.
+5. Closeout hardening remains incomplete by design; `O1` closeout extraction, `O2`
+   artifact index/lint, and `O3` advisory adjudication are still separate operational
+   follow-ons.
+
+## Recommendation (Post Closeout)
+
+1. Mark the v57 edge set as closed with no blocking issues.
+2. Treat the committed v57 runtime fixture, committed orchestration-state artifacts over
+   the frozen v56 schema family, and canonical `v35b_delegation_handoff_evidence@1` as
+   part of the released closeout surface going forward.
+3. Keep worker transcript visibility, topology UX, runtime enforcement, multi-builder
+   execution, and direct worker/user interaction explicitly deferred unless released under
+   new lock text.
+4. Treat any next step as a fresh `V35-C` planning/lock pass rather than re-opening or
+   widening the closed `V35-B` delegation/handoff baseline.
