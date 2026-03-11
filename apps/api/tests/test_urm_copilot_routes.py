@@ -25,6 +25,7 @@ from adeu_api.urm_routes import (
     urm_copilot_start_endpoint,
     urm_copilot_steer_endpoint,
     urm_copilot_stop_endpoint,
+    urm_copilot_visibility_endpoint,
     urm_policy_active_endpoint,
     urm_policy_profile_current_endpoint,
     urm_policy_profile_list_endpoint,
@@ -3400,6 +3401,238 @@ def test_materialize_orchestration_state_records_audit_bridge_for_restart_recove
     )
     assert topology["compaction_seams"]
     assert topology["compaction_seams"][0]["target_stream_id"] == (f"urm_audit:{parent_session_id}")
+    _reset_manager_for_tests()
+
+
+def test_materialize_worker_visibility_state_is_deterministic_and_route_visible(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    manager = _get_manager()
+
+    first = manager.materialize_worker_visibility_state(session_id=artifacts.session_id)
+    second = manager.materialize_worker_visibility_state(session_id=artifacts.session_id)
+
+    assert first.worker_visibility_state.hash == second.worker_visibility_state.hash
+
+    payload = _load_materialized_json(
+        config=config,
+        relative_path=first.worker_visibility_state.path,
+    )
+    assert payload["schema"] == "worker_visibility_state@1"
+    assert payload["parent_session_id"] == artifacts.session_id
+    assert payload["worker_visibility_foundation_package"] == "packages/urm_runtime"
+    assert payload["read_only_visibility_required"] is True
+    assert payload["worker_direct_user_boundary_forbidden"] is True
+    assert payload["epistemic_lane_enum"] == [
+        "raw_transcript",
+        "worker_self_report",
+        "reconciled_handoff",
+        "orchestrator_judgment",
+    ]
+    assert payload["epistemic_lane_status_enum"] == [
+        "available",
+        "pending_parse",
+        "pending_reconciliation",
+        "not_available",
+        "parsing_failure",
+        "reconciliation_aborted",
+    ]
+    assert [worker["role"] for worker in payload["workers"]] == [
+        "explorer",
+        "builder_worker",
+    ]
+    for worker in payload["workers"]:
+        assert [lane["lane"] for lane in worker["epistemic_lanes"]] == [
+            "raw_transcript",
+            "worker_self_report",
+            "reconciled_handoff",
+            "orchestrator_judgment",
+        ]
+        assert worker["raw_transcript_non_authoritative"] is True
+        assert worker["worker_self_report_non_authoritative_until_reconciled"] is True
+        assert worker["direct_user_boundary_established"] is False
+        assert worker["divergence_state"] == "aligned"
+
+    builder_worker = next(
+        worker for worker in payload["workers"] if worker["role"] == "builder_worker"
+    )
+    assert builder_worker["reconciliation_status"] == "pending_reconciliation"
+    assert builder_worker["scope_owned"][0]["values"] == ["apps/api"]
+    assert builder_worker["scope_remaining"] == []
+    assert [lane["status"] for lane in builder_worker["epistemic_lanes"]] == [
+        "available",
+        "available",
+        "pending_reconciliation",
+        "not_available",
+    ]
+
+    route_payload = urm_copilot_visibility_endpoint(
+        session_id=artifacts.session_id,
+        provider="codex",
+    )
+    assert route_payload.parent_session_id == artifacts.session_id
+    assert route_payload.model_dump(mode="json", by_alias=True) == payload
+    _reset_manager_for_tests()
+
+
+def test_materialize_worker_visibility_state_marks_running_child_as_raw_only(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "1.0")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="visibility-running-start-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="visibility-running-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "visibility-running-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+    spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="visibility-running-spawn-1",
+            prompt="inspect the api lane",
+            target_turn_id="turn-visibility-running-1",
+        )
+    )
+
+    manager = _get_manager()
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(spawn.child_id)) is not None
+            and child.status == "running"
+            and child.child_thread_id is not None
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    config = URMRuntimeConfig.from_env()
+    visibility = manager.materialize_worker_visibility_state(session_id=session_id)
+    payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility.worker_visibility_state.path,
+    )
+    assert len(payload["workers"]) == 1
+    worker = payload["workers"][0]
+    assert worker["worker_id"] == spawn.child_id
+    assert worker["status"] == "running"
+    assert worker["divergence_state"] == "raw_only"
+    assert worker["scope_owned"][0]["kind"] == "artifact_surface_only"
+    assert worker["scope_remaining"] == worker["scope_owned"]
+    assert worker["reconciliation_status"] == "not_applicable"
+    assert [lane["status"] for lane in worker["epistemic_lanes"]] == [
+        "available",
+        "pending_parse",
+        "not_available",
+        "not_available",
+    ]
+    assert worker["latest_visible_event"] is not None
+    assert worker["last_action"] in {"TOOL_CALL_PASS", "WORKER_START"}
+    _reset_manager_for_tests()
+
+
+def test_materialize_worker_visibility_state_preserves_bridge_and_compaction_visibility(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "visibility-recovery-child-1"
+    parent_session_id = "visibility-recovery-parent-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    events_path.write_text("", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="running",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-visibility-recovery-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "queue_seq": 1,
+                "dispatch_seq": 1,
+                "lease_id": child_id,
+                "phase": "started",
+                "parent_seq": 9,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=9,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+        set_dispatch_token_phase(con=con, child_id=child_id, phase="started")
+
+    manager = _get_manager()
+    visibility = manager.materialize_worker_visibility_state(session_id=parent_session_id)
+    payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility.worker_visibility_state.path,
+    )
+
+    assert payload["continuation_bridge_ref"] is not None
+    assert payload["continuation_bridge_ref"]["target_stream_id"] == (
+        f"urm_audit:{parent_session_id}"
+    )
+    assert payload["compaction_seams"]
+    assert payload["compaction_seams"][0]["target_stream_id"] == f"urm_audit:{parent_session_id}"
+    assert payload["workers"][0]["divergence_state"] == "raw_only"
     _reset_manager_for_tests()
 
 

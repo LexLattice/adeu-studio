@@ -70,6 +70,7 @@ from urm_runtime.storage import (
     transaction,
 )
 from urm_runtime.worker import CodexExecWorkerRunner
+from urm_runtime.worker_visibility import WorkerVisibilityState
 
 router = APIRouter(prefix="/urm", tags=["urm"])
 
@@ -786,3 +787,18 @@ def urm_copilot_events_endpoint(
             )
 
     return StreamingResponse(_stream(), media_type="text/event-stream")
+
+
+@router.get("/copilot/visibility", response_model=WorkerVisibilityState)
+def urm_copilot_visibility_endpoint(
+    *,
+    session_id: str = Query(min_length=1),
+    provider: Literal["codex"] = Query(default="codex"),
+) -> WorkerVisibilityState:
+    _require_codex_provider(provider)
+    manager = _get_manager()
+    try:
+        artifact = manager.materialize_worker_visibility_state(session_id=session_id)
+        return WorkerVisibilityState.model_validate(artifact.worker_visibility_state.payload)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
