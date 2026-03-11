@@ -26,6 +26,21 @@ from .orchestration_state import (
     WriteLeaseState,
 )
 from .roles import CHILD_DELEGATION_ROLES, SUPPORT_DELEGATION_ROLES
+from .worker_visibility import (
+    CONTINUATION_BRIDGE_VISIBILITY_POLICY,
+    EPISTEMIC_LANE_ABSENCE_POLICY,
+    ORCHESTRATOR_JUDGMENT_SURFACE_POLICY,
+    PROGRESS_STATE_SOURCE_POLICY,
+    RAW_TRANSCRIPT_AUTHORITY_POLICY,
+    RECONCILED_HANDOFF_SURFACE_POLICY,
+    WORKER_SELF_REPORT_AUTHORITY_POLICY,
+    WORKER_VISIBILITY_DIVERGENCE_ENUM,
+    WORKER_VISIBILITY_FOUNDATION_PACKAGE,
+    WORKER_VISIBILITY_LANE_ENUM,
+    WORKER_VISIBILITY_LANE_STATUS_ENUM,
+    MaterializedWorkerVisibilityArtifacts,
+    WorkerVisibilityState,
+)
 
 V35A_ORCHESTRATION_STATE_EVIDENCE_SCHEMA = "v35a_orchestration_state_evidence@1"
 V35A_ORCHESTRATION_STATE_CONTRACT_SOURCE = (
@@ -34,6 +49,10 @@ V35A_ORCHESTRATION_STATE_CONTRACT_SOURCE = (
 V35B_DELEGATION_HANDOFF_EVIDENCE_SCHEMA = "v35b_delegation_handoff_evidence@1"
 V35B_DELEGATION_HANDOFF_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS57.md#v35b_delegation_handoff_contract@1"
+)
+V35C_TRANSCRIPT_VISIBILITY_EVIDENCE_SCHEMA = "v35c_transcript_visibility_evidence@1"
+V35C_TRANSCRIPT_VISIBILITY_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS58.md#v35c_transcript_visibility_contract@1"
 )
 STOP_GATE_METRICS_SCHEMA = "stop_gate_metrics@1"
 EXPECTED_METRIC_KEY_CARDINALITY = 80
@@ -116,6 +135,33 @@ class V35BDelegationHandoffEvidence(BaseModel):
     metric_key_cardinality: int = Field(ge=0)
     metric_key_exact_set_equal_v56: bool
     zero_occurrence_empty_artifacts_materialized: bool
+    notes: str = Field(min_length=1)
+
+
+class V35CTranscriptVisibilityEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(default=V35C_TRANSCRIPT_VISIBILITY_EVIDENCE_SCHEMA, alias="schema")
+    contract_source: str = V35C_TRANSCRIPT_VISIBILITY_CONTRACT_SOURCE
+    evidence_input_path: str = Field(min_length=1)
+    worker_visibility_state_path: str = Field(min_length=1)
+    worker_visibility_state_hash: str = Field(min_length=64, max_length=64)
+    orchestration_state_snapshot_path: str = Field(min_length=1)
+    orchestration_state_snapshot_hash: str = Field(min_length=64, max_length=64)
+    role_handoff_envelope_path: str = Field(min_length=1)
+    role_handoff_envelope_hash: str = Field(min_length=64, max_length=64)
+    read_only_visibility_preserved: bool
+    epistemic_lane_labels_present: bool
+    explicit_lane_absence_materialized: bool
+    explicit_divergence_state_materialized: bool
+    continuation_bridge_visibility_present_when_available: bool
+    no_ad_hoc_progress_summary_bypass: bool
+    raw_transcript_non_authoritative: bool
+    worker_self_report_non_authoritative_until_reconciled: bool
+    worker_direct_user_boundary_forbidden: bool
+    verification_passed: bool
+    metric_key_cardinality: int = Field(ge=0)
+    metric_key_exact_set_equal_v57: bool
     notes: str = Field(min_length=1)
 
 
@@ -424,6 +470,147 @@ def materialize_v35b_delegation_handoff_evidence(
             "ownership, role_transition_record@1 proves authority-surface transitions and "
             "explicit re-roles, and role_handoff_envelope@1 remains non-authoritative "
             "until explicit orchestrator reconciliation."
+        ),
+    )
+    payload = evidence.model_dump(mode="json", by_alias=True)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(canonical_json(payload) + "\n", encoding="utf-8")
+    return MaterializedArtifact(
+        path=output_path,
+        hash=sha256_canonical_json(payload),
+        payload=payload,
+    )
+
+
+def materialize_v35c_transcript_visibility_evidence(
+    *,
+    repo_root: Path,
+    var_root: Path,
+    orchestration_artifacts: MaterializedOrchestrationArtifacts,
+    visibility_artifacts: MaterializedWorkerVisibilityArtifacts,
+    output_path: str,
+    baseline_metrics_path: str,
+    current_metrics_path: str,
+) -> MaterializedArtifact:
+    repo_root = repo_root.resolve()
+    var_root = var_root.resolve()
+    if not repo_root.is_dir():
+        raise OrchestrationEvidenceError("repository root does not exist")
+    if not var_root.is_dir():
+        raise OrchestrationEvidenceError("var root does not exist")
+
+    output_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=output_path,
+        field_name="output_path",
+        required_prefix="artifacts/",
+    )
+    baseline_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=baseline_metrics_path,
+        field_name="baseline_metrics_path",
+        required_prefix="artifacts/",
+    )
+    current_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=current_metrics_path,
+        field_name="current_metrics_path",
+        required_prefix="artifacts/",
+    )
+
+    baseline_metrics = _load_stop_gate_metrics(path=baseline_metrics_file)
+    current_metrics = _load_stop_gate_metrics(path=current_metrics_file)
+    current_metric_keys = set(current_metrics["metrics"].keys())
+    baseline_metric_keys = set(baseline_metrics["metrics"].keys())
+    if len(current_metric_keys) != EXPECTED_METRIC_KEY_CARDINALITY:
+        raise OrchestrationEvidenceError("metric key cardinality must remain frozen at 80")
+    if baseline_metric_keys != current_metric_keys:
+        raise OrchestrationEvidenceError("metric key set must remain exactly equal to v57")
+
+    visibility_payload, visibility_state = _load_validated_artifact(
+        var_root=var_root,
+        artifact=visibility_artifacts.worker_visibility_state,
+        model_type=WorkerVisibilityState,
+        artifact_name="worker_visibility_state",
+    )
+    snapshot_payload, snapshot = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.orchestration_state_snapshot,
+        model_type=OrchestrationStateSnapshot,
+        artifact_name="orchestration_state_snapshot",
+    )
+    topology_payload, topology = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.execution_topology_state,
+        model_type=ExecutionTopologyState,
+        artifact_name="execution_topology_state",
+    )
+    handoff_payload, handoff_envelope = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.role_handoff_envelope,
+        model_type=RoleHandoffEnvelope,
+        artifact_name="role_handoff_envelope",
+    )
+
+    _validate_worker_direct_user_boundary(snapshot=snapshot)
+    _validate_handoff_envelope(handoff_payload=handoff_payload, handoff_envelope=handoff_envelope)
+    read_only_visibility_preserved = _validate_v35c_read_only_visibility(
+        snapshot=snapshot,
+        visibility_state=visibility_state,
+    )
+    (
+        epistemic_lane_labels_present,
+        explicit_lane_absence_materialized,
+        explicit_divergence_state_materialized,
+    ) = _validate_v35c_lane_projection(visibility_state=visibility_state)
+    continuation_bridge_visibility_present_when_available = _validate_v35c_continuity(
+        snapshot=snapshot,
+        topology=topology,
+        visibility_state=visibility_state,
+    )
+    no_ad_hoc_progress_summary_bypass = _validate_v35c_progress_fields(
+        snapshot=snapshot,
+        visibility_state=visibility_state,
+        handoff_envelope=handoff_envelope,
+    )
+    raw_transcript_non_authoritative = _validate_v35c_raw_transcript_authority(
+        visibility_state=visibility_state
+    )
+    worker_self_report_non_authoritative_until_reconciled = (
+        _validate_v35c_worker_self_report_authority(visibility_state=visibility_state)
+    )
+    worker_direct_user_boundary_forbidden = _validate_v35c_worker_direct_user_boundary(
+        visibility_state=visibility_state
+    )
+
+    evidence = V35CTranscriptVisibilityEvidence(
+        evidence_input_path=output_path,
+        worker_visibility_state_path=visibility_artifacts.worker_visibility_state.path,
+        worker_visibility_state_hash=visibility_artifacts.worker_visibility_state.hash,
+        orchestration_state_snapshot_path=orchestration_artifacts.orchestration_state_snapshot.path,
+        orchestration_state_snapshot_hash=orchestration_artifacts.orchestration_state_snapshot.hash,
+        role_handoff_envelope_path=orchestration_artifacts.role_handoff_envelope.path,
+        role_handoff_envelope_hash=orchestration_artifacts.role_handoff_envelope.hash,
+        read_only_visibility_preserved=read_only_visibility_preserved,
+        epistemic_lane_labels_present=epistemic_lane_labels_present,
+        explicit_lane_absence_materialized=explicit_lane_absence_materialized,
+        explicit_divergence_state_materialized=explicit_divergence_state_materialized,
+        continuation_bridge_visibility_present_when_available=(
+            continuation_bridge_visibility_present_when_available
+        ),
+        no_ad_hoc_progress_summary_bypass=no_ad_hoc_progress_summary_bypass,
+        raw_transcript_non_authoritative=raw_transcript_non_authoritative,
+        worker_self_report_non_authoritative_until_reconciled=(
+            worker_self_report_non_authoritative_until_reconciled
+        ),
+        worker_direct_user_boundary_forbidden=worker_direct_user_boundary_forbidden,
+        verification_passed=True,
+        metric_key_cardinality=len(current_metric_keys),
+        metric_key_exact_set_equal_v57=True,
+        notes=(
+            "v58 closeout-grade visibility evidence remains observational-only and "
+            "pre-topology/pre-enforcement; transcript lanes remain epistemically separated, "
+            "non-authoritative by visibility alone, and continuity rendering remains explicit."
         ),
     )
     payload = evidence.model_dump(mode="json", by_alias=True)
@@ -1022,3 +1209,336 @@ def _validate_v35b_zero_occurrence_artifacts(
             "handoff entries must be empty when no completed delegated work exists"
         )
     return True
+
+
+def _validate_v35c_read_only_visibility(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    visibility_state: WorkerVisibilityState,
+) -> bool:
+    if snapshot.orchestration_foundation_package != ORCHESTRATION_FOUNDATION_PACKAGE:
+        raise OrchestrationEvidenceError("snapshot foundation package drift detected")
+    if (
+        visibility_state.worker_visibility_foundation_package
+        != WORKER_VISIBILITY_FOUNDATION_PACKAGE
+    ):
+        raise OrchestrationEvidenceError("worker visibility foundation package drift detected")
+    if visibility_state.read_only_visibility_required is not True:
+        raise OrchestrationEvidenceError("worker visibility must remain read-only")
+    if visibility_state.orchestrator_primary_interaction_boundary_required is not True:
+        raise OrchestrationEvidenceError(
+            "orchestrator must remain the primary interaction boundary"
+        )
+    if visibility_state.deterministic_redaction_and_scope_boundary_required is not True:
+        raise OrchestrationEvidenceError(
+            "deterministic redaction and scope boundary policy drift detected"
+        )
+    if visibility_state.worker_direct_user_boundary_forbidden is not True:
+        raise OrchestrationEvidenceError("worker direct user-boundary policy drift detected")
+    if visibility_state.progress_state_source_policy != PROGRESS_STATE_SOURCE_POLICY:
+        raise OrchestrationEvidenceError(
+            "progress fields missing or derived from ad hoc summary"
+        )
+    if visibility_state.epistemic_lane_absence_policy != EPISTEMIC_LANE_ABSENCE_POLICY:
+        raise OrchestrationEvidenceError("lane absence policy drift detected")
+    return True
+
+
+def _validate_v35c_lane_projection(
+    *,
+    visibility_state: WorkerVisibilityState,
+) -> tuple[bool, bool, bool]:
+    if visibility_state.epistemic_lane_enum != list(WORKER_VISIBILITY_LANE_ENUM):
+        raise OrchestrationEvidenceError("epistemic lane labels must remain frozen")
+    if visibility_state.epistemic_lane_status_enum != list(WORKER_VISIBILITY_LANE_STATUS_ENUM):
+        raise OrchestrationEvidenceError("epistemic lane status enum drift detected")
+    if visibility_state.divergence_state_enum != list(WORKER_VISIBILITY_DIVERGENCE_ENUM):
+        raise OrchestrationEvidenceError("divergence state enum drift detected")
+    if not visibility_state.workers:
+        raise OrchestrationEvidenceError("worker visibility state must materialize worker entries")
+    for worker in visibility_state.workers:
+        lane_map = _lane_map_for_worker(worker=worker)
+        if set(lane_map) != set(WORKER_VISIBILITY_LANE_ENUM):
+            raise OrchestrationEvidenceError("lane absence may not be silently omitted")
+        for lane_name, lane_state in lane_map.items():
+            if lane_name not in WORKER_VISIBILITY_LANE_ENUM:
+                raise OrchestrationEvidenceError("epistemic lane labels must remain frozen")
+            if lane_state.status not in WORKER_VISIBILITY_LANE_STATUS_ENUM:
+                raise OrchestrationEvidenceError("epistemic lane status must remain explicit")
+        expected_divergence = _expected_divergence_state_for_worker(
+            worker=worker,
+            lane_map=lane_map,
+        )
+        if worker.divergence_state != expected_divergence:
+            raise OrchestrationEvidenceError(
+                "divergence state must be explicit when lanes do not align"
+            )
+    return True, True, True
+
+
+def _validate_v35c_continuity(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    topology: ExecutionTopologyState,
+    visibility_state: WorkerVisibilityState,
+) -> bool:
+    if visibility_state.continuation_bridge_visibility_policy != (
+        CONTINUATION_BRIDGE_VISIBILITY_POLICY
+    ):
+        raise OrchestrationEvidenceError("continuation bridge visibility policy drift detected")
+    if snapshot.continuation_bridge_ref is None:
+        if visibility_state.continuation_bridge_ref is not None:
+            raise OrchestrationEvidenceError("continuation bridge visibility drift detected")
+        if visibility_state.compaction_seams:
+            raise OrchestrationEvidenceError("compaction visibility drift detected")
+        return False
+    if visibility_state.continuation_bridge_ref != snapshot.continuation_bridge_ref:
+        raise OrchestrationEvidenceError("continuation bridge visibility drift detected")
+    if visibility_state.compaction_seams != topology.compaction_seams:
+        raise OrchestrationEvidenceError(
+            "compaction or continuation bridge continuity silently flattened"
+        )
+    return True
+
+
+def _validate_v35c_progress_fields(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    visibility_state: WorkerVisibilityState,
+    handoff_envelope: RoleHandoffEnvelope,
+) -> bool:
+    child_roles = {
+        role.actor_id: role
+        for role in snapshot.current_roles
+        if role.actor_id != snapshot.orchestrator_session_id
+    }
+    stream_heads = {
+        stream.stream_id: stream
+        for stream in snapshot.event_cursor.streams
+    }
+    handoff_by_worker = _match_v35c_handoffs(
+        workers=visibility_state.workers,
+        handoff_envelope=handoff_envelope,
+    )
+    if set(child_roles) != {worker.worker_id for worker in visibility_state.workers}:
+        raise OrchestrationEvidenceError(
+            "progress fields must be derived from canonical state and child identity"
+        )
+    for worker in visibility_state.workers:
+        child_role = child_roles[worker.worker_id]
+        if worker.parent_session_id != snapshot.parent_session_id:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical state and child identity"
+            )
+        if worker.role != child_role.role:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical state and child role"
+            )
+        if worker.requested_role != child_role.requested_role:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical state and child role"
+            )
+        if worker.granted_role != child_role.granted_role:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical state and child role"
+            )
+        if worker.delegation_task_kind != child_role.delegation_task_kind:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical state and child role"
+            )
+        if worker.status != child_role.status:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical state and child status"
+            )
+        raw_lane = _lane_map_for_worker(worker=worker)["raw_transcript"]
+        stream = stream_heads.get(raw_lane.source_ref or "")
+        expected_last_action = _expected_last_action(worker_status=worker.status, stream=stream)
+        if worker.last_action != expected_last_action:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical runtime events only"
+            )
+        expected_latest_visible_event = stream.last_event_ref if stream is not None else None
+        if worker.latest_visible_event != expected_latest_visible_event:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical runtime events only"
+            )
+        if raw_lane.latest_visible_event != expected_latest_visible_event:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical runtime events only"
+            )
+        handoff_entry = handoff_by_worker.get(worker.worker_id)
+        expected_scope_owned = (
+            [scope.model_dump(mode="json") for scope in handoff_entry.scope_owned]
+            if handoff_entry is not None
+            else [child_role.scope_owned.model_dump(mode="json")]
+        )
+        if [scope.model_dump(mode="json") for scope in worker.scope_owned] != expected_scope_owned:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical scope state"
+            )
+        expected_scope_remaining = (
+            [scope.model_dump(mode="json") for scope in handoff_entry.scope_remaining]
+            if handoff_entry is not None
+            else []
+            if worker.status == "completed"
+            else [child_role.scope_owned.model_dump(mode="json")]
+        )
+        if [
+            scope.model_dump(mode="json") for scope in worker.scope_remaining
+        ] != expected_scope_remaining:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical scope state"
+            )
+        expected_reconciliation_status = (
+            "pending_reconciliation" if handoff_entry is not None else "not_applicable"
+        )
+        if worker.reconciliation_status != expected_reconciliation_status:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical reconciliation state"
+            )
+        expected_blocking_state = _expected_blocking_state(
+            worker_status=worker.status,
+            handoff_entry=handoff_entry,
+        )
+        if worker.blocking_state != expected_blocking_state:
+            raise OrchestrationEvidenceError(
+                "progress fields must be derived from canonical blocking state"
+            )
+    return True
+
+
+def _validate_v35c_raw_transcript_authority(
+    *,
+    visibility_state: WorkerVisibilityState,
+) -> bool:
+    if visibility_state.raw_transcript_authority_policy != RAW_TRANSCRIPT_AUTHORITY_POLICY:
+        raise OrchestrationEvidenceError("raw transcript rendered as authoritative")
+    for worker in visibility_state.workers:
+        lane = _lane_map_for_worker(worker=worker)["raw_transcript"]
+        if lane.authority_policy != RAW_TRANSCRIPT_AUTHORITY_POLICY:
+            raise OrchestrationEvidenceError("raw transcript rendered as authoritative")
+        if worker.raw_transcript_non_authoritative is not True:
+            raise OrchestrationEvidenceError("raw transcript rendered as authoritative")
+        if lane.status == "available" and not lane.source_path:
+            raise OrchestrationEvidenceError("raw transcript lane must record source path")
+    return True
+
+
+def _validate_v35c_worker_self_report_authority(
+    *,
+    visibility_state: WorkerVisibilityState,
+) -> bool:
+    if visibility_state.worker_self_report_authority_policy != WORKER_SELF_REPORT_AUTHORITY_POLICY:
+        raise OrchestrationEvidenceError(
+            "worker self-report rendered as reconciled without explicit reconciliation"
+        )
+    if visibility_state.reconciled_handoff_surface_policy != RECONCILED_HANDOFF_SURFACE_POLICY:
+        raise OrchestrationEvidenceError(
+            "worker self-report rendered as reconciled without explicit reconciliation"
+        )
+    if visibility_state.orchestrator_judgment_surface_policy != (
+        ORCHESTRATOR_JUDGMENT_SURFACE_POLICY
+    ):
+        raise OrchestrationEvidenceError("orchestrator judgment surface policy drift detected")
+    for worker in visibility_state.workers:
+        lane_map = _lane_map_for_worker(worker=worker)
+        if worker.worker_self_report_non_authoritative_until_reconciled is not True:
+            raise OrchestrationEvidenceError(
+                "worker self-report rendered as reconciled without explicit reconciliation"
+            )
+        if lane_map["worker_self_report"].authority_policy != WORKER_SELF_REPORT_AUTHORITY_POLICY:
+            raise OrchestrationEvidenceError(
+                "worker self-report rendered as reconciled without explicit reconciliation"
+            )
+        if lane_map["reconciled_handoff"].authority_policy != RECONCILED_HANDOFF_SURFACE_POLICY:
+            raise OrchestrationEvidenceError(
+                "worker self-report rendered as reconciled without explicit reconciliation"
+            )
+        if lane_map["orchestrator_judgment"].authority_policy != (
+            ORCHESTRATOR_JUDGMENT_SURFACE_POLICY
+        ):
+            raise OrchestrationEvidenceError("orchestrator judgment surface policy drift detected")
+        if lane_map["reconciled_handoff"].status == "available":
+            raise OrchestrationEvidenceError(
+                "worker self-report rendered as reconciled without explicit reconciliation"
+            )
+        if lane_map["orchestrator_judgment"].status == "available":
+            raise OrchestrationEvidenceError("orchestrator judgment may not appear in v58 closeout")
+    return True
+
+
+def _validate_v35c_worker_direct_user_boundary(
+    *,
+    visibility_state: WorkerVisibilityState,
+) -> bool:
+    if visibility_state.worker_direct_user_boundary_forbidden is not True:
+        raise OrchestrationEvidenceError("worker direct user-boundary policy drift detected")
+    for worker in visibility_state.workers:
+        if worker.direct_user_boundary_established:
+            raise OrchestrationEvidenceError("worker direct user boundary established")
+    return True
+
+
+def _lane_map_for_worker(*, worker: Any) -> dict[str, Any]:
+    return {lane.lane: lane for lane in worker.epistemic_lanes}
+
+
+def _expected_divergence_state_for_worker(*, worker: Any, lane_map: dict[str, Any]) -> str:
+    raw_status = lane_map["raw_transcript"].status
+    self_report_status = lane_map["worker_self_report"].status
+    if raw_status == "parsing_failure" or self_report_status == "parsing_failure":
+        return "parsing_failure"
+    if self_report_status == "reconciliation_aborted":
+        return "reconciliation_aborted"
+    if raw_status == "available" and self_report_status in {"pending_parse", "not_available"}:
+        return "raw_only"
+    if raw_status != "available" and self_report_status == "available":
+        return "worker_self_report_only"
+    if lane_map["reconciled_handoff"].status == "available":
+        return "lane_disagreement"
+    return "aligned"
+
+
+def _match_v35c_handoffs(
+    *,
+    workers: list[Any],
+    handoff_envelope: RoleHandoffEnvelope,
+) -> dict[str, Any]:
+    matched: dict[str, Any] = {}
+    consumed: set[int] = set()
+    for worker in workers:
+        raw_lane = _lane_map_for_worker(worker=worker)["raw_transcript"]
+        for index, entry in enumerate(handoff_envelope.entries):
+            if index in consumed:
+                continue
+            if raw_lane.source_path and raw_lane.source_path in entry.artifacts_produced:
+                matched[worker.worker_id] = entry
+                consumed.add(index)
+                break
+    return matched
+
+
+def _expected_last_action(
+    *,
+    worker_status: str,
+    stream: Any | None,
+) -> str:
+    if stream is not None and stream.last_event:
+        return stream.last_event
+    if worker_status == "queued":
+        return "WORKER_QUEUED"
+    if worker_status == "running":
+        return "WORKER_START"
+    if worker_status == "completed":
+        return "WORKER_PASS"
+    if worker_status == "cancelled":
+        return "WORKER_CANCEL"
+    return "WORKER_FAIL"
+
+
+def _expected_blocking_state(*, worker_status: str, handoff_entry: Any | None) -> str:
+    if handoff_entry is not None:
+        return handoff_entry.blocking_state
+    if worker_status in {"failed", "cancelled", "queued"}:
+        return "blocking"
+    return "non_blocking"
