@@ -11,6 +11,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Literal
 
+from adeu_ir.repo import repo_root as canonical_repo_root
+
 from .app_server import CodexAppServerHost
 from .capability_policy import load_capability_policy
 from .child_budget import (
@@ -104,8 +106,8 @@ from .storage import (
     get_approval,
     get_connector_snapshot,
     get_copilot_session,
-    get_dispatch_token_for_child,
     list_copilot_child_runs_for_parent,
+    list_dispatch_tokens_for_parent_session,
     mark_running_sessions_terminated,
     persist_connector_snapshot,
     persist_copilot_session_start,
@@ -266,33 +268,72 @@ class URMCopilotManager:
     def _recover_stale_child_runs(self) -> None:
         recover_stale_child_runs_impl(manager=self, logger=logger)
 
+    def _safe_evidence_path_component(self, *, value: str, field_name: str) -> str:
+        normalized = value.strip()
+        if (
+            not normalized
+            or normalized in {".", ".."}
+            or "/" in normalized
+            or "\\" in normalized
+        ):
+            raise URMError(
+                code="URM_ORCHESTRATION_STATE_INVALID",
+                message=f"invalid evidence path component for {field_name}",
+                context={field_name: value},
+            )
+        return normalized
+
     def _raw_jsonl_path_for_session(self, session_id: str) -> Path:
-        path = self.config.evidence_root / "copilot" / session_id / "codex_raw.ndjson"
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "copilot" / safe_session_id / "codex_raw.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _urm_events_path_for_session(self, session_id: str) -> Path:
-        path = self.config.evidence_root / "copilot" / session_id / "urm_events.ndjson"
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "copilot" / safe_session_id / "urm_events.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _raw_jsonl_path_for_child(self, child_id: str) -> Path:
-        path = self.config.evidence_root / "agent" / child_id / "codex_raw.ndjson"
+        safe_child_id = self._safe_evidence_path_component(
+            value=child_id,
+            field_name="child_id",
+        )
+        path = self.config.evidence_root / "agent" / safe_child_id / "codex_raw.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _urm_events_path_for_child(self, child_id: str) -> Path:
-        path = self.config.evidence_root / "agent" / child_id / "urm_events.ndjson"
+        safe_child_id = self._safe_evidence_path_component(
+            value=child_id,
+            field_name="child_id",
+        )
+        path = self.config.evidence_root / "agent" / safe_child_id / "urm_events.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _audit_events_path_for_session(self, session_id: str) -> Path:
-        path = self.config.evidence_root / "audit" / session_id / "urm_events.ndjson"
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "audit" / safe_session_id / "urm_events.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _connector_snapshot_path(self, snapshot_id: str) -> Path:
-        path = self.config.evidence_root / "connectors" / f"{snapshot_id}.json"
+        safe_snapshot_id = self._safe_evidence_path_component(
+            value=snapshot_id,
+            field_name="snapshot_id",
+        )
+        path = self.config.evidence_root / "connectors" / f"{safe_snapshot_id}.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -361,16 +402,19 @@ class URMCopilotManager:
         return resolved
 
     def _orchestration_state_output_root(self, session_id: str) -> Path:
-        path = self.config.evidence_root / "orchestration_state" / session_id
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "orchestration_state" / safe_session_id
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _repo_root_for_orchestration_state(self) -> Path:
-        anchor = self.config.var_root.resolve()
-        for parent in (anchor, *anchor.parents):
-            if (parent / ".git").exists():
-                return parent
-        return Path.cwd().resolve()
+        try:
+            return canonical_repo_root(anchor=Path(__file__).resolve())
+        except RuntimeError as exc:
+            raise FileNotFoundError("repository root not found") from exc
 
     def _build_session_state_input_locked(
         self,
@@ -644,11 +688,11 @@ class URMCopilotManager:
                     parent_session_id=session_id,
                 )
                 token_by_child = {
-                    child_row.worker_id: get_dispatch_token_for_child(
+                    token.child_id: token
+                    for token in list_dispatch_tokens_for_parent_session(
                         con=con,
-                        child_id=child_row.worker_id,
+                        parent_session_id=session_id,
                     )
-                    for child_row in child_rows
                 }
             try:
                 session = self._build_session_state_input_locked(
@@ -677,7 +721,7 @@ class URMCopilotManager:
                     repo_root=str(self._repo_root_for_orchestration_state()),
                     branch_or_head="HEAD",
                 )
-            except OrchestrationStateError as exc:
+            except (FileNotFoundError, OrchestrationStateError) as exc:
                 raise URMError(
                     code="URM_ORCHESTRATION_STATE_INVALID",
                     message=str(exc),
