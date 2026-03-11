@@ -35,6 +35,7 @@ from adeu_api.urm_routes import (
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from jsonschema import Draft202012Validator
+from pydantic import ValidationError
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.errors import URMError
 from urm_runtime.instruction_policy import (
@@ -58,6 +59,7 @@ from urm_runtime.models import (
     PolicyRolloutRequest,
     ToolCallRequest,
 )
+from urm_runtime.orchestration_state import RoleHandoffEntry
 from urm_runtime.policy_governance import materialize_policy
 from urm_runtime.storage import (
     get_dispatch_token_for_child,
@@ -143,6 +145,10 @@ def _repo_root() -> Path:
         if (parent / ".git").exists():
             return parent
     raise FileNotFoundError("repository root not found")
+
+
+def _load_materialized_json(*, config: URMRuntimeConfig, relative_path: str) -> dict[str, object]:
+    return json.loads((config.var_root / relative_path).read_text(encoding="utf-8"))
 
 
 def _budget_snapshot_v1(
@@ -918,7 +924,7 @@ def test_agent_spawn_and_cancel_terminal_idempotent(
                 use_last_turn=False,
                 profile_id="unknown_profile",
             )
-    )
+        )
     assert bad_profile_exc.value.status_code == 400
     assert bad_profile_exc.value.detail["code"] == "URM_POLICY_PROFILE_NOT_FOUND"
     events_after_denial, _ = manager.iter_events(session_id=session_id, after_seq=0)
@@ -1710,9 +1716,7 @@ def test_agent_spawn_budget_breach_solver_calls_is_deterministic(
         assert isinstance(budget_runtime, dict)
         assert budget_runtime.get("solver_calls_observed") == 1
 
-        urm_copilot_stop_endpoint(
-            CopilotStopRequest(provider="codex", session_id=session_id)
-        )
+        urm_copilot_stop_endpoint(CopilotStopRequest(provider="codex", session_id=session_id))
 
     assert failure_signatures[0] == failure_signatures[1]
     _reset_manager_for_tests()
@@ -1876,9 +1880,7 @@ def test_agent_spawn_budget_running_total_shared_parent_lane_is_deterministic(
     child1 = manager._child_runs.get(spawn1.child_id)  # type: ignore[attr-defined]
     child2 = manager._child_runs.get(spawn2.child_id)  # type: ignore[attr-defined]
     assert child1 is not None and child2 is not None
-    assert any(
-        child.error_code == "URM_CHILD_BUDGET_EXCEEDED" for child in (child1, child2)
-    )
+    assert any(child.error_code == "URM_CHILD_BUDGET_EXCEEDED" for child in (child1, child2))
 
     with transaction(db_path=URMRuntimeConfig.from_env().db_path) as con:
         solver_total = get_parent_budget_total(
@@ -2011,7 +2013,7 @@ def test_manager_marks_orphaned_dispatch_tokens_on_startup(
     events_path.parent.mkdir(parents=True, exist_ok=True)
     raw_path.write_text("", encoding="utf-8")
     # Simulate crash-truncated NDJSON.
-    events_path.write_text("{\"schema\":\"urm-events@1\"", encoding="utf-8")
+    events_path.write_text('{"schema":"urm-events@1"', encoding="utf-8")
 
     with transaction(db_path=config.db_path) as con:
         persist_worker_run_start(
@@ -2366,9 +2368,7 @@ def test_tool_call_emits_policy_eval_events_on_allow(
     assert response.tool_name == "adeu.get_app_state"
     assert response.result == {"ok": True}
     assert response.policy_trace is not None
-    assert any(
-        ref.get("kind") == "proof" for ref in response.policy_trace.get("evidence_refs", [])
-    )
+    assert any(ref.get("kind") == "proof" for ref in response.policy_trace.get("evidence_refs", []))
     assert [event for event, _detail in fake_manager.events] == [
         "POLICY_EVAL_START",
         "PROOF_RUN_PASS",
@@ -2455,3 +2455,339 @@ def test_tool_call_emits_policy_denied_event_on_instruction_deny(
         "PROOF_RUN_PASS",
         "POLICY_DENIED",
     ]
+
+
+def test_materialize_orchestration_state_is_deterministic_for_running_session(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-state-start-1")
+    )
+    session_id = start.session_id
+    manager = _get_manager()
+    config = URMRuntimeConfig.from_env()
+
+    first = manager.materialize_orchestration_state(session_id=session_id)
+    second = manager.materialize_orchestration_state(session_id=session_id)
+
+    assert first.orchestration_state_snapshot.hash == second.orchestration_state_snapshot.hash
+    assert first.execution_topology_state.hash == second.execution_topology_state.hash
+    assert first.write_lease_state.hash == second.write_lease_state.hash
+    assert first.role_transition_record.hash == second.role_transition_record.hash
+    assert first.role_handoff_envelope.hash == second.role_handoff_envelope.hash
+
+    snapshot = _load_materialized_json(
+        config=config,
+        relative_path=first.orchestration_state_snapshot.path,
+    )
+    write_lease = _load_materialized_json(
+        config=config,
+        relative_path=first.write_lease_state.path,
+    )
+    transitions = _load_materialized_json(
+        config=config,
+        relative_path=first.role_transition_record.path,
+    )
+    handoffs = _load_materialized_json(
+        config=config,
+        relative_path=first.role_handoff_envelope.path,
+    )
+
+    assert snapshot["schema"] == "orchestration_state_snapshot@1"
+    assert snapshot["orchestrator_session_id"] == session_id
+    assert snapshot["worker_session_id"] is None
+    assert snapshot["parent_session_id"] == session_id
+    assert snapshot["single_writer_default_enforced"] is True
+    assert snapshot["last_reconciled_event"] is not None
+    assert isinstance(snapshot["event_cursor"], dict)
+    assert snapshot["event_cursor"]["streams"]
+    assert len(snapshot["current_roles"]) == 1
+    assert snapshot["current_roles"][0]["actor_id"] == session_id
+    assert snapshot["current_roles"][0]["role"] == "main_orchestrator"
+    assert snapshot["current_roles"][0]["user_facing_boundary"] is True
+    assert write_lease["active_authoritative_writer_count"] == 0
+    assert write_lease["current_authoritative_holder"] is None
+    assert transitions["entries"] == []
+    assert handoffs["entries"] == []
+    _reset_manager_for_tests()
+
+
+def test_materialize_orchestration_state_tracks_child_dispatch_and_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.4")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-child-start-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="orch-child-send-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "orch-child-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+    spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="orch-child-spawn-1",
+            prompt="child orchestration state",
+            target_turn_id="1",
+        )
+    )
+
+    manager = _get_manager()
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(spawn.child_id)) is not None
+            and child.dispatch_seq is not None
+            and child.child_thread_id is not None
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=session_id)
+    snapshot = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.orchestration_state_snapshot.path,
+    )
+    topology = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.execution_topology_state.path,
+    )
+    write_lease = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.write_lease_state.path,
+    )
+
+    worker_roles = [
+        role for role in snapshot["current_roles"] if role["actor_id"] == spawn.child_id
+    ]
+    assert snapshot["worker_session_id"] is not None
+    assert len(worker_roles) == 1
+    assert worker_roles[0]["role"] == "support_worker"
+    assert worker_roles[0]["user_facing_boundary"] is False
+    edge = next(edge for edge in topology["edges"] if edge["target_actor_id"] == spawn.child_id)
+    assert edge["queue_seq"] == spawn.queue_seq
+    assert edge["dispatch_seq"] is not None
+    dispatch = next(
+        observation
+        for observation in write_lease["dispatch_lease_observations"]
+        if observation["child_id"] == spawn.child_id
+    )
+    assert dispatch["lease_id"] == spawn.child_id
+    assert dispatch["authoritative_write_access"] is False
+    assert dispatch["phase"] in {"queued", "leased", "started", "terminal"}
+    _reset_manager_for_tests()
+
+
+def test_materialize_orchestration_state_records_write_authority_transition(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-mode-start-1")
+    )
+    session_id = start.session_id
+    manager = _get_manager()
+    manager.materialize_orchestration_state(session_id=session_id)
+
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=session_id)
+    write_lease = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.write_lease_state.path,
+    )
+    transitions = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.role_transition_record.path,
+    )
+
+    assert write_lease["active_authoritative_writer_count"] == 1
+    assert write_lease["current_authoritative_holder"]["actor_id"] == session_id
+    assert len(transitions["entries"]) == 1
+    assert transitions["entries"][0]["authority_level_before"] == (
+        "governance_authority_without_write_lease"
+    )
+    assert transitions["entries"][0]["authority_level_after"] == "governance_authority"
+    assert transitions["entries"][0]["granted_by"] == "main_orchestrator"
+    _reset_manager_for_tests()
+
+
+def test_materialize_orchestration_state_records_audit_bridge_for_restart_recovery(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "orch-recovery-child-1"
+    parent_session_id = "orch-recovery-parent-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    events_path.write_text("", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="running",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-orch-recovery-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "queue_seq": 1,
+                "dispatch_seq": 1,
+                "lease_id": child_id,
+                "phase": "started",
+                "parent_seq": 9,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=9,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+        set_dispatch_token_phase(con=con, child_id=child_id, phase="started")
+
+    manager = _get_manager()
+    artifacts = manager.materialize_orchestration_state(session_id=parent_session_id)
+    snapshot = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.orchestration_state_snapshot.path,
+    )
+    topology = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.execution_topology_state.path,
+    )
+
+    assert snapshot["continuation_bridge_ref"] is not None
+    assert snapshot["continuation_bridge_ref"]["target_stream_id"] == (
+        f"urm_audit:{parent_session_id}"
+    )
+    assert any(
+        stream["stream_id"] == f"urm_audit:{parent_session_id}"
+        for stream in snapshot["event_cursor"]["streams"]
+    )
+    assert topology["compaction_seams"]
+    assert topology["compaction_seams"][0]["target_stream_id"] == (f"urm_audit:{parent_session_id}")
+    _reset_manager_for_tests()
+
+
+def test_materialize_orchestration_state_rejects_invalid_session_id_path_component(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    manager = _get_manager()
+    with pytest.raises(URMError) as exc_info:
+        manager.materialize_orchestration_state(session_id="../escape")
+
+    assert exc_info.value.detail.code == "URM_ORCHESTRATION_STATE_INVALID"
+    _reset_manager_for_tests()
+
+
+def test_role_handoff_entry_rejects_missing_required_fields() -> None:
+    with pytest.raises(ValidationError):
+        RoleHandoffEntry.model_validate(
+            {
+                "role": "builder",
+                "authority_level": "implementation_authority_scoped",
+                "authority_domain": "implementation",
+                "artifact_class": "authoritative",
+                "artifact_surface": "implementation",
+                "repo_root": "/tmp/repo",
+                "branch_or_head": "HEAD",
+                "scope_owned": [],
+                "scope_remaining": [],
+                "files_changed": [],
+                "commands_run": [],
+                "artifacts_produced": [],
+                "evidence_refs": [],
+                "status": "completed",
+                "blocking_state": "non_blocking",
+                "blockers": [],
+                "open_risks": [],
+                "escalation_reason": None,
+            }
+        )

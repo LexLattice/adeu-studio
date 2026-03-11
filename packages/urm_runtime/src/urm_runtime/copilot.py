@@ -11,6 +11,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Literal
 
+from adeu_ir.repo import repo_root as canonical_repo_root
+
 from .app_server import CodexAppServerHost
 from .capability_policy import load_capability_policy
 from .child_budget import (
@@ -74,6 +76,15 @@ from .models import (
     PolicyRolloutRequest,
 )
 from .normalization import build_internal_event, normalize_app_server_line
+from .orchestration_state import (
+    ChildStateInput,
+    EventStreamHeadInput,
+    MaterializedOrchestrationArtifacts,
+    OrchestrationStateError,
+    SessionStateInput,
+    materialize_orchestration_artifacts,
+    read_event_stream_head,
+)
 from .policy_governance import (
     POLICY_ROLLBACK_ENDPOINT,
     POLICY_ROLLOUT_ENDPOINT,
@@ -95,6 +106,8 @@ from .storage import (
     get_approval,
     get_connector_snapshot,
     get_copilot_session,
+    list_copilot_child_runs_for_parent,
+    list_dispatch_tokens_for_parent_session,
     mark_running_sessions_terminated,
     persist_connector_snapshot,
     persist_copilot_session_start,
@@ -255,33 +268,72 @@ class URMCopilotManager:
     def _recover_stale_child_runs(self) -> None:
         recover_stale_child_runs_impl(manager=self, logger=logger)
 
+    def _safe_evidence_path_component(self, *, value: str, field_name: str) -> str:
+        normalized = value.strip()
+        if (
+            not normalized
+            or normalized in {".", ".."}
+            or "/" in normalized
+            or "\\" in normalized
+        ):
+            raise URMError(
+                code="URM_ORCHESTRATION_STATE_INVALID",
+                message=f"invalid evidence path component for {field_name}",
+                context={field_name: value},
+            )
+        return normalized
+
     def _raw_jsonl_path_for_session(self, session_id: str) -> Path:
-        path = self.config.evidence_root / "copilot" / session_id / "codex_raw.ndjson"
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "copilot" / safe_session_id / "codex_raw.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _urm_events_path_for_session(self, session_id: str) -> Path:
-        path = self.config.evidence_root / "copilot" / session_id / "urm_events.ndjson"
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "copilot" / safe_session_id / "urm_events.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _raw_jsonl_path_for_child(self, child_id: str) -> Path:
-        path = self.config.evidence_root / "agent" / child_id / "codex_raw.ndjson"
+        safe_child_id = self._safe_evidence_path_component(
+            value=child_id,
+            field_name="child_id",
+        )
+        path = self.config.evidence_root / "agent" / safe_child_id / "codex_raw.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _urm_events_path_for_child(self, child_id: str) -> Path:
-        path = self.config.evidence_root / "agent" / child_id / "urm_events.ndjson"
+        safe_child_id = self._safe_evidence_path_component(
+            value=child_id,
+            field_name="child_id",
+        )
+        path = self.config.evidence_root / "agent" / safe_child_id / "urm_events.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _audit_events_path_for_session(self, session_id: str) -> Path:
-        path = self.config.evidence_root / "audit" / session_id / "urm_events.ndjson"
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "audit" / safe_session_id / "urm_events.ndjson"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
     def _connector_snapshot_path(self, snapshot_id: str) -> Path:
-        path = self.config.evidence_root / "connectors" / f"{snapshot_id}.json"
+        safe_snapshot_id = self._safe_evidence_path_component(
+            value=snapshot_id,
+            field_name="snapshot_id",
+        )
+        path = self.config.evidence_root / "connectors" / f"{safe_snapshot_id}.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -348,6 +400,333 @@ class URMCopilotManager:
                 context={"urm_events_path": urm_events_path},
             )
         return resolved
+
+    def _orchestration_state_output_root(self, session_id: str) -> Path:
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "orchestration_state" / safe_session_id
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _repo_root_for_orchestration_state(self) -> Path:
+        try:
+            return canonical_repo_root(anchor=Path(__file__).resolve())
+        except RuntimeError as exc:
+            raise FileNotFoundError("repository root not found") from exc
+
+    def _build_session_state_input_locked(
+        self,
+        *,
+        session_id: str,
+        row: CopilotSessionRow | None,
+        child_rows: list[Any],
+    ) -> SessionStateInput:
+        runtime = self._sessions.get(session_id)
+        events_rel_path = self._relative_path(self._urm_events_path_for_session(session_id))
+        if row is not None:
+            return SessionStateInput(
+                session_id=session_id,
+                status=row.status,
+                started_at=row.started_at,
+                ended_at=row.ended_at,
+                writes_allowed=row.writes_allowed,
+                profile_id=row.profile_id,
+                profile_version=row.profile_version,
+                profile_policy_hash=row.profile_policy_hash,
+                raw_jsonl_path=row.raw_jsonl_path,
+                urm_events_path=events_rel_path,
+                runtime_thread_id=runtime.thread_id if runtime is not None else None,
+                active_turn_id=runtime.active_turn_id if runtime is not None else None,
+                last_turn_id=runtime.last_turn_id if runtime is not None else None,
+            )
+        if runtime is not None:
+            return SessionStateInput(
+                session_id=session_id,
+                status=runtime.status,
+                started_at=runtime.started_at,
+                ended_at=runtime.ended_at,
+                writes_allowed=False,
+                profile_id=runtime.profile_id,
+                profile_version=runtime.profile_version,
+                profile_policy_hash=runtime.profile_policy_hash,
+                raw_jsonl_path=runtime.raw_jsonl_path,
+                urm_events_path=runtime.urm_events_path,
+                runtime_thread_id=runtime.thread_id,
+                active_turn_id=runtime.active_turn_id,
+                last_turn_id=runtime.last_turn_id,
+            )
+        if not child_rows:
+            raise URMError(
+                code="URM_NOT_FOUND",
+                message="copilot session not found",
+                status_code=404,
+                context={"session_id": session_id},
+            )
+        started_at = min(row.created_at for row in child_rows)
+        ended_at_candidates = [row.ended_at for row in child_rows if row.ended_at is not None]
+        ended_at = max(ended_at_candidates) if ended_at_candidates else None
+        status = "failed" if any(row.status == "failed" for row in child_rows) else "stopped"
+        return SessionStateInput(
+            session_id=session_id,
+            status=status,
+            started_at=started_at,
+            ended_at=ended_at,
+            writes_allowed=False,
+            profile_id="default",
+            profile_version=PROFILE_VERSION,
+            profile_policy_hash=None,
+            raw_jsonl_path=None,
+            urm_events_path=events_rel_path,
+            runtime_thread_id=None,
+            active_turn_id=None,
+            last_turn_id=None,
+        )
+
+    def _build_child_state_inputs_locked(
+        self,
+        *,
+        session_id: str,
+        child_rows: list[Any],
+        token_by_child: dict[str, Any | None],
+    ) -> list[ChildStateInput]:
+        children: list[ChildStateInput] = []
+        for row in child_rows:
+            metadata = row.result_json if isinstance(row.result_json, dict) else {}
+            token = token_by_child.get(row.worker_id)
+            child_runtime = self._child_runs.get(row.worker_id)
+            capabilities_raw = metadata.get("capabilities_allowed")
+            capabilities_allowed = (
+                tuple(str(item) for item in capabilities_raw if isinstance(item, str))
+                if isinstance(capabilities_raw, list)
+                else ()
+            )
+            error = metadata.get("error") if isinstance(metadata.get("error"), dict) else {}
+            parent_session_id = (
+                token.parent_session_id
+                if token is not None
+                else str(metadata.get("parent_session_id") or session_id)
+            )
+            parent_stream_id = (
+                token.parent_stream_id
+                if token is not None
+                else str(metadata.get("parent_stream_id") or f"copilot:{parent_session_id}")
+            )
+            child_stream_id = str(metadata.get("child_stream_id") or f"child:{row.worker_id}")
+            queue_seq = (
+                token.queue_seq
+                if token is not None
+                else int(metadata.get("queue_seq"))
+                if isinstance(metadata.get("queue_seq"), int)
+                else 0
+            )
+            dispatch_seq = (
+                token.dispatch_seq
+                if token is not None
+                else int(metadata.get("dispatch_seq"))
+                if isinstance(metadata.get("dispatch_seq"), int)
+                else None
+            )
+            lease_id = (
+                token.worker_run_id
+                if token is not None
+                else str(metadata.get("lease_id"))
+                if isinstance(metadata.get("lease_id"), str)
+                else None
+            )
+            dispatch_phase = (
+                child_runtime.dispatch_phase
+                if child_runtime is not None
+                else token.phase
+                if token is not None
+                else str(metadata.get("phase"))
+                if isinstance(metadata.get("phase"), str)
+                else None
+            )
+            profile_id = (
+                child_runtime.profile_id
+                if child_runtime is not None
+                else str(metadata.get("profile_id"))
+                if isinstance(metadata.get("profile_id"), str)
+                else None
+            )
+            profile_version = (
+                child_runtime.profile_version
+                if child_runtime is not None
+                else str(metadata.get("profile_version"))
+                if isinstance(metadata.get("profile_version"), str)
+                else None
+            )
+            inherited_policy_hash = (
+                child_runtime.inherited_policy_hash
+                if child_runtime is not None
+                else str(metadata.get("inherited_policy_hash"))
+                if isinstance(metadata.get("inherited_policy_hash"), str)
+                else None
+            )
+            raw_jsonl_path = (
+                child_runtime.raw_jsonl_path
+                if child_runtime is not None
+                else str(metadata.get("raw_jsonl_path"))
+                if isinstance(metadata.get("raw_jsonl_path"), str)
+                else row.raw_jsonl_path
+            )
+            urm_events_path = (
+                child_runtime.urm_events_path
+                if child_runtime is not None
+                else str(metadata.get("urm_events_path"))
+                if isinstance(metadata.get("urm_events_path"), str)
+                else self._relative_path(self._urm_events_path_for_child(row.worker_id))
+            )
+            child_thread_id = (
+                child_runtime.child_thread_id
+                if child_runtime is not None and child_runtime.child_thread_id
+                else str(metadata.get("child_thread_id"))
+                if isinstance(metadata.get("child_thread_id"), str)
+                else None
+            )
+            error_code = (
+                child_runtime.error_code
+                if child_runtime is not None and child_runtime.error_code is not None
+                else row.error_code
+                if row.error_code is not None
+                else str(error.get("code"))
+                if isinstance(error.get("code"), str)
+                else None
+            )
+            error_message = (
+                child_runtime.error_message
+                if child_runtime is not None and child_runtime.error_message is not None
+                else row.error_message
+                if row.error_message is not None
+                else str(error.get("message"))
+                if isinstance(error.get("message"), str)
+                else None
+            )
+            children.append(
+                ChildStateInput(
+                    child_id=row.worker_id,
+                    parent_session_id=parent_session_id,
+                    status=child_runtime.status if child_runtime is not None else row.status,
+                    started_at=row.created_at,
+                    ended_at=child_runtime.ended_at if child_runtime is not None else row.ended_at,
+                    runtime_role=row.role,
+                    parent_turn_id=(
+                        str(metadata.get("parent_turn_id"))
+                        if isinstance(metadata.get("parent_turn_id"), str)
+                        else None
+                    ),
+                    parent_stream_id=parent_stream_id,
+                    child_stream_id=child_stream_id,
+                    child_thread_id=child_thread_id,
+                    queue_seq=queue_seq,
+                    dispatch_seq=dispatch_seq,
+                    lease_id=lease_id,
+                    dispatch_phase=dispatch_phase,
+                    profile_id=profile_id,
+                    profile_version=profile_version,
+                    inherited_policy_hash=inherited_policy_hash,
+                    capabilities_allowed=capabilities_allowed,
+                    raw_jsonl_path=raw_jsonl_path,
+                    urm_events_path=urm_events_path,
+                    error_code=error_code,
+                    error_message=error_message,
+                )
+            )
+        return children
+
+    def _read_event_stream_heads_locked(
+        self,
+        *,
+        session_id: str,
+        session: SessionStateInput,
+        children: list[ChildStateInput],
+    ) -> list[EventStreamHeadInput]:
+        stream_specs: list[tuple[Path, str]] = []
+        session_path = self._urm_events_path_for_session(session_id)
+        stream_specs.append((session_path, self._relative_path(session_path)))
+        audit_path = self._audit_events_path_for_session(session_id)
+        stream_specs.append((audit_path, self._relative_path(audit_path)))
+        for child in children:
+            if child.urm_events_path is None:
+                continue
+            try:
+                child_path = self._resolve_urm_events_path(child.urm_events_path)
+            except URMError:
+                continue
+            stream_specs.append((child_path, child.urm_events_path))
+        seen: set[str] = set()
+        stream_heads: list[EventStreamHeadInput] = []
+        for path, relative_path in stream_specs:
+            if relative_path in seen:
+                continue
+            seen.add(relative_path)
+            head = read_event_stream_head(path=path, relative_path=relative_path)
+            if head is not None:
+                stream_heads.append(head)
+        if session.urm_events_path and session.urm_events_path not in seen:
+            try:
+                extra_path = self._resolve_urm_events_path(session.urm_events_path)
+            except URMError:
+                return stream_heads
+            head = read_event_stream_head(path=extra_path, relative_path=session.urm_events_path)
+            if head is not None:
+                stream_heads.append(head)
+        return stream_heads
+
+    def materialize_orchestration_state(
+        self,
+        *,
+        session_id: str,
+    ) -> MaterializedOrchestrationArtifacts:
+        with self._lock:
+            with transaction(db_path=self.config.db_path) as con:
+                row = get_copilot_session(con=con, copilot_session_id=session_id)
+                child_rows = list_copilot_child_runs_for_parent(
+                    con=con,
+                    parent_session_id=session_id,
+                )
+                token_by_child = {
+                    token.child_id: token
+                    for token in list_dispatch_tokens_for_parent_session(
+                        con=con,
+                        parent_session_id=session_id,
+                    )
+                }
+            try:
+                session = self._build_session_state_input_locked(
+                    session_id=session_id,
+                    row=row,
+                    child_rows=child_rows,
+                )
+                children = self._build_child_state_inputs_locked(
+                    session_id=session_id,
+                    child_rows=child_rows,
+                    token_by_child=token_by_child,
+                )
+                event_streams = self._read_event_stream_heads_locked(
+                    session_id=session_id,
+                    session=session,
+                    children=children,
+                )
+                output_root = self._orchestration_state_output_root(session_id)
+                output_root_relative = self._relative_path(output_root)
+                return materialize_orchestration_artifacts(
+                    output_root=output_root,
+                    output_root_relative=output_root_relative,
+                    session=session,
+                    children=children,
+                    event_streams=event_streams,
+                    repo_root=str(self._repo_root_for_orchestration_state()),
+                    branch_or_head="HEAD",
+                )
+            except (FileNotFoundError, OrchestrationStateError) as exc:
+                raise URMError(
+                    code="URM_ORCHESTRATION_STATE_INVALID",
+                    message=str(exc),
+                    context={"session_id": session_id},
+                ) from exc
 
     def _update_turn_state_from_payload(
         self,
