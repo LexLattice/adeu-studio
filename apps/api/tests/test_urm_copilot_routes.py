@@ -3221,6 +3221,100 @@ def test_materialize_orchestration_state_records_write_authority_transition(
     _reset_manager_for_tests()
 
 
+def test_materialize_orchestration_state_records_sequential_builder_transitions(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "1.0")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-builder-seq-start-1")
+    )
+    session_id = start.session_id
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="orch-builder-seq-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "orch-builder-seq-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    manager = _get_manager()
+    for index, subtree in enumerate(("apps/api", "packages/urm_runtime"), start=1):
+        spawn = urm_agent_spawn_endpoint(
+            AgentSpawnRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id=f"orch-builder-seq-spawn-{index}",
+                prompt=f"implement {subtree}",
+                target_turn_id=f"turn-builder-seq-{index}",
+                requested_role="builder_worker",
+                delegation_task_kind="write_task",
+                delegated_scope=_delegated_scope_payload(
+                    kind="subtree",
+                    values=[subtree],
+                    artifact_surfaces=["implementation"],
+                    rationale=f"scoped implementation write task {index}",
+                ),
+            )
+        )
+        assert spawn.authoritative_write_lease_granted is True
+        assert _wait_for(
+            lambda: (
+                (child := manager._child_runs.get(spawn.child_id)) is not None
+                and child.status == "completed"
+                and child.persisted
+            ),
+            timeout_secs=5.0,
+            interval_secs=0.05,
+        )
+
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=session_id)
+    transitions = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.role_transition_record.path,
+    )
+
+    assert [entry["to_role"] for entry in transitions["entries"]] == [
+        "builder_worker",
+        "main_orchestrator",
+        "builder_worker",
+        "main_orchestrator",
+    ]
+    assert transitions["entries"][0]["scope_owned"][0]["values"] == ["apps/api"]
+    assert transitions["entries"][2]["scope_owned"][0]["values"] == ["packages/urm_runtime"]
+    _reset_manager_for_tests()
+
+
 def test_materialize_orchestration_state_records_audit_bridge_for_restart_recovery(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -3922,6 +4016,40 @@ def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_missing_ha
 
     with pytest.raises(
         OrchestrationEvidenceError, match="completed child handoff entry is required"
+    ):
+        _materialize_v35b_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_extra_handoff_entry(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    handoff_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.role_handoff_envelope.path,
+    )
+    extra_entry = dict(handoff_payload["entries"][0])
+    extra_entry["role"] = "docs_helper"
+    handoff_payload["entries"].append(extra_entry)
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="role_handoff_envelope",
+        payload=handoff_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="handoff entries must exactly match completed delegated work",
     ):
         _materialize_v35b_evidence(
             repo_root=tmp_path,

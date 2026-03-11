@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -738,16 +739,14 @@ def _validate_builder_role_materialized(
     transition_record: RoleTransitionRecord,
     handoff_envelope: RoleHandoffEnvelope,
 ) -> bool:
-    builder_present = any(role.role == "builder_worker" for role in child_roles)
-    builder_present = builder_present or any(
-        observation.granted_role == "builder_worker"
-        for observation in write_lease.dispatch_lease_observations
-    )
-    builder_present = builder_present or any(
-        entry.to_role == "builder_worker" for entry in transition_record.entries
-    )
-    builder_present = builder_present or any(
-        entry.role == "builder_worker" for entry in handoff_envelope.entries
+    builder_present = (
+        any(role.role == "builder_worker" for role in child_roles)
+        or any(
+            observation.granted_role == "builder_worker"
+            for observation in write_lease.dispatch_lease_observations
+        )
+        or any(entry.to_role == "builder_worker" for entry in transition_record.entries)
+        or any(entry.role == "builder_worker" for entry in handoff_envelope.entries)
     )
     if not builder_present:
         raise OrchestrationEvidenceError("builder role must be materialized")
@@ -760,13 +759,16 @@ def _validate_support_roles_materialized(
     write_lease: WriteLeaseState,
     handoff_envelope: RoleHandoffEnvelope,
 ) -> bool:
-    support_present = any(role.role in EXPECTED_SUPPORT_DELEGATION_ROLES for role in child_roles)
-    support_present = support_present or any(
-        observation.granted_role in EXPECTED_SUPPORT_DELEGATION_ROLES
-        for observation in write_lease.dispatch_lease_observations
-    )
-    support_present = support_present or any(
-        entry.role in EXPECTED_SUPPORT_DELEGATION_ROLES for entry in handoff_envelope.entries
+    support_present = (
+        any(role.role in EXPECTED_SUPPORT_DELEGATION_ROLES for role in child_roles)
+        or any(
+            observation.granted_role in EXPECTED_SUPPORT_DELEGATION_ROLES
+            for observation in write_lease.dispatch_lease_observations
+        )
+        or any(
+            entry.role in EXPECTED_SUPPORT_DELEGATION_ROLES
+            for entry in handoff_envelope.entries
+        )
     )
     if not support_present:
         raise OrchestrationEvidenceError("at least one support role path must be materialized")
@@ -945,10 +947,9 @@ def _validate_v35b_handoff_artifact(
         raise OrchestrationEvidenceError(
             "completed child handoff entry is required when claimed work is present"
         )
-    handoff_roles = {entry.role for entry in handoff_envelope.entries}
-    if not set(completed_child_roles).issubset(handoff_roles):
+    if Counter(entry.role for entry in handoff_envelope.entries) != Counter(completed_child_roles):
         raise OrchestrationEvidenceError(
-            "completed child handoff entry is required when claimed work is present"
+            "handoff entries must exactly match completed delegated work"
         )
     for entry in handoff_envelope.entries:
         if entry.status != "completed":
