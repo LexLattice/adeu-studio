@@ -1,4 +1,4 @@
-.PHONY: bootstrap test lint format check closeout-lint semantic-closeout-lint instruction-policy-check
+.PHONY: bootstrap test lint format check closeout-lint semantic-closeout-lint instruction-policy-check arc-start-check arc-closeout-check
 
 VENV ?= .venv
 PY := $(VENV)/bin/python
@@ -47,5 +47,19 @@ semantic-closeout-lint:
 
 instruction-policy-check:
 	$(PY) apps/api/scripts/generate_instruction_policy_views.py --check
+
+arc-start-check:
+	@test -n "$(ARC)" || (echo "ARC is required, e.g. make arc-start-check ARC=58" >&2; exit 2)
+	TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONPATH=$(CLOSEOUT_LINT_PYTHONPATH) \
+		$(PY) apps/api/scripts/lint_arc_bundle.py --arc $(ARC) --phase start
+	$(MAKE) instruction-policy-check
+
+arc-closeout-check:
+	@test -n "$(ARC)" || (echo "ARC is required, e.g. make arc-closeout-check ARC=57" >&2; exit 2)
+	TZ=UTC LC_ALL=C PYTHONHASHSEED=0 PYTHONPATH=$(CLOSEOUT_LINT_PYTHONPATH) \
+		$(PY) apps/api/scripts/lint_arc_bundle.py --arc $(ARC) --phase closeout
+	$(MAKE) closeout-lint
+	$(MAKE) semantic-closeout-lint
+	$(MAKE) instruction-policy-check
 
 check: lint test closeout-lint semantic-closeout-lint instruction-policy-check

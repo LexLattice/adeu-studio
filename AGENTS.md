@@ -17,3 +17,18 @@
   - semantic compiler closeout lint
   - generated instruction policy doc check
 - If you intentionally run a narrower subset instead of `make check`, state what was skipped.
+
+## Docs-Only Arc Bundles
+
+- For docs-only arc starting-bundle work, use `make arc-start-check ARC=<n>`.
+- For docs/artifacts-only arc closeout bundle work, use `make arc-closeout-check ARC=<n>`.
+- These shortcuts are only for diffs limited to arc planning/closeout docs and committed
+  closeout artifacts; they are not a replacement for `make check` when Python source,
+  tests, `Makefile`, CI, or lint scripts change.
+- `make arc-start-check` runs the arc-bundle scaffold lint plus the generated instruction
+  policy doc check.
+- `make arc-closeout-check` runs the arc-bundle closeout lint, closeout consistency lint,
+  semantic closeout lint, committed URM event-stream validation for that arc bundle, and
+  the generated instruction policy doc check.
+- If you intentionally use an arc-bundle shortcut instead of `make check`, say that the
+  full Python lane was skipped because the change was docs/artifacts only.
