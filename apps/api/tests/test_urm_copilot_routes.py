@@ -48,6 +48,7 @@ from urm_runtime.instruction_policy import (
 from urm_runtime.models import (
     AgentCancelRequest,
     AgentSpawnRequest,
+    AgentSpawnResponse,
     ApprovalIssueRequest,
     ApprovalRevokeRequest,
     ConnectorSnapshotCreateRequest,
@@ -2537,6 +2538,104 @@ def test_tool_call_emits_policy_denied_event_on_instruction_deny(
         "PROOF_RUN_PASS",
         "POLICY_DENIED",
     ]
+
+
+def test_agent_spawn_route_passes_delegation_payload_to_authorize_action(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import adeu_api.urm_routes as urm_routes_module
+
+    class _FakeManager:
+        def __init__(self) -> None:
+            self.events: list[tuple[str, dict[str, object]]] = []
+
+        def record_policy_eval_event(
+            self,
+            *,
+            session_id: str | None,
+            event_kind: str,
+            detail: dict[str, object],
+        ) -> None:
+            self.events.append((event_kind, detail))
+
+        def spawn_child(
+            self,
+            request: AgentSpawnRequest,
+            *,
+            inherited_policy_hash: str | None,
+            capabilities_allowed: list[str],
+        ) -> AgentSpawnResponse:
+            assert inherited_policy_hash is not None
+            assert "spawn_worker" in capabilities_allowed
+            return AgentSpawnResponse(
+                child_id="child-policy-spawn-1",
+                parent_session_id=request.session_id,
+                status="queued",
+                parent_stream_id=f"copilot:{request.session_id}",
+                child_stream_id="child:child-policy-spawn-1",
+                target_turn_id=request.target_turn_id or "turn-policy-spawn-1",
+                queue_seq=0,
+                profile_id="default",
+                profile_version="profile.v1",
+                budget_snapshot={},
+                inherited_policy_hash=inherited_policy_hash,
+                requested_role=request.requested_role,
+                granted_role=request.granted_role or request.requested_role,
+                delegation_task_kind=request.delegation_task_kind,
+                delegated_scope=request.delegated_scope,
+                authoritative_write_lease_granted=True,
+            )
+
+    fake_manager = _FakeManager()
+    authorize_calls: list[dict[str, object]] = []
+    original_authorize_action = urm_routes_module.authorize_action
+
+    def _spy_authorize_action(**kwargs: object) -> object:
+        authorize_calls.append(dict(kwargs))
+        return original_authorize_action(**kwargs)
+
+    monkeypatch.setattr(urm_routes_module, "authorize_action", _spy_authorize_action)
+    monkeypatch.setattr("adeu_api.urm_routes._get_manager", lambda: fake_manager)
+    monkeypatch.setattr("adeu_api.urm_routes._load_session_access_state", lambda _sid: (True, True))
+
+    response = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id="session-policy-spawn-1",
+            client_request_id="client-policy-spawn-1",
+            prompt="implement the api lane",
+            target_turn_id="turn-policy-spawn-1",
+            requested_role="builder_worker",
+            delegation_task_kind="write_task",
+            delegated_scope=_delegated_scope_payload(
+                kind="subtree",
+                values=["apps/api"],
+                artifact_surfaces=["implementation"],
+                rationale="policy trace should include delegation metadata",
+            ),
+        )
+    )
+
+    assert response.child_id == "child-policy-spawn-1"
+    assert len(authorize_calls) == 1
+    assert authorize_calls[0]["role"] == "copilot"
+    assert authorize_calls[0]["action"] == "urm.agent.spawn"
+    assert authorize_calls[0]["writes_allowed"] is True
+    assert authorize_calls[0]["session_active"] is True
+    assert authorize_calls[0]["action_payload"] == {
+        "target_turn_id": "turn-policy-spawn-1",
+        "use_last_turn": False,
+        "prompt": "implement the api lane",
+        "requested_role": "builder_worker",
+        "granted_role": "builder_worker",
+        "delegation_task_kind": "write_task",
+        "delegated_scope": {
+            "kind": "subtree",
+            "values": ["apps/api"],
+            "artifact_surfaces": ["implementation"],
+            "rationale": "policy trace should include delegation metadata",
+        },
+    }
 
 
 def test_materialize_orchestration_state_is_deterministic_for_running_session(

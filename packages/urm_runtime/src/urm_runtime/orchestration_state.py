@@ -958,8 +958,8 @@ def _build_role_handoff_envelope(
     for child in sorted(children, key=_child_order_key):
         if child.status != "completed":
             continue
-        artifacts_produced = [path for path in [child.raw_jsonl_path] if path]
-        evidence_refs = [path for path in [child.urm_events_path] if path]
+        artifacts_produced = [child.raw_jsonl_path] if child.raw_jsonl_path else []
+        evidence_refs = [child.urm_events_path] if child.urm_events_path else []
         if not artifacts_produced and not evidence_refs:
             continue
         entries.append(

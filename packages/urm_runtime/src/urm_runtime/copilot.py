@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from adeu_ir.repo import repo_root as canonical_repo_root
+from pydantic import ValidationError
 
 from .app_server import CodexAppServerHost
 from .capability_policy import load_capability_policy
@@ -508,6 +509,18 @@ class URMCopilotManager:
             "authoritative_write_lease_granted": child.authoritative_write_lease_granted,
         }
 
+    def _load_persisted_delegated_scope(
+        self, *, metadata: dict[str, Any]
+    ) -> DelegatedScopeDescriptor:
+        delegated_scope_raw = metadata.get("delegated_scope")
+        delegated_scope_payload = (
+            delegated_scope_raw if isinstance(delegated_scope_raw, dict) else {}
+        )
+        try:
+            return DelegatedScopeDescriptor.model_validate(delegated_scope_payload)
+        except ValidationError:
+            return DelegatedScopeDescriptor(kind="artifact_surface_only")
+
     def _build_session_state_input_locked(
         self,
         *,
@@ -588,38 +601,7 @@ class URMCopilotManager:
             metadata = row.result_json if isinstance(row.result_json, dict) else {}
             token = token_by_child.get(row.worker_id)
             child_runtime = self._child_runs.get(row.worker_id)
-            delegated_scope_raw = metadata.get("delegated_scope")
-            delegated_scope_payload = (
-                delegated_scope_raw if isinstance(delegated_scope_raw, dict) else {}
-            )
-            delegated_scope_kind = (
-                str(delegated_scope_payload.get("kind"))
-                if isinstance(delegated_scope_payload.get("kind"), str)
-                else "artifact_surface_only"
-            )
-            delegated_scope_values = tuple(
-                sorted(
-                    {
-                        str(item).strip()
-                        for item in delegated_scope_payload.get("values", [])
-                        if isinstance(item, str) and str(item).strip()
-                    }
-                )
-            )
-            delegated_scope_artifact_surfaces = tuple(
-                sorted(
-                    {
-                        str(item)
-                        for item in delegated_scope_payload.get("artifact_surfaces", [])
-                        if isinstance(item, str)
-                    }
-                )
-            )
-            delegated_scope_rationale = (
-                str(delegated_scope_payload.get("rationale"))
-                if isinstance(delegated_scope_payload.get("rationale"), str)
-                else None
-            )
+            persisted_delegated_scope = self._load_persisted_delegated_scope(metadata=metadata)
             capabilities_raw = metadata.get("capabilities_allowed")
             capabilities_allowed = (
                 tuple(str(item) for item in capabilities_raw if isinstance(item, str))
@@ -760,22 +742,22 @@ class URMCopilotManager:
                     delegated_scope_kind=(
                         child_runtime.delegated_scope.kind
                         if child_runtime is not None
-                        else delegated_scope_kind
+                        else persisted_delegated_scope.kind
                     ),
                     delegated_scope_values=(
                         tuple(child_runtime.delegated_scope.values)
                         if child_runtime is not None
-                        else delegated_scope_values
+                        else tuple(persisted_delegated_scope.values)
                     ),
                     delegated_scope_artifact_surfaces=(
                         tuple(child_runtime.delegated_scope.artifact_surfaces)
                         if child_runtime is not None
-                        else delegated_scope_artifact_surfaces
+                        else tuple(persisted_delegated_scope.artifact_surfaces)
                     ),
                     delegated_scope_rationale=(
                         child_runtime.delegated_scope.rationale
                         if child_runtime is not None
-                        else delegated_scope_rationale
+                        else persisted_delegated_scope.rationale
                     ),
                     authoritative_write_lease_granted=(
                         child_runtime.authoritative_write_lease_granted
