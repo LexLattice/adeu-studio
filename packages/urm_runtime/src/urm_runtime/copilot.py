@@ -127,6 +127,11 @@ from .storage import (
     update_copilot_session_profile,
     update_copilot_session_status,
 )
+from .worker_visibility import (
+    MaterializedWorkerVisibilityArtifacts,
+    WorkerVisibilityStateError,
+    materialize_worker_visibility_artifacts,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -415,6 +420,15 @@ class URMCopilotManager:
             field_name="session_id",
         )
         path = self.config.evidence_root / "orchestration_state" / safe_session_id
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _worker_visibility_output_root(self, session_id: str) -> Path:
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "visibility" / safe_session_id
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -879,6 +893,75 @@ class URMCopilotManager:
                     message=str(exc),
                     context={"session_id": session_id},
                 ) from exc
+
+    def materialize_worker_visibility_state(
+        self,
+        *,
+        session_id: str,
+    ) -> MaterializedWorkerVisibilityArtifacts:
+        with self._lock:
+            with transaction(db_path=self.config.db_path) as con:
+                row = get_copilot_session(con=con, copilot_session_id=session_id)
+                child_rows = list_copilot_child_runs_for_parent(
+                    con=con,
+                    parent_session_id=session_id,
+                )
+                token_by_child = {
+                    token.child_id: token
+                    for token in list_dispatch_tokens_for_parent_session(
+                        con=con,
+                        parent_session_id=session_id,
+                    )
+                }
+            try:
+                session = self._build_session_state_input_locked(
+                    session_id=session_id,
+                    row=row,
+                    child_rows=child_rows,
+                )
+                children = self._build_child_state_inputs_locked(
+                    session_id=session_id,
+                    child_rows=child_rows,
+                    token_by_child=token_by_child,
+                )
+                event_streams = self._read_event_stream_heads_locked(
+                    session_id=session_id,
+                    session=session,
+                    children=children,
+                )
+                raw_transcript_available_by_child = {
+                    child.child_id: self._raw_transcript_available(child.raw_jsonl_path)
+                    for child in children
+                }
+                output_root = self._worker_visibility_output_root(session_id)
+                output_root_relative = self._relative_path(output_root)
+                return materialize_worker_visibility_artifacts(
+                    output_root=output_root,
+                    output_root_relative=output_root_relative,
+                    session=session,
+                    children=children,
+                    event_streams=event_streams,
+                    repo_root=str(self._repo_root_for_orchestration_state()),
+                    branch_or_head="HEAD",
+                    raw_transcript_available_by_child=raw_transcript_available_by_child,
+                )
+            except URMError as exc:
+                raise URMError(
+                    code="URM_WORKER_VISIBILITY_STATE_INVALID",
+                    message=exc.detail.message,
+                    context={"session_id": session_id, **exc.detail.context},
+                ) from exc
+            except (FileNotFoundError, OrchestrationStateError, WorkerVisibilityStateError) as exc:
+                raise URMError(
+                    code="URM_WORKER_VISIBILITY_STATE_INVALID",
+                    message=str(exc),
+                    context={"session_id": session_id},
+                ) from exc
+
+    def _raw_transcript_available(self, raw_jsonl_path: str | None) -> bool:
+        if raw_jsonl_path is None:
+            return False
+        return self._resolve_raw_path(raw_jsonl_path).exists()
 
     def _update_turn_state_from_payload(
         self,
