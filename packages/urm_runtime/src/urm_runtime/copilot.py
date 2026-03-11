@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from adeu_ir.repo import repo_root as canonical_repo_root
+from pydantic import ValidationError
 
 from .app_server import CodexAppServerHost
 from .capability_policy import load_capability_policy
@@ -64,6 +65,7 @@ from .models import (
     CopilotSteerRequest,
     CopilotSteerResponse,
     CopilotStopRequest,
+    DelegatedScopeDescriptor,
     NormalizedEvent,
     PolicyActivationResponse,
     PolicyActiveResponse,
@@ -98,6 +100,7 @@ from .profile_registry import (
     load_policy_profile_registry,
 )
 from .retention import run_evidence_retention_gc
+from .roles import get_role_policy, is_child_delegation_role
 from .storage import (
     CopilotSessionRow,
     IdempotencyPayloadConflict,
@@ -161,6 +164,11 @@ class ChildAgentRuntime:
     raw_writer: EvidenceFileWriter
     raw_jsonl_path: str
     urm_events_path: str
+    requested_role: str
+    granted_role: str
+    delegation_task_kind: str
+    delegated_scope: DelegatedScopeDescriptor
+    authoritative_write_lease_granted: bool
     status: Literal["queued", "running", "completed", "failed", "cancelled"] = "queued"
     ended_at: str | None = None
     error_code: str | None = None
@@ -416,6 +424,103 @@ class URMCopilotManager:
         except RuntimeError as exc:
             raise FileNotFoundError("repository root not found") from exc
 
+    def _resolve_child_delegation_unlocked(
+        self,
+        *,
+        request: AgentSpawnRequest,
+    ) -> tuple[str, str, str, DelegatedScopeDescriptor, bool]:
+        requested_role = request.requested_role
+        granted_role = request.granted_role or request.requested_role
+        if not is_child_delegation_role(requested_role):
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="requested_role is not a released child delegation role",
+                context={"requested_role": requested_role},
+            )
+        if not is_child_delegation_role(granted_role):
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="granted_role is not a released child delegation role",
+                context={"granted_role": granted_role},
+            )
+        requested_policy = get_role_policy(requested_role)
+        granted_policy = get_role_policy(granted_role)
+        if requested_policy.transport != "app_server" or granted_policy.transport != "app_server":
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="delegated child roles must use app_server transport",
+                context={
+                    "requested_role": requested_role,
+                    "granted_role": granted_role,
+                },
+            )
+        if granted_role != requested_role:
+            raise URMError(
+                code="URM_POLICY_DENIED",
+                message="granted_role must equal requested_role in the v57 B1 baseline",
+                context={
+                    "requested_role": requested_role,
+                    "granted_role": granted_role,
+                },
+            )
+
+        delegated_scope = request.delegated_scope.model_copy(deep=True)
+        authoritative_write_lease_granted = False
+        if request.delegation_task_kind == "write_task":
+            if granted_role != "builder_worker":
+                raise URMError(
+                    code="URM_POLICY_DENIED",
+                    message="write_task delegation requires granted_role=builder_worker",
+                    context={
+                        "requested_role": requested_role,
+                        "granted_role": granted_role,
+                    },
+                )
+            if delegated_scope.kind == "artifact_surface_only":
+                raise URMError(
+                    code="URM_POLICY_DENIED",
+                    message="write_task delegation requires a writable delegated scope",
+                    context={"delegated_scope_kind": delegated_scope.kind},
+                )
+            with transaction(db_path=self.config.db_path) as con:
+                row = get_copilot_session(con=con, copilot_session_id=request.session_id)
+            if row is None or row.writes_allowed is not True:
+                raise URMError(
+                    code="URM_POLICY_DENIED",
+                    message="write_task delegation requires parent writes_allowed=true",
+                    context={"session_id": request.session_id},
+                )
+            authoritative_write_lease_granted = True
+
+        return (
+            requested_role,
+            granted_role,
+            request.delegation_task_kind,
+            delegated_scope,
+            authoritative_write_lease_granted,
+        )
+
+    def _child_delegation_payload(self, *, child: ChildAgentRuntime) -> dict[str, Any]:
+        return {
+            "requested_role": child.requested_role,
+            "granted_role": child.granted_role,
+            "delegation_task_kind": child.delegation_task_kind,
+            "delegated_scope": child.delegated_scope.model_dump(mode="json"),
+            "authoritative_write_lease_granted": child.authoritative_write_lease_granted,
+        }
+
+    def _load_persisted_delegated_scope(
+        self, *, metadata: dict[str, Any]
+    ) -> DelegatedScopeDescriptor:
+        delegated_scope_raw = metadata.get("delegated_scope")
+        delegated_scope_payload = (
+            delegated_scope_raw if isinstance(delegated_scope_raw, dict) else {}
+        )
+        try:
+            return DelegatedScopeDescriptor.model_validate(delegated_scope_payload)
+        except ValidationError:
+            return DelegatedScopeDescriptor(kind="artifact_surface_only")
+
     def _build_session_state_input_locked(
         self,
         *,
@@ -496,6 +601,7 @@ class URMCopilotManager:
             metadata = row.result_json if isinstance(row.result_json, dict) else {}
             token = token_by_child.get(row.worker_id)
             child_runtime = self._child_runs.get(row.worker_id)
+            persisted_delegated_scope = self._load_persisted_delegated_scope(metadata=metadata)
             capabilities_raw = metadata.get("capabilities_allowed")
             capabilities_allowed = (
                 tuple(str(item) for item in capabilities_raw if isinstance(item, str))
@@ -612,6 +718,52 @@ class URMCopilotManager:
                     started_at=row.created_at,
                     ended_at=child_runtime.ended_at if child_runtime is not None else row.ended_at,
                     runtime_role=row.role,
+                    requested_role=(
+                        child_runtime.requested_role
+                        if child_runtime is not None
+                        else str(metadata.get("requested_role"))
+                        if isinstance(metadata.get("requested_role"), str)
+                        else "explorer"
+                    ),
+                    granted_role=(
+                        child_runtime.granted_role
+                        if child_runtime is not None
+                        else str(metadata.get("granted_role"))
+                        if isinstance(metadata.get("granted_role"), str)
+                        else "explorer"
+                    ),
+                    delegation_task_kind=(
+                        child_runtime.delegation_task_kind
+                        if child_runtime is not None
+                        else str(metadata.get("delegation_task_kind"))
+                        if isinstance(metadata.get("delegation_task_kind"), str)
+                        else "analysis_task"
+                    ),
+                    delegated_scope_kind=(
+                        child_runtime.delegated_scope.kind
+                        if child_runtime is not None
+                        else persisted_delegated_scope.kind
+                    ),
+                    delegated_scope_values=(
+                        tuple(child_runtime.delegated_scope.values)
+                        if child_runtime is not None
+                        else tuple(persisted_delegated_scope.values)
+                    ),
+                    delegated_scope_artifact_surfaces=(
+                        tuple(child_runtime.delegated_scope.artifact_surfaces)
+                        if child_runtime is not None
+                        else tuple(persisted_delegated_scope.artifact_surfaces)
+                    ),
+                    delegated_scope_rationale=(
+                        child_runtime.delegated_scope.rationale
+                        if child_runtime is not None
+                        else persisted_delegated_scope.rationale
+                    ),
+                    authoritative_write_lease_granted=(
+                        child_runtime.authoritative_write_lease_granted
+                        if child_runtime is not None
+                        else bool(metadata.get("authoritative_write_lease_granted"))
+                    ),
                     parent_turn_id=(
                         str(metadata.get("parent_turn_id"))
                         if isinstance(metadata.get("parent_turn_id"), str)
@@ -2982,6 +3134,13 @@ class URMCopilotManager:
                     },
                 )
 
+            (
+                requested_role,
+                granted_role,
+                delegation_task_kind,
+                delegated_scope,
+                authoritative_write_lease_granted,
+            ) = self._resolve_child_delegation_unlocked(request=request)
             target_turn_id = self._resolve_turn_target(
                 runtime=runtime,
                 target_turn_id=request.target_turn_id,
@@ -3018,6 +3177,11 @@ class URMCopilotManager:
                 ),
                 raw_jsonl_path=raw_rel_path,
                 urm_events_path=events_rel_path,
+                requested_role=requested_role,
+                granted_role=granted_role,
+                delegation_task_kind=delegation_task_kind,
+                delegated_scope=delegated_scope,
+                authoritative_write_lease_granted=authoritative_write_lease_granted,
                 budget_snapshot=self._child_budget_snapshot(runtime=runtime),
                 inherited_policy_hash=inherited_policy_hash,
                 capabilities_allowed=sorted(capabilities_allowed),
@@ -3037,12 +3201,17 @@ class URMCopilotManager:
                     "inherited_policy_hash": inherited_policy_hash,
                     "profile_id": child.profile_id,
                     "profile_version": child.profile_version,
+                    **self._child_delegation_payload(child=child),
                 },
             )
             self._record_child_event(
                 child=child,
                 event_kind="WORKER_START",
-                payload={"worker_id": child_id, "status": "running"},
+                payload={
+                    "worker_id": child_id,
+                    "status": "running",
+                    **self._child_delegation_payload(child=child),
+                },
             )
 
             def _child_call(method: str, params: dict[str, Any]) -> dict[str, Any]:
@@ -3118,6 +3287,15 @@ class URMCopilotManager:
                         "status": "completed",
                     },
                 )
+                self._record_parent_or_audit_event(
+                    parent_session_id=request.session_id,
+                    event_kind="WORKER_RECONCILIATION_REQUIRED",
+                    payload={
+                        "child_id": child_id,
+                        "status": "completed",
+                        **self._child_delegation_payload(child=child),
+                    },
+                )
             except URMError as exc:
                 self._handle_child_spawn_failure_unlocked(
                     child=child,
@@ -3143,6 +3321,11 @@ class URMCopilotManager:
                 ),
                 budget_snapshot=child.budget_snapshot,
                 inherited_policy_hash=child.inherited_policy_hash,
+                requested_role=child.requested_role,  # type: ignore[arg-type]
+                granted_role=child.granted_role,  # type: ignore[arg-type]
+                delegation_task_kind=child.delegation_task_kind,  # type: ignore[arg-type]
+                delegated_scope=child.delegated_scope,
+                authoritative_write_lease_granted=child.authoritative_write_lease_granted,
             )
             with transaction(db_path=self.config.db_path) as con:
                 persist_idempotency_response(
@@ -3163,6 +3346,11 @@ class URMCopilotManager:
             "parent_turn_id": child.parent_turn_id,
             "child_thread_id": child.child_thread_id,
             "status": child.status,
+            "requested_role": child.requested_role,
+            "granted_role": child.granted_role,
+            "delegation_task_kind": child.delegation_task_kind,
+            "delegated_scope": child.delegated_scope.model_dump(mode="json"),
+            "authoritative_write_lease_granted": child.authoritative_write_lease_granted,
             "error": (
                 {"code": child.error_code, "message": child.error_message}
                 if child.error_code and child.error_message

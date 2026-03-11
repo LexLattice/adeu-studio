@@ -42,7 +42,47 @@ ROLE_REGISTRY: dict[str, RolePolicy] = {
         sandbox="read-only",
         allowed_tools=(),
     ),
+    "builder_worker": RolePolicy(
+        role="builder_worker",
+        transport="app_server",
+        writes_allowed_default=False,
+        sandbox=None,
+        allowed_tools=(),
+    ),
+    "explorer": RolePolicy(
+        role="explorer",
+        transport="app_server",
+        writes_allowed_default=False,
+        sandbox=None,
+        allowed_tools=(),
+    ),
+    "validator": RolePolicy(
+        role="validator",
+        transport="app_server",
+        writes_allowed_default=False,
+        sandbox=None,
+        allowed_tools=(),
+    ),
+    "docs_helper": RolePolicy(
+        role="docs_helper",
+        transport="app_server",
+        writes_allowed_default=False,
+        sandbox=None,
+        allowed_tools=(),
+    ),
 }
+
+CHILD_DELEGATION_ROLES: tuple[str, ...] = (
+    "builder_worker",
+    "explorer",
+    "validator",
+    "docs_helper",
+)
+SUPPORT_DELEGATION_ROLES: tuple[str, ...] = (
+    "explorer",
+    "validator",
+    "docs_helper",
+)
 
 
 def get_role_policy(role: str) -> RolePolicy:
@@ -50,3 +90,11 @@ def get_role_policy(role: str) -> RolePolicy:
         return ROLE_REGISTRY[role]
     except KeyError as exc:
         raise KeyError(f"unknown role: {role}") from exc
+
+
+def is_child_delegation_role(role: str) -> bool:
+    return role in CHILD_DELEGATION_ROLES
+
+
+def is_support_delegation_role(role: str) -> bool:
+    return role in SUPPORT_DELEGATION_ROLES

@@ -48,6 +48,7 @@ from urm_runtime.instruction_policy import (
 from urm_runtime.models import (
     AgentCancelRequest,
     AgentSpawnRequest,
+    AgentSpawnResponse,
     ApprovalIssueRequest,
     ApprovalRevokeRequest,
     ConnectorSnapshotCreateRequest,
@@ -155,6 +156,21 @@ def _repo_root() -> Path:
 
 def _load_materialized_json(*, config: URMRuntimeConfig, relative_path: str) -> dict[str, object]:
     return json.loads((config.var_root / relative_path).read_text(encoding="utf-8"))
+
+
+def _delegated_scope_payload(
+    *,
+    kind: str,
+    values: list[str] | None = None,
+    artifact_surfaces: list[str] | None = None,
+    rationale: str | None = None,
+) -> dict[str, object]:
+    return {
+        "kind": kind,
+        "values": values or [],
+        "artifact_surfaces": artifact_surfaces or [],
+        "rationale": rationale,
+    }
 
 
 def _budget_snapshot_v1(
@@ -2524,6 +2540,104 @@ def test_tool_call_emits_policy_denied_event_on_instruction_deny(
     ]
 
 
+def test_agent_spawn_route_passes_delegation_payload_to_authorize_action(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import adeu_api.urm_routes as urm_routes_module
+
+    class _FakeManager:
+        def __init__(self) -> None:
+            self.events: list[tuple[str, dict[str, object]]] = []
+
+        def record_policy_eval_event(
+            self,
+            *,
+            session_id: str | None,
+            event_kind: str,
+            detail: dict[str, object],
+        ) -> None:
+            self.events.append((event_kind, detail))
+
+        def spawn_child(
+            self,
+            request: AgentSpawnRequest,
+            *,
+            inherited_policy_hash: str | None,
+            capabilities_allowed: list[str],
+        ) -> AgentSpawnResponse:
+            assert inherited_policy_hash is not None
+            assert "spawn_worker" in capabilities_allowed
+            return AgentSpawnResponse(
+                child_id="child-policy-spawn-1",
+                parent_session_id=request.session_id,
+                status="queued",
+                parent_stream_id=f"copilot:{request.session_id}",
+                child_stream_id="child:child-policy-spawn-1",
+                target_turn_id=request.target_turn_id or "turn-policy-spawn-1",
+                queue_seq=0,
+                profile_id="default",
+                profile_version="profile.v1",
+                budget_snapshot={},
+                inherited_policy_hash=inherited_policy_hash,
+                requested_role=request.requested_role,
+                granted_role=request.granted_role or request.requested_role,
+                delegation_task_kind=request.delegation_task_kind,
+                delegated_scope=request.delegated_scope,
+                authoritative_write_lease_granted=True,
+            )
+
+    fake_manager = _FakeManager()
+    authorize_calls: list[dict[str, object]] = []
+    original_authorize_action = urm_routes_module.authorize_action
+
+    def _spy_authorize_action(**kwargs: object) -> object:
+        authorize_calls.append(dict(kwargs))
+        return original_authorize_action(**kwargs)
+
+    monkeypatch.setattr(urm_routes_module, "authorize_action", _spy_authorize_action)
+    monkeypatch.setattr("adeu_api.urm_routes._get_manager", lambda: fake_manager)
+    monkeypatch.setattr("adeu_api.urm_routes._load_session_access_state", lambda _sid: (True, True))
+
+    response = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id="session-policy-spawn-1",
+            client_request_id="client-policy-spawn-1",
+            prompt="implement the api lane",
+            target_turn_id="turn-policy-spawn-1",
+            requested_role="builder_worker",
+            delegation_task_kind="write_task",
+            delegated_scope=_delegated_scope_payload(
+                kind="subtree",
+                values=["apps/api"],
+                artifact_surfaces=["implementation"],
+                rationale="policy trace should include delegation metadata",
+            ),
+        )
+    )
+
+    assert response.child_id == "child-policy-spawn-1"
+    assert len(authorize_calls) == 1
+    assert authorize_calls[0]["role"] == "copilot"
+    assert authorize_calls[0]["action"] == "urm.agent.spawn"
+    assert authorize_calls[0]["writes_allowed"] is True
+    assert authorize_calls[0]["session_active"] is True
+    assert authorize_calls[0]["action_payload"] == {
+        "target_turn_id": "turn-policy-spawn-1",
+        "use_last_turn": False,
+        "prompt": "implement the api lane",
+        "requested_role": "builder_worker",
+        "granted_role": "builder_worker",
+        "delegation_task_kind": "write_task",
+        "delegated_scope": {
+            "kind": "subtree",
+            "values": ["apps/api"],
+            "artifact_surfaces": ["implementation"],
+            "rationale": "policy trace should include delegation metadata",
+        },
+    }
+
+
 def test_materialize_orchestration_state_is_deterministic_for_running_session(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -2656,11 +2770,18 @@ def test_materialize_orchestration_state_tracks_child_dispatch_and_identity(
     ]
     assert snapshot["worker_session_id"] is not None
     assert len(worker_roles) == 1
-    assert worker_roles[0]["role"] == "support_worker"
+    assert worker_roles[0]["role"] == "explorer"
+    assert worker_roles[0]["requested_role"] == "explorer"
+    assert worker_roles[0]["granted_role"] == "explorer"
+    assert worker_roles[0]["delegation_task_kind"] == "analysis_task"
+    assert worker_roles[0]["scope_owned"]["kind"] == "artifact_surface_only"
     assert worker_roles[0]["user_facing_boundary"] is False
     edge = next(edge for edge in topology["edges"] if edge["target_actor_id"] == spawn.child_id)
     assert edge["queue_seq"] == spawn.queue_seq
     assert edge["dispatch_seq"] is not None
+    assert edge["requested_role"] == "explorer"
+    assert edge["granted_role"] == "explorer"
+    assert edge["delegation_task_kind"] == "analysis_task"
     dispatch = next(
         observation
         for observation in write_lease["dispatch_lease_observations"]
@@ -2668,7 +2789,248 @@ def test_materialize_orchestration_state_tracks_child_dispatch_and_identity(
     )
     assert dispatch["lease_id"] == spawn.child_id
     assert dispatch["authoritative_write_access"] is False
+    assert dispatch["requested_role"] == "explorer"
+    assert dispatch["granted_role"] == "explorer"
+    assert dispatch["delegation_task_kind"] == "analysis_task"
     assert dispatch["phase"] in {"queued", "leased", "started", "terminal"}
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_rejects_write_task_without_builder_role(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="spawn-write-role-start-1")
+    )
+    session_id = start.session_id
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-write-role-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "spawn-write-role-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        urm_agent_spawn_endpoint(
+            AgentSpawnRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id="spawn-write-role-denied-1",
+                prompt="attempt support write task",
+                target_turn_id="turn-write-role-denied-1",
+                requested_role="explorer",
+                delegation_task_kind="write_task",
+                delegated_scope=_delegated_scope_payload(
+                    kind="subtree",
+                    values=["apps/api"],
+                    artifact_surfaces=["implementation"],
+                    rationale="invalid support write attempt",
+                ),
+            )
+        )
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_POLICY_DENIED"
+    _reset_manager_for_tests()
+
+
+def test_materialize_orchestration_state_records_builder_write_lease_and_handoff(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "1.0")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-builder-start-1")
+    )
+    session_id = start.session_id
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="orch-builder-send-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "orch-builder-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+    spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="orch-builder-spawn-1",
+            prompt="implement the api lane",
+            target_turn_id="turn-builder-1",
+            requested_role="builder_worker",
+            delegation_task_kind="write_task",
+            delegated_scope=_delegated_scope_payload(
+                kind="subtree",
+                values=["apps/api"],
+                artifact_surfaces=["implementation"],
+                rationale="scoped implementation write task",
+            ),
+        )
+    )
+    assert spawn.requested_role == "builder_worker"
+    assert spawn.granted_role == "builder_worker"
+    assert spawn.delegation_task_kind == "write_task"
+    assert spawn.authoritative_write_lease_granted is True
+    assert spawn.delegated_scope.kind == "subtree"
+
+    manager = _get_manager()
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(spawn.child_id)) is not None
+            and child.status in {"running", "completed"}
+            and child.dispatch_seq is not None
+            and child.child_thread_id is not None
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    config = URMRuntimeConfig.from_env()
+    artifacts_running = manager.materialize_orchestration_state(session_id=session_id)
+    snapshot_running = _load_materialized_json(
+        config=config,
+        relative_path=artifacts_running.orchestration_state_snapshot.path,
+    )
+    write_lease_running = _load_materialized_json(
+        config=config,
+        relative_path=artifacts_running.write_lease_state.path,
+    )
+    transitions_running = _load_materialized_json(
+        config=config,
+        relative_path=artifacts_running.role_transition_record.path,
+    )
+
+    builder_role = next(
+        role for role in snapshot_running["current_roles"] if role["actor_id"] == spawn.child_id
+    )
+    assert snapshot_running["current_authoritative_holder_actor_id"] == spawn.child_id
+    assert builder_role["role"] == "builder_worker"
+    assert builder_role["requested_role"] == "builder_worker"
+    assert builder_role["granted_role"] == "builder_worker"
+    assert builder_role["delegation_task_kind"] == "write_task"
+    assert builder_role["authority_domain"] == "implementation"
+    assert builder_role["authoritative_write_access"] is True
+    assert builder_role["scope_owned"]["kind"] == "subtree"
+    assert builder_role["scope_owned"]["values"] == ["apps/api"]
+    assert write_lease_running["current_authoritative_holder"]["actor_id"] == spawn.child_id
+    assert write_lease_running["current_authoritative_holder"]["role"] == "builder_worker"
+    assert write_lease_running["current_authoritative_holder"]["requested_role"] == "builder_worker"
+    assert (
+        write_lease_running["current_authoritative_holder"]["delegation_task_kind"]
+        == "write_task"
+    )
+    dispatch_running = next(
+        observation
+        for observation in write_lease_running["dispatch_lease_observations"]
+        if observation["child_id"] == spawn.child_id
+    )
+    assert dispatch_running["authoritative_write_access"] is True
+    assert dispatch_running["granted_role"] == "builder_worker"
+    assert dispatch_running["scope_owned"]["kind"] == "subtree"
+    assert transitions_running["entries"][-1]["to_role"] == "builder_worker"
+
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(spawn.child_id)) is not None
+            and child.status == "completed"
+            and child.persisted
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    artifacts_completed = manager.materialize_orchestration_state(session_id=session_id)
+    write_lease_completed = _load_materialized_json(
+        config=config,
+        relative_path=artifacts_completed.write_lease_state.path,
+    )
+    transitions_completed = _load_materialized_json(
+        config=config,
+        relative_path=artifacts_completed.role_transition_record.path,
+    )
+    handoff_completed = _load_materialized_json(
+        config=config,
+        relative_path=artifacts_completed.role_handoff_envelope.path,
+    )
+
+    assert write_lease_completed["current_authoritative_holder"]["actor_id"] == session_id
+    assert transitions_completed["entries"][-1]["to_role"] == "main_orchestrator"
+    builder_handoff = next(
+        entry for entry in handoff_completed["entries"] if entry["role"] == "builder_worker"
+    )
+    assert builder_handoff["artifacts_produced"]
+    assert builder_handoff["evidence_refs"]
+    assert builder_handoff["recommended_next_action"] == (
+        "explicit_orchestrator_reconciliation_required"
+    )
+    assert builder_handoff["scope_owned"][0]["kind"] == "subtree"
+
+    events, _ = manager.iter_events(session_id=session_id, after_seq=0)
+    assert any(
+        event.event_kind == "WORKER_RECONCILIATION_REQUIRED"
+        and event.payload.get("child_id") == spawn.child_id
+        for event in events
+    )
     _reset_manager_for_tests()
 
 

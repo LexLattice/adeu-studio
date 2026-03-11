@@ -177,6 +177,18 @@ def _resolve_spawn_policy_action() -> str:
     return POLICY_ACTION_URM_AGENT_SPAWN
 
 
+def _agent_spawn_action_payload(request: AgentSpawnRequest) -> dict[str, object]:
+    return {
+        "target_turn_id": request.target_turn_id,
+        "use_last_turn": request.use_last_turn,
+        "prompt": request.prompt,
+        "requested_role": request.requested_role,
+        "granted_role": request.granted_role,
+        "delegation_task_kind": request.delegation_task_kind,
+        "delegated_scope": request.delegated_scope.model_dump(mode="json"),
+    }
+
+
 def _resolve_cancel_policy_action() -> str:
     return POLICY_ACTION_URM_AGENT_CANCEL
 
@@ -456,11 +468,7 @@ def urm_agent_spawn_endpoint(request: AgentSpawnRequest) -> AgentSpawnResponse:
             action=_resolve_spawn_policy_action(),
             writes_allowed=session_writes_allowed,
             approval_provided=False,
-            action_payload={
-                "target_turn_id": request.target_turn_id,
-                "use_last_turn": request.use_last_turn,
-                "prompt": request.prompt,
-            },
+            action_payload=_agent_spawn_action_payload(request),
             session_active=session_active,
             emit_policy_event=_policy_event_emitter(session_id=request.session_id),
         )
