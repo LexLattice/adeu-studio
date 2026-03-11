@@ -5,6 +5,7 @@ import shutil
 import sqlite3
 import time
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -38,6 +39,7 @@ from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.errors import URMError
+from urm_runtime.hashing import canonical_json, sha256_canonical_json
 from urm_runtime.instruction_policy import (
     compute_policy_hash,
     load_instruction_policy,
@@ -59,7 +61,11 @@ from urm_runtime.models import (
     PolicyRolloutRequest,
     ToolCallRequest,
 )
-from urm_runtime.orchestration_state import RoleHandoffEntry
+from urm_runtime.orchestration_evidence import (
+    OrchestrationEvidenceError,
+    materialize_v35a_orchestration_state_evidence,
+)
+from urm_runtime.orchestration_state import MaterializedOrchestrationArtifacts, RoleHandoffEntry
 from urm_runtime.policy_governance import materialize_policy
 from urm_runtime.storage import (
     get_dispatch_token_for_child,
@@ -169,6 +175,67 @@ def _budget_snapshot_v1(
         "remaining_parent_duration_secs": remaining_parent_duration_secs,
         "token_usage_unobserved": token_usage_unobserved,
     }
+
+
+def _write_stop_gate_metrics_fixture(*, repo_root: Path) -> tuple[str, str]:
+    baseline_rel = "artifacts/stop_gate/metrics_v55_closeout.json"
+    current_rel = "artifacts/stop_gate/metrics_v56_closeout.json"
+    metric_keys = [f"metric_{index:02d}" for index in range(80)]
+    payload = {
+        "schema": "stop_gate_metrics@1",
+        "metrics": {key: 100.0 for key in metric_keys},
+        "runtime_observability": {
+            "elapsed_ms": 80,
+            "total_fixtures": 22,
+            "total_replays": 78,
+            "bytes_hashed_per_replay": 68230,
+            "bytes_hashed_total": 204690,
+        },
+    }
+    for relative_path in (baseline_rel, current_rel):
+        target = repo_root / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(canonical_json(payload) + "\n", encoding="utf-8")
+    return baseline_rel, current_rel
+
+
+def _materialize_v35a_evidence(
+    *,
+    repo_root: Path,
+    config: URMRuntimeConfig,
+    artifacts: MaterializedOrchestrationArtifacts,
+) -> dict[str, object]:
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(repo_root=repo_root)
+    evidence = materialize_v35a_orchestration_state_evidence(
+        repo_root=repo_root,
+        var_root=config.var_root,
+        artifacts=artifacts,
+        output_path="artifacts/agent_harness/v56/evidence_inputs/v35a_orchestration_state_evidence_v56.json",
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _rewrite_orchestration_artifact(
+    *,
+    config: URMRuntimeConfig,
+    artifacts: MaterializedOrchestrationArtifacts,
+    field_name: str,
+    payload: dict[str, object],
+) -> MaterializedOrchestrationArtifacts:
+    artifact = getattr(artifacts, field_name)
+    path = config.var_root / artifact.path
+    path.write_text(canonical_json(payload), encoding="utf-8")
+    updated_artifact = replace(
+        artifact,
+        hash=sha256_canonical_json(payload),
+        payload=payload,
+    )
+    return replace(artifacts, **{field_name: updated_artifact})
 
 
 def test_materialize_policy_rejects_conflicting_payload_for_existing_hash(
@@ -2746,6 +2813,486 @@ def test_materialize_orchestration_state_records_audit_bridge_for_restart_recove
     )
     assert topology["compaction_seams"]
     assert topology["compaction_seams"][0]["target_stream_id"] == (f"urm_audit:{parent_session_id}")
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35a_orchestration_state_evidence_is_deterministic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-evidence-start-1")
+    )
+    manager = _get_manager()
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=start.session_id)
+
+    first = _materialize_v35a_evidence(
+        repo_root=tmp_path,
+        config=config,
+        artifacts=artifacts,
+    )
+    second = _materialize_v35a_evidence(
+        repo_root=tmp_path,
+        config=config,
+        artifacts=artifacts,
+    )
+
+    assert first["artifact"].hash == second["artifact"].hash
+    payload = first["payload"]
+    assert payload["schema"] == "v35a_orchestration_state_evidence@1"
+    assert payload["single_writer_default_enforced"] is True
+    assert payload["worker_direct_user_boundary_forbidden"] is True
+    assert payload["canonical_identity_fields_recorded"] is True
+    assert payload["last_reconciled_event_recorded"] is True
+    assert payload["continuation_bridge_ref_recorded"] is False
+    assert payload["zero_occurrence_empty_artifacts_materialized"] is True
+    assert payload["scope_granularity_enum_frozen"] is True
+    assert payload["handoff_reconciliation_required"] is True
+    assert payload["verification_passed"] is True
+    assert payload["metric_key_cardinality"] == 80
+    assert payload["metric_key_exact_set_equal_v55"] is True
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35a_orchestration_state_evidence_records_bridge_when_present(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "orch-evidence-bridge-child-1"
+    parent_session_id = "orch-evidence-bridge-parent-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    events_path.write_text("", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="running",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-orch-evidence-bridge-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "queue_seq": 1,
+                "dispatch_seq": 1,
+                "lease_id": child_id,
+                "phase": "started",
+                "parent_seq": 9,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=9,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+        set_dispatch_token_phase(con=con, child_id=child_id, phase="started")
+
+    manager = _get_manager()
+    artifacts = manager.materialize_orchestration_state(session_id=parent_session_id)
+    evidence = _materialize_v35a_evidence(
+        repo_root=tmp_path,
+        config=config,
+        artifacts=artifacts,
+    )
+
+    assert evidence["payload"]["continuation_bridge_ref_recorded"] is True
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35a_orchestration_state_evidence_fails_closed_on_missing_artifact(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-evidence-missing-1")
+    )
+    manager = _get_manager()
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=start.session_id)
+    (config.var_root / artifacts.role_handoff_envelope.path).unlink()
+
+    with pytest.raises(OrchestrationEvidenceError, match="not found"):
+        _materialize_v35a_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35a_orchestration_state_evidence_fails_closed_on_malformed_handoff(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-evidence-handoff-1")
+    )
+    manager = _get_manager()
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=start.session_id)
+    handoff_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.role_handoff_envelope.path,
+    )
+    handoff_payload["entries"] = [
+        {
+            "role": "support_worker",
+            "authority_level": "advisory_information_only",
+            "authority_domain": "advisory",
+            "artifact_class": "advisory",
+            "artifact_surface": "none",
+            "repo_root": "/tmp/repo",
+            "branch_or_head": "HEAD",
+            "scope_owned": [],
+            "scope_remaining": [],
+            "files_changed": [],
+            "commands_run": [],
+            "artifacts_produced": [],
+            "evidence_refs": [],
+            "status": "completed",
+            "blocking_state": "non_blocking",
+            "blockers": [],
+            "open_risks": [],
+            "escalation_reason": None,
+        }
+    ]
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="role_handoff_envelope",
+        payload=handoff_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError, match="role_handoff_envelope payload is invalid"
+    ):
+        _materialize_v35a_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35a_evidence_fails_without_transition_on_authority_change(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-evidence-transition-1")
+    )
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=start.session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=start.session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+
+    manager = _get_manager()
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=start.session_id)
+    transition_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.role_transition_record.path,
+    )
+    transition_payload["entries"] = []
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="role_transition_record",
+        payload=transition_payload,
+    )
+
+    with pytest.raises(OrchestrationEvidenceError, match="role transition record is required"):
+        _materialize_v35a_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35a_orchestration_state_evidence_fails_closed_without_compaction_linkage(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "orch-evidence-linkage-child-1"
+    parent_session_id = "orch-evidence-linkage-parent-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    events_path.write_text("", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="running",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-orch-evidence-linkage-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "queue_seq": 1,
+                "dispatch_seq": 1,
+                "lease_id": child_id,
+                "phase": "started",
+                "parent_seq": 9,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=9,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+        set_dispatch_token_phase(con=con, child_id=child_id, phase="started")
+
+    manager = _get_manager()
+    artifacts = manager.materialize_orchestration_state(session_id=parent_session_id)
+    topology_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.execution_topology_state.path,
+    )
+    topology_payload["compaction_seams"] = []
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="execution_topology_state",
+        payload=topology_payload,
+    )
+
+    with pytest.raises(OrchestrationEvidenceError, match="exactly one compaction seam"):
+        _materialize_v35a_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35a_orchestration_state_evidence_fails_closed_on_multiple_writer_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-evidence-writers-1")
+    )
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=start.session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=start.session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+
+    manager = _get_manager()
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=start.session_id)
+    write_lease_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.write_lease_state.path,
+    )
+    write_lease_payload["single_writer_default_enforced"] = False
+    write_lease_payload["active_authoritative_writer_count"] = 2
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="write_lease_state",
+        payload=write_lease_payload,
+    )
+
+    with pytest.raises(OrchestrationEvidenceError, match="single-writer default must be enforced"):
+        _materialize_v35a_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35a_orchestration_state_evidence_fails_closed_on_worker_user_boundary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "0.4")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(provider="codex", client_request_id="orch-evidence-boundary-1")
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="orch-evidence-boundary-send-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "orch-evidence-boundary-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+    spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="orch-evidence-boundary-spawn-1",
+            prompt="child orchestration evidence",
+            target_turn_id="1",
+        )
+    )
+
+    manager = _get_manager()
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(spawn.child_id)) is not None
+            and child.dispatch_seq is not None
+            and child.child_thread_id is not None
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    config = URMRuntimeConfig.from_env()
+    artifacts = manager.materialize_orchestration_state(session_id=session_id)
+    snapshot_payload = _load_materialized_json(
+        config=config,
+        relative_path=artifacts.orchestration_state_snapshot.path,
+    )
+    child_role = next(
+        role for role in snapshot_payload["current_roles"] if role["actor_id"] == spawn.child_id
+    )
+    child_role["user_facing_boundary"] = True
+    artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=artifacts,
+        field_name="orchestration_state_snapshot",
+        payload=snapshot_payload,
+    )
+
+    with pytest.raises(OrchestrationEvidenceError, match="direct user boundary"):
+        _materialize_v35a_evidence(
+            repo_root=tmp_path,
+            config=config,
+            artifacts=artifacts,
+        )
     _reset_manager_for_tests()
 
 
