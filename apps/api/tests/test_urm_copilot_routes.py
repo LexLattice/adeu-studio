@@ -69,6 +69,7 @@ from urm_runtime.orchestration_evidence import (
     materialize_v35a_orchestration_state_evidence,
     materialize_v35b_delegation_handoff_evidence,
     materialize_v35c_transcript_visibility_evidence,
+    materialize_v35d_topology_duty_map_evidence,
 )
 from urm_runtime.orchestration_state import (
     ExecutionTopologyState,
@@ -302,6 +303,35 @@ def _materialize_v35c_evidence(
         orchestration_artifacts=orchestration_artifacts,
         visibility_artifacts=visibility_artifacts,
         output_path="artifacts/agent_harness/v58/evidence_inputs/v35c_transcript_visibility_evidence_v58.json",
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _materialize_v35d_evidence(
+    *,
+    repo_root: Path,
+    config: URMRuntimeConfig,
+    orchestration_artifacts: MaterializedOrchestrationArtifacts,
+    visibility_artifacts: MaterializedWorkerVisibilityArtifacts,
+    topology_artifacts: MaterializedTopologyDutyMapArtifacts,
+) -> dict[str, object]:
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel="artifacts/stop_gate/metrics_v58_closeout.json",
+        current_rel="artifacts/stop_gate/metrics_v59_closeout.json",
+    )
+    evidence = materialize_v35d_topology_duty_map_evidence(
+        repo_root=repo_root,
+        var_root=config.var_root,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+        topology_artifacts=topology_artifacts,
+        output_path="artifacts/agent_harness/v59/evidence_inputs/v35d_topology_duty_map_evidence_v59.json",
         baseline_metrics_path=baseline_rel,
         current_metrics_path=current_rel,
     )
@@ -705,6 +735,25 @@ def _rewrite_visibility_artifact(
     return replace(
         artifacts,
         worker_visibility_state=replace(
+            artifact,
+            hash=sha256_canonical_json(payload),
+            payload=payload,
+        ),
+    )
+
+
+def _rewrite_topology_artifact(
+    *,
+    config: URMRuntimeConfig,
+    artifacts: MaterializedTopologyDutyMapArtifacts,
+    payload: dict[str, object],
+) -> MaterializedTopologyDutyMapArtifacts:
+    artifact = artifacts.topology_duty_map_state
+    path = config.var_root / artifact.path
+    path.write_text(canonical_json(payload), encoding="utf-8")
+    return replace(
+        artifacts,
+        topology_duty_map_state=replace(
             artifact,
             hash=sha256_canonical_json(payload),
             payload=payload,
@@ -5320,6 +5369,363 @@ def test_materialize_v35c_transcript_visibility_evidence_fails_closed_on_worker_
             config=config,
             orchestration_artifacts=orchestration_artifacts,
             visibility_artifacts=visibility_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_is_deterministic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+
+    first = _materialize_v35d_evidence(
+        repo_root=tmp_path,
+        config=config,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+        topology_artifacts=topology_artifacts,
+    )
+    second = _materialize_v35d_evidence(
+        repo_root=tmp_path,
+        config=config,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+        topology_artifacts=topology_artifacts,
+    )
+
+    assert first["artifact"].hash == second["artifact"].hash
+    payload = first["payload"]
+    assert payload["schema"] == "v35d_topology_duty_map_evidence@1"
+    assert payload["derived_from_canonical_execution_state_only"] is True
+    assert payload["current_write_lease_holder_projected"] is True
+    assert payload["current_duty_not_authority_inflating"] is True
+    assert payload["provenance_markers_materialized"] is True
+    assert payload["artifact_and_event_stream_provenance_refs_resolve"] is True
+    assert payload["advisory_blockers_not_rendered_as_governance_blockers"] is True
+    assert payload["continuation_bridge_and_compaction_visibility_preserved"] is True
+    assert payload["non_authoritative_topology_surface_preserved"] is True
+    assert payload["verification_passed"] is True
+    assert payload["metric_key_cardinality"] == 80
+    assert payload["metric_key_exact_set_equal_v58"] is True
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_records_bridge_when_present(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = _materialize_v35c_bridge_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    manager = _get_manager()
+    topology_artifacts = manager.materialize_topology_duty_map_state(
+        session_id=orchestration_artifacts.session_id
+    )
+
+    evidence = _materialize_v35d_evidence(
+        repo_root=tmp_path,
+        config=config,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+        topology_artifacts=topology_artifacts,
+    )
+
+    assert evidence["payload"]["continuation_bridge_and_compaction_visibility_preserved"] is True
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_fails_closed_on_missing_topology_artifact(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    (config.var_root / topology_artifacts.topology_duty_map_state.path).unlink()
+
+    with pytest.raises(OrchestrationEvidenceError, match="topology_duty_map_state.json"):
+        _materialize_v35d_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_fails_closed_on_invented_topology_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    topology_payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+    builder_node = next(
+        node for node in topology_payload["nodes"] if node["role"] == "builder_worker"
+    )
+    builder_node["scope_owned"]["values"] = ["apps/api", "ghost-scope"]
+    topology_artifacts = _rewrite_topology_artifact(
+        config=config,
+        artifacts=topology_artifacts,
+        payload=topology_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="topology view invents state not present in canonical artifacts",
+    ):
+        _materialize_v35d_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_fails_closed_on_incorrect_write_holder(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, session_id, builder_child_id, topology_artifacts = (
+        _materialize_v35d_running_builder_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    manager = _get_manager()
+    orchestration_artifacts = manager.materialize_orchestration_state(session_id=session_id)
+    visibility_artifacts = manager.materialize_worker_visibility_state(session_id=session_id)
+    topology_payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+    assert topology_payload["current_authoritative_holder_actor_id"] == builder_child_id
+    topology_payload["current_authoritative_holder_actor_id"] = session_id
+    topology_artifacts = _rewrite_topology_artifact(
+        config=config,
+        artifacts=topology_artifacts,
+        payload=topology_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="current write lease holder rendered incorrectly",
+    ):
+        _materialize_v35d_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_fails_closed_on_current_duty_inflation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    topology_payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+    builder_node = next(
+        node for node in topology_payload["nodes"] if node["role"] == "builder_worker"
+    )
+    builder_node["current_duty"] = "implementation_write_lease_holder_pending_reconciliation"
+    topology_artifacts = _rewrite_topology_artifact(
+        config=config,
+        artifacts=topology_artifacts,
+        payload=topology_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="current_duty rendered as authority surface",
+    ):
+        _materialize_v35d_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_fails_closed_on_unresolved_provenance_ref(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    topology_payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+    topology_payload["nodes"][0]["provenance_refs"][0]["path"] = "evidence/codex/missing.json"
+    topology_artifacts = _rewrite_topology_artifact(
+        config=config,
+        artifacts=topology_artifacts,
+        payload=topology_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="provenance ref missing or unresolvable",
+    ):
+        _materialize_v35d_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_fails_closed_on_advisory_blocker_inflation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    topology_payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+    support_node = next(
+        node for node in topology_payload["nodes"] if node["role"] == "explorer"
+    )
+    support_edge = next(
+        edge
+        for edge in topology_payload["edges"]
+        if edge["target_actor_id"] == support_node["actor_id"]
+    )
+    support_node["blocking_state"] = "blocking"
+    support_edge["blocking_state"] = "blocking"
+    topology_artifacts = _rewrite_topology_artifact(
+        config=config,
+        artifacts=topology_artifacts,
+        payload=topology_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="advisory blocker rendered as governance equivalent",
+    ):
+        _materialize_v35d_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_fails_closed_on_flattened_continuity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts = _materialize_v35c_bridge_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    manager = _get_manager()
+    topology_artifacts = manager.materialize_topology_duty_map_state(
+        session_id=orchestration_artifacts.session_id
+    )
+    topology_payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+    topology_payload["compaction_seams"] = []
+    topology_artifacts = _rewrite_topology_artifact(
+        config=config,
+        artifacts=topology_artifacts,
+        payload=topology_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="compaction or continuation bridge visibility silently flattened",
+    ):
+        _materialize_v35d_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35d_topology_duty_map_evidence_fails_closed_on_authoritative_surface_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    topology_payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+    topology_payload["read_only_topology_required"] = False
+    topology_artifacts = _rewrite_topology_artifact(
+        config=config,
+        artifacts=topology_artifacts,
+        payload=topology_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="topology surface treated as authoritative",
+    ):
+        _materialize_v35d_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
         )
     _reset_manager_for_tests()
 

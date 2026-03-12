@@ -17,6 +17,7 @@ from .orchestration_state import (
     RECONCILIATION_MINIMUM_CHECKS,
     RUNTIME_EVENT_TRUTH_POLICY,
     SCOPE_GRANULARITY_ENUM,
+    EventStreamHeadInput,
     ExecutionTopologyState,
     MaterializedArtifact,
     MaterializedOrchestrationArtifacts,
@@ -26,6 +27,18 @@ from .orchestration_state import (
     WriteLeaseState,
 )
 from .roles import CHILD_DELEGATION_ROLES, SUPPORT_DELEGATION_ROLES
+from .topology_duty_map import (
+    EVENT_STREAM_DRILLDOWN_POLICY,
+    TOPOLOGY_DUTY_MAP_CONTRACT_SOURCE,
+    TOPOLOGY_DUTY_MAP_FOUNDATION_PACKAGE,
+    TOPOLOGY_DUTY_MAP_STATE_ORIGIN,
+    TOPOLOGY_SURFACE_AUTHORITY_POLICY,
+    MaterializedTopologyDutyMapArtifacts,
+    TopologyDutyMapSourceArtifacts,
+    TopologyDutyMapState,
+    TopologyDutyMapStateError,
+    build_topology_duty_map_state,
+)
 from .worker_visibility import (
     CONTINUATION_BRIDGE_VISIBILITY_POLICY,
     EPISTEMIC_LANE_ABSENCE_POLICY,
@@ -54,6 +67,7 @@ V35C_TRANSCRIPT_VISIBILITY_EVIDENCE_SCHEMA = "v35c_transcript_visibility_evidenc
 V35C_TRANSCRIPT_VISIBILITY_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS58.md#v35c_transcript_visibility_contract@1"
 )
+V35D_TOPOLOGY_DUTY_MAP_EVIDENCE_SCHEMA = "v35d_topology_duty_map_evidence@1"
 STOP_GATE_METRICS_SCHEMA = "stop_gate_metrics@1"
 EXPECTED_METRIC_KEY_CARDINALITY = 80
 EXPECTED_SCOPE_GRANULARITY = list(SCOPE_GRANULARITY_ENUM)
@@ -162,6 +176,32 @@ class V35CTranscriptVisibilityEvidence(BaseModel):
     verification_passed: bool
     metric_key_cardinality: int = Field(ge=0)
     metric_key_exact_set_equal_v57: bool
+    notes: str = Field(min_length=1)
+
+
+class V35DTopologyDutyMapEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(default=V35D_TOPOLOGY_DUTY_MAP_EVIDENCE_SCHEMA, alias="schema")
+    contract_source: str = TOPOLOGY_DUTY_MAP_CONTRACT_SOURCE
+    evidence_input_path: str = Field(min_length=1)
+    topology_duty_map_state_path: str = Field(min_length=1)
+    topology_duty_map_state_hash: str = Field(min_length=64, max_length=64)
+    execution_topology_state_path: str = Field(min_length=1)
+    execution_topology_state_hash: str = Field(min_length=64, max_length=64)
+    worker_visibility_state_path: str = Field(min_length=1)
+    worker_visibility_state_hash: str = Field(min_length=64, max_length=64)
+    derived_from_canonical_execution_state_only: bool
+    current_write_lease_holder_projected: bool
+    current_duty_not_authority_inflating: bool
+    provenance_markers_materialized: bool
+    artifact_and_event_stream_provenance_refs_resolve: bool
+    advisory_blockers_not_rendered_as_governance_blockers: bool
+    continuation_bridge_and_compaction_visibility_preserved: bool
+    non_authoritative_topology_surface_preserved: bool
+    verification_passed: bool
+    metric_key_cardinality: int = Field(ge=0)
+    metric_key_exact_set_equal_v58: bool
     notes: str = Field(min_length=1)
 
 
@@ -611,6 +651,185 @@ def materialize_v35c_transcript_visibility_evidence(
             "v58 closeout-grade visibility evidence remains observational-only and "
             "pre-topology/pre-enforcement; transcript lanes remain epistemically separated, "
             "non-authoritative by visibility alone, and continuity rendering remains explicit."
+        ),
+    )
+    payload = evidence.model_dump(mode="json", by_alias=True)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(canonical_json(payload) + "\n", encoding="utf-8")
+    return MaterializedArtifact(
+        path=output_path,
+        hash=sha256_canonical_json(payload),
+        payload=payload,
+    )
+
+
+def materialize_v35d_topology_duty_map_evidence(
+    *,
+    repo_root: Path,
+    var_root: Path,
+    orchestration_artifacts: MaterializedOrchestrationArtifacts,
+    visibility_artifacts: MaterializedWorkerVisibilityArtifacts,
+    topology_artifacts: MaterializedTopologyDutyMapArtifacts,
+    output_path: str,
+    baseline_metrics_path: str,
+    current_metrics_path: str,
+) -> MaterializedArtifact:
+    repo_root = repo_root.resolve()
+    var_root = var_root.resolve()
+    if not repo_root.is_dir():
+        raise OrchestrationEvidenceError("repository root does not exist")
+    if not var_root.is_dir():
+        raise OrchestrationEvidenceError("var root does not exist")
+
+    output_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=output_path,
+        field_name="output_path",
+        required_prefix="artifacts/",
+    )
+    baseline_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=baseline_metrics_path,
+        field_name="baseline_metrics_path",
+        required_prefix="artifacts/",
+    )
+    current_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=current_metrics_path,
+        field_name="current_metrics_path",
+        required_prefix="artifacts/",
+    )
+
+    baseline_metrics = _load_stop_gate_metrics(path=baseline_metrics_file)
+    current_metrics = _load_stop_gate_metrics(path=current_metrics_file)
+    current_metric_keys = set(current_metrics["metrics"].keys())
+    baseline_metric_keys = set(baseline_metrics["metrics"].keys())
+    if len(current_metric_keys) != EXPECTED_METRIC_KEY_CARDINALITY:
+        raise OrchestrationEvidenceError("metric key cardinality must remain frozen at 80")
+    if baseline_metric_keys != current_metric_keys:
+        raise OrchestrationEvidenceError("metric key set must remain exactly equal to v58")
+
+    _snapshot_payload, snapshot = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.orchestration_state_snapshot,
+        model_type=OrchestrationStateSnapshot,
+        artifact_name="orchestration_state_snapshot",
+    )
+    _execution_topology_payload, execution_topology_state = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.execution_topology_state,
+        model_type=ExecutionTopologyState,
+        artifact_name="execution_topology_state",
+    )
+    _write_lease_payload, write_lease_state = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.write_lease_state,
+        model_type=WriteLeaseState,
+        artifact_name="write_lease_state",
+    )
+    handoff_payload, handoff_envelope = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.role_handoff_envelope,
+        model_type=RoleHandoffEnvelope,
+        artifact_name="role_handoff_envelope",
+    )
+    _visibility_payload, visibility_state = _load_validated_artifact(
+        var_root=var_root,
+        artifact=visibility_artifacts.worker_visibility_state,
+        model_type=WorkerVisibilityState,
+        artifact_name="worker_visibility_state",
+    )
+    _topology_payload, topology_state = _load_validated_artifact(
+        var_root=var_root,
+        artifact=topology_artifacts.topology_duty_map_state,
+        model_type=TopologyDutyMapState,
+        artifact_name="topology_duty_map_state",
+    )
+
+    _validate_worker_direct_user_boundary(snapshot=snapshot)
+    _validate_handoff_envelope(handoff_payload=handoff_payload, handoff_envelope=handoff_envelope)
+    _validate_v35c_worker_direct_user_boundary(visibility_state=visibility_state)
+    non_authoritative_topology_surface_preserved = _validate_v35d_read_only_topology(
+        topology_state=topology_state
+    )
+    current_write_lease_holder_projected = _validate_v35d_write_lease_projection(
+        write_lease_state=write_lease_state,
+        topology_state=topology_state,
+    )
+    current_duty_not_authority_inflating = _validate_v35d_current_duty(
+        write_lease_state=write_lease_state,
+        topology_state=topology_state,
+    )
+    provenance_markers_materialized = _validate_v35d_provenance_markers(
+        snapshot=snapshot,
+        execution_topology_state=execution_topology_state,
+        topology_state=topology_state,
+    )
+    artifact_and_event_stream_provenance_refs_resolve = _validate_v35d_provenance_refs(
+        var_root=var_root,
+        snapshot=snapshot,
+        topology_state=topology_state,
+        execution_topology_path=orchestration_artifacts.execution_topology_state.path,
+        write_lease_path=orchestration_artifacts.write_lease_state.path,
+        visibility_path=visibility_artifacts.worker_visibility_state.path,
+        handoff_path=orchestration_artifacts.role_handoff_envelope.path,
+    )
+    advisory_blockers_not_rendered_as_governance_blockers = _validate_v35d_advisory_blockers(
+        visibility_state=visibility_state,
+        topology_state=topology_state,
+    )
+    continuation_bridge_and_compaction_visibility_preserved = _validate_v35d_continuity(
+        snapshot=snapshot,
+        execution_topology_state=execution_topology_state,
+        topology_state=topology_state,
+    )
+    derived_from_canonical_execution_state_only = _validate_v35d_projection(
+        snapshot=snapshot,
+        execution_topology_state=execution_topology_state,
+        write_lease_state=write_lease_state,
+        visibility_state=visibility_state,
+        handoff_envelope=handoff_envelope,
+        topology_state=topology_state,
+        source_artifacts=TopologyDutyMapSourceArtifacts(
+            execution_topology_state_path=orchestration_artifacts.execution_topology_state.path,
+            write_lease_state_path=orchestration_artifacts.write_lease_state.path,
+            worker_visibility_state_path=visibility_artifacts.worker_visibility_state.path,
+            role_handoff_envelope_path=orchestration_artifacts.role_handoff_envelope.path,
+        ),
+    )
+
+    evidence = V35DTopologyDutyMapEvidence(
+        evidence_input_path=output_path,
+        topology_duty_map_state_path=topology_artifacts.topology_duty_map_state.path,
+        topology_duty_map_state_hash=topology_artifacts.topology_duty_map_state.hash,
+        execution_topology_state_path=orchestration_artifacts.execution_topology_state.path,
+        execution_topology_state_hash=orchestration_artifacts.execution_topology_state.hash,
+        worker_visibility_state_path=visibility_artifacts.worker_visibility_state.path,
+        worker_visibility_state_hash=visibility_artifacts.worker_visibility_state.hash,
+        derived_from_canonical_execution_state_only=derived_from_canonical_execution_state_only,
+        current_write_lease_holder_projected=current_write_lease_holder_projected,
+        current_duty_not_authority_inflating=current_duty_not_authority_inflating,
+        provenance_markers_materialized=provenance_markers_materialized,
+        artifact_and_event_stream_provenance_refs_resolve=(
+            artifact_and_event_stream_provenance_refs_resolve
+        ),
+        advisory_blockers_not_rendered_as_governance_blockers=(
+            advisory_blockers_not_rendered_as_governance_blockers
+        ),
+        continuation_bridge_and_compaction_visibility_preserved=(
+            continuation_bridge_and_compaction_visibility_preserved
+        ),
+        non_authoritative_topology_surface_preserved=(
+            non_authoritative_topology_surface_preserved
+        ),
+        verification_passed=True,
+        metric_key_cardinality=len(current_metric_keys),
+        metric_key_exact_set_equal_v58=True,
+        notes=(
+            "v59 closeout-grade topology evidence remains observational-only and "
+            "pre-enforcement; topology_duty_map_state@1 is hash-bound to canonical "
+            "execution/lease/visibility/handoff inputs, provenance refs resolve to "
+            "artifacts or event streams, and continuity remains explicit."
         ),
     )
     payload = evidence.model_dump(mode="json", by_alias=True)
@@ -1477,6 +1696,280 @@ def _validate_v35c_worker_direct_user_boundary(
         if worker.direct_user_boundary_established:
             raise OrchestrationEvidenceError("worker direct user boundary established")
     return True
+
+
+def _validate_v35d_read_only_topology(
+    *,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    if topology_state.topology_duty_map_foundation_package != TOPOLOGY_DUTY_MAP_FOUNDATION_PACKAGE:
+        raise OrchestrationEvidenceError("topology foundation package drift detected")
+    if topology_state.read_only_topology_required is not True:
+        raise OrchestrationEvidenceError("topology surface treated as authoritative")
+    if topology_state.topology_surface_authority_policy != TOPOLOGY_SURFACE_AUTHORITY_POLICY:
+        raise OrchestrationEvidenceError("topology surface treated as authoritative")
+    if topology_state.event_stream_drilldown_policy != EVENT_STREAM_DRILLDOWN_POLICY:
+        raise OrchestrationEvidenceError("event stream drilldown policy drift detected")
+    if any(node.user_facing_boundary for node in topology_state.nodes[1:]):
+        raise OrchestrationEvidenceError("worker direct user boundary rendered or implied")
+    if any(node.authority_domain == "governance" for node in topology_state.nodes[1:]):
+        raise OrchestrationEvidenceError("topology surface treated as authoritative")
+    return True
+
+
+def _validate_v35d_projection(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    execution_topology_state: ExecutionTopologyState,
+    write_lease_state: WriteLeaseState,
+    visibility_state: WorkerVisibilityState,
+    handoff_envelope: RoleHandoffEnvelope,
+    topology_state: TopologyDutyMapState,
+    source_artifacts: TopologyDutyMapSourceArtifacts,
+) -> bool:
+    try:
+        expected_topology_state = build_topology_duty_map_state(
+            execution_topology_state=execution_topology_state,
+            write_lease_state=write_lease_state,
+            worker_visibility_state=visibility_state,
+            role_handoff_envelope=handoff_envelope,
+            source_artifacts=source_artifacts,
+            event_streams=_event_stream_heads_from_snapshot(snapshot=snapshot),
+        )
+    except TopologyDutyMapStateError as exc:
+        raise OrchestrationEvidenceError(
+            "topology view invents state not present in canonical artifacts"
+        ) from exc
+    if topology_state.model_dump(mode="json", by_alias=True) != expected_topology_state.model_dump(
+        mode="json",
+        by_alias=True,
+    ):
+        raise OrchestrationEvidenceError(
+            "topology view invents state not present in canonical artifacts"
+        )
+    return True
+
+
+def _validate_v35d_write_lease_projection(
+    *,
+    write_lease_state: WriteLeaseState,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    holder = write_lease_state.current_authoritative_holder
+    authoritative_nodes = [
+        node.actor_id for node in topology_state.nodes if node.authoritative_write_access
+    ]
+    authoritative_edges = [
+        edge.target_actor_id for edge in topology_state.edges if edge.authoritative_write_access
+    ]
+    if holder is None:
+        if topology_state.current_authoritative_holder_actor_id is not None:
+            raise OrchestrationEvidenceError("current write lease holder rendered incorrectly")
+        if authoritative_nodes or authoritative_edges:
+            raise OrchestrationEvidenceError("current write lease holder rendered incorrectly")
+        return True
+    if topology_state.current_authoritative_holder_actor_id != holder.actor_id:
+        raise OrchestrationEvidenceError("current write lease holder rendered incorrectly")
+    if authoritative_nodes != [holder.actor_id]:
+        raise OrchestrationEvidenceError("current write lease holder rendered incorrectly")
+    if (
+        holder.actor_id != topology_state.orchestrator_session_id
+        and holder.actor_id not in authoritative_edges
+    ):
+        raise OrchestrationEvidenceError("current write lease holder rendered incorrectly")
+    return True
+
+
+def _validate_v35d_current_duty(
+    *,
+    write_lease_state: WriteLeaseState,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    forbidden_labels = {
+        node.authority_level
+        for node in topology_state.nodes
+    } | {
+        "governance_authority",
+        "implementation_write_lease_holder_pending_reconciliation",
+        "implementation_delegated_pending_reconciliation",
+        "advisory_information_only",
+    }
+    for node in topology_state.nodes:
+        if node.current_duty in forbidden_labels or "authority" in node.current_duty:
+            raise OrchestrationEvidenceError("current_duty rendered as authority surface")
+    holder = write_lease_state.current_authoritative_holder
+    if holder is not None:
+        holder_node = next(
+            (node for node in topology_state.nodes if node.actor_id == holder.actor_id),
+            None,
+        )
+        if holder_node is None:
+            raise OrchestrationEvidenceError("write lease holder not found in topology nodes")
+        if holder.role == "builder_worker" and holder_node.current_duty not in {
+            "implementing_with_active_write_lease",
+            "queued_for_implementation_with_reserved_write_lease",
+            "implementation_completed_pending_reconciliation",
+        }:
+            raise OrchestrationEvidenceError("current_duty rendered as authority surface")
+    return True
+
+
+def _validate_v35d_provenance_markers(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    execution_topology_state: ExecutionTopologyState,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    error_message = "topology node or edge missing required provenance markers"
+    if len(topology_state.nodes) != len(execution_topology_state.nodes):
+        raise OrchestrationEvidenceError(error_message)
+    if len(topology_state.edges) != len(execution_topology_state.edges):
+        raise OrchestrationEvidenceError(error_message)
+    expected_last_reconciled_at = _last_reconciled_at_from_snapshot(snapshot=snapshot)
+    for item in [*topology_state.nodes, *topology_state.edges]:
+        if item.state_origin != TOPOLOGY_DUTY_MAP_STATE_ORIGIN:
+            raise OrchestrationEvidenceError(error_message)
+        if not item.reconciliation_status:
+            raise OrchestrationEvidenceError(error_message)
+        if not item.provenance_refs:
+            raise OrchestrationEvidenceError(error_message)
+        if topology_state.last_reconciled_event is not None:
+            if item.last_reconciled_at != expected_last_reconciled_at:
+                raise OrchestrationEvidenceError(error_message)
+    return True
+
+
+def _validate_v35d_provenance_refs(
+    *,
+    var_root: Path,
+    snapshot: OrchestrationStateSnapshot,
+    topology_state: TopologyDutyMapState,
+    execution_topology_path: str,
+    write_lease_path: str,
+    visibility_path: str,
+    handoff_path: str,
+) -> bool:
+    allowed_artifact_paths = {
+        execution_topology_path: "execution_topology_state@1",
+        write_lease_path: "write_lease_state@1",
+        visibility_path: "worker_visibility_state@1",
+        handoff_path: "role_handoff_envelope@1",
+    }
+    event_streams_by_id = {
+        stream.stream_id: stream for stream in snapshot.event_cursor.streams
+    }
+    event_stream_ref_count = 0
+    for item in [*topology_state.nodes, *topology_state.edges]:
+        for ref in item.provenance_refs:
+            resolved = _resolve_var_relative_path(
+                root=var_root,
+                path_text=ref.path,
+                field_name="provenance_ref_path",
+            )
+            if not resolved.exists():
+                raise OrchestrationEvidenceError("provenance ref missing or unresolvable")
+            if ref.ref_kind == "artifact":
+                expected_schema = allowed_artifact_paths.get(ref.path)
+                if expected_schema is None or ref.source_schema != expected_schema:
+                    raise OrchestrationEvidenceError("provenance ref missing or unresolvable")
+                continue
+            event_stream_ref_count += 1
+            stream = event_streams_by_id.get(ref.stream_id or "")
+            if stream is None:
+                raise OrchestrationEvidenceError("provenance ref missing or unresolvable")
+            if stream.path != ref.path or stream.last_event_ref != ref.event_ref:
+                raise OrchestrationEvidenceError("provenance ref missing or unresolvable")
+    if snapshot.event_cursor.streams and event_stream_ref_count == 0:
+        raise OrchestrationEvidenceError("provenance ref missing or unresolvable")
+    return True
+
+
+def _validate_v35d_advisory_blockers(
+    *,
+    visibility_state: WorkerVisibilityState,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    worker_by_id = {worker.worker_id: worker for worker in visibility_state.workers}
+    edge_by_target = {edge.target_actor_id: edge for edge in topology_state.edges}
+    for node in topology_state.nodes:
+        if node.actor_id == topology_state.orchestrator_session_id:
+            continue
+        worker = worker_by_id.get(node.actor_id)
+        if worker is None:
+            raise OrchestrationEvidenceError(
+                "topology view invents state not present in canonical artifacts"
+            )
+        if worker.role in EXPECTED_SUPPORT_DELEGATION_ROLES:
+            if node.blockers != worker.blockers:
+                raise OrchestrationEvidenceError(
+                    "advisory blocker rendered as governance equivalent"
+                )
+            if node.blocking_state != "non_blocking":
+                raise OrchestrationEvidenceError(
+                    "advisory blocker rendered as governance equivalent"
+                )
+            if node.authoritative_write_access:
+                raise OrchestrationEvidenceError(
+                    "advisory blocker rendered as governance equivalent"
+                )
+            edge = edge_by_target.get(node.actor_id)
+            if edge is None or edge.blocking_state != "non_blocking":
+                raise OrchestrationEvidenceError(
+                    "advisory blocker rendered as governance equivalent"
+                )
+    return True
+
+
+def _validate_v35d_continuity(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    execution_topology_state: ExecutionTopologyState,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    if topology_state.continuation_bridge_ref != snapshot.continuation_bridge_ref:
+        raise OrchestrationEvidenceError(
+            "compaction or continuation bridge visibility silently flattened"
+        )
+    if topology_state.continuation_bridge_ref != execution_topology_state.continuation_bridge_ref:
+        raise OrchestrationEvidenceError(
+            "compaction or continuation bridge visibility silently flattened"
+        )
+    if topology_state.compaction_seams != execution_topology_state.compaction_seams:
+        raise OrchestrationEvidenceError(
+            "compaction or continuation bridge visibility silently flattened"
+        )
+    if snapshot.continuation_bridge_ref is None and topology_state.compaction_seams:
+        raise OrchestrationEvidenceError(
+            "compaction or continuation bridge visibility silently flattened"
+        )
+    return True
+
+
+def _event_stream_heads_from_snapshot(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+) -> list[EventStreamHeadInput]:
+    return [
+        EventStreamHeadInput(
+            stream_id=stream.stream_id,
+            path=stream.path,
+            event_count=stream.event_count,
+            last_seq=stream.last_seq,
+            last_event=stream.last_event,
+            last_event_ref=stream.last_event_ref,
+            last_ts=stream.last_ts,
+        )
+        for stream in snapshot.event_cursor.streams
+    ]
+
+
+def _last_reconciled_at_from_snapshot(*, snapshot: OrchestrationStateSnapshot) -> str | None:
+    if snapshot.last_reconciled_event is None:
+        return None
+    for stream in snapshot.event_cursor.streams:
+        if stream.last_event_ref == snapshot.last_reconciled_event:
+            return stream.last_ts
+    return None
 
 
 def _lane_map_for_worker(*, worker: Any) -> dict[str, Any]:
