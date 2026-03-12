@@ -104,6 +104,15 @@ from .profile_registry import (
 )
 from .retention import run_evidence_retention_gc
 from .roles import get_role_policy, is_child_delegation_role
+from .runtime_enforcement import (
+    CLAIMED_WORK_HANDOFF_INVALID_CODE,
+    INVALID_ROLE_TASK_COMBINATION_CODE,
+    SCOPE_KIND_INVALID_CODE,
+    RuntimeEnforcementBoundary,
+    RuntimeEnforcementCandidate,
+    validate_runtime_enforcement_candidate,
+    validate_single_builder_default,
+)
 from .storage import (
     CopilotSessionRow,
     IdempotencyPayloadConflict,
@@ -482,43 +491,37 @@ class URMCopilotManager:
                     "granted_role": granted_role,
                 },
             )
-        if granted_role != requested_role:
-            raise URMError(
-                code="URM_POLICY_DENIED",
-                message="granted_role must equal requested_role in the v57 B1 baseline",
-                context={
-                    "requested_role": requested_role,
-                    "granted_role": granted_role,
-                },
-            )
-
         delegated_scope = request.delegated_scope.model_copy(deep=True)
-        authoritative_write_lease_granted = False
-        if request.delegation_task_kind == "write_task":
-            if granted_role != "builder_worker":
-                raise URMError(
-                    code="URM_POLICY_DENIED",
-                    message="write_task delegation requires granted_role=builder_worker",
-                    context={
-                        "requested_role": requested_role,
-                        "granted_role": granted_role,
-                    },
-                )
-            if delegated_scope.kind == "artifact_surface_only":
-                raise URMError(
-                    code="URM_POLICY_DENIED",
-                    message="write_task delegation requires a writable delegated scope",
-                    context={"delegated_scope_kind": delegated_scope.kind},
-                )
+        authoritative_write_lease_granted = request.delegation_task_kind == "write_task"
+        parent_writes_allowed: bool | None = None
+        if authoritative_write_lease_granted:
             with transaction(db_path=self.config.db_path) as con:
                 row = get_copilot_session(con=con, copilot_session_id=request.session_id)
-            if row is None or row.writes_allowed is not True:
-                raise URMError(
-                    code="URM_POLICY_DENIED",
-                    message="write_task delegation requires parent writes_allowed=true",
-                    context={"session_id": request.session_id},
-                )
-            authoritative_write_lease_granted = True
+            parent_writes_allowed = row.writes_allowed is True if row is not None else False
+        candidate = RuntimeEnforcementCandidate(
+            subject_id=request.client_request_id,
+            requested_role=requested_role,
+            granted_role=granted_role,
+            delegation_task_kind=request.delegation_task_kind,
+            delegated_scope_kind=delegated_scope.kind,
+            delegated_scope_artifact_surfaces=tuple(delegated_scope.artifact_surfaces),
+            authoritative_write_lease_granted=authoritative_write_lease_granted,
+            status="queued",
+        )
+        validate_runtime_enforcement_candidate(
+            boundary="spawn_request_boundary",
+            candidate=candidate,
+            parent_writes_allowed=parent_writes_allowed,
+        )
+        existing_candidates = [
+            self._runtime_enforcement_candidate_from_runtime_child(child=child)
+            for child_id in self._children_by_parent.get(request.session_id, set())
+            if (child := self._child_runs.get(child_id)) is not None
+        ]
+        validate_single_builder_default(
+            boundary="spawn_request_boundary",
+            candidates=[*existing_candidates, candidate],
+        )
 
         return (
             requested_role,
@@ -538,16 +541,146 @@ class URMCopilotManager:
         }
 
     def _load_persisted_delegated_scope(
-        self, *, metadata: dict[str, Any]
+        self,
+        *,
+        metadata: dict[str, Any],
+        child_id: str,
+        session_id: str,
+        boundary: RuntimeEnforcementBoundary,
     ) -> DelegatedScopeDescriptor:
         delegated_scope_raw = metadata.get("delegated_scope")
-        delegated_scope_payload = (
-            delegated_scope_raw if isinstance(delegated_scope_raw, dict) else {}
-        )
+        if not isinstance(delegated_scope_raw, dict):
+            raise URMError(
+                code=SCOPE_KIND_INVALID_CODE,
+                message="persisted delegated scope is missing or invalid",
+                context={
+                    "boundary": boundary,
+                    "session_id": session_id,
+                    "child_id": child_id,
+                    "delegated_scope": delegated_scope_raw,
+                },
+            )
         try:
-            return DelegatedScopeDescriptor.model_validate(delegated_scope_payload)
-        except ValidationError:
-            return DelegatedScopeDescriptor(kind="artifact_surface_only")
+            return DelegatedScopeDescriptor.model_validate(delegated_scope_raw)
+        except ValidationError as exc:
+            raise URMError(
+                code=SCOPE_KIND_INVALID_CODE,
+                message="persisted delegated scope is missing or invalid",
+                context={
+                    "boundary": boundary,
+                    "session_id": session_id,
+                    "child_id": child_id,
+                    "errors": exc.errors(),
+                },
+            ) from exc
+
+    def _persisted_child_claimed_work_present(
+        self,
+        *,
+        status: str,
+        raw_jsonl_path: str | None,
+        urm_events_path: str | None,
+    ) -> bool:
+        return status == "completed" and bool(raw_jsonl_path or urm_events_path)
+
+    def _require_persisted_delegation_string(
+        self,
+        *,
+        metadata: dict[str, Any],
+        field_name: str,
+        child_id: str,
+        session_id: str,
+        boundary: RuntimeEnforcementBoundary,
+        claimed_work_present: bool,
+    ) -> str:
+        value = metadata.get(field_name)
+        if isinstance(value, str) and value.strip():
+            return value
+        if claimed_work_present:
+            raise URMError(
+                code=CLAIMED_WORK_HANDOFF_INVALID_CODE,
+                message=f"completed child claims outputs but is missing {field_name}",
+                context={
+                    "boundary": boundary,
+                    "session_id": session_id,
+                    "child_id": child_id,
+                    "field_name": field_name,
+                },
+            )
+        raise URMError(
+            code=INVALID_ROLE_TASK_COMBINATION_CODE,
+            message=f"persisted child is missing {field_name}",
+            context={
+                "boundary": boundary,
+                "session_id": session_id,
+                "child_id": child_id,
+                "field_name": field_name,
+            },
+        )
+
+    def _runtime_enforcement_candidate_from_runtime_child(
+        self,
+        *,
+        child: ChildAgentRuntime,
+    ) -> RuntimeEnforcementCandidate:
+        return RuntimeEnforcementCandidate(
+            subject_id=child.child_id,
+            requested_role=child.requested_role,
+            granted_role=child.granted_role,
+            delegation_task_kind=child.delegation_task_kind,
+            delegated_scope_kind=child.delegated_scope.kind,
+            delegated_scope_artifact_surfaces=tuple(child.delegated_scope.artifact_surfaces),
+            authoritative_write_lease_granted=child.authoritative_write_lease_granted,
+            status=child.status,
+        )
+
+    def _runtime_enforcement_candidate_from_child_state(
+        self,
+        *,
+        child: ChildStateInput,
+    ) -> RuntimeEnforcementCandidate:
+        return RuntimeEnforcementCandidate(
+            subject_id=child.child_id,
+            requested_role=child.requested_role,
+            granted_role=child.granted_role,
+            delegation_task_kind=child.delegation_task_kind,
+            delegated_scope_kind=child.delegated_scope_kind,
+            delegated_scope_artifact_surfaces=tuple(child.delegated_scope_artifact_surfaces),
+            authoritative_write_lease_granted=child.authoritative_write_lease_granted,
+            status=child.status,
+        )
+
+    def _validate_runtime_enforcement_materialization_inputs_locked(
+        self,
+        *,
+        boundary: RuntimeEnforcementBoundary,
+        session: SessionStateInput,
+        children: list[ChildStateInput],
+    ) -> None:
+        candidates = [
+            self._runtime_enforcement_candidate_from_child_state(child=child) for child in children
+        ]
+        for candidate in candidates:
+            validate_runtime_enforcement_candidate(
+                boundary=boundary,
+                candidate=candidate,
+                parent_writes_allowed=session.writes_allowed,
+            )
+        validate_single_builder_default(boundary=boundary, candidates=candidates)
+
+    def _runtime_enforcement_error_with_session(
+        self,
+        *,
+        exc: URMError,
+        session_id: str,
+    ) -> URMError:
+        if not exc.detail.code.startswith("URM_RUNTIME_ENFORCEMENT_"):
+            return exc
+        return URMError(
+            code=exc.detail.code,
+            message=exc.detail.message,
+            context={"session_id": session_id, **exc.detail.context},
+        )
 
     def _build_session_state_input_locked(
         self,
@@ -623,13 +756,13 @@ class URMCopilotManager:
         session_id: str,
         child_rows: list[Any],
         token_by_child: dict[str, Any | None],
+        boundary: RuntimeEnforcementBoundary,
     ) -> list[ChildStateInput]:
         children: list[ChildStateInput] = []
         for row in child_rows:
             metadata = row.result_json if isinstance(row.result_json, dict) else {}
             token = token_by_child.get(row.worker_id)
             child_runtime = self._child_runs.get(row.worker_id)
-            persisted_delegated_scope = self._load_persisted_delegated_scope(metadata=metadata)
             capabilities_raw = metadata.get("capabilities_allowed")
             capabilities_allowed = (
                 tuple(str(item) for item in capabilities_raw if isinstance(item, str))
@@ -713,6 +846,22 @@ class URMCopilotManager:
                 if isinstance(metadata.get("urm_events_path"), str)
                 else self._relative_path(self._urm_events_path_for_child(row.worker_id))
             )
+            status = child_runtime.status if child_runtime is not None else row.status
+            claimed_work_present = self._persisted_child_claimed_work_present(
+                status=status,
+                raw_jsonl_path=raw_jsonl_path,
+                urm_events_path=urm_events_path,
+            )
+            persisted_delegated_scope = (
+                child_runtime.delegated_scope
+                if child_runtime is not None
+                else self._load_persisted_delegated_scope(
+                    metadata=metadata,
+                    child_id=row.worker_id,
+                    session_id=session_id,
+                    boundary=boundary,
+                )
+            )
             child_thread_id = (
                 child_runtime.child_thread_id
                 if child_runtime is not None and child_runtime.child_thread_id
@@ -742,50 +891,57 @@ class URMCopilotManager:
                 ChildStateInput(
                     child_id=row.worker_id,
                     parent_session_id=parent_session_id,
-                    status=child_runtime.status if child_runtime is not None else row.status,
+                    status=status,
                     started_at=row.created_at,
                     ended_at=child_runtime.ended_at if child_runtime is not None else row.ended_at,
                     runtime_role=row.role,
                     requested_role=(
                         child_runtime.requested_role
                         if child_runtime is not None
-                        else str(metadata.get("requested_role"))
-                        if isinstance(metadata.get("requested_role"), str)
-                        else "explorer"
+                        else self._require_persisted_delegation_string(
+                            metadata=metadata,
+                            field_name="requested_role",
+                            child_id=row.worker_id,
+                            session_id=session_id,
+                            boundary=boundary,
+                            claimed_work_present=claimed_work_present,
+                        )
                     ),
                     granted_role=(
                         child_runtime.granted_role
                         if child_runtime is not None
-                        else str(metadata.get("granted_role"))
-                        if isinstance(metadata.get("granted_role"), str)
-                        else "explorer"
+                        else self._require_persisted_delegation_string(
+                            metadata=metadata,
+                            field_name="granted_role",
+                            child_id=row.worker_id,
+                            session_id=session_id,
+                            boundary=boundary,
+                            claimed_work_present=claimed_work_present,
+                        )
                     ),
                     delegation_task_kind=(
                         child_runtime.delegation_task_kind
                         if child_runtime is not None
-                        else str(metadata.get("delegation_task_kind"))
-                        if isinstance(metadata.get("delegation_task_kind"), str)
-                        else "analysis_task"
+                        else self._require_persisted_delegation_string(
+                            metadata=metadata,
+                            field_name="delegation_task_kind",
+                            child_id=row.worker_id,
+                            session_id=session_id,
+                            boundary=boundary,
+                            claimed_work_present=claimed_work_present,
+                        )
                     ),
                     delegated_scope_kind=(
-                        child_runtime.delegated_scope.kind
-                        if child_runtime is not None
-                        else persisted_delegated_scope.kind
+                        persisted_delegated_scope.kind
                     ),
                     delegated_scope_values=(
-                        tuple(child_runtime.delegated_scope.values)
-                        if child_runtime is not None
-                        else tuple(persisted_delegated_scope.values)
+                        tuple(persisted_delegated_scope.values)
                     ),
                     delegated_scope_artifact_surfaces=(
-                        tuple(child_runtime.delegated_scope.artifact_surfaces)
-                        if child_runtime is not None
-                        else tuple(persisted_delegated_scope.artifact_surfaces)
+                        tuple(persisted_delegated_scope.artifact_surfaces)
                     ),
                     delegated_scope_rationale=(
-                        child_runtime.delegated_scope.rationale
-                        if child_runtime is not None
-                        else persisted_delegated_scope.rationale
+                        persisted_delegated_scope.rationale
                     ),
                     authoritative_write_lease_granted=(
                         child_runtime.authoritative_write_lease_granted
@@ -884,6 +1040,12 @@ class URMCopilotManager:
                     session_id=session_id,
                     child_rows=child_rows,
                     token_by_child=token_by_child,
+                    boundary="orchestration_state_materialization_boundary",
+                )
+                self._validate_runtime_enforcement_materialization_inputs_locked(
+                    boundary="orchestration_state_materialization_boundary",
+                    session=session,
+                    children=children,
                 )
                 event_streams = self._read_event_stream_heads_locked(
                     session_id=session_id,
@@ -901,6 +1063,11 @@ class URMCopilotManager:
                     repo_root=str(self._repo_root_for_orchestration_state()),
                     branch_or_head="HEAD",
                 )
+            except URMError as exc:
+                raise self._runtime_enforcement_error_with_session(
+                    exc=exc,
+                    session_id=session_id,
+                ) from exc
             except (FileNotFoundError, OrchestrationStateError) as exc:
                 raise URMError(
                     code="URM_ORCHESTRATION_STATE_INVALID",
@@ -937,6 +1104,12 @@ class URMCopilotManager:
                     session_id=session_id,
                     child_rows=child_rows,
                     token_by_child=token_by_child,
+                    boundary="worker_visibility_materialization_boundary",
+                )
+                self._validate_runtime_enforcement_materialization_inputs_locked(
+                    boundary="worker_visibility_materialization_boundary",
+                    session=session,
+                    children=children,
                 )
                 event_streams = self._read_event_stream_heads_locked(
                     session_id=session_id,
@@ -960,10 +1133,16 @@ class URMCopilotManager:
                     raw_transcript_available_by_child=raw_transcript_available_by_child,
                 )
             except URMError as exc:
+                normalized = self._runtime_enforcement_error_with_session(
+                    exc=exc,
+                    session_id=session_id,
+                )
+                if normalized.detail.code.startswith("URM_RUNTIME_ENFORCEMENT_"):
+                    raise normalized from exc
                 raise URMError(
                     code="URM_WORKER_VISIBILITY_STATE_INVALID",
-                    message=exc.detail.message,
-                    context={"session_id": session_id, **exc.detail.context},
+                    message=normalized.detail.message,
+                    context=normalized.detail.context,
                 ) from exc
             except (FileNotFoundError, OrchestrationStateError, WorkerVisibilityStateError) as exc:
                 raise URMError(
@@ -1001,6 +1180,12 @@ class URMCopilotManager:
                     session_id=session_id,
                     child_rows=child_rows,
                     token_by_child=token_by_child,
+                    boundary="topology_duty_map_materialization_boundary",
+                )
+                self._validate_runtime_enforcement_materialization_inputs_locked(
+                    boundary="topology_duty_map_materialization_boundary",
+                    session=session,
+                    children=children,
                 )
                 event_streams = self._read_event_stream_heads_locked(
                     session_id=session_id,
@@ -1062,6 +1247,18 @@ class URMCopilotManager:
                     ),
                     event_streams=event_streams,
                 )
+            except URMError as exc:
+                normalized = self._runtime_enforcement_error_with_session(
+                    exc=exc,
+                    session_id=session_id,
+                )
+                if normalized.detail.code.startswith("URM_RUNTIME_ENFORCEMENT_"):
+                    raise normalized from exc
+                raise URMError(
+                    code="URM_TOPOLOGY_DUTY_MAP_STATE_INVALID",
+                    message=normalized.detail.message,
+                    context={"session_id": session_id, **normalized.detail.context},
+                ) from exc
             except ValidationError as exc:
                 raise URMError(
                     code="URM_TOPOLOGY_DUTY_MAP_STATE_INVALID",
