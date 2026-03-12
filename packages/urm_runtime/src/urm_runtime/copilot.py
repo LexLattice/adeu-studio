@@ -81,9 +81,12 @@ from .normalization import build_internal_event, normalize_app_server_line
 from .orchestration_state import (
     ChildStateInput,
     EventStreamHeadInput,
+    ExecutionTopologyState,
     MaterializedOrchestrationArtifacts,
     OrchestrationStateError,
+    RoleHandoffEnvelope,
     SessionStateInput,
+    WriteLeaseState,
     materialize_orchestration_artifacts,
     read_event_stream_head,
 )
@@ -127,8 +130,15 @@ from .storage import (
     update_copilot_session_profile,
     update_copilot_session_status,
 )
+from .topology_duty_map import (
+    MaterializedTopologyDutyMapArtifacts,
+    TopologyDutyMapSourceArtifacts,
+    TopologyDutyMapStateError,
+    materialize_topology_duty_map_artifacts,
+)
 from .worker_visibility import (
     MaterializedWorkerVisibilityArtifacts,
+    WorkerVisibilityState,
     WorkerVisibilityStateError,
     materialize_worker_visibility_artifacts,
 )
@@ -283,12 +293,7 @@ class URMCopilotManager:
 
     def _safe_evidence_path_component(self, *, value: str, field_name: str) -> str:
         normalized = value.strip()
-        if (
-            not normalized
-            or normalized in {".", ".."}
-            or "/" in normalized
-            or "\\" in normalized
-        ):
+        if not normalized or normalized in {".", ".."} or "/" in normalized or "\\" in normalized:
             raise URMError(
                 code="URM_ORCHESTRATION_STATE_INVALID",
                 message=f"invalid evidence path component for {field_name}",
@@ -429,6 +434,15 @@ class URMCopilotManager:
             field_name="session_id",
         )
         path = self.config.evidence_root / "visibility" / safe_session_id
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _topology_duty_map_output_root(self, session_id: str) -> Path:
+        safe_session_id = self._safe_evidence_path_component(
+            value=session_id,
+            field_name="session_id",
+        )
+        path = self.config.evidence_root / "topology" / safe_session_id
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
@@ -954,6 +968,114 @@ class URMCopilotManager:
             except (FileNotFoundError, OrchestrationStateError, WorkerVisibilityStateError) as exc:
                 raise URMError(
                     code="URM_WORKER_VISIBILITY_STATE_INVALID",
+                    message=str(exc),
+                    context={"session_id": session_id},
+                ) from exc
+
+    def materialize_topology_duty_map_state(
+        self,
+        *,
+        session_id: str,
+    ) -> MaterializedTopologyDutyMapArtifacts:
+        with self._lock:
+            with transaction(db_path=self.config.db_path) as con:
+                row = get_copilot_session(con=con, copilot_session_id=session_id)
+                child_rows = list_copilot_child_runs_for_parent(
+                    con=con,
+                    parent_session_id=session_id,
+                )
+                token_by_child = {
+                    token.child_id: token
+                    for token in list_dispatch_tokens_for_parent_session(
+                        con=con,
+                        parent_session_id=session_id,
+                    )
+                }
+            try:
+                session = self._build_session_state_input_locked(
+                    session_id=session_id,
+                    row=row,
+                    child_rows=child_rows,
+                )
+                children = self._build_child_state_inputs_locked(
+                    session_id=session_id,
+                    child_rows=child_rows,
+                    token_by_child=token_by_child,
+                )
+                event_streams = self._read_event_stream_heads_locked(
+                    session_id=session_id,
+                    session=session,
+                    children=children,
+                )
+                raw_transcript_available_by_child = {
+                    child.child_id: self._raw_transcript_available(child.raw_jsonl_path)
+                    for child in children
+                }
+
+                orchestration_output_root = self._orchestration_state_output_root(session_id)
+                orchestration_output_root_relative = self._relative_path(orchestration_output_root)
+                orchestration_artifacts = materialize_orchestration_artifacts(
+                    output_root=orchestration_output_root,
+                    output_root_relative=orchestration_output_root_relative,
+                    session=session,
+                    children=children,
+                    event_streams=event_streams,
+                    repo_root=str(self._repo_root_for_orchestration_state()),
+                    branch_or_head="HEAD",
+                )
+
+                visibility_output_root = self._worker_visibility_output_root(session_id)
+                visibility_output_root_relative = self._relative_path(visibility_output_root)
+                visibility_artifacts = materialize_worker_visibility_artifacts(
+                    output_root=visibility_output_root,
+                    output_root_relative=visibility_output_root_relative,
+                    session=session,
+                    children=children,
+                    event_streams=event_streams,
+                    repo_root=str(self._repo_root_for_orchestration_state()),
+                    branch_or_head="HEAD",
+                    raw_transcript_available_by_child=raw_transcript_available_by_child,
+                )
+
+                topology_output_root = self._topology_duty_map_output_root(session_id)
+                topology_output_root_relative = self._relative_path(topology_output_root)
+                return materialize_topology_duty_map_artifacts(
+                    output_root=topology_output_root,
+                    output_root_relative=topology_output_root_relative,
+                    execution_topology_state=ExecutionTopologyState.model_validate(
+                        orchestration_artifacts.execution_topology_state.payload
+                    ),
+                    write_lease_state=WriteLeaseState.model_validate(
+                        orchestration_artifacts.write_lease_state.payload
+                    ),
+                    worker_visibility_state=WorkerVisibilityState.model_validate(
+                        visibility_artifacts.worker_visibility_state.payload
+                    ),
+                    role_handoff_envelope=RoleHandoffEnvelope.model_validate(
+                        orchestration_artifacts.role_handoff_envelope.payload
+                    ),
+                    source_artifacts=TopologyDutyMapSourceArtifacts(
+                        execution_topology_state_path=orchestration_artifacts.execution_topology_state.path,
+                        write_lease_state_path=orchestration_artifacts.write_lease_state.path,
+                        worker_visibility_state_path=visibility_artifacts.worker_visibility_state.path,
+                        role_handoff_envelope_path=orchestration_artifacts.role_handoff_envelope.path,
+                    ),
+                    event_streams=event_streams,
+                )
+            except ValidationError as exc:
+                raise URMError(
+                    code="URM_TOPOLOGY_DUTY_MAP_STATE_INVALID",
+                    message="canonical topology inputs failed validation",
+                    context={"session_id": session_id, "errors": exc.errors()},
+                ) from exc
+            except (
+                FileNotFoundError,
+                OrchestrationStateError,
+                WorkerVisibilityStateError,
+                TopologyDutyMapStateError,
+            ) as exc:
+                raise URMError(
+                    code="URM_TOPOLOGY_DUTY_MAP_STATE_INVALID",
                     message=str(exc),
                     context={"session_id": session_id},
                 ) from exc

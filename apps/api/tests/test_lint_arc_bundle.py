@@ -66,9 +66,9 @@ def _copy_closeout_bundle(*, arc: int, target_root: Path) -> None:
     )
 
 
-def test_current_repo_v58_start_bundle_passes() -> None:
+def test_current_repo_v59_start_bundle_passes() -> None:
     module = _load_script_module()
-    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=58, phase="start")
+    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=59, phase="start")
     assert payload["schema"] == "arc_bundle_lint@1"
     assert payload["failures"] == []
 
@@ -81,15 +81,15 @@ def test_current_repo_v57_closeout_bundle_passes() -> None:
 
 
 def test_start_bundle_fails_on_closeout_heading_and_wrong_phase(tmp_path: Path) -> None:
-    _copy_start_bundle(arc=58, target_root=tmp_path)
-    decision_doc = tmp_path / "docs" / "DRAFT_STOP_GATE_DECISION_vNEXT_PLUS58.md"
+    _copy_start_bundle(arc=59, target_root=tmp_path)
+    decision_doc = tmp_path / "docs" / "DRAFT_STOP_GATE_DECISION_vNEXT_PLUS59.md"
     text = decision_doc.read_text(encoding="utf-8")
     text = text.replace('"phase": "pre_start_scaffold"', '"phase": "post_closeout_decision"')
     text += "\n## Metric-Key Continuity Assertion\n\n```json\n{}\n```\n"
     decision_doc.write_text(text, encoding="utf-8")
 
     module = _load_script_module()
-    payload = module.lint_arc_bundle(repo_root=tmp_path, arc=58, phase="start")
+    payload = module.lint_arc_bundle(repo_root=tmp_path, arc=59, phase="start")
 
     failure_codes = {row["code"] for row in payload["failures"]}
     assert "STATE_FIELD_MISMATCH" in failure_codes
@@ -99,9 +99,9 @@ def test_start_bundle_fails_on_closeout_heading_and_wrong_phase(tmp_path: Path) 
 def test_closeout_bundle_fails_on_invalid_event_stream(tmp_path: Path) -> None:
     _copy_closeout_bundle(arc=57, target_root=tmp_path)
     event_path = next(
-        (
-            tmp_path / "artifacts" / "agent_harness" / "v57" / "runtime" / "evidence"
-        ).rglob("urm_events.ndjson")
+        (tmp_path / "artifacts" / "agent_harness" / "v57" / "runtime" / "evidence").rglob(
+            "urm_events.ndjson"
+        )
     )
     event_path.write_text('{"schema":"urm-events@1"', encoding="utf-8")
 

@@ -25,6 +25,7 @@ from adeu_api.urm_routes import (
     urm_copilot_start_endpoint,
     urm_copilot_steer_endpoint,
     urm_copilot_stop_endpoint,
+    urm_copilot_topology_endpoint,
     urm_copilot_visibility_endpoint,
     urm_policy_active_endpoint,
     urm_policy_profile_current_endpoint,
@@ -69,7 +70,13 @@ from urm_runtime.orchestration_evidence import (
     materialize_v35b_delegation_handoff_evidence,
     materialize_v35c_transcript_visibility_evidence,
 )
-from urm_runtime.orchestration_state import MaterializedOrchestrationArtifacts, RoleHandoffEntry
+from urm_runtime.orchestration_state import (
+    ExecutionTopologyState,
+    MaterializedOrchestrationArtifacts,
+    RoleHandoffEntry,
+    RoleHandoffEnvelope,
+    WriteLeaseState,
+)
 from urm_runtime.policy_governance import materialize_policy
 from urm_runtime.storage import (
     get_dispatch_token_for_child,
@@ -83,7 +90,16 @@ from urm_runtime.storage import (
     update_copilot_session_status,
     upsert_dispatch_token_queued,
 )
-from urm_runtime.worker_visibility import MaterializedWorkerVisibilityArtifacts
+from urm_runtime.topology_duty_map import (
+    MaterializedTopologyDutyMapArtifacts,
+    TopologyDutyMapSourceArtifacts,
+    TopologyDutyMapStateError,
+    build_topology_duty_map_state,
+)
+from urm_runtime.worker_visibility import (
+    MaterializedWorkerVisibilityArtifacts,
+    WorkerVisibilityState,
+)
 
 
 def _prepare_fake_codex(*, tmp_path: Path) -> Path:
@@ -487,13 +503,115 @@ def _materialize_v35c_bridge_artifacts(
         set_dispatch_token_phase(con=con, child_id=child_id, phase="started")
 
     manager = _get_manager()
-    orchestration_artifacts = manager.materialize_orchestration_state(
-        session_id=parent_session_id
-    )
-    visibility_artifacts = manager.materialize_worker_visibility_state(
-        session_id=parent_session_id
-    )
+    orchestration_artifacts = manager.materialize_orchestration_state(session_id=parent_session_id)
+    visibility_artifacts = manager.materialize_worker_visibility_state(session_id=parent_session_id)
     return config, orchestration_artifacts, visibility_artifacts
+
+
+def _materialize_v35d_builder_support_artifacts(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[
+    URMRuntimeConfig,
+    MaterializedOrchestrationArtifacts,
+    MaterializedWorkerVisibilityArtifacts,
+    MaterializedTopologyDutyMapArtifacts,
+]:
+    config, orchestration_artifacts, visibility_artifacts = (
+        _materialize_v35c_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    manager = _get_manager()
+    topology_artifacts = manager.materialize_topology_duty_map_state(
+        session_id=orchestration_artifacts.session_id
+    )
+    return config, orchestration_artifacts, visibility_artifacts, topology_artifacts
+
+
+def _materialize_v35d_running_builder_artifacts(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[URMRuntimeConfig, str, str, MaterializedTopologyDutyMapArtifacts]:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "1.0")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(
+            provider="codex",
+            client_request_id="v35d-running-builder-start-1",
+        )
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="v35d-running-builder-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "v35d-running-builder-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+    spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="v35d-running-builder-spawn-1",
+            prompt="implement the api lane",
+            target_turn_id="turn-v35d-running-builder-1",
+            requested_role="builder_worker",
+            delegation_task_kind="write_task",
+            delegated_scope=_delegated_scope_payload(
+                kind="subtree",
+                values=["apps/api"],
+                artifact_surfaces=["implementation"],
+                rationale="scoped implementation write task",
+            ),
+        )
+    )
+
+    manager = _get_manager()
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(spawn.child_id)) is not None
+            and child.status == "running"
+            and child.child_thread_id is not None
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    config = URMRuntimeConfig.from_env()
+    topology_artifacts = manager.materialize_topology_duty_map_state(session_id=session_id)
+    return config, session_id, spawn.child_id, topology_artifacts
 
 
 def _materialize_v35c_running_artifacts(
@@ -591,6 +709,19 @@ def _rewrite_visibility_artifact(
             hash=sha256_canonical_json(payload),
             payload=payload,
         ),
+    )
+
+
+def _topology_source_artifacts(
+    *,
+    orchestration_artifacts: MaterializedOrchestrationArtifacts,
+    visibility_artifacts: MaterializedWorkerVisibilityArtifacts,
+) -> TopologyDutyMapSourceArtifacts:
+    return TopologyDutyMapSourceArtifacts(
+        execution_topology_state_path=orchestration_artifacts.execution_topology_state.path,
+        write_lease_state_path=orchestration_artifacts.write_lease_state.path,
+        worker_visibility_state_path=visibility_artifacts.worker_visibility_state.path,
+        role_handoff_envelope_path=orchestration_artifacts.role_handoff_envelope.path,
     )
 
 
@@ -3316,8 +3447,7 @@ def test_materialize_orchestration_state_records_builder_write_lease_and_handoff
     assert write_lease_running["current_authoritative_holder"]["role"] == "builder_worker"
     assert write_lease_running["current_authoritative_holder"]["requested_role"] == "builder_worker"
     assert (
-        write_lease_running["current_authoritative_holder"]["delegation_task_kind"]
-        == "write_task"
+        write_lease_running["current_authoritative_holder"]["delegation_task_kind"] == "write_task"
     )
     dispatch_running = next(
         observation
@@ -3841,6 +3971,223 @@ def test_materialize_worker_visibility_state_preserves_bridge_and_compaction_vis
     assert payload["compaction_seams"]
     assert payload["compaction_seams"][0]["target_stream_id"] == f"urm_audit:{parent_session_id}"
     assert payload["workers"][0]["divergence_state"] == "raw_only"
+    _reset_manager_for_tests()
+
+
+def test_materialize_topology_duty_map_state_is_deterministic_and_route_visible(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, _visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    manager = _get_manager()
+
+    first = manager.materialize_topology_duty_map_state(
+        session_id=orchestration_artifacts.session_id
+    )
+    second = manager.materialize_topology_duty_map_state(
+        session_id=orchestration_artifacts.session_id
+    )
+
+    assert first.topology_duty_map_state.hash == second.topology_duty_map_state.hash
+
+    payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+    assert payload["schema"] == "topology_duty_map_state@1"
+    assert payload["orchestrator_session_id"] == orchestration_artifacts.session_id
+    assert payload["parent_session_id"] == orchestration_artifacts.session_id
+    assert payload["topology_duty_map_foundation_package"] == "packages/urm_runtime"
+    assert payload["read_only_topology_required"] is True
+    assert payload["topology_surface_authority_policy"] == (
+        "derived_from_canonical_execution_state_only_non_authoritative_visualization"
+    )
+    assert payload["event_stream_drilldown_policy"] == (
+        "event_streams_are_provenance_targets_only_not_topology_projection_truth_inputs"
+    )
+    assert payload["current_authoritative_holder_actor_id"] == orchestration_artifacts.session_id
+    assert [node["role"] for node in payload["nodes"]] == [
+        "main_orchestrator",
+        "explorer",
+        "builder_worker",
+    ]
+    assert payload["nodes"][0]["user_facing_boundary"] is True
+    assert all(node["user_facing_boundary"] is False for node in payload["nodes"][1:])
+
+    builder_node = next(node for node in payload["nodes"] if node["role"] == "builder_worker")
+    assert builder_node["current_duty"] == "implementation_completed_pending_reconciliation"
+    assert builder_node["authoritative_write_access"] is False
+
+    assert payload["edges"]
+    for item in [*payload["nodes"], *payload["edges"]]:
+        assert item["provenance_refs"]
+        assert any(ref["ref_kind"] == "artifact" for ref in item["provenance_refs"])
+        for ref in item["provenance_refs"]:
+            assert (config.var_root / ref["path"]).exists()
+
+    assert any(
+        ref["ref_kind"] == "event_stream"
+        for item in [*payload["nodes"], *payload["edges"]]
+        for ref in item["provenance_refs"]
+    )
+
+    route_payload = urm_copilot_topology_endpoint(
+        session_id=orchestration_artifacts.session_id,
+        provider="codex",
+    )
+    assert route_payload.orchestrator_session_id == orchestration_artifacts.session_id
+    assert route_payload.model_dump(mode="json", by_alias=True) == payload
+    _reset_manager_for_tests()
+
+
+def test_materialize_topology_duty_map_state_projects_running_builder_write_lease_holder(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, session_id, builder_child_id, topology_artifacts = (
+        _materialize_v35d_running_builder_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+
+    payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+    assert payload["orchestrator_session_id"] == session_id
+    assert payload["current_authoritative_holder_actor_id"] == builder_child_id
+
+    builder_node = next(node for node in payload["nodes"] if node["actor_id"] == builder_child_id)
+    assert builder_node["role"] == "builder_worker"
+    assert builder_node["authoritative_write_access"] is True
+    assert builder_node["current_duty"] == "implementing_with_active_write_lease"
+
+    builder_edge = next(
+        edge for edge in payload["edges"] if edge["target_actor_id"] == builder_child_id
+    )
+    assert builder_edge["authoritative_write_access"] is True
+    assert builder_edge["blocking_state"] == "non_blocking"
+    _reset_manager_for_tests()
+
+
+def test_build_topology_duty_map_state_renders_support_blocker_as_advisory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _config, orchestration_artifacts, visibility_artifacts, _topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+
+    visibility_payload = json.loads(
+        canonical_json(visibility_artifacts.worker_visibility_state.payload)
+    )
+    support_worker = next(
+        worker for worker in visibility_payload["workers"] if worker["role"] == "explorer"
+    )
+    support_worker["blocking_state"] = "blocking"
+    support_worker["blockers"] = ["needs_orchestrator_decision"]
+    support_worker["status"] = "failed"
+
+    topology_state = build_topology_duty_map_state(
+        execution_topology_state=ExecutionTopologyState.model_validate(
+            orchestration_artifacts.execution_topology_state.payload
+        ),
+        write_lease_state=WriteLeaseState.model_validate(
+            orchestration_artifacts.write_lease_state.payload
+        ),
+        worker_visibility_state=WorkerVisibilityState.model_validate(visibility_payload),
+        role_handoff_envelope=RoleHandoffEnvelope.model_validate(
+            orchestration_artifacts.role_handoff_envelope.payload
+        ),
+        source_artifacts=_topology_source_artifacts(
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+        ),
+    )
+
+    support_node = next(node for node in topology_state.nodes if node.role == "explorer")
+    assert support_node.authority_domain == "advisory"
+    assert support_node.blocking_state == "non_blocking"
+    assert support_node.blockers == ["needs_orchestrator_decision"]
+    assert support_node.current_duty == "advisory_issue_raised_for_orchestrator_attention"
+    assert support_node.authoritative_write_access is False
+    _reset_manager_for_tests()
+
+
+def test_build_topology_duty_map_state_rejects_invented_visibility_worker(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _config, orchestration_artifacts, visibility_artifacts, _topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+
+    visibility_payload = json.loads(
+        canonical_json(visibility_artifacts.worker_visibility_state.payload)
+    )
+    ghost_worker = dict(visibility_payload["workers"][0])
+    ghost_worker["worker_id"] = "ghost-worker-1"
+    ghost_worker["worker_session_id"] = "ghost-worker-1"
+    visibility_payload["workers"].append(ghost_worker)
+
+    with pytest.raises(TopologyDutyMapStateError, match="visibility workers do not match"):
+        build_topology_duty_map_state(
+            execution_topology_state=ExecutionTopologyState.model_validate(
+                orchestration_artifacts.execution_topology_state.payload
+            ),
+            write_lease_state=WriteLeaseState.model_validate(
+                orchestration_artifacts.write_lease_state.payload
+            ),
+            worker_visibility_state=WorkerVisibilityState.model_validate(visibility_payload),
+            role_handoff_envelope=RoleHandoffEnvelope.model_validate(
+                orchestration_artifacts.role_handoff_envelope.payload
+            ),
+            source_artifacts=_topology_source_artifacts(
+                orchestration_artifacts=orchestration_artifacts,
+                visibility_artifacts=visibility_artifacts,
+            ),
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_topology_duty_map_state_preserves_bridge_and_compaction_visibility(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, _visibility_artifacts = _materialize_v35c_bridge_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+
+    manager = _get_manager()
+    topology_artifacts = manager.materialize_topology_duty_map_state(
+        session_id=orchestration_artifacts.session_id
+    )
+    payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+
+    assert payload["continuation_bridge_ref"] is not None
+    assert payload["continuation_bridge_ref"]["target_stream_id"] == (
+        f"urm_audit:{orchestration_artifacts.session_id}"
+    )
+    assert payload["compaction_seams"]
+    assert payload["compaction_seams"][0]["target_stream_id"] == (
+        f"urm_audit:{orchestration_artifacts.session_id}"
+    )
     _reset_manager_for_tests()
 
 
@@ -4386,9 +4733,7 @@ def test_materialize_v35b_delegation_handoff_evidence_fails_closed_on_missing_re
         payload=snapshot_payload,
     )
 
-    with pytest.raises(
-        OrchestrationEvidenceError, match="requested_role must be recorded"
-    ):
+    with pytest.raises(OrchestrationEvidenceError, match="requested_role must be recorded"):
         _materialize_v35b_evidence(
             repo_root=tmp_path,
             config=config,
@@ -4422,9 +4767,7 @@ def test_materialize_v35b_delegation_handoff_evidence_fails_closed_without_build
         payload=write_lease_payload,
     )
 
-    with pytest.raises(
-        OrchestrationEvidenceError, match="authoritative write lease"
-    ):
+    with pytest.raises(OrchestrationEvidenceError, match="authoritative write lease"):
         _materialize_v35b_evidence(
             repo_root=tmp_path,
             config=config,

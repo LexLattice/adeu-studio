@@ -69,6 +69,7 @@ from urm_runtime.storage import (
     get_copilot_session,
     transaction,
 )
+from urm_runtime.topology_duty_map import TopologyDutyMapState
 from urm_runtime.worker import CodexExecWorkerRunner
 from urm_runtime.worker_visibility import WorkerVisibilityState
 
@@ -800,5 +801,20 @@ def urm_copilot_visibility_endpoint(
     try:
         artifact = manager.materialize_worker_visibility_state(session_id=session_id)
         return WorkerVisibilityState.model_validate(artifact.worker_visibility_state.payload)
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+
+
+@router.get("/copilot/topology", response_model=TopologyDutyMapState)
+def urm_copilot_topology_endpoint(
+    *,
+    session_id: str = Query(min_length=1),
+    provider: Literal["codex"] = Query(default="codex"),
+) -> TopologyDutyMapState:
+    _require_codex_provider(provider)
+    manager = _get_manager()
+    try:
+        artifact = manager.materialize_topology_duty_map_state(session_id=session_id)
+        return TopologyDutyMapState.model_validate(artifact.topology_duty_map_state.payload)
     except URMError as exc:
         raise _to_http_exception(exc) from exc
