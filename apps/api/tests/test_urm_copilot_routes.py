@@ -10,6 +10,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
+import urm_runtime.orchestration_evidence as orchestration_evidence_module
 from adeu_api.urm_routes import (
     _get_manager,
     _reset_manager_for_tests,
@@ -70,6 +71,7 @@ from urm_runtime.orchestration_evidence import (
     materialize_v35b_delegation_handoff_evidence,
     materialize_v35c_transcript_visibility_evidence,
     materialize_v35d_topology_duty_map_evidence,
+    materialize_v35e_runtime_enforcement_evidence,
 )
 from urm_runtime.orchestration_state import (
     ExecutionTopologyState,
@@ -355,6 +357,35 @@ def _materialize_v35d_evidence(
         visibility_artifacts=visibility_artifacts,
         topology_artifacts=topology_artifacts,
         output_path="artifacts/agent_harness/v59/evidence_inputs/v35d_topology_duty_map_evidence_v59.json",
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _materialize_v35e_evidence(
+    *,
+    repo_root: Path,
+    config: URMRuntimeConfig,
+    orchestration_artifacts: MaterializedOrchestrationArtifacts,
+    visibility_artifacts: MaterializedWorkerVisibilityArtifacts,
+    topology_artifacts: MaterializedTopologyDutyMapArtifacts,
+) -> dict[str, object]:
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel="artifacts/stop_gate/metrics_v59_closeout.json",
+        current_rel="artifacts/stop_gate/metrics_v60_closeout.json",
+    )
+    evidence = materialize_v35e_runtime_enforcement_evidence(
+        repo_root=repo_root,
+        var_root=config.var_root,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+        topology_artifacts=topology_artifacts,
+        output_path="artifacts/agent_harness/v60/evidence_inputs/v35e_runtime_enforcement_evidence_v60.json",
         baseline_metrics_path=baseline_rel,
         current_metrics_path=current_rel,
     )
@@ -6200,6 +6231,310 @@ def test_materialize_v35d_topology_duty_map_evidence_fails_closed_on_authoritati
         match="topology surface treated as authoritative",
     ):
         _materialize_v35d_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35e_runtime_enforcement_evidence_is_deterministic(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+
+    first = _materialize_v35e_evidence(
+        repo_root=tmp_path,
+        config=config,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+        topology_artifacts=topology_artifacts,
+    )
+    second = _materialize_v35e_evidence(
+        repo_root=tmp_path,
+        config=config,
+        orchestration_artifacts=orchestration_artifacts,
+        visibility_artifacts=visibility_artifacts,
+        topology_artifacts=topology_artifacts,
+    )
+
+    assert first["artifact"].hash == second["artifact"].hash
+    payload = first["payload"]
+    assert payload["schema"] == "v35e_runtime_enforcement_evidence@1"
+    assert payload["required_enforcement_surfaces_active"] is True
+    assert payload["single_builder_default_enforced_at_runtime"] is True
+    assert payload["support_role_proxy_authority_blocked"] is True
+    assert payload["claimed_work_handoff_validation_enforced"] is True
+    assert payload["scope_kind_validation_enforced"] is True
+    assert payload["deterministic_denial_surfaces_recorded"] is True
+    assert payload["released_happy_path_preserved_under_runtime_enforcement"] is True
+    assert payload["observability_surfaces_remain_read_only"] is True
+    assert payload["acceptance_and_closeout_authority_preserved"] is True
+    assert payload["worker_direct_user_boundary_forbidden"] is True
+    assert payload["verification_passed"] is True
+    assert payload["metric_key_cardinality"] == 80
+    assert payload["metric_key_exact_set_equal_v59"] is True
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35e_runtime_enforcement_evidence_fails_closed_on_missing_surface(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    monkeypatch.setattr(
+        orchestration_evidence_module,
+        "REQUIRED_ENFORCEMENT_SURFACES",
+        ("spawn_request_boundary",),
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="required runtime enforcement surfaces drift detected",
+    ):
+        _materialize_v35e_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35e_runtime_enforcement_evidence_fails_closed_on_single_builder_bypass(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+
+    monkeypatch.setattr(
+        orchestration_evidence_module,
+        "validate_single_builder_default",
+        lambda *, boundary, candidates: None,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="single-builder default violation accepted",
+    ):
+        _materialize_v35e_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35e_runtime_enforcement_evidence_fails_closed_on_support_proxy_bypass(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    original = orchestration_evidence_module.validate_runtime_enforcement_candidate
+
+    def _allow_support_proxy(
+        *,
+        boundary: str,
+        candidate: object,
+        parent_writes_allowed: bool | None,
+    ):
+        subject_id = getattr(candidate, "subject_id", None)
+        if subject_id == "support-proxy-child":
+            return None
+        return original(
+            boundary=boundary,
+            candidate=candidate,
+            parent_writes_allowed=parent_writes_allowed,
+        )
+
+    monkeypatch.setattr(
+        orchestration_evidence_module,
+        "validate_runtime_enforcement_candidate",
+        _allow_support_proxy,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="support-role proxy authority violation accepted",
+    ):
+        _materialize_v35e_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35e_runtime_enforcement_evidence_fails_closed_on_claimed_work_bypass(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+
+    monkeypatch.setattr(
+        orchestration_evidence_module,
+        "validate_claimed_work_handoff_field",
+        lambda *, boundary, subject_id, field_name, value, claimed_work_present, context: (
+            str(value) if isinstance(value, str) else field_name
+        ),
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="claimed-work handoff missing required fields accepted",
+    ):
+        _materialize_v35e_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35e_runtime_enforcement_evidence_fails_closed_on_scope_bypass(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    original = orchestration_evidence_module.validate_runtime_enforcement_candidate
+
+    def _allow_invalid_scope(
+        *,
+        boundary: str,
+        candidate: object,
+        parent_writes_allowed: bool | None,
+    ):
+        subject_id = getattr(candidate, "subject_id", None)
+        if subject_id == "invalid-scope-kind-child":
+            return None
+        return original(
+            boundary=boundary,
+            candidate=candidate,
+            parent_writes_allowed=parent_writes_allowed,
+        )
+
+    monkeypatch.setattr(
+        orchestration_evidence_module,
+        "validate_runtime_enforcement_candidate",
+        _allow_invalid_scope,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="scope kind missing or malformed accepted",
+    ):
+        _materialize_v35e_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35e_runtime_enforcement_evidence_fails_closed_on_authority_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    handoff_payload = _load_materialized_json(
+        config=config,
+        relative_path=orchestration_artifacts.role_handoff_envelope.path,
+    )
+    handoff_payload["entries"][0]["artifact_class"] = "authoritative"
+    orchestration_artifacts = _rewrite_orchestration_artifact(
+        config=config,
+        artifacts=orchestration_artifacts,
+        field_name="role_handoff_envelope",
+        payload=handoff_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="worker output may not become authoritative pre-closeout",
+    ):
+        _materialize_v35e_evidence(
+            repo_root=tmp_path,
+            config=config,
+            orchestration_artifacts=orchestration_artifacts,
+            visibility_artifacts=visibility_artifacts,
+            topology_artifacts=topology_artifacts,
+        )
+    _reset_manager_for_tests()
+
+
+def test_materialize_v35e_runtime_enforcement_evidence_fails_closed_on_worker_user_boundary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts, visibility_artifacts, topology_artifacts = (
+        _materialize_v35d_builder_support_artifacts(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+        )
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    visibility_payload["workers"][0]["direct_user_boundary_established"] = True
+    visibility_artifacts = _rewrite_visibility_artifact(
+        config=config,
+        artifacts=visibility_artifacts,
+        payload=visibility_payload,
+    )
+
+    with pytest.raises(
+        OrchestrationEvidenceError,
+        match="worker direct user boundary established",
+    ):
+        _materialize_v35e_evidence(
             repo_root=tmp_path,
             config=config,
             orchestration_artifacts=orchestration_artifacts,
