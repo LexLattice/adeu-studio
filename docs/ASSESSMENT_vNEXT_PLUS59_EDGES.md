@@ -1,9 +1,9 @@
-# Assessment vNext+59 Edges (Pre-Lock)
+# Assessment vNext+59 Edges (Post Closeout)
 
-This document records pre-lock edge planning for `vNext+59` (`V35-D` dynamic topology and
-duty-map observability) before implementation.
+This document records edge disposition for `vNext+59` (`V35-D` topology and duty-map
+observability) after arc closeout.
 
-Status: pre-lock assessment (March 11, 2026 UTC).
+Status: post-closeout assessment (March 12, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -11,162 +11,152 @@ Status: pre-lock assessment (March 11, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS59_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
-  "authoritative_scope": "v59_prelock_edge_planning",
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v59_closeout_edge_disposition",
   "required_in_decision": true,
-  "notes": "This pre-lock planning set is expected to be superseded by post-closeout edge disposition once v59 closes."
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
 ## Scope
 
-- In scope: thin `V35-D` read-only topology/duty map observability over the frozen v56/v57
-  orchestration-state and v58 visibility substrate, explicit provenance markers, explicit
-  duty and blocker rendering, continuation/compaction continuity visibility, and closeout
-  evidence integration.
+- In scope: thin `V35-D` read-only topology/duty map observability over the released
+  v56/v57 orchestration-state and v58 visibility substrate, explicit node/edge provenance
+  markers, explanatory duty and blocker rendering, continuation/compaction continuity
+  visibility, and closeout evidence integration.
 - Out of scope: runtime enforcement promotion, multi-builder or multi-writer release,
-  direct worker/user interaction, stop-gate schema-family fork, metric-key expansion, and
-  the separate `O1`/`O2`/`O3` closeout-hardening bundle.
+  topology editing, direct worker/user interaction, stop-gate schema-family fork,
+  metric-key expansion, and the separate `O1`/`O2`/`O3` closeout-hardening bundle.
 
 ## Inputs
 
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v9.md`
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS58.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS58.md`
-- `docs/ASSESSMENT_vNEXT_PLUS58_EDGES.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS59.md`
-- `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
-- `docs/FUTURE_CLEANUPS.md`
-- `docs/MULTI_ROLE_EXECUTION_CONTRACTS_v0.json`
-- `docs/DRAFT_MULTI_ROLE_EXECUTION_LOCK_v0.md`
-- `docs/DRAFT_MULTI_ROLE_EXECUTION_POLICY_v0.md`
-- `packages/urm_runtime/src/urm_runtime/orchestration_state.py`
-- `packages/urm_runtime/src/urm_runtime/worker_visibility.py`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS59.md`
+- `packages/urm_runtime/src/urm_runtime/topology_duty_map.py`
 - `packages/urm_runtime/src/urm_runtime/orchestration_evidence.py`
 - `packages/urm_runtime/src/urm_runtime/copilot.py`
 - `apps/api/src/adeu_api/urm_routes.py`
 - `apps/api/tests/test_urm_copilot_routes.py`
-- `artifacts/quality_dashboard_v58_closeout.json`
-- `artifacts/stop_gate/metrics_v58_closeout.json`
-- `artifacts/agent_harness/v58/evidence_inputs/metric_key_continuity_assertion_v58.json`
-- `artifacts/agent_harness/v58/evidence_inputs/runtime_observability_comparison_v58.json`
-- `artifacts/agent_harness/v58/evidence_inputs/v35c_transcript_visibility_evidence_v58.json`
-- `artifacts/agent_harness/v58/runtime/evidence/codex/`
+- `artifacts/quality_dashboard_v59_closeout.json`
+- `artifacts/stop_gate/metrics_v59_closeout.json`
+- `artifacts/agent_harness/v59/evidence_inputs/metric_key_continuity_assertion_v59.json`
+- `artifacts/agent_harness/v59/evidence_inputs/runtime_observability_comparison_v59.json`
+- `artifacts/agent_harness/v59/evidence_inputs/v35d_topology_duty_map_evidence_v59.json`
+- `artifacts/agent_harness/v59/runtime/evidence/codex/`
+- merged PRs: `#267`, `#268`
 
-## Pre-Lock Edge Set (v59 Planning)
+## Pre-Lock Edge Set Outcome (v59 Closeout)
 
-1. Canonical topology/duty map artifact absence: `open`.
-   - no released `topology_duty_map_state@1` artifact or equivalent runtime read model
-     exists on `main`.
-2. Read-only topology route/surface gap: `open`.
-   - no released `urm.copilot` topology read surface exists on `main`.
-3. Node provenance-marker gap: `open`.
-   - no released topology UX surface materializes per-node `state_origin`,
-     `reconciliation_status`, `last_updated_at`, and `last_reconciled_at`.
-4. Edge provenance-marker gap: `open`.
-   - no released topology UX surface materializes per-edge provenance/freshness markers or
-     source refs.
-5. Duty projection gap: `open`.
-   - no released topology surface joins role, delegated scope, current duty, and current
-     write posture into one canonical topology read model.
-6. Write-lease holder emphasis gap: `open`.
-   - no released topology UX surface explicitly highlights the current authoritative holder
-     using canonical write-lease state.
-7. Advisory blocker rendering gap: `open`.
-   - no released topology UX surface distinguishes advisory support blockers from
-     governance-equivalent blockers.
-8. Provenance-linked drilldown gap: `open`.
-   - no released topology surface links rendered node/edge state back to canonical
-     orchestration, visibility, handoff, or event-stream drilldown targets while still
-     keeping topology projection truth anchored in canonical artifacts.
-9. Continuation-bridge and compaction visibility gap: `open`.
-   - canonical state records bridge/seam data, but no released topology/duty surface
-     renders that continuity explicitly.
-10. Authority inflation risk: `open`.
-    - topology rendering could accidentally imply governance authority, lease transfer, or
-      accepted truth by presentation alone.
-11. Invented-state risk: `open`.
-    - topology rendering could be built from app-layer summaries or ad hoc graph state
-      instead of canonical execution artifacts.
-12. Placement/accretion risk: `open`.
-    - topology logic could sprawl into app or harness code instead of landing as a canonical
-      runtime read model.
-13. Evidence integration gap: `open`.
-    - canonical `v35d_topology_duty_map_evidence@1` does not exist on `main`.
-14. Guard coverage gap for topology failures: `open`.
-    - no merged tests fail closed on missing provenance markers, invented duty state,
-      incorrect lease-holder rendering, advisory-blocker inflation, or topology continuity
-      flattening.
+1. Canonical topology/duty map artifact absence: `resolved`.
+   - `topology_duty_map_state@1` now exists on `main` and is committed under the v59
+     closeout runtime fixture.
+2. Read-only topology route/surface gap: `resolved`.
+   - the released `/urm/copilot/topology` read surface now returns the canonical
+     topology/duty payload, with merged D1 coverage proving route/artifact parity.
+3. Node provenance-marker gap: `resolved`.
+   - every node now materializes `state_origin`, `reconciliation_status`,
+     `last_updated_at`, `last_reconciled_at`, and `provenance_refs`.
+4. Edge provenance-marker gap: `resolved`.
+   - every edge now materializes freshness markers, reconciliation status, and
+     provenance-linked source refs.
+5. Duty projection gap: `resolved`.
+   - the released topology read model now joins role, delegated scope, current duty, and
+     current write posture into one canonical surface.
+6. Write-lease holder emphasis gap: `resolved`.
+   - the topology surface now records `current_authoritative_holder_actor_id` and marks the
+     governing holder and delegated builder path without implying lease-transfer authority.
+7. Advisory blocker rendering gap: `resolved`.
+   - advisory support posture is now rendered distinctly from governance surfaces, with
+     merged D2 guards failing closed on blocker inflation.
+8. Provenance-linked drilldown gap: `resolved`.
+   - node and edge provenance refs now link to canonical execution/visibility/handoff
+     artifacts and event-stream drilldown targets while keeping topology truth anchored in
+     canonical artifacts.
+9. Continuation-bridge and compaction visibility gap: `resolved`.
+   - `topology_duty_map_state@1` now carries explicit `continuation_bridge_ref` and
+     `compaction_seams` fields, with the committed closeout fixture keeping them empty and
+     merged D2 coverage proving flattening drift is rejected.
+10. Authority inflation risk: `resolved`.
+    - the released topology surface freezes a non-authoritative policy string, keeps
+      `current_duty` explanatory-only, and merged D2 guards fail closed on authority-like
+      duty rendering.
+11. Invented-state risk: `resolved`.
+    - the topology release is now rebuilt and verified directly from canonical
+      execution-topology, write-lease, visibility, and handoff inputs.
+12. Placement/accretion risk: `resolved`.
+    - the topology substrate landed in `packages/urm_runtime` as a canonical read model
+      rather than accreting app-only or harness-only summaries.
+13. Evidence integration gap: `resolved`.
+    - canonical `v35d_topology_duty_map_evidence@1` now exists on `main` and is linked to
+      committed runtime artifact hashes.
+14. Guard coverage gap for topology failures: `resolved`.
+    - merged D2 guards now cover missing topology artifacts, invented topology state,
+      incorrect holder rendering, current-duty inflation, unresolved provenance refs,
+      advisory-blocker inflation, continuity flattening, and authoritative-surface drift.
 
-## Guard Coverage Requirements
+## Guard Coverage Outcome
 
-- planned `D2` coverage must fail closed on:
-  - missing `topology_duty_map_state@1`,
-  - missing node or edge provenance markers,
-  - missing or unresolvable provenance refs,
-  - invented topology node or edge state,
-  - incorrect current write-lease holder rendering,
-  - current duty rendered as an authority surface rather than explanatory state,
-  - advisory blockers rendered as governance-equivalent blockers,
-  - silent continuation-bridge or compaction flattening,
-  - topology rendering treated as authoritative,
-  - worker direct user-boundary drift in topology surfaces.
-- planned topology proof shape must keep event streams in a narrower role:
-  - event streams may be drilldown provenance targets,
-  - topology projection truth must still come from canonical execution/visibility/lease and
-    handoff artifacts.
-- planned topology implementation should be exercised against both:
-  - a delegated builder/support path where advisory and implementation duties coexist,
-  - a continuation-bridge or compaction-seam path where topology continuity spans recovered
-    sessions or streams.
+- merged implementation files:
+  - `packages/urm_runtime/src/urm_runtime/topology_duty_map.py`
+  - `packages/urm_runtime/src/urm_runtime/copilot.py`
+  - `packages/urm_runtime/src/urm_runtime/orchestration_evidence.py`
+  - `apps/api/src/adeu_api/urm_routes.py`
+- merged guard file:
+  - `apps/api/tests/test_urm_copilot_routes.py`
+- v59 closeout artifact regeneration on `main` emitted:
+  - committed parent/support/builder raw and URM event streams backing the closeout fixture
+  - committed orchestration-state snapshot / topology / write-lease / transition / handoff
+    artifacts carried forward under v59-closeout identities
+  - committed `worker_visibility_state.json`
+  - committed `topology_duty_map_state.json`
+  - canonical `metric_key_continuity_assertion@1`
+  - canonical `runtime_observability_comparison@1`
+  - canonical `v35d_topology_duty_map_evidence@1`
+- closeout posture remains intentionally narrower than adjacent deferred work:
+  - no runtime enforcement promotion, topology editing, direct worker/user interaction, or
+    multi-writer release was added in v59 closeout.
 
-## Stop-Gate Continuity Requirement
+## Stop-Gate Continuity Outcome
 
 ```json
 {
-  "schema": "v59_edge_planning_summary@1",
+  "schema": "v59_edge_closeout_summary@1",
   "arc": "vNext+59",
   "target_path": "V35-D",
   "prelock_edge_count": 14,
-  "resolved_edge_count": 0,
-  "open_blocking_edges": 14,
+  "resolved_edge_count": 14,
+  "open_blocking_edges": 0,
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality": 80,
-  "metric_key_exact_set_equal_v58_required": true,
-  "all_passed": false,
-  "blocking_issues": [
-    "topology_duty_map_state_missing",
-    "topology_route_missing",
-    "provenance_marker_projection_missing",
-    "advisory_blocker_rendering_missing",
-    "topology_evidence_missing"
-  ]
+  "metric_key_exact_set_equal_v58": true,
+  "all_passed": true,
+  "blocking_issues": []
 }
 ```
 
-## Residual Risks (Pre-Lock)
+## Residual Risks (Post v59)
 
-1. Topology surfaces can easily look authoritative if provenance markers and authority
-   boundaries are weak.
-2. Advisory support blockers can easily be overstated if visual encoding does not separate
-   urgency from authority.
-3. Continuation/compaction continuity can be flattened incorrectly if the topology view is
-   built from convenience summaries instead of canonical bridge/seam state.
-4. Runtime enforcement remains intentionally deferred; v59 should not smuggle enforcement in
-   through topology rendering.
-5. Closeout hardening remains a separate operational track; v59 should not widen into
-   `O1`/`O2`/`O3`.
+1. Runtime constitutional enforcement remains deferred; v59 proves topology invariants
+   through materialized state and guards, not policy-promotion logic.
+2. Direct worker/user interaction remains deferred; the orchestrator stays the primary
+   interaction boundary.
+3. Multi-builder and multi-writer release remain deferred; v59 closes a read-only topology
+   baseline over the existing single-builder delegation substrate.
+4. Topology editing and write-lease reassignment remain deferred; the released surface is
+   observational only.
+5. Closeout hardening remains incomplete by design; `O1` closeout extraction, `O2`
+   artifact index/lint, and `O3` advisory adjudication are still separate operational
+   follow-ons.
 
-## Recommendation (Pre-Lock)
+## Recommendation (Post Closeout)
 
-1. Treat the committed v58 visibility/runtime/evidence bundle as a frozen prerequisite input,
-   not part of new v59 scope.
-2. Keep v59 limited to read-only topology/duty observability and explicit provenance-linked
-   rendering.
-3. Require one canonical runtime read model in `packages/urm_runtime` before adding any
-   richer topology or UX shaping.
-4. Do not release topology/duty rendering without explicit provenance markers, explicit
-   advisory-vs-governance blocker posture, and explicit continuation/compaction continuity.
-5. Pair any `D1` topology release with `D2` evidence/guard coverage in the same arc so
-   closeout can fail closed on invented-state or authority-inflation drift.
+1. Mark the v59 edge set as closed with no blocking issues.
+2. Treat the committed v59 runtime fixture, committed `topology_duty_map_state@1`, and
+   canonical `v35d_topology_duty_map_evidence@1` as part of the released closeout surface
+   going forward.
+3. Keep runtime enforcement, topology editing, multi-writer execution, and direct
+   worker/user interaction explicitly deferred unless released under new lock text.
+4. Treat any next step as a fresh `V35-E` planning/lock pass rather than re-opening or
+   widening the closed `V35-D` topology baseline.
