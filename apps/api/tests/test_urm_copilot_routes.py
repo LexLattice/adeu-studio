@@ -194,6 +194,29 @@ def _delegated_scope_payload(
     }
 
 
+def _persisted_child_delegation_payload(
+    *,
+    requested_role: str = "explorer",
+    granted_role: str | None = None,
+    delegation_task_kind: str = "analysis_task",
+    delegated_scope: dict[str, object] | None = None,
+    authoritative_write_lease_granted: bool = False,
+) -> dict[str, object]:
+    resolved_granted_role = granted_role or requested_role
+    resolved_scope = delegated_scope or _delegated_scope_payload(
+        kind="artifact_surface_only",
+        artifact_surfaces=["none"],
+        rationale="persisted support-role recovery scope",
+    )
+    return {
+        "requested_role": requested_role,
+        "granted_role": resolved_granted_role,
+        "delegation_task_kind": delegation_task_kind,
+        "delegated_scope": resolved_scope,
+        "authoritative_write_lease_granted": authoritative_write_lease_granted,
+    }
+
+
 def _budget_snapshot_v1(
     *,
     max_solver_calls: int,
@@ -512,6 +535,7 @@ def _materialize_v35c_bridge_artifacts(
                 "parent_turn_id": "turn-v35c-bridge-1",
                 "profile_id": "default",
                 "profile_version": "profile.v1",
+                **_persisted_child_delegation_payload(),
                 "queue_seq": 1,
                 "dispatch_seq": 1,
                 "lease_id": child_id,
@@ -2542,6 +2566,7 @@ def test_manager_marks_stale_running_child_runs_on_startup(
                 "parent_turn_id": "turn-stale-1",
                 "profile_id": "default",
                 "profile_version": "profile.v1",
+                **_persisted_child_delegation_payload(),
                 "budget_snapshot": {
                     "budget_version": "budget.v1",
                     "max_solver_calls": 10,
@@ -2638,6 +2663,7 @@ def test_manager_marks_orphaned_dispatch_tokens_on_startup(
                 "parent_turn_id": "turn-stale-orphan-1",
                 "profile_id": "default",
                 "profile_version": "profile.v1",
+                **_persisted_child_delegation_payload(),
                 "budget_snapshot": {
                     "budget_version": "budget.v1",
                     "max_solver_calls": 10,
@@ -3378,10 +3404,169 @@ def test_agent_spawn_rejects_write_task_without_builder_role(
                     rationale="invalid support write attempt",
                 ),
             )
+    )
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail["code"] == "URM_RUNTIME_ENFORCEMENT_INVALID_ROLE_TASK_COMBINATION"
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_rejects_support_scope_that_implies_proxy_authority(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(
+            provider="codex",
+            client_request_id="spawn-support-scope-start-1",
+        )
+    )
+    session_id = start.session_id
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-support-scope-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "spawn-support-scope-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        urm_agent_spawn_endpoint(
+            AgentSpawnRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id="spawn-support-scope-denied-1",
+                prompt="inspect implementation files directly",
+                target_turn_id="turn-support-scope-denied-1",
+                requested_role="explorer",
+                delegated_scope=_delegated_scope_payload(
+                    kind="subtree",
+                    values=["apps/api"],
+                    artifact_surfaces=["implementation"],
+                    rationale="invalid support-role proxy authority attempt",
+                ),
+            )
         )
 
     assert exc_info.value.status_code == 400
-    assert exc_info.value.detail["code"] == "URM_POLICY_DENIED"
+    assert exc_info.value.detail["code"] == "URM_RUNTIME_ENFORCEMENT_SUPPORT_PROXY_AUTHORITY"
+    _reset_manager_for_tests()
+
+
+def test_agent_spawn_rejects_second_active_builder_under_single_builder_default(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.setenv("FAKE_APP_SERVER_WAIT_SECS", "1.0")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    start = urm_copilot_start_endpoint(
+        CopilotSessionStartRequest(
+            provider="codex",
+            client_request_id="spawn-builder-limit-start-1",
+        )
+    )
+    session_id = start.session_id
+    approval = urm_approval_issue_endpoint(
+        ApprovalIssueRequest(
+            provider="codex",
+            session_id=session_id,
+            action_kind="urm.set_mode.enable_writes",
+            action_payload={"writes_allowed": True},
+        )
+    )
+    urm_copilot_mode_endpoint(
+        CopilotModeRequest(
+            provider="codex",
+            session_id=session_id,
+            writes_allowed=True,
+            approval_id=approval.approval_id,
+        )
+    )
+    urm_copilot_send_endpoint(
+        CopilotSessionSendRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-builder-limit-bootstrap-1",
+            message={
+                "jsonrpc": "2.0",
+                "id": "spawn-builder-limit-bootstrap-1",
+                "method": "copilot.user_message",
+                "params": {"text": "bootstrap turn"},
+            },
+        )
+    )
+
+    first_spawn = urm_agent_spawn_endpoint(
+        AgentSpawnRequest(
+            provider="codex",
+            session_id=session_id,
+            client_request_id="spawn-builder-limit-first-1",
+            prompt="implement the api lane",
+            target_turn_id="turn-builder-limit-1",
+            requested_role="builder_worker",
+            delegation_task_kind="write_task",
+            delegated_scope=_delegated_scope_payload(
+                kind="subtree",
+                values=["apps/api"],
+                artifact_surfaces=["implementation"],
+                rationale="first authoritative builder lease",
+            ),
+        )
+    )
+
+    manager = _get_manager()
+    assert _wait_for(
+        lambda: (
+            (child := manager._child_runs.get(first_spawn.child_id)) is not None
+            and child.status == "running"
+        ),
+        timeout_secs=5.0,
+        interval_secs=0.05,
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        urm_agent_spawn_endpoint(
+            AgentSpawnRequest(
+                provider="codex",
+                session_id=session_id,
+                client_request_id="spawn-builder-limit-second-1",
+                prompt="attempt second writer",
+                target_turn_id="turn-builder-limit-2",
+                requested_role="builder_worker",
+                delegation_task_kind="write_task",
+                delegated_scope=_delegated_scope_payload(
+                    kind="subtree",
+                    values=["packages/urm_runtime"],
+                    artifact_surfaces=["implementation"],
+                    rationale="invalid second authoritative builder lease",
+                ),
+            )
+        )
+
+    assert exc_info.value.status_code == 400
+    assert (
+        exc_info.value.detail["code"]
+        == "URM_RUNTIME_ENFORCEMENT_SINGLE_BUILDER_DEFAULT_VIOLATION"
+    )
     _reset_manager_for_tests()
 
 
@@ -3747,6 +3932,7 @@ def test_materialize_orchestration_state_records_audit_bridge_for_restart_recove
                 "parent_turn_id": "turn-orch-recovery-1",
                 "profile_id": "default",
                 "profile_version": "profile.v1",
+                **_persisted_child_delegation_payload(),
                 "queue_seq": 1,
                 "dispatch_seq": 1,
                 "lease_id": child_id,
@@ -3986,6 +4172,7 @@ def test_materialize_worker_visibility_state_preserves_bridge_and_compaction_vis
                 "parent_turn_id": "turn-visibility-recovery-1",
                 "profile_id": "default",
                 "profile_version": "profile.v1",
+                **_persisted_child_delegation_payload(),
                 "queue_seq": 1,
                 "dispatch_seq": 1,
                 "lease_id": child_id,
@@ -4240,6 +4427,296 @@ def test_materialize_topology_duty_map_state_preserves_bridge_and_compaction_vis
     _reset_manager_for_tests()
 
 
+def test_v60_runtime_enforcement_preserves_released_builder_support_happy_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config, orchestration_artifacts = _materialize_v35b_builder_support_artifacts(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    manager = _get_manager()
+
+    visibility_artifacts = manager.materialize_worker_visibility_state(
+        session_id=orchestration_artifacts.session_id
+    )
+    topology_artifacts = manager.materialize_topology_duty_map_state(
+        session_id=orchestration_artifacts.session_id
+    )
+
+    snapshot_payload = _load_materialized_json(
+        config=config,
+        relative_path=orchestration_artifacts.orchestration_state_snapshot.path,
+    )
+    visibility_payload = _load_materialized_json(
+        config=config,
+        relative_path=visibility_artifacts.worker_visibility_state.path,
+    )
+    topology_payload = _load_materialized_json(
+        config=config,
+        relative_path=topology_artifacts.topology_duty_map_state.path,
+    )
+
+    assert any(role["role"] == "builder_worker" for role in snapshot_payload["current_roles"])
+    assert any(worker["role"] == "explorer" for worker in visibility_payload["workers"])
+    assert any(node["role"] == "builder_worker" for node in topology_payload["nodes"])
+    _reset_manager_for_tests()
+
+
+def test_materialize_orchestration_state_rejects_invalid_persisted_scope_kind_under_v60_enforcement(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "v60-orch-scope-child-1"
+    parent_session_id = "v60-orch-scope-parent-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    events_path.write_text("", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="running",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-v60-orch-scope-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "requested_role": "explorer",
+                "granted_role": "explorer",
+                "delegation_task_kind": "analysis_task",
+                "delegated_scope": _delegated_scope_payload(
+                    kind="invalid_scope_kind",
+                    values=["apps/api"],
+                    artifact_surfaces=["none"],
+                    rationale="invalid persisted scope kind",
+                ),
+                "authoritative_write_lease_granted": False,
+                "queue_seq": 1,
+                "dispatch_seq": 1,
+                "lease_id": child_id,
+                "phase": "started",
+                "parent_seq": 9,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=9,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+        set_dispatch_token_phase(con=con, child_id=child_id, phase="started")
+
+    manager = _get_manager()
+    with pytest.raises(URMError) as exc_info:
+        manager.materialize_orchestration_state(session_id=parent_session_id)
+
+    assert exc_info.value.detail.code == "URM_RUNTIME_ENFORCEMENT_SCOPE_KIND_INVALID"
+    assert (
+        exc_info.value.detail.context["boundary"]
+        == "orchestration_state_materialization_boundary"
+    )
+    _reset_manager_for_tests()
+
+
+def test_materialize_worker_visibility_state_rejects_persisted_support_proxy_authority(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "v60-visibility-support-child-1"
+    parent_session_id = "v60-visibility-support-parent-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    events_path.write_text("", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="running",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-v60-visibility-support-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                **_persisted_child_delegation_payload(
+                    delegated_scope=_delegated_scope_payload(
+                        kind="subtree",
+                        values=["apps/api"],
+                        artifact_surfaces=["implementation"],
+                        rationale="invalid persisted support proxy authority",
+                    )
+                ),
+                "queue_seq": 1,
+                "dispatch_seq": 1,
+                "lease_id": child_id,
+                "phase": "started",
+                "parent_seq": 9,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=9,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+        set_dispatch_token_phase(con=con, child_id=child_id, phase="started")
+
+    manager = _get_manager()
+    with pytest.raises(URMError) as exc_info:
+        manager.materialize_worker_visibility_state(session_id=parent_session_id)
+
+    assert exc_info.value.detail.code == "URM_RUNTIME_ENFORCEMENT_SUPPORT_PROXY_AUTHORITY"
+    assert (
+        exc_info.value.detail.context["boundary"]
+        == "worker_visibility_materialization_boundary"
+    )
+    _reset_manager_for_tests()
+
+
+def test_materialize_topology_duty_map_state_rejects_missing_claimed_work_handoff_inputs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    db_path = tmp_path / "adeu.sqlite3"
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(db_path))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.setenv("URM_CHILD_QUEUE_MODE", "v2")
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    config = URMRuntimeConfig.from_env()
+    child_id = "v60-topology-handoff-child-1"
+    parent_session_id = "v60-topology-handoff-parent-1"
+    raw_rel_path = f"evidence/codex/agent/{child_id}/codex_raw.ndjson"
+    events_rel_path = f"evidence/codex/agent/{child_id}/urm_events.ndjson"
+    raw_path = config.var_root / raw_rel_path
+    events_path = config.var_root / events_rel_path
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text("", encoding="utf-8")
+    events_path.write_text("", encoding="utf-8")
+
+    with transaction(db_path=config.db_path) as con:
+        persist_worker_run_start(
+            con=con,
+            worker_id=child_id,
+            role="copilot_child",
+            provider="codex",
+            template_id="urm.agent.spawn",
+            template_version="v2",
+            schema_version="urm.child-run.v1",
+            domain_pack_id="urm_domain_adeu",
+            domain_pack_version="v0",
+            raw_jsonl_path=raw_rel_path,
+            status="completed",
+            result_json={
+                "parent_session_id": parent_session_id,
+                "parent_stream_id": f"copilot:{parent_session_id}",
+                "child_stream_id": f"child:{child_id}",
+                "parent_turn_id": "turn-v60-topology-handoff-1",
+                "profile_id": "default",
+                "profile_version": "profile.v1",
+                "requested_role": "explorer",
+                "granted_role": "explorer",
+                "delegated_scope": _delegated_scope_payload(
+                    kind="artifact_surface_only",
+                    artifact_surfaces=["none"],
+                    rationale="completed support worker with claimed outputs",
+                ),
+                "authoritative_write_lease_granted": False,
+                "queue_seq": 1,
+                "dispatch_seq": 1,
+                "lease_id": child_id,
+                "phase": "terminal",
+                "parent_seq": 9,
+                "raw_jsonl_path": raw_rel_path,
+                "urm_events_path": events_rel_path,
+            },
+        )
+        upsert_dispatch_token_queued(
+            con=con,
+            child_id=child_id,
+            parent_session_id=parent_session_id,
+            parent_stream_id=f"copilot:{parent_session_id}",
+            parent_seq=9,
+            worker_run_id=child_id,
+        )
+        lease_dispatch_token(con=con, child_id=child_id)
+        set_dispatch_token_phase(con=con, child_id=child_id, phase="terminal")
+
+    manager = _get_manager()
+    with pytest.raises(URMError) as exc_info:
+        manager.materialize_topology_duty_map_state(session_id=parent_session_id)
+
+    assert exc_info.value.detail.code == "URM_RUNTIME_ENFORCEMENT_CLAIMED_WORK_HANDOFF_INVALID"
+    assert (
+        exc_info.value.detail.context["boundary"]
+        == "topology_duty_map_materialization_boundary"
+    )
+    _reset_manager_for_tests()
+
+
 def test_materialize_v35a_orchestration_state_evidence_is_deterministic(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -4329,6 +4806,7 @@ def test_materialize_v35a_orchestration_state_evidence_records_bridge_when_prese
                 "parent_turn_id": "turn-orch-evidence-bridge-1",
                 "profile_id": "default",
                 "profile_version": "profile.v1",
+                **_persisted_child_delegation_payload(),
                 "queue_seq": 1,
                 "dispatch_seq": 1,
                 "lease_id": child_id,
@@ -4546,6 +5024,7 @@ def test_materialize_v35a_orchestration_state_evidence_fails_closed_without_comp
                 "parent_turn_id": "turn-orch-evidence-linkage-1",
                 "profile_id": "default",
                 "profile_version": "profile.v1",
+                **_persisted_child_delegation_payload(),
                 "queue_seq": 1,
                 "dispatch_seq": 1,
                 "lease_id": child_id,
