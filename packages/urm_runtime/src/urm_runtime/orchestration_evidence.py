@@ -1800,8 +1800,11 @@ def _validate_v35d_current_duty(
     holder = write_lease_state.current_authoritative_holder
     if holder is not None:
         holder_node = next(
-            node for node in topology_state.nodes if node.actor_id == holder.actor_id
+            (node for node in topology_state.nodes if node.actor_id == holder.actor_id),
+            None,
         )
+        if holder_node is None:
+            raise OrchestrationEvidenceError("write lease holder not found in topology nodes")
         if holder.role == "builder_worker" and holder_node.current_duty not in {
             "implementing_with_active_write_lease",
             "queued_for_implementation_with_reserved_write_lease",
