@@ -105,11 +105,10 @@ from .profile_registry import (
 from .retention import run_evidence_retention_gc
 from .roles import get_role_policy, is_child_delegation_role
 from .runtime_enforcement import (
-    CLAIMED_WORK_HANDOFF_INVALID_CODE,
-    INVALID_ROLE_TASK_COMBINATION_CODE,
     SCOPE_KIND_INVALID_CODE,
     RuntimeEnforcementBoundary,
     RuntimeEnforcementCandidate,
+    validate_claimed_work_handoff_field,
     validate_runtime_enforcement_candidate,
     validate_single_builder_default,
 )
@@ -593,28 +592,15 @@ class URMCopilotManager:
         boundary: RuntimeEnforcementBoundary,
         claimed_work_present: bool,
     ) -> str:
-        value = metadata.get(field_name)
-        if isinstance(value, str) and value.strip():
-            return value
-        if claimed_work_present:
-            raise URMError(
-                code=CLAIMED_WORK_HANDOFF_INVALID_CODE,
-                message=f"completed child claims outputs but is missing {field_name}",
-                context={
-                    "boundary": boundary,
-                    "session_id": session_id,
-                    "child_id": child_id,
-                    "field_name": field_name,
-                },
-            )
-        raise URMError(
-            code=INVALID_ROLE_TASK_COMBINATION_CODE,
-            message=f"persisted child is missing {field_name}",
+        return validate_claimed_work_handoff_field(
+            boundary=boundary,
+            subject_id=child_id,
+            field_name=field_name,
+            value=metadata.get(field_name),
+            claimed_work_present=claimed_work_present,
             context={
-                "boundary": boundary,
                 "session_id": session_id,
                 "child_id": child_id,
-                "field_name": field_name,
             },
         )
 

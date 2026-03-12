@@ -13,6 +13,17 @@ RuntimeEnforcementBoundary = Literal[
     "worker_visibility_materialization_boundary",
     "topology_duty_map_materialization_boundary",
 ]
+REQUIRED_ENFORCEMENT_SURFACES: tuple[RuntimeEnforcementBoundary, ...] = (
+    "spawn_request_boundary",
+    "orchestration_state_materialization_boundary",
+    "worker_visibility_materialization_boundary",
+    "topology_duty_map_materialization_boundary",
+)
+MATERIALIZATION_ENFORCEMENT_SURFACES: tuple[RuntimeEnforcementBoundary, ...] = (
+    "orchestration_state_materialization_boundary",
+    "worker_visibility_materialization_boundary",
+    "topology_duty_map_materialization_boundary",
+)
 
 ROLE_TASK_KIND_BY_ROLE: dict[str, str] = {
     "builder_worker": "write_task",
@@ -31,6 +42,13 @@ SINGLE_BUILDER_DEFAULT_VIOLATION_CODE = (
 SUPPORT_PROXY_AUTHORITY_CODE = "URM_RUNTIME_ENFORCEMENT_SUPPORT_PROXY_AUTHORITY"
 SCOPE_KIND_INVALID_CODE = "URM_RUNTIME_ENFORCEMENT_SCOPE_KIND_INVALID"
 CLAIMED_WORK_HANDOFF_INVALID_CODE = "URM_RUNTIME_ENFORCEMENT_CLAIMED_WORK_HANDOFF_INVALID"
+DETERMINISTIC_DENIAL_CODES: tuple[str, ...] = (
+    INVALID_ROLE_TASK_COMBINATION_CODE,
+    SINGLE_BUILDER_DEFAULT_VIOLATION_CODE,
+    SUPPORT_PROXY_AUTHORITY_CODE,
+    SCOPE_KIND_INVALID_CODE,
+    CLAIMED_WORK_HANDOFF_INVALID_CODE,
+)
 
 
 @dataclass(frozen=True)
@@ -193,6 +211,37 @@ def validate_single_builder_default(
                 "active_builder_ids": active_builders,
             },
         )
+
+
+def validate_claimed_work_handoff_field(
+    *,
+    boundary: RuntimeEnforcementBoundary,
+    subject_id: str,
+    field_name: str,
+    value: object,
+    claimed_work_present: bool,
+    context: dict[str, object] | None = None,
+) -> str:
+    if isinstance(value, str) and value.strip():
+        return value
+    error_context = {"field_name": field_name}
+    if context is not None:
+        error_context.update(context)
+    if claimed_work_present:
+        _raise_runtime_enforcement_error(
+            code=CLAIMED_WORK_HANDOFF_INVALID_CODE,
+            message=f"completed child claims outputs but is missing {field_name}",
+            boundary=boundary,
+            subject_id=subject_id,
+            context=error_context,
+        )
+    _raise_runtime_enforcement_error(
+        code=INVALID_ROLE_TASK_COMBINATION_CODE,
+        message=f"persisted child is missing {field_name}",
+        boundary=boundary,
+        subject_id=subject_id,
+        context=error_context,
+    )
 
 
 def _raise_runtime_enforcement_error(

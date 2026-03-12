@@ -7,6 +7,7 @@ from typing import Any, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from .errors import URMError
 from .hashing import canonical_json, sha256_canonical_json
 from .orchestration_state import (
     CONTROL_PLANE_OWNER,
@@ -27,6 +28,21 @@ from .orchestration_state import (
     WriteLeaseState,
 )
 from .roles import CHILD_DELEGATION_ROLES, SUPPORT_DELEGATION_ROLES
+from .runtime_enforcement import (
+    CLAIMED_WORK_HANDOFF_INVALID_CODE,
+    DETERMINISTIC_DENIAL_CODES,
+    INVALID_ROLE_TASK_COMBINATION_CODE,
+    MATERIALIZATION_ENFORCEMENT_SURFACES,
+    REQUIRED_ENFORCEMENT_SURFACES,
+    ROLE_TASK_KIND_BY_ROLE,
+    SCOPE_KIND_INVALID_CODE,
+    SINGLE_BUILDER_DEFAULT_VIOLATION_CODE,
+    SUPPORT_PROXY_AUTHORITY_CODE,
+    RuntimeEnforcementCandidate,
+    validate_claimed_work_handoff_field,
+    validate_runtime_enforcement_candidate,
+    validate_single_builder_default,
+)
 from .topology_duty_map import (
     EVENT_STREAM_DRILLDOWN_POLICY,
     TOPOLOGY_DUTY_MAP_CONTRACT_SOURCE,
@@ -68,6 +84,10 @@ V35C_TRANSCRIPT_VISIBILITY_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS58.md#v35c_transcript_visibility_contract@1"
 )
 V35D_TOPOLOGY_DUTY_MAP_EVIDENCE_SCHEMA = "v35d_topology_duty_map_evidence@1"
+V35E_RUNTIME_ENFORCEMENT_EVIDENCE_SCHEMA = "v35e_runtime_enforcement_evidence@1"
+V35E_RUNTIME_ENFORCEMENT_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS60.md#v35e_runtime_enforcement_contract@1"
+)
 STOP_GATE_METRICS_SCHEMA = "stop_gate_metrics@1"
 EXPECTED_METRIC_KEY_CARDINALITY = 80
 EXPECTED_SCOPE_GRANULARITY = list(SCOPE_GRANULARITY_ENUM)
@@ -202,6 +222,40 @@ class V35DTopologyDutyMapEvidence(BaseModel):
     verification_passed: bool
     metric_key_cardinality: int = Field(ge=0)
     metric_key_exact_set_equal_v58: bool
+    notes: str = Field(min_length=1)
+
+
+class V35ERuntimeEnforcementEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(default=V35E_RUNTIME_ENFORCEMENT_EVIDENCE_SCHEMA, alias="schema")
+    contract_source: str = V35E_RUNTIME_ENFORCEMENT_CONTRACT_SOURCE
+    evidence_input_path: str = Field(min_length=1)
+    orchestration_state_snapshot_path: str = Field(min_length=1)
+    orchestration_state_snapshot_hash: str = Field(min_length=64, max_length=64)
+    write_lease_state_path: str = Field(min_length=1)
+    write_lease_state_hash: str = Field(min_length=64, max_length=64)
+    role_transition_record_path: str = Field(min_length=1)
+    role_transition_record_hash: str = Field(min_length=64, max_length=64)
+    role_handoff_envelope_path: str = Field(min_length=1)
+    role_handoff_envelope_hash: str = Field(min_length=64, max_length=64)
+    worker_visibility_state_path: str = Field(min_length=1)
+    worker_visibility_state_hash: str = Field(min_length=64, max_length=64)
+    topology_duty_map_state_path: str = Field(min_length=1)
+    topology_duty_map_state_hash: str = Field(min_length=64, max_length=64)
+    required_enforcement_surfaces_active: bool
+    single_builder_default_enforced_at_runtime: bool
+    support_role_proxy_authority_blocked: bool
+    claimed_work_handoff_validation_enforced: bool
+    scope_kind_validation_enforced: bool
+    deterministic_denial_surfaces_recorded: bool
+    released_happy_path_preserved_under_runtime_enforcement: bool
+    observability_surfaces_remain_read_only: bool
+    acceptance_and_closeout_authority_preserved: bool
+    worker_direct_user_boundary_forbidden: bool
+    verification_passed: bool
+    metric_key_cardinality: int = Field(ge=0)
+    metric_key_exact_set_equal_v59: bool
     notes: str = Field(min_length=1)
 
 
@@ -840,6 +894,555 @@ def materialize_v35d_topology_duty_map_evidence(
         hash=sha256_canonical_json(payload),
         payload=payload,
     )
+
+
+def materialize_v35e_runtime_enforcement_evidence(
+    *,
+    repo_root: Path,
+    var_root: Path,
+    orchestration_artifacts: MaterializedOrchestrationArtifacts,
+    visibility_artifacts: MaterializedWorkerVisibilityArtifacts,
+    topology_artifacts: MaterializedTopologyDutyMapArtifacts,
+    output_path: str,
+    baseline_metrics_path: str,
+    current_metrics_path: str,
+) -> MaterializedArtifact:
+    repo_root = repo_root.resolve()
+    var_root = var_root.resolve()
+    if not repo_root.is_dir():
+        raise OrchestrationEvidenceError("repository root does not exist")
+    if not var_root.is_dir():
+        raise OrchestrationEvidenceError("var root does not exist")
+
+    output_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=output_path,
+        field_name="output_path",
+        required_prefix="artifacts/",
+    )
+    baseline_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=baseline_metrics_path,
+        field_name="baseline_metrics_path",
+        required_prefix="artifacts/",
+    )
+    current_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=current_metrics_path,
+        field_name="current_metrics_path",
+        required_prefix="artifacts/",
+    )
+
+    baseline_metrics = _load_stop_gate_metrics(path=baseline_metrics_file)
+    current_metrics = _load_stop_gate_metrics(path=current_metrics_file)
+    current_metric_keys = set(current_metrics["metrics"].keys())
+    baseline_metric_keys = set(baseline_metrics["metrics"].keys())
+    if len(current_metric_keys) != EXPECTED_METRIC_KEY_CARDINALITY:
+        raise OrchestrationEvidenceError("metric key cardinality must remain frozen at 80")
+    if baseline_metric_keys != current_metric_keys:
+        raise OrchestrationEvidenceError("metric key set must remain exactly equal to v59")
+
+    snapshot_payload, snapshot = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.orchestration_state_snapshot,
+        model_type=OrchestrationStateSnapshot,
+        artifact_name="orchestration_state_snapshot",
+    )
+    _write_lease_payload, write_lease_state = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.write_lease_state,
+        model_type=WriteLeaseState,
+        artifact_name="write_lease_state",
+    )
+    transition_payload, transition_record = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.role_transition_record,
+        model_type=RoleTransitionRecord,
+        artifact_name="role_transition_record",
+    )
+    handoff_payload, handoff_envelope = _load_validated_artifact(
+        var_root=var_root,
+        artifact=orchestration_artifacts.role_handoff_envelope,
+        model_type=RoleHandoffEnvelope,
+        artifact_name="role_handoff_envelope",
+    )
+    _visibility_payload, visibility_state = _load_validated_artifact(
+        var_root=var_root,
+        artifact=visibility_artifacts.worker_visibility_state,
+        model_type=WorkerVisibilityState,
+        artifact_name="worker_visibility_state",
+    )
+    _topology_payload, topology_state = _load_validated_artifact(
+        var_root=var_root,
+        artifact=topology_artifacts.topology_duty_map_state,
+        model_type=TopologyDutyMapState,
+        artifact_name="topology_duty_map_state",
+    )
+
+    required_enforcement_surfaces_active = _validate_v35e_required_enforcement_surfaces()
+    single_builder_default_enforced_at_runtime = _validate_v35e_single_builder_default_runtime()
+    support_role_proxy_authority_blocked = _validate_v35e_support_role_proxy_authority()
+    claimed_work_handoff_validation_enforced = _validate_v35e_claimed_work_handoff_validation()
+    scope_kind_validation_enforced = _validate_v35e_scope_kind_validation()
+    deterministic_denial_surfaces_recorded = _validate_v35e_deterministic_denial_surfaces()
+    released_happy_path_preserved_under_runtime_enforcement = _validate_v35e_released_happy_path(
+        snapshot=snapshot,
+        snapshot_payload=snapshot_payload,
+        write_lease_state=write_lease_state,
+        transition_payload=transition_payload,
+        transition_record=transition_record,
+        handoff_payload=handoff_payload,
+        handoff_envelope=handoff_envelope,
+        visibility_state=visibility_state,
+        topology_state=topology_state,
+    )
+    observability_surfaces_remain_read_only = _validate_v35e_observability_surfaces(
+        snapshot=snapshot,
+        visibility_state=visibility_state,
+        topology_state=topology_state,
+    )
+    acceptance_and_closeout_authority_preserved = (
+        _validate_v35e_acceptance_and_closeout_authority(
+            snapshot=snapshot,
+            transition_record=transition_record,
+            handoff_envelope=handoff_envelope,
+            topology_state=topology_state,
+        )
+    )
+    worker_direct_user_boundary_forbidden = _validate_v35e_worker_direct_user_boundary(
+        snapshot=snapshot,
+        visibility_state=visibility_state,
+        topology_state=topology_state,
+    )
+
+    evidence = V35ERuntimeEnforcementEvidence(
+        evidence_input_path=output_path,
+        orchestration_state_snapshot_path=orchestration_artifacts.orchestration_state_snapshot.path,
+        orchestration_state_snapshot_hash=orchestration_artifacts.orchestration_state_snapshot.hash,
+        write_lease_state_path=orchestration_artifacts.write_lease_state.path,
+        write_lease_state_hash=orchestration_artifacts.write_lease_state.hash,
+        role_transition_record_path=orchestration_artifacts.role_transition_record.path,
+        role_transition_record_hash=orchestration_artifacts.role_transition_record.hash,
+        role_handoff_envelope_path=orchestration_artifacts.role_handoff_envelope.path,
+        role_handoff_envelope_hash=orchestration_artifacts.role_handoff_envelope.hash,
+        worker_visibility_state_path=visibility_artifacts.worker_visibility_state.path,
+        worker_visibility_state_hash=visibility_artifacts.worker_visibility_state.hash,
+        topology_duty_map_state_path=topology_artifacts.topology_duty_map_state.path,
+        topology_duty_map_state_hash=topology_artifacts.topology_duty_map_state.hash,
+        required_enforcement_surfaces_active=required_enforcement_surfaces_active,
+        single_builder_default_enforced_at_runtime=single_builder_default_enforced_at_runtime,
+        support_role_proxy_authority_blocked=support_role_proxy_authority_blocked,
+        claimed_work_handoff_validation_enforced=claimed_work_handoff_validation_enforced,
+        scope_kind_validation_enforced=scope_kind_validation_enforced,
+        deterministic_denial_surfaces_recorded=deterministic_denial_surfaces_recorded,
+        released_happy_path_preserved_under_runtime_enforcement=(
+            released_happy_path_preserved_under_runtime_enforcement
+        ),
+        observability_surfaces_remain_read_only=observability_surfaces_remain_read_only,
+        acceptance_and_closeout_authority_preserved=(
+            acceptance_and_closeout_authority_preserved
+        ),
+        worker_direct_user_boundary_forbidden=worker_direct_user_boundary_forbidden,
+        verification_passed=True,
+        metric_key_cardinality=len(current_metric_keys),
+        metric_key_exact_set_equal_v59=True,
+        notes=(
+            "v60 closeout-grade runtime-enforcement evidence binds the shared denial "
+            "helpers to the frozen v56-v59 state/visibility/topology substrate; "
+            "all required enforcement surfaces remain active, invalid role/task/scope/"
+            "authority paths fail closed with stable URM runtime-enforcement codes, "
+            "and the released read-only/authority-preserving happy path remains intact."
+        ),
+    )
+    payload = evidence.model_dump(mode="json", by_alias=True)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(canonical_json(payload) + "\n", encoding="utf-8")
+    return MaterializedArtifact(
+        path=output_path,
+        hash=sha256_canonical_json(payload),
+        payload=payload,
+    )
+
+
+def _validate_v35e_required_enforcement_surfaces() -> bool:
+    expected_surfaces = (
+        "spawn_request_boundary",
+        "orchestration_state_materialization_boundary",
+        "worker_visibility_materialization_boundary",
+        "topology_duty_map_materialization_boundary",
+    )
+    if REQUIRED_ENFORCEMENT_SURFACES != expected_surfaces:
+        raise OrchestrationEvidenceError("required runtime enforcement surfaces drift detected")
+    invalid_candidate = _invalid_role_task_candidate()
+    for boundary in expected_surfaces:
+        _expect_runtime_enforcement_error(
+            expected_code=INVALID_ROLE_TASK_COMBINATION_CODE,
+            action=lambda boundary=boundary: validate_runtime_enforcement_candidate(
+                boundary=boundary,
+                candidate=invalid_candidate,
+                parent_writes_allowed=False,
+            ),
+        )
+    return True
+
+
+def _validate_v35e_single_builder_default_runtime() -> bool:
+    builder_candidates = [
+        _builder_candidate(subject_id="builder-runtime-1", status="running"),
+        _builder_candidate(subject_id="builder-runtime-2", status="queued"),
+    ]
+    for boundary in REQUIRED_ENFORCEMENT_SURFACES:
+        try:
+            _expect_runtime_enforcement_error(
+                expected_code=SINGLE_BUILDER_DEFAULT_VIOLATION_CODE,
+                action=lambda boundary=boundary: validate_single_builder_default(
+                    boundary=boundary,
+                    candidates=builder_candidates,
+                ),
+            )
+        except OrchestrationEvidenceError as exc:
+            raise OrchestrationEvidenceError(
+                "single-builder default violation accepted"
+            ) from exc
+    return True
+
+
+def _validate_v35e_support_role_proxy_authority() -> bool:
+    for boundary in REQUIRED_ENFORCEMENT_SURFACES:
+        try:
+            _expect_runtime_enforcement_error(
+                expected_code=SUPPORT_PROXY_AUTHORITY_CODE,
+                action=lambda boundary=boundary: validate_runtime_enforcement_candidate(
+                    boundary=boundary,
+                    candidate=_support_proxy_candidate(authoritative_write_lease_granted=True),
+                    parent_writes_allowed=True,
+                ),
+            )
+            _expect_runtime_enforcement_error(
+                expected_code=SUPPORT_PROXY_AUTHORITY_CODE,
+                action=lambda boundary=boundary: validate_runtime_enforcement_candidate(
+                    boundary=boundary,
+                    candidate=_support_proxy_candidate(authoritative_write_lease_granted=False),
+                    parent_writes_allowed=True,
+                ),
+            )
+        except OrchestrationEvidenceError as exc:
+            raise OrchestrationEvidenceError(
+                "support-role proxy authority violation accepted"
+            ) from exc
+    return True
+
+
+def _validate_v35e_claimed_work_handoff_validation() -> bool:
+    expected_surfaces = (
+        "orchestration_state_materialization_boundary",
+        "worker_visibility_materialization_boundary",
+        "topology_duty_map_materialization_boundary",
+    )
+    if MATERIALIZATION_ENFORCEMENT_SURFACES != expected_surfaces:
+        raise OrchestrationEvidenceError("claimed-work handoff enforcement surface drift detected")
+    for boundary in expected_surfaces:
+        try:
+            _expect_runtime_enforcement_error(
+                expected_code=CLAIMED_WORK_HANDOFF_INVALID_CODE,
+                action=lambda boundary=boundary: validate_claimed_work_handoff_field(
+                    boundary=boundary,
+                    subject_id="claimed-work-child-1",
+                    field_name="requested_role",
+                    value=None,
+                    claimed_work_present=True,
+                    context={"session_id": "claimed-work-parent-1"},
+                ),
+            )
+        except OrchestrationEvidenceError as exc:
+            raise OrchestrationEvidenceError(
+                "claimed-work handoff missing required fields accepted"
+            ) from exc
+    return True
+
+
+def _validate_v35e_scope_kind_validation() -> bool:
+    invalid_scope_candidate = _invalid_scope_kind_candidate()
+    for boundary in REQUIRED_ENFORCEMENT_SURFACES:
+        try:
+            _expect_runtime_enforcement_error(
+                expected_code=SCOPE_KIND_INVALID_CODE,
+                action=lambda boundary=boundary: validate_runtime_enforcement_candidate(
+                    boundary=boundary,
+                    candidate=invalid_scope_candidate,
+                    parent_writes_allowed=True,
+                ),
+            )
+        except OrchestrationEvidenceError as exc:
+            raise OrchestrationEvidenceError("scope kind missing or malformed accepted") from exc
+    return True
+
+
+def _validate_v35e_deterministic_denial_surfaces() -> bool:
+    expected_codes = (
+        INVALID_ROLE_TASK_COMBINATION_CODE,
+        SINGLE_BUILDER_DEFAULT_VIOLATION_CODE,
+        SUPPORT_PROXY_AUTHORITY_CODE,
+        SCOPE_KIND_INVALID_CODE,
+        CLAIMED_WORK_HANDOFF_INVALID_CODE,
+    )
+    if DETERMINISTIC_DENIAL_CODES != expected_codes:
+        raise OrchestrationEvidenceError("deterministic denial code family drift detected")
+    # Recheck one representative path for each stable code so closeout binds the exact family.
+    _expect_runtime_enforcement_error(
+        expected_code=INVALID_ROLE_TASK_COMBINATION_CODE,
+        action=lambda: validate_runtime_enforcement_candidate(
+            boundary="spawn_request_boundary",
+            candidate=_invalid_role_task_candidate(),
+            parent_writes_allowed=False,
+        ),
+    )
+    _expect_runtime_enforcement_error(
+        expected_code=SINGLE_BUILDER_DEFAULT_VIOLATION_CODE,
+        action=lambda: validate_single_builder_default(
+            boundary="spawn_request_boundary",
+            candidates=[
+                _builder_candidate(subject_id="builder-code-1", status="running"),
+                _builder_candidate(subject_id="builder-code-2", status="queued"),
+            ],
+        ),
+    )
+    _expect_runtime_enforcement_error(
+        expected_code=SUPPORT_PROXY_AUTHORITY_CODE,
+        action=lambda: validate_runtime_enforcement_candidate(
+            boundary="spawn_request_boundary",
+            candidate=_support_proxy_candidate(authoritative_write_lease_granted=False),
+            parent_writes_allowed=True,
+        ),
+    )
+    _expect_runtime_enforcement_error(
+        expected_code=SCOPE_KIND_INVALID_CODE,
+        action=lambda: validate_runtime_enforcement_candidate(
+            boundary="orchestration_state_materialization_boundary",
+            candidate=_invalid_scope_kind_candidate(),
+            parent_writes_allowed=True,
+        ),
+    )
+    _expect_runtime_enforcement_error(
+        expected_code=CLAIMED_WORK_HANDOFF_INVALID_CODE,
+        action=lambda: validate_claimed_work_handoff_field(
+            boundary="topology_duty_map_materialization_boundary",
+            subject_id="claimed-work-child-2",
+            field_name="granted_role",
+            value=None,
+            claimed_work_present=True,
+            context={"session_id": "claimed-work-parent-2"},
+        ),
+    )
+    return True
+
+
+def _validate_v35e_released_happy_path(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    snapshot_payload: dict[str, Any],
+    write_lease_state: WriteLeaseState,
+    transition_payload: dict[str, Any],
+    transition_record: RoleTransitionRecord,
+    handoff_payload: dict[str, Any],
+    handoff_envelope: RoleHandoffEnvelope,
+    visibility_state: WorkerVisibilityState,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    _validate_v35b_foundation_package(snapshot=snapshot, write_lease=write_lease_state)
+    _validate_canonical_identity_fields(snapshot_payload=snapshot_payload, snapshot=snapshot)
+    child_roles = _validate_v35b_child_roles(snapshot=snapshot)
+    _validate_builder_role_materialized(
+        child_roles=child_roles,
+        write_lease=write_lease_state,
+        transition_record=transition_record,
+        handoff_envelope=handoff_envelope,
+    )
+    _validate_support_roles_materialized(
+        child_roles=child_roles,
+        write_lease=write_lease_state,
+        handoff_envelope=handoff_envelope,
+    )
+    _validate_delegated_scope_kind_recorded(
+        child_roles=child_roles,
+        write_lease=write_lease_state,
+        handoff_envelope=handoff_envelope,
+    )
+    _validate_v35b_single_builder_default(snapshot=snapshot, write_lease=write_lease_state)
+    _validate_support_workers_non_authoritative(
+        child_roles=child_roles,
+        write_lease=write_lease_state,
+        handoff_envelope=handoff_envelope,
+    )
+    _validate_v35b_builder_write_lease(
+        write_lease=write_lease_state,
+        transition_record=transition_record,
+    )
+    _validate_v35b_handoff_artifact(
+        child_roles=child_roles,
+        handoff_payload=handoff_payload,
+        handoff_envelope=handoff_envelope,
+    )
+    _validate_v35b_handoff_reconciliation(handoff_envelope=handoff_envelope)
+    _validate_unreconciled_worker_output_non_authoritative(
+        snapshot=snapshot,
+        handoff_envelope=handoff_envelope,
+    )
+    _validate_v35b_zero_occurrence_artifacts(
+        child_roles=child_roles,
+        transition_payload=transition_payload,
+        transition_record=transition_record,
+        handoff_payload=handoff_payload,
+        handoff_envelope=handoff_envelope,
+    )
+    _validate_v35c_progress_fields(
+        snapshot=snapshot,
+        visibility_state=visibility_state,
+        handoff_envelope=handoff_envelope,
+    )
+    _validate_v35d_write_lease_projection(
+        write_lease_state=write_lease_state,
+        topology_state=topology_state,
+    )
+    _validate_v35d_current_duty(
+        write_lease_state=write_lease_state,
+        topology_state=topology_state,
+    )
+    return True
+
+
+def _validate_v35e_observability_surfaces(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    visibility_state: WorkerVisibilityState,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    _validate_v35c_read_only_visibility(snapshot=snapshot, visibility_state=visibility_state)
+    _validate_v35c_lane_projection(visibility_state=visibility_state)
+    _validate_v35c_raw_transcript_authority(visibility_state=visibility_state)
+    _validate_v35c_worker_self_report_authority(visibility_state=visibility_state)
+    _validate_v35d_read_only_topology(topology_state=topology_state)
+    return True
+
+
+def _validate_v35e_acceptance_and_closeout_authority(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    transition_record: RoleTransitionRecord,
+    handoff_envelope: RoleHandoffEnvelope,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    orchestrator_roles = [
+        role for role in snapshot.current_roles if role.actor_id == snapshot.orchestrator_session_id
+    ]
+    if len(orchestrator_roles) != 1 or orchestrator_roles[0].role != "main_orchestrator":
+        raise OrchestrationEvidenceError("acceptance or closeout authority released")
+    for role in snapshot.current_roles:
+        if role.actor_id == snapshot.orchestrator_session_id:
+            continue
+        if role.authority_domain == "governance":
+            raise OrchestrationEvidenceError("acceptance or closeout authority released")
+    for node in topology_state.nodes:
+        if node.actor_id == topology_state.orchestrator_session_id:
+            continue
+        if node.authority_domain == "governance":
+            raise OrchestrationEvidenceError("acceptance or closeout authority released")
+    if any(entry.granted_by != CONTROL_PLANE_OWNER for entry in transition_record.entries):
+        raise OrchestrationEvidenceError("acceptance or closeout authority released")
+    _validate_unreconciled_worker_output_non_authoritative(
+        snapshot=snapshot,
+        handoff_envelope=handoff_envelope,
+    )
+    return True
+
+
+def _validate_v35e_worker_direct_user_boundary(
+    *,
+    snapshot: OrchestrationStateSnapshot,
+    visibility_state: WorkerVisibilityState,
+    topology_state: TopologyDutyMapState,
+) -> bool:
+    _validate_worker_direct_user_boundary(snapshot=snapshot)
+    _validate_v35c_worker_direct_user_boundary(visibility_state=visibility_state)
+    _validate_v35d_read_only_topology(topology_state=topology_state)
+    return True
+
+
+def _invalid_role_task_candidate() -> RuntimeEnforcementCandidate:
+    return RuntimeEnforcementCandidate(
+        subject_id="invalid-role-task-child",
+        requested_role="explorer",
+        granted_role="explorer",
+        delegation_task_kind="write_task",
+        delegated_scope_kind="subtree",
+        delegated_scope_artifact_surfaces=("implementation",),
+        authoritative_write_lease_granted=False,
+        status="queued",
+    )
+
+
+def _invalid_scope_kind_candidate() -> RuntimeEnforcementCandidate:
+    return RuntimeEnforcementCandidate(
+        subject_id="invalid-scope-kind-child",
+        requested_role="explorer",
+        granted_role="explorer",
+        delegation_task_kind=ROLE_TASK_KIND_BY_ROLE["explorer"],
+        delegated_scope_kind="invalid_scope_kind",
+        delegated_scope_artifact_surfaces=("none",),
+        authoritative_write_lease_granted=False,
+        status="running",
+    )
+
+
+def _support_proxy_candidate(
+    *,
+    authoritative_write_lease_granted: bool,
+) -> RuntimeEnforcementCandidate:
+    artifact_surfaces = ("none",) if authoritative_write_lease_granted else ("implementation",)
+    return RuntimeEnforcementCandidate(
+        subject_id="support-proxy-child",
+        requested_role="explorer",
+        granted_role="explorer",
+        delegation_task_kind=ROLE_TASK_KIND_BY_ROLE["explorer"],
+        delegated_scope_kind="artifact_surface_only",
+        delegated_scope_artifact_surfaces=artifact_surfaces,
+        authoritative_write_lease_granted=authoritative_write_lease_granted,
+        status="queued",
+    )
+
+
+def _builder_candidate(*, subject_id: str, status: str) -> RuntimeEnforcementCandidate:
+    return RuntimeEnforcementCandidate(
+        subject_id=subject_id,
+        requested_role="builder_worker",
+        granted_role="builder_worker",
+        delegation_task_kind=ROLE_TASK_KIND_BY_ROLE["builder_worker"],
+        delegated_scope_kind="subtree",
+        delegated_scope_artifact_surfaces=("implementation",),
+        authoritative_write_lease_granted=True,
+        status=status,
+    )
+
+
+def _expect_runtime_enforcement_error(
+    *,
+    expected_code: str,
+    action: Any,
+) -> None:
+    try:
+        action()
+    except URMError as exc:
+        if exc.detail.code != expected_code:
+            raise OrchestrationEvidenceError(
+                "deterministic denial code missing or unstable"
+            ) from exc
+        boundary = exc.detail.context.get("boundary")
+        if boundary not in REQUIRED_ENFORCEMENT_SURFACES:
+            raise OrchestrationEvidenceError("required runtime enforcement surfaces drift detected")
+        if not exc.detail.message:
+            raise OrchestrationEvidenceError("deterministic denial code missing or unstable")
+        return
+    raise OrchestrationEvidenceError("required runtime enforcement surface missing or bypassed")
 
 
 def _load_validated_artifact(
