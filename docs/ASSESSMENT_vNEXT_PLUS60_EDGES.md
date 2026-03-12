@@ -1,9 +1,9 @@
-# Assessment vNext+60 Edges (Pre-Lock)
+# Assessment vNext+60 Edges (Post Closeout)
 
-This document records pre-lock edge planning for `vNext+60` (`V35-E` bounded runtime
-enforcement) before implementation.
+This document records edge disposition for `vNext+60` (`V35-E` bounded runtime
+enforcement) after arc closeout.
 
-Status: pre-lock assessment (March 12, 2026 UTC).
+Status: post-closeout assessment (March 12, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -11,19 +11,20 @@ Status: pre-lock assessment (March 12, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS60_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
-  "authoritative_scope": "v60_prelock_edge_planning",
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v60_closeout_edge_disposition",
   "required_in_decision": true,
-  "notes": "This pre-lock planning set is expected to be superseded by post-closeout edge disposition once v60 closes."
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
 ## Scope
 
-- In scope: thin `V35-E` bounded runtime enforcement over the frozen v56/v57/v58/v59
-  orchestration-state, delegation, visibility, and topology substrate; deterministic denial
-  surfaces for narrow constitutional violations; and closeout evidence integration.
+- In scope: thin `V35-E` bounded runtime enforcement over the released v56/v57/v58/v59
+  orchestration-state, delegation, visibility, and topology substrate; deterministic
+  denial surfaces at the frozen spawn/materialization boundaries; and closeout evidence
+  integration.
 - Out of scope: multi-builder or multi-writer release, topology editing, direct
   worker/user interaction, acceptance/closeout automation, stop-gate schema-family fork,
   metric-key expansion, and the separate `O1`/`O2`/`O3` closeout-hardening bundle.
@@ -31,138 +32,125 @@ Status: pre-lock assessment (March 12, 2026 UTC).
 ## Inputs
 
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v9.md`
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS59.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS59.md`
-- `docs/ASSESSMENT_vNEXT_PLUS59_EDGES.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS60.md`
-- `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
-- `docs/FUTURE_CLEANUPS.md`
-- `docs/MULTI_ROLE_EXECUTION_CONTRACTS_v0.json`
-- `docs/DRAFT_MULTI_ROLE_EXECUTION_LOCK_v0.md`
-- `docs/DRAFT_MULTI_ROLE_EXECUTION_POLICY_v0.md`
-- `packages/urm_runtime/src/urm_runtime/capability_policy.py`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS60.md`
+- `packages/urm_runtime/src/urm_runtime/runtime_enforcement.py`
 - `packages/urm_runtime/src/urm_runtime/copilot.py`
-- `packages/urm_runtime/src/urm_runtime/child_dispatch.py`
-- `packages/urm_runtime/src/urm_runtime/orchestration_state.py`
-- `packages/urm_runtime/src/urm_runtime/worker_visibility.py`
-- `packages/urm_runtime/src/urm_runtime/topology_duty_map.py`
 - `packages/urm_runtime/src/urm_runtime/orchestration_evidence.py`
-- `apps/api/src/adeu_api/urm_routes.py`
 - `apps/api/tests/test_urm_copilot_routes.py`
-- `artifacts/quality_dashboard_v59_closeout.json`
-- `artifacts/stop_gate/metrics_v59_closeout.json`
-- `artifacts/agent_harness/v59/evidence_inputs/metric_key_continuity_assertion_v59.json`
-- `artifacts/agent_harness/v59/evidence_inputs/runtime_observability_comparison_v59.json`
-- `artifacts/agent_harness/v59/evidence_inputs/v35d_topology_duty_map_evidence_v59.json`
-- `artifacts/agent_harness/v59/runtime/evidence/codex/`
+- `artifacts/quality_dashboard_v60_closeout.json`
+- `artifacts/stop_gate/metrics_v60_closeout.json`
+- `artifacts/agent_harness/v60/evidence_inputs/metric_key_continuity_assertion_v60.json`
+- `artifacts/agent_harness/v60/evidence_inputs/runtime_observability_comparison_v60.json`
+- `artifacts/agent_harness/v60/evidence_inputs/v35e_runtime_enforcement_evidence_v60.json`
+- `artifacts/agent_harness/v60/runtime/evidence/codex/`
+- merged PRs: `#269`, `#270`
 
-## Pre-Lock Edge Set (v60 Planning)
+## Pre-Lock Edge Set Outcome (v60 Closeout)
 
-1. Bounded runtime-enforcement surface absence: `open`.
-   - no released `V35-E` runtime-enforcement lane exists on `main`.
-2. Spawn-boundary constitutional enforcement gap: `open`.
-   - released spawn validation is still partial and baseline-specific rather than a closed
-     bounded-enforcement surface over the v35 constitution.
-3. Single-builder default denial-surface gap: `open`.
-   - no released runtime bundle explicitly proves that a single-builder default violation
-     is denied deterministically under the frozen topology model.
-4. Support-role proxy-authority enforcement gap: `open`.
-   - no released runtime bundle explicitly denies support-role proxy write authority or
-     equivalent authority-surface escalation attempts.
-5. Claimed-work handoff required-field enforcement gap: `open`.
-   - no released runtime bundle explicitly promotes the claimed-work handoff grammar into a
-     bounded denial surface at orchestration/materialization boundaries.
-6. Scope-kind enforcement gap: `open`.
-   - scope-granularity kinds are frozen canonically, but no released runtime lane proves
-     malformed or absent scope kinds are rejected at the bounded enforcement surface.
-7. Deterministic denial-code surface gap: `open`.
-   - no released `V35-E` lane freezes a stable denial-code/error-only contract for the
-     bounded constitutional violations.
-8. Observability non-authority preservation under enforcement gap: `open`.
-   - no released runtime bundle proves topology/visibility surfaces stay read-only and
-     non-authoritative after enforcement logic is added.
-9. Acceptance/closeout authority preservation under enforcement gap: `open`.
-   - no released runtime bundle proves enforcement additions do not leak acceptance or
-     closeout authority beyond ADEU / `main_orchestrator`.
-10. Worker direct user-boundary preservation under enforcement gap: `open`.
-    - no released runtime bundle proves enforcement additions do not create or imply a
-      direct worker/user boundary.
-11. Placement/accretion risk: `open`.
-    - runtime enforcement could sprawl into app or harness code instead of landing as a
-      bounded canonical runtime surface.
-12. Evidence integration gap: `open`.
-    - canonical `v35e_runtime_enforcement_evidence@1` does not exist on `main`.
-13. Guard coverage gap for enforcement failures: `open`.
-    - no merged tests fail closed on accepted invalid role/task/scope combinations,
-      accepted support-role proxy authority, accepted handoff required-field gaps, or
-      denial-code drift.
+1. Bounded runtime-enforcement surface absence: `resolved`.
+   - shared runtime-enforcement helpers now exist on `main` and are exercised across the
+     frozen spawn/materialization boundaries.
+2. Spawn-boundary constitutional enforcement gap: `resolved`.
+   - the released spawn boundary now validates delegated role/task/scope/lease candidates
+     through the shared runtime layer instead of permitting ad hoc drift.
+3. Single-builder default denial-surface gap: `resolved`.
+   - the runtime layer now rejects multi-builder default violations deterministically
+     across the required enforcement surfaces.
+4. Support-role proxy-authority enforcement gap: `resolved`.
+   - released runtime enforcement now denies support-role proxy authority attempts rather
+     than allowing support paths to impersonate authoritative write posture.
+5. Claimed-work handoff required-field enforcement gap: `resolved`.
+   - claimed-work handoff required fields are now enforced at the materialization
+     boundaries and reflected in the canonical v35e evidence surface.
+6. Scope-kind enforcement gap: `resolved`.
+   - malformed or absent scope kinds are now rejected deterministically by the shared
+     runtime layer.
+7. Deterministic denial-code surface gap: `resolved`.
+   - stable `URM_RUNTIME_ENFORCEMENT_*` denial codes are now frozen and verified in the
+     released evidence lane.
+8. Observability non-authority preservation under enforcement gap: `resolved`.
+   - visibility and topology remain read-only/non-authoritative after enforcement is
+     added, and the v35e evidence booleans remain true.
+9. Acceptance/closeout authority preservation under enforcement gap: `resolved`.
+   - runtime enforcement now explicitly preserves acceptance and closeout authority on
+     ADEU / `main_orchestrator`.
+10. Worker direct user-boundary preservation under enforcement gap: `resolved`.
+    - runtime enforcement does not introduce a worker/user surface; the orchestrator
+      remains the primary interaction boundary.
+11. Placement/accretion risk: `resolved`.
+    - runtime enforcement landed in `packages/urm_runtime` as a bounded canonical layer
+      rather than accreting app-only or harness-only policy logic.
+12. Evidence integration gap: `resolved`.
+    - canonical `v35e_runtime_enforcement_evidence@1` now exists on `main` and is linked
+      to committed runtime artifact hashes.
+13. Guard coverage gap for enforcement failures: `resolved`.
+    - merged E2 guards now cover missing or bypassed enforcement surfaces, invalid
+      role/task/scope combinations, single-builder bypass, support-role proxy authority,
+      claimed-work handoff gaps, scope-kind drift, authority drift, and direct
+      worker/user-boundary drift.
 
-## Guard Coverage Requirements
+## Guard Coverage Outcome
 
-- planned `E2` coverage must fail closed on:
-  - missing or bypassed `V35-E` enforcement surface,
-  - accepted invalid role/task/scope combinations,
-  - accepted single-builder default violations,
-  - accepted support-role proxy authority,
-  - accepted claimed-work handoff required-field gaps,
-  - accepted malformed or absent scope kinds,
-  - observability surfaces promoted into authority surfaces,
-  - acceptance/closeout authority drift,
-  - worker direct user-boundary drift,
-  - unstable or missing deterministic denial codes.
-- planned enforcement proof shape must keep existing observability surfaces narrower:
-  - topology and visibility remain read-only and non-authoritative,
-  - enforcement consumes canonical state/visibility/topology/handoff inputs rather than
-    replacing them.
-- planned enforcement implementation should be exercised against both:
-  - a valid builder/support delegation path that remains green,
-  - invalid bounded-authority cases that are rejected deterministically.
+- merged implementation files:
+  - `packages/urm_runtime/src/urm_runtime/runtime_enforcement.py`
+  - `packages/urm_runtime/src/urm_runtime/copilot.py`
+  - `packages/urm_runtime/src/urm_runtime/orchestration_evidence.py`
+- merged guard file:
+  - `apps/api/tests/test_urm_copilot_routes.py`
+- v60 closeout artifact regeneration on `main` emitted:
+  - committed parent/support/builder raw and URM event streams backing the closeout fixture
+  - committed orchestration-state snapshot / execution topology / write-lease /
+    transition / handoff artifacts carried forward under v60-closeout identities
+  - committed `worker_visibility_state.json`
+  - committed `topology_duty_map_state.json`
+  - canonical `metric_key_continuity_assertion@1`
+  - canonical `runtime_observability_comparison@1`
+  - canonical `v35e_runtime_enforcement_evidence@1`
+- closeout posture remains intentionally narrower than adjacent deferred work:
+  - no multi-writer release, acceptance/closeout automation, or direct worker/user
+    interaction was added in v60 closeout.
 
-## Stop-Gate Continuity Requirement
+## Stop-Gate Continuity Outcome
 
 ```json
 {
-  "schema": "v60_edge_planning_summary@1",
+  "schema": "v60_edge_closeout_summary@1",
   "arc": "vNext+60",
   "target_path": "V35-E",
   "prelock_edge_count": 13,
-  "resolved_edge_count": 0,
-  "open_blocking_edges": 13,
+  "resolved_edge_count": 13,
+  "open_blocking_edges": 0,
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality": 80,
-  "metric_key_exact_set_equal_v59_required": true,
-  "all_passed": false,
-  "blocking_issues": [
-    "required_enforcement_surface_missing_or_bypassed",
-    "deterministic_denial_surface_missing",
-    "support_role_proxy_authority_enforcement_missing",
-    "claimed_work_handoff_enforcement_missing",
-    "runtime_enforcement_evidence_missing"
-  ]
+  "metric_key_exact_set_equal_v59": true,
+  "all_passed": true,
+  "blocking_issues": []
 }
 ```
 
-## Residual Risks (Pre-Lock)
+## Residual Risks (Post v60)
 
-1. Runtime enforcement can easily overreach into authority promotion if the lane is not
-   kept explicitly bounded.
-2. Deterministic denial codes can drift into ad hoc behavior if the rejected-case surface
-   is not frozen and tested directly.
-3. Observability surfaces can be silently promoted into truth or authority if enforcement
-   and read-only rendering are not kept separate.
-4. Runtime enforcement remains intentionally narrower than acceptance/closeout governance;
-   v60 should not smuggle automation into those lanes.
-5. Closeout hardening remains a separate operational track; v60 should not widen into
-   `O1`/`O2`/`O3`.
+1. Multi-builder and multi-writer release remain deferred; v60 enforces bounded
+   single-builder/write-authority posture rather than releasing concurrent writer
+   coordination.
+2. Acceptance and closeout automation remain deferred; v60 preserves those authorities
+   rather than releasing them.
+3. Direct worker/user interaction remains deferred; the orchestrator stays the primary
+   interaction boundary.
+4. Visibility and topology surfaces remain observational-only; any future authority or UX
+   widening still requires new lock text.
+5. Closeout hardening remains incomplete by design; `O1` closeout extraction, `O2`
+   artifact index/lint, and `O3` advisory adjudication are still separate operational
+   follow-ons.
 
-## Recommendation (Pre-Lock)
+## Recommendation (Post Closeout)
 
-1. Treat the committed v59 runtime/evidence bundle as a frozen prerequisite input, not part
-   of new v60 scope.
-2. Keep v60 limited to bounded runtime enforcement and deterministic denial surfaces.
-3. Require enforcement to land in `packages/urm_runtime` before any broader UX or
-   operational widening.
-4. Do not release enforcement without explicit denial-code stability, explicit
-   observability non-authority preservation, and explicit authority-preservation guards.
-5. Pair any `E1` enforcement release with `E2` evidence/guard coverage in the same arc so
-   closeout can fail closed on accepted constitutional violations or authority drift.
+1. Mark the v60 edge set as closed with no blocking issues.
+2. Treat the committed v60 runtime fixture, shared runtime-enforcement helpers, and
+   canonical `v35e_runtime_enforcement_evidence@1` as part of the released closeout
+   surface going forward.
+3. Keep multi-writer execution, acceptance/closeout automation, and direct worker/user
+   interaction explicitly deferred unless released under new lock text.
+4. Treat any next step as a fresh `vNext+61` planning draft beyond the completed `V35`
+   family rather than reopening or widening the closed `V35-E` baseline.
