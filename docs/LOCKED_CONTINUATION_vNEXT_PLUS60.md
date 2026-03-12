@@ -231,12 +231,13 @@ Consumption lock:
       "worker_visibility_state_hash",
       "topology_duty_map_state_path",
       "topology_duty_map_state_hash",
-      "spawn_boundary_enforcement_active",
+      "required_enforcement_surfaces_active",
       "single_builder_default_enforced_at_runtime",
       "support_role_proxy_authority_blocked",
       "claimed_work_handoff_validation_enforced",
       "scope_kind_validation_enforced",
       "deterministic_denial_surfaces_recorded",
+      "released_happy_path_preserved_under_runtime_enforcement",
       "observability_surfaces_remain_read_only",
       "acceptance_and_closeout_authority_preserved",
       "worker_direct_user_boundary_forbidden",
@@ -253,17 +254,19 @@ Consumption lock:
     "runtime_enforcement_denies_claimed_work_handoff_missing_required_fields": true,
     "runtime_enforcement_denies_invalid_scope_kind": true,
     "deterministic_denial_codes_recorded": true,
+    "released_happy_path_preserved_under_runtime_enforcement": true,
     "observability_surfaces_remain_read_only": true,
     "acceptance_and_closeout_authority_preserved": true,
     "worker_direct_user_boundary_forbidden": true
   },
   "fail_closed_conditions": [
-    "runtime_enforcement_surface_missing",
+    "required_enforcement_surface_missing_or_bypassed",
     "invalid_spawn_role_task_combination_accepted",
     "single_builder_default_violation_accepted",
     "support_role_proxy_authority_violation_accepted",
     "claimed_work_handoff_missing_required_fields_accepted",
     "scope_kind_missing_or_malformed_accepted",
+    "released_happy_path_regressed_or_blocked",
     "observability_surface_promoted_to_authority",
     "acceptance_or_closeout_authority_released",
     "worker_direct_user_boundary_rendered_or_permitted",
@@ -278,6 +281,8 @@ Interpretive notes:
 - v60 consumes the released v35a-v35d state, delegation, visibility, and topology surfaces
   as truth inputs; enforcement adds bounded denial logic and must not become a new truth
   source by itself.
+- `urm-events@1` remains a provenance and diagnostics input only in v60; it is not an
+  independent enforcement-truth surface alongside the canonical v35a-v35d state family.
 - topology and visibility routes remain observational-only in v60 even when enforcement is
   added elsewhere; enforcement must not silently promote those read surfaces into accepted
   authority.

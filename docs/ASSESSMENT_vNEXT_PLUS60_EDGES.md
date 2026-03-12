@@ -100,7 +100,7 @@ Status: pre-lock assessment (March 12, 2026 UTC).
 ## Guard Coverage Requirements
 
 - planned `E2` coverage must fail closed on:
-  - missing `V35-E` enforcement surface,
+  - missing or bypassed `V35-E` enforcement surface,
   - accepted invalid role/task/scope combinations,
   - accepted single-builder default violations,
   - accepted support-role proxy authority,
@@ -133,7 +133,7 @@ Status: pre-lock assessment (March 12, 2026 UTC).
   "metric_key_exact_set_equal_v59_required": true,
   "all_passed": false,
   "blocking_issues": [
-    "runtime_enforcement_surface_missing",
+    "required_enforcement_surface_missing_or_bypassed",
     "deterministic_denial_surface_missing",
     "support_role_proxy_authority_enforcement_missing",
     "claimed_work_handoff_enforcement_missing",
