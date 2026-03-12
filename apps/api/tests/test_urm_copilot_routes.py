@@ -6227,6 +6227,24 @@ def test_materialize_orchestration_state_rejects_invalid_session_id_path_compone
     _reset_manager_for_tests()
 
 
+def test_materialize_topology_duty_map_state_rejects_invalid_session_id_path_component(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex(tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    monkeypatch.delenv("FAKE_APP_SERVER_DISABLE_READY", raising=False)
+    _reset_manager_for_tests()
+
+    manager = _get_manager()
+    with pytest.raises(URMError) as exc_info:
+        manager.materialize_topology_duty_map_state(session_id="../escape")
+
+    assert exc_info.value.detail.code == "URM_TOPOLOGY_DUTY_MAP_STATE_INVALID"
+    _reset_manager_for_tests()
+
+
 def test_role_handoff_entry_rejects_missing_required_fields() -> None:
     with pytest.raises(ValidationError):
         RoleHandoffEntry.model_validate(

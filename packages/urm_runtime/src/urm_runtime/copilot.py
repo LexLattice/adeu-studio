@@ -1254,7 +1254,11 @@ class URMCopilotManager:
                 )
                 if normalized.detail.code.startswith("URM_RUNTIME_ENFORCEMENT_"):
                     raise normalized from exc
-                raise normalized from exc
+                raise URMError(
+                    code="URM_TOPOLOGY_DUTY_MAP_STATE_INVALID",
+                    message=normalized.detail.message,
+                    context={"session_id": session_id, **normalized.detail.context},
+                ) from exc
             except ValidationError as exc:
                 raise URMError(
                     code="URM_TOPOLOGY_DUTY_MAP_STATE_INVALID",
