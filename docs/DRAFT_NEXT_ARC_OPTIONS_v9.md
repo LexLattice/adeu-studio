@@ -1,9 +1,9 @@
-# Draft Next Arc Options v9 (Post vNext+58, Post V35-C Closure)
+# Draft Next Arc Options v9 (Post vNext+59, Post V35-D Closure)
 
-This document defines the post-`vNext+58` planning baseline for the next ADEU-governed
+This document defines the post-`vNext+59` planning baseline for the next ADEU-governed
 implementation family.
 
-Status: active planning draft (`V34-A` through `V34-G` and `V35-A` through `V35-C`
+Status: active planning draft (`V34-A` through `V34-G` and `V35-A` through `V35-D`
 closed; next family selection in progress).
 
 Goal:
@@ -14,10 +14,12 @@ Goal:
 - carry forward the completed `V35-B` delegation baseline without widening it implicitly;
 - carry forward the completed `V35-C` worker visibility baseline without widening it
   implicitly;
+- carry forward the completed `V35-D` topology/duty-map baseline without widening it
+  implicitly;
 - turn the multi-role execution constitution into an actual implementation roadmap;
 - make the main orchestrator the primary user-facing surface while preserving ADEU
   governance authority;
-- add topology observability and bounded runtime hardening without weakening
+- add bounded runtime hardening without weakening
   single-writer discipline, auditability, or closeout rigor.
 
 This is a planning document only. It is not a lock doc and does not authorize runtime
@@ -41,8 +43,8 @@ behavior changes.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+58` (`V35-C`) on `main`.
-- `V34-A` through `V34-G` and `V35-A` through `V35-C` are closed.
+- Baseline implementation is `vNext+59` (`V35-D`) on `main`.
+- `V34-A` through `V34-G` and `V35-A` through `V35-D` are closed.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
   keys only).
@@ -133,10 +135,10 @@ behavior changes.
   "next_path_family": "V35",
   "v35_path_count": 5,
   "v35_default_arc_span": {
-    "from": "vNext+57",
+    "from": "vNext+56",
     "to": "vNext+60"
   },
-  "default_next_arc_candidate": "V35-D",
+  "default_next_arc_candidate": "V35-E",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -473,9 +475,10 @@ bundle. The current recommendation remains:
 3. `V35-C`
    - closed on `vNext+58`; keep the read-only worker visibility baseline frozen.
 4. `V35-D`
-   - next default candidate; add the dynamic map once the visibility/state model exists.
+   - closed on `vNext+59`; keep the dynamic topology/duty map baseline frozen.
 5. `V35-E`
-   - promote bounded enforcement last, once the observable model is stable.
+   - next default candidate; promote bounded enforcement now that the observable model is
+     stable.
 
 ## Non-Goals (Current Family)
 
@@ -490,13 +493,13 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- select `V35-D` as the next default candidate after `V35-C` closure;
+- select `V35-E` as the next default candidate after `V35-D` closure;
 - keep the family narrow and constitutional:
-  make topology/duty visualization read-only and provenance-linked before building
-  runtime enforcement releases on top;
+  make bounded runtime enforcement consume the already-released read-only
+  state/visibility/topology surfaces rather than widening them;
 - preserve the design rule established by the multi-role bundle:
   the orchestrator owns governance, the builder holds the current scoped write lease, and
   support workers remain observable but non-authoritative unless explicitly re-roled;
-- require topology/duty visualization to stay derived from canonical execution-state,
-  visibility, and reconciled-or-pending handoff surfaces rather than ad hoc summaries,
-  UI-only graph state, or implicit authority promotion.
+- require runtime enforcement to stay anchored in canonical execution-state, visibility,
+  topology, and handoff surfaces rather than ad hoc summaries, UI-only state, or implicit
+  authority promotion.
