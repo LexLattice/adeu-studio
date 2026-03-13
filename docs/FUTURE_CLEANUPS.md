@@ -120,6 +120,31 @@ Notes:
   - Next action:
     - align defaults and keep explicit compatibility flags where needed.
 
+- `EDGE-P2-05` Copilot workflow UX is still coupled to a legacy Codex exec approval-flag contract.
+  - Source:
+    - March 2026 local UX verification of `/copilot`
+    - current runtime code and persisted capability probes
+  - Current evidence:
+    - `packages/urm_runtime/src/urm_runtime/worker.py` now fails closed when
+      `codex exec --help` does not expose `--ask-for-approval`.
+    - `apps/web/src/app/copilot/page.tsx` still exposes `adeu.run_workflow` as a normal
+      tool action in the runtime console.
+    - persisted probe artifacts under `apps/api/var/urm/codex_probe/` show local Codex
+      CLI builds reporting `exec_help_contains_ask_for_approval = false` and failed exec
+      smoke because `--ask-for-approval` is rejected.
+  - Why it is still open:
+    - the Copilot UX can start a session successfully but the first workflow action fails
+      on current local Codex CLI builds with
+      `URM_WORKER_START_FAILED: UNSUPPORTED_REQUIRED_FLAG:--ask-for-approval:FLAG_ABSENT`.
+    - this is partly a backend contract issue and partly a UX capability-surface issue:
+      the console advertises a workflow action that the probed local CLI cannot actually
+      execute.
+  - Next action:
+    - during the planned Copilot UX overhaul, drive the visible workflow affordances from
+      probed Codex capabilities and update the worker launcher to preserve non-interactive
+      execution under current Codex CLI semantics instead of assuming the older
+      `--ask-for-approval never` contract is always available.
+
 ### 1.3 P3: Maintainability Backlog With Ongoing Value
 
 - `EDGE-P3-01` shared validation logic is still duplicated across older tooling paths.

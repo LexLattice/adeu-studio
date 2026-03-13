@@ -38,10 +38,13 @@ def _copy_start_bundle(*, arc: int, target_root: Path) -> None:
         f"docs/LOCKED_CONTINUATION_vNEXT_PLUS{arc}.md",
         f"docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS{arc}.md",
         f"docs/ASSESSMENT_vNEXT_PLUS{arc}_EDGES.md",
-        "docs/DRAFT_NEXT_ARC_OPTIONS_v9.md",
     ):
         source = repo_root / relative_path
         destination = target_root / relative_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, destination)
+    for source in sorted((repo_root / "docs").glob("DRAFT_NEXT_ARC_OPTIONS_v*.md")):
+        destination = target_root / source.relative_to(repo_root)
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
 
@@ -66,9 +69,9 @@ def _copy_closeout_bundle(*, arc: int, target_root: Path) -> None:
     )
 
 
-def test_current_repo_v60_start_bundle_passes() -> None:
+def test_current_repo_v61_start_bundle_passes() -> None:
     module = _load_script_module()
-    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=60, phase="start")
+    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=61, phase="start")
     assert payload["schema"] == "arc_bundle_lint@1"
     assert payload["failures"] == []
 

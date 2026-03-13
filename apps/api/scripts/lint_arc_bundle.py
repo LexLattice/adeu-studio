@@ -148,8 +148,11 @@ def _arc_assessment_doc_path(arc: int) -> str:
     return f"docs/ASSESSMENT_vNEXT_PLUS{arc}_EDGES.md"
 
 
-def _options_doc_path() -> str:
-    return "docs/DRAFT_NEXT_ARC_OPTIONS_v9.md"
+def _options_doc_paths(*, repo_root: Path) -> list[str]:
+    relative_paths: list[str] = []
+    for path in sorted((repo_root / "docs").glob("DRAFT_NEXT_ARC_OPTIONS_v*.md")):
+        relative_paths.append(str(path.relative_to(repo_root)))
+    return relative_paths
 
 
 def _resolve_required_file(
@@ -239,7 +242,7 @@ def _validate_start_bundle(*, repo_root: Path, arc: int, result: LintResult) -> 
     lock_doc_path = _arc_lock_doc_path(arc)
     decision_doc_path = _arc_decision_doc_path(arc)
     assessment_doc_path = _arc_assessment_doc_path(arc)
-    options_doc_path = _options_doc_path()
+    options_doc_paths = _options_doc_paths(repo_root=repo_root)
 
     lock_doc = _resolve_required_file(
         repo_root=repo_root,
@@ -256,18 +259,28 @@ def _validate_start_bundle(*, repo_root: Path, arc: int, result: LintResult) -> 
         relative_path=assessment_doc_path,
         result=result,
     )
-    options_doc = _resolve_required_file(
-        repo_root=repo_root,
-        relative_path=options_doc_path,
-        result=result,
-    )
-    if lock_doc is None or decision_doc is None or assessment_doc is None or options_doc is None:
+    option_docs: list[Path] = []
+    if not options_doc_paths:
+        result.add_failure(
+            code="MISSING_FILE",
+            details={"path": "docs/DRAFT_NEXT_ARC_OPTIONS_v*.md"},
+        )
+    else:
+        for relative_path in options_doc_paths:
+            resolved = _resolve_required_file(
+                repo_root=repo_root,
+                relative_path=relative_path,
+                result=result,
+            )
+            if resolved is not None:
+                option_docs.append(resolved)
+    if lock_doc is None or decision_doc is None or assessment_doc is None or not option_docs:
         return
 
     lock_text = _read_text(lock_doc)
     decision_text = _read_text(decision_doc)
     assessment_text = _read_text(assessment_doc)
-    options_text = _read_text(options_doc)
+    options_texts = {str(path.relative_to(repo_root)): _read_text(path) for path in option_docs}
 
     decision_state = _require_single_schema_block(
         text=decision_text,
@@ -324,11 +337,11 @@ def _validate_start_bundle(*, repo_root: Path, arc: int, result: LintResult) -> 
     if contract_block is not None:
         target_path = contract_block["target_path"]
         expected_phrase = f"select `{target_path}` as the next default candidate"
-        if expected_phrase not in options_text:
+        if not any(expected_phrase in text for text in options_texts.values()):
             result.add_failure(
                 code="OPTIONS_TARGET_MISMATCH",
                 details={
-                    "doc_path": options_doc_path,
+                    "doc_paths": sorted(options_texts),
                     "target_path": target_path,
                     "expected_phrase": expected_phrase,
                 },

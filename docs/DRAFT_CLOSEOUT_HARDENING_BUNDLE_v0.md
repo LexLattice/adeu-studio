@@ -1,9 +1,8 @@
 # Draft Closeout Hardening Bundle v0
 
-Status: working synthesis only (March 7, 2026 UTC).
+Status: working synthesis only (carried forward after v60 closeout, March 14, 2026 UTC).
 
-This document records the proposed post-`v54` operational hardening bundle for the closeout
-lane.
+This document records the proposed operational hardening bundle for the closeout lane.
 
 It is not a lock doc. It does not authorize runtime behavior changes, release-scope changes,
 or boundary expansion. It does not supersede `V34-G` planning.
@@ -223,18 +222,35 @@ This proposal does not recommend:
 
 ## Adoption Rule
 
-This bundle should only be formalized after `v54` closeout is complete on `main`.
+This bundle should only be formalized under a dedicated future lock, after the currently
+accepted closeout process has been preserved across the closed v54-v60 baseline and without
+reopening the completed `V35` family implicitly.
 
 Reason:
 
-- `v54` should close under the currently accepted process so the operational hardening work
-  has a stable baseline;
-- changing the closeout lane before `v54` closes would blur whether a later quality delta
-  came from the slice itself or from the process mutation.
+- the repo now has a stable post-v60 closeout baseline, including dedicated docs-only arc
+  start/closeout gates, deterministic artifact bundles, and post-closeout decision/assessment
+  conversions;
+- any future closeout-hardening work should be evaluated against that already-accepted
+  baseline rather than treated as an inline extension of the closed v35 execution family;
+- changing the closeout lane without a fresh lock would blur whether a later quality delta
+  came from the hardening slice itself or from process mutation.
+
+## Re-entry Conditions
+
+When this bundle is revisited later:
+
+- treat `O1`/`O2`/`O3` as a separate operational track, not implicit scope of any closed
+  execution family;
+- use the latest accepted closeout docs/artifacts on `main` as the no-regression baseline;
+- preserve the current boundary that deterministic generation may be mechanized, but
+  semantic adjudication remains reasoning-driven;
+- keep any revival narrow enough that it can be locked, assessed, and closed independently.
 
 ## Recommendation
 
-- carry this proposal forward for the next planning turn after `v54` closeout;
+- carry this proposal forward for a future planning turn after the closed v60 baseline,
+  under its own explicit lock/assessment/decision bundle;
 - treat it as an operational hardening bundle, not as a semantic/runtime expansion bundle;
 - keep the safe optimization boundary explicit:
   deterministic orchestration glue can move into scripts and indexes, but semantic
