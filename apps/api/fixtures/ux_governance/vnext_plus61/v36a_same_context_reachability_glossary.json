@@ -1,0 +1,22 @@
+{
+  "commit_or_destructive_barrier": [
+    "commit_action",
+    "destructive_action"
+  ],
+  "context_break": [
+    "bounded_workbench_replacement",
+    "detached_surface_replacement",
+    "route_transition"
+  ],
+  "forbidden_barrier": [
+    "authority_escalation_step",
+    "cross_workbench_dependency"
+  ],
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "same_context_reachable": [
+    "bounded_workbench_focus_shift",
+    "bounded_workbench_position_shift",
+    "bounded_workbench_state_reveal"
+  ],
+  "schema": "v36a_same_context_reachability_glossary@1"
+}

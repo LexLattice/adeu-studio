@@ -1,0 +1,71 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "commit_or_destructive_barrier": {
+      "items": {
+        "enum": [
+          "commit_action",
+          "destructive_action"
+        ],
+        "type": "string"
+      },
+      "title": "Commit Or Destructive Barrier",
+      "type": "array"
+    },
+    "context_break": {
+      "items": {
+        "enum": [
+          "bounded_workbench_replacement",
+          "detached_surface_replacement",
+          "route_transition"
+        ],
+        "type": "string"
+      },
+      "title": "Context Break",
+      "type": "array"
+    },
+    "forbidden_barrier": {
+      "items": {
+        "enum": [
+          "authority_escalation_step",
+          "cross_workbench_dependency"
+        ],
+        "type": "string"
+      },
+      "title": "Forbidden Barrier",
+      "type": "array"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "same_context_reachable": {
+      "items": {
+        "enum": [
+          "bounded_workbench_focus_shift",
+          "bounded_workbench_position_shift",
+          "bounded_workbench_state_reveal"
+        ],
+        "type": "string"
+      },
+      "title": "Same Context Reachable",
+      "type": "array"
+    },
+    "schema": {
+      "const": "v36a_same_context_reachability_glossary@1",
+      "default": "v36a_same_context_reachability_glossary@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "same_context_reachable",
+    "context_break",
+    "forbidden_barrier",
+    "commit_or_destructive_barrier"
+  ],
+  "title": "V36ASameContextReachabilityGlossary",
+  "type": "object"
+}

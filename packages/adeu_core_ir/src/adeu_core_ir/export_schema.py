@@ -25,6 +25,12 @@ from .projection_alignment_fidelity import (
 from .read_surface_payload import AdeuReadSurfacePayload
 from .semantics_v4_candidate_packet import AdeuSemanticsV4CandidatePacket
 from .trust_invariant_packet import AdeuTrustInvariantPacket
+from .ux_governance import (
+    UXDomainPacket,
+    UXMorphIR,
+    V36AFirstFamilyApprovedProfileTable,
+    V36ASameContextReachabilityGlossary,
+)
 
 
 def _write_schema(path: Path, schema: dict) -> None:
@@ -66,6 +72,14 @@ def main() -> None:
         by_alias=True
     )
     core_ir_proposal_schema = AdeuCoreIRProposal.model_json_schema(by_alias=True)
+    ux_domain_packet_schema = UXDomainPacket.model_json_schema(by_alias=True)
+    ux_morph_ir_schema = UXMorphIR.model_json_schema(by_alias=True)
+    approved_profile_table_schema = V36AFirstFamilyApprovedProfileTable.model_json_schema(
+        by_alias=True
+    )
+    same_context_glossary_schema = V36ASameContextReachabilityGlossary.model_json_schema(
+        by_alias=True
+    )
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
     _write_schema(authoritative_path, core_ir_schema)
@@ -209,6 +223,40 @@ def main() -> None:
         core_ir_proposal_schema,
     )
 
+    ux_domain_packet_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "ux_domain_packet.v1.json"
+    )
+    _write_schema(ux_domain_packet_authoritative_path, ux_domain_packet_schema)
+
+    ux_morph_ir_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "ux_morph_ir.v1.json"
+    )
+    _write_schema(ux_morph_ir_authoritative_path, ux_morph_ir_schema)
+
+    approved_profile_table_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "v36a_first_family_approved_profile_table.v1.json"
+    )
+    _write_schema(
+        approved_profile_table_authoritative_path,
+        approved_profile_table_schema,
+    )
+
+    same_context_glossary_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "v36a_same_context_reachability_glossary.v1.json"
+    )
+    _write_schema(
+        same_context_glossary_authoritative_path,
+        same_context_glossary_schema,
+    )
+
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
 
@@ -307,6 +355,28 @@ def main() -> None:
     _write_schema(
         core_ir_proposal_mirror_path,
         core_ir_proposal_schema,
+    )
+
+    ux_domain_packet_mirror_path = root / "spec" / "ux_domain_packet.schema.json"
+    _write_schema(ux_domain_packet_mirror_path, ux_domain_packet_schema)
+
+    ux_morph_ir_mirror_path = root / "spec" / "ux_morph_ir.schema.json"
+    _write_schema(ux_morph_ir_mirror_path, ux_morph_ir_schema)
+
+    approved_profile_table_mirror_path = (
+        root / "spec" / "v36a_first_family_approved_profile_table.schema.json"
+    )
+    _write_schema(
+        approved_profile_table_mirror_path,
+        approved_profile_table_schema,
+    )
+
+    same_context_glossary_mirror_path = (
+        root / "spec" / "v36a_same_context_reachability_glossary.schema.json"
+    )
+    _write_schema(
+        same_context_glossary_mirror_path,
+        same_context_glossary_schema,
     )
 
 

@@ -1,0 +1,143 @@
+{
+  "$defs": {
+    "UXApprovedProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "morph_axes": {
+          "$ref": "#/$defs/UXMorphAxisValues"
+        },
+        "profile_id": {
+          "enum": [
+            "artifact_inspector_alternate",
+            "artifact_inspector_reference"
+          ],
+          "title": "Profile Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile_id",
+        "label",
+        "morph_axes"
+      ],
+      "title": "UXApprovedProfile",
+      "type": "object"
+    },
+    "UXMorphAxisValues": {
+      "additionalProperties": false,
+      "properties": {
+        "command_posture": {
+          "enum": [
+            "dual_lane",
+            "safe_buffered"
+          ],
+          "title": "Command Posture",
+          "type": "string"
+        },
+        "density": {
+          "enum": [
+            "high",
+            "medium"
+          ],
+          "title": "Density",
+          "type": "string"
+        },
+        "information_posture": {
+          "enum": [
+            "evidence_first",
+            "task_first"
+          ],
+          "title": "Information Posture",
+          "type": "string"
+        },
+        "interaction_tempo": {
+          "enum": [
+            "expert_fast_path",
+            "guided"
+          ],
+          "title": "Interaction Tempo",
+          "type": "string"
+        },
+        "navigation_mode": {
+          "enum": [
+            "hub_and_spoke",
+            "split_pane"
+          ],
+          "title": "Navigation Mode",
+          "type": "string"
+        },
+        "salience_posture": {
+          "enum": [
+            "action_and_diagnostics_prominent",
+            "evidence_and_status_prominent"
+          ],
+          "title": "Salience Posture",
+          "type": "string"
+        },
+        "state_exposure": {
+          "enum": [
+            "full_explicit",
+            "progressive"
+          ],
+          "title": "State Exposure",
+          "type": "string"
+        }
+      },
+      "required": [
+        "density",
+        "navigation_mode",
+        "information_posture",
+        "interaction_tempo",
+        "salience_posture",
+        "state_exposure",
+        "command_posture"
+      ],
+      "title": "UXMorphAxisValues",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alternate_lawful_profile_id": {
+      "const": "artifact_inspector_alternate",
+      "default": "artifact_inspector_alternate",
+      "title": "Alternate Lawful Profile Id",
+      "type": "string"
+    },
+    "canonical_reference_profile_id": {
+      "const": "artifact_inspector_reference",
+      "default": "artifact_inspector_reference",
+      "title": "Canonical Reference Profile Id",
+      "type": "string"
+    },
+    "profiles": {
+      "items": {
+        "$ref": "#/$defs/UXApprovedProfile"
+      },
+      "title": "Profiles",
+      "type": "array"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "v36a_first_family_approved_profile_table@1",
+      "default": "v36a_first_family_approved_profile_table@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "profiles"
+  ],
+  "title": "V36AFirstFamilyApprovedProfileTable",
+  "type": "object"
+}
