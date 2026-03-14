@@ -113,7 +113,10 @@ test(
       assert.match(html, /data-reference-surface-family="artifact_inspector_advisory_workbench"/);
       assert.match(html, /data-reference-instance-id="artifact_inspector_reference_main"/);
       assert.match(html, /data-approved-profile-id="artifact_inspector_reference"/);
-      assert.match(html, /data-route-payload-parity="presentational_transform_only"/);
+      assert.match(
+        html,
+        /data-route-payload-parity="presentational_transform_only_no_authority_or_reachability_meaning_drift"/,
+      );
       assert.match(
         html,
         /data-diagnostics-lane-mode="placeholder_or_existing_artifact_backed_read_only_only"/,

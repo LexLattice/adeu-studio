@@ -7,16 +7,6 @@ export const metadata = {
   title: "Artifact Inspector Reference Surface | ADEU Studio",
 };
 type ReferenceSurfaceBundle = Awaited<ReturnType<typeof loadReferenceSurfaceBundle>>;
-const EPISTEMIC_STATE_DESCRIPTIONS: Record<string, string> = {
-  authoritative: "Accepted truth remains distinct.",
-  validated: "Validated but not automatically committing.",
-  candidate: "Candidate context stays provisional.",
-  draft: "Draft material remains clearly marked.",
-  loading: "Loading never renders as success.",
-  conflicted: "Conflicts remain surfaced.",
-  stale: "Staleness stays visible.",
-  ambiguous: "Ambiguity remains explicit.",
-};
 
 function humanize(value: string): string {
   return value
@@ -24,8 +14,11 @@ function humanize(value: string): string {
     .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-function getEpistemicStateDescription(state: string): string {
-  return EPISTEMIC_STATE_DESCRIPTIONS[state] ?? EPISTEMIC_STATE_DESCRIPTIONS.ambiguous;
+function getEpistemicStateDescription(
+  state: string,
+  descriptions: Record<string, string>,
+): string {
+  return descriptions[state] ?? descriptions.ambiguous;
 }
 
 function toTargetRef(referenceInstanceId: string, localId: string): string {
@@ -212,6 +205,7 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
   const projection = bundle.projection;
   const interactionContract = bundle.interactionContract;
   const identity = bundle.identity;
+  const renderedSurfaceContract = bundle.renderedSurfaceContract;
   const actionLaneClusters = bundle.clustersByLaneId.get("action-lane") ?? [];
   const workContextLaneClusters = bundle.clustersByLaneId.get("work-context-lane") ?? [];
   const rootTarget = targetDataAttributes(
@@ -269,8 +263,8 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
         data-reference-surface-family={identity.reference_surface_family}
         data-reference-instance-id={identity.reference_instance_id}
         data-approved-profile-id={identity.approved_profile_id}
-        data-route-payload-parity="presentational_transform_only"
-        data-diagnostics-lane-mode="placeholder_or_existing_artifact_backed_read_only_only"
+        data-route-payload-parity={renderedSurfaceContract.route_payload_parity_mode}
+        data-diagnostics-lane-mode={renderedSurfaceContract.diagnostics_lane_mode}
         {...rootTarget}
       >
         <section
@@ -295,7 +289,7 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
             <a href="#evidence-lane" className={styles.anchor}>
               Evidence Lane
             </a>
-            <a href="#commit-boundary" className={styles.anchor}>
+            <a href={`#${renderedSurfaceContract.commit_boundary_id}`} className={styles.anchor}>
               Commit Boundary
             </a>
           </div>
@@ -353,7 +347,7 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
           <details
             open
             className={styles.commitBoundary}
-            id="commit-boundary"
+            id={renderedSurfaceContract.commit_boundary_id}
             data-boundary-kind="explicit_commit_gate"
             {...targetDataAttributes(
               identity.reference_instance_id,
@@ -363,10 +357,7 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
           >
             <summary>Explicit Commit Gate</summary>
             <div className={styles.commitBoundaryBody}>
-              <p>
-                Commit review is a visible gate. Required evidence and the trust boundary remain in
-                the same workbench context before any commit request can be expressed.
-              </p>
+              <p>{renderedSurfaceContract.commit_boundary_notice}</p>
               <div className={styles.commitActions}>
                 <button type="button" disabled>
                   Open Commit Review
@@ -545,11 +536,10 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
                 bundle.targetIndex,
               )}
             >
-              <p className={styles.placeholderTitle}>Diagnostics lane remains read-only placeholder in v63.</p>
-              <p className="muted">
-                It references accepted visibility rules and bindings only. No new severity, no local
-                conformance judgment, and no UI heuristic is presented as canonical diagnostics here.
+              <p className={styles.placeholderTitle}>
+                {renderedSurfaceContract.diagnostics_lane_notice}
               </p>
+              <p className="muted">{renderedSurfaceContract.diagnostics_lane_read_only_notice}</p>
               {renderTokenList(bundle.morphIr.epistemics.visibility_rules)}
             </div>
           </article>
@@ -618,7 +608,12 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
                   data-epistemic-state={state}
                 >
                   <span className={styles.epistemicLabel}>{humanize(state)}</span>
-                  <span className="muted">{getEpistemicStateDescription(state)}</span>
+                  <span className="muted">
+                    {getEpistemicStateDescription(
+                      state,
+                      renderedSurfaceContract.epistemic_state_descriptions,
+                    )}
+                  </span>
                 </div>
               ))}
             </div>
@@ -654,18 +649,14 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
             </div>
             <div
               className={styles.boundaryCard}
-              data-truth-source="accepted_v36_artifacts_only"
+              data-truth-source={renderedSurfaceContract.truth_source_policy}
               {...targetDataAttributes(
                 identity.reference_instance_id,
                 "warning-status-surface",
                 bundle.targetIndex,
               )}
             >
-              <p>
-                Runtime truth is derived from the accepted V36 artifacts only. Event streams or
-                worker prose are not rendered here as accepted truth, and any future non-authoritative
-                content must remain labeled as non-authoritative.
-              </p>
+              <p>{renderedSurfaceContract.truth_source_notice}</p>
               <dl className={styles.definitionGrid}>
                 <div>
                   <dt>Canonical profile</dt>

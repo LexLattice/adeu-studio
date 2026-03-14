@@ -1,0 +1,95 @@
+{
+  "approved_profile_id": "artifact_inspector_reference",
+  "commit_boundary_id": "commit-boundary",
+  "commit_boundary_notice": "Commit review is a visible gate. Required evidence and the trust boundary remain in the same workbench context before any commit request can be expressed.",
+  "diagnostics_lane_mode": "placeholder_or_existing_artifact_backed_read_only_only",
+  "diagnostics_lane_notice": "Diagnostics lane remains read-only placeholder in v63.",
+  "diagnostics_lane_read_only_notice": "It references accepted visibility rules and bindings only. No new severity, no local conformance judgment, and no UI heuristic is presented as canonical diagnostics here.",
+  "epistemic_state_descriptions": {
+    "ambiguous": "Ambiguity remains explicit.",
+    "authoritative": "Accepted truth remains distinct.",
+    "candidate": "Candidate context stays provisional.",
+    "conflicted": "Conflicts remain surfaced.",
+    "draft": "Draft material remains clearly marked.",
+    "loading": "Loading never renders as success.",
+    "stale": "Staleness stays visible.",
+    "validated": "Validated but not automatically committing."
+  },
+  "lane_cluster_rendering": [
+    {
+      "cluster_ids": [
+        "advisory-actions",
+        "commit-actions"
+      ],
+      "lane_id": "action-lane"
+    },
+    {
+      "cluster_ids": [
+        "comparison-actions"
+      ],
+      "lane_id": "work-context-lane"
+    }
+  ],
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "rendered_binding_exposures": {
+    "advisory_vs_authoritative_actions": [
+      "focus-source-artifact",
+      "open-commit-review",
+      "run-advisory-action",
+      "submit-commit-request"
+    ],
+    "commit_or_approval_gates": [
+      "open-commit-review",
+      "submit-commit-request",
+      "submit-commit-request-disabled"
+    ],
+    "disabled_or_unavailable_gated_states": [
+      "submit-commit-request-disabled"
+    ],
+    "required_evidence_reachability_anchors": [
+      "evidence-lane"
+    ],
+    "salience_bearing_warning_status_and_diagnostic_surfaces": [
+      "authoritative-status-surface",
+      "diagnostic-status-surface",
+      "warning-status-surface"
+    ]
+  },
+  "rendered_provenance_exposures": {
+    "authority_bearing_controls": [
+      "open-commit-review",
+      "submit-commit-request"
+    ],
+    "evidence_bearing_regions": [
+      "evidence-region",
+      "evidence-lane",
+      "status-region",
+      "status-lane",
+      "trust-boundary-lane"
+    ],
+    "explicit_commit_or_handoff_boundary": [
+      "commit-boundary"
+    ],
+    "rendered_regions": [
+      "action-region",
+      "evidence-region",
+      "navigation-region",
+      "primary-work-region",
+      "status-region"
+    ],
+    "state_distinction_surfaces": [
+      "authoritative-status-surface",
+      "diagnostic-status-surface",
+      "provisional-status-surface",
+      "warning-status-surface"
+    ]
+  },
+  "rendered_surface_snapshot_kind": "semantic_structured_route_snapshot@1",
+  "route_id": "artifact_inspector_reference_surface",
+  "route_path": "/artifact-inspector",
+  "route_payload_parity_mode": "presentational_transform_only_no_authority_or_reachability_meaning_drift",
+  "schema": "v36c_rendered_reference_surface_contract@1",
+  "truth_source_notice": "Runtime truth is derived from the accepted V36 artifacts only. Event streams or worker prose are not rendered here as accepted truth, and any future non-authoritative content must remain labeled as non-authoritative.",
+  "truth_source_policy": "accepted_v36_artifacts_only"
+}
