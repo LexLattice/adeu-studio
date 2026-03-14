@@ -646,9 +646,9 @@ def _raise_v36d_validation_error(*, field_name: str, exc: ValidationError) -> No
             raise UXGovernanceEvidenceError(
                 "rendered surface assertion bridge drift detected"
             ) from exc
-        if "supporting_evidence_refs" in message and "event streams or worker prose" in message:
-            raise UXGovernanceEvidenceError("diagnostic truth substitution detected") from exc
-        if "source_path" in message and "event streams or worker prose" in message:
+        if "event streams or worker prose" in message and (
+            "supporting_evidence_refs" in message or "source_path" in message
+        ):
             raise UXGovernanceEvidenceError("diagnostic truth substitution detected") from exc
         if loc == ("derivation_metadata", "fresh_route_local_heuristics_introduced"):
             raise UXGovernanceEvidenceError(
@@ -894,8 +894,9 @@ def _validate_v36d_provenance_resolution(
                 ref=provenance_pointer.source_path,
                 field_name="diagnostics.provenance_pointers.source_path",
             )
+            source_path = provenance_pointer.source_path.split("#", 1)[0]
             if (
-                consumed_artifact_schema_map.get(provenance_pointer.source_path)
+                consumed_artifact_schema_map.get(source_path)
                 != provenance_pointer.source_schema
             ):
                 raise UXGovernanceEvidenceError(
@@ -908,7 +909,8 @@ def _validate_v36d_provenance_resolution(
                 ref=evidence_ref,
                 field_name="diagnostics.findings.supporting_evidence_refs",
             )
-            if evidence_ref not in consumed_artifact_schema_map:
+            evidence_path = evidence_ref.split("#", 1)[0]
+            if evidence_path not in consumed_artifact_schema_map:
                 raise UXGovernanceEvidenceError(
                     "diagnostic supporting evidence refs must resolve to the "
                     "consumed canonical artifacts"

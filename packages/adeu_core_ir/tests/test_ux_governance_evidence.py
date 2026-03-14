@@ -1167,6 +1167,40 @@ def test_materialize_v36d_morph_diagnostics_conformance_evidence_is_deterministi
     assert first["payload"]["schema"] == "v36d_morph_diagnostics_conformance_evidence@1"
 
 
+def test_materialize_v36d_evidence_accepts_anchored_canonical_refs(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    _inject_v36d_finding_fixture(repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    diagnostics = _load_json(repo_root, DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH)
+    diagnostics["findings"][0]["provenance_pointers"][0]["source_path"] = (  # type: ignore[index]
+        f"{DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH}#lane-comparison"
+    )
+    diagnostics["findings"][0]["supporting_evidence_refs"] = [  # type: ignore[index]
+        f"{DEFAULT_V36C_REFERENCE_SURFACE_EVIDENCE_PATH}#finding-001"
+    ]
+    _write_json(repo_root / DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH, diagnostics)
+
+    evidence = materialize_v36d_morph_diagnostics_conformance_evidence(
+        repo_root=repo_root,
+        output_path=(
+            "artifacts/agent_harness/v64/evidence_inputs/"
+            "v36d_morph_diagnostics_conformance_evidence_v64.json"
+        ),
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+
+    assert evidence.payload["diagnostics_provenance_pointer_resolution_verified"] is True
+    assert evidence.payload["diagnostic_truth_substitution_rejected"] is True
+
+
 def test_materialize_v36d_evidence_fails_closed_on_missing_diagnostics_reference(
     tmp_path: Path,
 ) -> None:
