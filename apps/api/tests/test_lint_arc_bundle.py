@@ -69,9 +69,9 @@ def _copy_closeout_bundle(*, arc: int, target_root: Path) -> None:
     )
 
 
-def test_current_repo_v62_start_bundle_passes() -> None:
+def test_current_repo_v63_start_bundle_passes() -> None:
     module = _load_script_module()
-    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=62, phase="start")
+    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=63, phase="start")
     assert payload["schema"] == "arc_bundle_lint@1"
     assert payload["failures"] == []
 
