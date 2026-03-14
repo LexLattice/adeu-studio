@@ -175,6 +175,20 @@ from .ux_governance import (
     canonicalize_v36a_approved_profile_table_payload,
     canonicalize_v36a_same_context_glossary_payload,
 )
+from .ux_governance_evidence import (
+    DEFAULT_APPROVED_PROFILE_TABLE_PATH,
+    DEFAULT_SAME_CONTEXT_GLOSSARY_PATH,
+    DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH,
+    DEFAULT_UX_DOMAIN_PACKET_SCHEMA_PATH,
+    DEFAULT_UX_MORPH_IR_REFERENCE_PATH,
+    DEFAULT_UX_MORPH_IR_SCHEMA_PATH,
+    V36A_UX_DOMAIN_MORPH_IR_CONTRACT_SOURCE,
+    V36A_UX_DOMAIN_MORPH_IR_EVIDENCE_SCHEMA,
+    MaterializedUXGovernanceEvidence,
+    UXGovernanceEvidenceError,
+    V36AUXDomainMorphIREvidence,
+    materialize_v36a_ux_domain_morph_ir_evidence,
+)
 
 __all__ = [
     "ADEU_CORE_IR_PROPOSAL_SCHEMA",
@@ -318,6 +332,18 @@ __all__ = [
     "approved_profile_for_id",
     "approved_profile_combination_allowed",
     "assert_v36a_reference_bundle_consistent",
+    "V36A_UX_DOMAIN_MORPH_IR_EVIDENCE_SCHEMA",
+    "V36A_UX_DOMAIN_MORPH_IR_CONTRACT_SOURCE",
+    "DEFAULT_UX_DOMAIN_PACKET_SCHEMA_PATH",
+    "DEFAULT_UX_MORPH_IR_SCHEMA_PATH",
+    "DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH",
+    "DEFAULT_UX_MORPH_IR_REFERENCE_PATH",
+    "DEFAULT_APPROVED_PROFILE_TABLE_PATH",
+    "DEFAULT_SAME_CONTEXT_GLOSSARY_PATH",
+    "UXGovernanceEvidenceError",
+    "MaterializedUXGovernanceEvidence",
+    "V36AUXDomainMorphIREvidence",
+    "materialize_v36a_ux_domain_morph_ir_evidence",
 ]
 
 __version__ = "0.0.0"
