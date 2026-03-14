@@ -1298,17 +1298,20 @@ def _assert_repo_relative_artifact_ref(ref: str, *, field_name: str) -> None:
         raise ValueError(f"{field_name} contains invalid path components")
 
 
+def _assert_canonical_artifact_ref(ref: str, *, field_name: str) -> None:
+    _assert_repo_relative_artifact_ref(ref, field_name=field_name)
+    if "urm_events.ndjson" in ref or "worker" in ref:
+        raise ValueError(
+            f"{field_name} must not treat event streams or worker prose as authoritative grounds"
+        )
+    if not any(ref.startswith(prefix) for prefix in FROZEN_V36D_ALLOWED_EVIDENCE_REF_PREFIXES):
+        raise ValueError(f"{field_name} must resolve to the frozen canonical artifact stack")
+
+
 def _assert_canonical_supporting_evidence_refs(refs: list[str], *, field_name: str) -> None:
     _assert_sorted_unique(refs, field_name=field_name)
     for ref in refs:
-        _assert_repo_relative_artifact_ref(ref, field_name=field_name)
-        if "urm_events.ndjson" in ref or "worker" in ref:
-            raise ValueError(
-                f"{field_name} must not treat event streams or worker prose "
-                "as authoritative grounds"
-            )
-        if not any(ref.startswith(prefix) for prefix in FROZEN_V36D_ALLOWED_EVIDENCE_REF_PREFIXES):
-            raise ValueError(f"{field_name} must resolve to the frozen canonical artifact stack")
+        _assert_canonical_artifact_ref(ref, field_name=field_name)
 
 
 def _expected_conformance_impact(*, severity: UXDiagnosticSeverity) -> UXConformanceImpact:
@@ -1362,8 +1365,9 @@ class UXDiagnosticProvenancePointer(BaseModel):
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "UXDiagnosticProvenancePointer":
-        _assert_repo_relative_artifact_ref(
-            self.source_path, field_name="provenance_pointers.source_path"
+        _assert_canonical_artifact_ref(
+            self.source_path,
+            field_name="provenance_pointers.source_path",
         )
         return self
 
@@ -1543,11 +1547,34 @@ def canonicalize_ux_conformance_report_payload(payload: dict[str, Any]) -> dict[
 def _build_v36d_severity_counts(
     findings: list[UXMorphDiagnosticFinding],
 ) -> UXDiagnosticSeverityCounts:
+    error_count = 0
+    warning_count = 0
+    advisory_count = 0
+    for finding in findings:
+        if finding.severity == "error":
+            error_count += 1
+        elif finding.severity == "warning":
+            warning_count += 1
+        else:
+            advisory_count += 1
     return UXDiagnosticSeverityCounts(
-        error=sum(1 for finding in findings if finding.severity == "error"),
-        warning=sum(1 for finding in findings if finding.severity == "warning"),
-        advisory=sum(1 for finding in findings if finding.severity == "advisory"),
+        error=error_count,
+        warning=warning_count,
+        advisory=advisory_count,
     )
+
+
+def _build_v36d_rule_family_sets(
+    findings: list[UXMorphDiagnosticFinding],
+) -> tuple[list[UXDiagnosticViolationFamily], list[UXDiagnosticViolationFamily]]:
+    failed_rule_families: set[UXDiagnosticViolationFamily] = set()
+    warning_rule_families: set[UXDiagnosticViolationFamily] = set()
+    for finding in findings:
+        if finding.severity == "error":
+            failed_rule_families.add(finding.violation_family)
+        elif finding.severity == "warning":
+            warning_rule_families.add(finding.violation_family)
+    return sorted(failed_rule_families), sorted(warning_rule_families)
 
 
 def _rendered_surface_target_ref_set(rendered_binding_manifest: dict[str, Any]) -> set[str]:
@@ -1565,6 +1592,24 @@ def _rendered_surface_target_ref_set(rendered_binding_manifest: dict[str, Any]) 
             raise ValueError("rendered surface binding manifest target_ref must be non-empty")
         refs.add(target_ref)
     return refs
+
+
+def _v36d_bound_target_ref_set(
+    *,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+    rendered_surface_binding_manifest: dict[str, Any],
+) -> set[str]:
+    return (
+        _rendered_surface_target_ref_set(rendered_surface_binding_manifest)
+        | {hook.target_ref for hook in surface_projection.stable_provenance_hooks}
+        | {binding.target_ref for binding in surface_projection.implementation_observable_bindings}
+        | {hook.target_ref for hook in interaction_contract.stable_provenance_hooks}
+        | {
+            binding.target_ref
+            for binding in interaction_contract.implementation_observable_bindings
+        }
+    )
 
 
 def _assert_v36d_rendered_surface_inputs_consistent(
@@ -1718,28 +1763,28 @@ def assert_v36d_reference_bundle_consistent(
     if conformance_report.severity_counts != expected_counts:
         raise ValueError("conformance report severity_counts must be derived from diagnostics")
 
-    expected_failed_rule_families = sorted(
-        {
-            finding.violation_family
-            for finding in diagnostics.findings
-            if finding.severity == "error"
-        }
+    expected_failed_rule_families, expected_warning_rule_families = _build_v36d_rule_family_sets(
+        diagnostics.findings
     )
     if conformance_report.failed_rule_families != expected_failed_rule_families:
         raise ValueError("failed_rule_families must be derived from error findings")
 
-    expected_warning_rule_families = sorted(
-        {
-            finding.violation_family
-            for finding in diagnostics.findings
-            if finding.severity == "warning"
-        }
+    bound_target_refs = _v36d_bound_target_ref_set(
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+        rendered_surface_binding_manifest=rendered_surface_binding_manifest,
     )
     if conformance_report.warning_rule_families != expected_warning_rule_families:
         raise ValueError("warning_rule_families must be derived from warning findings")
 
     rendered_surface_schemas_used = set(FROZEN_V36D_RENDERED_SURFACE_ASSERTION_INPUTS)
     for finding in diagnostics.findings:
+        for provenance_pointer in finding.provenance_pointers:
+            if provenance_pointer.target_ref not in bound_target_refs:
+                raise ValueError(
+                    f"finding {finding.finding_id} provenance target_ref must bind to the released "
+                    "v36b/v36c target set"
+                )
         if not set(finding.rendered_surface_assertion_inputs_used).issubset(
             rendered_surface_schemas_used
         ):

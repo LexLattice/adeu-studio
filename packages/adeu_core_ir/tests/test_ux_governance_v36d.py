@@ -180,6 +180,19 @@ def test_diagnostics_reject_event_stream_truth_substitution() -> None:
         UXMorphDiagnostics.model_validate(diagnostics_payload)
 
 
+def test_diagnostics_reject_provenance_source_path_outside_canonical_stack() -> None:
+    diagnostics_payload, _conformance_payload = _load_v36d_pair()
+    finding = _warning_finding()
+    finding["provenance_pointers"][0]["source_path"] = "docs/LOCKED_CONTINUATION_vNEXT_PLUS64.md"  # type: ignore[index]
+    diagnostics_payload["findings"] = [finding]
+
+    with pytest.raises(
+        ValidationError,
+        match="provenance_pointers.source_path must resolve to the frozen canonical artifact stack",
+    ):
+        UXMorphDiagnostics.model_validate(diagnostics_payload)
+
+
 def test_conformance_report_rejects_route_local_heuristics() -> None:
     _diagnostics_payload, conformance_payload = _load_v36d_pair()
     conformance_payload["derivation_metadata"]["fresh_route_local_heuristics_introduced"] = True  # type: ignore[index]
@@ -286,6 +299,50 @@ def test_v36d_bundle_rejects_supporting_finding_id_drift() -> None:
 
     with pytest.raises(
         ValueError, match="conformance report must be derived from the diagnostics finding ids"
+    ):
+        assert_v36d_reference_bundle_consistent(
+            domain_packet=domain_packet,
+            morph_ir=morph_ir,
+            approved_profile_table=approved_profile_table,
+            same_context_glossary=same_context_glossary,
+            surface_projection=surface_projection,
+            interaction_contract=interaction_contract,
+            rendered_surface_contract=rendered_surface_contract,
+            rendered_surface_snapshot=rendered_surface_snapshot,
+            rendered_surface_binding_manifest=rendered_surface_binding_manifest,
+            rendered_reference_surface_evidence=rendered_reference_surface_evidence,
+            diagnostics=diagnostics,
+            conformance_report=conformance_report,
+        )
+
+
+def test_v36d_bundle_rejects_unbound_provenance_target_ref() -> None:
+    domain_packet, morph_ir, approved_profile_table, same_context_glossary = _load_v36a_bundle()
+    surface_projection, interaction_contract = _load_v36b_pair()
+    (
+        rendered_surface_contract,
+        rendered_surface_snapshot,
+        rendered_surface_binding_manifest,
+        rendered_reference_surface_evidence,
+    ) = _load_v36c_bundle()
+    diagnostics_payload, conformance_payload = _load_v36d_pair()
+    diagnostics_payload["findings"] = [_warning_finding()]
+    diagnostics_payload["findings"][0]["provenance_pointers"][0]["target_ref"] = (  # type: ignore[index]
+        "artifact_inspector_reference_main:typoed-surface"
+    )
+    conformance_payload["overall_judgment"] = "needs_review"
+    conformance_payload["severity_counts"] = {"advisory": 0, "error": 0, "warning": 1}
+    conformance_payload["supporting_finding_ids"] = ["finding-provisional-authoritative-styling"]
+    conformance_payload["warning_rule_families"] = [
+        "provisional_data_rendered_with_authoritative_styling"
+    ]
+
+    diagnostics = UXMorphDiagnostics.model_validate(diagnostics_payload)
+    conformance_report = UXConformanceReport.model_validate(conformance_payload)
+
+    with pytest.raises(
+        ValueError,
+        match="provenance target_ref must bind to the released v36b/v36c target set",
     ):
         assert_v36d_reference_bundle_consistent(
             domain_packet=domain_packet,
