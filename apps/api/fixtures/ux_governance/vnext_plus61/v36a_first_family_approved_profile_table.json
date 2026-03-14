@@ -1,0 +1,34 @@
+{
+  "alternate_lawful_profile_id": "artifact_inspector_alternate",
+  "canonical_reference_profile_id": "artifact_inspector_reference",
+  "profiles": [
+    {
+      "label": "Artifact Inspector Reference",
+      "morph_axes": {
+        "command_posture": "dual_lane",
+        "density": "high",
+        "information_posture": "evidence_first",
+        "interaction_tempo": "expert_fast_path",
+        "navigation_mode": "split_pane",
+        "salience_posture": "evidence_and_status_prominent",
+        "state_exposure": "full_explicit"
+      },
+      "profile_id": "artifact_inspector_reference"
+    },
+    {
+      "label": "Artifact Inspector Alternate",
+      "morph_axes": {
+        "command_posture": "safe_buffered",
+        "density": "medium",
+        "information_posture": "task_first",
+        "interaction_tempo": "guided",
+        "navigation_mode": "hub_and_spoke",
+        "salience_posture": "action_and_diagnostics_prominent",
+        "state_exposure": "progressive"
+      },
+      "profile_id": "artifact_inspector_alternate"
+    }
+  ],
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "schema": "v36a_first_family_approved_profile_table@1"
+}

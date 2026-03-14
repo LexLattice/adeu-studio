@@ -1,0 +1,203 @@
+{
+  "$defs": {
+    "UXAuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "no_free_form_ui_codegen_without_ir": {
+          "const": true,
+          "default": true,
+          "title": "No Free Form Ui Codegen Without Ir",
+          "type": "boolean"
+        },
+        "no_visual_authority_inflation": {
+          "const": true,
+          "default": true,
+          "title": "No Visual Authority Inflation",
+          "type": "boolean"
+        },
+        "ui_artifacts_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "default": true,
+          "title": "Ui Artifacts May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "title": "UXAuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "UXSupportingArtifactRefs": {
+      "additionalProperties": false,
+      "properties": {
+        "approved_profile_table_schema": {
+          "const": "v36a_first_family_approved_profile_table@1",
+          "default": "v36a_first_family_approved_profile_table@1",
+          "title": "Approved Profile Table Schema",
+          "type": "string"
+        },
+        "same_context_reachability_glossary_schema": {
+          "const": "v36a_same_context_reachability_glossary@1",
+          "default": "v36a_same_context_reachability_glossary@1",
+          "title": "Same Context Reachability Glossary Schema",
+          "type": "string"
+        }
+      },
+      "title": "UXSupportingArtifactRefs",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approved_profile_id": {
+      "enum": [
+        "artifact_inspector_alternate",
+        "artifact_inspector_reference"
+      ],
+      "title": "Approved Profile Id",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/UXAuthorityBoundaryPolicy"
+    },
+    "device_class": {
+      "const": "desktop",
+      "title": "Device Class",
+      "type": "string"
+    },
+    "domain": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Domain",
+      "type": "string"
+    },
+    "environment_assumptions": {
+      "items": {
+        "enum": [
+          "bounded_workbench_context_available",
+          "multi_region_workbench_allowed"
+        ],
+        "type": "string"
+      },
+      "title": "Environment Assumptions",
+      "type": "array"
+    },
+    "interaction_mode": {
+      "const": "analysis_then_commit",
+      "title": "Interaction Mode",
+      "type": "string"
+    },
+    "latency_assumptions": {
+      "items": {
+        "enum": [
+          "background_artifact_fetch_permitted",
+          "network_variability_must_remain_visible",
+          "subsecond_local_state_transitions_expected"
+        ],
+        "type": "string"
+      },
+      "title": "Latency Assumptions",
+      "type": "array"
+    },
+    "primary_user_archetype": {
+      "const": "expert_operator",
+      "title": "Primary User Archetype",
+      "type": "string"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "required_evidence_visibility": {
+      "items": {
+        "enum": [
+          "evidence_must_be_same_context_reachable_before_commit",
+          "no_commit_or_destructive_barrier_before_required_evidence",
+          "no_route_change_before_required_evidence"
+        ],
+        "type": "string"
+      },
+      "title": "Required Evidence Visibility",
+      "type": "array"
+    },
+    "reversibility_policies": {
+      "items": {
+        "enum": [
+          "advisory_actions_reversible",
+          "commit_actions_require_explicit_gate",
+          "destructive_actions_remain_separately_gated"
+        ],
+        "type": "string"
+      },
+      "title": "Reversibility Policies",
+      "type": "array"
+    },
+    "risk_level": {
+      "const": "high",
+      "title": "Risk Level",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_domain_packet@1",
+      "default": "ux_domain_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "supporting_artifacts": {
+      "$ref": "#/$defs/UXSupportingArtifactRefs"
+    },
+    "tasks": {
+      "items": {
+        "enum": [
+          "compare_candidate_variant",
+          "inspect_evidence_lane",
+          "inspect_source_artifact",
+          "review_diagnostics_lane",
+          "select_advisory_action"
+        ],
+        "type": "string"
+      },
+      "title": "Tasks",
+      "type": "array"
+    },
+    "trust_sensitivity": {
+      "const": "authority_and_evidence_sensitive",
+      "title": "Trust Sensitivity",
+      "type": "string"
+    },
+    "utility_ranking": {
+      "items": {
+        "enum": [
+          "error_prevention",
+          "operator_speed",
+          "trust_calibration"
+        ],
+        "type": "string"
+      },
+      "title": "Utility Ranking",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "approved_profile_id",
+    "primary_user_archetype",
+    "device_class",
+    "environment_assumptions",
+    "risk_level",
+    "trust_sensitivity",
+    "interaction_mode",
+    "tasks",
+    "latency_assumptions",
+    "reversibility_policies",
+    "required_evidence_visibility",
+    "utility_ranking"
+  ],
+  "title": "UXDomainPacket",
+  "type": "object"
+}

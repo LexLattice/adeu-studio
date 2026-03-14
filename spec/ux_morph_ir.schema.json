@@ -1,0 +1,472 @@
+{
+  "$defs": {
+    "UXAuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "no_free_form_ui_codegen_without_ir": {
+          "const": true,
+          "default": true,
+          "title": "No Free Form Ui Codegen Without Ir",
+          "type": "boolean"
+        },
+        "no_visual_authority_inflation": {
+          "const": true,
+          "default": true,
+          "title": "No Visual Authority Inflation",
+          "type": "boolean"
+        },
+        "ui_artifacts_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "default": true,
+          "title": "Ui Artifacts May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "title": "UXAuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "UXDeontics": {
+      "additionalProperties": false,
+      "properties": {
+        "forbidden": {
+          "items": {
+            "enum": [
+              "authority_minting_by_surface_arrangement",
+              "single_click_irreversible_commit",
+              "visual_collapse_of_advisory_and_authoritative_material"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden",
+          "type": "array"
+        },
+        "required": {
+          "items": {
+            "enum": [
+              "evidence_before_commit",
+              "observable_state_feedback",
+              "separate_advisory_actions_from_commit_actions",
+              "unambiguous_primary_action"
+            ],
+            "type": "string"
+          },
+          "title": "Required",
+          "type": "array"
+        }
+      },
+      "required": [
+        "required",
+        "forbidden"
+      ],
+      "title": "UXDeontics",
+      "type": "object"
+    },
+    "UXEpistemics": {
+      "additionalProperties": false,
+      "properties": {
+        "knowledge_states": {
+          "items": {
+            "enum": [
+              "loading",
+              "draft",
+              "candidate",
+              "validated",
+              "authoritative",
+              "conflicted",
+              "stale",
+              "ambiguous"
+            ],
+            "type": "string"
+          },
+          "title": "Knowledge States",
+          "type": "array"
+        },
+        "visibility_rules": {
+          "items": {
+            "enum": [
+              "authoritative_state_must_be_distinguishable",
+              "provisional_state_must_be_marked",
+              "unknown_state_must_not_render_as_success"
+            ],
+            "type": "string"
+          },
+          "title": "Visibility Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "knowledge_states",
+        "visibility_rules"
+      ],
+      "title": "UXEpistemics",
+      "type": "object"
+    },
+    "UXMorphAxisValues": {
+      "additionalProperties": false,
+      "properties": {
+        "command_posture": {
+          "enum": [
+            "dual_lane",
+            "safe_buffered"
+          ],
+          "title": "Command Posture",
+          "type": "string"
+        },
+        "density": {
+          "enum": [
+            "high",
+            "medium"
+          ],
+          "title": "Density",
+          "type": "string"
+        },
+        "information_posture": {
+          "enum": [
+            "evidence_first",
+            "task_first"
+          ],
+          "title": "Information Posture",
+          "type": "string"
+        },
+        "interaction_tempo": {
+          "enum": [
+            "expert_fast_path",
+            "guided"
+          ],
+          "title": "Interaction Tempo",
+          "type": "string"
+        },
+        "navigation_mode": {
+          "enum": [
+            "hub_and_spoke",
+            "split_pane"
+          ],
+          "title": "Navigation Mode",
+          "type": "string"
+        },
+        "salience_posture": {
+          "enum": [
+            "action_and_diagnostics_prominent",
+            "evidence_and_status_prominent"
+          ],
+          "title": "Salience Posture",
+          "type": "string"
+        },
+        "state_exposure": {
+          "enum": [
+            "full_explicit",
+            "progressive"
+          ],
+          "title": "State Exposure",
+          "type": "string"
+        }
+      },
+      "required": [
+        "density",
+        "navigation_mode",
+        "information_posture",
+        "interaction_tempo",
+        "salience_posture",
+        "state_exposure",
+        "command_posture"
+      ],
+      "title": "UXMorphAxisValues",
+      "type": "object"
+    },
+    "UXMorphContext": {
+      "additionalProperties": false,
+      "properties": {
+        "device_class": {
+          "const": "desktop",
+          "title": "Device Class",
+          "type": "string"
+        },
+        "interaction_mode": {
+          "const": "analysis_then_commit",
+          "title": "Interaction Mode",
+          "type": "string"
+        },
+        "primary_user_archetype": {
+          "const": "expert_operator",
+          "title": "Primary User Archetype",
+          "type": "string"
+        },
+        "risk_level": {
+          "const": "high",
+          "title": "Risk Level",
+          "type": "string"
+        },
+        "trust_sensitivity": {
+          "const": "authority_and_evidence_sensitive",
+          "title": "Trust Sensitivity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary_user_archetype",
+        "device_class",
+        "risk_level",
+        "trust_sensitivity",
+        "interaction_mode"
+      ],
+      "title": "UXMorphContext",
+      "type": "object"
+    },
+    "UXOntology": {
+      "additionalProperties": false,
+      "properties": {
+        "action_clusters": {
+          "items": {
+            "enum": [
+              "advisory_action_cluster",
+              "commit_action_cluster",
+              "comparison_action_cluster"
+            ],
+            "type": "string"
+          },
+          "title": "Action Clusters",
+          "type": "array"
+        },
+        "entities": {
+          "items": {
+            "enum": [
+              "action",
+              "artifact",
+              "candidate_variant",
+              "commit_gate",
+              "diagnostic",
+              "evidence_packet",
+              "trust_lane"
+            ],
+            "type": "string"
+          },
+          "title": "Entities",
+          "type": "array"
+        },
+        "evidence_surfaces": {
+          "items": {
+            "enum": [
+              "diagnostics_lane",
+              "evidence_lane",
+              "source_lane"
+            ],
+            "type": "string"
+          },
+          "title": "Evidence Surfaces",
+          "type": "array"
+        },
+        "regions": {
+          "items": {
+            "enum": [
+              "action_region",
+              "evidence_region",
+              "navigation_region",
+              "primary_work_region",
+              "status_region"
+            ],
+            "type": "string"
+          },
+          "title": "Regions",
+          "type": "array"
+        },
+        "trust_surfaces": {
+          "items": {
+            "enum": [
+              "authority_marker_lane",
+              "status_marker_lane",
+              "trust_boundary_lane"
+            ],
+            "type": "string"
+          },
+          "title": "Trust Surfaces",
+          "type": "array"
+        },
+        "views": {
+          "items": {
+            "enum": [
+              "collection_view",
+              "detail_view",
+              "diff_view",
+              "evidence_view"
+            ],
+            "type": "string"
+          },
+          "title": "Views",
+          "type": "array"
+        }
+      },
+      "required": [
+        "entities",
+        "views",
+        "regions",
+        "action_clusters",
+        "evidence_surfaces",
+        "trust_surfaces"
+      ],
+      "title": "UXOntology",
+      "type": "object"
+    },
+    "UXSupportingArtifactRefs": {
+      "additionalProperties": false,
+      "properties": {
+        "approved_profile_table_schema": {
+          "const": "v36a_first_family_approved_profile_table@1",
+          "default": "v36a_first_family_approved_profile_table@1",
+          "title": "Approved Profile Table Schema",
+          "type": "string"
+        },
+        "same_context_reachability_glossary_schema": {
+          "const": "v36a_same_context_reachability_glossary@1",
+          "default": "v36a_same_context_reachability_glossary@1",
+          "title": "Same Context Reachability Glossary Schema",
+          "type": "string"
+        }
+      },
+      "title": "UXSupportingArtifactRefs",
+      "type": "object"
+    },
+    "UXUtility": {
+      "additionalProperties": false,
+      "properties": {
+        "objectives": {
+          "items": {
+            "enum": [
+              "error_prevention",
+              "operator_speed",
+              "trust_calibration"
+            ],
+            "type": "string"
+          },
+          "title": "Objectives",
+          "type": "array"
+        },
+        "priority_order": {
+          "items": {
+            "enum": [
+              "error_prevention",
+              "operator_speed",
+              "trust_calibration"
+            ],
+            "type": "string"
+          },
+          "title": "Priority Order",
+          "type": "array"
+        }
+      },
+      "required": [
+        "objectives",
+        "priority_order"
+      ],
+      "title": "UXUtility",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approved_profile_id": {
+      "enum": [
+        "artifact_inspector_alternate",
+        "artifact_inspector_reference"
+      ],
+      "title": "Approved Profile Id",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/UXAuthorityBoundaryPolicy"
+    },
+    "context": {
+      "$ref": "#/$defs/UXMorphContext"
+    },
+    "deontics": {
+      "$ref": "#/$defs/UXDeontics"
+    },
+    "epistemics": {
+      "$ref": "#/$defs/UXEpistemics"
+    },
+    "invariants": {
+      "items": {
+        "enum": [
+          "destructive_action_gating",
+          "evidence_before_commit_visibility",
+          "observable_state_transitions",
+          "trust_boundary_clarity",
+          "unambiguous_primary_action"
+        ],
+        "type": "string"
+      },
+      "title": "Invariants",
+      "type": "array"
+    },
+    "morph_axes": {
+      "$ref": "#/$defs/UXMorphAxisValues"
+    },
+    "morphable_surface_choices": {
+      "items": {
+        "enum": [
+          "disclosure_style",
+          "navigation_placement",
+          "region_arrangement",
+          "within_bound_component_topology"
+        ],
+        "type": "string"
+      },
+      "title": "Morphable Surface Choices",
+      "type": "array"
+    },
+    "ontology": {
+      "$ref": "#/$defs/UXOntology"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_morph_ir@1",
+      "default": "ux_morph_ir@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "supporting_artifacts": {
+      "$ref": "#/$defs/UXSupportingArtifactRefs"
+    },
+    "surface_compilation_units": {
+      "items": {
+        "enum": [
+          "surface_root",
+          "bounded_workbench",
+          "region",
+          "lane",
+          "action_cluster"
+        ],
+        "type": "string"
+      },
+      "title": "Surface Compilation Units",
+      "type": "array"
+    },
+    "utility": {
+      "$ref": "#/$defs/UXUtility"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "approved_profile_id",
+    "surface_compilation_units",
+    "context",
+    "ontology",
+    "epistemics",
+    "deontics",
+    "utility",
+    "invariants",
+    "morphable_surface_choices",
+    "morph_axes"
+  ],
+  "title": "UXMorphIR",
+  "type": "object"
+}

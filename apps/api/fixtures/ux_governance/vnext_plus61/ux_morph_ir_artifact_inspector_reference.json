@@ -1,0 +1,132 @@
+{
+  "approved_profile_id": "artifact_inspector_reference",
+  "authority_boundary_policy": {
+    "no_free_form_ui_codegen_without_ir": true,
+    "no_visual_authority_inflation": true,
+    "ui_artifacts_may_express_but_may_not_mint_authority": true
+  },
+  "context": {
+    "device_class": "desktop",
+    "interaction_mode": "analysis_then_commit",
+    "primary_user_archetype": "expert_operator",
+    "risk_level": "high",
+    "trust_sensitivity": "authority_and_evidence_sensitive"
+  },
+  "deontics": {
+    "forbidden": [
+      "authority_minting_by_surface_arrangement",
+      "single_click_irreversible_commit",
+      "visual_collapse_of_advisory_and_authoritative_material"
+    ],
+    "required": [
+      "evidence_before_commit",
+      "observable_state_feedback",
+      "separate_advisory_actions_from_commit_actions",
+      "unambiguous_primary_action"
+    ]
+  },
+  "epistemics": {
+    "knowledge_states": [
+      "loading",
+      "draft",
+      "candidate",
+      "validated",
+      "authoritative",
+      "conflicted",
+      "stale",
+      "ambiguous"
+    ],
+    "visibility_rules": [
+      "authoritative_state_must_be_distinguishable",
+      "provisional_state_must_be_marked",
+      "unknown_state_must_not_render_as_success"
+    ]
+  },
+  "invariants": [
+    "destructive_action_gating",
+    "evidence_before_commit_visibility",
+    "observable_state_transitions",
+    "trust_boundary_clarity",
+    "unambiguous_primary_action"
+  ],
+  "morph_axes": {
+    "command_posture": "dual_lane",
+    "density": "high",
+    "information_posture": "evidence_first",
+    "interaction_tempo": "expert_fast_path",
+    "navigation_mode": "split_pane",
+    "salience_posture": "evidence_and_status_prominent",
+    "state_exposure": "full_explicit"
+  },
+  "morphable_surface_choices": [
+    "disclosure_style",
+    "navigation_placement",
+    "region_arrangement",
+    "within_bound_component_topology"
+  ],
+  "ontology": {
+    "action_clusters": [
+      "advisory_action_cluster",
+      "commit_action_cluster",
+      "comparison_action_cluster"
+    ],
+    "entities": [
+      "action",
+      "artifact",
+      "candidate_variant",
+      "commit_gate",
+      "diagnostic",
+      "evidence_packet",
+      "trust_lane"
+    ],
+    "evidence_surfaces": [
+      "diagnostics_lane",
+      "evidence_lane",
+      "source_lane"
+    ],
+    "regions": [
+      "action_region",
+      "evidence_region",
+      "navigation_region",
+      "primary_work_region",
+      "status_region"
+    ],
+    "trust_surfaces": [
+      "authority_marker_lane",
+      "status_marker_lane",
+      "trust_boundary_lane"
+    ],
+    "views": [
+      "collection_view",
+      "detail_view",
+      "diff_view",
+      "evidence_view"
+    ]
+  },
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "schema": "ux_morph_ir@1",
+  "supporting_artifacts": {
+    "approved_profile_table_schema": "v36a_first_family_approved_profile_table@1",
+    "same_context_reachability_glossary_schema": "v36a_same_context_reachability_glossary@1"
+  },
+  "surface_compilation_units": [
+    "surface_root",
+    "bounded_workbench",
+    "region",
+    "lane",
+    "action_cluster"
+  ],
+  "utility": {
+    "objectives": [
+      "error_prevention",
+      "operator_speed",
+      "trust_calibration"
+    ],
+    "priority_order": [
+      "trust_calibration",
+      "error_prevention",
+      "operator_speed"
+    ]
+  }
+}
