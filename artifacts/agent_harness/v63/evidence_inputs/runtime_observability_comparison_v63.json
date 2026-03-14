@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+62",
+  "baseline_elapsed_ms": 253,
+  "baseline_source": "artifacts/stop_gate/report_v62_closeout.md",
+  "current_arc": "vNext+63",
+  "current_elapsed_ms": 109,
+  "current_source": "artifacts/stop_gate/report_v63_closeout.md",
+  "delta_ms": -144,
+  "notes": "v63 closeout remains informational-only for runtime timing/byte observability under frozen stop-gate semantics.",
+  "schema": "runtime_observability_comparison@1"
+}

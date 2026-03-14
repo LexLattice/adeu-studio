@@ -1,10 +1,10 @@
-# Draft Stop-Gate Decision (Pre vNext+63)
+# Draft Stop-Gate Decision (Post vNext+63)
 
-This note records the pre-start decision scaffold for:
+This note records the arc-completion decision for:
 
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS63.md`
 
-Status: draft decision note (pre-start scaffold, March 14, 2026 UTC).
+Status: draft decision note (post-hoc closeout capture, March 14, 2026 UTC).
 
 ## Decision-State Marker (Machine-Checkable)
 
@@ -12,91 +12,168 @@ Status: draft decision note (pre-start scaffold, March 14, 2026 UTC).
 {
   "schema": "decision_artifact_state@1",
   "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS63.md",
-  "phase": "pre_start_scaffold",
-  "authoritative": false,
-  "authoritative_scope": "v63_pre_start_scaffold",
+  "phase": "post_closeout_decision",
+  "authoritative": true,
+  "authoritative_scope": "v63_closeout_stop_gate_decision",
   "required_in_closeout": true,
-  "all_passed": false,
-  "notes": "This pre-start scaffold reserves the v63 decision surface only; closeout evidence and final decision values must replace it after C1/C2 complete."
+  "all_passed": true,
+  "notes": "Pre-start scaffold markers are superseded by post-closeout evidence and final decision values in this document."
 }
 ```
 
 ## Decision Guardrail (Frozen)
 
-- This draft records pre-start intent for `vNext+63` only.
+- This draft records `vNext+63` closeout evidence only.
 - It must not redefine semantics, locks, or scope from
   `docs/LOCKED_CONTINUATION_vNEXT_PLUS63.md`.
-- This note captures proposed `V36-C` reference-surface scope only; it does not
-  authorize `V36-D`, `V36-E`, any repo-wide route rewrite, any generic design-system
+- This note captures `V36-C` rendered reference-surface closeout evidence only; it does
+  not authorize `V36-D`, `V36-E`, any repo-wide route rewrite, any generic design-system
   release, or any `O1`/`O2`/`O3` closeout-hardening execution by itself.
-- Canonical `V36-C` release in v63, if completed, must be carried by one bounded rendered
-  `artifact_inspector_advisory_workbench` reference surface plus canonical
-  `v36c_artifact_inspector_reference_surface_evidence@1`; the surface must consume and
-  remain bound to the released accepted `V36-A` and `V36-B` reference pairs plus the
-  canonical reference profile id, and must not fork the stop-gate schema family or metric
-  keyset.
-- Runtime-observability comparison remains required closeout evidence and
-  informational-only in this arc.
+- Canonical `V36-C` release in v63 is carried by one bounded rendered
+  `artifact_inspector_advisory_workbench` reference surface, the committed rendered route
+  contract fixture, the semantic snapshot and binding manifest artifacts, and canonical
+  `v36c_artifact_inspector_reference_surface_evidence@1`; the released route remains
+  bound to the accepted `V36-A` and `V36-B` reference pairs plus the canonical reference
+  profile id, and v63 does not fork the stop-gate schema family or metric keyset.
+- Runtime-observability comparison remains required evidence and informational-only in
+  this arc.
 
-## Proposed Arc
+## Evidence Source
 
-- target arc: `vNext+63`
-- target path: `V36-C`
-- implementation slices:
-  - `C1` artifact inspector / advisory workbench reference surface baseline
-  - `C2` rendered reference-surface evidence + determinism/guard suite
-- bounded reference surface family:
-  - `artifact_inspector_advisory_workbench`
+- CI workflow: `ci` on `main`
+- arc-completion merge commit: `8cdbe32641daba56a7d74ec0c343158aa3e0303e`
+- arc-completion CI runs:
+  - PR `#275`
+    - merge commit: `8824c617320ac78ac2d440f5ad16857586d3d5b4`
+    - URL:
+      `https://github.com/LexLattice/adeu-studio/actions/runs/23096049223`
+    - conclusion: `success`
+  - PR `#276`
+    - merge commit: `8cdbe32641daba56a7d74ec0c343158aa3e0303e`
+    - URL:
+      `https://github.com/LexLattice/adeu-studio/actions/runs/23097079236`
+    - conclusion: `success`
+- merged implementation PRs:
+  - `#275` (`web: implement v63 c1 artifact inspector reference surface`)
+  - `#276` (`ux: add v63 c2 rendered surface evidence`)
+- deterministic closeout artifacts (reproducible):
+  - quality dashboard JSON: `artifacts/quality_dashboard_v63_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v63_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v63_closeout.md`
+  - runtime observability evidence input:
+    `artifacts/agent_harness/v63/evidence_inputs/runtime_observability_comparison_v63.json`
+  - metric-key continuity evidence input:
+    `artifacts/agent_harness/v63/evidence_inputs/metric_key_continuity_assertion_v63.json`
+  - rendered reference-surface evidence input:
+    `artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_evidence_v63.json`
+  - semantic rendered-surface snapshot:
+    `artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_snapshot_v63.json`
+  - rendered binding manifest:
+    `artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_binding_manifest_v63.json`
+- supporting deterministic runtime closeout artifacts (reproducible):
+  - committed runtime evidence root: `artifacts/agent_harness/v63/runtime/evidence/codex/`
+  - parent session raw/event streams:
+    `artifacts/agent_harness/v63/runtime/evidence/codex/copilot/v63-closeout-main-1/`
+  - the committed runtime stream is provenance-only for the closeout gate; v63 remains
+    pre-`V36-D` diagnostics/conformance and pre-`V36-E` compiler export despite carrying
+    a minimal closeout event-stream fixture.
+- closeout edge assessment:
+  - `docs/ASSESSMENT_vNEXT_PLUS63_EDGES.md`
 
-## Why This Path Now
+## Exit-Criteria Check (vNext+63)
 
-- `V36-A` and `V36-B` are now closed on `main`, so the next safe move inside the `V36`
-  family is to ship one bounded rendered reference surface that consumes those released
-  artifacts rather than widening directly into diagnostics or compiler export.
-- The repo still lacks a bounded rendered `artifact_inspector_advisory_workbench`
-  surface, rendered proof that the released bindings/provenance hooks are actually
-  exposed, rendered proof that the route remains bound to the accepted `V36-A` and
-  `V36-B` reference pairs plus canonical profile id, and canonical reference-surface
-  evidence for the `V36-C` lane.
-- Shipping diagnostics/conformance or compiler export before one rendered reference
-  surface exists would widen the family in the wrong order and force later paths to audit
-  or compile a surface that has never been proven in bounded user-facing form.
+| Criterion | Threshold | Current State | Evidence |
+|---|---|---|---|
+| `C1` merged with green CI | required | `pass` | PR `#275`, merge commit `8824c617320ac78ac2d440f5ad16857586d3d5b4`, Actions run `23096049223` |
+| `C2` merged with green CI | required | `pass` | PR `#276`, merge commit `8cdbe32641daba56a7d74ec0c343158aa3e0303e`, Actions run `23097079236` |
+| Stop-gate schema-family continuity retained | required | `pass` | `artifacts/stop_gate/metrics_v63_closeout.json` keeps `schema = "stop_gate_metrics@1"` and `valid = true` |
+| Stop-gate metric-key continuity retained | required | `pass` | `artifacts/agent_harness/v63/evidence_inputs/metric_key_continuity_assertion_v63.json` records exact keyset equality versus v62 |
+| Deterministic cardinality continuity retained (`80`) | required | `pass` | `artifacts/stop_gate/metrics_v63_closeout.json` has `len(metrics) = 80` and `metric_key_exact_set_equal_v62 = true` in the v36c evidence input |
+| Canonical rendered route contract, semantic snapshot, binding manifest, and evidence artifact emitted and hash-bound | required | `pass` | `artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_evidence_v63.json` records the contract-bound snapshot and manifest hashes |
+| Rendered reference surface remains bound to the released accepted `V36-A` and `V36-B` reference pairs plus canonical profile id | required | `pass` | `v36c_artifact_inspector_reference_surface_evidence_v63.json` records `v36a_reference_pair_consumed_without_drift = true`, `v36b_reference_pair_consumed_without_drift = true`, and `reference_profile_id_verified_against_v36a_table = true` |
+| Route payload parity remains presentational-only and epistemic-state rendering stays explicit | required | `pass` | `v36c_artifact_inspector_reference_surface_evidence_v63.json` records `route_payload_parity_verified_as_presentational_only_transform = true` and `epistemic_state_rendering_verified = true` |
+| Evidence-before-commit, glossary consumption, advisory/authoritative separation, and explicit commit boundary remain visible | required | `pass` | `v36c_artifact_inspector_reference_surface_evidence_v63.json` records `same_context_evidence_visibility_preserved = true`, `no_route_level_glossary_shadowing_verified = true`, `advisory_authoritative_boundary_rendering_verified = true`, and `explicit_commit_or_handoff_boundary_visible = true` |
+| Rendered provenance hooks and implementation-observable bindings are exposed deterministically | required | `pass` | `v36c_artifact_inspector_reference_surface_evidence_v63.json` records `stable_provenance_hooks_exposed = true`, `stable_provenance_hook_targets_exposed = true`, and `implementation_observable_bindings_exposed = true` |
+| Non-authoritative event/worker content does not render as accepted truth and no visual authority inflation is released | required | `pass` | `v36c_artifact_inspector_reference_surface_evidence_v63.json` records `non_authoritative_event_or_worker_content_not_rendered_as_accepted_truth = true` and `no_visual_authority_inflation_preserved = true` |
+| No unrelated route rewrite or `V36-D`/`V36-E` widening released | required | `pass` | `v36c_artifact_inspector_reference_surface_evidence_v63.json` records `no_unrelated_route_rewrite_detected = true`, `no_v36d_diagnostics_engine_widening = true`, and `no_v36e_compiler_widening = true` |
+| `V35` authority baseline remains unchanged | required | `pass` | `v36c_artifact_inspector_reference_surface_evidence_v63.json` records `v35_authority_baseline_unchanged = true` |
+| Runtime observability comparison captured | required | `pass` | `artifacts/agent_harness/v63/evidence_inputs/runtime_observability_comparison_v63.json` plus the comparison table below |
 
-## Entry Criteria (Pre-Implementation)
+Summary:
 
-`vNext+63` is eligible to start only if:
+- `schema = "stop_gate_metrics@1"`
+- `valid = true`
+- `all_passed = true`
+- `issues = []`
+- `derived_cardinality = 80` (computed from `metrics` keyset cardinality)
 
-1. `V36-A` and `V36-B` remain closed and authoritative on `main`.
-2. `docs/DRAFT_NEXT_ARC_OPTIONS_v10.md` names `V36-C` as the next default candidate.
-3. The v63 lock remains narrowly scoped to one bounded rendered reference-surface lane
-   only.
-4. No new stop-gate schema family or metric-key expansion is proposed in the arc.
-5. The rendered reference surface is required to bind back to the released accepted
-   `V36-A` and `V36-B` reference pairs and canonical profile id.
-6. Diagnostics/conformance, compiler export, broad route rewrites, and generic
-   design-system work remain explicitly deferred.
+## Metric-Key Continuity Assertion
 
-## Expected Closeout Evidence (Preview Only)
+```json
+{"baseline_metrics_path":"artifacts/stop_gate/metrics_v62_closeout.json","current_metrics_path":"artifacts/stop_gate/metrics_v63_closeout.json","expected_relation":"exact_keyset_equality","schema":"metric_key_continuity_assertion@1"}
+```
 
-If `C1`/`C2` succeed, closeout is expected to include:
+## Runtime Observability Comparison (v62 Baseline vs v63 Closeout)
 
-- `artifacts/quality_dashboard_v63_closeout.json`
-- `artifacts/stop_gate/metrics_v63_closeout.json`
-- `artifacts/stop_gate/report_v63_closeout.md`
-- `artifacts/agent_harness/v63/evidence_inputs/metric_key_continuity_assertion_v63.json`
-- `artifacts/agent_harness/v63/evidence_inputs/runtime_observability_comparison_v63.json`
-- `artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_evidence_v63.json`
-- committed runtime/evidence roots required by the closeout linter for v63
+```json
+{"baseline_arc":"vNext+62","baseline_elapsed_ms":253,"baseline_source":"artifacts/stop_gate/report_v62_closeout.md","current_arc":"vNext+63","current_elapsed_ms":109,"current_source":"artifacts/stop_gate/report_v63_closeout.md","delta_ms":-144,"notes":"v63 closeout remains informational-only for runtime timing/byte observability under frozen stop-gate semantics.","schema":"runtime_observability_comparison@1"}
+```
 
-## Recommendation (Pre-Start)
+| Arc | Source | total_fixtures | total_replays | elapsed_ms | bytes_hashed_per_replay | bytes_hashed_total | valid | all_passed |
+|---|---|---:|---:|---:|---:|---:|---|---|
+| `vNext+62` baseline | `artifacts/stop_gate/metrics_v62_closeout.json` | `22` | `78` | `253` | `68230` | `204690` | `true` | `true` |
+| `vNext+63` closeout | `artifacts/stop_gate/metrics_v63_closeout.json` | `22` | `78` | `109` | `68230` | `204690` | `true` | `true` |
+
+## V36-C Rendered Reference-Surface Evidence
+
+```json
+{
+  "advisory_authoritative_boundary_rendering_verified": true,
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS63.md#v36c_artifact_inspector_reference_surface_contract@1",
+  "epistemic_state_rendering_verified": true,
+  "evidence_input_path": "artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_evidence_v63.json",
+  "explicit_commit_or_handoff_boundary_visible": true,
+  "implementation_binding_manifest_hash": "219aebf0f109e53a501218cd484355c6538ae3659c58b0a53c0c6f4722b6740f",
+  "implementation_binding_manifest_path": "artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_binding_manifest_v63.json",
+  "implementation_observable_bindings_exposed": true,
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v62": true,
+  "no_route_level_glossary_shadowing_verified": true,
+  "no_unrelated_route_rewrite_detected": true,
+  "no_v36d_diagnostics_engine_widening": true,
+  "no_v36e_compiler_widening": true,
+  "no_visual_authority_inflation_preserved": true,
+  "non_authoritative_event_or_worker_content_not_rendered_as_accepted_truth": true,
+  "notes": "v63 closeout evidence remains pre-v36d diagnostics and pre-v36e compiler export; it verifies one bounded rendered reference surface only. Consumed v36a substrate signature: 269b341f33fa6c4317961f2eb609f2d35579d44b981a2f4a158ef78850a85416. Consumed v36b substrate signature: 14c65fde2069d38a9de0ef42f09e0fe8830f503bf2b7f087fd97b406247ed42a. Consumed v63 rendered route contract hash: 667eeed9b2e75a8c2d99cf002a66523f37ffa4aba53aca8947e323c31ffd7e61.",
+  "reference_profile_id_verified_against_v36a_table": true,
+  "rendered_surface_route_id": "artifact_inspector_reference_surface",
+  "rendered_surface_route_path": "/artifact-inspector",
+  "rendered_surface_snapshot_hash": "700c453174e25334b05f6fa3e0538daaddf4c171dda9aca59ccb837057b4c294",
+  "rendered_surface_snapshot_kind": "semantic_structured_route_snapshot@1",
+  "rendered_surface_snapshot_path": "artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_snapshot_v63.json",
+  "route_payload_parity_verified_as_presentational_only_transform": true,
+  "same_context_evidence_visibility_preserved": true,
+  "schema": "v36c_artifact_inspector_reference_surface_evidence@1",
+  "stable_provenance_hook_targets_exposed": true,
+  "stable_provenance_hooks_exposed": true,
+  "v35_authority_baseline_unchanged": true,
+  "v36a_reference_pair_consumed_without_drift": true,
+  "v36b_reference_pair_consumed_without_drift": true,
+  "verification_passed": true
+}
+```
+
+## Recommendation (Post v63)
 
 - gate decision:
-  - `GO_VNEXT_PLUS63_BUNDLE_REVIEW`
+  - `GO_VNEXT_PLUS64_PLANNING_DRAFT`
 - rationale:
-  - `V36-C` is the correct next thin slice after the closed `V36-A` and `V36-B`
-    substrate.
-  - The path remains bounded and authority-preserving:
-    one rendered reference surface proves the released artifact stack in user-facing form
-    before diagnostics or compiler widening.
-  - The current draft should now go through the normal feedback pass before any commit or
-    implementation work begins.
+  - v63 closes the thin `V36-C` rendered reference-surface baseline with one bounded
+    `artifact_inspector_advisory_workbench` route, explicit epistemic rendering,
+    evidence-before-commit preservation, rendered provenance/binding exposure, and
+    canonical `v36c_artifact_inspector_reference_surface_evidence@1` integrated on
+    `main`.
+  - no stop-gate schema-family, metric-key, or evidence-path regressions were observed in
+    closeout.
+  - the next safe step, if pursued, is a fresh `vNext+64` planning/lock pass for
+    `V36-D` rather than widening the closed `V36-C` rendered reference surface in place.

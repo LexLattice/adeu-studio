@@ -1,0 +1,332 @@
+{
+  "approved_profile_id": "artifact_inspector_reference",
+  "implementation_observable_bindings": [
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:advisory_action:artifact_inspector_reference_main:run-advisory-action",
+      "binding_token": "adeu.binding.advisory-action",
+      "source_path": "interaction_entries.run-advisory-action",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "advisory_action",
+      "target_ref": "artifact_inspector_reference_main:run-advisory-action"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:authoritative_action:artifact_inspector_reference_main:open-commit-review",
+      "binding_token": "adeu.binding.authoritative-action",
+      "source_path": "interaction_entries.open-commit-review",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "authoritative_action",
+      "target_ref": "artifact_inspector_reference_main:open-commit-review"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:commit_or_approval_gate:artifact_inspector_reference_main:submit-commit-request",
+      "binding_token": "adeu.binding.commit-gate",
+      "source_path": "interaction_entries.submit-commit-request",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "commit_or_approval_gate",
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:diagnostic_surface:artifact_inspector_reference_main:diagnostic-status-surface",
+      "binding_token": "adeu.binding.diagnostic-surface",
+      "source_path": "state_surfaces.diagnostic-status-surface",
+      "source_schema": "ux_surface_projection@1",
+      "target_kind": "diagnostic_surface",
+      "target_ref": "artifact_inspector_reference_main:diagnostic-status-surface"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:disabled_or_unavailable_gated_state:artifact_inspector_reference_main:submit-commit-request-disabled",
+      "binding_token": "adeu.binding.commit-disabled",
+      "source_path": "interaction_entries.submit-commit-request.disabled",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "disabled_or_unavailable_gated_state",
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request-disabled"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:required_evidence_reachability_anchor:artifact_inspector_reference_main:evidence-lane",
+      "binding_token": "adeu.binding.required-evidence-anchor",
+      "source_path": "evidence_before_commit.required_evidence_lane_ids[0]",
+      "source_schema": "ux_surface_projection@1",
+      "target_kind": "required_evidence_reachability_anchor",
+      "target_ref": "artifact_inspector_reference_main:evidence-lane"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:status_surface:artifact_inspector_reference_main:authoritative-status-surface",
+      "binding_token": "adeu.binding.status-surface",
+      "source_path": "state_surfaces.authoritative-status-surface",
+      "source_schema": "ux_surface_projection@1",
+      "target_kind": "status_surface",
+      "target_ref": "artifact_inspector_reference_main:authoritative-status-surface"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:warning_surface:artifact_inspector_reference_main:warning-status-surface",
+      "binding_token": "adeu.binding.warning-surface",
+      "source_path": "state_surfaces.warning-status-surface",
+      "source_schema": "ux_surface_projection@1",
+      "target_kind": "warning_surface",
+      "target_ref": "artifact_inspector_reference_main:warning-status-surface"
+    }
+  ],
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "rendered_binding_exposures": {
+    "advisory_vs_authoritative_actions": [
+      "focus-source-artifact",
+      "open-commit-review",
+      "run-advisory-action",
+      "submit-commit-request"
+    ],
+    "commit_or_approval_gates": [
+      "open-commit-review",
+      "submit-commit-request",
+      "submit-commit-request-disabled"
+    ],
+    "disabled_or_unavailable_gated_states": [
+      "submit-commit-request-disabled"
+    ],
+    "required_evidence_reachability_anchors": [
+      "evidence-lane"
+    ],
+    "salience_bearing_warning_status_and_diagnostic_surfaces": [
+      "authoritative-status-surface",
+      "diagnostic-status-surface",
+      "warning-status-surface"
+    ]
+  },
+  "rendered_provenance_exposures": {
+    "authority_bearing_controls": [
+      "open-commit-review",
+      "submit-commit-request"
+    ],
+    "evidence_bearing_regions": [
+      "evidence-region",
+      "evidence-lane",
+      "status-region",
+      "status-lane",
+      "trust-boundary-lane"
+    ],
+    "explicit_commit_or_handoff_boundary": [
+      "commit-boundary"
+    ],
+    "rendered_regions": [
+      "action-region",
+      "evidence-region",
+      "navigation-region",
+      "primary-work-region",
+      "status-region"
+    ],
+    "state_distinction_surfaces": [
+      "authoritative-status-surface",
+      "diagnostic-status-surface",
+      "provisional-status-surface",
+      "warning-status-surface"
+    ]
+  },
+  "route_contract_hash": "667eeed9b2e75a8c2d99cf002a66523f37ffa4aba53aca8947e323c31ffd7e61",
+  "route_contract_path": "apps/api/fixtures/ux_governance/vnext_plus63/v36c_rendered_reference_surface_contract.json",
+  "route_id": "artifact_inspector_reference_surface",
+  "route_path": "/artifact-inspector",
+  "schema": "v36c_rendered_reference_surface_binding_manifest@1",
+  "stable_provenance_hooks": [
+    {
+      "hook_id": "v36b.prov:artifact_inspector_reference_main:action_cluster:artifact_inspector_reference_main:commit-actions",
+      "source_path": "interaction_entries.open-commit-review",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "action_cluster",
+      "target_ref": "artifact_inspector_reference_main:commit-actions"
+    },
+    {
+      "hook_id": "v36b.prov:artifact_inspector_reference_main:authority_bearing_control:artifact_inspector_reference_main:submit-commit-request",
+      "source_path": "interaction_entries.submit-commit-request",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "authority_bearing_control",
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request"
+    },
+    {
+      "hook_id": "v36b.prov:artifact_inspector_reference_main:evidence_bearing_region:artifact_inspector_reference_main:evidence-region",
+      "source_path": "regions.evidence-region",
+      "source_schema": "ux_surface_projection@1",
+      "target_kind": "evidence_bearing_region",
+      "target_ref": "artifact_inspector_reference_main:evidence-region"
+    },
+    {
+      "hook_id": "v36b.prov:artifact_inspector_reference_main:projection_unit:artifact_inspector_reference_main:artifact-inspector-surface-root",
+      "source_path": "surface_root_id",
+      "source_schema": "ux_surface_projection@1",
+      "target_kind": "projection_unit",
+      "target_ref": "artifact_inspector_reference_main:artifact-inspector-surface-root"
+    },
+    {
+      "hook_id": "v36b.prov:artifact_inspector_reference_main:state_distinction_surface:artifact_inspector_reference_main:provisional-status-surface",
+      "source_path": "state_surfaces.provisional-status-surface",
+      "source_schema": "ux_surface_projection@1",
+      "target_kind": "state_distinction_surface",
+      "target_ref": "artifact_inspector_reference_main:provisional-status-surface"
+    }
+  ],
+  "target_manifest": [
+    {
+      "binding_ids": [],
+      "binding_target_kinds": [],
+      "binding_tokens": [],
+      "hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:projection_unit:artifact_inspector_reference_main:artifact-inspector-surface-root"
+      ],
+      "hook_target_kinds": [
+        "projection_unit"
+      ],
+      "target_ref": "artifact_inspector_reference_main:artifact-inspector-surface-root"
+    },
+    {
+      "binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:status_surface:artifact_inspector_reference_main:authoritative-status-surface"
+      ],
+      "binding_target_kinds": [
+        "status_surface"
+      ],
+      "binding_tokens": [
+        "adeu.binding.status-surface"
+      ],
+      "hook_ids": [],
+      "hook_target_kinds": [],
+      "target_ref": "artifact_inspector_reference_main:authoritative-status-surface"
+    },
+    {
+      "binding_ids": [],
+      "binding_target_kinds": [],
+      "binding_tokens": [],
+      "hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:action_cluster:artifact_inspector_reference_main:commit-actions"
+      ],
+      "hook_target_kinds": [
+        "action_cluster"
+      ],
+      "target_ref": "artifact_inspector_reference_main:commit-actions"
+    },
+    {
+      "binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:diagnostic_surface:artifact_inspector_reference_main:diagnostic-status-surface"
+      ],
+      "binding_target_kinds": [
+        "diagnostic_surface"
+      ],
+      "binding_tokens": [
+        "adeu.binding.diagnostic-surface"
+      ],
+      "hook_ids": [],
+      "hook_target_kinds": [],
+      "target_ref": "artifact_inspector_reference_main:diagnostic-status-surface"
+    },
+    {
+      "binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:required_evidence_reachability_anchor:artifact_inspector_reference_main:evidence-lane"
+      ],
+      "binding_target_kinds": [
+        "required_evidence_reachability_anchor"
+      ],
+      "binding_tokens": [
+        "adeu.binding.required-evidence-anchor"
+      ],
+      "hook_ids": [],
+      "hook_target_kinds": [],
+      "target_ref": "artifact_inspector_reference_main:evidence-lane"
+    },
+    {
+      "binding_ids": [],
+      "binding_target_kinds": [],
+      "binding_tokens": [],
+      "hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:evidence_bearing_region:artifact_inspector_reference_main:evidence-region"
+      ],
+      "hook_target_kinds": [
+        "evidence_bearing_region"
+      ],
+      "target_ref": "artifact_inspector_reference_main:evidence-region"
+    },
+    {
+      "binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:authoritative_action:artifact_inspector_reference_main:open-commit-review"
+      ],
+      "binding_target_kinds": [
+        "authoritative_action"
+      ],
+      "binding_tokens": [
+        "adeu.binding.authoritative-action"
+      ],
+      "hook_ids": [],
+      "hook_target_kinds": [],
+      "target_ref": "artifact_inspector_reference_main:open-commit-review"
+    },
+    {
+      "binding_ids": [],
+      "binding_target_kinds": [],
+      "binding_tokens": [],
+      "hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:state_distinction_surface:artifact_inspector_reference_main:provisional-status-surface"
+      ],
+      "hook_target_kinds": [
+        "state_distinction_surface"
+      ],
+      "target_ref": "artifact_inspector_reference_main:provisional-status-surface"
+    },
+    {
+      "binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:advisory_action:artifact_inspector_reference_main:run-advisory-action"
+      ],
+      "binding_target_kinds": [
+        "advisory_action"
+      ],
+      "binding_tokens": [
+        "adeu.binding.advisory-action"
+      ],
+      "hook_ids": [],
+      "hook_target_kinds": [],
+      "target_ref": "artifact_inspector_reference_main:run-advisory-action"
+    },
+    {
+      "binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:commit_or_approval_gate:artifact_inspector_reference_main:submit-commit-request"
+      ],
+      "binding_target_kinds": [
+        "commit_or_approval_gate"
+      ],
+      "binding_tokens": [
+        "adeu.binding.commit-gate"
+      ],
+      "hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:authority_bearing_control:artifact_inspector_reference_main:submit-commit-request"
+      ],
+      "hook_target_kinds": [
+        "authority_bearing_control"
+      ],
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request"
+    },
+    {
+      "binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:disabled_or_unavailable_gated_state:artifact_inspector_reference_main:submit-commit-request-disabled"
+      ],
+      "binding_target_kinds": [
+        "disabled_or_unavailable_gated_state"
+      ],
+      "binding_tokens": [
+        "adeu.binding.commit-disabled"
+      ],
+      "hook_ids": [],
+      "hook_target_kinds": [],
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request-disabled"
+    },
+    {
+      "binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:warning_surface:artifact_inspector_reference_main:warning-status-surface"
+      ],
+      "binding_target_kinds": [
+        "warning_surface"
+      ],
+      "binding_tokens": [
+        "adeu.binding.warning-surface"
+      ],
+      "hook_ids": [],
+      "hook_target_kinds": [],
+      "target_ref": "artifact_inspector_reference_main:warning-status-surface"
+    }
+  ]
+}
