@@ -1,0 +1,569 @@
+{
+  "$defs": {
+    "UXAuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "no_free_form_ui_codegen_without_ir": {
+          "const": true,
+          "default": true,
+          "title": "No Free Form Ui Codegen Without Ir",
+          "type": "boolean"
+        },
+        "no_visual_authority_inflation": {
+          "const": true,
+          "default": true,
+          "title": "No Visual Authority Inflation",
+          "type": "boolean"
+        },
+        "ui_artifacts_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "default": true,
+          "title": "Ui Artifacts May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "title": "UXAuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "UXEvidenceBeforeCommitProjection": {
+      "additionalProperties": false,
+      "properties": {
+        "commit_or_destructive_action_required": {
+          "const": false,
+          "default": false,
+          "title": "Commit Or Destructive Action Required",
+          "type": "boolean"
+        },
+        "required_evidence_lane_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Evidence Lane Ids",
+          "type": "array"
+        },
+        "required_evidence_region_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Evidence Region Ids",
+          "type": "array"
+        },
+        "route_change_required": {
+          "const": false,
+          "default": false,
+          "title": "Route Change Required",
+          "type": "boolean"
+        },
+        "same_context_reachability_glossary": {
+          "$ref": "#/$defs/V36ASameContextReachabilityGlossary"
+        }
+      },
+      "required": [
+        "same_context_reachability_glossary",
+        "required_evidence_region_ids",
+        "required_evidence_lane_ids"
+      ],
+      "title": "UXEvidenceBeforeCommitProjection",
+      "type": "object"
+    },
+    "UXImplementationObservableBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_id": {
+          "minLength": 1,
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "binding_token": {
+          "minLength": 1,
+          "title": "Binding Token",
+          "type": "string"
+        },
+        "source_path": {
+          "minLength": 1,
+          "title": "Source Path",
+          "type": "string"
+        },
+        "source_schema": {
+          "enum": [
+            "ux_interaction_contract@1",
+            "ux_surface_projection@1"
+          ],
+          "title": "Source Schema",
+          "type": "string"
+        },
+        "target_kind": {
+          "enum": [
+            "advisory_action",
+            "authoritative_action",
+            "commit_or_approval_gate",
+            "diagnostic_surface",
+            "disabled_or_unavailable_gated_state",
+            "required_evidence_reachability_anchor",
+            "status_surface",
+            "warning_surface"
+          ],
+          "title": "Target Kind",
+          "type": "string"
+        },
+        "target_ref": {
+          "minLength": 1,
+          "title": "Target Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "binding_id",
+        "source_schema",
+        "target_kind",
+        "target_ref",
+        "binding_token",
+        "source_path"
+      ],
+      "title": "UXImplementationObservableBinding",
+      "type": "object"
+    },
+    "UXProjectionActionCluster": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture": {
+          "enum": [
+            "advisory",
+            "authoritative",
+            "commit_or_approval_gate"
+          ],
+          "title": "Authority Posture",
+          "type": "string"
+        },
+        "cluster_id": {
+          "minLength": 1,
+          "title": "Cluster Id",
+          "type": "string"
+        },
+        "cluster_kind": {
+          "enum": [
+            "advisory_action_cluster",
+            "commit_action_cluster",
+            "comparison_action_cluster"
+          ],
+          "title": "Cluster Kind",
+          "type": "string"
+        },
+        "lane_id": {
+          "minLength": 1,
+          "title": "Lane Id",
+          "type": "string"
+        },
+        "primary_cluster": {
+          "default": false,
+          "title": "Primary Cluster",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "cluster_id",
+        "cluster_kind",
+        "lane_id",
+        "authority_posture"
+      ],
+      "title": "UXProjectionActionCluster",
+      "type": "object"
+    },
+    "UXProjectionInteractionSupportingArtifactRefs": {
+      "additionalProperties": false,
+      "properties": {
+        "approved_profile_table_schema": {
+          "const": "v36a_first_family_approved_profile_table@1",
+          "default": "v36a_first_family_approved_profile_table@1",
+          "title": "Approved Profile Table Schema",
+          "type": "string"
+        },
+        "same_context_reachability_glossary_schema": {
+          "const": "v36a_same_context_reachability_glossary@1",
+          "default": "v36a_same_context_reachability_glossary@1",
+          "title": "Same Context Reachability Glossary Schema",
+          "type": "string"
+        },
+        "ux_domain_packet_schema": {
+          "const": "ux_domain_packet@1",
+          "default": "ux_domain_packet@1",
+          "title": "Ux Domain Packet Schema",
+          "type": "string"
+        },
+        "ux_morph_ir_schema": {
+          "const": "ux_morph_ir@1",
+          "default": "ux_morph_ir@1",
+          "title": "Ux Morph Ir Schema",
+          "type": "string"
+        }
+      },
+      "title": "UXProjectionInteractionSupportingArtifactRefs",
+      "type": "object"
+    },
+    "UXProjectionLane": {
+      "additionalProperties": false,
+      "properties": {
+        "lane_id": {
+          "minLength": 1,
+          "title": "Lane Id",
+          "type": "string"
+        },
+        "lane_role": {
+          "enum": [
+            "action_lane",
+            "diagnostics_lane",
+            "evidence_lane",
+            "navigation_lane",
+            "source_lane",
+            "status_lane",
+            "trust_boundary_lane",
+            "work_context_lane"
+          ],
+          "title": "Lane Role",
+          "type": "string"
+        },
+        "placement_index": {
+          "minimum": 0,
+          "title": "Placement Index",
+          "type": "integer"
+        },
+        "region_id": {
+          "minLength": 1,
+          "title": "Region Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lane_id",
+        "lane_role",
+        "region_id",
+        "placement_index"
+      ],
+      "title": "UXProjectionLane",
+      "type": "object"
+    },
+    "UXProjectionRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "lane_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Lane Ids",
+          "type": "array"
+        },
+        "placement_index": {
+          "minimum": 0,
+          "title": "Placement Index",
+          "type": "integer"
+        },
+        "region_id": {
+          "minLength": 1,
+          "title": "Region Id",
+          "type": "string"
+        },
+        "region_kind": {
+          "enum": [
+            "action_region",
+            "evidence_region",
+            "navigation_region",
+            "primary_work_region",
+            "status_region"
+          ],
+          "title": "Region Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "region_id",
+        "region_kind",
+        "placement_index",
+        "lane_ids"
+      ],
+      "title": "UXProjectionRegion",
+      "type": "object"
+    },
+    "UXProjectionStateSurface": {
+      "additionalProperties": false,
+      "properties": {
+        "lane_id": {
+          "minLength": 1,
+          "title": "Lane Id",
+          "type": "string"
+        },
+        "surface_id": {
+          "minLength": 1,
+          "title": "Surface Id",
+          "type": "string"
+        },
+        "surface_kind": {
+          "enum": [
+            "authoritative_state_surface",
+            "diagnostic_state_surface",
+            "provisional_state_surface",
+            "warning_state_surface"
+          ],
+          "title": "Surface Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_id",
+        "lane_id",
+        "surface_kind"
+      ],
+      "title": "UXProjectionStateSurface",
+      "type": "object"
+    },
+    "UXStableProvenanceHook": {
+      "additionalProperties": false,
+      "properties": {
+        "hook_id": {
+          "minLength": 1,
+          "title": "Hook Id",
+          "type": "string"
+        },
+        "source_path": {
+          "minLength": 1,
+          "title": "Source Path",
+          "type": "string"
+        },
+        "source_schema": {
+          "enum": [
+            "ux_interaction_contract@1",
+            "ux_surface_projection@1"
+          ],
+          "title": "Source Schema",
+          "type": "string"
+        },
+        "target_kind": {
+          "enum": [
+            "action_cluster",
+            "authority_bearing_control",
+            "evidence_bearing_region",
+            "projection_unit",
+            "state_distinction_surface"
+          ],
+          "title": "Target Kind",
+          "type": "string"
+        },
+        "target_ref": {
+          "minLength": 1,
+          "title": "Target Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hook_id",
+        "source_schema",
+        "target_kind",
+        "target_ref",
+        "source_path"
+      ],
+      "title": "UXStableProvenanceHook",
+      "type": "object"
+    },
+    "V36ASameContextReachabilityGlossary": {
+      "additionalProperties": false,
+      "properties": {
+        "commit_or_destructive_barrier": {
+          "items": {
+            "enum": [
+              "commit_action",
+              "destructive_action"
+            ],
+            "type": "string"
+          },
+          "title": "Commit Or Destructive Barrier",
+          "type": "array"
+        },
+        "context_break": {
+          "items": {
+            "enum": [
+              "bounded_workbench_replacement",
+              "detached_surface_replacement",
+              "route_transition"
+            ],
+            "type": "string"
+          },
+          "title": "Context Break",
+          "type": "array"
+        },
+        "forbidden_barrier": {
+          "items": {
+            "enum": [
+              "authority_escalation_step",
+              "cross_workbench_dependency"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden Barrier",
+          "type": "array"
+        },
+        "reference_surface_family": {
+          "const": "artifact_inspector_advisory_workbench",
+          "default": "artifact_inspector_advisory_workbench",
+          "title": "Reference Surface Family",
+          "type": "string"
+        },
+        "same_context_reachable": {
+          "items": {
+            "enum": [
+              "bounded_workbench_focus_shift",
+              "bounded_workbench_position_shift",
+              "bounded_workbench_state_reveal"
+            ],
+            "type": "string"
+          },
+          "title": "Same Context Reachable",
+          "type": "array"
+        },
+        "schema": {
+          "const": "v36a_same_context_reachability_glossary@1",
+          "default": "v36a_same_context_reachability_glossary@1",
+          "title": "Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "same_context_reachable",
+        "context_break",
+        "forbidden_barrier",
+        "commit_or_destructive_barrier"
+      ],
+      "title": "V36ASameContextReachabilityGlossary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_clusters": {
+      "items": {
+        "$ref": "#/$defs/UXProjectionActionCluster"
+      },
+      "title": "Action Clusters",
+      "type": "array"
+    },
+    "approved_profile_id": {
+      "enum": [
+        "artifact_inspector_alternate",
+        "artifact_inspector_reference"
+      ],
+      "title": "Approved Profile Id",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/UXAuthorityBoundaryPolicy"
+    },
+    "bounded_workbench_id": {
+      "minLength": 1,
+      "title": "Bounded Workbench Id",
+      "type": "string"
+    },
+    "evidence_before_commit": {
+      "$ref": "#/$defs/UXEvidenceBeforeCommitProjection"
+    },
+    "implementation_observable_bindings": {
+      "items": {
+        "$ref": "#/$defs/UXImplementationObservableBinding"
+      },
+      "title": "Implementation Observable Bindings",
+      "type": "array"
+    },
+    "lanes": {
+      "items": {
+        "$ref": "#/$defs/UXProjectionLane"
+      },
+      "title": "Lanes",
+      "type": "array"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "regions": {
+      "items": {
+        "$ref": "#/$defs/UXProjectionRegion"
+      },
+      "title": "Regions",
+      "type": "array"
+    },
+    "responsive_behaviors": {
+      "items": {
+        "enum": [
+          "desktop_split_pane_preserved",
+          "narrow_width_context_preserved_without_route_change"
+        ],
+        "type": "string"
+      },
+      "title": "Responsive Behaviors",
+      "type": "array"
+    },
+    "schema": {
+      "const": "ux_surface_projection@1",
+      "default": "ux_surface_projection@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stable_provenance_hooks": {
+      "items": {
+        "$ref": "#/$defs/UXStableProvenanceHook"
+      },
+      "title": "Stable Provenance Hooks",
+      "type": "array"
+    },
+    "state_surfaces": {
+      "items": {
+        "$ref": "#/$defs/UXProjectionStateSurface"
+      },
+      "title": "State Surfaces",
+      "type": "array"
+    },
+    "supporting_artifacts": {
+      "$ref": "#/$defs/UXProjectionInteractionSupportingArtifactRefs"
+    },
+    "surface_compilation_units": {
+      "items": {
+        "enum": [
+          "surface_root",
+          "bounded_workbench",
+          "region",
+          "lane",
+          "action_cluster"
+        ],
+        "type": "string"
+      },
+      "title": "Surface Compilation Units",
+      "type": "array"
+    },
+    "surface_root_id": {
+      "minLength": 1,
+      "title": "Surface Root Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "approved_profile_id",
+    "surface_compilation_units",
+    "surface_root_id",
+    "bounded_workbench_id",
+    "responsive_behaviors",
+    "regions",
+    "lanes",
+    "action_clusters",
+    "state_surfaces",
+    "evidence_before_commit",
+    "stable_provenance_hooks",
+    "implementation_observable_bindings"
+  ],
+  "title": "UXSurfaceProjection",
+  "type": "object"
+}
