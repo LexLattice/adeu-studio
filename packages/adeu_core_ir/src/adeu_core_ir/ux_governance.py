@@ -726,6 +726,40 @@ def build_v36b_stable_binding_id(
     return f"v36b.bind:{reference_instance_id}:{target_kind}:{target_ref}"
 
 
+def _reference_instance_id_from_v36b_target_ref(*, target_ref: str, field_name: str) -> str:
+    reference_instance_id, separator, _suffix = target_ref.partition(":")
+    if not separator or not reference_instance_id:
+        raise ValueError(f"{field_name} must begin with the frozen reference_instance_id prefix")
+    return reference_instance_id
+
+
+def _assert_v36b_record_reference_instance_binding(
+    *,
+    reference_instance_id: str,
+    hooks: list["UXStableProvenanceHook"],
+    bindings: list["UXImplementationObservableBinding"],
+) -> None:
+    for index, hook in enumerate(hooks):
+        hook_reference_instance_id = _reference_instance_id_from_v36b_target_ref(
+            target_ref=hook.target_ref,
+            field_name=f"stable_provenance_hooks[{index}].target_ref",
+        )
+        if hook_reference_instance_id != reference_instance_id:
+            raise ValueError(
+                "stable_provenance_hooks target_ref must bind to bundle reference_instance_id"
+            )
+    for index, binding in enumerate(bindings):
+        binding_reference_instance_id = _reference_instance_id_from_v36b_target_ref(
+            target_ref=binding.target_ref,
+            field_name=f"implementation_observable_bindings[{index}].target_ref",
+        )
+        if binding_reference_instance_id != reference_instance_id:
+            raise ValueError(
+                "implementation_observable_bindings target_ref must bind to bundle "
+                "reference_instance_id"
+            )
+
+
 class UXStableProvenanceHook(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -738,7 +772,10 @@ class UXStableProvenanceHook(BaseModel):
     @model_validator(mode="after")
     def _validate_contract(self) -> "UXStableProvenanceHook":
         expected = build_v36b_stable_provenance_hook_id(
-            reference_instance_id=self.target_ref.split(":", 1)[0],
+            reference_instance_id=_reference_instance_id_from_v36b_target_ref(
+                target_ref=self.target_ref,
+                field_name="stable_provenance_hooks.target_ref",
+            ),
             target_kind=self.target_kind,
             target_ref=self.target_ref,
         )
@@ -760,7 +797,10 @@ class UXImplementationObservableBinding(BaseModel):
     @model_validator(mode="after")
     def _validate_contract(self) -> "UXImplementationObservableBinding":
         expected = build_v36b_stable_binding_id(
-            reference_instance_id=self.target_ref.split(":", 1)[0],
+            reference_instance_id=_reference_instance_id_from_v36b_target_ref(
+                target_ref=self.target_ref,
+                field_name="implementation_observable_bindings.target_ref",
+            ),
             target_kind=self.target_kind,
             target_ref=self.target_ref,
         )
@@ -876,12 +916,22 @@ class UXSurfaceProjection(BaseModel):
 
         region_id_set = set(region_ids)
         lane_id_set = set(lane_ids)
+        lane_ids_by_region_id = {
+            region.region_id: {
+                lane.lane_id for lane in self.lanes if lane.region_id == region.region_id
+            }
+            for region in self.regions
+        }
         for lane in self.lanes:
             if lane.region_id not in region_id_set:
                 raise ValueError(f"lane references unknown region_id: {lane.region_id}")
         for region in self.regions:
             if any(lane_id not in lane_id_set for lane_id in region.lane_ids):
                 raise ValueError(f"region references unknown lane_id: {region.region_id}")
+            if set(region.lane_ids) != lane_ids_by_region_id[region.region_id]:
+                raise ValueError(
+                    f"region/lane membership mismatch for region_id: {region.region_id}"
+                )
         for cluster in self.action_clusters:
             if cluster.lane_id not in lane_id_set:
                 raise ValueError(f"action cluster references unknown lane_id: {cluster.cluster_id}")
@@ -911,6 +961,11 @@ class UXSurfaceProjection(BaseModel):
             surface.surface_kind for surface in self.state_surfaces
         }:
             raise ValueError("state_surfaces must include an authoritative state surface")
+        _assert_v36b_record_reference_instance_binding(
+            reference_instance_id=self.reference_instance_id,
+            hooks=self.stable_provenance_hooks,
+            bindings=self.implementation_observable_bindings,
+        )
         return self
 
 
@@ -936,23 +991,20 @@ class UXRuntimeVisibleConsequence(BaseModel):
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "UXRuntimeVisibleConsequence":
-        if (
-            self.truth_posture != "accepted_effect_confirmed"
-            and self.outcome_kind == "status_feedback_visible"
-        ):
-            return self
-        if (
-            self.truth_posture == "request_only"
-            and self.outcome_kind == "request_submission_visible"
-        ):
-            return self
-        if (
-            self.truth_posture == "provisional"
-            and self.outcome_kind
-            in {"gated_pending_confirmation_visible", "provisional_request_visible"}
-        ):
-            return self
         if self.truth_posture == "accepted_effect_confirmed":
+            return self
+        allowed_outcomes_by_truth_posture: dict[str, set[UXRuntimeVisibleConsequenceKind]] = {
+            "provisional": {
+                "gated_pending_confirmation_visible",
+                "provisional_request_visible",
+                "status_feedback_visible",
+            },
+            "request_only": {
+                "request_submission_visible",
+                "status_feedback_visible",
+            },
+        }
+        if self.outcome_kind in allowed_outcomes_by_truth_posture[self.truth_posture]:
             return self
         raise ValueError(
             "runtime_visible_consequence must remain epistemic and must not overstate success"
@@ -1025,6 +1077,11 @@ class UXInteractionContract(BaseModel):
     def _validate_contract(self) -> "UXInteractionContract":
         interaction_ids = [entry.interaction_id for entry in self.interaction_entries]
         _assert_sorted_unique(interaction_ids, field_name="interaction_entries.interaction_id")
+        _assert_v36b_record_reference_instance_binding(
+            reference_instance_id=self.reference_instance_id,
+            hooks=self.stable_provenance_hooks,
+            bindings=self.implementation_observable_bindings,
+        )
         return self
 
 

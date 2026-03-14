@@ -14,6 +14,8 @@ from adeu_core_ir import (
     V36ASameContextReachabilityGlossary,
     assert_v36b_projection_interaction_binding,
     assert_v36b_reference_bundle_consistent,
+    build_v36b_stable_binding_id,
+    build_v36b_stable_provenance_hook_id,
     canonicalize_ux_interaction_contract_payload,
     canonicalize_ux_surface_projection_payload,
 )
@@ -99,6 +101,22 @@ def test_v36b_binding_rejects_mismatched_reference_instance_id() -> None:
         "vnext_plus62", "ux_interaction_contract_artifact_inspector_reference.json"
     )
     payload["reference_instance_id"] = "artifact_inspector_reference_other"
+    for hook in payload["stable_provenance_hooks"]:  # type: ignore[index]
+        _reference_instance_id, suffix = hook["target_ref"].split(":", 1)
+        hook["target_ref"] = f"artifact_inspector_reference_other:{suffix}"
+        hook["hook_id"] = build_v36b_stable_provenance_hook_id(
+            reference_instance_id="artifact_inspector_reference_other",
+            target_kind=hook["target_kind"],
+            target_ref=hook["target_ref"],
+        )
+    for binding in payload["implementation_observable_bindings"]:  # type: ignore[index]
+        _reference_instance_id, suffix = binding["target_ref"].split(":", 1)
+        binding["target_ref"] = f"artifact_inspector_reference_other:{suffix}"
+        binding["binding_id"] = build_v36b_stable_binding_id(
+            reference_instance_id="artifact_inspector_reference_other",
+            target_kind=binding["target_kind"],
+            target_ref=binding["target_ref"],
+        )
     interaction_contract = UXInteractionContract.model_validate(payload)
 
     with pytest.raises(
@@ -108,6 +126,47 @@ def test_v36b_binding_rejects_mismatched_reference_instance_id() -> None:
             surface_projection=surface_projection,
             interaction_contract=interaction_contract,
         )
+
+
+def test_surface_projection_rejects_provenance_hook_from_different_reference_instance() -> None:
+    payload = _load_json("vnext_plus62", "ux_surface_projection_artifact_inspector_reference.json")
+    hook = payload["stable_provenance_hooks"][0]  # type: ignore[index]
+    _reference_instance_id, suffix = hook["target_ref"].split(":", 1)
+    hook["target_ref"] = f"artifact_inspector_reference_other:{suffix}"
+    hook["hook_id"] = build_v36b_stable_provenance_hook_id(
+        reference_instance_id="artifact_inspector_reference_other",
+        target_kind=hook["target_kind"],
+        target_ref=hook["target_ref"],
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match="stable_provenance_hooks target_ref must bind to bundle reference_instance_id",
+    ):
+        UXSurfaceProjection.model_validate(payload)
+
+
+def test_interaction_contract_rejects_binding_from_different_reference_instance() -> None:
+    payload = _load_json(
+        "vnext_plus62", "ux_interaction_contract_artifact_inspector_reference.json"
+    )
+    binding = payload["implementation_observable_bindings"][0]  # type: ignore[index]
+    _reference_instance_id, suffix = binding["target_ref"].split(":", 1)
+    binding["target_ref"] = f"artifact_inspector_reference_other:{suffix}"
+    binding["binding_id"] = build_v36b_stable_binding_id(
+        reference_instance_id="artifact_inspector_reference_other",
+        target_kind=binding["target_kind"],
+        target_ref=binding["target_ref"],
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "implementation_observable_bindings target_ref must bind to bundle "
+            "reference_instance_id"
+        ),
+    ):
+        UXInteractionContract.model_validate(payload)
 
 
 def test_v36b_bundle_rejects_detached_v36a_profile_binding() -> None:
@@ -134,6 +193,14 @@ def test_v36b_bundle_rejects_detached_v36a_profile_binding() -> None:
             surface_projection=surface_projection,
             interaction_contract=interaction_contract,
         )
+
+
+def test_surface_projection_rejects_region_lane_membership_mismatch() -> None:
+    payload = _load_json("vnext_plus62", "ux_surface_projection_artifact_inspector_reference.json")
+    payload["regions"][1]["lane_ids"] = payload["regions"][1]["lane_ids"][1:]  # type: ignore[index]
+
+    with pytest.raises(ValidationError, match="region/lane membership mismatch"):
+        UXSurfaceProjection.model_validate(payload)
 
 
 def test_interaction_contract_rejects_forbidden_authoritative_gate_source() -> None:
