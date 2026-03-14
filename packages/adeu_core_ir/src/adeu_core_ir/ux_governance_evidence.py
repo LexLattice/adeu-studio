@@ -834,6 +834,12 @@ def _validate_v36c_rendered_surface_contract(
         )
 
     lane_cluster_map = _build_lane_cluster_map(surface_projection)
+    declared_lane_ids = {
+        cluster_rendering.lane_id
+        for cluster_rendering in rendered_surface_contract.lane_cluster_rendering
+    }
+    if declared_lane_ids != set(lane_cluster_map):
+        raise UXGovernanceEvidenceError("rendered lane cluster coverage drift detected")
     for cluster_rendering in rendered_surface_contract.lane_cluster_rendering:
         actual = lane_cluster_map.get(cluster_rendering.lane_id, [])
         if actual != cluster_rendering.cluster_ids:
