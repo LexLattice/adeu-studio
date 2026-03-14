@@ -84,6 +84,22 @@ def test_reference_instance_binding_rejects_mismatched_binding_field() -> None:
         assert_v36a_reference_instance_binding(domain_packet=domain_packet, morph_ir=morph_ir)
 
 
+def test_reference_instance_binding_rejects_utility_priority_mismatch() -> None:
+    domain_packet = UXDomainPacket.model_validate(
+        _load_json("ux_domain_packet_artifact_inspector_reference.json")
+    )
+    morph_payload = _load_json("ux_morph_ir_artifact_inspector_reference.json")
+    morph_payload["utility"]["priority_order"] = [  # type: ignore[index]
+        "error_prevention",
+        "trust_calibration",
+        "operator_speed",
+    ]
+    morph_ir = UXMorphIR.model_validate(morph_payload)
+
+    with pytest.raises(ValueError, match="reference instance binding mismatch for utility_ranking"):
+        assert_v36a_reference_instance_binding(domain_packet=domain_packet, morph_ir=morph_ir)
+
+
 def test_approved_profile_combination_policy_rejects_non_enumerated_combination() -> None:
     domain_packet = UXDomainPacket.model_validate(
         _load_json("ux_domain_packet_artifact_inspector_reference.json")
@@ -134,3 +150,11 @@ def test_authority_boundary_policy_is_frozen_true() -> None:
 
     with pytest.raises(ValidationError):
         UXDomainPacket.model_validate(payload)
+
+
+def test_morph_ir_rejects_empty_governance_lists() -> None:
+    payload = _load_json("ux_morph_ir_artifact_inspector_reference.json")
+    payload["ontology"]["entities"] = []  # type: ignore[index]
+
+    with pytest.raises(ValidationError, match="ontology.entities must not be empty"):
+        UXMorphIR.model_validate(payload)

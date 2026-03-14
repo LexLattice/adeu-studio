@@ -208,6 +208,8 @@ _WIDGET_SEMANTIC_TOKENS: tuple[str, ...] = (
 
 
 def _assert_sorted_unique(values: list[str], *, field_name: str) -> None:
+    if not values:
+        raise ValueError(f"{field_name} must not be empty")
     if any(not value for value in values):
         raise ValueError(f"{field_name} must not contain empty values")
     if values != sorted(values):
@@ -537,16 +539,11 @@ def assert_v36a_reference_instance_binding(
         raise ValueError("reference instance binding mismatch for supporting_artifacts")
     if domain_packet.authority_boundary_policy != morph_ir.authority_boundary_policy:
         raise ValueError("reference instance binding mismatch for authority_boundary_policy")
-    context_pairs = {
-        "primary_user_archetype": morph_ir.context.primary_user_archetype,
-        "device_class": morph_ir.context.device_class,
-        "risk_level": morph_ir.context.risk_level,
-        "trust_sensitivity": morph_ir.context.trust_sensitivity,
-        "interaction_mode": morph_ir.context.interaction_mode,
-    }
-    for field_name, value in context_pairs.items():
-        if getattr(domain_packet, field_name) != value:
+    for field_name in UXMorphContext.model_fields:
+        if getattr(domain_packet, field_name) != getattr(morph_ir.context, field_name):
             raise ValueError(f"reference instance binding mismatch for {field_name}")
+    if domain_packet.utility_ranking != morph_ir.utility.priority_order:
+        raise ValueError("reference instance binding mismatch for utility_ranking")
 
 
 def approved_profile_for_id(
