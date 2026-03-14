@@ -83,6 +83,9 @@ _FORBIDDEN_AUTHORITATIVE_GATE_SOURCE_VALUES = {
     "ui_route_configuration",
     "ad_hoc_component_logic",
 }
+_IMPLEMENTATION_BINDING_REFERENCE_INSTANCE_ERROR = (
+    "implementation_observable_bindings target_ref must bind to bundle reference_instance_id"
+)
 
 
 class UXGovernanceEvidenceError(ValueError):
@@ -277,6 +280,10 @@ def _load_frozen_schema(
     return payload
 
 
+def _anchor_resolves_in_text(*, text: str, anchor: str) -> bool:
+    return anchor in text
+
+
 def _validation_error_message(error: dict[str, Any]) -> str:
     message = str(error.get("msg", ""))
     prefix = "Value error, "
@@ -316,10 +323,7 @@ def _raise_v36b_validation_error(*, field_name: str, exc: ValidationError) -> No
             "stable provenance hook id must match the frozen deterministic format",
             "implementation binding id must match the frozen deterministic format",
             "stable_provenance_hooks target_ref must bind to bundle reference_instance_id",
-            (
-                "implementation_observable_bindings target_ref must bind to bundle "
-                "reference_instance_id"
-            ),
+            _IMPLEMENTATION_BINDING_REFERENCE_INSTANCE_ERROR,
         }:
             raise UXGovernanceEvidenceError(message) from exc
     raise UXGovernanceEvidenceError(f"{field_name} is invalid") from exc
@@ -371,12 +375,40 @@ def _validate_authoritative_gate_sources(
             raise UXGovernanceEvidenceError(
                 "authoritative_gate_source source_ref must resolve to a committed docs anchor"
             )
+        source_text = source_file.read_text(encoding="utf-8")
+        if not _anchor_resolves_in_text(text=source_text, anchor=anchor):
+            raise UXGovernanceEvidenceError(
+                "authoritative_gate_source source_ref must resolve to a committed docs anchor"
+            )
         if gate_source.source_kind == "accepted_v35_runtime_authority_artifact":
             if path_text != "docs/LOCKED_CONTINUATION_vNEXT_PLUS60.md":
                 raise UXGovernanceEvidenceError(
                     "accepted_v35_runtime_authority_artifact must resolve to the frozen "
                     "v35 runtime authority baseline"
                 )
+
+
+def _v36a_substrate_signature_payload(
+    *,
+    ux_domain_packet_reference_path: str,
+    ux_domain_packet_reference_hash: str,
+    ux_morph_ir_reference_path: str,
+    ux_morph_ir_reference_hash: str,
+    approved_profile_table_path: str,
+    approved_profile_table_hash: str,
+    same_context_reachability_glossary_path: str,
+    same_context_reachability_glossary_hash: str,
+) -> dict[str, str]:
+    return {
+        "approved_profile_table_hash": approved_profile_table_hash,
+        "approved_profile_table_path": approved_profile_table_path,
+        "same_context_reachability_glossary_hash": same_context_reachability_glossary_hash,
+        "same_context_reachability_glossary_path": same_context_reachability_glossary_path,
+        "ux_domain_packet_reference_hash": ux_domain_packet_reference_hash,
+        "ux_domain_packet_reference_path": ux_domain_packet_reference_path,
+        "ux_morph_ir_reference_hash": ux_morph_ir_reference_hash,
+        "ux_morph_ir_reference_path": ux_morph_ir_reference_path,
+    }
 
 
 def _validate_v36b_reference_canonicalization(
@@ -739,9 +771,18 @@ def materialize_v36b_surface_projection_interaction_evidence(
         interaction_contract=interaction_contract,
     )
 
-    # Touch the validated v36a payloads so the consumed-substrate evidence depends on
-    # canonical v61 inputs, even though their paths/hashes are not emitted in the v62 block.
-    _ = (domain_payload, morph_payload, profile_table_payload, glossary_payload)
+    v36a_substrate_signature = _sha256_canonical_json(
+        _v36a_substrate_signature_payload(
+            ux_domain_packet_reference_path=ux_domain_packet_reference_path,
+            ux_domain_packet_reference_hash=_sha256_canonical_json(domain_payload),
+            ux_morph_ir_reference_path=ux_morph_ir_reference_path,
+            ux_morph_ir_reference_hash=_sha256_canonical_json(morph_payload),
+            approved_profile_table_path=approved_profile_table_path,
+            approved_profile_table_hash=_sha256_canonical_json(profile_table_payload),
+            same_context_reachability_glossary_path=same_context_reachability_glossary_path,
+            same_context_reachability_glossary_hash=_sha256_canonical_json(glossary_payload),
+        )
+    )
 
     evidence = V36BSurfaceProjectionInteractionEvidence(
         evidence_input_path=output_path,
@@ -775,7 +816,8 @@ def materialize_v36b_surface_projection_interaction_evidence(
         metric_key_exact_set_equal_v61=True,
         notes=(
             "v62 closeout evidence remains pre-rendered-surface, pre-diagnostics, and "
-            "pre-compiler; it verifies the typed projection/interaction substrate only."
+            "pre-compiler; it verifies the typed projection/interaction substrate only. "
+            f"Consumed v36a substrate signature: {v36a_substrate_signature}."
         ),
     )
     payload = evidence.model_dump(mode="json", by_alias=True)

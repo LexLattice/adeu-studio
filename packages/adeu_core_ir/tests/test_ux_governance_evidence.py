@@ -133,32 +133,6 @@ def _materialize_v36b_evidence(*, repo_root: Path) -> dict[str, object]:
     }
 
 
-def _rewrite_v36b_reference_instance(
-    payload: dict[str, object],
-    *,
-    new_reference_instance_id: str,
-    hooks_field: str = "stable_provenance_hooks",
-    bindings_field: str = "implementation_observable_bindings",
-) -> None:
-    payload["reference_instance_id"] = new_reference_instance_id
-    for hook in payload[hooks_field]:  # type: ignore[index]
-        _old_reference_instance_id, suffix = hook["target_ref"].split(":", 1)
-        hook["target_ref"] = f"{new_reference_instance_id}:{suffix}"
-        hook["hook_id"] = build_v36b_stable_provenance_hook_id(
-            reference_instance_id=new_reference_instance_id,
-            target_kind=hook["target_kind"],
-            target_ref=hook["target_ref"],
-        )
-    for binding in payload[bindings_field]:  # type: ignore[index]
-        _old_reference_instance_id, suffix = binding["target_ref"].split(":", 1)
-        binding["target_ref"] = f"{new_reference_instance_id}:{suffix}"
-        binding["binding_id"] = build_v36b_stable_binding_id(
-            reference_instance_id=new_reference_instance_id,
-            target_kind=binding["target_kind"],
-            target_ref=binding["target_ref"],
-        )
-
-
 def test_materialize_v36a_ux_domain_morph_ir_evidence_is_deterministic(tmp_path: Path) -> None:
     repo_root = _build_temp_repo_fixture_tree(tmp_path)
 
@@ -415,10 +389,24 @@ def test_materialize_v36b_evidence_fails_closed_on_projection_interaction_bindin
         current_rel="artifacts/stop_gate/metrics_v62_closeout.json",
     )
     payload = _load_json(repo_root, DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH)
-    _rewrite_v36b_reference_instance(
-        payload,
-        new_reference_instance_id="artifact_inspector_reference_other",
-    )
+    new_reference_instance_id = "artifact_inspector_reference_other"
+    payload["reference_instance_id"] = new_reference_instance_id
+    for hook in payload["stable_provenance_hooks"]:  # type: ignore[index]
+        _old_reference_instance_id, suffix = hook["target_ref"].split(":", 1)
+        hook["target_ref"] = f"{new_reference_instance_id}:{suffix}"
+        hook["hook_id"] = build_v36b_stable_provenance_hook_id(
+            reference_instance_id=new_reference_instance_id,
+            target_kind=hook["target_kind"],
+            target_ref=hook["target_ref"],
+        )
+    for binding in payload["implementation_observable_bindings"]:  # type: ignore[index]
+        _old_reference_instance_id, suffix = binding["target_ref"].split(":", 1)
+        binding["target_ref"] = f"{new_reference_instance_id}:{suffix}"
+        binding["binding_id"] = build_v36b_stable_binding_id(
+            reference_instance_id=new_reference_instance_id,
+            target_kind=binding["target_kind"],
+            target_ref=binding["target_ref"],
+        )
     _write_json(repo_root / DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH, payload)
 
     with pytest.raises(
@@ -434,6 +422,30 @@ def test_materialize_v36b_evidence_fails_closed_on_projection_interaction_bindin
             baseline_metrics_path=baseline_rel,
             current_metrics_path=current_rel,
         )
+
+
+def test_materialize_v36b_evidence_hash_changes_when_consumed_v36a_substrate_changes(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    first = _materialize_v36b_evidence(repo_root=repo_root)
+
+    domain_payload = _load_json(repo_root, DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH)
+    morph_payload = _load_json(repo_root, DEFAULT_UX_MORPH_IR_REFERENCE_PATH)
+    updated_ranking = [
+        "error_prevention",
+        "trust_calibration",
+        "operator_speed",
+    ]
+    domain_payload["utility_ranking"] = updated_ranking
+    morph_payload["utility"]["priority_order"] = updated_ranking  # type: ignore[index]
+    _write_json(repo_root / DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH, domain_payload)
+    _write_json(repo_root / DEFAULT_UX_MORPH_IR_REFERENCE_PATH, morph_payload)
+
+    second = _materialize_v36b_evidence(repo_root=repo_root)
+
+    assert first["artifact"].hash != second["artifact"].hash
+    assert first["payload"]["notes"] != second["payload"]["notes"]
 
 
 def test_materialize_v36b_evidence_fails_closed_on_forbidden_gate_source(
@@ -453,6 +465,36 @@ def test_materialize_v36b_evidence_fails_closed_on_forbidden_gate_source(
 
     with pytest.raises(
         UXGovernanceEvidenceError, match="forbidden authoritative gate source detected"
+    ):
+        materialize_v36b_surface_projection_interaction_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v62/evidence_inputs/"
+                "v36b_surface_projection_interaction_evidence_v62.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36b_evidence_fails_closed_on_missing_gate_source_anchor(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V61_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v62_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH)
+    payload["interaction_entries"][1]["authoritative_gate_source"]["source_ref"] = (  # type: ignore[index]
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS62.md#missing_anchor"
+    )
+    _write_json(repo_root / DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="authoritative_gate_source source_ref must resolve to a committed docs anchor",
     ):
         materialize_v36b_surface_projection_interaction_evidence(
             repo_root=repo_root,
