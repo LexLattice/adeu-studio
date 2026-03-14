@@ -16,12 +16,17 @@ from adeu_core_ir import (
     DEFAULT_UX_MORPH_IR_SCHEMA_PATH,
     DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH,
     DEFAULT_UX_SURFACE_PROJECTION_SCHEMA_PATH,
+    DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH,
+    DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH,
+    DEFAULT_V36C_RENDERED_SURFACE_SNAPSHOT_PATH,
     DEFAULT_V60_BASELINE_METRICS_PATH,
     DEFAULT_V61_BASELINE_METRICS_PATH,
+    DEFAULT_V62_BASELINE_METRICS_PATH,
     build_v36b_stable_binding_id,
     build_v36b_stable_provenance_hook_id,
     materialize_v36a_ux_domain_morph_ir_evidence,
     materialize_v36b_surface_projection_interaction_evidence,
+    materialize_v36c_artifact_inspector_reference_surface_evidence,
 )
 from adeu_core_ir.ux_governance_evidence import UXGovernanceEvidenceError
 from adeu_ir.repo import repo_root
@@ -83,8 +88,10 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH,
         DEFAULT_APPROVED_PROFILE_TABLE_PATH,
         DEFAULT_SAME_CONTEXT_GLOSSARY_PATH,
+        DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH,
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS60.md",
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS62.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS63.md",
     ):
         _copy_repo_relative_file(
             source_root=source_root,
@@ -130,6 +137,31 @@ def _materialize_v36b_evidence(*, repo_root: Path) -> dict[str, object]:
     return {
         "artifact": evidence,
         "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _materialize_v36c_evidence(*, repo_root: Path) -> dict[str, object]:
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V62_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+    evidence = materialize_v36c_artifact_inspector_reference_surface_evidence(
+        repo_root=repo_root,
+        output_path=(
+            "artifacts/agent_harness/v63/evidence_inputs/"
+            "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+        ),
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
+        "snapshot": _load_json(repo_root, DEFAULT_V36C_RENDERED_SURFACE_SNAPSHOT_PATH),
+        "binding_manifest": _load_json(
+            repo_root, DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH
+        ),
     }
 
 
@@ -736,6 +768,271 @@ def test_materialize_v36b_evidence_fails_closed_on_non_v61_baseline_metrics_path
             output_path=(
                 "artifacts/agent_harness/v62/evidence_inputs/"
                 "v36b_surface_projection_interaction_evidence_v62.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36c_reference_surface_evidence_is_deterministic(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+
+    first = _materialize_v36c_evidence(repo_root=repo_root)
+    second = _materialize_v36c_evidence(repo_root=repo_root)
+
+    assert first["artifact"].hash == second["artifact"].hash
+    assert first["payload"] == second["payload"]
+    assert first["snapshot"] == second["snapshot"]
+    assert first["binding_manifest"] == second["binding_manifest"]
+    assert first["payload"]["schema"] == "v36c_artifact_inspector_reference_surface_evidence@1"
+    assert first["snapshot"]["schema"] == "v36c_rendered_reference_surface_semantic_snapshot@1"
+    assert (
+        first["binding_manifest"]["schema"] == "v36c_rendered_reference_surface_binding_manifest@1"
+    )
+
+
+def test_materialize_v36c_evidence_fails_closed_on_missing_route_contract(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V62_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+    (repo_root / DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH).unlink()
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="rendered_reference_surface_contract_path does not exist",
+    ):
+        materialize_v36c_artifact_inspector_reference_surface_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v63/evidence_inputs/"
+                "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36c_evidence_fails_closed_on_route_path_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V62_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH)
+    payload["route_path"] = "/copilot"
+    _write_json(repo_root / DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="rendered surface contract route_path drift detected",
+    ):
+        materialize_v36c_artifact_inspector_reference_surface_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v63/evidence_inputs/"
+                "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36c_evidence_fails_closed_on_lane_cluster_mapping_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V62_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH)
+    payload["lane_cluster_rendering"][1]["cluster_ids"] = ["commit-actions"]  # type: ignore[index]
+    _write_json(repo_root / DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="rendered lane cluster mapping drift detected",
+    ):
+        materialize_v36c_artifact_inspector_reference_surface_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v63/evidence_inputs/"
+                "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36c_evidence_fails_closed_on_missing_binding_exposure_target(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V62_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH)
+    del payload["rendered_binding_exposures"]["required_evidence_reachability_anchors"]  # type: ignore[index]
+    _write_json(repo_root / DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="rendered binding exposure targets is missing required target",
+    ):
+        materialize_v36c_artifact_inspector_reference_surface_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v63/evidence_inputs/"
+                "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36c_evidence_fails_closed_on_diagnostics_placeholder_widening(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V62_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH)
+    payload["diagnostics_lane_read_only_notice"] = "Diagnostics lane now produces local severity."
+    _write_json(repo_root / DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="diagnostics placeholder widening detected",
+    ):
+        materialize_v36c_artifact_inspector_reference_surface_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v63/evidence_inputs/"
+                "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36c_evidence_fails_closed_on_truth_label_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V62_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH)
+    payload["truth_source_notice"] = "Worker summaries may be treated as accepted truth here."
+    _write_json(repo_root / DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="non-authoritative event or worker content truth labeling drift detected",
+    ):
+        materialize_v36c_artifact_inspector_reference_surface_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v63/evidence_inputs/"
+                "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36c_evidence_fails_closed_on_route_change_requirement_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V62_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH)
+    payload["evidence_before_commit"]["route_change_required"] = True  # type: ignore[index]
+    _write_json(repo_root / DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="rendered surface cannot require a route change before required evidence",
+    ):
+        materialize_v36c_artifact_inspector_reference_surface_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v63/evidence_inputs/"
+                "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36c_evidence_fails_closed_on_metric_key_continuity_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V62_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+    payload = _load_json(repo_root, current_rel)
+    payload["metrics"].pop("metric_79")  # type: ignore[index]
+    _write_json(repo_root / current_rel, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError, match="metric key cardinality must remain frozen at 80"
+    ):
+        materialize_v36c_artifact_inspector_reference_surface_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v63/evidence_inputs/"
+                "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36c_evidence_fails_closed_on_non_v62_baseline_metrics_path(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel="artifacts/stop_gate/metrics_other_closeout.json",
+        current_rel="artifacts/stop_gate/metrics_v63_closeout.json",
+    )
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="baseline_metrics_path must point to the frozen v62 closeout metrics artifact",
+    ):
+        materialize_v36c_artifact_inspector_reference_surface_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v63/evidence_inputs/"
+                "v36c_artifact_inspector_reference_surface_evidence_v63.json"
             ),
             baseline_metrics_path=baseline_rel,
             current_metrics_path=current_rel,

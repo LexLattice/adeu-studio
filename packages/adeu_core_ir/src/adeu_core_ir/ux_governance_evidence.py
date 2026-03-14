@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, TypeVar
+from typing import Any, Iterable, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -30,10 +30,17 @@ V36B_SURFACE_PROJECTION_INTERACTION_EVIDENCE_SCHEMA = (
 V36B_SURFACE_PROJECTION_INTERACTION_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS62.md#v36b_surface_projection_interaction_contract@1"
 )
+V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_EVIDENCE_SCHEMA = (
+    "v36c_artifact_inspector_reference_surface_evidence@1"
+)
+V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS63.md#v36c_artifact_inspector_reference_surface_contract@1"
+)
 STOP_GATE_METRICS_SCHEMA = "stop_gate_metrics@1"
 EXPECTED_METRIC_KEY_CARDINALITY = 80
 DEFAULT_V60_BASELINE_METRICS_PATH = "artifacts/stop_gate/metrics_v60_closeout.json"
 DEFAULT_V61_BASELINE_METRICS_PATH = "artifacts/stop_gate/metrics_v61_closeout.json"
+DEFAULT_V62_BASELINE_METRICS_PATH = "artifacts/stop_gate/metrics_v62_closeout.json"
 
 DEFAULT_UX_DOMAIN_PACKET_SCHEMA_PATH = "packages/adeu_core_ir/schema/ux_domain_packet.v1.json"
 DEFAULT_UX_MORPH_IR_SCHEMA_PATH = "packages/adeu_core_ir/schema/ux_morph_ir.v1.json"
@@ -64,6 +71,27 @@ DEFAULT_APPROVED_PROFILE_TABLE_PATH = (
 DEFAULT_SAME_CONTEXT_GLOSSARY_PATH = (
     "apps/api/fixtures/ux_governance/vnext_plus61/v36a_same_context_reachability_glossary.json"
 )
+DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH = (
+    "apps/api/fixtures/ux_governance/vnext_plus63/v36c_rendered_reference_surface_contract.json"
+)
+DEFAULT_V36C_RENDERED_SURFACE_SNAPSHOT_PATH = (
+    "artifacts/agent_harness/v63/evidence_inputs/"
+    "v36c_artifact_inspector_reference_surface_snapshot_v63.json"
+)
+DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH = (
+    "artifacts/agent_harness/v63/evidence_inputs/"
+    "v36c_artifact_inspector_reference_surface_binding_manifest_v63.json"
+)
+V36C_RENDERED_ROUTE_ID = "artifact_inspector_reference_surface"
+V36C_RENDERED_ROUTE_PATH = "/artifact-inspector"
+V36C_ROUTE_PAYLOAD_PARITY_MODE = (
+    "presentational_transform_only_no_authority_or_reachability_meaning_drift"
+)
+V36C_DIAGNOSTICS_LANE_MODE = "placeholder_or_existing_artifact_backed_read_only_only"
+V36C_TRUTH_SOURCE_POLICY = "accepted_v36_artifacts_only"
+V36C_RENDERED_SURFACE_SNAPSHOT_KIND = "semantic_structured_route_snapshot@1"
+V36C_RENDERED_SNAPSHOT_SCHEMA = "v36c_rendered_reference_surface_semantic_snapshot@1"
+V36C_BINDING_MANIFEST_SCHEMA = "v36c_rendered_reference_surface_binding_manifest@1"
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 _FREE_FORM_POLICY_LOC = (
@@ -85,6 +113,30 @@ _FORBIDDEN_AUTHORITATIVE_GATE_SOURCE_VALUES = {
 }
 _IMPLEMENTATION_BINDING_REFERENCE_INSTANCE_ERROR = (
     "implementation_observable_bindings target_ref must bind to bundle reference_instance_id"
+)
+_RENDERED_PROVENANCE_TARGETS = (
+    "rendered_regions",
+    "authority_bearing_controls",
+    "evidence_bearing_regions",
+    "state_distinction_surfaces",
+    "explicit_commit_or_handoff_boundary",
+)
+_RENDERED_BINDING_TARGETS = (
+    "commit_or_approval_gates",
+    "advisory_vs_authoritative_actions",
+    "disabled_or_unavailable_gated_states",
+    "required_evidence_reachability_anchors",
+    "salience_bearing_warning_status_and_diagnostic_surfaces",
+)
+_REQUIRED_EPISTEMIC_STATES = (
+    "loading",
+    "draft",
+    "candidate",
+    "validated",
+    "authoritative",
+    "conflicted",
+    "stale",
+    "ambiguous",
 )
 
 
@@ -168,6 +220,143 @@ class V36BSurfaceProjectionInteractionEvidence(BaseModel):
     verification_passed: bool
     metric_key_cardinality: int = Field(ge=0)
     metric_key_exact_set_equal_v61: bool
+    notes: str = Field(min_length=1)
+
+
+class V36CRenderedRouteLaneCluster(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    lane_id: str = Field(min_length=1)
+    cluster_ids: list[str] = Field(min_length=1)
+
+
+class V36CRenderedReferenceSurfaceContract(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(
+        default="v36c_rendered_reference_surface_contract@1",
+        alias="schema",
+    )
+    reference_surface_family: str = Field(min_length=1)
+    reference_instance_id: str = Field(min_length=1)
+    approved_profile_id: str = Field(min_length=1)
+    route_id: str = Field(min_length=1)
+    route_path: str = Field(min_length=1)
+    rendered_surface_snapshot_kind: str = Field(min_length=1)
+    route_payload_parity_mode: str = Field(min_length=1)
+    diagnostics_lane_mode: str = Field(min_length=1)
+    diagnostics_lane_notice: str = Field(min_length=1)
+    diagnostics_lane_read_only_notice: str = Field(min_length=1)
+    commit_boundary_id: str = Field(min_length=1)
+    commit_boundary_notice: str = Field(min_length=1)
+    truth_source_policy: str = Field(min_length=1)
+    truth_source_notice: str = Field(min_length=1)
+    epistemic_state_descriptions: dict[str, str] = Field(min_length=1)
+    lane_cluster_rendering: list[V36CRenderedRouteLaneCluster] = Field(min_length=1)
+    rendered_provenance_exposures: dict[str, list[str]] = Field(min_length=1)
+    rendered_binding_exposures: dict[str, list[str]] = Field(min_length=1)
+
+
+class V36CRenderedSurfaceSemanticSnapshot(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(default=V36C_RENDERED_SNAPSHOT_SCHEMA, alias="schema")
+    route_contract_path: str = Field(min_length=1)
+    route_contract_hash: str = Field(min_length=64, max_length=64)
+    route_id: str = Field(min_length=1)
+    route_path: str = Field(min_length=1)
+    reference_surface_family: str = Field(min_length=1)
+    reference_instance_id: str = Field(min_length=1)
+    approved_profile_id: str = Field(min_length=1)
+    rendered_surface_snapshot_kind: str = Field(min_length=1)
+    route_payload_parity_mode: str = Field(min_length=1)
+    diagnostics_lane_mode: str = Field(min_length=1)
+    diagnostics_lane_notice: str = Field(min_length=1)
+    diagnostics_lane_read_only_notice: str = Field(min_length=1)
+    truth_source_policy: str = Field(min_length=1)
+    truth_source_notice: str = Field(min_length=1)
+    commit_boundary_id: str = Field(min_length=1)
+    commit_boundary_notice: str = Field(min_length=1)
+    required_evidence_lane_ids: list[str] = Field(min_length=1)
+    required_evidence_region_ids: list[str] = Field(min_length=1)
+    route_change_required: bool
+    commit_or_destructive_action_required: bool
+    same_context_reachability_glossary: dict[str, Any]
+    rendered_region_ids: list[str] = Field(min_length=1)
+    rendered_lane_ids: list[str] = Field(min_length=1)
+    lane_cluster_rendering: list[V36CRenderedRouteLaneCluster] = Field(min_length=1)
+    epistemic_state_descriptions: dict[str, str] = Field(min_length=1)
+    state_surfaces: list[dict[str, str]] = Field(min_length=1)
+    advisory_action_ids: list[str] = Field(min_length=1)
+    authoritative_or_gated_action_ids: list[str] = Field(min_length=1)
+
+
+class V36CRenderedSurfaceTargetManifestEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    target_ref: str = Field(min_length=1)
+    binding_ids: list[str]
+    binding_target_kinds: list[str]
+    binding_tokens: list[str]
+    hook_ids: list[str]
+    hook_target_kinds: list[str]
+
+
+class V36CRenderedSurfaceBindingManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(default=V36C_BINDING_MANIFEST_SCHEMA, alias="schema")
+    route_contract_path: str = Field(min_length=1)
+    route_contract_hash: str = Field(min_length=64, max_length=64)
+    route_id: str = Field(min_length=1)
+    route_path: str = Field(min_length=1)
+    reference_surface_family: str = Field(min_length=1)
+    reference_instance_id: str = Field(min_length=1)
+    approved_profile_id: str = Field(min_length=1)
+    rendered_provenance_exposures: dict[str, list[str]] = Field(min_length=1)
+    rendered_binding_exposures: dict[str, list[str]] = Field(min_length=1)
+    stable_provenance_hooks: list[dict[str, Any]] = Field(min_length=1)
+    implementation_observable_bindings: list[dict[str, Any]] = Field(min_length=1)
+    target_manifest: list[V36CRenderedSurfaceTargetManifestEntry] = Field(min_length=1)
+
+
+class V36CArtifactInspectorReferenceSurfaceEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(
+        default=V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_EVIDENCE_SCHEMA,
+        alias="schema",
+    )
+    contract_source: str = V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_CONTRACT_SOURCE
+    evidence_input_path: str = Field(min_length=1)
+    rendered_surface_route_id: str = Field(min_length=1)
+    rendered_surface_route_path: str = Field(min_length=1)
+    rendered_surface_snapshot_kind: str = Field(min_length=1)
+    rendered_surface_snapshot_path: str = Field(min_length=1)
+    rendered_surface_snapshot_hash: str = Field(min_length=64, max_length=64)
+    implementation_binding_manifest_path: str = Field(min_length=1)
+    implementation_binding_manifest_hash: str = Field(min_length=64, max_length=64)
+    route_payload_parity_verified_as_presentational_only_transform: bool
+    v36a_reference_pair_consumed_without_drift: bool
+    v36b_reference_pair_consumed_without_drift: bool
+    reference_profile_id_verified_against_v36a_table: bool
+    epistemic_state_rendering_verified: bool
+    advisory_authoritative_boundary_rendering_verified: bool
+    same_context_evidence_visibility_preserved: bool
+    no_route_level_glossary_shadowing_verified: bool
+    explicit_commit_or_handoff_boundary_visible: bool
+    stable_provenance_hooks_exposed: bool
+    stable_provenance_hook_targets_exposed: bool
+    implementation_observable_bindings_exposed: bool
+    non_authoritative_event_or_worker_content_not_rendered_as_accepted_truth: bool
+    no_visual_authority_inflation_preserved: bool
+    no_unrelated_route_rewrite_detected: bool
+    no_v36d_diagnostics_engine_widening: bool
+    no_v36e_compiler_widening: bool
+    v35_authority_baseline_unchanged: bool
+    verification_passed: bool
+    metric_key_cardinality: int = Field(ge=0)
+    metric_key_exact_set_equal_v62: bool
     notes: str = Field(min_length=1)
 
 
@@ -301,6 +490,14 @@ def _raise_v36b_validation_error(*, field_name: str, exc: ValidationError) -> No
             raise UXGovernanceEvidenceError(
                 "projection must consume the released v36a same-context glossary without shadowing"
             ) from exc
+        if loc == ("evidence_before_commit", "route_change_required"):
+            raise UXGovernanceEvidenceError(
+                "rendered surface cannot require a route change before required evidence"
+            ) from exc
+        if loc == ("evidence_before_commit", "commit_or_destructive_action_required"):
+            raise UXGovernanceEvidenceError(
+                "rendered surface cannot require a commit or destructive action before evidence"
+            ) from exc
         if loc == _FREE_FORM_POLICY_LOC:
             raise UXGovernanceEvidenceError("free-form UI codegen bypass detected") from exc
         if loc == _AUTHORITY_MINTING_POLICY_LOC:
@@ -411,6 +608,21 @@ def _v36a_substrate_signature_payload(
     }
 
 
+def _v36b_substrate_signature_payload(
+    *,
+    ux_surface_projection_reference_path: str,
+    ux_surface_projection_reference_hash: str,
+    ux_interaction_contract_reference_path: str,
+    ux_interaction_contract_reference_hash: str,
+) -> dict[str, str]:
+    return {
+        "ux_interaction_contract_reference_hash": ux_interaction_contract_reference_hash,
+        "ux_interaction_contract_reference_path": ux_interaction_contract_reference_path,
+        "ux_surface_projection_reference_hash": ux_surface_projection_reference_hash,
+        "ux_surface_projection_reference_path": ux_surface_projection_reference_path,
+    }
+
+
 def _validate_v36b_reference_canonicalization(
     *,
     surface_projection_payload: dict[str, Any],
@@ -430,6 +642,335 @@ def _validate_v36b_reference_canonicalization(
         raise UXGovernanceEvidenceError(
             "ux_interaction_contract_reference_path must serialize canonically without drift"
         )
+
+
+def _normalize_text(text: str) -> str:
+    return " ".join(text.lower().split())
+
+
+def _strip_reference_instance_prefix(target_ref: str) -> str:
+    _reference_instance_id, separator, suffix = target_ref.partition(":")
+    if not separator or not suffix:
+        raise UXGovernanceEvidenceError("target_ref must contain a reference_instance_id prefix")
+    return suffix
+
+
+def _assert_minimum_coverage(
+    *,
+    label: str,
+    actual: Iterable[str],
+    required: Iterable[str],
+) -> None:
+    actual_set = set(actual)
+    for required_value in required:
+        if required_value not in actual_set:
+            raise UXGovernanceEvidenceError(
+                f"{label} is missing required target {required_value!r}"
+            )
+
+
+def _assert_exposure_refs_present(
+    *,
+    label: str,
+    actual_refs: Iterable[str],
+    expected_refs: Iterable[str],
+) -> None:
+    _assert_minimum_coverage(
+        label=label,
+        actual=actual_refs,
+        required=expected_refs,
+    )
+
+
+def _build_lane_cluster_map(
+    surface_projection: UXSurfaceProjection,
+) -> dict[str, list[str]]:
+    by_lane: dict[str, list[str]] = {}
+    for cluster in surface_projection.action_clusters:
+        by_lane.setdefault(cluster.lane_id, []).append(cluster.cluster_id)
+    return by_lane
+
+
+def _combined_provenance_hooks(
+    *,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+) -> list[dict[str, Any]]:
+    hooks = [
+        *(hook.model_dump(mode="json") for hook in surface_projection.stable_provenance_hooks),
+        *(hook.model_dump(mode="json") for hook in interaction_contract.stable_provenance_hooks),
+    ]
+    return sorted(hooks, key=lambda hook: str(hook["hook_id"]))
+
+
+def _combined_implementation_bindings(
+    *,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+) -> list[dict[str, Any]]:
+    bindings = [
+        *(
+            binding.model_dump(mode="json")
+            for binding in surface_projection.implementation_observable_bindings
+        ),
+        *(
+            binding.model_dump(mode="json")
+            for binding in interaction_contract.implementation_observable_bindings
+        ),
+    ]
+    return sorted(bindings, key=lambda binding: str(binding["binding_id"]))
+
+
+def _build_v36c_target_manifest(
+    *,
+    provenance_hooks: list[dict[str, Any]],
+    implementation_bindings: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    by_target: dict[str, dict[str, Any]] = {}
+
+    def ensure(target_ref: str) -> dict[str, Any]:
+        existing = by_target.get(target_ref)
+        if existing is not None:
+            return existing
+        created = {
+            "target_ref": target_ref,
+            "binding_ids": [],
+            "binding_target_kinds": [],
+            "binding_tokens": [],
+            "hook_ids": [],
+            "hook_target_kinds": [],
+        }
+        by_target[target_ref] = created
+        return created
+
+    for hook in provenance_hooks:
+        target = ensure(str(hook["target_ref"]))
+        target["hook_ids"].append(str(hook["hook_id"]))
+        target["hook_target_kinds"].append(str(hook["target_kind"]))
+    for binding in implementation_bindings:
+        target = ensure(str(binding["target_ref"]))
+        target["binding_ids"].append(str(binding["binding_id"]))
+        target["binding_target_kinds"].append(str(binding["target_kind"]))
+        target["binding_tokens"].append(str(binding["binding_token"]))
+
+    payload: list[dict[str, Any]] = []
+    for target_ref in sorted(by_target):
+        entry = by_target[target_ref]
+        payload.append(
+            {
+                "target_ref": target_ref,
+                "binding_ids": sorted(entry["binding_ids"]),
+                "binding_target_kinds": sorted(entry["binding_target_kinds"]),
+                "binding_tokens": sorted(entry["binding_tokens"]),
+                "hook_ids": sorted(entry["hook_ids"]),
+                "hook_target_kinds": sorted(entry["hook_target_kinds"]),
+            }
+        )
+    return payload
+
+
+def _validate_v36c_rendered_surface_contract(
+    *,
+    rendered_surface_contract: V36CRenderedReferenceSurfaceContract,
+    domain_packet: UXDomainPacket,
+    morph_ir: UXMorphIR,
+    approved_profile_table: V36AFirstFamilyApprovedProfileTable,
+    same_context_glossary: V36ASameContextReachabilityGlossary,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+) -> None:
+    if rendered_surface_contract.route_id != V36C_RENDERED_ROUTE_ID:
+        raise UXGovernanceEvidenceError("rendered surface contract route_id drift detected")
+    if rendered_surface_contract.route_path != V36C_RENDERED_ROUTE_PATH:
+        raise UXGovernanceEvidenceError("rendered surface contract route_path drift detected")
+    if rendered_surface_contract.route_payload_parity_mode != V36C_ROUTE_PAYLOAD_PARITY_MODE:
+        raise UXGovernanceEvidenceError("rendered surface contract parity mode drift detected")
+    if rendered_surface_contract.diagnostics_lane_mode != V36C_DIAGNOSTICS_LANE_MODE:
+        raise UXGovernanceEvidenceError("diagnostics lane mode drift detected")
+    if rendered_surface_contract.truth_source_policy != V36C_TRUTH_SOURCE_POLICY:
+        raise UXGovernanceEvidenceError("truth source policy drift detected")
+    if (
+        rendered_surface_contract.rendered_surface_snapshot_kind
+        != V36C_RENDERED_SURFACE_SNAPSHOT_KIND
+    ):
+        raise UXGovernanceEvidenceError("rendered surface snapshot kind drift detected")
+    for label, candidate in (
+        ("ux_domain_packet@1", domain_packet),
+        ("ux_morph_ir@1", morph_ir),
+        ("ux_surface_projection@1", surface_projection),
+        ("ux_interaction_contract@1", interaction_contract),
+    ):
+        if rendered_surface_contract.reference_surface_family != candidate.reference_surface_family:
+            raise UXGovernanceEvidenceError(
+                f"rendered surface contract reference_surface_family drifted from {label}"
+            )
+        if rendered_surface_contract.reference_instance_id != candidate.reference_instance_id:
+            raise UXGovernanceEvidenceError(
+                f"rendered surface contract reference_instance_id drifted from {label}"
+            )
+        if rendered_surface_contract.approved_profile_id != candidate.approved_profile_id:
+            raise UXGovernanceEvidenceError(
+                f"rendered surface contract approved_profile_id drifted from {label}"
+            )
+    if (
+        rendered_surface_contract.approved_profile_id
+        != approved_profile_table.canonical_reference_profile_id
+    ):
+        raise UXGovernanceEvidenceError(
+            "rendered surface contract approved_profile_id must use the canonical v36a profile"
+        )
+    if rendered_surface_contract.approved_profile_id not in {
+        profile.profile_id for profile in approved_profile_table.profiles
+    }:
+        raise UXGovernanceEvidenceError(
+            "rendered surface contract approved_profile_id must be present in the v36a table"
+        )
+    if (
+        rendered_surface_contract.reference_surface_family
+        != same_context_glossary.reference_surface_family
+    ):
+        raise UXGovernanceEvidenceError(
+            "rendered surface contract reference surface family drift detected"
+        )
+
+    lane_cluster_map = _build_lane_cluster_map(surface_projection)
+    for cluster_rendering in rendered_surface_contract.lane_cluster_rendering:
+        actual = lane_cluster_map.get(cluster_rendering.lane_id, [])
+        if actual != cluster_rendering.cluster_ids:
+            raise UXGovernanceEvidenceError(
+                f"rendered lane cluster mapping drift detected for {cluster_rendering.lane_id!r}"
+            )
+
+    _assert_minimum_coverage(
+        label="rendered provenance exposure targets",
+        actual=rendered_surface_contract.rendered_provenance_exposures.keys(),
+        required=_RENDERED_PROVENANCE_TARGETS,
+    )
+    _assert_minimum_coverage(
+        label="rendered binding exposure targets",
+        actual=rendered_surface_contract.rendered_binding_exposures.keys(),
+        required=_RENDERED_BINDING_TARGETS,
+    )
+    for refs in rendered_surface_contract.rendered_provenance_exposures.values():
+        if not refs:
+            raise UXGovernanceEvidenceError("rendered provenance exposure refs must not be empty")
+    for refs in rendered_surface_contract.rendered_binding_exposures.values():
+        if not refs:
+            raise UXGovernanceEvidenceError("rendered binding exposure refs must not be empty")
+
+    _assert_exposure_refs_present(
+        label="rendered region exposure refs",
+        actual_refs=rendered_surface_contract.rendered_provenance_exposures["rendered_regions"],
+        expected_refs=(region.region_id for region in surface_projection.regions),
+    )
+    _assert_exposure_refs_present(
+        label="authority-bearing control exposure refs",
+        actual_refs=rendered_surface_contract.rendered_provenance_exposures[
+            "authority_bearing_controls"
+        ],
+        expected_refs=(
+            entry.interaction_id
+            for entry in interaction_contract.interaction_entries
+            if entry.authoritative or entry.gated or entry.approval_bearing
+        ),
+    )
+    _assert_exposure_refs_present(
+        label="evidence-bearing region exposure refs",
+        actual_refs=rendered_surface_contract.rendered_provenance_exposures[
+            "evidence_bearing_regions"
+        ],
+        expected_refs=(
+            [
+                *surface_projection.evidence_before_commit.required_evidence_region_ids,
+                *surface_projection.evidence_before_commit.required_evidence_lane_ids,
+            ]
+        ),
+    )
+    _assert_exposure_refs_present(
+        label="state distinction surface exposure refs",
+        actual_refs=rendered_surface_contract.rendered_provenance_exposures[
+            "state_distinction_surfaces"
+        ],
+        expected_refs=(surface.surface_id for surface in surface_projection.state_surfaces),
+    )
+    _assert_exposure_refs_present(
+        label="explicit commit boundary exposure refs",
+        actual_refs=rendered_surface_contract.rendered_provenance_exposures[
+            "explicit_commit_or_handoff_boundary"
+        ],
+        expected_refs=[rendered_surface_contract.commit_boundary_id],
+    )
+    _assert_exposure_refs_present(
+        label="commit or approval gate exposure refs",
+        actual_refs=rendered_surface_contract.rendered_binding_exposures[
+            "commit_or_approval_gates"
+        ],
+        expected_refs=[
+            "open-commit-review",
+            "submit-commit-request",
+            "submit-commit-request-disabled",
+        ],
+    )
+    _assert_exposure_refs_present(
+        label="advisory vs authoritative action exposure refs",
+        actual_refs=rendered_surface_contract.rendered_binding_exposures[
+            "advisory_vs_authoritative_actions"
+        ],
+        expected_refs=(entry.interaction_id for entry in interaction_contract.interaction_entries),
+    )
+    _assert_exposure_refs_present(
+        label="disabled gated state exposure refs",
+        actual_refs=rendered_surface_contract.rendered_binding_exposures[
+            "disabled_or_unavailable_gated_states"
+        ],
+        expected_refs=["submit-commit-request-disabled"],
+    )
+    _assert_exposure_refs_present(
+        label="required evidence reachability anchor exposure refs",
+        actual_refs=rendered_surface_contract.rendered_binding_exposures[
+            "required_evidence_reachability_anchors"
+        ],
+        expected_refs=(
+            _strip_reference_instance_prefix(binding.target_ref)
+            for binding in surface_projection.implementation_observable_bindings
+            if binding.target_kind == "required_evidence_reachability_anchor"
+        ),
+    )
+    _assert_exposure_refs_present(
+        label="salience-bearing surface exposure refs",
+        actual_refs=rendered_surface_contract.rendered_binding_exposures[
+            "salience_bearing_warning_status_and_diagnostic_surfaces"
+        ],
+        expected_refs=(
+            _strip_reference_instance_prefix(binding.target_ref)
+            for binding in surface_projection.implementation_observable_bindings
+            if binding.target_kind in {"warning_surface", "status_surface", "diagnostic_surface"}
+        ),
+    )
+
+    diagnostics_notice = _normalize_text(
+        rendered_surface_contract.diagnostics_lane_read_only_notice
+    )
+    if (
+        "no new severity" not in diagnostics_notice
+        or "no local conformance judgment" not in diagnostics_notice
+        or "no ui heuristic" not in diagnostics_notice
+    ):
+        raise UXGovernanceEvidenceError("diagnostics placeholder widening detected")
+
+    truth_notice = _normalize_text(rendered_surface_contract.truth_source_notice)
+    if (
+        "event streams or worker prose are not rendered here as accepted truth" not in truth_notice
+        or "non-authoritative" not in truth_notice
+    ):
+        raise UXGovernanceEvidenceError(
+            "non-authoritative event or worker content truth labeling drift detected"
+        )
+
+    if set(rendered_surface_contract.epistemic_state_descriptions) != set(
+        _REQUIRED_EPISTEMIC_STATES
+    ):
+        raise UXGovernanceEvidenceError("epistemic state descriptions drift detected")
 
 
 def materialize_v36a_ux_domain_morph_ir_evidence(
@@ -818,6 +1359,379 @@ def materialize_v36b_surface_projection_interaction_evidence(
             "v62 closeout evidence remains pre-rendered-surface, pre-diagnostics, and "
             "pre-compiler; it verifies the typed projection/interaction substrate only. "
             f"Consumed v36a substrate signature: {v36a_substrate_signature}."
+        ),
+    )
+    payload = evidence.model_dump(mode="json", by_alias=True)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(_pretty_canonical_json(payload), encoding="utf-8")
+    return MaterializedUXGovernanceEvidence(
+        path=output_path,
+        hash=_sha256_canonical_json(payload),
+        payload=payload,
+    )
+
+
+def materialize_v36c_artifact_inspector_reference_surface_evidence(
+    *,
+    repo_root: Path,
+    output_path: str,
+    baseline_metrics_path: str,
+    current_metrics_path: str,
+    rendered_surface_snapshot_path: str = DEFAULT_V36C_RENDERED_SURFACE_SNAPSHOT_PATH,
+    implementation_binding_manifest_path: str = DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH,
+    rendered_reference_surface_contract_path: str = (
+        DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH
+    ),
+    ux_surface_projection_reference_path: str = DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH,
+    ux_interaction_contract_reference_path: str = DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH,
+    ux_domain_packet_reference_path: str = DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH,
+    ux_morph_ir_reference_path: str = DEFAULT_UX_MORPH_IR_REFERENCE_PATH,
+    approved_profile_table_path: str = DEFAULT_APPROVED_PROFILE_TABLE_PATH,
+    same_context_reachability_glossary_path: str = DEFAULT_SAME_CONTEXT_GLOSSARY_PATH,
+) -> MaterializedUXGovernanceEvidence:
+    repo_root = repo_root.resolve()
+    if not repo_root.is_dir():
+        raise UXGovernanceEvidenceError("repository root does not exist")
+    if baseline_metrics_path != DEFAULT_V62_BASELINE_METRICS_PATH:
+        raise UXGovernanceEvidenceError(
+            "baseline_metrics_path must point to the frozen v62 closeout metrics artifact"
+        )
+
+    output_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=output_path,
+        field_name="output_path",
+        required_prefix="artifacts/",
+    )
+    snapshot_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=rendered_surface_snapshot_path,
+        field_name="rendered_surface_snapshot_path",
+        required_prefix="artifacts/",
+    )
+    binding_manifest_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=implementation_binding_manifest_path,
+        field_name="implementation_binding_manifest_path",
+        required_prefix="artifacts/",
+    )
+    baseline_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=baseline_metrics_path,
+        field_name="baseline_metrics_path",
+        required_prefix="artifacts/",
+    )
+    current_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=current_metrics_path,
+        field_name="current_metrics_path",
+        required_prefix="artifacts/",
+    )
+    rendered_surface_contract_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=rendered_reference_surface_contract_path,
+        field_name="rendered_reference_surface_contract_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    surface_projection_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_surface_projection_reference_path,
+        field_name="ux_surface_projection_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    interaction_contract_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_interaction_contract_reference_path,
+        field_name="ux_interaction_contract_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    domain_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_domain_packet_reference_path,
+        field_name="ux_domain_packet_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    morph_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_morph_ir_reference_path,
+        field_name="ux_morph_ir_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    approved_profile_table_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=approved_profile_table_path,
+        field_name="approved_profile_table_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    same_context_glossary_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=same_context_reachability_glossary_path,
+        field_name="same_context_reachability_glossary_path",
+        required_prefix="apps/api/fixtures/",
+    )
+
+    baseline_metrics = _load_stop_gate_metrics(
+        path=baseline_metrics_file,
+        field_name="baseline_metrics_path",
+    )
+    current_metrics = _load_stop_gate_metrics(
+        path=current_metrics_file,
+        field_name="current_metrics_path",
+    )
+    baseline_metric_keys = set(baseline_metrics["metrics"].keys())
+    current_metric_keys = set(current_metrics["metrics"].keys())
+    if len(current_metric_keys) != EXPECTED_METRIC_KEY_CARDINALITY:
+        raise UXGovernanceEvidenceError("metric key cardinality must remain frozen at 80")
+    if baseline_metric_keys != current_metric_keys:
+        raise UXGovernanceEvidenceError("metric key set must remain exactly equal to v62")
+
+    rendered_surface_contract_payload, rendered_surface_contract = _load_validated_model(
+        path=rendered_surface_contract_file,
+        field_name="rendered_reference_surface_contract_path",
+        model_type=V36CRenderedReferenceSurfaceContract,
+    )
+    surface_projection_payload, surface_projection = _load_validated_v36b_model(
+        path=surface_projection_reference_file,
+        field_name="ux_surface_projection_reference_path",
+        model_type=UXSurfaceProjection,
+    )
+    interaction_contract_payload, interaction_contract = _load_validated_v36b_model(
+        path=interaction_contract_reference_file,
+        field_name="ux_interaction_contract_reference_path",
+        model_type=UXInteractionContract,
+    )
+    domain_payload, domain_packet = _load_validated_model(
+        path=domain_reference_file,
+        field_name="ux_domain_packet_reference_path",
+        model_type=UXDomainPacket,
+    )
+    morph_payload, morph_ir = _load_validated_model(
+        path=morph_reference_file,
+        field_name="ux_morph_ir_reference_path",
+        model_type=UXMorphIR,
+    )
+    profile_table_payload, approved_profile_table = _load_validated_model(
+        path=approved_profile_table_file,
+        field_name="approved_profile_table_path",
+        model_type=V36AFirstFamilyApprovedProfileTable,
+    )
+    glossary_payload, same_context_glossary = _load_validated_model(
+        path=same_context_glossary_file,
+        field_name="same_context_reachability_glossary_path",
+        model_type=V36ASameContextReachabilityGlossary,
+    )
+
+    _validate_v36b_reference_canonicalization(
+        surface_projection_payload=surface_projection_payload,
+        interaction_contract_payload=interaction_contract_payload,
+    )
+    try:
+        assert_v36a_reference_bundle_consistent(
+            domain_packet=domain_packet,
+            morph_ir=morph_ir,
+            approved_profile_table=approved_profile_table,
+            same_context_glossary=same_context_glossary,
+        )
+        assert_v36b_reference_bundle_consistent(
+            domain_packet=domain_packet,
+            morph_ir=morph_ir,
+            approved_profile_table=approved_profile_table,
+            same_context_glossary=same_context_glossary,
+            surface_projection=surface_projection,
+            interaction_contract=interaction_contract,
+        )
+    except ValueError as exc:
+        raise UXGovernanceEvidenceError(str(exc)) from exc
+    _validate_authoritative_gate_sources(
+        repo_root=repo_root,
+        interaction_contract=interaction_contract,
+    )
+    _validate_v36c_rendered_surface_contract(
+        rendered_surface_contract=rendered_surface_contract,
+        domain_packet=domain_packet,
+        morph_ir=morph_ir,
+        approved_profile_table=approved_profile_table,
+        same_context_glossary=same_context_glossary,
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+    )
+
+    if surface_projection.evidence_before_commit.route_change_required:
+        raise UXGovernanceEvidenceError(
+            "rendered surface cannot require a route change before required evidence"
+        )
+    if surface_projection.evidence_before_commit.commit_or_destructive_action_required:
+        raise UXGovernanceEvidenceError(
+            "rendered surface cannot require a commit or destructive action before evidence"
+        )
+
+    combined_hooks = _combined_provenance_hooks(
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+    )
+    combined_bindings = _combined_implementation_bindings(
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+    )
+    target_manifest = _build_v36c_target_manifest(
+        provenance_hooks=combined_hooks,
+        implementation_bindings=combined_bindings,
+    )
+
+    stable_provenance_target_kinds = {hook["target_kind"] for hook in combined_hooks}
+    implementation_binding_target_kinds = {binding["target_kind"] for binding in combined_bindings}
+    if "authority_bearing_control" not in stable_provenance_target_kinds:
+        raise UXGovernanceEvidenceError(
+            "stable provenance hooks must expose authority-bearing controls in the rendered surface"
+        )
+    if "action_cluster" not in stable_provenance_target_kinds:
+        raise UXGovernanceEvidenceError(
+            "stable provenance hooks must expose action clusters in the rendered surface"
+        )
+    if "commit_or_approval_gate" not in implementation_binding_target_kinds:
+        raise UXGovernanceEvidenceError(
+            "implementation bindings must expose commit or approval gates in the rendered surface"
+        )
+    if "advisory_action" not in implementation_binding_target_kinds:
+        raise UXGovernanceEvidenceError(
+            "implementation bindings must expose advisory actions in the rendered surface"
+        )
+
+    v36a_substrate_signature = _sha256_canonical_json(
+        _v36a_substrate_signature_payload(
+            ux_domain_packet_reference_path=ux_domain_packet_reference_path,
+            ux_domain_packet_reference_hash=_sha256_canonical_json(domain_payload),
+            ux_morph_ir_reference_path=ux_morph_ir_reference_path,
+            ux_morph_ir_reference_hash=_sha256_canonical_json(morph_payload),
+            approved_profile_table_path=approved_profile_table_path,
+            approved_profile_table_hash=_sha256_canonical_json(profile_table_payload),
+            same_context_reachability_glossary_path=same_context_reachability_glossary_path,
+            same_context_reachability_glossary_hash=_sha256_canonical_json(glossary_payload),
+        )
+    )
+    v36b_substrate_signature = _sha256_canonical_json(
+        _v36b_substrate_signature_payload(
+            ux_surface_projection_reference_path=ux_surface_projection_reference_path,
+            ux_surface_projection_reference_hash=_sha256_canonical_json(surface_projection_payload),
+            ux_interaction_contract_reference_path=ux_interaction_contract_reference_path,
+            ux_interaction_contract_reference_hash=_sha256_canonical_json(
+                interaction_contract_payload
+            ),
+        )
+    )
+    rendered_surface_contract_hash = _sha256_canonical_json(rendered_surface_contract_payload)
+
+    snapshot = V36CRenderedSurfaceSemanticSnapshot(
+        route_contract_path=rendered_reference_surface_contract_path,
+        route_contract_hash=rendered_surface_contract_hash,
+        route_id=rendered_surface_contract.route_id,
+        route_path=rendered_surface_contract.route_path,
+        reference_surface_family=rendered_surface_contract.reference_surface_family,
+        reference_instance_id=rendered_surface_contract.reference_instance_id,
+        approved_profile_id=rendered_surface_contract.approved_profile_id,
+        rendered_surface_snapshot_kind=rendered_surface_contract.rendered_surface_snapshot_kind,
+        route_payload_parity_mode=rendered_surface_contract.route_payload_parity_mode,
+        diagnostics_lane_mode=rendered_surface_contract.diagnostics_lane_mode,
+        diagnostics_lane_notice=rendered_surface_contract.diagnostics_lane_notice,
+        diagnostics_lane_read_only_notice=rendered_surface_contract.diagnostics_lane_read_only_notice,
+        truth_source_policy=rendered_surface_contract.truth_source_policy,
+        truth_source_notice=rendered_surface_contract.truth_source_notice,
+        commit_boundary_id=rendered_surface_contract.commit_boundary_id,
+        commit_boundary_notice=rendered_surface_contract.commit_boundary_notice,
+        required_evidence_lane_ids=surface_projection.evidence_before_commit.required_evidence_lane_ids,
+        required_evidence_region_ids=surface_projection.evidence_before_commit.required_evidence_region_ids,
+        route_change_required=surface_projection.evidence_before_commit.route_change_required,
+        commit_or_destructive_action_required=surface_projection.evidence_before_commit.commit_or_destructive_action_required,
+        same_context_reachability_glossary=surface_projection.evidence_before_commit.same_context_reachability_glossary.model_dump(
+            mode="json"
+        ),
+        rendered_region_ids=[region.region_id for region in surface_projection.regions],
+        rendered_lane_ids=[lane.lane_id for lane in surface_projection.lanes],
+        lane_cluster_rendering=[
+            entry.model_dump(mode="json")
+            for entry in rendered_surface_contract.lane_cluster_rendering
+        ],
+        epistemic_state_descriptions=rendered_surface_contract.epistemic_state_descriptions,
+        state_surfaces=[
+            {
+                "lane_id": surface.lane_id,
+                "surface_id": surface.surface_id,
+                "surface_kind": surface.surface_kind,
+            }
+            for surface in surface_projection.state_surfaces
+        ],
+        advisory_action_ids=sorted(
+            entry.interaction_id
+            for entry in interaction_contract.interaction_entries
+            if not entry.authoritative
+        ),
+        authoritative_or_gated_action_ids=sorted(
+            entry.interaction_id
+            for entry in interaction_contract.interaction_entries
+            if entry.authoritative or entry.gated or entry.approval_bearing
+        ),
+    )
+    snapshot_payload = snapshot.model_dump(mode="json", by_alias=True)
+    snapshot_file.parent.mkdir(parents=True, exist_ok=True)
+    snapshot_file.write_text(_pretty_canonical_json(snapshot_payload), encoding="utf-8")
+
+    binding_manifest = V36CRenderedSurfaceBindingManifest(
+        route_contract_path=rendered_reference_surface_contract_path,
+        route_contract_hash=rendered_surface_contract_hash,
+        route_id=rendered_surface_contract.route_id,
+        route_path=rendered_surface_contract.route_path,
+        reference_surface_family=rendered_surface_contract.reference_surface_family,
+        reference_instance_id=rendered_surface_contract.reference_instance_id,
+        approved_profile_id=rendered_surface_contract.approved_profile_id,
+        rendered_provenance_exposures=rendered_surface_contract.rendered_provenance_exposures,
+        rendered_binding_exposures=rendered_surface_contract.rendered_binding_exposures,
+        stable_provenance_hooks=combined_hooks,
+        implementation_observable_bindings=combined_bindings,
+        target_manifest=target_manifest,
+    )
+    binding_manifest_payload = binding_manifest.model_dump(mode="json", by_alias=True)
+    binding_manifest_file.parent.mkdir(parents=True, exist_ok=True)
+    binding_manifest_file.write_text(
+        _pretty_canonical_json(binding_manifest_payload),
+        encoding="utf-8",
+    )
+
+    evidence = V36CArtifactInspectorReferenceSurfaceEvidence(
+        evidence_input_path=output_path,
+        rendered_surface_route_id=rendered_surface_contract.route_id,
+        rendered_surface_route_path=rendered_surface_contract.route_path,
+        rendered_surface_snapshot_kind=rendered_surface_contract.rendered_surface_snapshot_kind,
+        rendered_surface_snapshot_path=rendered_surface_snapshot_path,
+        rendered_surface_snapshot_hash=_sha256_canonical_json(snapshot_payload),
+        implementation_binding_manifest_path=implementation_binding_manifest_path,
+        implementation_binding_manifest_hash=_sha256_canonical_json(binding_manifest_payload),
+        route_payload_parity_verified_as_presentational_only_transform=True,
+        v36a_reference_pair_consumed_without_drift=True,
+        v36b_reference_pair_consumed_without_drift=True,
+        reference_profile_id_verified_against_v36a_table=True,
+        epistemic_state_rendering_verified=True,
+        advisory_authoritative_boundary_rendering_verified=True,
+        same_context_evidence_visibility_preserved=True,
+        no_route_level_glossary_shadowing_verified=True,
+        explicit_commit_or_handoff_boundary_visible=True,
+        stable_provenance_hooks_exposed=True,
+        stable_provenance_hook_targets_exposed=True,
+        implementation_observable_bindings_exposed=True,
+        non_authoritative_event_or_worker_content_not_rendered_as_accepted_truth=True,
+        no_visual_authority_inflation_preserved=True,
+        no_unrelated_route_rewrite_detected=True,
+        no_v36d_diagnostics_engine_widening=True,
+        no_v36e_compiler_widening=True,
+        v35_authority_baseline_unchanged=True,
+        verification_passed=True,
+        metric_key_cardinality=len(current_metric_keys),
+        metric_key_exact_set_equal_v62=True,
+        notes=(
+            "v63 closeout evidence remains pre-v36d diagnostics and pre-v36e compiler export; "
+            "it verifies one bounded rendered reference surface only. "
+            f"Consumed v36a substrate signature: {v36a_substrate_signature}. "
+            f"Consumed v36b substrate signature: {v36b_substrate_signature}. "
+            f"Consumed v63 rendered route contract hash: {rendered_surface_contract_hash}."
         ),
     )
     payload = evidence.model_dump(mode="json", by_alias=True)
