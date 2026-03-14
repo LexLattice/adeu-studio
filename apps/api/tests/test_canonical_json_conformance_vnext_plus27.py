@@ -92,6 +92,11 @@ _FROZEN_HELPER_ENTRYPOINTS: tuple[_FrozenEntrypoint, ...] = (
         symbol="_canonical_json",
     ),
     _FrozenEntrypoint(
+        repo_path="packages/adeu_core_ir/src/adeu_core_ir/ux_governance_evidence.py",
+        module="adeu_core_ir.ux_governance_evidence",
+        symbol="_canonical_json",
+    ),
+    _FrozenEntrypoint(
         repo_path="packages/adeu_explain/src/adeu_explain/explain_diff.py",
         module="adeu_explain.explain_diff",
         symbol="_canonical_json",
@@ -249,7 +254,7 @@ def test_vnext_plus27_conformance_coverage_guard_exercises_frozen_entrypoints() 
     expected_entrypoints = tuple(entry.entrypoint for entry in _FROZEN_HELPER_ENTRYPOINTS)
 
     assert tuple(loaded.keys()) == expected_entrypoints
-    assert len(loaded) == len(_FROZEN_HELPER_ENTRYPOINTS) == 10
+    assert len(loaded) == len(_FROZEN_HELPER_ENTRYPOINTS) == 11
 
 
 def test_vnext_plus27_canonical_definition_discovery_report_is_deterministic() -> None:
