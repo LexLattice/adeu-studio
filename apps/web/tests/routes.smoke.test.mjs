@@ -74,6 +74,7 @@ test("route smoke: home, explain, concepts, puzzles, papers, copilot, evidence-e
       { path: "/papers", mustInclude: "Paper Abstract Studio" },
       { path: "/copilot", mustInclude: "Copilot Runtime" },
       { path: "/evidence-explorer", mustInclude: "Evidence Explorer" },
+      { path: "/artifact-inspector", mustInclude: "Artifact Inspector Reference Surface" },
     ];
 
     for (const route of routeExpectations) {
@@ -94,3 +95,42 @@ test("mobile baseline: globals.css has single-column breakpoint", async () => {
   assert.match(css, /@media \(max-width: 860px\)/);
   assert.match(css, /grid-template-columns:\s*minmax\(0, 1fr\)/);
 });
+
+test(
+  "artifact inspector reference surface exposes rendered law hooks and boundaries",
+  { timeout: 120_000 },
+  async () => {
+    const proc = startWebServer();
+    try {
+      await waitForServerReady(proc);
+
+      const res = await fetch(`${BASE_URL}/artifact-inspector`);
+      assert.equal(res.status, 200);
+      const html = await res.text();
+
+      assert.match(html, /data-route-id="artifact_inspector_reference_surface"/);
+      assert.match(html, /data-route-path="\/artifact-inspector"/);
+      assert.match(html, /data-reference-surface-family="artifact_inspector_advisory_workbench"/);
+      assert.match(html, /data-reference-instance-id="artifact_inspector_reference_main"/);
+      assert.match(html, /data-approved-profile-id="artifact_inspector_reference"/);
+      assert.match(html, /data-route-payload-parity="presentational_transform_only"/);
+      assert.match(
+        html,
+        /data-diagnostics-lane-mode="placeholder_or_existing_artifact_backed_read_only_only"/,
+      );
+      assert.match(html, /Explicit Commit Gate/);
+      assert.match(html, /Diagnostics lane remains read-only placeholder in v63\./);
+      assert.match(html, /required evidence reachable before commit/i);
+      assert.match(html, /UI may express but may not mint authority/i);
+      assert.match(html, /data-epistemic-state="loading"/);
+      assert.match(html, /data-epistemic-state="authoritative"/);
+      assert.match(html, /data-epistemic-state="ambiguous"/);
+      assert.match(html, /adeu\.binding\.commit-gate/);
+      assert.match(html, /adeu\.binding\.warning-surface/);
+      assert.match(html, /v36b\.prov:artifact_inspector_reference_main:authority_bearing_control/);
+      assert.match(html, /data-truth-source="accepted_v36_artifacts_only"/);
+    } finally {
+      await stopProcess(proc);
+    }
+  },
+);
