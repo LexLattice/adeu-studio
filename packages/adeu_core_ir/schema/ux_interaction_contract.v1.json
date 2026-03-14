@@ -1,0 +1,465 @@
+{
+  "$defs": {
+    "UXAuthoritativeGateSource": {
+      "additionalProperties": false,
+      "properties": {
+        "source_kind": {
+          "enum": [
+            "accepted_governance_artifact",
+            "accepted_v35_runtime_authority_artifact"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_ref": {
+          "minLength": 1,
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_kind",
+        "source_ref"
+      ],
+      "title": "UXAuthoritativeGateSource",
+      "type": "object"
+    },
+    "UXAuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "no_free_form_ui_codegen_without_ir": {
+          "const": true,
+          "default": true,
+          "title": "No Free Form Ui Codegen Without Ir",
+          "type": "boolean"
+        },
+        "no_visual_authority_inflation": {
+          "const": true,
+          "default": true,
+          "title": "No Visual Authority Inflation",
+          "type": "boolean"
+        },
+        "ui_artifacts_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "default": true,
+          "title": "Ui Artifacts May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "title": "UXAuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "UXImplementationObservableBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_id": {
+          "minLength": 1,
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "binding_token": {
+          "minLength": 1,
+          "title": "Binding Token",
+          "type": "string"
+        },
+        "source_path": {
+          "minLength": 1,
+          "title": "Source Path",
+          "type": "string"
+        },
+        "source_schema": {
+          "enum": [
+            "ux_interaction_contract@1",
+            "ux_surface_projection@1"
+          ],
+          "title": "Source Schema",
+          "type": "string"
+        },
+        "target_kind": {
+          "enum": [
+            "advisory_action",
+            "authoritative_action",
+            "commit_or_approval_gate",
+            "diagnostic_surface",
+            "disabled_or_unavailable_gated_state",
+            "required_evidence_reachability_anchor",
+            "status_surface",
+            "warning_surface"
+          ],
+          "title": "Target Kind",
+          "type": "string"
+        },
+        "target_ref": {
+          "minLength": 1,
+          "title": "Target Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "binding_id",
+        "source_schema",
+        "target_kind",
+        "target_ref",
+        "binding_token",
+        "source_path"
+      ],
+      "title": "UXImplementationObservableBinding",
+      "type": "object"
+    },
+    "UXInteractionContractEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "action_cluster_id": {
+          "minLength": 1,
+          "title": "Action Cluster Id",
+          "type": "string"
+        },
+        "approval_bearing": {
+          "default": false,
+          "title": "Approval Bearing",
+          "type": "boolean"
+        },
+        "authoritative": {
+          "default": false,
+          "title": "Authoritative",
+          "type": "boolean"
+        },
+        "authoritative_gate_source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UXAuthoritativeGateSource"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "committing": {
+          "default": false,
+          "title": "Committing",
+          "type": "boolean"
+        },
+        "confirmation_required": {
+          "title": "Confirmation Required",
+          "type": "boolean"
+        },
+        "evidence_required": {
+          "title": "Evidence Required",
+          "type": "boolean"
+        },
+        "failure_surface": {
+          "enum": [
+            "action_lane",
+            "status_lane",
+            "trust_boundary_lane"
+          ],
+          "title": "Failure Surface",
+          "type": "string"
+        },
+        "gated": {
+          "default": false,
+          "title": "Gated",
+          "type": "boolean"
+        },
+        "interaction_id": {
+          "minLength": 1,
+          "title": "Interaction Id",
+          "type": "string"
+        },
+        "preconditions": {
+          "items": {
+            "enum": [
+              "candidate_context_available",
+              "commit_gate_rendered",
+              "required_evidence_reachable",
+              "trust_boundary_visible"
+            ],
+            "type": "string"
+          },
+          "title": "Preconditions",
+          "type": "array"
+        },
+        "requested_runtime_effect": {
+          "$ref": "#/$defs/UXRequestedRuntimeEffect"
+        },
+        "reversible": {
+          "title": "Reversible",
+          "type": "boolean"
+        },
+        "rollback_path": {
+          "enum": [
+            "clear_pending_request",
+            "none_required",
+            "restore_previous_focus"
+          ],
+          "title": "Rollback Path",
+          "type": "string"
+        },
+        "runtime_visible_consequence": {
+          "$ref": "#/$defs/UXRuntimeVisibleConsequence"
+        },
+        "success_surface": {
+          "enum": [
+            "action_lane",
+            "status_lane",
+            "work_context_lane"
+          ],
+          "title": "Success Surface",
+          "type": "string"
+        },
+        "surface_event": {
+          "enum": [
+            "focus_evidence_lane",
+            "focus_source_artifact",
+            "open_commit_review",
+            "run_advisory_action",
+            "submit_commit_request"
+          ],
+          "title": "Surface Event",
+          "type": "string"
+        },
+        "ui_transition": {
+          "enum": [
+            "bounded_workbench_focus_shift",
+            "bounded_workbench_position_shift",
+            "bounded_workbench_state_reveal"
+          ],
+          "title": "Ui Transition",
+          "type": "string"
+        },
+        "user_visible_consequence": {
+          "enum": [
+            "advisory_action_selection_visible",
+            "commit_review_revealed",
+            "evidence_focus_visible",
+            "request_submission_visible",
+            "source_focus_visible"
+          ],
+          "title": "User Visible Consequence",
+          "type": "string"
+        }
+      },
+      "required": [
+        "interaction_id",
+        "action_cluster_id",
+        "surface_event",
+        "ui_transition",
+        "preconditions",
+        "user_visible_consequence",
+        "requested_runtime_effect",
+        "runtime_visible_consequence",
+        "reversible",
+        "confirmation_required",
+        "evidence_required",
+        "rollback_path",
+        "failure_surface",
+        "success_surface"
+      ],
+      "title": "UXInteractionContractEntry",
+      "type": "object"
+    },
+    "UXProjectionInteractionSupportingArtifactRefs": {
+      "additionalProperties": false,
+      "properties": {
+        "approved_profile_table_schema": {
+          "const": "v36a_first_family_approved_profile_table@1",
+          "default": "v36a_first_family_approved_profile_table@1",
+          "title": "Approved Profile Table Schema",
+          "type": "string"
+        },
+        "same_context_reachability_glossary_schema": {
+          "const": "v36a_same_context_reachability_glossary@1",
+          "default": "v36a_same_context_reachability_glossary@1",
+          "title": "Same Context Reachability Glossary Schema",
+          "type": "string"
+        },
+        "ux_domain_packet_schema": {
+          "const": "ux_domain_packet@1",
+          "default": "ux_domain_packet@1",
+          "title": "Ux Domain Packet Schema",
+          "type": "string"
+        },
+        "ux_morph_ir_schema": {
+          "const": "ux_morph_ir@1",
+          "default": "ux_morph_ir@1",
+          "title": "Ux Morph Ir Schema",
+          "type": "string"
+        }
+      },
+      "title": "UXProjectionInteractionSupportingArtifactRefs",
+      "type": "object"
+    },
+    "UXRequestedRuntimeEffect": {
+      "additionalProperties": false,
+      "properties": {
+        "descriptive_only": {
+          "const": true,
+          "default": true,
+          "title": "Descriptive Only",
+          "type": "boolean"
+        },
+        "effect_kind": {
+          "enum": [
+            "advisory_action_requested",
+            "artifact_focus_requested",
+            "commit_review_requested",
+            "commit_submission_requested",
+            "evidence_focus_requested"
+          ],
+          "title": "Effect Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "effect_kind"
+      ],
+      "title": "UXRequestedRuntimeEffect",
+      "type": "object"
+    },
+    "UXRuntimeVisibleConsequence": {
+      "additionalProperties": false,
+      "properties": {
+        "outcome_kind": {
+          "enum": [
+            "advisory_selection_visible",
+            "bounded_context_focus_visible",
+            "gated_pending_confirmation_visible",
+            "provisional_request_visible",
+            "request_submission_visible",
+            "status_feedback_visible"
+          ],
+          "title": "Outcome Kind",
+          "type": "string"
+        },
+        "truth_posture": {
+          "enum": [
+            "accepted_effect_confirmed",
+            "provisional",
+            "request_only"
+          ],
+          "title": "Truth Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "outcome_kind",
+        "truth_posture"
+      ],
+      "title": "UXRuntimeVisibleConsequence",
+      "type": "object"
+    },
+    "UXStableProvenanceHook": {
+      "additionalProperties": false,
+      "properties": {
+        "hook_id": {
+          "minLength": 1,
+          "title": "Hook Id",
+          "type": "string"
+        },
+        "source_path": {
+          "minLength": 1,
+          "title": "Source Path",
+          "type": "string"
+        },
+        "source_schema": {
+          "enum": [
+            "ux_interaction_contract@1",
+            "ux_surface_projection@1"
+          ],
+          "title": "Source Schema",
+          "type": "string"
+        },
+        "target_kind": {
+          "enum": [
+            "action_cluster",
+            "authority_bearing_control",
+            "evidence_bearing_region",
+            "projection_unit",
+            "state_distinction_surface"
+          ],
+          "title": "Target Kind",
+          "type": "string"
+        },
+        "target_ref": {
+          "minLength": 1,
+          "title": "Target Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hook_id",
+        "source_schema",
+        "target_kind",
+        "target_ref",
+        "source_path"
+      ],
+      "title": "UXStableProvenanceHook",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approved_profile_id": {
+      "enum": [
+        "artifact_inspector_alternate",
+        "artifact_inspector_reference"
+      ],
+      "title": "Approved Profile Id",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/UXAuthorityBoundaryPolicy"
+    },
+    "implementation_observable_bindings": {
+      "items": {
+        "$ref": "#/$defs/UXImplementationObservableBinding"
+      },
+      "title": "Implementation Observable Bindings",
+      "type": "array"
+    },
+    "interaction_entries": {
+      "items": {
+        "$ref": "#/$defs/UXInteractionContractEntry"
+      },
+      "title": "Interaction Entries",
+      "type": "array"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_interaction_contract@1",
+      "default": "ux_interaction_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stable_provenance_hooks": {
+      "items": {
+        "$ref": "#/$defs/UXStableProvenanceHook"
+      },
+      "title": "Stable Provenance Hooks",
+      "type": "array"
+    },
+    "supporting_artifacts": {
+      "$ref": "#/$defs/UXProjectionInteractionSupportingArtifactRefs"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "approved_profile_id",
+    "interaction_entries",
+    "stable_provenance_hooks",
+    "implementation_observable_bindings"
+  ],
+  "title": "UXInteractionContract",
+  "type": "object"
+}

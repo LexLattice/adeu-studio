@@ -591,3 +591,622 @@ def assert_v36a_reference_bundle_consistent(
         morph_axes=morph_ir.morph_axes,
     ):
         raise ValueError("morph axes are not part of the approved profile table")
+
+
+UXSurfaceProjectionSchemaVersion = Literal["ux_surface_projection@1"]
+UXInteractionContractSchemaVersion = Literal["ux_interaction_contract@1"]
+UXProjectionLaneRole = Literal[
+    "action_lane",
+    "diagnostics_lane",
+    "evidence_lane",
+    "navigation_lane",
+    "source_lane",
+    "status_lane",
+    "trust_boundary_lane",
+    "work_context_lane",
+]
+UXResponsiveBehavior = Literal[
+    "desktop_split_pane_preserved",
+    "narrow_width_context_preserved_without_route_change",
+]
+UXActionAuthorityPosture = Literal["advisory", "authoritative", "commit_or_approval_gate"]
+UXProjectionStateSurfaceKind = Literal[
+    "authoritative_state_surface",
+    "diagnostic_state_surface",
+    "provisional_state_surface",
+    "warning_state_surface",
+]
+UXProvenanceHookTargetKind = Literal[
+    "action_cluster",
+    "authority_bearing_control",
+    "evidence_bearing_region",
+    "projection_unit",
+    "state_distinction_surface",
+]
+UXBindingTargetKind = Literal[
+    "advisory_action",
+    "authoritative_action",
+    "commit_or_approval_gate",
+    "diagnostic_surface",
+    "disabled_or_unavailable_gated_state",
+    "required_evidence_reachability_anchor",
+    "status_surface",
+    "warning_surface",
+]
+UXAuthoritativeGateSourceKind = Literal[
+    "accepted_governance_artifact",
+    "accepted_v35_runtime_authority_artifact",
+]
+UXSurfaceEvent = Literal[
+    "focus_evidence_lane",
+    "focus_source_artifact",
+    "open_commit_review",
+    "run_advisory_action",
+    "submit_commit_request",
+]
+UXInteractionPrecondition = Literal[
+    "candidate_context_available",
+    "commit_gate_rendered",
+    "required_evidence_reachable",
+    "trust_boundary_visible",
+]
+UXUserVisibleConsequence = Literal[
+    "advisory_action_selection_visible",
+    "commit_review_revealed",
+    "evidence_focus_visible",
+    "request_submission_visible",
+    "source_focus_visible",
+]
+UXRequestedRuntimeEffectKind = Literal[
+    "advisory_action_requested",
+    "artifact_focus_requested",
+    "commit_review_requested",
+    "commit_submission_requested",
+    "evidence_focus_requested",
+]
+UXRuntimeVisibleConsequenceKind = Literal[
+    "advisory_selection_visible",
+    "bounded_context_focus_visible",
+    "gated_pending_confirmation_visible",
+    "provisional_request_visible",
+    "request_submission_visible",
+    "status_feedback_visible",
+]
+UXRuntimeTruthPosture = Literal["accepted_effect_confirmed", "provisional", "request_only"]
+UXRollbackPath = Literal["clear_pending_request", "none_required", "restore_previous_focus"]
+UXFailureSurface = Literal["action_lane", "status_lane", "trust_boundary_lane"]
+UXSuccessSurface = Literal["action_lane", "status_lane", "work_context_lane"]
+
+UX_SURFACE_PROJECTION_SCHEMA = "ux_surface_projection@1"
+UX_INTERACTION_CONTRACT_SCHEMA = "ux_interaction_contract@1"
+FROZEN_V36B_PROVENANCE_HOOK_TARGETS: tuple[UXProvenanceHookTargetKind, ...] = (
+    "projection_unit",
+    "action_cluster",
+    "authority_bearing_control",
+    "evidence_bearing_region",
+    "state_distinction_surface",
+)
+FROZEN_V36B_IMPLEMENTATION_BINDING_TARGETS: tuple[UXBindingTargetKind, ...] = (
+    "commit_or_approval_gate",
+    "advisory_action",
+    "authoritative_action",
+    "disabled_or_unavailable_gated_state",
+    "required_evidence_reachability_anchor",
+    "warning_surface",
+    "status_surface",
+    "diagnostic_surface",
+)
+
+
+class UXProjectionInteractionSupportingArtifactRefs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ux_domain_packet_schema: UXDomainPacketSchemaVersion = UX_DOMAIN_PACKET_SCHEMA
+    ux_morph_ir_schema: UXMorphIRSchemaVersion = UX_MORPH_IR_SCHEMA
+    approved_profile_table_schema: V36AApprovedProfileTableSchemaVersion = (
+        V36A_APPROVED_PROFILE_TABLE_SCHEMA
+    )
+    same_context_reachability_glossary_schema: V36ASameContextGlossarySchemaVersion = (
+        V36A_SAME_CONTEXT_GLOSSARY_SCHEMA
+    )
+
+
+def build_v36b_stable_provenance_hook_id(
+    *, reference_instance_id: str, target_kind: str, target_ref: str
+) -> str:
+    return f"v36b.prov:{reference_instance_id}:{target_kind}:{target_ref}"
+
+
+def build_v36b_stable_binding_id(
+    *,
+    reference_instance_id: str,
+    target_kind: str,
+    target_ref: str,
+) -> str:
+    return f"v36b.bind:{reference_instance_id}:{target_kind}:{target_ref}"
+
+
+def _reference_instance_id_from_v36b_target_ref(*, target_ref: str, field_name: str) -> str:
+    reference_instance_id, separator, _suffix = target_ref.partition(":")
+    if not separator or not reference_instance_id:
+        raise ValueError(f"{field_name} must begin with the frozen reference_instance_id prefix")
+    return reference_instance_id
+
+
+def _assert_v36b_record_reference_instance_binding(
+    *,
+    reference_instance_id: str,
+    hooks: list["UXStableProvenanceHook"],
+    bindings: list["UXImplementationObservableBinding"],
+) -> None:
+    for index, hook in enumerate(hooks):
+        hook_reference_instance_id = _reference_instance_id_from_v36b_target_ref(
+            target_ref=hook.target_ref,
+            field_name=f"stable_provenance_hooks[{index}].target_ref",
+        )
+        if hook_reference_instance_id != reference_instance_id:
+            raise ValueError(
+                "stable_provenance_hooks target_ref must bind to bundle reference_instance_id"
+            )
+    for index, binding in enumerate(bindings):
+        binding_reference_instance_id = _reference_instance_id_from_v36b_target_ref(
+            target_ref=binding.target_ref,
+            field_name=f"implementation_observable_bindings[{index}].target_ref",
+        )
+        if binding_reference_instance_id != reference_instance_id:
+            raise ValueError(
+                "implementation_observable_bindings target_ref must bind to bundle "
+                "reference_instance_id"
+            )
+
+
+class UXStableProvenanceHook(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    hook_id: str = Field(min_length=1)
+    source_schema: Literal["ux_interaction_contract@1", "ux_surface_projection@1"]
+    target_kind: UXProvenanceHookTargetKind
+    target_ref: str = Field(min_length=1)
+    source_path: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXStableProvenanceHook":
+        expected = build_v36b_stable_provenance_hook_id(
+            reference_instance_id=_reference_instance_id_from_v36b_target_ref(
+                target_ref=self.target_ref,
+                field_name="stable_provenance_hooks.target_ref",
+            ),
+            target_kind=self.target_kind,
+            target_ref=self.target_ref,
+        )
+        if self.hook_id != expected:
+            raise ValueError("stable provenance hook id must match the frozen deterministic format")
+        return self
+
+
+class UXImplementationObservableBinding(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    binding_id: str = Field(min_length=1)
+    source_schema: Literal["ux_interaction_contract@1", "ux_surface_projection@1"]
+    target_kind: UXBindingTargetKind
+    target_ref: str = Field(min_length=1)
+    binding_token: str = Field(min_length=1)
+    source_path: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXImplementationObservableBinding":
+        expected = build_v36b_stable_binding_id(
+            reference_instance_id=_reference_instance_id_from_v36b_target_ref(
+                target_ref=self.target_ref,
+                field_name="implementation_observable_bindings.target_ref",
+            ),
+            target_kind=self.target_kind,
+            target_ref=self.target_ref,
+        )
+        if self.binding_id != expected:
+            raise ValueError("implementation binding id must match the frozen deterministic format")
+        return self
+
+
+class UXProjectionRegion(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    region_id: str = Field(min_length=1)
+    region_kind: UXRegion
+    placement_index: int = Field(ge=0)
+    lane_ids: list[str]
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXProjectionRegion":
+        _assert_sorted_unique(self.lane_ids, field_name=f"region[{self.region_id}].lane_ids")
+        return self
+
+
+class UXProjectionLane(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    lane_id: str = Field(min_length=1)
+    lane_role: UXProjectionLaneRole
+    region_id: str = Field(min_length=1)
+    placement_index: int = Field(ge=0)
+
+
+class UXProjectionActionCluster(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    cluster_id: str = Field(min_length=1)
+    cluster_kind: UXActionCluster
+    lane_id: str = Field(min_length=1)
+    authority_posture: UXActionAuthorityPosture
+    primary_cluster: bool = False
+
+
+class UXProjectionStateSurface(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    surface_id: str = Field(min_length=1)
+    lane_id: str = Field(min_length=1)
+    surface_kind: UXProjectionStateSurfaceKind
+
+
+class UXEvidenceBeforeCommitProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    same_context_reachability_glossary: V36ASameContextReachabilityGlossary
+    required_evidence_region_ids: list[str]
+    required_evidence_lane_ids: list[str]
+    route_change_required: Literal[False] = False
+    commit_or_destructive_action_required: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXEvidenceBeforeCommitProjection":
+        _assert_sorted_unique(
+            self.required_evidence_region_ids,
+            field_name="evidence_before_commit.required_evidence_region_ids",
+        )
+        _assert_sorted_unique(
+            self.required_evidence_lane_ids,
+            field_name="evidence_before_commit.required_evidence_lane_ids",
+        )
+        return self
+
+
+class UXSurfaceProjection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: UXSurfaceProjectionSchemaVersion = UX_SURFACE_PROJECTION_SCHEMA
+    reference_surface_family: UXReferenceSurfaceFamily = V36A_REFERENCE_SURFACE_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    approved_profile_id: UXApprovedProfileId
+    supporting_artifacts: UXProjectionInteractionSupportingArtifactRefs = Field(
+        default_factory=UXProjectionInteractionSupportingArtifactRefs
+    )
+    authority_boundary_policy: UXAuthorityBoundaryPolicy = Field(
+        default_factory=UXAuthorityBoundaryPolicy
+    )
+    surface_compilation_units: list[UXSurfaceCompilationUnit]
+    surface_root_id: str = Field(min_length=1)
+    bounded_workbench_id: str = Field(min_length=1)
+    responsive_behaviors: list[UXResponsiveBehavior]
+    regions: list[UXProjectionRegion]
+    lanes: list[UXProjectionLane]
+    action_clusters: list[UXProjectionActionCluster]
+    state_surfaces: list[UXProjectionStateSurface]
+    evidence_before_commit: UXEvidenceBeforeCommitProjection
+    stable_provenance_hooks: list[UXStableProvenanceHook]
+    implementation_observable_bindings: list[UXImplementationObservableBinding]
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceProjection":
+        _assert_exact_sequence(
+            self.surface_compilation_units,
+            expected=FROZEN_SURFACE_COMPILATION_UNITS,
+            field_name="surface_compilation_units",
+        )
+        _assert_sorted_unique(self.responsive_behaviors, field_name="responsive_behaviors")
+        region_ids = [region.region_id for region in self.regions]
+        lane_ids = [lane.lane_id for lane in self.lanes]
+        cluster_ids = [cluster.cluster_id for cluster in self.action_clusters]
+        state_surface_ids = [surface.surface_id for surface in self.state_surfaces]
+        _assert_sorted_unique(region_ids, field_name="regions.region_id")
+        _assert_sorted_unique(lane_ids, field_name="lanes.lane_id")
+        _assert_sorted_unique(cluster_ids, field_name="action_clusters.cluster_id")
+        _assert_sorted_unique(state_surface_ids, field_name="state_surfaces.surface_id")
+
+        region_id_set = set(region_ids)
+        lane_id_set = set(lane_ids)
+        lane_ids_by_region_id = {
+            region.region_id: {
+                lane.lane_id for lane in self.lanes if lane.region_id == region.region_id
+            }
+            for region in self.regions
+        }
+        for lane in self.lanes:
+            if lane.region_id not in region_id_set:
+                raise ValueError(f"lane references unknown region_id: {lane.region_id}")
+        for region in self.regions:
+            if any(lane_id not in lane_id_set for lane_id in region.lane_ids):
+                raise ValueError(f"region references unknown lane_id: {region.region_id}")
+            if set(region.lane_ids) != lane_ids_by_region_id[region.region_id]:
+                raise ValueError(
+                    f"region/lane membership mismatch for region_id: {region.region_id}"
+                )
+        for cluster in self.action_clusters:
+            if cluster.lane_id not in lane_id_set:
+                raise ValueError(f"action cluster references unknown lane_id: {cluster.cluster_id}")
+        for surface in self.state_surfaces:
+            if surface.lane_id not in lane_id_set:
+                raise ValueError(f"state surface references unknown lane_id: {surface.surface_id}")
+
+        if any(
+            region_id not in region_id_set
+            for region_id in self.evidence_before_commit.required_evidence_region_ids
+        ):
+            raise ValueError("evidence_before_commit references unknown region_id")
+        if any(
+            lane_id not in lane_id_set
+            for lane_id in self.evidence_before_commit.required_evidence_lane_ids
+        ):
+            raise ValueError("evidence_before_commit references unknown lane_id")
+
+        glossary = self.evidence_before_commit.same_context_reachability_glossary
+        if glossary.reference_surface_family != self.reference_surface_family:
+            raise ValueError("evidence_before_commit glossary reference_surface_family mismatch")
+        if "provisional_state_surface" not in {
+            surface.surface_kind for surface in self.state_surfaces
+        }:
+            raise ValueError("state_surfaces must include a provisional state surface")
+        if "authoritative_state_surface" not in {
+            surface.surface_kind for surface in self.state_surfaces
+        }:
+            raise ValueError("state_surfaces must include an authoritative state surface")
+        _assert_v36b_record_reference_instance_binding(
+            reference_instance_id=self.reference_instance_id,
+            hooks=self.stable_provenance_hooks,
+            bindings=self.implementation_observable_bindings,
+        )
+        return self
+
+
+class UXAuthoritativeGateSource(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source_kind: UXAuthoritativeGateSourceKind
+    source_ref: str = Field(min_length=1)
+
+
+class UXRequestedRuntimeEffect(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    effect_kind: UXRequestedRuntimeEffectKind
+    descriptive_only: Literal[True] = True
+
+
+class UXRuntimeVisibleConsequence(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    outcome_kind: UXRuntimeVisibleConsequenceKind
+    truth_posture: UXRuntimeTruthPosture
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXRuntimeVisibleConsequence":
+        if self.truth_posture == "accepted_effect_confirmed":
+            return self
+        allowed_outcomes_by_truth_posture: dict[str, set[UXRuntimeVisibleConsequenceKind]] = {
+            "provisional": {
+                "gated_pending_confirmation_visible",
+                "provisional_request_visible",
+                "status_feedback_visible",
+            },
+            "request_only": {
+                "request_submission_visible",
+                "status_feedback_visible",
+            },
+        }
+        if self.outcome_kind in allowed_outcomes_by_truth_posture[self.truth_posture]:
+            return self
+        raise ValueError(
+            "runtime_visible_consequence must remain epistemic and must not overstate success"
+        )
+
+
+class UXInteractionContractEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    interaction_id: str = Field(min_length=1)
+    action_cluster_id: str = Field(min_length=1)
+    surface_event: UXSurfaceEvent
+    ui_transition: SameContextReachableTerm
+    preconditions: list[UXInteractionPrecondition]
+    user_visible_consequence: UXUserVisibleConsequence
+    requested_runtime_effect: UXRequestedRuntimeEffect
+    runtime_visible_consequence: UXRuntimeVisibleConsequence
+    authoritative: bool = False
+    gated: bool = False
+    committing: bool = False
+    approval_bearing: bool = False
+    authoritative_gate_source: UXAuthoritativeGateSource | None = None
+    reversible: bool
+    confirmation_required: bool
+    evidence_required: bool
+    rollback_path: UXRollbackPath
+    failure_surface: UXFailureSurface
+    success_surface: UXSuccessSurface
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXInteractionContractEntry":
+        _assert_sorted_unique(
+            self.preconditions,
+            field_name=f"interaction_entries[{self.interaction_id}].preconditions",
+        )
+        requires_gate = self.authoritative or self.gated or self.committing or self.approval_bearing
+        if requires_gate and self.authoritative_gate_source is None:
+            raise ValueError(
+                f"interaction entry {self.interaction_id} requires authoritative_gate_source"
+            )
+        if not requires_gate and self.authoritative_gate_source is not None:
+            raise ValueError(
+                f"interaction entry {self.interaction_id} must not carry authoritative_gate_source"
+            )
+        if self.committing and not self.confirmation_required:
+            raise ValueError(
+                f"interaction entry {self.interaction_id} must require confirmation when committing"
+            )
+        return self
+
+
+class UXInteractionContract(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: UXInteractionContractSchemaVersion = UX_INTERACTION_CONTRACT_SCHEMA
+    reference_surface_family: UXReferenceSurfaceFamily = V36A_REFERENCE_SURFACE_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    approved_profile_id: UXApprovedProfileId
+    supporting_artifacts: UXProjectionInteractionSupportingArtifactRefs = Field(
+        default_factory=UXProjectionInteractionSupportingArtifactRefs
+    )
+    authority_boundary_policy: UXAuthorityBoundaryPolicy = Field(
+        default_factory=UXAuthorityBoundaryPolicy
+    )
+    interaction_entries: list[UXInteractionContractEntry]
+    stable_provenance_hooks: list[UXStableProvenanceHook]
+    implementation_observable_bindings: list[UXImplementationObservableBinding]
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXInteractionContract":
+        interaction_ids = [entry.interaction_id for entry in self.interaction_entries]
+        _assert_sorted_unique(interaction_ids, field_name="interaction_entries.interaction_id")
+        _assert_v36b_record_reference_instance_binding(
+            reference_instance_id=self.reference_instance_id,
+            hooks=self.stable_provenance_hooks,
+            bindings=self.implementation_observable_bindings,
+        )
+        return self
+
+
+def canonicalize_ux_surface_projection_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = UXSurfaceProjection.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def canonicalize_ux_interaction_contract_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = UXInteractionContract.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def assert_v36b_projection_interaction_binding(
+    *,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+) -> None:
+    for field_name in ("reference_surface_family", "reference_instance_id", "approved_profile_id"):
+        if getattr(surface_projection, field_name) != getattr(interaction_contract, field_name):
+            raise ValueError(f"projection/interaction binding mismatch for {field_name}")
+    if surface_projection.supporting_artifacts != interaction_contract.supporting_artifacts:
+        raise ValueError("projection/interaction binding mismatch for supporting_artifacts")
+    if (
+        surface_projection.authority_boundary_policy
+        != interaction_contract.authority_boundary_policy
+    ):
+        raise ValueError(
+            "projection/interaction binding mismatch for authority_boundary_policy"
+        )
+
+
+def _assert_minimum_provenance_hook_coverage(
+    *, hooks: list[UXStableProvenanceHook], field_name: str
+) -> None:
+    present = {hook.target_kind for hook in hooks}
+    missing = [target for target in FROZEN_V36B_PROVENANCE_HOOK_TARGETS if target not in present]
+    if missing:
+        raise ValueError(f"{field_name} missing required target kinds: {missing}")
+
+
+def _assert_minimum_binding_coverage(
+    *, bindings: list[UXImplementationObservableBinding], field_name: str
+) -> None:
+    present = {binding.target_kind for binding in bindings}
+    missing = [
+        target for target in FROZEN_V36B_IMPLEMENTATION_BINDING_TARGETS if target not in present
+    ]
+    if missing:
+        raise ValueError(f"{field_name} missing required target kinds: {missing}")
+
+
+def assert_v36b_reference_bundle_consistent(
+    *,
+    domain_packet: UXDomainPacket,
+    morph_ir: UXMorphIR,
+    approved_profile_table: V36AFirstFamilyApprovedProfileTable,
+    same_context_glossary: V36ASameContextReachabilityGlossary,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+) -> None:
+    assert_v36a_reference_bundle_consistent(
+        domain_packet=domain_packet,
+        morph_ir=morph_ir,
+        approved_profile_table=approved_profile_table,
+        same_context_glossary=same_context_glossary,
+    )
+    assert_v36b_projection_interaction_binding(
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+    )
+
+    for field_name in ("reference_surface_family", "reference_instance_id", "approved_profile_id"):
+        if getattr(surface_projection, field_name) != getattr(domain_packet, field_name):
+            raise ValueError(
+                f"v36b reference bundle must match released v36a reference pair for "
+                f"{field_name}"
+            )
+        if getattr(surface_projection, field_name) != getattr(morph_ir, field_name):
+            raise ValueError(
+                f"v36b reference bundle must match released v36a reference pair for "
+                f"{field_name}"
+            )
+
+    if (
+        surface_projection.approved_profile_id
+        != approved_profile_table.canonical_reference_profile_id
+    ):
+        raise ValueError("accepted v36b reference pair must use canonical reference profile id")
+    approved_profile = approved_profile_for_id(
+        approved_profile_table,
+        approved_profile_id=surface_projection.approved_profile_id,
+    )
+    if approved_profile.profile_id != V36A_CANONICAL_REFERENCE_PROFILE_ID:
+        raise ValueError("accepted v36b reference pair must use canonical reference profile id")
+
+    if (
+        surface_projection.evidence_before_commit.same_context_reachability_glossary
+        != same_context_glossary
+    ):
+        raise ValueError(
+            "projection must consume the released v36a same-context glossary without "
+            "shadowing"
+        )
+
+    projection_cluster_ids = {cluster.cluster_id for cluster in surface_projection.action_clusters}
+    for entry in interaction_contract.interaction_entries:
+        if entry.action_cluster_id not in projection_cluster_ids:
+            raise ValueError(
+                "interaction entry references unknown projection action cluster: "
+                f"{entry.action_cluster_id}"
+            )
+
+    combined_hooks = (
+        surface_projection.stable_provenance_hooks + interaction_contract.stable_provenance_hooks
+    )
+    _assert_minimum_provenance_hook_coverage(
+        hooks=combined_hooks,
+        field_name="stable_provenance_hooks",
+    )
+    combined_bindings = (
+        surface_projection.implementation_observable_bindings
+        + interaction_contract.implementation_observable_bindings
+    )
+    _assert_minimum_binding_coverage(
+        bindings=combined_bindings,
+        field_name="implementation_observable_bindings",
+    )

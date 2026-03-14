@@ -1,0 +1,195 @@
+{
+  "approved_profile_id": "artifact_inspector_reference",
+  "authority_boundary_policy": {
+    "no_free_form_ui_codegen_without_ir": true,
+    "no_visual_authority_inflation": true,
+    "ui_artifacts_may_express_but_may_not_mint_authority": true
+  },
+  "implementation_observable_bindings": [
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:advisory_action:artifact_inspector_reference_main:run-advisory-action",
+      "binding_token": "adeu.binding.advisory-action",
+      "source_path": "interaction_entries.run-advisory-action",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "advisory_action",
+      "target_ref": "artifact_inspector_reference_main:run-advisory-action"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:authoritative_action:artifact_inspector_reference_main:open-commit-review",
+      "binding_token": "adeu.binding.authoritative-action",
+      "source_path": "interaction_entries.open-commit-review",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "authoritative_action",
+      "target_ref": "artifact_inspector_reference_main:open-commit-review"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:commit_or_approval_gate:artifact_inspector_reference_main:submit-commit-request",
+      "binding_token": "adeu.binding.commit-gate",
+      "source_path": "interaction_entries.submit-commit-request",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "commit_or_approval_gate",
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request"
+    },
+    {
+      "binding_id": "v36b.bind:artifact_inspector_reference_main:disabled_or_unavailable_gated_state:artifact_inspector_reference_main:submit-commit-request-disabled",
+      "binding_token": "adeu.binding.commit-disabled",
+      "source_path": "interaction_entries.submit-commit-request.disabled",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "disabled_or_unavailable_gated_state",
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request-disabled"
+    }
+  ],
+  "interaction_entries": [
+    {
+      "action_cluster_id": "comparison-actions",
+      "approval_bearing": false,
+      "authoritative": false,
+      "committing": false,
+      "confirmation_required": false,
+      "evidence_required": false,
+      "failure_surface": "status_lane",
+      "gated": false,
+      "interaction_id": "focus-source-artifact",
+      "preconditions": [
+        "candidate_context_available"
+      ],
+      "requested_runtime_effect": {
+        "descriptive_only": true,
+        "effect_kind": "artifact_focus_requested"
+      },
+      "reversible": true,
+      "rollback_path": "restore_previous_focus",
+      "runtime_visible_consequence": {
+        "outcome_kind": "bounded_context_focus_visible",
+        "truth_posture": "accepted_effect_confirmed"
+      },
+      "success_surface": "work_context_lane",
+      "surface_event": "focus_source_artifact",
+      "ui_transition": "bounded_workbench_focus_shift",
+      "user_visible_consequence": "source_focus_visible"
+    },
+    {
+      "action_cluster_id": "commit-actions",
+      "approval_bearing": true,
+      "authoritative": true,
+      "authoritative_gate_source": {
+        "source_kind": "accepted_governance_artifact",
+        "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS62.md#v36b_surface_projection_interaction_contract@1"
+      },
+      "committing": false,
+      "confirmation_required": true,
+      "evidence_required": true,
+      "failure_surface": "trust_boundary_lane",
+      "gated": true,
+      "interaction_id": "open-commit-review",
+      "preconditions": [
+        "commit_gate_rendered",
+        "required_evidence_reachable",
+        "trust_boundary_visible"
+      ],
+      "requested_runtime_effect": {
+        "descriptive_only": true,
+        "effect_kind": "commit_review_requested"
+      },
+      "reversible": true,
+      "rollback_path": "clear_pending_request",
+      "runtime_visible_consequence": {
+        "outcome_kind": "gated_pending_confirmation_visible",
+        "truth_posture": "provisional"
+      },
+      "success_surface": "action_lane",
+      "surface_event": "open_commit_review",
+      "ui_transition": "bounded_workbench_state_reveal",
+      "user_visible_consequence": "commit_review_revealed"
+    },
+    {
+      "action_cluster_id": "advisory-actions",
+      "approval_bearing": false,
+      "authoritative": false,
+      "committing": false,
+      "confirmation_required": false,
+      "evidence_required": true,
+      "failure_surface": "action_lane",
+      "gated": false,
+      "interaction_id": "run-advisory-action",
+      "preconditions": [
+        "candidate_context_available",
+        "required_evidence_reachable",
+        "trust_boundary_visible"
+      ],
+      "requested_runtime_effect": {
+        "descriptive_only": true,
+        "effect_kind": "advisory_action_requested"
+      },
+      "reversible": true,
+      "rollback_path": "restore_previous_focus",
+      "runtime_visible_consequence": {
+        "outcome_kind": "advisory_selection_visible",
+        "truth_posture": "accepted_effect_confirmed"
+      },
+      "success_surface": "action_lane",
+      "surface_event": "run_advisory_action",
+      "ui_transition": "bounded_workbench_state_reveal",
+      "user_visible_consequence": "advisory_action_selection_visible"
+    },
+    {
+      "action_cluster_id": "commit-actions",
+      "approval_bearing": true,
+      "authoritative": true,
+      "authoritative_gate_source": {
+        "source_kind": "accepted_v35_runtime_authority_artifact",
+        "source_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS60.md#v35e_runtime_enforcement_contract@1"
+      },
+      "committing": true,
+      "confirmation_required": true,
+      "evidence_required": true,
+      "failure_surface": "status_lane",
+      "gated": true,
+      "interaction_id": "submit-commit-request",
+      "preconditions": [
+        "commit_gate_rendered",
+        "required_evidence_reachable",
+        "trust_boundary_visible"
+      ],
+      "requested_runtime_effect": {
+        "descriptive_only": true,
+        "effect_kind": "commit_submission_requested"
+      },
+      "reversible": false,
+      "rollback_path": "clear_pending_request",
+      "runtime_visible_consequence": {
+        "outcome_kind": "request_submission_visible",
+        "truth_posture": "request_only"
+      },
+      "success_surface": "status_lane",
+      "surface_event": "submit_commit_request",
+      "ui_transition": "bounded_workbench_state_reveal",
+      "user_visible_consequence": "request_submission_visible"
+    }
+  ],
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "schema": "ux_interaction_contract@1",
+  "stable_provenance_hooks": [
+    {
+      "hook_id": "v36b.prov:artifact_inspector_reference_main:action_cluster:artifact_inspector_reference_main:commit-actions",
+      "source_path": "interaction_entries.open-commit-review",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "action_cluster",
+      "target_ref": "artifact_inspector_reference_main:commit-actions"
+    },
+    {
+      "hook_id": "v36b.prov:artifact_inspector_reference_main:authority_bearing_control:artifact_inspector_reference_main:submit-commit-request",
+      "source_path": "interaction_entries.submit-commit-request",
+      "source_schema": "ux_interaction_contract@1",
+      "target_kind": "authority_bearing_control",
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request"
+    }
+  ],
+  "supporting_artifacts": {
+    "approved_profile_table_schema": "v36a_first_family_approved_profile_table@1",
+    "same_context_reachability_glossary_schema": "v36a_same_context_reachability_glossary@1",
+    "ux_domain_packet_schema": "ux_domain_packet@1",
+    "ux_morph_ir_schema": "ux_morph_ir@1"
+  }
+}

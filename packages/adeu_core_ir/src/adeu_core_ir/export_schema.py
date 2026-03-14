@@ -27,7 +27,9 @@ from .semantics_v4_candidate_packet import AdeuSemanticsV4CandidatePacket
 from .trust_invariant_packet import AdeuTrustInvariantPacket
 from .ux_governance import (
     UXDomainPacket,
+    UXInteractionContract,
     UXMorphIR,
+    UXSurfaceProjection,
     V36AFirstFamilyApprovedProfileTable,
     V36ASameContextReachabilityGlossary,
 )
@@ -74,6 +76,8 @@ def main() -> None:
     core_ir_proposal_schema = AdeuCoreIRProposal.model_json_schema(by_alias=True)
     ux_domain_packet_schema = UXDomainPacket.model_json_schema(by_alias=True)
     ux_morph_ir_schema = UXMorphIR.model_json_schema(by_alias=True)
+    ux_surface_projection_schema = UXSurfaceProjection.model_json_schema(by_alias=True)
+    ux_interaction_contract_schema = UXInteractionContract.model_json_schema(by_alias=True)
     approved_profile_table_schema = V36AFirstFamilyApprovedProfileTable.model_json_schema(
         by_alias=True
     )
@@ -233,6 +237,16 @@ def main() -> None:
     )
     _write_schema(ux_morph_ir_authoritative_path, ux_morph_ir_schema)
 
+    ux_surface_projection_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "ux_surface_projection.v1.json"
+    )
+    _write_schema(ux_surface_projection_authoritative_path, ux_surface_projection_schema)
+
+    ux_interaction_contract_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "ux_interaction_contract.v1.json"
+    )
+    _write_schema(ux_interaction_contract_authoritative_path, ux_interaction_contract_schema)
+
     approved_profile_table_authoritative_path = (
         root
         / "packages"
@@ -362,6 +376,12 @@ def main() -> None:
 
     ux_morph_ir_mirror_path = root / "spec" / "ux_morph_ir.schema.json"
     _write_schema(ux_morph_ir_mirror_path, ux_morph_ir_schema)
+
+    ux_surface_projection_mirror_path = root / "spec" / "ux_surface_projection.schema.json"
+    _write_schema(ux_surface_projection_mirror_path, ux_surface_projection_schema)
+
+    ux_interaction_contract_mirror_path = root / "spec" / "ux_interaction_contract.schema.json"
+    _write_schema(ux_interaction_contract_mirror_path, ux_interaction_contract_schema)
 
     approved_profile_table_mirror_path = (
         root / "spec" / "v36a_first_family_approved_profile_table.schema.json"
