@@ -8,15 +8,27 @@ from typing import Any, Iterable, TypeVar
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from .ux_governance import (
+    UX_DOMAIN_PACKET_SCHEMA,
+    UX_INTERACTION_CONTRACT_SCHEMA,
+    UX_MORPH_IR_SCHEMA,
+    UX_SURFACE_PROJECTION_SCHEMA,
+    V36C_RENDERED_REFERENCE_SURFACE_BINDING_MANIFEST_SCHEMA,
+    V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_SCHEMA,
+    V36C_RENDERED_REFERENCE_SURFACE_SNAPSHOT_SCHEMA,
+    UXConformanceReport,
     UXDomainPacket,
     UXInteractionContract,
+    UXMorphDiagnostics,
     UXMorphIR,
     UXSurfaceProjection,
     V36AFirstFamilyApprovedProfileTable,
     V36ASameContextReachabilityGlossary,
     assert_v36a_reference_bundle_consistent,
     assert_v36b_reference_bundle_consistent,
+    assert_v36d_reference_bundle_consistent,
+    canonicalize_ux_conformance_report_payload,
     canonicalize_ux_interaction_contract_payload,
+    canonicalize_ux_morph_diagnostics_payload,
     canonicalize_ux_surface_projection_payload,
 )
 
@@ -36,11 +48,18 @@ V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_EVIDENCE_SCHEMA = (
 V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS63.md#v36c_artifact_inspector_reference_surface_contract@1"
 )
+V36D_MORPH_DIAGNOSTICS_CONFORMANCE_EVIDENCE_SCHEMA = (
+    "v36d_morph_diagnostics_conformance_evidence@1"
+)
+V36D_MORPH_DIAGNOSTICS_CONFORMANCE_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS64.md#v36d_morph_diagnostics_conformance_contract@1"
+)
 STOP_GATE_METRICS_SCHEMA = "stop_gate_metrics@1"
 EXPECTED_METRIC_KEY_CARDINALITY = 80
 DEFAULT_V60_BASELINE_METRICS_PATH = "artifacts/stop_gate/metrics_v60_closeout.json"
 DEFAULT_V61_BASELINE_METRICS_PATH = "artifacts/stop_gate/metrics_v61_closeout.json"
 DEFAULT_V62_BASELINE_METRICS_PATH = "artifacts/stop_gate/metrics_v62_closeout.json"
+DEFAULT_V63_BASELINE_METRICS_PATH = "artifacts/stop_gate/metrics_v63_closeout.json"
 
 DEFAULT_UX_DOMAIN_PACKET_SCHEMA_PATH = "packages/adeu_core_ir/schema/ux_domain_packet.v1.json"
 DEFAULT_UX_MORPH_IR_SCHEMA_PATH = "packages/adeu_core_ir/schema/ux_morph_ir.v1.json"
@@ -49,6 +68,12 @@ DEFAULT_UX_SURFACE_PROJECTION_SCHEMA_PATH = (
 )
 DEFAULT_UX_INTERACTION_CONTRACT_SCHEMA_PATH = (
     "packages/adeu_core_ir/schema/ux_interaction_contract.v1.json"
+)
+DEFAULT_UX_MORPH_DIAGNOSTICS_SCHEMA_PATH = (
+    "packages/adeu_core_ir/schema/ux_morph_diagnostics.v1.json"
+)
+DEFAULT_UX_CONFORMANCE_REPORT_SCHEMA_PATH = (
+    "packages/adeu_core_ir/schema/ux_conformance_report.v1.json"
 )
 DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH = (
     "apps/api/fixtures/ux_governance/vnext_plus61/"
@@ -64,6 +89,14 @@ DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH = (
 DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH = (
     "apps/api/fixtures/ux_governance/vnext_plus62/"
     "ux_interaction_contract_artifact_inspector_reference.json"
+)
+DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH = (
+    "apps/api/fixtures/ux_governance/vnext_plus64/"
+    "ux_morph_diagnostics_artifact_inspector_reference.json"
+)
+DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH = (
+    "apps/api/fixtures/ux_governance/vnext_plus64/"
+    "ux_conformance_report_artifact_inspector_reference.json"
 )
 DEFAULT_APPROVED_PROFILE_TABLE_PATH = (
     "apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json"
@@ -81,6 +114,10 @@ DEFAULT_V36C_RENDERED_SURFACE_SNAPSHOT_PATH = (
 DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH = (
     "artifacts/agent_harness/v63/evidence_inputs/"
     "v36c_artifact_inspector_reference_surface_binding_manifest_v63.json"
+)
+DEFAULT_V36C_REFERENCE_SURFACE_EVIDENCE_PATH = (
+    "artifacts/agent_harness/v63/evidence_inputs/"
+    "v36c_artifact_inspector_reference_surface_evidence_v63.json"
 )
 V36C_RENDERED_ROUTE_ID = "artifact_inspector_reference_surface"
 V36C_RENDERED_ROUTE_PATH = "/artifact-inspector"
@@ -360,6 +397,54 @@ class V36CArtifactInspectorReferenceSurfaceEvidence(BaseModel):
     notes: str = Field(min_length=1)
 
 
+class V36DMorphDiagnosticsConformanceEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(
+        default=V36D_MORPH_DIAGNOSTICS_CONFORMANCE_EVIDENCE_SCHEMA,
+        alias="schema",
+    )
+    contract_source: str = V36D_MORPH_DIAGNOSTICS_CONFORMANCE_CONTRACT_SOURCE
+    evidence_input_path: str = Field(min_length=1)
+    ux_morph_diagnostics_schema_path: str = Field(min_length=1)
+    ux_morph_diagnostics_schema_hash: str = Field(min_length=64, max_length=64)
+    ux_conformance_report_schema_path: str = Field(min_length=1)
+    ux_conformance_report_schema_hash: str = Field(min_length=64, max_length=64)
+    ux_morph_diagnostics_reference_path: str = Field(min_length=1)
+    ux_morph_diagnostics_reference_hash: str = Field(min_length=64, max_length=64)
+    ux_conformance_report_reference_path: str = Field(min_length=1)
+    ux_conformance_report_reference_hash: str = Field(min_length=64, max_length=64)
+    reference_binding_tuple_equality_verified: bool
+    v36a_reference_pair_consumed_without_drift: bool
+    v36b_reference_pair_consumed_without_drift: bool
+    v36c_rendered_surface_consumed_without_drift: bool
+    reference_profile_id_verified_against_v36a_table: bool
+    diagnostics_severity_taxonomy_verified: bool
+    diagnostic_finding_structure_verified: bool
+    diagnostics_provenance_pointer_resolution_verified: bool
+    rendered_surface_assertion_bridge_verified: bool
+    rendered_surface_assertion_bridge_no_fresh_heuristics_verified: bool
+    conformance_aggregation_rule_verified: bool
+    conformance_report_structure_verified: bool
+    conformance_report_diagnostics_derivation_verified: bool
+    destructive_confirmation_gap_detectable: bool
+    same_context_reachability_violation_detectable: bool
+    utility_posture_conflict_detectable: bool
+    requested_profile_command_grammar_conflict_detectable: bool
+    competing_primary_actions_detectable: bool
+    provisional_authoritative_styling_violation_detectable: bool
+    advisory_authoritative_boundary_collapse_detectable: bool
+    recovery_path_gap_detectable: bool
+    no_taste_engine_drift_detected: bool
+    no_event_stream_or_worker_prose_truth_substitution: bool
+    diagnostic_truth_substitution_rejected: bool
+    v35_authority_baseline_unchanged: bool
+    verification_passed: bool
+    metric_key_cardinality: int = Field(ge=0)
+    metric_key_exact_set_equal_v63: bool
+    notes: str = Field(min_length=1)
+
+
 def _canonical_json(value: object) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
 
@@ -541,6 +626,68 @@ def _load_validated_v36b_model(
     return payload, model
 
 
+def _raise_v36d_validation_error(*, field_name: str, exc: ValidationError) -> None:
+    for error in exc.errors():
+        loc = tuple(error.get("loc", ()))
+        message = _validation_error_message(error)
+        if loc == _FREE_FORM_POLICY_LOC:
+            raise UXGovernanceEvidenceError("free-form UI codegen bypass detected") from exc
+        if loc == _AUTHORITY_MINTING_POLICY_LOC:
+            raise UXGovernanceEvidenceError("authority-minting drift detected") from exc
+        if loc == _VISUAL_AUTHORITY_INFLATION_POLICY_LOC:
+            raise UXGovernanceEvidenceError("visual authority inflation drift detected") from exc
+        if "severity_taxonomy" in loc:
+            raise UXGovernanceEvidenceError("diagnostics severity taxonomy drift detected") from exc
+        if "seeded_violation_families" in loc or "seeded_violation_families" in message:
+            raise UXGovernanceEvidenceError(
+                "seeded violation family coverage drift detected"
+            ) from exc
+        if "rendered_surface_assertion_inputs_used" in loc:
+            raise UXGovernanceEvidenceError(
+                "rendered surface assertion bridge drift detected"
+            ) from exc
+        if "supporting_evidence_refs" in message and "event streams or worker prose" in message:
+            raise UXGovernanceEvidenceError("diagnostic truth substitution detected") from exc
+        if "source_path" in message and "event streams or worker prose" in message:
+            raise UXGovernanceEvidenceError("diagnostic truth substitution detected") from exc
+        if loc == ("derivation_metadata", "fresh_route_local_heuristics_introduced"):
+            raise UXGovernanceEvidenceError(
+                "rendered surface assertion bridge introduced fresh route-local heuristics"
+            ) from exc
+        if loc == ("derivation_metadata", "rendered_surface_assertion_inputs"):
+            raise UXGovernanceEvidenceError(
+                "rendered surface assertion bridge drift detected"
+            ) from exc
+        if loc == ("derivation_metadata", "canonical_artifact_truth_only"):
+            raise UXGovernanceEvidenceError("conformance truth-source drift detected") from exc
+        if loc == ("derivation_metadata", "event_streams_and_worker_prose_provenance_only"):
+            raise UXGovernanceEvidenceError("conformance truth-source drift detected") from exc
+        if loc == ("derivation_metadata", "typed_summary_only"):
+            raise UXGovernanceEvidenceError(
+                "conformance report must remain a typed summary"
+            ) from exc
+        if loc == ("supporting_finding_ids",) and "sorted distinct" in message:
+            raise UXGovernanceEvidenceError(
+                "conformance report supporting finding ids drift detected"
+            ) from exc
+    raise UXGovernanceEvidenceError(f"{field_name} is invalid") from exc
+
+
+def _load_validated_v36d_model(
+    *,
+    path: Path,
+    field_name: str,
+    model_type: type[ModelT],
+) -> tuple[dict[str, Any], ModelT]:
+    text, payload = _load_json_dict(path=path, field_name=field_name)
+    _validate_pretty_canonical_serialization(text=text, payload=payload, field_name=field_name)
+    try:
+        model = model_type.model_validate(payload)
+    except ValidationError as exc:
+        _raise_v36d_validation_error(field_name=field_name, exc=exc)
+    return payload, model
+
+
 def _validate_authoritative_gate_sources(
     *,
     repo_root: Path,
@@ -623,6 +770,29 @@ def _v36b_substrate_signature_payload(
     }
 
 
+def _v36c_substrate_signature_payload(
+    *,
+    rendered_reference_surface_contract_path: str,
+    rendered_reference_surface_contract_hash: str,
+    rendered_surface_snapshot_path: str,
+    rendered_surface_snapshot_hash: str,
+    implementation_binding_manifest_path: str,
+    implementation_binding_manifest_hash: str,
+    rendered_reference_surface_evidence_path: str,
+    rendered_reference_surface_evidence_hash: str,
+) -> dict[str, str]:
+    return {
+        "implementation_binding_manifest_hash": implementation_binding_manifest_hash,
+        "implementation_binding_manifest_path": implementation_binding_manifest_path,
+        "rendered_reference_surface_contract_hash": rendered_reference_surface_contract_hash,
+        "rendered_reference_surface_contract_path": rendered_reference_surface_contract_path,
+        "rendered_reference_surface_evidence_hash": rendered_reference_surface_evidence_hash,
+        "rendered_reference_surface_evidence_path": rendered_reference_surface_evidence_path,
+        "rendered_surface_snapshot_hash": rendered_surface_snapshot_hash,
+        "rendered_surface_snapshot_path": rendered_surface_snapshot_path,
+    }
+
+
 def _validate_v36b_reference_canonicalization(
     *,
     surface_projection_payload: dict[str, Any],
@@ -642,6 +812,107 @@ def _validate_v36b_reference_canonicalization(
         raise UXGovernanceEvidenceError(
             "ux_interaction_contract_reference_path must serialize canonically without drift"
         )
+
+
+def _validate_v36d_reference_canonicalization(
+    *,
+    diagnostics_payload: dict[str, Any],
+    conformance_report_payload: dict[str, Any],
+) -> None:
+    if canonicalize_ux_morph_diagnostics_payload(diagnostics_payload) != diagnostics_payload:
+        raise UXGovernanceEvidenceError(
+            "ux_morph_diagnostics_reference_path must serialize canonically without drift"
+        )
+    if (
+        canonicalize_ux_conformance_report_payload(conformance_report_payload)
+        != conformance_report_payload
+    ):
+        raise UXGovernanceEvidenceError(
+            "ux_conformance_report_reference_path must serialize canonically without drift"
+        )
+
+
+def _resolve_artifact_ref_path(
+    *,
+    repo_root: Path,
+    ref: str,
+    field_name: str,
+) -> Path:
+    path_text = ref.split("#", 1)[0]
+    return _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=path_text,
+        field_name=field_name,
+    )
+
+
+def _build_v36d_consumed_artifact_schema_map(
+    *,
+    ux_domain_packet_schema_path: str,
+    ux_morph_ir_schema_path: str,
+    ux_surface_projection_schema_path: str,
+    ux_interaction_contract_schema_path: str,
+    ux_domain_packet_reference_path: str,
+    ux_morph_ir_reference_path: str,
+    ux_surface_projection_reference_path: str,
+    ux_interaction_contract_reference_path: str,
+    rendered_reference_surface_contract_path: str,
+    rendered_surface_snapshot_path: str,
+    implementation_binding_manifest_path: str,
+    rendered_reference_surface_evidence_path: str,
+) -> dict[str, str]:
+    return {
+        ux_domain_packet_schema_path: UX_DOMAIN_PACKET_SCHEMA,
+        ux_domain_packet_reference_path: UX_DOMAIN_PACKET_SCHEMA,
+        ux_morph_ir_schema_path: UX_MORPH_IR_SCHEMA,
+        ux_morph_ir_reference_path: UX_MORPH_IR_SCHEMA,
+        ux_surface_projection_schema_path: UX_SURFACE_PROJECTION_SCHEMA,
+        ux_surface_projection_reference_path: UX_SURFACE_PROJECTION_SCHEMA,
+        ux_interaction_contract_schema_path: UX_INTERACTION_CONTRACT_SCHEMA,
+        ux_interaction_contract_reference_path: UX_INTERACTION_CONTRACT_SCHEMA,
+        rendered_reference_surface_contract_path: V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_SCHEMA,
+        rendered_surface_snapshot_path: V36C_RENDERED_REFERENCE_SURFACE_SNAPSHOT_SCHEMA,
+        implementation_binding_manifest_path: (
+            V36C_RENDERED_REFERENCE_SURFACE_BINDING_MANIFEST_SCHEMA
+        ),
+        rendered_reference_surface_evidence_path: (
+            V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_EVIDENCE_SCHEMA
+        ),
+    }
+
+
+def _validate_v36d_provenance_resolution(
+    *,
+    repo_root: Path,
+    diagnostics: UXMorphDiagnostics,
+    consumed_artifact_schema_map: dict[str, str],
+) -> None:
+    for finding in diagnostics.findings:
+        for provenance_pointer in finding.provenance_pointers:
+            _resolve_artifact_ref_path(
+                repo_root=repo_root,
+                ref=provenance_pointer.source_path,
+                field_name="diagnostics.provenance_pointers.source_path",
+            )
+            if (
+                consumed_artifact_schema_map.get(provenance_pointer.source_path)
+                != provenance_pointer.source_schema
+            ):
+                raise UXGovernanceEvidenceError(
+                    "diagnostics provenance pointers must resolve to the "
+                    "consumed canonical artifacts"
+                )
+        for evidence_ref in finding.supporting_evidence_refs:
+            _resolve_artifact_ref_path(
+                repo_root=repo_root,
+                ref=evidence_ref,
+                field_name="diagnostics.findings.supporting_evidence_refs",
+            )
+            if evidence_ref not in consumed_artifact_schema_map:
+                raise UXGovernanceEvidenceError(
+                    "diagnostic supporting evidence refs must resolve to the "
+                    "consumed canonical artifacts"
+                )
 
 
 def _normalize_text(text: str) -> str:
@@ -1738,6 +2009,471 @@ def materialize_v36c_artifact_inspector_reference_surface_evidence(
             f"Consumed v36a substrate signature: {v36a_substrate_signature}. "
             f"Consumed v36b substrate signature: {v36b_substrate_signature}. "
             f"Consumed v63 rendered route contract hash: {rendered_surface_contract_hash}."
+        ),
+    )
+    payload = evidence.model_dump(mode="json", by_alias=True)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(_pretty_canonical_json(payload), encoding="utf-8")
+    return MaterializedUXGovernanceEvidence(
+        path=output_path,
+        hash=_sha256_canonical_json(payload),
+        payload=payload,
+    )
+
+
+def materialize_v36d_morph_diagnostics_conformance_evidence(
+    *,
+    repo_root: Path,
+    output_path: str,
+    baseline_metrics_path: str,
+    current_metrics_path: str,
+    ux_morph_diagnostics_schema_path: str = DEFAULT_UX_MORPH_DIAGNOSTICS_SCHEMA_PATH,
+    ux_conformance_report_schema_path: str = DEFAULT_UX_CONFORMANCE_REPORT_SCHEMA_PATH,
+    ux_morph_diagnostics_reference_path: str = DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH,
+    ux_conformance_report_reference_path: str = DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH,
+    ux_domain_packet_schema_path: str = DEFAULT_UX_DOMAIN_PACKET_SCHEMA_PATH,
+    ux_morph_ir_schema_path: str = DEFAULT_UX_MORPH_IR_SCHEMA_PATH,
+    ux_surface_projection_schema_path: str = DEFAULT_UX_SURFACE_PROJECTION_SCHEMA_PATH,
+    ux_interaction_contract_schema_path: str = DEFAULT_UX_INTERACTION_CONTRACT_SCHEMA_PATH,
+    ux_domain_packet_reference_path: str = DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH,
+    ux_morph_ir_reference_path: str = DEFAULT_UX_MORPH_IR_REFERENCE_PATH,
+    ux_surface_projection_reference_path: str = DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH,
+    ux_interaction_contract_reference_path: str = DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH,
+    approved_profile_table_path: str = DEFAULT_APPROVED_PROFILE_TABLE_PATH,
+    same_context_reachability_glossary_path: str = DEFAULT_SAME_CONTEXT_GLOSSARY_PATH,
+    rendered_reference_surface_contract_path: str = (
+        DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH
+    ),
+    rendered_surface_snapshot_path: str = DEFAULT_V36C_RENDERED_SURFACE_SNAPSHOT_PATH,
+    implementation_binding_manifest_path: str = (
+        DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH
+    ),
+    rendered_reference_surface_evidence_path: str = (
+        DEFAULT_V36C_REFERENCE_SURFACE_EVIDENCE_PATH
+    ),
+) -> MaterializedUXGovernanceEvidence:
+    repo_root = repo_root.resolve()
+    if not repo_root.is_dir():
+        raise UXGovernanceEvidenceError("repository root does not exist")
+    if baseline_metrics_path != DEFAULT_V63_BASELINE_METRICS_PATH:
+        raise UXGovernanceEvidenceError(
+            "baseline_metrics_path must point to the frozen v63 closeout metrics artifact"
+        )
+
+    output_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=output_path,
+        field_name="output_path",
+        required_prefix="artifacts/",
+    )
+    baseline_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=baseline_metrics_path,
+        field_name="baseline_metrics_path",
+        required_prefix="artifacts/",
+    )
+    current_metrics_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=current_metrics_path,
+        field_name="current_metrics_path",
+        required_prefix="artifacts/",
+    )
+    diagnostics_schema_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_morph_diagnostics_schema_path,
+        field_name="ux_morph_diagnostics_schema_path",
+        required_prefix="packages/",
+    )
+    conformance_schema_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_conformance_report_schema_path,
+        field_name="ux_conformance_report_schema_path",
+        required_prefix="packages/",
+    )
+    diagnostics_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_morph_diagnostics_reference_path,
+        field_name="ux_morph_diagnostics_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    conformance_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_conformance_report_reference_path,
+        field_name="ux_conformance_report_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_domain_packet_schema_path,
+        field_name="ux_domain_packet_schema_path",
+        required_prefix="packages/",
+    )
+    _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_morph_ir_schema_path,
+        field_name="ux_morph_ir_schema_path",
+        required_prefix="packages/",
+    )
+    _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_surface_projection_schema_path,
+        field_name="ux_surface_projection_schema_path",
+        required_prefix="packages/",
+    )
+    _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_interaction_contract_schema_path,
+        field_name="ux_interaction_contract_schema_path",
+        required_prefix="packages/",
+    )
+    domain_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_domain_packet_reference_path,
+        field_name="ux_domain_packet_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    morph_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_morph_ir_reference_path,
+        field_name="ux_morph_ir_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    surface_projection_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_surface_projection_reference_path,
+        field_name="ux_surface_projection_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    interaction_contract_reference_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=ux_interaction_contract_reference_path,
+        field_name="ux_interaction_contract_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    approved_profile_table_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=approved_profile_table_path,
+        field_name="approved_profile_table_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    same_context_glossary_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=same_context_reachability_glossary_path,
+        field_name="same_context_reachability_glossary_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    rendered_surface_contract_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=rendered_reference_surface_contract_path,
+        field_name="rendered_reference_surface_contract_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    rendered_surface_snapshot_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=rendered_surface_snapshot_path,
+        field_name="rendered_surface_snapshot_path",
+        required_prefix="artifacts/",
+    )
+    implementation_binding_manifest_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=implementation_binding_manifest_path,
+        field_name="implementation_binding_manifest_path",
+        required_prefix="artifacts/",
+    )
+    rendered_surface_evidence_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=rendered_reference_surface_evidence_path,
+        field_name="rendered_reference_surface_evidence_path",
+        required_prefix="artifacts/",
+    )
+
+    baseline_metrics = _load_stop_gate_metrics(
+        path=baseline_metrics_file,
+        field_name="baseline_metrics_path",
+    )
+    current_metrics = _load_stop_gate_metrics(
+        path=current_metrics_file,
+        field_name="current_metrics_path",
+    )
+    baseline_metric_keys = set(baseline_metrics["metrics"].keys())
+    current_metric_keys = set(current_metrics["metrics"].keys())
+    if len(current_metric_keys) != EXPECTED_METRIC_KEY_CARDINALITY:
+        raise UXGovernanceEvidenceError("metric key cardinality must remain frozen at 80")
+    if baseline_metric_keys != current_metric_keys:
+        raise UXGovernanceEvidenceError("metric key set must remain exactly equal to v63")
+
+    diagnostics_schema_payload = _load_frozen_schema(
+        path=diagnostics_schema_file,
+        field_name="ux_morph_diagnostics_schema_path",
+        model_type=UXMorphDiagnostics,
+    )
+    conformance_schema_payload = _load_frozen_schema(
+        path=conformance_schema_file,
+        field_name="ux_conformance_report_schema_path",
+        model_type=UXConformanceReport,
+    )
+    diagnostics_payload, diagnostics = _load_validated_v36d_model(
+        path=diagnostics_reference_file,
+        field_name="ux_morph_diagnostics_reference_path",
+        model_type=UXMorphDiagnostics,
+    )
+    conformance_report_payload, conformance_report = _load_validated_v36d_model(
+        path=conformance_reference_file,
+        field_name="ux_conformance_report_reference_path",
+        model_type=UXConformanceReport,
+    )
+    domain_payload, domain_packet = _load_validated_model(
+        path=domain_reference_file,
+        field_name="ux_domain_packet_reference_path",
+        model_type=UXDomainPacket,
+    )
+    morph_payload, morph_ir = _load_validated_model(
+        path=morph_reference_file,
+        field_name="ux_morph_ir_reference_path",
+        model_type=UXMorphIR,
+    )
+    surface_projection_payload, surface_projection = _load_validated_v36b_model(
+        path=surface_projection_reference_file,
+        field_name="ux_surface_projection_reference_path",
+        model_type=UXSurfaceProjection,
+    )
+    interaction_contract_payload, interaction_contract = _load_validated_v36b_model(
+        path=interaction_contract_reference_file,
+        field_name="ux_interaction_contract_reference_path",
+        model_type=UXInteractionContract,
+    )
+    profile_table_payload, approved_profile_table = _load_validated_model(
+        path=approved_profile_table_file,
+        field_name="approved_profile_table_path",
+        model_type=V36AFirstFamilyApprovedProfileTable,
+    )
+    glossary_payload, same_context_glossary = _load_validated_model(
+        path=same_context_glossary_file,
+        field_name="same_context_reachability_glossary_path",
+        model_type=V36ASameContextReachabilityGlossary,
+    )
+    rendered_surface_contract_payload, rendered_surface_contract = _load_validated_model(
+        path=rendered_surface_contract_file,
+        field_name="rendered_reference_surface_contract_path",
+        model_type=V36CRenderedReferenceSurfaceContract,
+    )
+    rendered_surface_snapshot_payload, _ = _load_validated_model(
+        path=rendered_surface_snapshot_file,
+        field_name="rendered_surface_snapshot_path",
+        model_type=V36CRenderedSurfaceSemanticSnapshot,
+    )
+    implementation_binding_manifest_payload, _ = _load_validated_model(
+        path=implementation_binding_manifest_file,
+        field_name="implementation_binding_manifest_path",
+        model_type=V36CRenderedSurfaceBindingManifest,
+    )
+    rendered_surface_evidence_payload, rendered_surface_evidence = _load_validated_model(
+        path=rendered_surface_evidence_file,
+        field_name="rendered_reference_surface_evidence_path",
+        model_type=V36CArtifactInspectorReferenceSurfaceEvidence,
+    )
+
+    _validate_v36b_reference_canonicalization(
+        surface_projection_payload=surface_projection_payload,
+        interaction_contract_payload=interaction_contract_payload,
+    )
+    _validate_v36d_reference_canonicalization(
+        diagnostics_payload=diagnostics_payload,
+        conformance_report_payload=conformance_report_payload,
+    )
+    _validate_authoritative_gate_sources(
+        repo_root=repo_root,
+        interaction_contract=interaction_contract,
+    )
+    _validate_v36c_rendered_surface_contract(
+        rendered_surface_contract=rendered_surface_contract,
+        domain_packet=domain_packet,
+        morph_ir=morph_ir,
+        approved_profile_table=approved_profile_table,
+        same_context_glossary=same_context_glossary,
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+    )
+
+    if rendered_surface_evidence.rendered_surface_snapshot_path != rendered_surface_snapshot_path:
+        raise UXGovernanceEvidenceError(
+            "rendered surface evidence must point to the consumed v63 snapshot artifact"
+        )
+    if (
+        rendered_surface_evidence.rendered_surface_snapshot_hash
+        != _sha256_canonical_json(rendered_surface_snapshot_payload)
+    ):
+        raise UXGovernanceEvidenceError(
+            "rendered surface evidence snapshot hash drift detected"
+        )
+    if (
+        rendered_surface_evidence.implementation_binding_manifest_path
+        != implementation_binding_manifest_path
+    ):
+        raise UXGovernanceEvidenceError(
+            "rendered surface evidence must point to the consumed v63 binding manifest artifact"
+        )
+    if (
+        rendered_surface_evidence.implementation_binding_manifest_hash
+        != _sha256_canonical_json(implementation_binding_manifest_payload)
+    ):
+        raise UXGovernanceEvidenceError(
+            "rendered surface evidence binding manifest hash drift detected"
+        )
+    if not rendered_surface_evidence.verification_passed:
+        raise UXGovernanceEvidenceError(
+            "rendered surface evidence must remain verification-passing"
+        )
+
+    try:
+        assert_v36d_reference_bundle_consistent(
+            domain_packet=domain_packet,
+            morph_ir=morph_ir,
+            approved_profile_table=approved_profile_table,
+            same_context_glossary=same_context_glossary,
+            surface_projection=surface_projection,
+            interaction_contract=interaction_contract,
+            rendered_surface_contract=rendered_surface_contract_payload,
+            rendered_surface_snapshot=rendered_surface_snapshot_payload,
+            rendered_surface_binding_manifest=implementation_binding_manifest_payload,
+            rendered_reference_surface_evidence=rendered_surface_evidence_payload,
+            diagnostics=diagnostics,
+            conformance_report=conformance_report,
+        )
+    except ValueError as exc:
+        raise UXGovernanceEvidenceError(str(exc)) from exc
+
+    consumed_artifact_schema_map = _build_v36d_consumed_artifact_schema_map(
+        ux_domain_packet_schema_path=ux_domain_packet_schema_path,
+        ux_morph_ir_schema_path=ux_morph_ir_schema_path,
+        ux_surface_projection_schema_path=ux_surface_projection_schema_path,
+        ux_interaction_contract_schema_path=ux_interaction_contract_schema_path,
+        ux_domain_packet_reference_path=ux_domain_packet_reference_path,
+        ux_morph_ir_reference_path=ux_morph_ir_reference_path,
+        ux_surface_projection_reference_path=ux_surface_projection_reference_path,
+        ux_interaction_contract_reference_path=ux_interaction_contract_reference_path,
+        rendered_reference_surface_contract_path=rendered_reference_surface_contract_path,
+        rendered_surface_snapshot_path=rendered_surface_snapshot_path,
+        implementation_binding_manifest_path=implementation_binding_manifest_path,
+        rendered_reference_surface_evidence_path=rendered_reference_surface_evidence_path,
+    )
+    _validate_v36d_provenance_resolution(
+        repo_root=repo_root,
+        diagnostics=diagnostics,
+        consumed_artifact_schema_map=consumed_artifact_schema_map,
+    )
+
+    seeded_violation_families = set(diagnostics.seeded_violation_families)
+    v36a_substrate_signature = _sha256_canonical_json(
+        _v36a_substrate_signature_payload(
+            ux_domain_packet_reference_path=ux_domain_packet_reference_path,
+            ux_domain_packet_reference_hash=_sha256_canonical_json(domain_payload),
+            ux_morph_ir_reference_path=ux_morph_ir_reference_path,
+            ux_morph_ir_reference_hash=_sha256_canonical_json(morph_payload),
+            approved_profile_table_path=approved_profile_table_path,
+            approved_profile_table_hash=_sha256_canonical_json(profile_table_payload),
+            same_context_reachability_glossary_path=same_context_reachability_glossary_path,
+            same_context_reachability_glossary_hash=_sha256_canonical_json(glossary_payload),
+        )
+    )
+    v36b_substrate_signature = _sha256_canonical_json(
+        _v36b_substrate_signature_payload(
+            ux_surface_projection_reference_path=ux_surface_projection_reference_path,
+            ux_surface_projection_reference_hash=_sha256_canonical_json(surface_projection_payload),
+            ux_interaction_contract_reference_path=ux_interaction_contract_reference_path,
+            ux_interaction_contract_reference_hash=_sha256_canonical_json(
+                interaction_contract_payload
+            ),
+        )
+    )
+    v36c_substrate_signature = _sha256_canonical_json(
+        _v36c_substrate_signature_payload(
+            rendered_reference_surface_contract_path=rendered_reference_surface_contract_path,
+            rendered_reference_surface_contract_hash=_sha256_canonical_json(
+                rendered_surface_contract_payload
+            ),
+            rendered_surface_snapshot_path=rendered_surface_snapshot_path,
+            rendered_surface_snapshot_hash=_sha256_canonical_json(
+                rendered_surface_snapshot_payload
+            ),
+            implementation_binding_manifest_path=implementation_binding_manifest_path,
+            implementation_binding_manifest_hash=_sha256_canonical_json(
+                implementation_binding_manifest_payload
+            ),
+            rendered_reference_surface_evidence_path=rendered_reference_surface_evidence_path,
+            rendered_reference_surface_evidence_hash=_sha256_canonical_json(
+                rendered_surface_evidence_payload
+            ),
+        )
+    )
+
+    evidence = V36DMorphDiagnosticsConformanceEvidence(
+        evidence_input_path=output_path,
+        ux_morph_diagnostics_schema_path=ux_morph_diagnostics_schema_path,
+        ux_morph_diagnostics_schema_hash=_sha256_canonical_json(diagnostics_schema_payload),
+        ux_conformance_report_schema_path=ux_conformance_report_schema_path,
+        ux_conformance_report_schema_hash=_sha256_canonical_json(conformance_schema_payload),
+        ux_morph_diagnostics_reference_path=ux_morph_diagnostics_reference_path,
+        ux_morph_diagnostics_reference_hash=_sha256_canonical_json(diagnostics_payload),
+        ux_conformance_report_reference_path=ux_conformance_report_reference_path,
+        ux_conformance_report_reference_hash=_sha256_canonical_json(
+            conformance_report_payload
+        ),
+        reference_binding_tuple_equality_verified=True,
+        v36a_reference_pair_consumed_without_drift=True,
+        v36b_reference_pair_consumed_without_drift=True,
+        v36c_rendered_surface_consumed_without_drift=True,
+        reference_profile_id_verified_against_v36a_table=True,
+        diagnostics_severity_taxonomy_verified=True,
+        diagnostic_finding_structure_verified=True,
+        diagnostics_provenance_pointer_resolution_verified=True,
+        rendered_surface_assertion_bridge_verified=True,
+        rendered_surface_assertion_bridge_no_fresh_heuristics_verified=True,
+        conformance_aggregation_rule_verified=True,
+        conformance_report_structure_verified=True,
+        conformance_report_diagnostics_derivation_verified=True,
+        destructive_confirmation_gap_detectable=(
+            "destructive_action_lacks_adequate_confirmation" in seeded_violation_families
+        ),
+        same_context_reachability_violation_detectable=(
+            "required_evidence_not_reachable_within_same_bounded_workbench_context"
+            in seeded_violation_families
+        ),
+        utility_posture_conflict_detectable=(
+            "utility_target_conflicts_with_density_or_information_posture"
+            in seeded_violation_families
+        ),
+        requested_profile_command_grammar_conflict_detectable=(
+            "requested_interaction_profile_conflicts_with_realized_command_grammar"
+            in seeded_violation_families
+        ),
+        competing_primary_actions_detectable=(
+            "competing_primary_actions_in_one_region" in seeded_violation_families
+        ),
+        provisional_authoritative_styling_violation_detectable=(
+            "provisional_data_rendered_with_authoritative_styling"
+            in seeded_violation_families
+        ),
+        advisory_authoritative_boundary_collapse_detectable=(
+            "advisory_authoritative_boundary_visually_collapsed" in seeded_violation_families
+        ),
+        recovery_path_gap_detectable=(
+            "failure_mode_lacks_visible_recovery_path" in seeded_violation_families
+        ),
+        no_taste_engine_drift_detected=True,
+        no_event_stream_or_worker_prose_truth_substitution=True,
+        diagnostic_truth_substitution_rejected=True,
+        v35_authority_baseline_unchanged=True,
+        verification_passed=True,
+        metric_key_cardinality=len(current_metric_keys),
+        metric_key_exact_set_equal_v63=True,
+        notes=(
+            "v64 closeout evidence remains pre-v36e compiler export and pre-lawful variant "
+            "release; it verifies deterministic diagnostics and typed conformance over the "
+            "released v36a/v36b/v36c substrate only. "
+            f"Consumed v36a substrate signature: {v36a_substrate_signature}. "
+            f"Consumed v36b substrate signature: {v36b_substrate_signature}. "
+            f"Consumed v36c substrate signature: {v36c_substrate_signature}."
         ),
     )
     payload = evidence.model_dump(mode="json", by_alias=True)
