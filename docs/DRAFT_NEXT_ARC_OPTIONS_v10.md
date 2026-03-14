@@ -1,9 +1,9 @@
-# Draft Next Arc Options v10 (Post vNext+60, Post V35 Closure)
+# Draft Next Arc Options v10 (Post vNext+61, Post V36-A Closure)
 
-This document defines the post-`vNext+60` planning baseline for the next ADEU-governed
+This document defines the post-`vNext+61` planning baseline for the next ADEU-governed
 implementation family.
 
-Status: active planning draft (`V34` and `V35` closed; next family selection in
+Status: active planning draft (`V34`, `V35`, and `V36-A` closed; next path selection in
 progress).
 
 Goal:
@@ -37,6 +37,9 @@ behavior or UI behavior changes.
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS60.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS60.md`
 - `docs/ASSESSMENT_vNEXT_PLUS60_EDGES.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS61.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS61.md`
+- `docs/ASSESSMENT_vNEXT_PLUS61_EDGES.md`
 - `docs/seed arc v10.md`
 - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - `docs/FUTURE_CLEANUPS.md`
@@ -45,8 +48,8 @@ behavior or UI behavior changes.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+60` (`V35-E`) on `main`.
-- `V34-A` through `V34-G` and `V35-A` through `V35-E` are closed.
+- Baseline implementation is `vNext+61` (`V36-A`) on `main`.
+- `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` are closed.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
   keys only).
@@ -69,10 +72,17 @@ behavior or UI behavior changes.
   ad hoc component styling or generic "modern dashboard" prompting.
 - The first bounded terrain proposed by the seed is native to ADEU Studio:
   `artifact_inspector_advisory_workbench`.
-- No `ux_domain_packet`, `ux_morph_ir`, `ux_surface_projection`,
-  `ux_interaction_contract`, or surface-compiler implementation exists yet in the repo;
-  `V36` is a greenfield family and should prefer explicit new foundations over ad hoc
-  accretion into existing page components.
+- The greenfield `V36-A` substrate now exists on `main`:
+  canonical `ux_domain_packet@1`,
+  canonical `ux_morph_ir@1`,
+  one accepted bound reference-instance pair,
+  the frozen first-family approved profile table,
+  the frozen same-context reachability glossary,
+  and canonical `v36a_ux_domain_morph_ir_evidence@1`.
+- No `ux_surface_projection`, `ux_interaction_contract`, rendered reference workbench,
+  diagnostics/conformance engine, or surface-compiler implementation exists yet in the
+  repo; the remaining `V36` paths should continue to prefer explicit new foundations over
+  ad hoc accretion into existing page components.
 - The closeout hardening bundle exists as a separate operational proposal only:
   - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - The Copilot/Codex CLI approval-flag drift remains a separate future-cleanup item and is
@@ -175,7 +185,8 @@ behavior or UI behavior changes.
     "V35-B",
     "V35-C",
     "V35-D",
-    "V35-E"
+    "V35-E",
+    "V36-A"
   ],
   "next_path_family": "V36",
   "v36_path_count": 5,
@@ -183,7 +194,7 @@ behavior or UI behavior changes.
     "from": "vNext+61",
     "to": "vNext+65"
   },
-  "default_next_arc_candidate": "V36-A",
+  "default_next_arc_candidate": "V36-B",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -286,6 +297,11 @@ behavior or UI behavior changes.
 ## Path V36-A: UX Domain Packet and Morph IR Baseline
 
 Lock class: `L1`
+
+Status note:
+
+- closed on `main` via `vNext+61`; treat this path as released substrate, not as an open
+  implementation candidate.
 
 Goal:
 
@@ -682,9 +698,10 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- select `V36-A` as the next default candidate after the closed `V35` family;
-- keep the first release artifact-first and constitutional:
-  freeze typed UX-governance schemas before shipping broad surface variation;
+- select `V36-B` as the next default candidate after the closed `V36-A` substrate;
+- keep the next release artifact-first and constitutional:
+  freeze typed surface projection and interaction contracts before shipping a rendered
+  reference surface;
 - preserve the seed's core design rule:
   Codex should compile a lawful surface from O/E/D/U artifacts, not improvise a dashboard
   from vibes;
