@@ -1,0 +1,37 @@
+{
+  "approved_profile_id": "artifact_inspector_reference",
+  "authority_boundary_policy": {
+    "no_free_form_ui_codegen_without_ir": true,
+    "no_visual_authority_inflation": true,
+    "ui_artifacts_may_express_but_may_not_mint_authority": true
+  },
+  "findings": [],
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "schema": "ux_morph_diagnostics@1",
+  "seeded_violation_families": [
+    "advisory_authoritative_boundary_visually_collapsed",
+    "competing_primary_actions_in_one_region",
+    "destructive_action_lacks_adequate_confirmation",
+    "failure_mode_lacks_visible_recovery_path",
+    "provisional_data_rendered_with_authoritative_styling",
+    "requested_interaction_profile_conflicts_with_realized_command_grammar",
+    "required_evidence_not_reachable_within_same_bounded_workbench_context",
+    "utility_target_conflicts_with_density_or_information_posture"
+  ],
+  "severity_taxonomy": [
+    "error",
+    "warning",
+    "advisory"
+  ],
+  "supporting_artifacts": {
+    "rendered_reference_surface_binding_manifest_schema": "v36c_rendered_reference_surface_binding_manifest@1",
+    "rendered_reference_surface_contract_schema": "v36c_rendered_reference_surface_contract@1",
+    "rendered_reference_surface_evidence_schema": "v36c_artifact_inspector_reference_surface_evidence@1",
+    "rendered_reference_surface_snapshot_schema": "v36c_rendered_reference_surface_semantic_snapshot@1",
+    "ux_domain_packet_schema": "ux_domain_packet@1",
+    "ux_interaction_contract_schema": "ux_interaction_contract@1",
+    "ux_morph_ir_schema": "ux_morph_ir@1",
+    "ux_surface_projection_schema": "ux_surface_projection@1"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "approved_profile_id": "artifact_inspector_reference",
+  "authority_boundary_policy": {
+    "no_free_form_ui_codegen_without_ir": true,
+    "no_visual_authority_inflation": true,
+    "ui_artifacts_may_express_but_may_not_mint_authority": true
+  },
+  "derivation_metadata": {
+    "aggregation_rule": {
+      "any_error": "fail",
+      "no_error_and_any_warning": "needs_review",
+      "only_advisory_or_no_findings": "pass"
+    },
+    "canonical_artifact_truth_only": true,
+    "diagnostics_schema": "ux_morph_diagnostics@1",
+    "event_streams_and_worker_prose_provenance_only": true,
+    "fresh_route_local_heuristics_introduced": false,
+    "rendered_reference_surface_evidence_schema": "v36c_artifact_inspector_reference_surface_evidence@1",
+    "rendered_surface_assertion_inputs": [
+      "v36c_rendered_reference_surface_binding_manifest@1",
+      "v36c_rendered_reference_surface_contract@1",
+      "v36c_rendered_reference_surface_semantic_snapshot@1"
+    ],
+    "typed_summary_only": true
+  },
+  "failed_rule_families": [],
+  "overall_judgment": "pass",
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "schema": "ux_conformance_report@1",
+  "severity_counts": {
+    "advisory": 0,
+    "error": 0,
+    "warning": 0
+  },
+  "supporting_artifacts": {
+    "rendered_reference_surface_binding_manifest_schema": "v36c_rendered_reference_surface_binding_manifest@1",
+    "rendered_reference_surface_contract_schema": "v36c_rendered_reference_surface_contract@1",
+    "rendered_reference_surface_evidence_schema": "v36c_artifact_inspector_reference_surface_evidence@1",
+    "rendered_reference_surface_snapshot_schema": "v36c_rendered_reference_surface_semantic_snapshot@1",
+    "ux_morph_diagnostics_schema": "ux_morph_diagnostics@1"
+  },
+  "supporting_finding_ids": [],
+  "warning_rule_families": []
+}
