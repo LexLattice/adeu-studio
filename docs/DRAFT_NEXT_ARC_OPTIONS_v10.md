@@ -589,16 +589,36 @@ Scope:
   - `error`
   - `warning`
   - `advisory`
-- define or, if structurally required for the bounded family, minimally type
-  `ux_conformance_report@1` to separate raw diagnostics from final conformance judgment
-  and to bridge canonical artifacts into rendered-surface assertions for critical gates
-  and salience-bearing surfaces;
+- define canonical `ux_conformance_report@1` to separate raw diagnostics from final
+  conformance judgment and to bridge canonical artifacts into rendered-surface assertions
+  for critical gates and salience-bearing surfaces;
+- freeze a deterministic conformance aggregation rule for the first bounded family:
+  - any `error` => `fail`,
+  - no `error` and at least one `warning` => `needs_review`,
+  - only `advisory` findings or no findings => `pass`;
+- require each diagnostic finding to carry at least:
+  - stable `finding_id`,
+  - stable `violation_family`,
+  - `severity`,
+  - provenance pointers,
+  - rendered-surface assertion inputs actually used,
+  - supporting evidence refs,
+  - conformance impact;
+- require the conformance report to carry at least:
+  - `overall_judgment`,
+  - supporting finding ids,
+  - severity counts,
+  - failed / warning rule families,
+  - reference binding fields,
+  - derivation metadata proving it was derived from diagnostics plus frozen
+    rendered-surface assertions;
 - detect bounded first-family violations such as:
   - destructive action lacks adequate confirmation,
   - provisional data rendered with authoritative styling,
   - required evidence not reachable within the same bounded workbench context,
   - utility target conflicts with density/posture,
-  - requested interaction profile conflicts with realized command grammar,
+  - requested interaction profile conflicts with realized command grammar against the
+    frozen approved profile contract,
   - competing primary actions in one region,
   - failure mode lacks visible recovery path,
   - advisory/authoritative boundary visually collapsed;
@@ -606,6 +626,8 @@ Scope:
   artifacts rather than free-form critique text;
 - require each diagnostic to carry provenance pointers into the canonical artifact stack
   so the output remains typed and auditable rather than prose-like.
+- require the rendered-surface assertion bridge to stay grounded in the frozen rendered
+  artifact inputs and to avoid introducing fresh route-local heuristic truth sources.
 
 Locks:
 
@@ -619,7 +641,9 @@ Locks:
 Acceptance:
 
 - deterministic diagnostics exist for the first bounded workbench family and can surface
-  seeded UX-law violations with provenance into the canonical artifact stack.
+  seeded UX-law violations with provenance into the canonical artifact stack;
+- overall conformance judgment is deterministically derived from the accepted diagnostics
+  artifact according to the frozen aggregation rule rather than local interpretation.
 
 ## Path V36-E: Surface Compiler Export and Controlled Variant Range
 

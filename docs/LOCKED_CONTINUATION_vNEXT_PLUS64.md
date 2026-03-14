@@ -95,9 +95,11 @@ Status: draft lock (not frozen yet, March 15, 2026 UTC).
     engines,
   - diagnostics must trace to the canonical domain/morph/projection/interaction/rendered
     artifact stack rather than free-form critique,
-  - conformance, if emitted, must remain a typed summary derived from canonical
-    diagnostics plus frozen rendered-surface assertion inputs rather than prose judgment
-    or runtime auto-repair,
+  - conformance must remain a typed summary derived from canonical diagnostics plus
+    frozen rendered-surface assertion inputs rather than prose judgment or runtime
+    auto-repair,
+  - conformance overall judgment must be derived by a deterministic frozen aggregation
+    rule rather than reviewer interpretation,
   - no compiler export, lawful variant widening, generic design-system release, or broad
     route retrofit is authorized in this arc,
   - UI artifacts may express authority but may not mint authority; this arc may not
@@ -197,6 +199,7 @@ Consumption lock:
       "reference_instance_id",
       "approved_profile_id"
     ],
+    "reference_binding_tuple_equality_across_v36a_v36b_v36c_v36d_required": true,
     "first_reference_profile_id": "artifact_inspector_reference",
     "first_reference_profile_must_exist_in_v36a_approved_profile_table": true,
     "ux_morph_diagnostics_schema_required": true,
@@ -206,6 +209,15 @@ Consumption lock:
       "warning",
       "advisory"
     ],
+    "diagnostic_finding_required_fields": [
+      "finding_id",
+      "violation_family",
+      "severity",
+      "provenance_pointers",
+      "rendered_surface_assertion_inputs_used",
+      "supporting_evidence_refs",
+      "conformance_impact"
+    ],
     "diagnostics_must_trace_to_canonical_artifact_stack": true,
     "diagnostics_provenance_pointers_required": true,
     "rendered_surface_assertion_bridge_required": true,
@@ -214,11 +226,28 @@ Consumption lock:
       "v36c_rendered_reference_surface_semantic_snapshot@1",
       "v36c_rendered_reference_surface_binding_manifest@1"
     ],
+    "rendered_surface_assertion_bridge_may_not_introduce_fresh_route_local_heuristics": true,
     "conformance_report_must_be_typed_and_diagnostics_derived": true,
     "conformance_overall_judgment_enum": [
       "pass",
       "fail",
       "needs_review"
+    ],
+    "conformance_aggregation_rule": {
+      "any_error": "fail",
+      "no_error_and_any_warning": "needs_review",
+      "only_advisory_or_no_findings": "pass"
+    },
+    "conformance_report_required_fields": [
+      "overall_judgment",
+      "supporting_finding_ids",
+      "severity_counts",
+      "failed_rule_families",
+      "warning_rule_families",
+      "reference_surface_family",
+      "reference_instance_id",
+      "approved_profile_id",
+      "derivation_metadata"
     ],
     "seeded_first_family_violation_families": [
       "destructive_action_lacks_adequate_confirmation",
@@ -230,7 +259,9 @@ Consumption lock:
       "failure_mode_lacks_visible_recovery_path",
       "advisory_authoritative_boundary_visually_collapsed"
     ],
+    "requested_profile_command_grammar_conflict_must_bind_to_frozen_approved_profile_contract": true,
     "event_streams_and_worker_prose_provenance_only": true,
+    "diagnostic_findings_and_conformance_summaries_must_not_treat_event_streams_or_worker_prose_as_authoritative_grounds_without_canonical_artifact_backing": true,
     "no_aesthetic_taste_engine": true,
     "no_runtime_auto_repair_or_self_mutating_ui": true,
     "no_visual_authority_inflation": true,
@@ -251,21 +282,30 @@ Consumption lock:
       "ux_morph_diagnostics_reference_hash",
       "ux_conformance_report_reference_path",
       "ux_conformance_report_reference_hash",
+      "reference_binding_tuple_equality_verified",
       "v36a_reference_pair_consumed_without_drift",
       "v36b_reference_pair_consumed_without_drift",
       "v36c_rendered_surface_consumed_without_drift",
       "reference_profile_id_verified_against_v36a_table",
       "diagnostics_severity_taxonomy_verified",
-      "seeded_violation_detection_verified",
+      "diagnostic_finding_structure_verified",
       "diagnostics_provenance_pointer_resolution_verified",
       "rendered_surface_assertion_bridge_verified",
+      "rendered_surface_assertion_bridge_no_fresh_heuristics_verified",
+      "conformance_aggregation_rule_verified",
+      "conformance_report_structure_verified",
       "conformance_report_diagnostics_derivation_verified",
+      "destructive_confirmation_gap_detectable",
       "same_context_reachability_violation_detectable",
+      "utility_posture_conflict_detectable",
+      "requested_profile_command_grammar_conflict_detectable",
+      "competing_primary_actions_detectable",
       "provisional_authoritative_styling_violation_detectable",
       "advisory_authoritative_boundary_collapse_detectable",
       "recovery_path_gap_detectable",
       "no_taste_engine_drift_detected",
       "no_event_stream_or_worker_prose_truth_substitution",
+      "diagnostic_truth_substitution_rejected",
       "v35_authority_baseline_unchanged",
       "verification_passed",
       "metric_key_cardinality",
@@ -278,21 +318,30 @@ Consumption lock:
     "ux_conformance_report_schema_serialization_deterministic": true,
     "reference_diagnostics_serialization_deterministic": true,
     "reference_conformance_report_serialization_deterministic": true,
+    "reference_binding_tuple_equality_verified": true,
     "v36a_reference_pair_consumed_without_drift": true,
     "v36b_reference_pair_consumed_without_drift": true,
     "v36c_rendered_surface_consumed_without_drift": true,
     "reference_profile_id_verified_against_v36a_table": true,
     "diagnostics_severity_taxonomy_verified": true,
-    "seeded_violation_detection_verified": true,
+    "diagnostic_finding_structure_verified": true,
     "diagnostics_provenance_pointer_resolution_verified": true,
     "rendered_surface_assertion_bridge_verified": true,
+    "rendered_surface_assertion_bridge_no_fresh_heuristics_verified": true,
+    "conformance_aggregation_rule_verified": true,
+    "conformance_report_structure_verified": true,
     "conformance_report_diagnostics_derivation_verified": true,
+    "destructive_confirmation_gap_detectable": true,
     "same_context_reachability_violation_detectable": true,
+    "utility_posture_conflict_detectable": true,
+    "requested_profile_command_grammar_conflict_detectable": true,
+    "competing_primary_actions_detectable": true,
     "provisional_authoritative_styling_violation_detectable": true,
     "advisory_authoritative_boundary_collapse_detectable": true,
     "recovery_path_gap_detectable": true,
     "no_taste_engine_drift_detected": true,
     "no_event_stream_or_worker_prose_truth_substitution": true,
+    "diagnostic_truth_substitution_rejected": true,
     "v35_authority_baseline_unchanged": true
   }
 }
@@ -305,11 +354,12 @@ Interpretive notes:
 - diagnostics must remain artifact-backed constitutional findings, not a prose review lane
   or aesthetic preference engine.
 - conformance exists in v64 only as a typed summary over canonical diagnostics plus frozen
-  rendered-surface assertion inputs; it must not collapse into UI-local heuristics or
-  runtime policy minting.
+  rendered-surface assertion inputs; it must not collapse into UI-local heuristics,
+  runtime policy minting, or discretionary aggregation.
 - event streams and worker prose may appear as provenance aids only; they do not become
   accepted truth or diagnostic truth by being present in a rendered route or a diagnostic
-  artifact.
+  artifact, and may not serve as authoritative grounds for pass/fail judgment without
+  canonical artifact backing.
 
 ## D1) Canonical Morph Diagnostics + Conformance Baseline (`V36-D`)
 
@@ -326,16 +376,32 @@ UX-law review.
   deterministic conformance report, bound by the shared
   `reference_surface_family`, `reference_instance_id`, and `approved_profile_id` fields
   back to the released `V36-A`, `V36-B`, and `V36-C` substrate;
+- freeze equality of the reference binding tuple across the accepted `V36-A` pair, the
+  accepted `V36-B` pair, the released `V36-C` route artifacts, the accepted diagnostics
+  artifact, and the accepted conformance report;
 - freeze the minimum severity taxonomy:
   `error`, `warning`, `advisory`;
+- freeze the minimum per-finding structure:
+  stable `finding_id`, stable `violation_family`, `severity`, provenance pointers,
+  rendered-surface assertion inputs used, supporting evidence refs, and conformance
+  impact;
+- freeze the minimum conformance-report structure:
+  `overall_judgment`, supporting finding ids, severity counts, failed/warning rule
+  families, reference binding fields, and derivation metadata;
+- freeze deterministic conformance aggregation:
+  any `error` => `fail`, no `error` and at least one `warning` => `needs_review`,
+  only `advisory` findings or no findings => `pass`;
 - freeze provenance pointers from diagnostics into the canonical
   domain/morph/projection/interaction/rendered artifact stack;
 - freeze the rendered-surface assertion bridge over the released v63 route contract,
-  semantic snapshot, and implementation binding manifest;
+  semantic snapshot, and implementation binding manifest, without introducing fresh
+  route-local heuristic truth sources;
 - freeze deterministic seeded detection coverage for the first-family violation set:
   confirmation gaps, provisional/authoritative styling drift, same-context evidence
   reachability violations, utility/posture conflicts, command-grammar conflicts,
   competing primaries, missing recovery paths, and advisory/authoritative collapse;
+- anchor requested interaction-profile versus realized command-grammar diagnostics to the
+  frozen approved profile contract rather than abstract UX preference;
 - keep conformance typed and diagnostics-derived rather than prose-like or heuristic-first.
 
 ### Locks
@@ -373,12 +439,18 @@ binding it to canonical evidence and fail-closed guard coverage.
   - missing accepted diagnostics artifact or conformance report,
   - diagnostics/conformance binding mismatch against the released substrate,
   - invalid or missing severity taxonomy entries,
+  - invalid or missing per-finding structure,
+  - invalid or missing conformance-report structure,
+  - non-deterministic conformance aggregation,
   - missing provenance pointers into the canonical artifact stack,
   - missing rendered-surface assertion bridge against the v63 route contract, semantic
     snapshot, or implementation binding manifest,
+  - rendered-surface assertion bridging that introduces fresh route-local heuristic truth
+    sources,
   - failure to surface seeded first-family violations deterministically,
   - prose-like or taste-engine diagnostic drift,
-  - event-stream or worker-prose truth substitution,
+  - event-stream or worker-prose truth substitution in diagnostic grounds or conformance
+    grounds,
   - authority-minting drift in diagnostics/conformance wording,
   - stop-gate metric-key continuity drift.
 
@@ -397,7 +469,7 @@ binding it to canonical evidence and fail-closed guard coverage.
 - v64 closeout can prove that the accepted diagnostics/conformance artifacts remain
   anchored to the released accepted `V36-A` / `V36-B` / `V36-C` substrate, preserve
   seeded violation detection with canonical provenance, and keep conformance derived from
-  typed diagnostics rather than prose heuristics.
+  typed diagnostics according to the frozen aggregation rule rather than prose heuristics.
 
 ## Implementation Slices
 
@@ -435,13 +507,17 @@ Suggested PR title:
 5. accepted diagnostics/conformance artifacts serialize deterministically and remain
    coherently bound to the released accepted `V36-A`, `V36-B`, and `V36-C` substrate.
 6. seeded first-family violations are surfaced deterministically with the frozen
-   severity taxonomy and provenance pointers into the canonical artifact stack.
+   severity taxonomy, the frozen minimum finding/report structure, and provenance pointers
+   into the canonical artifact stack.
 7. the rendered-surface assertion bridge remains frozen over the v63 route contract,
-   semantic snapshot, and implementation binding manifest.
+   semantic snapshot, and implementation binding manifest, with no fresh route-local
+   heuristic truth source introduced.
 8. diagnostics/conformance remain constitutional and typed:
    no taste-engine drift, no event/prose truth substitution, and no authority-minting
    wording drift.
-9. no compiler-export widening, lawful variant widening, runtime auto-repair, or broad
+9. overall conformance judgment is deterministically derived from the accepted diagnostics
+   artifact according to the frozen aggregation rule.
+10. no compiler-export widening, lawful variant widening, runtime auto-repair, or broad
    route-retrofit release is shipped by this arc.
 
 ## Why This Arc, Not `V36-E` or `O1` / `O2` / `O3`

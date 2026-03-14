@@ -54,8 +54,9 @@ Status: draft decision note (pre-start scaffold, March 15, 2026 UTC).
   the `V36` family is to freeze one deterministic diagnostics/conformance lane over the
   released rendered substrate rather than widening directly into compiler export.
 - The repo still lacks canonical `ux_morph_diagnostics@1`, canonical
-  `ux_conformance_report@1`, deterministic seeded violation coverage over the bounded
-  family, and canonical diagnostics/conformance evidence for the `V36-D` lane.
+  `ux_conformance_report@1`, a frozen deterministic conformance aggregation rule, frozen
+  audit-grade finding/report structure, deterministic seeded violation coverage over the
+  bounded family, and canonical diagnostics/conformance evidence for the `V36-D` lane.
 - Shipping compiler export or lawful variants before diagnostics/conformance exists would
   widen the family in the wrong order and force later paths to compile or vary a surface
   that has never been audited canonically.
@@ -69,7 +70,8 @@ Status: draft decision note (pre-start scaffold, March 15, 2026 UTC).
 3. The v64 lock remains narrowly scoped to one bounded diagnostics/conformance lane only.
 4. No new stop-gate schema family or metric-key expansion is proposed in the arc.
 5. Diagnostics/conformance is required to trace back to the released accepted `V36-A`,
-   `V36-B`, and `V36-C` substrate and canonical profile id.
+   `V36-B`, and `V36-C` substrate and canonical profile id, and conformance must be
+   deterministically derived from diagnostics under a frozen aggregation rule.
 6. Compiler export, lawful variant generation, runtime auto-repair, broad route rewrites,
    and generic design-system work remain explicitly deferred.
 

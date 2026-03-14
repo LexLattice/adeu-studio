@@ -59,7 +59,8 @@ Status: pre-lock assessment (March 15, 2026 UTC).
      no diagnostics artifact family is released yet.
 2. No canonical `ux_conformance_report@1` schema exists on `main`.
    - the repo still lacks a typed final-judgment artifact that remains distinct from raw
-     diagnostics and avoids prose-only conformance review.
+     diagnostics, avoids prose-only conformance review, and freezes deterministic
+     aggregation from findings to overall judgment.
 3. No accepted deterministic reference diagnostics artifact exists on `main`.
    - v64 still needs one bounded reference diagnostics packet over the
      `artifact_inspector_advisory_workbench` family.
@@ -68,14 +69,18 @@ Status: pre-lock assessment (March 15, 2026 UTC).
      reference surface family and canonical profile id.
 5. No deterministic severity taxonomy is frozen in released UX artifacts.
    - the first diagnostics lane must freeze `error` / `warning` / `advisory` rather than
-     leaving severity as prose.
+     leaving severity as prose, and still needs to freeze a minimum per-finding
+     structure.
 6. No diagnostics provenance-pointer contract exists into the canonical artifact stack.
    - the repo still lacks canonical pointers from findings back to the released
-     domain/morph/projection/interaction/rendered artifacts.
+     domain/morph/projection/interaction/rendered artifacts, plus the minimum
+     audit-facing fields that show which rendered assertions and supporting evidence were
+     actually used.
 7. No rendered-surface assertion bridge is frozen over the v63 route contract, semantic
    snapshot, and binding manifest.
    - diagnostics/conformance still cannot rely on the released rendered reference surface
-     deterministically.
+     deterministically, and the next slice still has to forbid smuggling fresh
+     route-local heuristics through that bridge.
 8. Same-context evidence-visibility violations are not yet surfaced deterministically.
    - the frozen `V36-A` glossary exists, and the rendered route consumes it, but no
      canonical diagnostics artifact can yet report a violation against it.
@@ -88,13 +93,16 @@ Status: pre-lock assessment (March 15, 2026 UTC).
 11. Recovery-path gaps and competing-primary-action conflicts are not yet surfaced
     deterministically.
     - the rendered route exists, but the repo still lacks canonical UX-law findings for
-      these bounded first-family failures.
+      these bounded first-family failures, plus deterministic findings for destructive
+      confirmation gaps, utility/posture conflicts, and requested-profile versus
+      realized-command-grammar conflicts against the frozen approved profile contract.
 12. Diagnostics could regress into a taste engine without an explicit constitutional lock.
     - the next slice must stay artifact-backed and provenance-linked rather than emitting
       aesthetic preference prose.
 13. Event-stream or worker-prose truth substitution risk remains open in diagnostics.
-    - findings must not treat event streams, worker prose, or local UI heuristics as
-      accepted truth.
+    - findings and conformance summaries must not treat event streams, worker prose, or
+      local UI heuristics as accepted truth or authoritative grounds for pass/fail
+      judgment.
 14. No canonical `v36d_morph_diagnostics_conformance_evidence@1` exists on `main`.
     - closeout-grade evidence for the `V36-D` lane still has to be defined and emitted.
 15. Guard coverage gap for diagnostics/conformance drift remains open.
