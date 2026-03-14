@@ -1,10 +1,10 @@
-# Draft Next Arc Options v10 (Post vNext+62, Post V36-B Closure)
+# Draft Next Arc Options v10 (Post vNext+63, Post V36-C Closure)
 
 This document defines the post-`vNext+61` planning baseline for the next ADEU-governed
 implementation family.
 
-Status: active planning draft (`V34`, `V35`, `V36-A`, and `V36-B` closed; next path
-selection in progress).
+Status: active planning draft (`V34`, `V35`, `V36-A`, `V36-B`, and `V36-C` closed; next
+path selection in progress).
 
 Goal:
 
@@ -48,8 +48,8 @@ behavior or UI behavior changes.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+62` (`V36-B`) on `main`.
-- `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-B` are
+- Baseline implementation is `vNext+63` (`V36-C`) on `main`.
+- `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-C` are
   closed.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
@@ -88,7 +88,13 @@ behavior or UI behavior changes.
   stable provenance hooks,
   stable implementation-observable bindings,
   and canonical `v36b_surface_projection_interaction_evidence@1`.
-- No rendered reference workbench, diagnostics/conformance engine, or surface-compiler
+- The greenfield `V36-C` rendered reference surface now exists on `main`:
+  one bounded `artifact_inspector_advisory_workbench` route,
+  one rendered route contract,
+  one semantic snapshot,
+  one implementation binding manifest,
+  and canonical `v36c_artifact_inspector_reference_surface_evidence@1`.
+- No released `V36-D` diagnostics/conformance engine or `V36-E` surface-compiler
   implementation exists yet in the repo; the remaining `V36` paths should continue to
   prefer explicit new foundations over ad hoc accretion into existing page components.
 - The closeout hardening bundle exists as a separate operational proposal only:
@@ -195,7 +201,8 @@ behavior or UI behavior changes.
     "V35-D",
     "V35-E",
     "V36-A",
-    "V36-B"
+    "V36-B",
+    "V36-C"
   ],
   "next_path_family": "V36",
   "v36_path_count": 5,
@@ -203,7 +210,7 @@ behavior or UI behavior changes.
     "from": "vNext+61",
     "to": "vNext+65"
   },
-  "default_next_arc_candidate": "V36-C",
+  "default_next_arc_candidate": "V36-D",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -496,6 +503,11 @@ Acceptance:
 
 Lock class: `L0`
 
+Status note:
+
+- closed on `main` via `vNext+63`; treat this path as released rendered substrate, not
+  as an open implementation candidate.
+
 Goal:
 
 - implement one bounded ADEU-native reference surface from the typed UX artifacts.
@@ -577,9 +589,10 @@ Scope:
   - `error`
   - `warning`
   - `advisory`
-- optionally define a later-facing `ux_conformance_report@1` if needed to separate raw
-  diagnostics from final conformance judgment and to bridge canonical artifacts into
-  rendered-surface assertions for critical gates and salience-bearing surfaces;
+- define or, if structurally required for the bounded family, minimally type
+  `ux_conformance_report@1` to separate raw diagnostics from final conformance judgment
+  and to bridge canonical artifacts into rendered-surface assertions for critical gates
+  and salience-bearing surfaces;
 - detect bounded first-family violations such as:
   - destructive action lacks adequate confirmation,
   - provisional data rendered with authoritative styling,
@@ -712,10 +725,11 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- select `V36-C` as the next default candidate after the closed `V36-B` substrate;
+- select `V36-D` as the next default candidate after the closed `V36-C` rendered
+  reference surface;
 - keep the next release artifact-first and constitutional:
-  ship one bounded rendered reference surface from the released substrate before
-  diagnostics/conformance or compiler widening;
+  ship deterministic diagnostics/conformance over the released rendered substrate before
+  compiler widening;
 - preserve the seed's core design rule:
   Codex should compile a lawful surface from O/E/D/U artifacts, not improvise a dashboard
   from vibes;
