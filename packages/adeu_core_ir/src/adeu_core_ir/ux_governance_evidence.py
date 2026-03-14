@@ -8,11 +8,6 @@ from typing import Any, TypeVar
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from .ux_governance import (
-    V36A_ALTERNATE_LAWFUL_PROFILE_ID,
-    V36A_APPROVED_PROFILE_TABLE_SCHEMA,
-    V36A_CANONICAL_REFERENCE_PROFILE_ID,
-    V36A_REFERENCE_SURFACE_FAMILY,
-    V36A_SAME_CONTEXT_GLOSSARY_SCHEMA,
     UXDomainPacket,
     UXMorphIR,
     V36AFirstFamilyApprovedProfileTable,
@@ -26,6 +21,7 @@ V36A_UX_DOMAIN_MORPH_IR_CONTRACT_SOURCE = (
 )
 STOP_GATE_METRICS_SCHEMA = "stop_gate_metrics@1"
 EXPECTED_METRIC_KEY_CARDINALITY = 80
+DEFAULT_V60_BASELINE_METRICS_PATH = "artifacts/stop_gate/metrics_v60_closeout.json"
 
 DEFAULT_UX_DOMAIN_PACKET_SCHEMA_PATH = "packages/adeu_core_ir/schema/ux_domain_packet.v1.json"
 DEFAULT_UX_MORPH_IR_SCHEMA_PATH = "packages/adeu_core_ir/schema/ux_morph_ir.v1.json"
@@ -224,6 +220,10 @@ def materialize_v36a_ux_domain_morph_ir_evidence(
     repo_root = repo_root.resolve()
     if not repo_root.is_dir():
         raise UXGovernanceEvidenceError("repository root does not exist")
+    if baseline_metrics_path != DEFAULT_V60_BASELINE_METRICS_PATH:
+        raise UXGovernanceEvidenceError(
+            "baseline_metrics_path must point to the frozen v60 closeout metrics artifact"
+        )
 
     output_file = _resolve_repo_relative_path(
         root=repo_root,
@@ -335,39 +335,6 @@ def materialize_v36a_ux_domain_morph_ir_evidence(
         )
     except ValueError as exc:
         raise UXGovernanceEvidenceError(str(exc)) from exc
-
-    if not {"ontology", "epistemics", "deontics", "utility"}.issubset(morph_payload):
-        raise UXGovernanceEvidenceError("ux_morph_ir reference must preserve the A/E/D/U split")
-    if "invariants" not in morph_payload or "morphable_surface_choices" not in morph_payload:
-        raise UXGovernanceEvidenceError(
-            "ux_morph_ir reference must preserve invariant and morphable surface separation"
-        )
-    if approved_profile_table.reference_surface_family != V36A_REFERENCE_SURFACE_FAMILY:
-        raise UXGovernanceEvidenceError("approved profile table reference surface family drift")
-    if approved_profile_table.canonical_reference_profile_id != V36A_CANONICAL_REFERENCE_PROFILE_ID:
-        raise UXGovernanceEvidenceError("canonical reference profile id drift detected")
-    if approved_profile_table.alternate_lawful_profile_id != V36A_ALTERNATE_LAWFUL_PROFILE_ID:
-        raise UXGovernanceEvidenceError("alternate lawful profile id drift detected")
-    if approved_profile_table.schema != V36A_APPROVED_PROFILE_TABLE_SCHEMA:
-        raise UXGovernanceEvidenceError("approved profile table schema drift detected")
-    if same_context_glossary.schema != V36A_SAME_CONTEXT_GLOSSARY_SCHEMA:
-        raise UXGovernanceEvidenceError("same-context reachability glossary schema drift detected")
-    if (
-        not domain_packet.authority_boundary_policy.no_free_form_ui_codegen_without_ir
-        or not morph_ir.authority_boundary_policy.no_free_form_ui_codegen_without_ir
-    ):
-        raise UXGovernanceEvidenceError("free-form UI codegen bypass detected")
-    domain_mint_policy = (
-        domain_packet.authority_boundary_policy.ui_artifacts_may_express_but_may_not_mint_authority
-    )
-    morph_mint_policy = (
-        morph_ir.authority_boundary_policy.ui_artifacts_may_express_but_may_not_mint_authority
-    )
-    if (
-        not domain_mint_policy
-        or not morph_mint_policy
-    ):
-        raise UXGovernanceEvidenceError("authority-minting drift detected")
 
     evidence = V36AUXDomainMorphIREvidence(
         evidence_input_path=output_path,

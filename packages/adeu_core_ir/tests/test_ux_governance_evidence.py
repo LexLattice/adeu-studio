@@ -12,6 +12,7 @@ from adeu_core_ir import (
     DEFAULT_UX_DOMAIN_PACKET_SCHEMA_PATH,
     DEFAULT_UX_MORPH_IR_REFERENCE_PATH,
     DEFAULT_UX_MORPH_IR_SCHEMA_PATH,
+    DEFAULT_V60_BASELINE_METRICS_PATH,
     materialize_v36a_ux_domain_morph_ir_evidence,
 )
 from adeu_core_ir.ux_governance_evidence import UXGovernanceEvidenceError
@@ -34,7 +35,7 @@ def _write_json(path: Path, payload: dict[str, object]) -> None:
 def _write_stop_gate_metrics_fixture(
     *,
     repo_root: Path,
-    baseline_rel: str = "artifacts/stop_gate/metrics_v60_closeout.json",
+    baseline_rel: str = DEFAULT_V60_BASELINE_METRICS_PATH,
     current_rel: str = "artifacts/stop_gate/metrics_v61_closeout.json",
 ) -> tuple[str, str]:
     metric_keys = [f"metric_{index:02d}" for index in range(80)]
@@ -274,6 +275,27 @@ def test_materialize_v36a_evidence_fails_closed_on_metric_key_continuity_drift(
 
     with pytest.raises(
         UXGovernanceEvidenceError, match="metric key cardinality must remain frozen at 80"
+    ):
+        materialize_v36a_ux_domain_morph_ir_evidence(
+            repo_root=repo_root,
+            output_path="artifacts/agent_harness/v61/evidence_inputs/v36a_ux_domain_morph_ir_evidence_v61.json",
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36a_evidence_fails_closed_on_non_v60_baseline_metrics_path(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel="artifacts/stop_gate/metrics_other_closeout.json",
+    )
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="baseline_metrics_path must point to the frozen v60 closeout metrics artifact",
     ):
         materialize_v36a_ux_domain_morph_ir_evidence(
             repo_root=repo_root,
