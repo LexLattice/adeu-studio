@@ -31,9 +31,10 @@ Status: draft decision note (pre-start scaffold, March 14, 2026 UTC).
   release, or any `O1`/`O2`/`O3` closeout-hardening execution by itself.
 - Canonical `V36-C` release in v63, if completed, must be carried by one bounded rendered
   `artifact_inspector_advisory_workbench` reference surface plus canonical
-  `v36c_artifact_inspector_reference_surface_evidence@1`; the surface must consume the
-  released `V36-A` / `V36-B` substrate and must not fork the stop-gate schema family or
-  metric keyset.
+  `v36c_artifact_inspector_reference_surface_evidence@1`; the surface must consume and
+  remain bound to the released accepted `V36-A` and `V36-B` reference pairs plus the
+  canonical reference profile id, and must not fork the stop-gate schema family or metric
+  keyset.
 - Runtime-observability comparison remains required closeout evidence and
   informational-only in this arc.
 
@@ -54,7 +55,9 @@ Status: draft decision note (pre-start scaffold, March 14, 2026 UTC).
   artifacts rather than widening directly into diagnostics or compiler export.
 - The repo still lacks a bounded rendered `artifact_inspector_advisory_workbench`
   surface, rendered proof that the released bindings/provenance hooks are actually
-  exposed, and canonical reference-surface evidence for the `V36-C` lane.
+  exposed, rendered proof that the route remains bound to the accepted `V36-A` and
+  `V36-B` reference pairs plus canonical profile id, and canonical reference-surface
+  evidence for the `V36-C` lane.
 - Shipping diagnostics/conformance or compiler export before one rendered reference
   surface exists would widen the family in the wrong order and force later paths to audit
   or compile a surface that has never been proven in bounded user-facing form.
@@ -69,7 +72,7 @@ Status: draft decision note (pre-start scaffold, March 14, 2026 UTC).
    only.
 4. No new stop-gate schema family or metric-key expansion is proposed in the arc.
 5. The rendered reference surface is required to bind back to the released accepted
-   `V36-A` / `V36-B` reference substrate and canonical profile id.
+   `V36-A` and `V36-B` reference pairs and canonical profile id.
 6. Diagnostics/conformance, compiler export, broad route rewrites, and generic
    design-system work remain explicitly deferred.
 

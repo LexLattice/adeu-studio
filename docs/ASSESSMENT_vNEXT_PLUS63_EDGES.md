@@ -54,13 +54,16 @@ Status: pre-lock assessment (March 14, 2026 UTC).
    `main`.
    - `V36-A` and `V36-B` closed the substrate only; no rendered `V36-C` surface is
      released yet.
-2. No rendered route/surface is yet bound back to the released accepted `V36-A` /
-   `V36-B` reference pair.
+2. No rendered route/surface is yet bound back to the released accepted `V36-A` and
+   `V36-B` reference pairs.
    - v63 must prove the first rendered surface is not just internally coherent UI code,
-     but an actual realization of the accepted substrate.
+     but an actual realization of the accepted substrate under the same
+     `reference_surface_family`, `reference_instance_id`, and `approved_profile_id`.
 3. No route-level parity proof exists between the released `V36-B` projection /
    interaction artifacts and a user-facing workbench surface.
-   - v63 needs one bounded parity lane before diagnostics or compiler work becomes safe.
+   - v63 needs one bounded parity lane before diagnostics or compiler work becomes safe,
+     and that parity must remain presentational only rather than reinterpreting
+     authority-bearing or reachability-bearing meaning.
 4. Explicit epistemic-state rendering remains unreleased in user-facing form.
    - the frozen `loading` / `draft` / `candidate` / `validated` / `authoritative` /
      `conflicted` / `stale` / `ambiguous` vocabulary still needs a bounded rendered
@@ -78,24 +81,34 @@ Status: pre-lock assessment (March 14, 2026 UTC).
 8. Stable provenance hooks and implementation-observable bindings are not yet proven to be
    exposed through actual user-facing UI.
    - later diagnostics/conformance depend on these being present in the rendered surface,
-     not just in the substrate artifacts.
+     not just in the substrate artifacts, and v63 still needs a frozen minimum target set
+     for rendered regions, authority-bearing controls, evidence-bearing regions,
+     state-distinction surfaces, and explicit commit/handoff boundaries.
 9. Existing route-rewrite leakage risk remains open.
    - the next slice must stay one bounded route or explicitly bounded surface and must
      not silently widen into unrelated `apps/web` rewrites.
 10. Diagnostics-lane widening risk remains open.
     - `V36-C` may need a diagnostics lane placeholder, but must not silently release
-      `V36-D` diagnostics semantics or a conformance engine.
-11. Event/prose truth substitution risk remains open in surface copy.
+      `V36-D` diagnostics semantics, new severity judgments, or a conformance engine.
+11. Route-level same-context glossary shadowing risk remains open.
+    - the frozen `V36-A` glossary can still be undermined if the rendered route teaches a
+      conflicting local reachability rule through copy, layout, or interaction affordance.
+12. Event/prose truth substitution risk remains open in surface copy.
     - the first rendered surface must not treat event streams, worker prose, or UI-local
-      summaries as authoritative runtime truth.
-12. No canonical `v36c_artifact_inspector_reference_surface_evidence@1` exists on `main`.
+      summaries as authoritative runtime truth and must label non-authoritative content
+      accordingly.
+13. Canonical-profile binding risk remains open at rendered level.
+    - the first rendered surface still needs to prove it uses the frozen
+      `artifact_inspector_reference` profile id from the `V36-A` approved profile table,
+      not some route-local variant.
+14. No canonical `v36c_artifact_inspector_reference_surface_evidence@1` exists on `main`.
     - closeout-grade evidence for the `V36-C` lane still has to be defined and emitted.
-13. Guard coverage gap for rendered-surface drift remains open.
+15. Guard coverage gap for rendered-surface drift remains open.
     - the repo does not yet fail closed on route parity drift, missing rendered bindings,
-      missing rendered provenance hooks, evidence-before-commit drift, advisory /
-      authoritative visual collapse, or unrelated-route rewrite leakage in the
-      `V36-C` layer.
-14. Stop-gate continuity risk remains open.
+      missing rendered provenance hooks, glossary shadowing, evidence-before-commit drift,
+      advisory / authoritative visual collapse, non-authoritative truth drift, or
+      unrelated-route rewrite leakage in the `V36-C` layer.
+16. Stop-gate continuity risk remains open.
     - v63 still has to prove exact metric-key continuity against v62 while adding the new
       rendered-surface evidence lane.
 
@@ -113,9 +126,11 @@ Status: pre-lock assessment (March 14, 2026 UTC).
 1. Lock `vNext+63` as a narrow `V36-C` rendered reference-surface baseline only.
 2. Require one bounded rendered `artifact_inspector_advisory_workbench` surface, not a
    broad route family or product-wide redesign, and require it to bind back to the
-   released accepted `V36-A` / `V36-B` reference substrate.
+   released accepted `V36-A` and `V36-B` reference pairs plus the frozen canonical
+   reference profile id.
 3. Make route parity, explicit epistemic rendering, evidence-before-commit preservation,
-   advisory/authoritative separation, and stable rendered bindings / provenance hooks
+   advisory/authoritative separation, stable rendered bindings / provenance hooks, route
+   glossary consumption without shadowing, and non-authoritative truth labeling
    first-class acceptance targets in `C1` and `C2`.
 4. Keep diagnostics/conformance, compiler export, and broad route retrofits explicitly
    deferred unless released under new lock text.

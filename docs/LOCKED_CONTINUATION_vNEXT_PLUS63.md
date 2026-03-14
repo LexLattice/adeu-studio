@@ -85,6 +85,9 @@ Status: draft lock (not frozen yet, March 14, 2026 UTC).
   - this arc is one bounded rendered reference-surface baseline only,
   - the arc must consume released `V36-A` and `V36-B` artifacts rather than redefining
     them,
+  - the rendered reference surface must remain bound to the same
+    `reference_surface_family`, `reference_instance_id`, and `approved_profile_id` across
+    the accepted `V36-A` pair, the accepted `V36-B` pair, and the new `V36-C` route,
   - the arc must land as one bounded new route or explicitly bounded surface adjacent to
     existing artifact/evidence/copilot terrain rather than as a broad rewrite of
     unrelated routes,
@@ -188,7 +191,16 @@ Consumption lock:
     "bounded_route_or_surface_only": true,
     "unrelated_route_rewrite_forbidden": true,
     "reference_surface_family": "artifact_inspector_advisory_workbench",
+    "rendered_surface_binding_fields": [
+      "reference_surface_family",
+      "reference_instance_id",
+      "approved_profile_id"
+    ],
     "first_reference_profile_id": "artifact_inspector_reference",
+    "first_reference_profile_must_exist_in_v36a_approved_profile_table": true,
+    "first_reference_profile_must_be_v36a_canonical_reference_profile": true,
+    "rendered_reference_surface_must_use_first_reference_profile_id": true,
+    "rendered_surface_must_bind_to_v36a_reference_pair": true,
     "rendered_surface_must_bind_to_v36b_reference_pair": true,
     "epistemic_state_rendering_required": [
       "loading",
@@ -208,12 +220,26 @@ Consumption lock:
       "advisory_action_lane",
       "explicit_commit_gate_or_handoff_boundary"
     ],
-    "diagnostics_lane_mode": "placeholder_or_existing_artifact_backed_only",
+    "diagnostics_lane_mode": "placeholder_or_existing_artifact_backed_read_only_only",
+    "diagnostics_lane_placeholder_forbidden_behaviors": [
+      "emit_new_severity_judgments",
+      "synthesize_new_conformance_decisions",
+      "present_local_ui_heuristics_as_canonical_diagnostics",
+      "masquerade_as_v36d_diagnostics"
+    ],
     "advisory_authoritative_boundary_rendering_required": true,
     "same_context_reachability_rule_preserved": true,
+    "no_route_level_glossary_shadowing": true,
     "evidence_before_commit_visibility_required": true,
     "required_evidence_reachable_without_route_change_or_commit": true,
     "stable_provenance_hooks_exposed_in_rendered_surface": true,
+    "minimum_provenance_hook_targets": [
+      "rendered_regions",
+      "authority_bearing_controls",
+      "evidence_bearing_regions",
+      "state_distinction_surfaces",
+      "explicit_commit_or_handoff_boundary"
+    ],
     "implementation_observable_bindings_exposed_in_rendered_surface": true,
     "minimum_binding_targets": [
       "commit_or_approval_gates",
@@ -222,8 +248,12 @@ Consumption lock:
       "required_evidence_reachability_anchors",
       "salience_bearing_warning_status_and_diagnostic_surfaces"
     ],
+    "route_payload_parity_mode": "presentational_transform_only_no_authority_or_reachability_meaning_drift",
     "runtime_truth_must_remain_derived_from_accepted_artifacts": true,
     "no_event_stream_or_worker_prose_truth_substitution": true,
+    "non_authoritative_event_or_worker_content_must_be_labeled_non_authoritative": true,
+    "rendered_surface_snapshot_kind": "semantic_or_structured_snapshot_required",
+    "optional_visual_capture_allowed": true,
     "no_visual_authority_inflation": true,
     "ui_artifacts_may_express_but_may_not_mint_authority": true,
     "rendered_surface_conformance_hooks_preserved": true
@@ -237,18 +267,24 @@ Consumption lock:
       "evidence_input_path",
       "rendered_surface_route_id",
       "rendered_surface_route_path",
+      "rendered_surface_snapshot_kind",
       "rendered_surface_snapshot_path",
       "rendered_surface_snapshot_hash",
       "implementation_binding_manifest_path",
       "implementation_binding_manifest_hash",
-      "route_payload_parity_verified",
+      "route_payload_parity_verified_as_presentational_only_transform",
+      "v36a_reference_pair_consumed_without_drift",
       "v36b_reference_pair_consumed_without_drift",
+      "reference_profile_id_verified_against_v36a_table",
       "epistemic_state_rendering_verified",
       "advisory_authoritative_boundary_rendering_verified",
       "same_context_evidence_visibility_preserved",
+      "no_route_level_glossary_shadowing_verified",
       "explicit_commit_or_handoff_boundary_visible",
       "stable_provenance_hooks_exposed",
+      "stable_provenance_hook_targets_exposed",
       "implementation_observable_bindings_exposed",
+      "non_authoritative_event_or_worker_content_not_rendered_as_accepted_truth",
       "no_visual_authority_inflation_preserved",
       "no_unrelated_route_rewrite_detected",
       "no_v36d_diagnostics_engine_widening",
@@ -262,15 +298,21 @@ Consumption lock:
   },
   "test_requirements": {
     "rendered_reference_surface_route_exists": true,
-    "route_payload_parity_with_v36b_projection_interaction": true,
+    "route_payload_parity_as_presentational_only_transform_with_v36b_projection_interaction": true,
     "rendered_surface_snapshot_deterministic": true,
     "implementation_binding_manifest_deterministic": true,
+    "rendered_surface_binds_to_v36a_reference_pair": true,
+    "rendered_surface_binds_to_v36b_reference_pair": true,
+    "reference_profile_id_verified_against_v36a_table": true,
     "epistemic_state_rendering_verified": true,
     "advisory_authoritative_boundary_rendering_verified": true,
     "same_context_evidence_visibility_preserved": true,
+    "no_route_level_glossary_shadowing_verified": true,
     "explicit_commit_or_handoff_boundary_visible": true,
     "stable_provenance_hooks_exposed": true,
+    "stable_provenance_hook_targets_exposed": true,
     "implementation_observable_bindings_exposed": true,
+    "non_authoritative_event_or_worker_content_cannot_render_as_accepted_truth": true,
     "forbidden_authority_inflation_not_rendered": true,
     "no_unrelated_route_rewrite_detected": true,
     "v35_authority_baseline_unchanged": true
@@ -297,6 +339,8 @@ Required outcome:
 
 - implement one bounded rendered `artifact_inspector_advisory_workbench` reference
   surface over the released `V36-A` and `V36-B` substrate;
+- bind the rendered route back to the accepted `V36-A` pair, the accepted `V36-B` pair,
+  and the canonical reference profile id from the frozen `V36-A` approved profile table;
 - keep the surface adjacent to existing artifact/evidence/copilot terrain while avoiding
   broad route rewrites;
 - preserve explicit epistemic-state rendering, evidence-before-commit visibility,
@@ -307,6 +351,8 @@ Required outcome:
 Not allowed in `C1`:
 
 - shipping a new diagnostics engine,
+- letting a placeholder/read-only diagnostics lane emit new severity judgments,
+  conformance decisions, or local heuristics masquerading as canonical diagnostics,
 - shipping a compiler export or lawful variant system,
 - widening into repo-wide redesign or generic theme work,
 - relaxing any accepted `V35` authority gate by surface arrangement or copy.
@@ -317,10 +363,13 @@ Required outcome:
 
 - emit canonical `v36c_artifact_inspector_reference_surface_evidence@1`,
 - prove exact stop-gate key continuity versus v62,
-- prove route parity with the released `V36-B` projection/interaction pair,
+- prove route parity with the released `V36-B` projection/interaction pair as a
+  presentational-only transform with no authority-bearing or reachability-bearing meaning
+  drift,
 - prove deterministic rendered-surface snapshot and binding-manifest generation,
 - prove explicit epistemic rendering, evidence-before-commit preservation, advisory /
-  authoritative boundary preservation, and no unrelated-route rewrite drift.
+  authoritative boundary preservation, route-level glossary consumption without
+  shadowing, non-authoritative content labeling, and no unrelated-route rewrite drift.
 
 Not allowed in `C2`:
 
@@ -338,4 +387,12 @@ Not allowed in `C2`:
 3. Canonical `v36c_artifact_inspector_reference_surface_evidence@1` exists on `main`.
 4. Exact stop-gate metric-key equality with v62 is preserved and derived cardinality
    remains `80`.
-5. No diagnostics-engine, compiler-export, or broad route-retrofit widening is released.
+5. Evidence-before-commit visibility remains preserved in the rendered route with no
+   route-level glossary shadowing.
+6. Advisory/authoritative boundary rendering and explicit commit or handoff boundary
+   visibility remain preserved.
+7. Stable provenance hooks and implementation-observable bindings are exposed in the
+   rendered route at the frozen minimum target surfaces.
+8. Non-authoritative event-stream or worker-prose content is not rendered as accepted
+   truth.
+9. No diagnostics-engine, compiler-export, or broad route-retrofit widening is released.
