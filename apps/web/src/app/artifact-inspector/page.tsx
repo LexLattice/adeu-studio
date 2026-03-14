@@ -6,11 +6,26 @@ import { loadReferenceSurfaceBundle } from "./reference-surface";
 export const metadata = {
   title: "Artifact Inspector Reference Surface | ADEU Studio",
 };
+type ReferenceSurfaceBundle = Awaited<ReturnType<typeof loadReferenceSurfaceBundle>>;
+const EPISTEMIC_STATE_DESCRIPTIONS: Record<string, string> = {
+  authoritative: "Accepted truth remains distinct.",
+  validated: "Validated but not automatically committing.",
+  candidate: "Candidate context stays provisional.",
+  draft: "Draft material remains clearly marked.",
+  loading: "Loading never renders as success.",
+  conflicted: "Conflicts remain surfaced.",
+  stale: "Staleness stays visible.",
+  ambiguous: "Ambiguity remains explicit.",
+};
 
 function humanize(value: string): string {
   return value
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function getEpistemicStateDescription(state: string): string {
+  return EPISTEMIC_STATE_DESCRIPTIONS[state] ?? EPISTEMIC_STATE_DESCRIPTIONS.ambiguous;
 }
 
 function toTargetRef(referenceInstanceId: string, localId: string): string {
@@ -20,7 +35,7 @@ function toTargetRef(referenceInstanceId: string, localId: string): string {
 function targetDataAttributes(
   referenceInstanceId: string,
   localId: string,
-  targetIndex: Awaited<ReturnType<typeof loadReferenceSurfaceBundle>>["targetIndex"],
+  targetIndex: ReferenceSurfaceBundle["targetIndex"],
 ): Record<string, string> {
   const targetRef = toTargetRef(referenceInstanceId, localId);
   const metadata = targetIndex.get(targetRef);
@@ -55,12 +70,150 @@ function renderTokenList(values: string[], accent: "default" | "muted" = "defaul
   );
 }
 
+type ActionClusterSectionProps = {
+  bundle: ReferenceSurfaceBundle;
+  clusters: ReferenceSurfaceBundle["projection"]["action_clusters"];
+  referenceInstanceId: string;
+};
+
+function ActionClusterSection({
+  bundle,
+  clusters,
+  referenceInstanceId,
+}: ActionClusterSectionProps) {
+  if (clusters.length === 0) return null;
+
+  return (
+    <div className={styles.actionClusterList}>
+      {clusters.map((cluster) => {
+        const interactions = bundle.interactionsByClusterId.get(cluster.cluster_id) ?? [];
+        return (
+          <article
+            key={cluster.cluster_id}
+            className={styles.actionCluster}
+            data-cluster-id={cluster.cluster_id}
+            data-authority-posture={cluster.authority_posture}
+            {...targetDataAttributes(
+              referenceInstanceId,
+              cluster.cluster_id,
+              bundle.targetIndex,
+            )}
+          >
+            <div className={styles.clusterHeader}>
+              <div>
+                <p className={styles.clusterEyebrow}>{humanize(cluster.cluster_kind)}</p>
+                <h4>{humanize(cluster.cluster_id)}</h4>
+              </div>
+              <span className={styles.clusterMarker}>{humanize(cluster.authority_posture)}</span>
+            </div>
+            <div className={styles.clusterBody}>
+              {interactions.map((interaction) => {
+                const interactionTarget = targetDataAttributes(
+                  referenceInstanceId,
+                  interaction.interaction_id,
+                  bundle.targetIndex,
+                );
+                const isDisabledState =
+                  interaction.interaction_id === "submit-commit-request"
+                    ? targetDataAttributes(
+                        referenceInstanceId,
+                        "submit-commit-request-disabled",
+                        bundle.targetIndex,
+                      )
+                    : null;
+                return (
+                  <div
+                    key={interaction.interaction_id}
+                    className={styles.actionCard}
+                    data-interaction-id={interaction.interaction_id}
+                    data-authoritative={String(interaction.authoritative)}
+                    data-gated={String(interaction.gated)}
+                    data-committing={String(interaction.committing)}
+                    data-approval-bearing={String(interaction.approval_bearing)}
+                    {...interactionTarget}
+                  >
+                    <div className={styles.actionHeader}>
+                      <div>
+                        <h5>{humanize(interaction.interaction_id)}</h5>
+                        <p className="muted">{humanize(interaction.surface_event)}</p>
+                      </div>
+                      <span
+                        className={
+                          interaction.authoritative
+                            ? styles.authoritativeMarker
+                            : styles.advisoryMarker
+                        }
+                      >
+                        {interaction.authoritative ? "Authoritative gate" : "Advisory"}
+                      </span>
+                    </div>
+                    <dl className={styles.definitionGrid}>
+                      <div>
+                        <dt>Requested effect</dt>
+                        <dd>{humanize(interaction.requested_runtime_effect.effect_kind)}</dd>
+                      </div>
+                      <div>
+                        <dt>Visible consequence</dt>
+                        <dd>{humanize(interaction.runtime_visible_consequence.outcome_kind)}</dd>
+                      </div>
+                      <div>
+                        <dt>Truth posture</dt>
+                        <dd>{humanize(interaction.runtime_visible_consequence.truth_posture)}</dd>
+                      </div>
+                      <div>
+                        <dt>Transition</dt>
+                        <dd>{humanize(interaction.ui_transition)}</dd>
+                      </div>
+                    </dl>
+                    <div>
+                      <p className={styles.subtleLabel}>Preconditions</p>
+                      {renderTokenList(interaction.preconditions)}
+                    </div>
+                    {interaction.authoritative_gate_source ? (
+                      <p className={styles.gateSource}>
+                        Gate source:{" "}
+                        <span className="mono">{interaction.authoritative_gate_source.source_kind}</span>{" "}
+                        → <span className="mono">{interaction.authoritative_gate_source.source_ref}</span>
+                      </p>
+                    ) : null}
+                    <div className={styles.controlRow}>
+                      {interaction.interaction_id === "focus-source-artifact" ? (
+                        <a href="#source-lane" className={styles.controlLink}>
+                          Shift focus within the bounded workbench
+                        </a>
+                      ) : (
+                        <button type="button" disabled>
+                          {humanize(interaction.user_visible_consequence)}
+                        </button>
+                      )}
+                      {isDisabledState ? (
+                        <span
+                          className={styles.disabledGate}
+                          data-interaction-id="submit-commit-request-disabled"
+                          {...isDisabledState}
+                        >
+                          Disabled gated state remains visible until review conditions are met
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
 export default async function ArtifactInspectorReferenceSurfacePage() {
   const bundle = await loadReferenceSurfaceBundle();
   const projection = bundle.projection;
   const interactionContract = bundle.interactionContract;
   const identity = bundle.identity;
-  const clusterOrder = projection.action_clusters;
+  const actionLaneClusters = bundle.clustersByLaneId.get("action-lane") ?? [];
+  const workContextLaneClusters = bundle.clustersByLaneId.get("work-context-lane") ?? [];
   const rootTarget = targetDataAttributes(
     identity.reference_instance_id,
     "artifact-inspector-surface-root",
@@ -184,134 +337,17 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
             id="action-lane"
             data-lane-id="action-lane"
             data-lane-role="action_lane"
+            data-rendered-cluster-ids={actionLaneClusters.map((cluster) => cluster.cluster_id).join(" ")}
           >
             <div className={styles.laneHeader}>
               <h3>Advisory Action Lane</h3>
               <span className="mono">action-lane</span>
             </div>
-            <div className={styles.actionClusterList}>
-              {clusterOrder.map((cluster) => {
-                const interactions = bundle.interactionsByClusterId.get(cluster.cluster_id) ?? [];
-                return (
-                  <article
-                    key={cluster.cluster_id}
-                    className={styles.actionCluster}
-                    data-cluster-id={cluster.cluster_id}
-                    data-authority-posture={cluster.authority_posture}
-                    {...targetDataAttributes(
-                      identity.reference_instance_id,
-                      cluster.cluster_id,
-                      bundle.targetIndex,
-                    )}
-                  >
-                    <div className={styles.clusterHeader}>
-                      <div>
-                        <p className={styles.clusterEyebrow}>{humanize(cluster.cluster_kind)}</p>
-                        <h4>{humanize(cluster.cluster_id)}</h4>
-                      </div>
-                      <span className={styles.clusterMarker}>
-                        {humanize(cluster.authority_posture)}
-                      </span>
-                    </div>
-                    <div className={styles.clusterBody}>
-                      {interactions.map((interaction) => {
-                        const interactionTarget = targetDataAttributes(
-                          identity.reference_instance_id,
-                          interaction.interaction_id,
-                          bundle.targetIndex,
-                        );
-                        const isDisabledState =
-                          interaction.interaction_id === "submit-commit-request"
-                            ? targetDataAttributes(
-                                identity.reference_instance_id,
-                                "submit-commit-request-disabled",
-                                bundle.targetIndex,
-                              )
-                            : null;
-                        return (
-                          <div
-                            key={interaction.interaction_id}
-                            className={styles.actionCard}
-                            data-interaction-id={interaction.interaction_id}
-                            data-authoritative={String(interaction.authoritative)}
-                            data-gated={String(interaction.gated)}
-                            data-committing={String(interaction.committing)}
-                            data-approval-bearing={String(interaction.approval_bearing)}
-                            {...interactionTarget}
-                          >
-                            <div className={styles.actionHeader}>
-                              <div>
-                                <h5>{humanize(interaction.interaction_id)}</h5>
-                                <p className="muted">{humanize(interaction.surface_event)}</p>
-                              </div>
-                              <span
-                                className={
-                                  interaction.authoritative
-                                    ? styles.authoritativeMarker
-                                    : styles.advisoryMarker
-                                }
-                              >
-                                {interaction.authoritative ? "Authoritative gate" : "Advisory"}
-                              </span>
-                            </div>
-                            <dl className={styles.definitionGrid}>
-                              <div>
-                                <dt>Requested effect</dt>
-                                <dd>{humanize(interaction.requested_runtime_effect.effect_kind)}</dd>
-                              </div>
-                              <div>
-                                <dt>Visible consequence</dt>
-                                <dd>
-                                  {humanize(interaction.runtime_visible_consequence.outcome_kind)}
-                                </dd>
-                              </div>
-                              <div>
-                                <dt>Truth posture</dt>
-                                <dd>{humanize(interaction.runtime_visible_consequence.truth_posture)}</dd>
-                              </div>
-                              <div>
-                                <dt>Transition</dt>
-                                <dd>{humanize(interaction.ui_transition)}</dd>
-                              </div>
-                            </dl>
-                            <div>
-                              <p className={styles.subtleLabel}>Preconditions</p>
-                              {renderTokenList(interaction.preconditions)}
-                            </div>
-                            {interaction.authoritative_gate_source ? (
-                              <p className={styles.gateSource}>
-                                Gate source: <span className="mono">{interaction.authoritative_gate_source.source_kind}</span>{" "}
-                                → <span className="mono">{interaction.authoritative_gate_source.source_ref}</span>
-                              </p>
-                            ) : null}
-                            <div className={styles.controlRow}>
-                              {interaction.interaction_id === "focus-source-artifact" ? (
-                                <a href="#source-lane" className={styles.controlLink}>
-                                  Shift focus within the bounded workbench
-                                </a>
-                              ) : (
-                                <button type="button" disabled>
-                                  {humanize(interaction.user_visible_consequence)}
-                                </button>
-                              )}
-                              {isDisabledState ? (
-                                <span
-                                  className={styles.disabledGate}
-                                  data-interaction-id="submit-commit-request-disabled"
-                                  {...isDisabledState}
-                                >
-                                  Disabled gated state remains visible until review conditions are met
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+            <ActionClusterSection
+              bundle={bundle}
+              clusters={actionLaneClusters}
+              referenceInstanceId={identity.reference_instance_id}
+            />
           </div>
 
           <details
@@ -421,6 +457,7 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
             id="work-context-lane"
             data-lane-id="work-context-lane"
             data-lane-role="work_context_lane"
+            data-rendered-cluster-ids={workContextLaneClusters.map((cluster) => cluster.cluster_id).join(" ")}
           >
             <div className={styles.laneHeader}>
               <h3>Candidate / Proposed Artifact Region</h3>
@@ -451,6 +488,22 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
                 {renderTokenList(bundle.morphIr.surface_compilation_units)}
               </article>
             </div>
+            {workContextLaneClusters.length > 0 ? (
+              <div className={styles.embeddedClusterSection}>
+                <div className={styles.sectionHeader}>
+                  <h4>Comparison / focus actions remain in the work-context lane</h4>
+                  <p className="muted">
+                    Lane placement stays faithful to the accepted V36-B projection instead of
+                    flattening every action cluster into the advisory lane.
+                  </p>
+                </div>
+                <ActionClusterSection
+                  bundle={bundle}
+                  clusters={workContextLaneClusters}
+                  referenceInstanceId={identity.reference_instance_id}
+                />
+              </div>
+            ) : null}
           </article>
         </section>
 
@@ -565,23 +618,7 @@ export default async function ArtifactInspectorReferenceSurfacePage() {
                   data-epistemic-state={state}
                 >
                   <span className={styles.epistemicLabel}>{humanize(state)}</span>
-                  <span className="muted">
-                    {state === "authoritative"
-                      ? "Accepted truth remains distinct."
-                      : state === "validated"
-                        ? "Validated but not automatically committing."
-                        : state === "candidate"
-                          ? "Candidate context stays provisional."
-                          : state === "draft"
-                            ? "Draft material remains clearly marked."
-                            : state === "loading"
-                              ? "Loading never renders as success."
-                              : state === "conflicted"
-                                ? "Conflicts remain surfaced."
-                                : state === "stale"
-                                  ? "Staleness stays visible."
-                                  : "Ambiguity remains explicit."}
-                  </span>
+                  <span className="muted">{getEpistemicStateDescription(state)}</span>
                 </div>
               ))}
             </div>

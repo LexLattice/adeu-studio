@@ -27,6 +27,52 @@ const REQUIRED_BINDING_TARGETS = [
   "required_evidence_reachability_anchors",
   "salience_bearing_warning_status_and_diagnostic_surfaces",
 ] as const;
+type RenderedProvenanceTarget = (typeof REQUIRED_PROVENANCE_TARGETS)[number];
+type RenderedBindingTarget = (typeof REQUIRED_BINDING_TARGETS)[number];
+const RENDERED_PROVENANCE_EXPOSURES: Record<RenderedProvenanceTarget, string[]> = {
+  rendered_regions: [
+    "action-region",
+    "evidence-region",
+    "navigation-region",
+    "primary-work-region",
+    "status-region",
+  ],
+  authority_bearing_controls: ["open-commit-review", "submit-commit-request"],
+  evidence_bearing_regions: [
+    "evidence-region",
+    "evidence-lane",
+    "status-region",
+    "status-lane",
+    "trust-boundary-lane",
+  ],
+  state_distinction_surfaces: [
+    "authoritative-status-surface",
+    "diagnostic-status-surface",
+    "provisional-status-surface",
+    "warning-status-surface",
+  ],
+  explicit_commit_or_handoff_boundary: ["commit-boundary"],
+};
+const RENDERED_BINDING_EXPOSURES: Record<RenderedBindingTarget, string[]> = {
+  commit_or_approval_gates: [
+    "open-commit-review",
+    "submit-commit-request",
+    "submit-commit-request-disabled",
+  ],
+  advisory_vs_authoritative_actions: [
+    "focus-source-artifact",
+    "open-commit-review",
+    "run-advisory-action",
+    "submit-commit-request",
+  ],
+  disabled_or_unavailable_gated_states: ["submit-commit-request-disabled"],
+  required_evidence_reachability_anchors: ["evidence-lane"],
+  salience_bearing_warning_status_and_diagnostic_surfaces: [
+    "authoritative-status-surface",
+    "diagnostic-status-surface",
+    "warning-status-surface",
+  ],
+};
 
 type ReferenceIdentity = {
   approved_profile_id: string;
@@ -211,6 +257,7 @@ type TargetMetadata = {
 
 export type ReferenceSurfaceBundle = {
   approvedProfileTable: ApprovedProfileTable;
+  clustersByLaneId: Map<string, ProjectionActionCluster[]>;
   domainPacket: UXDomainPacket;
   glossary: SameContextReachabilityGlossary;
   identity: ReferenceIdentity;
@@ -324,6 +371,39 @@ function assertMinimumCoverage(
   }
 }
 
+function assertDefinedExposureTargets(
+  label: string,
+  actual: Record<string, string[]>,
+  expected: readonly string[],
+): void {
+  assertMinimumCoverage(label, Object.keys(actual), expected);
+  for (const [target, refs] of Object.entries(actual)) {
+    if (refs.length === 0) {
+      throw new Error(`${label} defines "${target}" without any rendered target refs`);
+    }
+  }
+}
+
+function assertExposureRefsPresent(
+  label: string,
+  actualRefs: readonly string[],
+  expectedRefs: Iterable<string>,
+): void {
+  assertMinimumCoverage(label, actualRefs, [...expectedRefs]);
+}
+
+function buildClustersByLaneId(
+  actionClusters: ProjectionActionCluster[],
+): Map<string, ProjectionActionCluster[]> {
+  const clustersByLaneId = new Map<string, ProjectionActionCluster[]>();
+  for (const cluster of actionClusters) {
+    const existing = clustersByLaneId.get(cluster.lane_id) ?? [];
+    existing.push(cluster);
+    clustersByLaneId.set(cluster.lane_id, existing);
+  }
+  return clustersByLaneId;
+}
+
 function buildTargetIndex(
   ...collections: Array<{
     bindings: BindingEntry[];
@@ -422,16 +502,40 @@ export async function loadReferenceSurfaceBundle(): Promise<ReferenceSurfaceBund
     throw new Error("projection glossary drifted from the accepted V36-A glossary");
   }
 
-  assertMinimumCoverage(
+  assertDefinedExposureTargets(
     "rendered provenance hook targets",
-    [
-      "rendered_regions",
-      "authority_bearing_controls",
-      "evidence_bearing_regions",
-      "state_distinction_surfaces",
-      "explicit_commit_or_handoff_boundary",
-    ],
+    RENDERED_PROVENANCE_EXPOSURES,
     REQUIRED_PROVENANCE_TARGETS,
+  );
+  assertExposureRefsPresent(
+    "rendered region exposure refs",
+    RENDERED_PROVENANCE_EXPOSURES.rendered_regions,
+    projection.regions.map((region) => region.region_id),
+  );
+  assertExposureRefsPresent(
+    "authority-bearing control exposure refs",
+    RENDERED_PROVENANCE_EXPOSURES.authority_bearing_controls,
+    interactionContract.interaction_entries
+      .filter((interaction) => interaction.authoritative || interaction.gated || interaction.approval_bearing)
+      .map((interaction) => interaction.interaction_id),
+  );
+  assertExposureRefsPresent(
+    "evidence-bearing region exposure refs",
+    RENDERED_PROVENANCE_EXPOSURES.evidence_bearing_regions,
+    [
+      ...projection.evidence_before_commit.required_evidence_region_ids,
+      ...projection.evidence_before_commit.required_evidence_lane_ids,
+    ],
+  );
+  assertExposureRefsPresent(
+    "state distinction surface exposure refs",
+    RENDERED_PROVENANCE_EXPOSURES.state_distinction_surfaces,
+    projection.state_surfaces.map((surface) => surface.surface_id),
+  );
+  assertExposureRefsPresent(
+    "explicit commit boundary exposure refs",
+    RENDERED_PROVENANCE_EXPOSURES.explicit_commit_or_handoff_boundary,
+    ["commit-boundary"],
   );
   assertMinimumCoverage(
     "projection provenance hook target kinds",
@@ -445,14 +549,39 @@ export async function loadReferenceSurfaceBundle(): Promise<ReferenceSurfaceBund
   );
   assertMinimumCoverage(
     "rendered implementation binding targets",
-    [
-      "commit_or_approval_gates",
-      "advisory_vs_authoritative_actions",
-      "disabled_or_unavailable_gated_states",
-      "required_evidence_reachability_anchors",
-      "salience_bearing_warning_status_and_diagnostic_surfaces",
-    ],
+    Object.keys(RENDERED_BINDING_EXPOSURES),
     REQUIRED_BINDING_TARGETS,
+  );
+  assertExposureRefsPresent(
+    "commit or approval gate exposure refs",
+    RENDERED_BINDING_EXPOSURES.commit_or_approval_gates,
+    ["open-commit-review", "submit-commit-request", "submit-commit-request-disabled"],
+  );
+  assertExposureRefsPresent(
+    "advisory vs authoritative action exposure refs",
+    RENDERED_BINDING_EXPOSURES.advisory_vs_authoritative_actions,
+    interactionContract.interaction_entries.map((interaction) => interaction.interaction_id),
+  );
+  assertExposureRefsPresent(
+    "disabled gated state exposure refs",
+    RENDERED_BINDING_EXPOSURES.disabled_or_unavailable_gated_states,
+    ["submit-commit-request-disabled"],
+  );
+  assertExposureRefsPresent(
+    "required evidence reachability anchor exposure refs",
+    RENDERED_BINDING_EXPOSURES.required_evidence_reachability_anchors,
+    projection.implementation_observable_bindings
+      .filter((binding) => binding.target_kind === "required_evidence_reachability_anchor")
+      .map((binding) => binding.target_ref.split(":").slice(1).join(":")),
+  );
+  assertExposureRefsPresent(
+    "salience-bearing surface exposure refs",
+    RENDERED_BINDING_EXPOSURES.salience_bearing_warning_status_and_diagnostic_surfaces,
+    projection.implementation_observable_bindings
+      .filter((binding) =>
+        ["warning_surface", "status_surface", "diagnostic_surface"].includes(binding.target_kind),
+      )
+      .map((binding) => binding.target_ref.split(":").slice(1).join(":")),
   );
   assertMinimumCoverage(
     "projection binding target kinds",
@@ -475,6 +604,7 @@ export async function loadReferenceSurfaceBundle(): Promise<ReferenceSurfaceBund
     ],
   );
 
+  const clustersByLaneId = buildClustersByLaneId(projection.action_clusters);
   const interactionsByClusterId = new Map<string, UXInteractionEntry[]>();
   for (const interaction of interactionContract.interaction_entries) {
     const existing = interactionsByClusterId.get(interaction.action_cluster_id) ?? [];
@@ -495,6 +625,7 @@ export async function loadReferenceSurfaceBundle(): Promise<ReferenceSurfaceBund
 
   return {
     approvedProfileTable,
+    clustersByLaneId,
     domainPacket,
     glossary,
     identity,

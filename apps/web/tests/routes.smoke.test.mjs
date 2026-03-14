@@ -129,6 +129,8 @@ test(
       assert.match(html, /adeu\.binding\.warning-surface/);
       assert.match(html, /v36b\.prov:artifact_inspector_reference_main:authority_bearing_control/);
       assert.match(html, /data-truth-source="accepted_v36_artifacts_only"/);
+      assert.match(html, /data-lane-id="action-lane"[\s\S]*data-rendered-cluster-ids="advisory-actions commit-actions"/);
+      assert.match(html, /data-lane-id="work-context-lane"[\s\S]*data-rendered-cluster-ids="comparison-actions"/);
     } finally {
       await stopProcess(proc);
     }
