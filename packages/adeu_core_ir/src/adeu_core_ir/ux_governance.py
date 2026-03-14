@@ -218,6 +218,15 @@ def _assert_sorted_unique(values: list[str], *, field_name: str) -> None:
         raise ValueError(f"{field_name} must not contain duplicates")
 
 
+def _assert_sorted_distinct(values: list[str], *, field_name: str) -> None:
+    if any(not value for value in values):
+        raise ValueError(f"{field_name} must not contain empty values")
+    if values != sorted(values):
+        raise ValueError(f"{field_name} must be lexicographically sorted")
+    if len(values) != len(set(values)):
+        raise ValueError(f"{field_name} must not contain duplicates")
+
+
 def _assert_exact_sequence(
     values: list[str], *, expected: tuple[str, ...], field_name: str
 ) -> None:
@@ -1109,9 +1118,7 @@ def assert_v36b_projection_interaction_binding(
         surface_projection.authority_boundary_policy
         != interaction_contract.authority_boundary_policy
     ):
-        raise ValueError(
-            "projection/interaction binding mismatch for authority_boundary_policy"
-        )
+        raise ValueError("projection/interaction binding mismatch for authority_boundary_policy")
 
 
 def _assert_minimum_provenance_hook_coverage(
@@ -1157,13 +1164,11 @@ def assert_v36b_reference_bundle_consistent(
     for field_name in ("reference_surface_family", "reference_instance_id", "approved_profile_id"):
         if getattr(surface_projection, field_name) != getattr(domain_packet, field_name):
             raise ValueError(
-                f"v36b reference bundle must match released v36a reference pair for "
-                f"{field_name}"
+                f"v36b reference bundle must match released v36a reference pair for {field_name}"
             )
         if getattr(surface_projection, field_name) != getattr(morph_ir, field_name):
             raise ValueError(
-                f"v36b reference bundle must match released v36a reference pair for "
-                f"{field_name}"
+                f"v36b reference bundle must match released v36a reference pair for {field_name}"
             )
 
     if (
@@ -1183,8 +1188,7 @@ def assert_v36b_reference_bundle_consistent(
         != same_context_glossary
     ):
         raise ValueError(
-            "projection must consume the released v36a same-context glossary without "
-            "shadowing"
+            "projection must consume the released v36a same-context glossary without shadowing"
         )
 
     projection_cluster_ids = {cluster.cluster_id for cluster in surface_projection.action_clusters}
@@ -1210,3 +1214,591 @@ def assert_v36b_reference_bundle_consistent(
         bindings=combined_bindings,
         field_name="implementation_observable_bindings",
     )
+
+
+UXMorphDiagnosticsSchemaVersion = Literal["ux_morph_diagnostics@1"]
+UXConformanceReportSchemaVersion = Literal["ux_conformance_report@1"]
+UXDiagnosticSeverity = Literal["error", "warning", "advisory"]
+UXConformanceOverallJudgment = Literal["pass", "fail", "needs_review"]
+UXConformanceImpact = Literal["advisory_only", "blocks_pass", "needs_review"]
+UXDiagnosticViolationFamily = Literal[
+    "advisory_authoritative_boundary_visually_collapsed",
+    "competing_primary_actions_in_one_region",
+    "destructive_action_lacks_adequate_confirmation",
+    "failure_mode_lacks_visible_recovery_path",
+    "provisional_data_rendered_with_authoritative_styling",
+    "requested_interaction_profile_conflicts_with_realized_command_grammar",
+    "required_evidence_not_reachable_within_same_bounded_workbench_context",
+    "utility_target_conflicts_with_density_or_information_posture",
+]
+UXRenderedSurfaceAssertionInputSchema = Literal[
+    "v36c_rendered_reference_surface_binding_manifest@1",
+    "v36c_rendered_reference_surface_contract@1",
+    "v36c_rendered_reference_surface_semantic_snapshot@1",
+]
+UXCanonicalArtifactSchema = Literal[
+    "ux_domain_packet@1",
+    "ux_interaction_contract@1",
+    "ux_morph_ir@1",
+    "ux_surface_projection@1",
+    "v36c_artifact_inspector_reference_surface_evidence@1",
+    "v36c_rendered_reference_surface_binding_manifest@1",
+    "v36c_rendered_reference_surface_contract@1",
+    "v36c_rendered_reference_surface_semantic_snapshot@1",
+]
+
+UX_MORPH_DIAGNOSTICS_SCHEMA = "ux_morph_diagnostics@1"
+UX_CONFORMANCE_REPORT_SCHEMA = "ux_conformance_report@1"
+V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_SCHEMA = "v36c_rendered_reference_surface_contract@1"
+V36C_RENDERED_REFERENCE_SURFACE_SNAPSHOT_SCHEMA = (
+    "v36c_rendered_reference_surface_semantic_snapshot@1"
+)
+V36C_RENDERED_REFERENCE_SURFACE_BINDING_MANIFEST_SCHEMA = (
+    "v36c_rendered_reference_surface_binding_manifest@1"
+)
+V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_EVIDENCE_SCHEMA = (
+    "v36c_artifact_inspector_reference_surface_evidence@1"
+)
+FROZEN_V36D_DIAGNOSTICS_SEVERITY_TAXONOMY: tuple[UXDiagnosticSeverity, ...] = (
+    "error",
+    "warning",
+    "advisory",
+)
+FROZEN_V36D_SEEDED_VIOLATION_FAMILIES: tuple[UXDiagnosticViolationFamily, ...] = (
+    "advisory_authoritative_boundary_visually_collapsed",
+    "competing_primary_actions_in_one_region",
+    "destructive_action_lacks_adequate_confirmation",
+    "failure_mode_lacks_visible_recovery_path",
+    "provisional_data_rendered_with_authoritative_styling",
+    "requested_interaction_profile_conflicts_with_realized_command_grammar",
+    "required_evidence_not_reachable_within_same_bounded_workbench_context",
+    "utility_target_conflicts_with_density_or_information_posture",
+)
+FROZEN_V36D_RENDERED_SURFACE_ASSERTION_INPUTS: tuple[UXRenderedSurfaceAssertionInputSchema, ...] = (
+    "v36c_rendered_reference_surface_binding_manifest@1",
+    "v36c_rendered_reference_surface_contract@1",
+    "v36c_rendered_reference_surface_semantic_snapshot@1",
+)
+FROZEN_V36D_ALLOWED_EVIDENCE_REF_PREFIXES: tuple[str, ...] = (
+    "apps/api/fixtures/ux_governance/",
+    "artifacts/agent_harness/v63/evidence_inputs/",
+    "packages/adeu_core_ir/schema/",
+    "spec/",
+)
+
+
+def _assert_repo_relative_artifact_ref(ref: str, *, field_name: str) -> None:
+    if not ref:
+        raise ValueError(f"{field_name} must not be empty")
+    if ref.startswith("/"):
+        raise ValueError(f"{field_name} must be repo-relative")
+    path = ref.split("#", 1)[0]
+    parts = path.split("/")
+    if any(part in {"", ".", ".."} for part in parts):
+        raise ValueError(f"{field_name} contains invalid path components")
+
+
+def _assert_canonical_artifact_ref(ref: str, *, field_name: str) -> None:
+    _assert_repo_relative_artifact_ref(ref, field_name=field_name)
+    if "urm_events.ndjson" in ref or "worker" in ref:
+        raise ValueError(
+            f"{field_name} must not treat event streams or worker prose as authoritative grounds"
+        )
+    if not any(ref.startswith(prefix) for prefix in FROZEN_V36D_ALLOWED_EVIDENCE_REF_PREFIXES):
+        raise ValueError(f"{field_name} must resolve to the frozen canonical artifact stack")
+
+
+def _assert_canonical_supporting_evidence_refs(refs: list[str], *, field_name: str) -> None:
+    _assert_sorted_unique(refs, field_name=field_name)
+    for ref in refs:
+        _assert_canonical_artifact_ref(ref, field_name=field_name)
+
+
+def _expected_conformance_impact(*, severity: UXDiagnosticSeverity) -> UXConformanceImpact:
+    if severity == "error":
+        return "blocks_pass"
+    if severity == "warning":
+        return "needs_review"
+    return "advisory_only"
+
+
+def derive_v36d_overall_judgment(
+    findings: list["UXMorphDiagnosticFinding"],
+) -> UXConformanceOverallJudgment:
+    severities = {finding.severity for finding in findings}
+    if "error" in severities:
+        return "fail"
+    if "warning" in severities:
+        return "needs_review"
+    return "pass"
+
+
+class UXMorphDiagnosticsSupportingArtifactRefs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ux_domain_packet_schema: UXDomainPacketSchemaVersion = UX_DOMAIN_PACKET_SCHEMA
+    ux_morph_ir_schema: UXMorphIRSchemaVersion = UX_MORPH_IR_SCHEMA
+    ux_surface_projection_schema: UXSurfaceProjectionSchemaVersion = UX_SURFACE_PROJECTION_SCHEMA
+    ux_interaction_contract_schema: UXInteractionContractSchemaVersion = (
+        UX_INTERACTION_CONTRACT_SCHEMA
+    )
+    rendered_reference_surface_contract_schema: Literal[
+        "v36c_rendered_reference_surface_contract@1"
+    ] = V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_SCHEMA
+    rendered_reference_surface_snapshot_schema: Literal[
+        "v36c_rendered_reference_surface_semantic_snapshot@1"
+    ] = V36C_RENDERED_REFERENCE_SURFACE_SNAPSHOT_SCHEMA
+    rendered_reference_surface_binding_manifest_schema: Literal[
+        "v36c_rendered_reference_surface_binding_manifest@1"
+    ] = V36C_RENDERED_REFERENCE_SURFACE_BINDING_MANIFEST_SCHEMA
+    rendered_reference_surface_evidence_schema: Literal[
+        "v36c_artifact_inspector_reference_surface_evidence@1"
+    ] = V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_EVIDENCE_SCHEMA
+
+
+class UXDiagnosticProvenancePointer(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source_schema: UXCanonicalArtifactSchema
+    source_path: str = Field(min_length=1)
+    target_ref: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXDiagnosticProvenancePointer":
+        _assert_canonical_artifact_ref(
+            self.source_path,
+            field_name="provenance_pointers.source_path",
+        )
+        return self
+
+
+class UXMorphDiagnosticFinding(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    finding_id: str = Field(min_length=1)
+    violation_family: UXDiagnosticViolationFamily
+    severity: UXDiagnosticSeverity
+    provenance_pointers: list[UXDiagnosticProvenancePointer] = Field(min_length=1)
+    rendered_surface_assertion_inputs_used: list[UXRenderedSurfaceAssertionInputSchema] = Field(
+        min_length=1
+    )
+    supporting_evidence_refs: list[str] = Field(min_length=1)
+    conformance_impact: UXConformanceImpact
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXMorphDiagnosticFinding":
+        _assert_sorted_unique(
+            self.rendered_surface_assertion_inputs_used,
+            field_name=f"findings[{self.finding_id}].rendered_surface_assertion_inputs_used",
+        )
+        _assert_canonical_supporting_evidence_refs(
+            self.supporting_evidence_refs,
+            field_name=f"findings[{self.finding_id}].supporting_evidence_refs",
+        )
+        expected_impact = _expected_conformance_impact(severity=self.severity)
+        if self.conformance_impact != expected_impact:
+            raise ValueError(
+                f"finding {self.finding_id} must use conformance_impact {expected_impact!r}"
+            )
+        return self
+
+
+class UXMorphDiagnostics(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: UXMorphDiagnosticsSchemaVersion = UX_MORPH_DIAGNOSTICS_SCHEMA
+    reference_surface_family: UXReferenceSurfaceFamily = V36A_REFERENCE_SURFACE_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    approved_profile_id: UXApprovedProfileId
+    supporting_artifacts: UXMorphDiagnosticsSupportingArtifactRefs = Field(
+        default_factory=UXMorphDiagnosticsSupportingArtifactRefs
+    )
+    authority_boundary_policy: UXAuthorityBoundaryPolicy = Field(
+        default_factory=UXAuthorityBoundaryPolicy
+    )
+    severity_taxonomy: list[UXDiagnosticSeverity]
+    seeded_violation_families: list[UXDiagnosticViolationFamily]
+    findings: list[UXMorphDiagnosticFinding]
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXMorphDiagnostics":
+        _assert_exact_sequence(
+            self.severity_taxonomy,
+            expected=FROZEN_V36D_DIAGNOSTICS_SEVERITY_TAXONOMY,
+            field_name="severity_taxonomy",
+        )
+        _assert_exact_sequence(
+            self.seeded_violation_families,
+            expected=FROZEN_V36D_SEEDED_VIOLATION_FAMILIES,
+            field_name="seeded_violation_families",
+        )
+        finding_ids = [finding.finding_id for finding in self.findings]
+        _assert_sorted_distinct(finding_ids, field_name="findings.finding_id")
+        return self
+
+
+class UXDiagnosticSeverityCounts(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    error: int = Field(ge=0)
+    warning: int = Field(ge=0)
+    advisory: int = Field(ge=0)
+
+
+class UXConformanceAggregationRule(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    any_error: Literal["fail"] = "fail"
+    no_error_and_any_warning: Literal["needs_review"] = "needs_review"
+    only_advisory_or_no_findings: Literal["pass"] = "pass"
+
+
+class UXConformanceDerivationMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    diagnostics_schema: UXMorphDiagnosticsSchemaVersion = UX_MORPH_DIAGNOSTICS_SCHEMA
+    rendered_surface_assertion_inputs: list[UXRenderedSurfaceAssertionInputSchema]
+    rendered_reference_surface_evidence_schema: Literal[
+        "v36c_artifact_inspector_reference_surface_evidence@1"
+    ] = V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_EVIDENCE_SCHEMA
+    aggregation_rule: UXConformanceAggregationRule = Field(
+        default_factory=UXConformanceAggregationRule
+    )
+    typed_summary_only: Literal[True] = True
+    fresh_route_local_heuristics_introduced: Literal[False] = False
+    canonical_artifact_truth_only: Literal[True] = True
+    event_streams_and_worker_prose_provenance_only: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXConformanceDerivationMetadata":
+        _assert_exact_sequence(
+            self.rendered_surface_assertion_inputs,
+            expected=FROZEN_V36D_RENDERED_SURFACE_ASSERTION_INPUTS,
+            field_name="derivation_metadata.rendered_surface_assertion_inputs",
+        )
+        return self
+
+
+class UXConformanceReportSupportingArtifactRefs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ux_morph_diagnostics_schema: UXMorphDiagnosticsSchemaVersion = UX_MORPH_DIAGNOSTICS_SCHEMA
+    rendered_reference_surface_contract_schema: Literal[
+        "v36c_rendered_reference_surface_contract@1"
+    ] = V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_SCHEMA
+    rendered_reference_surface_snapshot_schema: Literal[
+        "v36c_rendered_reference_surface_semantic_snapshot@1"
+    ] = V36C_RENDERED_REFERENCE_SURFACE_SNAPSHOT_SCHEMA
+    rendered_reference_surface_binding_manifest_schema: Literal[
+        "v36c_rendered_reference_surface_binding_manifest@1"
+    ] = V36C_RENDERED_REFERENCE_SURFACE_BINDING_MANIFEST_SCHEMA
+    rendered_reference_surface_evidence_schema: Literal[
+        "v36c_artifact_inspector_reference_surface_evidence@1"
+    ] = V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_EVIDENCE_SCHEMA
+
+
+class UXConformanceReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: UXConformanceReportSchemaVersion = UX_CONFORMANCE_REPORT_SCHEMA
+    reference_surface_family: UXReferenceSurfaceFamily = V36A_REFERENCE_SURFACE_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    approved_profile_id: UXApprovedProfileId
+    supporting_artifacts: UXConformanceReportSupportingArtifactRefs = Field(
+        default_factory=UXConformanceReportSupportingArtifactRefs
+    )
+    authority_boundary_policy: UXAuthorityBoundaryPolicy = Field(
+        default_factory=UXAuthorityBoundaryPolicy
+    )
+    overall_judgment: UXConformanceOverallJudgment
+    supporting_finding_ids: list[str]
+    severity_counts: UXDiagnosticSeverityCounts
+    failed_rule_families: list[UXDiagnosticViolationFamily]
+    warning_rule_families: list[UXDiagnosticViolationFamily]
+    derivation_metadata: UXConformanceDerivationMetadata
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXConformanceReport":
+        _assert_sorted_distinct(
+            self.supporting_finding_ids,
+            field_name="supporting_finding_ids",
+        )
+        _assert_sorted_distinct(
+            self.failed_rule_families,
+            field_name="failed_rule_families",
+        )
+        _assert_sorted_distinct(
+            self.warning_rule_families,
+            field_name="warning_rule_families",
+        )
+        return self
+
+
+def canonicalize_ux_morph_diagnostics_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = UXMorphDiagnostics.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def canonicalize_ux_conformance_report_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = UXConformanceReport.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def _build_v36d_severity_counts(
+    findings: list[UXMorphDiagnosticFinding],
+) -> UXDiagnosticSeverityCounts:
+    error_count = 0
+    warning_count = 0
+    advisory_count = 0
+    for finding in findings:
+        if finding.severity == "error":
+            error_count += 1
+        elif finding.severity == "warning":
+            warning_count += 1
+        else:
+            advisory_count += 1
+    return UXDiagnosticSeverityCounts(
+        error=error_count,
+        warning=warning_count,
+        advisory=advisory_count,
+    )
+
+
+def _build_v36d_rule_family_sets(
+    findings: list[UXMorphDiagnosticFinding],
+) -> tuple[list[UXDiagnosticViolationFamily], list[UXDiagnosticViolationFamily]]:
+    failed_rule_families: set[UXDiagnosticViolationFamily] = set()
+    warning_rule_families: set[UXDiagnosticViolationFamily] = set()
+    for finding in findings:
+        if finding.severity == "error":
+            failed_rule_families.add(finding.violation_family)
+        elif finding.severity == "warning":
+            warning_rule_families.add(finding.violation_family)
+    return sorted(failed_rule_families), sorted(warning_rule_families)
+
+
+def _rendered_surface_target_ref_set(rendered_binding_manifest: dict[str, Any]) -> set[str]:
+    target_manifest = rendered_binding_manifest.get("target_manifest")
+    if not isinstance(target_manifest, list):
+        raise ValueError("rendered surface binding manifest must contain target_manifest")
+    refs: set[str] = set()
+    for entry in target_manifest:
+        if not isinstance(entry, dict):
+            raise ValueError(
+                "rendered surface binding manifest target_manifest entries must be objects"
+            )
+        target_ref = entry.get("target_ref")
+        if not isinstance(target_ref, str) or not target_ref:
+            raise ValueError("rendered surface binding manifest target_ref must be non-empty")
+        refs.add(target_ref)
+    return refs
+
+
+def _v36d_bound_target_ref_set(
+    *,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+    rendered_surface_binding_manifest: dict[str, Any],
+) -> set[str]:
+    return (
+        _rendered_surface_target_ref_set(rendered_surface_binding_manifest)
+        | {hook.target_ref for hook in surface_projection.stable_provenance_hooks}
+        | {binding.target_ref for binding in surface_projection.implementation_observable_bindings}
+        | {hook.target_ref for hook in interaction_contract.stable_provenance_hooks}
+        | {
+            binding.target_ref
+            for binding in interaction_contract.implementation_observable_bindings
+        }
+    )
+
+
+def _assert_v36d_rendered_surface_inputs_consistent(
+    *,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+    same_context_glossary: V36ASameContextReachabilityGlossary,
+    rendered_surface_contract: dict[str, Any],
+    rendered_surface_snapshot: dict[str, Any],
+    rendered_surface_binding_manifest: dict[str, Any],
+    rendered_reference_surface_evidence: dict[str, Any],
+) -> None:
+    expected_route_id = "artifact_inspector_reference_surface"
+    expected_route_path = "/artifact-inspector"
+    expected_contract_schema = V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_SCHEMA
+    expected_snapshot_schema = V36C_RENDERED_REFERENCE_SURFACE_SNAPSHOT_SCHEMA
+    expected_binding_manifest_schema = V36C_RENDERED_REFERENCE_SURFACE_BINDING_MANIFEST_SCHEMA
+    expected_evidence_schema = V36C_ARTIFACT_INSPECTOR_REFERENCE_SURFACE_EVIDENCE_SCHEMA
+
+    if rendered_surface_contract.get("schema") != expected_contract_schema:
+        raise ValueError("rendered_surface_contract must use the released v36c schema")
+    if rendered_surface_snapshot.get("schema") != expected_snapshot_schema:
+        raise ValueError("rendered_surface_snapshot must use the released v36c schema")
+    if rendered_surface_binding_manifest.get("schema") != expected_binding_manifest_schema:
+        raise ValueError("rendered_surface_binding_manifest must use the released v36c schema")
+    if rendered_reference_surface_evidence.get("schema") != expected_evidence_schema:
+        raise ValueError("rendered_reference_surface_evidence must use the released v36c schema")
+
+    for field_name in ("reference_surface_family", "reference_instance_id", "approved_profile_id"):
+        expected = getattr(surface_projection, field_name)
+        if rendered_surface_contract.get(field_name) != expected:
+            raise ValueError(f"rendered_surface_contract mismatch for {field_name}")
+        if rendered_surface_snapshot.get(field_name) != expected:
+            raise ValueError(f"rendered_surface_snapshot mismatch for {field_name}")
+        if rendered_surface_binding_manifest.get(field_name) != expected:
+            raise ValueError(f"rendered_surface_binding_manifest mismatch for {field_name}")
+    if rendered_surface_contract.get("route_id") != expected_route_id:
+        raise ValueError("rendered_surface_contract route_id mismatch")
+    if rendered_surface_snapshot.get("route_id") != expected_route_id:
+        raise ValueError("rendered_surface_snapshot route_id mismatch")
+    if rendered_surface_binding_manifest.get("route_id") != expected_route_id:
+        raise ValueError("rendered_surface_binding_manifest route_id mismatch")
+    if rendered_reference_surface_evidence.get("rendered_surface_route_id") != expected_route_id:
+        raise ValueError("rendered_reference_surface_evidence route_id mismatch")
+    if rendered_surface_contract.get("route_path") != expected_route_path:
+        raise ValueError("rendered_surface_contract route_path mismatch")
+    if rendered_surface_snapshot.get("route_path") != expected_route_path:
+        raise ValueError("rendered_surface_snapshot route_path mismatch")
+    if rendered_surface_binding_manifest.get("route_path") != expected_route_path:
+        raise ValueError("rendered_surface_binding_manifest route_path mismatch")
+    if (
+        rendered_reference_surface_evidence.get("rendered_surface_route_path")
+        != expected_route_path
+    ):
+        raise ValueError("rendered_reference_surface_evidence route_path mismatch")
+    if (
+        rendered_surface_contract.get("diagnostics_lane_mode")
+        != "placeholder_or_existing_artifact_backed_read_only_only"
+    ):
+        raise ValueError(
+            "rendered surface diagnostics lane must remain the released v63 placeholder"
+        )
+    if rendered_surface_contract.get("truth_source_policy") != "accepted_v36_artifacts_only":
+        raise ValueError("rendered surface truth source policy mismatch")
+    if rendered_surface_contract.get("route_payload_parity_mode") != (
+        "presentational_transform_only_no_authority_or_reachability_meaning_drift"
+    ):
+        raise ValueError("rendered surface parity mode mismatch")
+    if rendered_surface_snapshot.get(
+        "same_context_reachability_glossary"
+    ) != same_context_glossary.model_dump(
+        mode="json",
+        exclude_none=True,
+    ):
+        raise ValueError(
+            "rendered surface snapshot must consume the released same-context glossary"
+        )
+
+    rendered_target_refs = _rendered_surface_target_ref_set(rendered_surface_binding_manifest)
+    projection_target_refs = (
+        {hook.target_ref for hook in surface_projection.stable_provenance_hooks}
+        | {binding.target_ref for binding in surface_projection.implementation_observable_bindings}
+        | {hook.target_ref for hook in interaction_contract.stable_provenance_hooks}
+        | {
+            binding.target_ref
+            for binding in interaction_contract.implementation_observable_bindings
+        }
+    )
+    if not projection_target_refs.issubset(rendered_target_refs):
+        raise ValueError("rendered surface binding manifest must expose the released v36b targets")
+
+
+def assert_v36d_reference_bundle_consistent(
+    *,
+    domain_packet: UXDomainPacket,
+    morph_ir: UXMorphIR,
+    approved_profile_table: V36AFirstFamilyApprovedProfileTable,
+    same_context_glossary: V36ASameContextReachabilityGlossary,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+    rendered_surface_contract: dict[str, Any],
+    rendered_surface_snapshot: dict[str, Any],
+    rendered_surface_binding_manifest: dict[str, Any],
+    rendered_reference_surface_evidence: dict[str, Any],
+    diagnostics: UXMorphDiagnostics,
+    conformance_report: UXConformanceReport,
+) -> None:
+    assert_v36b_reference_bundle_consistent(
+        domain_packet=domain_packet,
+        morph_ir=morph_ir,
+        approved_profile_table=approved_profile_table,
+        same_context_glossary=same_context_glossary,
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+    )
+    _assert_v36d_rendered_surface_inputs_consistent(
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+        same_context_glossary=same_context_glossary,
+        rendered_surface_contract=rendered_surface_contract,
+        rendered_surface_snapshot=rendered_surface_snapshot,
+        rendered_surface_binding_manifest=rendered_surface_binding_manifest,
+        rendered_reference_surface_evidence=rendered_reference_surface_evidence,
+    )
+
+    for field_name in ("reference_surface_family", "reference_instance_id", "approved_profile_id"):
+        expected = getattr(domain_packet, field_name)
+        if getattr(diagnostics, field_name) != expected:
+            raise ValueError(f"diagnostics bundle mismatch for {field_name}")
+        if getattr(conformance_report, field_name) != expected:
+            raise ValueError(f"conformance report mismatch for {field_name}")
+
+    approved_profile = approved_profile_for_id(
+        approved_profile_table,
+        approved_profile_id=diagnostics.approved_profile_id,
+    )
+    if approved_profile.profile_id != V36A_CANONICAL_REFERENCE_PROFILE_ID:
+        raise ValueError("accepted v36d reference bundle must use canonical reference profile id")
+
+    derived_supporting_finding_ids = [finding.finding_id for finding in diagnostics.findings]
+    if conformance_report.supporting_finding_ids != derived_supporting_finding_ids:
+        raise ValueError("conformance report must be derived from the diagnostics finding ids")
+
+    expected_judgment = derive_v36d_overall_judgment(diagnostics.findings)
+    if conformance_report.overall_judgment != expected_judgment:
+        raise ValueError(
+            "conformance report overall judgment must follow the frozen aggregation rule"
+        )
+
+    expected_counts = _build_v36d_severity_counts(diagnostics.findings)
+    if conformance_report.severity_counts != expected_counts:
+        raise ValueError("conformance report severity_counts must be derived from diagnostics")
+
+    expected_failed_rule_families, expected_warning_rule_families = _build_v36d_rule_family_sets(
+        diagnostics.findings
+    )
+    if conformance_report.failed_rule_families != expected_failed_rule_families:
+        raise ValueError("failed_rule_families must be derived from error findings")
+
+    bound_target_refs = _v36d_bound_target_ref_set(
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+        rendered_surface_binding_manifest=rendered_surface_binding_manifest,
+    )
+    if conformance_report.warning_rule_families != expected_warning_rule_families:
+        raise ValueError("warning_rule_families must be derived from warning findings")
+
+    rendered_surface_schemas_used = set(FROZEN_V36D_RENDERED_SURFACE_ASSERTION_INPUTS)
+    for finding in diagnostics.findings:
+        for provenance_pointer in finding.provenance_pointers:
+            if provenance_pointer.target_ref not in bound_target_refs:
+                raise ValueError(
+                    f"finding {finding.finding_id} provenance target_ref must bind to the released "
+                    "v36b/v36c target set"
+                )
+        if not set(finding.rendered_surface_assertion_inputs_used).issubset(
+            rendered_surface_schemas_used
+        ):
+            raise ValueError(
+                f"finding {finding.finding_id} must use only the frozen "
+                "rendered-surface assertion inputs"
+            )
+        if (
+            finding.violation_family
+            == "requested_interaction_profile_conflicts_with_realized_command_grammar"
+            and diagnostics.approved_profile_id
+            != approved_profile_table.canonical_reference_profile_id
+        ):
+            raise ValueError(
+                "requested profile/command grammar conflicts must bind to "
+                "the frozen approved profile contract"
+            )

@@ -26,8 +26,10 @@ from .read_surface_payload import AdeuReadSurfacePayload
 from .semantics_v4_candidate_packet import AdeuSemanticsV4CandidatePacket
 from .trust_invariant_packet import AdeuTrustInvariantPacket
 from .ux_governance import (
+    UXConformanceReport,
     UXDomainPacket,
     UXInteractionContract,
+    UXMorphDiagnostics,
     UXMorphIR,
     UXSurfaceProjection,
     V36AFirstFamilyApprovedProfileTable,
@@ -78,6 +80,8 @@ def main() -> None:
     ux_morph_ir_schema = UXMorphIR.model_json_schema(by_alias=True)
     ux_surface_projection_schema = UXSurfaceProjection.model_json_schema(by_alias=True)
     ux_interaction_contract_schema = UXInteractionContract.model_json_schema(by_alias=True)
+    ux_morph_diagnostics_schema = UXMorphDiagnostics.model_json_schema(by_alias=True)
+    ux_conformance_report_schema = UXConformanceReport.model_json_schema(by_alias=True)
     approved_profile_table_schema = V36AFirstFamilyApprovedProfileTable.model_json_schema(
         by_alias=True
     )
@@ -247,6 +251,16 @@ def main() -> None:
     )
     _write_schema(ux_interaction_contract_authoritative_path, ux_interaction_contract_schema)
 
+    ux_morph_diagnostics_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "ux_morph_diagnostics.v1.json"
+    )
+    _write_schema(ux_morph_diagnostics_authoritative_path, ux_morph_diagnostics_schema)
+
+    ux_conformance_report_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "ux_conformance_report.v1.json"
+    )
+    _write_schema(ux_conformance_report_authoritative_path, ux_conformance_report_schema)
+
     approved_profile_table_authoritative_path = (
         root
         / "packages"
@@ -382,6 +396,12 @@ def main() -> None:
 
     ux_interaction_contract_mirror_path = root / "spec" / "ux_interaction_contract.schema.json"
     _write_schema(ux_interaction_contract_mirror_path, ux_interaction_contract_schema)
+
+    ux_morph_diagnostics_mirror_path = root / "spec" / "ux_morph_diagnostics.schema.json"
+    _write_schema(ux_morph_diagnostics_mirror_path, ux_morph_diagnostics_schema)
+
+    ux_conformance_report_mirror_path = root / "spec" / "ux_conformance_report.schema.json"
+    _write_schema(ux_conformance_report_mirror_path, ux_conformance_report_schema)
 
     approved_profile_table_mirror_path = (
         root / "spec" / "v36a_first_family_approved_profile_table.schema.json"

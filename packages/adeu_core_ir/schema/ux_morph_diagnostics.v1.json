@@ -1,0 +1,281 @@
+{
+  "$defs": {
+    "UXAuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "no_free_form_ui_codegen_without_ir": {
+          "const": true,
+          "default": true,
+          "title": "No Free Form Ui Codegen Without Ir",
+          "type": "boolean"
+        },
+        "no_visual_authority_inflation": {
+          "const": true,
+          "default": true,
+          "title": "No Visual Authority Inflation",
+          "type": "boolean"
+        },
+        "ui_artifacts_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "default": true,
+          "title": "Ui Artifacts May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "title": "UXAuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "UXDiagnosticProvenancePointer": {
+      "additionalProperties": false,
+      "properties": {
+        "source_path": {
+          "minLength": 1,
+          "title": "Source Path",
+          "type": "string"
+        },
+        "source_schema": {
+          "enum": [
+            "ux_domain_packet@1",
+            "ux_interaction_contract@1",
+            "ux_morph_ir@1",
+            "ux_surface_projection@1",
+            "v36c_artifact_inspector_reference_surface_evidence@1",
+            "v36c_rendered_reference_surface_binding_manifest@1",
+            "v36c_rendered_reference_surface_contract@1",
+            "v36c_rendered_reference_surface_semantic_snapshot@1"
+          ],
+          "title": "Source Schema",
+          "type": "string"
+        },
+        "target_ref": {
+          "minLength": 1,
+          "title": "Target Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_schema",
+        "source_path",
+        "target_ref"
+      ],
+      "title": "UXDiagnosticProvenancePointer",
+      "type": "object"
+    },
+    "UXMorphDiagnosticFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "conformance_impact": {
+          "enum": [
+            "advisory_only",
+            "blocks_pass",
+            "needs_review"
+          ],
+          "title": "Conformance Impact",
+          "type": "string"
+        },
+        "finding_id": {
+          "minLength": 1,
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "provenance_pointers": {
+          "items": {
+            "$ref": "#/$defs/UXDiagnosticProvenancePointer"
+          },
+          "minItems": 1,
+          "title": "Provenance Pointers",
+          "type": "array"
+        },
+        "rendered_surface_assertion_inputs_used": {
+          "items": {
+            "enum": [
+              "v36c_rendered_reference_surface_binding_manifest@1",
+              "v36c_rendered_reference_surface_contract@1",
+              "v36c_rendered_reference_surface_semantic_snapshot@1"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Rendered Surface Assertion Inputs Used",
+          "type": "array"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning",
+            "advisory"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        },
+        "violation_family": {
+          "enum": [
+            "advisory_authoritative_boundary_visually_collapsed",
+            "competing_primary_actions_in_one_region",
+            "destructive_action_lacks_adequate_confirmation",
+            "failure_mode_lacks_visible_recovery_path",
+            "provisional_data_rendered_with_authoritative_styling",
+            "requested_interaction_profile_conflicts_with_realized_command_grammar",
+            "required_evidence_not_reachable_within_same_bounded_workbench_context",
+            "utility_target_conflicts_with_density_or_information_posture"
+          ],
+          "title": "Violation Family",
+          "type": "string"
+        }
+      },
+      "required": [
+        "finding_id",
+        "violation_family",
+        "severity",
+        "provenance_pointers",
+        "rendered_surface_assertion_inputs_used",
+        "supporting_evidence_refs",
+        "conformance_impact"
+      ],
+      "title": "UXMorphDiagnosticFinding",
+      "type": "object"
+    },
+    "UXMorphDiagnosticsSupportingArtifactRefs": {
+      "additionalProperties": false,
+      "properties": {
+        "rendered_reference_surface_binding_manifest_schema": {
+          "const": "v36c_rendered_reference_surface_binding_manifest@1",
+          "default": "v36c_rendered_reference_surface_binding_manifest@1",
+          "title": "Rendered Reference Surface Binding Manifest Schema",
+          "type": "string"
+        },
+        "rendered_reference_surface_contract_schema": {
+          "const": "v36c_rendered_reference_surface_contract@1",
+          "default": "v36c_rendered_reference_surface_contract@1",
+          "title": "Rendered Reference Surface Contract Schema",
+          "type": "string"
+        },
+        "rendered_reference_surface_evidence_schema": {
+          "const": "v36c_artifact_inspector_reference_surface_evidence@1",
+          "default": "v36c_artifact_inspector_reference_surface_evidence@1",
+          "title": "Rendered Reference Surface Evidence Schema",
+          "type": "string"
+        },
+        "rendered_reference_surface_snapshot_schema": {
+          "const": "v36c_rendered_reference_surface_semantic_snapshot@1",
+          "default": "v36c_rendered_reference_surface_semantic_snapshot@1",
+          "title": "Rendered Reference Surface Snapshot Schema",
+          "type": "string"
+        },
+        "ux_domain_packet_schema": {
+          "const": "ux_domain_packet@1",
+          "default": "ux_domain_packet@1",
+          "title": "Ux Domain Packet Schema",
+          "type": "string"
+        },
+        "ux_interaction_contract_schema": {
+          "const": "ux_interaction_contract@1",
+          "default": "ux_interaction_contract@1",
+          "title": "Ux Interaction Contract Schema",
+          "type": "string"
+        },
+        "ux_morph_ir_schema": {
+          "const": "ux_morph_ir@1",
+          "default": "ux_morph_ir@1",
+          "title": "Ux Morph Ir Schema",
+          "type": "string"
+        },
+        "ux_surface_projection_schema": {
+          "const": "ux_surface_projection@1",
+          "default": "ux_surface_projection@1",
+          "title": "Ux Surface Projection Schema",
+          "type": "string"
+        }
+      },
+      "title": "UXMorphDiagnosticsSupportingArtifactRefs",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "approved_profile_id": {
+      "enum": [
+        "artifact_inspector_alternate",
+        "artifact_inspector_reference"
+      ],
+      "title": "Approved Profile Id",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/UXAuthorityBoundaryPolicy"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/UXMorphDiagnosticFinding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_morph_diagnostics@1",
+      "default": "ux_morph_diagnostics@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "seeded_violation_families": {
+      "items": {
+        "enum": [
+          "advisory_authoritative_boundary_visually_collapsed",
+          "competing_primary_actions_in_one_region",
+          "destructive_action_lacks_adequate_confirmation",
+          "failure_mode_lacks_visible_recovery_path",
+          "provisional_data_rendered_with_authoritative_styling",
+          "requested_interaction_profile_conflicts_with_realized_command_grammar",
+          "required_evidence_not_reachable_within_same_bounded_workbench_context",
+          "utility_target_conflicts_with_density_or_information_posture"
+        ],
+        "type": "string"
+      },
+      "title": "Seeded Violation Families",
+      "type": "array"
+    },
+    "severity_taxonomy": {
+      "items": {
+        "enum": [
+          "error",
+          "warning",
+          "advisory"
+        ],
+        "type": "string"
+      },
+      "title": "Severity Taxonomy",
+      "type": "array"
+    },
+    "supporting_artifacts": {
+      "$ref": "#/$defs/UXMorphDiagnosticsSupportingArtifactRefs"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "approved_profile_id",
+    "severity_taxonomy",
+    "seeded_violation_families",
+    "findings"
+  ],
+  "title": "UXMorphDiagnostics",
+  "type": "object"
+}
