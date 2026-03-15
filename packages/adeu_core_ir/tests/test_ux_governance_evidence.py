@@ -18,22 +18,31 @@ from adeu_core_ir import (
     DEFAULT_UX_MORPH_DIAGNOSTICS_SCHEMA_PATH,
     DEFAULT_UX_MORPH_IR_REFERENCE_PATH,
     DEFAULT_UX_MORPH_IR_SCHEMA_PATH,
+    DEFAULT_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH,
+    DEFAULT_UX_SURFACE_COMPILER_EXPORT_SCHEMA_PATH,
+    DEFAULT_UX_SURFACE_COMPILER_VARIANT_MANIFEST_REFERENCE_PATH,
+    DEFAULT_UX_SURFACE_COMPILER_VARIANT_MANIFEST_SCHEMA_PATH,
     DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH,
     DEFAULT_UX_SURFACE_PROJECTION_SCHEMA_PATH,
     DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH,
     DEFAULT_V36C_REFERENCE_SURFACE_EVIDENCE_PATH,
     DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH,
     DEFAULT_V36C_RENDERED_SURFACE_SNAPSHOT_PATH,
+    DEFAULT_V36E_ALTERNATE_UX_CONFORMANCE_REPORT_REFERENCE_PATH,
+    DEFAULT_V36E_ALTERNATE_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH,
+    DEFAULT_V36E_ALTERNATE_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH,
     DEFAULT_V60_BASELINE_METRICS_PATH,
     DEFAULT_V61_BASELINE_METRICS_PATH,
     DEFAULT_V62_BASELINE_METRICS_PATH,
     DEFAULT_V63_BASELINE_METRICS_PATH,
+    DEFAULT_V64_BASELINE_METRICS_PATH,
     build_v36b_stable_binding_id,
     build_v36b_stable_provenance_hook_id,
     materialize_v36a_ux_domain_morph_ir_evidence,
     materialize_v36b_surface_projection_interaction_evidence,
     materialize_v36c_artifact_inspector_reference_surface_evidence,
     materialize_v36d_morph_diagnostics_conformance_evidence,
+    materialize_v36e_surface_compiler_export_evidence,
 )
 from adeu_core_ir.ux_governance_evidence import UXGovernanceEvidenceError
 from adeu_ir.repo import repo_root
@@ -91,12 +100,19 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         DEFAULT_UX_INTERACTION_CONTRACT_SCHEMA_PATH,
         DEFAULT_UX_MORPH_DIAGNOSTICS_SCHEMA_PATH,
         DEFAULT_UX_CONFORMANCE_REPORT_SCHEMA_PATH,
+        DEFAULT_UX_SURFACE_COMPILER_EXPORT_SCHEMA_PATH,
+        DEFAULT_UX_SURFACE_COMPILER_VARIANT_MANIFEST_SCHEMA_PATH,
         DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH,
         DEFAULT_UX_MORPH_IR_REFERENCE_PATH,
         DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH,
         DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH,
         DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH,
         DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH,
+        DEFAULT_V36E_ALTERNATE_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH,
+        DEFAULT_V36E_ALTERNATE_UX_CONFORMANCE_REPORT_REFERENCE_PATH,
+        DEFAULT_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH,
+        DEFAULT_V36E_ALTERNATE_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH,
+        DEFAULT_UX_SURFACE_COMPILER_VARIANT_MANIFEST_REFERENCE_PATH,
         DEFAULT_APPROVED_PROFILE_TABLE_PATH,
         DEFAULT_SAME_CONTEXT_GLOSSARY_PATH,
         DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH,
@@ -104,6 +120,7 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS62.md",
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS63.md",
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS64.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md",
     ):
         _copy_repo_relative_file(
             source_root=source_root,
@@ -189,6 +206,28 @@ def _materialize_v36d_evidence(*, repo_root: Path) -> dict[str, object]:
         output_path=(
             "artifacts/agent_harness/v64/evidence_inputs/"
             "v36d_morph_diagnostics_conformance_evidence_v64.json"
+        ),
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _materialize_v36e_evidence(*, repo_root: Path) -> dict[str, object]:
+    _materialize_v36d_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V64_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v65_closeout.json",
+    )
+    evidence = materialize_v36e_surface_compiler_export_evidence(
+        repo_root=repo_root,
+        output_path=(
+            "artifacts/agent_harness/v65/evidence_inputs/"
+            "v36e_surface_compiler_export_evidence_v65.json"
         ),
         baseline_metrics_path=baseline_rel,
         current_metrics_path=current_rel,
@@ -1433,6 +1472,173 @@ def test_materialize_v36d_evidence_fails_closed_on_non_v63_baseline_metrics_path
             output_path=(
                 "artifacts/agent_harness/v64/evidence_inputs/"
                 "v36d_morph_diagnostics_conformance_evidence_v64.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36e_surface_compiler_export_evidence_is_deterministic(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+
+    first = _materialize_v36e_evidence(repo_root=repo_root)
+    second = _materialize_v36e_evidence(repo_root=repo_root)
+
+    assert first["artifact"].hash == second["artifact"].hash
+    assert first["payload"] == second["payload"]
+    assert first["payload"]["schema"] == "v36e_surface_compiler_export_evidence@1"
+
+
+def test_materialize_v36e_evidence_fails_closed_on_source_artifact_ref_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36d_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V64_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v65_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH)
+    payload["source_artifact_refs"][0]["artifact_ref"] = "docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md"  # type: ignore[index]
+    _write_json(repo_root / DEFAULT_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="compiler export source artifact refs drift detected",
+    ):
+        materialize_v36e_surface_compiler_export_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v65/evidence_inputs/"
+                "v36e_surface_compiler_export_evidence_v65.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36e_evidence_fails_closed_on_alternate_non_pass_gate(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36d_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V64_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v65_closeout.json",
+    )
+    payload = _load_json(
+        repo_root,
+        DEFAULT_V36E_ALTERNATE_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH,
+    )
+    payload["conformance_gating_snapshot"]["overall_judgment"] = "needs_review"  # type: ignore[index]
+    _write_json(
+        repo_root / DEFAULT_V36E_ALTERNATE_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH,
+        payload,
+    )
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="compiler export conformance gate drift detected",
+    ):
+        materialize_v36e_surface_compiler_export_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v65/evidence_inputs/"
+                "v36e_surface_compiler_export_evidence_v65.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36e_evidence_fails_closed_on_manifest_source_hash_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36d_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V64_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v65_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_SURFACE_COMPILER_VARIANT_MANIFEST_REFERENCE_PATH)
+    payload["profile_variants"][0]["source_artifact_hashes"][0]["artifact_hash"] = "0" * 64  # type: ignore[index]
+    _write_json(repo_root / DEFAULT_UX_SURFACE_COMPILER_VARIANT_MANIFEST_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="source_artifact_hashes must match actual canonical source artifact payload hashes",
+    ):
+        materialize_v36e_surface_compiler_export_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v65/evidence_inputs/"
+                "v36e_surface_compiler_export_evidence_v65.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36e_evidence_fails_closed_on_side_channel_derivation_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36d_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V64_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v65_closeout.json",
+    )
+    payload = _load_json(
+        repo_root,
+        DEFAULT_V36E_ALTERNATE_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH,
+    )
+    payload["derivation_metadata"]["side_channel_prompt_inputs_rejected"] = False  # type: ignore[index]
+    _write_json(
+        repo_root / DEFAULT_V36E_ALTERNATE_UX_SURFACE_COMPILER_EXPORT_REFERENCE_PATH,
+        payload,
+    )
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="side-channel prompt or local heuristic input drift detected",
+    ):
+        materialize_v36e_surface_compiler_export_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v65/evidence_inputs/"
+                "v36e_surface_compiler_export_evidence_v65.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36e_evidence_fails_closed_on_non_v64_baseline_metrics_path(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36d_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel="artifacts/stop_gate/metrics_other_closeout.json",
+        current_rel="artifacts/stop_gate/metrics_v65_closeout.json",
+    )
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="baseline_metrics_path must point to the frozen v64 closeout metrics artifact",
+    ):
+        materialize_v36e_surface_compiler_export_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v65/evidence_inputs/"
+                "v36e_surface_compiler_export_evidence_v65.json"
             ),
             baseline_metrics_path=baseline_rel,
             current_metrics_path=current_rel,
