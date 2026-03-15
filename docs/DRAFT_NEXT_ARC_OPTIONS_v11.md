@@ -774,7 +774,7 @@ This planning draft does not recommend:
 
 - treat the `V36` family as closed and complete and start the next family as a fresh
   higher-order bridge family rather than widening `V36` in place;
-- make `V37-A` the default next candidate:
+- select `V37-A` as the next default candidate:
   explicit intent packet plus module ontology is the minimum substrate required before a
   runnable meta-loop can be governed cleanly;
 - keep the first implementation terrain narrow and repo-native:
