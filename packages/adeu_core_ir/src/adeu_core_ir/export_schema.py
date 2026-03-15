@@ -31,6 +31,8 @@ from .ux_governance import (
     UXInteractionContract,
     UXMorphDiagnostics,
     UXMorphIR,
+    UXSurfaceCompilerExport,
+    UXSurfaceCompilerVariantManifest,
     UXSurfaceProjection,
     V36AFirstFamilyApprovedProfileTable,
     V36ASameContextReachabilityGlossary,
@@ -82,6 +84,10 @@ def main() -> None:
     ux_interaction_contract_schema = UXInteractionContract.model_json_schema(by_alias=True)
     ux_morph_diagnostics_schema = UXMorphDiagnostics.model_json_schema(by_alias=True)
     ux_conformance_report_schema = UXConformanceReport.model_json_schema(by_alias=True)
+    ux_surface_compiler_export_schema = UXSurfaceCompilerExport.model_json_schema(by_alias=True)
+    ux_surface_compiler_variant_manifest_schema = (
+        UXSurfaceCompilerVariantManifest.model_json_schema(by_alias=True)
+    )
     approved_profile_table_schema = V36AFirstFamilyApprovedProfileTable.model_json_schema(
         by_alias=True
     )
@@ -261,6 +267,26 @@ def main() -> None:
     )
     _write_schema(ux_conformance_report_authoritative_path, ux_conformance_report_schema)
 
+    ux_surface_compiler_export_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "ux_surface_compiler_export.v1.json"
+    )
+    _write_schema(
+        ux_surface_compiler_export_authoritative_path,
+        ux_surface_compiler_export_schema,
+    )
+
+    ux_surface_compiler_variant_manifest_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "ux_surface_compiler_variant_manifest.v1.json"
+    )
+    _write_schema(
+        ux_surface_compiler_variant_manifest_authoritative_path,
+        ux_surface_compiler_variant_manifest_schema,
+    )
+
     approved_profile_table_authoritative_path = (
         root
         / "packages"
@@ -402,6 +428,19 @@ def main() -> None:
 
     ux_conformance_report_mirror_path = root / "spec" / "ux_conformance_report.schema.json"
     _write_schema(ux_conformance_report_mirror_path, ux_conformance_report_schema)
+
+    ux_surface_compiler_export_mirror_path = (
+        root / "spec" / "ux_surface_compiler_export.schema.json"
+    )
+    _write_schema(ux_surface_compiler_export_mirror_path, ux_surface_compiler_export_schema)
+
+    ux_surface_compiler_variant_manifest_mirror_path = (
+        root / "spec" / "ux_surface_compiler_variant_manifest.schema.json"
+    )
+    _write_schema(
+        ux_surface_compiler_variant_manifest_mirror_path,
+        ux_surface_compiler_variant_manifest_schema,
+    )
 
     approved_profile_table_mirror_path = (
         root / "spec" / "v36a_first_family_approved_profile_table.schema.json"

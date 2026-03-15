@@ -1802,3 +1802,664 @@ def assert_v36d_reference_bundle_consistent(
                 "requested profile/command grammar conflicts must bind to "
                 "the frozen approved profile contract"
             )
+
+
+UXSurfaceCompilerExportSchemaVersion = Literal["ux_surface_compiler_export@1"]
+UXSurfaceCompilerVariantManifestSchemaVersion = Literal["ux_surface_compiler_variant_manifest@1"]
+UXSurfaceCompilerTargetDomain = Literal[
+    "react_tree",
+    "route_module",
+    "state_store_contract",
+    "component_binding_map",
+    "css_token_map",
+    "test_targets",
+]
+UXSurfaceCompilerSourceArtifactRole = Literal[
+    "approved_profile_table_ref",
+    "rendered_reference_surface_binding_manifest_ref",
+    "rendered_reference_surface_contract_ref",
+    "rendered_reference_surface_snapshot_ref",
+    "same_context_glossary_ref",
+    "ux_conformance_report_ref",
+    "ux_domain_packet_ref",
+    "ux_interaction_contract_ref",
+    "ux_morph_diagnostics_ref",
+    "ux_morph_ir_ref",
+    "ux_surface_projection_ref",
+    "v36d_morph_diagnostics_conformance_evidence_ref",
+]
+
+UX_SURFACE_COMPILER_EXPORT_SCHEMA = "ux_surface_compiler_export@1"
+UX_SURFACE_COMPILER_VARIANT_MANIFEST_SCHEMA = "ux_surface_compiler_variant_manifest@1"
+FROZEN_V36E_IMPLEMENTATION_TARGET_DOMAINS: tuple[UXSurfaceCompilerTargetDomain, ...] = (
+    "react_tree",
+    "route_module",
+    "state_store_contract",
+    "component_binding_map",
+    "css_token_map",
+    "test_targets",
+)
+FROZEN_V36E_SOURCE_ARTIFACT_ROLES: tuple[UXSurfaceCompilerSourceArtifactRole, ...] = (
+    "approved_profile_table_ref",
+    "rendered_reference_surface_binding_manifest_ref",
+    "rendered_reference_surface_contract_ref",
+    "rendered_reference_surface_snapshot_ref",
+    "same_context_glossary_ref",
+    "ux_conformance_report_ref",
+    "ux_domain_packet_ref",
+    "ux_interaction_contract_ref",
+    "ux_morph_diagnostics_ref",
+    "ux_morph_ir_ref",
+    "ux_surface_projection_ref",
+    "v36d_morph_diagnostics_conformance_evidence_ref",
+)
+
+
+def build_v36e_export_ref(
+    *,
+    reference_instance_id: str,
+    approved_profile_id: UXApprovedProfileId,
+    target_domain: UXSurfaceCompilerTargetDomain,
+) -> str:
+    return f"{reference_instance_id}:{approved_profile_id}:{target_domain}"
+
+
+def _split_v36e_export_ref(
+    *,
+    export_ref: str,
+    field_name: str,
+) -> tuple[str, UXApprovedProfileId, UXSurfaceCompilerTargetDomain]:
+    reference_instance_id, approved_profile_id, target_domain, *rest = export_ref.split(":")
+    if rest or not reference_instance_id or not approved_profile_id or not target_domain:
+        raise ValueError(
+            f"{field_name} must use reference_instance_id:approved_profile_id:target_domain"
+        )
+    if approved_profile_id not in {
+        V36A_CANONICAL_REFERENCE_PROFILE_ID,
+        V36A_ALTERNATE_LAWFUL_PROFILE_ID,
+    }:
+        raise ValueError(f"{field_name} uses unknown approved_profile_id: {approved_profile_id}")
+    if target_domain not in FROZEN_V36E_IMPLEMENTATION_TARGET_DOMAINS:
+        raise ValueError(f"{field_name} uses unknown target_domain: {target_domain}")
+    return (
+        reference_instance_id,
+        approved_profile_id,
+        target_domain,
+    )
+
+
+def build_v36e_exported_provenance_map_id(
+    *,
+    reference_instance_id: str,
+    approved_profile_id: UXApprovedProfileId,
+    target_kind: UXProvenanceHookTargetKind,
+    target_ref: str,
+) -> str:
+    return f"v36e.provmap:{reference_instance_id}:{approved_profile_id}:{target_kind}:{target_ref}"
+
+
+def build_v36e_exported_binding_map_id(
+    *,
+    reference_instance_id: str,
+    approved_profile_id: UXApprovedProfileId,
+    target_kind: UXBindingTargetKind,
+    target_ref: str,
+) -> str:
+    return f"v36e.bindmap:{reference_instance_id}:{approved_profile_id}:{target_kind}:{target_ref}"
+
+
+def _assert_v36d_conformance_report_derived_from_diagnostics(
+    *,
+    diagnostics: UXMorphDiagnostics,
+    conformance_report: UXConformanceReport,
+) -> None:
+    for field_name in ("reference_surface_family", "reference_instance_id", "approved_profile_id"):
+        if getattr(diagnostics, field_name) != getattr(conformance_report, field_name):
+            raise ValueError(f"conformance report mismatch for {field_name}")
+
+    derived_supporting_finding_ids = [finding.finding_id for finding in diagnostics.findings]
+    if conformance_report.supporting_finding_ids != derived_supporting_finding_ids:
+        raise ValueError("conformance report must be derived from the diagnostics finding ids")
+
+    expected_judgment = derive_v36d_overall_judgment(diagnostics.findings)
+    if conformance_report.overall_judgment != expected_judgment:
+        raise ValueError(
+            "conformance report overall judgment must follow the frozen aggregation rule"
+        )
+
+    expected_counts = _build_v36d_severity_counts(diagnostics.findings)
+    if conformance_report.severity_counts != expected_counts:
+        raise ValueError("conformance report severity_counts must be derived from diagnostics")
+
+    expected_failed_rule_families, expected_warning_rule_families = _build_v36d_rule_family_sets(
+        diagnostics.findings
+    )
+    if conformance_report.failed_rule_families != expected_failed_rule_families:
+        raise ValueError("failed_rule_families must be derived from error findings")
+    if conformance_report.warning_rule_families != expected_warning_rule_families:
+        raise ValueError("warning_rule_families must be derived from warning findings")
+
+
+class UXSurfaceCompilerSourceArtifactRef(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_role: UXSurfaceCompilerSourceArtifactRole
+    artifact_ref: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceCompilerSourceArtifactRef":
+        _assert_repo_relative_artifact_ref(
+            self.artifact_ref,
+            field_name=f"source_artifact_refs[{self.artifact_role}].artifact_ref",
+        )
+        return self
+
+
+class UXSurfaceCompilerTargetPayload(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    target_domain: UXSurfaceCompilerTargetDomain
+    export_ref: str = Field(min_length=1)
+    payload_kind: str = Field(min_length=1)
+    payload_lines: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceCompilerTargetPayload":
+        _reference_instance_id, _approved_profile_id, target_domain = _split_v36e_export_ref(
+            export_ref=self.export_ref,
+            field_name=f"implementation_target_payloads[{self.target_domain}].export_ref",
+        )
+        if target_domain != self.target_domain:
+            raise ValueError("implementation target payload export_ref must match target_domain")
+        if any(not line for line in self.payload_lines):
+            raise ValueError(
+                f"implementation_target_payloads[{self.target_domain}].payload_lines "
+                "must not contain empty lines"
+            )
+        return self
+
+
+class UXSurfaceCompilerExportedProvenanceHook(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    map_id: str = Field(min_length=1)
+    target_kind: UXProvenanceHookTargetKind
+    target_ref: str = Field(min_length=1)
+    export_ref: str = Field(min_length=1)
+    source_hook_ids: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceCompilerExportedProvenanceHook":
+        target_reference_instance_id = _reference_instance_id_from_v36b_target_ref(
+            target_ref=self.target_ref,
+            field_name="exported_provenance_hook_map.target_ref",
+        )
+        export_reference_instance_id, approved_profile_id, _target_domain = _split_v36e_export_ref(
+            export_ref=self.export_ref,
+            field_name=f"exported_provenance_hook_map[{self.target_ref}].export_ref",
+        )
+        if target_reference_instance_id != export_reference_instance_id:
+            raise ValueError(
+                "exported_provenance_hook_map export_ref must bind to "
+                "target_ref reference_instance_id"
+            )
+        expected = build_v36e_exported_provenance_map_id(
+            reference_instance_id=export_reference_instance_id,
+            approved_profile_id=approved_profile_id,
+            target_kind=self.target_kind,
+            target_ref=self.target_ref,
+        )
+        if self.map_id != expected:
+            raise ValueError("exported provenance hook map id must match the frozen format")
+        _assert_sorted_unique(
+            self.source_hook_ids,
+            field_name=f"exported_provenance_hook_map[{self.target_ref}].source_hook_ids",
+        )
+        return self
+
+
+class UXSurfaceCompilerExportedImplementationBinding(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    map_id: str = Field(min_length=1)
+    target_kind: UXBindingTargetKind
+    target_ref: str = Field(min_length=1)
+    export_ref: str = Field(min_length=1)
+    source_binding_ids: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceCompilerExportedImplementationBinding":
+        target_reference_instance_id = _reference_instance_id_from_v36b_target_ref(
+            target_ref=self.target_ref,
+            field_name="exported_implementation_binding_map.target_ref",
+        )
+        export_reference_instance_id, approved_profile_id, _target_domain = _split_v36e_export_ref(
+            export_ref=self.export_ref,
+            field_name=f"exported_implementation_binding_map[{self.target_ref}].export_ref",
+        )
+        if target_reference_instance_id != export_reference_instance_id:
+            raise ValueError(
+                "exported_implementation_binding_map export_ref must bind to "
+                "target_ref reference_instance_id"
+            )
+        expected = build_v36e_exported_binding_map_id(
+            reference_instance_id=export_reference_instance_id,
+            approved_profile_id=approved_profile_id,
+            target_kind=self.target_kind,
+            target_ref=self.target_ref,
+        )
+        if self.map_id != expected:
+            raise ValueError("exported implementation binding map id must match the frozen format")
+        _assert_sorted_unique(
+            self.source_binding_ids,
+            field_name=f"exported_implementation_binding_map[{self.target_ref}].source_binding_ids",
+        )
+        return self
+
+
+class UXSurfaceCompilerDerivationMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    implementation_target_domains: list[UXSurfaceCompilerTargetDomain]
+    derived_from_canonical_artifacts_only: Literal[True] = True
+    frozen_v36d_conformance_structure_consumed: Literal[True] = True
+    frozen_v36d_conformance_aggregation_rule_consumed: Literal[True] = True
+    side_channel_prompt_inputs_rejected: Literal[True] = True
+    local_route_heuristics_rejected: Literal[True] = True
+    bounded_css_token_map_only: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceCompilerDerivationMetadata":
+        _assert_exact_sequence(
+            self.implementation_target_domains,
+            expected=FROZEN_V36E_IMPLEMENTATION_TARGET_DOMAINS,
+            field_name="derivation_metadata.implementation_target_domains",
+        )
+        return self
+
+
+class UXSurfaceCompilerExport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: UXSurfaceCompilerExportSchemaVersion = UX_SURFACE_COMPILER_EXPORT_SCHEMA
+    reference_surface_family: UXReferenceSurfaceFamily = V36A_REFERENCE_SURFACE_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    approved_profile_id: UXApprovedProfileId
+    export_artifact_ref: str = Field(min_length=1)
+    authority_boundary_policy: UXAuthorityBoundaryPolicy = Field(
+        default_factory=UXAuthorityBoundaryPolicy
+    )
+    source_artifact_refs: list[UXSurfaceCompilerSourceArtifactRef]
+    implementation_target_payloads: list[UXSurfaceCompilerTargetPayload]
+    exported_provenance_hook_map: list[UXSurfaceCompilerExportedProvenanceHook]
+    exported_implementation_binding_map: list[UXSurfaceCompilerExportedImplementationBinding]
+    diagnostics_gating_snapshot: UXMorphDiagnostics
+    conformance_gating_snapshot: UXConformanceReport
+    conformance_gating_ref: str = Field(min_length=1)
+    derivation_metadata: UXSurfaceCompilerDerivationMetadata
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceCompilerExport":
+        _assert_repo_relative_artifact_ref(
+            self.export_artifact_ref,
+            field_name="export_artifact_ref",
+        )
+        _assert_exact_sequence(
+            [ref.artifact_role for ref in self.source_artifact_refs],
+            expected=FROZEN_V36E_SOURCE_ARTIFACT_ROLES,
+            field_name="source_artifact_refs.artifact_role",
+        )
+        _assert_exact_sequence(
+            [payload.target_domain for payload in self.implementation_target_payloads],
+            expected=FROZEN_V36E_IMPLEMENTATION_TARGET_DOMAINS,
+            field_name="implementation_target_payloads.target_domain",
+        )
+        expected_conformance_ref = f"{self.export_artifact_ref}#conformance_gating_snapshot"
+        if self.conformance_gating_ref != expected_conformance_ref:
+            raise ValueError(
+                "conformance_gating_ref must resolve to "
+                "export_artifact_ref#conformance_gating_snapshot"
+            )
+
+        bound_export_refs: set[str] = set()
+        for payload in self.implementation_target_payloads:
+            (
+                payload_reference_instance_id,
+                payload_approved_profile_id,
+                _target_domain,
+            ) = _split_v36e_export_ref(
+                export_ref=payload.export_ref,
+                field_name=f"implementation_target_payloads[{payload.target_domain}].export_ref",
+            )
+            if payload_reference_instance_id != self.reference_instance_id:
+                raise ValueError(
+                    "implementation target payload export_ref must bind to "
+                    "bundle reference_instance_id"
+                )
+            if payload_approved_profile_id != self.approved_profile_id:
+                raise ValueError(
+                    "implementation target payload export_ref must bind to "
+                    "bundle approved_profile_id"
+                )
+            bound_export_refs.add(payload.export_ref)
+
+        for field_name in (
+            "reference_surface_family",
+            "reference_instance_id",
+            "approved_profile_id",
+        ):
+            if getattr(self.diagnostics_gating_snapshot, field_name) != getattr(self, field_name):
+                raise ValueError(f"diagnostics_gating_snapshot mismatch for {field_name}")
+            if getattr(self.conformance_gating_snapshot, field_name) != getattr(self, field_name):
+                raise ValueError(f"conformance_gating_snapshot mismatch for {field_name}")
+
+        _assert_v36d_conformance_report_derived_from_diagnostics(
+            diagnostics=self.diagnostics_gating_snapshot,
+            conformance_report=self.conformance_gating_snapshot,
+        )
+        if self.conformance_gating_snapshot.overall_judgment != "pass":
+            raise ValueError("compiler export conformance gate must be pass")
+
+        for mapping in self.exported_provenance_hook_map:
+            if mapping.export_ref not in bound_export_refs:
+                raise ValueError(
+                    "exported_provenance_hook_map export_ref must bind to "
+                    "implementation target payloads"
+                )
+        for mapping in self.exported_implementation_binding_map:
+            if mapping.export_ref not in bound_export_refs:
+                raise ValueError(
+                    "exported_implementation_binding_map export_ref must bind to "
+                    "implementation target payloads"
+                )
+        return self
+
+
+class UXSurfaceCompilerSourceArtifactHash(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_ref: str = Field(min_length=1)
+    artifact_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceCompilerSourceArtifactHash":
+        _assert_repo_relative_artifact_ref(
+            self.artifact_ref,
+            field_name="source_artifact_hashes.artifact_ref",
+        )
+        return self
+
+
+class UXSurfaceCompilerVariantProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    approved_profile_id: UXApprovedProfileId
+    export_artifact_ref: str = Field(min_length=1)
+    target_domain_coverage_by_profile: list[UXSurfaceCompilerTargetDomain]
+    source_artifact_hashes: list[UXSurfaceCompilerSourceArtifactHash] = Field(min_length=1)
+    derivation_refs: list[str] = Field(min_length=1)
+    conformance_gating_ref: str = Field(min_length=1)
+    conformance_gating_result_by_profile: UXConformanceOverallJudgment
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceCompilerVariantProfile":
+        _assert_repo_relative_artifact_ref(
+            self.export_artifact_ref,
+            field_name=f"profile_variants[{self.approved_profile_id}].export_artifact_ref",
+        )
+        _assert_exact_sequence(
+            self.target_domain_coverage_by_profile,
+            expected=FROZEN_V36E_IMPLEMENTATION_TARGET_DOMAINS,
+            field_name=(
+                f"profile_variants[{self.approved_profile_id}].target_domain_coverage_by_profile"
+            ),
+        )
+        for derivation_ref in self.derivation_refs:
+            _assert_repo_relative_artifact_ref(
+                derivation_ref,
+                field_name=f"profile_variants[{self.approved_profile_id}].derivation_refs",
+            )
+        _assert_sorted_unique(
+            self.derivation_refs,
+            field_name=f"profile_variants[{self.approved_profile_id}].derivation_refs",
+        )
+        source_artifact_refs = [item.artifact_ref for item in self.source_artifact_hashes]
+        _assert_sorted_unique(
+            source_artifact_refs,
+            field_name=f"profile_variants[{self.approved_profile_id}].source_artifact_hashes",
+        )
+        _assert_repo_relative_artifact_ref(
+            self.conformance_gating_ref,
+            field_name=f"profile_variants[{self.approved_profile_id}].conformance_gating_ref",
+        )
+        return self
+
+
+class UXSurfaceCompilerVariantManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: UXSurfaceCompilerVariantManifestSchemaVersion = (
+        UX_SURFACE_COMPILER_VARIANT_MANIFEST_SCHEMA
+    )
+    reference_surface_family: UXReferenceSurfaceFamily = V36A_REFERENCE_SURFACE_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    canonical_profile_designation: Literal["artifact_inspector_reference"] = (
+        V36A_CANONICAL_REFERENCE_PROFILE_ID
+    )
+    alternate_profile_designation: Literal["artifact_inspector_alternate"] = (
+        V36A_ALTERNATE_LAWFUL_PROFILE_ID
+    )
+    export_artifact_refs: list[str]
+    profile_variants: list[UXSurfaceCompilerVariantProfile]
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "UXSurfaceCompilerVariantManifest":
+        if len(self.profile_variants) != 2:
+            raise ValueError("profile_variants must contain exactly two entries")
+        profile_ids = [profile.approved_profile_id for profile in self.profile_variants]
+        if profile_ids != [
+            self.canonical_profile_designation,
+            self.alternate_profile_designation,
+        ]:
+            raise ValueError(
+                "profile_variants must enumerate canonical profile first "
+                "and alternate profile second"
+            )
+        if self.export_artifact_refs != [
+            profile.export_artifact_ref for profile in self.profile_variants
+        ]:
+            raise ValueError(
+                "export_artifact_refs must match the canonical and alternate profile variant refs"
+            )
+        if len(self.export_artifact_refs) != len(set(self.export_artifact_refs)):
+            raise ValueError("export_artifact_refs must not contain duplicates")
+        for index, export_artifact_ref in enumerate(self.export_artifact_refs):
+            _assert_repo_relative_artifact_ref(
+                export_artifact_ref,
+                field_name=f"export_artifact_refs[{index}]",
+            )
+        return self
+
+
+def canonicalize_ux_surface_compiler_export_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = UXSurfaceCompilerExport.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def canonicalize_ux_surface_compiler_variant_manifest_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    model = UXSurfaceCompilerVariantManifest.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def assert_v36e_reference_bundle_consistent(
+    *,
+    domain_packet: UXDomainPacket,
+    morph_ir: UXMorphIR,
+    approved_profile_table: V36AFirstFamilyApprovedProfileTable,
+    same_context_glossary: V36ASameContextReachabilityGlossary,
+    surface_projection: UXSurfaceProjection,
+    interaction_contract: UXInteractionContract,
+    rendered_surface_contract: dict[str, Any],
+    rendered_surface_snapshot: dict[str, Any],
+    rendered_surface_binding_manifest: dict[str, Any],
+    rendered_reference_surface_evidence: dict[str, Any],
+    diagnostics: UXMorphDiagnostics,
+    conformance_report: UXConformanceReport,
+    canonical_export: UXSurfaceCompilerExport,
+    alternate_export: UXSurfaceCompilerExport,
+    variant_manifest: UXSurfaceCompilerVariantManifest,
+) -> None:
+    assert_v36d_reference_bundle_consistent(
+        domain_packet=domain_packet,
+        morph_ir=morph_ir,
+        approved_profile_table=approved_profile_table,
+        same_context_glossary=same_context_glossary,
+        surface_projection=surface_projection,
+        interaction_contract=interaction_contract,
+        rendered_surface_contract=rendered_surface_contract,
+        rendered_surface_snapshot=rendered_surface_snapshot,
+        rendered_surface_binding_manifest=rendered_surface_binding_manifest,
+        rendered_reference_surface_evidence=rendered_reference_surface_evidence,
+        diagnostics=diagnostics,
+        conformance_report=conformance_report,
+    )
+
+    if canonical_export.approved_profile_id != V36A_CANONICAL_REFERENCE_PROFILE_ID:
+        raise ValueError("canonical export must use canonical reference profile id")
+    if alternate_export.approved_profile_id != V36A_ALTERNATE_LAWFUL_PROFILE_ID:
+        raise ValueError("alternate export must use alternate lawful profile id")
+
+    for export in (canonical_export, alternate_export):
+        if export.reference_surface_family != domain_packet.reference_surface_family:
+            raise ValueError("surface compiler export mismatch for reference_surface_family")
+        if export.reference_instance_id != domain_packet.reference_instance_id:
+            raise ValueError("surface compiler export mismatch for reference_instance_id")
+        if export.authority_boundary_policy != domain_packet.authority_boundary_policy:
+            raise ValueError("surface compiler export authority_boundary_policy mismatch")
+
+    if canonical_export.diagnostics_gating_snapshot != diagnostics:
+        raise ValueError("canonical export must consume the released v36d diagnostics snapshot")
+    if canonical_export.conformance_gating_snapshot != conformance_report:
+        raise ValueError("canonical export must consume the released v36d conformance snapshot")
+    canonical_profile = approved_profile_for_id(
+        approved_profile_table,
+        approved_profile_id=canonical_export.approved_profile_id,
+    )
+    if canonical_profile.profile_id != V36A_CANONICAL_REFERENCE_PROFILE_ID:
+        raise ValueError("canonical export must bind to the frozen canonical profile id")
+
+    alternate_profile = approved_profile_for_id(
+        approved_profile_table,
+        approved_profile_id=alternate_export.approved_profile_id,
+    )
+    if alternate_profile.profile_id != V36A_ALTERNATE_LAWFUL_PROFILE_ID:
+        raise ValueError("alternate export must bind to the frozen alternate profile id")
+    if (
+        alternate_export.diagnostics_gating_snapshot.supporting_artifacts
+        != diagnostics.supporting_artifacts
+    ):
+        raise ValueError("alternate export diagnostics must consume the frozen v36d structure")
+    if (
+        alternate_export.conformance_gating_snapshot.supporting_artifacts
+        != conformance_report.supporting_artifacts
+    ):
+        raise ValueError("alternate export conformance must consume the frozen v36d structure")
+    if (
+        alternate_export.conformance_gating_snapshot.derivation_metadata
+        != conformance_report.derivation_metadata
+    ):
+        raise ValueError(
+            "alternate export conformance must consume the frozen v36d "
+            "aggregation rule and derivation metadata"
+        )
+
+    source_hook_ids = {hook.hook_id for hook in surface_projection.stable_provenance_hooks} | {
+        hook.hook_id for hook in interaction_contract.stable_provenance_hooks
+    }
+    source_binding_ids = {
+        binding.binding_id for binding in surface_projection.implementation_observable_bindings
+    } | {binding.binding_id for binding in interaction_contract.implementation_observable_bindings}
+    for export in (canonical_export, alternate_export):
+        exported_hook_ids = {
+            source_hook_id
+            for mapping in export.exported_provenance_hook_map
+            for source_hook_id in mapping.source_hook_ids
+        }
+        exported_binding_ids = {
+            source_binding_id
+            for mapping in export.exported_implementation_binding_map
+            for source_binding_id in mapping.source_binding_ids
+        }
+        if exported_hook_ids != source_hook_ids:
+            raise ValueError(
+                "surface compiler export must preserve the full released v36b hook set"
+            )
+        if exported_binding_ids != source_binding_ids:
+            raise ValueError(
+                "surface compiler export must preserve the full released v36b binding set"
+            )
+
+    if variant_manifest.reference_surface_family != domain_packet.reference_surface_family:
+        raise ValueError("variant manifest mismatch for reference_surface_family")
+    if variant_manifest.reference_instance_id != domain_packet.reference_instance_id:
+        raise ValueError("variant manifest mismatch for reference_instance_id")
+    expected_export_refs = [
+        canonical_export.export_artifact_ref,
+        alternate_export.export_artifact_ref,
+    ]
+    if variant_manifest.export_artifact_refs != expected_export_refs:
+        raise ValueError("variant manifest export_artifact_refs mismatch")
+
+    manifest_profiles = {
+        profile.approved_profile_id: profile for profile in variant_manifest.profile_variants
+    }
+    canonical_profile_manifest = manifest_profiles[V36A_CANONICAL_REFERENCE_PROFILE_ID]
+    alternate_manifest_profile = manifest_profiles[V36A_ALTERNATE_LAWFUL_PROFILE_ID]
+    if canonical_profile_manifest.export_artifact_ref != canonical_export.export_artifact_ref:
+        raise ValueError("canonical profile manifest ref must point to canonical export artifact")
+    if alternate_manifest_profile.export_artifact_ref != alternate_export.export_artifact_ref:
+        raise ValueError("alternate profile manifest ref must point to alternate export artifact")
+    if canonical_profile_manifest.conformance_gating_result_by_profile != "pass":
+        raise ValueError("canonical profile manifest result must be pass")
+    if alternate_manifest_profile.conformance_gating_result_by_profile != "pass":
+        raise ValueError("alternate profile manifest result must be pass")
+    if canonical_profile_manifest.conformance_gating_ref != canonical_export.conformance_gating_ref:
+        raise ValueError("canonical profile manifest gating ref mismatch")
+    if alternate_manifest_profile.conformance_gating_ref != alternate_export.conformance_gating_ref:
+        raise ValueError("alternate profile manifest gating ref mismatch")
+
+    expected_derivation_refs = {
+        canonical_export.export_artifact_ref: sorted(
+            [
+                canonical_export.conformance_gating_ref,
+                canonical_export.export_artifact_ref,
+            ]
+        ),
+        alternate_export.export_artifact_ref: sorted(
+            [
+                alternate_export.conformance_gating_ref,
+                alternate_export.export_artifact_ref,
+            ]
+        ),
+    }
+    expected_source_artifact_refs = {
+        canonical_export.export_artifact_ref: [
+            ref.artifact_ref for ref in canonical_export.source_artifact_refs
+        ],
+        alternate_export.export_artifact_ref: [
+            ref.artifact_ref for ref in alternate_export.source_artifact_refs
+        ],
+    }
+    for profile in variant_manifest.profile_variants:
+        if profile.derivation_refs != expected_derivation_refs[profile.export_artifact_ref]:
+            raise ValueError("variant manifest derivation refs must remain deterministic")
+        profile_source_refs = [item.artifact_ref for item in profile.source_artifact_hashes]
+        expected_profile_source_refs = sorted(
+            expected_source_artifact_refs[profile.export_artifact_ref]
+        )
+        if profile_source_refs != expected_profile_source_refs:
+            raise ValueError(
+                "variant manifest source_artifact_hashes must match the export source artifact refs"
+            )

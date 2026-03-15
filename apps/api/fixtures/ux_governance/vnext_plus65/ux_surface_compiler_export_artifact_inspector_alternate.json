@@ -1,0 +1,344 @@
+{
+  "approved_profile_id": "artifact_inspector_alternate",
+  "authority_boundary_policy": {
+    "no_free_form_ui_codegen_without_ir": true,
+    "no_visual_authority_inflation": true,
+    "ui_artifacts_may_express_but_may_not_mint_authority": true
+  },
+  "conformance_gating_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_alternate.json#conformance_gating_snapshot",
+  "conformance_gating_snapshot": {
+    "approved_profile_id": "artifact_inspector_alternate",
+    "authority_boundary_policy": {
+      "no_free_form_ui_codegen_without_ir": true,
+      "no_visual_authority_inflation": true,
+      "ui_artifacts_may_express_but_may_not_mint_authority": true
+    },
+    "derivation_metadata": {
+      "aggregation_rule": {
+        "any_error": "fail",
+        "no_error_and_any_warning": "needs_review",
+        "only_advisory_or_no_findings": "pass"
+      },
+      "canonical_artifact_truth_only": true,
+      "diagnostics_schema": "ux_morph_diagnostics@1",
+      "event_streams_and_worker_prose_provenance_only": true,
+      "fresh_route_local_heuristics_introduced": false,
+      "rendered_reference_surface_evidence_schema": "v36c_artifact_inspector_reference_surface_evidence@1",
+      "rendered_surface_assertion_inputs": [
+        "v36c_rendered_reference_surface_binding_manifest@1",
+        "v36c_rendered_reference_surface_contract@1",
+        "v36c_rendered_reference_surface_semantic_snapshot@1"
+      ],
+      "typed_summary_only": true
+    },
+    "failed_rule_families": [],
+    "overall_judgment": "pass",
+    "reference_instance_id": "artifact_inspector_reference_main",
+    "reference_surface_family": "artifact_inspector_advisory_workbench",
+    "schema": "ux_conformance_report@1",
+    "severity_counts": {
+      "advisory": 0,
+      "error": 0,
+      "warning": 0
+    },
+    "supporting_artifacts": {
+      "rendered_reference_surface_binding_manifest_schema": "v36c_rendered_reference_surface_binding_manifest@1",
+      "rendered_reference_surface_contract_schema": "v36c_rendered_reference_surface_contract@1",
+      "rendered_reference_surface_evidence_schema": "v36c_artifact_inspector_reference_surface_evidence@1",
+      "rendered_reference_surface_snapshot_schema": "v36c_rendered_reference_surface_semantic_snapshot@1",
+      "ux_morph_diagnostics_schema": "ux_morph_diagnostics@1"
+    },
+    "supporting_finding_ids": [],
+    "warning_rule_families": []
+  },
+  "derivation_metadata": {
+    "bounded_css_token_map_only": true,
+    "derived_from_canonical_artifacts_only": true,
+    "frozen_v36d_conformance_aggregation_rule_consumed": true,
+    "frozen_v36d_conformance_structure_consumed": true,
+    "implementation_target_domains": [
+      "react_tree",
+      "route_module",
+      "state_store_contract",
+      "component_binding_map",
+      "css_token_map",
+      "test_targets"
+    ],
+    "local_route_heuristics_rejected": true,
+    "side_channel_prompt_inputs_rejected": true
+  },
+  "diagnostics_gating_snapshot": {
+    "approved_profile_id": "artifact_inspector_alternate",
+    "authority_boundary_policy": {
+      "no_free_form_ui_codegen_without_ir": true,
+      "no_visual_authority_inflation": true,
+      "ui_artifacts_may_express_but_may_not_mint_authority": true
+    },
+    "findings": [],
+    "reference_instance_id": "artifact_inspector_reference_main",
+    "reference_surface_family": "artifact_inspector_advisory_workbench",
+    "schema": "ux_morph_diagnostics@1",
+    "seeded_violation_families": [
+      "advisory_authoritative_boundary_visually_collapsed",
+      "competing_primary_actions_in_one_region",
+      "destructive_action_lacks_adequate_confirmation",
+      "failure_mode_lacks_visible_recovery_path",
+      "provisional_data_rendered_with_authoritative_styling",
+      "requested_interaction_profile_conflicts_with_realized_command_grammar",
+      "required_evidence_not_reachable_within_same_bounded_workbench_context",
+      "utility_target_conflicts_with_density_or_information_posture"
+    ],
+    "severity_taxonomy": [
+      "error",
+      "warning",
+      "advisory"
+    ],
+    "supporting_artifacts": {
+      "rendered_reference_surface_binding_manifest_schema": "v36c_rendered_reference_surface_binding_manifest@1",
+      "rendered_reference_surface_contract_schema": "v36c_rendered_reference_surface_contract@1",
+      "rendered_reference_surface_evidence_schema": "v36c_artifact_inspector_reference_surface_evidence@1",
+      "rendered_reference_surface_snapshot_schema": "v36c_rendered_reference_surface_semantic_snapshot@1",
+      "ux_domain_packet_schema": "ux_domain_packet@1",
+      "ux_interaction_contract_schema": "ux_interaction_contract@1",
+      "ux_morph_ir_schema": "ux_morph_ir@1",
+      "ux_surface_projection_schema": "ux_surface_projection@1"
+    }
+  },
+  "export_artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_alternate.json",
+  "exported_implementation_binding_map": [
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:component_binding_map",
+      "map_id": "v36e.bindmap:artifact_inspector_reference_main:artifact_inspector_alternate:required_evidence_reachability_anchor:artifact_inspector_reference_main:evidence-lane",
+      "source_binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:required_evidence_reachability_anchor:artifact_inspector_reference_main:evidence-lane"
+      ],
+      "target_kind": "required_evidence_reachability_anchor",
+      "target_ref": "artifact_inspector_reference_main:evidence-lane"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:component_binding_map",
+      "map_id": "v36e.bindmap:artifact_inspector_reference_main:artifact_inspector_alternate:warning_surface:artifact_inspector_reference_main:warning-status-surface",
+      "source_binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:warning_surface:artifact_inspector_reference_main:warning-status-surface"
+      ],
+      "target_kind": "warning_surface",
+      "target_ref": "artifact_inspector_reference_main:warning-status-surface"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:component_binding_map",
+      "map_id": "v36e.bindmap:artifact_inspector_reference_main:artifact_inspector_alternate:status_surface:artifact_inspector_reference_main:authoritative-status-surface",
+      "source_binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:status_surface:artifact_inspector_reference_main:authoritative-status-surface"
+      ],
+      "target_kind": "status_surface",
+      "target_ref": "artifact_inspector_reference_main:authoritative-status-surface"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:component_binding_map",
+      "map_id": "v36e.bindmap:artifact_inspector_reference_main:artifact_inspector_alternate:diagnostic_surface:artifact_inspector_reference_main:diagnostic-status-surface",
+      "source_binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:diagnostic_surface:artifact_inspector_reference_main:diagnostic-status-surface"
+      ],
+      "target_kind": "diagnostic_surface",
+      "target_ref": "artifact_inspector_reference_main:diagnostic-status-surface"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:route_module",
+      "map_id": "v36e.bindmap:artifact_inspector_reference_main:artifact_inspector_alternate:advisory_action:artifact_inspector_reference_main:run-advisory-action",
+      "source_binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:advisory_action:artifact_inspector_reference_main:run-advisory-action"
+      ],
+      "target_kind": "advisory_action",
+      "target_ref": "artifact_inspector_reference_main:run-advisory-action"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:route_module",
+      "map_id": "v36e.bindmap:artifact_inspector_reference_main:artifact_inspector_alternate:authoritative_action:artifact_inspector_reference_main:open-commit-review",
+      "source_binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:authoritative_action:artifact_inspector_reference_main:open-commit-review"
+      ],
+      "target_kind": "authoritative_action",
+      "target_ref": "artifact_inspector_reference_main:open-commit-review"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:route_module",
+      "map_id": "v36e.bindmap:artifact_inspector_reference_main:artifact_inspector_alternate:commit_or_approval_gate:artifact_inspector_reference_main:submit-commit-request",
+      "source_binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:commit_or_approval_gate:artifact_inspector_reference_main:submit-commit-request"
+      ],
+      "target_kind": "commit_or_approval_gate",
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:component_binding_map",
+      "map_id": "v36e.bindmap:artifact_inspector_reference_main:artifact_inspector_alternate:disabled_or_unavailable_gated_state:artifact_inspector_reference_main:submit-commit-request-disabled",
+      "source_binding_ids": [
+        "v36b.bind:artifact_inspector_reference_main:disabled_or_unavailable_gated_state:artifact_inspector_reference_main:submit-commit-request-disabled"
+      ],
+      "target_kind": "disabled_or_unavailable_gated_state",
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request-disabled"
+    }
+  ],
+  "exported_provenance_hook_map": [
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:react_tree",
+      "map_id": "v36e.provmap:artifact_inspector_reference_main:artifact_inspector_alternate:projection_unit:artifact_inspector_reference_main:artifact-inspector-surface-root",
+      "source_hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:projection_unit:artifact_inspector_reference_main:artifact-inspector-surface-root"
+      ],
+      "target_kind": "projection_unit",
+      "target_ref": "artifact_inspector_reference_main:artifact-inspector-surface-root"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:react_tree",
+      "map_id": "v36e.provmap:artifact_inspector_reference_main:artifact_inspector_alternate:evidence_bearing_region:artifact_inspector_reference_main:evidence-region",
+      "source_hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:evidence_bearing_region:artifact_inspector_reference_main:evidence-region"
+      ],
+      "target_kind": "evidence_bearing_region",
+      "target_ref": "artifact_inspector_reference_main:evidence-region"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:react_tree",
+      "map_id": "v36e.provmap:artifact_inspector_reference_main:artifact_inspector_alternate:state_distinction_surface:artifact_inspector_reference_main:provisional-status-surface",
+      "source_hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:state_distinction_surface:artifact_inspector_reference_main:provisional-status-surface"
+      ],
+      "target_kind": "state_distinction_surface",
+      "target_ref": "artifact_inspector_reference_main:provisional-status-surface"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:route_module",
+      "map_id": "v36e.provmap:artifact_inspector_reference_main:artifact_inspector_alternate:action_cluster:artifact_inspector_reference_main:commit-actions",
+      "source_hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:action_cluster:artifact_inspector_reference_main:commit-actions"
+      ],
+      "target_kind": "action_cluster",
+      "target_ref": "artifact_inspector_reference_main:commit-actions"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:route_module",
+      "map_id": "v36e.provmap:artifact_inspector_reference_main:artifact_inspector_alternate:authority_bearing_control:artifact_inspector_reference_main:submit-commit-request",
+      "source_hook_ids": [
+        "v36b.prov:artifact_inspector_reference_main:authority_bearing_control:artifact_inspector_reference_main:submit-commit-request"
+      ],
+      "target_kind": "authority_bearing_control",
+      "target_ref": "artifact_inspector_reference_main:submit-commit-request"
+    }
+  ],
+  "implementation_target_payloads": [
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:react_tree",
+      "payload_kind": "react_tree_outline@1",
+      "payload_lines": [
+        "profile=artifact_inspector_alternate",
+        "surface_root=artifact-inspector-surface-root",
+        "salience=action_and_diagnostics_prominent"
+      ],
+      "target_domain": "react_tree"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:route_module",
+      "payload_kind": "route_module_outline@1",
+      "payload_lines": [
+        "profile=artifact_inspector_alternate",
+        "route_id=artifact_inspector_reference_surface",
+        "route_note=guided_alternate_profile"
+      ],
+      "target_domain": "route_module"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:state_store_contract",
+      "payload_kind": "state_store_contract@1",
+      "payload_lines": [
+        "commit_gate=explicit",
+        "profile=artifact_inspector_alternate",
+        "truth_source=accepted_v36_artifacts_only"
+      ],
+      "target_domain": "state_store_contract"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:component_binding_map",
+      "payload_kind": "component_binding_map@1",
+      "payload_lines": [
+        "binding_scope=artifact_inspector_reference_surface",
+        "commit_boundary=commit-boundary",
+        "profile=artifact_inspector_alternate"
+      ],
+      "target_domain": "component_binding_map"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:css_token_map",
+      "payload_kind": "css_token_map@1",
+      "payload_lines": [
+        "family_scope=artifact_inspector_only",
+        "profile=artifact_inspector_alternate",
+        "salience_mode=action_and_diagnostics_prominent"
+      ],
+      "target_domain": "css_token_map"
+    },
+    {
+      "export_ref": "artifact_inspector_reference_main:artifact_inspector_alternate:test_targets",
+      "payload_kind": "test_target_list@1",
+      "payload_lines": [
+        "check=artifact_inspector_reference_surface",
+        "profile=artifact_inspector_alternate",
+        "verification=bindings_and_truth_labels"
+      ],
+      "target_domain": "test_targets"
+    }
+  ],
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "schema": "ux_surface_compiler_export@1",
+  "source_artifact_refs": [
+    {
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json",
+      "artifact_role": "approved_profile_table_ref"
+    },
+    {
+      "artifact_ref": "artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_binding_manifest_v63.json",
+      "artifact_role": "rendered_reference_surface_binding_manifest_ref"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus63/v36c_rendered_reference_surface_contract.json",
+      "artifact_role": "rendered_reference_surface_contract_ref"
+    },
+    {
+      "artifact_ref": "artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_snapshot_v63.json",
+      "artifact_role": "rendered_reference_surface_snapshot_ref"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_same_context_reachability_glossary.json",
+      "artifact_role": "same_context_glossary_ref"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_conformance_report_artifact_inspector_alternate.json",
+      "artifact_role": "ux_conformance_report_ref"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_domain_packet_artifact_inspector_reference.json",
+      "artifact_role": "ux_domain_packet_ref"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_interaction_contract_artifact_inspector_reference.json",
+      "artifact_role": "ux_interaction_contract_ref"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_morph_diagnostics_artifact_inspector_alternate.json",
+      "artifact_role": "ux_morph_diagnostics_ref"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_morph_ir_artifact_inspector_reference.json",
+      "artifact_role": "ux_morph_ir_ref"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_surface_projection_artifact_inspector_reference.json",
+      "artifact_role": "ux_surface_projection_ref"
+    },
+    {
+      "artifact_ref": "artifacts/agent_harness/v64/evidence_inputs/v36d_morph_diagnostics_conformance_evidence_v64.json",
+      "artifact_role": "v36d_morph_diagnostics_conformance_evidence_ref"
+    }
+  ]
+}
