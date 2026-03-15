@@ -14,17 +14,131 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Detect Python lane scope
+        id: python_scope
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            git fetch --no-tags --prune --depth=200 origin "+refs/heads/${GITHUB_BASE_REF}:refs/remotes/origin/${GITHUB_BASE_REF}"
+            BASE_REF="origin/${GITHUB_BASE_REF}"
+            RANGE_SPEC="$(git merge-base "${BASE_REF}" HEAD)..HEAD"
+          else
+            BEFORE_SHA="${GITHUB_EVENT_BEFORE}"
+            if [[ -n "${BEFORE_SHA}" && "${BEFORE_SHA}" != "0000000000000000000000000000000000000000" ]]; then
+              RANGE_SPEC="${BEFORE_SHA}..HEAD"
+            elif git rev-parse HEAD^ >/dev/null 2>&1; then
+              RANGE_SPEC="HEAD^..HEAD"
+            else
+              RANGE_SPEC="HEAD"
+            fi
+          fi
+          python3 - "${RANGE_SPEC}" <<'PY' >> "$GITHUB_OUTPUT"
+          import re
+          import subprocess
+          import sys
+
+          range_spec = sys.argv[1]
+          files = [
+              line
+              for line in subprocess.check_output(
+                  ["git", "diff", "--name-only", "--diff-filter=ACDMRTUXB", range_spec],
+                  text=True,
+              ).splitlines()
+              if line.strip()
+          ]
+
+          print("range_spec<<EOF")
+          print(range_spec)
+          print("EOF")
+          print("changed_files<<EOF")
+          for path in files:
+              print(path)
+          print("EOF")
+
+          scope = "full"
+          arc = ""
+          if files:
+              arc_numbers: set[int] = set()
+              has_artifacts = False
+              start_allowed = True
+              closeout_allowed = True
+              option_pattern = re.compile(r"docs/DRAFT_NEXT_ARC_OPTIONS_v\d+\.md$")
+              arc_doc_patterns = (
+                  re.compile(r"docs/LOCKED_CONTINUATION_vNEXT_PLUS(\d+)\.md$"),
+                  re.compile(r"docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS(\d+)\.md$"),
+                  re.compile(r"docs/ASSESSMENT_vNEXT_PLUS(\d+)_EDGES\.md$"),
+              )
+              closeout_artifact_patterns = (
+                  re.compile(r"artifacts/quality_dashboard_v(\d+)_closeout\.json$"),
+                  re.compile(r"artifacts/stop_gate/metrics_v(\d+)_closeout\.json$"),
+                  re.compile(r"artifacts/stop_gate/report_v(\d+)_closeout\.md$"),
+                  re.compile(r"artifacts/agent_harness/v(\d+)/.+$"),
+              )
+
+              for path in files:
+                  matched = False
+                  if option_pattern.fullmatch(path):
+                      matched = True
+                  else:
+                      for pattern in arc_doc_patterns:
+                          doc_match = pattern.fullmatch(path)
+                          if doc_match is not None:
+                              arc_numbers.add(int(doc_match.group(1)))
+                              matched = True
+                              break
+                      if not matched:
+                          for pattern in closeout_artifact_patterns:
+                              artifact_match = pattern.fullmatch(path)
+                              if artifact_match is not None:
+                                  arc_numbers.add(int(artifact_match.group(1)))
+                                  has_artifacts = True
+                                  matched = True
+                                  break
+
+                  if not matched:
+                      start_allowed = False
+                      closeout_allowed = False
+                      break
+
+                  if path.startswith("artifacts/"):
+                      start_allowed = False
+
+              if len(arc_numbers) == 1:
+                  arc = str(next(iter(arc_numbers)))
+                  if closeout_allowed and has_artifacts:
+                      scope = "arc_closeout"
+                  elif start_allowed and not has_artifacts:
+                      scope = "arc_start"
+
+          print(f"scope={scope}")
+          print(f"arc={arc}")
+          PY
       - name: Bootstrap
         run: make bootstrap
+      - name: Run arc start bundle checks
+        if: steps.python_scope.outputs.scope == 'arc_start'
+        run: make arc-start-check ARC=${{ steps.python_scope.outputs.arc }}
+      - name: Run arc closeout bundle checks
+        if: steps.python_scope.outputs.scope == 'arc_closeout'
+        run: make arc-closeout-check ARC=${{ steps.python_scope.outputs.arc }}
       - name: Lint
+        if: steps.python_scope.outputs.scope == 'full'
         run: make lint
       - name: Test
+        if: steps.python_scope.outputs.scope == 'full'
         run: make test
       - name: Build quality dashboard
+        if: steps.python_scope.outputs.scope == 'full'
         run: .venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
       - name: Run determinism oracles
+        if: steps.python_scope.outputs.scope == 'full'
         run: .venv/bin/python apps/api/scripts/run_determinism_oracles.py --out artifacts/determinism_oracles.json
       - name: Build stop-gate metrics
+        if: steps.python_scope.outputs.scope == 'full'
         run: |
           mkdir -p artifacts/stop_gate
           .venv/bin/stop-gate \
@@ -37,20 +151,24 @@ jobs:
             --out-json artifacts/stop_gate/metrics.json \
             --out-md artifacts/stop_gate/report.md
       - name: Build domain conformance report
+        if: steps.python_scope.outputs.scope == 'full'
         run: |
           mkdir -p artifacts/domain_conformance_events
           .venv/bin/python apps/api/scripts/build_domain_conformance.py \
             --out artifacts/domain_conformance.json \
             --events-dir artifacts/domain_conformance_events
       - name: Build URM events diagnostics
+        if: steps.python_scope.outputs.scope == 'full'
         run: |
           mkdir -p artifacts/urm_events
           .venv/bin/events validate --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --strict
           .venv/bin/events replay --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out artifacts/urm_events/replay.ndjson
           .venv/bin/events summary --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out-json artifacts/urm_events/summary.json --out-md artifacts/urm_events/summary.md
       - name: Verify generated instruction policy docs are up to date
+        if: steps.python_scope.outputs.scope == 'full'
         run: .venv/bin/python apps/api/scripts/generate_instruction_policy_views.py --check
       - name: Lint closeout consistency
+        if: steps.python_scope.outputs.scope == 'full'
         env:
           TZ: UTC
           LC_ALL: C
@@ -59,6 +177,7 @@ jobs:
           PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python \
             apps/api/scripts/lint_closeout_consistency.py
       - name: Lint semantic compiler closeout wiring
+        if: steps.python_scope.outputs.scope == 'full'
         env:
           TZ: UTC
           LC_ALL: C
@@ -67,6 +186,7 @@ jobs:
           PYTHONPATH=apps/api/src:packages/urm_runtime/src .venv/bin/python \
             apps/api/scripts/lint_semantic_compiler_closeout.py
       - name: Detect v35 boundary lint scope
+        if: steps.python_scope.outputs.scope == 'full'
         id: v35_boundary_scope
         env:
           TZ: UTC
@@ -100,31 +220,35 @@ jobs:
             --base-ref origin/main \
             --sentinel-dir apps/api/tests/fixtures/l2_boundary_sentinels
       - name: Upload quality dashboard artifact
+        if: ${{ steps.python_scope.outputs.scope == 'full' && !cancelled() && hashFiles('artifacts/quality_dashboard.json') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: quality-dashboard
           path: artifacts/quality_dashboard.json
           if-no-files-found: error
       - name: Upload determinism oracles artifact
-        if: always()
+        if: ${{ steps.python_scope.outputs.scope == 'full' && !cancelled() && hashFiles('artifacts/determinism_oracles.json') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: determinism-oracles
           path: artifacts/determinism_oracles.json
           if-no-files-found: error
       - name: Upload stop-gate metrics artifact
+        if: ${{ steps.python_scope.outputs.scope == 'full' && !cancelled() && hashFiles('artifacts/stop_gate/**') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: stop-gate-metrics
           path: artifacts/stop_gate
           if-no-files-found: error
       - name: Upload domain conformance artifact
+        if: ${{ steps.python_scope.outputs.scope == 'full' && !cancelled() && hashFiles('artifacts/domain_conformance.json') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: domain-conformance
           path: artifacts/domain_conformance.json
           if-no-files-found: error
       - name: Upload URM events diagnostics artifact
+        if: ${{ steps.python_scope.outputs.scope == 'full' && !cancelled() && hashFiles('artifacts/urm_events/**') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: urm-events-diagnostics

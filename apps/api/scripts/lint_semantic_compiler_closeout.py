@@ -232,6 +232,38 @@ def _collapsed_run_command(raw: str) -> str:
     return re.sub(r"\\\n\s*", " ", normalized)
 
 
+def _normalize_condition_expression(raw: str) -> str:
+    normalized = raw.strip()
+    if normalized.startswith("${{") and normalized.endswith("}}"):
+        normalized = normalized[3:-2].strip()
+    normalized = normalized.replace('"', "'")
+    return re.sub(r"\s+", " ", normalized)
+
+
+def _matches_python_scope_guard(*, raw: str, expected_scope: str) -> bool:
+    return _normalize_condition_expression(raw) == (
+        f"steps.python_scope.outputs.scope == '{expected_scope}'"
+    )
+
+
+def _arc_closeout_bridge_present(*, steps: list[Any]) -> bool:
+    for step in steps:
+        if not isinstance(step, dict):
+            continue
+        run_value = step.get("run")
+        if not isinstance(run_value, str):
+            continue
+        if not re.search(r"(^|[\n;&|])\s*make\s+arc-closeout-check(\s|$)", run_value):
+            continue
+        condition = step.get("if")
+        if isinstance(condition, str) and _matches_python_scope_guard(
+            raw=condition,
+            expected_scope="arc_closeout",
+        ):
+            return True
+    return False
+
+
 def _direct_python_lint_invocation_present(*, run_command: str, lint_entrypoint: str) -> bool:
     collapsed = _collapsed_run_command(run_command)
     pattern = re.compile(
@@ -836,10 +868,18 @@ def _compute_required_check_identity(
             continue
 
         if "if" in matched_step:
-            result.add_failure(
-                code="CI_WIRING_REQUIRED_CHECK_CONDITIONALLY_SKIPPED",
-                details={"lint_entrypoint": lint_entrypoint, "if": matched_step.get("if")},
-            )
+            raw_if = matched_step.get("if")
+            allow_docs_only_bridge = isinstance(raw_if, str) and _matches_python_scope_guard(
+                raw=raw_if,
+                expected_scope="full",
+            ) and _arc_closeout_bridge_present(steps=steps)
+            if allow_docs_only_bridge:
+                raw_if = None
+            if raw_if is not None:
+                result.add_failure(
+                    code="CI_WIRING_REQUIRED_CHECK_CONDITIONALLY_SKIPPED",
+                    details={"lint_entrypoint": lint_entrypoint, "if": matched_step.get("if")},
+                )
 
         run_value = matched_step.get("run")
         if not isinstance(run_value, str):

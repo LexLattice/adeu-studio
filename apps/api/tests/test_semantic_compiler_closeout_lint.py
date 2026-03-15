@@ -105,3 +105,24 @@ def test_semantic_compiler_closeout_lint_fails_when_required_block_missing(tmp_p
     payload = json.loads(completed.stdout)
     failure_codes = {row["code"] for row in payload["failures"]}
     assert "REQUIRED_CLOSEOUT_BLOCK_MISSING" in failure_codes
+
+
+def test_semantic_compiler_closeout_lint_fails_when_full_lane_guard_has_no_closeout_bridge(
+    tmp_path: Path,
+) -> None:
+    repo_root = _make_repo_fixture(tmp_path)
+    workflow_path = repo_root / ".github" / "workflows" / "ci.yml"
+    workflow_text = workflow_path.read_text(encoding="utf-8")
+    workflow_text = workflow_text.replace(
+        "      - name: Run arc closeout bundle checks\n"
+        "        if: steps.python_scope.outputs.scope == 'arc_closeout'\n"
+        "        run: make arc-closeout-check ARC=${{ steps.python_scope.outputs.arc }}\n",
+        "",
+    )
+    workflow_path.write_text(workflow_text, encoding="utf-8")
+
+    completed = _run_lint(repo_root=repo_root)
+    assert completed.returncode == 1
+    payload = json.loads(completed.stdout)
+    failure_codes = {row["code"] for row in payload["failures"]}
+    assert "CI_WIRING_REQUIRED_CHECK_CONDITIONALLY_SKIPPED" in failure_codes

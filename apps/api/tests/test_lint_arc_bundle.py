@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -69,16 +70,58 @@ def _copy_closeout_bundle(*, arc: int, target_root: Path) -> None:
     )
 
 
-def test_current_repo_v65_start_bundle_passes() -> None:
+def _rewrite_closeout_bundle_to_synthetic_start(*, arc: int, target_root: Path) -> None:
+    lock_doc = target_root / f"docs/LOCKED_CONTINUATION_vNEXT_PLUS{arc}.md"
+    decision_doc = target_root / f"docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS{arc}.md"
+    assessment_doc = target_root / f"docs/ASSESSMENT_vNEXT_PLUS{arc}_EDGES.md"
+
+    decision_text = decision_doc.read_text(encoding="utf-8")
+    decision_text = decision_text.replace(
+        '"phase": "post_closeout_decision"',
+        '"phase": "pre_start_scaffold"',
+    )
+    decision_text = decision_text.replace('"all_passed": true', '"all_passed": false')
+    decision_text = decision_text.replace('"authoritative": true', '"authoritative": false')
+    decision_text = decision_text.replace(
+        "## Metric-Key Continuity Assertion",
+        "## Closeout Assertion Placeholder",
+    )
+    decision_doc.write_text(decision_text, encoding="utf-8")
+
+    assessment_text = assessment_doc.read_text(encoding="utf-8")
+    assessment_text = assessment_text.replace(
+        '"phase": "post_closeout_assessment"',
+        '"phase": "pre_lock_assessment"',
+    )
+    assessment_text = assessment_text.replace('"authoritative": true', '"authoritative": false')
+    assessment_doc.write_text(assessment_text, encoding="utf-8")
+
+    lock_text = lock_doc.read_text(encoding="utf-8")
+    target_match = re.search(r'"target_path"\s*:\s*"([^"]+)"', lock_text)
+    if target_match is None:
+        raise AssertionError("failed to resolve target_path from synthetic start lock doc")
+    target_path = target_match.group(1)
+    synthetic_options = target_root / "docs" / "DRAFT_NEXT_ARC_OPTIONS_v999.md"
+    synthetic_options.write_text(
+        "# Synthetic Start Bundle Options\n\n"
+        f"select `{target_path}` as the next default candidate\n",
+        encoding="utf-8",
+    )
+
+
+def test_synthetic_v65_start_bundle_passes(tmp_path: Path) -> None:
+    _copy_start_bundle(arc=65, target_root=tmp_path)
+    _rewrite_closeout_bundle_to_synthetic_start(arc=65, target_root=tmp_path)
+
     module = _load_script_module()
-    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=65, phase="start")
+    payload = module.lint_arc_bundle(repo_root=tmp_path, arc=65, phase="start")
     assert payload["schema"] == "arc_bundle_lint@1"
     assert payload["failures"] == []
 
 
-def test_current_repo_v57_closeout_bundle_passes() -> None:
+def test_current_repo_v65_closeout_bundle_passes() -> None:
     module = _load_script_module()
-    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=57, phase="closeout")
+    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=65, phase="closeout")
     assert payload["schema"] == "arc_bundle_lint@1"
     assert payload["failures"] == []
 
