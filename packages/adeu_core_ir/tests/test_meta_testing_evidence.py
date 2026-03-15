@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 from adeu_core_ir import (
@@ -184,9 +185,8 @@ def test_materialize_v37a_evidence_fails_closed_on_implicit_sequence_law(
     repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
     current_rel = _write_current_stop_gate_metrics_fixture(repo_root_path=repo_root_path)
     module_catalog = _load_json(repo_root_path, DEFAULT_META_MODULE_CATALOG_REFERENCE_PATH)
-    module_catalog["modules"][0]["successor_module_ids"] = [  # type: ignore[index]
-        "checkpoint_02_artifact_consistency_lint"
-    ]
+    modules = cast(list[dict[str, Any]], module_catalog["modules"])
+    modules[0]["successor_module_ids"] = ["checkpoint_02_artifact_consistency_lint"]
     _write_json(repo_root_path / DEFAULT_META_MODULE_CATALOG_REFERENCE_PATH, module_catalog)
 
     with pytest.raises(
@@ -205,7 +205,8 @@ def test_materialize_v37a_evidence_fails_closed_on_metric_key_continuity_drift(
     repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
     current_rel = _write_current_stop_gate_metrics_fixture(repo_root_path=repo_root_path)
     metrics_payload = _load_json(repo_root_path, current_rel)
-    metrics_payload["metrics"].pop(next(iter(metrics_payload["metrics"])))  # type: ignore[index]
+    metrics = cast(dict[str, Any], metrics_payload["metrics"])
+    metrics.pop(next(iter(metrics)))
     _write_json(repo_root_path / current_rel, metrics_payload)
 
     with pytest.raises(
