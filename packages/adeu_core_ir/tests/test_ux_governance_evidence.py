@@ -8,25 +8,32 @@ import pytest
 from adeu_core_ir import (
     DEFAULT_APPROVED_PROFILE_TABLE_PATH,
     DEFAULT_SAME_CONTEXT_GLOSSARY_PATH,
+    DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH,
+    DEFAULT_UX_CONFORMANCE_REPORT_SCHEMA_PATH,
     DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH,
     DEFAULT_UX_DOMAIN_PACKET_SCHEMA_PATH,
     DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH,
     DEFAULT_UX_INTERACTION_CONTRACT_SCHEMA_PATH,
+    DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH,
+    DEFAULT_UX_MORPH_DIAGNOSTICS_SCHEMA_PATH,
     DEFAULT_UX_MORPH_IR_REFERENCE_PATH,
     DEFAULT_UX_MORPH_IR_SCHEMA_PATH,
     DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH,
     DEFAULT_UX_SURFACE_PROJECTION_SCHEMA_PATH,
     DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH,
+    DEFAULT_V36C_REFERENCE_SURFACE_EVIDENCE_PATH,
     DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH,
     DEFAULT_V36C_RENDERED_SURFACE_SNAPSHOT_PATH,
     DEFAULT_V60_BASELINE_METRICS_PATH,
     DEFAULT_V61_BASELINE_METRICS_PATH,
     DEFAULT_V62_BASELINE_METRICS_PATH,
+    DEFAULT_V63_BASELINE_METRICS_PATH,
     build_v36b_stable_binding_id,
     build_v36b_stable_provenance_hook_id,
     materialize_v36a_ux_domain_morph_ir_evidence,
     materialize_v36b_surface_projection_interaction_evidence,
     materialize_v36c_artifact_inspector_reference_surface_evidence,
+    materialize_v36d_morph_diagnostics_conformance_evidence,
 )
 from adeu_core_ir.ux_governance_evidence import UXGovernanceEvidenceError
 from adeu_ir.repo import repo_root
@@ -82,16 +89,21 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         DEFAULT_UX_MORPH_IR_SCHEMA_PATH,
         DEFAULT_UX_SURFACE_PROJECTION_SCHEMA_PATH,
         DEFAULT_UX_INTERACTION_CONTRACT_SCHEMA_PATH,
+        DEFAULT_UX_MORPH_DIAGNOSTICS_SCHEMA_PATH,
+        DEFAULT_UX_CONFORMANCE_REPORT_SCHEMA_PATH,
         DEFAULT_UX_DOMAIN_PACKET_REFERENCE_PATH,
         DEFAULT_UX_MORPH_IR_REFERENCE_PATH,
         DEFAULT_UX_SURFACE_PROJECTION_REFERENCE_PATH,
         DEFAULT_UX_INTERACTION_CONTRACT_REFERENCE_PATH,
+        DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH,
+        DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH,
         DEFAULT_APPROVED_PROFILE_TABLE_PATH,
         DEFAULT_SAME_CONTEXT_GLOSSARY_PATH,
         DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH,
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS60.md",
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS62.md",
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS63.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS64.md",
     ):
         _copy_repo_relative_file(
             source_root=source_root,
@@ -163,6 +175,81 @@ def _materialize_v36c_evidence(*, repo_root: Path) -> dict[str, object]:
             repo_root, DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH
         ),
     }
+
+
+def _materialize_v36d_evidence(*, repo_root: Path) -> dict[str, object]:
+    _materialize_v36c_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    evidence = materialize_v36d_morph_diagnostics_conformance_evidence(
+        repo_root=repo_root,
+        output_path=(
+            "artifacts/agent_harness/v64/evidence_inputs/"
+            "v36d_morph_diagnostics_conformance_evidence_v64.json"
+        ),
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _inject_v36d_finding_fixture(
+    repo_root: Path,
+    *,
+    finding_id: str = "finding-001",
+    violation_family: str = "destructive_action_lacks_adequate_confirmation",
+    severity: str = "error",
+) -> None:
+    binding_manifest = _load_json(repo_root, DEFAULT_V36C_IMPLEMENTATION_BINDING_MANIFEST_PATH)
+    target_ref = binding_manifest["target_manifest"][0]["target_ref"]  # type: ignore[index]
+    rendered_input = "v36c_rendered_reference_surface_contract@1"
+    conformance_impact = {
+        "error": "blocks_pass",
+        "warning": "needs_review",
+        "advisory": "advisory_only",
+    }[severity]
+
+    diagnostics = _load_json(repo_root, DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH)
+    diagnostics["findings"] = [  # type: ignore[index]
+        {
+            "finding_id": finding_id,
+            "violation_family": violation_family,
+            "severity": severity,
+            "provenance_pointers": [
+                {
+                    "source_schema": rendered_input,
+                    "source_path": DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH,
+                    "target_ref": target_ref,
+                }
+            ],
+            "rendered_surface_assertion_inputs_used": [rendered_input],
+            "supporting_evidence_refs": [DEFAULT_V36C_REFERENCE_SURFACE_EVIDENCE_PATH],
+            "conformance_impact": conformance_impact,
+        }
+    ]
+    _write_json(repo_root / DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH, diagnostics)
+
+    conformance = _load_json(repo_root, DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH)
+    conformance["supporting_finding_ids"] = [finding_id]  # type: ignore[index]
+    conformance["severity_counts"] = {  # type: ignore[index]
+        "error": 1 if severity == "error" else 0,
+        "warning": 1 if severity == "warning" else 0,
+        "advisory": 1 if severity == "advisory" else 0,
+    }
+    conformance["overall_judgment"] = {
+        "error": "fail",
+        "warning": "needs_review",
+        "advisory": "pass",
+    }[severity]
+    conformance["failed_rule_families"] = [violation_family] if severity == "error" else []  # type: ignore[index]
+    conformance["warning_rule_families"] = [violation_family] if severity == "warning" else []  # type: ignore[index]
+    _write_json(repo_root / DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH, conformance)
 
 
 def test_materialize_v36a_ux_domain_morph_ir_evidence_is_deterministic(tmp_path: Path) -> None:
@@ -1061,6 +1148,291 @@ def test_materialize_v36c_evidence_fails_closed_on_non_v62_baseline_metrics_path
             output_path=(
                 "artifacts/agent_harness/v63/evidence_inputs/"
                 "v36c_artifact_inspector_reference_surface_evidence_v63.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36d_morph_diagnostics_conformance_evidence_is_deterministic(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+
+    first = _materialize_v36d_evidence(repo_root=repo_root)
+    second = _materialize_v36d_evidence(repo_root=repo_root)
+
+    assert first["artifact"].hash == second["artifact"].hash
+    assert first["payload"] == second["payload"]
+    assert first["payload"]["schema"] == "v36d_morph_diagnostics_conformance_evidence@1"
+
+
+def test_materialize_v36d_evidence_accepts_anchored_canonical_refs(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    _inject_v36d_finding_fixture(repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    diagnostics = _load_json(repo_root, DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH)
+    diagnostics["findings"][0]["provenance_pointers"][0]["source_path"] = (  # type: ignore[index]
+        f"{DEFAULT_V36C_RENDERED_REFERENCE_SURFACE_CONTRACT_PATH}#lane-comparison"
+    )
+    diagnostics["findings"][0]["supporting_evidence_refs"] = [  # type: ignore[index]
+        f"{DEFAULT_V36C_REFERENCE_SURFACE_EVIDENCE_PATH}#finding-001"
+    ]
+    _write_json(repo_root / DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH, diagnostics)
+
+    evidence = materialize_v36d_morph_diagnostics_conformance_evidence(
+        repo_root=repo_root,
+        output_path=(
+            "artifacts/agent_harness/v64/evidence_inputs/"
+            "v36d_morph_diagnostics_conformance_evidence_v64.json"
+        ),
+        baseline_metrics_path=baseline_rel,
+        current_metrics_path=current_rel,
+    )
+
+    assert evidence.payload["diagnostics_provenance_pointer_resolution_verified"] is True
+    assert evidence.payload["diagnostic_truth_substitution_rejected"] is True
+
+
+def test_materialize_v36d_evidence_fails_closed_on_missing_diagnostics_reference(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    (repo_root / DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH).unlink()
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="ux_morph_diagnostics_reference_path does not exist",
+    ):
+        materialize_v36d_morph_diagnostics_conformance_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v64/evidence_inputs/"
+                "v36d_morph_diagnostics_conformance_evidence_v64.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36d_evidence_fails_closed_on_reference_binding_mismatch(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH)
+    payload["approved_profile_id"] = "artifact_inspector_alternate"
+    _write_json(repo_root / DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="conformance report mismatch for approved_profile_id",
+    ):
+        materialize_v36d_morph_diagnostics_conformance_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v64/evidence_inputs/"
+                "v36d_morph_diagnostics_conformance_evidence_v64.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36d_evidence_fails_closed_on_seeded_violation_family_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH)
+    payload["seeded_violation_families"] = payload["seeded_violation_families"][:-1]  # type: ignore[index]
+    _write_json(repo_root / DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="seeded violation family coverage drift detected",
+    ):
+        materialize_v36d_morph_diagnostics_conformance_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v64/evidence_inputs/"
+                "v36d_morph_diagnostics_conformance_evidence_v64.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36d_evidence_fails_closed_on_provenance_resolution_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    _inject_v36d_finding_fixture(repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH)
+    payload["findings"][0]["provenance_pointers"][0]["source_path"] = (  # type: ignore[index]
+        DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH
+    )
+    _write_json(repo_root / DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="diagnostics provenance pointers must resolve to the consumed canonical artifacts",
+    ):
+        materialize_v36d_morph_diagnostics_conformance_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v64/evidence_inputs/"
+                "v36d_morph_diagnostics_conformance_evidence_v64.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36d_evidence_fails_closed_on_diagnostic_truth_substitution(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    _inject_v36d_finding_fixture(repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH)
+    payload["findings"][0]["supporting_evidence_refs"] = [  # type: ignore[index]
+        "artifacts/agent_harness/v63/runtime/evidence/codex/copilot/v63-closeout-main-1/urm_events.ndjson"
+    ]
+    _write_json(repo_root / DEFAULT_UX_MORPH_DIAGNOSTICS_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="diagnostic truth substitution detected",
+    ):
+        materialize_v36d_morph_diagnostics_conformance_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v64/evidence_inputs/"
+                "v36d_morph_diagnostics_conformance_evidence_v64.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36d_evidence_fails_closed_on_fresh_route_heuristics_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH)
+    payload["derivation_metadata"]["fresh_route_local_heuristics_introduced"] = True  # type: ignore[index]
+    _write_json(repo_root / DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="rendered surface assertion bridge introduced fresh route-local heuristics",
+    ):
+        materialize_v36d_morph_diagnostics_conformance_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v64/evidence_inputs/"
+                "v36d_morph_diagnostics_conformance_evidence_v64.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36d_evidence_fails_closed_on_conformance_aggregation_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    _inject_v36d_finding_fixture(
+        repo_root,
+        violation_family="competing_primary_actions_in_one_region",
+        severity="warning",
+    )
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel=DEFAULT_V63_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+    payload = _load_json(repo_root, DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH)
+    payload["overall_judgment"] = "pass"
+    _write_json(repo_root / DEFAULT_UX_CONFORMANCE_REPORT_REFERENCE_PATH, payload)
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="conformance report overall judgment must follow the frozen aggregation rule",
+    ):
+        materialize_v36d_morph_diagnostics_conformance_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v64/evidence_inputs/"
+                "v36d_morph_diagnostics_conformance_evidence_v64.json"
+            ),
+            baseline_metrics_path=baseline_rel,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v36d_evidence_fails_closed_on_non_v63_baseline_metrics_path(
+    tmp_path: Path,
+) -> None:
+    repo_root = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v36c_evidence(repo_root=repo_root)
+    baseline_rel, current_rel = _write_stop_gate_metrics_fixture(
+        repo_root=repo_root,
+        baseline_rel="artifacts/stop_gate/metrics_other_closeout.json",
+        current_rel="artifacts/stop_gate/metrics_v64_closeout.json",
+    )
+
+    with pytest.raises(
+        UXGovernanceEvidenceError,
+        match="baseline_metrics_path must point to the frozen v63 closeout metrics artifact",
+    ):
+        materialize_v36d_morph_diagnostics_conformance_evidence(
+            repo_root=repo_root,
+            output_path=(
+                "artifacts/agent_harness/v64/evidence_inputs/"
+                "v36d_morph_diagnostics_conformance_evidence_v64.json"
             ),
             baseline_metrics_path=baseline_rel,
             current_metrics_path=current_rel,
