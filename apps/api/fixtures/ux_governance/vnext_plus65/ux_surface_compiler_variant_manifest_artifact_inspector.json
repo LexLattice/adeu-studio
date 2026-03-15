@@ -1,0 +1,149 @@
+{
+  "alternate_profile_designation": "artifact_inspector_alternate",
+  "canonical_profile_designation": "artifact_inspector_reference",
+  "export_artifact_refs": [
+    "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_reference.json",
+    "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_alternate.json"
+  ],
+  "profile_variants": [
+    {
+      "approved_profile_id": "artifact_inspector_reference",
+      "conformance_gating_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_reference.json#conformance_gating_snapshot",
+      "conformance_gating_result_by_profile": "pass",
+      "derivation_refs": [
+        "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_reference.json",
+        "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_reference.json#conformance_gating_snapshot"
+      ],
+      "export_artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_reference.json",
+      "source_artifact_hashes": [
+        {
+          "artifact_hash": "43b84c9a8c0c21c20e5bf6a4cf30b5ff3c30931fe0c80836d5fa8c16c734c7c5",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_domain_packet_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "75f16d7b61dbe53ac6b3bdc8955627464a4c872b5c52e8c740bdc5a2f28bc5c7",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_morph_ir_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "346d697a8bcff710ee75e7cc0cf2ee2acd01ae7bc2741254edc489115ad32be5",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json"
+        },
+        {
+          "artifact_hash": "aec556f390ba3a2c4829618c6da6d862c28bd0de56ba13b32c75a138e268ad7e",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_same_context_reachability_glossary.json"
+        },
+        {
+          "artifact_hash": "fade45e977d7d0fbc35610f46ed162598f20b8e8ffe3441332891cad1fd88363",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_interaction_contract_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "3c8956ffc7fa9f3a70fcc5acbccec14455628286ecf50a59401b166996591cd9",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_surface_projection_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "667eeed9b2e75a8c2d99cf002a66523f37ffa4aba53aca8947e323c31ffd7e61",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus63/v36c_rendered_reference_surface_contract.json"
+        },
+        {
+          "artifact_hash": "cbf74b856ba47fde8a8b2ac8875274eadeb6608798848e56b956d1324df56454",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus64/ux_conformance_report_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "07ec27a917b8d3d3ea897550ccb334fcfd516bdf639c0a83448cbf633061cff8",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus64/ux_morph_diagnostics_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "219aebf0f109e53a501218cd484355c6538ae3659c58b0a53c0c6f4722b6740f",
+          "artifact_ref": "artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_binding_manifest_v63.json"
+        },
+        {
+          "artifact_hash": "700c453174e25334b05f6fa3e0538daaddf4c171dda9aca59ccb837057b4c294",
+          "artifact_ref": "artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_snapshot_v63.json"
+        },
+        {
+          "artifact_hash": "0ddc8d7c334315621130091f1340530d04fa3191cd2484f4a5bfccf4a7802656",
+          "artifact_ref": "artifacts/agent_harness/v64/evidence_inputs/v36d_morph_diagnostics_conformance_evidence_v64.json"
+        }
+      ],
+      "target_domain_coverage_by_profile": [
+        "react_tree",
+        "route_module",
+        "state_store_contract",
+        "component_binding_map",
+        "css_token_map",
+        "test_targets"
+      ]
+    },
+    {
+      "approved_profile_id": "artifact_inspector_alternate",
+      "conformance_gating_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_alternate.json#conformance_gating_snapshot",
+      "conformance_gating_result_by_profile": "pass",
+      "derivation_refs": [
+        "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_alternate.json",
+        "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_alternate.json#conformance_gating_snapshot"
+      ],
+      "export_artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_surface_compiler_export_artifact_inspector_alternate.json",
+      "source_artifact_hashes": [
+        {
+          "artifact_hash": "43b84c9a8c0c21c20e5bf6a4cf30b5ff3c30931fe0c80836d5fa8c16c734c7c5",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_domain_packet_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "75f16d7b61dbe53ac6b3bdc8955627464a4c872b5c52e8c740bdc5a2f28bc5c7",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/ux_morph_ir_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "346d697a8bcff710ee75e7cc0cf2ee2acd01ae7bc2741254edc489115ad32be5",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json"
+        },
+        {
+          "artifact_hash": "aec556f390ba3a2c4829618c6da6d862c28bd0de56ba13b32c75a138e268ad7e",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus61/v36a_same_context_reachability_glossary.json"
+        },
+        {
+          "artifact_hash": "fade45e977d7d0fbc35610f46ed162598f20b8e8ffe3441332891cad1fd88363",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_interaction_contract_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "3c8956ffc7fa9f3a70fcc5acbccec14455628286ecf50a59401b166996591cd9",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus62/ux_surface_projection_artifact_inspector_reference.json"
+        },
+        {
+          "artifact_hash": "667eeed9b2e75a8c2d99cf002a66523f37ffa4aba53aca8947e323c31ffd7e61",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus63/v36c_rendered_reference_surface_contract.json"
+        },
+        {
+          "artifact_hash": "9db8f56b2ce87696d1aae9840f2330dd903d0443b2b88f193b7a4c3307eb787d",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_conformance_report_artifact_inspector_alternate.json"
+        },
+        {
+          "artifact_hash": "c670f8333306a8509b151bfebeaa605caf8f9d64bd64a915b9019dacb64cf97a",
+          "artifact_ref": "apps/api/fixtures/ux_governance/vnext_plus65/ux_morph_diagnostics_artifact_inspector_alternate.json"
+        },
+        {
+          "artifact_hash": "219aebf0f109e53a501218cd484355c6538ae3659c58b0a53c0c6f4722b6740f",
+          "artifact_ref": "artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_binding_manifest_v63.json"
+        },
+        {
+          "artifact_hash": "700c453174e25334b05f6fa3e0538daaddf4c171dda9aca59ccb837057b4c294",
+          "artifact_ref": "artifacts/agent_harness/v63/evidence_inputs/v36c_artifact_inspector_reference_surface_snapshot_v63.json"
+        },
+        {
+          "artifact_hash": "0ddc8d7c334315621130091f1340530d04fa3191cd2484f4a5bfccf4a7802656",
+          "artifact_ref": "artifacts/agent_harness/v64/evidence_inputs/v36d_morph_diagnostics_conformance_evidence_v64.json"
+        }
+      ],
+      "target_domain_coverage_by_profile": [
+        "react_tree",
+        "route_module",
+        "state_store_contract",
+        "component_binding_map",
+        "css_token_map",
+        "test_targets"
+      ]
+    }
+  ],
+  "reference_instance_id": "artifact_inspector_reference_main",
+  "reference_surface_family": "artifact_inspector_advisory_workbench",
+  "schema": "ux_surface_compiler_variant_manifest@1"
+}

@@ -1,0 +1,152 @@
+{
+  "$defs": {
+    "UXSurfaceCompilerSourceArtifactHash": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Hash",
+          "type": "string"
+        },
+        "artifact_ref": {
+          "minLength": 1,
+          "title": "Artifact Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "artifact_hash"
+      ],
+      "title": "UXSurfaceCompilerSourceArtifactHash",
+      "type": "object"
+    },
+    "UXSurfaceCompilerVariantProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "approved_profile_id": {
+          "enum": [
+            "artifact_inspector_alternate",
+            "artifact_inspector_reference"
+          ],
+          "title": "Approved Profile Id",
+          "type": "string"
+        },
+        "conformance_gating_ref": {
+          "minLength": 1,
+          "title": "Conformance Gating Ref",
+          "type": "string"
+        },
+        "conformance_gating_result_by_profile": {
+          "enum": [
+            "pass",
+            "fail",
+            "needs_review"
+          ],
+          "title": "Conformance Gating Result By Profile",
+          "type": "string"
+        },
+        "derivation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Derivation Refs",
+          "type": "array"
+        },
+        "export_artifact_ref": {
+          "minLength": 1,
+          "title": "Export Artifact Ref",
+          "type": "string"
+        },
+        "source_artifact_hashes": {
+          "items": {
+            "$ref": "#/$defs/UXSurfaceCompilerSourceArtifactHash"
+          },
+          "minItems": 1,
+          "title": "Source Artifact Hashes",
+          "type": "array"
+        },
+        "target_domain_coverage_by_profile": {
+          "items": {
+            "enum": [
+              "react_tree",
+              "route_module",
+              "state_store_contract",
+              "component_binding_map",
+              "css_token_map",
+              "test_targets"
+            ],
+            "type": "string"
+          },
+          "title": "Target Domain Coverage By Profile",
+          "type": "array"
+        }
+      },
+      "required": [
+        "approved_profile_id",
+        "export_artifact_ref",
+        "target_domain_coverage_by_profile",
+        "source_artifact_hashes",
+        "derivation_refs",
+        "conformance_gating_ref",
+        "conformance_gating_result_by_profile"
+      ],
+      "title": "UXSurfaceCompilerVariantProfile",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alternate_profile_designation": {
+      "const": "artifact_inspector_alternate",
+      "default": "artifact_inspector_alternate",
+      "title": "Alternate Profile Designation",
+      "type": "string"
+    },
+    "canonical_profile_designation": {
+      "const": "artifact_inspector_reference",
+      "default": "artifact_inspector_reference",
+      "title": "Canonical Profile Designation",
+      "type": "string"
+    },
+    "export_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Export Artifact Refs",
+      "type": "array"
+    },
+    "profile_variants": {
+      "items": {
+        "$ref": "#/$defs/UXSurfaceCompilerVariantProfile"
+      },
+      "title": "Profile Variants",
+      "type": "array"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_surface_family": {
+      "const": "artifact_inspector_advisory_workbench",
+      "default": "artifact_inspector_advisory_workbench",
+      "title": "Reference Surface Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "ux_surface_compiler_variant_manifest@1",
+      "default": "ux_surface_compiler_variant_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "export_artifact_refs",
+    "profile_variants"
+  ],
+  "title": "UXSurfaceCompilerVariantManifest",
+  "type": "object"
+}

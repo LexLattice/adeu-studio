@@ -10,6 +10,8 @@ from adeu_core_ir import (
     UX_INTERACTION_CONTRACT_SCHEMA,
     UX_MORPH_DIAGNOSTICS_SCHEMA,
     UX_MORPH_IR_SCHEMA,
+    UX_SURFACE_COMPILER_EXPORT_SCHEMA,
+    UX_SURFACE_COMPILER_VARIANT_MANIFEST_SCHEMA,
     UX_SURFACE_PROJECTION_SCHEMA,
     V36A_APPROVED_PROFILE_TABLE_SCHEMA,
     V36A_SAME_CONTEXT_GLOSSARY_SCHEMA,
@@ -46,6 +48,18 @@ def _schema_paths() -> list[tuple[Path, Path]]:
         (
             root / "packages" / "adeu_core_ir" / "schema" / "ux_conformance_report.v1.json",
             root / "spec" / "ux_conformance_report.schema.json",
+        ),
+        (
+            root / "packages" / "adeu_core_ir" / "schema" / "ux_surface_compiler_export.v1.json",
+            root / "spec" / "ux_surface_compiler_export.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "ux_surface_compiler_variant_manifest.v1.json",
+            root / "spec" / "ux_surface_compiler_variant_manifest.schema.json",
         ),
         (
             root
@@ -100,6 +114,8 @@ def test_exported_schema_files_have_stable_contract_markers() -> None:
         "ux_interaction_contract.v1.json": UX_INTERACTION_CONTRACT_SCHEMA,
         "ux_morph_diagnostics.v1.json": UX_MORPH_DIAGNOSTICS_SCHEMA,
         "ux_conformance_report.v1.json": UX_CONFORMANCE_REPORT_SCHEMA,
+        "ux_surface_compiler_export.v1.json": UX_SURFACE_COMPILER_EXPORT_SCHEMA,
+        "ux_surface_compiler_variant_manifest.v1.json": UX_SURFACE_COMPILER_VARIANT_MANIFEST_SCHEMA,
         "v36a_first_family_approved_profile_table.v1.json": V36A_APPROVED_PROFILE_TABLE_SCHEMA,
         "v36a_same_context_reachability_glossary.v1.json": V36A_SAME_CONTEXT_GLOSSARY_SCHEMA,
     }
