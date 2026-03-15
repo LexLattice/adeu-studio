@@ -197,6 +197,42 @@ def test_v36e_export_rejects_non_pass_conformance_gate() -> None:
         UXSurfaceCompilerExport.model_validate(broken_payload)
 
 
+def test_v36e_export_rejects_malformed_export_ref() -> None:
+    (
+        _alternate_diagnostics_payload,
+        _alternate_conformance_payload,
+        _canonical_export_payload,
+        alternate_export_payload,
+        _manifest_payload,
+    ) = _load_v36e_bundle()
+    alternate_export_payload["implementation_target_payloads"][0]["export_ref"] = "bad-ref"  # type: ignore[index]
+
+    with pytest.raises(
+        ValidationError,
+        match="must use reference_instance_id:approved_profile_id:target_domain",
+    ):
+        UXSurfaceCompilerExport.model_validate(alternate_export_payload)
+
+
+def test_v36e_export_rejects_noncanonical_source_artifact_refs() -> None:
+    (
+        _alternate_diagnostics_payload,
+        _alternate_conformance_payload,
+        _canonical_export_payload,
+        alternate_export_payload,
+        _manifest_payload,
+    ) = _load_v36e_bundle()
+    alternate_export_payload["source_artifact_refs"][0]["artifact_ref"] = (  # type: ignore[index]
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md"
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match="must resolve to the frozen v36e canonical source artifact stack",
+    ):
+        UXSurfaceCompilerExport.model_validate(alternate_export_payload)
+
+
 def test_v36e_bundle_rejects_missing_binding_coverage() -> None:
     domain_packet, morph_ir, approved_profile_table, same_context_glossary = _load_v36a_bundle()
     surface_projection, interaction_contract = _load_v36b_pair()
@@ -276,6 +312,54 @@ def test_v36e_bundle_rejects_out_of_table_alternate_profile_drift() -> None:
         ),
     ):
         UXSurfaceCompilerVariantManifest.model_validate(manifest_payload)
+
+
+def test_v36e_bundle_rejects_incorrect_source_artifact_hash() -> None:
+    domain_packet, morph_ir, approved_profile_table, same_context_glossary = _load_v36a_bundle()
+    surface_projection, interaction_contract = _load_v36b_pair()
+    (
+        rendered_surface_contract,
+        rendered_surface_snapshot,
+        rendered_surface_binding_manifest,
+        rendered_reference_surface_evidence,
+    ) = _load_v36c_bundle()
+    diagnostics, conformance_report = _load_v36d_pair()
+    (
+        _alternate_diagnostics_payload,
+        _alternate_conformance_payload,
+        canonical_export_payload,
+        alternate_export_payload,
+        manifest_payload,
+    ) = _load_v36e_bundle()
+    manifest_payload["profile_variants"][0]["source_artifact_hashes"][0]["artifact_hash"] = (  # type: ignore[index]
+        "0" * 64
+    )
+
+    canonical_export = UXSurfaceCompilerExport.model_validate(canonical_export_payload)
+    alternate_export = UXSurfaceCompilerExport.model_validate(alternate_export_payload)
+    variant_manifest = UXSurfaceCompilerVariantManifest.model_validate(manifest_payload)
+
+    with pytest.raises(
+        ValueError,
+        match="must match actual canonical source artifact payload hashes",
+    ):
+        assert_v36e_reference_bundle_consistent(
+            domain_packet=domain_packet,
+            morph_ir=morph_ir,
+            approved_profile_table=approved_profile_table,
+            same_context_glossary=same_context_glossary,
+            surface_projection=surface_projection,
+            interaction_contract=interaction_contract,
+            rendered_surface_contract=rendered_surface_contract,
+            rendered_surface_snapshot=rendered_surface_snapshot,
+            rendered_surface_binding_manifest=rendered_surface_binding_manifest,
+            rendered_reference_surface_evidence=rendered_reference_surface_evidence,
+            diagnostics=diagnostics,
+            conformance_report=conformance_report,
+            canonical_export=canonical_export,
+            alternate_export=alternate_export,
+            variant_manifest=variant_manifest,
+        )
 
 
 def test_v36e_manifest_source_hashes_match_actual_source_artifacts() -> None:

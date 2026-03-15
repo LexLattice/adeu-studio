@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from copy import deepcopy
+from pathlib import Path
 from typing import Any, Literal
 
+from adeu_ir.repo import repo_root
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 UXDomainPacketSchemaVersion = Literal["ux_domain_packet@1"]
@@ -1285,6 +1289,11 @@ FROZEN_V36D_ALLOWED_EVIDENCE_REF_PREFIXES: tuple[str, ...] = (
     "packages/adeu_core_ir/schema/",
     "spec/",
 )
+FROZEN_V36E_ALLOWED_SOURCE_ARTIFACT_REF_PREFIXES: tuple[str, ...] = (
+    "apps/api/fixtures/ux_governance/",
+    "artifacts/agent_harness/v63/evidence_inputs/",
+    "artifacts/agent_harness/v64/evidence_inputs/",
+)
 
 
 def _assert_repo_relative_artifact_ref(ref: str, *, field_name: str) -> None:
@@ -1298,20 +1307,69 @@ def _assert_repo_relative_artifact_ref(ref: str, *, field_name: str) -> None:
         raise ValueError(f"{field_name} contains invalid path components")
 
 
+def _assert_allowed_artifact_ref_prefixes(
+    ref: str,
+    *,
+    field_name: str,
+    allowed_prefixes: tuple[str, ...],
+    error_message: str,
+) -> None:
+    if not any(ref.startswith(prefix) for prefix in allowed_prefixes):
+        raise ValueError(f"{field_name} {error_message}")
+
+
 def _assert_canonical_artifact_ref(ref: str, *, field_name: str) -> None:
     _assert_repo_relative_artifact_ref(ref, field_name=field_name)
     if "urm_events.ndjson" in ref or "worker" in ref:
         raise ValueError(
             f"{field_name} must not treat event streams or worker prose as authoritative grounds"
         )
-    if not any(ref.startswith(prefix) for prefix in FROZEN_V36D_ALLOWED_EVIDENCE_REF_PREFIXES):
-        raise ValueError(f"{field_name} must resolve to the frozen canonical artifact stack")
+    _assert_allowed_artifact_ref_prefixes(
+        ref,
+        field_name=field_name,
+        allowed_prefixes=FROZEN_V36D_ALLOWED_EVIDENCE_REF_PREFIXES,
+        error_message="must resolve to the frozen canonical artifact stack",
+    )
+
+
+def _assert_v36e_source_artifact_ref(ref: str, *, field_name: str) -> None:
+    _assert_repo_relative_artifact_ref(ref, field_name=field_name)
+    if "urm_events.ndjson" in ref or "worker" in ref:
+        raise ValueError(
+            f"{field_name} must not treat event streams or worker prose as compiler truth inputs"
+        )
+    _assert_allowed_artifact_ref_prefixes(
+        ref,
+        field_name=field_name,
+        allowed_prefixes=FROZEN_V36E_ALLOWED_SOURCE_ARTIFACT_REF_PREFIXES,
+        error_message="must resolve to the frozen v36e canonical source artifact stack",
+    )
 
 
 def _assert_canonical_supporting_evidence_refs(refs: list[str], *, field_name: str) -> None:
     _assert_sorted_unique(refs, field_name=field_name)
     for ref in refs:
         _assert_canonical_artifact_ref(ref, field_name=field_name)
+
+
+def _v36e_canonical_json(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+
+
+def _sha256_v36e_canonical_json(value: object) -> str:
+    return hashlib.sha256(_v36e_canonical_json(value).encode("utf-8")).hexdigest()
+
+
+def _load_repo_relative_json_artifact(*, ref: str, field_name: str) -> object:
+    _assert_repo_relative_artifact_ref(ref, field_name=field_name)
+    root = repo_root(anchor=Path(__file__))
+    resolved = root / ref.split("#", 1)[0]
+    if not resolved.is_file():
+        raise ValueError(f"{field_name} must resolve to an existing repo file")
+    try:
+        return json.loads(resolved.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{field_name} must resolve to canonical json content") from exc
 
 
 def _expected_conformance_impact(*, severity: UXDiagnosticSeverity) -> UXConformanceImpact:
@@ -1869,11 +1927,12 @@ def _split_v36e_export_ref(
     export_ref: str,
     field_name: str,
 ) -> tuple[str, UXApprovedProfileId, UXSurfaceCompilerTargetDomain]:
-    reference_instance_id, approved_profile_id, target_domain, *rest = export_ref.split(":")
-    if rest or not reference_instance_id or not approved_profile_id or not target_domain:
+    parts = export_ref.split(":")
+    if len(parts) != 3 or any(not part for part in parts):
         raise ValueError(
             f"{field_name} must use reference_instance_id:approved_profile_id:target_domain"
         )
+    reference_instance_id, approved_profile_id, target_domain = parts
     if approved_profile_id not in {
         V36A_CANONICAL_REFERENCE_PROFILE_ID,
         V36A_ALTERNATE_LAWFUL_PROFILE_ID,
@@ -1948,7 +2007,7 @@ class UXSurfaceCompilerSourceArtifactRef(BaseModel):
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "UXSurfaceCompilerSourceArtifactRef":
-        _assert_repo_relative_artifact_ref(
+        _assert_v36e_source_artifact_ref(
             self.artifact_ref,
             field_name=f"source_artifact_refs[{self.artifact_role}].artifact_ref",
         )
@@ -2183,7 +2242,7 @@ class UXSurfaceCompilerSourceArtifactHash(BaseModel):
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "UXSurfaceCompilerSourceArtifactHash":
-        _assert_repo_relative_artifact_ref(
+        _assert_v36e_source_artifact_ref(
             self.artifact_ref,
             field_name="source_artifact_hashes.artifact_ref",
         )
@@ -2463,3 +2522,18 @@ def assert_v36e_reference_bundle_consistent(
             raise ValueError(
                 "variant manifest source_artifact_hashes must match the export source artifact refs"
             )
+        for item in profile.source_artifact_hashes:
+            actual_hash = _sha256_v36e_canonical_json(
+                _load_repo_relative_json_artifact(
+                    ref=item.artifact_ref,
+                    field_name=(
+                        "profile_variants"
+                        f"[{profile.approved_profile_id}].source_artifact_hashes.artifact_ref"
+                    ),
+                )
+            )
+            if item.artifact_hash != actual_hash:
+                raise ValueError(
+                    "variant manifest source_artifact_hashes must match actual "
+                    "canonical source artifact payload hashes"
+                )
