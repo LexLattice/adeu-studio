@@ -1,9 +1,10 @@
-# Draft Next Arc Options v10 (Post vNext+63, Post V36-C Closure)
+# Draft Next Arc Options v10 (Post vNext+64, Post V36-D Closure)
 
-This document defines the post-`vNext+61` planning baseline for the next ADEU-governed
+This document defines the post-`vNext+64` planning baseline for the next ADEU-governed
 implementation family.
 
-Status: active planning draft (`V34`, `V35`, `V36-A`, `V36-B`, and `V36-C` closed; next
+Status: active planning draft (`V34`, `V35`, `V36-A`, `V36-B`, `V36-C`, and `V36-D`
+closed; next
 path selection in progress).
 
 Goal:
@@ -40,6 +41,15 @@ behavior or UI behavior changes.
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS61.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS61.md`
 - `docs/ASSESSMENT_vNEXT_PLUS61_EDGES.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS62.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS62.md`
+- `docs/ASSESSMENT_vNEXT_PLUS62_EDGES.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS63.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS63.md`
+- `docs/ASSESSMENT_vNEXT_PLUS63_EDGES.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS64.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS64.md`
+- `docs/ASSESSMENT_vNEXT_PLUS64_EDGES.md`
 - `docs/seed arc v10.md`
 - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - `docs/FUTURE_CLEANUPS.md`
@@ -48,8 +58,8 @@ behavior or UI behavior changes.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+63` (`V36-C`) on `main`.
-- `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-C` are
+- Baseline implementation is `vNext+64` (`V36-D`) on `main`.
+- `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-D` are
   closed.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
@@ -94,9 +104,16 @@ behavior or UI behavior changes.
   one semantic snapshot,
   one implementation binding manifest,
   and canonical `v36c_artifact_inspector_reference_surface_evidence@1`.
-- No released `V36-D` diagnostics/conformance engine or `V36-E` surface-compiler
-  implementation exists yet in the repo; the remaining `V36` paths should continue to
-  prefer explicit new foundations over ad hoc accretion into existing page components.
+- The greenfield `V36-D` diagnostics/conformance lane now exists on `main`:
+  canonical `ux_morph_diagnostics@1`,
+  canonical `ux_conformance_report@1`,
+  one accepted deterministic diagnostics artifact,
+  one accepted deterministic conformance report,
+  a frozen conformance aggregation rule,
+  and canonical `v36d_morph_diagnostics_conformance_evidence@1`.
+- No released `V36-E` surface-compiler export or lawful-variant implementation exists yet
+  in the repo; the remaining `V36` path should continue to prefer explicit new
+  foundations over ad hoc accretion into existing page components.
 - The closeout hardening bundle exists as a separate operational proposal only:
   - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - The Copilot/Codex CLI approval-flag drift remains a separate future-cleanup item and is
@@ -202,7 +219,8 @@ behavior or UI behavior changes.
     "V35-E",
     "V36-A",
     "V36-B",
-    "V36-C"
+    "V36-C",
+    "V36-D"
   ],
   "next_path_family": "V36",
   "v36_path_count": 5,
@@ -210,7 +228,7 @@ behavior or UI behavior changes.
     "from": "vNext+61",
     "to": "vNext+65"
   },
-  "default_next_arc_candidate": "V36-D",
+  "default_next_arc_candidate": "V36-E",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -236,7 +254,8 @@ behavior or UI behavior changes.
     "ux_morph_ir@1",
     "ux_surface_projection@1",
     "ux_interaction_contract@1",
-    "ux_morph_diagnostics@1"
+    "ux_morph_diagnostics@1",
+    "ux_conformance_report@1"
   ],
   "adeu_split_required": [
     "ontology",
@@ -749,11 +768,12 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- select `V36-D` as the next default candidate after the closed `V36-C` rendered
-  reference surface;
+- select `V36-E` as the next default candidate after the closed `V36-D`
+  diagnostics/conformance baseline;
 - keep the next release artifact-first and constitutional:
-  ship deterministic diagnostics/conformance over the released rendered substrate before
-  compiler widening;
+  ship deterministic surface-compiler export and one bounded lawful alternate profile
+  over the released diagnostics/conformance substrate rather than widening into a broad
+  style or design-system program;
 - preserve the seed's core design rule:
   Codex should compile a lawful surface from O/E/D/U artifacts, not improvise a dashboard
   from vibes;
