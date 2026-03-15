@@ -1,0 +1,519 @@
+{
+  "schema": "meta_module_catalog@1",
+  "reference_loop_family": "arc_bundle_recursive_compilation_loop",
+  "reference_instance_id": "arc_closeout_v65_reference",
+  "intent_packet_id": "v37a_arc_closeout_v65_intent",
+  "reference_anchor": {
+    "shape": "arc_closeout_bundle_instance",
+    "reference_arc": 65,
+    "reference_phase": "closeout"
+  },
+  "modules": [
+    {
+      "module_id": "checkpoint_01_bundle_lint",
+      "module_class": "checkpoint_module",
+      "authority_status": "hard_checkpoint_truth",
+      "capability_id": "bundle_lint",
+      "capability_granularity": "single_executor",
+      "input_contract": [
+        "lock_doc_ref",
+        "reference_arc_phase_locator"
+      ],
+      "output_contract": [
+        "bundle_lint_payload"
+      ],
+      "consumed_authoritative_input_ids": [
+        "v65_assessment_doc",
+        "v65_closeout_decision_doc",
+        "v65_lock_doc"
+      ],
+      "expected_evidence_refs": [],
+      "executor_bindings": [
+        {
+          "binding_id": "arc_bundle_closeout_lint",
+          "binding_kind": "python_function_entrypoint",
+          "binding_ref": "apps/api/scripts/lint_arc_bundle.py::lint_arc_bundle",
+          "parameter_policy": {
+            "requires_typed_slots": true,
+            "soft_originated_inputs_allowed": false,
+            "unchecked_shell_interpolation_forbidden": true,
+            "validation_rules": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "parameter_slots": [
+              {
+                "slot_name": "phase",
+                "slot_type": "phase_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "closeout"
+              },
+              {
+                "slot_name": "reference_arc",
+                "slot_type": "integer_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "65"
+              }
+            ]
+          }
+        }
+      ],
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    },
+    {
+      "module_id": "checkpoint_02_artifact_consistency_lint",
+      "module_class": "checkpoint_module",
+      "authority_status": "hard_checkpoint_truth",
+      "capability_id": "artifact_consistency_lint",
+      "capability_granularity": "single_executor",
+      "input_contract": [
+        "closeout_artifact_set",
+        "closeout_doc_set"
+      ],
+      "output_contract": [
+        "artifact_consistency_lint_payload"
+      ],
+      "consumed_authoritative_input_ids": [
+        "v65_assessment_doc",
+        "v65_closeout_decision_doc",
+        "v65_lock_doc",
+        "v65_metric_key_continuity_assertion",
+        "v65_quality_dashboard_artifact",
+        "v65_runtime_observability_comparison",
+        "v65_stop_gate_metrics_artifact",
+        "v65_stop_gate_report_artifact",
+        "v65_v36e_evidence"
+      ],
+      "expected_evidence_refs": [],
+      "executor_bindings": [
+        {
+          "binding_id": "closeout_consistency_lint",
+          "binding_kind": "python_function_entrypoint",
+          "binding_ref": "apps/api/scripts/lint_closeout_consistency.py::lint_closeout_consistency",
+          "parameter_policy": {
+            "requires_typed_slots": true,
+            "soft_originated_inputs_allowed": false,
+            "unchecked_shell_interpolation_forbidden": true,
+            "validation_rules": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "parameter_slots": []
+          }
+        }
+      ],
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    },
+    {
+      "module_id": "checkpoint_03_semantic_closeout_lint",
+      "module_class": "checkpoint_module",
+      "authority_status": "hard_checkpoint_truth",
+      "capability_id": "semantic_closeout_lint",
+      "capability_granularity": "single_executor",
+      "input_contract": [
+        "lock_doc_ref",
+        "stop_gate_artifact_set"
+      ],
+      "output_contract": [
+        "semantic_closeout_lint_payload"
+      ],
+      "consumed_authoritative_input_ids": [
+        "v65_lock_doc",
+        "v65_quality_dashboard_artifact",
+        "v65_stop_gate_metrics_artifact",
+        "v65_stop_gate_report_artifact",
+        "v65_v36e_evidence"
+      ],
+      "expected_evidence_refs": [
+        "artifacts/agent_harness/v65/evidence_inputs/v36e_surface_compiler_export_evidence_v65.json"
+      ],
+      "executor_bindings": [
+        {
+          "binding_id": "semantic_compiler_closeout_lint",
+          "binding_kind": "python_function_entrypoint",
+          "binding_ref": "apps/api/scripts/lint_semantic_compiler_closeout.py::lint_semantic_compiler_closeout",
+          "parameter_policy": {
+            "requires_typed_slots": true,
+            "soft_originated_inputs_allowed": false,
+            "unchecked_shell_interpolation_forbidden": true,
+            "validation_rules": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "parameter_slots": [
+              {
+                "slot_name": "lock_doc",
+                "slot_type": "path_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md"
+              }
+            ]
+          }
+        }
+      ],
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    },
+    {
+      "module_id": "checkpoint_04_stop_gate_metrics_build",
+      "module_class": "checkpoint_module",
+      "authority_status": "hard_checkpoint_truth",
+      "capability_id": "stop_gate_metrics_build",
+      "capability_granularity": "single_executor",
+      "input_contract": [
+        "quality_dashboard_reference",
+        "stop_gate_reference_outputs"
+      ],
+      "output_contract": [
+        "stop_gate_metrics@1",
+        "stop_gate_report_markdown"
+      ],
+      "consumed_authoritative_input_ids": [
+        "v65_metric_key_continuity_assertion",
+        "v65_quality_dashboard_artifact",
+        "v65_runtime_observability_comparison",
+        "v65_stop_gate_metrics_artifact",
+        "v65_stop_gate_report_artifact"
+      ],
+      "expected_evidence_refs": [
+        "artifacts/stop_gate/metrics_v65_closeout.json",
+        "artifacts/stop_gate/report_v65_closeout.md"
+      ],
+      "executor_bindings": [
+        {
+          "binding_id": "stop_gate_metrics_builder",
+          "binding_kind": "python_function_entrypoint",
+          "binding_ref": "apps/api/scripts/build_stop_gate_metrics.py::main",
+          "parameter_policy": {
+            "requires_typed_slots": true,
+            "soft_originated_inputs_allowed": false,
+            "unchecked_shell_interpolation_forbidden": true,
+            "validation_rules": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "parameter_slots": [
+              {
+                "slot_name": "out_json",
+                "slot_type": "path_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "artifacts/stop_gate/metrics_v65_closeout.json"
+              },
+              {
+                "slot_name": "out_md",
+                "slot_type": "path_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "artifacts/stop_gate/report_v65_closeout.md"
+              },
+              {
+                "slot_name": "quality_current",
+                "slot_type": "path_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "artifacts/quality_dashboard_v65_closeout.json"
+              }
+            ]
+          }
+        }
+      ],
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    },
+    {
+      "module_id": "checkpoint_05_quality_dashboard_build",
+      "module_class": "checkpoint_module",
+      "authority_status": "hard_checkpoint_truth",
+      "capability_id": "quality_dashboard_build",
+      "capability_granularity": "single_executor",
+      "input_contract": [
+        "quality_dashboard_reference"
+      ],
+      "output_contract": [
+        "quality_dashboard_json"
+      ],
+      "consumed_authoritative_input_ids": [
+        "v65_quality_dashboard_artifact"
+      ],
+      "expected_evidence_refs": [
+        "artifacts/quality_dashboard_v65_closeout.json"
+      ],
+      "executor_bindings": [
+        {
+          "binding_id": "quality_dashboard_builder",
+          "binding_kind": "python_function_entrypoint",
+          "binding_ref": "apps/api/scripts/build_quality_dashboard.py::main",
+          "parameter_policy": {
+            "requires_typed_slots": true,
+            "soft_originated_inputs_allowed": false,
+            "unchecked_shell_interpolation_forbidden": true,
+            "validation_rules": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "parameter_slots": [
+              {
+                "slot_name": "out",
+                "slot_type": "path_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "artifacts/quality_dashboard_v65_closeout.json"
+              }
+            ]
+          }
+        }
+      ],
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    },
+    {
+      "module_id": "checkpoint_06_committed_event_stream_validation",
+      "module_class": "checkpoint_module",
+      "authority_status": "hard_checkpoint_truth",
+      "capability_id": "committed_event_stream_validation",
+      "capability_granularity": "single_executor",
+      "input_contract": [
+        "committed_event_stream_ref"
+      ],
+      "output_contract": [
+        "committed_event_stream_validation_payload"
+      ],
+      "consumed_authoritative_input_ids": [],
+      "expected_evidence_refs": [
+        "artifacts/agent_harness/v65/runtime/evidence/codex/copilot/v65-closeout-main-1/urm_events.ndjson"
+      ],
+      "executor_bindings": [
+        {
+          "binding_id": "committed_event_stream_validator",
+          "binding_kind": "python_function_entrypoint",
+          "binding_ref": "packages/urm_runtime/src/urm_runtime/events_tools.py::validate_events",
+          "parameter_policy": {
+            "requires_typed_slots": true,
+            "soft_originated_inputs_allowed": false,
+            "unchecked_shell_interpolation_forbidden": true,
+            "validation_rules": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "parameter_slots": [
+              {
+                "slot_name": "path",
+                "slot_type": "path_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "artifacts/agent_harness/v65/runtime/evidence/codex/copilot/v65-closeout-main-1/urm_events.ndjson"
+              },
+              {
+                "slot_name": "strict",
+                "slot_type": "boolean_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "true"
+              }
+            ]
+          }
+        }
+      ],
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    },
+    {
+      "module_id": "checkpoint_07_instruction_policy_validation",
+      "module_class": "checkpoint_module",
+      "authority_status": "hard_checkpoint_truth",
+      "capability_id": "instruction_policy_validation",
+      "capability_granularity": "single_executor",
+      "input_contract": [
+        "instruction_policy_doc_set"
+      ],
+      "output_contract": [
+        "instruction_policy_validation_payload"
+      ],
+      "consumed_authoritative_input_ids": [],
+      "expected_evidence_refs": [],
+      "executor_bindings": [
+        {
+          "binding_id": "instruction_policy_validator",
+          "binding_kind": "python_function_entrypoint",
+          "binding_ref": "apps/api/scripts/generate_instruction_policy_views.py::main",
+          "parameter_policy": {
+            "requires_typed_slots": true,
+            "soft_originated_inputs_allowed": false,
+            "unchecked_shell_interpolation_forbidden": true,
+            "validation_rules": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "parameter_slots": [
+              {
+                "slot_name": "check_mode",
+                "slot_type": "boolean_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "true"
+              }
+            ]
+          }
+        }
+      ],
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    },
+    {
+      "module_id": "evidence_01_reference_bundle_guard",
+      "module_class": "evidence_gate_module",
+      "authority_status": "hard_evidence_gate",
+      "capability_id": "reference_bundle_consistency_guard",
+      "capability_granularity": "single_executor",
+      "input_contract": [
+        "meta_module_catalog@1",
+        "meta_testing_intent_packet@1"
+      ],
+      "output_contract": [
+        "v37a_meta_intent_module_catalog_evidence@1"
+      ],
+      "consumed_authoritative_input_ids": [
+        "v65_assessment_doc",
+        "v65_closeout_decision_doc",
+        "v65_lock_doc",
+        "v65_metric_key_continuity_assertion",
+        "v65_quality_dashboard_artifact",
+        "v65_runtime_observability_comparison",
+        "v65_stop_gate_metrics_artifact",
+        "v65_stop_gate_report_artifact",
+        "v65_v36e_evidence"
+      ],
+      "expected_evidence_refs": [
+        "apps/api/fixtures/meta_testing/vnext_plus66/meta_module_catalog_arc_closeout_v65_reference.json",
+        "apps/api/fixtures/meta_testing/vnext_plus66/meta_testing_intent_packet_arc_closeout_v65_reference.json"
+      ],
+      "executor_bindings": [
+        {
+          "binding_id": "v37a_reference_bundle_guard",
+          "binding_kind": "python_function_entrypoint",
+          "binding_ref": "packages/adeu_core_ir/src/adeu_core_ir/meta_testing.py::assert_v37a_reference_bundle_consistent",
+          "parameter_policy": {
+            "requires_typed_slots": true,
+            "soft_originated_inputs_allowed": false,
+            "unchecked_shell_interpolation_forbidden": true,
+            "validation_rules": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "parameter_slots": [
+              {
+                "slot_name": "intent_packet_ref",
+                "slot_type": "path_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "apps/api/fixtures/meta_testing/vnext_plus66/meta_testing_intent_packet_arc_closeout_v65_reference.json"
+              },
+              {
+                "slot_name": "module_catalog_ref",
+                "slot_type": "path_literal",
+                "value_origin": "hardcoded_literal",
+                "literal_value": "apps/api/fixtures/meta_testing/vnext_plus66/meta_module_catalog_arc_closeout_v65_reference.json"
+              }
+            ]
+          }
+        }
+      ],
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    },
+    {
+      "module_id": "operator_01_repo_acceptance_gate",
+      "module_class": "operator_gate_module",
+      "authority_status": "operator_acceptance_gate",
+      "capability_id": "repo_acceptance_adjudication",
+      "capability_granularity": "single_executor",
+      "input_contract": [
+        "accepted_evidence_bundle",
+        "proposed_repo_change_set"
+      ],
+      "output_contract": [
+        "operator_acceptance_decision"
+      ],
+      "consumed_authoritative_input_ids": [
+        "v65_assessment_doc",
+        "v65_closeout_decision_doc",
+        "v65_lock_doc",
+        "v65_metric_key_continuity_assertion",
+        "v65_quality_dashboard_artifact",
+        "v65_runtime_observability_comparison",
+        "v65_stop_gate_metrics_artifact",
+        "v65_stop_gate_report_artifact",
+        "v65_v36e_evidence"
+      ],
+      "expected_evidence_refs": [],
+      "executor_bindings": [
+        {
+          "binding_id": "repo_acceptance_boundary",
+          "binding_kind": "operator_surface",
+          "binding_ref": "explicit_repo_acceptance_boundary",
+          "parameter_policy": {
+            "requires_typed_slots": true,
+            "soft_originated_inputs_allowed": false,
+            "unchecked_shell_interpolation_forbidden": true,
+            "validation_rules": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "parameter_slots": []
+          }
+        }
+      ],
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    },
+    {
+      "module_id": "reasoning_01_meta_intent_interpreter",
+      "module_class": "reasoning_module",
+      "authority_status": "soft_influence_only",
+      "capability_id": "meta_intent_interpretation",
+      "capability_granularity": "soft_dispatch",
+      "input_contract": [
+        "authoritative_input_set",
+        "meta_testing_intent_packet@1"
+      ],
+      "output_contract": [
+        "checkpoint_shape_expectation_summary",
+        "drift_hypothesis_summary",
+        "repair_candidate_summary"
+      ],
+      "consumed_authoritative_input_ids": [
+        "v65_assessment_doc",
+        "v65_closeout_decision_doc",
+        "v65_lock_doc",
+        "v65_metric_key_continuity_assertion",
+        "v65_quality_dashboard_artifact",
+        "v65_runtime_observability_comparison",
+        "v65_stop_gate_metrics_artifact",
+        "v65_stop_gate_report_artifact",
+        "v65_v36e_evidence"
+      ],
+      "expected_evidence_refs": [],
+      "executor_bindings": [],
+      "dispatch_provenance": {
+        "dispatch_convention_id": "codex_cli_recursive_compilation_v1",
+        "prompt_surface_ref": "AGENTS.md",
+        "template_version_ref": "docs/DRAFT_RECURSIVE_COMPILATION_v0.md"
+      },
+      "predecessor_module_ids": [],
+      "successor_module_ids": []
+    }
+  ],
+  "drift_taxonomy": [
+    "ontology_drift",
+    "epistemic_drift",
+    "deontic_drift",
+    "utility_drift"
+  ],
+  "hard_checkpoint_truth_boundary_preserved": true,
+  "no_hidden_prompt_only_module_authority": true,
+  "capability_to_executor_granularity_explicit": true
+}

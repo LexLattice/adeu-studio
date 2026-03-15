@@ -5,6 +5,8 @@ import re
 from pathlib import Path
 
 from adeu_core_ir import (
+    META_MODULE_CATALOG_SCHEMA,
+    META_TESTING_INTENT_PACKET_SCHEMA,
     UX_CONFORMANCE_REPORT_SCHEMA,
     UX_DOMAIN_PACKET_SCHEMA,
     UX_INTERACTION_CONTRACT_SCHEMA,
@@ -77,6 +79,14 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             / "v36a_same_context_reachability_glossary.v1.json",
             root / "spec" / "v36a_same_context_reachability_glossary.schema.json",
         ),
+        (
+            root / "packages" / "adeu_core_ir" / "schema" / "meta_testing_intent_packet.v1.json",
+            root / "spec" / "meta_testing_intent_packet.schema.json",
+        ),
+        (
+            root / "packages" / "adeu_core_ir" / "schema" / "meta_module_catalog.v1.json",
+            root / "spec" / "meta_module_catalog.schema.json",
+        ),
     ]
 
 
@@ -118,6 +128,8 @@ def test_exported_schema_files_have_stable_contract_markers() -> None:
         "ux_surface_compiler_variant_manifest.v1.json": UX_SURFACE_COMPILER_VARIANT_MANIFEST_SCHEMA,
         "v36a_first_family_approved_profile_table.v1.json": V36A_APPROVED_PROFILE_TABLE_SCHEMA,
         "v36a_same_context_reachability_glossary.v1.json": V36A_SAME_CONTEXT_GLOSSARY_SCHEMA,
+        "meta_testing_intent_packet.v1.json": META_TESTING_INTENT_PACKET_SCHEMA,
+        "meta_module_catalog.v1.json": META_MODULE_CATALOG_SCHEMA,
     }
 
     for authoritative, _mirror in _schema_paths():

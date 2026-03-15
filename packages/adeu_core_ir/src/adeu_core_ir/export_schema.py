@@ -15,6 +15,7 @@ from .integrity_reference_integrity_extended import (
     AdeuIntegrityReferenceIntegrityExtended,
 )
 from .lane_report import AdeuLaneReport
+from .meta_testing import MetaModuleCatalog, MetaTestingIntentPacket
 from .models import AdeuCoreIR
 from .normative_advice_packet import AdeuNormativeAdvicePacket
 from .projection_alignment import AdeuProjectionAlignment
@@ -94,6 +95,8 @@ def main() -> None:
     same_context_glossary_schema = V36ASameContextReachabilityGlossary.model_json_schema(
         by_alias=True
     )
+    meta_testing_intent_packet_schema = MetaTestingIntentPacket.model_json_schema(by_alias=True)
+    meta_module_catalog_schema = MetaModuleCatalog.model_json_schema(by_alias=True)
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
     _write_schema(authoritative_path, core_ir_schema)
@@ -311,6 +314,22 @@ def main() -> None:
         same_context_glossary_schema,
     )
 
+    meta_testing_intent_packet_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "meta_testing_intent_packet.v1.json"
+    )
+    _write_schema(
+        meta_testing_intent_packet_authoritative_path,
+        meta_testing_intent_packet_schema,
+    )
+
+    meta_module_catalog_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "meta_module_catalog.v1.json"
+    )
+    _write_schema(
+        meta_module_catalog_authoritative_path,
+        meta_module_catalog_schema,
+    )
+
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
 
@@ -456,6 +475,20 @@ def main() -> None:
     _write_schema(
         same_context_glossary_mirror_path,
         same_context_glossary_schema,
+    )
+
+    meta_testing_intent_packet_mirror_path = (
+        root / "spec" / "meta_testing_intent_packet.schema.json"
+    )
+    _write_schema(
+        meta_testing_intent_packet_mirror_path,
+        meta_testing_intent_packet_schema,
+    )
+
+    meta_module_catalog_mirror_path = root / "spec" / "meta_module_catalog.schema.json"
+    _write_schema(
+        meta_module_catalog_mirror_path,
+        meta_module_catalog_schema,
     )
 
 

@@ -1,0 +1,98 @@
+{
+  "schema": "meta_testing_intent_packet@1",
+  "reference_loop_family": "arc_bundle_recursive_compilation_loop",
+  "reference_instance_id": "arc_closeout_v65_reference",
+  "intent_packet_id": "v37a_arc_closeout_v65_intent",
+  "reference_anchor": {
+    "shape": "arc_closeout_bundle_instance",
+    "reference_arc": 65,
+    "reference_phase": "closeout"
+  },
+  "objective": "Make one bounded recursive-compilation reference loop legible as explicit intent plus explicit module ontology over the accepted v65 closeout instance, without releasing runnable sequence law or self-grading authority.",
+  "success_condition": "The accepted reference pair binds exact v65 closeout authoritative inputs, frozen checkpoint capabilities, exact executor surfaces, parameter-safety rules, and reasoning dispatch provenance while preserving the hard checkpoint truth boundary.",
+  "failure_condition": "The reference pair is incomplete, unresolved, or authority-blurring; any required authoritative input, checkpoint capability, executor binding, parameter-safety rule, or dispatch provenance is missing, ambiguous, or inconsistent with the accepted v65 closeout instance.",
+  "authoritative_inputs": [
+    {
+      "input_id": "v65_assessment_doc",
+      "artifact_ref": "docs/ASSESSMENT_vNEXT_PLUS65_EDGES.md",
+      "artifact_sha256": "95c405a6d8ceae9dda9ee0ba37b45a1e8c734c8e8150728460f0c29ab9dff3f6"
+    },
+    {
+      "input_id": "v65_closeout_decision_doc",
+      "artifact_ref": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS65.md",
+      "artifact_sha256": "8da7332e9f2fa55a2c92688a3de95bfc49bfe59f4f7c37f9c4af8a11ce3734c5"
+    },
+    {
+      "input_id": "v65_lock_doc",
+      "artifact_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md",
+      "artifact_sha256": "5efb6ca8d8ab7ac402978822816681b948e0bb027f29f80b2e16627215978bfe"
+    },
+    {
+      "input_id": "v65_metric_key_continuity_assertion",
+      "artifact_ref": "artifacts/agent_harness/v65/evidence_inputs/metric_key_continuity_assertion_v65.json",
+      "artifact_sha256": "4a661736225f32c2e864a19793f2c9e9bd11d2d0acf78b32ebae1ac210aeb29d"
+    },
+    {
+      "input_id": "v65_quality_dashboard_artifact",
+      "artifact_ref": "artifacts/quality_dashboard_v65_closeout.json",
+      "artifact_sha256": "5affdbf480de1c7dddc6dec54f5945705f77d2d5be5c945a9405381d93f1add2"
+    },
+    {
+      "input_id": "v65_runtime_observability_comparison",
+      "artifact_ref": "artifacts/agent_harness/v65/evidence_inputs/runtime_observability_comparison_v65.json",
+      "artifact_sha256": "e5e2ab84b14da4fef8a903ecfc29d6bec6a59f8ba33df50654786e4eb0c6c51d"
+    },
+    {
+      "input_id": "v65_stop_gate_metrics_artifact",
+      "artifact_ref": "artifacts/stop_gate/metrics_v65_closeout.json",
+      "artifact_sha256": "81ea611a3bae43190c326a03384550f1a3c6bf281390244828038d558a19a6af"
+    },
+    {
+      "input_id": "v65_stop_gate_report_artifact",
+      "artifact_ref": "artifacts/stop_gate/report_v65_closeout.md",
+      "artifact_sha256": "fb470b8b3d943bba385c70a960983bc97c44503f3d7924101081db55bdc05d9f"
+    },
+    {
+      "input_id": "v65_v36e_evidence",
+      "artifact_ref": "artifacts/agent_harness/v65/evidence_inputs/v36e_surface_compiler_export_evidence_v65.json",
+      "artifact_sha256": "62eefa72943c865b0ae3d379e56f1a525c46ec8fd7baa13e65aab4ff8225a896"
+    }
+  ],
+  "required_hard_checkpoints": [
+    "bundle_lint",
+    "artifact_consistency_lint",
+    "semantic_closeout_lint",
+    "stop_gate_metrics_build",
+    "quality_dashboard_build",
+    "committed_event_stream_validation",
+    "instruction_policy_validation"
+  ],
+  "required_evidence_outputs": [
+    "metric_key_continuity_assertion@1",
+    "quality_dashboard_json",
+    "runtime_observability_comparison@1",
+    "stop_gate_metrics@1",
+    "stop_gate_report_markdown",
+    "v37a_meta_intent_module_catalog_evidence@1"
+  ],
+  "allowed_reasoning_latitude": [
+    "classify_drift_hypotheses",
+    "compare_expected_and_observed_checkpoint_shape",
+    "propose_narrow_repairs",
+    "summarize_uncompiled_discrepancy"
+  ],
+  "refusal_escalation_conditions": [
+    "attempted_checkpoint_truth_substitution_by_prose",
+    "authoritative_input_ref_unresolved",
+    "hard_checkpoint_claim_without_bound_executor",
+    "out_of_scope_runnable_loop_request"
+  ],
+  "adeu_priority_order": [
+    "ontology",
+    "epistemics",
+    "deontics",
+    "utility"
+  ],
+  "operational_influence_distinct_from_accepted_compilation": true,
+  "hard_checkpoint_truth_boundary_preserved": true
+}

@@ -1,0 +1,390 @@
+{
+  "$defs": {
+    "MetaExecutorBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_id": {
+          "minLength": 1,
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "binding_kind": {
+          "enum": [
+            "operator_surface",
+            "python_function_entrypoint"
+          ],
+          "title": "Binding Kind",
+          "type": "string"
+        },
+        "binding_ref": {
+          "minLength": 1,
+          "title": "Binding Ref",
+          "type": "string"
+        },
+        "parameter_policy": {
+          "$ref": "#/$defs/MetaExecutorParameterPolicy"
+        }
+      },
+      "required": [
+        "binding_id",
+        "binding_kind",
+        "binding_ref",
+        "parameter_policy"
+      ],
+      "title": "MetaExecutorBinding",
+      "type": "object"
+    },
+    "MetaExecutorParameterPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "parameter_slots": {
+          "items": {
+            "$ref": "#/$defs/MetaExecutorParameterSlot"
+          },
+          "title": "Parameter Slots",
+          "type": "array"
+        },
+        "requires_typed_slots": {
+          "const": true,
+          "default": true,
+          "title": "Requires Typed Slots",
+          "type": "boolean"
+        },
+        "soft_originated_inputs_allowed": {
+          "default": false,
+          "title": "Soft Originated Inputs Allowed",
+          "type": "boolean"
+        },
+        "unchecked_shell_interpolation_forbidden": {
+          "const": true,
+          "default": true,
+          "title": "Unchecked Shell Interpolation Forbidden",
+          "type": "boolean"
+        },
+        "validation_rules": {
+          "items": {
+            "enum": [
+              "literal_or_validated_value_only",
+              "no_unchecked_shell_interpolation",
+              "typed_slots_only"
+            ],
+            "type": "string"
+          },
+          "title": "Validation Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "validation_rules",
+        "parameter_slots"
+      ],
+      "title": "MetaExecutorParameterPolicy",
+      "type": "object"
+    },
+    "MetaExecutorParameterSlot": {
+      "additionalProperties": false,
+      "properties": {
+        "literal_value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Literal Value"
+        },
+        "slot_name": {
+          "minLength": 1,
+          "title": "Slot Name",
+          "type": "string"
+        },
+        "slot_type": {
+          "enum": [
+            "boolean_literal",
+            "integer_literal",
+            "path_literal",
+            "phase_literal",
+            "repo_root_literal",
+            "string_literal"
+          ],
+          "title": "Slot Type",
+          "type": "string"
+        },
+        "value_origin": {
+          "enum": [
+            "hardcoded_literal",
+            "soft_originated_input"
+          ],
+          "title": "Value Origin",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slot_name",
+        "slot_type",
+        "value_origin"
+      ],
+      "title": "MetaExecutorParameterSlot",
+      "type": "object"
+    },
+    "MetaModuleDescriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_status": {
+          "enum": [
+            "hard_checkpoint_truth",
+            "hard_evidence_gate",
+            "operator_acceptance_gate",
+            "soft_influence_only"
+          ],
+          "title": "Authority Status",
+          "type": "string"
+        },
+        "capability_granularity": {
+          "enum": [
+            "executor_family",
+            "single_executor",
+            "soft_dispatch"
+          ],
+          "title": "Capability Granularity",
+          "type": "string"
+        },
+        "capability_id": {
+          "minLength": 1,
+          "title": "Capability Id",
+          "type": "string"
+        },
+        "consumed_authoritative_input_ids": {
+          "items": {
+            "enum": [
+              "v65_assessment_doc",
+              "v65_closeout_decision_doc",
+              "v65_lock_doc",
+              "v65_metric_key_continuity_assertion",
+              "v65_quality_dashboard_artifact",
+              "v65_runtime_observability_comparison",
+              "v65_stop_gate_metrics_artifact",
+              "v65_stop_gate_report_artifact",
+              "v65_v36e_evidence"
+            ],
+            "type": "string"
+          },
+          "title": "Consumed Authoritative Input Ids",
+          "type": "array"
+        },
+        "dispatch_provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MetaReasoningDispatchProvenance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "executor_bindings": {
+          "items": {
+            "$ref": "#/$defs/MetaExecutorBinding"
+          },
+          "title": "Executor Bindings",
+          "type": "array"
+        },
+        "expected_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Expected Evidence Refs",
+          "type": "array"
+        },
+        "input_contract": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Input Contract",
+          "type": "array"
+        },
+        "module_class": {
+          "enum": [
+            "reasoning_module",
+            "checkpoint_module",
+            "evidence_gate_module",
+            "operator_gate_module"
+          ],
+          "title": "Module Class",
+          "type": "string"
+        },
+        "module_id": {
+          "minLength": 1,
+          "title": "Module Id",
+          "type": "string"
+        },
+        "output_contract": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Output Contract",
+          "type": "array"
+        },
+        "predecessor_module_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Predecessor Module Ids",
+          "type": "array"
+        },
+        "successor_module_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Successor Module Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "module_id",
+        "module_class",
+        "authority_status",
+        "capability_id",
+        "capability_granularity",
+        "input_contract",
+        "output_contract",
+        "consumed_authoritative_input_ids"
+      ],
+      "title": "MetaModuleDescriptor",
+      "type": "object"
+    },
+    "MetaReasoningDispatchProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "dispatch_convention_id": {
+          "minLength": 1,
+          "title": "Dispatch Convention Id",
+          "type": "string"
+        },
+        "prompt_surface_ref": {
+          "minLength": 1,
+          "title": "Prompt Surface Ref",
+          "type": "string"
+        },
+        "template_version_ref": {
+          "minLength": 1,
+          "title": "Template Version Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dispatch_convention_id",
+        "prompt_surface_ref",
+        "template_version_ref"
+      ],
+      "title": "MetaReasoningDispatchProvenance",
+      "type": "object"
+    },
+    "MetaReferenceLoopAnchor": {
+      "additionalProperties": false,
+      "properties": {
+        "reference_arc": {
+          "minimum": 1,
+          "title": "Reference Arc",
+          "type": "integer"
+        },
+        "reference_phase": {
+          "const": "closeout",
+          "default": "closeout",
+          "title": "Reference Phase",
+          "type": "string"
+        },
+        "shape": {
+          "const": "arc_closeout_bundle_instance",
+          "default": "arc_closeout_bundle_instance",
+          "title": "Shape",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reference_arc"
+      ],
+      "title": "MetaReferenceLoopAnchor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "capability_to_executor_granularity_explicit": {
+      "const": true,
+      "default": true,
+      "title": "Capability To Executor Granularity Explicit",
+      "type": "boolean"
+    },
+    "drift_taxonomy": {
+      "items": {
+        "enum": [
+          "deontic_drift",
+          "epistemic_drift",
+          "ontology_drift",
+          "utility_drift"
+        ],
+        "type": "string"
+      },
+      "title": "Drift Taxonomy",
+      "type": "array"
+    },
+    "hard_checkpoint_truth_boundary_preserved": {
+      "const": true,
+      "default": true,
+      "title": "Hard Checkpoint Truth Boundary Preserved",
+      "type": "boolean"
+    },
+    "intent_packet_id": {
+      "minLength": 1,
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "modules": {
+      "items": {
+        "$ref": "#/$defs/MetaModuleDescriptor"
+      },
+      "title": "Modules",
+      "type": "array"
+    },
+    "no_hidden_prompt_only_module_authority": {
+      "const": true,
+      "default": true,
+      "title": "No Hidden Prompt Only Module Authority",
+      "type": "boolean"
+    },
+    "reference_anchor": {
+      "$ref": "#/$defs/MetaReferenceLoopAnchor"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_loop_family": {
+      "const": "arc_bundle_recursive_compilation_loop",
+      "default": "arc_bundle_recursive_compilation_loop",
+      "title": "Reference Loop Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "meta_module_catalog@1",
+      "default": "meta_module_catalog@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "intent_packet_id",
+    "reference_anchor",
+    "modules",
+    "drift_taxonomy"
+  ],
+  "title": "MetaModuleCatalog",
+  "type": "object"
+}
