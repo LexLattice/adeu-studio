@@ -1,11 +1,10 @@
-# Draft Next Arc Options v10 (Post vNext+64, Post V36-D Closure)
+# Draft Next Arc Options v10 (Post vNext+65, Post V36 Closure)
 
-This document defines the post-`vNext+64` planning baseline for the next ADEU-governed
-implementation family.
+This document defines the post-`vNext+65` planning baseline after the first
+ADEU-governed UX family closed on `main`.
 
-Status: active planning draft (`V34`, `V35`, `V36-A`, `V36-B`, `V36-C`, and `V36-D`
-closed; next
-path selection in progress).
+Status: active planning draft (`V34`, `V35`, and `V36-A` through `V36-E` closed; next
+family selection pending).
 
 Goal:
 
@@ -50,6 +49,9 @@ behavior or UI behavior changes.
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS64.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS64.md`
 - `docs/ASSESSMENT_vNEXT_PLUS64_EDGES.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS65.md`
+- `docs/ASSESSMENT_vNEXT_PLUS65_EDGES.md`
 - `docs/seed arc v10.md`
 - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - `docs/FUTURE_CLEANUPS.md`
@@ -58,8 +60,8 @@ behavior or UI behavior changes.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+64` (`V36-D`) on `main`.
-- `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-D` are
+- Baseline implementation is `vNext+65` (`V36-E`) on `main`.
+- `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-E` are
   closed.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
@@ -70,9 +72,10 @@ behavior or UI behavior changes.
   `V35-A` through `V35-E` already froze canonical orchestration state, delegated worker
   handoffs, transcript/progress visibility, topology duty maps, and bounded runtime
   enforcement.
-- `apps/web` already contains user-facing artifact/evidence/copilot surfaces, but the repo
-  does not yet have a typed UX-governance artifact family for compiling those surfaces
-  from explicit ADEU contracts.
+- `apps/web` already contains user-facing artifact/evidence/copilot surfaces, and the repo
+  now has a bounded typed UX-governance artifact family for the
+  `artifact_inspector_advisory_workbench`; broader route families remain outside that
+  released scope.
 - The current `apps/web` surfaces were built by conventional component composition rather
   than canonical UX-governance artifacts:
   `artifacts/`, `concepts/`, `copilot/`, `evidence-explorer/`, `explain/`, `papers/`, and
@@ -111,9 +114,16 @@ behavior or UI behavior changes.
   one accepted deterministic conformance report,
   a frozen conformance aggregation rule,
   and canonical `v36d_morph_diagnostics_conformance_evidence@1`.
-- No released `V36-E` surface-compiler export or lawful-variant implementation exists yet
-  in the repo; the remaining `V36` path should continue to prefer explicit new
-  foundations over ad hoc accretion into existing page components.
+- The greenfield `V36-E` compiler/export lane now exists on `main`:
+  canonical `ux_surface_compiler_export@1`,
+  canonical `ux_surface_compiler_variant_manifest@1`,
+  one accepted deterministic canonical export,
+  one accepted deterministic alternate lawful export,
+  exact two-profile pass-gating under the frozen `V36-D` conformance rule,
+  and canonical `v36e_surface_compiler_export_evidence@1`.
+- The first `V36` family is now complete as a closed bounded UX-governance stack:
+  any next safe step should be a fresh `vNext+66` planning draft for a new family rather
+  than widening `V36` in place.
 - The closeout hardening bundle exists as a separate operational proposal only:
   - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - The Copilot/Codex CLI approval-flag drift remains a separate future-cleanup item and is
@@ -150,11 +160,12 @@ behavior or UI behavior changes.
   the first reference surface should land as a bounded new surface or explicitly bounded
   extension rather than a silent repo-wide UI retrofit.
 - The closeout hardening bundle remains a separate operational track and is not implicitly
-  folded into the next UX-governance family unless explicitly locked later.
+  folded into any post-`V36` family unless explicitly locked later.
 
 ## Naming Convention (New Family)
 
-- `V36-*` identifiers are reserved for the next UX-governance / surface-compiler family.
+- `V36-*` identifiers are now historical for the closed first UX-governance /
+  surface-compiler family and are not reused.
 - `B36-*` identifiers are reserved for explicit multi-path bundles if later needed.
 - `V35-*` remains historical/closed and is not reused.
 
@@ -169,13 +180,15 @@ behavior or UI behavior changes.
 
 - Authoritative sources:
   - ADEU governance docs and accepted evidence artifacts;
-  - canonical UX-governance artifacts if this family is implemented:
+  - canonical UX-governance artifacts from the closed `V36` family:
     `ux_domain_packet@1`,
     `ux_morph_ir@1`,
     `ux_surface_projection@1`,
     `ux_interaction_contract@1`,
     `ux_morph_diagnostics@1`,
-    and any later explicitly locked conformance report;
+    `ux_conformance_report@1`,
+    `ux_surface_compiler_export@1`,
+    and `ux_surface_compiler_variant_manifest@1`;
   - already-accepted execution-state/visibility/topology/enforcement artifacts from the
     closed `V35` line when a surface needs authoritative runtime context.
 - Non-authoritative sources:
@@ -202,7 +215,8 @@ behavior or UI behavior changes.
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v9.md",
   "closed_path_families": [
     "V34",
-    "V35"
+    "V35",
+    "V36"
   ],
   "closed_paths": [
     "V34-A",
@@ -220,15 +234,16 @@ behavior or UI behavior changes.
     "V36-A",
     "V36-B",
     "V36-C",
-    "V36-D"
+    "V36-D",
+    "V36-E"
   ],
-  "next_path_family": "V36",
+  "next_path_family": "PENDING_POST_V36_FAMILY",
   "v36_path_count": 5,
   "v36_default_arc_span": {
     "from": "vNext+61",
     "to": "vNext+65"
   },
-  "default_next_arc_candidate": "V36-E",
+  "default_next_arc_candidate": "NEW_FAMILY_REQUIRED",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -238,7 +253,7 @@ behavior or UI behavior changes.
     "execution_plane": "bounded_worker_implementation"
   },
   "surface_generation_mode": "artifact_first_surface_compilation",
-  "surface_compiler_foundation_status": "greenfield",
+  "surface_compiler_foundation_status": "bounded_family_released",
   "bounded_reference_surface_family": "artifact_inspector_advisory_workbench",
   "existing_web_surface_governance_status": "conventional_component_composition_without_typed_ux_artifacts",
   "reference_surface_rollout_policy": "prefer_new_bounded_route_or_explicitly_bounded_surface_over_rewriting_unrelated_existing_routes",
@@ -255,8 +270,12 @@ behavior or UI behavior changes.
     "ux_surface_projection@1",
     "ux_interaction_contract@1",
     "ux_morph_diagnostics@1",
-    "ux_conformance_report@1"
+    "ux_conformance_report@1",
+    "ux_surface_compiler_export@1",
+    "ux_surface_compiler_variant_manifest@1"
   ],
+  "v36_family_completion_state": "closed",
+  "next_safe_planning_move": "fresh_vnext_plus66_family_draft",
   "adeu_split_required": [
     "ontology",
     "epistemics",
@@ -797,16 +816,15 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- select `V36-E` as the next default candidate after the closed `V36-D`
-  diagnostics/conformance baseline;
-- keep the next release artifact-first and constitutional:
-  ship deterministic surface-compiler export and one bounded lawful alternate profile
-  over the released diagnostics/conformance substrate rather than widening into a broad
-  style or design-system program;
+- treat the `V36` family as closed and complete:
+  substrate, projection, rendered reference surface, diagnostics/conformance, and
+  bounded compiler export are now all released on `main`;
+- make the next step a fresh `vNext+66` family-planning pass rather than widening the
+  closed `V36` family in place;
 - preserve the seed's core design rule:
   Codex should compile a lawful surface from O/E/D/U artifacts, not improvise a dashboard
   from vibes;
 - keep the first implementation terrain narrow and ADEU-native:
-  `artifact_inspector_advisory_workbench`;
+  `artifact_inspector_advisory_workbench`, now as a closed bounded reference family;
 - preserve the separate operational cleanup track (`O1`/`O2`/`O3`) as a distinct follow-on
   rather than silently mixing it into the new UX-governance family.
