@@ -675,12 +675,15 @@ Goal:
 
 Scope:
 
+- define canonical `ux_surface_compiler_export@1`;
+- define canonical `ux_surface_compiler_variant_manifest@1`;
 - implement one deterministic builder pipeline from typed brief/domain packet through:
   - `ux_domain_packet@1`,
   - `ux_morph_ir@1`,
   - `ux_surface_projection@1`,
   - `ux_interaction_contract@1`,
-  - `ux_morph_diagnostics@1`;
+  - `ux_morph_diagnostics@1`,
+  - `ux_conformance_report@1`;
 - support controlled lawful variation for the bounded workbench family along approved
   morph axes only;
 - freeze allowed value sets for the approved axes in the first compiler release;
@@ -690,8 +693,27 @@ Scope:
 - limit the first release to a finite approved variant range:
   one canonical reference profile plus one alternate lawful profile, not open-ended
   combination-space exploration;
+- require the alternate lawful export to earn its own deterministic diagnostics and
+  conformance evaluation under the frozen `V36-D` conformance report structure and
+  aggregation rule before emission;
 - emit implementation-facing contracts sufficient to drive bounded React/component
   realization without reintroducing free-form prompt interpretation at the last mile;
+- require `ux_surface_compiler_export@1` to carry at least:
+  - binding tuple,
+  - source artifact references,
+  - approved profile id,
+  - implementation target payloads,
+  - exported provenance-hook map,
+  - exported implementation-binding map,
+  - conformance-gating reference,
+  - derivation metadata;
+- require `ux_surface_compiler_variant_manifest@1` to carry at least:
+  - reference binding tuple,
+  - canonical versus alternate designation,
+  - stable export artifact refs,
+  - target-domain coverage per profile,
+  - source artifact hashes / derivation refs,
+  - per-profile conformance-gating result;
 - require all approved variants to preserve:
   - invariant law,
   - evidence-before-commit visibility,
@@ -710,9 +732,15 @@ Locks:
   without an explicit future lock;
 - implementation exports must remain derived from canonical UX artifacts, not side-channel
   prompts;
+- side-channel prompt or local-heuristic inputs must be rejected rather than accepted as
+  last-mile compiler truth;
 - implementation exports may not rely on unconstrained CSS/theme overrides that weaken
   required salience, hide required evidence, or visually neutralize diagnostic severity;
+- `css_token_map` is a bounded implementation mapping for this family only and does not
+  authorize a generalized token system, theme program, or palette expansion;
 - no variant may pass if diagnostics show deontic, epistemic, or trust-boundary drift;
+- pass gating in this path must consume the frozen `V36-D` conformance report structure
+  and aggregation rule rather than export-local heuristics;
 - no new stop-gate metric keys are authorized in this path unless explicitly released in
   the corresponding lock doc.
 
@@ -720,7 +748,8 @@ Acceptance:
 
 - for one bounded ADEU-native workbench family, the repo can produce one canonical surface
   plus one explicitly approved alternate lawful profile from typed UX artifacts without
-  deontic or trust-boundary drift;
+  deontic or trust-boundary drift, with both profiles independently pass-gated by the
+  frozen `V36-D` conformance rule;
 - combinations outside the frozen first-family approved profile table remain invalid even
   if their individual axis values are otherwise allowed.
 

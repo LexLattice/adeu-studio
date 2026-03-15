@@ -56,7 +56,8 @@ Status: draft decision note (pre-start scaffold, March 15, 2026 UTC).
   non-canonical variant discussion.
 - The repo still lacks canonical `ux_surface_compiler_export@1`, canonical
   `ux_surface_compiler_variant_manifest@1`, deterministic export artifacts for the
-  canonical and alternate approved profiles, exact two-profile export gating, and
+  canonical and alternate approved profiles, exact two-profile export gating, explicit
+  alternate-profile pass qualification under the frozen `V36-D` conformance rule, and
   canonical compiler-export evidence for the `V36-E` lane.
 - Shipping a broader variant program or route-family compiler rollout before a bounded
   compiler/export substrate exists would widen the family in the wrong order and make
@@ -73,7 +74,10 @@ Status: draft decision note (pre-start scaffold, March 15, 2026 UTC).
 5. Compiler exports are required to bind back to the released accepted `V36-A` / `V36-B`
    / `V36-C` / `V36-D` reference tuple and the frozen `artifact_inspector_reference` /
    `artifact_inspector_alternate` profile ids from the `V36-A` table.
-6. Broad compiler rollout, profile-count widening, morph-axis widening, runtime
+6. Both emitted profiles are required to consume the frozen `V36-D`
+   conformance-report structure and aggregation rule, and the alternate lawful export
+   must earn its own deterministic `pass` judgment before emission.
+7. Broad compiler rollout, profile-count widening, morph-axis widening, runtime
    auto-repair, and generic design-system work remain explicitly deferred.
 
 ## Expected Closeout Evidence (Preview Only)

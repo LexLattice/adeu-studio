@@ -53,6 +53,9 @@ Status: draft lock (not frozen yet, March 15, 2026 UTC).
     `V36-C` / `V36-D` substrate,
   - exactly one canonical reference export plus one explicitly approved alternate lawful
     export bound to the frozen two-profile table,
+  - the alternate lawful export must receive its own deterministic diagnostics and
+    conformance evaluation under the frozen `V36-D` conformance-report structure and
+    aggregation rule before emission,
   - closeout evidence plus determinism/guard coverage,
   - no broad route-family compiler rollout, no profile-count widening, no runtime
     auto-repair, and no repo-wide route rewrite in this arc.
@@ -109,8 +112,10 @@ Status: draft lock (not frozen yet, March 15, 2026 UTC).
   - implementation exports may not rely on unconstrained CSS/theme overrides that weaken
     required salience, hide required evidence, or visually neutralize diagnostics or
     deontic boundaries,
-  - no emitted profile may pass if consumed diagnostics/conformance show deontic,
-    epistemic, trust-boundary, or profile-contract drift,
+  - no emitted profile may pass if its own deterministic consumed
+    diagnostics/conformance evaluation under the frozen `V36-D` conformance-report
+    structure and aggregation rule shows deontic, epistemic, trust-boundary, or
+    profile-contract drift,
   - UI artifacts may express authority but may not mint authority; this arc may not
     weaken any accepted `V35` authority gate by export arrangement, implementation target
     mapping, or lawful-variant choice.
@@ -220,6 +225,29 @@ Consumption lock:
     "approved_profile_ids_must_exist_in_v36a_table": true,
     "approved_profile_cardinality_exact": 2,
     "out_of_table_profile_combinations_fail_closed": true,
+    "surface_compiler_export_required_fields": [
+      "reference_surface_family",
+      "reference_instance_id",
+      "approved_profile_id",
+      "source_artifact_refs",
+      "implementation_target_payloads",
+      "exported_provenance_hook_map",
+      "exported_implementation_binding_map",
+      "conformance_gating_ref",
+      "derivation_metadata"
+    ],
+    "surface_compiler_variant_manifest_required_fields": [
+      "reference_surface_family",
+      "reference_instance_id",
+      "approved_profile_id",
+      "canonical_profile_designation",
+      "alternate_profile_designation",
+      "export_artifact_refs",
+      "target_domain_coverage_by_profile",
+      "source_artifact_hashes",
+      "derivation_refs",
+      "conformance_gating_result_by_profile"
+    ],
     "implementation_target_domains": [
       "react_tree",
       "route_module",
@@ -229,8 +257,10 @@ Consumption lock:
       "test_targets"
     ],
     "implementation_exports_must_be_canonical_artifact_derived": true,
+    "side_channel_prompt_or_local_heuristic_inputs_rejected": true,
     "exported_provenance_hooks_required": true,
     "exported_implementation_bindings_required": true,
+    "css_token_map_is_bounded_family_mapping_only": true,
     "rendered_law_must_survive_export": [
       "evidence_before_commit_visibility",
       "advisory_authoritative_distinction",
@@ -238,7 +268,10 @@ Consumption lock:
       "observable_state_feedback",
       "same_context_reachability_consumption"
     ],
-    "emitted_profile_conformance_requirement": "pass",
+    "canonical_export_conformance_requirement": "pass",
+    "alternate_export_conformance_requirement": "pass",
+    "compiler_exports_must_consume_frozen_v36d_conformance_report_structure": true,
+    "compiler_exports_must_consume_frozen_v36d_conformance_aggregation_rule": true,
     "implementation_exports_may_not_use_unconstrained_css_theme_overrides": true,
     "no_event_stream_or_worker_prose_truth_substitution": true,
     "ui_artifacts_may_express_but_may_not_mint_authority": true
@@ -263,15 +296,20 @@ Consumption lock:
       "v36b_reference_pair_consumed_without_drift",
       "v36c_rendered_surface_consumed_without_drift",
       "v36d_diagnostics_conformance_consumed_without_drift",
+      "canonical_profile_binding_verified",
+      "alternate_profile_binding_verified",
       "canonical_profile_id_verified_against_v36a_table",
       "alternate_profile_id_verified_against_v36a_table",
       "approved_profile_cardinality_verified",
       "compiler_export_derivation_verified",
       "implementation_target_domains_verified",
+      "canonical_profile_target_domains_verified",
+      "alternate_profile_target_domains_verified",
+      "side_channel_prompt_or_local_heuristic_inputs_rejected",
       "exported_provenance_hooks_verified",
       "exported_implementation_bindings_verified",
-      "canonical_export_emitted",
-      "alternate_lawful_export_emitted",
+      "canonical_export_emitted_and_pass_gated",
+      "alternate_lawful_export_emitted_and_pass_gated",
       "conformance_gating_for_emitted_profiles_verified",
       "out_of_table_profile_combinations_rejected",
       "unconstrained_css_override_drift_rejected",
@@ -293,15 +331,20 @@ Consumption lock:
     "v36b_reference_pair_consumed_without_drift": true,
     "v36c_rendered_surface_consumed_without_drift": true,
     "v36d_diagnostics_conformance_consumed_without_drift": true,
+    "canonical_profile_binding_verified": true,
+    "alternate_profile_binding_verified": true,
     "canonical_profile_id_verified_against_v36a_table": true,
     "alternate_profile_id_verified_against_v36a_table": true,
     "approved_profile_cardinality_verified": true,
     "compiler_export_derivation_verified": true,
     "implementation_target_domains_verified": true,
+    "canonical_profile_target_domains_verified": true,
+    "alternate_profile_target_domains_verified": true,
+    "side_channel_prompt_or_local_heuristic_inputs_rejected": true,
     "exported_provenance_hooks_verified": true,
     "exported_implementation_bindings_verified": true,
-    "canonical_export_emitted": true,
-    "alternate_lawful_export_emitted": true,
+    "canonical_export_emitted_and_pass_gated": true,
+    "alternate_lawful_export_emitted_and_pass_gated": true,
     "conformance_gating_for_emitted_profiles_verified": true,
     "out_of_table_profile_combinations_rejected": true,
     "unconstrained_css_override_drift_rejected": true,
@@ -317,6 +360,8 @@ Interpretive notes:
   realization, repo-wide replacement of hand-authored surfaces, or runtime self-mutation.
 - emitted compiler exports must remain implementation-facing canonical contracts rather
   than prompt-side design suggestions.
+- `css_token_map` in this arc is a bounded family-local implementation mapping only; it
+  does not authorize a generalized token system, theme program, or palette expansion.
 - lawful variation in v65 is bounded to the frozen first-family two-profile table; this
   arc is not a general variant search program.
 
@@ -336,6 +381,9 @@ variant coding.
   deterministic alternate lawful export, bound by the shared
   `reference_surface_family`, `reference_instance_id`, and `approved_profile_id` fields
   back to the released `V36-A`, `V36-B`, `V36-C`, and `V36-D` substrate;
+- require the alternate lawful export to receive its own deterministic diagnostics and
+  conformance evaluation under the frozen `V36-D` report structure and aggregation rule
+  before it can be emitted as lawful;
 - freeze exact compiler export coverage for the implementation target domains listed in
   the contract:
   React tree, route module, state-store contract, component-binding map, CSS-token map,
@@ -343,6 +391,8 @@ variant coding.
 - freeze exact two-profile release shape:
   one `artifact_inspector_reference` export plus one `artifact_inspector_alternate`
   export, with all out-of-table profile combinations rejected;
+- freeze minimum required structure for the new capstone artifacts:
+  `ux_surface_compiler_export@1` and `ux_surface_compiler_variant_manifest@1`;
 - require emitted exports to preserve the frozen rendered-law invariants and to remain
   gated by consumed diagnostics/conformance rather than local compiler heuristics.
 
@@ -350,7 +400,8 @@ variant coding.
 
 - for one bounded ADEU-native workbench family, the repo can emit one canonical compiler
   export plus one explicitly approved alternate lawful export from typed UX artifacts
-  without deontic, trust-boundary, or authority drift;
+  without deontic, trust-boundary, or authority drift, with both profiles independently
+  pass-gated by the frozen `V36-D` conformance rule;
 - the emitted export pair is coherently bound back to the released accepted `V36-A`,
   `V36-B`, `V36-C`, and `V36-D` substrate and the frozen two-profile table.
 
@@ -376,7 +427,7 @@ happy export pair alone.
 - prove exact two-profile emission, exact approved-profile-table consumption, and
   fail-closed rejection of out-of-table profile combinations;
 - prove exported provenance hooks, implementation bindings, implementation target domains,
-  and diagnostics/conformance gating remain deterministic;
+  and diagnostics/conformance gating remain deterministic on a per-profile basis;
 - prove compiler outputs do not mint authority, do not substitute event/prose truth, and
   do not rely on unconstrained CSS/theme overrides to weaken required salience or
   evidence visibility;
@@ -387,7 +438,8 @@ happy export pair alone.
 - v65 closeout can prove that the `V36-E` compiler-export layer is canonical,
   deterministic, bound to the released accepted `V36-A` / `V36-B` / `V36-C` /
   `V36-D` substrate, preserves the frozen two-profile lawful-variant range, and
-  rejects out-of-table combinations fail closed;
+  rejects out-of-table combinations fail closed, with both emitted profiles
+  independently pass-gated under the frozen `V36-D` conformance rule;
 - no stop-gate schema-family or metric-key drift is introduced by the compiler-export
   lane.
 
@@ -406,10 +458,12 @@ happy export pair alone.
    `artifact_inspector_reference` and `artifact_inspector_alternate`.
 4. Export outputs remain coherently bound to the released accepted `V36-A`, `V36-B`,
    `V36-C`, and `V36-D` substrate and preserve frozen authority boundaries.
-5. Out-of-table profile combinations fail closed.
-6. The canonical evidence block `v36e_surface_compiler_export_evidence@1` is emitted and
+5. Both emitted profiles are independently pass-gated under the frozen `V36-D`
+   conformance-report structure and aggregation rule.
+6. Out-of-table profile combinations fail closed.
+7. The canonical evidence block `v36e_surface_compiler_export_evidence@1` is emitted and
    records `metric_key_exact_set_equal_v64 = true`.
-7. No runtime auto-repair, broad route-family compiler rollout, or repo-wide design-system
+8. No runtime auto-repair, broad route-family compiler rollout, or repo-wide design-system
    widening is released in the arc.
 
 ## Why This Arc, Not `O1` / `O2` / `O3`
@@ -425,6 +479,7 @@ happy export pair alone.
 
 - lock `vNext+65` as a narrow `V36-E` surface-compiler export baseline only;
 - require one canonical export plus one alternate lawful export over the bounded first
-  family, not a broad variant program;
+  family, with both exports independently pass-gated under the frozen `V36-D`
+  conformance rule, not a broad variant program;
 - defer any further widening until this exact two-profile compiler/export lane is
   canonical, evidence-backed, and closed.

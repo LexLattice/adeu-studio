@@ -67,7 +67,9 @@ Status: pre-lock assessment (March 15, 2026 UTC).
 3. No accepted deterministic canonical-profile compiler export exists on `main`.
    - v65 still needs one accepted export bound to `artifact_inspector_reference`.
 4. No accepted deterministic alternate lawful export exists on `main`.
-   - v65 still needs one accepted export bound to `artifact_inspector_alternate`.
+   - v65 still needs one accepted export bound to `artifact_inspector_alternate`, and the
+     arc still needs to define how that alternate export earns its own deterministic
+     `pass` under the frozen `V36-D` conformance rule.
 5. No exact typed export binding exists back to the released `V36-A` / `V36-B` / `V36-C`
    / `V36-D` reference tuple.
    - v65 still has to prove equality of `reference_surface_family`,
@@ -78,16 +80,18 @@ Status: pre-lock assessment (March 15, 2026 UTC).
      rejection of out-of-table profile combinations.
 7. No typed implementation-target-domain contract exists for compiler output.
    - the repo still lacks frozen implementation-facing export coverage for React tree,
-     route module, state-store contract, component-binding map, CSS-token map, and test
-     targets.
+     route module, state-store contract, component-binding map, bounded family-local
+     CSS-token mapping, and test targets.
 8. No exported provenance-hook and implementation-binding contract exists.
    - compiler output still cannot expose canonical provenance hooks and implementation
      bindings deterministically for later audit or regeneration.
 9. No deterministic proof exists that compiler exports are derived only from canonical
    artifacts rather than side-channel prompts or route-local heuristics.
 10. No deterministic proof exists that emitted profiles remain gated by released
-    diagnostics/conformance.
-    - compiler output still cannot prove that only passing profiles are emitted.
+    diagnostics/conformance under the frozen `V36-D` conformance-report structure and
+    aggregation rule.
+    - compiler output still cannot prove that only independently passing profiles are
+      emitted, especially for the alternate lawful export.
 11. No deterministic proof exists that compiler output preserves rendered-law invariants
     under both allowed profiles.
     - evidence-before-commit, advisory/authoritative distinction, deontic gating,
@@ -103,8 +107,9 @@ Status: pre-lock assessment (March 15, 2026 UTC).
     - closeout-grade evidence for the `V36-E` lane still has to be defined and emitted.
 15. Guard coverage gap for export/profile drift remains open.
     - the repo does not yet fail closed on missing export targets, missing provenance
-      hooks, missing implementation bindings, profile-table drift, conformance-gating
-      drift, or out-of-table profile emission in the `V36-E` layer.
+      hooks, missing implementation bindings, profile-table drift, per-profile
+      conformance-gating drift, side-channel prompt inputs, or out-of-table profile
+      emission in the `V36-E` layer.
 16. Stop-gate continuity risk remains open.
     - v65 still has to prove exact metric-key continuity against v64 while adding the new
       compiler-export evidence lane.
@@ -125,8 +130,9 @@ Status: pre-lock assessment (March 15, 2026 UTC).
    `artifact_inspector_advisory_workbench` surface, not a broad compiler rollout or
    multi-product design system.
 3. Make exact two-profile-table consumption, implementation-target-domain typing,
-   canonical derivation, exported provenance/binding coverage, diagnostics/conformance
-   gating, and out-of-table rejection first-class acceptance targets in `E1` and `E2`.
+   canonical derivation, exported provenance/binding coverage, per-profile
+   diagnostics/conformance gating under the frozen `V36-D` rule, and out-of-table
+   rejection first-class acceptance targets in `E1` and `E2`.
 4. Keep broad compiler rollout, route-family generalization, profile-table widening,
    runtime auto-repair, and generic design-system work explicitly deferred unless
    released under new lock text.
