@@ -1,7 +1,7 @@
 # Assessment vNext+67 Edges (Pre Lock)
 
 This document records edge planning for `vNext+67` (`V37-B` sequence contract and
-run-trace baseline) before implementation begins.
+reference-trace baseline) before implementation begins.
 
 Status: pre-lock assessment (March 17, 2026 UTC).
 
@@ -23,7 +23,7 @@ Status: pre-lock assessment (March 17, 2026 UTC).
 
 - In scope: thin `V37-B` recursive-compilation sequence/trace substrate over the closed
   `V35`, `V36`, and `V37-A` baseline; canonical `meta_loop_sequence_contract@1`;
-  canonical `meta_loop_run_trace@1`; one accepted
+  canonical `meta_loop_run_trace@1` as reference trace law; one accepted
   `arc_bundle_recursive_compilation_loop` sequence/trace reference pair; frozen step
   ids, phase boundaries, checkpoint bindings, operator-gate surfaces, reasoning-step
   dispatch binding, and explicit `operational_influence` / `accepted_compilation`
@@ -53,10 +53,10 @@ Status: pre-lock assessment (March 17, 2026 UTC).
      outputs, checkpoint bindings, branch conditions, failure edges, operator gates, and
      per-step dispatch binding as one deterministic artifact.
 2. No canonical `meta_loop_run_trace@1` schema exists on `main`.
-   - `B1` must define planned step ids, actual module execution, consumed inputs,
-     emitted outputs, observed checkpoint result refs, step status, and the
+   - `B1` must define planned step ids, actual module execution position, consumed
+     inputs, emitted outputs, observed checkpoint result refs, step status, and the
      `operational_influence` / `accepted_compilation` markers as one deterministic
-     artifact.
+     reference-trace artifact rather than as proof of executed loop behavior.
 3. No accepted bound sequence/trace reference pair exists for one bounded
    `arc_bundle_recursive_compilation_loop`.
    - `B1` must commit one accepted reference pair, not just schema prose.
@@ -69,27 +69,36 @@ Status: pre-lock assessment (March 17, 2026 UTC).
    are not frozen as canonical artifact data.
    - `B1` and `B2` must reject hidden prompt-only step order, hidden branch logic, and
      undocumented retry edges.
-6. Hard-step executor binding resolution could drift away from the released module
+6. Retry behavior could remain structurally ambiguous even if undocumented retry edges
+   are prohibited.
+   - `B1` and `B2` must represent documented retry behavior explicitly rather than
+     forcing it to hide inside generic failure edges.
+7. Hard-step executor binding resolution could drift away from the released module
    catalog.
    - `B1` and `B2` must require hard checkpoint/evidence-gate/operator-gate steps to
      resolve only through the accepted `V37-A` module catalog rather than through generic
      capability labels.
-7. Reasoning sufficiency or pass/fail expectation could remain unbound if step-level
+8. Reasoning sufficiency or pass/fail expectation could remain unbound if step-level
    gate binding is not explicit.
    - `B1` and `B2` must require any such reasoning claim to bind to an explicit
      downstream checkpoint module, evidence gate, or operator gate.
-8. The higher-order distinction between `operational_influence` and
+9. The higher-order distinction between `operational_influence` and
    `accepted_compilation` is explicit in methodology but not yet frozen in canonical
    sequence/trace artifacts.
    - `B1` must represent both thresholds directly and `B2` must verify they remain
      distinct.
-9. No canonical `v37b_sequence_trace_evidence@1` exists on `main`.
+10. Step-level binding omission could blur the difference between “not applicable,”
+    “forgot to populate,” and “hidden logic exists elsewhere.”
+    - `B1` and `B2` must require explicit null-binding representation for
+      `checkpoint_binding_id`, `branch_condition_id`, `operator_gate_id`, and
+      `dispatch_provenance_ref` when those fields are not applicable.
+11. No canonical `v37b_sequence_trace_evidence@1` exists on `main`.
    - `B2` must materialize the closeout evidence lane for schemas, reference artifacts,
      exact tuple binding, checkpoint-binding resolution, gate binding, threshold
      distinction, and stop-gate continuity.
-10. Stop-gate continuity risk remains open at arc start.
+12. Stop-gate continuity risk remains open at arc start.
     - v67 must preserve `stop_gate_metrics@1` and exact metric-key equality with v66.
-11. Thin-slice boundary drift remains open.
+13. Thin-slice boundary drift remains open.
     - v67 must not quietly ship runnable execution, checkpoint-result manifest,
       diagnostics, conformance, control-update export, or any `V37-C` surface under a
       sequence/trace label.

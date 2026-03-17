@@ -50,6 +50,9 @@ Status: draft lock (not frozen yet, March 17, 2026 UTC).
   - frozen step ids, phase boundaries, branch conditions, checkpoint bindings, operator
     gates, reasoning-step dispatch binding, and explicit `operational_influence` versus
     `accepted_compilation` markers,
+  - explicit reference-trace-law semantics:
+    the accepted `meta_loop_run_trace@1` in v67 is a reference trace artifact, not proof
+    of executed end-to-end loop behavior,
   - closeout evidence plus determinism/guard coverage,
   - no executable reference loop, checkpoint-result manifest, drift diagnostics,
     conformance aggregation, or control-update export in this arc.
@@ -104,8 +107,12 @@ Status: draft lock (not frozen yet, March 17, 2026 UTC).
   - the arc must preserve the frozen `V37-A` binding tuple:
     `reference_loop_family`, `reference_instance_id`, `intent_packet_id`,
   - the arc must freeze stable step ids, ordered phase boundaries, branch conditions,
-    failure edges, checkpoint bindings, operator-gate surfaces, and per-step reasoning
-    dispatch binding,
+    failure edges, explicit retry edges, checkpoint bindings, operator-gate surfaces,
+    and per-step reasoning dispatch binding,
+  - the arc must require step-level binding fields to remain explicit even when not
+    applicable:
+    `checkpoint_binding_id`, `branch_condition_id`, `operator_gate_id`, and
+    `dispatch_provenance_ref` should be present with explicit nulls rather than omitted,
   - any hard checkpoint/evidence-gate/operator-gate step must bind to the exact executor
     ref already frozen in the accepted `V37-A` module catalog rather than to a generic
     capability label,
@@ -114,6 +121,13 @@ Status: draft lock (not frozen yet, March 17, 2026 UTC).
     gate, or operator gate,
   - the arc must make `operational_influence` and `accepted_compilation` explicit and
     distinct in the accepted trace layer,
+  - the arc must freeze `trace_mode = "reference_not_executed"` for the accepted v67
+    trace pair,
+  - `observed_checkpoint_result_refs` must be empty unless they bind to separately
+    accepted pre-existing artifact refs outside the loop itself,
+  - `accepted_compilation_occurred` must remain `false` for all steps in the accepted
+    v67 reference trace unless explicitly bound to already accepted repo controls outside
+    the loop itself,
   - no runnable loop execution, checkpoint-result manifest, drift diagnostics,
     conformance report, or control-update export is authorized in this arc,
   - no hidden prompt-only step order, hidden branch logic, or undocumented retry edge is
@@ -223,10 +237,12 @@ Consumption lock:
       "checkpoint_binding_id",
       "branch_condition_id",
       "failure_edge_ids",
+      "retry_edge_ids",
       "operator_gate_id",
       "dispatch_provenance_ref"
     ],
     "required_run_trace_fields": [
+      "trace_mode",
       "planned_step_id",
       "actual_module_id",
       "consumed_inputs",
@@ -236,6 +252,16 @@ Consumption lock:
       "operational_influence_occurred",
       "accepted_compilation_occurred"
     ],
+    "trace_mode_required_value": "reference_not_executed",
+    "step_binding_fields_explicit_even_when_null": [
+      "checkpoint_binding_id",
+      "branch_condition_id",
+      "operator_gate_id",
+      "dispatch_provenance_ref"
+    ],
+    "retry_representation_mode": "explicit_retry_edge_ids",
+    "observed_checkpoint_result_refs_default": "empty_unless_preaccepted_external_artifact_ref",
+    "accepted_compilation_default": "false_unless_bound_to_preaccepted_external_control",
     "reasoning_step_dispatch_binding_required": true,
     "hard_step_executor_binding_must_resolve_via_v37a_catalog": true,
     "reasoning_claims_must_bind_downstream_gate": true,
@@ -250,7 +276,10 @@ Consumption lock:
     "canonical_json_hashing_deterministic",
     "v37a_reference_tuple_consumed_without_drift",
     "sequence_trace_reference_pair_binding_verified",
+    "reference_trace_mode_not_executed_verified",
     "step_ids_unique_and_phase_boundaries_frozen",
+    "step_binding_nullability_explicit",
+    "retry_representation_explicit",
     "checkpoint_bindings_resolve_via_v37a_catalog",
     "reasoning_dispatch_bindings_resolve_per_step",
     "operator_gate_surfaces_explicit",
@@ -263,10 +292,12 @@ Consumption lock:
     "sequence_contract_missing_required_fields",
     "run_trace_missing_required_fields",
     "reference_tuple_drift_from_v37a",
+    "run_trace_claims_executed_loop_truth_without_authorized_binding",
     "step_missing_resolvable_module_binding",
     "reasoning_step_missing_dispatch_binding",
     "checkpoint_or_operator_step_missing_exact_v37a_executor_binding",
     "hidden_branch_logic_or_undocumented_retry_edge_introduced",
+    "step_binding_field_omitted_instead_of_explicit_null",
     "reasoning_claim_without_downstream_gate_binding",
     "operational_influence_accepted_compilation_collapse",
     "out_of_scope_runnable_loop_or_diagnostics_surfaces_introduced"
@@ -275,7 +306,9 @@ Consumption lock:
     "metric_key_exact_set_equal_v66",
     "v37a_reference_tuple_consumed_without_drift",
     "sequence_trace_reference_pair_binding_verified",
+    "reference_trace_mode_not_executed_verified",
     "step_order_and_phase_boundary_verified",
+    "retry_representation_explicit",
     "checkpoint_bindings_resolved_via_v37a_catalog",
     "operator_gate_surfaces_verified",
     "reasoning_claims_bound_to_downstream_gates",
@@ -300,7 +333,7 @@ Consumption lock:
 ## Release Shape (Narrative)
 
 - `vNext+67` is the first bounded recursive-compilation sequence/trace arc only.
-- `B1` should freeze typed step law and typed observed trace for one bounded
+- `B1` should freeze typed step law and typed reference trace law for one bounded
   `arc_bundle_recursive_compilation_loop`.
 - `B2` should prove determinism, hash binding, exact cross-artifact binding back to the
   released `V37-A` tuple, checkpoint-binding resolution, reasoning-claim-to-gate

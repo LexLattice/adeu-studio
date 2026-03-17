@@ -435,6 +435,7 @@ Scope:
   - compilation-boundary markers where a live critique may later become candidate control
     input;
 - require `meta_loop_run_trace@1` to carry at least:
+  - `trace_mode`;
   - planned step id;
   - actual module executed;
   - consumed inputs;
@@ -443,6 +444,23 @@ Scope:
   - skipped/failed/retried status;
   - whether operational influence occurred at that step;
   - whether anything crossed into accepted compilation at that step;
+- freeze the first-family `V37-B` trace-law posture explicitly:
+  - in `v67`, the accepted `meta_loop_run_trace@1` is a reference trace artifact, not
+    proof of executed end-to-end loop behavior;
+  - `trace_mode` should therefore be frozen to `reference_not_executed` in the first
+    bounded pair;
+  - `observed_checkpoint_result_refs` should remain empty unless bound to separately
+    accepted pre-existing artifact refs outside the loop itself;
+  - `accepted_compilation_occurred` should remain `false` for all steps in the first
+    bounded pair unless explicitly bound to already accepted repo controls outside the
+    loop itself;
+- freeze retry representation explicitly in the first family:
+  documented retry behavior should be represented via explicit retry-edge fields or
+  explicit retry-policy references rather than inferred from generic failure edges;
+- freeze step-binding nullability explicitly in the first family:
+  `checkpoint_binding_id`, `branch_condition_id`, `operator_gate_id`, and
+  `dispatch_provenance_ref` should remain present with explicit nulls when not
+  applicable rather than disappearing by omission;
 - make the two thresholds explicit in the sequence/trace layer:
   - `operational_influence`
   - `accepted_compilation`
@@ -469,13 +487,15 @@ Acceptance:
 - one accepted bound sequence/trace reference pair exists for the same first-family
   intent packet and module catalog;
 - the accepted reference pair makes the first bounded loop reproducible enough to drive
-  one deterministic end-to-end run, including:
+  one deterministic reference-law description of a later end-to-end run, including:
   step order,
   prerequisites,
   reasoning dispatch provenance,
   checkpoint bindings,
   exact checkpoint executor bindings,
   operator gates,
+  explicit retry representation,
+  explicit null-binding representation,
   and the distinction between operational influence and accepted compilation.
 
 ## Path V37-C: Arc-Bundle Recursive Compilation Reference Loop

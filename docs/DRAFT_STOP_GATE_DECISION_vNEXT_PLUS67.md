@@ -55,7 +55,9 @@ Status: draft decision note (pre-start scaffold, March 17, 2026 UTC).
 | Stop-gate metric-key continuity retained | required | `pending` | closeout artifacts not generated |
 | Canonical `meta_loop_sequence_contract@1` / `meta_loop_run_trace@1` schemas and accepted reference pair emitted and hash-bound | required | `pending` | implementation not started |
 | Accepted sequence/trace reference pair binds exactly to the released `V37-A` reference tuple | required | `pending` | implementation not started |
+| Accepted run trace remains explicit reference trace law rather than executed loop evidence | required | `pending` | implementation not started |
 | Step order, phase boundaries, branch conditions, and operator gates are frozen and verified | required | `pending` | implementation not started |
+| Retry representation and null-binding representation are explicit and verified | required | `pending` | implementation not started |
 | Hard-step executor bindings resolve only through the released `V37-A` module catalog | required | `pending` | implementation not started |
 | Reasoning dispatch binding and downstream gate binding are frozen and verified per step | required | `pending` | implementation not started |
 | `operational_influence` remains distinct from `accepted_compilation` in the accepted trace layer | required | `pending` | implementation not started |
@@ -70,5 +72,5 @@ Status: draft decision note (pre-start scaffold, March 17, 2026 UTC).
   - `V37-A` is now closed and provides the minimum stable substrate required before any
     executable recursive-compilation loop can be governed cleanly.
   - current repo hard checkpoint surfaces and the accepted `V37-A` module ontology now
-    exist, but explicit sequence law and run-trace law connecting them do not yet exist
-    on `main`.
+    exist, but explicit sequence law and reference-trace law connecting them do not yet
+    exist on `main`.
