@@ -1,0 +1,25 @@
+{
+  "schema": "meta_loop_drift_diagnostics@1",
+  "reference_loop_family": "arc_bundle_recursive_compilation_loop",
+  "reference_instance_id": "arc_closeout_v65_reference",
+  "intent_packet_id": "v37a_arc_closeout_v65_intent",
+  "severity_taxonomy": [
+    "error",
+    "warning",
+    "advisory"
+  ],
+  "seeded_violation_families": [
+    "sequence_gap_detectable",
+    "intent_clause_unassessed_detectable",
+    "unbound_reasoning_claim_detectable",
+    "checkpoint_bypass_detectable",
+    "missing_artifact_evidence_detectable",
+    "prompt_substrate_mismatch_detectable",
+    "repeated_uncompiled_drift_detectable",
+    "operational_influence_accepted_compilation_collapse_detectable"
+  ],
+  "findings": [],
+  "hard_checkpoint_truth_boundary_preserved": true,
+  "canonical_artifact_truth_only": true,
+  "event_streams_and_worker_prose_provenance_only": true
+}

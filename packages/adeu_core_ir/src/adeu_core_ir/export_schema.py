@@ -17,6 +17,8 @@ from .integrity_reference_integrity_extended import (
 from .lane_report import AdeuLaneReport
 from .meta_testing import (
     MetaLoopCheckpointResultManifest,
+    MetaLoopConformanceReport,
+    MetaLoopDriftDiagnostics,
     MetaLoopRunTrace,
     MetaLoopSequenceContract,
     MetaModuleCatalog,
@@ -108,6 +110,10 @@ def main() -> None:
         MetaLoopCheckpointResultManifest.model_json_schema(by_alias=True)
     )
     meta_loop_run_trace_schema = MetaLoopRunTrace.model_json_schema(by_alias=True)
+    meta_loop_drift_diagnostics_schema = MetaLoopDriftDiagnostics.model_json_schema(by_alias=True)
+    meta_loop_conformance_report_schema = MetaLoopConformanceReport.model_json_schema(
+        by_alias=True
+    )
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
     _write_schema(authoritative_path, core_ir_schema)
@@ -366,6 +372,22 @@ def main() -> None:
     )
     _write_schema(meta_loop_run_trace_authoritative_path, meta_loop_run_trace_schema)
 
+    meta_loop_drift_diagnostics_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "meta_loop_drift_diagnostics.v1.json"
+    )
+    _write_schema(
+        meta_loop_drift_diagnostics_authoritative_path,
+        meta_loop_drift_diagnostics_schema,
+    )
+
+    meta_loop_conformance_report_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "meta_loop_conformance_report.v1.json"
+    )
+    _write_schema(
+        meta_loop_conformance_report_authoritative_path,
+        meta_loop_conformance_report_schema,
+    )
+
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
 
@@ -545,6 +567,22 @@ def main() -> None:
 
     meta_loop_run_trace_mirror_path = root / "spec" / "meta_loop_run_trace.schema.json"
     _write_schema(meta_loop_run_trace_mirror_path, meta_loop_run_trace_schema)
+
+    meta_loop_drift_diagnostics_mirror_path = (
+        root / "spec" / "meta_loop_drift_diagnostics.schema.json"
+    )
+    _write_schema(
+        meta_loop_drift_diagnostics_mirror_path,
+        meta_loop_drift_diagnostics_schema,
+    )
+
+    meta_loop_conformance_report_mirror_path = (
+        root / "spec" / "meta_loop_conformance_report.schema.json"
+    )
+    _write_schema(
+        meta_loop_conformance_report_mirror_path,
+        meta_loop_conformance_report_schema,
+    )
 
 
 if __name__ == "__main__":

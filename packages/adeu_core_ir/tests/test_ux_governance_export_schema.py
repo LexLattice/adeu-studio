@@ -6,6 +6,8 @@ from pathlib import Path
 
 from adeu_core_ir import (
     META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA,
+    META_LOOP_CONFORMANCE_REPORT_SCHEMA,
+    META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA,
     META_LOOP_RUN_TRACE_SCHEMA,
     META_LOOP_SEQUENCE_CONTRACT_SCHEMA,
     META_MODULE_CATALOG_SCHEMA,
@@ -106,6 +108,18 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             root / "packages" / "adeu_core_ir" / "schema" / "meta_loop_run_trace.v1.json",
             root / "spec" / "meta_loop_run_trace.schema.json",
         ),
+        (
+            root / "packages" / "adeu_core_ir" / "schema" / "meta_loop_drift_diagnostics.v1.json",
+            root / "spec" / "meta_loop_drift_diagnostics.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "meta_loop_conformance_report.v1.json",
+            root / "spec" / "meta_loop_conformance_report.schema.json",
+        ),
     ]
 
 
@@ -152,6 +166,8 @@ def test_exported_schema_files_have_stable_contract_markers() -> None:
         "meta_loop_sequence_contract.v1.json": META_LOOP_SEQUENCE_CONTRACT_SCHEMA,
         "meta_loop_checkpoint_result_manifest.v1.json": META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA,
         "meta_loop_run_trace.v1.json": META_LOOP_RUN_TRACE_SCHEMA,
+        "meta_loop_drift_diagnostics.v1.json": META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA,
+        "meta_loop_conformance_report.v1.json": META_LOOP_CONFORMANCE_REPORT_SCHEMA,
     }
 
     for authoritative, _mirror in _schema_paths():

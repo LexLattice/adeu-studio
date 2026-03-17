@@ -1,0 +1,31 @@
+{
+  "schema": "meta_loop_conformance_report@1",
+  "reference_loop_family": "arc_bundle_recursive_compilation_loop",
+  "reference_instance_id": "arc_closeout_v65_reference",
+  "intent_packet_id": "v37a_arc_closeout_v65_intent",
+  "overall_judgment": "pass",
+  "supporting_finding_ids": [],
+  "severity_counts": {
+    "error": 0,
+    "warning": 0,
+    "advisory": 0
+  },
+  "failed_rule_families": [],
+  "warning_rule_families": [],
+  "derivation_metadata": {
+    "aggregation_rule_id": "v37d_meta_conformance_aggregation_rule@1",
+    "aggregation_rule": {
+      "any_error": "fail",
+      "no_error_and_any_warning": "needs_review",
+      "only_advisory_or_no_findings": "pass"
+    },
+    "diagnostics_artifact_hash": "3a95639791a711bc78855222d0fefff04f54da2b46dc8d786fd9325389264206",
+    "conformance_generator_id": "adeu_core_ir.meta_testing.derive_v37d_conformance@1",
+    "conformance_generator_version": "1",
+    "typed_summary_only": true,
+    "canonical_artifact_truth_only": true,
+    "event_streams_and_worker_prose_provenance_only": true,
+    "v68_closeout_authority_preserved": true
+  },
+  "diagnostics_layer_judgment_only": true
+}
