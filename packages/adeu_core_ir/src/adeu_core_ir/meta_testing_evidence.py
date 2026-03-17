@@ -357,6 +357,23 @@ def _load_validated_model(
     by_alias: bool = False,
 ) -> tuple[dict[str, Any], ModelT]:
     _text, payload = _load_json_dict(path=path, field_name=field_name)
+    return _validate_loaded_model_payload(
+        payload=payload,
+        field_name=field_name,
+        model_type=model_type,
+        exclude_none=exclude_none,
+        by_alias=by_alias,
+    )
+
+
+def _validate_loaded_model_payload(
+    *,
+    payload: dict[str, Any],
+    field_name: str,
+    model_type: type[ModelT],
+    exclude_none: bool = True,
+    by_alias: bool = False,
+) -> tuple[dict[str, Any], ModelT]:
     try:
         model = model_type.model_validate(payload)
     except ValidationError as exc:
@@ -1341,8 +1358,8 @@ def materialize_v37c_reference_loop_evidence(
             "executed_meta_loop_run_trace_reference_path must use "
             f"{V37C_EXECUTED_TRACE_MODE!r}"
         )
-    executed_run_trace_payload, executed_run_trace = _load_validated_model(
-        path=executed_run_trace_reference_file,
+    executed_run_trace_payload, executed_run_trace = _validate_loaded_model_payload(
+        payload=executed_run_trace_raw_payload,
         field_name="executed_meta_loop_run_trace_reference_path",
         model_type=MetaLoopRunTrace,
         exclude_none=True,
@@ -1372,11 +1389,6 @@ def materialize_v37c_reference_loop_evidence(
         raise MetaTestingEvidenceError(
             "meta_loop_checkpoint_result_manifest_reference_path must use "
             f"{META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA!r}"
-        )
-    if executed_run_trace.trace_mode != V37C_EXECUTED_TRACE_MODE:
-        raise MetaTestingEvidenceError(
-            "executed_meta_loop_run_trace_reference_path must use "
-            f"{V37C_EXECUTED_TRACE_MODE!r}"
         )
     if (
         executed_run_trace.checkpoint_result_manifest_ref
