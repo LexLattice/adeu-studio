@@ -1,11 +1,11 @@
-# Draft Next Arc Options v11 (Post vNext+65, Post V36 Closure)
+# Draft Next Arc Options v11 (Post vNext+66, Post V37-A Closure)
 
 This document defines the post-`vNext+65` planning baseline after the first
 ADEU-governed UX family closed on `main`, using the recursive-compilation note as the
 methodological bridge into the next family.
 
-Status: active planning draft (`V34`, `V35`, and `V36-A` through `V36-E` closed; `V37`
-proposed, no path yet locked).
+Status: active planning draft (`V34`, `V35`, `V36-A` through `V36-E`, and `V37-A`
+closed; `V37-B` proposed as next default candidate, no later `V37` path yet locked).
 
 Goal:
 
@@ -46,9 +46,9 @@ behavior, release scope, or autonomous repo mutation by itself.
 - `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
 - `docs/LOCKED_URM_CODEX_INTEGRATION_v0.md`
 - `docs/DRAFT_EXTERNALIZED_REASONING_KERNEL_v0.md`
-- `docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS65.md`
-- `docs/ASSESSMENT_vNEXT_PLUS65_EDGES.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS66.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS66.md`
+- `docs/ASSESSMENT_vNEXT_PLUS66_EDGES.md`
 - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - `docs/FUTURE_CLEANUPS.md`
 - `docs/SEMANTICS_v3.md`
@@ -56,9 +56,14 @@ behavior, release scope, or autonomous repo mutation by itself.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+65` (`V36-E`) on `main`.
+- Baseline implementation is `vNext+66` (`V37-A`) on `main`.
 - `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-E` are
   closed.
+- `V37-A` is now also closed:
+  canonical `meta_testing_intent_packet@1`, canonical `meta_module_catalog@1`, one
+  accepted bound reference-instance pair for the first bounded
+  `arc_bundle_recursive_compilation_loop`, and canonical
+  `v37a_meta_intent_module_catalog_evidence@1` now exist on `main`.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
   keys only).
@@ -94,6 +99,10 @@ behavior, release scope, or autonomous repo mutation by itself.
   the model inside this repo is already functioning as builder, soft simulator, drift
   detector, and temporary executable substrate for reasoning paths not yet fully compiled
   into hard components.
+- The first recursive-compilation substrate is no longer hypothetical:
+  explicit intent, module ontology, executor binding, parameter-safety, dispatch
+  provenance, and hard-checkpoint truth-boundary preservation are now frozen in released
+  `V37-A` artifacts on native repo terrain.
 - The empirical legibility claim is now part of repo methodology:
   drift classes, compilation boundaries, and stabilization of soft critique into recurring
   controls are observable in the build loop rather than merely theorized.
@@ -164,7 +173,7 @@ behavior, release scope, or autonomous repo mutation by itself.
 ## Family Scale Note
 
 - `V37` defines `5` paths (`V37-A` through `V37-E`) with a default sequential planning
-  span of `vNext+66` through `vNext+70`.
+  span now continuing from `vNext+67` through `vNext+70`.
 - This sequence is planning intent only; each arc still requires explicit lock/assessment/
   decision docs before implementation authority is granted.
 
@@ -229,15 +238,16 @@ behavior, release scope, or autonomous repo mutation by itself.
     "V36-B",
     "V36-C",
     "V36-D",
-    "V36-E"
+    "V36-E",
+    "V37-A"
   ],
   "next_path_family": "V37",
   "v37_path_count": 5,
   "v37_default_arc_span": {
-    "from": "vNext+66",
+    "from": "vNext+67",
     "to": "vNext+70"
   },
-  "default_next_arc_candidate": "V37-A",
+  "default_next_arc_candidate": "V37-B",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -772,11 +782,11 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- treat the `V36` family as closed and complete and start the next family as a fresh
-  higher-order bridge family rather than widening `V36` in place;
-- select `V37-A` as the next default candidate:
-  explicit intent packet plus module ontology is the minimum substrate required before a
-  runnable meta-loop can be governed cleanly;
+- treat `V37-A` as closed and use it as the frozen substrate for the next recursive-
+  compilation slice rather than widening it in place;
+- select `V37-B` as the next default candidate:
+  explicit sequence contract plus run trace is the minimum executable law required
+  before a runnable reference loop can be governed cleanly;
 - keep the first implementation terrain narrow and repo-native:
   one bounded `arc_bundle_recursive_compilation_loop`, not a generalized autonomy stack;
 - preserve the recursive-compilation note's central distinction:
