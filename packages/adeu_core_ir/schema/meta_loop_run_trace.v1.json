@@ -1,0 +1,165 @@
+{
+  "$defs": {
+    "MetaLoopRunTraceStep": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted_compilation_occurred": {
+          "title": "Accepted Compilation Occurred",
+          "type": "boolean"
+        },
+        "actual_module_id": {
+          "minLength": 1,
+          "title": "Actual Module Id",
+          "type": "string"
+        },
+        "consumed_inputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Consumed Inputs",
+          "type": "array"
+        },
+        "emitted_outputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Emitted Outputs",
+          "type": "array"
+        },
+        "observed_checkpoint_result_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Checkpoint Result Refs",
+          "type": "array"
+        },
+        "operational_influence_occurred": {
+          "title": "Operational Influence Occurred",
+          "type": "boolean"
+        },
+        "planned_step_id": {
+          "minLength": 1,
+          "title": "Planned Step Id",
+          "type": "string"
+        },
+        "step_status": {
+          "enum": [
+            "executed_fail",
+            "executed_pass",
+            "executed_retry",
+            "executed_skip",
+            "reference_not_executed"
+          ],
+          "title": "Step Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "planned_step_id",
+        "actual_module_id",
+        "consumed_inputs",
+        "emitted_outputs",
+        "observed_checkpoint_result_refs",
+        "step_status",
+        "operational_influence_occurred",
+        "accepted_compilation_occurred"
+      ],
+      "title": "MetaLoopRunTraceStep",
+      "type": "object"
+    },
+    "MetaReferenceLoopAnchor": {
+      "additionalProperties": false,
+      "properties": {
+        "reference_arc": {
+          "minimum": 1,
+          "title": "Reference Arc",
+          "type": "integer"
+        },
+        "reference_phase": {
+          "const": "closeout",
+          "default": "closeout",
+          "title": "Reference Phase",
+          "type": "string"
+        },
+        "shape": {
+          "const": "arc_closeout_bundle_instance",
+          "default": "arc_closeout_bundle_instance",
+          "title": "Shape",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reference_arc"
+      ],
+      "title": "MetaReferenceLoopAnchor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_compilation_threshold_explicit": {
+      "const": true,
+      "default": true,
+      "title": "Accepted Compilation Threshold Explicit",
+      "type": "boolean"
+    },
+    "intent_packet_id": {
+      "minLength": 1,
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "no_model_prose_truth_substitution": {
+      "const": true,
+      "default": true,
+      "title": "No Model Prose Truth Substitution",
+      "type": "boolean"
+    },
+    "operational_influence_threshold_explicit": {
+      "const": true,
+      "default": true,
+      "title": "Operational Influence Threshold Explicit",
+      "type": "boolean"
+    },
+    "reference_anchor": {
+      "$ref": "#/$defs/MetaReferenceLoopAnchor"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_loop_family": {
+      "const": "arc_bundle_recursive_compilation_loop",
+      "default": "arc_bundle_recursive_compilation_loop",
+      "title": "Reference Loop Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "meta_loop_run_trace@1",
+      "default": "meta_loop_run_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopRunTraceStep"
+      },
+      "title": "Steps",
+      "type": "array"
+    },
+    "trace_mode": {
+      "const": "reference_not_executed",
+      "title": "Trace Mode",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "intent_packet_id",
+    "reference_anchor",
+    "trace_mode",
+    "steps"
+  ],
+  "title": "MetaLoopRunTrace",
+  "type": "object"
+}

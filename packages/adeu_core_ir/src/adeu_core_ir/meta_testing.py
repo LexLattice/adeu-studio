@@ -11,6 +11,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 MetaTestingIntentPacketSchemaVersion = Literal["meta_testing_intent_packet@1"]
 MetaModuleCatalogSchemaVersion = Literal["meta_module_catalog@1"]
+MetaLoopSequenceContractSchemaVersion = Literal["meta_loop_sequence_contract@1"]
+MetaLoopRunTraceSchemaVersion = Literal["meta_loop_run_trace@1"]
 MetaReferenceLoopFamily = Literal["arc_bundle_recursive_compilation_loop"]
 MetaReferenceAnchorShape = Literal["arc_closeout_bundle_instance"]
 MetaReferencePhase = Literal["closeout"]
@@ -97,9 +99,41 @@ MetaOutOfScopeSurface = Literal[
     "meta_loop_run_trace@1",
     "meta_loop_sequence_contract@1",
 ]
+MetaSequencePhaseBoundary = Literal[
+    "intent_interpretation",
+    "pre_generation_validation",
+    "artifact_generation",
+    "post_generation_validation",
+    "evidence_gate",
+    "operator_gate",
+]
+MetaBranchConditionKind = Literal[
+    "all_required_inputs_available",
+    "all_required_generated_artifacts_available",
+    "downstream_gate_required",
+]
+MetaFailureTrigger = Literal[
+    "checkpoint_failure",
+    "evidence_gate_failure",
+    "operator_rejection",
+]
+MetaRetryTrigger = Literal[
+    "fixture_refresh_required",
+    "generated_artifact_refresh_required",
+]
+MetaTraceMode = Literal["reference_not_executed"]
+MetaTraceStepStatus = Literal[
+    "executed_fail",
+    "executed_pass",
+    "executed_retry",
+    "executed_skip",
+    "reference_not_executed",
+]
 
 META_TESTING_INTENT_PACKET_SCHEMA = "meta_testing_intent_packet@1"
 META_MODULE_CATALOG_SCHEMA = "meta_module_catalog@1"
+META_LOOP_SEQUENCE_CONTRACT_SCHEMA = "meta_loop_sequence_contract@1"
+META_LOOP_RUN_TRACE_SCHEMA = "meta_loop_run_trace@1"
 V37A_REFERENCE_LOOP_FAMILY = "arc_bundle_recursive_compilation_loop"
 V37A_REFERENCE_ANCHOR_SHAPE = "arc_closeout_bundle_instance"
 V37A_REFERENCE_ARC = 65
@@ -107,6 +141,7 @@ V37A_REFERENCE_PHASE = "closeout"
 V37A_OPERATOR_SURFACE = "explicit_repo_acceptance_boundary"
 V37A_REFERENCE_INSTANCE_ID = "arc_closeout_v65_reference"
 V37A_INTENT_PACKET_ID = "v37a_arc_closeout_v65_intent"
+V37B_REFERENCE_TRACE_MODE = "reference_not_executed"
 
 FROZEN_V37A_MODULE_CLASSES: tuple[MetaModuleClass, ...] = (
     "reasoning_module",
@@ -174,6 +209,18 @@ FROZEN_V37A_OUT_OF_SCOPE_SURFACES: tuple[MetaOutOfScopeSurface, ...] = (
     "meta_loop_run_trace@1",
     "meta_loop_sequence_contract@1",
 )
+FROZEN_V37B_PHASE_BOUNDARIES: tuple[MetaSequencePhaseBoundary, ...] = (
+    "intent_interpretation",
+    "pre_generation_validation",
+    "artifact_generation",
+    "post_generation_validation",
+    "evidence_gate",
+    "operator_gate",
+)
+
+
+def _module_catalog_binding_ref(module_id: str, suffix: str) -> str:
+    return f"meta_module_catalog::{module_id}::{suffix}"
 
 
 def _assert_sorted_unique(values: list[str], *, field_name: str, allow_empty: bool = False) -> None:
@@ -643,6 +690,278 @@ class MetaModuleCatalog(BaseModel):
         return self
 
 
+class MetaLoopBranchCondition(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    branch_condition_id: str = Field(min_length=1)
+    condition_kind: MetaBranchConditionKind
+    description: str = Field(min_length=1)
+
+
+class MetaLoopFailureEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    failure_edge_id: str = Field(min_length=1)
+    from_step_id: str = Field(min_length=1)
+    to_step_id: str = Field(min_length=1)
+    trigger: MetaFailureTrigger
+    description: str = Field(min_length=1)
+
+
+class MetaLoopRetryEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    retry_edge_id: str = Field(min_length=1)
+    from_step_id: str = Field(min_length=1)
+    to_step_id: str = Field(min_length=1)
+    trigger: MetaRetryTrigger
+    description: str = Field(min_length=1)
+
+
+class MetaLoopOperatorGate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    operator_gate_id: str = Field(min_length=1)
+    module_id: str = Field(min_length=1)
+    acceptance_scope: str = Field(min_length=1)
+
+
+class MetaLoopSequenceStep(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(min_length=1)
+    module_id: str = Field(min_length=1)
+    phase_boundary: MetaSequencePhaseBoundary
+    required_inputs: list[str]
+    expected_outputs: list[str]
+    checkpoint_binding_id: str | None
+    branch_condition_id: str | None
+    failure_edge_ids: list[str]
+    retry_edge_ids: list[str]
+    operator_gate_id: str | None
+    dispatch_provenance_ref: str | None
+    downstream_gate_module_id: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopSequenceStep":
+        _assert_sorted_unique(
+            self.required_inputs,
+            field_name=f"sequence_steps[{self.step_id}].required_inputs",
+            allow_empty=True,
+        )
+        _assert_sorted_unique(
+            self.expected_outputs,
+            field_name=f"sequence_steps[{self.step_id}].expected_outputs",
+            allow_empty=True,
+        )
+        _assert_sorted_unique(
+            self.failure_edge_ids,
+            field_name=f"sequence_steps[{self.step_id}].failure_edge_ids",
+            allow_empty=True,
+        )
+        _assert_sorted_unique(
+            self.retry_edge_ids,
+            field_name=f"sequence_steps[{self.step_id}].retry_edge_ids",
+            allow_empty=True,
+        )
+        return self
+
+
+class MetaLoopSequenceContract(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: MetaLoopSequenceContractSchemaVersion = META_LOOP_SEQUENCE_CONTRACT_SCHEMA
+    reference_loop_family: MetaReferenceLoopFamily = V37A_REFERENCE_LOOP_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    intent_packet_id: str = Field(min_length=1)
+    reference_anchor: MetaReferenceLoopAnchor
+    phase_boundaries_in_order: list[MetaSequencePhaseBoundary]
+    branch_conditions: list[MetaLoopBranchCondition]
+    failure_edges: list[MetaLoopFailureEdge]
+    retry_edges: list[MetaLoopRetryEdge]
+    operator_gates: list[MetaLoopOperatorGate]
+    steps: list[MetaLoopSequenceStep]
+    operational_influence_threshold_explicit: Literal[True] = True
+    accepted_compilation_threshold_explicit: Literal[True] = True
+    no_hidden_prompt_only_step_order: Literal[True] = True
+    no_hidden_branch_logic: Literal[True] = True
+    no_model_prose_truth_substitution: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopSequenceContract":
+        _assert_exact_sequence(
+            self.phase_boundaries_in_order,
+            expected=FROZEN_V37B_PHASE_BOUNDARIES,
+            field_name="phase_boundaries_in_order",
+        )
+        if self.reference_anchor.reference_arc != V37A_REFERENCE_ARC:
+            raise ValueError(
+                "reference_anchor.reference_arc must equal the frozen "
+                f"v37b anchor {V37A_REFERENCE_ARC}"
+            )
+
+        branch_condition_ids = [item.branch_condition_id for item in self.branch_conditions]
+        _assert_sorted_unique(
+            branch_condition_ids,
+            field_name="branch_conditions.branch_condition_id",
+            allow_empty=True,
+        )
+        failure_edge_ids = [item.failure_edge_id for item in self.failure_edges]
+        _assert_sorted_unique(
+            failure_edge_ids,
+            field_name="failure_edges.failure_edge_id",
+            allow_empty=True,
+        )
+        retry_edge_ids = [item.retry_edge_id for item in self.retry_edges]
+        _assert_sorted_unique(
+            retry_edge_ids,
+            field_name="retry_edges.retry_edge_id",
+            allow_empty=True,
+        )
+        operator_gate_ids = [item.operator_gate_id for item in self.operator_gates]
+        _assert_sorted_unique(
+            operator_gate_ids,
+            field_name="operator_gates.operator_gate_id",
+            allow_empty=True,
+        )
+        step_ids = [item.step_id for item in self.steps]
+        _assert_sorted_unique(step_ids, field_name="steps.step_id")
+
+        step_id_set = set(step_ids)
+        branch_condition_id_set = set(branch_condition_ids)
+        failure_edge_id_set = set(failure_edge_ids)
+        retry_edge_id_set = set(retry_edge_ids)
+        operator_gate_id_set = set(operator_gate_ids)
+
+        for edge in self.failure_edges:
+            if edge.from_step_id not in step_id_set or edge.to_step_id not in step_id_set:
+                raise ValueError("failure_edges must resolve existing step ids")
+        for edge in self.retry_edges:
+            if edge.from_step_id not in step_id_set or edge.to_step_id not in step_id_set:
+                raise ValueError("retry_edges must resolve existing step ids")
+        step_module_id_set = {step.module_id for step in self.steps}
+
+        for gate in self.operator_gates:
+            if gate.module_id not in step_module_id_set:
+                raise ValueError("operator_gates.module_id must resolve an existing step module")
+
+        seen_phase_indices: list[int] = []
+        boundary_index = {
+            value: index for index, value in enumerate(self.phase_boundaries_in_order)
+        }
+        for step in self.steps:
+            seen_phase_indices.append(boundary_index[step.phase_boundary])
+            if (
+                step.branch_condition_id is not None
+                and step.branch_condition_id not in branch_condition_id_set
+            ):
+                raise ValueError(
+                    "step "
+                    f"{step.step_id} branch_condition_id must resolve "
+                    "a declared branch condition"
+                )
+            for edge_id in step.failure_edge_ids:
+                if edge_id not in failure_edge_id_set:
+                    raise ValueError(
+                        f"step {step.step_id} failure_edge_ids must resolve declared failure edges"
+                    )
+            for edge_id in step.retry_edge_ids:
+                if edge_id not in retry_edge_id_set:
+                    raise ValueError(
+                        f"step {step.step_id} retry_edge_ids must resolve declared retry edges"
+                    )
+            if (
+                step.operator_gate_id is not None
+                and step.operator_gate_id not in operator_gate_id_set
+            ):
+                raise ValueError(
+                    f"step {step.step_id} operator_gate_id must resolve a declared operator gate"
+                )
+        if seen_phase_indices != sorted(seen_phase_indices):
+            raise ValueError("steps must preserve the frozen phase-boundary order")
+        return self
+
+
+class MetaLoopRunTraceStep(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    planned_step_id: str = Field(min_length=1)
+    actual_module_id: str = Field(min_length=1)
+    consumed_inputs: list[str]
+    emitted_outputs: list[str]
+    observed_checkpoint_result_refs: list[str]
+    step_status: MetaTraceStepStatus
+    operational_influence_occurred: bool
+    accepted_compilation_occurred: bool
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopRunTraceStep":
+        _assert_sorted_unique(
+            self.consumed_inputs,
+            field_name=f"run_trace_steps[{self.planned_step_id}].consumed_inputs",
+            allow_empty=True,
+        )
+        _assert_sorted_unique(
+            self.emitted_outputs,
+            field_name=f"run_trace_steps[{self.planned_step_id}].emitted_outputs",
+            allow_empty=True,
+        )
+        _assert_sorted_unique(
+            self.observed_checkpoint_result_refs,
+            field_name=(
+                f"run_trace_steps[{self.planned_step_id}].observed_checkpoint_result_refs"
+            ),
+            allow_empty=True,
+        )
+        for ref in self.observed_checkpoint_result_refs:
+            _resolve_repo_relative_path(
+                ref,
+                field_name=(
+                    "run_trace_steps"
+                    f"[{self.planned_step_id}].observed_checkpoint_result_refs"
+                ),
+            )
+        return self
+
+
+class MetaLoopRunTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: MetaLoopRunTraceSchemaVersion = META_LOOP_RUN_TRACE_SCHEMA
+    reference_loop_family: MetaReferenceLoopFamily = V37A_REFERENCE_LOOP_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    intent_packet_id: str = Field(min_length=1)
+    reference_anchor: MetaReferenceLoopAnchor
+    trace_mode: MetaTraceMode
+    steps: list[MetaLoopRunTraceStep]
+    operational_influence_threshold_explicit: Literal[True] = True
+    accepted_compilation_threshold_explicit: Literal[True] = True
+    no_model_prose_truth_substitution: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopRunTrace":
+        if self.reference_anchor.reference_arc != V37A_REFERENCE_ARC:
+            raise ValueError(
+                "reference_anchor.reference_arc must equal the frozen "
+                f"v37b anchor {V37A_REFERENCE_ARC}"
+            )
+        step_ids = [item.planned_step_id for item in self.steps]
+        _assert_sorted_unique(step_ids, field_name="run_trace.steps.planned_step_id")
+        if self.trace_mode == V37B_REFERENCE_TRACE_MODE:
+            for step in self.steps:
+                if step.step_status != "reference_not_executed":
+                    raise ValueError(
+                        "reference_not_executed traces must keep "
+                        "step_status = reference_not_executed"
+                    )
+                if step.accepted_compilation_occurred:
+                    raise ValueError(
+                        "reference_not_executed traces must keep "
+                        "accepted_compilation_occurred = false"
+                    )
+        return self
+
+
 def canonicalize_meta_testing_intent_packet_payload(payload: dict[str, Any]) -> dict[str, Any]:
     model = MetaTestingIntentPacket.model_validate(deepcopy(payload))
     return model.model_dump(mode="json", exclude_none=True)
@@ -651,6 +970,16 @@ def canonicalize_meta_testing_intent_packet_payload(payload: dict[str, Any]) -> 
 def canonicalize_meta_module_catalog_payload(payload: dict[str, Any]) -> dict[str, Any]:
     model = MetaModuleCatalog.model_validate(deepcopy(payload))
     return model.model_dump(mode="json", exclude_none=True)
+
+
+def canonicalize_meta_loop_sequence_contract_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = MetaLoopSequenceContract.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json")
+
+
+def canonicalize_meta_loop_run_trace_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = MetaLoopRunTrace.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json")
 
 
 def assert_v37a_reference_instance_binding(
@@ -712,9 +1041,199 @@ def assert_v37a_reference_bundle_consistent(
         raise ValueError("module catalog must include one operator gate module")
 
 
+def assert_v37b_reference_instance_binding(
+    *,
+    intent_packet: MetaTestingIntentPacket,
+    module_catalog: MetaModuleCatalog,
+    sequence_contract: MetaLoopSequenceContract,
+    run_trace: MetaLoopRunTrace,
+) -> None:
+    assert_v37a_reference_instance_binding(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+    )
+    for field_name in ("reference_loop_family", "reference_instance_id", "intent_packet_id"):
+        expected = getattr(intent_packet, field_name)
+        if getattr(sequence_contract, field_name) != expected:
+            raise ValueError(f"reference instance binding mismatch for {field_name}")
+        if getattr(run_trace, field_name) != expected:
+            raise ValueError(f"reference instance binding mismatch for {field_name}")
+    if sequence_contract.reference_anchor != intent_packet.reference_anchor:
+        raise ValueError("reference instance binding mismatch for reference_anchor")
+    if run_trace.reference_anchor != intent_packet.reference_anchor:
+        raise ValueError("reference instance binding mismatch for reference_anchor")
+
+
+def assert_v37b_reference_bundle_consistent(
+    *,
+    intent_packet: MetaTestingIntentPacket,
+    module_catalog: MetaModuleCatalog,
+    sequence_contract: MetaLoopSequenceContract,
+    run_trace: MetaLoopRunTrace,
+) -> None:
+    assert_v37a_reference_bundle_consistent(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+    )
+    assert_v37b_reference_instance_binding(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        run_trace=run_trace,
+    )
+
+    module_by_id = {module.module_id: module for module in module_catalog.modules}
+    branch_condition_ids = {
+        item.branch_condition_id for item in sequence_contract.branch_conditions
+    }
+    failure_edge_by_id = {item.failure_edge_id: item for item in sequence_contract.failure_edges}
+    retry_edge_by_id = {item.retry_edge_id: item for item in sequence_contract.retry_edges}
+    operator_gate_by_id = {item.operator_gate_id: item for item in sequence_contract.operator_gates}
+    trace_step_by_id = {item.planned_step_id: item for item in run_trace.steps}
+
+    expected_step_ids_in_order = [step.step_id for step in sequence_contract.steps]
+    if [step.planned_step_id for step in run_trace.steps] != expected_step_ids_in_order:
+        raise ValueError(
+            "run trace planned_step_id order must match the accepted sequence contract step order"
+        )
+
+    if run_trace.trace_mode != V37B_REFERENCE_TRACE_MODE:
+        raise ValueError(
+            f"accepted v37b run trace must use trace_mode {V37B_REFERENCE_TRACE_MODE!r}"
+        )
+
+    for step in sequence_contract.steps:
+        if step.module_id not in module_by_id:
+            raise ValueError(f"sequence step {step.step_id} must resolve an accepted module_id")
+        trace_step = trace_step_by_id[step.step_id]
+        if trace_step.actual_module_id != step.module_id:
+            raise ValueError(
+                f"run trace step {step.step_id} must resolve actual_module_id to the bound module"
+            )
+
+        module = module_by_id[step.module_id]
+        if (
+            step.branch_condition_id is not None
+            and step.branch_condition_id not in branch_condition_ids
+        ):
+            raise ValueError(
+                "sequence step "
+                f"{step.step_id} branch_condition_id must resolve "
+                "an accepted branch condition"
+            )
+        for edge_id in step.failure_edge_ids:
+            if failure_edge_by_id[edge_id].from_step_id != step.step_id:
+                raise ValueError(
+                    f"failure edge {edge_id} must start at sequence step {step.step_id}"
+                )
+        for edge_id in step.retry_edge_ids:
+            if retry_edge_by_id[edge_id].from_step_id != step.step_id:
+                raise ValueError(
+                    f"retry edge {edge_id} must start at sequence step {step.step_id}"
+                )
+
+        if module.module_class == "reasoning_module":
+            if step.dispatch_provenance_ref != _module_catalog_binding_ref(
+                module.module_id, "dispatch_provenance"
+            ):
+                raise ValueError(
+                    f"reasoning step {step.step_id} must bind the released v37a dispatch provenance"
+                )
+            if step.checkpoint_binding_id is not None:
+                raise ValueError(
+                    f"reasoning step {step.step_id} must not declare checkpoint_binding_id"
+                )
+            if step.operator_gate_id is not None:
+                raise ValueError(
+                    f"reasoning step {step.step_id} must not declare operator_gate_id"
+                )
+            if step.downstream_gate_module_id is None:
+                raise ValueError(
+                    f"reasoning step {step.step_id} must bind a downstream gate module"
+                )
+            downstream = module_by_id.get(step.downstream_gate_module_id)
+            if downstream is None or downstream.module_class == "reasoning_module":
+                raise ValueError(
+                    f"reasoning step {step.step_id} downstream gate must resolve a hard module"
+                )
+            if not trace_step.operational_influence_occurred:
+                raise ValueError(
+                    f"reasoning step {step.step_id} must mark operational_influence_occurred = true"
+                )
+        else:
+            if step.dispatch_provenance_ref is not None:
+                raise ValueError(
+                    f"hard step {step.step_id} must not declare dispatch_provenance_ref"
+                )
+            if trace_step.operational_influence_occurred:
+                raise ValueError(
+                    f"hard step {step.step_id} must not claim operational_influence_occurred"
+                )
+            if step.downstream_gate_module_id is not None:
+                raise ValueError(
+                    f"hard step {step.step_id} must not bind downstream_gate_module_id"
+                )
+
+            if module.module_class == "operator_gate_module":
+                if step.operator_gate_id is None:
+                    raise ValueError(
+                        f"operator gate step {step.step_id} must declare operator_gate_id"
+                    )
+                operator_gate = operator_gate_by_id.get(step.operator_gate_id)
+                if operator_gate is None or operator_gate.module_id != module.module_id:
+                    raise ValueError(
+                        f"operator gate step {step.step_id} must resolve the accepted operator gate"
+                    )
+                if step.checkpoint_binding_id is not None:
+                    raise ValueError(
+                        f"operator gate step {step.step_id} must not declare checkpoint_binding_id"
+                    )
+            else:
+                if step.checkpoint_binding_id is None:
+                    raise ValueError(
+                        f"hard step {step.step_id} must declare checkpoint_binding_id"
+                    )
+                binding_ids = {binding.binding_id for binding in module.executor_bindings}
+                if step.checkpoint_binding_id not in binding_ids:
+                    raise ValueError(
+                        "hard step "
+                        f"{step.step_id} must bind an executor from the "
+                        "released v37a catalog"
+                    )
+                if (
+                    module.module_class == "evidence_gate_module"
+                    and step.operator_gate_id is not None
+                ):
+                    raise ValueError(
+                        f"evidence gate step {step.step_id} must not declare operator_gate_id"
+                    )
+
+        if trace_step.observed_checkpoint_result_refs:
+            if run_trace.trace_mode != V37B_REFERENCE_TRACE_MODE:
+                raise ValueError(
+                    "observed checkpoint refs require the reference trace mode contract"
+                )
+            for ref in trace_step.observed_checkpoint_result_refs:
+                _resolve_repo_relative_path(
+                    ref,
+                    field_name=(
+                        "run_trace.steps"
+                        f"[{trace_step.planned_step_id}].observed_checkpoint_result_refs"
+                    ),
+                )
+        if trace_step.accepted_compilation_occurred:
+            raise ValueError(
+                "run trace step "
+                f"{trace_step.planned_step_id} must not claim accepted compilation in v37b"
+            )
+
+
 __all__ = [
+    "META_LOOP_RUN_TRACE_SCHEMA",
+    "META_LOOP_SEQUENCE_CONTRACT_SCHEMA",
     "META_MODULE_CATALOG_SCHEMA",
     "META_TESTING_INTENT_PACKET_SCHEMA",
+    "V37B_REFERENCE_TRACE_MODE",
     "V37A_INTENT_PACKET_ID",
     "V37A_OPERATOR_SURFACE",
     "V37A_REFERENCE_ANCHOR_SHAPE",
@@ -726,10 +1245,19 @@ __all__ = [
     "FROZEN_V37A_DRIFT_TAXONOMY",
     "FROZEN_V37A_MODULE_CLASSES",
     "FROZEN_V37A_REQUIRED_CHECKPOINT_CAPABILITIES",
+    "FROZEN_V37B_PHASE_BOUNDARIES",
     "MetaAuthoritativeInputRef",
     "MetaExecutorBinding",
     "MetaExecutorParameterPolicy",
     "MetaExecutorParameterSlot",
+    "MetaLoopBranchCondition",
+    "MetaLoopFailureEdge",
+    "MetaLoopOperatorGate",
+    "MetaLoopRetryEdge",
+    "MetaLoopRunTrace",
+    "MetaLoopRunTraceStep",
+    "MetaLoopSequenceContract",
+    "MetaLoopSequenceStep",
     "MetaModuleCatalog",
     "MetaModuleDescriptor",
     "MetaReasoningDispatchProvenance",
@@ -737,6 +1265,10 @@ __all__ = [
     "MetaTestingIntentPacket",
     "assert_v37a_reference_bundle_consistent",
     "assert_v37a_reference_instance_binding",
+    "assert_v37b_reference_bundle_consistent",
+    "assert_v37b_reference_instance_binding",
+    "canonicalize_meta_loop_run_trace_payload",
+    "canonicalize_meta_loop_sequence_contract_payload",
     "canonicalize_meta_module_catalog_payload",
     "canonicalize_meta_testing_intent_packet_payload",
 ]
