@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import shutil
 from pathlib import Path
@@ -47,12 +46,6 @@ def _source_repo_root() -> Path:
 
 def _canonical_pretty_json(value: object) -> str:
     return json.dumps(value, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
-
-
-def _sha256_canonical_json(value: object) -> str:
-    return hashlib.sha256(
-        json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode("utf-8")
-    ).hexdigest()
 
 
 def _write_json(path: Path, payload: dict[str, object]) -> None:
@@ -879,15 +872,24 @@ def test_materialize_v37d_evidence_fails_closed_on_scope_boundary_bleed(
     conformance_report["severity_counts"] = {"error": 0, "warning": 1, "advisory": 0}
     conformance_report["warning_rule_families"] = ["intent_clause_unassessed_detectable"]
     derivation_metadata = cast(dict[str, Any], conformance_report["derivation_metadata"])
-    derivation_metadata["diagnostics_artifact_hash"] = _sha256_canonical_json(canonical_diagnostics)
+    derivation_metadata["diagnostics_artifact_hash"] = (
+        meta_testing_evidence_module._sha256_canonical_json(canonical_diagnostics)
+    )
+    original_surface_id = meta_testing_evidence_module._supporting_evidence_surface_id
+
+    def _forced_surface_id(ref: str) -> str | None:
+        if ref == DEFAULT_V37C_REFERENCE_LOOP_EVIDENCE_PATH:
+            return "meta_control_update_candidate@1"
+        return original_surface_id(ref)
+
     _write_json(
         repo_root_path / DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
         conformance_report,
     )
     monkeypatch.setattr(
         meta_testing_evidence_module,
-        "FROZEN_V37D_OUT_OF_SCOPE_SURFACES",
-        ("v37c_reference_loop_evidence_v68",),
+        "_supporting_evidence_surface_id",
+        _forced_surface_id,
     )
 
     with pytest.raises(

@@ -140,8 +140,8 @@ FROZEN_V37C_OUT_OF_SCOPE_SURFACES: tuple[str, ...] = (
     "meta_loop_drift_diagnostics@1",
 )
 FROZEN_V37D_OUT_OF_SCOPE_SURFACES: tuple[str, ...] = (
-    "meta_control_update_candidate",
-    "meta_control_update_manifest",
+    "meta_control_update_candidate@1",
+    "meta_control_update_manifest@1",
 )
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -820,10 +820,20 @@ def _assert_v37d_scope_boundary(
 ) -> None:
     for finding in drift_diagnostics.findings:
         for ref in finding.supporting_evidence_refs:
-            if any(surface in ref for surface in FROZEN_V37D_OUT_OF_SCOPE_SURFACES):
+            surface_id = _supporting_evidence_surface_id(ref)
+            if surface_id in FROZEN_V37D_OUT_OF_SCOPE_SURFACES:
                 raise MetaTestingEvidenceError(
                     "v37d scope boundary preserved requires v37e surfaces to remain absent"
                 )
+
+
+def _supporting_evidence_surface_id(ref: str) -> str | None:
+    artifact_name = Path(ref.split("#", 1)[0]).name
+    if artifact_name.startswith("meta_control_update_candidate"):
+        return "meta_control_update_candidate@1"
+    if artifact_name.startswith("meta_control_update_manifest"):
+        return "meta_control_update_manifest@1"
+    return None
 
 
 def materialize_v37a_meta_intent_module_catalog_evidence(
