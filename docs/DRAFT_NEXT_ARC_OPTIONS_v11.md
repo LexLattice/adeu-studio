@@ -1,11 +1,12 @@
-# Draft Next Arc Options v11 (Post vNext+66, Post V37-A Closure)
+# Draft Next Arc Options v11 (Post vNext+67, Post V37-B Closure)
 
 This document defines the post-`vNext+65` planning baseline after the first
 ADEU-governed UX family closed on `main`, using the recursive-compilation note as the
 methodological bridge into the next family.
 
 Status: active planning draft (`V34`, `V35`, `V36-A` through `V36-E`, and `V37-A`
-closed; `V37-B` proposed as next default candidate, no later `V37` path yet locked).
+through `V37-B` closed; `V37-C` proposed as next default candidate, no later `V37`
+path yet locked).
 
 Goal:
 
@@ -56,14 +57,17 @@ behavior, release scope, or autonomous repo mutation by itself.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+66` (`V37-A`) on `main`.
+- Baseline implementation is `vNext+67` (`V37-B`) on `main`.
 - `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-E` are
   closed.
-- `V37-A` is now also closed:
+- `V37-A` and `V37-B` are now closed:
   canonical `meta_testing_intent_packet@1`, canonical `meta_module_catalog@1`, one
   accepted bound reference-instance pair for the first bounded
   `arc_bundle_recursive_compilation_loop`, and canonical
-  `v37a_meta_intent_module_catalog_evidence@1` now exist on `main`.
+  `v37a_meta_intent_module_catalog_evidence@1` now exist on `main`;
+  canonical `meta_loop_sequence_contract@1`, canonical `meta_loop_run_trace@1`, one
+  accepted bound sequence/trace reference pair, and canonical
+  `v37b_sequence_trace_evidence@1` now also exist on `main`.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
   keys only).
@@ -103,6 +107,11 @@ behavior, release scope, or autonomous repo mutation by itself.
   explicit intent, module ontology, executor binding, parameter-safety, dispatch
   provenance, and hard-checkpoint truth-boundary preservation are now frozen in released
   `V37-A` artifacts on native repo terrain.
+- The first sequence-contract and reference-trace substrate is no longer hypothetical:
+  explicit step law, explicit reference-trace law, explicit retry/null-binding
+  representation, explicit operator gates, and explicit `operational_influence` /
+  `accepted_compilation` markers are now frozen in released `V37-B` artifacts on native
+  repo terrain.
 - The empirical legibility claim is now part of repo methodology:
   drift classes, compilation boundaries, and stabilization of soft critique into recurring
   controls are observable in the build loop rather than merely theorized.
@@ -173,7 +182,7 @@ behavior, release scope, or autonomous repo mutation by itself.
 ## Family Scale Note
 
 - `V37` defines `5` paths (`V37-A` through `V37-E`) with a default sequential planning
-  span now continuing from `vNext+67` through `vNext+70`.
+  span now continuing from `vNext+68` through `vNext+70`.
 - This sequence is planning intent only; each arc still requires explicit lock/assessment/
   decision docs before implementation authority is granted.
 
@@ -239,15 +248,16 @@ behavior, release scope, or autonomous repo mutation by itself.
     "V36-C",
     "V36-D",
     "V36-E",
-    "V37-A"
+    "V37-A",
+    "V37-B"
   ],
   "next_path_family": "V37",
   "v37_path_count": 5,
   "v37_default_arc_span": {
-    "from": "vNext+67",
+    "from": "vNext+68",
     "to": "vNext+70"
   },
-  "default_next_arc_candidate": "V37-B",
+  "default_next_arc_candidate": "V37-C",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -804,9 +814,10 @@ This planning draft does not recommend:
 
 - treat `V37-A` as closed and use it as the frozen substrate for the next recursive-
   compilation slice rather than widening it in place;
-- select `V37-B` as the next default candidate:
-  explicit sequence contract plus run trace is the minimum executable law required
-  before a runnable reference loop can be governed cleanly;
+- select `V37-C` as the next default candidate:
+  one bounded executable reference loop plus normalized checkpoint-result capture is the
+  minimum runtime-bearing lane required before typed recursive-compilation drift can be
+  assessed cleanly;
 - keep the first implementation terrain narrow and repo-native:
   one bounded `arc_bundle_recursive_compilation_loop`, not a generalized autonomy stack;
 - preserve the recursive-compilation note's central distinction:
