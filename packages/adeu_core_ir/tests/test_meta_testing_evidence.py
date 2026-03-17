@@ -5,10 +5,15 @@ import shutil
 from pathlib import Path
 from typing import Any, cast
 
+import adeu_core_ir.meta_testing_evidence as meta_testing_evidence_module
 import pytest
 from adeu_core_ir import (
     DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_REFERENCE_PATH,
     DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA_PATH,
+    DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+    DEFAULT_META_LOOP_CONFORMANCE_REPORT_SCHEMA_PATH,
+    DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
+    DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA_PATH,
     DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH,
     DEFAULT_META_LOOP_RUN_TRACE_SCHEMA_PATH,
     DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH,
@@ -20,12 +25,16 @@ from adeu_core_ir import (
     DEFAULT_V37A_META_INTENT_MODULE_CATALOG_EVIDENCE_PATH,
     DEFAULT_V37B_SEQUENCE_TRACE_EVIDENCE_PATH,
     DEFAULT_V37C_EXECUTED_META_LOOP_RUN_TRACE_REFERENCE_PATH,
+    DEFAULT_V37C_REFERENCE_LOOP_EVIDENCE_PATH,
     DEFAULT_V65_BASELINE_METRICS_PATH,
     DEFAULT_V66_BASELINE_METRICS_PATH,
     DEFAULT_V67_BASELINE_METRICS_PATH,
+    DEFAULT_V68_BASELINE_METRICS_PATH,
+    canonicalize_meta_loop_drift_diagnostics_payload,
     materialize_v37a_meta_intent_module_catalog_evidence,
     materialize_v37b_sequence_trace_evidence,
     materialize_v37c_reference_loop_evidence,
+    materialize_v37d_drift_diagnostics_conformance_evidence,
 )
 from adeu_core_ir.meta_testing_evidence import MetaTestingEvidenceError
 from adeu_ir.repo import repo_root
@@ -70,6 +79,8 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         DEFAULT_META_TESTING_INTENT_PACKET_SCHEMA_PATH,
         DEFAULT_META_MODULE_CATALOG_SCHEMA_PATH,
         DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA_PATH,
+        DEFAULT_META_LOOP_CONFORMANCE_REPORT_SCHEMA_PATH,
+        DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA_PATH,
         DEFAULT_META_LOOP_SEQUENCE_CONTRACT_SCHEMA_PATH,
         DEFAULT_META_LOOP_RUN_TRACE_SCHEMA_PATH,
         DEFAULT_META_TESTING_INTENT_PACKET_REFERENCE_PATH,
@@ -77,6 +88,8 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH,
         DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH,
         DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_REFERENCE_PATH,
+        DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+        DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
         DEFAULT_V37C_EXECUTED_META_LOOP_RUN_TRACE_REFERENCE_PATH,
         DEFAULT_V37A_META_INTENT_MODULE_CATALOG_EVIDENCE_PATH,
         DEFAULT_V37B_SEQUENCE_TRACE_EVIDENCE_PATH,
@@ -87,6 +100,7 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         "artifacts/quality_dashboard_v65_closeout.json",
         DEFAULT_V66_BASELINE_METRICS_PATH,
         DEFAULT_V67_BASELINE_METRICS_PATH,
+        DEFAULT_V68_BASELINE_METRICS_PATH,
         DEFAULT_V65_BASELINE_METRICS_PATH,
         "artifacts/stop_gate/report_v65_closeout.md",
         "packages/adeu_core_ir/src/adeu_core_ir/meta_testing.py",
@@ -155,6 +169,62 @@ def _materialize_v37c_evidence(*, repo_root_path: Path) -> dict[str, object]:
     return {
         "artifact": evidence,
         "payload": json.loads((repo_root_path / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _materialize_v37d_evidence(*, repo_root_path: Path) -> dict[str, object]:
+    _materialize_v37c_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V68_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v69_closeout.json",
+    )
+    evidence = materialize_v37d_drift_diagnostics_conformance_evidence(
+        repo_root=repo_root_path,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root_path / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _valid_v37d_warning_finding(
+    *,
+    rule_id: str = "intent_clause_unassessed_detectable",
+    supporting_evidence_refs: list[str] | None = None,
+) -> dict[str, object]:
+    drift_class_by_rule = {
+        "sequence_gap_detectable": "deontic_drift",
+        "intent_clause_unassessed_detectable": "epistemic_drift",
+        "unbound_reasoning_claim_detectable": "epistemic_drift",
+        "checkpoint_bypass_detectable": "deontic_drift",
+        "missing_artifact_evidence_detectable": "epistemic_drift",
+        "prompt_substrate_mismatch_detectable": "epistemic_drift",
+        "repeated_uncompiled_drift_detectable": "utility_drift",
+        "operational_influence_accepted_compilation_collapse_detectable": "deontic_drift",
+    }
+    return {
+        "finding_id": f"finding_{rule_id}",
+        "rule_id": rule_id,
+        "severity": "warning",
+        "drift_class": drift_class_by_rule[rule_id],
+        "module_refs": [
+            f"{DEFAULT_META_MODULE_CATALOG_REFERENCE_PATH}#modules/checkpoint_01_bundle_lint"
+        ],
+        "intent_clause_refs": [f"{DEFAULT_META_TESTING_INTENT_PACKET_REFERENCE_PATH}#objective"],
+        "reference_trace_refs": [
+            f"{DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH}#steps/step_02_bundle_lint"
+        ],
+        "executed_trace_refs": [
+            f"{DEFAULT_V37C_EXECUTED_META_LOOP_RUN_TRACE_REFERENCE_PATH}#steps/step_02_bundle_lint"
+        ],
+        "checkpoint_result_refs": [
+            f"{DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_REFERENCE_PATH}#checkpoint_results/result_step_02_bundle_lint_attempt_01"
+        ],
+        "supporting_evidence_refs": supporting_evidence_refs
+        or [DEFAULT_V37C_REFERENCE_LOOP_EVIDENCE_PATH],
+        "conformance_impact": "needs_review",
     }
 
 
@@ -582,9 +652,7 @@ def test_materialize_v37c_evidence_fails_closed_on_scope_boundary_bleed(
     )
     for payload in (sequence_contract, reference_run_trace, executed_run_trace):
         steps = cast(list[dict[str, Any]], payload["steps"])
-        output_key = (
-            "expected_outputs" if payload is sequence_contract else "emitted_outputs"
-        )
+        output_key = "expected_outputs" if payload is sequence_contract else "emitted_outputs"
         outputs = cast(list[str], steps[8][output_key])
         outputs.append("meta_loop_drift_diagnostics@1")
         outputs.sort()
@@ -633,6 +701,236 @@ def test_materialize_v37c_evidence_fails_closed_on_missing_failed_attempt_row(
         match="must preserve at least one attempted_fail manifest row",
     ):
         materialize_v37c_reference_loop_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37d_drift_diagnostics_conformance_evidence_is_deterministic(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+
+    first = _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    second = _materialize_v37d_evidence(repo_root_path=repo_root_path)
+
+    assert first["artifact"].hash == second["artifact"].hash
+    assert first["payload"] == second["payload"]
+    assert first["payload"]["schema"] == "v37d_drift_diagnostics_conformance_evidence@1"
+
+
+def test_materialize_v37d_evidence_fails_closed_on_non_v68_baseline_metrics_path(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37c_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V68_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v69_closeout.json",
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="baseline_metrics_path must point to the frozen v68 closeout metrics artifact",
+    ):
+        materialize_v37d_drift_diagnostics_conformance_evidence(
+            repo_root=repo_root_path,
+            baseline_metrics_path="artifacts/stop_gate/metrics_other_closeout.json",
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37d_evidence_fails_closed_on_v37c_tuple_drift(tmp_path: Path) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37c_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V68_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v69_closeout.json",
+    )
+    conformance_report = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+    )
+    conformance_report["reference_instance_id"] = "other_reference"
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+        conformance_report,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="reference instance binding mismatch for reference_instance_id",
+    ):
+        materialize_v37d_drift_diagnostics_conformance_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37d_evidence_fails_closed_on_diagnostics_derivation_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37c_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V68_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v69_closeout.json",
+    )
+    conformance_report = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+    )
+    derivation_metadata = cast(dict[str, Any], conformance_report["derivation_metadata"])
+    derivation_metadata["diagnostics_artifact_hash"] = "0" * 64
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+        conformance_report,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match=(
+            "conformance report derivation_metadata\\.diagnostics_artifact_hash must match "
+            "the accepted diagnostics artifact"
+        ),
+    ):
+        materialize_v37d_drift_diagnostics_conformance_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37d_evidence_fails_closed_on_worker_or_event_truth_substitution(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37c_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V68_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v69_closeout.json",
+    )
+    diagnostics = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
+    )
+    findings = cast(list[dict[str, Any]], diagnostics["findings"])
+    findings.append(
+        _valid_v37d_warning_finding(
+            supporting_evidence_refs=[
+                "artifacts/agent_harness/v68/runtime/evidence/codex/copilot/"
+                "v68-closeout-main-1/urm_events.ndjson"
+            ]
+        )
+    )
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
+        diagnostics,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="must not treat event streams or worker prose as authoritative truth",
+    ):
+        materialize_v37d_drift_diagnostics_conformance_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37d_evidence_fails_closed_on_scope_boundary_bleed(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37c_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V68_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v69_closeout.json",
+    )
+    diagnostics = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
+    )
+    findings = cast(list[dict[str, Any]], diagnostics["findings"])
+    findings.append(_valid_v37d_warning_finding())
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
+        diagnostics,
+    )
+    canonical_diagnostics = canonicalize_meta_loop_drift_diagnostics_payload(diagnostics)
+    conformance_report = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+    )
+    conformance_report["overall_judgment"] = "needs_review"
+    conformance_report["supporting_finding_ids"] = ["finding_intent_clause_unassessed_detectable"]
+    conformance_report["severity_counts"] = {"error": 0, "warning": 1, "advisory": 0}
+    conformance_report["warning_rule_families"] = ["intent_clause_unassessed_detectable"]
+    derivation_metadata = cast(dict[str, Any], conformance_report["derivation_metadata"])
+    derivation_metadata["diagnostics_artifact_hash"] = (
+        meta_testing_evidence_module._sha256_canonical_json(canonical_diagnostics)
+    )
+    original_surface_id = meta_testing_evidence_module._supporting_evidence_surface_id
+
+    def _forced_surface_id(ref: str) -> str | None:
+        if ref == DEFAULT_V37C_REFERENCE_LOOP_EVIDENCE_PATH:
+            return "meta_control_update_candidate@1"
+        return original_surface_id(ref)
+
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+        conformance_report,
+    )
+    monkeypatch.setattr(
+        meta_testing_evidence_module,
+        "_supporting_evidence_surface_id",
+        _forced_surface_id,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="v37d scope boundary preserved requires v37e surfaces to remain absent",
+    ):
+        materialize_v37d_drift_diagnostics_conformance_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37d_evidence_fails_closed_on_repeated_drift_overclaim(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37c_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V68_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v69_closeout.json",
+    )
+    diagnostics = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
+    )
+    findings = cast(list[dict[str, Any]], diagnostics["findings"])
+    findings.append(_valid_v37d_warning_finding(rule_id="repeated_uncompiled_drift_detectable"))
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
+        diagnostics,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match=(
+            "repeated_uncompiled_drift_detectable requires >=2 accepted runs for a "
+            "positive finding in the first v37d reference artifact"
+        ),
+    ):
+        materialize_v37d_drift_diagnostics_conformance_evidence(
             repo_root=repo_root_path,
             current_metrics_path=current_rel,
         )
