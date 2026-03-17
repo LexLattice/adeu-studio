@@ -1,0 +1,322 @@
+{
+  "schema": "meta_loop_sequence_contract@1",
+  "reference_loop_family": "arc_bundle_recursive_compilation_loop",
+  "reference_instance_id": "arc_closeout_v65_reference",
+  "intent_packet_id": "v37a_arc_closeout_v65_intent",
+  "reference_anchor": {
+    "shape": "arc_closeout_bundle_instance",
+    "reference_arc": 65,
+    "reference_phase": "closeout"
+  },
+  "phase_boundaries_in_order": [
+    "intent_interpretation",
+    "pre_generation_validation",
+    "artifact_generation",
+    "post_generation_validation",
+    "evidence_gate",
+    "operator_gate"
+  ],
+  "branch_conditions": [
+    {
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "condition_kind": "all_required_inputs_available",
+      "description": "Enter the step only when all required upstream inputs for the bounded reference loop are explicitly present."
+    },
+    {
+      "branch_condition_id": "branch_02_generated_artifacts_available",
+      "condition_kind": "all_required_generated_artifacts_available",
+      "description": "Enter the step only when the quality and stop-gate artifact outputs required by later validation are present in the reference law."
+    },
+    {
+      "branch_condition_id": "branch_03_downstream_gate_required",
+      "condition_kind": "downstream_gate_required",
+      "description": "Enter the step only when the preceding reasoning or checkpoint claim is explicitly bound to a downstream evidence or operator gate."
+    }
+  ],
+  "failure_edges": [
+    {
+      "failure_edge_id": "failure_01_bundle_lint_to_operator_gate",
+      "from_step_id": "step_02_bundle_lint",
+      "to_step_id": "step_10_repo_acceptance_gate",
+      "trigger": "checkpoint_failure",
+      "description": "If the bundle lint fails, route the bounded reference loop directly to the explicit operator acceptance boundary."
+    },
+    {
+      "failure_edge_id": "failure_02_artifact_consistency_to_operator_gate",
+      "from_step_id": "step_03_artifact_consistency_lint",
+      "to_step_id": "step_10_repo_acceptance_gate",
+      "trigger": "checkpoint_failure",
+      "description": "If closeout artifact consistency fails, route directly to the explicit operator acceptance boundary."
+    },
+    {
+      "failure_edge_id": "failure_03_quality_dashboard_build_to_operator_gate",
+      "from_step_id": "step_04_quality_dashboard_build",
+      "to_step_id": "step_10_repo_acceptance_gate",
+      "trigger": "checkpoint_failure",
+      "description": "If quality-dashboard generation fails, route directly to the explicit operator acceptance boundary."
+    },
+    {
+      "failure_edge_id": "failure_04_stop_gate_metrics_build_to_operator_gate",
+      "from_step_id": "step_05_stop_gate_metrics_build",
+      "to_step_id": "step_10_repo_acceptance_gate",
+      "trigger": "checkpoint_failure",
+      "description": "If stop-gate metric/report generation fails, route directly to the explicit operator acceptance boundary."
+    },
+    {
+      "failure_edge_id": "failure_05_semantic_closeout_lint_to_operator_gate",
+      "from_step_id": "step_06_semantic_closeout_lint",
+      "to_step_id": "step_10_repo_acceptance_gate",
+      "trigger": "checkpoint_failure",
+      "description": "If semantic closeout lint fails, route directly to the explicit operator acceptance boundary."
+    },
+    {
+      "failure_edge_id": "failure_06_event_stream_validation_to_operator_gate",
+      "from_step_id": "step_07_committed_event_stream_validation",
+      "to_step_id": "step_10_repo_acceptance_gate",
+      "trigger": "checkpoint_failure",
+      "description": "If committed event-stream validation fails, route directly to the explicit operator acceptance boundary."
+    },
+    {
+      "failure_edge_id": "failure_07_instruction_policy_validation_to_operator_gate",
+      "from_step_id": "step_08_instruction_policy_validation",
+      "to_step_id": "step_10_repo_acceptance_gate",
+      "trigger": "checkpoint_failure",
+      "description": "If instruction-policy validation fails, route directly to the explicit operator acceptance boundary."
+    },
+    {
+      "failure_edge_id": "failure_08_reference_bundle_guard_to_operator_gate",
+      "from_step_id": "step_09_reference_bundle_guard",
+      "to_step_id": "step_10_repo_acceptance_gate",
+      "trigger": "evidence_gate_failure",
+      "description": "If the reference bundle guard fails, route directly to the explicit operator acceptance boundary."
+    }
+  ],
+  "retry_edges": [
+    {
+      "retry_edge_id": "retry_01_event_stream_fixture_refresh",
+      "from_step_id": "step_07_committed_event_stream_validation",
+      "to_step_id": "step_07_committed_event_stream_validation",
+      "trigger": "fixture_refresh_required",
+      "description": "If committed runtime evidence is stale, the only documented retry path is an explicit committed-fixture refresh before re-validation."
+    }
+  ],
+  "operator_gates": [
+    {
+      "operator_gate_id": "operator_gate_01_repo_acceptance",
+      "module_id": "operator_01_repo_acceptance_gate",
+      "acceptance_scope": "Explicit repo acceptance remains the only gate permitted to convert bounded reference sequence law into accepted compilation."
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step_01_meta_intent_interpretation",
+      "module_id": "reasoning_01_meta_intent_interpreter",
+      "phase_boundary": "intent_interpretation",
+      "required_inputs": [
+        "meta_module_catalog@1",
+        "meta_testing_intent_packet@1"
+      ],
+      "expected_outputs": [
+        "checkpoint_shape_expectation_summary",
+        "drift_hypothesis_summary"
+      ],
+      "checkpoint_binding_id": null,
+      "branch_condition_id": null,
+      "failure_edge_ids": [],
+      "retry_edge_ids": [],
+      "operator_gate_id": null,
+      "dispatch_provenance_ref": "meta_module_catalog::reasoning_01_meta_intent_interpreter::dispatch_provenance",
+      "downstream_gate_module_id": "evidence_01_reference_bundle_guard"
+    },
+    {
+      "step_id": "step_02_bundle_lint",
+      "module_id": "checkpoint_01_bundle_lint",
+      "phase_boundary": "pre_generation_validation",
+      "required_inputs": [
+        "lock_doc_ref",
+        "reference_arc_phase_locator"
+      ],
+      "expected_outputs": [
+        "bundle_lint_payload"
+      ],
+      "checkpoint_binding_id": "arc_bundle_closeout_lint",
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "failure_edge_ids": [
+        "failure_01_bundle_lint_to_operator_gate"
+      ],
+      "retry_edge_ids": [],
+      "operator_gate_id": null,
+      "dispatch_provenance_ref": null,
+      "downstream_gate_module_id": null
+    },
+    {
+      "step_id": "step_03_artifact_consistency_lint",
+      "module_id": "checkpoint_02_artifact_consistency_lint",
+      "phase_boundary": "pre_generation_validation",
+      "required_inputs": [
+        "closeout_artifact_set",
+        "closeout_doc_set"
+      ],
+      "expected_outputs": [
+        "artifact_consistency_lint_payload"
+      ],
+      "checkpoint_binding_id": "closeout_consistency_lint",
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "failure_edge_ids": [
+        "failure_02_artifact_consistency_to_operator_gate"
+      ],
+      "retry_edge_ids": [],
+      "operator_gate_id": null,
+      "dispatch_provenance_ref": null,
+      "downstream_gate_module_id": null
+    },
+    {
+      "step_id": "step_04_quality_dashboard_build",
+      "module_id": "checkpoint_05_quality_dashboard_build",
+      "phase_boundary": "artifact_generation",
+      "required_inputs": [
+        "quality_dashboard_reference"
+      ],
+      "expected_outputs": [
+        "quality_dashboard_json"
+      ],
+      "checkpoint_binding_id": "quality_dashboard_builder",
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "failure_edge_ids": [
+        "failure_03_quality_dashboard_build_to_operator_gate"
+      ],
+      "retry_edge_ids": [],
+      "operator_gate_id": null,
+      "dispatch_provenance_ref": null,
+      "downstream_gate_module_id": null
+    },
+    {
+      "step_id": "step_05_stop_gate_metrics_build",
+      "module_id": "checkpoint_04_stop_gate_metrics_build",
+      "phase_boundary": "artifact_generation",
+      "required_inputs": [
+        "quality_dashboard_reference",
+        "stop_gate_reference_outputs"
+      ],
+      "expected_outputs": [
+        "stop_gate_metrics@1",
+        "stop_gate_report_markdown"
+      ],
+      "checkpoint_binding_id": "stop_gate_metrics_builder",
+      "branch_condition_id": "branch_02_generated_artifacts_available",
+      "failure_edge_ids": [
+        "failure_04_stop_gate_metrics_build_to_operator_gate"
+      ],
+      "retry_edge_ids": [],
+      "operator_gate_id": null,
+      "dispatch_provenance_ref": null,
+      "downstream_gate_module_id": null
+    },
+    {
+      "step_id": "step_06_semantic_closeout_lint",
+      "module_id": "checkpoint_03_semantic_closeout_lint",
+      "phase_boundary": "post_generation_validation",
+      "required_inputs": [
+        "lock_doc_ref",
+        "stop_gate_artifact_set"
+      ],
+      "expected_outputs": [
+        "semantic_closeout_lint_payload"
+      ],
+      "checkpoint_binding_id": "semantic_compiler_closeout_lint",
+      "branch_condition_id": "branch_02_generated_artifacts_available",
+      "failure_edge_ids": [
+        "failure_05_semantic_closeout_lint_to_operator_gate"
+      ],
+      "retry_edge_ids": [],
+      "operator_gate_id": null,
+      "dispatch_provenance_ref": null,
+      "downstream_gate_module_id": null
+    },
+    {
+      "step_id": "step_07_committed_event_stream_validation",
+      "module_id": "checkpoint_06_committed_event_stream_validation",
+      "phase_boundary": "post_generation_validation",
+      "required_inputs": [
+        "committed_runtime_event_stream_root"
+      ],
+      "expected_outputs": [
+        "committed_event_stream_validation_payload"
+      ],
+      "checkpoint_binding_id": "committed_event_stream_validator",
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "failure_edge_ids": [
+        "failure_06_event_stream_validation_to_operator_gate"
+      ],
+      "retry_edge_ids": [
+        "retry_01_event_stream_fixture_refresh"
+      ],
+      "operator_gate_id": null,
+      "dispatch_provenance_ref": null,
+      "downstream_gate_module_id": null
+    },
+    {
+      "step_id": "step_08_instruction_policy_validation",
+      "module_id": "checkpoint_07_instruction_policy_validation",
+      "phase_boundary": "post_generation_validation",
+      "required_inputs": [
+        "generated_instruction_policy_views"
+      ],
+      "expected_outputs": [
+        "instruction_policy_validation_payload"
+      ],
+      "checkpoint_binding_id": "instruction_policy_validator",
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "failure_edge_ids": [
+        "failure_07_instruction_policy_validation_to_operator_gate"
+      ],
+      "retry_edge_ids": [],
+      "operator_gate_id": null,
+      "dispatch_provenance_ref": null,
+      "downstream_gate_module_id": null
+    },
+    {
+      "step_id": "step_09_reference_bundle_guard",
+      "module_id": "evidence_01_reference_bundle_guard",
+      "phase_boundary": "evidence_gate",
+      "required_inputs": [
+        "meta_loop_reference_artifact_bundle"
+      ],
+      "expected_outputs": [
+        "reference_bundle_guard_payload"
+      ],
+      "checkpoint_binding_id": "v37a_reference_bundle_guard",
+      "branch_condition_id": "branch_03_downstream_gate_required",
+      "failure_edge_ids": [
+        "failure_08_reference_bundle_guard_to_operator_gate"
+      ],
+      "retry_edge_ids": [],
+      "operator_gate_id": null,
+      "dispatch_provenance_ref": null,
+      "downstream_gate_module_id": null
+    },
+    {
+      "step_id": "step_10_repo_acceptance_gate",
+      "module_id": "operator_01_repo_acceptance_gate",
+      "phase_boundary": "operator_gate",
+      "required_inputs": [
+        "reference_adjudication_summary"
+      ],
+      "expected_outputs": [
+        "operator_acceptance_decision"
+      ],
+      "checkpoint_binding_id": null,
+      "branch_condition_id": "branch_03_downstream_gate_required",
+      "failure_edge_ids": [],
+      "retry_edge_ids": [],
+      "operator_gate_id": "operator_gate_01_repo_acceptance",
+      "dispatch_provenance_ref": null,
+      "downstream_gate_module_id": null
+    }
+  ],
+  "operational_influence_threshold_explicit": true,
+  "accepted_compilation_threshold_explicit": true,
+  "no_hidden_prompt_only_step_order": true,
+  "no_hidden_branch_logic": true,
+  "no_model_prose_truth_substitution": true
+}

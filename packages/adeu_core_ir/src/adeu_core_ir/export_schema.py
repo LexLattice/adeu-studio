@@ -15,7 +15,12 @@ from .integrity_reference_integrity_extended import (
     AdeuIntegrityReferenceIntegrityExtended,
 )
 from .lane_report import AdeuLaneReport
-from .meta_testing import MetaModuleCatalog, MetaTestingIntentPacket
+from .meta_testing import (
+    MetaLoopRunTrace,
+    MetaLoopSequenceContract,
+    MetaModuleCatalog,
+    MetaTestingIntentPacket,
+)
 from .models import AdeuCoreIR
 from .normative_advice_packet import AdeuNormativeAdvicePacket
 from .projection_alignment import AdeuProjectionAlignment
@@ -97,6 +102,10 @@ def main() -> None:
     )
     meta_testing_intent_packet_schema = MetaTestingIntentPacket.model_json_schema(by_alias=True)
     meta_module_catalog_schema = MetaModuleCatalog.model_json_schema(by_alias=True)
+    meta_loop_sequence_contract_schema = MetaLoopSequenceContract.model_json_schema(
+        by_alias=True
+    )
+    meta_loop_run_trace_schema = MetaLoopRunTrace.model_json_schema(by_alias=True)
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
     _write_schema(authoritative_path, core_ir_schema)
@@ -330,6 +339,19 @@ def main() -> None:
         meta_module_catalog_schema,
     )
 
+    meta_loop_sequence_contract_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "meta_loop_sequence_contract.v1.json"
+    )
+    _write_schema(
+        meta_loop_sequence_contract_authoritative_path,
+        meta_loop_sequence_contract_schema,
+    )
+
+    meta_loop_run_trace_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "meta_loop_run_trace.v1.json"
+    )
+    _write_schema(meta_loop_run_trace_authoritative_path, meta_loop_run_trace_schema)
+
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
 
@@ -490,6 +512,17 @@ def main() -> None:
         meta_module_catalog_mirror_path,
         meta_module_catalog_schema,
     )
+
+    meta_loop_sequence_contract_mirror_path = (
+        root / "spec" / "meta_loop_sequence_contract.schema.json"
+    )
+    _write_schema(
+        meta_loop_sequence_contract_mirror_path,
+        meta_loop_sequence_contract_schema,
+    )
+
+    meta_loop_run_trace_mirror_path = root / "spec" / "meta_loop_run_trace.schema.json"
+    _write_schema(meta_loop_run_trace_mirror_path, meta_loop_run_trace_schema)
 
 
 if __name__ == "__main__":

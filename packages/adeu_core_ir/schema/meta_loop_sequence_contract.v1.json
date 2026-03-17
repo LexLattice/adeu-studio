@@ -1,0 +1,421 @@
+{
+  "$defs": {
+    "MetaLoopBranchCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "branch_condition_id": {
+          "minLength": 1,
+          "title": "Branch Condition Id",
+          "type": "string"
+        },
+        "condition_kind": {
+          "enum": [
+            "all_required_inputs_available",
+            "all_required_generated_artifacts_available",
+            "downstream_gate_required"
+          ],
+          "title": "Condition Kind",
+          "type": "string"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "branch_condition_id",
+        "condition_kind",
+        "description"
+      ],
+      "title": "MetaLoopBranchCondition",
+      "type": "object"
+    },
+    "MetaLoopFailureEdge": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "failure_edge_id": {
+          "minLength": 1,
+          "title": "Failure Edge Id",
+          "type": "string"
+        },
+        "from_step_id": {
+          "minLength": 1,
+          "title": "From Step Id",
+          "type": "string"
+        },
+        "to_step_id": {
+          "minLength": 1,
+          "title": "To Step Id",
+          "type": "string"
+        },
+        "trigger": {
+          "enum": [
+            "checkpoint_failure",
+            "evidence_gate_failure",
+            "operator_rejection"
+          ],
+          "title": "Trigger",
+          "type": "string"
+        }
+      },
+      "required": [
+        "failure_edge_id",
+        "from_step_id",
+        "to_step_id",
+        "trigger",
+        "description"
+      ],
+      "title": "MetaLoopFailureEdge",
+      "type": "object"
+    },
+    "MetaLoopOperatorGate": {
+      "additionalProperties": false,
+      "properties": {
+        "acceptance_scope": {
+          "minLength": 1,
+          "title": "Acceptance Scope",
+          "type": "string"
+        },
+        "module_id": {
+          "minLength": 1,
+          "title": "Module Id",
+          "type": "string"
+        },
+        "operator_gate_id": {
+          "minLength": 1,
+          "title": "Operator Gate Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operator_gate_id",
+        "module_id",
+        "acceptance_scope"
+      ],
+      "title": "MetaLoopOperatorGate",
+      "type": "object"
+    },
+    "MetaLoopRetryEdge": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "from_step_id": {
+          "minLength": 1,
+          "title": "From Step Id",
+          "type": "string"
+        },
+        "retry_edge_id": {
+          "minLength": 1,
+          "title": "Retry Edge Id",
+          "type": "string"
+        },
+        "to_step_id": {
+          "minLength": 1,
+          "title": "To Step Id",
+          "type": "string"
+        },
+        "trigger": {
+          "enum": [
+            "fixture_refresh_required",
+            "generated_artifact_refresh_required"
+          ],
+          "title": "Trigger",
+          "type": "string"
+        }
+      },
+      "required": [
+        "retry_edge_id",
+        "from_step_id",
+        "to_step_id",
+        "trigger",
+        "description"
+      ],
+      "title": "MetaLoopRetryEdge",
+      "type": "object"
+    },
+    "MetaLoopSequenceStep": {
+      "additionalProperties": false,
+      "properties": {
+        "branch_condition_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Branch Condition Id"
+        },
+        "checkpoint_binding_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Checkpoint Binding Id"
+        },
+        "dispatch_provenance_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dispatch Provenance Ref"
+        },
+        "downstream_gate_module_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Downstream Gate Module Id"
+        },
+        "expected_outputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Expected Outputs",
+          "type": "array"
+        },
+        "failure_edge_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failure Edge Ids",
+          "type": "array"
+        },
+        "module_id": {
+          "minLength": 1,
+          "title": "Module Id",
+          "type": "string"
+        },
+        "operator_gate_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Operator Gate Id"
+        },
+        "phase_boundary": {
+          "enum": [
+            "intent_interpretation",
+            "pre_generation_validation",
+            "artifact_generation",
+            "post_generation_validation",
+            "evidence_gate",
+            "operator_gate"
+          ],
+          "title": "Phase Boundary",
+          "type": "string"
+        },
+        "required_inputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Inputs",
+          "type": "array"
+        },
+        "retry_edge_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Retry Edge Ids",
+          "type": "array"
+        },
+        "step_id": {
+          "minLength": 1,
+          "title": "Step Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_id",
+        "module_id",
+        "phase_boundary",
+        "required_inputs",
+        "expected_outputs",
+        "checkpoint_binding_id",
+        "branch_condition_id",
+        "failure_edge_ids",
+        "retry_edge_ids",
+        "operator_gate_id",
+        "dispatch_provenance_ref"
+      ],
+      "title": "MetaLoopSequenceStep",
+      "type": "object"
+    },
+    "MetaReferenceLoopAnchor": {
+      "additionalProperties": false,
+      "properties": {
+        "reference_arc": {
+          "minimum": 1,
+          "title": "Reference Arc",
+          "type": "integer"
+        },
+        "reference_phase": {
+          "const": "closeout",
+          "default": "closeout",
+          "title": "Reference Phase",
+          "type": "string"
+        },
+        "shape": {
+          "const": "arc_closeout_bundle_instance",
+          "default": "arc_closeout_bundle_instance",
+          "title": "Shape",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reference_arc"
+      ],
+      "title": "MetaReferenceLoopAnchor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_compilation_threshold_explicit": {
+      "const": true,
+      "default": true,
+      "title": "Accepted Compilation Threshold Explicit",
+      "type": "boolean"
+    },
+    "branch_conditions": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopBranchCondition"
+      },
+      "title": "Branch Conditions",
+      "type": "array"
+    },
+    "failure_edges": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopFailureEdge"
+      },
+      "title": "Failure Edges",
+      "type": "array"
+    },
+    "intent_packet_id": {
+      "minLength": 1,
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "no_hidden_branch_logic": {
+      "const": true,
+      "default": true,
+      "title": "No Hidden Branch Logic",
+      "type": "boolean"
+    },
+    "no_hidden_prompt_only_step_order": {
+      "const": true,
+      "default": true,
+      "title": "No Hidden Prompt Only Step Order",
+      "type": "boolean"
+    },
+    "no_model_prose_truth_substitution": {
+      "const": true,
+      "default": true,
+      "title": "No Model Prose Truth Substitution",
+      "type": "boolean"
+    },
+    "operational_influence_threshold_explicit": {
+      "const": true,
+      "default": true,
+      "title": "Operational Influence Threshold Explicit",
+      "type": "boolean"
+    },
+    "operator_gates": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopOperatorGate"
+      },
+      "title": "Operator Gates",
+      "type": "array"
+    },
+    "phase_boundaries_in_order": {
+      "items": {
+        "enum": [
+          "intent_interpretation",
+          "pre_generation_validation",
+          "artifact_generation",
+          "post_generation_validation",
+          "evidence_gate",
+          "operator_gate"
+        ],
+        "type": "string"
+      },
+      "title": "Phase Boundaries In Order",
+      "type": "array"
+    },
+    "reference_anchor": {
+      "$ref": "#/$defs/MetaReferenceLoopAnchor"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_loop_family": {
+      "const": "arc_bundle_recursive_compilation_loop",
+      "default": "arc_bundle_recursive_compilation_loop",
+      "title": "Reference Loop Family",
+      "type": "string"
+    },
+    "retry_edges": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopRetryEdge"
+      },
+      "title": "Retry Edges",
+      "type": "array"
+    },
+    "schema": {
+      "const": "meta_loop_sequence_contract@1",
+      "default": "meta_loop_sequence_contract@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopSequenceStep"
+      },
+      "title": "Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "intent_packet_id",
+    "reference_anchor",
+    "phase_boundaries_in_order",
+    "branch_conditions",
+    "failure_edges",
+    "retry_edges",
+    "operator_gates",
+    "steps"
+  ],
+  "title": "MetaLoopSequenceContract",
+  "type": "object"
+}
