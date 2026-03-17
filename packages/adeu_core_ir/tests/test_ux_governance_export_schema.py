@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 from adeu_core_ir import (
+    META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA,
     META_LOOP_RUN_TRACE_SCHEMA,
     META_LOOP_SEQUENCE_CONTRACT_SCHEMA,
     META_MODULE_CATALOG_SCHEMA,
@@ -94,6 +95,14 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             root / "spec" / "meta_loop_sequence_contract.schema.json",
         ),
         (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "meta_loop_checkpoint_result_manifest.v1.json",
+            root / "spec" / "meta_loop_checkpoint_result_manifest.schema.json",
+        ),
+        (
             root / "packages" / "adeu_core_ir" / "schema" / "meta_loop_run_trace.v1.json",
             root / "spec" / "meta_loop_run_trace.schema.json",
         ),
@@ -141,6 +150,7 @@ def test_exported_schema_files_have_stable_contract_markers() -> None:
         "meta_testing_intent_packet.v1.json": META_TESTING_INTENT_PACKET_SCHEMA,
         "meta_module_catalog.v1.json": META_MODULE_CATALOG_SCHEMA,
         "meta_loop_sequence_contract.v1.json": META_LOOP_SEQUENCE_CONTRACT_SCHEMA,
+        "meta_loop_checkpoint_result_manifest.v1.json": META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA,
         "meta_loop_run_trace.v1.json": META_LOOP_RUN_TRACE_SCHEMA,
     }
 

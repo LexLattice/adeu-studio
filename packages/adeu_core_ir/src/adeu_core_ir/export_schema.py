@@ -16,6 +16,7 @@ from .integrity_reference_integrity_extended import (
 )
 from .lane_report import AdeuLaneReport
 from .meta_testing import (
+    MetaLoopCheckpointResultManifest,
     MetaLoopRunTrace,
     MetaLoopSequenceContract,
     MetaModuleCatalog,
@@ -102,8 +103,9 @@ def main() -> None:
     )
     meta_testing_intent_packet_schema = MetaTestingIntentPacket.model_json_schema(by_alias=True)
     meta_module_catalog_schema = MetaModuleCatalog.model_json_schema(by_alias=True)
-    meta_loop_sequence_contract_schema = MetaLoopSequenceContract.model_json_schema(
-        by_alias=True
+    meta_loop_sequence_contract_schema = MetaLoopSequenceContract.model_json_schema(by_alias=True)
+    meta_loop_checkpoint_result_manifest_schema = (
+        MetaLoopCheckpointResultManifest.model_json_schema(by_alias=True)
     )
     meta_loop_run_trace_schema = MetaLoopRunTrace.model_json_schema(by_alias=True)
 
@@ -347,6 +349,18 @@ def main() -> None:
         meta_loop_sequence_contract_schema,
     )
 
+    meta_loop_checkpoint_result_manifest_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "meta_loop_checkpoint_result_manifest.v1.json"
+    )
+    _write_schema(
+        meta_loop_checkpoint_result_manifest_authoritative_path,
+        meta_loop_checkpoint_result_manifest_schema,
+    )
+
     meta_loop_run_trace_authoritative_path = (
         root / "packages" / "adeu_core_ir" / "schema" / "meta_loop_run_trace.v1.json"
     )
@@ -519,6 +533,14 @@ def main() -> None:
     _write_schema(
         meta_loop_sequence_contract_mirror_path,
         meta_loop_sequence_contract_schema,
+    )
+
+    meta_loop_checkpoint_result_manifest_mirror_path = (
+        root / "spec" / "meta_loop_checkpoint_result_manifest.schema.json"
+    )
+    _write_schema(
+        meta_loop_checkpoint_result_manifest_mirror_path,
+        meta_loop_checkpoint_result_manifest_schema,
     )
 
     meta_loop_run_trace_mirror_path = root / "spec" / "meta_loop_run_trace.schema.json"
