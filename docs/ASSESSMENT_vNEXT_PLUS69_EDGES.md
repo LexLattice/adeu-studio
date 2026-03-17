@@ -60,33 +60,39 @@ Status: pre-lock assessment (March 17, 2026 UTC).
 4. Drift findings could remain prose-friendly unless minimum per-finding structure is
    frozen.
    - `D1` must freeze stable ids, rule ids, severity, drift class, bound refs, and
-     conformance impact in the canonical finding structure.
+     conformance impact in the canonical finding structure, including direct binding to
+     the normalized checkpoint-result layer.
 5. Conformance could remain interpretive unless the aggregation rule is frozen.
    - `D1` and `D2` must freeze and verify deterministic aggregation rather than
      allowing local summary heuristics.
-6. Diagnostics could treat worker prose or event streams as authoritative truth rather
+6. Diagnostics-layer conformance could be mistaken for authority to reopen prior closeout
+   decisions.
+   - `D1` and `D2` must make explicit that `V37-D` conformance judges the bounded
+     reference loop and does not by itself negate or rewrite the accepted `v68`
+     closeout decision.
+7. Diagnostics could treat worker prose or event streams as authoritative truth rather
    than provenance/context.
    - `D1` and `D2` must fail closed on prose truth substitution not backed by accepted
      canonical artifacts.
-7. `prompt_substrate_mismatch_detectable` could become hand-wavy if dispatch provenance
+8. `prompt_substrate_mismatch_detectable` could become hand-wavy if dispatch provenance
    and executor bindings are not treated as required substrate.
    - `D1` and `D2` must anchor this family explicitly to released dispatch provenance
      and exact executor bindings.
-8. `repeated_uncompiled_drift_detectable` could overclaim on the first bounded loop if
+9. `repeated_uncompiled_drift_detectable` could overclaim on the first bounded loop if
    the required two-run window semantics are not frozen now.
    - `D1` and `D2` must freeze the minimum repeated-drift window rule and reject
      overclaiming a positive repeated finding when the accepted window is still below
      threshold.
-9. The methodological distinction between `operational_influence` and
+10. The methodological distinction between `operational_influence` and
    `accepted_compilation` is explicit in prior substrate, but not yet frozen as a
    diagnostics violation family.
    - `D1` and `D2` must surface collapse of that distinction deterministically.
-10. No canonical `v37d_drift_diagnostics_conformance_evidence@1` exists on `main`.
+11. No canonical `v37d_drift_diagnostics_conformance_evidence@1` exists on `main`.
     - `D2` must materialize the closeout evidence lane for deterministic diagnostics,
       deterministic conformance, truth-boundary preservation, and stop-gate continuity.
-11. Stop-gate continuity risk remains open at arc start.
+12. Stop-gate continuity risk remains open at arc start.
     - v69 must preserve `stop_gate_metrics@1` and exact metric-key equality with v68.
-12. Thin-slice boundary drift remains open.
+13. Thin-slice boundary drift remains open.
     - v69 must not quietly ship any `V37-E` control-update export under a
       diagnostics/conformance label.
 

@@ -56,6 +56,7 @@ Status: draft decision note (pre-start scaffold, March 17, 2026 UTC).
 | Canonical `meta_loop_drift_diagnostics@1`, canonical `meta_loop_conformance_report@1`, and canonical `v37d_drift_diagnostics_conformance_evidence@1` emitted and hash-bound | required | `pending` | implementation not started |
 | Accepted diagnostics and conformance artifacts bind exactly to the released `V37-A`, `V37-B`, and `V37-C` reference tuple | required | `pending` | implementation not started |
 | Conformance remains deterministically derived from diagnostics according to the frozen aggregation rule | required | `pending` | implementation not started |
+| The `V37-D` conformance judgment remains diagnostics-layer only and does not reopen the accepted `v68` closeout decision | required | `pending` | implementation not started |
 | Typed drift findings remain grounded in explicit intent and actual hard checkpoint outputs | required | `pending` | implementation not started |
 | Worker/event prose truth substitution is rejected | required | `pending` | implementation not started |
 | Repeated-uncompiled-drift window semantics are frozen without overclaiming beyond the accepted run window | required | `pending` | implementation not started |
@@ -71,4 +72,6 @@ Status: draft decision note (pre-start scaffold, March 17, 2026 UTC).
     required before recursive-compilation drift can be typed and assessed cleanly.
   - current repo hard checkpoint surfaces, typed module ontology, typed sequence/trace
     substrate, and one accepted executable reference loop now exist, but no released
-    diagnostics/conformance layer yet exists on `main`.
+    diagnostics/conformance layer yet exists on `main`;
+    the next arc should assess that loop, not retroactively rewrite the accepted
+    `v68` closeout decision.

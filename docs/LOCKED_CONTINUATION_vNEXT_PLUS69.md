@@ -120,16 +120,22 @@ Status: draft lock (not frozen yet, March 17, 2026 UTC).
     `error`, `warning`, `advisory`,
   - the arc must freeze the minimum finding structure:
     `finding_id`, `rule_id`, `severity`, `drift_class`, `module_refs`,
-    `intent_clause_refs`, `sequence_trace_refs`, `supporting_evidence_refs`,
-    `conformance_impact`,
+    `intent_clause_refs`, `reference_trace_refs`, `executed_trace_refs`,
+    `checkpoint_result_refs`, `supporting_evidence_refs`, `conformance_impact`,
   - the arc must freeze the minimum conformance-report structure:
     `overall_judgment`, `supporting_finding_ids`, `severity_counts`,
     `failed_rule_families`, `warning_rule_families`, the shared binding tuple, and
     `derivation_metadata`,
+  - `derivation_metadata` must include aggregation-rule identity, diagnostics artifact
+    hash, and conformance generator identity/version so derivation law cannot be
+    silently reinterpreted later,
   - the arc must freeze the deterministic conformance aggregation rule:
     any `error` => `fail`;
     no `error` and any `warning` => `needs_review`;
     only `advisory` findings or no findings => `pass`,
+  - the `V37-D` conformance judgment is a diagnostics-layer judgment over the bounded
+    reference loop and does not by itself reopen, negate, or rewrite the accepted
+    `V37-C` / `v68` closeout decision,
   - worker prose, event streams, and free-form reflections may appear only as
     provenance/context unless they are already represented through accepted canonical
     artifacts; they may not serve as authoritative grounds for pass/fail by themselves,
@@ -264,7 +270,9 @@ Consumption lock:
       "drift_class",
       "module_refs",
       "intent_clause_refs",
-      "sequence_trace_refs",
+      "reference_trace_refs",
+      "executed_trace_refs",
+      "checkpoint_result_refs",
       "supporting_evidence_refs",
       "conformance_impact"
     ],
@@ -289,6 +297,11 @@ Consumption lock:
       "intent_packet_id",
       "derivation_metadata"
     ],
+    "derivation_metadata_must_include": [
+      "aggregation_rule_id",
+      "diagnostics_artifact_hash",
+      "conformance_generator_id"
+    ],
     "conformance_overall_judgment_enum": [
       "pass",
       "fail",
@@ -299,6 +312,7 @@ Consumption lock:
       "no_error_and_any_warning": "needs_review",
       "only_advisory_or_no_findings": "pass"
     },
+    "conformance_judgment_does_not_reopen_v68_closeout_decision": true,
     "seeded_first_family_violation_families": [
       "sequence_gap_detectable",
       "intent_clause_unassessed_detectable",
@@ -330,6 +344,7 @@ Consumption lock:
     "diagnostic_finding_structure_verified",
     "conformance_report_structure_verified",
     "conformance_aggregation_rule_verified",
+    "conformance_derivation_metadata_identity_verified",
     "conformance_report_diagnostics_derivation_verified",
     "sequence_gap_detectable",
     "intent_clause_unassessed_detectable",
@@ -349,6 +364,7 @@ Consumption lock:
     "reference_tuple_drift_from_v37a_v37b_or_v37c",
     "diagnostic_finding_structure_missing_required_fields",
     "conformance_report_structure_missing_required_fields",
+    "derivation_metadata_missing_aggregation_rule_identity",
     "conformance_report_not_derived_from_diagnostics",
     "aggregation_rule_recomputed_locally_or_drifted",
     "diagnostic_or_conformance_truth_substituted_by_worker_or_event_prose",
@@ -375,6 +391,7 @@ Consumption lock:
     "diagnostic_finding_structure_verified",
     "conformance_report_structure_verified",
     "conformance_aggregation_rule_verified",
+    "conformance_derivation_metadata_identity_verified",
     "conformance_report_diagnostics_derivation_verified",
     "sequence_gap_detectable",
     "intent_clause_unassessed_detectable",
@@ -427,6 +444,9 @@ Consumption lock:
   concrete existing reference-loop instance rather than to a family abstraction only;
 - conformance must be deterministically derived from typed diagnostics according to the
   frozen aggregation rule rather than by ad hoc summary judgment;
+- seeded first-family violation families must remain deterministically evaluable and
+  canonically representable without requiring every family to yield a positive finding
+  in the first accepted artifact;
 - the emitted diagnostics/conformance artifacts must be sufficient for later advisory
   control-update work without introducing that later surface in this arc.
 
@@ -453,14 +473,18 @@ narrative loop critique.
   `error`, `warning`, `advisory`;
 - freeze the minimum per-finding structure:
   stable `finding_id`, stable `rule_id`, `severity`, ADEU `drift_class`, bound module
-  refs, bound intent-clause refs, bound sequence/trace refs, supporting evidence refs,
-  and conformance impact;
+  refs, bound intent-clause refs, bound reference-trace refs, bound executed-trace refs,
+  bound checkpoint-result refs, supporting evidence refs, and conformance impact;
 - freeze the minimum conformance-report structure:
   `overall_judgment`, supporting finding ids, severity counts, failed/warning rule
-  families, shared binding fields, and derivation metadata;
+  families, shared binding fields, and derivation metadata carrying aggregation-rule
+  identity, diagnostics artifact hash, and conformance generator identity/version;
 - freeze deterministic conformance aggregation:
   any `error` => `fail`, no `error` and at least one `warning` => `needs_review`,
   only `advisory` findings or no findings => `pass`;
+- freeze diagnostics/conformance authority boundary:
+  the v69 conformance judgment does not by itself reopen, negate, or rewrite the
+  accepted `v68` closeout decision;
 - freeze deterministic seeded detection coverage for the first-family violation set:
   sequence gaps, intent clauses left unassessed, unbound reasoning claims, checkpoint
   bypass, missing artifact evidence, prompt/substrate mismatches, repeated uncompiled
@@ -567,9 +591,10 @@ Suggested PR title:
    `v37d_drift_diagnostics_conformance_evidence@1` exist on `main`.
 5. accepted diagnostics/conformance artifacts serialize deterministically and remain
    coherently bound to the released accepted `V37-A`, `V37-B`, and `V37-C` substrate.
-6. seeded first-family drift findings are surfaced deterministically with the frozen
-   severity taxonomy, the frozen minimum finding/report structure, and the hard
-   truth-boundary preserved.
+6. seeded first-family violation families are deterministically evaluable and
+   canonically representable with the frozen severity taxonomy, the frozen minimum
+   finding/report structure, and the hard truth-boundary preserved, without requiring
+   every family to yield a positive finding in the first accepted artifact.
 7. overall conformance judgment is deterministically derived from the accepted
    diagnostics artifact according to the frozen aggregation rule.
 8. worker/event prose truth substitution is rejected.

@@ -641,7 +641,9 @@ Scope:
   - ADEU drift class;
   - bound module refs;
   - bound intent clause refs;
-  - bound sequence/trace refs;
+  - bound reference-trace refs;
+  - bound executed-trace refs;
+  - bound checkpoint-result refs;
   - supporting evidence refs;
   - conformance impact;
 - require `meta_loop_conformance_report@1` to carry at least:
@@ -651,11 +653,17 @@ Scope:
   - failed/warning rule families;
   - shared binding tuple;
   - derivation metadata proving it was computed from accepted diagnostics and frozen hard
-    inputs rather than from export-local heuristics;
+    inputs rather than from export-local heuristics, including at least:
+    aggregation-rule identity,
+    diagnostics artifact hash,
+    and conformance generator identity/version;
 - freeze the first-family conformance aggregation rule:
   - any `error` => `fail`;
   - no `error`, at least one `warning` => `needs_review`;
   - only `advisory` findings or no findings => `pass`;
+- freeze diagnostics/conformance authority boundary:
+  the `V37-D` conformance judgment assesses the bounded reference loop and does not by
+  itself reopen, negate, or rewrite the accepted `V37-C` / `v68` closeout decision;
 - require exact cross-layer binding equality for:
   - `reference_loop_family`
   - `reference_instance_id`
@@ -697,6 +705,9 @@ Acceptance:
   conformance report exist for the bounded reference loop;
 - conformance is deterministically derived from diagnostics according to the frozen
   aggregation rule rather than by export-local judgment;
+- seeded first-family violation families are deterministically evaluable and canonically
+  representable, without requiring every family to yield a positive finding in the
+  first accepted artifact;
 - the accepted artifacts are sufficient to classify drift against explicit intent, bind
   it to actual module/checkpoint outputs, and fail closed on truth substitution or
   checkpoint bypass.
