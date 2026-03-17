@@ -1,15 +1,16 @@
-# Draft Next Arc Options v11 (Post vNext+67, Post V37-B Closure)
+# Draft Next Arc Options v11 (Post vNext+68, Post V37-C Closure)
 
 This document defines the post-`vNext+65` planning baseline after the first
 ADEU-governed UX family closed on `main`, using the recursive-compilation note as the
 methodological bridge into the next family.
 
 Status: active planning draft (`V34`, `V35`, `V36-A` through `V36-E`, and `V37-A`
-through `V37-B` closed; `V37-C` proposed as next default candidate, no later `V37`
+through `V37-C` closed; `V37-D` proposed as next default candidate, no later `V37`
 path yet locked).
 
 Goal:
 
+- select `V37-D` as the next default candidate after `V37-C` closure;
 - carry forward the completed `V34` trust/distribution line without reopening it;
 - carry forward the completed `V35-A` through `V35-E` orchestration/delegation/
   visibility/topology/enforcement line without widening it implicitly;
@@ -50,6 +51,9 @@ behavior, release scope, or autonomous repo mutation by itself.
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS66.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS66.md`
 - `docs/ASSESSMENT_vNEXT_PLUS66_EDGES.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS68.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS68.md`
+- `docs/ASSESSMENT_vNEXT_PLUS68_EDGES.md`
 - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - `docs/FUTURE_CLEANUPS.md`
 - `docs/SEMANTICS_v3.md`
@@ -57,17 +61,21 @@ behavior, release scope, or autonomous repo mutation by itself.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+67` (`V37-B`) on `main`.
+- Baseline implementation is `vNext+68` (`V37-C`) on `main`.
 - `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-E` are
   closed.
-- `V37-A` and `V37-B` are now closed:
+- `V37-A`, `V37-B`, and `V37-C` are now closed:
   canonical `meta_testing_intent_packet@1`, canonical `meta_module_catalog@1`, one
   accepted bound reference-instance pair for the first bounded
   `arc_bundle_recursive_compilation_loop`, and canonical
   `v37a_meta_intent_module_catalog_evidence@1` now exist on `main`;
   canonical `meta_loop_sequence_contract@1`, canonical `meta_loop_run_trace@1`, one
   accepted bound sequence/trace reference pair, and canonical
-  `v37b_sequence_trace_evidence@1` now also exist on `main`.
+  `v37b_sequence_trace_evidence@1` now also exist on `main`;
+  canonical `meta_loop_checkpoint_result_manifest@1`, one accepted executed
+  `meta_loop_run_trace@1`, one accepted executable reference loop bound to the same
+  bounded `arc_bundle_recursive_compilation_loop`, and canonical
+  `v37c_reference_loop_evidence@1` now also exist on `main`.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
   keys only).
@@ -112,6 +120,11 @@ behavior, release scope, or autonomous repo mutation by itself.
   representation, explicit operator gates, and explicit `operational_influence` /
   `accepted_compilation` markers are now frozen in released `V37-B` artifacts on native
   repo terrain.
+- The first bounded executable reference loop is no longer hypothetical:
+  one accepted executed run, one accepted checkpoint-result manifest, actual
+  hard-checkpoint capture under a deliberate executed subset, and canonical
+  `v37c_reference_loop_evidence@1` are now frozen in released `V37-C` artifacts on
+  native repo terrain.
 - The empirical legibility claim is now part of repo methodology:
   drift classes, compilation boundaries, and stabilization of soft critique into recurring
   controls are observable in the build loop rather than merely theorized.
@@ -182,7 +195,7 @@ behavior, release scope, or autonomous repo mutation by itself.
 ## Family Scale Note
 
 - `V37` defines `5` paths (`V37-A` through `V37-E`) with a default sequential planning
-  span now continuing from `vNext+68` through `vNext+70`.
+  span now continuing from `vNext+69` through `vNext+70`.
 - This sequence is planning intent only; each arc still requires explicit lock/assessment/
   decision docs before implementation authority is granted.
 
@@ -249,15 +262,16 @@ behavior, release scope, or autonomous repo mutation by itself.
     "V36-D",
     "V36-E",
     "V37-A",
-    "V37-B"
+    "V37-B",
+    "V37-C"
   ],
   "next_path_family": "V37",
   "v37_path_count": 5,
   "v37_default_arc_span": {
-    "from": "vNext+68",
+    "from": "vNext+69",
     "to": "vNext+70"
   },
-  "default_next_arc_candidate": "V37-C",
+  "default_next_arc_candidate": "V37-D",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
