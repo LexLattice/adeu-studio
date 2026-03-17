@@ -548,6 +548,11 @@ Scope:
   `make arc-closeout-check ARC=<n>` is one checkpoint binding in the loop,
   while quality-dashboard build, stop-gate build, instruction-policy validation, and
   committed event-stream validation remain distinct checkpoint bindings;
+- require the first executable reference run to declare its executed hard-checkpoint
+  subset intentionally rather than by omission:
+  the released hard checkpoint catalog remains broader than the first executed subset,
+  and any non-executed released capability should be explicitly named as deferred rather
+  than silently dropped from the loop ontology;
 - require the later first lock to freeze the chosen authoritative stop-gate executor
   deliberately rather than leaving adjacent repo surfaces interchangeable under the
   capability label alone;
@@ -562,6 +567,11 @@ Scope:
   - accepted module catalog;
   - accepted sequence contract;
   - accepted hard checkpoint outputs;
+- require that executed run trace to remain a distinct executed artifact rather than a
+  mutation or reinterpretation of the frozen `V37-B` reference trace;
+- require realized control-flow provenance in the executed artifacts:
+  actual branch outcomes should be recorded whenever a branch condition is evaluated,
+  and actual retry outcomes should be recorded whenever a retry occurs;
 - require the loop to keep reasoning and checkpoint roles distinct:
   reasoning modules may predict, compare, classify, or synthesize;
   hard checkpoint modules remain authoritative for observed validation truth;
@@ -585,10 +595,15 @@ Acceptance:
 - one bounded reference loop can be executed end-to-end against an explicit intent packet;
 - the first accepted reference execution is anchored to one concrete existing arc-bundle
   instance rather than to a family abstraction only;
+- the first accepted reference execution declares a bounded intentional executed
+  capability subset and names any released hard-checkpoint capabilities not yet executed
+  in the first run;
 - both reasoning-module outputs and hard checkpoint outputs are captured under the shared
   binding tuple;
 - observed pass/fail- or gate-relevant truth in the run is derived from hard checkpoint
   outputs and accepted artifact refs rather than from unbound reasoning prose;
+- the accepted executed trace is distinct from the frozen `V37-B` reference trace and
+  records realized branch/retry outcomes when those control-flow surfaces are exercised;
 - the reference loop emits enough deterministic structured output for later typed drift
   diagnostics and conformance.
 

@@ -56,7 +56,10 @@ Status: draft decision note (pre-start scaffold, March 17, 2026 UTC).
 | Canonical `meta_loop_checkpoint_result_manifest@1` and one accepted executable reference run emitted and hash-bound | required | `pending` | implementation not started |
 | Accepted executable reference run binds exactly to the released `V37-A` and `V37-B` reference pairs | required | `pending` | implementation not started |
 | Actual hard checkpoint outputs are captured from real executor bindings under the shared tuple | required | `pending` | implementation not started |
+| Executed hard-checkpoint subset is explicit and intentional for the first accepted run | required | `pending` | implementation not started |
 | The authoritative stop-gate executor surface is frozen and verified | required | `pending` | implementation not started |
+| The accepted executed trace is distinct from the frozen `V37-B` reference trace and records realized branch/retry outcomes when exercised | required | `pending` | implementation not started |
+| Attempted failed checkpoint steps still emit normalized manifest rows | required | `pending` | implementation not started |
 | Observed gate truth remains derived from actual checkpoint outputs rather than from reasoning prose | required | `pending` | implementation not started |
 | No diagnostics, conformance, or control-update export is released | required | `pending` | implementation not started |
 | Runtime observability comparison captured | required | `pending` | closeout artifacts not generated |

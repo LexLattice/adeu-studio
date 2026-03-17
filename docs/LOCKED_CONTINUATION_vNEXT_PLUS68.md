@@ -115,6 +115,10 @@ Status: draft lock (not frozen yet, March 17, 2026 UTC).
     rather than introducing a new reference terrain,
   - the first executable reference run must remain anchored to one concrete
     `v65`-style closeout bundle instance rather than to a family abstraction only,
+  - the first executable reference run must declare its executed hard-checkpoint subset
+    intentionally rather than by omission;
+    released hard-checkpoint capabilities not executed in the first run should be named
+    explicitly as deferred for later family expansion,
   - the arc must execute reasoning modules and hard checkpoint modules only in accepted
     sequence-contract order;
     no hidden prompt-only step order, hidden branch logic, or undocumented retry
@@ -129,9 +133,17 @@ Status: draft lock (not frozen yet, March 17, 2026 UTC).
     validated argument vectors are authorized, raw shell interpolation is not,
   - the arc must normalize actual hard-checkpoint outputs into canonical
     `meta_loop_checkpoint_result_manifest@1`,
+  - any attempted checkpoint step, including a failed checkpoint step, must still emit a
+    normalized result-manifest record;
+    missing manifest rows may not be used to imply that an attempted step never ran,
   - the accepted executed run must use explicit executed-run trace semantics rather than
     the `reference_not_executed` trace mode frozen in v67;
     checkpoint-result refs must point to actual emitted or preaccepted artifact refs,
+  - the accepted executed run must emit a distinct executed-trace artifact rather than a
+    mutation or reinterpretation of the frozen `V37-B` reference trace,
+  - realized control-flow provenance must be explicit in the executed artifacts:
+    actual branch outcomes should be recorded whenever a branch condition is evaluated,
+    and actual retry outcomes should be recorded whenever a retry occurs,
   - observed pass/fail or gate-relevant truth in the run must be derived from actual
     hard checkpoint outputs and bound artifact refs/hashes rather than from reasoning
     prose,
@@ -245,14 +257,24 @@ Consumption lock:
       "instruction_policy_validation",
       "committed_event_stream_validation"
     ],
+    "executed_capability_subset_is_intentional": true,
+    "non_executed_released_capabilities_for_first_run": [
+      "artifact_consistency_lint",
+      "semantic_closeout_lint"
+    ],
     "checkpoint_executor_bindings_must_resolve_via_v37a_catalog": true,
     "sequence_contract_order_must_drive_execution": true,
     "reasoning_dispatch_provenance_must_match_v37b_contract": true,
     "typed_argument_validation_required_before_checkpoint_invocation": true,
     "raw_shell_interpolation_for_soft_originated_inputs_rejected": true,
     "checkpoint_result_manifest_must_normalize_actual_outputs": true,
+    "checkpoint_result_manifest_rows_required_for_attempted_failed_checkpoints": true,
+    "executed_run_trace_artifact_required": true,
+    "executed_run_trace_must_be_distinct_from_v67_reference_trace": true,
     "executed_run_trace_mode_required_value": "executed_reference_run",
     "actual_checkpoint_result_refs_required_for_executed_steps": true,
+    "actual_branch_outcome_refs_required_when_branch_condition_present": true,
+    "actual_retry_outcome_refs_required_when_retry_occurs": true,
     "output_artifact_refs_and_hashes_required": true,
     "reasoning_vs_checkpoint_truth_boundary_preserved": true,
     "make_arc_closeout_check_is_one_checkpoint_binding_not_monolithic_loop": true,
@@ -266,9 +288,13 @@ Consumption lock:
     "v37b_reference_tuple_consumed_without_drift",
     "executed_reference_run_emitted",
     "checkpoint_result_manifest_emitted_and_hash_bound",
+    "executed_run_trace_artifact_distinct_from_v67_reference_trace",
     "executed_run_trace_mode_verified",
     "hard_checkpoint_results_captured_from_actual_executors",
+    "executed_capability_subset_declared_intentionally",
     "authoritative_stop_gate_executor_binding_verified",
+    "actual_branch_and_retry_outcomes_verified",
+    "failed_checkpoint_attempts_still_emit_normalized_result_rows",
     "output_artifact_refs_and_hashes_verified",
     "reasoning_vs_checkpoint_truth_boundary_preserved",
     "executed_step_order_matches_v37b_contract",
@@ -280,9 +306,13 @@ Consumption lock:
     "reference_tuple_drift_from_v37a_or_v37b",
     "executed_run_claims_truth_without_actual_checkpoint_output",
     "checkpoint_step_executed_without_exact_catalog_binding",
+    "executed_capability_subset_implicit_or_undeclared",
     "stop_gate_executor_binding_not_frozen_to_authoritative_surface",
     "soft_originated_parameter_reaches_executor_without_typed_validation",
     "hidden_execution_order_branch_or_retry_logic_introduced",
+    "executed_branch_condition_without_outcome_record",
+    "retried_step_without_retry_outcome_record",
+    "executed_checkpoint_without_normalized_result_record",
     "output_artifact_ref_or_hash_missing_for_executed_checkpoint",
     "diagnostics_conformance_or_control_update_surface_introduced_in_v37c",
     "metric_key_regression_from_v67"
@@ -293,9 +323,13 @@ Consumption lock:
     "v37b_reference_tuple_consumed_without_drift",
     "executed_reference_run_emitted",
     "checkpoint_result_manifest_emitted_and_hash_bound",
+    "executed_run_trace_artifact_distinct_from_v67_reference_trace",
     "executed_run_trace_mode_verified",
     "hard_checkpoint_results_captured_from_actual_executors",
+    "executed_capability_subset_declared_intentionally",
     "authoritative_stop_gate_executor_binding_verified",
+    "actual_branch_and_retry_outcomes_verified",
+    "failed_checkpoint_attempts_still_emit_normalized_result_rows",
     "output_artifact_refs_and_hashes_verified",
     "reasoning_vs_checkpoint_truth_boundary_preserved",
     "v37c_scope_boundary_preserved",
@@ -307,7 +341,10 @@ Consumption lock:
     "one_bound_executable_reference_run_exists_for_arc_bundle_recursive_compilation_loop",
     "executed_reference_run_binds_exactly_to_released_v37a_and_v37b_reference_pairs",
     "hard_checkpoint_outputs_are_captured_from_actual_executors_under_shared_binding_tuple",
+    "executed_capability_subset_is_explicit_and_intentional_for_first_family_run",
     "authoritative_stop_gate_executor_is_frozen_and_verified",
+    "executed_trace_is_distinct_from_v67_reference_trace_and_records_realized_control_flow",
+    "failed_checkpoint_attempts_still_emit_normalized_result_manifest_rows",
     "observed_gate_truth_is_derived_from_actual_checkpoint_outputs_not_reasoning_prose",
     "stop_gate_schema_family_and_metric_keyset_remain_unchanged",
     "no_diagnostics_conformance_or_control_update_export_is_released"
@@ -321,10 +358,14 @@ Consumption lock:
 - `C1` should execute one bounded reference loop on native repo terrain and normalize
   actual hard checkpoint outputs into canonical
   `meta_loop_checkpoint_result_manifest@1`.
+- that first executed run should declare its bounded intentional hard-checkpoint subset
+  explicitly rather than implying that the full released `V37-A` catalog is already in
+  active execution scope.
 - `C2` should prove determinism, hash binding, exact cross-artifact binding back to the
   released `V37-A` and `V37-B` pairs, actual executor capture, stop-gate continuity,
-  and executable truth-boundary preservation while rejecting diagnostics/conformance or
-  control-update bleed.
+  distinct executed-trace emission, realized branch/retry outcome capture, manifest-row
+  completeness for attempted failed checkpoints, and executable truth-boundary
+  preservation while rejecting diagnostics/conformance or control-update bleed.
 - the first accepted executable reference run should remain intentionally narrow:
   one `v65`-style closeout bundle instance under one explicit intent packet and one
   accepted module/sequence substrate, not a generalized autonomy stack.

@@ -61,31 +61,44 @@ Status: pre-lock assessment (March 17, 2026 UTC).
    is not anchored to one real native instance.
    - `C1` must bind to one `v65`-style closeout bundle instance rather than to a family
      abstraction only.
-5. The stop-gate executor surface could remain ambiguous across adjacent repo commands.
+5. The first executable run could silently execute only part of the released hard
+   checkpoint catalog without making that narrowing explicit.
+   - `C1` and `C2` must declare the first executed hard-checkpoint subset intentionally
+     and name any released hard capabilities deferred from the first run.
+6. The stop-gate executor surface could remain ambiguous across adjacent repo commands.
    - `C1` and `C2` must deliberately freeze the authoritative stop-gate executor binding
      rather than treating nearby surfaces as interchangeable.
-6. Soft-originated parameters could still leak into executor invocation as raw shell
+7. Soft-originated parameters could still leak into executor invocation as raw shell
    text.
    - `C1` and `C2` must reject untyped shell interpolation and require validated
      argument vectors before checkpoint invocation.
-7. Executed loop truth could collapse back into reasoning prose if actual checkpoint
+8. Executed loop truth could collapse back into reasoning prose if actual checkpoint
    outputs are not normalized and bound.
    - `C1` and `C2` must derive observed gate truth only from actual hard checkpoint
      outputs and accepted artifact refs/hashes.
-8. Executed step order could drift away from the released sequence contract.
+9. Executed step order could drift away from the released sequence contract.
    - `C1` and `C2` must reject hidden execution order, hidden branch logic, and
      undocumented retry behavior.
-9. The executed run could still use reference-trace semantics rather than actual-run
+10. The executed run could still use reference-trace semantics rather than actual-run
    semantics.
    - `C1` and `C2` must replace `reference_not_executed` posture with explicit
-     executed-run trace semantics for the accepted executable run.
-10. No canonical `v37c_reference_loop_evidence@1` exists on `main`.
+     executed-run trace semantics for the accepted executable run and emit a distinct
+     executed-trace artifact rather than mutating the frozen v67 reference trace.
+11. Realized control-flow provenance could remain underspecified once the loop actually
+    runs.
+    - `C1` and `C2` must record actual branch outcomes whenever branch conditions are
+      evaluated and actual retry outcomes whenever retries occur.
+12. Attempted failed checkpoint steps could disappear from the normalized manifest and
+    be confused with steps that never ran.
+    - `C1` and `C2` must fail closed unless attempted failed checkpoints still emit
+      normalized manifest rows.
+13. No canonical `v37c_reference_loop_evidence@1` exists on `main`.
     - `C2` must materialize the closeout evidence lane for executable-run binding,
       actual checkpoint capture, artifact refs/hashes, truth-boundary preservation, and
       stop-gate continuity.
-11. Stop-gate continuity risk remains open at arc start.
+14. Stop-gate continuity risk remains open at arc start.
     - v68 must preserve `stop_gate_metrics@1` and exact metric-key equality with v67.
-12. Thin-slice boundary drift remains open.
+15. Thin-slice boundary drift remains open.
     - v68 must not quietly ship diagnostics/conformance, control-update export, or any
       `V37-D` / `V37-E` surface under an executable-loop label.
 
