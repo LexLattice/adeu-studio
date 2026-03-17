@@ -1,0 +1,207 @@
+{
+  "$defs": {
+    "MetaLoopDiagnosticFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "checkpoint_result_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Checkpoint Result Refs",
+          "type": "array"
+        },
+        "conformance_impact": {
+          "enum": [
+            "advisory_only",
+            "blocks_pass",
+            "needs_review"
+          ],
+          "title": "Conformance Impact",
+          "type": "string"
+        },
+        "drift_class": {
+          "enum": [
+            "deontic_drift",
+            "epistemic_drift",
+            "ontology_drift",
+            "utility_drift"
+          ],
+          "title": "Drift Class",
+          "type": "string"
+        },
+        "executed_trace_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Executed Trace Refs",
+          "type": "array"
+        },
+        "finding_id": {
+          "minLength": 1,
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "intent_clause_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Intent Clause Refs",
+          "type": "array"
+        },
+        "module_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Module Refs",
+          "type": "array"
+        },
+        "reference_trace_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Reference Trace Refs",
+          "type": "array"
+        },
+        "rule_id": {
+          "enum": [
+            "sequence_gap_detectable",
+            "intent_clause_unassessed_detectable",
+            "unbound_reasoning_claim_detectable",
+            "checkpoint_bypass_detectable",
+            "missing_artifact_evidence_detectable",
+            "prompt_substrate_mismatch_detectable",
+            "repeated_uncompiled_drift_detectable",
+            "operational_influence_accepted_compilation_collapse_detectable"
+          ],
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning",
+            "advisory"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "finding_id",
+        "rule_id",
+        "severity",
+        "drift_class",
+        "module_refs",
+        "intent_clause_refs",
+        "reference_trace_refs",
+        "executed_trace_refs",
+        "checkpoint_result_refs",
+        "supporting_evidence_refs",
+        "conformance_impact"
+      ],
+      "title": "MetaLoopDiagnosticFinding",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "canonical_artifact_truth_only": {
+      "const": true,
+      "default": true,
+      "title": "Canonical Artifact Truth Only",
+      "type": "boolean"
+    },
+    "event_streams_and_worker_prose_provenance_only": {
+      "const": true,
+      "default": true,
+      "title": "Event Streams And Worker Prose Provenance Only",
+      "type": "boolean"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopDiagnosticFinding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "hard_checkpoint_truth_boundary_preserved": {
+      "const": true,
+      "default": true,
+      "title": "Hard Checkpoint Truth Boundary Preserved",
+      "type": "boolean"
+    },
+    "intent_packet_id": {
+      "minLength": 1,
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_loop_family": {
+      "const": "arc_bundle_recursive_compilation_loop",
+      "default": "arc_bundle_recursive_compilation_loop",
+      "title": "Reference Loop Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "meta_loop_drift_diagnostics@1",
+      "default": "meta_loop_drift_diagnostics@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "seeded_violation_families": {
+      "items": {
+        "enum": [
+          "sequence_gap_detectable",
+          "intent_clause_unassessed_detectable",
+          "unbound_reasoning_claim_detectable",
+          "checkpoint_bypass_detectable",
+          "missing_artifact_evidence_detectable",
+          "prompt_substrate_mismatch_detectable",
+          "repeated_uncompiled_drift_detectable",
+          "operational_influence_accepted_compilation_collapse_detectable"
+        ],
+        "type": "string"
+      },
+      "title": "Seeded Violation Families",
+      "type": "array"
+    },
+    "severity_taxonomy": {
+      "items": {
+        "enum": [
+          "error",
+          "warning",
+          "advisory"
+        ],
+        "type": "string"
+      },
+      "title": "Severity Taxonomy",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "intent_packet_id",
+    "severity_taxonomy",
+    "seeded_violation_families",
+    "findings"
+  ],
+  "title": "MetaLoopDriftDiagnostics",
+  "type": "object"
+}

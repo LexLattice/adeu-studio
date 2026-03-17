@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import hashlib
+import json
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Literal
@@ -14,6 +15,8 @@ MetaModuleCatalogSchemaVersion = Literal["meta_module_catalog@1"]
 MetaLoopSequenceContractSchemaVersion = Literal["meta_loop_sequence_contract@1"]
 MetaLoopCheckpointResultManifestSchemaVersion = Literal["meta_loop_checkpoint_result_manifest@1"]
 MetaLoopRunTraceSchemaVersion = Literal["meta_loop_run_trace@1"]
+MetaLoopDriftDiagnosticsSchemaVersion = Literal["meta_loop_drift_diagnostics@1"]
+MetaLoopConformanceReportSchemaVersion = Literal["meta_loop_conformance_report@1"]
 MetaReferenceLoopFamily = Literal["arc_bundle_recursive_compilation_loop"]
 MetaReferenceAnchorShape = Literal["arc_closeout_bundle_instance"]
 MetaReferencePhase = Literal["closeout"]
@@ -134,12 +137,29 @@ MetaTraceStepStatus = Literal[
     "executed_skip",
     "reference_not_executed",
 ]
+MetaDiagnosticSeverity = Literal["error", "warning", "advisory"]
+MetaConformanceOverallJudgment = Literal["pass", "fail", "needs_review"]
+MetaConformanceImpact = Literal["advisory_only", "blocks_pass", "needs_review"]
+MetaSeededViolationFamily = Literal[
+    "sequence_gap_detectable",
+    "intent_clause_unassessed_detectable",
+    "unbound_reasoning_claim_detectable",
+    "checkpoint_bypass_detectable",
+    "missing_artifact_evidence_detectable",
+    "prompt_substrate_mismatch_detectable",
+    "repeated_uncompiled_drift_detectable",
+    "operational_influence_accepted_compilation_collapse_detectable",
+]
+MetaAggregationRuleId = Literal["v37d_meta_conformance_aggregation_rule@1"]
+MetaConformanceGeneratorId = Literal["adeu_core_ir.meta_testing.derive_v37d_conformance@1"]
 
 META_TESTING_INTENT_PACKET_SCHEMA = "meta_testing_intent_packet@1"
 META_MODULE_CATALOG_SCHEMA = "meta_module_catalog@1"
 META_LOOP_SEQUENCE_CONTRACT_SCHEMA = "meta_loop_sequence_contract@1"
 META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA = "meta_loop_checkpoint_result_manifest@1"
 META_LOOP_RUN_TRACE_SCHEMA = "meta_loop_run_trace@1"
+META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA = "meta_loop_drift_diagnostics@1"
+META_LOOP_CONFORMANCE_REPORT_SCHEMA = "meta_loop_conformance_report@1"
 V37A_REFERENCE_LOOP_FAMILY = "arc_bundle_recursive_compilation_loop"
 V37A_REFERENCE_ANCHOR_SHAPE = "arc_closeout_bundle_instance"
 V37A_REFERENCE_ARC = 65
@@ -150,6 +170,8 @@ V37A_INTENT_PACKET_ID = "v37a_arc_closeout_v65_intent"
 V37C_EXECUTED_TRACE_MODE = "executed_reference_run"
 V37B_REFERENCE_TRACE_MODE = "reference_not_executed"
 V37C_AUTHORITATIVE_STOP_GATE_BINDING_REF = "apps/api/scripts/build_stop_gate_metrics.py::main"
+V37D_CONFORMANCE_AGGREGATION_RULE_ID = "v37d_meta_conformance_aggregation_rule@1"
+V37D_CONFORMANCE_GENERATOR_ID = "adeu_core_ir.meta_testing.derive_v37d_conformance@1"
 
 FROZEN_V37A_MODULE_CLASSES: tuple[MetaModuleClass, ...] = (
     "reasoning_module",
@@ -237,6 +259,74 @@ FROZEN_V37C_NON_EXECUTED_RELEASED_CAPABILITIES: tuple[MetaCheckpointCapability, 
     "artifact_consistency_lint",
     "semantic_closeout_lint",
 )
+FROZEN_V37D_DIAGNOSTIC_SEVERITY_TAXONOMY: tuple[MetaDiagnosticSeverity, ...] = (
+    "error",
+    "warning",
+    "advisory",
+)
+FROZEN_V37D_SEEDED_VIOLATION_FAMILIES: tuple[MetaSeededViolationFamily, ...] = (
+    "sequence_gap_detectable",
+    "intent_clause_unassessed_detectable",
+    "unbound_reasoning_claim_detectable",
+    "checkpoint_bypass_detectable",
+    "missing_artifact_evidence_detectable",
+    "prompt_substrate_mismatch_detectable",
+    "repeated_uncompiled_drift_detectable",
+    "operational_influence_accepted_compilation_collapse_detectable",
+)
+
+V37A_REFERENCE_INTENT_PACKET_REF = (
+    "apps/api/fixtures/meta_testing/vnext_plus66/"
+    "meta_testing_intent_packet_arc_closeout_v65_reference.json"
+)
+V37A_REFERENCE_MODULE_CATALOG_REF = (
+    "apps/api/fixtures/meta_testing/vnext_plus66/"
+    "meta_module_catalog_arc_closeout_v65_reference.json"
+)
+V37B_REFERENCE_SEQUENCE_CONTRACT_REF = (
+    "apps/api/fixtures/meta_testing/vnext_plus67/"
+    "meta_loop_sequence_contract_arc_closeout_v65_reference.json"
+)
+V37B_REFERENCE_RUN_TRACE_REF = (
+    "apps/api/fixtures/meta_testing/vnext_plus67/"
+    "meta_loop_run_trace_arc_closeout_v65_reference.json"
+)
+V37C_REFERENCE_CHECKPOINT_RESULT_MANIFEST_REF = (
+    "apps/api/fixtures/meta_testing/vnext_plus68/"
+    "meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json"
+)
+V37C_EXECUTED_RUN_TRACE_REF = (
+    "apps/api/fixtures/meta_testing/vnext_plus68/"
+    "meta_loop_run_trace_arc_closeout_v65_executed_reference.json"
+)
+V37C_REFERENCE_LOOP_EVIDENCE_REF = (
+    "artifacts/agent_harness/v68/evidence_inputs/v37c_reference_loop_evidence_v68.json"
+)
+V37D_ALLOWED_SUPPORTING_EVIDENCE_REF_PREFIXES: tuple[str, ...] = (
+    "apps/api/fixtures/meta_testing/",
+    "artifacts/agent_harness/v66/evidence_inputs/",
+    "artifacts/agent_harness/v67/evidence_inputs/",
+    "artifacts/agent_harness/v68/evidence_inputs/",
+    "artifacts/quality_dashboard_",
+    "artifacts/stop_gate/",
+    "packages/adeu_core_ir/schema/",
+    "spec/",
+)
+V37D_ALLOWED_INTENT_CLAUSE_ANCHORS: tuple[str, ...] = (
+    "objective",
+    "success_condition",
+    "failure_condition",
+)
+V37D_RULE_DRIFT_CLASS_MAP: dict[MetaSeededViolationFamily, MetaDriftClass] = {
+    "sequence_gap_detectable": "deontic_drift",
+    "intent_clause_unassessed_detectable": "epistemic_drift",
+    "unbound_reasoning_claim_detectable": "epistemic_drift",
+    "checkpoint_bypass_detectable": "deontic_drift",
+    "missing_artifact_evidence_detectable": "epistemic_drift",
+    "prompt_substrate_mismatch_detectable": "ontology_drift",
+    "repeated_uncompiled_drift_detectable": "utility_drift",
+    "operational_influence_accepted_compilation_collapse_detectable": "deontic_drift",
+}
 
 
 def _module_catalog_binding_ref(module_id: str, suffix: str) -> str:
@@ -1183,6 +1273,166 @@ class MetaLoopRunTrace(BaseModel):
         return self
 
 
+class MetaLoopDiagnosticFinding(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    finding_id: str = Field(min_length=1)
+    rule_id: MetaSeededViolationFamily
+    severity: MetaDiagnosticSeverity
+    drift_class: MetaDriftClass
+    module_refs: list[str] = Field(min_length=1)
+    intent_clause_refs: list[str] = Field(min_length=1)
+    reference_trace_refs: list[str] = Field(min_length=1)
+    executed_trace_refs: list[str] = Field(min_length=1)
+    checkpoint_result_refs: list[str] = Field(min_length=1)
+    supporting_evidence_refs: list[str] = Field(min_length=1)
+    conformance_impact: MetaConformanceImpact
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopDiagnosticFinding":
+        _assert_sorted_unique(
+            self.module_refs,
+            field_name=f"findings[{self.finding_id}].module_refs",
+        )
+        _assert_sorted_unique(
+            self.intent_clause_refs,
+            field_name=f"findings[{self.finding_id}].intent_clause_refs",
+        )
+        _assert_sorted_unique(
+            self.reference_trace_refs,
+            field_name=f"findings[{self.finding_id}].reference_trace_refs",
+        )
+        _assert_sorted_unique(
+            self.executed_trace_refs,
+            field_name=f"findings[{self.finding_id}].executed_trace_refs",
+        )
+        _assert_sorted_unique(
+            self.checkpoint_result_refs,
+            field_name=f"findings[{self.finding_id}].checkpoint_result_refs",
+        )
+        _assert_sorted_unique(
+            self.supporting_evidence_refs,
+            field_name=f"findings[{self.finding_id}].supporting_evidence_refs",
+        )
+        expected_impact = _expected_v37d_conformance_impact(severity=self.severity)
+        if self.conformance_impact != expected_impact:
+            raise ValueError(
+                f"finding {self.finding_id} must use conformance_impact {expected_impact!r}"
+            )
+        expected_drift_class = V37D_RULE_DRIFT_CLASS_MAP[self.rule_id]
+        if self.drift_class != expected_drift_class:
+            raise ValueError(
+                f"finding {self.finding_id} must use drift_class {expected_drift_class!r}"
+            )
+        for ref in self.supporting_evidence_refs:
+            _assert_allowed_supporting_evidence_ref(
+                ref,
+                field_name=f"findings[{self.finding_id}].supporting_evidence_refs",
+            )
+        return self
+
+
+class MetaLoopDriftDiagnostics(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: MetaLoopDriftDiagnosticsSchemaVersion = META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA
+    reference_loop_family: MetaReferenceLoopFamily = V37A_REFERENCE_LOOP_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    intent_packet_id: str = Field(min_length=1)
+    severity_taxonomy: list[MetaDiagnosticSeverity]
+    seeded_violation_families: list[MetaSeededViolationFamily]
+    findings: list[MetaLoopDiagnosticFinding]
+    hard_checkpoint_truth_boundary_preserved: Literal[True] = True
+    canonical_artifact_truth_only: Literal[True] = True
+    event_streams_and_worker_prose_provenance_only: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopDriftDiagnostics":
+        _assert_exact_sequence(
+            self.severity_taxonomy,
+            expected=FROZEN_V37D_DIAGNOSTIC_SEVERITY_TAXONOMY,
+            field_name="severity_taxonomy",
+        )
+        _assert_exact_sequence(
+            self.seeded_violation_families,
+            expected=FROZEN_V37D_SEEDED_VIOLATION_FAMILIES,
+            field_name="seeded_violation_families",
+        )
+        _assert_sorted_unique(
+            [finding.finding_id for finding in self.findings],
+            field_name="findings.finding_id",
+            allow_empty=True,
+        )
+        return self
+
+
+class MetaDiagnosticSeverityCounts(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    error: int = Field(ge=0)
+    warning: int = Field(ge=0)
+    advisory: int = Field(ge=0)
+
+
+class MetaConformanceAggregationRule(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    any_error: Literal["fail"] = "fail"
+    no_error_and_any_warning: Literal["needs_review"] = "needs_review"
+    only_advisory_or_no_findings: Literal["pass"] = "pass"
+
+
+class MetaConformanceDerivationMetadata(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    aggregation_rule_id: MetaAggregationRuleId = V37D_CONFORMANCE_AGGREGATION_RULE_ID
+    aggregation_rule: MetaConformanceAggregationRule = Field(
+        default_factory=MetaConformanceAggregationRule
+    )
+    diagnostics_artifact_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    conformance_generator_id: MetaConformanceGeneratorId = V37D_CONFORMANCE_GENERATOR_ID
+    conformance_generator_version: Literal["1"] = "1"
+    typed_summary_only: Literal[True] = True
+    canonical_artifact_truth_only: Literal[True] = True
+    event_streams_and_worker_prose_provenance_only: Literal[True] = True
+    v68_closeout_authority_preserved: Literal[True] = True
+
+
+class MetaLoopConformanceReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: MetaLoopConformanceReportSchemaVersion = META_LOOP_CONFORMANCE_REPORT_SCHEMA
+    reference_loop_family: MetaReferenceLoopFamily = V37A_REFERENCE_LOOP_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    intent_packet_id: str = Field(min_length=1)
+    overall_judgment: MetaConformanceOverallJudgment
+    supporting_finding_ids: list[str]
+    severity_counts: MetaDiagnosticSeverityCounts
+    failed_rule_families: list[MetaSeededViolationFamily]
+    warning_rule_families: list[MetaSeededViolationFamily]
+    derivation_metadata: MetaConformanceDerivationMetadata
+    diagnostics_layer_judgment_only: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopConformanceReport":
+        _assert_sorted_unique(
+            self.supporting_finding_ids,
+            field_name="supporting_finding_ids",
+            allow_empty=True,
+        )
+        _assert_sorted_unique(
+            self.failed_rule_families,
+            field_name="failed_rule_families",
+            allow_empty=True,
+        )
+        _assert_sorted_unique(
+            self.warning_rule_families,
+            field_name="warning_rule_families",
+            allow_empty=True,
+        )
+        return self
+
+
 def canonicalize_meta_testing_intent_packet_payload(payload: dict[str, Any]) -> dict[str, Any]:
     model = MetaTestingIntentPacket.model_validate(deepcopy(payload))
     return model.model_dump(mode="json", exclude_none=True)
@@ -1210,6 +1460,16 @@ def canonicalize_meta_loop_run_trace_payload(payload: dict[str, Any]) -> dict[st
     return model.model_dump(mode="json", exclude_none=True)
 
 
+def canonicalize_meta_loop_drift_diagnostics_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = MetaLoopDriftDiagnostics.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def canonicalize_meta_loop_conformance_report_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = MetaLoopConformanceReport.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
 def _parse_manifest_anchor_ref(
     ref: str,
     *,
@@ -1228,8 +1488,95 @@ def _parse_manifest_anchor_ref(
     if section != expected_section or not item_id:
         raise ValueError(
             f"{field_name} must target '{expected_section}/<id>' within the checkpoint manifest"
-        )
+    )
     return item_id
+
+
+def _parse_exact_anchor_ref(
+    ref: str,
+    *,
+    expected_path: str,
+    field_name: str,
+) -> str:
+    path, anchor = _split_ref_and_anchor(ref)
+    if path != expected_path:
+        raise ValueError(f"{field_name} must stay bound to {expected_path}")
+    if anchor is None:
+        raise ValueError(f"{field_name} must include an anchor")
+    return anchor
+
+
+def _assert_allowed_supporting_evidence_ref(ref: str, *, field_name: str) -> None:
+    _assert_repo_relative_ref(ref, field_name=field_name)
+    if "urm_events.ndjson" in ref or "worker" in ref:
+        raise ValueError(
+            f"{field_name} must not treat event streams or worker prose as authoritative truth"
+        )
+    if not any(
+        ref.startswith(prefix) for prefix in V37D_ALLOWED_SUPPORTING_EVIDENCE_REF_PREFIXES
+    ):
+        raise ValueError(
+            f"{field_name} must resolve to the frozen v37a/v37b/v37c canonical artifact stack"
+        )
+    _resolve_repo_relative_path(ref, field_name=field_name)
+
+
+def _expected_v37d_conformance_impact(
+    *, severity: MetaDiagnosticSeverity
+) -> MetaConformanceImpact:
+    if severity == "error":
+        return "blocks_pass"
+    if severity == "warning":
+        return "needs_review"
+    return "advisory_only"
+
+
+def _v37d_canonical_json(value: object) -> str:
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+
+
+def _sha256_v37d_canonical_json(value: object) -> str:
+    return hashlib.sha256(_v37d_canonical_json(value).encode("utf-8")).hexdigest()
+
+
+def derive_v37d_overall_judgment(
+    findings: list["MetaLoopDiagnosticFinding"],
+) -> MetaConformanceOverallJudgment:
+    severities = {finding.severity for finding in findings}
+    if "error" in severities:
+        return "fail"
+    if "warning" in severities:
+        return "needs_review"
+    return "pass"
+
+
+def _build_v37d_severity_counts(
+    findings: list["MetaLoopDiagnosticFinding"],
+) -> "MetaDiagnosticSeverityCounts":
+    error = 0
+    warning = 0
+    advisory = 0
+    for finding in findings:
+        if finding.severity == "error":
+            error += 1
+        elif finding.severity == "warning":
+            warning += 1
+        else:
+            advisory += 1
+    return MetaDiagnosticSeverityCounts(error=error, warning=warning, advisory=advisory)
+
+
+def _build_v37d_rule_family_sets(
+    findings: list["MetaLoopDiagnosticFinding"],
+) -> tuple[list[MetaSeededViolationFamily], list[MetaSeededViolationFamily]]:
+    failed: set[MetaSeededViolationFamily] = set()
+    warning: set[MetaSeededViolationFamily] = set()
+    for finding in findings:
+        if finding.severity == "error":
+            failed.add(finding.rule_id)
+        elif finding.severity == "warning":
+            warning.add(finding.rule_id)
+    return sorted(failed), sorted(warning)
 
 
 def assert_v37a_reference_instance_binding(
@@ -1854,19 +2201,224 @@ def assert_v37c_reference_bundle_consistent(
         )
 
 
+def assert_v37d_reference_instance_binding(
+    *,
+    intent_packet: MetaTestingIntentPacket,
+    module_catalog: MetaModuleCatalog,
+    sequence_contract: MetaLoopSequenceContract,
+    reference_run_trace: MetaLoopRunTrace,
+    executed_run_trace: MetaLoopRunTrace,
+    checkpoint_result_manifest: MetaLoopCheckpointResultManifest,
+    drift_diagnostics: MetaLoopDriftDiagnostics,
+    conformance_report: MetaLoopConformanceReport,
+) -> None:
+    assert_v37c_reference_instance_binding(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        reference_run_trace=reference_run_trace,
+        executed_run_trace=executed_run_trace,
+        checkpoint_result_manifest=checkpoint_result_manifest,
+    )
+    for field_name in ("reference_loop_family", "reference_instance_id", "intent_packet_id"):
+        expected = getattr(intent_packet, field_name)
+        if getattr(drift_diagnostics, field_name) != expected:
+            raise ValueError(f"reference instance binding mismatch for {field_name}")
+        if getattr(conformance_report, field_name) != expected:
+            raise ValueError(f"reference instance binding mismatch for {field_name}")
+
+
+def assert_v37d_reference_bundle_consistent(
+    *,
+    intent_packet: MetaTestingIntentPacket,
+    module_catalog: MetaModuleCatalog,
+    sequence_contract: MetaLoopSequenceContract,
+    reference_run_trace: MetaLoopRunTrace,
+    executed_run_trace: MetaLoopRunTrace,
+    checkpoint_result_manifest: MetaLoopCheckpointResultManifest,
+    drift_diagnostics: MetaLoopDriftDiagnostics,
+    conformance_report: MetaLoopConformanceReport,
+) -> None:
+    assert_v37c_reference_bundle_consistent(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        reference_run_trace=reference_run_trace,
+        executed_run_trace=executed_run_trace,
+        checkpoint_result_manifest=checkpoint_result_manifest,
+    )
+    assert_v37d_reference_instance_binding(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        reference_run_trace=reference_run_trace,
+        executed_run_trace=executed_run_trace,
+        checkpoint_result_manifest=checkpoint_result_manifest,
+        drift_diagnostics=drift_diagnostics,
+        conformance_report=conformance_report,
+    )
+
+    module_by_id = {module.module_id: module for module in module_catalog.modules}
+    manifest_row_by_id = {
+        row.result_row_id: row for row in checkpoint_result_manifest.checkpoint_results
+    }
+    reference_trace_step_ids = {step.planned_step_id for step in reference_run_trace.steps}
+    executed_trace_step_ids = {step.planned_step_id for step in executed_run_trace.steps}
+
+    for finding in drift_diagnostics.findings:
+        if finding.rule_id == "repeated_uncompiled_drift_detectable":
+            raise ValueError(
+                "repeated_uncompiled_drift_detectable requires >=2 accepted runs for a "
+                "positive finding in the first v37d reference artifact"
+            )
+
+        for index, ref in enumerate(finding.module_refs):
+            anchor = _parse_exact_anchor_ref(
+                ref,
+                expected_path=V37A_REFERENCE_MODULE_CATALOG_REF,
+                field_name=f"findings[{finding.finding_id}].module_refs[{index}]",
+            )
+            if "/" not in anchor:
+                raise ValueError(
+                    f"findings[{finding.finding_id}].module_refs[{index}] must use modules/<id>"
+                )
+            section, module_id = anchor.split("/", 1)
+            if section != "modules" or module_id not in module_by_id:
+                raise ValueError(
+                    f"findings[{finding.finding_id}].module_refs[{index}] must resolve an "
+                    "accepted module id"
+                )
+
+        for index, ref in enumerate(finding.intent_clause_refs):
+            anchor = _parse_exact_anchor_ref(
+                ref,
+                expected_path=V37A_REFERENCE_INTENT_PACKET_REF,
+                field_name=f"findings[{finding.finding_id}].intent_clause_refs[{index}]",
+            )
+            if anchor not in V37D_ALLOWED_INTENT_CLAUSE_ANCHORS:
+                raise ValueError(
+                    f"findings[{finding.finding_id}].intent_clause_refs[{index}] must resolve "
+                    "an accepted intent clause anchor"
+                )
+
+        for index, ref in enumerate(finding.reference_trace_refs):
+            anchor = _parse_exact_anchor_ref(
+                ref,
+                expected_path=V37B_REFERENCE_RUN_TRACE_REF,
+                field_name=f"findings[{finding.finding_id}].reference_trace_refs[{index}]",
+            )
+            if "/" not in anchor:
+                raise ValueError(
+                    f"findings[{finding.finding_id}].reference_trace_refs[{index}] must use "
+                    "steps/<id>"
+                )
+            section, step_id = anchor.split("/", 1)
+            if section != "steps" or step_id not in reference_trace_step_ids:
+                raise ValueError(
+                    f"findings[{finding.finding_id}].reference_trace_refs[{index}] must resolve "
+                    "an accepted reference trace step"
+                )
+
+        for index, ref in enumerate(finding.executed_trace_refs):
+            anchor = _parse_exact_anchor_ref(
+                ref,
+                expected_path=V37C_EXECUTED_RUN_TRACE_REF,
+                field_name=f"findings[{finding.finding_id}].executed_trace_refs[{index}]",
+            )
+            if "/" not in anchor:
+                raise ValueError(
+                    f"findings[{finding.finding_id}].executed_trace_refs[{index}] must use "
+                    "steps/<id>"
+                )
+            section, step_id = anchor.split("/", 1)
+            if section != "steps" or step_id not in executed_trace_step_ids:
+                raise ValueError(
+                    f"findings[{finding.finding_id}].executed_trace_refs[{index}] must resolve "
+                    "an accepted executed trace step"
+                )
+
+        for index, ref in enumerate(finding.checkpoint_result_refs):
+            result_row_id = _parse_manifest_anchor_ref(
+                ref,
+                manifest_ref=V37C_REFERENCE_CHECKPOINT_RESULT_MANIFEST_REF,
+                expected_section="checkpoint_results",
+                field_name=f"findings[{finding.finding_id}].checkpoint_result_refs[{index}]",
+            )
+            if result_row_id not in manifest_row_by_id:
+                raise ValueError(
+                    f"findings[{finding.finding_id}].checkpoint_result_refs[{index}] must "
+                    "resolve an accepted checkpoint result row"
+                )
+
+        for ref in finding.supporting_evidence_refs:
+            _assert_allowed_supporting_evidence_ref(
+                ref,
+                field_name=f"findings[{finding.finding_id}].supporting_evidence_refs",
+            )
+
+    expected_overall_judgment = derive_v37d_overall_judgment(drift_diagnostics.findings)
+    if conformance_report.overall_judgment != expected_overall_judgment:
+        raise ValueError(
+            "conformance report must derive overall_judgment from accepted diagnostics "
+            "according to the frozen aggregation rule"
+        )
+
+    expected_supporting_finding_ids = sorted(
+        finding.finding_id for finding in drift_diagnostics.findings
+    )
+    if conformance_report.supporting_finding_ids != expected_supporting_finding_ids:
+        raise ValueError(
+            "conformance report must derive supporting_finding_ids from accepted diagnostics"
+        )
+
+    expected_severity_counts = _build_v37d_severity_counts(drift_diagnostics.findings)
+    if conformance_report.severity_counts != expected_severity_counts:
+        raise ValueError(
+            "conformance report must derive severity_counts from accepted diagnostics"
+        )
+
+    expected_failed_rule_families, expected_warning_rule_families = _build_v37d_rule_family_sets(
+        drift_diagnostics.findings
+    )
+    if conformance_report.failed_rule_families != expected_failed_rule_families:
+        raise ValueError(
+            "conformance report must derive failed_rule_families from accepted diagnostics"
+        )
+    if conformance_report.warning_rule_families != expected_warning_rule_families:
+        raise ValueError(
+            "conformance report must derive warning_rule_families from accepted diagnostics"
+        )
+
+    expected_diagnostics_hash = _sha256_v37d_canonical_json(
+        drift_diagnostics.model_dump(mode="json", exclude_none=True)
+    )
+    if (
+        conformance_report.derivation_metadata.diagnostics_artifact_hash
+        != expected_diagnostics_hash
+    ):
+        raise ValueError(
+            "conformance report derivation_metadata.diagnostics_artifact_hash must match "
+            "the accepted diagnostics artifact"
+        )
+
+
 __all__ = [
     "FROZEN_V37A_AUTHORITATIVE_INPUT_IDS",
     "FROZEN_V37A_DRIFT_TAXONOMY",
     "FROZEN_V37A_MODULE_CLASSES",
     "FROZEN_V37A_REQUIRED_CHECKPOINT_CAPABILITIES",
+    "FROZEN_V37B_PHASE_BOUNDARIES",
     "META_LOOP_RUN_TRACE_SCHEMA",
+    "META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA",
     "META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA",
+    "META_LOOP_CONFORMANCE_REPORT_SCHEMA",
     "META_LOOP_SEQUENCE_CONTRACT_SCHEMA",
     "META_MODULE_CATALOG_SCHEMA",
     "META_TESTING_INTENT_PACKET_SCHEMA",
-    "FROZEN_V37B_PHASE_BOUNDARIES",
     "FROZEN_V37C_EXECUTED_CHECKPOINT_CAPABILITIES",
     "FROZEN_V37C_NON_EXECUTED_RELEASED_CAPABILITIES",
+    "FROZEN_V37D_DIAGNOSTIC_SEVERITY_TAXONOMY",
+    "FROZEN_V37D_SEEDED_VIOLATION_FAMILIES",
     "V37A_INTENT_PACKET_ID",
     "V37A_OPERATOR_SURFACE",
     "V37A_REFERENCE_ANCHOR_SHAPE",
@@ -1879,10 +2431,16 @@ __all__ = [
     "MetaExecutorBinding",
     "MetaExecutorParameterPolicy",
     "MetaExecutorParameterSlot",
+    "MetaDiagnosticSeverityCounts",
+    "MetaConformanceAggregationRule",
+    "MetaConformanceDerivationMetadata",
+    "MetaLoopConformanceReport",
     "MetaLoopBranchCondition",
     "MetaLoopBranchOutcomeRecord",
     "MetaLoopCheckpointResultManifest",
     "MetaLoopCheckpointResultRow",
+    "MetaLoopDiagnosticFinding",
+    "MetaLoopDriftDiagnostics",
     "MetaLoopFailureEdge",
     "MetaLoopOperatorGate",
     "MetaLoopRetryEdge",
@@ -1902,12 +2460,19 @@ __all__ = [
     "assert_v37b_reference_instance_binding",
     "assert_v37c_reference_bundle_consistent",
     "assert_v37c_reference_instance_binding",
+    "assert_v37d_reference_bundle_consistent",
+    "assert_v37d_reference_instance_binding",
     "canonicalize_meta_loop_checkpoint_result_manifest_payload",
+    "canonicalize_meta_loop_conformance_report_payload",
+    "canonicalize_meta_loop_drift_diagnostics_payload",
     "canonicalize_meta_loop_run_trace_payload",
     "canonicalize_meta_loop_sequence_contract_payload",
     "canonicalize_meta_module_catalog_payload",
     "canonicalize_meta_testing_intent_packet_payload",
+    "derive_v37d_overall_judgment",
     "V37B_REFERENCE_TRACE_MODE",
     "V37C_AUTHORITATIVE_STOP_GATE_BINDING_REF",
     "V37C_EXECUTED_TRACE_MODE",
+    "V37D_CONFORMANCE_AGGREGATION_RULE_ID",
+    "V37D_CONFORMANCE_GENERATOR_ID",
 ]

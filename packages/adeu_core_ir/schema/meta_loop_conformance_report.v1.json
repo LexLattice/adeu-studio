@@ -1,0 +1,215 @@
+{
+  "$defs": {
+    "MetaConformanceAggregationRule": {
+      "additionalProperties": false,
+      "properties": {
+        "any_error": {
+          "const": "fail",
+          "default": "fail",
+          "title": "Any Error",
+          "type": "string"
+        },
+        "no_error_and_any_warning": {
+          "const": "needs_review",
+          "default": "needs_review",
+          "title": "No Error And Any Warning",
+          "type": "string"
+        },
+        "only_advisory_or_no_findings": {
+          "const": "pass",
+          "default": "pass",
+          "title": "Only Advisory Or No Findings",
+          "type": "string"
+        }
+      },
+      "title": "MetaConformanceAggregationRule",
+      "type": "object"
+    },
+    "MetaConformanceDerivationMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "aggregation_rule": {
+          "$ref": "#/$defs/MetaConformanceAggregationRule"
+        },
+        "aggregation_rule_id": {
+          "const": "v37d_meta_conformance_aggregation_rule@1",
+          "default": "v37d_meta_conformance_aggregation_rule@1",
+          "title": "Aggregation Rule Id",
+          "type": "string"
+        },
+        "canonical_artifact_truth_only": {
+          "const": true,
+          "default": true,
+          "title": "Canonical Artifact Truth Only",
+          "type": "boolean"
+        },
+        "conformance_generator_id": {
+          "const": "adeu_core_ir.meta_testing.derive_v37d_conformance@1",
+          "default": "adeu_core_ir.meta_testing.derive_v37d_conformance@1",
+          "title": "Conformance Generator Id",
+          "type": "string"
+        },
+        "conformance_generator_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Conformance Generator Version",
+          "type": "string"
+        },
+        "diagnostics_artifact_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Diagnostics Artifact Hash",
+          "type": "string"
+        },
+        "event_streams_and_worker_prose_provenance_only": {
+          "const": true,
+          "default": true,
+          "title": "Event Streams And Worker Prose Provenance Only",
+          "type": "boolean"
+        },
+        "typed_summary_only": {
+          "const": true,
+          "default": true,
+          "title": "Typed Summary Only",
+          "type": "boolean"
+        },
+        "v68_closeout_authority_preserved": {
+          "const": true,
+          "default": true,
+          "title": "V68 Closeout Authority Preserved",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "diagnostics_artifact_hash"
+      ],
+      "title": "MetaConformanceDerivationMetadata",
+      "type": "object"
+    },
+    "MetaDiagnosticSeverityCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "advisory": {
+          "minimum": 0,
+          "title": "Advisory",
+          "type": "integer"
+        },
+        "error": {
+          "minimum": 0,
+          "title": "Error",
+          "type": "integer"
+        },
+        "warning": {
+          "minimum": 0,
+          "title": "Warning",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "error",
+        "warning",
+        "advisory"
+      ],
+      "title": "MetaDiagnosticSeverityCounts",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "derivation_metadata": {
+      "$ref": "#/$defs/MetaConformanceDerivationMetadata"
+    },
+    "diagnostics_layer_judgment_only": {
+      "const": true,
+      "default": true,
+      "title": "Diagnostics Layer Judgment Only",
+      "type": "boolean"
+    },
+    "failed_rule_families": {
+      "items": {
+        "enum": [
+          "sequence_gap_detectable",
+          "intent_clause_unassessed_detectable",
+          "unbound_reasoning_claim_detectable",
+          "checkpoint_bypass_detectable",
+          "missing_artifact_evidence_detectable",
+          "prompt_substrate_mismatch_detectable",
+          "repeated_uncompiled_drift_detectable",
+          "operational_influence_accepted_compilation_collapse_detectable"
+        ],
+        "type": "string"
+      },
+      "title": "Failed Rule Families",
+      "type": "array"
+    },
+    "intent_packet_id": {
+      "minLength": 1,
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "overall_judgment": {
+      "enum": [
+        "pass",
+        "fail",
+        "needs_review"
+      ],
+      "title": "Overall Judgment",
+      "type": "string"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_loop_family": {
+      "const": "arc_bundle_recursive_compilation_loop",
+      "default": "arc_bundle_recursive_compilation_loop",
+      "title": "Reference Loop Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "meta_loop_conformance_report@1",
+      "default": "meta_loop_conformance_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "severity_counts": {
+      "$ref": "#/$defs/MetaDiagnosticSeverityCounts"
+    },
+    "supporting_finding_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supporting Finding Ids",
+      "type": "array"
+    },
+    "warning_rule_families": {
+      "items": {
+        "enum": [
+          "sequence_gap_detectable",
+          "intent_clause_unassessed_detectable",
+          "unbound_reasoning_claim_detectable",
+          "checkpoint_bypass_detectable",
+          "missing_artifact_evidence_detectable",
+          "prompt_substrate_mismatch_detectable",
+          "repeated_uncompiled_drift_detectable",
+          "operational_influence_accepted_compilation_collapse_detectable"
+        ],
+        "type": "string"
+      },
+      "title": "Warning Rule Families",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "intent_packet_id",
+    "overall_judgment",
+    "supporting_finding_ids",
+    "severity_counts",
+    "failed_rule_families",
+    "warning_rule_families",
+    "derivation_metadata"
+  ],
+  "title": "MetaLoopConformanceReport",
+  "type": "object"
+}
