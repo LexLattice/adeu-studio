@@ -7,12 +7,19 @@ from typing import Any, cast
 
 import pytest
 from adeu_core_ir import (
+    DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH,
+    DEFAULT_META_LOOP_RUN_TRACE_SCHEMA_PATH,
+    DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH,
+    DEFAULT_META_LOOP_SEQUENCE_CONTRACT_SCHEMA_PATH,
     DEFAULT_META_MODULE_CATALOG_REFERENCE_PATH,
     DEFAULT_META_MODULE_CATALOG_SCHEMA_PATH,
     DEFAULT_META_TESTING_INTENT_PACKET_REFERENCE_PATH,
     DEFAULT_META_TESTING_INTENT_PACKET_SCHEMA_PATH,
+    DEFAULT_V37A_META_INTENT_MODULE_CATALOG_EVIDENCE_PATH,
     DEFAULT_V65_BASELINE_METRICS_PATH,
+    DEFAULT_V66_BASELINE_METRICS_PATH,
     materialize_v37a_meta_intent_module_catalog_evidence,
+    materialize_v37b_sequence_trace_evidence,
 )
 from adeu_core_ir.meta_testing_evidence import MetaTestingEvidenceError
 from adeu_ir.repo import repo_root
@@ -56,13 +63,19 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md",
         DEFAULT_META_TESTING_INTENT_PACKET_SCHEMA_PATH,
         DEFAULT_META_MODULE_CATALOG_SCHEMA_PATH,
+        DEFAULT_META_LOOP_SEQUENCE_CONTRACT_SCHEMA_PATH,
+        DEFAULT_META_LOOP_RUN_TRACE_SCHEMA_PATH,
         DEFAULT_META_TESTING_INTENT_PACKET_REFERENCE_PATH,
         DEFAULT_META_MODULE_CATALOG_REFERENCE_PATH,
+        DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH,
+        DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH,
+        DEFAULT_V37A_META_INTENT_MODULE_CATALOG_EVIDENCE_PATH,
         "artifacts/agent_harness/v65/evidence_inputs/metric_key_continuity_assertion_v65.json",
         "artifacts/agent_harness/v65/evidence_inputs/runtime_observability_comparison_v65.json",
         "artifacts/agent_harness/v65/evidence_inputs/v36e_surface_compiler_export_evidence_v65.json",
         "artifacts/agent_harness/v65/runtime/evidence/codex/copilot/v65-closeout-main-1/urm_events.ndjson",
         "artifacts/quality_dashboard_v65_closeout.json",
+        DEFAULT_V66_BASELINE_METRICS_PATH,
         DEFAULT_V65_BASELINE_METRICS_PATH,
         "artifacts/stop_gate/report_v65_closeout.md",
         "packages/adeu_core_ir/src/adeu_core_ir/meta_testing.py",
@@ -93,6 +106,21 @@ def _write_current_stop_gate_metrics_fixture(
 def _materialize_v37a_evidence(*, repo_root_path: Path) -> dict[str, object]:
     current_rel = _write_current_stop_gate_metrics_fixture(repo_root_path=repo_root_path)
     evidence = materialize_v37a_meta_intent_module_catalog_evidence(
+        repo_root=repo_root_path,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root_path / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
+def _materialize_v37b_evidence(*, repo_root_path: Path) -> dict[str, object]:
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        current_rel="artifacts/stop_gate/metrics_v67_closeout.json",
+    )
+    evidence = materialize_v37b_sequence_trace_evidence(
         repo_root=repo_root_path,
         current_metrics_path=current_rel,
     )
@@ -232,5 +260,158 @@ def test_materialize_v37a_evidence_fails_closed_on_non_v65_baseline_metrics_path
         materialize_v37a_meta_intent_module_catalog_evidence(
             repo_root=repo_root_path,
             baseline_metrics_path="artifacts/stop_gate/metrics_other_closeout.json",
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37b_sequence_trace_evidence_is_deterministic(tmp_path: Path) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+
+    first = _materialize_v37b_evidence(repo_root_path=repo_root_path)
+    second = _materialize_v37b_evidence(repo_root_path=repo_root_path)
+
+    assert first["artifact"].hash == second["artifact"].hash
+    assert first["payload"] == second["payload"]
+    assert first["payload"]["schema"] == "v37b_sequence_trace_evidence@1"
+
+
+def test_materialize_v37b_evidence_fails_closed_on_v37a_tuple_drift(tmp_path: Path) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        current_rel="artifacts/stop_gate/metrics_v67_closeout.json",
+    )
+    sequence_contract = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH,
+    )
+    sequence_contract["intent_packet_id"] = "other_intent"  # type: ignore[index]
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH,
+        sequence_contract,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="reference instance binding mismatch for intent_packet_id",
+    ):
+        materialize_v37b_sequence_trace_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37b_evidence_fails_closed_on_unaccepted_checkpoint_result_ref(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        current_rel="artifacts/stop_gate/metrics_v67_closeout.json",
+    )
+    run_trace = _load_json(repo_root_path, DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH)
+    steps = cast(list[dict[str, Any]], run_trace["steps"])
+    steps[1]["observed_checkpoint_result_refs"] = ["AGENTS.md"]
+    _write_json(repo_root_path / DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH, run_trace)
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="observed_checkpoint_result_refs must stay under the 'artifacts/' subtree",
+    ):
+        materialize_v37b_sequence_trace_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37b_evidence_fails_closed_on_scope_boundary_bleed(tmp_path: Path) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        current_rel="artifacts/stop_gate/metrics_v67_closeout.json",
+    )
+    sequence_contract = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH,
+    )
+    steps = cast(list[dict[str, Any]], sequence_contract["steps"])
+    outputs = cast(list[str], steps[4]["expected_outputs"])
+    outputs.append("meta_loop_checkpoint_result_manifest@1")
+    outputs.sort()
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH,
+        sequence_contract,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="v37b scope boundary preserved requires v37c/v37d/v37e surfaces to remain absent",
+    ):
+        materialize_v37b_sequence_trace_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37b_evidence_fails_closed_on_threshold_collapse(tmp_path: Path) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        current_rel="artifacts/stop_gate/metrics_v67_closeout.json",
+    )
+    run_trace = _load_json(repo_root_path, DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH)
+    steps = cast(list[dict[str, Any]], run_trace["steps"])
+    steps[0]["accepted_compilation_occurred"] = True
+    _write_json(repo_root_path / DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH, run_trace)
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="reference_not_executed traces must keep accepted_compilation_occurred = false",
+    ):
+        materialize_v37b_sequence_trace_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37b_evidence_fails_closed_on_non_v66_baseline_metrics_path(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        current_rel="artifacts/stop_gate/metrics_v67_closeout.json",
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="baseline_metrics_path must point to the frozen v66 closeout metrics artifact",
+    ):
+        materialize_v37b_sequence_trace_evidence(
+            repo_root=repo_root_path,
+            baseline_metrics_path="artifacts/stop_gate/metrics_other_closeout.json",
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37b_evidence_fails_closed_on_metric_key_continuity_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        current_rel="artifacts/stop_gate/metrics_v67_closeout.json",
+    )
+    metrics_payload = _load_json(repo_root_path, current_rel)
+    metrics = cast(dict[str, Any], metrics_payload["metrics"])
+    metrics["new_metric_key"] = 100.0
+    _write_json(repo_root_path / current_rel, metrics_payload)
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="metric key cardinality must remain frozen at 80",
+    ):
+        materialize_v37b_sequence_trace_evidence(
+            repo_root=repo_root_path,
             current_metrics_path=current_rel,
         )
