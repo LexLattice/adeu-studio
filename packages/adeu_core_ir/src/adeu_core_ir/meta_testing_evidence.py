@@ -639,7 +639,10 @@ def materialize_v37a_meta_intent_module_catalog_evidence(
     baseline_metric_keys = set(baseline_metrics["metrics"].keys())
     current_metric_keys = set(current_metrics["metrics"].keys())
     if len(current_metric_keys) != EXPECTED_METRIC_KEY_CARDINALITY:
-        raise MetaTestingEvidenceError("metric key cardinality must remain frozen at 80")
+        raise MetaTestingEvidenceError(
+            "metric key cardinality must remain frozen at "
+            f"{EXPECTED_METRIC_KEY_CARDINALITY}"
+        )
     if baseline_metric_keys != current_metric_keys:
         raise MetaTestingEvidenceError("metric key set must remain exactly equal to v65")
 
@@ -969,18 +972,18 @@ def materialize_v37b_sequence_trace_evidence(
 
 
 __all__ = [
-    "DEFAULT_META_MODULE_CATALOG_REFERENCE_PATH",
-    "DEFAULT_META_MODULE_CATALOG_SCHEMA_PATH",
     "DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH",
     "DEFAULT_META_LOOP_RUN_TRACE_SCHEMA_PATH",
     "DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH",
     "DEFAULT_META_LOOP_SEQUENCE_CONTRACT_SCHEMA_PATH",
+    "DEFAULT_META_MODULE_CATALOG_REFERENCE_PATH",
+    "DEFAULT_META_MODULE_CATALOG_SCHEMA_PATH",
     "DEFAULT_META_TESTING_INTENT_PACKET_REFERENCE_PATH",
     "DEFAULT_META_TESTING_INTENT_PACKET_SCHEMA_PATH",
-    "DEFAULT_V37B_SEQUENCE_TRACE_EVIDENCE_PATH",
-    "DEFAULT_V66_BASELINE_METRICS_PATH",
     "DEFAULT_V37A_META_INTENT_MODULE_CATALOG_EVIDENCE_PATH",
+    "DEFAULT_V37B_SEQUENCE_TRACE_EVIDENCE_PATH",
     "DEFAULT_V65_BASELINE_METRICS_PATH",
+    "DEFAULT_V66_BASELINE_METRICS_PATH",
     "MaterializedMetaTestingEvidence",
     "MetaTestingEvidenceError",
     "V37A_META_INTENT_MODULE_CATALOG_CONTRACT_SOURCE",
