@@ -839,10 +839,10 @@ class MetaLoopSequenceContract(BaseModel):
         for edge in self.retry_edges:
             if edge.from_step_id not in step_id_set or edge.to_step_id not in step_id_set:
                 raise ValueError("retry_edges must resolve existing step ids")
+        step_module_id_set = {step.module_id for step in self.steps}
+
         for gate in self.operator_gates:
-            if gate.module_id not in step_id_set and gate.module_id not in {
-                step.module_id for step in self.steps
-            }:
+            if gate.module_id not in step_module_id_set:
                 raise ValueError("operator_gates.module_id must resolve an existing step module")
 
         seen_phase_indices: list[int] = []

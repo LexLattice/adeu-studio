@@ -134,6 +134,19 @@ def test_v37b_sequence_contract_rejects_undocumented_retry_edge() -> None:
         MetaLoopSequenceContract.model_validate(payload)
 
 
+def test_v37b_sequence_contract_rejects_operator_gate_module_id_bound_to_step_id() -> None:
+    payload = _load_json(
+        _fixtures_root_v67(), "meta_loop_sequence_contract_arc_closeout_v65_reference.json"
+    )
+    payload["operator_gates"][0]["module_id"] = payload["steps"][0]["step_id"]  # type: ignore[index]
+
+    with pytest.raises(
+        ValidationError,
+        match="operator_gates.module_id must resolve an existing step module",
+    ):
+        MetaLoopSequenceContract.model_validate(payload)
+
+
 def test_v37b_bundle_rejects_hard_step_binding_drift_from_v37a_catalog() -> None:
     intent_packet = _load_v66_intent_packet()
     module_catalog = _load_v66_module_catalog()
