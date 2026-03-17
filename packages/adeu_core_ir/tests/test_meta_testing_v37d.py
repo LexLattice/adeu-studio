@@ -19,6 +19,7 @@ from adeu_core_ir import (
     canonicalize_meta_loop_conformance_report_payload,
     canonicalize_meta_loop_drift_diagnostics_payload,
 )
+from adeu_core_ir.meta_testing import V37D_RULE_DRIFT_CLASS_MAP
 from adeu_ir.repo import repo_root
 from pydantic import ValidationError
 
@@ -111,7 +112,7 @@ def _valid_warning_finding(
         "finding_id": "finding_01_reference_warning",
         "rule_id": rule_id,
         "severity": "warning",
-        "drift_class": "epistemic_drift",
+        "drift_class": V37D_RULE_DRIFT_CLASS_MAP[rule_id],
         "module_refs": [
             "apps/api/fixtures/meta_testing/vnext_plus66/"
             "meta_module_catalog_arc_closeout_v65_reference.json"
@@ -227,7 +228,6 @@ def test_v37d_bundle_rejects_positive_repeated_uncompiled_drift_in_single_run_wi
     finding["finding_id"] = "finding_01_repeated_uncompiled_drift"
     finding["severity"] = "advisory"
     finding["conformance_impact"] = "advisory_only"
-    finding["drift_class"] = "utility_drift"
     cast(list[dict[str, Any]], diagnostics_payload["findings"]).append(finding)
     drift_diagnostics = MetaLoopDriftDiagnostics.model_validate(diagnostics_payload)
 
