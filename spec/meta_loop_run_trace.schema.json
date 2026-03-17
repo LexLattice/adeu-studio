@@ -7,10 +7,37 @@
           "title": "Accepted Compilation Occurred",
           "type": "boolean"
         },
+        "actual_branch_outcome_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Branch Outcome Ref"
+        },
         "actual_module_id": {
           "minLength": 1,
           "title": "Actual Module Id",
           "type": "string"
+        },
+        "actual_retry_outcome_refs": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actual Retry Outcome Refs"
         },
         "consumed_inputs": {
           "items": {
@@ -103,6 +130,18 @@
       "title": "Accepted Compilation Threshold Explicit",
       "type": "boolean"
     },
+    "checkpoint_result_manifest_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Checkpoint Result Manifest Ref"
+    },
     "intent_packet_id": {
       "minLength": 1,
       "title": "Intent Packet Id",
@@ -148,7 +187,10 @@
       "type": "array"
     },
     "trace_mode": {
-      "const": "reference_not_executed",
+      "enum": [
+        "executed_reference_run",
+        "reference_not_executed"
+      ],
       "title": "Trace Mode",
       "type": "string"
     }

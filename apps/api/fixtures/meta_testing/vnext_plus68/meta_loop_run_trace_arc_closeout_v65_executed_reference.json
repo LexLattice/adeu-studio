@@ -1,0 +1,180 @@
+{
+  "schema": "meta_loop_run_trace@1",
+  "reference_loop_family": "arc_bundle_recursive_compilation_loop",
+  "reference_instance_id": "arc_closeout_v65_reference",
+  "intent_packet_id": "v37a_arc_closeout_v65_intent",
+  "reference_anchor": {
+    "shape": "arc_closeout_bundle_instance",
+    "reference_arc": 65,
+    "reference_phase": "closeout"
+  },
+  "trace_mode": "executed_reference_run",
+  "checkpoint_result_manifest_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json",
+  "steps": [
+    {
+      "planned_step_id": "step_01_meta_intent_interpretation",
+      "actual_module_id": "reasoning_01_meta_intent_interpreter",
+      "consumed_inputs": [
+        "meta_module_catalog@1",
+        "meta_testing_intent_packet@1"
+      ],
+      "emitted_outputs": [
+        "checkpoint_shape_expectation_summary",
+        "drift_hypothesis_summary"
+      ],
+      "observed_checkpoint_result_refs": [],
+      "step_status": "executed_pass",
+      "operational_influence_occurred": true,
+      "accepted_compilation_occurred": false
+    },
+    {
+      "planned_step_id": "step_02_bundle_lint",
+      "actual_module_id": "checkpoint_01_bundle_lint",
+      "consumed_inputs": [
+        "lock_doc_ref",
+        "reference_arc_phase_locator"
+      ],
+      "emitted_outputs": [
+        "bundle_lint_payload"
+      ],
+      "observed_checkpoint_result_refs": [
+        "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#checkpoint_results/result_step_02_bundle_lint_attempt_01"
+      ],
+      "actual_branch_outcome_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#branch_outcomes/branch_step_02_bundle_lint",
+      "step_status": "executed_pass",
+      "operational_influence_occurred": false,
+      "accepted_compilation_occurred": false
+    },
+    {
+      "planned_step_id": "step_03_artifact_consistency_lint",
+      "actual_module_id": "checkpoint_02_artifact_consistency_lint",
+      "consumed_inputs": [],
+      "emitted_outputs": [],
+      "observed_checkpoint_result_refs": [],
+      "step_status": "executed_skip",
+      "operational_influence_occurred": false,
+      "accepted_compilation_occurred": false
+    },
+    {
+      "planned_step_id": "step_04_quality_dashboard_build",
+      "actual_module_id": "checkpoint_05_quality_dashboard_build",
+      "consumed_inputs": [
+        "quality_dashboard_reference"
+      ],
+      "emitted_outputs": [
+        "quality_dashboard_json"
+      ],
+      "observed_checkpoint_result_refs": [
+        "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#checkpoint_results/result_step_04_quality_dashboard_build_attempt_01"
+      ],
+      "actual_branch_outcome_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#branch_outcomes/branch_step_04_quality_dashboard_build",
+      "step_status": "executed_pass",
+      "operational_influence_occurred": false,
+      "accepted_compilation_occurred": false
+    },
+    {
+      "planned_step_id": "step_05_stop_gate_metrics_build",
+      "actual_module_id": "checkpoint_04_stop_gate_metrics_build",
+      "consumed_inputs": [
+        "quality_dashboard_reference",
+        "stop_gate_reference_outputs"
+      ],
+      "emitted_outputs": [
+        "stop_gate_metrics@1",
+        "stop_gate_report_markdown"
+      ],
+      "observed_checkpoint_result_refs": [
+        "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#checkpoint_results/result_step_05_stop_gate_metrics_build_attempt_01"
+      ],
+      "actual_branch_outcome_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#branch_outcomes/branch_step_05_stop_gate_metrics_build",
+      "step_status": "executed_pass",
+      "operational_influence_occurred": false,
+      "accepted_compilation_occurred": false
+    },
+    {
+      "planned_step_id": "step_06_semantic_closeout_lint",
+      "actual_module_id": "checkpoint_03_semantic_closeout_lint",
+      "consumed_inputs": [],
+      "emitted_outputs": [],
+      "observed_checkpoint_result_refs": [],
+      "step_status": "executed_skip",
+      "operational_influence_occurred": false,
+      "accepted_compilation_occurred": false
+    },
+    {
+      "planned_step_id": "step_07_committed_event_stream_validation",
+      "actual_module_id": "checkpoint_06_committed_event_stream_validation",
+      "consumed_inputs": [
+        "committed_runtime_event_stream_root"
+      ],
+      "emitted_outputs": [
+        "committed_event_stream_validation_payload"
+      ],
+      "observed_checkpoint_result_refs": [
+        "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#checkpoint_results/result_step_07_committed_event_stream_validation_attempt_01",
+        "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#checkpoint_results/result_step_07_committed_event_stream_validation_attempt_02"
+      ],
+      "actual_branch_outcome_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#branch_outcomes/branch_step_07_committed_event_stream_validation",
+      "actual_retry_outcome_refs": [
+        "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#retry_outcomes/retry_step_07_committed_event_stream_validation"
+      ],
+      "step_status": "executed_retry",
+      "operational_influence_occurred": false,
+      "accepted_compilation_occurred": false
+    },
+    {
+      "planned_step_id": "step_08_instruction_policy_validation",
+      "actual_module_id": "checkpoint_07_instruction_policy_validation",
+      "consumed_inputs": [
+        "generated_instruction_policy_views"
+      ],
+      "emitted_outputs": [
+        "instruction_policy_validation_payload"
+      ],
+      "observed_checkpoint_result_refs": [
+        "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#checkpoint_results/result_step_08_instruction_policy_validation_attempt_01"
+      ],
+      "actual_branch_outcome_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#branch_outcomes/branch_step_08_instruction_policy_validation",
+      "step_status": "executed_pass",
+      "operational_influence_occurred": false,
+      "accepted_compilation_occurred": false
+    },
+    {
+      "planned_step_id": "step_09_reference_bundle_guard",
+      "actual_module_id": "evidence_01_reference_bundle_guard",
+      "consumed_inputs": [
+        "meta_loop_reference_artifact_bundle"
+      ],
+      "emitted_outputs": [
+        "reference_bundle_guard_payload"
+      ],
+      "observed_checkpoint_result_refs": [
+        "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#checkpoint_results/result_step_09_reference_bundle_guard_attempt_01"
+      ],
+      "actual_branch_outcome_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#branch_outcomes/branch_step_09_reference_bundle_guard",
+      "step_status": "executed_pass",
+      "operational_influence_occurred": false,
+      "accepted_compilation_occurred": false
+    },
+    {
+      "planned_step_id": "step_10_repo_acceptance_gate",
+      "actual_module_id": "operator_01_repo_acceptance_gate",
+      "consumed_inputs": [
+        "reference_adjudication_summary"
+      ],
+      "emitted_outputs": [
+        "operator_acceptance_decision"
+      ],
+      "observed_checkpoint_result_refs": [
+        "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#checkpoint_results/result_step_10_repo_acceptance_gate_attempt_01"
+      ],
+      "actual_branch_outcome_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json#branch_outcomes/branch_step_10_repo_acceptance_gate",
+      "step_status": "executed_pass",
+      "operational_influence_occurred": false,
+      "accepted_compilation_occurred": true
+    }
+  ],
+  "operational_influence_threshold_explicit": true,
+  "accepted_compilation_threshold_explicit": true,
+  "no_model_prose_truth_substitution": true
+}

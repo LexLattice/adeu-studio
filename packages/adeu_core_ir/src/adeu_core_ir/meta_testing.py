@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 MetaTestingIntentPacketSchemaVersion = Literal["meta_testing_intent_packet@1"]
 MetaModuleCatalogSchemaVersion = Literal["meta_module_catalog@1"]
 MetaLoopSequenceContractSchemaVersion = Literal["meta_loop_sequence_contract@1"]
+MetaLoopCheckpointResultManifestSchemaVersion = Literal["meta_loop_checkpoint_result_manifest@1"]
 MetaLoopRunTraceSchemaVersion = Literal["meta_loop_run_trace@1"]
 MetaReferenceLoopFamily = Literal["arc_bundle_recursive_compilation_loop"]
 MetaReferenceAnchorShape = Literal["arc_closeout_bundle_instance"]
@@ -94,6 +95,7 @@ MetaAuthoritativeInputId = Literal[
 MetaOutOfScopeSurface = Literal[
     "meta_control_update_candidate@1",
     "meta_control_update_manifest@1",
+    "meta_loop_checkpoint_result_manifest@1",
     "meta_loop_conformance_report@1",
     "meta_loop_drift_diagnostics@1",
     "meta_loop_run_trace@1",
@@ -121,7 +123,10 @@ MetaRetryTrigger = Literal[
     "fixture_refresh_required",
     "generated_artifact_refresh_required",
 ]
-MetaTraceMode = Literal["reference_not_executed"]
+MetaCheckpointAttemptStatus = Literal["attempted_fail", "attempted_pass"]
+MetaBranchOutcome = Literal["entered", "not_entered"]
+MetaRetryOutcome = Literal["retried_and_failed", "retried_and_succeeded"]
+MetaTraceMode = Literal["executed_reference_run", "reference_not_executed"]
 MetaTraceStepStatus = Literal[
     "executed_fail",
     "executed_pass",
@@ -133,6 +138,7 @@ MetaTraceStepStatus = Literal[
 META_TESTING_INTENT_PACKET_SCHEMA = "meta_testing_intent_packet@1"
 META_MODULE_CATALOG_SCHEMA = "meta_module_catalog@1"
 META_LOOP_SEQUENCE_CONTRACT_SCHEMA = "meta_loop_sequence_contract@1"
+META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA = "meta_loop_checkpoint_result_manifest@1"
 META_LOOP_RUN_TRACE_SCHEMA = "meta_loop_run_trace@1"
 V37A_REFERENCE_LOOP_FAMILY = "arc_bundle_recursive_compilation_loop"
 V37A_REFERENCE_ANCHOR_SHAPE = "arc_closeout_bundle_instance"
@@ -141,7 +147,9 @@ V37A_REFERENCE_PHASE = "closeout"
 V37A_OPERATOR_SURFACE = "explicit_repo_acceptance_boundary"
 V37A_REFERENCE_INSTANCE_ID = "arc_closeout_v65_reference"
 V37A_INTENT_PACKET_ID = "v37a_arc_closeout_v65_intent"
+V37C_EXECUTED_TRACE_MODE = "executed_reference_run"
 V37B_REFERENCE_TRACE_MODE = "reference_not_executed"
+V37C_AUTHORITATIVE_STOP_GATE_BINDING_REF = "apps/api/scripts/build_stop_gate_metrics.py::main"
 
 FROZEN_V37A_MODULE_CLASSES: tuple[MetaModuleClass, ...] = (
     "reasoning_module",
@@ -206,6 +214,7 @@ FROZEN_V37A_OUT_OF_SCOPE_SURFACES: tuple[MetaOutOfScopeSurface, ...] = (
     "meta_control_update_manifest@1",
     "meta_loop_conformance_report@1",
     "meta_loop_drift_diagnostics@1",
+    "meta_loop_checkpoint_result_manifest@1",
     "meta_loop_run_trace@1",
     "meta_loop_sequence_contract@1",
 )
@@ -216,6 +225,17 @@ FROZEN_V37B_PHASE_BOUNDARIES: tuple[MetaSequencePhaseBoundary, ...] = (
     "post_generation_validation",
     "evidence_gate",
     "operator_gate",
+)
+FROZEN_V37C_EXECUTED_CHECKPOINT_CAPABILITIES: tuple[MetaCheckpointCapability, ...] = (
+    "bundle_lint",
+    "quality_dashboard_build",
+    "stop_gate_metrics_build",
+    "instruction_policy_validation",
+    "committed_event_stream_validation",
+)
+FROZEN_V37C_NON_EXECUTED_RELEASED_CAPABILITIES: tuple[MetaCheckpointCapability, ...] = (
+    "artifact_consistency_lint",
+    "semantic_closeout_lint",
 )
 
 
@@ -243,6 +263,13 @@ def _assert_exact_sequence(
 
 def _strip_anchor(ref: str) -> str:
     return ref.split("#", 1)[0]
+
+
+def _split_ref_and_anchor(ref: str) -> tuple[str, str | None]:
+    path, anchor = (ref.split("#", 1) + [None])[:2]
+    if anchor == "":
+        anchor = None
+    return path, anchor
 
 
 def _assert_repo_relative_ref(ref: str, *, field_name: str) -> None:
@@ -882,6 +909,148 @@ class MetaLoopSequenceContract(BaseModel):
         return self
 
 
+class MetaCheckpointOutputArtifact(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_role: str = Field(min_length=1)
+    artifact_ref: str = Field(min_length=1)
+    artifact_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaCheckpointOutputArtifact":
+        actual_hash = _sha256_repo_file(
+            self.artifact_ref,
+            field_name=f"output_artifacts[{self.artifact_role}].artifact_ref",
+        )
+        if self.artifact_sha256 != actual_hash:
+            raise ValueError(
+                f"output_artifacts[{self.artifact_role}].artifact_sha256 must match repo file bytes"
+            )
+        return self
+
+
+class MetaLoopCheckpointResultRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    result_row_id: str = Field(min_length=1)
+    planned_step_id: str = Field(min_length=1)
+    module_id: str = Field(min_length=1)
+    module_class: MetaModuleClass
+    capability_id: str = Field(min_length=1)
+    executor_binding_id: str = Field(min_length=1)
+    executor_binding_ref: str = Field(min_length=1)
+    attempt_index: int = Field(ge=1)
+    attempt_status: MetaCheckpointAttemptStatus
+    output_artifacts: list[MetaCheckpointOutputArtifact] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopCheckpointResultRow":
+        if self.module_class == "reasoning_module":
+            raise ValueError("checkpoint result rows must not bind reasoning modules")
+        output_artifact_refs = [artifact.artifact_ref for artifact in self.output_artifacts]
+        _assert_sorted_unique(
+            output_artifact_refs,
+            field_name=f"checkpoint_results[{self.result_row_id}].output_artifacts.artifact_ref",
+            allow_empty=True,
+        )
+        if self.executor_binding_ref == V37A_OPERATOR_SURFACE:
+            return self
+        if "::" not in self.executor_binding_ref:
+            raise ValueError("executor_binding_ref must use repo_path::symbol or operator surface")
+        repo_path, symbol = self.executor_binding_ref.split("::", 1)
+        if not symbol:
+            raise ValueError("executor_binding_ref must include a python symbol")
+        _assert_python_symbol_exists(
+            repo_path=repo_path,
+            symbol=symbol,
+            field_name=f"checkpoint_results[{self.result_row_id}].executor_binding_ref",
+        )
+        return self
+
+
+class MetaLoopBranchOutcomeRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    branch_outcome_id: str = Field(min_length=1)
+    planned_step_id: str = Field(min_length=1)
+    branch_condition_id: str = Field(min_length=1)
+    outcome: MetaBranchOutcome
+
+
+class MetaLoopRetryOutcomeRecord(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    retry_outcome_id: str = Field(min_length=1)
+    planned_step_id: str = Field(min_length=1)
+    retry_edge_id: str = Field(min_length=1)
+    outcome: MetaRetryOutcome
+    triggering_result_row_id: str = Field(min_length=1)
+    terminal_result_row_id: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopRetryOutcomeRecord":
+        if self.triggering_result_row_id == self.terminal_result_row_id:
+            raise ValueError(
+                "retry_outcomes"
+                f"[{self.retry_outcome_id}] must bind distinct triggering and terminal rows"
+            )
+        return self
+
+
+class MetaLoopCheckpointResultManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: MetaLoopCheckpointResultManifestSchemaVersion = (
+        META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA
+    )
+    reference_loop_family: MetaReferenceLoopFamily = V37A_REFERENCE_LOOP_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    intent_packet_id: str = Field(min_length=1)
+    reference_anchor: MetaReferenceLoopAnchor
+    executed_checkpoint_capabilities: list[MetaCheckpointCapability]
+    non_executed_released_capabilities: list[MetaCheckpointCapability]
+    checkpoint_results: list[MetaLoopCheckpointResultRow]
+    branch_outcomes: list[MetaLoopBranchOutcomeRecord] = Field(default_factory=list)
+    retry_outcomes: list[MetaLoopRetryOutcomeRecord] = Field(default_factory=list)
+    executed_capability_subset_is_intentional: Literal[True] = True
+    hard_checkpoint_results_captured_from_actual_executors: Literal[True] = True
+    failed_checkpoint_rows_preserved: Literal[True] = True
+    reasoning_vs_checkpoint_truth_boundary_preserved: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaLoopCheckpointResultManifest":
+        if self.reference_anchor.reference_arc != V37A_REFERENCE_ARC:
+            raise ValueError(
+                "reference_anchor.reference_arc must equal the frozen "
+                f"v37c anchor {V37A_REFERENCE_ARC}"
+            )
+        _assert_exact_sequence(
+            self.executed_checkpoint_capabilities,
+            expected=FROZEN_V37C_EXECUTED_CHECKPOINT_CAPABILITIES,
+            field_name="executed_checkpoint_capabilities",
+        )
+        _assert_exact_sequence(
+            self.non_executed_released_capabilities,
+            expected=FROZEN_V37C_NON_EXECUTED_RELEASED_CAPABILITIES,
+            field_name="non_executed_released_capabilities",
+        )
+        result_row_ids = [row.result_row_id for row in self.checkpoint_results]
+        _assert_sorted_unique(result_row_ids, field_name="checkpoint_results.result_row_id")
+        branch_outcome_ids = [row.branch_outcome_id for row in self.branch_outcomes]
+        _assert_sorted_unique(
+            branch_outcome_ids,
+            field_name="branch_outcomes.branch_outcome_id",
+            allow_empty=True,
+        )
+        retry_outcome_ids = [row.retry_outcome_id for row in self.retry_outcomes]
+        _assert_sorted_unique(
+            retry_outcome_ids,
+            field_name="retry_outcomes.retry_outcome_id",
+            allow_empty=True,
+        )
+        return self
+
+
 class MetaLoopRunTraceStep(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -890,6 +1059,8 @@ class MetaLoopRunTraceStep(BaseModel):
     consumed_inputs: list[str]
     emitted_outputs: list[str]
     observed_checkpoint_result_refs: list[str]
+    actual_branch_outcome_ref: str | None = None
+    actual_retry_outcome_refs: list[str] | None = None
     step_status: MetaTraceStepStatus
     operational_influence_occurred: bool
     accepted_compilation_occurred: bool
@@ -908,19 +1079,33 @@ class MetaLoopRunTraceStep(BaseModel):
         )
         _assert_sorted_unique(
             self.observed_checkpoint_result_refs,
-            field_name=(
-                f"run_trace_steps[{self.planned_step_id}].observed_checkpoint_result_refs"
-            ),
+            field_name=(f"run_trace_steps[{self.planned_step_id}].observed_checkpoint_result_refs"),
             allow_empty=True,
         )
         for ref in self.observed_checkpoint_result_refs:
             _resolve_repo_relative_path(
                 ref,
                 field_name=(
-                    "run_trace_steps"
-                    f"[{self.planned_step_id}].observed_checkpoint_result_refs"
+                    f"run_trace_steps[{self.planned_step_id}].observed_checkpoint_result_refs"
                 ),
             )
+        if self.actual_branch_outcome_ref is not None:
+            _resolve_repo_relative_path(
+                self.actual_branch_outcome_ref,
+                field_name=f"run_trace_steps[{self.planned_step_id}].actual_branch_outcome_ref",
+            )
+        if self.actual_retry_outcome_refs is not None:
+            _assert_sorted_unique(
+                self.actual_retry_outcome_refs,
+                field_name=f"run_trace_steps[{self.planned_step_id}].actual_retry_outcome_refs",
+            )
+            for ref in self.actual_retry_outcome_refs:
+                _resolve_repo_relative_path(
+                    ref,
+                    field_name=(
+                        f"run_trace_steps[{self.planned_step_id}].actual_retry_outcome_refs"
+                    ),
+                )
         return self
 
 
@@ -933,6 +1118,7 @@ class MetaLoopRunTrace(BaseModel):
     intent_packet_id: str = Field(min_length=1)
     reference_anchor: MetaReferenceLoopAnchor
     trace_mode: MetaTraceMode
+    checkpoint_result_manifest_ref: str | None = None
     steps: list[MetaLoopRunTraceStep]
     operational_influence_threshold_explicit: Literal[True] = True
     accepted_compilation_threshold_explicit: Literal[True] = True
@@ -948,6 +1134,10 @@ class MetaLoopRunTrace(BaseModel):
         step_ids = [item.planned_step_id for item in self.steps]
         _assert_sorted_unique(step_ids, field_name="run_trace.steps.planned_step_id")
         if self.trace_mode == V37B_REFERENCE_TRACE_MODE:
+            if self.checkpoint_result_manifest_ref is not None:
+                raise ValueError(
+                    "reference_not_executed traces must not bind checkpoint_result_manifest_ref"
+                )
             for step in self.steps:
                 if step.step_status != "reference_not_executed":
                     raise ValueError(
@@ -958,6 +1148,37 @@ class MetaLoopRunTrace(BaseModel):
                     raise ValueError(
                         "reference_not_executed traces must keep "
                         "accepted_compilation_occurred = false"
+                    )
+                if step.actual_branch_outcome_ref is not None:
+                    raise ValueError(
+                        "reference_not_executed traces must not bind actual_branch_outcome_ref"
+                    )
+                if step.actual_retry_outcome_refs is not None:
+                    raise ValueError(
+                        "reference_not_executed traces must not bind actual_retry_outcome_refs"
+                    )
+        elif self.trace_mode == V37C_EXECUTED_TRACE_MODE:
+            if self.checkpoint_result_manifest_ref is None:
+                raise ValueError(
+                    "executed_reference_run traces must bind checkpoint_result_manifest_ref"
+                )
+            _resolve_repo_relative_path(
+                self.checkpoint_result_manifest_ref,
+                field_name="checkpoint_result_manifest_ref",
+            )
+            for step in self.steps:
+                if step.step_status == "reference_not_executed":
+                    raise ValueError(
+                        "executed_reference_run traces must not keep "
+                        "step_status = reference_not_executed"
+                    )
+                if step.step_status == "executed_skip" and step.observed_checkpoint_result_refs:
+                    raise ValueError(
+                        "executed_skip steps must not bind observed_checkpoint_result_refs"
+                    )
+                if step.accepted_compilation_occurred and step.step_status != "executed_pass":
+                    raise ValueError(
+                        "accepted_compilation_occurred requires step_status = executed_pass"
                     )
         return self
 
@@ -977,9 +1198,38 @@ def canonicalize_meta_loop_sequence_contract_payload(payload: dict[str, Any]) ->
     return model.model_dump(mode="json")
 
 
+def canonicalize_meta_loop_checkpoint_result_manifest_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    model = MetaLoopCheckpointResultManifest.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json")
+
+
 def canonicalize_meta_loop_run_trace_payload(payload: dict[str, Any]) -> dict[str, Any]:
     model = MetaLoopRunTrace.model_validate(deepcopy(payload))
-    return model.model_dump(mode="json")
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def _parse_manifest_anchor_ref(
+    ref: str,
+    *,
+    manifest_ref: str,
+    expected_section: str,
+    field_name: str,
+) -> str:
+    path, anchor = _split_ref_and_anchor(ref)
+    if path != manifest_ref:
+        raise ValueError(f"{field_name} must stay bound to checkpoint_result_manifest_ref")
+    if anchor is None:
+        raise ValueError(f"{field_name} must include an anchor")
+    if "/" not in anchor:
+        raise ValueError(f"{field_name} anchor must use '<section>/<id>' form")
+    section, item_id = anchor.split("/", 1)
+    if section != expected_section or not item_id:
+        raise ValueError(
+            f"{field_name} must target '{expected_section}/<id>' within the checkpoint manifest"
+        )
+    return item_id
 
 
 def assert_v37a_reference_instance_binding(
@@ -1128,9 +1378,7 @@ def assert_v37b_reference_bundle_consistent(
                 )
         for edge_id in step.retry_edge_ids:
             if retry_edge_by_id[edge_id].from_step_id != step.step_id:
-                raise ValueError(
-                    f"retry edge {edge_id} must start at sequence step {step.step_id}"
-                )
+                raise ValueError(f"retry edge {edge_id} must start at sequence step {step.step_id}")
 
         if module.module_class == "reasoning_module":
             if step.dispatch_provenance_ref != _module_catalog_binding_ref(
@@ -1144,9 +1392,7 @@ def assert_v37b_reference_bundle_consistent(
                     f"reasoning step {step.step_id} must not declare checkpoint_binding_id"
                 )
             if step.operator_gate_id is not None:
-                raise ValueError(
-                    f"reasoning step {step.step_id} must not declare operator_gate_id"
-                )
+                raise ValueError(f"reasoning step {step.step_id} must not declare operator_gate_id")
             if step.downstream_gate_module_id is None:
                 raise ValueError(
                     f"reasoning step {step.step_id} must bind a downstream gate module"
@@ -1190,9 +1436,7 @@ def assert_v37b_reference_bundle_consistent(
                     )
             else:
                 if step.checkpoint_binding_id is None:
-                    raise ValueError(
-                        f"hard step {step.step_id} must declare checkpoint_binding_id"
-                    )
+                    raise ValueError(f"hard step {step.step_id} must declare checkpoint_binding_id")
                 binding_ids = {binding.binding_id for binding in module.executor_bindings}
                 if step.checkpoint_binding_id not in binding_ids:
                     raise ValueError(
@@ -1228,12 +1472,401 @@ def assert_v37b_reference_bundle_consistent(
             )
 
 
+def assert_v37c_reference_instance_binding(
+    *,
+    intent_packet: MetaTestingIntentPacket,
+    module_catalog: MetaModuleCatalog,
+    sequence_contract: MetaLoopSequenceContract,
+    reference_run_trace: MetaLoopRunTrace,
+    executed_run_trace: MetaLoopRunTrace,
+    checkpoint_result_manifest: MetaLoopCheckpointResultManifest,
+) -> None:
+    assert_v37b_reference_instance_binding(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        run_trace=reference_run_trace,
+    )
+    for field_name in ("reference_loop_family", "reference_instance_id", "intent_packet_id"):
+        expected = getattr(intent_packet, field_name)
+        if getattr(executed_run_trace, field_name) != expected:
+            raise ValueError(f"reference instance binding mismatch for {field_name}")
+        if getattr(checkpoint_result_manifest, field_name) != expected:
+            raise ValueError(f"reference instance binding mismatch for {field_name}")
+    if executed_run_trace.reference_anchor != intent_packet.reference_anchor:
+        raise ValueError("reference instance binding mismatch for reference_anchor")
+    if checkpoint_result_manifest.reference_anchor != intent_packet.reference_anchor:
+        raise ValueError("reference instance binding mismatch for reference_anchor")
+
+
+def assert_v37c_reference_bundle_consistent(
+    *,
+    intent_packet: MetaTestingIntentPacket,
+    module_catalog: MetaModuleCatalog,
+    sequence_contract: MetaLoopSequenceContract,
+    reference_run_trace: MetaLoopRunTrace,
+    executed_run_trace: MetaLoopRunTrace,
+    checkpoint_result_manifest: MetaLoopCheckpointResultManifest,
+) -> None:
+    assert_v37b_reference_bundle_consistent(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        run_trace=reference_run_trace,
+    )
+    assert_v37c_reference_instance_binding(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        reference_run_trace=reference_run_trace,
+        executed_run_trace=executed_run_trace,
+        checkpoint_result_manifest=checkpoint_result_manifest,
+    )
+
+    if executed_run_trace.trace_mode != V37C_EXECUTED_TRACE_MODE:
+        raise ValueError(
+            f"accepted v37c run trace must use trace_mode {V37C_EXECUTED_TRACE_MODE!r}"
+        )
+    if executed_run_trace.checkpoint_result_manifest_ref is None:
+        raise ValueError("executed run trace must bind checkpoint_result_manifest_ref")
+
+    expected_step_ids_in_order = [step.step_id for step in sequence_contract.steps]
+    if [step.planned_step_id for step in executed_run_trace.steps] != expected_step_ids_in_order:
+        raise ValueError(
+            "executed run trace planned_step_id order must match the accepted sequence contract"
+        )
+    if executed_run_trace.model_dump(
+        mode="json", exclude_none=True
+    ) == reference_run_trace.model_dump(
+        mode="json",
+        exclude_none=True,
+    ):
+        raise ValueError("executed run trace must remain distinct from the v37b reference trace")
+
+    module_by_id = {module.module_id: module for module in module_catalog.modules}
+    retry_edge_by_id = {item.retry_edge_id: item for item in sequence_contract.retry_edges}
+    trace_step_by_id = {item.planned_step_id: item for item in executed_run_trace.steps}
+    result_row_by_id = {
+        row.result_row_id: row for row in checkpoint_result_manifest.checkpoint_results
+    }
+    branch_outcome_by_id = {
+        row.branch_outcome_id: row for row in checkpoint_result_manifest.branch_outcomes
+    }
+    retry_outcome_by_id = {
+        row.retry_outcome_id: row for row in checkpoint_result_manifest.retry_outcomes
+    }
+    manifest_ref = executed_run_trace.checkpoint_result_manifest_ref
+
+    executed_checkpoint_capabilities: set[str] = set()
+    skipped_checkpoint_capabilities: set[str] = set()
+
+    for step in sequence_contract.steps:
+        trace_step = trace_step_by_id[step.step_id]
+        module = module_by_id[step.module_id]
+        if trace_step.actual_module_id != step.module_id:
+            raise ValueError(
+                "executed run trace step "
+                f"{step.step_id} must resolve actual_module_id to the bound module"
+            )
+
+        if trace_step.step_status == "executed_skip":
+            if trace_step.consumed_inputs or trace_step.emitted_outputs:
+                raise ValueError(
+                    f"executed_skip step {step.step_id} must not claim "
+                    "consumed_inputs or emitted_outputs"
+                )
+        else:
+            if trace_step.consumed_inputs != step.required_inputs:
+                raise ValueError(
+                    f"executed step {step.step_id} consumed_inputs must match "
+                    "the accepted sequence contract"
+                )
+            if trace_step.emitted_outputs != step.expected_outputs:
+                raise ValueError(
+                    f"executed step {step.step_id} emitted_outputs must match "
+                    "the accepted sequence contract"
+                )
+
+        if module.module_class == "reasoning_module":
+            if trace_step.step_status != "executed_pass":
+                raise ValueError(
+                    f"reasoning step {step.step_id} must use step_status = executed_pass in v37c"
+                )
+            if not trace_step.operational_influence_occurred:
+                raise ValueError(
+                    f"reasoning step {step.step_id} must keep operational_influence_occurred = true"
+                )
+            if trace_step.observed_checkpoint_result_refs:
+                raise ValueError(
+                    f"reasoning step {step.step_id} must not bind observed_checkpoint_result_refs"
+                )
+            if trace_step.actual_branch_outcome_ref is not None:
+                raise ValueError(
+                    f"reasoning step {step.step_id} must not bind actual_branch_outcome_ref"
+                )
+            if trace_step.actual_retry_outcome_refs is not None:
+                raise ValueError(
+                    f"reasoning step {step.step_id} must not bind actual_retry_outcome_refs"
+                )
+            continue
+
+        if trace_step.operational_influence_occurred:
+            raise ValueError(
+                f"hard step {step.step_id} must not claim operational_influence_occurred"
+            )
+
+        if trace_step.step_status == "executed_skip":
+            if trace_step.accepted_compilation_occurred:
+                raise ValueError(
+                    f"executed_skip step {step.step_id} must not claim "
+                    "accepted_compilation_occurred"
+                )
+            if trace_step.observed_checkpoint_result_refs:
+                raise ValueError(
+                    f"executed_skip step {step.step_id} must not bind "
+                    "observed_checkpoint_result_refs"
+                )
+            if trace_step.actual_branch_outcome_ref is not None:
+                raise ValueError(
+                    f"executed_skip step {step.step_id} must not bind actual_branch_outcome_ref"
+                )
+            if trace_step.actual_retry_outcome_refs is not None:
+                raise ValueError(
+                    f"executed_skip step {step.step_id} must not bind actual_retry_outcome_refs"
+                )
+            if module.module_class == "checkpoint_module":
+                skipped_checkpoint_capabilities.add(module.capability_id)
+            continue
+
+        if module.module_class == "checkpoint_module":
+            executed_checkpoint_capabilities.add(module.capability_id)
+
+        if not trace_step.observed_checkpoint_result_refs:
+            raise ValueError(
+                f"executed hard step {step.step_id} must bind observed_checkpoint_result_refs"
+            )
+
+        row_ids: list[str] = []
+        for index, ref in enumerate(trace_step.observed_checkpoint_result_refs):
+            row_id = _parse_manifest_anchor_ref(
+                ref,
+                manifest_ref=manifest_ref,
+                expected_section="checkpoint_results",
+                field_name=(
+                    f"run_trace.steps[{step.step_id}].observed_checkpoint_result_refs[{index}]"
+                ),
+            )
+            row = result_row_by_id.get(row_id)
+            if row is None:
+                raise ValueError(
+                    f"executed step {step.step_id} observed checkpoint ref "
+                    "must resolve a manifest row"
+                )
+            if row.planned_step_id != step.step_id:
+                raise ValueError(
+                    f"manifest row {row_id} must stay bound to executed step {step.step_id}"
+                )
+            if row.module_id != module.module_id or row.module_class != module.module_class:
+                raise ValueError(
+                    f"manifest row {row_id} must resolve the bound module for step {step.step_id}"
+                )
+            binding_ids = {binding.binding_id: binding for binding in module.executor_bindings}
+            if row.executor_binding_id not in binding_ids:
+                raise ValueError(
+                    f"manifest row {row_id} must bind an executor from the released v37a catalog"
+                )
+            binding = binding_ids[row.executor_binding_id]
+            if (
+                module.capability_id == "stop_gate_metrics_build"
+                and row.executor_binding_ref != V37C_AUTHORITATIVE_STOP_GATE_BINDING_REF
+            ):
+                raise ValueError(
+                    "stop_gate_metrics_build must stay bound to the "
+                    "authoritative stop-gate executor"
+                )
+            if row.executor_binding_ref != binding.binding_ref:
+                raise ValueError(
+                    f"manifest row {row_id} executor_binding_ref must match "
+                    "the released v37a catalog"
+                )
+            if row.capability_id != module.capability_id:
+                raise ValueError(
+                    f"manifest row {row_id} capability_id must match "
+                    f"module capability {module.capability_id}"
+                )
+            row_ids.append(row_id)
+
+        if step.branch_condition_id is not None:
+            if trace_step.actual_branch_outcome_ref is None:
+                raise ValueError(
+                    f"executed step {step.step_id} must bind actual_branch_outcome_ref"
+                )
+            branch_outcome_id = _parse_manifest_anchor_ref(
+                trace_step.actual_branch_outcome_ref,
+                manifest_ref=manifest_ref,
+                expected_section="branch_outcomes",
+                field_name=f"run_trace.steps[{step.step_id}].actual_branch_outcome_ref",
+            )
+            branch_outcome = branch_outcome_by_id.get(branch_outcome_id)
+            if branch_outcome is None:
+                raise ValueError(
+                    f"executed step {step.step_id} actual_branch_outcome_ref "
+                    "must resolve a manifest outcome"
+                )
+            if branch_outcome.planned_step_id != step.step_id:
+                raise ValueError(
+                    f"branch outcome {branch_outcome_id} must stay bound to "
+                    f"executed step {step.step_id}"
+                )
+            if branch_outcome.branch_condition_id != step.branch_condition_id:
+                raise ValueError(
+                    f"branch outcome {branch_outcome_id} must stay bound to "
+                    f"branch_condition_id {step.branch_condition_id}"
+                )
+        elif trace_step.actual_branch_outcome_ref is not None:
+            raise ValueError(
+                f"step {step.step_id} must not bind actual_branch_outcome_ref "
+                "without branch_condition_id"
+            )
+
+        if trace_step.step_status == "executed_retry":
+            if trace_step.actual_retry_outcome_refs is None:
+                raise ValueError(f"retried step {step.step_id} must bind actual_retry_outcome_refs")
+            if len(row_ids) < 2:
+                raise ValueError(
+                    f"retried step {step.step_id} must bind at least two manifest result rows"
+                )
+            if not any(
+                result_row_by_id[row_id].attempt_status == "attempted_fail" for row_id in row_ids
+            ):
+                raise ValueError(
+                    f"retried step {step.step_id} must preserve at least one "
+                    "attempted_fail manifest row"
+                )
+            for index, ref in enumerate(trace_step.actual_retry_outcome_refs):
+                retry_outcome_id = _parse_manifest_anchor_ref(
+                    ref,
+                    manifest_ref=manifest_ref,
+                    expected_section="retry_outcomes",
+                    field_name=(
+                        f"run_trace.steps[{step.step_id}].actual_retry_outcome_refs[{index}]"
+                    ),
+                )
+                retry_outcome = retry_outcome_by_id.get(retry_outcome_id)
+                if retry_outcome is None:
+                    raise ValueError(
+                        f"retried step {step.step_id} retry outcome ref must "
+                        "resolve a manifest retry outcome"
+                    )
+                if retry_outcome.planned_step_id != step.step_id:
+                    raise ValueError(
+                        f"retry outcome {retry_outcome_id} must stay bound to "
+                        f"executed step {step.step_id}"
+                    )
+                retry_edge = retry_edge_by_id.get(retry_outcome.retry_edge_id)
+                if retry_edge is None:
+                    raise ValueError(
+                        f"retry outcome {retry_outcome_id} must resolve an accepted retry edge"
+                    )
+                if retry_edge.from_step_id != step.step_id:
+                    raise ValueError(
+                        f"retry outcome {retry_outcome_id} must stay bound to step {step.step_id}"
+                    )
+                if retry_outcome.triggering_result_row_id not in row_ids:
+                    raise ValueError(
+                        f"retry outcome {retry_outcome_id} triggering row "
+                        f"must belong to executed step {step.step_id}"
+                    )
+                if retry_outcome.terminal_result_row_id not in row_ids:
+                    raise ValueError(
+                        f"retry outcome {retry_outcome_id} terminal row "
+                        f"must belong to executed step {step.step_id}"
+                    )
+        elif trace_step.actual_retry_outcome_refs is not None:
+            raise ValueError(
+                f"non-retried step {step.step_id} must not bind actual_retry_outcome_refs"
+            )
+
+        attempt_statuses = {result_row_by_id[row_id].attempt_status for row_id in row_ids}
+        if trace_step.step_status == "executed_pass" and attempt_statuses != {"attempted_pass"}:
+            raise ValueError(
+                f"executed_pass step {step.step_id} must bind only attempted_pass manifest rows"
+            )
+        if trace_step.step_status == "executed_fail" and attempt_statuses != {"attempted_fail"}:
+            raise ValueError(
+                f"executed_fail step {step.step_id} must bind only attempted_fail manifest rows"
+            )
+        if trace_step.step_status == "executed_retry" and attempt_statuses != {
+            "attempted_fail",
+            "attempted_pass",
+        }:
+            raise ValueError(
+                f"executed_retry step {step.step_id} must bind attempted_fail "
+                "and attempted_pass manifest rows"
+            )
+
+        if module.module_class == "checkpoint_module":
+            if module.capability_id == "quality_dashboard_build":
+                expected_output_refs = {"artifacts/quality_dashboard_v65_closeout.json"}
+            elif module.capability_id == "stop_gate_metrics_build":
+                expected_output_refs = {
+                    "artifacts/stop_gate/metrics_v65_closeout.json",
+                    "artifacts/stop_gate/report_v65_closeout.md",
+                }
+            else:
+                expected_output_refs = set()
+            actual_output_refs = {
+                artifact.artifact_ref
+                for row_id in row_ids
+                for artifact in result_row_by_id[row_id].output_artifacts
+            }
+            if actual_output_refs != expected_output_refs:
+                raise ValueError(
+                    f"executed step {step.step_id} must preserve the expected output artifact refs"
+                )
+
+        if (
+            module.module_class == "operator_gate_module"
+            and not trace_step.accepted_compilation_occurred
+        ):
+            raise ValueError(
+                f"operator gate step {step.step_id} must mark accepted_compilation_occurred = true"
+            )
+        if (
+            module.module_class != "operator_gate_module"
+            and trace_step.accepted_compilation_occurred
+        ):
+            raise ValueError(
+                f"non-operator step {step.step_id} must not mark accepted_compilation_occurred"
+            )
+
+    if executed_checkpoint_capabilities != set(
+        checkpoint_result_manifest.executed_checkpoint_capabilities
+    ):
+        raise ValueError(
+            "executed checkpoint capabilities must match the intentional v37c subset declaration"
+        )
+    if skipped_checkpoint_capabilities != set(
+        checkpoint_result_manifest.non_executed_released_capabilities
+    ):
+        raise ValueError(
+            "skipped checkpoint capabilities must match the declared non-executed released subset"
+        )
+
+
 __all__ = [
+    "FROZEN_V37A_AUTHORITATIVE_INPUT_IDS",
+    "FROZEN_V37A_DRIFT_TAXONOMY",
+    "FROZEN_V37A_MODULE_CLASSES",
+    "FROZEN_V37A_REQUIRED_CHECKPOINT_CAPABILITIES",
     "META_LOOP_RUN_TRACE_SCHEMA",
+    "META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA",
     "META_LOOP_SEQUENCE_CONTRACT_SCHEMA",
     "META_MODULE_CATALOG_SCHEMA",
     "META_TESTING_INTENT_PACKET_SCHEMA",
-    "V37B_REFERENCE_TRACE_MODE",
+    "FROZEN_V37B_PHASE_BOUNDARIES",
+    "FROZEN_V37C_EXECUTED_CHECKPOINT_CAPABILITIES",
+    "FROZEN_V37C_NON_EXECUTED_RELEASED_CAPABILITIES",
     "V37A_INTENT_PACKET_ID",
     "V37A_OPERATOR_SURFACE",
     "V37A_REFERENCE_ANCHOR_SHAPE",
@@ -1241,19 +1874,19 @@ __all__ = [
     "V37A_REFERENCE_INSTANCE_ID",
     "V37A_REFERENCE_LOOP_FAMILY",
     "V37A_REFERENCE_PHASE",
-    "FROZEN_V37A_AUTHORITATIVE_INPUT_IDS",
-    "FROZEN_V37A_DRIFT_TAXONOMY",
-    "FROZEN_V37A_MODULE_CLASSES",
-    "FROZEN_V37A_REQUIRED_CHECKPOINT_CAPABILITIES",
-    "FROZEN_V37B_PHASE_BOUNDARIES",
     "MetaAuthoritativeInputRef",
+    "MetaCheckpointOutputArtifact",
     "MetaExecutorBinding",
     "MetaExecutorParameterPolicy",
     "MetaExecutorParameterSlot",
     "MetaLoopBranchCondition",
+    "MetaLoopBranchOutcomeRecord",
+    "MetaLoopCheckpointResultManifest",
+    "MetaLoopCheckpointResultRow",
     "MetaLoopFailureEdge",
     "MetaLoopOperatorGate",
     "MetaLoopRetryEdge",
+    "MetaLoopRetryOutcomeRecord",
     "MetaLoopRunTrace",
     "MetaLoopRunTraceStep",
     "MetaLoopSequenceContract",
@@ -1267,8 +1900,14 @@ __all__ = [
     "assert_v37a_reference_instance_binding",
     "assert_v37b_reference_bundle_consistent",
     "assert_v37b_reference_instance_binding",
+    "assert_v37c_reference_bundle_consistent",
+    "assert_v37c_reference_instance_binding",
+    "canonicalize_meta_loop_checkpoint_result_manifest_payload",
     "canonicalize_meta_loop_run_trace_payload",
     "canonicalize_meta_loop_sequence_contract_payload",
     "canonicalize_meta_module_catalog_payload",
     "canonicalize_meta_testing_intent_packet_payload",
+    "V37B_REFERENCE_TRACE_MODE",
+    "V37C_AUTHORITATIVE_STOP_GATE_BINDING_REF",
+    "V37C_EXECUTED_TRACE_MODE",
 ]

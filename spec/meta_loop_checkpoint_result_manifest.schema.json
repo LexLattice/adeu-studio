@@ -1,0 +1,335 @@
+{
+  "$defs": {
+    "MetaCheckpointOutputArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_ref": {
+          "minLength": 1,
+          "title": "Artifact Ref",
+          "type": "string"
+        },
+        "artifact_role": {
+          "minLength": 1,
+          "title": "Artifact Role",
+          "type": "string"
+        },
+        "artifact_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_role",
+        "artifact_ref",
+        "artifact_sha256"
+      ],
+      "title": "MetaCheckpointOutputArtifact",
+      "type": "object"
+    },
+    "MetaLoopBranchOutcomeRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "branch_condition_id": {
+          "minLength": 1,
+          "title": "Branch Condition Id",
+          "type": "string"
+        },
+        "branch_outcome_id": {
+          "minLength": 1,
+          "title": "Branch Outcome Id",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "entered",
+            "not_entered"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "planned_step_id": {
+          "minLength": 1,
+          "title": "Planned Step Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "branch_outcome_id",
+        "planned_step_id",
+        "branch_condition_id",
+        "outcome"
+      ],
+      "title": "MetaLoopBranchOutcomeRecord",
+      "type": "object"
+    },
+    "MetaLoopCheckpointResultRow": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt_index": {
+          "minimum": 1,
+          "title": "Attempt Index",
+          "type": "integer"
+        },
+        "attempt_status": {
+          "enum": [
+            "attempted_fail",
+            "attempted_pass"
+          ],
+          "title": "Attempt Status",
+          "type": "string"
+        },
+        "capability_id": {
+          "minLength": 1,
+          "title": "Capability Id",
+          "type": "string"
+        },
+        "executor_binding_id": {
+          "minLength": 1,
+          "title": "Executor Binding Id",
+          "type": "string"
+        },
+        "executor_binding_ref": {
+          "minLength": 1,
+          "title": "Executor Binding Ref",
+          "type": "string"
+        },
+        "module_class": {
+          "enum": [
+            "reasoning_module",
+            "checkpoint_module",
+            "evidence_gate_module",
+            "operator_gate_module"
+          ],
+          "title": "Module Class",
+          "type": "string"
+        },
+        "module_id": {
+          "minLength": 1,
+          "title": "Module Id",
+          "type": "string"
+        },
+        "output_artifacts": {
+          "items": {
+            "$ref": "#/$defs/MetaCheckpointOutputArtifact"
+          },
+          "title": "Output Artifacts",
+          "type": "array"
+        },
+        "planned_step_id": {
+          "minLength": 1,
+          "title": "Planned Step Id",
+          "type": "string"
+        },
+        "result_row_id": {
+          "minLength": 1,
+          "title": "Result Row Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "result_row_id",
+        "planned_step_id",
+        "module_id",
+        "module_class",
+        "capability_id",
+        "executor_binding_id",
+        "executor_binding_ref",
+        "attempt_index",
+        "attempt_status"
+      ],
+      "title": "MetaLoopCheckpointResultRow",
+      "type": "object"
+    },
+    "MetaLoopRetryOutcomeRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "outcome": {
+          "enum": [
+            "retried_and_failed",
+            "retried_and_succeeded"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "planned_step_id": {
+          "minLength": 1,
+          "title": "Planned Step Id",
+          "type": "string"
+        },
+        "retry_edge_id": {
+          "minLength": 1,
+          "title": "Retry Edge Id",
+          "type": "string"
+        },
+        "retry_outcome_id": {
+          "minLength": 1,
+          "title": "Retry Outcome Id",
+          "type": "string"
+        },
+        "terminal_result_row_id": {
+          "minLength": 1,
+          "title": "Terminal Result Row Id",
+          "type": "string"
+        },
+        "triggering_result_row_id": {
+          "minLength": 1,
+          "title": "Triggering Result Row Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "retry_outcome_id",
+        "planned_step_id",
+        "retry_edge_id",
+        "outcome",
+        "triggering_result_row_id",
+        "terminal_result_row_id"
+      ],
+      "title": "MetaLoopRetryOutcomeRecord",
+      "type": "object"
+    },
+    "MetaReferenceLoopAnchor": {
+      "additionalProperties": false,
+      "properties": {
+        "reference_arc": {
+          "minimum": 1,
+          "title": "Reference Arc",
+          "type": "integer"
+        },
+        "reference_phase": {
+          "const": "closeout",
+          "default": "closeout",
+          "title": "Reference Phase",
+          "type": "string"
+        },
+        "shape": {
+          "const": "arc_closeout_bundle_instance",
+          "default": "arc_closeout_bundle_instance",
+          "title": "Shape",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reference_arc"
+      ],
+      "title": "MetaReferenceLoopAnchor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "branch_outcomes": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopBranchOutcomeRecord"
+      },
+      "title": "Branch Outcomes",
+      "type": "array"
+    },
+    "checkpoint_results": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopCheckpointResultRow"
+      },
+      "title": "Checkpoint Results",
+      "type": "array"
+    },
+    "executed_capability_subset_is_intentional": {
+      "const": true,
+      "default": true,
+      "title": "Executed Capability Subset Is Intentional",
+      "type": "boolean"
+    },
+    "executed_checkpoint_capabilities": {
+      "items": {
+        "enum": [
+          "artifact_consistency_lint",
+          "bundle_lint",
+          "committed_event_stream_validation",
+          "instruction_policy_validation",
+          "quality_dashboard_build",
+          "semantic_closeout_lint",
+          "stop_gate_metrics_build"
+        ],
+        "type": "string"
+      },
+      "title": "Executed Checkpoint Capabilities",
+      "type": "array"
+    },
+    "failed_checkpoint_rows_preserved": {
+      "const": true,
+      "default": true,
+      "title": "Failed Checkpoint Rows Preserved",
+      "type": "boolean"
+    },
+    "hard_checkpoint_results_captured_from_actual_executors": {
+      "const": true,
+      "default": true,
+      "title": "Hard Checkpoint Results Captured From Actual Executors",
+      "type": "boolean"
+    },
+    "intent_packet_id": {
+      "minLength": 1,
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "non_executed_released_capabilities": {
+      "items": {
+        "enum": [
+          "artifact_consistency_lint",
+          "bundle_lint",
+          "committed_event_stream_validation",
+          "instruction_policy_validation",
+          "quality_dashboard_build",
+          "semantic_closeout_lint",
+          "stop_gate_metrics_build"
+        ],
+        "type": "string"
+      },
+      "title": "Non Executed Released Capabilities",
+      "type": "array"
+    },
+    "reasoning_vs_checkpoint_truth_boundary_preserved": {
+      "const": true,
+      "default": true,
+      "title": "Reasoning Vs Checkpoint Truth Boundary Preserved",
+      "type": "boolean"
+    },
+    "reference_anchor": {
+      "$ref": "#/$defs/MetaReferenceLoopAnchor"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_loop_family": {
+      "const": "arc_bundle_recursive_compilation_loop",
+      "default": "arc_bundle_recursive_compilation_loop",
+      "title": "Reference Loop Family",
+      "type": "string"
+    },
+    "retry_outcomes": {
+      "items": {
+        "$ref": "#/$defs/MetaLoopRetryOutcomeRecord"
+      },
+      "title": "Retry Outcomes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "meta_loop_checkpoint_result_manifest@1",
+      "default": "meta_loop_checkpoint_result_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "intent_packet_id",
+    "reference_anchor",
+    "executed_checkpoint_capabilities",
+    "non_executed_released_capabilities",
+    "checkpoint_results"
+  ],
+  "title": "MetaLoopCheckpointResultManifest",
+  "type": "object"
+}

@@ -1,0 +1,195 @@
+{
+  "schema": "meta_loop_checkpoint_result_manifest@1",
+  "reference_loop_family": "arc_bundle_recursive_compilation_loop",
+  "reference_instance_id": "arc_closeout_v65_reference",
+  "intent_packet_id": "v37a_arc_closeout_v65_intent",
+  "reference_anchor": {
+    "shape": "arc_closeout_bundle_instance",
+    "reference_arc": 65,
+    "reference_phase": "closeout"
+  },
+  "executed_checkpoint_capabilities": [
+    "bundle_lint",
+    "quality_dashboard_build",
+    "stop_gate_metrics_build",
+    "instruction_policy_validation",
+    "committed_event_stream_validation"
+  ],
+  "non_executed_released_capabilities": [
+    "artifact_consistency_lint",
+    "semantic_closeout_lint"
+  ],
+  "checkpoint_results": [
+    {
+      "result_row_id": "result_step_02_bundle_lint_attempt_01",
+      "planned_step_id": "step_02_bundle_lint",
+      "module_id": "checkpoint_01_bundle_lint",
+      "module_class": "checkpoint_module",
+      "capability_id": "bundle_lint",
+      "executor_binding_id": "arc_bundle_closeout_lint",
+      "executor_binding_ref": "apps/api/scripts/lint_arc_bundle.py::lint_arc_bundle",
+      "attempt_index": 1,
+      "attempt_status": "attempted_pass",
+      "output_artifacts": []
+    },
+    {
+      "result_row_id": "result_step_04_quality_dashboard_build_attempt_01",
+      "planned_step_id": "step_04_quality_dashboard_build",
+      "module_id": "checkpoint_05_quality_dashboard_build",
+      "module_class": "checkpoint_module",
+      "capability_id": "quality_dashboard_build",
+      "executor_binding_id": "quality_dashboard_builder",
+      "executor_binding_ref": "apps/api/scripts/build_quality_dashboard.py::main",
+      "attempt_index": 1,
+      "attempt_status": "attempted_pass",
+      "output_artifacts": [
+        {
+          "artifact_role": "quality_dashboard_json",
+          "artifact_ref": "artifacts/quality_dashboard_v65_closeout.json",
+          "artifact_sha256": "5affdbf480de1c7dddc6dec54f5945705f77d2d5be5c945a9405381d93f1add2"
+        }
+      ]
+    },
+    {
+      "result_row_id": "result_step_05_stop_gate_metrics_build_attempt_01",
+      "planned_step_id": "step_05_stop_gate_metrics_build",
+      "module_id": "checkpoint_04_stop_gate_metrics_build",
+      "module_class": "checkpoint_module",
+      "capability_id": "stop_gate_metrics_build",
+      "executor_binding_id": "stop_gate_metrics_builder",
+      "executor_binding_ref": "apps/api/scripts/build_stop_gate_metrics.py::main",
+      "attempt_index": 1,
+      "attempt_status": "attempted_pass",
+      "output_artifacts": [
+        {
+          "artifact_role": "stop_gate_metrics@1",
+          "artifact_ref": "artifacts/stop_gate/metrics_v65_closeout.json",
+          "artifact_sha256": "81ea611a3bae43190c326a03384550f1a3c6bf281390244828038d558a19a6af"
+        },
+        {
+          "artifact_role": "stop_gate_report_markdown",
+          "artifact_ref": "artifacts/stop_gate/report_v65_closeout.md",
+          "artifact_sha256": "fb470b8b3d943bba385c70a960983bc97c44503f3d7924101081db55bdc05d9f"
+        }
+      ]
+    },
+    {
+      "result_row_id": "result_step_07_committed_event_stream_validation_attempt_01",
+      "planned_step_id": "step_07_committed_event_stream_validation",
+      "module_id": "checkpoint_06_committed_event_stream_validation",
+      "module_class": "checkpoint_module",
+      "capability_id": "committed_event_stream_validation",
+      "executor_binding_id": "committed_event_stream_validator",
+      "executor_binding_ref": "packages/urm_runtime/src/urm_runtime/events_tools.py::validate_events",
+      "attempt_index": 1,
+      "attempt_status": "attempted_fail",
+      "output_artifacts": []
+    },
+    {
+      "result_row_id": "result_step_07_committed_event_stream_validation_attempt_02",
+      "planned_step_id": "step_07_committed_event_stream_validation",
+      "module_id": "checkpoint_06_committed_event_stream_validation",
+      "module_class": "checkpoint_module",
+      "capability_id": "committed_event_stream_validation",
+      "executor_binding_id": "committed_event_stream_validator",
+      "executor_binding_ref": "packages/urm_runtime/src/urm_runtime/events_tools.py::validate_events",
+      "attempt_index": 2,
+      "attempt_status": "attempted_pass",
+      "output_artifacts": []
+    },
+    {
+      "result_row_id": "result_step_08_instruction_policy_validation_attempt_01",
+      "planned_step_id": "step_08_instruction_policy_validation",
+      "module_id": "checkpoint_07_instruction_policy_validation",
+      "module_class": "checkpoint_module",
+      "capability_id": "instruction_policy_validation",
+      "executor_binding_id": "instruction_policy_validator",
+      "executor_binding_ref": "apps/api/scripts/generate_instruction_policy_views.py::main",
+      "attempt_index": 1,
+      "attempt_status": "attempted_pass",
+      "output_artifacts": []
+    },
+    {
+      "result_row_id": "result_step_09_reference_bundle_guard_attempt_01",
+      "planned_step_id": "step_09_reference_bundle_guard",
+      "module_id": "evidence_01_reference_bundle_guard",
+      "module_class": "evidence_gate_module",
+      "capability_id": "reference_bundle_consistency_guard",
+      "executor_binding_id": "v37a_reference_bundle_guard",
+      "executor_binding_ref": "packages/adeu_core_ir/src/adeu_core_ir/meta_testing.py::assert_v37a_reference_bundle_consistent",
+      "attempt_index": 1,
+      "attempt_status": "attempted_pass",
+      "output_artifacts": []
+    },
+    {
+      "result_row_id": "result_step_10_repo_acceptance_gate_attempt_01",
+      "planned_step_id": "step_10_repo_acceptance_gate",
+      "module_id": "operator_01_repo_acceptance_gate",
+      "module_class": "operator_gate_module",
+      "capability_id": "repo_acceptance_adjudication",
+      "executor_binding_id": "repo_acceptance_boundary",
+      "executor_binding_ref": "explicit_repo_acceptance_boundary",
+      "attempt_index": 1,
+      "attempt_status": "attempted_pass",
+      "output_artifacts": []
+    }
+  ],
+  "branch_outcomes": [
+    {
+      "branch_outcome_id": "branch_step_02_bundle_lint",
+      "planned_step_id": "step_02_bundle_lint",
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "outcome": "entered"
+    },
+    {
+      "branch_outcome_id": "branch_step_04_quality_dashboard_build",
+      "planned_step_id": "step_04_quality_dashboard_build",
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "outcome": "entered"
+    },
+    {
+      "branch_outcome_id": "branch_step_05_stop_gate_metrics_build",
+      "planned_step_id": "step_05_stop_gate_metrics_build",
+      "branch_condition_id": "branch_02_generated_artifacts_available",
+      "outcome": "entered"
+    },
+    {
+      "branch_outcome_id": "branch_step_07_committed_event_stream_validation",
+      "planned_step_id": "step_07_committed_event_stream_validation",
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "outcome": "entered"
+    },
+    {
+      "branch_outcome_id": "branch_step_08_instruction_policy_validation",
+      "planned_step_id": "step_08_instruction_policy_validation",
+      "branch_condition_id": "branch_01_all_required_inputs_available",
+      "outcome": "entered"
+    },
+    {
+      "branch_outcome_id": "branch_step_09_reference_bundle_guard",
+      "planned_step_id": "step_09_reference_bundle_guard",
+      "branch_condition_id": "branch_03_downstream_gate_required",
+      "outcome": "entered"
+    },
+    {
+      "branch_outcome_id": "branch_step_10_repo_acceptance_gate",
+      "planned_step_id": "step_10_repo_acceptance_gate",
+      "branch_condition_id": "branch_03_downstream_gate_required",
+      "outcome": "entered"
+    }
+  ],
+  "retry_outcomes": [
+    {
+      "retry_outcome_id": "retry_step_07_committed_event_stream_validation",
+      "planned_step_id": "step_07_committed_event_stream_validation",
+      "retry_edge_id": "retry_01_event_stream_fixture_refresh",
+      "outcome": "retried_and_succeeded",
+      "triggering_result_row_id": "result_step_07_committed_event_stream_validation_attempt_01",
+      "terminal_result_row_id": "result_step_07_committed_event_stream_validation_attempt_02"
+    }
+  ],
+  "executed_capability_subset_is_intentional": true,
+  "hard_checkpoint_results_captured_from_actual_executors": true,
+  "failed_checkpoint_rows_preserved": true,
+  "reasoning_vs_checkpoint_truth_boundary_preserved": true
+}

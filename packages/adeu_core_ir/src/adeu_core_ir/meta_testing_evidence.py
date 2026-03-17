@@ -883,7 +883,7 @@ def materialize_v37b_sequence_trace_evidence(
         path=run_trace_reference_file,
         field_name="meta_loop_run_trace_reference_path",
         model_type=MetaLoopRunTrace,
-        exclude_none=False,
+        exclude_none=True,
     )
     v37a_evidence_payload, v37a_evidence = _load_validated_model(
         path=v37a_evidence_file,
