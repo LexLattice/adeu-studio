@@ -5,6 +5,8 @@ import re
 from pathlib import Path
 
 from adeu_core_ir import (
+    META_CONTROL_UPDATE_CANDIDATE_SCHEMA,
+    META_CONTROL_UPDATE_MANIFEST_SCHEMA,
     META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA,
     META_LOOP_CONFORMANCE_REPORT_SCHEMA,
     META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA,
@@ -120,6 +122,22 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             / "meta_loop_conformance_report.v1.json",
             root / "spec" / "meta_loop_conformance_report.schema.json",
         ),
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "meta_control_update_candidate.v1.json",
+            root / "spec" / "meta_control_update_candidate.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "meta_control_update_manifest.v1.json",
+            root / "spec" / "meta_control_update_manifest.schema.json",
+        ),
     ]
 
 
@@ -168,6 +186,8 @@ def test_exported_schema_files_have_stable_contract_markers() -> None:
         "meta_loop_run_trace.v1.json": META_LOOP_RUN_TRACE_SCHEMA,
         "meta_loop_drift_diagnostics.v1.json": META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA,
         "meta_loop_conformance_report.v1.json": META_LOOP_CONFORMANCE_REPORT_SCHEMA,
+        "meta_control_update_candidate.v1.json": META_CONTROL_UPDATE_CANDIDATE_SCHEMA,
+        "meta_control_update_manifest.v1.json": META_CONTROL_UPDATE_MANIFEST_SCHEMA,
     }
 
     for authoritative, _mirror in _schema_paths():

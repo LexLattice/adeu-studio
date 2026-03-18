@@ -17,6 +17,8 @@ MetaLoopCheckpointResultManifestSchemaVersion = Literal["meta_loop_checkpoint_re
 MetaLoopRunTraceSchemaVersion = Literal["meta_loop_run_trace@1"]
 MetaLoopDriftDiagnosticsSchemaVersion = Literal["meta_loop_drift_diagnostics@1"]
 MetaLoopConformanceReportSchemaVersion = Literal["meta_loop_conformance_report@1"]
+MetaControlUpdateCandidateSchemaVersion = Literal["meta_control_update_candidate@1"]
+MetaControlUpdateManifestSchemaVersion = Literal["meta_control_update_manifest@1"]
 MetaReferenceLoopFamily = Literal["arc_bundle_recursive_compilation_loop"]
 MetaReferenceAnchorShape = Literal["arc_closeout_bundle_instance"]
 MetaReferencePhase = Literal["closeout"]
@@ -140,6 +142,37 @@ MetaTraceStepStatus = Literal[
 MetaDiagnosticSeverity = Literal["error", "warning", "advisory"]
 MetaConformanceOverallJudgment = Literal["pass", "fail", "needs_review"]
 MetaConformanceImpact = Literal["advisory_only", "blocks_pass", "needs_review"]
+MetaTargetControlClass = Literal[
+    "lock_text",
+    "schema_field",
+    "validator_rule",
+    "evidence_requirement",
+    "runtime_guard",
+    "prompt_dispatch_convention",
+    "module_catalog_field",
+    "sequence_contract_field",
+]
+MetaTargetSurfaceNamespace = Literal[
+    "lock_anchor_ref",
+    "schema_field_ref",
+    "validator_rule_ref",
+    "evidence_requirement_ref",
+    "runtime_guard_ref",
+    "prompt_dispatch_ref",
+    "module_catalog_field_ref",
+    "sequence_contract_field_ref",
+]
+MetaApplicationFrictionMode = Literal[
+    "review_only",
+    "adjudication_required",
+    "blocked_from_direct_application",
+]
+MetaCandidateRankingBasis = Literal[
+    "target_control_class_priority",
+    "bound_finding_severity",
+    "bound_finding_id_lexical",
+    "candidate_id_lexical",
+]
 MetaSeededViolationFamily = Literal[
     "sequence_gap_detectable",
     "intent_clause_unassessed_detectable",
@@ -160,6 +193,8 @@ META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA = "meta_loop_checkpoint_result_manif
 META_LOOP_RUN_TRACE_SCHEMA = "meta_loop_run_trace@1"
 META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA = "meta_loop_drift_diagnostics@1"
 META_LOOP_CONFORMANCE_REPORT_SCHEMA = "meta_loop_conformance_report@1"
+META_CONTROL_UPDATE_CANDIDATE_SCHEMA = "meta_control_update_candidate@1"
+META_CONTROL_UPDATE_MANIFEST_SCHEMA = "meta_control_update_manifest@1"
 V37A_REFERENCE_LOOP_FAMILY = "arc_bundle_recursive_compilation_loop"
 V37A_REFERENCE_ANCHOR_SHAPE = "arc_closeout_bundle_instance"
 V37A_REFERENCE_ARC = 65
@@ -274,6 +309,51 @@ FROZEN_V37D_SEEDED_VIOLATION_FAMILIES: tuple[MetaSeededViolationFamily, ...] = (
     "repeated_uncompiled_drift_detectable",
     "operational_influence_accepted_compilation_collapse_detectable",
 )
+FROZEN_V37E_ALLOWED_TARGET_CONTROL_CLASSES: tuple[MetaTargetControlClass, ...] = (
+    "lock_text",
+    "schema_field",
+    "validator_rule",
+    "evidence_requirement",
+    "runtime_guard",
+    "prompt_dispatch_convention",
+    "module_catalog_field",
+    "sequence_contract_field",
+)
+FROZEN_V37E_TARGET_SURFACE_REF_ALLOWED_NAMESPACES: tuple[MetaTargetSurfaceNamespace, ...] = (
+    "lock_anchor_ref",
+    "schema_field_ref",
+    "validator_rule_ref",
+    "evidence_requirement_ref",
+    "runtime_guard_ref",
+    "prompt_dispatch_ref",
+    "module_catalog_field_ref",
+    "sequence_contract_field_ref",
+)
+FROZEN_V37E_APPLICATION_FRICTION_MODES: tuple[MetaApplicationFrictionMode, ...] = (
+    "review_only",
+    "adjudication_required",
+    "blocked_from_direct_application",
+)
+FROZEN_V37E_TARGET_CONTROL_CLASS_PRIORITY_ORDER: tuple[MetaTargetControlClass, ...] = (
+    "validator_rule",
+    "runtime_guard",
+    "evidence_requirement",
+    "schema_field",
+    "lock_text",
+    "module_catalog_field",
+    "sequence_contract_field",
+    "prompt_dispatch_convention",
+)
+FROZEN_V37E_CANDIDATE_RANKING_BASIS: tuple[MetaCandidateRankingBasis, ...] = (
+    "target_control_class_priority",
+    "bound_finding_severity",
+    "bound_finding_id_lexical",
+    "candidate_id_lexical",
+)
+FROZEN_V37E_CANDIDATE_ELIGIBLE_SEVERITIES: tuple[MetaDiagnosticSeverity, ...] = (
+    "error",
+    "warning",
+)
 
 V37A_REFERENCE_INTENT_PACKET_REF = (
     "apps/api/fixtures/meta_testing/vnext_plus66/"
@@ -302,11 +382,34 @@ V37C_EXECUTED_RUN_TRACE_REF = (
 V37C_REFERENCE_LOOP_EVIDENCE_REF = (
     "artifacts/agent_harness/v68/evidence_inputs/v37c_reference_loop_evidence_v68.json"
 )
+V37D_REFERENCE_DRIFT_DIAGNOSTICS_REF = (
+    "apps/api/fixtures/meta_testing/vnext_plus69/"
+    "meta_loop_drift_diagnostics_arc_closeout_v65_reference.json"
+)
+V37D_REFERENCE_CONFORMANCE_REPORT_REF = (
+    "apps/api/fixtures/meta_testing/vnext_plus69/"
+    "meta_loop_conformance_report_arc_closeout_v65_reference.json"
+)
+V37D_DRIFT_DIAGNOSTICS_CONFORMANCE_EVIDENCE_REF = (
+    "artifacts/agent_harness/v69/evidence_inputs/"
+    "v37d_drift_diagnostics_conformance_evidence_v69.json"
+)
 V37D_ALLOWED_SUPPORTING_EVIDENCE_REF_PREFIXES: tuple[str, ...] = (
     "apps/api/fixtures/meta_testing/",
     "artifacts/agent_harness/v66/evidence_inputs/",
     "artifacts/agent_harness/v67/evidence_inputs/",
     "artifacts/agent_harness/v68/evidence_inputs/",
+    "artifacts/quality_dashboard_",
+    "artifacts/stop_gate/",
+    "packages/adeu_core_ir/schema/",
+    "spec/",
+)
+V37E_ALLOWED_SUPPORTING_EVIDENCE_REF_PREFIXES: tuple[str, ...] = (
+    "apps/api/fixtures/meta_testing/",
+    "artifacts/agent_harness/v66/evidence_inputs/",
+    "artifacts/agent_harness/v67/evidence_inputs/",
+    "artifacts/agent_harness/v68/evidence_inputs/",
+    "artifacts/agent_harness/v69/evidence_inputs/",
     "artifacts/quality_dashboard_",
     "artifacts/stop_gate/",
     "packages/adeu_core_ir/schema/",
@@ -327,6 +430,52 @@ V37D_RULE_DRIFT_CLASS_MAP: dict[MetaSeededViolationFamily, MetaDriftClass] = {
     "repeated_uncompiled_drift_detectable": "utility_drift",
     "operational_influence_accepted_compilation_collapse_detectable": "deontic_drift",
 }
+V37E_TARGET_SURFACE_NAMESPACE_BY_CONTROL_CLASS: dict[
+    MetaTargetControlClass, MetaTargetSurfaceNamespace
+] = {
+    "lock_text": "lock_anchor_ref",
+    "schema_field": "schema_field_ref",
+    "validator_rule": "validator_rule_ref",
+    "evidence_requirement": "evidence_requirement_ref",
+    "runtime_guard": "runtime_guard_ref",
+    "prompt_dispatch_convention": "prompt_dispatch_ref",
+    "module_catalog_field": "module_catalog_field_ref",
+    "sequence_contract_field": "sequence_contract_field_ref",
+}
+V37E_MINIMUM_APPLICATION_FRICTION_BY_TARGET_CONTROL_CLASS: dict[
+    MetaTargetControlClass, MetaApplicationFrictionMode
+] = {
+    "validator_rule": "adjudication_required",
+    "runtime_guard": "adjudication_required",
+    "evidence_requirement": "adjudication_required",
+    "schema_field": "adjudication_required",
+    "lock_text": "adjudication_required",
+    "module_catalog_field": "review_only",
+    "sequence_contract_field": "review_only",
+    "prompt_dispatch_convention": "review_only",
+}
+V37E_FIRST_REFERENCE_TARGET_SURFACE_REF = (
+    "evidence_requirement_ref:"
+    "artifacts/agent_harness/v69/evidence_inputs/"
+    "v37d_drift_diagnostics_conformance_evidence_v69.json"
+    "#repeated_uncompiled_drift_window_semantics_frozen"
+)
+V37E_EMPTY_FINDINGS_SUPPORTING_EVIDENCE_REFS: tuple[str, ...] = (
+    V37D_REFERENCE_CONFORMANCE_REPORT_REF,
+    V37D_REFERENCE_DRIFT_DIAGNOSTICS_REF,
+    V37D_DRIFT_DIAGNOSTICS_CONFORMANCE_EVIDENCE_REF,
+)
+V37E_REQUIRED_DERIVATION_REFS: tuple[str, ...] = (
+    V37A_REFERENCE_MODULE_CATALOG_REF,
+    V37A_REFERENCE_INTENT_PACKET_REF,
+    V37B_REFERENCE_RUN_TRACE_REF,
+    V37C_REFERENCE_CHECKPOINT_RESULT_MANIFEST_REF,
+    V37C_EXECUTED_RUN_TRACE_REF,
+    V37B_REFERENCE_SEQUENCE_CONTRACT_REF,
+    V37D_REFERENCE_CONFORMANCE_REPORT_REF,
+    V37D_REFERENCE_DRIFT_DIAGNOSTICS_REF,
+    V37D_DRIFT_DIAGNOSTICS_CONFORMANCE_EVIDENCE_REF,
+)
 
 
 def _module_catalog_binding_ref(module_id: str, suffix: str) -> str:
@@ -349,6 +498,17 @@ def _assert_exact_sequence(
 ) -> None:
     if values != list(expected):
         raise ValueError(f"{field_name} must equal the frozen sequence {list(expected)!r}")
+
+
+def _assert_distinct_non_empty(
+    values: list[str], *, field_name: str, allow_empty: bool = False
+) -> None:
+    if not allow_empty and not values:
+        raise ValueError(f"{field_name} must not be empty")
+    if any(not value for value in values):
+        raise ValueError(f"{field_name} must not contain empty values")
+    if len(values) != len(set(values)):
+        raise ValueError(f"{field_name} must not contain duplicates")
 
 
 def _strip_anchor(ref: str) -> str:
@@ -1433,6 +1593,169 @@ class MetaLoopConformanceReport(BaseModel):
         return self
 
 
+class MetaControlUpdateDerivationHash(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_ref: str = Field(min_length=1)
+    artifact_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaControlUpdateDerivationHash":
+        actual_hash = _sha256_repo_file(
+            self.artifact_ref,
+            field_name=f"derivation_hashes[{self.artifact_ref}].artifact_ref",
+        )
+        if self.artifact_sha256 != actual_hash:
+            raise ValueError(
+                f"derivation_hashes[{self.artifact_ref}].artifact_sha256 must match repo file bytes"
+            )
+        return self
+
+
+class MetaControlUpdateCandidateClassCounts(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    validator_rule: int = Field(ge=0)
+    runtime_guard: int = Field(ge=0)
+    evidence_requirement: int = Field(ge=0)
+    schema_field: int = Field(ge=0)
+    lock_text: int = Field(ge=0)
+    module_catalog_field: int = Field(ge=0)
+    sequence_contract_field: int = Field(ge=0)
+    prompt_dispatch_convention: int = Field(ge=0)
+
+    def total(self) -> int:
+        return sum(self.model_dump(mode="python").values())
+
+    def count_for(self, target_control_class: MetaTargetControlClass) -> int:
+        return int(getattr(self, target_control_class))
+
+
+class MetaControlUpdateCandidate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: MetaControlUpdateCandidateSchemaVersion = META_CONTROL_UPDATE_CANDIDATE_SCHEMA
+    reference_loop_family: MetaReferenceLoopFamily = V37A_REFERENCE_LOOP_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    intent_packet_id: str = Field(min_length=1)
+    candidate_id: str = Field(min_length=1)
+    target_control_class: MetaTargetControlClass
+    target_surface_ref: str = Field(min_length=1)
+    bound_finding_ids: list[str]
+    supporting_evidence_refs: list[str]
+    expected_drift_reduction_claim: str = Field(min_length=1)
+    risk_notes: list[str]
+    application_friction_mode: MetaApplicationFrictionMode
+    advisory_only: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaControlUpdateCandidate":
+        _assert_sorted_unique(
+            self.bound_finding_ids,
+            field_name="bound_finding_ids",
+            allow_empty=True,
+        )
+        _assert_sorted_unique(
+            self.supporting_evidence_refs,
+            field_name="supporting_evidence_refs",
+        )
+        _assert_sorted_unique(self.risk_notes, field_name="risk_notes")
+        for ref in self.supporting_evidence_refs:
+            _assert_allowed_v37e_supporting_evidence_ref(
+                ref,
+                field_name="supporting_evidence_refs",
+            )
+        namespace, _path, _anchor = _parse_v37e_target_surface_ref(
+            self.target_surface_ref,
+            field_name="target_surface_ref",
+        )
+        expected_namespace = V37E_TARGET_SURFACE_NAMESPACE_BY_CONTROL_CLASS[
+            self.target_control_class
+        ]
+        if namespace != expected_namespace:
+            raise ValueError(
+                "target_surface_ref namespace must match target_control_class "
+                f"{self.target_control_class!r}"
+            )
+        minimum_friction = V37E_MINIMUM_APPLICATION_FRICTION_BY_TARGET_CONTROL_CLASS[
+            self.target_control_class
+        ]
+        if _v37e_application_friction_rank(
+            self.application_friction_mode
+        ) < _v37e_application_friction_rank(minimum_friction):
+            raise ValueError(
+                "application_friction_mode must respect the frozen first-family "
+                f"minimum for {self.target_control_class!r}"
+            )
+        if any(character.isdigit() for character in self.expected_drift_reduction_claim):
+            raise ValueError(
+                "expected_drift_reduction_claim must remain qualitative and non-numeric "
+                "without a frozen quantitative basis"
+            )
+        return self
+
+
+class MetaControlUpdateManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: MetaControlUpdateManifestSchemaVersion = META_CONTROL_UPDATE_MANIFEST_SCHEMA
+    reference_loop_family: MetaReferenceLoopFamily = V37A_REFERENCE_LOOP_FAMILY
+    reference_instance_id: str = Field(min_length=1)
+    intent_packet_id: str = Field(min_length=1)
+    emitted_candidate_ids: list[str]
+    candidate_class_counts: MetaControlUpdateCandidateClassCounts
+    emitted_candidate_count: int = Field(ge=1)
+    derivation_refs: list[str]
+    derivation_hashes: list[MetaControlUpdateDerivationHash]
+    target_class_priority_order: list[MetaTargetControlClass]
+    ranking_basis_used: list[MetaCandidateRankingBasis]
+    suppressed_lower_ranked_target_classes: list[MetaTargetControlClass]
+    emission_is_not_acceptance: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MetaControlUpdateManifest":
+        _assert_sorted_unique(
+            self.emitted_candidate_ids,
+            field_name="emitted_candidate_ids",
+        )
+        if self.emitted_candidate_count != len(self.emitted_candidate_ids):
+            raise ValueError(
+                "emitted_candidate_count must match the number of emitted_candidate_ids"
+            )
+        if self.emitted_candidate_count != 1:
+            raise ValueError("v70 must emit exactly one candidate id")
+        _assert_distinct_non_empty(
+            self.derivation_refs,
+            field_name="derivation_refs",
+        )
+        derivation_hash_refs = [entry.artifact_ref for entry in self.derivation_hashes]
+        _assert_exact_sequence(
+            derivation_hash_refs,
+            expected=tuple(self.derivation_refs),
+            field_name="derivation_hashes.artifact_ref",
+        )
+        _assert_exact_sequence(
+            self.target_class_priority_order,
+            expected=FROZEN_V37E_TARGET_CONTROL_CLASS_PRIORITY_ORDER,
+            field_name="target_class_priority_order",
+        )
+        _assert_exact_sequence(
+            self.ranking_basis_used,
+            expected=FROZEN_V37E_CANDIDATE_RANKING_BASIS,
+            field_name="ranking_basis_used",
+        )
+        _assert_distinct_non_empty(
+            self.suppressed_lower_ranked_target_classes,
+            field_name="suppressed_lower_ranked_target_classes",
+            allow_empty=True,
+        )
+        if self.candidate_class_counts.total() != self.emitted_candidate_count:
+            raise ValueError(
+                "candidate_class_counts must sum to emitted_candidate_count"
+            )
+        return self
+
+
 def canonicalize_meta_testing_intent_packet_payload(payload: dict[str, Any]) -> dict[str, Any]:
     model = MetaTestingIntentPacket.model_validate(deepcopy(payload))
     return model.model_dump(mode="json", exclude_none=True)
@@ -1467,6 +1790,16 @@ def canonicalize_meta_loop_drift_diagnostics_payload(payload: dict[str, Any]) ->
 
 def canonicalize_meta_loop_conformance_report_payload(payload: dict[str, Any]) -> dict[str, Any]:
     model = MetaLoopConformanceReport.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def canonicalize_meta_control_update_candidate_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = MetaControlUpdateCandidate.model_validate(deepcopy(payload))
+    return model.model_dump(mode="json", exclude_none=True)
+
+
+def canonicalize_meta_control_update_manifest_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    model = MetaControlUpdateManifest.model_validate(deepcopy(payload))
     return model.model_dump(mode="json", exclude_none=True)
 
 
@@ -1519,6 +1852,46 @@ def _assert_allowed_supporting_evidence_ref(ref: str, *, field_name: str) -> Non
             f"{field_name} must resolve to the frozen v37a/v37b/v37c canonical artifact stack"
         )
     _resolve_repo_relative_path(ref, field_name=field_name)
+
+
+def _assert_allowed_v37e_supporting_evidence_ref(ref: str, *, field_name: str) -> None:
+    _assert_repo_relative_ref(ref, field_name=field_name)
+    if "urm_events.ndjson" in ref or "worker" in ref:
+        raise ValueError(
+            f"{field_name} must not treat event streams or worker prose as authoritative truth"
+        )
+    if not any(
+        ref.startswith(prefix) for prefix in V37E_ALLOWED_SUPPORTING_EVIDENCE_REF_PREFIXES
+    ):
+        raise ValueError(
+            f"{field_name} must resolve to the frozen v37a/v37b/v37c/v37d canonical artifact stack"
+        )
+    _resolve_repo_relative_path(ref, field_name=field_name)
+
+
+def _parse_v37e_target_surface_ref(
+    ref: str,
+    *,
+    field_name: str,
+) -> tuple[MetaTargetSurfaceNamespace, str, str]:
+    if ":" not in ref:
+        raise ValueError(f"{field_name} must use '<namespace>:<repo-ref>#<anchor>' syntax")
+    namespace_text, repo_ref = ref.split(":", 1)
+    if namespace_text not in FROZEN_V37E_TARGET_SURFACE_REF_ALLOWED_NAMESPACES:
+        raise ValueError(f"{field_name} must use a frozen target_surface_ref namespace")
+    path, anchor = _split_ref_and_anchor(repo_ref)
+    if not anchor:
+        raise ValueError(f"{field_name} must include a non-empty anchor")
+    _resolve_repo_relative_path(path, field_name=field_name)
+    return namespace_text, path, anchor
+
+
+def _v37e_application_friction_rank(mode: MetaApplicationFrictionMode) -> int:
+    return FROZEN_V37E_APPLICATION_FRICTION_MODES.index(mode)
+
+
+def _v37e_target_control_class_priority_index(target_control_class: MetaTargetControlClass) -> int:
+    return FROZEN_V37E_TARGET_CONTROL_CLASS_PRIORITY_ORDER.index(target_control_class)
 
 
 def _expected_v37d_conformance_impact(
@@ -2402,23 +2775,196 @@ def assert_v37d_reference_bundle_consistent(
         )
 
 
+def assert_v37e_reference_instance_binding(
+    *,
+    intent_packet: MetaTestingIntentPacket,
+    module_catalog: MetaModuleCatalog,
+    sequence_contract: MetaLoopSequenceContract,
+    reference_run_trace: MetaLoopRunTrace,
+    executed_run_trace: MetaLoopRunTrace,
+    checkpoint_result_manifest: MetaLoopCheckpointResultManifest,
+    drift_diagnostics: MetaLoopDriftDiagnostics,
+    conformance_report: MetaLoopConformanceReport,
+    control_update_candidate: MetaControlUpdateCandidate,
+    control_update_manifest: MetaControlUpdateManifest,
+) -> None:
+    assert_v37d_reference_instance_binding(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        reference_run_trace=reference_run_trace,
+        executed_run_trace=executed_run_trace,
+        checkpoint_result_manifest=checkpoint_result_manifest,
+        drift_diagnostics=drift_diagnostics,
+        conformance_report=conformance_report,
+    )
+    for field_name in ("reference_loop_family", "reference_instance_id", "intent_packet_id"):
+        expected = getattr(intent_packet, field_name)
+        if getattr(control_update_candidate, field_name) != expected:
+            raise ValueError(f"reference instance binding mismatch for {field_name}")
+        if getattr(control_update_manifest, field_name) != expected:
+            raise ValueError(f"reference instance binding mismatch for {field_name}")
+
+
+def assert_v37e_reference_bundle_consistent(
+    *,
+    intent_packet: MetaTestingIntentPacket,
+    module_catalog: MetaModuleCatalog,
+    sequence_contract: MetaLoopSequenceContract,
+    reference_run_trace: MetaLoopRunTrace,
+    executed_run_trace: MetaLoopRunTrace,
+    checkpoint_result_manifest: MetaLoopCheckpointResultManifest,
+    drift_diagnostics: MetaLoopDriftDiagnostics,
+    conformance_report: MetaLoopConformanceReport,
+    control_update_candidate: MetaControlUpdateCandidate,
+    control_update_manifest: MetaControlUpdateManifest,
+) -> None:
+    assert_v37d_reference_bundle_consistent(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        reference_run_trace=reference_run_trace,
+        executed_run_trace=executed_run_trace,
+        checkpoint_result_manifest=checkpoint_result_manifest,
+        drift_diagnostics=drift_diagnostics,
+        conformance_report=conformance_report,
+    )
+    assert_v37e_reference_instance_binding(
+        intent_packet=intent_packet,
+        module_catalog=module_catalog,
+        sequence_contract=sequence_contract,
+        reference_run_trace=reference_run_trace,
+        executed_run_trace=executed_run_trace,
+        checkpoint_result_manifest=checkpoint_result_manifest,
+        drift_diagnostics=drift_diagnostics,
+        conformance_report=conformance_report,
+        control_update_candidate=control_update_candidate,
+        control_update_manifest=control_update_manifest,
+    )
+
+    if control_update_manifest.emitted_candidate_ids != [control_update_candidate.candidate_id]:
+        raise ValueError(
+            "control update manifest must emit exactly the accepted control update candidate"
+        )
+    if (
+        control_update_manifest.candidate_class_counts.count_for(
+            control_update_candidate.target_control_class
+        )
+        != 1
+    ):
+        raise ValueError(
+            "candidate_class_counts must record exactly one emitted candidate "
+            "for the accepted target_control_class"
+        )
+    for target_control_class in FROZEN_V37E_ALLOWED_TARGET_CONTROL_CLASSES:
+        expected_count = (
+            1
+            if target_control_class == control_update_candidate.target_control_class
+            else 0
+        )
+        if (
+            control_update_manifest.candidate_class_counts.count_for(target_control_class)
+            != expected_count
+        ):
+            raise ValueError(
+                "candidate_class_counts must keep zero counts for non-emitted target classes"
+            )
+
+    _assert_exact_sequence(
+        control_update_manifest.derivation_refs,
+        expected=V37E_REQUIRED_DERIVATION_REFS,
+        field_name="derivation_refs",
+    )
+    derivation_hash_refs = [
+        entry.artifact_ref for entry in control_update_manifest.derivation_hashes
+    ]
+    if derivation_hash_refs != control_update_manifest.derivation_refs:
+        raise ValueError(
+            "derivation_hashes.artifact_ref order must match derivation_refs"
+        )
+
+    emitted_priority_index = _v37e_target_control_class_priority_index(
+        control_update_candidate.target_control_class
+    )
+    expected_suppressed_lower_ranked_target_classes = list(
+        FROZEN_V37E_TARGET_CONTROL_CLASS_PRIORITY_ORDER[emitted_priority_index + 1 :]
+    )
+    if (
+        control_update_manifest.suppressed_lower_ranked_target_classes
+        != expected_suppressed_lower_ranked_target_classes
+    ):
+        raise ValueError(
+            "suppressed_lower_ranked_target_classes must record the lower-ranked "
+            "first-family alternatives in frozen priority order"
+        )
+
+    diagnostics_findings_by_id = {
+        finding.finding_id: finding for finding in drift_diagnostics.findings
+    }
+    if control_update_candidate.bound_finding_ids:
+        if not diagnostics_findings_by_id:
+            raise ValueError(
+                "bound_finding_ids must be empty when the accepted diagnostics artifact "
+                "contains no findings"
+            )
+        for finding_id in control_update_candidate.bound_finding_ids:
+            finding = diagnostics_findings_by_id.get(finding_id)
+            if finding is None:
+                raise ValueError(
+                    f"bound_finding_ids must resolve accepted diagnostics finding {finding_id!r}"
+                )
+            if finding.severity not in FROZEN_V37E_CANDIDATE_ELIGIBLE_SEVERITIES:
+                raise ValueError(
+                    "bound_finding_ids must resolve only error/warning findings in v70"
+                )
+    else:
+        if drift_diagnostics.findings:
+            raise ValueError(
+                "bound_finding_ids must not be empty once accepted diagnostics findings exist"
+            )
+        if conformance_report.overall_judgment != "pass":
+            raise ValueError(
+                "empty bound_finding_ids are only valid for the current pass/no-findings baseline"
+            )
+        if control_update_candidate.target_control_class != "evidence_requirement":
+            raise ValueError(
+                "the zero-finding v70 reference candidate must target evidence_requirement"
+            )
+        if control_update_candidate.target_surface_ref != V37E_FIRST_REFERENCE_TARGET_SURFACE_REF:
+            raise ValueError(
+                "the zero-finding v70 reference candidate must stay bound to the "
+                "frozen repeated-window evidence requirement surface"
+            )
+        if control_update_candidate.supporting_evidence_refs != list(
+            V37E_EMPTY_FINDINGS_SUPPORTING_EVIDENCE_REFS
+        ):
+            raise ValueError(
+                "the zero-finding v70 reference candidate must stay bound to the "
+                "released v37d diagnostics/conformance/evidence substrate"
+            )
+
+
 __all__ = [
     "FROZEN_V37A_AUTHORITATIVE_INPUT_IDS",
     "FROZEN_V37A_DRIFT_TAXONOMY",
     "FROZEN_V37A_MODULE_CLASSES",
     "FROZEN_V37A_REQUIRED_CHECKPOINT_CAPABILITIES",
     "FROZEN_V37B_PHASE_BOUNDARIES",
-    "META_LOOP_RUN_TRACE_SCHEMA",
-    "META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA",
-    "META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA",
-    "META_LOOP_CONFORMANCE_REPORT_SCHEMA",
-    "META_LOOP_SEQUENCE_CONTRACT_SCHEMA",
-    "META_MODULE_CATALOG_SCHEMA",
-    "META_TESTING_INTENT_PACKET_SCHEMA",
     "FROZEN_V37C_EXECUTED_CHECKPOINT_CAPABILITIES",
     "FROZEN_V37C_NON_EXECUTED_RELEASED_CAPABILITIES",
     "FROZEN_V37D_DIAGNOSTIC_SEVERITY_TAXONOMY",
     "FROZEN_V37D_SEEDED_VIOLATION_FAMILIES",
+    "FROZEN_V37E_ALLOWED_TARGET_CONTROL_CLASSES",
+    "FROZEN_V37E_TARGET_CONTROL_CLASS_PRIORITY_ORDER",
+    "META_CONTROL_UPDATE_CANDIDATE_SCHEMA",
+    "META_CONTROL_UPDATE_MANIFEST_SCHEMA",
+    "META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA",
+    "META_LOOP_CONFORMANCE_REPORT_SCHEMA",
+    "META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA",
+    "META_LOOP_RUN_TRACE_SCHEMA",
+    "META_LOOP_SEQUENCE_CONTRACT_SCHEMA",
+    "META_MODULE_CATALOG_SCHEMA",
+    "META_TESTING_INTENT_PACKET_SCHEMA",
     "V37A_INTENT_PACKET_ID",
     "V37A_OPERATOR_SURFACE",
     "V37A_REFERENCE_ANCHOR_SHAPE",
@@ -2434,6 +2980,10 @@ __all__ = [
     "MetaDiagnosticSeverityCounts",
     "MetaConformanceAggregationRule",
     "MetaConformanceDerivationMetadata",
+    "MetaControlUpdateCandidate",
+    "MetaControlUpdateCandidateClassCounts",
+    "MetaControlUpdateDerivationHash",
+    "MetaControlUpdateManifest",
     "MetaLoopConformanceReport",
     "MetaLoopBranchCondition",
     "MetaLoopBranchOutcomeRecord",
@@ -2462,6 +3012,10 @@ __all__ = [
     "assert_v37c_reference_instance_binding",
     "assert_v37d_reference_bundle_consistent",
     "assert_v37d_reference_instance_binding",
+    "assert_v37e_reference_bundle_consistent",
+    "assert_v37e_reference_instance_binding",
+    "canonicalize_meta_control_update_candidate_payload",
+    "canonicalize_meta_control_update_manifest_payload",
     "canonicalize_meta_loop_checkpoint_result_manifest_payload",
     "canonicalize_meta_loop_conformance_report_payload",
     "canonicalize_meta_loop_drift_diagnostics_payload",

@@ -1,0 +1,106 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "advisory_only": {
+      "const": true,
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "application_friction_mode": {
+      "enum": [
+        "review_only",
+        "adjudication_required",
+        "blocked_from_direct_application"
+      ],
+      "title": "Application Friction Mode",
+      "type": "string"
+    },
+    "bound_finding_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Bound Finding Ids",
+      "type": "array"
+    },
+    "candidate_id": {
+      "minLength": 1,
+      "title": "Candidate Id",
+      "type": "string"
+    },
+    "expected_drift_reduction_claim": {
+      "minLength": 1,
+      "title": "Expected Drift Reduction Claim",
+      "type": "string"
+    },
+    "intent_packet_id": {
+      "minLength": 1,
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_loop_family": {
+      "const": "arc_bundle_recursive_compilation_loop",
+      "default": "arc_bundle_recursive_compilation_loop",
+      "title": "Reference Loop Family",
+      "type": "string"
+    },
+    "risk_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Risk Notes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "meta_control_update_candidate@1",
+      "default": "meta_control_update_candidate@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "supporting_evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supporting Evidence Refs",
+      "type": "array"
+    },
+    "target_control_class": {
+      "enum": [
+        "lock_text",
+        "schema_field",
+        "validator_rule",
+        "evidence_requirement",
+        "runtime_guard",
+        "prompt_dispatch_convention",
+        "module_catalog_field",
+        "sequence_contract_field"
+      ],
+      "title": "Target Control Class",
+      "type": "string"
+    },
+    "target_surface_ref": {
+      "minLength": 1,
+      "title": "Target Surface Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "intent_packet_id",
+    "candidate_id",
+    "target_control_class",
+    "target_surface_ref",
+    "bound_finding_ids",
+    "supporting_evidence_refs",
+    "expected_drift_reduction_claim",
+    "risk_notes",
+    "application_friction_mode"
+  ],
+  "title": "MetaControlUpdateCandidate",
+  "type": "object"
+}

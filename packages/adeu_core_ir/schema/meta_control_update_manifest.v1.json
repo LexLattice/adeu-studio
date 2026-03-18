@@ -1,0 +1,203 @@
+{
+  "$defs": {
+    "MetaControlUpdateCandidateClassCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_requirement": {
+          "minimum": 0,
+          "title": "Evidence Requirement",
+          "type": "integer"
+        },
+        "lock_text": {
+          "minimum": 0,
+          "title": "Lock Text",
+          "type": "integer"
+        },
+        "module_catalog_field": {
+          "minimum": 0,
+          "title": "Module Catalog Field",
+          "type": "integer"
+        },
+        "prompt_dispatch_convention": {
+          "minimum": 0,
+          "title": "Prompt Dispatch Convention",
+          "type": "integer"
+        },
+        "runtime_guard": {
+          "minimum": 0,
+          "title": "Runtime Guard",
+          "type": "integer"
+        },
+        "schema_field": {
+          "minimum": 0,
+          "title": "Schema Field",
+          "type": "integer"
+        },
+        "sequence_contract_field": {
+          "minimum": 0,
+          "title": "Sequence Contract Field",
+          "type": "integer"
+        },
+        "validator_rule": {
+          "minimum": 0,
+          "title": "Validator Rule",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "validator_rule",
+        "runtime_guard",
+        "evidence_requirement",
+        "schema_field",
+        "lock_text",
+        "module_catalog_field",
+        "sequence_contract_field",
+        "prompt_dispatch_convention"
+      ],
+      "title": "MetaControlUpdateCandidateClassCounts",
+      "type": "object"
+    },
+    "MetaControlUpdateDerivationHash": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_ref": {
+          "minLength": 1,
+          "title": "Artifact Ref",
+          "type": "string"
+        },
+        "artifact_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Artifact Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_ref",
+        "artifact_sha256"
+      ],
+      "title": "MetaControlUpdateDerivationHash",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "candidate_class_counts": {
+      "$ref": "#/$defs/MetaControlUpdateCandidateClassCounts"
+    },
+    "derivation_hashes": {
+      "items": {
+        "$ref": "#/$defs/MetaControlUpdateDerivationHash"
+      },
+      "title": "Derivation Hashes",
+      "type": "array"
+    },
+    "derivation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Derivation Refs",
+      "type": "array"
+    },
+    "emission_is_not_acceptance": {
+      "const": true,
+      "default": true,
+      "title": "Emission Is Not Acceptance",
+      "type": "boolean"
+    },
+    "emitted_candidate_count": {
+      "minimum": 1,
+      "title": "Emitted Candidate Count",
+      "type": "integer"
+    },
+    "emitted_candidate_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Emitted Candidate Ids",
+      "type": "array"
+    },
+    "intent_packet_id": {
+      "minLength": 1,
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "ranking_basis_used": {
+      "items": {
+        "enum": [
+          "target_control_class_priority",
+          "bound_finding_severity",
+          "bound_finding_id_lexical",
+          "candidate_id_lexical"
+        ],
+        "type": "string"
+      },
+      "title": "Ranking Basis Used",
+      "type": "array"
+    },
+    "reference_instance_id": {
+      "minLength": 1,
+      "title": "Reference Instance Id",
+      "type": "string"
+    },
+    "reference_loop_family": {
+      "const": "arc_bundle_recursive_compilation_loop",
+      "default": "arc_bundle_recursive_compilation_loop",
+      "title": "Reference Loop Family",
+      "type": "string"
+    },
+    "schema": {
+      "const": "meta_control_update_manifest@1",
+      "default": "meta_control_update_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "suppressed_lower_ranked_target_classes": {
+      "items": {
+        "enum": [
+          "lock_text",
+          "schema_field",
+          "validator_rule",
+          "evidence_requirement",
+          "runtime_guard",
+          "prompt_dispatch_convention",
+          "module_catalog_field",
+          "sequence_contract_field"
+        ],
+        "type": "string"
+      },
+      "title": "Suppressed Lower Ranked Target Classes",
+      "type": "array"
+    },
+    "target_class_priority_order": {
+      "items": {
+        "enum": [
+          "lock_text",
+          "schema_field",
+          "validator_rule",
+          "evidence_requirement",
+          "runtime_guard",
+          "prompt_dispatch_convention",
+          "module_catalog_field",
+          "sequence_contract_field"
+        ],
+        "type": "string"
+      },
+      "title": "Target Class Priority Order",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reference_instance_id",
+    "intent_packet_id",
+    "emitted_candidate_ids",
+    "candidate_class_counts",
+    "emitted_candidate_count",
+    "derivation_refs",
+    "derivation_hashes",
+    "target_class_priority_order",
+    "ranking_basis_used",
+    "suppressed_lower_ranked_target_classes"
+  ],
+  "title": "MetaControlUpdateManifest",
+  "type": "object"
+}
