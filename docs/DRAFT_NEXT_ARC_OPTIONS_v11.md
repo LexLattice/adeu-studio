@@ -1,16 +1,16 @@
-# Draft Next Arc Options v11 (Post vNext+68, Post V37-C Closure)
+# Draft Next Arc Options v11 (Post vNext+69, Post V37-D Closure)
 
-This document defines the post-`vNext+65` planning baseline after the first
-ADEU-governed UX family closed on `main`, using the recursive-compilation note as the
-methodological bridge into the next family.
+This document defines the post-`vNext+69` planning baseline after the first four
+recursive-compilation paths closed on `main`, using the recursive-compilation note as
+the methodological bridge into the family capstone.
 
 Status: active planning draft (`V34`, `V35`, `V36-A` through `V36-E`, and `V37-A`
-through `V37-C` closed; `V37-D` proposed as next default candidate, no later `V37`
+through `V37-D` closed; `V37-E` proposed as next default candidate, no later `V37`
 path yet locked).
 
 Goal:
 
-- select `V37-D` as the next default candidate after `V37-C` closure;
+- select `V37-E` as the next default candidate after `V37-D` closure;
 - carry forward the completed `V34` trust/distribution line without reopening it;
 - carry forward the completed `V35-A` through `V35-E` orchestration/delegation/
   visibility/topology/enforcement line without widening it implicitly;
@@ -54,6 +54,9 @@ behavior, release scope, or autonomous repo mutation by itself.
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS68.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS68.md`
 - `docs/ASSESSMENT_vNEXT_PLUS68_EDGES.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS69.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS69.md`
+- `docs/ASSESSMENT_vNEXT_PLUS69_EDGES.md`
 - `docs/DRAFT_CLOSEOUT_HARDENING_BUNDLE_v0.md`
 - `docs/FUTURE_CLEANUPS.md`
 - `docs/SEMANTICS_v3.md`
@@ -61,10 +64,10 @@ behavior, release scope, or autonomous repo mutation by itself.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+68` (`V37-C`) on `main`.
+- Baseline implementation is `vNext+69` (`V37-D`) on `main`.
 - `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-E` are
   closed.
-- `V37-A`, `V37-B`, and `V37-C` are now closed:
+- `V37-A`, `V37-B`, `V37-C`, and `V37-D` are now closed:
   canonical `meta_testing_intent_packet@1`, canonical `meta_module_catalog@1`, one
   accepted bound reference-instance pair for the first bounded
   `arc_bundle_recursive_compilation_loop`, and canonical
@@ -75,7 +78,10 @@ behavior, release scope, or autonomous repo mutation by itself.
   canonical `meta_loop_checkpoint_result_manifest@1`, one accepted executed
   `meta_loop_run_trace@1`, one accepted executable reference loop bound to the same
   bounded `arc_bundle_recursive_compilation_loop`, and canonical
-  `v37c_reference_loop_evidence@1` now also exist on `main`.
+  `v37c_reference_loop_evidence@1` now also exist on `main`;
+  canonical `meta_loop_drift_diagnostics@1`, canonical
+  `meta_loop_conformance_report@1`, and canonical
+  `v37d_drift_diagnostics_conformance_evidence@1` now also exist on `main`.
 - `stop_gate_metrics@1` remains the active stop-gate schema family.
 - Stop-gate metric-key cardinality baseline remains `80` (derived from `metrics` object
   keys only).
@@ -125,6 +131,10 @@ behavior, release scope, or autonomous repo mutation by itself.
   hard-checkpoint capture under a deliberate executed subset, and canonical
   `v37c_reference_loop_evidence@1` are now frozen in released `V37-C` artifacts on
   native repo terrain.
+- The first bounded diagnostics/conformance lane is no longer hypothetical:
+  one accepted typed diagnostics artifact, one accepted typed conformance report, and
+  canonical `v37d_drift_diagnostics_conformance_evidence@1` are now frozen in released
+  `V37-D` artifacts on native repo terrain.
 - The empirical legibility claim is now part of repo methodology:
   drift classes, compilation boundaries, and stabilization of soft critique into recurring
   controls are observable in the build loop rather than merely theorized.
@@ -195,7 +205,7 @@ behavior, release scope, or autonomous repo mutation by itself.
 ## Family Scale Note
 
 - `V37` defines `5` paths (`V37-A` through `V37-E`) with a default sequential planning
-  span now continuing from `vNext+69` through `vNext+70`.
+  span now ending at `vNext+70`.
 - This sequence is planning intent only; each arc still requires explicit lock/assessment/
   decision docs before implementation authority is granted.
 
@@ -263,15 +273,16 @@ behavior, release scope, or autonomous repo mutation by itself.
     "V36-E",
     "V37-A",
     "V37-B",
-    "V37-C"
+    "V37-C",
+    "V37-D"
   ],
   "next_path_family": "V37",
   "v37_path_count": 5,
   "v37_default_arc_span": {
-    "from": "vNext+69",
+    "from": "vNext+70",
     "to": "vNext+70"
   },
-  "default_next_arc_candidate": "V37-D",
+  "default_next_arc_candidate": "V37-E",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -852,12 +863,12 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- treat `V37-A` as closed and use it as the frozen substrate for the next recursive-
-  compilation slice rather than widening it in place;
-- select `V37-C` as the next default candidate:
-  one bounded executable reference loop plus normalized checkpoint-result capture is the
-  minimum runtime-bearing lane required before typed recursive-compilation drift can be
-  assessed cleanly;
+- treat `V37-D` as closed and use it as the frozen diagnostics/conformance substrate
+  for the capstone recursive-compilation slice rather than widening it in place;
+- select `V37-E` as the next default candidate:
+  one bounded advisory control-update export lane is the remaining family capstone now
+  that intent, sequence, executed loop, and typed diagnostics/conformance all exist on
+  native repo terrain;
 - keep the first implementation terrain narrow and repo-native:
   one bounded `arc_bundle_recursive_compilation_loop`, not a generalized autonomy stack;
 - preserve the recursive-compilation note's central distinction:
@@ -867,6 +878,9 @@ This planning draft does not recommend:
   reasoning modules may guide, predict, compare, and synthesize,
   but hard checkpoint modules and accepted artifacts remain authoritative for validation
   truth;
+- preserve advisory-only export discipline:
+  emitted control-update candidates should make recurring drift legible without treating
+  candidate emission as accepted compilation or automatic repo mutation;
 - preserve the separate operational cleanup track (`O1` / `O2` / `O3`) and the
   higher-order methodology note as distinct follow-ons rather than silently mixing them
   into the first `V37` family.
