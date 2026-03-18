@@ -1,16 +1,17 @@
-# Draft Next Arc Options v11 (Post vNext+69, Post V37-D Closure)
+# Draft Next Arc Options v11 (Post vNext+70, Post V37 Closure)
 
-This document defines the post-`vNext+69` planning baseline after the first four
-recursive-compilation paths closed on `main`, using the recursive-compilation note as
-the methodological bridge into the family capstone.
+This document defines the post-`vNext+70` planning baseline after the full first
+recursive-compilation family closed on `main`, keeping the recursive-compilation note
+as methodology above arcs and recording `V37` as completed family substrate for any
+later planning.
 
-Status: active planning draft (`V34`, `V35`, `V36-A` through `V36-E`, and `V37-A`
-through `V37-D` closed; `V37-E` proposed as next default candidate, no later `V37`
-path yet locked).
+Status: completed family baseline (`V34`, `V35`, `V36-A` through `V36-E`, and `V37-A`
+through `V37-E` closed; no later `V37` path pending; any next step requires a fresh
+post-`V37` family planning draft).
 
 Goal:
 
-- select `V37-E` as the next default candidate after `V37-D` closure;
+- record the first recursive-compilation family as complete after `V37-E` closure;
 - carry forward the completed `V34` trust/distribution line without reopening it;
 - carry forward the completed `V35-A` through `V35-E` orchestration/delegation/
   visibility/topology/enforcement line without widening it implicitly;
@@ -64,10 +65,10 @@ behavior, release scope, or autonomous repo mutation by itself.
 
 ## Baseline Agreement (Current Ground Truth)
 
-- Baseline implementation is `vNext+69` (`V37-D`) on `main`.
+- Baseline implementation is `vNext+70` (`V37-E`) on `main`.
 - `V34-A` through `V34-G`, `V35-A` through `V35-E`, and `V36-A` through `V36-E` are
   closed.
-- `V37-A`, `V37-B`, `V37-C`, and `V37-D` are now closed:
+- `V37-A`, `V37-B`, `V37-C`, `V37-D`, and `V37-E` are now closed:
   canonical `meta_testing_intent_packet@1`, canonical `meta_module_catalog@1`, one
   accepted bound reference-instance pair for the first bounded
   `arc_bundle_recursive_compilation_loop`, and canonical
@@ -135,6 +136,11 @@ behavior, release scope, or autonomous repo mutation by itself.
   one accepted typed diagnostics artifact, one accepted typed conformance report, and
   canonical `v37d_drift_diagnostics_conformance_evidence@1` are now frozen in released
   `V37-D` artifacts on native repo terrain.
+- The first bounded advisory control-update export lane is no longer hypothetical:
+  canonical `meta_control_update_candidate@1`, canonical
+  `meta_control_update_manifest@1`, and canonical
+  `v37e_control_update_export_evidence@1` are now frozen in released `V37-E`
+  artifacts on native repo terrain.
 - The empirical legibility claim is now part of repo methodology:
   drift classes, compilation boundaries, and stabilization of soft critique into recurring
   controls are observable in the build loop rather than merely theorized.
@@ -205,7 +211,7 @@ behavior, release scope, or autonomous repo mutation by itself.
 ## Family Scale Note
 
 - `V37` defines `5` paths (`V37-A` through `V37-E`) with a default sequential planning
-  span now ending at `vNext+70`.
+  span now fully realized across `vNext+66` through `vNext+70`.
 - This sequence is planning intent only; each arc still requires explicit lock/assessment/
   decision docs before implementation authority is granted.
 
@@ -251,7 +257,8 @@ behavior, release scope, or autonomous repo mutation by itself.
   "closed_path_families": [
     "V34",
     "V35",
-    "V36"
+    "V36",
+    "V37"
   ],
   "closed_paths": [
     "V34-A",
@@ -274,15 +281,17 @@ behavior, release scope, or autonomous repo mutation by itself.
     "V37-A",
     "V37-B",
     "V37-C",
-    "V37-D"
+    "V37-D",
+    "V37-E"
   ],
-  "next_path_family": "V37",
+  "next_path_family": null,
   "v37_path_count": 5,
   "v37_default_arc_span": {
-    "from": "vNext+70",
+    "from": "vNext+66",
     "to": "vNext+70"
   },
-  "default_next_arc_candidate": "V37-E",
+  "default_next_arc_candidate": null,
+  "next_safe_move": "fresh_post_v37_family_planning_draft",
   "stop_gate_schema_family": "stop_gate_metrics@1",
   "metric_key_cardinality_baseline": 80,
   "no_implicit_metric_key_expansion": true,
@@ -888,24 +897,26 @@ This planning draft does not recommend:
 
 ## Recommendation
 
-- treat `V37-D` as closed and use it as the frozen diagnostics/conformance substrate
-  for the capstone recursive-compilation slice rather than widening it in place;
-- select `V37-E` as the next default candidate:
-  one bounded advisory control-update export lane is the remaining family capstone now
-  that intent, sequence, executed loop, and typed diagnostics/conformance all exist on
-  native repo terrain;
+- treat `V37` as the completed first recursive-compilation family rather than reopening
+  any of its closed paths in place;
+- use `V37-E` as the family capstone already achieved on native repo terrain:
+  one bounded advisory control-update export lane now sits on top of intent, sequence,
+  executed loop, and typed diagnostics/conformance;
 - keep the first implementation terrain narrow and repo-native:
-  one bounded `arc_bundle_recursive_compilation_loop`, not a generalized autonomy stack;
+  the completed family remains one bounded `arc_bundle_recursive_compilation_loop`,
+  not a generalized autonomy stack;
 - preserve the recursive-compilation note's central distinction:
   live critique may exert operational influence before it becomes accepted compilation,
-  and the next family should make that distinction explicit rather than blur it;
+  and any later family should preserve that distinction rather than blur it;
 - keep the hard/soft split crisp:
   reasoning modules may guide, predict, compare, and synthesize,
   but hard checkpoint modules and accepted artifacts remain authoritative for validation
   truth;
-- preserve advisory-only export discipline:
-  emitted control-update candidates should make recurring drift legible without treating
+- preserve advisory-only export discipline as closed family law:
+  emitted control-update candidates make recurring drift legible without treating
   candidate emission as accepted compilation or automatic repo mutation;
 - preserve the separate operational cleanup track (`O1` / `O2` / `O3`) and the
   higher-order methodology note as distinct follow-ons rather than silently mixing them
-  into the first `V37` family.
+  into the closed `V37` family;
+- if planning continues, draft a fresh post-`V37` family baseline rather than extending
+  this completed family-options document past its intended scope.
