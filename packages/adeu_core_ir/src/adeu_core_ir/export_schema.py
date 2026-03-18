@@ -16,6 +16,8 @@ from .integrity_reference_integrity_extended import (
 )
 from .lane_report import AdeuLaneReport
 from .meta_testing import (
+    MetaControlUpdateCandidate,
+    MetaControlUpdateManifest,
     MetaLoopCheckpointResultManifest,
     MetaLoopConformanceReport,
     MetaLoopDriftDiagnostics,
@@ -112,6 +114,12 @@ def main() -> None:
     meta_loop_run_trace_schema = MetaLoopRunTrace.model_json_schema(by_alias=True)
     meta_loop_drift_diagnostics_schema = MetaLoopDriftDiagnostics.model_json_schema(by_alias=True)
     meta_loop_conformance_report_schema = MetaLoopConformanceReport.model_json_schema(
+        by_alias=True
+    )
+    meta_control_update_candidate_schema = MetaControlUpdateCandidate.model_json_schema(
+        by_alias=True
+    )
+    meta_control_update_manifest_schema = MetaControlUpdateManifest.model_json_schema(
         by_alias=True
     )
 
@@ -388,6 +396,22 @@ def main() -> None:
         meta_loop_conformance_report_schema,
     )
 
+    meta_control_update_candidate_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "meta_control_update_candidate.v1.json"
+    )
+    _write_schema(
+        meta_control_update_candidate_authoritative_path,
+        meta_control_update_candidate_schema,
+    )
+
+    meta_control_update_manifest_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "meta_control_update_manifest.v1.json"
+    )
+    _write_schema(
+        meta_control_update_manifest_authoritative_path,
+        meta_control_update_manifest_schema,
+    )
+
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
 
@@ -582,6 +606,22 @@ def main() -> None:
     _write_schema(
         meta_loop_conformance_report_mirror_path,
         meta_loop_conformance_report_schema,
+    )
+
+    meta_control_update_candidate_mirror_path = (
+        root / "spec" / "meta_control_update_candidate.schema.json"
+    )
+    _write_schema(
+        meta_control_update_candidate_mirror_path,
+        meta_control_update_candidate_schema,
+    )
+
+    meta_control_update_manifest_mirror_path = (
+        root / "spec" / "meta_control_update_manifest.schema.json"
+    )
+    _write_schema(
+        meta_control_update_manifest_mirror_path,
+        meta_control_update_manifest_schema,
     )
 
 

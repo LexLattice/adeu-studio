@@ -1,0 +1,93 @@
+{
+  "schema": "meta_control_update_manifest@1",
+  "reference_loop_family": "arc_bundle_recursive_compilation_loop",
+  "reference_instance_id": "arc_closeout_v65_reference",
+  "intent_packet_id": "v37a_arc_closeout_v65_intent",
+  "emitted_candidate_ids": [
+    "candidate_01_evidence_requirement_repeated_uncompiled_drift_window"
+  ],
+  "candidate_class_counts": {
+    "validator_rule": 0,
+    "runtime_guard": 0,
+    "evidence_requirement": 1,
+    "schema_field": 0,
+    "lock_text": 0,
+    "module_catalog_field": 0,
+    "sequence_contract_field": 0,
+    "prompt_dispatch_convention": 0
+  },
+  "emitted_candidate_count": 1,
+  "derivation_refs": [
+    "apps/api/fixtures/meta_testing/vnext_plus66/meta_module_catalog_arc_closeout_v65_reference.json",
+    "apps/api/fixtures/meta_testing/vnext_plus66/meta_testing_intent_packet_arc_closeout_v65_reference.json",
+    "apps/api/fixtures/meta_testing/vnext_plus67/meta_loop_run_trace_arc_closeout_v65_reference.json",
+    "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json",
+    "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_run_trace_arc_closeout_v65_executed_reference.json",
+    "apps/api/fixtures/meta_testing/vnext_plus67/meta_loop_sequence_contract_arc_closeout_v65_reference.json",
+    "apps/api/fixtures/meta_testing/vnext_plus69/meta_loop_conformance_report_arc_closeout_v65_reference.json",
+    "apps/api/fixtures/meta_testing/vnext_plus69/meta_loop_drift_diagnostics_arc_closeout_v65_reference.json",
+    "artifacts/agent_harness/v69/evidence_inputs/v37d_drift_diagnostics_conformance_evidence_v69.json"
+  ],
+  "derivation_hashes": [
+    {
+      "artifact_ref": "apps/api/fixtures/meta_testing/vnext_plus66/meta_module_catalog_arc_closeout_v65_reference.json",
+      "artifact_sha256": "87a4543cf673989e97d4518d979d3e3cc867a5f38943a57c1d67d41bff136a08"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/meta_testing/vnext_plus66/meta_testing_intent_packet_arc_closeout_v65_reference.json",
+      "artifact_sha256": "6a80f206ed4702993c2a58837062f8e9e6ae216ac9529cb2e526520922bc765f"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/meta_testing/vnext_plus67/meta_loop_run_trace_arc_closeout_v65_reference.json",
+      "artifact_sha256": "360123a5275156c792328d1e42a91d561294dcbe4e78f5f6c0da667111eb6fc6"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_checkpoint_result_manifest_arc_closeout_v65_reference.json",
+      "artifact_sha256": "553a49c7c924accb69a65fe3a45532155878418a66fdd768b4554863363069a6"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/meta_testing/vnext_plus68/meta_loop_run_trace_arc_closeout_v65_executed_reference.json",
+      "artifact_sha256": "c8817fbaef0019c1290e878d9d7c594607722ed7c5fd79a20aa59d26b3b623b2"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/meta_testing/vnext_plus67/meta_loop_sequence_contract_arc_closeout_v65_reference.json",
+      "artifact_sha256": "c8c141720859251706293c2a2bb07ddc121693953f6025b0470ecb38aa31ad22"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/meta_testing/vnext_plus69/meta_loop_conformance_report_arc_closeout_v65_reference.json",
+      "artifact_sha256": "2b3ffde8c888896594904f36d312bdbd6f5ab6bd473d677c2a73989df690247c"
+    },
+    {
+      "artifact_ref": "apps/api/fixtures/meta_testing/vnext_plus69/meta_loop_drift_diagnostics_arc_closeout_v65_reference.json",
+      "artifact_sha256": "5978c9fe2d59f421b28eeb62208f2fc3e62785026f32d84d522603e9887ffd53"
+    },
+    {
+      "artifact_ref": "artifacts/agent_harness/v69/evidence_inputs/v37d_drift_diagnostics_conformance_evidence_v69.json",
+      "artifact_sha256": "c3a326f582f7b2a6f0a09200460673db936e19ced875b3b2ab2d7893a1067d2e"
+    }
+  ],
+  "target_class_priority_order": [
+    "validator_rule",
+    "runtime_guard",
+    "evidence_requirement",
+    "schema_field",
+    "lock_text",
+    "module_catalog_field",
+    "sequence_contract_field",
+    "prompt_dispatch_convention"
+  ],
+  "ranking_basis_used": [
+    "target_control_class_priority",
+    "bound_finding_severity",
+    "bound_finding_id_lexical",
+    "candidate_id_lexical"
+  ],
+  "suppressed_lower_ranked_target_classes": [
+    "schema_field",
+    "lock_text",
+    "module_catalog_field",
+    "sequence_contract_field",
+    "prompt_dispatch_convention"
+  ],
+  "emission_is_not_acceptance": true
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "meta_control_update_candidate@1",
+  "reference_loop_family": "arc_bundle_recursive_compilation_loop",
+  "reference_instance_id": "arc_closeout_v65_reference",
+  "intent_packet_id": "v37a_arc_closeout_v65_intent",
+  "candidate_id": "candidate_01_evidence_requirement_repeated_uncompiled_drift_window",
+  "target_control_class": "evidence_requirement",
+  "target_surface_ref": "evidence_requirement_ref:artifacts/agent_harness/v69/evidence_inputs/v37d_drift_diagnostics_conformance_evidence_v69.json#repeated_uncompiled_drift_window_semantics_frozen",
+  "bound_finding_ids": [],
+  "supporting_evidence_refs": [
+    "apps/api/fixtures/meta_testing/vnext_plus69/meta_loop_conformance_report_arc_closeout_v65_reference.json",
+    "apps/api/fixtures/meta_testing/vnext_plus69/meta_loop_drift_diagnostics_arc_closeout_v65_reference.json",
+    "artifacts/agent_harness/v69/evidence_inputs/v37d_drift_diagnostics_conformance_evidence_v69.json"
+  ],
+  "expected_drift_reduction_claim": "Freezing an explicit repeated-drift evidence requirement should reduce ambiguity around when recurring uncompiled drift is ready for later hardening.",
+  "risk_notes": [
+    "Application remains advisory and requires explicit adjudication before any hardening.",
+    "Zero-finding v69 baseline means the candidate is structural rather than a remediation of a positive drift finding."
+  ],
+  "application_friction_mode": "adjudication_required",
+  "advisory_only": true
+}
