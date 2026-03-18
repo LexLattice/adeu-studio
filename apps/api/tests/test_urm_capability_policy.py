@@ -25,6 +25,7 @@ def _reset_policy_cache() -> None:
         ("adeu.list_templates", False, False),
         ("adeu.read_evidence", False, False),
         ("adeu.run_workflow", False, False),
+        ("adeu.compile_brokered_reflexive_execution", False, False),
         ("paper.ingest_text", False, False),
         ("paper.extract_abstract_candidate", False, False),
         ("paper.check_constraints", False, False),

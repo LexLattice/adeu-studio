@@ -23,6 +23,7 @@ ROLE_REGISTRY: dict[str, RolePolicy] = {
             "adeu.get_app_state",
             "adeu.list_templates",
             "adeu.run_workflow",
+            "adeu.compile_brokered_reflexive_execution",
             "adeu.read_evidence",
             "urm.spawn_worker",
             "urm.set_mode",

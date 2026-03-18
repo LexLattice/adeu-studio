@@ -6,6 +6,12 @@ from collections.abc import Iterator
 from datetime import datetime, timezone
 from typing import Any, Literal, cast
 
+from adeu_core_ir import (
+    BROKERED_REFLEXIVE_PRIMARY_EXECUTION_SURFACE,
+    AdeuBrokeredReflexiveExecutionPlan,
+    AdeuBrokeredReflexivePayload,
+    compile_brokered_reflexive_execution_plan,
+)
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from urm_domain_adeu import ADEUDomainTools
@@ -654,6 +660,28 @@ def urm_worker_cancel_endpoint(
         return runner.cancel(worker_id=worker_id)
     except URMError as exc:
         raise _to_http_exception(exc) from exc
+
+
+@router.post("/reflex/compile", response_model=AdeuBrokeredReflexiveExecutionPlan)
+def urm_reflex_compile_endpoint(
+    payload: AdeuBrokeredReflexivePayload,
+    provider: str = "codex",
+    role: str = "copilot",
+) -> AdeuBrokeredReflexiveExecutionPlan:
+    _require_codex_provider(provider)
+    try:
+        _ = authorize_action(
+            role=role,
+            action=BROKERED_REFLEXIVE_PRIMARY_EXECUTION_SURFACE,
+            writes_allowed=False,
+            approval_provided=False,
+            action_payload={"payload_id": payload.payload_id},
+            session_active=False,
+            emit_policy_event=_policy_event_emitter(session_id=None),
+        )
+    except URMError as exc:
+        raise _to_http_exception(exc) from exc
+    return compile_brokered_reflexive_execution_plan(payload)
 
 
 @router.post("/tools/call", response_model=ToolCallResponse)

@@ -32,3 +32,17 @@
   the generated instruction policy doc check.
 - If you intentionally use an arc-bundle shortcut instead of `make check`, say that the
   full Python lane was skipped because the change was docs/artifacts only.
+
+## Reflexive Orchestration Experiments
+
+- When a task is explicitly framed as a repo-internal orchestration experiment,
+  prefer compiling the high-level intent into typed ADEU artifacts before
+  widening implementation scope.
+- If sub-agents are used for such an experiment, keep recommended child models
+  within:
+  - `gpt-5.4`
+  - `gpt-5.3-codex`
+  - `gpt-5.4-mini`
+- Recommended child reasoning effort for that workflow should remain `xhigh`.
+- Treat adversarial feedback and code review as explicit delegated phases, not
+  optional commentary.
