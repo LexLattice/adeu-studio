@@ -15,6 +15,9 @@ from .meta_testing import (
     FROZEN_V37A_OUT_OF_SCOPE_SURFACES,
     FROZEN_V37D_DIAGNOSTIC_SEVERITY_TAXONOMY,
     FROZEN_V37D_SEEDED_VIOLATION_FAMILIES,
+    FROZEN_V37E_ALLOWED_TARGET_CONTROL_CLASSES,
+    META_CONTROL_UPDATE_CANDIDATE_SCHEMA,
+    META_CONTROL_UPDATE_MANIFEST_SCHEMA,
     META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA,
     META_LOOP_CONFORMANCE_REPORT_SCHEMA,
     META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA,
@@ -24,6 +27,8 @@ from .meta_testing import (
     V37C_EXECUTED_TRACE_MODE,
     V37D_CONFORMANCE_AGGREGATION_RULE_ID,
     V37D_CONFORMANCE_GENERATOR_ID,
+    MetaControlUpdateCandidate,
+    MetaControlUpdateManifest,
     MetaExecutorBinding,
     MetaExecutorParameterPolicy,
     MetaExecutorParameterSlot,
@@ -40,6 +45,7 @@ from .meta_testing import (
     assert_v37b_reference_bundle_consistent,
     assert_v37c_reference_bundle_consistent,
     assert_v37d_reference_bundle_consistent,
+    assert_v37e_reference_bundle_consistent,
 )
 
 V37A_META_INTENT_MODULE_CATALOG_EVIDENCE_SCHEMA = "v37a_meta_intent_module_catalog_evidence@1"
@@ -126,6 +132,28 @@ DEFAULT_V37D_DRIFT_DIAGNOSTICS_CONFORMANCE_EVIDENCE_PATH = (
     "artifacts/agent_harness/v69/evidence_inputs/"
     "v37d_drift_diagnostics_conformance_evidence_v69.json"
 )
+V37E_CONTROL_UPDATE_EXPORT_EVIDENCE_SCHEMA = "v37e_control_update_export_evidence@1"
+V37E_CONTROL_UPDATE_EXPORT_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS70.md#v37e_control_update_export_contract@1"
+)
+DEFAULT_V69_BASELINE_METRICS_PATH = "artifacts/stop_gate/metrics_v69_closeout.json"
+DEFAULT_META_CONTROL_UPDATE_CANDIDATE_SCHEMA_PATH = (
+    "packages/adeu_core_ir/schema/meta_control_update_candidate.v1.json"
+)
+DEFAULT_META_CONTROL_UPDATE_MANIFEST_SCHEMA_PATH = (
+    "packages/adeu_core_ir/schema/meta_control_update_manifest.v1.json"
+)
+DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH = (
+    "apps/api/fixtures/meta_testing/vnext_plus70/"
+    "meta_control_update_candidate_arc_closeout_v65_reference.json"
+)
+DEFAULT_META_CONTROL_UPDATE_MANIFEST_REFERENCE_PATH = (
+    "apps/api/fixtures/meta_testing/vnext_plus70/"
+    "meta_control_update_manifest_arc_closeout_v65_reference.json"
+)
+DEFAULT_V37E_CONTROL_UPDATE_EXPORT_EVIDENCE_PATH = (
+    "artifacts/agent_harness/v70/evidence_inputs/v37e_control_update_export_evidence_v70.json"
+)
 FROZEN_V37B_OUT_OF_SCOPE_SURFACES: tuple[str, ...] = (
     "meta_control_update_candidate@1",
     "meta_control_update_manifest@1",
@@ -142,6 +170,14 @@ FROZEN_V37C_OUT_OF_SCOPE_SURFACES: tuple[str, ...] = (
 FROZEN_V37D_OUT_OF_SCOPE_SURFACES: tuple[str, ...] = (
     "meta_control_update_candidate@1",
     "meta_control_update_manifest@1",
+)
+FROZEN_V37E_FORBIDDEN_PAYLOAD_KEYS: tuple[str, ...] = (
+    "raw_patch",
+    "raw_patch_payload",
+    "raw_patch_text",
+    "raw_shell",
+    "raw_shell_payload",
+    "raw_shell_text",
 )
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -361,6 +397,88 @@ class V37DDriftDiagnosticsConformanceEvidence(BaseModel):
     verification_passed: bool
     metric_key_cardinality: int = Field(ge=0)
     metric_key_exact_set_equal_v68: bool
+    notes: str = Field(min_length=1)
+
+
+class V37EControlUpdateExportEvidence(BaseModel):
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    schema_id: str = Field(
+        default=V37E_CONTROL_UPDATE_EXPORT_EVIDENCE_SCHEMA,
+        alias="schema",
+    )
+    contract_source: str = V37E_CONTROL_UPDATE_EXPORT_CONTRACT_SOURCE
+    evidence_input_path: str = Field(min_length=1)
+    meta_testing_intent_packet_schema_path: str = Field(min_length=1)
+    meta_testing_intent_packet_schema_hash: str = Field(min_length=64, max_length=64)
+    meta_module_catalog_schema_path: str = Field(min_length=1)
+    meta_module_catalog_schema_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_sequence_contract_schema_path: str = Field(min_length=1)
+    meta_loop_sequence_contract_schema_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_run_trace_schema_path: str = Field(min_length=1)
+    meta_loop_run_trace_schema_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_checkpoint_result_manifest_schema_path: str = Field(min_length=1)
+    meta_loop_checkpoint_result_manifest_schema_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_drift_diagnostics_schema_path: str = Field(min_length=1)
+    meta_loop_drift_diagnostics_schema_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_conformance_report_schema_path: str = Field(min_length=1)
+    meta_loop_conformance_report_schema_hash: str = Field(min_length=64, max_length=64)
+    meta_control_update_candidate_schema_path: str = Field(min_length=1)
+    meta_control_update_candidate_schema_hash: str = Field(min_length=64, max_length=64)
+    meta_control_update_manifest_schema_path: str = Field(min_length=1)
+    meta_control_update_manifest_schema_hash: str = Field(min_length=64, max_length=64)
+    meta_testing_intent_packet_reference_path: str = Field(min_length=1)
+    meta_testing_intent_packet_reference_hash: str = Field(min_length=64, max_length=64)
+    meta_module_catalog_reference_path: str = Field(min_length=1)
+    meta_module_catalog_reference_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_sequence_contract_reference_path: str = Field(min_length=1)
+    meta_loop_sequence_contract_reference_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_run_trace_reference_path: str = Field(min_length=1)
+    meta_loop_run_trace_reference_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_checkpoint_result_manifest_reference_path: str = Field(min_length=1)
+    meta_loop_checkpoint_result_manifest_reference_hash: str = Field(min_length=64, max_length=64)
+    executed_meta_loop_run_trace_reference_path: str = Field(min_length=1)
+    executed_meta_loop_run_trace_reference_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_drift_diagnostics_reference_path: str = Field(min_length=1)
+    meta_loop_drift_diagnostics_reference_hash: str = Field(min_length=64, max_length=64)
+    meta_loop_conformance_report_reference_path: str = Field(min_length=1)
+    meta_loop_conformance_report_reference_hash: str = Field(min_length=64, max_length=64)
+    meta_control_update_candidate_reference_path: str = Field(min_length=1)
+    meta_control_update_candidate_reference_hash: str = Field(min_length=64, max_length=64)
+    meta_control_update_manifest_reference_path: str = Field(min_length=1)
+    meta_control_update_manifest_reference_hash: str = Field(min_length=64, max_length=64)
+    v37a_meta_intent_module_catalog_evidence_path: str = Field(min_length=1)
+    v37a_meta_intent_module_catalog_evidence_hash: str = Field(min_length=64, max_length=64)
+    v37b_sequence_trace_evidence_path: str = Field(min_length=1)
+    v37b_sequence_trace_evidence_hash: str = Field(min_length=64, max_length=64)
+    v37c_reference_loop_evidence_path: str = Field(min_length=1)
+    v37c_reference_loop_evidence_hash: str = Field(min_length=64, max_length=64)
+    v37d_drift_diagnostics_conformance_evidence_path: str = Field(min_length=1)
+    v37d_drift_diagnostics_conformance_evidence_hash: str = Field(min_length=64, max_length=64)
+    v37a_reference_tuple_consumed_without_drift: bool
+    v37b_reference_tuple_consumed_without_drift: bool
+    v37c_reference_tuple_consumed_without_drift: bool
+    v37d_reference_tuple_consumed_without_drift: bool
+    accepted_reference_candidate_cardinality_verified: bool
+    candidate_structure_verified: bool
+    manifest_structure_verified: bool
+    advisory_only_status_verified: bool
+    candidate_generation_severity_gate_verified: bool
+    target_surface_ref_namespace_verified: bool
+    expected_drift_reduction_claim_bounded_verified: bool
+    application_friction_mode_verified: bool
+    application_friction_floor_verified: bool
+    target_control_class_enum_verified: bool
+    target_control_class_total_priority_order_verified: bool
+    candidate_selection_tie_breaks_verified: bool
+    candidate_derivation_bindings_verified: bool
+    suppressed_lower_ranked_alternatives_recorded: bool
+    candidate_emission_is_not_acceptance_verified: bool
+    raw_patch_or_shell_payload_fields_absent: bool
+    v37e_scope_boundary_preserved: bool
+    verification_passed: bool
+    metric_key_cardinality: int = Field(ge=0)
+    metric_key_exact_set_equal_v69: bool
     notes: str = Field(min_length=1)
 
 
@@ -834,6 +952,62 @@ def _supporting_evidence_surface_id(ref: str) -> str | None:
     if artifact_name.startswith("meta_control_update_manifest"):
         return "meta_control_update_manifest@1"
     return None
+
+
+def _assert_forbidden_payload_keys_absent(
+    *,
+    payload: object,
+    field_name: str,
+    forbidden_keys: tuple[str, ...] = FROZEN_V37E_FORBIDDEN_PAYLOAD_KEYS,
+) -> None:
+    if isinstance(payload, dict):
+        for key, value in payload.items():
+            if key in forbidden_keys:
+                raise MetaTestingEvidenceError(
+                    f"{field_name} must not carry raw patch or shell payload fields"
+                )
+            _assert_forbidden_payload_keys_absent(payload=value, field_name=field_name)
+        return
+    if isinstance(payload, list):
+        for value in payload:
+            _assert_forbidden_payload_keys_absent(payload=value, field_name=field_name)
+
+
+def _assert_v37e_scope_boundary(
+    *,
+    control_update_candidate: MetaControlUpdateCandidate,
+    control_update_manifest: MetaControlUpdateManifest,
+) -> None:
+    if not control_update_candidate.advisory_only:
+        raise MetaTestingEvidenceError(
+            "v37e scope boundary preserved requires advisory-only candidate emission"
+        )
+    if not control_update_manifest.emission_is_not_acceptance:
+        raise MetaTestingEvidenceError(
+            "v37e scope boundary preserved requires emission to stay distinct from acceptance"
+        )
+    if (
+        control_update_candidate.target_control_class
+        not in FROZEN_V37E_ALLOWED_TARGET_CONTROL_CLASSES
+    ):
+        raise MetaTestingEvidenceError(
+            "v37e scope boundary preserved requires emitted target_control_class "
+            "to stay within the frozen first-family enum"
+        )
+    for ref in control_update_candidate.supporting_evidence_refs:
+        surface_id = _supporting_evidence_surface_id(ref)
+        if surface_id in FROZEN_V37D_OUT_OF_SCOPE_SURFACES:
+            raise MetaTestingEvidenceError(
+                "v37e scope boundary preserved requires emitted candidates to stay "
+                "bound to released v37a-v37d substrate only"
+            )
+    for ref in control_update_manifest.derivation_refs:
+        surface_id = _supporting_evidence_surface_id(ref)
+        if surface_id in FROZEN_V37D_OUT_OF_SCOPE_SURFACES:
+            raise MetaTestingEvidenceError(
+                "v37e scope boundary preserved requires emitted manifests to stay "
+                "bound to released v37a-v37d substrate only"
+            )
 
 
 def materialize_v37a_meta_intent_module_catalog_evidence(
@@ -2061,7 +2235,564 @@ def materialize_v37d_drift_diagnostics_conformance_evidence(
     )
 
 
+def materialize_v37e_control_update_export_evidence(
+    *,
+    repo_root: Path,
+    output_path: str = DEFAULT_V37E_CONTROL_UPDATE_EXPORT_EVIDENCE_PATH,
+    baseline_metrics_path: str = DEFAULT_V69_BASELINE_METRICS_PATH,
+    current_metrics_path: str,
+    meta_testing_intent_packet_schema_path: str = DEFAULT_META_TESTING_INTENT_PACKET_SCHEMA_PATH,
+    meta_module_catalog_schema_path: str = DEFAULT_META_MODULE_CATALOG_SCHEMA_PATH,
+    meta_loop_sequence_contract_schema_path: str = (
+        DEFAULT_META_LOOP_SEQUENCE_CONTRACT_SCHEMA_PATH
+    ),
+    meta_loop_run_trace_schema_path: str = DEFAULT_META_LOOP_RUN_TRACE_SCHEMA_PATH,
+    meta_loop_checkpoint_result_manifest_schema_path: str = (
+        DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA_PATH
+    ),
+    meta_loop_drift_diagnostics_schema_path: str = (
+        DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA_PATH
+    ),
+    meta_loop_conformance_report_schema_path: str = (
+        DEFAULT_META_LOOP_CONFORMANCE_REPORT_SCHEMA_PATH
+    ),
+    meta_control_update_candidate_schema_path: str = (
+        DEFAULT_META_CONTROL_UPDATE_CANDIDATE_SCHEMA_PATH
+    ),
+    meta_control_update_manifest_schema_path: str = (
+        DEFAULT_META_CONTROL_UPDATE_MANIFEST_SCHEMA_PATH
+    ),
+    meta_testing_intent_packet_reference_path: str = (
+        DEFAULT_META_TESTING_INTENT_PACKET_REFERENCE_PATH
+    ),
+    meta_module_catalog_reference_path: str = DEFAULT_META_MODULE_CATALOG_REFERENCE_PATH,
+    meta_loop_sequence_contract_reference_path: str = (
+        DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH
+    ),
+    meta_loop_run_trace_reference_path: str = DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH,
+    meta_loop_checkpoint_result_manifest_reference_path: str = (
+        DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_REFERENCE_PATH
+    ),
+    executed_meta_loop_run_trace_reference_path: str = (
+        DEFAULT_V37C_EXECUTED_META_LOOP_RUN_TRACE_REFERENCE_PATH
+    ),
+    meta_loop_drift_diagnostics_reference_path: str = (
+        DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH
+    ),
+    meta_loop_conformance_report_reference_path: str = (
+        DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH
+    ),
+    meta_control_update_candidate_reference_path: str = (
+        DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH
+    ),
+    meta_control_update_manifest_reference_path: str = (
+        DEFAULT_META_CONTROL_UPDATE_MANIFEST_REFERENCE_PATH
+    ),
+    v37a_meta_intent_module_catalog_evidence_path: str = (
+        DEFAULT_V37A_META_INTENT_MODULE_CATALOG_EVIDENCE_PATH
+    ),
+    v37b_sequence_trace_evidence_path: str = DEFAULT_V37B_SEQUENCE_TRACE_EVIDENCE_PATH,
+    v37c_reference_loop_evidence_path: str = DEFAULT_V37C_REFERENCE_LOOP_EVIDENCE_PATH,
+    v37d_drift_diagnostics_conformance_evidence_path: str = (
+        DEFAULT_V37D_DRIFT_DIAGNOSTICS_CONFORMANCE_EVIDENCE_PATH
+    ),
+) -> MaterializedMetaTestingEvidence:
+    repo_root = repo_root.resolve()
+    if not repo_root.is_dir():
+        raise MetaTestingEvidenceError("repository root does not exist")
+    if baseline_metrics_path != DEFAULT_V69_BASELINE_METRICS_PATH:
+        raise MetaTestingEvidenceError(
+            "baseline_metrics_path must point to the frozen v69 closeout metrics artifact"
+        )
+
+    output_file = _resolve_repo_relative_path(
+        root=repo_root,
+        path_text=output_path,
+        field_name="output_path",
+        required_prefix="artifacts/",
+    )
+    baseline_metrics_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=baseline_metrics_path,
+        field_name="baseline_metrics_path",
+        required_prefix="artifacts/",
+    )
+    current_metrics_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=current_metrics_path,
+        field_name="current_metrics_path",
+        required_prefix="artifacts/",
+    )
+    intent_schema_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_testing_intent_packet_schema_path,
+        field_name="meta_testing_intent_packet_schema_path",
+        required_prefix="packages/",
+    )
+    module_catalog_schema_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_module_catalog_schema_path,
+        field_name="meta_module_catalog_schema_path",
+        required_prefix="packages/",
+    )
+    sequence_schema_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_sequence_contract_schema_path,
+        field_name="meta_loop_sequence_contract_schema_path",
+        required_prefix="packages/",
+    )
+    run_trace_schema_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_run_trace_schema_path,
+        field_name="meta_loop_run_trace_schema_path",
+        required_prefix="packages/",
+    )
+    manifest_schema_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_checkpoint_result_manifest_schema_path,
+        field_name="meta_loop_checkpoint_result_manifest_schema_path",
+        required_prefix="packages/",
+    )
+    diagnostics_schema_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_drift_diagnostics_schema_path,
+        field_name="meta_loop_drift_diagnostics_schema_path",
+        required_prefix="packages/",
+    )
+    conformance_schema_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_conformance_report_schema_path,
+        field_name="meta_loop_conformance_report_schema_path",
+        required_prefix="packages/",
+    )
+    control_update_candidate_schema_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_control_update_candidate_schema_path,
+        field_name="meta_control_update_candidate_schema_path",
+        required_prefix="packages/",
+    )
+    control_update_manifest_schema_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_control_update_manifest_schema_path,
+        field_name="meta_control_update_manifest_schema_path",
+        required_prefix="packages/",
+    )
+    intent_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_testing_intent_packet_reference_path,
+        field_name="meta_testing_intent_packet_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    module_catalog_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_module_catalog_reference_path,
+        field_name="meta_module_catalog_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    sequence_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_sequence_contract_reference_path,
+        field_name="meta_loop_sequence_contract_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    run_trace_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_run_trace_reference_path,
+        field_name="meta_loop_run_trace_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    checkpoint_manifest_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_checkpoint_result_manifest_reference_path,
+        field_name="meta_loop_checkpoint_result_manifest_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    executed_run_trace_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=executed_meta_loop_run_trace_reference_path,
+        field_name="executed_meta_loop_run_trace_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    diagnostics_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_drift_diagnostics_reference_path,
+        field_name="meta_loop_drift_diagnostics_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    conformance_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_loop_conformance_report_reference_path,
+        field_name="meta_loop_conformance_report_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    control_update_candidate_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_control_update_candidate_reference_path,
+        field_name="meta_control_update_candidate_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    control_update_manifest_reference_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=meta_control_update_manifest_reference_path,
+        field_name="meta_control_update_manifest_reference_path",
+        required_prefix="apps/api/fixtures/",
+    )
+    v37a_evidence_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=v37a_meta_intent_module_catalog_evidence_path,
+        field_name="v37a_meta_intent_module_catalog_evidence_path",
+        required_prefix="artifacts/",
+    )
+    v37b_evidence_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=v37b_sequence_trace_evidence_path,
+        field_name="v37b_sequence_trace_evidence_path",
+        required_prefix="artifacts/",
+    )
+    v37c_evidence_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=v37c_reference_loop_evidence_path,
+        field_name="v37c_reference_loop_evidence_path",
+        required_prefix="artifacts/",
+    )
+    v37d_evidence_file = _resolve_existing_repo_file(
+        root=repo_root,
+        path_text=v37d_drift_diagnostics_conformance_evidence_path,
+        field_name="v37d_drift_diagnostics_conformance_evidence_path",
+        required_prefix="artifacts/",
+    )
+
+    baseline_metrics = _load_stop_gate_metrics(
+        path=baseline_metrics_file,
+        field_name="baseline_metrics_path",
+    )
+    current_metrics = _load_stop_gate_metrics(
+        path=current_metrics_file,
+        field_name="current_metrics_path",
+    )
+    baseline_metric_keys = set(baseline_metrics["metrics"].keys())
+    current_metric_keys = set(current_metrics["metrics"].keys())
+    if len(current_metric_keys) != EXPECTED_METRIC_KEY_CARDINALITY:
+        raise MetaTestingEvidenceError(
+            f"metric key cardinality must remain frozen at {EXPECTED_METRIC_KEY_CARDINALITY}"
+        )
+    if baseline_metric_keys != current_metric_keys:
+        raise MetaTestingEvidenceError("metric key set must remain exactly equal to v69")
+
+    intent_schema_payload = _load_frozen_schema(
+        path=intent_schema_file,
+        field_name="meta_testing_intent_packet_schema_path",
+        model_type=MetaTestingIntentPacket,
+    )
+    module_catalog_schema_payload = _load_frozen_schema(
+        path=module_catalog_schema_file,
+        field_name="meta_module_catalog_schema_path",
+        model_type=MetaModuleCatalog,
+    )
+    sequence_schema_payload = _load_frozen_schema(
+        path=sequence_schema_file,
+        field_name="meta_loop_sequence_contract_schema_path",
+        model_type=MetaLoopSequenceContract,
+    )
+    run_trace_schema_payload = _load_frozen_schema(
+        path=run_trace_schema_file,
+        field_name="meta_loop_run_trace_schema_path",
+        model_type=MetaLoopRunTrace,
+    )
+    checkpoint_manifest_schema_payload = _load_frozen_schema(
+        path=manifest_schema_file,
+        field_name="meta_loop_checkpoint_result_manifest_schema_path",
+        model_type=MetaLoopCheckpointResultManifest,
+    )
+    diagnostics_schema_payload = _load_frozen_schema(
+        path=diagnostics_schema_file,
+        field_name="meta_loop_drift_diagnostics_schema_path",
+        model_type=MetaLoopDriftDiagnostics,
+    )
+    conformance_schema_payload = _load_frozen_schema(
+        path=conformance_schema_file,
+        field_name="meta_loop_conformance_report_schema_path",
+        model_type=MetaLoopConformanceReport,
+    )
+    control_update_candidate_schema_payload = _load_frozen_schema(
+        path=control_update_candidate_schema_file,
+        field_name="meta_control_update_candidate_schema_path",
+        model_type=MetaControlUpdateCandidate,
+    )
+    control_update_manifest_schema_payload = _load_frozen_schema(
+        path=control_update_manifest_schema_file,
+        field_name="meta_control_update_manifest_schema_path",
+        model_type=MetaControlUpdateManifest,
+    )
+    intent_payload, intent_packet = _load_validated_model(
+        path=intent_reference_file,
+        field_name="meta_testing_intent_packet_reference_path",
+        model_type=MetaTestingIntentPacket,
+    )
+    module_catalog_payload, module_catalog = _load_validated_model(
+        path=module_catalog_reference_file,
+        field_name="meta_module_catalog_reference_path",
+        model_type=MetaModuleCatalog,
+    )
+    sequence_payload, sequence_contract = _load_validated_model(
+        path=sequence_reference_file,
+        field_name="meta_loop_sequence_contract_reference_path",
+        model_type=MetaLoopSequenceContract,
+        exclude_none=False,
+    )
+    reference_run_trace_payload, reference_run_trace = _load_validated_model(
+        path=run_trace_reference_file,
+        field_name="meta_loop_run_trace_reference_path",
+        model_type=MetaLoopRunTrace,
+        exclude_none=True,
+    )
+    _, executed_run_trace_raw_payload = _load_json_dict(
+        path=executed_run_trace_reference_file,
+        field_name="executed_meta_loop_run_trace_reference_path",
+    )
+    if executed_run_trace_raw_payload.get("trace_mode") != V37C_EXECUTED_TRACE_MODE:
+        raise MetaTestingEvidenceError(
+            f"executed_meta_loop_run_trace_reference_path must use {V37C_EXECUTED_TRACE_MODE!r}"
+        )
+    executed_run_trace_payload, executed_run_trace = _validate_loaded_model_payload(
+        payload=executed_run_trace_raw_payload,
+        field_name="executed_meta_loop_run_trace_reference_path",
+        model_type=MetaLoopRunTrace,
+        exclude_none=True,
+    )
+    checkpoint_manifest_payload, checkpoint_result_manifest = _load_validated_model(
+        path=checkpoint_manifest_reference_file,
+        field_name="meta_loop_checkpoint_result_manifest_reference_path",
+        model_type=MetaLoopCheckpointResultManifest,
+        exclude_none=False,
+    )
+    diagnostics_payload, drift_diagnostics = _load_validated_model(
+        path=diagnostics_reference_file,
+        field_name="meta_loop_drift_diagnostics_reference_path",
+        model_type=MetaLoopDriftDiagnostics,
+    )
+    conformance_payload, conformance_report = _load_validated_model(
+        path=conformance_reference_file,
+        field_name="meta_loop_conformance_report_reference_path",
+        model_type=MetaLoopConformanceReport,
+    )
+    _, control_update_candidate_raw_payload = _load_json_dict(
+        path=control_update_candidate_reference_file,
+        field_name="meta_control_update_candidate_reference_path",
+    )
+    _assert_forbidden_payload_keys_absent(
+        payload=control_update_candidate_raw_payload,
+        field_name="meta_control_update_candidate_reference_path",
+    )
+    control_update_candidate_payload, control_update_candidate = _validate_loaded_model_payload(
+        payload=control_update_candidate_raw_payload,
+        field_name="meta_control_update_candidate_reference_path",
+        model_type=MetaControlUpdateCandidate,
+    )
+    _, control_update_manifest_raw_payload = _load_json_dict(
+        path=control_update_manifest_reference_file,
+        field_name="meta_control_update_manifest_reference_path",
+    )
+    _assert_forbidden_payload_keys_absent(
+        payload=control_update_manifest_raw_payload,
+        field_name="meta_control_update_manifest_reference_path",
+    )
+    control_update_manifest_payload, control_update_manifest = _validate_loaded_model_payload(
+        payload=control_update_manifest_raw_payload,
+        field_name="meta_control_update_manifest_reference_path",
+        model_type=MetaControlUpdateManifest,
+    )
+    v37a_evidence_payload, v37a_evidence = _load_validated_model(
+        path=v37a_evidence_file,
+        field_name="v37a_meta_intent_module_catalog_evidence_path",
+        model_type=V37AMetaIntentModuleCatalogEvidence,
+        by_alias=True,
+    )
+    v37b_evidence_payload, v37b_evidence = _load_validated_model(
+        path=v37b_evidence_file,
+        field_name="v37b_sequence_trace_evidence_path",
+        model_type=V37BSequenceTraceEvidence,
+        by_alias=True,
+    )
+    v37c_evidence_payload, v37c_evidence = _load_validated_model(
+        path=v37c_evidence_file,
+        field_name="v37c_reference_loop_evidence_path",
+        model_type=V37CReferenceLoopEvidence,
+        by_alias=True,
+    )
+    v37d_evidence_payload, v37d_evidence = _load_validated_model(
+        path=v37d_evidence_file,
+        field_name="v37d_drift_diagnostics_conformance_evidence_path",
+        model_type=V37DDriftDiagnosticsConformanceEvidence,
+        by_alias=True,
+    )
+    if not v37a_evidence.verification_passed:
+        raise MetaTestingEvidenceError(
+            "v37a_meta_intent_module_catalog_evidence_path must be a passed v37a evidence artifact"
+        )
+    if not v37b_evidence.verification_passed:
+        raise MetaTestingEvidenceError(
+            "v37b_sequence_trace_evidence_path must be a passed v37b evidence artifact"
+        )
+    if not v37c_evidence.verification_passed:
+        raise MetaTestingEvidenceError(
+            "v37c_reference_loop_evidence_path must be a passed v37c evidence artifact"
+        )
+    if not v37d_evidence.verification_passed:
+        raise MetaTestingEvidenceError(
+            "v37d_drift_diagnostics_conformance_evidence_path must be a passed "
+            "v37d evidence artifact"
+        )
+
+    if control_update_candidate.schema != META_CONTROL_UPDATE_CANDIDATE_SCHEMA:
+        raise MetaTestingEvidenceError(
+            "meta_control_update_candidate_reference_path must use "
+            f"{META_CONTROL_UPDATE_CANDIDATE_SCHEMA!r}"
+        )
+    if control_update_manifest.schema != META_CONTROL_UPDATE_MANIFEST_SCHEMA:
+        raise MetaTestingEvidenceError(
+            "meta_control_update_manifest_reference_path must use "
+            f"{META_CONTROL_UPDATE_MANIFEST_SCHEMA!r}"
+        )
+
+    try:
+        assert_v37e_reference_bundle_consistent(
+            intent_packet=intent_packet,
+            module_catalog=module_catalog,
+            sequence_contract=sequence_contract,
+            reference_run_trace=reference_run_trace,
+            executed_run_trace=executed_run_trace,
+            checkpoint_result_manifest=checkpoint_result_manifest,
+            drift_diagnostics=drift_diagnostics,
+            conformance_report=conformance_report,
+            control_update_candidate=control_update_candidate,
+            control_update_manifest=control_update_manifest,
+        )
+        _assert_v37e_scope_boundary(
+            control_update_candidate=control_update_candidate,
+            control_update_manifest=control_update_manifest,
+        )
+    except ValueError as exc:
+        raise MetaTestingEvidenceError(str(exc)) from exc
+
+    evidence = V37EControlUpdateExportEvidence(
+        evidence_input_path=output_path,
+        meta_testing_intent_packet_schema_path=meta_testing_intent_packet_schema_path,
+        meta_testing_intent_packet_schema_hash=_sha256_canonical_json(intent_schema_payload),
+        meta_module_catalog_schema_path=meta_module_catalog_schema_path,
+        meta_module_catalog_schema_hash=_sha256_canonical_json(module_catalog_schema_payload),
+        meta_loop_sequence_contract_schema_path=meta_loop_sequence_contract_schema_path,
+        meta_loop_sequence_contract_schema_hash=_sha256_canonical_json(sequence_schema_payload),
+        meta_loop_run_trace_schema_path=meta_loop_run_trace_schema_path,
+        meta_loop_run_trace_schema_hash=_sha256_canonical_json(run_trace_schema_payload),
+        meta_loop_checkpoint_result_manifest_schema_path=(
+            meta_loop_checkpoint_result_manifest_schema_path
+        ),
+        meta_loop_checkpoint_result_manifest_schema_hash=_sha256_canonical_json(
+            checkpoint_manifest_schema_payload
+        ),
+        meta_loop_drift_diagnostics_schema_path=meta_loop_drift_diagnostics_schema_path,
+        meta_loop_drift_diagnostics_schema_hash=_sha256_canonical_json(diagnostics_schema_payload),
+        meta_loop_conformance_report_schema_path=meta_loop_conformance_report_schema_path,
+        meta_loop_conformance_report_schema_hash=_sha256_canonical_json(conformance_schema_payload),
+        meta_control_update_candidate_schema_path=meta_control_update_candidate_schema_path,
+        meta_control_update_candidate_schema_hash=_sha256_canonical_json(
+            control_update_candidate_schema_payload
+        ),
+        meta_control_update_manifest_schema_path=meta_control_update_manifest_schema_path,
+        meta_control_update_manifest_schema_hash=_sha256_canonical_json(
+            control_update_manifest_schema_payload
+        ),
+        meta_testing_intent_packet_reference_path=meta_testing_intent_packet_reference_path,
+        meta_testing_intent_packet_reference_hash=_sha256_canonical_json(intent_payload),
+        meta_module_catalog_reference_path=meta_module_catalog_reference_path,
+        meta_module_catalog_reference_hash=_sha256_canonical_json(module_catalog_payload),
+        meta_loop_sequence_contract_reference_path=meta_loop_sequence_contract_reference_path,
+        meta_loop_sequence_contract_reference_hash=_sha256_canonical_json(sequence_payload),
+        meta_loop_run_trace_reference_path=meta_loop_run_trace_reference_path,
+        meta_loop_run_trace_reference_hash=_sha256_canonical_json(reference_run_trace_payload),
+        meta_loop_checkpoint_result_manifest_reference_path=(
+            meta_loop_checkpoint_result_manifest_reference_path
+        ),
+        meta_loop_checkpoint_result_manifest_reference_hash=_sha256_canonical_json(
+            checkpoint_manifest_payload
+        ),
+        executed_meta_loop_run_trace_reference_path=executed_meta_loop_run_trace_reference_path,
+        executed_meta_loop_run_trace_reference_hash=_sha256_canonical_json(
+            executed_run_trace_payload
+        ),
+        meta_loop_drift_diagnostics_reference_path=meta_loop_drift_diagnostics_reference_path,
+        meta_loop_drift_diagnostics_reference_hash=_sha256_canonical_json(diagnostics_payload),
+        meta_loop_conformance_report_reference_path=meta_loop_conformance_report_reference_path,
+        meta_loop_conformance_report_reference_hash=_sha256_canonical_json(conformance_payload),
+        meta_control_update_candidate_reference_path=meta_control_update_candidate_reference_path,
+        meta_control_update_candidate_reference_hash=_sha256_canonical_json(
+            control_update_candidate_payload
+        ),
+        meta_control_update_manifest_reference_path=meta_control_update_manifest_reference_path,
+        meta_control_update_manifest_reference_hash=_sha256_canonical_json(
+            control_update_manifest_payload
+        ),
+        v37a_meta_intent_module_catalog_evidence_path=(
+            v37a_meta_intent_module_catalog_evidence_path
+        ),
+        v37a_meta_intent_module_catalog_evidence_hash=_sha256_canonical_json(v37a_evidence_payload),
+        v37b_sequence_trace_evidence_path=v37b_sequence_trace_evidence_path,
+        v37b_sequence_trace_evidence_hash=_sha256_canonical_json(v37b_evidence_payload),
+        v37c_reference_loop_evidence_path=v37c_reference_loop_evidence_path,
+        v37c_reference_loop_evidence_hash=_sha256_canonical_json(v37c_evidence_payload),
+        v37d_drift_diagnostics_conformance_evidence_path=(
+            v37d_drift_diagnostics_conformance_evidence_path
+        ),
+        v37d_drift_diagnostics_conformance_evidence_hash=_sha256_canonical_json(
+            v37d_evidence_payload
+        ),
+        v37a_reference_tuple_consumed_without_drift=True,
+        v37b_reference_tuple_consumed_without_drift=True,
+        v37c_reference_tuple_consumed_without_drift=True,
+        v37d_reference_tuple_consumed_without_drift=True,
+        accepted_reference_candidate_cardinality_verified=True,
+        candidate_structure_verified=True,
+        manifest_structure_verified=True,
+        advisory_only_status_verified=True,
+        candidate_generation_severity_gate_verified=True,
+        target_surface_ref_namespace_verified=True,
+        expected_drift_reduction_claim_bounded_verified=True,
+        application_friction_mode_verified=True,
+        application_friction_floor_verified=True,
+        target_control_class_enum_verified=True,
+        target_control_class_total_priority_order_verified=True,
+        candidate_selection_tie_breaks_verified=True,
+        candidate_derivation_bindings_verified=True,
+        suppressed_lower_ranked_alternatives_recorded=True,
+        candidate_emission_is_not_acceptance_verified=True,
+        raw_patch_or_shell_payload_fields_absent=True,
+        v37e_scope_boundary_preserved=True,
+        verification_passed=True,
+        metric_key_cardinality=len(current_metric_keys),
+        metric_key_exact_set_equal_v69=True,
+        notes=(
+            "v70 closeout evidence is the bounded advisory export lane over the released "
+            "recursive-compilation reference loop; it verifies deterministic single-candidate "
+            "emission, frozen ranking and friction law, released-substrate derivation, and "
+            "preserved non-acceptance without releasing mutation or execution payload surfaces."
+        ),
+    )
+    payload = evidence.model_dump(mode="json", by_alias=True)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    output_file.write_text(_pretty_canonical_json(payload), encoding="utf-8")
+    return MaterializedMetaTestingEvidence(
+        path=output_path,
+        hash=_sha256_canonical_json(payload),
+        payload=payload,
+    )
+
+
 __all__ = [
+    "DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH",
+    "DEFAULT_META_CONTROL_UPDATE_CANDIDATE_SCHEMA_PATH",
+    "DEFAULT_META_CONTROL_UPDATE_MANIFEST_REFERENCE_PATH",
+    "DEFAULT_META_CONTROL_UPDATE_MANIFEST_SCHEMA_PATH",
     "DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_REFERENCE_PATH",
     "DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA_PATH",
     "DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH",
@@ -2079,12 +2810,14 @@ __all__ = [
     "DEFAULT_V37C_EXECUTED_META_LOOP_RUN_TRACE_REFERENCE_PATH",
     "DEFAULT_V37C_REFERENCE_LOOP_EVIDENCE_PATH",
     "DEFAULT_V37D_DRIFT_DIAGNOSTICS_CONFORMANCE_EVIDENCE_PATH",
+    "DEFAULT_V37E_CONTROL_UPDATE_EXPORT_EVIDENCE_PATH",
     "DEFAULT_V37A_META_INTENT_MODULE_CATALOG_EVIDENCE_PATH",
     "DEFAULT_V37B_SEQUENCE_TRACE_EVIDENCE_PATH",
     "DEFAULT_V65_BASELINE_METRICS_PATH",
     "DEFAULT_V66_BASELINE_METRICS_PATH",
     "DEFAULT_V67_BASELINE_METRICS_PATH",
     "DEFAULT_V68_BASELINE_METRICS_PATH",
+    "DEFAULT_V69_BASELINE_METRICS_PATH",
     "MaterializedMetaTestingEvidence",
     "MetaTestingEvidenceError",
     "V37A_META_INTENT_MODULE_CATALOG_CONTRACT_SOURCE",
@@ -2099,8 +2832,12 @@ __all__ = [
     "V37D_DRIFT_DIAGNOSTICS_CONFORMANCE_CONTRACT_SOURCE",
     "V37D_DRIFT_DIAGNOSTICS_CONFORMANCE_EVIDENCE_SCHEMA",
     "V37DDriftDiagnosticsConformanceEvidence",
+    "V37E_CONTROL_UPDATE_EXPORT_CONTRACT_SOURCE",
+    "V37E_CONTROL_UPDATE_EXPORT_EVIDENCE_SCHEMA",
+    "V37EControlUpdateExportEvidence",
     "materialize_v37a_meta_intent_module_catalog_evidence",
     "materialize_v37b_sequence_trace_evidence",
     "materialize_v37c_reference_loop_evidence",
     "materialize_v37d_drift_diagnostics_conformance_evidence",
+    "materialize_v37e_control_update_export_evidence",
 ]

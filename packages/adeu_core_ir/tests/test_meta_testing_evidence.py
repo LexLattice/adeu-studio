@@ -8,6 +8,10 @@ from typing import Any, cast
 import adeu_core_ir.meta_testing_evidence as meta_testing_evidence_module
 import pytest
 from adeu_core_ir import (
+    DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+    DEFAULT_META_CONTROL_UPDATE_CANDIDATE_SCHEMA_PATH,
+    DEFAULT_META_CONTROL_UPDATE_MANIFEST_REFERENCE_PATH,
+    DEFAULT_META_CONTROL_UPDATE_MANIFEST_SCHEMA_PATH,
     DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_REFERENCE_PATH,
     DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA_PATH,
     DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
@@ -30,11 +34,13 @@ from adeu_core_ir import (
     DEFAULT_V66_BASELINE_METRICS_PATH,
     DEFAULT_V67_BASELINE_METRICS_PATH,
     DEFAULT_V68_BASELINE_METRICS_PATH,
+    DEFAULT_V69_BASELINE_METRICS_PATH,
     canonicalize_meta_loop_drift_diagnostics_payload,
     materialize_v37a_meta_intent_module_catalog_evidence,
     materialize_v37b_sequence_trace_evidence,
     materialize_v37c_reference_loop_evidence,
     materialize_v37d_drift_diagnostics_conformance_evidence,
+    materialize_v37e_control_update_export_evidence,
 )
 from adeu_core_ir.meta_testing_evidence import MetaTestingEvidenceError
 from adeu_ir.repo import repo_root
@@ -78,6 +84,8 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         "docs/LOCKED_CONTINUATION_vNEXT_PLUS65.md",
         DEFAULT_META_TESTING_INTENT_PACKET_SCHEMA_PATH,
         DEFAULT_META_MODULE_CATALOG_SCHEMA_PATH,
+        DEFAULT_META_CONTROL_UPDATE_CANDIDATE_SCHEMA_PATH,
+        DEFAULT_META_CONTROL_UPDATE_MANIFEST_SCHEMA_PATH,
         DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA_PATH,
         DEFAULT_META_LOOP_CONFORMANCE_REPORT_SCHEMA_PATH,
         DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_SCHEMA_PATH,
@@ -85,6 +93,8 @@ def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
         DEFAULT_META_LOOP_RUN_TRACE_SCHEMA_PATH,
         DEFAULT_META_TESTING_INTENT_PACKET_REFERENCE_PATH,
         DEFAULT_META_MODULE_CATALOG_REFERENCE_PATH,
+        DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+        DEFAULT_META_CONTROL_UPDATE_MANIFEST_REFERENCE_PATH,
         DEFAULT_META_LOOP_SEQUENCE_CONTRACT_REFERENCE_PATH,
         DEFAULT_META_LOOP_RUN_TRACE_REFERENCE_PATH,
         DEFAULT_META_LOOP_CHECKPOINT_RESULT_MANIFEST_REFERENCE_PATH,
@@ -189,6 +199,23 @@ def _materialize_v37d_evidence(*, repo_root_path: Path) -> dict[str, object]:
     }
 
 
+def _materialize_v37e_evidence(*, repo_root_path: Path) -> dict[str, object]:
+    _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V69_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v70_closeout.json",
+    )
+    evidence = materialize_v37e_control_update_export_evidence(
+        repo_root=repo_root_path,
+        current_metrics_path=current_rel,
+    )
+    return {
+        "artifact": evidence,
+        "payload": json.loads((repo_root_path / evidence.path).read_text(encoding="utf-8")),
+    }
+
+
 def _valid_v37d_warning_finding(
     *,
     rule_id: str = "intent_clause_unassessed_detectable",
@@ -226,6 +253,17 @@ def _valid_v37d_warning_finding(
         or [DEFAULT_V37C_REFERENCE_LOOP_EVIDENCE_PATH],
         "conformance_impact": "needs_review",
     }
+
+
+def _valid_v37d_advisory_finding(
+    *,
+    rule_id: str = "intent_clause_unassessed_detectable",
+) -> dict[str, object]:
+    finding = _valid_v37d_warning_finding(rule_id=rule_id)
+    finding["finding_id"] = f"finding_advisory_{rule_id}"
+    finding["severity"] = "advisory"
+    finding["conformance_impact"] = "advisory_only"
+    return finding
 
 
 def test_materialize_v37a_meta_intent_module_catalog_evidence_is_deterministic(
@@ -931,6 +969,276 @@ def test_materialize_v37d_evidence_fails_closed_on_repeated_drift_overclaim(
         ),
     ):
         materialize_v37d_drift_diagnostics_conformance_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37e_control_update_export_evidence_is_deterministic(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+
+    first = _materialize_v37e_evidence(repo_root_path=repo_root_path)
+    second = _materialize_v37e_evidence(repo_root_path=repo_root_path)
+
+    assert first["artifact"].hash == second["artifact"].hash
+    assert first["payload"] == second["payload"]
+    assert first["payload"]["schema"] == "v37e_control_update_export_evidence@1"
+
+
+def test_materialize_v37e_evidence_fails_closed_on_non_v69_baseline_metrics_path(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V69_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v70_closeout.json",
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="baseline_metrics_path must point to the frozen v69 closeout metrics artifact",
+    ):
+        materialize_v37e_control_update_export_evidence(
+            repo_root=repo_root_path,
+            baseline_metrics_path="artifacts/stop_gate/metrics_other_closeout.json",
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37e_evidence_fails_closed_on_v37d_tuple_drift(tmp_path: Path) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V69_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v70_closeout.json",
+    )
+    candidate = _load_json(
+        repo_root_path,
+        DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+    )
+    candidate["reference_instance_id"] = "other_reference"
+    _write_json(
+        repo_root_path / DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+        candidate,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="reference instance binding mismatch for reference_instance_id",
+    ):
+        materialize_v37e_control_update_export_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37e_evidence_fails_closed_on_manifest_cardinality_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V69_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v70_closeout.json",
+    )
+    manifest = _load_json(
+        repo_root_path,
+        DEFAULT_META_CONTROL_UPDATE_MANIFEST_REFERENCE_PATH,
+    )
+    manifest["emitted_candidate_count"] = 2
+    _write_json(
+        repo_root_path / DEFAULT_META_CONTROL_UPDATE_MANIFEST_REFERENCE_PATH,
+        manifest,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="emitted_candidate_count must match the number of emitted_candidate_ids",
+    ):
+        materialize_v37e_control_update_export_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37e_evidence_fails_closed_on_advisory_bound_finding(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V69_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v70_closeout.json",
+    )
+    diagnostics = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
+    )
+    findings = cast(list[dict[str, Any]], diagnostics["findings"])
+    advisory_finding = _valid_v37d_advisory_finding()
+    findings.append(advisory_finding)
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_DRIFT_DIAGNOSTICS_REFERENCE_PATH,
+        diagnostics,
+    )
+    canonical_diagnostics = canonicalize_meta_loop_drift_diagnostics_payload(diagnostics)
+    conformance_report = _load_json(
+        repo_root_path,
+        DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+    )
+    conformance_report["supporting_finding_ids"] = [advisory_finding["finding_id"]]
+    conformance_report["severity_counts"] = {"error": 0, "warning": 0, "advisory": 1}
+    derivation_metadata = cast(dict[str, Any], conformance_report["derivation_metadata"])
+    derivation_metadata["diagnostics_artifact_hash"] = (
+        meta_testing_evidence_module._sha256_canonical_json(canonical_diagnostics)
+    )
+    _write_json(
+        repo_root_path / DEFAULT_META_LOOP_CONFORMANCE_REPORT_REFERENCE_PATH,
+        conformance_report,
+    )
+    candidate = _load_json(
+        repo_root_path,
+        DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+    )
+    candidate["bound_finding_ids"] = [advisory_finding["finding_id"]]
+    _write_json(
+        repo_root_path / DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+        candidate,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="bound_finding_ids must resolve only error/warning findings in v70",
+    ):
+        materialize_v37e_control_update_export_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37e_evidence_fails_closed_on_numeric_claim_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V69_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v70_closeout.json",
+    )
+    candidate = _load_json(
+        repo_root_path,
+        DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+    )
+    candidate["expected_drift_reduction_claim"] = "Reduce repeated-drift ambiguity by 2 steps."
+    _write_json(
+        repo_root_path / DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+        candidate,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="expected_drift_reduction_claim must remain qualitative and non-numeric",
+    ):
+        materialize_v37e_control_update_export_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37e_evidence_fails_closed_on_friction_floor_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V69_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v70_closeout.json",
+    )
+    candidate = _load_json(
+        repo_root_path,
+        DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+    )
+    candidate["application_friction_mode"] = "review_only"
+    _write_json(
+        repo_root_path / DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+        candidate,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match="application_friction_mode must respect the frozen first-family minimum",
+    ):
+        materialize_v37e_control_update_export_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37e_evidence_fails_closed_on_raw_patch_payload_field(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V69_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v70_closeout.json",
+    )
+    candidate = _load_json(
+        repo_root_path,
+        DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+    )
+    candidate["raw_patch_payload"] = "diff --git a/x b/x"
+    _write_json(
+        repo_root_path / DEFAULT_META_CONTROL_UPDATE_CANDIDATE_REFERENCE_PATH,
+        candidate,
+    )
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match=(
+            "meta_control_update_candidate_reference_path must not carry raw patch "
+            "or shell payload fields"
+        ),
+    ):
+        materialize_v37e_control_update_export_evidence(
+            repo_root=repo_root_path,
+            current_metrics_path=current_rel,
+        )
+
+
+def test_materialize_v37e_evidence_fails_closed_on_metric_key_drift(
+    tmp_path: Path,
+) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    _materialize_v37d_evidence(repo_root_path=repo_root_path)
+    current_rel = _write_current_stop_gate_metrics_fixture(
+        repo_root_path=repo_root_path,
+        source_rel=DEFAULT_V69_BASELINE_METRICS_PATH,
+        current_rel="artifacts/stop_gate/metrics_v70_closeout.json",
+    )
+    current_metrics = _load_json(repo_root_path, current_rel)
+    metrics = cast(dict[str, Any], current_metrics["metrics"])
+    metrics["meta_testing.synthetic_drift"] = 1
+    _write_json(repo_root_path / current_rel, current_metrics)
+
+    with pytest.raises(
+        MetaTestingEvidenceError,
+        match=(
+            "metric key cardinality must remain frozen at "
+            f"{meta_testing_evidence_module.EXPECTED_METRIC_KEY_CARDINALITY}"
+        ),
+    ):
+        materialize_v37e_control_update_export_evidence(
             repo_root=repo_root_path,
             current_metrics_path=current_rel,
         )
