@@ -736,19 +736,26 @@ Scope:
 
 - define canonical `meta_control_update_candidate@1`;
 - define canonical `meta_control_update_manifest@1`;
+- freeze the first-family cardinality rule explicitly:
+  exactly one emitted candidate id in the accepted manifest for the bounded v70 lane;
 - require candidates to be derived only from:
   - accepted explicit intent;
   - accepted sequence/trace artifacts;
   - accepted hard checkpoint outputs;
   - accepted drift diagnostics;
   - accepted conformance reports;
+- freeze first-family severity eligibility for candidate generation:
+  only `error` and `warning` findings may emit candidates in the first family;
+  `advisory` findings remain non-exporting in v70;
 - require `meta_control_update_candidate@1` to carry at least:
   - stable candidate id;
   - target control class;
-  - target path or surface id;
+  - target path or surface id in a canonical repo-native namespace form rather than a
+    prose label;
   - bound drift finding ids;
   - supporting evidence refs;
-  - expected drift-reduction claim;
+  - expected drift-reduction claim that remains qualitative, evidence-bound, and
+    explicitly non-authoritative rather than a free numeric efficacy claim;
   - risk notes;
   - application friction mode:
     whether the candidate is review-only, adjudication-required, or otherwise blocked from
@@ -758,8 +765,11 @@ Scope:
   - shared binding tuple;
   - emitted candidate ids;
   - candidate class counts;
+  - explicit emitted candidate count;
   - derivation refs/hashes;
   - target-class priority order actually used for export ranking;
+  - ranking basis used;
+  - suppressed lower-ranked alternatives considered but not emitted;
   - explicit statement that emission is not acceptance;
 - limit allowed first-family target control classes to bounded repo-native surfaces such
   as:
@@ -770,18 +780,31 @@ Scope:
   - runtime guard;
   - prompt dispatch convention;
   - module-catalog / sequence-contract field;
-- require the first-family export lane to rank hard control classes ahead of prompt-local
-  repair surfaces:
-  validator rule,
-  runtime guard,
-  evidence requirement,
-  and schema field should outrank prompt dispatch convention when multiple repair targets
-  are supported by the same drift finding;
+- freeze a total first-family target-class priority order rather than only a partial
+  hard-vs-prompt distinction:
+  `validator_rule`,
+  `runtime_guard`,
+  `evidence_requirement`,
+  `schema_field`,
+  `lock_text`,
+  `module_catalog_field`,
+  `sequence_contract_field`,
+  `prompt_dispatch_convention`;
+- freeze deterministic tie-break order when multiple candidates compete for emission:
+  target-class priority,
+  bound finding severity,
+  bound finding id lexical order,
+  then candidate id lexical order;
+- freeze minimum friction floors by target class:
+  `validator_rule`, `runtime_guard`, `evidence_requirement`, `schema_field`, and
+  `lock_text` may not fall below `adjudication_required` in the first family;
 - require all emitted candidates to remain advisory:
   existence of a candidate is not policy, not acceptance, and not a repo mutation;
-- require first-family advisory exports to avoid blind copy-paste bypass by default:
-  raw ready-to-apply patch files and raw executable shell blocks should not be the
-  default emitted form when they would let operator fatigue bypass normal adjudication;
+- require canonical first-family advisory artifacts to avoid blind copy-paste bypass
+  entirely:
+  canonical `meta_control_update_candidate@1` and
+  `meta_control_update_manifest@1` should not carry raw ready-to-apply patch payload
+  fields or raw executable shell payload fields in v70;
 - make the family-level capstone explicit:
   recurring critique may now be exported as candidate control input,
   but it crosses the compilation boundary only if a later normal repo process accepts and
@@ -801,11 +824,13 @@ Acceptance:
 
 - canonical `meta_control_update_candidate@1` and `meta_control_update_manifest@1`
   exist;
-- one accepted advisory export lane exists for the bounded reference loop;
+- one accepted advisory export lane exists for the bounded reference loop, with exactly
+  one emitted candidate id in the accepted manifest for the first family;
 - emitted candidates are deterministically bound to accepted diagnostics/conformance and
-  to named target control surfaces;
-- export ranking preserves the hard-control-first target priority order rather than
-  defaulting to prompt-local fixes when harder substrate fixes are available;
+  to canonically typed target control surfaces;
+- export ranking preserves the frozen total target priority order and deterministic
+  tie-breaks rather than defaulting to prompt-local fixes when harder substrate fixes
+  are available;
 - emitted advisory candidates preserve typed friction between recommendation and
   application rather than collapsing into blind copy-paste mutation surfaces;
 - the export lane is sufficient to make recurring high-governance drift legible as a

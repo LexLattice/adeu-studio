@@ -109,36 +109,55 @@ Status: draft lock (not frozen yet, March 18, 2026 UTC).
     `reference_loop_family`, `reference_instance_id`, `intent_packet_id`,
   - the arc must bind exactly back to the released `V37-A`, `V37-B`, `V37-C`, and
     `V37-D` artifacts rather than introducing a new reference terrain,
+  - the first-family accepted manifest must emit exactly one candidate id; v70 is a
+    single-candidate advisory export lane, not an open-cardinality candidate bag,
   - candidates may be derived only from accepted explicit intent, accepted
     module/sequence artifacts, accepted hard checkpoint outputs, accepted drift
     diagnostics, and accepted conformance reports,
+  - only `error` and `warning` findings may emit candidates in the first family;
+    `advisory` findings remain non-exporting in v70,
   - the arc must freeze the minimum candidate structure:
     `candidate_id`, `target_control_class`, `target_surface_ref`,
     `bound_finding_ids`, `supporting_evidence_refs`,
     `expected_drift_reduction_claim`, `risk_notes`, `application_friction_mode`,
     `advisory_only`,
+  - `target_surface_ref` must resolve only through canonical repo-native reference
+    namespaces rather than prose labels:
+    `lock_anchor_ref`, `schema_field_ref`, `validator_rule_ref`,
+    `evidence_requirement_ref`, `runtime_guard_ref`,
+    `prompt_dispatch_ref`, `module_catalog_field_ref`,
+    `sequence_contract_field_ref`,
+  - `expected_drift_reduction_claim` must remain qualitative, evidence-bound, and
+    explicitly non-authoritative; free numeric efficacy claims are forbidden unless a
+    later arc freezes a formal numeric basis,
   - `application_friction_mode` must remain explicit and bounded to a frozen
     first-family enum:
     `review_only`, `adjudication_required`, `blocked_from_direct_application`,
+  - minimum application-friction floors are frozen by target class:
+    `validator_rule`, `runtime_guard`, `evidence_requirement`, `schema_field`, and
+    `lock_text` may not fall below `adjudication_required` in the first family,
   - the arc must freeze the minimum manifest structure:
     shared binding tuple, emitted candidate ids, candidate class counts,
-    derivation refs/hashes, target-class priority order actually used for ranking, and
-    an explicit statement that emission is not acceptance,
+    emitted candidate count, derivation refs/hashes, target-class priority order
+    actually used for ranking, ranking basis used, suppressed lower-ranked alternatives
+    considered but not emitted, and an explicit statement that emission is not
+    acceptance,
   - allowed first-family target control classes are bounded to repo-native surfaces:
     `lock_text`, `schema_field`, `validator_rule`, `evidence_requirement`,
     `runtime_guard`, `prompt_dispatch_convention`, `module_catalog_field`,
     `sequence_contract_field`,
-  - the first-family export lane must rank hard control classes ahead of prompt-local
-    repair surfaces:
-    `validator_rule`, `runtime_guard`, `evidence_requirement`, and `schema_field`
-    must outrank `prompt_dispatch_convention` when multiple repair targets are
-    supported by the same drift finding,
+  - the first-family export lane must use one frozen total target-class priority order:
+    `validator_rule`, `runtime_guard`, `evidence_requirement`, `schema_field`,
+    `lock_text`, `module_catalog_field`, `sequence_contract_field`,
+    `prompt_dispatch_convention`,
+  - deterministic tie-breaks among same-rank candidate alternatives are frozen:
+    bound finding severity, then bound finding id lexical order, then candidate id
+    lexical order,
   - all emitted candidates remain advisory:
     candidate existence is not policy, not acceptance, and not a repo mutation,
-  - the default emitted form must preserve typed friction between recommendation and
-    application:
-    raw ready-to-apply patch files and raw executable shell blocks are not the default
-    output when they would let operator fatigue bypass adjudication,
+  - canonical `meta_control_update_candidate@1` and
+    `meta_control_update_manifest@1` must not carry raw ready-to-apply patch payload
+    fields or raw executable shell payload fields in v70,
   - no generalized self-improvement engine, open-ended patch generator, or blind
     mutation surface is authorized in this arc,
   - no new stop-gate metric keys are authorized in this path unless explicitly released
@@ -158,8 +177,8 @@ Out-of-scope note:
 - any automatic repo mutation, automatic lock update, or automatic policy adoption in
   this arc,
 - any automatic validator rollout or automatic prompt rewrite in this arc,
-- any raw blind-application patch/shell surface as the default emitted form in this
-  arc,
+- any raw ready-to-apply patch payload field or raw executable shell payload field in
+  canonical v70 artifacts,
 - the separate closeout-hardening bundle (`O1`/`O2`/`O3`) in this arc,
 - provider/proposer surface expansion in this arc,
 - solver/runtime semantics changes in this arc,
@@ -245,6 +264,11 @@ Consumption lock:
       "intent_packet_id"
     ],
     "reference_binding_tuple_must_match_v37a_v37b_v37c_v37d": true,
+    "accepted_reference_candidate_cardinality": "exactly_one",
+    "candidate_generation_eligible_severities": [
+      "error",
+      "warning"
+    ],
     "candidate_required_fields": [
       "candidate_id",
       "target_control_class",
@@ -256,20 +280,45 @@ Consumption lock:
       "application_friction_mode",
       "advisory_only"
     ],
+    "target_surface_ref_allowed_namespaces": [
+      "lock_anchor_ref",
+      "schema_field_ref",
+      "validator_rule_ref",
+      "evidence_requirement_ref",
+      "runtime_guard_ref",
+      "prompt_dispatch_ref",
+      "module_catalog_field_ref",
+      "sequence_contract_field_ref"
+    ],
+    "target_surface_ref_must_use_canonical_repo_native_ref_syntax": true,
+    "expected_drift_reduction_claim_must_be_qualitative_evidence_bound_and_non_numeric_without_frozen_basis": true,
     "application_friction_mode_enum": [
       "review_only",
       "adjudication_required",
       "blocked_from_direct_application"
     ],
+    "minimum_application_friction_by_target_control_class": {
+      "validator_rule": "adjudication_required",
+      "runtime_guard": "adjudication_required",
+      "evidence_requirement": "adjudication_required",
+      "schema_field": "adjudication_required",
+      "lock_text": "adjudication_required",
+      "module_catalog_field": "review_only",
+      "sequence_contract_field": "review_only",
+      "prompt_dispatch_convention": "review_only"
+    },
     "manifest_required_fields": [
       "reference_loop_family",
       "reference_instance_id",
       "intent_packet_id",
       "emitted_candidate_ids",
       "candidate_class_counts",
+      "emitted_candidate_count",
       "derivation_refs",
       "derivation_hashes",
       "target_class_priority_order",
+      "ranking_basis_used",
+      "suppressed_lower_ranked_target_classes",
       "emission_is_not_acceptance"
     ],
     "allowed_first_family_target_control_classes": [
@@ -282,11 +331,20 @@ Consumption lock:
       "module_catalog_field",
       "sequence_contract_field"
     ],
-    "hard_control_classes_must_outrank_prompt_dispatch_convention": [
+    "target_control_class_total_priority_order": [
       "validator_rule",
       "runtime_guard",
       "evidence_requirement",
-      "schema_field"
+      "schema_field",
+      "lock_text",
+      "module_catalog_field",
+      "sequence_contract_field",
+      "prompt_dispatch_convention"
+    ],
+    "candidate_selection_tie_break_order": [
+      "bound_finding_severity",
+      "bound_finding_id_lexical",
+      "candidate_id_lexical"
     ],
     "candidate_derivation_sources_must_bind_to_released_substrate": [
       "accepted_intent_packet",
@@ -300,7 +358,8 @@ Consumption lock:
       "accepted_v37d_evidence"
     ],
     "emission_is_advisory_only": true,
-    "raw_ready_to_apply_patch_or_shell_payloads_not_default": true,
+    "suppressed_lower_ranked_alternatives_must_be_recorded": true,
+    "raw_patch_or_shell_payload_fields_forbidden_in_canonical_v37e_artifacts": true,
     "no_automatic_repo_mutation_or_policy_adoption": true,
     "no_generalized_self_improvement_engine": true
   },
@@ -314,15 +373,22 @@ Consumption lock:
     "meta_control_update_manifest_schema_serialization_deterministic",
     "reference_control_update_candidate_serialization_deterministic",
     "reference_control_update_manifest_serialization_deterministic",
+    "accepted_reference_candidate_cardinality_verified",
     "candidate_structure_verified",
     "manifest_structure_verified",
     "advisory_only_status_verified",
+    "candidate_generation_severity_gate_verified",
+    "target_surface_ref_namespace_verified",
+    "expected_drift_reduction_claim_bounded_verified",
     "application_friction_mode_verified",
+    "application_friction_floor_verified",
     "target_control_class_enum_verified",
-    "hard_control_priority_order_verified",
+    "target_control_class_total_priority_order_verified",
+    "candidate_selection_tie_breaks_verified",
     "candidate_derivation_bindings_verified",
+    "suppressed_lower_ranked_alternatives_recorded",
     "candidate_emission_is_not_acceptance_verified",
-    "no_default_raw_patch_or_shell_bypass",
+    "raw_patch_or_shell_payload_fields_absent",
     "v37e_scope_boundary_preserved",
     "metric_key_exact_set_equal_v69"
   ],
@@ -330,12 +396,18 @@ Consumption lock:
     "control_update_candidate_missing_or_invalid",
     "control_update_manifest_missing_or_invalid",
     "reference_tuple_drift_from_v37a_v37b_v37c_or_v37d",
+    "accepted_manifest_emits_not_exactly_one_candidate",
     "candidate_missing_required_fields",
     "manifest_missing_required_fields",
+    "candidate_emitted_from_ineligible_advisory_severity",
+    "target_surface_ref_not_canonical_namespace_bound",
+    "expected_drift_reduction_claim_unbound_or_numeric_without_frozen_basis",
+    "application_friction_mode_below_class_floor",
     "candidate_derived_from_non_canonical_or_unaccepted_inputs",
-    "hard_control_priority_order_not_preserved",
+    "target_control_priority_order_or_tie_break_drift",
+    "suppressed_lower_ranked_alternatives_not_recorded",
     "candidate_emission_collapses_into_acceptance_or_mutation",
-    "default_output_bypasses_adjudication_with_raw_patch_or_shell_payloads",
+    "raw_patch_or_shell_payload_field_present_in_canonical_artifact",
     "out_of_scope_target_control_class_emitted",
     "metric_key_regression_from_v69"
   ],
@@ -353,15 +425,22 @@ Consumption lock:
     "meta_control_update_candidate_reference_hash",
     "meta_control_update_manifest_reference_path",
     "meta_control_update_manifest_reference_hash",
+    "accepted_reference_candidate_cardinality_verified",
     "candidate_structure_verified",
     "manifest_structure_verified",
     "advisory_only_status_verified",
+    "candidate_generation_severity_gate_verified",
+    "target_surface_ref_namespace_verified",
+    "expected_drift_reduction_claim_bounded_verified",
     "application_friction_mode_verified",
+    "application_friction_floor_verified",
     "target_control_class_enum_verified",
-    "hard_control_priority_order_verified",
+    "target_control_class_total_priority_order_verified",
+    "candidate_selection_tie_breaks_verified",
     "candidate_derivation_bindings_verified",
+    "suppressed_lower_ranked_alternatives_recorded",
     "candidate_emission_is_not_acceptance_verified",
-    "no_default_raw_patch_or_shell_bypass",
+    "raw_patch_or_shell_payload_fields_absent",
     "v37e_scope_boundary_preserved",
     "verification_passed"
   ],
@@ -369,11 +448,14 @@ Consumption lock:
     "E1_and_E2_merged_with_green_ci",
     "meta_control_update_candidate_exists_as_canonical_hash_bound_artifact",
     "meta_control_update_manifest_exists_as_canonical_hash_bound_artifact",
+    "accepted_manifest_emits_exactly_one_candidate_for_the_first_family_lane",
     "accepted_candidate_and_manifest_bind_exactly_to_released_v37a_v37b_v37c_v37d_reference_tuple",
-    "advisory_export_ranking_preserves_hard_control_first_priority_order",
+    "advisory_export_ranking_preserves_the_frozen_total_priority_order_and_tie_breaks",
     "export_preserves_typed_friction_between_recommendation_and_application",
+    "candidate_generation_remains_limited_to_error_and_warning_findings",
     "candidate_emission_does_not_equal_acceptance_or_repo_mutation",
     "candidate_derivation_remains_bound_to_accepted_diagnostics_and_conformance",
+    "canonical_v37e_artifacts_do_not_carry_raw_patch_or_shell_payload_fields",
     "stop_gate_schema_family_and_metric_keyset_remain_unchanged",
     "no_broader_autonomy_or_mutation_surface_is_released"
   ]
@@ -387,9 +469,11 @@ Consumption lock:
   `meta_control_update_manifest@1`, then add one accepted advisory candidate and one
   accepted manifest over the already released `v69` diagnostics/conformance lane.
 - `E2` should prove determinism, hash binding, exact cross-artifact binding back to the
-  released `V37-A`, `V37-B`, `V37-C`, and `V37-D` tuple, hard-control-first ranking,
-  application friction, advisory-only posture, and stop-gate continuity while rejecting
-  autonomous mutation or blind patch/shell bypass.
+  released `V37-A`, `V37-B`, `V37-C`, and `V37-D` tuple, exact first-family
+  single-candidate cardinality, total ranking/tie-break law, typed target-surface
+  refs, bounded claim semantics, application-friction floors, advisory-only posture,
+  and stop-gate continuity while rejecting autonomous mutation or raw patch/shell
+  payload surfaces.
 - the first accepted advisory export lane should remain intentionally narrow:
   one bounded `v65`-style closeout reference-loop instance under one explicit intent
   packet, one accepted module/sequence substrate, one accepted executed loop result
@@ -402,8 +486,13 @@ Consumption lock:
   deterministically over the released diagnostics/conformance lane;
 - the accepted candidate and manifest artifacts must remain bound to the same concrete
   existing reference-loop instance rather than to a family abstraction only;
-- export ranking must preserve the frozen hard-control-first priority order rather than
-  defaulting to prompt-local fixes when harder substrate fixes are available;
+- the accepted manifest must emit exactly one candidate id in the first family;
+- export ranking must preserve the frozen total target priority order and deterministic
+  tie-breaks rather than defaulting to prompt-local fixes when harder substrate fixes
+  are available;
+- target surface refs must remain canonically typed repo-native refs rather than prose
+  labels, and drift-reduction claims must remain qualitative and evidence-bound rather
+  than rhetorical or numeric-without-basis;
 - the emitted advisory artifacts must preserve typed friction between recommendation and
   application rather than collapsing into blind copy-paste mutation surfaces;
 - the emitted advisory artifacts must be sufficient to make recurring high-governance
@@ -426,20 +515,31 @@ recurring drift as diagnostics-only output.
   deterministic manifest, bound by the shared
   `reference_loop_family`, `reference_instance_id`, and `intent_packet_id` fields back
   to the released `V37-A`, `V37-B`, `V37-C`, and `V37-D` substrate;
+- freeze the first-family candidate cardinality:
+  exactly one emitted candidate id in the accepted manifest;
+- freeze first-family severity eligibility:
+  only `error` and `warning` findings may emit candidates in v70;
 - freeze equality of the reference binding tuple across the accepted `V37-A`, `V37-B`,
   `V37-C`, and `V37-D` artifacts, the accepted candidate, and the accepted manifest;
 - freeze the minimum candidate structure:
   stable `candidate_id`, bounded `target_control_class`, `target_surface_ref`,
   bound finding ids, supporting evidence refs, expected drift-reduction claim,
   risk notes, explicit `application_friction_mode`, and `advisory_only`;
+- freeze canonical `target_surface_ref` syntax to bounded repo-native namespaces rather
+  than prose labels;
+- freeze `expected_drift_reduction_claim` as qualitative, evidence-bound, and
+  explicitly non-authoritative;
 - freeze the minimum manifest structure:
   shared binding fields, emitted candidate ids, candidate class counts,
-  derivation refs/hashes, target-class priority order, and explicit
+  emitted candidate count, derivation refs/hashes, target-class priority order,
+  ranking basis used, suppressed lower-ranked alternatives, and explicit
   `emission_is_not_acceptance`;
-- freeze the first-family allowed target control classes and hard-control-first
-  ranking order;
-- freeze advisory-only status and typed friction between recommendation and
-  application.
+- freeze the first-family allowed target control classes, exact total ranking order,
+  and deterministic tie-break chain;
+- freeze advisory-only status, target-class friction floors, and typed friction between
+  recommendation and application;
+- forbid raw ready-to-apply patch fields and raw executable shell payload fields from
+  canonical v70 artifacts entirely.
 
 ### Locks
 
@@ -447,14 +547,17 @@ recurring drift as diagnostics-only output.
 - v70 must not redefine the released `V37-A`, `V37-B`, `V37-C`, or `V37-D` artifacts;
 - v70 must not widen into automatic repo mutation, validator rollout, prompt rewrite,
   or generalized self-improvement;
-- emitted artifacts must not mint governance effect or acceptance merely by existing.
+- emitted artifacts must not mint governance effect or acceptance merely by existing;
+- canonical v70 artifacts must not carry raw patch/shell payload fields even as
+  optional extras.
 
 ### Acceptance
 
 - one bounded typed advisory export layer exists on `main` with canonical schemas, one
   coherent accepted advisory candidate artifact, one coherent accepted manifest,
-  frozen target-class set, frozen hard-control-first ranking, explicit friction mode,
-  and deterministic serialization/hashability without authority drift.
+  frozen single-candidate cardinality, frozen target-class set, frozen total ranking
+  and tie-break order, explicit friction mode, and deterministic
+  serialization/hashability without authority drift.
 
 ## E2) Advisory Export Evidence + Determinism / Guard Suite (`V37-E`)
 
@@ -471,12 +574,17 @@ binding it to canonical evidence and fail-closed guard coverage.
 - prove deterministic serialization and hash binding for the canonical artifacts;
 - fail closed on:
   - missing accepted candidate artifact or manifest,
+  - accepted manifest cardinality drift,
   - advisory export binding mismatch against the released substrate,
   - invalid or missing candidate structure,
   - invalid or missing manifest structure,
-  - ranking drift that lets prompt-local fixes outrank harder substrate fixes,
+  - ranking/tie-break drift,
+  - target-surface refs that are not canonically namespace-bound,
+  - drift-reduction claims that are rhetorical or numeric without a frozen basis,
+  - friction modes that fall below the frozen class floors,
+  - candidate emission from ineligible `advisory` severity findings,
   - candidate emission that collapses into acceptance or automatic mutation,
-  - default raw patch/shell payloads that bypass adjudication,
+  - raw patch/shell payload fields present in canonical artifacts,
   - out-of-scope target control classes,
   - stop-gate metric-key continuity drift.
 
@@ -491,11 +599,12 @@ binding it to canonical evidence and fail-closed guard coverage.
 
 - v70 closeout can prove that the `V37-E` advisory export layer is canonical,
   deterministic, fail-closed, and authority-preserving without widening into automatic
-  mutation, generalized autonomy, or blind copy-paste bypass surfaces;
+  mutation, generalized autonomy, or raw patch/shell bypass surfaces;
 - v70 closeout can prove that the accepted candidate/manifest artifacts remain anchored
   to the released accepted `V37-A` / `V37-B` / `V37-C` / `V37-D` substrate, preserve
-  hard-control-first priority order, and keep candidate emission advisory rather than
-  treating it as accepted compilation.
+  single-candidate cardinality, hard-control-first total priority order with frozen
+  tie-breaks, and keep candidate emission advisory rather than treating it as accepted
+  compilation.
 
 ## Implementation Slices
 
@@ -533,15 +642,16 @@ Suggested PR title:
 5. accepted candidate/manifest artifacts serialize deterministically and remain
    coherently bound to the released accepted `V37-A`, `V37-B`, `V37-C`, and `V37-D`
    substrate.
-6. export ranking preserves the frozen hard-control-first target priority order and the
-   bounded first-family target-control-class set.
-7. candidate emission remains advisory-only and preserves explicit friction between
-   recommendation and application.
-8. default emitted form does not bypass adjudication through raw ready-to-apply patch or
-   shell payloads.
-9. no automatic repo mutation, automatic prompt rewrite, or automatic validator rollout
-   is released.
-10. no broader multi-run loop-family widening or other later-family autonomy surface is
+6. the accepted manifest emits exactly one candidate id in the first-family lane.
+7. export ranking preserves the frozen total target priority order, deterministic
+   tie-breaks, and the bounded first-family target-control-class set.
+8. candidate emission remains advisory-only, severity-gated to `error`/`warning`
+   findings, and preserves explicit friction between recommendation and application.
+9. canonical v70 artifacts do not carry raw ready-to-apply patch payload fields or raw
+   executable shell payload fields.
+10. no automatic repo mutation, automatic prompt rewrite, or automatic validator rollout
+    is released.
+11. no broader multi-run loop-family widening or other later-family autonomy surface is
     released.
 
 ## Recommendation

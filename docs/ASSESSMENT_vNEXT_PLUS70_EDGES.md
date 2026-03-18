@@ -56,32 +56,45 @@ Status: pre-lock assessment (March 18, 2026 UTC).
    - `E1` and `E2` must fail closed unless `reference_loop_family`,
      `reference_instance_id`, and `intent_packet_id` remain exactly equal across the
      consumed and emitted artifacts.
-4. Advisory candidates could remain too vague unless minimum per-candidate structure is
+4. Candidate cardinality could remain ambiguous between one-candidate and multi-candidate
+   export semantics.
+   - `E1` and `E2` must freeze v70 as exactly one emitted candidate id in the accepted
+     manifest for the first-family lane.
+5. Advisory candidates could remain too vague unless minimum per-candidate structure is
    frozen.
    - `E1` must freeze stable ids, bounded target control classes, target surface refs,
      bound finding ids, supporting evidence refs, drift-reduction claim, risk notes,
      explicit friction mode, and advisory-only status.
-5. Export ranking could drift toward prompt-local fixes unless hard-control-first
-   priority order is frozen.
-   - `E1` and `E2` must make validator/runtime/evidence/schema fixes outrank
-     prompt-dispatch fixes where the same drift supports multiple candidate targets.
-6. Candidate emission could be mistaken for acceptance or governance authority.
+6. Export ranking could drift unless total class order and deterministic tie-breaks are
+   frozen.
+   - `E1` and `E2` must freeze the full first-family target-class order and same-rank
+     tie-break chain rather than only a partial hard-vs-prompt distinction.
+7. Candidate emission could be mistaken for acceptance or governance authority.
    - `E1` and `E2` must make explicit that candidate emission is advisory only and does
      not by itself become policy, acceptance, or repo mutation.
-7. Default emitted form could bypass adjudication through raw patch or shell payloads.
-   - `E1` and `E2` must preserve typed friction between recommendation and
-     application and reject blind copy-paste bypass by default.
-8. Candidate derivation could drift away from accepted substrate into soft local
-   heuristics.
-   - `E1` and `E2` must bind candidate derivation exactly to accepted intent,
-     accepted loop outputs, accepted diagnostics, accepted conformance, and accepted
-     evidence refs.
-9. No canonical `v37e_control_update_export_evidence@1` exists on `main`.
+8. `target_surface_ref` and `expected_drift_reduction_claim` could remain too loose and
+   rhetorical.
+   - `E1` and `E2` must freeze canonical repo-native surface-ref syntax and keep
+     drift-reduction claims qualitative and evidence-bound rather than numeric or
+     persuasive by default.
+9. Application friction could be softened arbitrarily for high-impact control classes.
+   - `E1` and `E2` must freeze minimum friction floors by target class rather than
+     leaving friction choice entirely to the emitter.
+10. Candidate derivation and eligibility could drift away from accepted substrate into
+    soft local heuristics or low-severity noise.
+    - `E1` and `E2` must bind candidate derivation exactly to accepted intent,
+      accepted loop outputs, accepted diagnostics, accepted conformance, and accepted
+      evidence refs, and must freeze which diagnostic severities may emit v70
+      candidates.
+11. Canonical advisory artifacts could still leave a raw patch/shell side door.
+    - `E1` and `E2` must forbid raw ready-to-apply patch and raw executable shell
+      payload fields entirely in canonical v70 artifacts.
+12. No canonical `v37e_control_update_export_evidence@1` exists on `main`.
    - `E2` must materialize the closeout evidence lane for deterministic advisory export,
      advisory-only posture, ranking preservation, and stop-gate continuity.
-10. Stop-gate continuity risk remains open at arc start.
+13. Stop-gate continuity risk remains open at arc start.
     - v70 must preserve `stop_gate_metrics@1` and exact metric-key equality with v69.
-11. Thin-slice boundary drift remains open.
+14. Thin-slice boundary drift remains open.
     - v70 must not quietly ship broader multi-run widening or any automatic mutation
       surface under an advisory control-update label.
 

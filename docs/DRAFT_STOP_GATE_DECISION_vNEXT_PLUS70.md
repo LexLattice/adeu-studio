@@ -55,11 +55,12 @@ Status: draft decision note (pre-start scaffold, March 18, 2026 UTC).
 | Stop-gate schema-family continuity retained | required | `pending` | closeout artifacts not generated |
 | Stop-gate metric-key continuity retained | required | `pending` | closeout artifacts not generated |
 | Canonical `meta_control_update_candidate@1`, canonical `meta_control_update_manifest@1`, and canonical `v37e_control_update_export_evidence@1` emitted and hash-bound | required | `pending` | implementation not started |
+| Accepted manifest emits exactly one candidate id for the first-family lane | required | `pending` | implementation not started |
 | Accepted candidate and manifest artifacts bind exactly to the released `V37-A`, `V37-B`, `V37-C`, and `V37-D` reference tuple | required | `pending` | implementation not started |
-| Advisory export ranking preserves the frozen hard-control-first target priority order | required | `pending` | implementation not started |
-| Emitted candidates remain advisory-only and preserve explicit application friction | required | `pending` | implementation not started |
+| Advisory export ranking preserves the frozen total target priority order and deterministic tie-breaks | required | `pending` | implementation not started |
+| Emitted candidates remain advisory-only, severity-gated, and preserve explicit application friction | required | `pending` | implementation not started |
 | Candidate emission does not equal acceptance, policy adoption, or repo mutation | required | `pending` | implementation not started |
-| Default emitted form does not bypass adjudication through raw ready-to-apply patch or shell payloads | required | `pending` | implementation not started |
+| Canonical v70 artifacts do not carry raw ready-to-apply patch or shell payload fields | required | `pending` | implementation not started |
 | No broader autonomy or multi-run widening surface is released | required | `pending` | implementation not started |
 | Runtime observability comparison captured | required | `pending` | closeout artifacts not generated |
 
