@@ -1,0 +1,573 @@
+{
+  "$defs": {
+    "BrokeredExecutionLayer": {
+      "additionalProperties": false,
+      "properties": {
+        "input_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Input Refs",
+          "type": "array"
+        },
+        "layer_id": {
+          "maxLength": 16,
+          "minLength": 16,
+          "title": "Layer Id",
+          "type": "string"
+        },
+        "output_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Output Refs",
+          "type": "array"
+        },
+        "owner_role": {
+          "enum": [
+            "orchestrator",
+            "explorer",
+            "adversarial_reviewer",
+            "implementer",
+            "code_reviewer",
+            "gatekeeper"
+          ],
+          "title": "Owner Role",
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "intent_normalization",
+            "route_selection",
+            "delegation_scaffolding",
+            "adversarial_review",
+            "implementation",
+            "code_review",
+            "gate_verification",
+            "recursive_honesty_audit"
+          ],
+          "title": "Stage",
+          "type": "string"
+        },
+        "success_condition": {
+          "minLength": 1,
+          "title": "Success Condition",
+          "type": "string"
+        }
+      },
+      "required": [
+        "layer_id",
+        "stage",
+        "owner_role",
+        "input_refs",
+        "output_refs",
+        "success_condition"
+      ],
+      "title": "BrokeredExecutionLayer",
+      "type": "object"
+    },
+    "BrokeredExecutionSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "counts_by_role": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Role",
+          "type": "object"
+        },
+        "counts_by_stage": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Counts By Stage",
+          "type": "object"
+        },
+        "total_layers": {
+          "minimum": 0,
+          "title": "Total Layers",
+          "type": "integer"
+        },
+        "total_sessions": {
+          "minimum": 0,
+          "title": "Total Sessions",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total_layers",
+        "total_sessions",
+        "counts_by_role",
+        "counts_by_stage"
+      ],
+      "title": "BrokeredExecutionSummary",
+      "type": "object"
+    },
+    "BrokeredPromptPacket": {
+      "additionalProperties": false,
+      "properties": {
+        "constraints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Constraints",
+          "type": "array"
+        },
+        "objective": {
+          "minLength": 1,
+          "title": "Objective",
+          "type": "string"
+        },
+        "prompt_id": {
+          "maxLength": 16,
+          "minLength": 16,
+          "title": "Prompt Id",
+          "type": "string"
+        },
+        "reasoning_effort": {
+          "const": "xhigh",
+          "default": "xhigh",
+          "title": "Reasoning Effort",
+          "type": "string"
+        },
+        "recommended_agent_model": {
+          "enum": [
+            "gpt-5.4",
+            "gpt-5.3-codex",
+            "gpt-5.4-mini"
+          ],
+          "title": "Recommended Agent Model",
+          "type": "string"
+        },
+        "reply_contract": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reply Contract",
+          "type": "array"
+        },
+        "role": {
+          "enum": [
+            "orchestrator",
+            "explorer",
+            "adversarial_reviewer",
+            "implementer",
+            "code_reviewer",
+            "gatekeeper"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "prompt_id",
+        "role",
+        "recommended_agent_model",
+        "objective",
+        "constraints",
+        "reply_contract"
+      ],
+      "title": "BrokeredPromptPacket",
+      "type": "object"
+    },
+    "BrokeredRecursiveHonestyProtocol": {
+      "additionalProperties": false,
+      "properties": {
+        "audit_stage": {
+          "default": "recursive_honesty_audit",
+          "enum": [
+            "intent_normalization",
+            "route_selection",
+            "delegation_scaffolding",
+            "adversarial_review",
+            "implementation",
+            "code_review",
+            "gate_verification",
+            "recursive_honesty_audit"
+          ],
+          "title": "Audit Stage",
+          "type": "string"
+        },
+        "fail_closed_refusal_reasons": {
+          "items": {
+            "enum": [
+              "contradictory_intervention_depth",
+              "missing_authority_boundary",
+              "missing_domain_class",
+              "missing_task_truth_condition",
+              "non_advisory_action_request",
+              "unsupported_delegation_role"
+            ],
+            "type": "string"
+          },
+          "title": "Fail Closed Refusal Reasons",
+          "type": "array"
+        },
+        "required_checks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Checks",
+          "type": "array"
+        },
+        "self_audit_required": {
+          "default": true,
+          "title": "Self Audit Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "required_checks",
+        "fail_closed_refusal_reasons"
+      ],
+      "title": "BrokeredRecursiveHonestyProtocol",
+      "type": "object"
+    },
+    "BrokeredSentinelProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "forbidden_pressure_classes": {
+          "items": {
+            "enum": [
+              "coercive_reprioritization",
+              "epistemic_suppression",
+              "utility_capture",
+              "utility_deformation"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden Pressure Classes",
+          "type": "array"
+        },
+        "permitted_intervention_depth": {
+          "enum": [
+            "observation_only",
+            "advisory_reframing",
+            "constraint_suggestion"
+          ],
+          "title": "Permitted Intervention Depth",
+          "type": "string"
+        },
+        "protected_aims": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Protected Aims",
+          "type": "array"
+        },
+        "utility_capture_risk_rules": {
+          "items": {
+            "$ref": "#/$defs/UtilityCaptureRiskRule"
+          },
+          "title": "Utility Capture Risk Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "protected_aims",
+        "forbidden_pressure_classes",
+        "permitted_intervention_depth",
+        "utility_capture_risk_rules"
+      ],
+      "title": "BrokeredSentinelProfile",
+      "type": "object"
+    },
+    "BrokeredSessionPacket": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_evidence_scope": {
+          "items": {
+            "enum": [
+              "compiled_plan",
+              "repo_codebase",
+              "repo_control_plane",
+              "source_payload",
+              "subagent_findings_non_authoritative",
+              "test_and_gate_outputs"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Evidence Scope",
+          "type": "array"
+        },
+        "budget_posture": {
+          "enum": [
+            "tight",
+            "medium",
+            "broad"
+          ],
+          "title": "Budget Posture",
+          "type": "string"
+        },
+        "delegation_depth_limit": {
+          "maximum": 4,
+          "minimum": 0,
+          "title": "Delegation Depth Limit",
+          "type": "integer"
+        },
+        "deontic_guardrails": {
+          "items": {
+            "enum": [
+              "bind_claims_to_repo_evidence",
+              "fail_closed_on_missing_truth_condition",
+              "no_authority_substitution",
+              "no_scope_widening",
+              "no_unlicensed_utility_rewrite"
+            ],
+            "type": "string"
+          },
+          "title": "Deontic Guardrails",
+          "type": "array"
+        },
+        "local_objective": {
+          "minLength": 1,
+          "title": "Local Objective",
+          "type": "string"
+        },
+        "non_authority_statement": {
+          "minLength": 1,
+          "title": "Non Authority Statement",
+          "type": "string"
+        },
+        "prompt_packet": {
+          "$ref": "#/$defs/BrokeredPromptPacket"
+        },
+        "role": {
+          "enum": [
+            "orchestrator",
+            "explorer",
+            "adversarial_reviewer",
+            "implementer",
+            "code_reviewer",
+            "gatekeeper"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "session_id": {
+          "maxLength": 16,
+          "minLength": 16,
+          "title": "Session Id",
+          "type": "string"
+        },
+        "task_truth_condition": {
+          "$ref": "#/$defs/BrokeredTaskTruthCondition"
+        }
+      },
+      "required": [
+        "session_id",
+        "role",
+        "local_objective",
+        "delegation_depth_limit",
+        "budget_posture",
+        "task_truth_condition",
+        "allowed_evidence_scope",
+        "deontic_guardrails",
+        "non_authority_statement",
+        "prompt_packet"
+      ],
+      "title": "BrokeredSessionPacket",
+      "type": "object"
+    },
+    "BrokeredTaskTruthCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Authority Refs",
+          "type": "array"
+        },
+        "local_only": {
+          "default": true,
+          "title": "Local Only",
+          "type": "boolean"
+        },
+        "refuse_on_missing_authority": {
+          "default": true,
+          "title": "Refuse On Missing Authority",
+          "type": "boolean"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "statement",
+        "authority_refs"
+      ],
+      "title": "BrokeredTaskTruthCondition",
+      "type": "object"
+    },
+    "UtilityCaptureRiskRule": {
+      "additionalProperties": false,
+      "properties": {
+        "detection_signal": {
+          "minLength": 1,
+          "title": "Detection Signal",
+          "type": "string"
+        },
+        "pressure_class": {
+          "enum": [
+            "coercive_reprioritization",
+            "epistemic_suppression",
+            "utility_capture",
+            "utility_deformation"
+          ],
+          "title": "Pressure Class",
+          "type": "string"
+        },
+        "response_posture": {
+          "minLength": 1,
+          "title": "Response Posture",
+          "type": "string"
+        },
+        "risk_id": {
+          "maxLength": 16,
+          "minLength": 16,
+          "title": "Risk Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "risk_id",
+        "pressure_class",
+        "detection_signal",
+        "response_posture"
+      ],
+      "title": "UtilityCaptureRiskRule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_compilation_boundary_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Accepted Compilation Boundary Refs",
+      "type": "array"
+    },
+    "advisory_only": {
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "domain_class": {
+      "enum": [
+        "hard_physical",
+        "soft_reflexive",
+        "rule_based"
+      ],
+      "title": "Domain Class",
+      "type": "string"
+    },
+    "execution_ladder": {
+      "items": {
+        "$ref": "#/$defs/BrokeredExecutionLayer"
+      },
+      "title": "Execution Ladder",
+      "type": "array"
+    },
+    "inspection_order": {
+      "items": {
+        "enum": [
+          "ontology",
+          "epistemics",
+          "deontics",
+          "utility"
+        ],
+        "type": "string"
+      },
+      "title": "Inspection Order",
+      "type": "array"
+    },
+    "max_delegation_depth": {
+      "maximum": 4,
+      "minimum": 1,
+      "title": "Max Delegation Depth",
+      "type": "integer"
+    },
+    "payload_id": {
+      "minLength": 1,
+      "title": "Payload Id",
+      "type": "string"
+    },
+    "plan_id": {
+      "maxLength": 16,
+      "minLength": 16,
+      "title": "Plan Id",
+      "type": "string"
+    },
+    "primary_execution_surface": {
+      "default": "adeu.compile_brokered_reflexive_execution",
+      "title": "Primary Execution Surface",
+      "type": "string"
+    },
+    "recursive_honesty_protocol": {
+      "$ref": "#/$defs/BrokeredRecursiveHonestyProtocol"
+    },
+    "schema": {
+      "const": "adeu_brokered_reflexive_execution_plan@1",
+      "default": "adeu_brokered_reflexive_execution_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sentinel_profile": {
+      "$ref": "#/$defs/BrokeredSentinelProfile"
+    },
+    "sessions": {
+      "items": {
+        "$ref": "#/$defs/BrokeredSessionPacket"
+      },
+      "title": "Sessions",
+      "type": "array"
+    },
+    "source_doc_ref": {
+      "minLength": 1,
+      "title": "Source Doc Ref",
+      "type": "string"
+    },
+    "source_doc_sha256": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Source Doc Sha256",
+      "type": "string"
+    },
+    "source_payload_hash": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Source Payload Hash",
+      "type": "string"
+    },
+    "summary": {
+      "$ref": "#/$defs/BrokeredExecutionSummary"
+    },
+    "supporting_api_route": {
+      "default": "/urm/reflex/compile",
+      "title": "Supporting Api Route",
+      "type": "string"
+    }
+  },
+  "required": [
+    "payload_id",
+    "plan_id",
+    "source_doc_ref",
+    "source_doc_sha256",
+    "source_payload_hash",
+    "domain_class",
+    "inspection_order",
+    "max_delegation_depth",
+    "accepted_compilation_boundary_refs",
+    "sessions",
+    "execution_ladder",
+    "sentinel_profile",
+    "recursive_honesty_protocol",
+    "summary"
+  ],
+  "title": "AdeuBrokeredReflexiveExecutionPlan",
+  "type": "object"
+}

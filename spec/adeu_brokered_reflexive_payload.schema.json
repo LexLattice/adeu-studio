@@ -1,0 +1,338 @@
+{
+  "$defs": {
+    "BrokeredAdaptiveDomainRouting": {
+      "additionalProperties": false,
+      "properties": {
+        "hard_physical_order": {
+          "items": {
+            "enum": [
+              "ontology",
+              "epistemics",
+              "deontics",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "title": "Hard Physical Order",
+          "type": "array"
+        },
+        "rule_based_order": {
+          "items": {
+            "enum": [
+              "ontology",
+              "epistemics",
+              "deontics",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "title": "Rule Based Order",
+          "type": "array"
+        },
+        "soft_reflexive_order": {
+          "items": {
+            "enum": [
+              "ontology",
+              "epistemics",
+              "deontics",
+              "utility"
+            ],
+            "type": "string"
+          },
+          "title": "Soft Reflexive Order",
+          "type": "array"
+        }
+      },
+      "required": [
+        "hard_physical_order",
+        "soft_reflexive_order",
+        "rule_based_order"
+      ],
+      "title": "BrokeredAdaptiveDomainRouting",
+      "type": "object"
+    },
+    "BrokeredCompilerPipeline": {
+      "additionalProperties": false,
+      "properties": {
+        "deontics_question": {
+          "minLength": 1,
+          "title": "Deontics Question",
+          "type": "string"
+        },
+        "epistemics_question": {
+          "minLength": 1,
+          "title": "Epistemics Question",
+          "type": "string"
+        },
+        "ontology_question": {
+          "minLength": 1,
+          "title": "Ontology Question",
+          "type": "string"
+        },
+        "utility_question": {
+          "minLength": 1,
+          "title": "Utility Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ontology_question",
+        "epistemics_question",
+        "deontics_question",
+        "utility_question"
+      ],
+      "title": "BrokeredCompilerPipeline",
+      "type": "object"
+    },
+    "BrokeredDelegationDoctrine": {
+      "additionalProperties": false,
+      "properties": {
+        "delegation_axiom": {
+          "minLength": 1,
+          "title": "Delegation Axiom",
+          "type": "string"
+        },
+        "epistemic_abuse_clause": {
+          "minLength": 1,
+          "title": "Epistemic Abuse Clause",
+          "type": "string"
+        },
+        "epistemic_severance_clause": {
+          "minLength": 1,
+          "title": "Epistemic Severance Clause",
+          "type": "string"
+        },
+        "task_truth_condition_clause": {
+          "minLength": 1,
+          "title": "Task Truth Condition Clause",
+          "type": "string"
+        }
+      },
+      "required": [
+        "delegation_axiom",
+        "task_truth_condition_clause",
+        "epistemic_severance_clause",
+        "epistemic_abuse_clause"
+      ],
+      "title": "BrokeredDelegationDoctrine",
+      "type": "object"
+    },
+    "BrokeredMetaOntology": {
+      "additionalProperties": false,
+      "properties": {
+        "mediated_ontology_clause": {
+          "minLength": 1,
+          "title": "Mediated Ontology Clause",
+          "type": "string"
+        },
+        "realist_thesis": {
+          "minLength": 1,
+          "title": "Realist Thesis",
+          "type": "string"
+        },
+        "teleological_vector": {
+          "minLength": 1,
+          "title": "Teleological Vector",
+          "type": "string"
+        }
+      },
+      "required": [
+        "realist_thesis",
+        "mediated_ontology_clause",
+        "teleological_vector"
+      ],
+      "title": "BrokeredMetaOntology",
+      "type": "object"
+    },
+    "BrokeredRecursiveHonestyDoctrine": {
+      "additionalProperties": false,
+      "properties": {
+        "fail_closed_refusal_reasons": {
+          "items": {
+            "enum": [
+              "contradictory_intervention_depth",
+              "missing_authority_boundary",
+              "missing_domain_class",
+              "missing_task_truth_condition",
+              "non_advisory_action_request",
+              "unsupported_delegation_role"
+            ],
+            "type": "string"
+          },
+          "title": "Fail Closed Refusal Reasons",
+          "type": "array"
+        },
+        "recursive_honesty_axiom": {
+          "minLength": 1,
+          "title": "Recursive Honesty Axiom",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recursive_honesty_axiom",
+        "fail_closed_refusal_reasons"
+      ],
+      "title": "BrokeredRecursiveHonestyDoctrine",
+      "type": "object"
+    },
+    "BrokeredSentinelDoctrine": {
+      "additionalProperties": false,
+      "properties": {
+        "forbidden_pressure_classes": {
+          "items": {
+            "enum": [
+              "coercive_reprioritization",
+              "epistemic_suppression",
+              "utility_capture",
+              "utility_deformation"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden Pressure Classes",
+          "type": "array"
+        },
+        "permitted_intervention_depth": {
+          "enum": [
+            "observation_only",
+            "advisory_reframing",
+            "constraint_suggestion"
+          ],
+          "title": "Permitted Intervention Depth",
+          "type": "string"
+        },
+        "protected_aims": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Protected Aims",
+          "type": "array"
+        },
+        "sentinel_axiom": {
+          "minLength": 1,
+          "title": "Sentinel Axiom",
+          "type": "string"
+        },
+        "socratic_limit": {
+          "minLength": 1,
+          "title": "Socratic Limit",
+          "type": "string"
+        },
+        "udeo_inversion": {
+          "minLength": 1,
+          "title": "Udeo Inversion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "udeo_inversion",
+        "sentinel_axiom",
+        "socratic_limit",
+        "protected_aims",
+        "forbidden_pressure_classes",
+        "permitted_intervention_depth"
+      ],
+      "title": "BrokeredSentinelDoctrine",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adaptive_domain_routing": {
+      "$ref": "#/$defs/BrokeredAdaptiveDomainRouting"
+    },
+    "advisory_only": {
+      "default": true,
+      "title": "Advisory Only",
+      "type": "boolean"
+    },
+    "compiler_pipeline": {
+      "$ref": "#/$defs/BrokeredCompilerPipeline"
+    },
+    "delegation_doctrine": {
+      "$ref": "#/$defs/BrokeredDelegationDoctrine"
+    },
+    "domain_class": {
+      "enum": [
+        "hard_physical",
+        "soft_reflexive",
+        "rule_based"
+      ],
+      "title": "Domain Class",
+      "type": "string"
+    },
+    "max_delegation_depth": {
+      "maximum": 4,
+      "minimum": 1,
+      "title": "Max Delegation Depth",
+      "type": "integer"
+    },
+    "meta_ontology": {
+      "$ref": "#/$defs/BrokeredMetaOntology"
+    },
+    "payload_id": {
+      "minLength": 1,
+      "title": "Payload Id",
+      "type": "string"
+    },
+    "recursive_honesty_doctrine": {
+      "$ref": "#/$defs/BrokeredRecursiveHonestyDoctrine"
+    },
+    "requested_roles": {
+      "items": {
+        "enum": [
+          "orchestrator",
+          "explorer",
+          "adversarial_reviewer",
+          "implementer",
+          "code_reviewer",
+          "gatekeeper"
+        ],
+        "type": "string"
+      },
+      "title": "Requested Roles",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_brokered_reflexive_payload@1",
+      "default": "adeu_brokered_reflexive_payload@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sentinel_doctrine": {
+      "$ref": "#/$defs/BrokeredSentinelDoctrine"
+    },
+    "source_doc_ref": {
+      "minLength": 1,
+      "title": "Source Doc Ref",
+      "type": "string"
+    },
+    "source_doc_sha256": {
+      "maxLength": 64,
+      "minLength": 64,
+      "title": "Source Doc Sha256",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "payload_id",
+    "title",
+    "source_doc_ref",
+    "source_doc_sha256",
+    "domain_class",
+    "requested_roles",
+    "max_delegation_depth",
+    "meta_ontology",
+    "compiler_pipeline",
+    "adaptive_domain_routing",
+    "delegation_doctrine",
+    "sentinel_doctrine",
+    "recursive_honesty_doctrine"
+  ],
+  "title": "AdeuBrokeredReflexivePayload",
+  "type": "object"
+}

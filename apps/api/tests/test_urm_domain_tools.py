@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import shutil
 from pathlib import Path
 
@@ -33,6 +34,23 @@ def _configure_exec_fixture(
     monkeypatch.setenv("FAKE_CODEX_JSONL_PATH", str(fixture_path))
     monkeypatch.setenv("FAKE_CODEX_EXIT_CODE", "0")
     monkeypatch.setenv("ADEU_API_DB_PATH", str(tmp_path / "adeu.sqlite3"))
+
+
+def _brokered_reflexive_fixtures_root() -> Path:
+    return (
+        Path(__file__).resolve().parents[1]
+        / "fixtures"
+        / "brokered_reflexive_execution"
+        / "vnext_plus71"
+    )
+
+
+def _load_json(path: Path) -> dict[str, object]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _brokered_reflexive_payload() -> dict[str, object]:
+    return _load_json(_brokered_reflexive_fixtures_root() / "adeu_brokered_reflexive_payload.json")
 
 
 def test_urm_worker_run_endpoint_idempotent_replay(
@@ -190,6 +208,38 @@ def test_urm_tool_call_list_templates_and_app_state(
     assert state_response.warrant == "observed"
     assert "counts" in state_response.result
     assert "urm_evidence_record" in state_response.result["counts"]
+    _reset_manager_for_tests()
+
+
+def test_urm_tool_call_compile_brokered_reflexive_execution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    codex_bin = _prepare_fake_codex_exec(tmp_path=tmp_path)
+    _configure_exec_fixture(monkeypatch=monkeypatch, tmp_path=tmp_path)
+    monkeypatch.setenv("ADEU_CODEX_BIN", str(codex_bin))
+    _reset_manager_for_tests()
+
+    response = urm_tool_call_endpoint(
+        ToolCallRequest(
+            provider="codex",
+            role="copilot",
+            tool_name="adeu.compile_brokered_reflexive_execution",
+            arguments=_brokered_reflexive_payload(),
+        )
+    )
+
+    assert response.warrant == "checked"
+    assert response.result["schema"] == "adeu_brokered_reflexive_execution_plan@1"
+    assert response.result["inspection_order"] == [
+        "utility",
+        "deontics",
+        "ontology",
+        "epistemics",
+    ]
+    assert response.result["primary_execution_surface"] == (
+        "adeu.compile_brokered_reflexive_execution"
+    )
     _reset_manager_for_tests()
 
 

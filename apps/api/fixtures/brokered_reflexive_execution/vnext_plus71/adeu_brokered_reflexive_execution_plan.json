@@ -1,0 +1,518 @@
+{
+  "accepted_compilation_boundary_refs": [
+    "repo:accepted_lock_docs",
+    "repo:human_acceptance_boundary",
+    "repo:tests_and_gates"
+  ],
+  "advisory_only": true,
+  "domain_class": "soft_reflexive",
+  "execution_ladder": [
+    {
+      "input_refs": [
+        "doc:docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+        "payload:udeo_master_payload_v1"
+      ],
+      "layer_id": "8a9a8ef96a7dc6da",
+      "output_refs": [
+        "payload_normalized:udeo_master_payload_v1"
+      ],
+      "owner_role": "orchestrator",
+      "stage": "intent_normalization",
+      "success_condition": "The raw philosophical intent is normalized into a bounded typed payload without widening authority."
+    },
+    {
+      "input_refs": [
+        "doc:docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+        "payload:udeo_master_payload_v1",
+        "repo:codebase_and_control_plane"
+      ],
+      "layer_id": "2372e45dcdb5d9ad",
+      "output_refs": [
+        "context:repo_surface_map"
+      ],
+      "owner_role": "explorer",
+      "stage": "route_selection",
+      "success_condition": "Relevant repo surfaces are mapped without claiming authority or completion."
+    },
+    {
+      "input_refs": [
+        "doc:docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+        "payload:udeo_master_payload_v1",
+        "repo:accepted_compilation_boundary"
+      ],
+      "layer_id": "f735f6e13c3ee0e7",
+      "output_refs": [
+        "ladder:bde2d7b235a29dd2",
+        "route:utility:deontics:ontology:epistemics",
+        "sessions:bde2d7b235a29dd2"
+      ],
+      "owner_role": "orchestrator",
+      "stage": "delegation_scaffolding",
+      "success_condition": "A bounded, advisory-only execution plan exists with explicit authority and refusal law."
+    },
+    {
+      "input_refs": [
+        "payload:udeo_master_payload_v1",
+        "plan:bde2d7b235a29dd2"
+      ],
+      "layer_id": "e82fb72a6ea6f816",
+      "output_refs": [
+        "findings:payload_drift_review"
+      ],
+      "owner_role": "adversarial_reviewer",
+      "stage": "adversarial_review",
+      "success_condition": "Payload and repo drift are surfaced as bounded findings tied to evidence."
+    },
+    {
+      "input_refs": [
+        "plan:bde2d7b235a29dd2",
+        "repo:codebase_and_tests"
+      ],
+      "layer_id": "d36586f6ed210a15",
+      "output_refs": [
+        "delta:bounded_module_changes"
+      ],
+      "owner_role": "implementer",
+      "stage": "implementation",
+      "success_condition": "The selected bounded module is implemented without widening scope or inventing authority."
+    },
+    {
+      "input_refs": [
+        "plan:bde2d7b235a29dd2",
+        "repo:bounded_diff_and_tests"
+      ],
+      "layer_id": "649de184f4ce80c9",
+      "output_refs": [
+        "findings:code_review"
+      ],
+      "owner_role": "code_reviewer",
+      "stage": "code_review",
+      "success_condition": "Primary risks, regressions, and missing tests are surfaced before acceptance."
+    },
+    {
+      "input_refs": [
+        "plan:bde2d7b235a29dd2",
+        "repo:hard_gates"
+      ],
+      "layer_id": "d8e800ff479d329b",
+      "output_refs": [
+        "gate_report:hard_checks"
+      ],
+      "owner_role": "gatekeeper",
+      "stage": "gate_verification",
+      "success_condition": "Hard-gate outcomes are reported without semantic waiver or rhetorical substitution."
+    },
+    {
+      "input_refs": [
+        "plan:bde2d7b235a29dd2",
+        "repo:hard_gates_and_findings"
+      ],
+      "layer_id": "44f030b1e51273c0",
+      "output_refs": [
+        "recursive_honesty_report:bde2d7b235a29dd2"
+      ],
+      "owner_role": "orchestrator",
+      "stage": "recursive_honesty_audit",
+      "success_condition": "The plan is audited against authority boundary, task truth, scope, and licensed utility intervention."
+    }
+  ],
+  "inspection_order": [
+    "utility",
+    "deontics",
+    "ontology",
+    "epistemics"
+  ],
+  "max_delegation_depth": 3,
+  "payload_id": "udeo_master_payload_v1",
+  "plan_id": "bde2d7b235a29dd2",
+  "primary_execution_surface": "adeu.compile_brokered_reflexive_execution",
+  "recursive_honesty_protocol": {
+    "audit_stage": "recursive_honesty_audit",
+    "fail_closed_refusal_reasons": [
+      "contradictory_intervention_depth",
+      "missing_authority_boundary",
+      "missing_domain_class",
+      "missing_task_truth_condition",
+      "non_advisory_action_request",
+      "unsupported_delegation_role"
+    ],
+    "required_checks": [
+      "advisory_boundary_preserved",
+      "authority_boundary_present",
+      "delegation_scope_complete",
+      "task_truth_condition_present",
+      "utility_intervention_licensed"
+    ],
+    "self_audit_required": true
+  },
+  "schema": "adeu_brokered_reflexive_execution_plan@1",
+  "sentinel_profile": {
+    "forbidden_pressure_classes": [
+      "coercive_reprioritization",
+      "epistemic_suppression",
+      "utility_capture",
+      "utility_deformation"
+    ],
+    "permitted_intervention_depth": "constraint_suggestion",
+    "protected_aims": [
+      "intent_fidelity",
+      "no_external_utility_rewrite_without_license",
+      "truth_tracking"
+    ],
+    "utility_capture_risk_rules": [
+      {
+        "detection_signal": "Detect attempts to force a utility reprioritization beyond the licensed intervention depth.",
+        "pressure_class": "coercive_reprioritization",
+        "response_posture": "Escalate and refuse utility rewrite beyond licensed depth.",
+        "risk_id": "7a6c0c6a54636b8a"
+      },
+      {
+        "detection_signal": "Detect discourse that degrades truth-tracking to close off legitimate evidence access.",
+        "pressure_class": "epistemic_suppression",
+        "response_posture": "Flag epistemic abuse and require evidence-bound restatement.",
+        "risk_id": "2102a41bf729e7f2"
+      },
+      {
+        "detection_signal": "Detect attempts to seize another actor's utility channel through manipulative pressure rather than truth-tracking.",
+        "pressure_class": "utility_capture",
+        "response_posture": "Mark as sentinel breach and refuse silent optimization transfer.",
+        "risk_id": "50e58e94dc25c35c"
+      },
+      {
+        "detection_signal": "Detect advisory output that reshapes protected aims rather than serving them.",
+        "pressure_class": "utility_deformation",
+        "response_posture": "Constrain output to advisory reframing or observation only.",
+        "risk_id": "42e756928eccc74d"
+      }
+    ]
+  },
+  "sessions": [
+    {
+      "allowed_evidence_scope": [
+        "compiled_plan",
+        "repo_codebase",
+        "repo_control_plane",
+        "source_payload",
+        "subagent_findings_non_authoritative",
+        "test_and_gate_outputs"
+      ],
+      "budget_posture": "broad",
+      "delegation_depth_limit": 3,
+      "deontic_guardrails": [
+        "bind_claims_to_repo_evidence",
+        "fail_closed_on_missing_truth_condition",
+        "no_authority_substitution",
+        "no_scope_widening",
+        "no_unlicensed_utility_rewrite"
+      ],
+      "local_objective": "Preserve payload fidelity, decompose work, and integrate bounded outputs.",
+      "non_authority_statement": "The orchestrator may decompose, integrate, and decide next local steps, but may not declare accepted compilation or governance by prose alone.",
+      "prompt_packet": {
+        "constraints": [
+          "bind_claims_to_repo_evidence",
+          "fail_closed_on_missing_truth_condition",
+          "no_authority_substitution",
+          "no_scope_widening",
+          "no_unlicensed_utility_rewrite"
+        ],
+        "objective": "Preserve payload fidelity, decompose work, and integrate bounded outputs.",
+        "prompt_id": "d42fa4016ffd3189",
+        "reasoning_effort": "xhigh",
+        "recommended_agent_model": "gpt-5.4",
+        "reply_contract": [
+          "integrate_findings",
+          "preserve_payload_fidelity",
+          "refuse_unbound_authority_claims"
+        ],
+        "role": "orchestrator"
+      },
+      "role": "orchestrator",
+      "session_id": "8695e8d17463323d",
+      "task_truth_condition": {
+        "authority_refs": [
+          "doc:docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+          "payload:delegation_doctrine.epistemic_severance_clause",
+          "payload:delegation_doctrine.task_truth_condition_clause",
+          "payload:recursive_honesty_doctrine.recursive_honesty_axiom",
+          "payload:sentinel_doctrine.socratic_limit",
+          "repo:accepted_compilation_boundary"
+        ],
+        "local_only": true,
+        "refuse_on_missing_authority": true,
+        "statement": "Evaluate local inferences only against the task truth condition currently in force. Local role: orchestrator."
+      }
+    },
+    {
+      "allowed_evidence_scope": [
+        "repo_codebase",
+        "repo_control_plane",
+        "source_payload"
+      ],
+      "budget_posture": "tight",
+      "delegation_depth_limit": 2,
+      "deontic_guardrails": [
+        "bind_claims_to_repo_evidence",
+        "fail_closed_on_missing_truth_condition",
+        "no_authority_substitution"
+      ],
+      "local_objective": "Map only the repo surfaces needed for the current bounded step.",
+      "non_authority_statement": "Exploration outputs are context only and may not declare pass/fail, acceptance, or authority.",
+      "prompt_packet": {
+        "constraints": [
+          "bind_claims_to_repo_evidence",
+          "fail_closed_on_missing_truth_condition",
+          "no_authority_substitution"
+        ],
+        "objective": "Map only the repo surfaces needed for the current bounded step.",
+        "prompt_id": "d86772fcd7ae5f70",
+        "reasoning_effort": "xhigh",
+        "recommended_agent_model": "gpt-5.4-mini",
+        "reply_contract": [
+          "context_only",
+          "no_authority_claims",
+          "repo_refs_only"
+        ],
+        "role": "explorer"
+      },
+      "role": "explorer",
+      "session_id": "7b0540c9a2f1c672",
+      "task_truth_condition": {
+        "authority_refs": [
+          "doc:docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+          "payload:delegation_doctrine.epistemic_severance_clause",
+          "payload:delegation_doctrine.task_truth_condition_clause",
+          "payload:recursive_honesty_doctrine.recursive_honesty_axiom",
+          "payload:sentinel_doctrine.socratic_limit",
+          "repo:accepted_compilation_boundary"
+        ],
+        "local_only": true,
+        "refuse_on_missing_authority": true,
+        "statement": "Evaluate local inferences only against the task truth condition currently in force. Local role: explorer."
+      }
+    },
+    {
+      "allowed_evidence_scope": [
+        "compiled_plan",
+        "repo_control_plane",
+        "source_payload"
+      ],
+      "budget_posture": "tight",
+      "delegation_depth_limit": 2,
+      "deontic_guardrails": [
+        "bind_claims_to_repo_evidence",
+        "fail_closed_on_missing_truth_condition",
+        "no_authority_substitution",
+        "no_scope_widening"
+      ],
+      "local_objective": "Stress-test the plan and surface payload drift, authority drift, and scope drift.",
+      "non_authority_statement": "Adversarial review outputs are findings only and may not widen scope, rewrite intent, or substitute for acceptance.",
+      "prompt_packet": {
+        "constraints": [
+          "bind_claims_to_repo_evidence",
+          "fail_closed_on_missing_truth_condition",
+          "no_authority_substitution",
+          "no_scope_widening"
+        ],
+        "objective": "Stress-test the plan and surface payload drift, authority drift, and scope drift.",
+        "prompt_id": "716cb98fd728b517",
+        "reasoning_effort": "xhigh",
+        "recommended_agent_model": "gpt-5.4",
+        "reply_contract": [
+          "bind_findings_to_payload_or_repo",
+          "findings_first",
+          "no_fix_commitment"
+        ],
+        "role": "adversarial_reviewer"
+      },
+      "role": "adversarial_reviewer",
+      "session_id": "4c7ca9e0e6241845",
+      "task_truth_condition": {
+        "authority_refs": [
+          "doc:docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+          "payload:delegation_doctrine.epistemic_severance_clause",
+          "payload:delegation_doctrine.task_truth_condition_clause",
+          "payload:recursive_honesty_doctrine.recursive_honesty_axiom",
+          "payload:sentinel_doctrine.socratic_limit",
+          "repo:accepted_compilation_boundary"
+        ],
+        "local_only": true,
+        "refuse_on_missing_authority": true,
+        "statement": "Evaluate local inferences only against the task truth condition currently in force. Local role: adversarial_reviewer."
+      }
+    },
+    {
+      "allowed_evidence_scope": [
+        "compiled_plan",
+        "repo_codebase",
+        "source_payload",
+        "test_and_gate_outputs"
+      ],
+      "budget_posture": "medium",
+      "delegation_depth_limit": 2,
+      "deontic_guardrails": [
+        "bind_claims_to_repo_evidence",
+        "fail_closed_on_missing_truth_condition",
+        "no_scope_widening",
+        "no_unlicensed_utility_rewrite"
+      ],
+      "local_objective": "Implement the bounded module described by the plan without widening scope.",
+      "non_authority_statement": "Implementation outputs are bounded changes only and may not assert merge, closeout, or policy authority.",
+      "prompt_packet": {
+        "constraints": [
+          "bind_claims_to_repo_evidence",
+          "fail_closed_on_missing_truth_condition",
+          "no_scope_widening",
+          "no_unlicensed_utility_rewrite"
+        ],
+        "objective": "Implement the bounded module described by the plan without widening scope.",
+        "prompt_id": "5154ea59cdd474dd",
+        "reasoning_effort": "xhigh",
+        "recommended_agent_model": "gpt-5.3-codex",
+        "reply_contract": [
+          "bounded_patch_only",
+          "respect_scope",
+          "surface_risks"
+        ],
+        "role": "implementer"
+      },
+      "role": "implementer",
+      "session_id": "0a7484f666b869a6",
+      "task_truth_condition": {
+        "authority_refs": [
+          "doc:docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+          "payload:delegation_doctrine.epistemic_severance_clause",
+          "payload:delegation_doctrine.task_truth_condition_clause",
+          "payload:recursive_honesty_doctrine.recursive_honesty_axiom",
+          "payload:sentinel_doctrine.socratic_limit",
+          "repo:accepted_compilation_boundary"
+        ],
+        "local_only": true,
+        "refuse_on_missing_authority": true,
+        "statement": "Evaluate local inferences only against the task truth condition currently in force. Local role: implementer."
+      }
+    },
+    {
+      "allowed_evidence_scope": [
+        "compiled_plan",
+        "repo_codebase",
+        "source_payload",
+        "test_and_gate_outputs"
+      ],
+      "budget_posture": "tight",
+      "delegation_depth_limit": 2,
+      "deontic_guardrails": [
+        "bind_claims_to_repo_evidence",
+        "fail_closed_on_missing_truth_condition",
+        "no_authority_substitution"
+      ],
+      "local_objective": "Review the diff for bugs, regressions, missing tests, and payload misalignment.",
+      "non_authority_statement": "Code review outputs are findings only and may not substitute for gate results or merge authority.",
+      "prompt_packet": {
+        "constraints": [
+          "bind_claims_to_repo_evidence",
+          "fail_closed_on_missing_truth_condition",
+          "no_authority_substitution"
+        ],
+        "objective": "Review the diff for bugs, regressions, missing tests, and payload misalignment.",
+        "prompt_id": "30120bb688ec4b60",
+        "reasoning_effort": "xhigh",
+        "recommended_agent_model": "gpt-5.4",
+        "reply_contract": [
+          "bugs_first",
+          "regression_risks",
+          "tests_or_gaps"
+        ],
+        "role": "code_reviewer"
+      },
+      "role": "code_reviewer",
+      "session_id": "5e0bfaa7bea5656e",
+      "task_truth_condition": {
+        "authority_refs": [
+          "doc:docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+          "payload:delegation_doctrine.epistemic_severance_clause",
+          "payload:delegation_doctrine.task_truth_condition_clause",
+          "payload:recursive_honesty_doctrine.recursive_honesty_axiom",
+          "payload:sentinel_doctrine.socratic_limit",
+          "repo:accepted_compilation_boundary"
+        ],
+        "local_only": true,
+        "refuse_on_missing_authority": true,
+        "statement": "Evaluate local inferences only against the task truth condition currently in force. Local role: code_reviewer."
+      }
+    },
+    {
+      "allowed_evidence_scope": [
+        "compiled_plan",
+        "repo_control_plane",
+        "test_and_gate_outputs"
+      ],
+      "budget_posture": "tight",
+      "delegation_depth_limit": 2,
+      "deontic_guardrails": [
+        "bind_claims_to_repo_evidence",
+        "fail_closed_on_missing_truth_condition",
+        "no_authority_substitution"
+      ],
+      "local_objective": "Report hard-gate outcomes and evidence posture without waiving constraints.",
+      "non_authority_statement": "Gate reports are observational only and may not waive constraints, redefine semantics, or promote advisory output into acceptance.",
+      "prompt_packet": {
+        "constraints": [
+          "bind_claims_to_repo_evidence",
+          "fail_closed_on_missing_truth_condition",
+          "no_authority_substitution"
+        ],
+        "objective": "Report hard-gate outcomes and evidence posture without waiving constraints.",
+        "prompt_id": "f84c1e4e5a5a9885",
+        "reasoning_effort": "xhigh",
+        "recommended_agent_model": "gpt-5.4-mini",
+        "reply_contract": [
+          "no_semantic_waivers",
+          "report_gate_state_only",
+          "report_inputs_used"
+        ],
+        "role": "gatekeeper"
+      },
+      "role": "gatekeeper",
+      "session_id": "b1640b6980e273ba",
+      "task_truth_condition": {
+        "authority_refs": [
+          "doc:docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+          "payload:delegation_doctrine.epistemic_severance_clause",
+          "payload:delegation_doctrine.task_truth_condition_clause",
+          "payload:recursive_honesty_doctrine.recursive_honesty_axiom",
+          "payload:sentinel_doctrine.socratic_limit",
+          "repo:accepted_compilation_boundary"
+        ],
+        "local_only": true,
+        "refuse_on_missing_authority": true,
+        "statement": "Evaluate local inferences only against the task truth condition currently in force. Local role: gatekeeper."
+      }
+    }
+  ],
+  "source_doc_ref": "docs/DRAFT_MASTER_EXECUTABLE_PAYLOAD_v0.md",
+  "source_doc_sha256": "fc9b583716159916ac982335a993365828e05fddfb84e1e21bc41e49ca3c60e2",
+  "source_payload_hash": "b41f9ae8cffb126bbf7790a5bfd239ba9f1440c6cbefe94f31ec324cc8371403",
+  "summary": {
+    "counts_by_role": {
+      "adversarial_reviewer": 1,
+      "code_reviewer": 1,
+      "explorer": 1,
+      "gatekeeper": 1,
+      "implementer": 1,
+      "orchestrator": 1
+    },
+    "counts_by_stage": {
+      "adversarial_review": 1,
+      "code_review": 1,
+      "delegation_scaffolding": 1,
+      "gate_verification": 1,
+      "implementation": 1,
+      "intent_normalization": 1,
+      "recursive_honesty_audit": 1,
+      "route_selection": 1
+    },
+    "total_layers": 8,
+    "total_sessions": 6
+  },
+  "supporting_api_route": "/urm/reflex/compile"
+}

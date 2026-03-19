@@ -119,9 +119,9 @@ def test_synthetic_v65_start_bundle_passes(tmp_path: Path) -> None:
     assert payload["failures"] == []
 
 
-def test_current_repo_v70_start_bundle_passes() -> None:
+def test_current_repo_v71_start_bundle_passes() -> None:
     module = _load_script_module()
-    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=70, phase="start")
+    payload = module.lint_arc_bundle(repo_root=_repo_root(), arc=71, phase="start")
     assert payload["schema"] == "arc_bundle_lint@1"
     assert payload["failures"] == []
 

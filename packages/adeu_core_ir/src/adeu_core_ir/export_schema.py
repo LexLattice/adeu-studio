@@ -5,6 +5,10 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 
+from .brokered_reflexive_execution import (
+    AdeuBrokeredReflexiveExecutionPlan,
+    AdeuBrokeredReflexivePayload,
+)
 from .core_ir_proposal import AdeuCoreIRProposal
 from .integrity_cycle_policy import AdeuIntegrityCyclePolicy
 from .integrity_cycle_policy_extended import AdeuIntegrityCyclePolicyExtended
@@ -57,6 +61,12 @@ def _write_schema(path: Path, schema: dict) -> None:
 
 def main() -> None:
     root = repo_root(anchor=Path(__file__))
+    brokered_reflexive_payload_schema = AdeuBrokeredReflexivePayload.model_json_schema(
+        by_alias=True
+    )
+    brokered_reflexive_execution_plan_schema = (
+        AdeuBrokeredReflexiveExecutionPlan.model_json_schema(by_alias=True)
+    )
     core_ir_schema = AdeuCoreIR.model_json_schema(by_alias=True)
     lane_report_schema = AdeuLaneReport.model_json_schema(by_alias=True)
     integrity_cycle_policy_schema = AdeuIntegrityCyclePolicy.model_json_schema(by_alias=True)
@@ -125,6 +135,26 @@ def main() -> None:
 
     authoritative_path = root / "packages" / "adeu_core_ir" / "schema" / "adeu_core_ir.v0_1.json"
     _write_schema(authoritative_path, core_ir_schema)
+
+    brokered_reflexive_payload_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "adeu_brokered_reflexive_payload.v1.json"
+    )
+    _write_schema(
+        brokered_reflexive_payload_authoritative_path,
+        brokered_reflexive_payload_schema,
+    )
+
+    brokered_reflexive_execution_plan_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "adeu_brokered_reflexive_execution_plan.v1.json"
+    )
+    _write_schema(
+        brokered_reflexive_execution_plan_authoritative_path,
+        brokered_reflexive_execution_plan_schema,
+    )
 
     lane_authoritative_path = (
         root / "packages" / "adeu_core_ir" / "schema" / "adeu_lane_report.v0_1.json"
@@ -414,6 +444,22 @@ def main() -> None:
 
     mirror_path = root / "spec" / "adeu_core_ir.schema.json"
     _write_schema(mirror_path, core_ir_schema)
+
+    brokered_reflexive_payload_mirror_path = (
+        root / "spec" / "adeu_brokered_reflexive_payload.schema.json"
+    )
+    _write_schema(
+        brokered_reflexive_payload_mirror_path,
+        brokered_reflexive_payload_schema,
+    )
+
+    brokered_reflexive_execution_plan_mirror_path = (
+        root / "spec" / "adeu_brokered_reflexive_execution_plan.schema.json"
+    )
+    _write_schema(
+        brokered_reflexive_execution_plan_mirror_path,
+        brokered_reflexive_execution_plan_schema,
+    )
 
     lane_mirror_path = root / "spec" / "adeu_lane_report.schema.json"
     _write_schema(lane_mirror_path, lane_report_schema)

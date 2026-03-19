@@ -29,6 +29,11 @@
       "requires_writes_allowed": false,
       "requires_approval": false
     },
+    "adeu.compile_brokered_reflexive_execution": {
+      "capability": "run_analysis_check",
+      "requires_writes_allowed": false,
+      "requires_approval": false
+    },
     "paper.ingest_text": {
       "capability": "run_analysis_check",
       "requires_writes_allowed": false,

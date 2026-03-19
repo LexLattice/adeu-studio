@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from adeu_core_ir import AdeuBrokeredReflexivePayload, compile_brokered_reflexive_execution_plan
 from urm_runtime.config import URMRuntimeConfig
 from urm_runtime.errors import URMError
 from urm_runtime.models import TaskEnvelope, WorkerRunRequest, WorkerRunResult
@@ -27,6 +28,7 @@ DOMAIN_PACK_VERSION = "0.0.0"
 DEFAULT_WORKFLOW_TEMPLATE_ID = "adeu.workflow.pipeline_worker.v0"
 SUPPORTED_TOOL_NAMES: frozenset[str] = frozenset(
     {
+        "adeu.compile_brokered_reflexive_execution",
         "adeu.get_app_state",
         "adeu.list_templates",
         "adeu.run_workflow",
@@ -255,6 +257,11 @@ class ADEUDomainTools:
             error=row.error_json,
         )
 
+    def compile_brokered_reflexive_execution(self, arguments: dict[str, Any]) -> dict[str, Any]:
+        payload = AdeuBrokeredReflexivePayload.model_validate(arguments)
+        plan = compile_brokered_reflexive_execution_plan(payload)
+        return plan.model_dump(mode="json", by_alias=True, exclude_none=True)
+
     def call_tool(self, *, tool_name: str, arguments: dict[str, Any]) -> tuple[Any, WarrantTag]:
         if not self.supports_tool(tool_name=tool_name):
             raise URMError(
@@ -267,6 +274,8 @@ class ADEUDomainTools:
         if tool_name == "adeu.list_templates":
             templates = [template.model_dump(mode="json") for template in self.list_templates()]
             return {"templates": templates}, "observed"
+        if tool_name == "adeu.compile_brokered_reflexive_execution":
+            return self.compile_brokered_reflexive_execution(arguments), "checked"
         if tool_name == "adeu.run_workflow":
             return self.run_workflow(arguments).model_dump(mode="json"), "checked"
         if tool_name == "adeu.read_evidence":

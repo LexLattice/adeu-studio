@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 import sys
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -609,7 +610,15 @@ class _AuthorizeActionCalled(RuntimeError):
 
 
 def _capture_current_worker_endpoint_responses() -> dict[str, dict[str, Any]]:
-    import adeu_api.urm_routes as urm_routes
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message=(
+                r'Field name "schema" in ".*" shadows an attribute in parent "BaseModel"'
+            ),
+            category=UserWarning,
+        )
+        import adeu_api.urm_routes as urm_routes
     from urm_runtime.models import (
         WorkerCancelRequest,
         WorkerCancelResponse,

@@ -5,6 +5,8 @@ import re
 from pathlib import Path
 
 from adeu_core_ir import (
+    ADEU_BROKERED_REFLEXIVE_EXECUTION_PLAN_SCHEMA,
+    ADEU_BROKERED_REFLEXIVE_PAYLOAD_SCHEMA,
     META_CONTROL_UPDATE_CANDIDATE_SCHEMA,
     META_CONTROL_UPDATE_MANIFEST_SCHEMA,
     META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA,
@@ -34,6 +36,22 @@ _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\\\")
 def _schema_paths() -> list[tuple[Path, Path]]:
     root = repo_root(anchor=Path(__file__))
     return [
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "adeu_brokered_reflexive_payload.v1.json",
+            root / "spec" / "adeu_brokered_reflexive_payload.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "adeu_brokered_reflexive_execution_plan.v1.json",
+            root / "spec" / "adeu_brokered_reflexive_execution_plan.schema.json",
+        ),
         (
             root / "packages" / "adeu_core_ir" / "schema" / "ux_domain_packet.v1.json",
             root / "spec" / "ux_domain_packet.schema.json",
@@ -169,6 +187,10 @@ def test_schema_export_rerun_is_clean_and_deterministic() -> None:
 
 def test_exported_schema_files_have_stable_contract_markers() -> None:
     expected_consts = {
+        "adeu_brokered_reflexive_payload.v1.json": ADEU_BROKERED_REFLEXIVE_PAYLOAD_SCHEMA,
+        "adeu_brokered_reflexive_execution_plan.v1.json": (
+            ADEU_BROKERED_REFLEXIVE_EXECUTION_PLAN_SCHEMA
+        ),
         "ux_domain_packet.v1.json": UX_DOMAIN_PACKET_SCHEMA,
         "ux_morph_ir.v1.json": UX_MORPH_IR_SCHEMA,
         "ux_surface_projection.v1.json": UX_SURFACE_PROJECTION_SCHEMA,
