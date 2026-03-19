@@ -13,6 +13,7 @@ from adeu_core_ir.brokered_reflexive_execution import (
     canonicalize_brokered_reflexive_payload_payload,
     compile_brokered_reflexive_execution_plan,
 )
+from pydantic import ValidationError
 
 
 def _fixtures_root() -> Path:
@@ -116,6 +117,25 @@ def test_payload_rejects_non_advisory_posture() -> None:
     payload["advisory_only"] = False
 
     with pytest.raises(ValueError, match="advisory_only must remain true"):
+        AdeuBrokeredReflexivePayload.model_validate(payload)
+
+
+def test_payload_rejects_mismatched_source_doc_sha256() -> None:
+    payload = _payload()
+    payload["source_doc_sha256"] = "0" * 64
+
+    with pytest.raises(ValidationError, match="source_doc_sha256 must match repo file bytes"):
+        AdeuBrokeredReflexivePayload.model_validate(payload)
+
+
+def test_payload_rejects_missing_source_doc_ref() -> None:
+    payload = _payload()
+    payload["source_doc_ref"] = "docs/DOES_NOT_EXIST.md"
+
+    with pytest.raises(
+        ValidationError,
+        match="source_doc_ref must resolve to an existing repo file",
+    ):
         AdeuBrokeredReflexivePayload.model_validate(payload)
 
 

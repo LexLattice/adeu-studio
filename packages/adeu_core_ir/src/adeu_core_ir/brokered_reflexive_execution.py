@@ -3,8 +3,10 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import Counter
+from pathlib import Path
 from typing import Any, Literal
 
+from adeu_ir.repo import repo_root
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 BrokeredReflexivePayloadSchemaVersion = Literal["adeu_brokered_reflexive_payload@1"]
@@ -266,6 +268,14 @@ def _normalize_repo_relative_path(value: str, *, field_name: str) -> str:
     return normalized
 
 
+def _sha256_repo_file(value: str, *, field_name: str) -> str:
+    normalized = _normalize_repo_relative_path(value, field_name=field_name)
+    path = repo_root(anchor=Path(__file__)) / normalized
+    if not path.is_file():
+        raise ValueError(f"{field_name} must resolve to an existing repo file")
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def _assert_sorted_unique(values: list[str], *, field_name: str) -> None:
     if any(not value for value in values):
         raise ValueError(f"{field_name} must not contain empty values")
@@ -399,8 +409,14 @@ class AdeuBrokeredReflexivePayload(BaseModel):
             self.source_doc_ref,
             field_name="source_doc_ref",
         )
+        actual_source_doc_sha256 = _sha256_repo_file(
+            self.source_doc_ref,
+            field_name="source_doc_ref",
+        )
         if not _is_hex64(self.source_doc_sha256):
             raise ValueError("source_doc_sha256 must be lowercase sha256 hex")
+        if self.source_doc_sha256 != actual_source_doc_sha256:
+            raise ValueError("source_doc_sha256 must match repo file bytes")
         if not self.advisory_only:
             raise ValueError("advisory_only must remain true in the first family")
         if not self.requested_roles:
