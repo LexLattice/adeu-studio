@@ -2,6 +2,7 @@
   "name": "adeu-web",
   "private": true,
   "version": "0.0.0",
+  "license": "Apache-2.0",
   "scripts": {
     "gen:types": "node scripts/gen-types.mjs",
     "predev": "npm run gen:types",

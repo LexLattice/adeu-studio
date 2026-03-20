@@ -8,6 +8,10 @@ version = "0.0.0"
 description = "Portable URM orchestration runtime primitives."
 readme = "../../README.md"
 requires-python = ">=3.11"
+license = { file = "../../LICENSE" }
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+]
 dependencies = [
   "pydantic>=2.6,<3",
   "jsonschema>=4.20,<5",

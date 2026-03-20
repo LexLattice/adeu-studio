@@ -8,6 +8,10 @@ version = "0.0.0"
 description = "Deterministic ADEU agent harness taskpack compiler."
 readme = "../../README.md"
 requires-python = ">=3.11"
+license = { file = "../../LICENSE" }
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+]
 dependencies = [
   "adeu-ir>=0.0.0",
   "urm-runtime>=0.0.0",

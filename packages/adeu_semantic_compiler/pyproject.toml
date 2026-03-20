@@ -8,6 +8,10 @@ version = "0.0.0"
 description = "Deterministic semantic compiler core pipeline for ASC V32-C."
 readme = "../../README.md"
 requires-python = ">=3.11"
+license = { file = "../../LICENSE" }
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+]
 dependencies = [
   "adeu-commitments-ir>=0.0.0",
   "adeu-ir>=0.0.0",

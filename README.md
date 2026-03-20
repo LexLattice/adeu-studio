@@ -1,201 +1,57 @@
 # ADEU Studio
 
-ADEU Studio is an interactive workflow for turning legal clauses into **typed ADEU IR variants** (with first-class ambiguity), validating them with an authoritative kernel, and storing accepted artifacts.
+> A governed machine for producing, validating, executing, and packaging high-trust artifacts.
 
-This repo is a monorepo:
+ADEU Studio is a docs-governed monorepo for turning source text into typed artifacts, validating them deterministically, executing bounded workflows, and keeping evidence attached to every meaningful step.
 
-- `packages/adeu_ir`: Pydantic ADEU IR + JSON Schema export (single source of truth)
-- `packages/adeu_kernel`: Deterministic checker/kernel + golden fixture harness
-- `packages/adeu_lean`: Lean core semantics + theorem runner helpers (v3.1 theorem obligations)
-- `packages/adeu_concepts`: Typed concept composition IR + coherence checker (v3.x concepts)
-- `packages/adeu_puzzles`: Typed puzzle IR + solver translation (v3.2: Knights/Knaves)
-- `packages/adeu_core_ir`: Typed O/E/D/U core projection IR + deterministic contract validators
-- `apps/api`: FastAPI service (scaffolded after kernel is green)
-- `apps/web`: Next.js UI (scaffolded after kernel is green)
+This front page stays intentionally compact. Deeper runtime and operator detail lives in the operator reference.
 
-## Quickstart
+It is built around the ADEU frame:
 
-```bash
-make bootstrap
-make test
-make lint
-```
+| Axis | What It Governs |
+|------|------------------|
+| **Ontology** | Typed entities, package boundaries, artifact families |
+| **Epistemics** | Deterministic validation, solver evidence, proof lanes, provenance |
+| **Deontics** | Capability policy, locked scope, approval gates, fail-closed behavior |
+| **Utility** | Arc-scoped delivery, dashboards, stop-gates, governed improvement |
 
-Deterministic eval fixture inputs used by roadmap quality checks live under:
+## At A Glance
 
-- `examples/eval/questions/**`
-- `examples/eval/tournament/**`
+| Surface | Purpose |
+|---------|---------|
+| `packages/adeu_ir` + validation packages | Typed IR, deterministic kernel checks, solver and proof lanes |
+| `packages/adeu_core_ir`, `adeu_concepts`, `adeu_puzzles`, `adeu_explain` | Higher-level artifact families and analysis workflows |
+| `packages/urm_runtime` + `urm_domain_*` | Policy-governed orchestration, workers, events, runtime tools |
+| `packages/adeu_agent_harness` | Taskpack pipeline: compile -> sign -> run -> verify -> package |
+| `packages/adeu_semantic_*` + `adeu_commitments_ir` | Docs-to-contract semantic compiler lane |
+| `apps/api` | FastAPI integration surface |
+| `apps/web` | Next.js operator-facing UI |
+| `docs/` + `artifacts/` | Locked arcs, stop-gates, assessments, dashboards, closeout evidence |
 
-Generate a local quality dashboard artifact (same script used in CI):
+## Why It Is Different
 
-```bash
-.venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
-```
+- Artifacts are typed first, not inferred ad hoc at the edge.
+- Validation is deterministic and fail-closed.
+- Governance is part of the runtime, not an after-the-fact process layer.
+- The repo is built to improve under explicit constraints instead of informal drift.
 
-Run deterministic oracle checks (bridge/questions/patch) and emit a machine-readable report:
+## Start Here
 
-```bash
-.venv/bin/python apps/api/scripts/run_determinism_oracles.py --out artifacts/determinism_oracles.json
-```
-
-URM event stream diagnostics (validate/replay/summary):
-
-```bash
-.venv/bin/events validate --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --strict
-.venv/bin/events replay --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out artifacts/urm_events/replay.ndjson
-.venv/bin/events summary --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --out-json artifacts/urm_events/summary.json --out-md artifacts/urm_events/summary.md
-```
-
-## Run API (mock proposer)
+Bootstrap and run the default local gate:
 
 ```bash
 make bootstrap
+make check
+```
+
+Run the API:
+
+```bash
 .venv/bin/pip install -e apps/api
 .venv/bin/python -m uvicorn adeu_api.main:app --reload --port 8000
 ```
 
-`POST /propose` returns fixture-backed candidates when the input clause text matches one of
-`examples/fixtures/*/clause.txt`.
-
-`POST /concepts/propose` returns fixture-backed concept composition candidates when the input
-`source_text` matches one of `examples/concepts/fixtures/*/source.txt`.
-
-Concept composition endpoints:
-
-- `POST /documents` ingests immutable source documents (`doc_id`, `domain`, `source_text`).
-- `GET /documents` and `GET /documents/{doc_id}` list/retrieve stored documents.
-- `POST /concepts/check` validates a `ConceptIR` and returns a shared `CheckReport`.
-- `POST /concepts/analyze` returns `CheckReport` plus structured analysis:
-  - SAT: model-conditional closure edges
-  - UNSAT: one subset-minimal MIC (or `PARTIAL`/`UNAVAILABLE`)
-  - SAT: forced-edge analysis via entailment checks (`base_constraints ∧ ¬edge`)
-    with optional countermodel witnesses for non-forced edges
-- `POST /concepts/apply_patch` applies a sandboxed patch to `ConceptIR`, rechecks it, and returns
-  the same response shape as `POST /concepts/apply_ambiguity_option`.
-  - `ir_hash` may be provided as a precondition; mismatches return `409 STALE_IR`.
-- `POST /concepts/questions` generates deterministic, capped question/answer actions from concept
-  analysis signals (MIC, forced-edge countermodels, disconnected clusters).
-- `POST /concepts/tournament` ranks patch candidates in advisory mode (`replay_candidates` or
-  `live_generation`) with deterministic scoring (`concepts.tscore.v2`), strict dry-run/solver
-  budgets, and evidence bundles for top-ranked candidates.
-- `POST /concepts/align` returns deterministic cross-artifact vocabulary suggestions
-  (`merge_candidate` / `conflict_candidate`) across selected concept artifacts, with
-  per-suggestion fingerprints and `alignment_stats` counts by kind.
-  - Effective scope is capped at 200 artifacts after normalization; larger requests return
-    `400 ALIGNMENT_SCOPE_TOO_LARGE`.
-- `POST /concepts/diff` returns structural + solver-aware causal diff for two concept variants.
-- `POST /explain_flip` returns a deterministic flip narrative (`check_status_flip`,
-  `solver_status_flip`, cause chain, repair hints) plus the underlying `diff_report`.
-  It supports `domain: "adeu" | "concepts" | "puzzles"` and inline validator-run overrides.
-- `POST /concepts/artifacts` stores accepted concept artifacts (strict check on create) and persists
-  linked validator runs by default.
-- `GET /concepts/artifacts` and `GET /concepts/artifacts/{artifact_id}` retrieve concept artifacts.
-- `GET /concepts/artifacts/{artifact_id}/validator-runs` retrieves linked solver runs.
-
-URM runtime endpoints (v0 backend slices):
-
-- `POST /urm/copilot/start` starts a Codex app-server backed copilot session.
-- `POST /urm/copilot/send` sends a JSON message to the active copilot session.
-- `POST /urm/copilot/stop` stops a copilot session (idempotent for terminal sessions).
-- `POST /urm/copilot/mode` toggles server-authoritative `writes_allowed` for a session.
-- `GET /urm/copilot/events` streams SSE frames (`codex_event`, `heartbeat`, `session_status`)
-  with replay support via `after_seq`.
-- `POST /urm/worker/run` executes a short-lived Codex worker run (`codex exec --json`) with
-  idempotency keys.
-- `POST /urm/tools/call` dispatches role-gated URM tools (`adeu.*`, `urm.spawn_worker`,
-  `urm.set_mode`).
-
-For concept endpoints that accept source text, `doc_id` can be provided instead of `source_text`.
-If both are provided, `doc_id` is authoritative and mismatched text returns `400 DOC_TEXT_MISMATCH`.
-
-`POST /puzzles/solve` accepts a strict `KnightsKnavesPuzzle` payload and returns:
-
-- solver status (`SAT`/`UNSAT`/`UNKNOWN`/...)
-- per-person role assignments (`knight`/`knave`/`unknown`)
-- underlying `ValidatorResult` evidence (model / unsat core / stats)
-
-## Run API (LLM proposers)
-
-Set `provider: "openai"` or `provider: "codex"` in `POST /propose`,
-`POST /concepts/propose`, and `POST /puzzles/propose`.
-
-For `provider: "openai"` configure:
-
-- `OPENAI_API_KEY` (or `ADEU_OPENAI_API_KEY`) for auth
-- `ADEU_OPENAI_API` backend selector (`responses` default, `chat` fallback backend)
-- optional `ADEU_OPENAI_MODEL` (default: `gpt-5.2`)
-- optional `ADEU_OPENAI_TEMPERATURE` (default: `0.3`, bounded `0.0..2.0`)
-- optional `ADEU_OPENAI_DEFAULT_MAX_CANDIDATES` (default: `5`, bounded `1..20`)
-- optional `ADEU_OPENAI_DEFAULT_MAX_REPAIRS` (default: `3`, bounded `0..10`)
-- optional `ADEU_OPENAI_BASE_URL` (default: `https://api.openai.com/v1`)
-- optional `ADEU_OPENAI_HTTP_TIMEOUT_SECONDS` (default: `60.0`)
-- optional `ADEU_LOG_RAW_LLM=1` to include raw prompt/response in proposer logs (off by default)
-- optional `ADEU_Z3_TIMEOUT_MS` (default: `3000`) for SMT validator timeout
-- optional `ADEU_PERSIST_VALIDATOR_RUNS=1` to persist solver runs for `/check` (off by default)
-- optional `ADEU_PROOF_BACKEND` (`mock` default, `lean` for CLI proof-check)
-- optional `ADEU_LEAN_BIN` (default: `lean`, canonical)
-- optional `LEAN_BIN` (alias fallback when `ADEU_LEAN_BIN` is unset)
-- optional `ADEU_LEAN_TIMEOUT_MS` (default: `5000`)
-- optional `ADEU_MAX_SOURCE_TEXT_BYTES` (default: `200000`)
-- optional `ADEU_MAX_QUESTION_DRY_RUN_EVALS_TOTAL` (default: `20`)
-- optional `ADEU_MAX_QUESTION_SOLVER_CALLS_TOTAL` (default: `40`)
-- optional `ADEU_MAX_ALIGNMENT_SCOPE_ARTIFACTS` (default: `200`)
-- optional `ADEU_ALIGNMENT_MAX_SUGGESTIONS_DEFAULT` (default: `100`, bounded by API lock `1..500`)
-- optional `ADEU_EXPLAIN_ANALYSIS_BUDGET_DEFAULT` (default: `40`, bounded `0..200`)
-- optional `ADEU_QUESTION_FORCED_BUDGET_MAX` (default: `10`)
-- optional `ADEU_QUESTION_FORCED_BUDGET_DIVISOR` (default: `3`)
-- optional `ADEU_QUESTION_MIC_SHRINK_ITERS_MAX` (default: `20`)
-- optional `ADEU_MAX_TOURNAMENT_DRY_RUN_EVALS_TOTAL` (default: question dry-run cap)
-- optional `ADEU_MAX_TOURNAMENT_SOLVER_CALLS_TOTAL` (default: question solver-call cap)
-- optional `ADEU_MAX_TOURNAMENT_REPLAY_CANDIDATES` (default: `20`)
-- optional `ADEU_MAX_TOURNAMENT_PATCH_OPS_PER_CANDIDATE` (default: `50`)
-- optional `ADEU_MAX_TOURNAMENT_TOTAL_PATCH_OPS` (default: `200`)
-- optional `ADEU_MAX_TOURNAMENT_REPLAY_PAYLOAD_BYTES` (default: `500000`)
-- optional `ADEU_MAX_TOURNAMENT_TOP_K` (default: `10`)
-
-For `provider: "codex"` configure:
-
-- optional `ADEU_CODEX_BIN` (default: `codex`)
-- optional `ADEU_CODEX_MODEL` (default: `codex-cli-default` which uses the CLI-configured model)
-- optional `ADEU_CODEX_EXEC_TIMEOUT_SECONDS` (default: `120.0`)
-
-Request-level overrides:
-
-- `max_candidates` (default `5`)
-- `max_repairs` (default `3`)
-
-Behavior notes:
-
-- The `responses` backend uses strict `json_schema` structured outputs.
-- The `chat` backend attempts `json_schema` first and only falls back to `json_object` when schema
-  formatting is unsupported by that API mode.
-- The `codex` backend uses `codex exec --json --output-schema` in `read-only` sandbox mode.
-- Validation is fail-closed: output must parse as `AdeuIR`, then pass kernel checks.
-- Repair attempts use a strict gate: first valid attempt sets baseline; later attempts are accepted
-  only on strict score improvement (`status_rank`, `#ERROR`, `#WARN`, total reasons).
-- Kernel conflict checks emit SMT `ValidatorRequest` obligations and execute the Z3 backend
-  (`z3-solver==4.13.3.0`) with deterministic assertion naming
-  `a:<object_id>:<sha256(json_path)[:12]>`.
-  For the current v3.0 conflict witness encoding: `UNSAT` means at least one kernel-derived
-  conflict candidate exists (unsat core returns a witness subset of named atoms); `SAT` means none.
-- SMT output is treated as **solver evidence** (model / unsat core / stats), not as proof
-  certificates. Certificates are reserved for future proof-checked backends.
-- `UNKNOWN` and `TIMEOUT` map to `REFUSE` in `STRICT` mode, `WARN` in `LAX`. `INVALID_REQUEST`
-  remains `ERROR` severity in both modes.
-- Accepted artifacts now persist one `ProofArtifact` (`proof_id`, `backend`, `theorem_id`, status,
-  `proof_hash`, inputs) per theorem obligation via a v3.1 proof-check pipeline:
-  `pred_closed_world`, `exception_gating`, and `conflict_soundness`.
-  The proof details include deterministic metadata (`semantics_version`, `inputs_hash`,
-  `theorem_src_hash`) and `lean_version` when available.
-
-Proof retrieval endpoint:
-
-- `GET /artifacts/{artifact_id}/proofs`
-- `GET /artifacts/{artifact_id}/validator-runs`
-- `POST /artifacts`, `GET /artifacts/{artifact_id}`, and `GET /artifacts` include
-  trust-lane fields: `solver_trust` and `proof_trust`.
-
-## Run Web
+Run the web UI:
 
 ```bash
 cd apps/web
@@ -203,28 +59,69 @@ npm install
 NEXT_PUBLIC_ADEU_API_URL=http://localhost:8000 npm run dev
 ```
 
-Notes:
+The API supports `fixture`, `openai`, and `codex` provider modes.
 
-- `apps/web/next-env.d.ts` is generated by Next.js and may toggle between
-  `./.next/types/routes.d.ts` (build) and `./.next/dev/types/routes.d.ts` (dev).
-  If it shows up as a local-only diff, restore it before committing unrelated changes:
-  `git restore apps/web/next-env.d.ts`.
-- If your API runs on a non-default port (for example `8001`), set
-  `NEXT_PUBLIC_ADEU_API_URL` accordingly and run web on a matching origin (for example `3001`)
-  that is included in API CORS allow-origins.
+## Useful Local Commands
 
-Web routes:
+Build the same quality dashboard artifact used by CI:
 
-- `/` ADEU Studio
-- `/concepts` Concepts Studio (propose/check/analyze/compare, question loop, and tournament ranking)
-- `/puzzles` Puzzle Studio (propose/check/solve/compare for knights/knaves)
-- `/papers` Paper Abstract Studio (documents-first concepts workflow + cross-doc alignment)
-- `/artifacts` Artifact browser
-- `/copilot` Copilot runtime console (session controls, SSE timeline, tool actions, evidence viewer)
+```bash
+.venv/bin/python apps/api/scripts/build_quality_dashboard.py --out artifacts/quality_dashboard.json
+```
 
-Compare panel notes:
+Run determinism oracles and emit a machine-readable report:
 
-- The shared compare panel now calls `POST /explain_flip` (single request) instead of calling
-  `/diff` directly.
-- It remains non-blocking: explain failures fall back to structural + available solver deltas and
-  never alter checker outcomes.
+```bash
+.venv/bin/python apps/api/scripts/run_determinism_oracles.py --out artifacts/determinism_oracles.json
+```
+
+Validate a sample URM event stream:
+
+```bash
+.venv/bin/events validate --in apps/api/tests/fixtures/urm_events/sample_valid.ndjson --strict
+```
+
+Need more operational depth, provider settings, or runtime notes:
+
+- [OPERATOR_REFERENCE_v0.md](docs/OPERATOR_REFERENCE_v0.md)
+
+## Human-Facing Surfaces
+
+Selected web routes:
+
+- `/` for the main ADEU Studio flow
+- `/concepts` for concept composition and coherence workflows
+- `/puzzles` for puzzle propose and solve flows
+- `/papers` for paper and document-first workflows
+- `/artifacts` for stored artifact browsing
+- `/copilot` for the URM copilot console
+
+Selected API families:
+
+- ADEU propose, check, and artifact storage
+- concepts propose, check, analyze, patch, questions, tournament, align, and diff
+- puzzles propose and solve
+- explain flip narratives
+- URM copilot, worker, and tool routes
+
+## Current Shape
+
+- 17 Python packages
+- 54 JSON schemas under `spec/`
+- 6 runtime policy files under `policy/`
+- 71 locked continuation docs through `v71`
+
+Stop-gate, assessment, and closeout coverage exists across many arcs and should be checked per arc rather than assumed to be uniform.
+
+## License
+
+This repository is licensed under the Apache License 2.0. See [LICENSE](LICENSE).
+
+## Read Next
+
+- [ARCHITECTURE_ADEU_STUDIO_v0.md](docs/ARCHITECTURE_ADEU_STUDIO_v0.md) for the working system architecture draft
+- [OPERATOR_REFERENCE_v0.md](docs/OPERATOR_REFERENCE_v0.md) for local runtime, provider, and operator detail
+- [REPO_ATLAS.md](REPO_ATLAS.md) for repo navigation
+- [ADEU Recursive Self-Improvement Policy.md](ADEU%20Recursive%20Self-Improvement%20Policy.md) for the constitutional governance model
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS*.md` for per-arc scope commitments
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS*.md` for per-arc go or no-go decisions

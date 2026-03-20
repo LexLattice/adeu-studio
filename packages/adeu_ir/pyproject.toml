@@ -8,8 +8,11 @@ version = "0.0.0"
 description = "Typed ADEU IR (Pydantic) + JSON Schema export."
 readme = "../../README.md"
 requires-python = ">=3.11"
+license = { file = "../../LICENSE" }
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+]
 dependencies = ["pydantic>=2.6,<3"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/adeu_ir"]
-

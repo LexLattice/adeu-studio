@@ -8,6 +8,10 @@ version = "0.0.0"
 description = "Typed ADEU commitments IR contract models + schema export."
 readme = "../../README.md"
 requires-python = ">=3.11"
+license = { file = "../../LICENSE" }
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+]
 dependencies = [
   "pydantic>=2.6,<3",
   "adeu-ir>=0.0.0",
