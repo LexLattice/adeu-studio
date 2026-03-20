@@ -1,4 +1,4 @@
-"""LLM-backed poem generation utilities."""
+"""Internal LLM-backed poem artifact utilities."""
 
 from __future__ import annotations
 
@@ -135,7 +135,10 @@ def _build_output_schema(expected_lines: int) -> dict[str, Any]:
     }
 
 
-def _coerce_lines(raw_lines: list[str] | tuple[str, ...], expected_lines: int) -> list[str]:
+def _coerce_fallback_lines(
+    raw_lines: list[str] | tuple[str, ...],
+    expected_lines: int,
+) -> list[str]:
     lines = [str(line).strip() for line in raw_lines if str(line).strip()]
     if len(lines) == expected_lines:
         return lines
@@ -146,6 +149,18 @@ def _coerce_lines(raw_lines: list[str] | tuple[str, ...], expected_lines: int) -
             lines.append(lines[-1])
         else:
             lines.append("")
+    return lines
+
+
+def _validate_output_lines(
+    raw_lines: list[str] | tuple[str, ...],
+    expected_lines: int,
+) -> list[str]:
+    lines = [str(line).strip() for line in raw_lines]
+    if any(not line for line in lines):
+        raise ValueError("`lines` entries must be non-empty strings")
+    if len(lines) != expected_lines:
+        raise ValueError(f"`lines` must contain exactly {expected_lines} entries")
     return lines
 
 
@@ -201,7 +216,11 @@ def _build_user_prompt(
     )
 
 
-def _parse_llm_output(payload: dict[str, Any], *, expected_lines: int) -> tuple[str, list[str], tuple[str, ...]]:
+def _parse_llm_output(
+    payload: dict[str, Any],
+    *,
+    expected_lines: int,
+) -> tuple[str, list[str], tuple[str, ...]]:
     if not isinstance(payload, dict):
         raise ValueError("llm output must be a JSON object")
 
@@ -214,7 +233,10 @@ def _parse_llm_output(payload: dict[str, Any], *, expected_lines: int) -> tuple[
     if not isinstance(raw_lines, list):
         raise ValueError("`lines` must be a list of strings")
 
-    lines = _coerce_lines(tuple(str(item) for item in raw_lines), expected_lines=expected_lines)
+    lines = _validate_output_lines(
+        tuple(str(item) for item in raw_lines),
+        expected_lines=expected_lines,
+    )
     raw_devices = payload.get("devices", [])
     if isinstance(raw_devices, str):
         devices = (str(raw_devices),)
@@ -255,7 +277,7 @@ def _build_fallback_poem(*, theme: str, mood: str, form: PoemForm, line_count: i
         mood=mood,
         form=form,
         seed=None,
-        lines=tuple(_coerce_lines(fallback_lines, line_count)),
+        lines=tuple(_coerce_fallback_lines(fallback_lines, line_count)),
         devices=_DEFAULT_DEVICES,
         source="template",
         provider_request="fallback",
