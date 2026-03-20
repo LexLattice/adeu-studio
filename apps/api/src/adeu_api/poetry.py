@@ -8,7 +8,6 @@ from dataclasses import dataclass
 from typing import Any, Literal, cast
 
 from .openai_backends import (
-    OpenAIBackend,
     build_codex_exec_backend,
     build_openai_backend,
 )
@@ -335,11 +334,7 @@ def write_poem(
         seed=seed,
     )
 
-    backend: OpenAIBackend | None = None
-    resolved_api: str | None = None
     resolved_model = model or (codex_model() if provider == "codex" else openai_model())
-    resolved_key = api_key
-    resolved_base_url = base_url
     if temperature is None and provider != "codex":
         temperature = openai_temperature()
 
@@ -370,9 +365,6 @@ def write_poem(
         )
     else:
         raise ValueError("provider must be one of: auto, openai, codex, template")
-
-    if backend is None:
-        raise RuntimeError("Unable to build a poem generation backend")
 
     result = backend.generate_ir_json(
         system_prompt=system_prompt,
