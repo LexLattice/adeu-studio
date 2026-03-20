@@ -346,7 +346,6 @@ def write_poem(
             codex_bin=codex_bin(),
             skip_git_repo_check=skip_git_repo_check,
         )
-        resolved_model = model or codex_model()
     else:
         raise ValueError("provider must be one of: auto, openai, codex, template")
 
