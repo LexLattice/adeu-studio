@@ -1,0 +1,59 @@
+{
+  "aggregated_observation_packet_hashes": [
+    "290407b69a58231c4aeadf8fa19d822b7699eb7422fdc7235350297d367c0113",
+    "dbfc6b09a07a97934c54181e4b1a639ffc977769d4d67b99abb5ff5cbfd82783"
+  ],
+  "aggregated_observation_packet_ids": [
+    "v39c_v74_obs_clean_no_findings",
+    "v39c_v74_obs_positive_impossible_null_guard"
+  ],
+  "aggregated_subject_refs": [
+    "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/subject_function_clean_no_findings_v74.json",
+    "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/subject_function_impossible_null_guard_v74.json"
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS74.md#v39c_synthetic_pressure_mismatch_observation_contract@1",
+  "derivation_metadata": {
+    "canonical_local_subject_only": true,
+    "count_based_aggregation_only": true,
+    "evaluator_id": "adeu_core_ir.synthetic_pressure_mismatch_observation.derive_v39c_conformance_report@1",
+    "evaluator_version": "1",
+    "observation_packet_hashes": [
+      "290407b69a58231c4aeadf8fa19d822b7699eb7422fdc7235350297d367c0113",
+      "dbfc6b09a07a97934c54181e4b1a639ffc977769d4d67b99abb5ff5cbfd82783"
+    ],
+    "registry_reference_fixture_sha256": "fe47ddb2bb072be3b19d4aafdf1d70921ead64dea41633ac8ba86d4fcd6ff105",
+    "weighted_rollup_forbidden": true
+  },
+  "deterministic_high_severity_findings": [],
+  "finding_count": 1,
+  "findings_by_allowed_action": [
+    {
+      "allowed_action": "safe_autofix",
+      "finding_count": 1
+    }
+  ],
+  "findings_by_evidence_regime": [
+    {
+      "evidence_regime": "deterministic_local",
+      "finding_count": 1
+    }
+  ],
+  "meta_governance_findings": [],
+  "observation_count": 2,
+  "overall_pressure_mismatch_posture": "safe_autofix_candidates_present",
+  "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
+  "registry_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
+  "registry_schema": "synthetic_pressure_mismatch_rule_registry@1",
+  "report_id": "v39c_v74_conformance_reference",
+  "review_only_findings": [],
+  "safe_autofix_candidates": [
+    {
+      "local_observation_locator": "function:render_title:line:2:symbol:title",
+      "observation_packet_id": "v39c_v74_obs_positive_impossible_null_guard",
+      "rule_id": "state_model_impossible_null_check"
+    }
+  ],
+  "schema": "synthetic_pressure_mismatch_conformance_report@1",
+  "target_arc": "vNext+74",
+  "target_path": "V39-C"
+}

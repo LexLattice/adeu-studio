@@ -1,0 +1,6 @@
+{
+  "requested_rule_ids": [
+    "abstraction_pressure_trivial_helper_extraction"
+  ],
+  "subject_ref": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/subject_function_impossible_null_guard_v74.json"
+}
