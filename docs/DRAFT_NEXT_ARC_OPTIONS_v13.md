@@ -1,121 +1,167 @@
 # Draft Next Arc Options v13
 
-Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v12.md`.
+Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v12.md`, updated after
+`vNext+72` closeout.
 
-This draft proposes the next family after the brokered-reflexive execution
-baseline: make externally originated or imported single-PR contributions
-legible, retrospectively alignable, and structurally checkable under the repo's
-current ADEU discipline without pretending they were authored inside the full
-native arc sequence.
+This draft now treats `V39` as a broader module-conformance family rather than a
+single-slice one-off.
+
+`V39-A` is now closed on `main` as the retrospective external-contribution alignment
+baseline. The next question is how to generalize that conformance terrain without
+collapsing into a generic style engine or an unbounded all-module marketplace.
 
 ## Baseline
 
 - `V38-A` established a typed way to compile high-level ADEU/UDEO intent into a
   bounded brokered execution plan.
-- The repo already has:
+- `V39-A` established a typed retrospective-alignment lane for imported single-PR
+  contributions through:
+  - canonical `external_contribution_alignment_packet@1`;
+  - canonical `module_conformance_report@1`;
+  - canonical `v39a_external_contribution_alignment_evidence@1`;
+  - one localized reference bundle for the poetry utility contribution.
+- The repo now already has:
   - strong internal arc discipline through lock, assessment, and decision docs;
   - deterministic local gates through `make check`;
-  - closeout and scaffold linting through `lint_arc_bundle.py`,
-    `lint_closeout_consistency.py`, and `lint_semantic_compiler_closeout.py`;
-  - live evidence that imported external PRs can arrive with partially
-    acceptable code but large meta-sequence divergence from repo-native process.
+  - deterministic closeout and scaffold linting;
+  - a bounded imported-work conformance lane;
+  - a real reference example where code alignment and process alignment had to remain
+    separate.
 
 ## Gap
 
-The missing layer is not more generic review commentary. The missing layer is a
-bounded repo-native conformance lane for imported work that did not originate in
-the ADEU harness.
+The missing layer is no longer external-contribution intake alone.
 
-Today the repo lacks a canonical way to:
+The missing layer is a bounded, typed module for structural drift patterns that can
+apply across:
 
-- classify an imported contribution by lane and structural impact;
-- separate code-alignment judgment from meta-sequence judgment;
-- record:
-  - `claimed_scope`,
-  - `observed_reachable_surfaces`,
-  - `accepted_shipped_scope`;
-- bind maintainer-side follow-up requirements to an accepted imported diff;
-- decide whether an imported contribution is precedent-bearing or merely
-  accepted after normalization;
-- retrospectively align one external PR to the repo's current structural law
-  without rewriting history;
-- pin the exact policy sources, policy hashes, and evaluator version used to
-  derive a canonical conformance report.
+- forward coding;
+- post-code optimization;
+- retrospective contribution assessment;
+- later module-conformance checks.
+
+Today the repo still lacks a canonical way to:
+
+- encode structurally meaningful code smells without falling back to the vague phrase
+  "AI accent";
+- separate:
+  - pseudo-safety inflation,
+  - abstraction without pressure,
+  - error-opacity drift,
+  - naming-semantic drift,
+  - communication-without-load drift;
+- state which of those can be:
+  - auto-fixed safely,
+  - deterministically warned on,
+  - kept as heuristic human-review findings only;
+- project those rules differently for:
+  - the forward coding agent,
+  - the post-code optimizer agent.
 
 ## Recommended Family
 
 - Family name: `V39`
-- Family theme: external contribution alignment and module conformance
-- First path: `V39-A`
+- Family theme: module conformance and structural drift governance
+- Closed first path: `V39-A`
+- Recommended next path: `V39-B`
 - Default path selection:
-  select `V39-A` as the next default candidate
+  select `V39-B` as the next default candidate
 
-## Recommended First Path (`V39-A`)
+## Closed First Path (`V39-A`)
 
-Implement a bounded, repo-native retrospective-alignment baseline that takes one
-imported contribution and turns it into explicit ADEU structure.
+`V39-A` is the completed retrospective external-contribution baseline.
 
-The first reference target should be the poetry-utility contribution currently
-carried by PR `#293`, treated as an imported single-PR lane rather than as a
-native full-arc contribution.
+It solved:
 
-`V39-A` should introduce:
+- imported single-PR lane classification;
+- code-alignment vs meta-sequence separation;
+- truthful three-layer scope recording;
+- pinned policy provenance for deterministic replay;
+- default-negative precedent semantics.
 
-- a canonical `external_contribution_alignment_packet@1`;
-- a canonical `module_conformance_report@1`;
-- a committed local subject bundle for the imported poetry contribution:
-  - materialized diff,
-  - materialized metadata,
-  - materialized claimed-scope text,
-  - any other admissible local evidence;
-- a deterministic evaluation path that consumes explicit inputs and current
-  repo policy surfaces rather than reviewer prose alone, with pinned policy
-  provenance in the emitted evidence;
-- one accepted reference packet/report/evidence bundle for the poetry utility
-  contribution.
+It intentionally did not solve:
+
+- general structural-drift taxonomy;
+- reusable pattern registry;
+- forward-agent preventive rules;
+- post-optimizer corrective rules.
+
+## Recommended Next Path (`V39-B`)
+
+Implement a bounded canonical taxonomy for structural code drift patterns that are
+currently described informally as an "AI accent."
+
+The path should normalize that intake language into repo-native ADEU structure.
+
+`V39-B` should introduce:
+
+- a canonical `synthetic_structure_rule_registry@1`;
+- a neutral typed drift taxonomy rather than an authorship detector;
+- explicit ODEU framing for each rule:
+  - `O`: drift family,
+  - `E`: evidence mode,
+  - `D`: policy grade,
+  - `U`: expected utility gain;
+- automation-tier labeling for each rule:
+  - safe autofix,
+  - deterministic warning,
+  - heuristic review,
+  - human-only.
 
 ## Why This Path
 
-- It converts a real repo pain point into typed substrate instead of leaving it
-  as maintainer folklore.
-- It preserves the distinction between internal ADEU-native work and imported
-  external work rather than collapsing them into one fake history.
-- It gives the repo a first-class way to say:
-  - the code is partly or fully acceptable,
-  - the process diverged,
-  - these follow-ups are required,
-  - this contribution is or is not precedent-bearing.
-- It makes the normalization trail inspectable by separating:
-  - what the contributor claimed,
-  - what the repo actually observed,
-  - what maintainers accepted as shipped scope.
-- It creates the seed of a later generic module-conformance lane without
-  prematurely claiming that structural conformance can replace architectural
-  judgment.
+- It generalizes a real repo pain point exposed by `V39-A` without leaving the family
+  boundary.
+- It keeps the conformance lane about structure and utility rather than about vague
+  "AI detection."
+- It creates reusable substrate for both future imported-work alignment and future
+  agent-policy refinement.
+- It turns style folklore into typed, reviewable, scope-bounded objects.
 
-## First-Slice Boundary
+## Follow-On Paths Inside `V39`
 
-`V39-A` should stay bounded to:
+### `V39-C`
 
-- one imported reference contribution only;
-- one localized subject bundle only rather than a live floating PR target;
-- explicit structural classification and retrospective alignment artifacts;
-- deterministic separation of:
-  - code alignment,
-  - meta-sequence alignment,
-  - claimed scope,
-  - observed reachable surfaces,
-  - accepted shipped scope,
-  - required maintainer follow-ups,
-  - precedent status;
-- default-negative precedent semantics unless a maintainer explicitly grants
-  precedent-bearing status with a reason;
-- docs, tests, and light tooling needed to make that first lane real.
+Observation and reporting lane:
+
+- canonical `synthetic_structure_observation_packet@1`;
+- canonical `synthetic_structure_conformance_report@1`;
+- bounded deterministic detectors for the high-confidence subset;
+- one or more seed fixtures, likely beginning from the poetry utility reference and
+  one repo-native reference diff.
+
+### `V39-D`
+
+Agent-policy projection lane:
+
+- canonical `synthetic_structure_fix_plan@1`;
+- forward coding agent policy projection;
+- post-code optimizer policy projection;
+- bounded safe-autofix support only for the highest-confidence subset.
+
+## First-Slice Boundary (`V39-B`)
+
+`V39-B` should stay bounded to:
+
+- taxonomy and registry only;
+- typed drift families rather than broad style doctrine;
+- explicit automation-tier classification;
+- explicit false-positive risk and counterexample handling;
+- forward-agent and post-optimizer policy hooks at the registry level only.
 
 It should not attempt:
 
-- a generalized contribution marketplace;
-- fully automatic semantic acceptance or rejection of arbitrary modules;
-- live GitHub-network dependency in the canonical evaluation path;
-- broad contributor-portal UX;
-- a repo-wide scoring or ranking engine for all modules in one slice.
+- full detector implementation in the first slice;
+- broad CI enforcement of heuristic style judgments;
+- authorship attribution;
+- a generic style marketplace;
+- free-form "make code less AI-looking" rhetoric as policy.
+
+## Governing Reference
+
+The higher-order concept note for this follow-on is:
+
+- `docs/DRAFT_SYNTHETIC_STRUCTURE_DRIFT_v0.md`
+
+That note is the place to evolve the neutral abstraction, drift families, ODEU
+framing, automation tiers, and agent-embedding plan.
