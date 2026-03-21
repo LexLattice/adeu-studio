@@ -52,6 +52,11 @@ artifacts/agent_harness/v44/taskpacks/v41/*
 !artifacts/agent_harness/v44/taskpacks/v41/v44_closeout/
 artifacts/agent_harness/v44/taskpacks/v41/v44_closeout/*
 !artifacts/agent_harness/v44/taskpacks/v41/v44_closeout/*
+!artifacts/agent_harness/v72/
+artifacts/agent_harness/v72/*
+!artifacts/agent_harness/v72/evidence_inputs/
+artifacts/agent_harness/v72/evidence_inputs/*
+!artifacts/agent_harness/v72/evidence_inputs/v39a_external_contribution_alignment_evidence_v72.json
 
 # Editors
 .idea/

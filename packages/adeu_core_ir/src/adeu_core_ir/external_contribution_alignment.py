@@ -291,7 +291,7 @@ class ExternalContributionAlignmentPacket(BaseModel):
     contribution_label: str = Field(min_length=1)
     structural_impact_class: ExternalContributionImpactClass
     localized_subject_inputs: list[LocalizedSubjectInput]
-    policy_source_paths: list[str]
+    policy_sources: list[PolicySourceSnapshot]
     claimed_scope: AlignmentScopeSnapshot
     observed_reachable_surfaces: list[ObservedReachableSurface]
     accepted_shipped_scope: AlignmentScopeSnapshot
@@ -319,22 +319,10 @@ class ExternalContributionAlignmentPacket(BaseModel):
         if roles.count("metadata_snapshot") != 1:
             raise ValueError("localized_subject_inputs must include exactly one metadata_snapshot")
         _assert_sorted_unique(
-            self.policy_source_paths,
-            field_name="policy_source_paths",
+            [entry.path for entry in self.policy_sources],
+            field_name="policy_sources.path",
             allow_empty=False,
         )
-        for index, value in enumerate(self.policy_source_paths):
-            normalized = _normalize_repo_relative_path(
-                value,
-                field_name=f"policy_source_paths[{index}]",
-            )
-            actual_hash = _sha256_repo_file(
-                normalized,
-                field_name=f"policy_source_paths[{index}]",
-                repository_root=repository_root,
-            )
-            if not actual_hash:
-                raise ValueError(f"policy_source_paths[{index}] must exist")
 
         _assert_sorted_unique(
             [entry.surface_ref for entry in self.observed_reachable_surfaces],
@@ -351,6 +339,28 @@ class ExternalContributionAlignmentPacket(BaseModel):
             field_name="maintainer_alignment_actions",
             allow_empty=True,
         )
+        actions = set(self.maintainer_alignment_actions)
+        if (
+            "add_targeted_tests" in actions
+            and not self.code_alignment_inputs.targeted_tests_present_in_accepted_diff
+        ):
+            raise ValueError(
+                "maintainer_alignment_actions cannot mark add_targeted_tests complete "
+                "unless targeted tests are present in the accepted diff"
+            )
+        if (
+            "enforce_fail_closed_validation" in actions
+            and not self.code_alignment_inputs.fail_closed_validation_in_accepted_diff
+        ):
+            raise ValueError(
+                "maintainer_alignment_actions cannot mark enforce_fail_closed_validation "
+                "complete unless fail-closed validation is present in the accepted diff"
+            )
+        if "record_checks_run" in actions and not self.code_alignment_inputs.checks_run:
+            raise ValueError(
+                "maintainer_alignment_actions cannot mark record_checks_run complete "
+                "unless code_alignment_inputs.checks_run is non-empty"
+            )
         metadata_input = next(
             entry
             for entry in self.localized_subject_inputs
@@ -535,15 +545,11 @@ def _derive_policy_sources(
     repository_root: Path | None = None,
 ) -> list[PolicySourceSnapshot]:
     return [
-        PolicySourceSnapshot(
-            path=value,
-            sha256=_sha256_repo_file(
-                value,
-                field_name="policy_source",
-                repository_root=repository_root,
-            ),
+        PolicySourceSnapshot.model_validate(
+            entry.model_dump(mode="json"),
+            context=_validation_context(repository_root),
         )
-        for value in packet.policy_source_paths
+        for entry in packet.policy_sources
     ]
 
 
@@ -621,17 +627,18 @@ def derive_v39a_module_conformance(
     *,
     repository_root: Path | None = None,
 ) -> ModuleConformanceReport:
-    packet = (
-        payload
+    packet_payload = (
+        payload.model_dump(mode="json", exclude_none=True)
         if isinstance(payload, ExternalContributionAlignmentPacket)
-        else ExternalContributionAlignmentPacket.model_validate(
-            deepcopy(payload),
-            context=_validation_context(repository_root),
-        )
+        else deepcopy(payload)
     )
     canonical_packet_payload = canonicalize_external_contribution_alignment_packet_payload(
-        packet.model_dump(mode="json", exclude_none=True),
+        packet_payload,
         repository_root=repository_root,
+    )
+    packet = ExternalContributionAlignmentPacket.model_validate(
+        canonical_packet_payload,
+        context=_validation_context(repository_root),
     )
     unresolved_followups = _derive_unresolved_followup_codes(packet)
     code_alignment_judgment = _derive_code_alignment_judgment(packet, unresolved_followups)
@@ -644,24 +651,37 @@ def derive_v39a_module_conformance(
         meta_sequence_alignment_judgment=meta_sequence_alignment_judgment,
         unresolved_followups=unresolved_followups,
     )
-    return ModuleConformanceReport(
-        reference_fixture_id=packet.reference_fixture_id,
-        structural_impact_class=packet.structural_impact_class,
-        code_alignment_judgment=code_alignment_judgment,
-        meta_sequence_alignment_judgment=meta_sequence_alignment_judgment,
-        overall_judgment=overall_judgment,
-        claimed_scope=packet.claimed_scope,
-        observed_reachable_surfaces=packet.observed_reachable_surfaces,
-        accepted_shipped_scope=packet.accepted_shipped_scope,
-        imported_meta_sequence_gaps=packet.imported_meta_sequence_gaps,
-        completed_alignment_actions=packet.maintainer_alignment_actions,
-        unresolved_followup_codes=unresolved_followups,
-        precedent_status=packet.maintainer_precedent_status,
-        precedent_reason=packet.maintainer_precedent_reason,
-        derivation_metadata=ModuleConformanceDerivationMetadata(
-            alignment_packet_hash=_canonical_json_hash(canonical_packet_payload),
-            policy_sources=_derive_policy_sources(packet, repository_root=repository_root),
-        ),
+    derivation_metadata = ModuleConformanceDerivationMetadata.model_validate(
+        {
+            "alignment_packet_hash": _canonical_json_hash(canonical_packet_payload),
+            "policy_sources": [
+                entry.model_dump(mode="json")
+                for entry in _derive_policy_sources(packet, repository_root=repository_root)
+            ],
+        },
+        context=_validation_context(repository_root),
+    )
+    report_payload = {
+        "reference_fixture_id": packet.reference_fixture_id,
+        "structural_impact_class": packet.structural_impact_class,
+        "code_alignment_judgment": code_alignment_judgment,
+        "meta_sequence_alignment_judgment": meta_sequence_alignment_judgment,
+        "overall_judgment": overall_judgment,
+        "claimed_scope": packet.claimed_scope.model_dump(mode="json"),
+        "observed_reachable_surfaces": [
+            entry.model_dump(mode="json") for entry in packet.observed_reachable_surfaces
+        ],
+        "accepted_shipped_scope": packet.accepted_shipped_scope.model_dump(mode="json"),
+        "imported_meta_sequence_gaps": list(packet.imported_meta_sequence_gaps),
+        "completed_alignment_actions": list(packet.maintainer_alignment_actions),
+        "unresolved_followup_codes": unresolved_followups,
+        "precedent_status": packet.maintainer_precedent_status,
+        "precedent_reason": packet.maintainer_precedent_reason,
+        "derivation_metadata": derivation_metadata.model_dump(mode="json", exclude_none=True),
+    }
+    return ModuleConformanceReport.model_validate(
+        report_payload,
+        context=_validation_context(repository_root),
     )
 
 

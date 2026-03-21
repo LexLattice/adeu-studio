@@ -67,10 +67,19 @@
       "surface_ref": "apps/api/src/adeu_api/poetry.py:286:write_poem"
     }
   ],
-  "policy_source_paths": [
-    "AGENTS.md",
-    "docs/DRAFT_EXTERNAL_CONTRIBUTION_ALIGNMENT_v0.md",
-    "docs/LOCKED_CONTINUATION_vNEXT_PLUS72.md"
+  "policy_sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+    },
+    {
+      "path": "docs/DRAFT_EXTERNAL_CONTRIBUTION_ALIGNMENT_v0.md",
+      "sha256": "6649fff0865205b383a8e7c30080599556a017723d0c902131742befae838d84"
+    },
+    {
+      "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS72.md",
+      "sha256": "a04bd709f89e1e9c5f13252664d2b6af7c5b6cdff2ddd20012bea595406bf8b6"
+    }
   ],
   "reference_fixture_id": "pr293_poetry_utility",
   "schema": "external_contribution_alignment_packet@1",

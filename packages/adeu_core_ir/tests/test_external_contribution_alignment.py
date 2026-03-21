@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -35,6 +37,39 @@ def _load_json(path: Path) -> dict[str, object]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _copy_repo_relative_file(*, source_root: Path, target_root: Path, relative_path: str) -> None:
+    source = source_root / relative_path
+    target = target_root / relative_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source, target)
+
+
+def _build_temp_repo_fixture_tree(tmp_path: Path) -> Path:
+    source_root = _repo_root()
+    repo_root_path = tmp_path / "repo"
+    repo_root_path.mkdir()
+    for relative_path in (
+        "AGENTS.md",
+        "docs/DRAFT_EXTERNAL_CONTRIBUTION_ALIGNMENT_v0.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS72.md",
+        "apps/api/fixtures/external_contribution_alignment/vnext_plus72/pr293_poetry_utility_claimed_scope_snapshot.md",
+        "apps/api/fixtures/external_contribution_alignment/vnext_plus72/pr293_poetry_utility_diff_snapshot.patch",
+        "apps/api/fixtures/external_contribution_alignment/vnext_plus72/pr293_poetry_utility_metadata_snapshot.json",
+        "apps/api/fixtures/external_contribution_alignment/vnext_plus72/external_contribution_alignment_packet_pr293_poetry_utility.json",
+        "apps/api/fixtures/external_contribution_alignment/vnext_plus72/module_conformance_report_pr293_poetry_utility.json",
+    ):
+        _copy_repo_relative_file(
+            source_root=source_root,
+            target_root=repo_root_path,
+            relative_path=relative_path,
+        )
+    return repo_root_path
+
+
 def _packet_payload() -> dict[str, object]:
     return _load_json(
         _fixture_root() / "external_contribution_alignment_packet_pr293_poetry_utility.json"
@@ -57,6 +92,7 @@ def test_reference_packet_fixture_validates_and_binds_localized_inputs() -> None
     assert packet.accepted_shipped_scope.declared_surface_kind == "internal_only_utility"
     assert packet.code_alignment_inputs.checks_run == []
     assert packet.localized_subject_inputs[0].input_role == "claimed_scope_snapshot"
+    assert packet.policy_sources[0].path == "AGENTS.md"
 
 
 def test_reference_report_fixture_matches_deterministic_derivation() -> None:
@@ -116,6 +152,20 @@ def test_packet_rejects_observed_surface_refs_not_localized_in_metadata_snapshot
         ExternalContributionAlignmentPacket.model_validate(payload)
 
 
+def test_packet_rejects_completed_check_record_without_declared_checks_run() -> None:
+    payload = _packet_payload()
+    payload["maintainer_alignment_actions"] = ["record_checks_run"]  # type: ignore[index]
+
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "maintainer_alignment_actions cannot mark record_checks_run complete unless "
+            "code_alignment_inputs\\.checks_run is non-empty"
+        ),
+    ):
+        ExternalContributionAlignmentPacket.model_validate(payload)
+
+
 def test_report_rejects_accepted_scope_refs_not_present_in_observed_surfaces() -> None:
     payload = _report_payload()
     payload["accepted_shipped_scope"]["surface_refs"] = [  # type: ignore[index]
@@ -140,3 +190,24 @@ def test_report_rejects_overlap_between_completed_and_unresolved_actions() -> No
         match="completed_alignment_actions and unresolved_followup_codes must remain disjoint",
     ):
         ModuleConformanceReport.model_validate(payload)
+
+
+def test_derivation_honors_repository_root_for_pinned_policy_sources(tmp_path: Path) -> None:
+    repo_root_path = _build_temp_repo_fixture_tree(tmp_path)
+    agents_path = repo_root_path / "AGENTS.md"
+    agents_path.write_text(agents_path.read_text(encoding="utf-8") + "\npolicy drift fixture\n")
+
+    payload = _load_json(
+        repo_root_path
+        / "apps/api/fixtures/external_contribution_alignment/vnext_plus72"
+        / "external_contribution_alignment_packet_pr293_poetry_utility.json"
+    )
+    payload["policy_sources"][0]["sha256"] = _sha256_file(agents_path)  # type: ignore[index]
+
+    report = derive_v39a_module_conformance(
+        payload,
+        repository_root=repo_root_path,
+    )
+
+    assert report.derivation_metadata.policy_sources[0].path == "AGENTS.md"
+    assert report.derivation_metadata.policy_sources[0].sha256 == _sha256_file(agents_path)

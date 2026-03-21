@@ -133,6 +133,27 @@
       ],
       "title": "ObservedReachableSurface",
       "type": "object"
+    },
+    "PolicySourceSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "title": "PolicySourceSnapshot",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -220,11 +241,11 @@
       "title": "Observed Reachable Surfaces",
       "type": "array"
     },
-    "policy_source_paths": {
+    "policy_sources": {
       "items": {
-        "type": "string"
+        "$ref": "#/$defs/PolicySourceSnapshot"
       },
-      "title": "Policy Source Paths",
+      "title": "Policy Sources",
       "type": "array"
     },
     "reference_fixture_id": {
@@ -259,7 +280,7 @@
     "contribution_label",
     "structural_impact_class",
     "localized_subject_inputs",
-    "policy_source_paths",
+    "policy_sources",
     "claimed_scope",
     "observed_reachable_surfaces",
     "accepted_shipped_scope",

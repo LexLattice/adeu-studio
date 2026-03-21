@@ -22,7 +22,7 @@
     "record_alignment_artifacts"
   ],
   "derivation_metadata": {
-    "alignment_packet_hash": "ce64e6011449131f504c53f67dc5a85728c402dca03f8095bb112b83fd7c1116",
+    "alignment_packet_hash": "b357da452a79caf54a290c1083165d10979ec7485f4406b78bb2248d2318f0e6",
     "canonical_local_subject_only": true,
     "default_precedent_status": "non_precedent",
     "evaluator_id": "adeu_core_ir.external_contribution_alignment.derive_v39a_module_conformance@1",
