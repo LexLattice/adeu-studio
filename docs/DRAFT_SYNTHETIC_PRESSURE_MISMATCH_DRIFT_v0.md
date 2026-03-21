@@ -455,6 +455,12 @@ Planned artifacts:
   - `synthetic_pressure_mismatch_oracle_resolution@1`
   - `synthetic_pressure_mismatch_checkpoint_trace@1`
 
+Registry note:
+
+- the rule registry governs admissible rule law only;
+- it does not materialize concrete finding instances, concrete subject references, or
+  observed conformance outcomes.
+
 Recommended registry fields:
 
 - `rule_id`
@@ -464,14 +470,27 @@ Recommended registry fields:
 - `evidence_mode`
 - `evidence_regime`
 - `allowed_action`
+- `applicable_subject_kinds`
 - `false_positive_risk`
 - `required_context_scope`
-- `expected_utility_gain`
+- `expected_utility_gains`
 - `rewrite_risk`
 - `counterexample_policy`
 - `resolution_route`
 - `forward_agent_policy`
 - `post_optimizer_policy`
+
+Recommended registry law:
+
+- `applicable_subject_kinds` should be a non-empty bounded array;
+- `expected_utility_gains` should be a non-empty bounded array;
+- if `allowed_action = safe_autofix`, require:
+  - `evidence_regime = deterministic_local`
+  - `resolution_route = deterministic_only`;
+- `counterexample_policy` should declare:
+  - when the rule does not apply,
+  - what evidence defeats the inference,
+  - whether exemption requires review.
 
 Planning note:
 

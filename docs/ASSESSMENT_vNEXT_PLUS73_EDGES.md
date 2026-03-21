@@ -86,6 +86,41 @@ Status: planning-edge assessment for `V39-B`.
 - Response:
   freeze `expected_utility_gain` to a bounded vocabulary in the first schema release.
 
+### Edge 9: Registry/Instance Collapse
+
+- Risk:
+  registry entries could be misread as concrete findings rather than law about where a
+  rule may apply and how it may resolve.
+- Response:
+  make registry-only applicability explicit and use bounded
+  `applicable_subject_kinds` arrays instead of instance-like subject references.
+
+### Edge 10: Safe-Autofix Drift
+
+- Risk:
+  `safe_autofix` could drift into contextual or oracle-assisted rules over time.
+- Response:
+  require every `safe_autofix` rule to pair with
+  `evidence_regime = deterministic_local` and
+  `resolution_route = deterministic_only`.
+
+### Edge 11: Counterexample Mush
+
+- Risk:
+  `counterexample_policy` could be present in name only while remaining too vague to
+  constrain false positives.
+- Response:
+  require it to state non-application conditions, defeating evidence, and exemption
+  review posture.
+
+### Edge 12: Registry Integrity Drift
+
+- Risk:
+  the first canonical fixture could still admit duplicate ids, empty registries, or
+  rules with no admissible subject surface.
+- Response:
+  reject those shapes deterministically in the first validator release.
+
 ## Current Judgment
 
 - `V39-B` is worth implementing now because the repo has already released a bounded

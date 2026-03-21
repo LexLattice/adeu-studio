@@ -21,15 +21,26 @@ Status: proposed gate for `V39-B`.
   cleanly from `packages/adeu_core_ir/schema/` and `spec/`;
 - the committed reference registry fixture revalidates deterministically on repeated
   runs;
-- `signal_kind`, `subject_kind`, `evidence_regime`, `allowed_action`,
+- `signal_kind`, `subject_kind`, `evidence_mode`, `evidence_regime`, `allowed_action`,
   `resolution_route`, and `expected_utility_gain` all validate against bounded
   vocabularies rather than free prose;
+- registry entries declare rule applicability law only and do not materialize concrete
+  findings or concrete subject references;
+- `applicable_subject_kinds` and `expected_utility_gains` validate as non-empty
+  bounded arrays;
 - `counterexample_policy` is required on every rule entry;
+- `counterexample_policy` is structured enough to declare:
+  - when the rule does not apply,
+  - what evidence defeats the inference,
+  - whether exemption requires review;
 - the implementation rejects authorship or origin as governed dimensions;
 - the registry remains anti-score by construction and does not introduce a hidden
   drift scalar or merge-worthiness field;
 - `safe_autofix` is blocked for ambiguous, meta-governance, and first-slice
   shape-regularity rules;
+- any `safe_autofix` rule also requires:
+  - `evidence_regime = deterministic_local`
+  - `resolution_route = deterministic_only`;
 - package placement remains `adeu_core_ir` for the first implementation;
 - the pressure-mismatch vocabulary remains registry-local and does not mutate or
   overload the `V36-A` same-context glossary;
@@ -37,6 +48,9 @@ Status: proposed gate for `V39-B`.
   - schema/model validation,
   - mirrored export parity,
   - deterministic fixture replay,
+  - duplicate `rule_id` rejection,
+  - empty-registry rejection,
+  - no-subject-surface rejection,
   - fail-closed invalid-combination rejection,
   - non-authorship boundary preservation.
 
@@ -48,6 +62,8 @@ Status: proposed gate for `V39-B`.
 - the slice quietly ships observation packets, detectors, fix plans, or oracle
   execution under the `V39-B` label;
 - the registry invents a free-form summary score or posture scalar;
+- `resolution_route` is interpreted as proof of an already-shipped runtime or
+  adjudication surface in `V39-B`;
 - registry-local vocabulary is replaced by a new glossary artifact without explicit
   lock text;
 - seed rules claim that `oracle_assisted` or `human_only` are already executable

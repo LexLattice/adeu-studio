@@ -42,6 +42,12 @@ The slice remains deliberately prior to detectors, reports, fix plans, and hybri
 oracle execution. Its job is to establish the vocabulary and admissibility law that
 later `V39-C`, `V39-D`, and `V39-E` slices will consume.
 
+Registry law note:
+
+- registry entries declare admissible rule applicability surfaces and policy shape;
+- they do not materialize concrete findings, concrete subject references, or observed
+  drift instances.
+
 ## Frozen Implementation Decisions
 
 1. First implementation package:
@@ -66,6 +72,18 @@ later `V39-C`, `V39-D`, and `V39-E` slices will consume.
      - `semantic_communication_drift`
      - `shape_regularity_drift`
      - `meta_intent_failure`
+   - canonical `evidence_mode` starter vocabulary:
+     - `ast_shape`
+     - `control_flow_shape`
+     - `exception_flow_shape`
+     - `nullability_or_presence_inference`
+     - `duplicate_invariant_path`
+     - `lexical_naming_pattern`
+     - `comment_text_pattern`
+     - `error_text_pattern`
+     - `commit_text_pattern`
+     - `diff_shape_heuristic`
+     - `review_only_human_judgment`
    - canonical `subject_kind` starter vocabulary:
      - `code_span`
      - `diff_hunk`
@@ -76,6 +94,8 @@ later `V39-C`, `V39-D`, and `V39-E` slices will consume.
      - `commit_message`
      - `review_note`
      - `recap_artifact`
+   - rule entries must carry non-empty bounded `applicable_subject_kinds` arrays drawn
+     from the canonical `subject_kind` vocabulary
    - canonical `evidence_regime` vocabulary:
      - `deterministic_local`
      - `static_contextual`
@@ -101,12 +121,21 @@ later `V39-C`, `V39-D`, and `V39-E` slices will consume.
      - `semantic_density_gain`
      - `review_load_reduction`
      - `intent_clarity_gain`
+   - rule entries must carry non-empty bounded `expected_utility_gains` arrays drawn
+     from the canonical `expected_utility_gain` vocabulary
 3. Deterministic validators or builders that:
    - reject authorship or origin claims as registry dimensions;
    - reject free-prose `expected_utility_gain`;
    - require `counterexample_policy` rather than optional notes;
+   - require `counterexample_policy` to declare:
+     - when the rule does not apply,
+     - what evidence defeats the inference,
+     - whether exemption requires review;
    - require explicit `resolution_route`;
    - keep `overall_pressure_mismatch_posture` out of the registry substrate;
+   - reject empty registries;
+   - reject duplicate `rule_id` values;
+   - reject rules with no admissible subject surface;
    - fail closed on unknown vocabulary members or unsupported field combinations.
 4. One committed reference registry fixture that:
    - validates as `synthetic_pressure_mismatch_rule_registry@1`;
@@ -134,8 +163,13 @@ later `V39-C`, `V39-D`, and `V39-E` slices will consume.
   - `semantic_ambiguous` rules,
   - `meta_governance` rules,
   - `shape_regularity_drift` rules in this first slice.
+- if `allowed_action = safe_autofix`, then the rule must also require:
+  - `evidence_regime = deterministic_local`
+  - `resolution_route = deterministic_only`
 - `resolution_route` remains advisory routing metadata in this slice and may not
   imply that hybrid execution infrastructure already exists.
+- `resolution_route` in `V39-B` is declarative future-lane metadata only; it does not
+  imply that any route-specific runtime or adjudication surface exists yet.
 - The vocabulary remains registry-local in `V39-B`; no separate glossary artifact may
   be minted here, and the `V36-A` same-context glossary must remain untouched.
 - Package placement for the first slice remains `adeu_core_ir`; do not split the
