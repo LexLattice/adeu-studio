@@ -1,0 +1,153 @@
+{
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS73.md#v39b_synthetic_pressure_mismatch_registry_contract@1",
+  "glossary_strategy": "registry_local_vocabulary",
+  "implementation_package": "adeu_core_ir",
+  "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
+  "rules": [
+    {
+      "allowed_action": "safe_autofix",
+      "applicable_subject_kinds": [
+        "code_span",
+        "diff_hunk",
+        "function_or_method"
+      ],
+      "counterexample_policy": {
+        "defeating_evidence": "The guard validates an input boundary where nullability can be observed from external callers or deserialized payloads.",
+        "exemption_requires_review": true,
+        "when_rule_does_not_apply": "Do not apply when the value can be absent at runtime through IO, deserialization, plugin boundaries, or typed Optional contracts."
+      },
+      "evidence_mode": "nullability_or_presence_inference",
+      "evidence_regime": "deterministic_local",
+      "expected_utility_gains": [
+        "maintainability_improvement",
+        "review_load_reduction"
+      ],
+      "false_positive_risk": "low",
+      "forward_agent_policy": "Avoid adding defensive null checks unless a reachable boundary can supply null.",
+      "harm_kind": "maintainability_drag",
+      "post_optimizer_policy": "Remove impossible null checks only when flow and type evidence are deterministic.",
+      "required_context_scope": "function_scope",
+      "resolution_route": "deterministic_only",
+      "rewrite_risk": "low",
+      "rule_id": "state_model_impossible_null_check",
+      "signal_kind": "state_model_drift",
+      "subpattern": "impossible_null_guard"
+    },
+    {
+      "allowed_action": "deterministic_finding",
+      "applicable_subject_kinds": [
+        "code_span",
+        "function_or_method"
+      ],
+      "counterexample_policy": {
+        "defeating_evidence": "The extracted helper is reused across independently evolving call paths with shared invariants.",
+        "exemption_requires_review": false,
+        "when_rule_does_not_apply": "Do not apply when extraction provides real reuse or isolates complexity that would otherwise obscure correctness."
+      },
+      "evidence_mode": "control_flow_shape",
+      "evidence_regime": "static_contextual",
+      "expected_utility_gains": [
+        "maintainability_improvement",
+        "semantic_density_gain"
+      ],
+      "false_positive_risk": "medium",
+      "forward_agent_policy": "Prefer inline logic when extraction does not reduce complexity or produce reuse.",
+      "harm_kind": "semantic_density_loss",
+      "post_optimizer_policy": "Flag likely ceremonial helper extraction and require context review before rewrite.",
+      "required_context_scope": "module_scope",
+      "resolution_route": "deterministic_only",
+      "rewrite_risk": "medium",
+      "rule_id": "abstraction_pressure_trivial_helper_extraction",
+      "signal_kind": "abstraction_pressure_drift",
+      "subpattern": "trivial_helper_extraction"
+    },
+    {
+      "allowed_action": "review_only_finding",
+      "applicable_subject_kinds": [
+        "comment_block",
+        "error_message"
+      ],
+      "counterexample_policy": {
+        "defeating_evidence": "The text introduces domain assumptions, threat model context, or user-actionable guidance not inferable from code.",
+        "exemption_requires_review": true,
+        "when_rule_does_not_apply": "Do not apply when narration carries otherwise hidden invariants, risk framing, or critical onboarding detail."
+      },
+      "evidence_mode": "comment_text_pattern",
+      "evidence_regime": "semantic_ambiguous",
+      "expected_utility_gains": [
+        "review_load_reduction",
+        "semantic_density_gain"
+      ],
+      "false_positive_risk": "high",
+      "forward_agent_policy": "Write comments only when they add semantics not visible in executable logic.",
+      "harm_kind": "semantic_density_loss",
+      "post_optimizer_policy": "Do not auto-delete commentary; emit advisory findings and ask for intent clarification.",
+      "required_context_scope": "hunk_scope",
+      "resolution_route": "oracle_assisted",
+      "rewrite_risk": "high",
+      "rule_id": "semantic_communication_narrative_comment",
+      "signal_kind": "semantic_communication_drift",
+      "subpattern": "narrative_comment_without_new_semantics"
+    },
+    {
+      "allowed_action": "review_only_finding",
+      "applicable_subject_kinds": [
+        "diff_hunk",
+        "function_or_method"
+      ],
+      "counterexample_policy": {
+        "defeating_evidence": "Symmetric branch structure is required by an explicit protocol matrix or paired safety policy.",
+        "exemption_requires_review": true,
+        "when_rule_does_not_apply": "Do not apply when regularity is mandated by a documented domain contract or compliance requirement."
+      },
+      "evidence_mode": "diff_shape_heuristic",
+      "evidence_regime": "static_contextual",
+      "expected_utility_gains": [
+        "maintainability_improvement",
+        "review_load_reduction"
+      ],
+      "false_positive_risk": "high",
+      "forward_agent_policy": "Treat mirrored control flow as suspicious only when no domain contract explains the symmetry.",
+      "harm_kind": "reviewer_load_inflation",
+      "post_optimizer_policy": "Keep shape-regularity findings advisory in the first slice.",
+      "required_context_scope": "module_scope",
+      "resolution_route": "human_only",
+      "rewrite_risk": "high",
+      "rule_id": "shape_regularity_mirrored_branch_overfit",
+      "signal_kind": "shape_regularity_drift",
+      "subpattern": "mechanical_branch_symmetry"
+    },
+    {
+      "allowed_action": "meta_artifact_correction",
+      "applicable_subject_kinds": [
+        "commit_message",
+        "recap_artifact",
+        "review_note"
+      ],
+      "counterexample_policy": {
+        "defeating_evidence": "The artifact links file inventory to a clear intent rationale and user-impact statement.",
+        "exemption_requires_review": true,
+        "when_rule_does_not_apply": "Do not apply when structured file lists are required by release tooling but intent is still explicit."
+      },
+      "evidence_mode": "commit_text_pattern",
+      "evidence_regime": "meta_governance",
+      "expected_utility_gains": [
+        "intent_clarity_gain",
+        "review_load_reduction"
+      ],
+      "false_positive_risk": "low",
+      "forward_agent_policy": "Prefer intent-first summaries over touched-file recaps in meta artifacts.",
+      "harm_kind": "intent_opacity",
+      "post_optimizer_policy": "Propose intent-focused rewrites for changelog-style residue artifacts.",
+      "required_context_scope": "artifact_scope",
+      "resolution_route": "human_only",
+      "rewrite_risk": "low",
+      "rule_id": "meta_intent_changelog_residue",
+      "signal_kind": "meta_intent_failure",
+      "subpattern": "file_list_without_intent"
+    }
+  ],
+  "schema": "synthetic_pressure_mismatch_rule_registry@1",
+  "target_arc": "vNext+73",
+  "target_path": "V39-B"
+}

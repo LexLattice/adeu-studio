@@ -1,0 +1,270 @@
+{
+  "$defs": {
+    "SyntheticPressureMismatchCounterexamplePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "defeating_evidence": {
+          "title": "Defeating Evidence",
+          "type": "string"
+        },
+        "exemption_requires_review": {
+          "title": "Exemption Requires Review",
+          "type": "boolean"
+        },
+        "when_rule_does_not_apply": {
+          "title": "When Rule Does Not Apply",
+          "type": "string"
+        }
+      },
+      "required": [
+        "when_rule_does_not_apply",
+        "defeating_evidence",
+        "exemption_requires_review"
+      ],
+      "title": "SyntheticPressureMismatchCounterexamplePolicy",
+      "type": "object"
+    },
+    "SyntheticPressureMismatchRule": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_action": {
+          "enum": [
+            "safe_autofix",
+            "deterministic_finding",
+            "review_only_finding",
+            "forbid",
+            "discourage",
+            "allow_with_justification",
+            "meta_artifact_correction"
+          ],
+          "title": "Allowed Action",
+          "type": "string"
+        },
+        "applicable_subject_kinds": {
+          "items": {
+            "enum": [
+              "code_span",
+              "diff_hunk",
+              "function_or_method",
+              "test_case_or_fixture",
+              "comment_block",
+              "error_message",
+              "commit_message",
+              "review_note",
+              "recap_artifact"
+            ],
+            "type": "string"
+          },
+          "title": "Applicable Subject Kinds",
+          "type": "array"
+        },
+        "counterexample_policy": {
+          "$ref": "#/$defs/SyntheticPressureMismatchCounterexamplePolicy"
+        },
+        "evidence_mode": {
+          "enum": [
+            "ast_shape",
+            "control_flow_shape",
+            "exception_flow_shape",
+            "nullability_or_presence_inference",
+            "duplicate_invariant_path",
+            "lexical_naming_pattern",
+            "comment_text_pattern",
+            "error_text_pattern",
+            "commit_text_pattern",
+            "diff_shape_heuristic",
+            "review_only_human_judgment"
+          ],
+          "title": "Evidence Mode",
+          "type": "string"
+        },
+        "evidence_regime": {
+          "enum": [
+            "deterministic_local",
+            "static_contextual",
+            "semantic_ambiguous",
+            "meta_governance"
+          ],
+          "title": "Evidence Regime",
+          "type": "string"
+        },
+        "expected_utility_gains": {
+          "items": {
+            "enum": [
+              "correctness_protection",
+              "failure_signal_recovery",
+              "trust_boundary_clarity",
+              "maintainability_improvement",
+              "semantic_density_gain",
+              "review_load_reduction",
+              "intent_clarity_gain"
+            ],
+            "type": "string"
+          },
+          "title": "Expected Utility Gains",
+          "type": "array"
+        },
+        "false_positive_risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "False Positive Risk",
+          "type": "string"
+        },
+        "forward_agent_policy": {
+          "minLength": 1,
+          "title": "Forward Agent Policy",
+          "type": "string"
+        },
+        "harm_kind": {
+          "enum": [
+            "correctness_risk",
+            "failure_signal_loss",
+            "trust_boundary_blur",
+            "maintainability_drag",
+            "semantic_density_loss",
+            "reviewer_load_inflation",
+            "intent_opacity"
+          ],
+          "title": "Harm Kind",
+          "type": "string"
+        },
+        "post_optimizer_policy": {
+          "minLength": 1,
+          "title": "Post Optimizer Policy",
+          "type": "string"
+        },
+        "required_context_scope": {
+          "enum": [
+            "code_span_scope",
+            "function_scope",
+            "module_scope",
+            "call_path_scope",
+            "hunk_scope",
+            "artifact_scope"
+          ],
+          "title": "Required Context Scope",
+          "type": "string"
+        },
+        "resolution_route": {
+          "enum": [
+            "deterministic_only",
+            "oracle_assisted",
+            "human_only"
+          ],
+          "title": "Resolution Route",
+          "type": "string"
+        },
+        "rewrite_risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Rewrite Risk",
+          "type": "string"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "signal_kind": {
+          "enum": [
+            "state_model_drift",
+            "abstraction_pressure_drift",
+            "semantic_communication_drift",
+            "shape_regularity_drift",
+            "meta_intent_failure"
+          ],
+          "title": "Signal Kind",
+          "type": "string"
+        },
+        "subpattern": {
+          "minLength": 1,
+          "title": "Subpattern",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "signal_kind",
+        "subpattern",
+        "harm_kind",
+        "evidence_mode",
+        "evidence_regime",
+        "allowed_action",
+        "applicable_subject_kinds",
+        "false_positive_risk",
+        "required_context_scope",
+        "expected_utility_gains",
+        "rewrite_risk",
+        "counterexample_policy",
+        "resolution_route",
+        "forward_agent_policy",
+        "post_optimizer_policy"
+      ],
+      "title": "SyntheticPressureMismatchRule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contract_source": {
+      "const": "docs/LOCKED_CONTINUATION_vNEXT_PLUS73.md#v39b_synthetic_pressure_mismatch_registry_contract@1",
+      "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS73.md#v39b_synthetic_pressure_mismatch_registry_contract@1",
+      "title": "Contract Source",
+      "type": "string"
+    },
+    "glossary_strategy": {
+      "const": "registry_local_vocabulary",
+      "default": "registry_local_vocabulary",
+      "title": "Glossary Strategy",
+      "type": "string"
+    },
+    "implementation_package": {
+      "const": "adeu_core_ir",
+      "default": "adeu_core_ir",
+      "title": "Implementation Package",
+      "type": "string"
+    },
+    "registry_id": {
+      "minLength": 1,
+      "title": "Registry Id",
+      "type": "string"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchRule"
+      },
+      "title": "Rules",
+      "type": "array"
+    },
+    "schema": {
+      "const": "synthetic_pressure_mismatch_rule_registry@1",
+      "default": "synthetic_pressure_mismatch_rule_registry@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "pattern": "^vNext\\+[0-9]+$",
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "const": "V39-B",
+      "default": "V39-B",
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "registry_id",
+    "target_arc",
+    "rules"
+  ],
+  "title": "SyntheticPressureMismatchRuleRegistry",
+  "type": "object"
+}

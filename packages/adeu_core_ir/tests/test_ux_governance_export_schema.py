@@ -18,6 +18,7 @@ from adeu_core_ir import (
     META_MODULE_CATALOG_SCHEMA,
     META_TESTING_INTENT_PACKET_SCHEMA,
     MODULE_CONFORMANCE_REPORT_SCHEMA,
+    SYNTHETIC_PRESSURE_MISMATCH_RULE_REGISTRY_SCHEMA,
     UX_CONFORMANCE_REPORT_SCHEMA,
     UX_DOMAIN_PACKET_SCHEMA,
     UX_INTERACTION_CONTRACT_SCHEMA,
@@ -65,6 +66,14 @@ def _schema_paths() -> list[tuple[Path, Path]]:
         (
             root / "packages" / "adeu_core_ir" / "schema" / "module_conformance_report.v1.json",
             root / "spec" / "module_conformance_report.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "synthetic_pressure_mismatch_rule_registry.v1.json",
+            root / "spec" / "synthetic_pressure_mismatch_rule_registry.schema.json",
         ),
         (
             root / "packages" / "adeu_core_ir" / "schema" / "ux_domain_packet.v1.json",
@@ -209,6 +218,9 @@ def test_exported_schema_files_have_stable_contract_markers() -> None:
             EXTERNAL_CONTRIBUTION_ALIGNMENT_PACKET_SCHEMA
         ),
         "module_conformance_report.v1.json": MODULE_CONFORMANCE_REPORT_SCHEMA,
+        "synthetic_pressure_mismatch_rule_registry.v1.json": (
+            SYNTHETIC_PRESSURE_MISMATCH_RULE_REGISTRY_SCHEMA
+        ),
         "ux_domain_packet.v1.json": UX_DOMAIN_PACKET_SCHEMA,
         "ux_morph_ir.v1.json": UX_MORPH_IR_SCHEMA,
         "ux_surface_projection.v1.json": UX_SURFACE_PROJECTION_SCHEMA,
