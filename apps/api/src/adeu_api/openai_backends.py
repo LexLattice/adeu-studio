@@ -655,8 +655,9 @@ class ChatCompletionsBackend:
 
 
 class CodexExecBackend:
-    def __init__(self, *, codex_bin: str):
+    def __init__(self, *, codex_bin: str, skip_git_repo_check: bool = False):
         self._codex_bin = codex_bin
+        self._skip_git_repo_check = skip_git_repo_check
 
     def _build_prompt(self, *, system_prompt: str, user_prompt: str) -> str:
         return (
@@ -683,6 +684,8 @@ class CodexExecBackend:
             "--output-schema",
             schema_path,
         ]
+        if self._skip_git_repo_check:
+            command.append("--skip-git-repo-check")
         if model and model != CODEX_DEFAULT_MODEL_LABEL:
             command.extend(["--model", model])
         command.append(prompt)
@@ -882,5 +885,8 @@ def build_openai_backend(*, api: BackendApi, api_key: str, base_url: str) -> Ope
     raise ValueError(f"Unsupported ADEU_OPENAI_API value: {api!r}")
 
 
-def build_codex_exec_backend(*, codex_bin: str) -> OpenAIBackend:
-    return CodexExecBackend(codex_bin=codex_bin)
+def build_codex_exec_backend(*, codex_bin: str, skip_git_repo_check: bool = False) -> OpenAIBackend:
+    return CodexExecBackend(
+        codex_bin=codex_bin,
+        skip_git_repo_check=skip_git_repo_check,
+    )

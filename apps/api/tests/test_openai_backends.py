@@ -133,6 +133,31 @@ def test_codex_exec_backend_extracts_agent_message_json_object(monkeypatch) -> N
     assert result.provider_meta.api == "codex_exec"
 
 
+def test_codex_exec_backend_build_command_includes_optional_skip_flag() -> None:
+    backend = backends.CodexExecBackend(
+        codex_bin="/tmp/fake-codex",
+        skip_git_repo_check=True,
+    )
+
+    command = backend._build_command(
+        prompt="hello",
+        schema_path="/tmp/schema.json",
+        model=backends.CODEX_DEFAULT_MODEL_LABEL,
+    )
+
+    assert command == [
+        "/tmp/fake-codex",
+        "exec",
+        "--json",
+        "--sandbox",
+        "read-only",
+        "--output-schema",
+        "/tmp/schema.json",
+        "--skip-git-repo-check",
+        "hello",
+    ]
+
+
 def test_codex_schema_normalization_requires_all_object_properties() -> None:
     schema = {
         "type": "object",
