@@ -1,0 +1,272 @@
+{
+  "$defs": {
+    "AlignmentScopeSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "declared_surface_kind": {
+          "enum": [
+            "internal_only_utility",
+            "externally_reachable_product_surface"
+          ],
+          "title": "Declared Surface Kind",
+          "type": "string"
+        },
+        "summary": {
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Surface Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "summary",
+        "declared_surface_kind",
+        "surface_refs"
+      ],
+      "title": "AlignmentScopeSnapshot",
+      "type": "object"
+    },
+    "CodeAlignmentInputs": {
+      "additionalProperties": false,
+      "properties": {
+        "bounded_change_scope": {
+          "title": "Bounded Change Scope",
+          "type": "boolean"
+        },
+        "checks_run": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Checks Run",
+          "type": "array"
+        },
+        "fail_closed_validation_in_accepted_diff": {
+          "title": "Fail Closed Validation In Accepted Diff",
+          "type": "boolean"
+        },
+        "targeted_tests_present_in_accepted_diff": {
+          "title": "Targeted Tests Present In Accepted Diff",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "bounded_change_scope",
+        "fail_closed_validation_in_accepted_diff",
+        "targeted_tests_present_in_accepted_diff",
+        "checks_run"
+      ],
+      "title": "CodeAlignmentInputs",
+      "type": "object"
+    },
+    "LocalizedSubjectInput": {
+      "additionalProperties": false,
+      "properties": {
+        "input_id": {
+          "minLength": 1,
+          "title": "Input Id",
+          "type": "string"
+        },
+        "input_role": {
+          "enum": [
+            "claimed_scope_snapshot",
+            "diff_snapshot",
+            "metadata_snapshot"
+          ],
+          "title": "Input Role",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input_id",
+        "input_role",
+        "path",
+        "sha256"
+      ],
+      "title": "LocalizedSubjectInput",
+      "type": "object"
+    },
+    "ObservedReachableSurface": {
+      "additionalProperties": false,
+      "properties": {
+        "reachable": {
+          "const": true,
+          "default": true,
+          "title": "Reachable",
+          "type": "boolean"
+        },
+        "surface_kind": {
+          "enum": [
+            "internal_python_utility",
+            "api_route",
+            "urm_tool",
+            "web_route",
+            "schema_contract"
+          ],
+          "title": "Surface Kind",
+          "type": "string"
+        },
+        "surface_ref": {
+          "minLength": 1,
+          "title": "Surface Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_ref",
+        "surface_kind"
+      ],
+      "title": "ObservedReachableSurface",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_shipped_scope": {
+      "$ref": "#/$defs/AlignmentScopeSnapshot"
+    },
+    "claimed_scope": {
+      "$ref": "#/$defs/AlignmentScopeSnapshot"
+    },
+    "code_alignment_inputs": {
+      "$ref": "#/$defs/CodeAlignmentInputs"
+    },
+    "contribution_label": {
+      "minLength": 1,
+      "title": "Contribution Label",
+      "type": "string"
+    },
+    "evaluation_lane": {
+      "const": "external_single_pr",
+      "default": "external_single_pr",
+      "title": "Evaluation Lane",
+      "type": "string"
+    },
+    "imported_meta_sequence_gaps": {
+      "items": {
+        "enum": [
+          "missing_declared_checks_at_arrival",
+          "missing_post_docs",
+          "missing_pre_docs",
+          "missing_tests_at_arrival",
+          "overclaimed_shipped_scope_at_arrival"
+        ],
+        "type": "string"
+      },
+      "title": "Imported Meta Sequence Gaps",
+      "type": "array"
+    },
+    "localized_subject_inputs": {
+      "items": {
+        "$ref": "#/$defs/LocalizedSubjectInput"
+      },
+      "title": "Localized Subject Inputs",
+      "type": "array"
+    },
+    "maintainer_alignment_actions": {
+      "items": {
+        "enum": [
+          "add_targeted_tests",
+          "enforce_fail_closed_validation",
+          "narrow_scope_claim",
+          "record_alignment_artifacts",
+          "record_checks_run"
+        ],
+        "type": "string"
+      },
+      "title": "Maintainer Alignment Actions",
+      "type": "array"
+    },
+    "maintainer_precedent_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Maintainer Precedent Reason"
+    },
+    "maintainer_precedent_status": {
+      "default": "non_precedent",
+      "enum": [
+        "non_precedent",
+        "precedent_granted"
+      ],
+      "title": "Maintainer Precedent Status",
+      "type": "string"
+    },
+    "observed_reachable_surfaces": {
+      "items": {
+        "$ref": "#/$defs/ObservedReachableSurface"
+      },
+      "title": "Observed Reachable Surfaces",
+      "type": "array"
+    },
+    "policy_source_paths": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Policy Source Paths",
+      "type": "array"
+    },
+    "reference_fixture_id": {
+      "minLength": 1,
+      "title": "Reference Fixture Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "external_contribution_alignment_packet@1",
+      "default": "external_contribution_alignment_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "structural_impact_class": {
+      "enum": [
+        "X0",
+        "X1",
+        "X2"
+      ],
+      "title": "Structural Impact Class",
+      "type": "string"
+    },
+    "subject_kind": {
+      "const": "imported_pull_request_snapshot",
+      "default": "imported_pull_request_snapshot",
+      "title": "Subject Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reference_fixture_id",
+    "contribution_label",
+    "structural_impact_class",
+    "localized_subject_inputs",
+    "policy_source_paths",
+    "claimed_scope",
+    "observed_reachable_surfaces",
+    "accepted_shipped_scope",
+    "code_alignment_inputs",
+    "imported_meta_sequence_gaps",
+    "maintainer_alignment_actions"
+  ],
+  "title": "ExternalContributionAlignmentPacket",
+  "type": "object"
+}

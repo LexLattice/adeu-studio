@@ -94,6 +94,18 @@ Ask whether the contribution arrived through the repo's expected process:
 Lane B may fail even when Lane A is partly or mostly acceptable. That is normal for the
 external lane and should be recorded, not hand-waved away.
 
+## Scope And Precedent Discipline
+
+When maintainers normalize an accepted external PR, preserve three separate scope layers:
+
+- `claimed_scope`: what the imported contribution presented itself as shipping
+- `observed_reachable_surfaces`: what the diff actually wires or makes reachable
+- `accepted_shipped_scope`: the truthful maintainer judgment about what is actually accepted
+
+Do not collapse observed surfaces into judgment, and do not let imported work become
+process precedent by silence. External work remains `non_precedent` unless a maintainer
+explicitly grants precedent-bearing status with a reason.
+
 ## Maintainer Alignment Post-Processing
 
 If an external PR is accepted in principle, a maintainer should perform alignment
@@ -107,12 +119,18 @@ Recommended sequence:
 4. Add or request missing tests, evidence, or product-surface wiring.
 5. If the PR title or description over-claims the shipped behavior, either shrink the
    claim or complete the missing wiring.
-6. Decide what repo-native artifacts are needed:
+6. Preserve the three-layer scope model:
+   - claimed scope
+   - observed reachable surfaces
+   - accepted shipped scope
+7. Record precedent status explicitly and default it to `non_precedent` unless a
+   maintainer grants precedent with a reason.
+8. Decide what repo-native artifacts are needed:
    - none beyond PR notes for `X0`
    - a scoped continuation or decision note for most `X1`
    - proper internal ADEU planning docs for `X2`
-7. Merge only when the accepted behavior and the recorded scope agree.
-8. If merge happens before full alignment, immediately open a maintainer-owned follow-up
+9. Merge only when the accepted behavior and the recorded scope agree.
+10. If merge happens before full alignment, immediately open a maintainer-owned follow-up
    PR and do not treat the imported work as completed precedent until that PR lands.
 
 ## Integration Principle

@@ -50,6 +50,12 @@
 - A strong code diff does not erase meta-sequence divergence. Missing pre-docs,
   post-docs, tests, or evidence should be called out explicitly and handled through
   maintainer-side alignment post-processing.
+- When maintainers normalize external work, preserve three separate scope layers:
+  - `claimed_scope`
+  - `observed_reachable_surfaces`
+  - `accepted_shipped_scope`
+- Imported external work stays `non_precedent` unless a maintainer explicitly grants
+  precedent-bearing status with a reason.
 
 ## External Single-PR Lane
 

@@ -1,0 +1,57 @@
+{
+  "schema": "v39a_localized_subject_metadata@1",
+  "reference_fixture_id": "pr293_poetry_utility",
+  "canonical_subject_kind": "imported_pull_request_snapshot",
+  "source_branch": "feat/codex-poetry-backend",
+  "base_branch": "main",
+  "base_commit": "b0c4feee83e5b41974d1a03b511dc82b91d98b71",
+  "arrival_commit": "9f1fff04eeda52300d52abe47463214e854a2b29",
+  "accepted_head_commit": "be786ab59b7ca98eb907408a6cad68fd7e3f497a",
+  "materialized_on_branch": "docs/v72-external-retrospective-alignment",
+  "materialized_on_date": "2026-03-21",
+  "commit_sequence": [
+    {
+      "commit": "9f1fff04eeda52300d52abe47463214e854a2b29",
+      "timestamp": "2026-03-19T21:18:18-05:00",
+      "summary": "Add LLM-backed poetry generation with codex execution option",
+      "role": "arrival_import"
+    },
+    {
+      "commit": "cd2f99adf4ffb2bb609b0c59159a1c758b51f8df",
+      "timestamp": "2026-03-19T21:34:02-05:00",
+      "summary": "Remove redundant resolved_model reassignment in codex branch",
+      "role": "external_followup"
+    },
+    {
+      "commit": "226249c88070ec4bd06a80fe55b49a1bb31df234",
+      "timestamp": "2026-03-20T05:06:48+02:00",
+      "summary": "Align poetry utility with repo validation discipline",
+      "role": "maintainer_alignment"
+    },
+    {
+      "commit": "be786ab59b7ca98eb907408a6cad68fd7e3f497a",
+      "timestamp": "2026-03-20T20:07:55+02:00",
+      "summary": "Simplify poetry backend setup",
+      "role": "maintainer_cleanup"
+    }
+  ],
+  "changed_files": [
+    "apps/api/src/adeu_api/openai_backends.py",
+    "apps/api/src/adeu_api/poetry.py",
+    "apps/api/tests/test_openai_backends.py",
+    "apps/api/tests/test_poetry.py"
+  ],
+  "diff_shortstat": "4 files changed, 583 insertions(+), 3 deletions(-)",
+  "observed_public_surface_hits": [],
+  "observed_internal_surface_refs": [
+    "apps/api/src/adeu_api/openai_backends.py:888:build_codex_exec_backend",
+    "apps/api/src/adeu_api/poetry.py:286:write_poem"
+  ],
+  "accepted_checks_run": [],
+  "notes": [
+    "No poetry or poem route hit was found in apps/api/src/adeu_api/main.py, apps/api/src/adeu_api/urm_routes.py, or apps/web/src/app on the accepted head.",
+    "The accepted diff is localized as internal utility work plus targeted tests, not as a reachable product surface.",
+    "The claimed scope is intentionally bounded to what the localized commit subject and diff bundle support, without inferring a public product surface claim.",
+    "No reliable accepted check record is materialized in the localized subject bundle, so the canonical packet records checks_run as empty."
+  ]
+}
