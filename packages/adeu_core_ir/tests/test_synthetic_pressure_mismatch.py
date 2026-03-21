@@ -5,11 +5,12 @@ from pathlib import Path
 
 import pytest
 from adeu_core_ir import SyntheticPressureMismatchRuleRegistry
+from adeu_ir.repo import repo_root
 from pydantic import ValidationError
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[3]
+    return repo_root(anchor=Path(__file__))
 
 
 def _fixture_payload() -> dict[str, object]:

@@ -143,7 +143,54 @@ class SyntheticPressureMismatchCounterexamplePolicy(BaseModel):
 
 
 class SyntheticPressureMismatchRule(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "allowed_action": {"const": "safe_autofix"},
+                        },
+                        "required": ["allowed_action"],
+                    },
+                    "then": {
+                        "properties": {
+                            "evidence_regime": {"const": "deterministic_local"},
+                            "resolution_route": {"const": "deterministic_only"},
+                        }
+                    },
+                },
+                {
+                    "not": {
+                        "properties": {
+                            "allowed_action": {"const": "safe_autofix"},
+                            "signal_kind": {"const": "shape_regularity_drift"},
+                        },
+                        "required": ["allowed_action", "signal_kind"],
+                    }
+                },
+                {
+                    "not": {
+                        "properties": {
+                            "allowed_action": {"const": "safe_autofix"},
+                            "evidence_regime": {"const": "semantic_ambiguous"},
+                        },
+                        "required": ["allowed_action", "evidence_regime"],
+                    }
+                },
+                {
+                    "not": {
+                        "properties": {
+                            "allowed_action": {"const": "safe_autofix"},
+                            "evidence_regime": {"const": "meta_governance"},
+                        },
+                        "required": ["allowed_action", "evidence_regime"],
+                    }
+                },
+            ]
+        },
+    )
 
     rule_id: str = Field(min_length=1)
     signal_kind: SyntheticPressureMismatchSignalKind
@@ -152,10 +199,12 @@ class SyntheticPressureMismatchRule(BaseModel):
     evidence_mode: SyntheticPressureMismatchEvidenceMode
     evidence_regime: SyntheticPressureMismatchEvidenceRegime
     allowed_action: SyntheticPressureMismatchAllowedAction
-    applicable_subject_kinds: list[SyntheticPressureMismatchSubjectKind]
+    applicable_subject_kinds: list[SyntheticPressureMismatchSubjectKind] = Field(min_length=1)
     false_positive_risk: SyntheticPressureMismatchFalsePositiveRisk
     required_context_scope: SyntheticPressureMismatchRequiredContextScope
-    expected_utility_gains: list[SyntheticPressureMismatchExpectedUtilityGain]
+    expected_utility_gains: list[SyntheticPressureMismatchExpectedUtilityGain] = Field(
+        min_length=1
+    )
     rewrite_risk: SyntheticPressureMismatchRewriteRisk
     counterexample_policy: SyntheticPressureMismatchCounterexamplePolicy
     resolution_route: SyntheticPressureMismatchResolutionRoute
@@ -232,7 +281,7 @@ class SyntheticPressureMismatchRuleRegistry(BaseModel):
     ] = V39B_SYNTHETIC_PRESSURE_MISMATCH_CONTRACT_SOURCE
     implementation_package: Literal["adeu_core_ir"] = "adeu_core_ir"
     glossary_strategy: Literal["registry_local_vocabulary"] = "registry_local_vocabulary"
-    rules: list[SyntheticPressureMismatchRule]
+    rules: list[SyntheticPressureMismatchRule] = Field(min_length=1)
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "SyntheticPressureMismatchRuleRegistry":

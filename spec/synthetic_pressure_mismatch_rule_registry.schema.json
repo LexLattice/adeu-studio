@@ -26,6 +26,78 @@
     },
     "SyntheticPressureMismatchRule": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "allowed_action": {
+                "const": "safe_autofix"
+              }
+            },
+            "required": [
+              "allowed_action"
+            ]
+          },
+          "then": {
+            "properties": {
+              "evidence_regime": {
+                "const": "deterministic_local"
+              },
+              "resolution_route": {
+                "const": "deterministic_only"
+              }
+            }
+          }
+        },
+        {
+          "not": {
+            "properties": {
+              "allowed_action": {
+                "const": "safe_autofix"
+              },
+              "signal_kind": {
+                "const": "shape_regularity_drift"
+              }
+            },
+            "required": [
+              "allowed_action",
+              "signal_kind"
+            ]
+          }
+        },
+        {
+          "not": {
+            "properties": {
+              "allowed_action": {
+                "const": "safe_autofix"
+              },
+              "evidence_regime": {
+                "const": "semantic_ambiguous"
+              }
+            },
+            "required": [
+              "allowed_action",
+              "evidence_regime"
+            ]
+          }
+        },
+        {
+          "not": {
+            "properties": {
+              "allowed_action": {
+                "const": "safe_autofix"
+              },
+              "evidence_regime": {
+                "const": "meta_governance"
+              }
+            },
+            "required": [
+              "allowed_action",
+              "evidence_regime"
+            ]
+          }
+        }
+      ],
       "properties": {
         "allowed_action": {
           "enum": [
@@ -55,6 +127,7 @@
             ],
             "type": "string"
           },
+          "minItems": 1,
           "title": "Applicable Subject Kinds",
           "type": "array"
         },
@@ -101,6 +174,7 @@
             ],
             "type": "string"
           },
+          "minItems": 1,
           "title": "Expected Utility Gains",
           "type": "array"
         },
@@ -239,6 +313,7 @@
       "items": {
         "$ref": "#/$defs/SyntheticPressureMismatchRule"
       },
+      "minItems": 1,
       "title": "Rules",
       "type": "array"
     },
