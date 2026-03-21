@@ -10,6 +10,10 @@ from .brokered_reflexive_execution import (
     AdeuBrokeredReflexivePayload,
 )
 from .core_ir_proposal import AdeuCoreIRProposal
+from .external_contribution_alignment import (
+    ExternalContributionAlignmentPacket,
+    ModuleConformanceReport,
+)
 from .integrity_cycle_policy import AdeuIntegrityCyclePolicy
 from .integrity_cycle_policy_extended import AdeuIntegrityCyclePolicyExtended
 from .integrity_dangling_reference import AdeuIntegrityDanglingReference
@@ -67,6 +71,10 @@ def main() -> None:
     brokered_reflexive_execution_plan_schema = (
         AdeuBrokeredReflexiveExecutionPlan.model_json_schema(by_alias=True)
     )
+    external_contribution_alignment_packet_schema = (
+        ExternalContributionAlignmentPacket.model_json_schema(by_alias=True)
+    )
+    module_conformance_report_schema = ModuleConformanceReport.model_json_schema(by_alias=True)
     core_ir_schema = AdeuCoreIR.model_json_schema(by_alias=True)
     lane_report_schema = AdeuLaneReport.model_json_schema(by_alias=True)
     integrity_cycle_policy_schema = AdeuIntegrityCyclePolicy.model_json_schema(by_alias=True)
@@ -154,6 +162,26 @@ def main() -> None:
     _write_schema(
         brokered_reflexive_execution_plan_authoritative_path,
         brokered_reflexive_execution_plan_schema,
+    )
+
+    external_contribution_alignment_packet_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "external_contribution_alignment_packet.v1.json"
+    )
+    _write_schema(
+        external_contribution_alignment_packet_authoritative_path,
+        external_contribution_alignment_packet_schema,
+    )
+
+    module_conformance_report_authoritative_path = (
+        root / "packages" / "adeu_core_ir" / "schema" / "module_conformance_report.v1.json"
+    )
+    _write_schema(
+        module_conformance_report_authoritative_path,
+        module_conformance_report_schema,
     )
 
     lane_authoritative_path = (
@@ -459,6 +487,20 @@ def main() -> None:
     _write_schema(
         brokered_reflexive_execution_plan_mirror_path,
         brokered_reflexive_execution_plan_schema,
+    )
+
+    external_contribution_alignment_packet_mirror_path = (
+        root / "spec" / "external_contribution_alignment_packet.schema.json"
+    )
+    _write_schema(
+        external_contribution_alignment_packet_mirror_path,
+        external_contribution_alignment_packet_schema,
+    )
+
+    module_conformance_report_mirror_path = root / "spec" / "module_conformance_report.schema.json"
+    _write_schema(
+        module_conformance_report_mirror_path,
+        module_conformance_report_schema,
     )
 
     lane_mirror_path = root / "spec" / "adeu_lane_report.schema.json"

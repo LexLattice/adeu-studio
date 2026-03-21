@@ -7,6 +7,7 @@ from pathlib import Path
 from adeu_core_ir import (
     ADEU_BROKERED_REFLEXIVE_EXECUTION_PLAN_SCHEMA,
     ADEU_BROKERED_REFLEXIVE_PAYLOAD_SCHEMA,
+    EXTERNAL_CONTRIBUTION_ALIGNMENT_PACKET_SCHEMA,
     META_CONTROL_UPDATE_CANDIDATE_SCHEMA,
     META_CONTROL_UPDATE_MANIFEST_SCHEMA,
     META_LOOP_CHECKPOINT_RESULT_MANIFEST_SCHEMA,
@@ -16,6 +17,7 @@ from adeu_core_ir import (
     META_LOOP_SEQUENCE_CONTRACT_SCHEMA,
     META_MODULE_CATALOG_SCHEMA,
     META_TESTING_INTENT_PACKET_SCHEMA,
+    MODULE_CONFORMANCE_REPORT_SCHEMA,
     UX_CONFORMANCE_REPORT_SCHEMA,
     UX_DOMAIN_PACKET_SCHEMA,
     UX_INTERACTION_CONTRACT_SCHEMA,
@@ -51,6 +53,18 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             / "schema"
             / "adeu_brokered_reflexive_execution_plan.v1.json",
             root / "spec" / "adeu_brokered_reflexive_execution_plan.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_core_ir"
+            / "schema"
+            / "external_contribution_alignment_packet.v1.json",
+            root / "spec" / "external_contribution_alignment_packet.schema.json",
+        ),
+        (
+            root / "packages" / "adeu_core_ir" / "schema" / "module_conformance_report.v1.json",
+            root / "spec" / "module_conformance_report.schema.json",
         ),
         (
             root / "packages" / "adeu_core_ir" / "schema" / "ux_domain_packet.v1.json",
@@ -191,6 +205,10 @@ def test_exported_schema_files_have_stable_contract_markers() -> None:
         "adeu_brokered_reflexive_execution_plan.v1.json": (
             ADEU_BROKERED_REFLEXIVE_EXECUTION_PLAN_SCHEMA
         ),
+        "external_contribution_alignment_packet.v1.json": (
+            EXTERNAL_CONTRIBUTION_ALIGNMENT_PACKET_SCHEMA
+        ),
+        "module_conformance_report.v1.json": MODULE_CONFORMANCE_REPORT_SCHEMA,
         "ux_domain_packet.v1.json": UX_DOMAIN_PACKET_SCHEMA,
         "ux_morph_ir.v1.json": UX_MORPH_IR_SCHEMA,
         "ux_surface_projection.v1.json": UX_SURFACE_PROJECTION_SCHEMA,

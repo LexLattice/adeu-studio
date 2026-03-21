@@ -1,0 +1,75 @@
+{
+  "accepted_shipped_scope": {
+    "declared_surface_kind": "internal_only_utility",
+    "summary": "Accepted diff ships an internal poetry utility and a Codex backend flag, with no new reachable API, URM, or web surface.",
+    "surface_refs": [
+      "apps/api/src/adeu_api/openai_backends.py:888:build_codex_exec_backend",
+      "apps/api/src/adeu_api/poetry.py:286:write_poem"
+    ]
+  },
+  "claimed_scope": {
+    "declared_surface_kind": "internal_only_utility",
+    "summary": "Imported contribution claimed a new internal poem-generation utility with Codex execution support.",
+    "surface_refs": [
+      "apps/api/src/adeu_api/openai_backends.py:888:build_codex_exec_backend",
+      "apps/api/src/adeu_api/poetry.py:286:write_poem"
+    ]
+  },
+  "code_alignment_judgment": "needs_review",
+  "completed_alignment_actions": [
+    "add_targeted_tests",
+    "enforce_fail_closed_validation",
+    "record_alignment_artifacts"
+  ],
+  "derivation_metadata": {
+    "alignment_packet_hash": "b357da452a79caf54a290c1083165d10979ec7485f4406b78bb2248d2318f0e6",
+    "canonical_local_subject_only": true,
+    "default_precedent_status": "non_precedent",
+    "evaluator_id": "adeu_core_ir.external_contribution_alignment.derive_v39a_module_conformance@1",
+    "evaluator_version": "1",
+    "policy_sources": [
+      {
+        "path": "AGENTS.md",
+        "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+      },
+      {
+        "path": "docs/DRAFT_EXTERNAL_CONTRIBUTION_ALIGNMENT_v0.md",
+        "sha256": "6649fff0865205b383a8e7c30080599556a017723d0c902131742befae838d84"
+      },
+      {
+        "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS72.md",
+        "sha256": "a04bd709f89e1e9c5f13252664d2b6af7c5b6cdff2ddd20012bea595406bf8b6"
+      }
+    ],
+    "reviewer_prose_only_forbidden": true
+  },
+  "evaluation_lane": "external_single_pr",
+  "imported_meta_sequence_gaps": [
+    "missing_declared_checks_at_arrival",
+    "missing_post_docs",
+    "missing_pre_docs",
+    "missing_tests_at_arrival"
+  ],
+  "meta_sequence_alignment_judgment": "not_aligned",
+  "observed_reachable_surfaces": [
+    {
+      "reachable": true,
+      "surface_kind": "internal_python_utility",
+      "surface_ref": "apps/api/src/adeu_api/openai_backends.py:888:build_codex_exec_backend"
+    },
+    {
+      "reachable": true,
+      "surface_kind": "internal_python_utility",
+      "surface_ref": "apps/api/src/adeu_api/poetry.py:286:write_poem"
+    }
+  ],
+  "overall_judgment": "needs_review",
+  "precedent_status": "non_precedent",
+  "reference_fixture_id": "pr293_poetry_utility",
+  "schema": "module_conformance_report@1",
+  "structural_impact_class": "X1",
+  "subject_kind": "imported_pull_request_snapshot",
+  "unresolved_followup_codes": [
+    "record_checks_run"
+  ]
+}

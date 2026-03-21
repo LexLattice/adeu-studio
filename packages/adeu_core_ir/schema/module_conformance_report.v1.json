@@ -1,0 +1,300 @@
+{
+  "$defs": {
+    "AlignmentScopeSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "declared_surface_kind": {
+          "enum": [
+            "internal_only_utility",
+            "externally_reachable_product_surface"
+          ],
+          "title": "Declared Surface Kind",
+          "type": "string"
+        },
+        "summary": {
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Surface Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "summary",
+        "declared_surface_kind",
+        "surface_refs"
+      ],
+      "title": "AlignmentScopeSnapshot",
+      "type": "object"
+    },
+    "ModuleConformanceDerivationMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "alignment_packet_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Alignment Packet Hash",
+          "type": "string"
+        },
+        "canonical_local_subject_only": {
+          "const": true,
+          "default": true,
+          "title": "Canonical Local Subject Only",
+          "type": "boolean"
+        },
+        "default_precedent_status": {
+          "const": "non_precedent",
+          "default": "non_precedent",
+          "title": "Default Precedent Status",
+          "type": "string"
+        },
+        "evaluator_id": {
+          "const": "adeu_core_ir.external_contribution_alignment.derive_v39a_module_conformance@1",
+          "default": "adeu_core_ir.external_contribution_alignment.derive_v39a_module_conformance@1",
+          "title": "Evaluator Id",
+          "type": "string"
+        },
+        "evaluator_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Evaluator Version",
+          "type": "string"
+        },
+        "policy_sources": {
+          "items": {
+            "$ref": "#/$defs/PolicySourceSnapshot"
+          },
+          "title": "Policy Sources",
+          "type": "array"
+        },
+        "reviewer_prose_only_forbidden": {
+          "const": true,
+          "default": true,
+          "title": "Reviewer Prose Only Forbidden",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "alignment_packet_hash",
+        "policy_sources"
+      ],
+      "title": "ModuleConformanceDerivationMetadata",
+      "type": "object"
+    },
+    "ObservedReachableSurface": {
+      "additionalProperties": false,
+      "properties": {
+        "reachable": {
+          "const": true,
+          "default": true,
+          "title": "Reachable",
+          "type": "boolean"
+        },
+        "surface_kind": {
+          "enum": [
+            "internal_python_utility",
+            "api_route",
+            "urm_tool",
+            "web_route",
+            "schema_contract"
+          ],
+          "title": "Surface Kind",
+          "type": "string"
+        },
+        "surface_ref": {
+          "minLength": 1,
+          "title": "Surface Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_ref",
+        "surface_kind"
+      ],
+      "title": "ObservedReachableSurface",
+      "type": "object"
+    },
+    "PolicySourceSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "title": "PolicySourceSnapshot",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_shipped_scope": {
+      "$ref": "#/$defs/AlignmentScopeSnapshot"
+    },
+    "claimed_scope": {
+      "$ref": "#/$defs/AlignmentScopeSnapshot"
+    },
+    "code_alignment_judgment": {
+      "enum": [
+        "pass",
+        "needs_review",
+        "fail"
+      ],
+      "title": "Code Alignment Judgment",
+      "type": "string"
+    },
+    "completed_alignment_actions": {
+      "items": {
+        "enum": [
+          "add_targeted_tests",
+          "enforce_fail_closed_validation",
+          "narrow_scope_claim",
+          "record_alignment_artifacts",
+          "record_checks_run"
+        ],
+        "type": "string"
+      },
+      "title": "Completed Alignment Actions",
+      "type": "array"
+    },
+    "derivation_metadata": {
+      "$ref": "#/$defs/ModuleConformanceDerivationMetadata"
+    },
+    "evaluation_lane": {
+      "const": "external_single_pr",
+      "default": "external_single_pr",
+      "title": "Evaluation Lane",
+      "type": "string"
+    },
+    "imported_meta_sequence_gaps": {
+      "items": {
+        "enum": [
+          "missing_declared_checks_at_arrival",
+          "missing_post_docs",
+          "missing_pre_docs",
+          "missing_tests_at_arrival",
+          "overclaimed_shipped_scope_at_arrival"
+        ],
+        "type": "string"
+      },
+      "title": "Imported Meta Sequence Gaps",
+      "type": "array"
+    },
+    "meta_sequence_alignment_judgment": {
+      "enum": [
+        "native",
+        "retrospectively_aligned",
+        "not_aligned"
+      ],
+      "title": "Meta Sequence Alignment Judgment",
+      "type": "string"
+    },
+    "observed_reachable_surfaces": {
+      "items": {
+        "$ref": "#/$defs/ObservedReachableSurface"
+      },
+      "title": "Observed Reachable Surfaces",
+      "type": "array"
+    },
+    "overall_judgment": {
+      "enum": [
+        "pass",
+        "needs_review",
+        "fail"
+      ],
+      "title": "Overall Judgment",
+      "type": "string"
+    },
+    "precedent_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Precedent Reason"
+    },
+    "precedent_status": {
+      "default": "non_precedent",
+      "enum": [
+        "non_precedent",
+        "precedent_granted"
+      ],
+      "title": "Precedent Status",
+      "type": "string"
+    },
+    "reference_fixture_id": {
+      "minLength": 1,
+      "title": "Reference Fixture Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "module_conformance_report@1",
+      "default": "module_conformance_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "structural_impact_class": {
+      "enum": [
+        "X0",
+        "X1",
+        "X2"
+      ],
+      "title": "Structural Impact Class",
+      "type": "string"
+    },
+    "subject_kind": {
+      "const": "imported_pull_request_snapshot",
+      "default": "imported_pull_request_snapshot",
+      "title": "Subject Kind",
+      "type": "string"
+    },
+    "unresolved_followup_codes": {
+      "items": {
+        "enum": [
+          "add_targeted_tests",
+          "enforce_fail_closed_validation",
+          "narrow_scope_claim",
+          "record_alignment_artifacts",
+          "record_checks_run"
+        ],
+        "type": "string"
+      },
+      "title": "Unresolved Followup Codes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "reference_fixture_id",
+    "structural_impact_class",
+    "code_alignment_judgment",
+    "meta_sequence_alignment_judgment",
+    "overall_judgment",
+    "claimed_scope",
+    "observed_reachable_surfaces",
+    "accepted_shipped_scope",
+    "imported_meta_sequence_gaps",
+    "completed_alignment_actions",
+    "unresolved_followup_codes",
+    "derivation_metadata"
+  ],
+  "title": "ModuleConformanceReport",
+  "type": "object"
+}
