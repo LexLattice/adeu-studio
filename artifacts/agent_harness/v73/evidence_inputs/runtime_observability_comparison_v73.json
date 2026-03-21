@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+72",
+  "baseline_elapsed_ms": 105,
+  "baseline_source": "artifacts/stop_gate/report_v72_closeout.md",
+  "current_arc": "vNext+73",
+  "current_elapsed_ms": 96,
+  "current_source": "artifacts/stop_gate/report_v73_closeout.md",
+  "delta_ms": -9,
+  "notes": "v73 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while adding the bounded V39-B synthetic pressure-mismatch registry lane.",
+  "schema": "runtime_observability_comparison@1"
+}
