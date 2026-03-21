@@ -32,8 +32,8 @@ collapsing into a generic style engine or an unbounded all-module marketplace.
 
 The missing layer is no longer external-contribution intake alone.
 
-The missing layer is a bounded, typed module for structural drift patterns that can
-apply across:
+The missing layer is a bounded, typed module for pressure-mismatch drift patterns in
+code and surrounding repo artifacts that can apply across:
 
 - forward coding;
 - post-code optimization;
@@ -42,21 +42,31 @@ apply across:
 
 Today the repo still lacks a canonical way to:
 
-- encode structurally meaningful code smells without falling back to the vague phrase
-  "AI accent";
+- encode a symptom corpus like "AI accent" without turning it into authorship rhetoric
+  or style law;
 - separate:
-  - pseudo-safety inflation,
-  - abstraction without pressure,
-  - error-opacity drift,
-  - naming-semantic drift,
-  - communication-without-load drift;
-- state which of those can be:
-  - auto-fixed safely,
-  - deterministically warned on,
-  - kept as heuristic human-review findings only;
+  - state-model drift,
+  - abstraction-pressure drift,
+  - semantic-communication drift,
+  - shape-regularity drift,
+  - meta-intent failure;
+- record for each rule:
+  - signal kind,
+  - harm kind,
+  - evidence regime,
+  - allowed action;
+- state which findings belong to:
+  - deterministic local drift,
+  - static contextual drift,
+  - semantically ambiguous drift,
+  - meta-governance drift;
 - project those rules differently for:
   - the forward coding agent,
   - the post-code optimizer agent.
+
+The repo also still lacks an explicit execution architecture for mixed-confidence
+checks where a deterministic harness can classify a checkpoint and invoke the resident
+coding agent only when synthetic reasoning is required.
 
 ## Recommended Family
 
@@ -88,25 +98,27 @@ It intentionally did not solve:
 
 ## Recommended Next Path (`V39-B`)
 
-Implement a bounded canonical taxonomy for structural code drift patterns that are
+Implement a bounded canonical taxonomy for pressure-mismatch drift patterns that are
 currently described informally as an "AI accent."
 
 The path should normalize that intake language into repo-native ADEU structure.
 
 `V39-B` should introduce:
 
-- a canonical `synthetic_structure_rule_registry@1`;
+- a canonical `synthetic_pressure_mismatch_rule_registry@1`;
 - a neutral typed drift taxonomy rather than an authorship detector;
 - explicit ODEU framing for each rule:
-  - `O`: drift family,
-  - `E`: evidence mode,
-  - `D`: policy grade,
+  - `O`: signal kind and subject kind,
+  - `E`: evidence mode and evidence regime,
+  - `D`: allowed action and policy force,
   - `U`: expected utility gain;
-- automation-tier labeling for each rule:
-  - safe autofix,
-  - deterministic warning,
-  - heuristic review,
-  - human-only.
+- explicit separation of:
+  - signal kind,
+  - harm kind,
+  - evidence regime,
+  - allowed action,
+  - resolution route;
+- derived automation posture rather than one flat severity label.
 
 ## Why This Path
 
@@ -124,9 +136,9 @@ The path should normalize that intake language into repo-native ADEU structure.
 
 Observation and reporting lane:
 
-- canonical `synthetic_structure_observation_packet@1`;
-- canonical `synthetic_structure_conformance_report@1`;
-- bounded deterministic detectors for the high-confidence subset;
+- canonical `synthetic_pressure_mismatch_observation_packet@1`;
+- canonical `synthetic_pressure_mismatch_conformance_report@1`;
+- bounded deterministic detectors for the deterministic-local subset;
 - one or more seed fixtures, likely beginning from the poetry utility reference and
   one repo-native reference diff.
 
@@ -134,19 +146,43 @@ Observation and reporting lane:
 
 Agent-policy projection lane:
 
-- canonical `synthetic_structure_fix_plan@1`;
+- canonical `synthetic_pressure_mismatch_fix_plan@1`;
 - forward coding agent policy projection;
 - post-code optimizer policy projection;
-- bounded safe-autofix support only for the highest-confidence subset.
+- bounded safe-autofix support only for the narrow deterministic-local subset.
+
+### `V39-E`
+
+Hybrid execution lane:
+
+- canonical `synthetic_pressure_mismatch_oracle_request@1`;
+- canonical `synthetic_pressure_mismatch_oracle_resolution@1`;
+- canonical `synthetic_pressure_mismatch_checkpoint_trace@1`;
+- explicit checkpoint classifier:
+  - `deterministic_pass`,
+  - `deterministic_fail`,
+  - `oracle_needed`,
+  - `human_needed`;
+- deterministic adjudicator with replay, cache, and version pinning;
+- oracle outputs remain advisory only and may not directly authorize repo mutation;
+- bounded human-escalation lane for unstable or contradictory oracle outputs.
+
+This lane is intentionally later and higher-risk than `V39-B` through `V39-D`:
+
+- it introduces novel repo infrastructure rather than extending an already-frozen
+  schema family;
+- it should not be pulled forward until the taxonomy, observation packet, and policy
+  projection lanes are all structurally stable.
 
 ## First-Slice Boundary (`V39-B`)
 
 `V39-B` should stay bounded to:
 
 - taxonomy and registry only;
-- typed drift families rather than broad style doctrine;
-- explicit automation-tier classification;
-- explicit false-positive risk and counterexample handling;
+- typed pressure-mismatch families rather than broad style doctrine;
+- explicit separation of signal, harm, evidence, allowed action, and resolution route;
+- explicit false-positive risk, counterexample handling, and rewrite risk;
+- explicit implementation decisions on schema-family placement and glossary strategy;
 - forward-agent and post-optimizer policy hooks at the registry level only.
 
 It should not attempt:
@@ -157,11 +193,22 @@ It should not attempt:
 - a generic style marketplace;
 - free-form "make code less AI-looking" rhetoric as policy.
 
+The hybrid execution architecture belongs later in `V39-E`, not in the first registry
+slice.
+
+At `V39-B` start, freeze two implementation choices explicitly:
+
+- whether the first schema family lives in `adeu_core_ir` or a later dedicated
+  conformance package;
+- whether the drift vocabulary remains registry-local or emits a dedicated glossary
+  artifact distinct from the `V36-A` same-context glossary.
+
 ## Governing Reference
 
 The higher-order concept note for this follow-on is:
 
-- `docs/DRAFT_SYNTHETIC_STRUCTURE_DRIFT_v0.md`
+- `docs/DRAFT_SYNTHETIC_PRESSURE_MISMATCH_DRIFT_v0.md`
 
-That note is the place to evolve the neutral abstraction, drift families, ODEU
-framing, automation tiers, and agent-embedding plan.
+That note is the place to evolve the pressure-mismatch abstraction, drift families,
+ODEU framing, evidence and action regimes, hybrid checkpoint architecture, and
+agent-embedding plan.
