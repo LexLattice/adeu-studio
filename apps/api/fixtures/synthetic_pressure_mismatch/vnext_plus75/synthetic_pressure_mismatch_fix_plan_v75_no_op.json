@@ -1,0 +1,29 @@
+{
+  "aggregated_observation_packet_ids": [
+    "v39c_v74_obs_clean_no_findings"
+  ],
+  "conformance_report_id": "v39c_v74_obs_clean_no_findings_report",
+  "conformance_report_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/synthetic_pressure_mismatch_conformance_report_v74_no_findings.json",
+  "conformance_report_schema": "synthetic_pressure_mismatch_conformance_report@1",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS75.md#v39d_synthetic_pressure_mismatch_fix_plan_contract@1",
+  "derivation_metadata": {
+    "advisory_only": true,
+    "candidate_only_safe_autofix": true,
+    "conformance_report_reference_fixture_sha256": "5d1f7c8fce48696885abec98d436663a228a26534705b6821979f5e6fcd79e12",
+    "evaluator_id": "adeu_core_ir.synthetic_pressure_mismatch_fix_plan.derive_v39d_fix_plan@1",
+    "evaluator_version": "1",
+    "executable_payload_forbidden": true,
+    "registry_reference_fixture_sha256": "fe47ddb2bb072be3b19d4aafdf1d70921ead64dea41633ac8ba86d4fcd6ff105",
+    "repo_mutation_forbidden": true,
+    "source_finding_ids": []
+  },
+  "fix_plan_id": "v39c_v74_obs_clean_no_findings_report_fix_plan",
+  "forward_agent_projections": [],
+  "post_optimizer_projections": [],
+  "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
+  "registry_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
+  "registry_schema": "synthetic_pressure_mismatch_rule_registry@1",
+  "schema": "synthetic_pressure_mismatch_fix_plan@1",
+  "target_arc": "vNext+75",
+  "target_path": "V39-D"
+}

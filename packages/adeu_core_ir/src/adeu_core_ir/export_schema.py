@@ -44,6 +44,7 @@ from .projection_alignment_fidelity import (
 from .read_surface_payload import AdeuReadSurfacePayload
 from .semantics_v4_candidate_packet import AdeuSemanticsV4CandidatePacket
 from .synthetic_pressure_mismatch import SyntheticPressureMismatchRuleRegistry
+from .synthetic_pressure_mismatch_fix_plan import SyntheticPressureMismatchFixPlan
 from .synthetic_pressure_mismatch_observation import (
     SyntheticPressureMismatchConformanceReport,
     SyntheticPressureMismatchObservationPacket,
@@ -113,6 +114,9 @@ def main() -> None:
     )
     synthetic_pressure_mismatch_conformance_report_schema = (
         SyntheticPressureMismatchConformanceReport.model_json_schema(by_alias=True)
+    )
+    synthetic_pressure_mismatch_fix_plan_schema = (
+        SyntheticPressureMismatchFixPlan.model_json_schema(by_alias=True)
     )
     projection_alignment_fidelity_input_schema = (
         AdeuProjectionAlignmentFidelityInput.model_json_schema(by_alias=True)
@@ -232,6 +236,18 @@ def main() -> None:
     _write_schema(
         synthetic_pressure_mismatch_conformance_report_authoritative_path,
         synthetic_pressure_mismatch_conformance_report_schema,
+    )
+
+    synthetic_pressure_mismatch_fix_plan_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "synthetic_pressure_mismatch_fix_plan.v1.json"
+    )
+    _write_schema(
+        synthetic_pressure_mismatch_fix_plan_authoritative_path,
+        synthetic_pressure_mismatch_fix_plan_schema,
     )
 
     lane_authoritative_path = (
@@ -575,6 +591,14 @@ def main() -> None:
     _write_schema(
         synthetic_pressure_mismatch_conformance_report_mirror_path,
         synthetic_pressure_mismatch_conformance_report_schema,
+    )
+
+    synthetic_pressure_mismatch_fix_plan_mirror_path = (
+        root / "spec" / "synthetic_pressure_mismatch_fix_plan.schema.json"
+    )
+    _write_schema(
+        synthetic_pressure_mismatch_fix_plan_mirror_path,
+        synthetic_pressure_mismatch_fix_plan_schema,
     )
 
     lane_mirror_path = root / "spec" / "adeu_lane_report.schema.json"

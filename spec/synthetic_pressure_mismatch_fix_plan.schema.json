@@ -1,0 +1,383 @@
+{
+  "$defs": {
+    "SyntheticPressureMismatchFixPlanDerivationMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "advisory_only": {
+          "const": true,
+          "default": true,
+          "title": "Advisory Only",
+          "type": "boolean"
+        },
+        "candidate_only_safe_autofix": {
+          "const": true,
+          "default": true,
+          "title": "Candidate Only Safe Autofix",
+          "type": "boolean"
+        },
+        "conformance_report_reference_fixture_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Conformance Report Reference Fixture Sha256",
+          "type": "string"
+        },
+        "evaluator_id": {
+          "const": "adeu_core_ir.synthetic_pressure_mismatch_fix_plan.derive_v39d_fix_plan@1",
+          "default": "adeu_core_ir.synthetic_pressure_mismatch_fix_plan.derive_v39d_fix_plan@1",
+          "title": "Evaluator Id",
+          "type": "string"
+        },
+        "evaluator_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Evaluator Version",
+          "type": "string"
+        },
+        "executable_payload_forbidden": {
+          "const": true,
+          "default": true,
+          "title": "Executable Payload Forbidden",
+          "type": "boolean"
+        },
+        "registry_reference_fixture_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Registry Reference Fixture Sha256",
+          "type": "string"
+        },
+        "repo_mutation_forbidden": {
+          "const": true,
+          "default": true,
+          "title": "Repo Mutation Forbidden",
+          "type": "boolean"
+        },
+        "source_finding_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Finding Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "conformance_report_reference_fixture_sha256",
+        "registry_reference_fixture_sha256"
+      ],
+      "title": "SyntheticPressureMismatchFixPlanDerivationMetadata",
+      "type": "object"
+    },
+    "SyntheticPressureMismatchProjectedPlanItem": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "plan_posture": {
+                "const": "forward_guidance_only"
+              }
+            },
+            "required": [
+              "plan_posture"
+            ]
+          },
+          "then": {
+            "properties": {
+              "projection_kind": {
+                "const": "guidance"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "plan_posture": {
+                "const": "post_optimizer_guidance_only"
+              }
+            },
+            "required": [
+              "plan_posture"
+            ]
+          },
+          "then": {
+            "properties": {
+              "projection_kind": {
+                "const": "guidance"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "plan_posture": {
+                "const": "safe_autofix_candidate"
+              }
+            },
+            "required": [
+              "plan_posture"
+            ]
+          },
+          "then": {
+            "properties": {
+              "projection_kind": {
+                "const": "candidate_action"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "plan_posture": {
+                "const": "review_required"
+              }
+            },
+            "required": [
+              "plan_posture"
+            ]
+          },
+          "then": {
+            "properties": {
+              "projection_kind": {
+                "const": "review_prompt"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "plan_posture": {
+                "const": "meta_artifact_correction_only"
+              }
+            },
+            "required": [
+              "plan_posture"
+            ]
+          },
+          "then": {
+            "properties": {
+              "projection_kind": {
+                "const": "meta_artifact_correction"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "allowed_action": {
+          "enum": [
+            "safe_autofix",
+            "deterministic_finding",
+            "review_only_finding",
+            "forbid",
+            "discourage",
+            "allow_with_justification",
+            "meta_artifact_correction"
+          ],
+          "title": "Allowed Action",
+          "type": "string"
+        },
+        "harm_kind": {
+          "enum": [
+            "correctness_risk",
+            "failure_signal_loss",
+            "trust_boundary_blur",
+            "maintainability_drag",
+            "semantic_density_loss",
+            "reviewer_load_inflation",
+            "intent_opacity"
+          ],
+          "title": "Harm Kind",
+          "type": "string"
+        },
+        "plan_posture": {
+          "enum": [
+            "forward_guidance_only",
+            "meta_artifact_correction_only",
+            "post_optimizer_guidance_only",
+            "review_required",
+            "safe_autofix_candidate"
+          ],
+          "title": "Plan Posture",
+          "type": "string"
+        },
+        "projected_item_id": {
+          "minLength": 1,
+          "title": "Projected Item Id",
+          "type": "string"
+        },
+        "projected_next_step_text": {
+          "minLength": 1,
+          "title": "Projected Next Step Text",
+          "type": "string"
+        },
+        "projection_kind": {
+          "enum": [
+            "candidate_action",
+            "guidance",
+            "meta_artifact_correction",
+            "review_prompt"
+          ],
+          "title": "Projection Kind",
+          "type": "string"
+        },
+        "resolution_route": {
+          "enum": [
+            "deterministic_only",
+            "oracle_assisted",
+            "human_only"
+          ],
+          "title": "Resolution Route",
+          "type": "string"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "signal_kind": {
+          "enum": [
+            "state_model_drift",
+            "abstraction_pressure_drift",
+            "semantic_communication_drift",
+            "shape_regularity_drift",
+            "meta_intent_failure"
+          ],
+          "title": "Signal Kind",
+          "type": "string"
+        },
+        "source_finding_id": {
+          "minLength": 1,
+          "title": "Source Finding Id",
+          "type": "string"
+        },
+        "source_local_observation_locator": {
+          "minLength": 1,
+          "title": "Source Local Observation Locator",
+          "type": "string"
+        },
+        "source_observation_packet_id": {
+          "minLength": 1,
+          "title": "Source Observation Packet Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "projected_item_id",
+        "source_finding_id",
+        "rule_id",
+        "signal_kind",
+        "harm_kind",
+        "allowed_action",
+        "resolution_route",
+        "source_observation_packet_id",
+        "source_local_observation_locator",
+        "plan_posture",
+        "projection_kind",
+        "projected_next_step_text"
+      ],
+      "title": "SyntheticPressureMismatchProjectedPlanItem",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "aggregated_observation_packet_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Aggregated Observation Packet Ids",
+      "type": "array"
+    },
+    "conformance_report_id": {
+      "minLength": 1,
+      "title": "Conformance Report Id",
+      "type": "string"
+    },
+    "conformance_report_reference_fixture": {
+      "minLength": 1,
+      "title": "Conformance Report Reference Fixture",
+      "type": "string"
+    },
+    "conformance_report_schema": {
+      "const": "synthetic_pressure_mismatch_conformance_report@1",
+      "default": "synthetic_pressure_mismatch_conformance_report@1",
+      "title": "Conformance Report Schema",
+      "type": "string"
+    },
+    "contract_source": {
+      "const": "docs/LOCKED_CONTINUATION_vNEXT_PLUS75.md#v39d_synthetic_pressure_mismatch_fix_plan_contract@1",
+      "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS75.md#v39d_synthetic_pressure_mismatch_fix_plan_contract@1",
+      "title": "Contract Source",
+      "type": "string"
+    },
+    "derivation_metadata": {
+      "$ref": "#/$defs/SyntheticPressureMismatchFixPlanDerivationMetadata"
+    },
+    "fix_plan_id": {
+      "minLength": 1,
+      "title": "Fix Plan Id",
+      "type": "string"
+    },
+    "forward_agent_projections": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchProjectedPlanItem"
+      },
+      "title": "Forward Agent Projections",
+      "type": "array"
+    },
+    "post_optimizer_projections": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchProjectedPlanItem"
+      },
+      "title": "Post Optimizer Projections",
+      "type": "array"
+    },
+    "registry_id": {
+      "minLength": 1,
+      "title": "Registry Id",
+      "type": "string"
+    },
+    "registry_reference_fixture": {
+      "minLength": 1,
+      "title": "Registry Reference Fixture",
+      "type": "string"
+    },
+    "registry_schema": {
+      "const": "synthetic_pressure_mismatch_rule_registry@1",
+      "default": "synthetic_pressure_mismatch_rule_registry@1",
+      "title": "Registry Schema",
+      "type": "string"
+    },
+    "schema": {
+      "const": "synthetic_pressure_mismatch_fix_plan@1",
+      "default": "synthetic_pressure_mismatch_fix_plan@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "const": "vNext+75",
+      "default": "vNext+75",
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "const": "V39-D",
+      "default": "V39-D",
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "fix_plan_id",
+    "registry_id",
+    "registry_reference_fixture",
+    "conformance_report_id",
+    "conformance_report_reference_fixture",
+    "aggregated_observation_packet_ids",
+    "derivation_metadata"
+  ],
+  "title": "SyntheticPressureMismatchFixPlan",
+  "type": "object"
+}
