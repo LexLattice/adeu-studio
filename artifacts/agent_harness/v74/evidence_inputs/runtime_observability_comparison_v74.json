@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+73",
+  "baseline_elapsed_ms": 96,
+  "baseline_source": "artifacts/stop_gate/report_v73_closeout.md",
+  "current_arc": "vNext+74",
+  "current_elapsed_ms": 96,
+  "current_source": "artifacts/stop_gate/report_v74_closeout.md",
+  "delta_ms": 0,
+  "notes": "v74 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while adding the bounded V39-C synthetic pressure-mismatch observation and conformance lane.",
+  "schema": "runtime_observability_comparison@1"
+}
