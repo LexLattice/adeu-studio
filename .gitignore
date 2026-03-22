@@ -70,6 +70,24 @@ artifacts/agent_harness/v72/runtime/evidence/codex/copilot/*
 !artifacts/agent_harness/v72/runtime/evidence/codex/copilot/v72-closeout-main-1/
 artifacts/agent_harness/v72/runtime/evidence/codex/copilot/v72-closeout-main-1/*
 !artifacts/agent_harness/v72/runtime/evidence/codex/copilot/v72-closeout-main-1/*
+!artifacts/agent_harness/v75/
+artifacts/agent_harness/v75/*
+!artifacts/agent_harness/v75/evidence_inputs/
+artifacts/agent_harness/v75/evidence_inputs/*
+!artifacts/agent_harness/v75/evidence_inputs/v39d_synthetic_pressure_mismatch_fix_plan_evidence_v75.json
+!artifacts/agent_harness/v75/evidence_inputs/metric_key_continuity_assertion_v75.json
+!artifacts/agent_harness/v75/evidence_inputs/runtime_observability_comparison_v75.json
+!artifacts/agent_harness/v75/runtime/
+artifacts/agent_harness/v75/runtime/*
+!artifacts/agent_harness/v75/runtime/evidence/
+artifacts/agent_harness/v75/runtime/evidence/*
+!artifacts/agent_harness/v75/runtime/evidence/codex/
+artifacts/agent_harness/v75/runtime/evidence/codex/*
+!artifacts/agent_harness/v75/runtime/evidence/codex/copilot/
+artifacts/agent_harness/v75/runtime/evidence/codex/copilot/*
+!artifacts/agent_harness/v75/runtime/evidence/codex/copilot/v75-closeout-main-1/
+artifacts/agent_harness/v75/runtime/evidence/codex/copilot/v75-closeout-main-1/*
+!artifacts/agent_harness/v75/runtime/evidence/codex/copilot/v75-closeout-main-1/*
 
 # Editors
 .idea/

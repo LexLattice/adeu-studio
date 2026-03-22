@@ -1,6 +1,9 @@
-# Assessment vNext+75 Edges
+# Assessment vNext+75 Edges (Post Closeout)
 
-Status: planning-edge assessment for `V39-D`.
+This document records edge disposition for `vNext+75` (`V39-D` synthetic
+pressure-mismatch fix-plan and policy-projection baseline) after arc closeout.
+
+Status: post-closeout assessment (March 22, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,106 +11,139 @@ Status: planning-edge assessment for `V39-D`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS75_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
-  "required_in_decision": true
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v75_closeout_edge_disposition",
+  "required_in_decision": true,
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
-## Open Edges
+## Scope
 
-### Edge 1: Plan / Execution Collapse
+- In scope: bounded `V39-D` pressure-mismatch fix-plan baseline; canonical
+  `synthetic_pressure_mismatch_fix_plan@1`; authoritative and mirrored schema exports;
+  committed local fix-plan fixtures; deterministic replay from released v74
+  conformance reports; structurally separate forward-agent and post-optimizer
+  projections; candidate-only safe-autofix planning; and closeout evidence/guard
+  coverage.
+- Out of scope: patch generation, automatic repo mutation, detector reruns, raw-subject
+  planning bypass, hybrid oracle request/resolution/checkpoint artifacts, repo-wide
+  scanning, workflow-blocking policy automation, authorship classification, and any
+  broader `V39-E` widening.
 
-- Risk:
-  the first released fix-plan lane could be misread as already authorizing diffs,
-  autofix execution, or direct repo mutation.
-- Response:
-  keep `V39-D` advisory-only and forbid any direct mutation authority or patch payload
-  in the artifact.
+## Inputs
 
-### Edge 2: Role-Collapse Drift
+- `docs/DRAFT_SYNTHETIC_PRESSURE_MISMATCH_DRIFT_v0.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v15.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS75.md`
+- `packages/adeu_core_ir/src/adeu_core_ir/synthetic_pressure_mismatch_fix_plan.py`
+- `packages/adeu_core_ir/src/adeu_core_ir/export_schema.py`
+- `packages/adeu_core_ir/tests/test_synthetic_pressure_mismatch_fix_plan.py`
+- `packages/adeu_core_ir/tests/test_ux_governance_export_schema.py`
+- `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus75/`
+- `artifacts/quality_dashboard_v75_closeout.json`
+- `artifacts/stop_gate/metrics_v75_closeout.json`
+- `artifacts/agent_harness/v75/evidence_inputs/metric_key_continuity_assertion_v75.json`
+- `artifacts/agent_harness/v75/evidence_inputs/runtime_observability_comparison_v75.json`
+- `artifacts/agent_harness/v75/evidence_inputs/v39d_synthetic_pressure_mismatch_fix_plan_evidence_v75.json`
+- merged PR: `#297`
 
-- Risk:
-  forward-agent prevention guidance and post-optimizer corrective guidance could be
-  merged into one generic advice list and erase the distinct agent roles.
-- Response:
-  require structurally separate forward-agent and post-optimizer projection surfaces in
-  the canonical artifact.
+## Pre-Lock Edge Set Outcome (v75 Closeout)
 
-### Edge 3: Source-Finding Blur
+1. Plan / execution collapse: `resolved`.
+   - released fix plans remain advisory-only and do not authorize patch payloads,
+     repo mutation, or executable edit instructions.
+2. Role-collapse drift: `resolved`.
+   - forward-agent and post-optimizer projections remain structurally separate in the
+     released artifact and fixtures.
+3. Source-finding blur: `resolved`.
+   - every projected item traces back to one exact released source finding identity and
+     source packet anchor.
+4. Registry / report bypass: `resolved`.
+   - the lane consumes released `V39-B` and `V39-C` fixtures directly and does not
+     synthesize planning from raw subjects or repo-wide scans.
+5. Safe-autofix overclaim: `resolved`.
+   - safe-autofix planning remains limited to findings already surfaced as released
+     `safe_autofix_candidates` by `V39-C`.
+6. No-op suppression: `resolved`.
+   - released fixtures cover both an accepted no-op fix plan and a rejected fake no-op
+     attempt for a plannable report.
+7. Score / priority creep: `resolved`.
+   - the fix plan remains anti-score by construction with no hidden scalar or
+     merge-worthiness field.
+8. Policy reinvention: `resolved`.
+   - projected role guidance remains derived from released policy only and rejects
+     contradictory role text.
+9. Oracle-lane leakage: `resolved`.
+   - `resolution_route` remains descriptive metadata only; no hybrid adjudication is
+     implied or shipped in v75.
+10. Authorship regression: `resolved`.
+    - the released schema/model/fixture/test set governs pressure-mismatch drift only
+      and does not reintroduce authorship or “AI-ness” rhetoric.
 
-- Risk:
-  projected items could bind only to a rule id or loose locator and lose exact
-  traceability back to one released source finding or source candidate.
-- Response:
-  require every projected item to carry a stable `source_finding_id` or equivalent
-  exact source item identity derived from the released conformance lane.
+## Guard Coverage Outcome
 
-### Edge 4: Registry / Report Bypass
+- merged implementation files:
+  - `packages/adeu_core_ir/src/adeu_core_ir/synthetic_pressure_mismatch_fix_plan.py`
+  - `packages/adeu_core_ir/src/adeu_core_ir/export_schema.py`
+  - `packages/adeu_core_ir/src/adeu_core_ir/__init__.py`
+  - `packages/adeu_core_ir/schema/synthetic_pressure_mismatch_fix_plan.v1.json`
+  - `spec/synthetic_pressure_mismatch_fix_plan.schema.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus75/synthetic_pressure_mismatch_fix_plan_v75_reference.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus75/synthetic_pressure_mismatch_fix_plan_v75_no_op.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus75/synthetic_pressure_mismatch_fix_plan_v75_invalid_unauthorized_route.json`
+- merged guard files:
+  - `packages/adeu_core_ir/tests/test_synthetic_pressure_mismatch_fix_plan.py`
+  - `packages/adeu_core_ir/tests/test_ux_governance_export_schema.py`
+- v75 closeout artifact regeneration on `main` emitted:
+  - canonical `metric_key_continuity_assertion@1`
+  - canonical `runtime_observability_comparison@1`
+  - canonical `v39d_synthetic_pressure_mismatch_fix_plan_evidence@1`
+  - committed parent-session closeout raw/event stream fixture under
+    `artifacts/agent_harness/v75/runtime/evidence/codex/copilot/v75-closeout-main-1/`
+- review-driven hardening now includes:
+  - rejection of fake no-op plans for plannable source reports,
+  - semantically validated `projected_item_id` derivation and stale-id rejection,
+  - strict route/posture validation for safe-autofix candidate projections,
+  - strict projected-text equality against released role-policy projections.
 
-- Risk:
-  the plan lane could bypass the released registry or released conformance report and
-  synthesize planning directly from raw subjects or ad hoc heuristics.
-- Response:
-  require the fix plan to consume released `V39-B` and `V39-C` artifacts directly and
-  fail closed when source bindings are missing or inconsistent.
+## Stop-Gate Continuity Outcome
 
-### Edge 5: Safe-Autofix Overclaim
+```json
+{
+  "schema": "v75_edge_closeout_summary@1",
+  "arc": "vNext+75",
+  "target_path": "V39-D",
+  "prelock_edge_count": 10,
+  "resolved_edge_count": 10,
+  "open_blocking_edges": 0,
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v74": true,
+  "all_passed": true,
+  "blocking_issues": []
+}
+```
 
-- Risk:
-  the plan lane could smuggle broader rewrite authority by treating any finding as if
-  it were eligible for safe autofix planning.
-- Response:
-  restrict safe-autofix planning to findings already surfaced as released
-  `safe_autofix_candidates` by `V39-C`.
+## Residual Risks (Post v75)
 
-### Edge 6: No-Op Suppression
+1. The released lane remains intentionally bounded to advisory fix-plan projection and
+   not actual patch generation or mutation.
+2. The released lane inherits the bounded subject and detector coverage of `V39-C`; it
+   does not widen that coverage by itself.
+3. The closeout runtime evidence remains continuity-only provenance because v75 does
+   not widen the runtime lane itself.
+4. Hybrid checkpoint classification, oracle request/resolution, and adjudication remain
+   deferred by design to `V39-E`.
 
-- Risk:
-  the first released plan lane could force action even when the source report carries
-  zero findings or when findings exist but none are plannable in this slice.
-- Response:
-  require one valid no-op / no-finding fix-plan fixture and explicit acceptance of
-  empty projected-item sets.
+## Recommendation (Post Closeout)
 
-### Edge 7: Score / Priority Creep
-
-- Risk:
-  the fix plan could introduce hidden weighted priority or urgency scoring that later
-  becomes policy by inertia.
-- Response:
-  keep the plan anti-score by construction and forbid hidden scalar prioritization or
-  merge-worthiness outputs.
-
-### Edge 8: Policy Reinvention
-
-- Risk:
-  the projection lane could silently become a second policy authoring surface and emit
-  role guidance that contradicts the released registry policy.
-- Response:
-  require projected role guidance to summarize or select from released policy only and
-  reject contradictory role guidance.
-
-### Edge 9: Oracle-Lane Leakage
-
-- Risk:
-  carried-through `resolution_route` metadata could be misread as proof that hybrid
-  adjudication already exists.
-- Response:
-  preserve the descriptive-only status of `resolution_route` and reserve any
-  checkpoint execution for `V39-E`.
-
-### Edge 10: Authorship Regression
-
-- Risk:
-  once the lane starts emitting planning guidance, it could slide back into
-  “AI-looking code” rhetoric instead of pressure-mismatch governance.
-- Response:
-  keep authorship/origin absent from the fix plan schema, derivation logic, fixtures,
-  and tests.
-
-## Current Judgment
-
-- `V39-D` is worth implementing now because `V39-C` is now released on `main` and the
-  family needs a typed role-separated planning surface before it can responsibly widen
-  into hybrid adjudication or any future execution lane.
+1. Mark the v75 edge set as closed with no blocking issues.
+2. Treat canonical `synthetic_pressure_mismatch_fix_plan@1` plus its exported schemas
+   and v75 reference/no-op/invalid-route fixtures as the released `V39-D` substrate
+   going forward.
+3. Keep the fix-plan lane explicitly advisory-only, anti-authorship, candidate-only for
+   safe-autofix, and anti-score until a later lock widens it.
+4. Keep patch generation, repo mutation, detector reruns, and hybrid oracle execution
+   deferred unless they are released under new lock text.

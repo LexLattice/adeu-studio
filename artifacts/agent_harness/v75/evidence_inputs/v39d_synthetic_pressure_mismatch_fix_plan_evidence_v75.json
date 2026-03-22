@@ -1,0 +1,54 @@
+{
+  "anti_authorship_boundary_preserved": true,
+  "anti_score_boundary_preserved": true,
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS75.md#v39d_synthetic_pressure_mismatch_fix_plan_contract@1",
+  "evidence_input_path": "artifacts/agent_harness/v75/evidence_inputs/v39d_synthetic_pressure_mismatch_fix_plan_evidence_v75.json",
+  "evaluator_id": "adeu_core_ir.synthetic_pressure_mismatch_fix_plan.derive_v39d_fix_plan@1",
+  "evaluator_version": "1",
+  "fix_plan_schema_reference_hash": "7db4913ef6f8d4cce4fcd98d5224fea32f944b6d984699e85b7cdd3cded7cff7",
+  "fix_plan_schema_reference_path": "packages/adeu_core_ir/schema/synthetic_pressure_mismatch_fix_plan.v1.json",
+  "fix_plan_schema_reference_mirror_hash": "7db4913ef6f8d4cce4fcd98d5224fea32f944b6d984699e85b7cdd3cded7cff7",
+  "fix_plan_schema_reference_mirror_path": "spec/synthetic_pressure_mismatch_fix_plan.schema.json",
+  "implementation_source_hash": "c0d8e18d7eae4a42d5a40b96e71cc27306cc2f77ee32587c63d290406271fcbb",
+  "implementation_source_path": "packages/adeu_core_ir/src/adeu_core_ir/synthetic_pressure_mismatch_fix_plan.py",
+  "invalid_route_fixture_hash": "216a7e967f22c7faf9cb8afc7338b03a34ede0e1680df9d1d39d08eaaa7fc962",
+  "invalid_route_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus75/synthetic_pressure_mismatch_fix_plan_v75_invalid_unauthorized_route.json",
+  "no_finding_report_fixture_hash": "5d1f7c8fce48696885abec98d436663a228a26534705b6821979f5e6fcd79e12",
+  "no_finding_report_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/synthetic_pressure_mismatch_conformance_report_v74_no_findings.json",
+  "no_op_fix_plan_fixture_hash": "a699581bf35240128a123a00dc7553b2529b0071d9f426357b854286f97767cf",
+  "no_op_fix_plan_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus75/synthetic_pressure_mismatch_fix_plan_v75_no_op.json",
+  "no_op_plan_scope_preserved": true,
+  "notes": "v75 evidence pins the released fix-plan schema, accepted and no-op fixtures, invalid-route fail-closed coverage, and the bounded V39-D advisory / anti-authorship / anti-score contract on main.",
+  "planned_safe_autofix_candidate_only_preserved": true,
+  "plannable_findings_surface_required_verified": true,
+  "policy_sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+    },
+    {
+      "path": "docs/DRAFT_SYNTHETIC_PRESSURE_MISMATCH_DRIFT_v0.md",
+      "sha256": "63d36a286e0a6fa027209e7fc77377593deef80b71bf50fe495a25d8bcca55c5"
+    },
+    {
+      "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS75.md",
+      "sha256": "050639636283ab7262370b7e93d63e8b4ac569ecba8c777f905754c791756d54"
+    }
+  ],
+  "projected_item_id_semantic_binding_verified": true,
+  "projected_text_policy_projection_verified": true,
+  "reference_fix_plan_fixture_hash": "3042a7a05f0056f2c02dbcd1165a241f2be734a1385c4157cf74e5d72630ef81",
+  "reference_fix_plan_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus75/synthetic_pressure_mismatch_fix_plan_v75_reference.json",
+  "reference_report_fixture_hash": "a686c59c391766aa416d1805ba61de7f9f773e031a0fbb28c06bda506f5cf916",
+  "reference_report_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/synthetic_pressure_mismatch_conformance_report_v74_reference.json",
+  "registry_reference_fixture_hash": "fe47ddb2bb072be3b19d4aafdf1d70921ead64dea41633ac8ba86d4fcd6ff105",
+  "registry_reference_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
+  "report_bypass_absent": true,
+  "role_projection_separation_preserved": true,
+  "schema": "v39d_synthetic_pressure_mismatch_fix_plan_evidence@1",
+  "schema_export_parity_verified": true,
+  "source_finding_binding_exact_verified": true,
+  "test_reference_hash": "b50d43ec59fb5981e01e076c47afafde15c840261e2f6963b256bbdf3b8ef22c",
+  "test_reference_path": "packages/adeu_core_ir/tests/test_synthetic_pressure_mismatch_fix_plan.py",
+  "verification_passed": true
+}
