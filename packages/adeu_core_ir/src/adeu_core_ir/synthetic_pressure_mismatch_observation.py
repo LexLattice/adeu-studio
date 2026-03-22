@@ -512,6 +512,7 @@ class SyntheticPressureMismatchConformanceReport(BaseModel):
             field_name="aggregated_subject_refs",
             allow_empty=False,
         )
+        aggregated_packet_ids = set(self.aggregated_observation_packet_ids)
         if len(self.aggregated_observation_packet_ids) != self.observation_count:
             raise ValueError("observation_count must match aggregated_observation_packet_ids")
         if len(self.aggregated_observation_packet_hashes) != self.observation_count:
@@ -545,6 +546,12 @@ class SyntheticPressureMismatchConformanceReport(BaseModel):
                 f"{ref.observation_packet_id}::{ref.rule_id}::{ref.local_observation_locator}"
                 for ref in refs
             ]
+            for ref in refs:
+                if ref.observation_packet_id not in aggregated_packet_ids:
+                    raise ValueError(
+                        f"{field_name}.observation_packet_id must belong to "
+                        "aggregated_observation_packet_ids"
+                    )
             _assert_sorted_unique(keys, field_name=field_name, allow_empty=True)
             category_keys[field_name] = set(keys)
         for left_name, left_keys in category_keys.items():
@@ -736,6 +743,47 @@ def _detect_impossible_null_guard(
 _DETECTORS_BY_RULE_ID = {
     "state_model_impossible_null_check": _detect_impossible_null_guard,
 }
+_SUPPORTED_SUBJECT_KINDS_BY_RULE_ID = {
+    "state_model_impossible_null_check": frozenset({"function_or_method"}),
+}
+
+
+def _detector_for_rule(rule: SyntheticPressureMismatchRule) -> Any:
+    detector = _DETECTORS_BY_RULE_ID.get(rule.rule_id)
+    if detector is None:
+        raise ValueError(
+            f"no deterministic detector is implemented for released rule_id {rule.rule_id}"
+        )
+    return detector
+
+
+def _assert_subject_kind_supported_by_detector(
+    *,
+    rule: SyntheticPressureMismatchRule,
+    subject: SyntheticPressureMismatchLocalSubjectFixture,
+) -> None:
+    supported_subject_kinds = _SUPPORTED_SUBJECT_KINDS_BY_RULE_ID.get(rule.rule_id)
+    if supported_subject_kinds is None:
+        raise ValueError(
+            f"no subject-kind support map is defined for released rule_id {rule.rule_id}"
+        )
+    if subject.subject_kind not in supported_subject_kinds:
+        raise ValueError(
+            "V39-C deterministic detector for released rule_id "
+            f"{rule.rule_id} does not support subject_kind {subject.subject_kind}"
+        )
+
+
+def _derive_multi_packet_report_id(*, packet_hashes: list[str]) -> str:
+    digest = hashlib.sha256(
+        json.dumps(
+            packet_hashes,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=False,
+        ).encode("utf-8")
+    ).hexdigest()[:16]
+    return f"v39c_v74_report_{digest}"
 
 
 def canonicalize_synthetic_pressure_mismatch_observation_packet_payload(
@@ -802,23 +850,24 @@ def derive_v39c_observation_packet(
                 raise ValueError(
                     "requested_rule_ids must be applicable to the subject fixture kind"
                 )
+            _detector_for_rule(rule)
+            _assert_subject_kind_supported_by_detector(rule=rule, subject=subject)
             candidate_rules.append(rule)
     else:
-        candidate_rules = [
-            rule
-            for rule in registry.rules
-            if rule.evidence_regime == "deterministic_local"
-            and subject.subject_kind in rule.applicable_subject_kinds
-        ]
+        candidate_rules = []
+        for rule in registry.rules:
+            if rule.evidence_regime != "deterministic_local":
+                continue
+            if subject.subject_kind not in rule.applicable_subject_kinds:
+                continue
+            _detector_for_rule(rule)
+            _assert_subject_kind_supported_by_detector(rule=rule, subject=subject)
+            candidate_rules.append(rule)
 
     findings: list[dict[str, Any]] = []
     executed_rule_ids: list[str] = []
     for rule in sorted(candidate_rules, key=lambda entry: entry.rule_id):
-        detector = _DETECTORS_BY_RULE_ID.get(rule.rule_id)
-        if detector is None:
-            raise ValueError(
-                f"no deterministic detector is implemented for released rule_id {rule.rule_id}"
-            )
+        detector = _detector_for_rule(rule)
         findings.extend(detector(subject=subject, rule=rule))
         executed_rule_ids.append(rule.rule_id)
     findings.sort(key=lambda entry: (entry["rule_id"], entry["local_observation_locator"]))
@@ -958,9 +1007,11 @@ def derive_v39c_conformance_report(
     packet_hashes = sorted(packet_hashes)
     subject_refs = sorted(packet.subject_ref for packet in packets)
     report_payload = {
-        "report_id": "v39c_v74_conformance_reference"
-        if len(packet_ids) > 1
-        else f"{packet_ids[0]}_report",
+        "report_id": (
+            _derive_multi_packet_report_id(packet_hashes=packet_hashes)
+            if len(packet_ids) > 1
+            else f"{packet_ids[0]}_report"
+        ),
         "registry_id": registry_id,
         "registry_reference_fixture": registry_reference_fixture,
         "aggregated_observation_packet_ids": packet_ids,

@@ -157,6 +157,21 @@ def test_v39c_no_finding_report_fixture_validates_and_replays() -> None:
     )
 
 
+def test_v39c_fails_closed_for_registry_applicable_but_detector_unsupported_subject() -> None:
+    with pytest.raises(
+        ValueError,
+        match=(
+            "V39-C deterministic detector for released rule_id "
+            "state_model_impossible_null_check does not support subject_kind code_span"
+        ),
+    ):
+        derive_v39c_observation_packet(
+            "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/"
+            "subject_code_span_impossible_null_guard_v74.json",
+            repository_root=_repo_root(),
+        )
+
+
 def test_v39c_packet_rejects_shadow_registry_metadata_drift() -> None:
     payload = _load_json("synthetic_pressure_mismatch_observation_packet_v74_positive.json")
     payload["findings"][0]["signal_kind"] = "shape_regularity_drift"  # type: ignore[index]
@@ -205,6 +220,43 @@ def test_v39c_report_rejects_non_literal_posture() -> None:
             payload,
             context={"repository_root": _repo_root()},
         )
+
+
+def test_v39c_report_rejects_finding_refs_outside_aggregated_packet_set() -> None:
+    payload = _load_json("synthetic_pressure_mismatch_conformance_report_v74_reference.json")
+    payload["safe_autofix_candidates"][0]["observation_packet_id"] = "unknown_packet"  # type: ignore[index]
+
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "safe_autofix_candidates\\.observation_packet_id must belong to "
+            "aggregated_observation_packet_ids"
+        ),
+    ):
+        SyntheticPressureMismatchConformanceReport.model_validate(
+            payload,
+            context={"repository_root": _repo_root()},
+        )
+
+
+def test_v39c_multi_packet_report_id_is_derived_from_packet_set() -> None:
+    positive_packet = _load_json("synthetic_pressure_mismatch_observation_packet_v74_positive.json")
+    no_finding_packet = _load_json(
+        "synthetic_pressure_mismatch_observation_packet_v74_no_findings.json"
+    )
+
+    derived = derive_v39c_conformance_report(
+        [positive_packet, no_finding_packet],
+        repository_root=_repo_root(),
+    )
+    derived_reversed = derive_v39c_conformance_report(
+        [no_finding_packet, positive_packet],
+        repository_root=_repo_root(),
+    )
+
+    assert derived.report_id.startswith("v39c_v74_report_")
+    assert derived.report_id != "v39c_v74_conformance_reference"
+    assert derived.report_id == derived_reversed.report_id
 
 
 def test_v39c_exported_schemas_validate_reference_fixtures() -> None:

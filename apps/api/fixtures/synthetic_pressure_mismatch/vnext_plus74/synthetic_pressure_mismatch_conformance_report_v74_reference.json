@@ -44,7 +44,7 @@
   "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
   "registry_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
   "registry_schema": "synthetic_pressure_mismatch_rule_registry@1",
-  "report_id": "v39c_v74_conformance_reference",
+  "report_id": "v39c_v74_report_a7655c7b1984e737",
   "review_only_findings": [],
   "safe_autofix_candidates": [
     {
