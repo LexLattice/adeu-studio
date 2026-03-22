@@ -1,0 +1,292 @@
+{
+  "$defs": {
+    "SyntheticPressureMismatchConformanceDerivationMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_local_subject_only": {
+          "const": true,
+          "default": true,
+          "title": "Canonical Local Subject Only",
+          "type": "boolean"
+        },
+        "count_based_aggregation_only": {
+          "const": true,
+          "default": true,
+          "title": "Count Based Aggregation Only",
+          "type": "boolean"
+        },
+        "evaluator_id": {
+          "const": "adeu_core_ir.synthetic_pressure_mismatch_observation.derive_v39c_conformance_report@1",
+          "default": "adeu_core_ir.synthetic_pressure_mismatch_observation.derive_v39c_conformance_report@1",
+          "title": "Evaluator Id",
+          "type": "string"
+        },
+        "evaluator_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Evaluator Version",
+          "type": "string"
+        },
+        "observation_packet_hashes": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Observation Packet Hashes",
+          "type": "array"
+        },
+        "registry_reference_fixture_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Registry Reference Fixture Sha256",
+          "type": "string"
+        },
+        "weighted_rollup_forbidden": {
+          "const": true,
+          "default": true,
+          "title": "Weighted Rollup Forbidden",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "observation_packet_hashes",
+        "registry_reference_fixture_sha256"
+      ],
+      "title": "SyntheticPressureMismatchConformanceDerivationMetadata",
+      "type": "object"
+    },
+    "SyntheticPressureMismatchFindingCountByAllowedAction": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_action": {
+          "enum": [
+            "safe_autofix",
+            "deterministic_finding",
+            "review_only_finding",
+            "forbid",
+            "discourage",
+            "allow_with_justification",
+            "meta_artifact_correction"
+          ],
+          "title": "Allowed Action",
+          "type": "string"
+        },
+        "finding_count": {
+          "minimum": 1,
+          "title": "Finding Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "allowed_action",
+        "finding_count"
+      ],
+      "title": "SyntheticPressureMismatchFindingCountByAllowedAction",
+      "type": "object"
+    },
+    "SyntheticPressureMismatchFindingCountByEvidenceRegime": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_regime": {
+          "enum": [
+            "deterministic_local",
+            "static_contextual",
+            "semantic_ambiguous",
+            "meta_governance"
+          ],
+          "title": "Evidence Regime",
+          "type": "string"
+        },
+        "finding_count": {
+          "minimum": 1,
+          "title": "Finding Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "evidence_regime",
+        "finding_count"
+      ],
+      "title": "SyntheticPressureMismatchFindingCountByEvidenceRegime",
+      "type": "object"
+    },
+    "SyntheticPressureMismatchFindingRef": {
+      "additionalProperties": false,
+      "properties": {
+        "local_observation_locator": {
+          "minLength": 1,
+          "title": "Local Observation Locator",
+          "type": "string"
+        },
+        "observation_packet_id": {
+          "minLength": 1,
+          "title": "Observation Packet Id",
+          "type": "string"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_packet_id",
+        "rule_id",
+        "local_observation_locator"
+      ],
+      "title": "SyntheticPressureMismatchFindingRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "aggregated_observation_packet_hashes": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Aggregated Observation Packet Hashes",
+      "type": "array"
+    },
+    "aggregated_observation_packet_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Aggregated Observation Packet Ids",
+      "type": "array"
+    },
+    "aggregated_subject_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Aggregated Subject Refs",
+      "type": "array"
+    },
+    "contract_source": {
+      "const": "docs/LOCKED_CONTINUATION_vNEXT_PLUS74.md#v39c_synthetic_pressure_mismatch_observation_contract@1",
+      "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS74.md#v39c_synthetic_pressure_mismatch_observation_contract@1",
+      "title": "Contract Source",
+      "type": "string"
+    },
+    "derivation_metadata": {
+      "$ref": "#/$defs/SyntheticPressureMismatchConformanceDerivationMetadata"
+    },
+    "deterministic_high_severity_findings": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchFindingRef"
+      },
+      "title": "Deterministic High Severity Findings",
+      "type": "array"
+    },
+    "finding_count": {
+      "minimum": 0,
+      "title": "Finding Count",
+      "type": "integer"
+    },
+    "findings_by_allowed_action": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchFindingCountByAllowedAction"
+      },
+      "title": "Findings By Allowed Action",
+      "type": "array"
+    },
+    "findings_by_evidence_regime": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchFindingCountByEvidenceRegime"
+      },
+      "title": "Findings By Evidence Regime",
+      "type": "array"
+    },
+    "meta_governance_findings": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchFindingRef"
+      },
+      "title": "Meta Governance Findings",
+      "type": "array"
+    },
+    "observation_count": {
+      "minimum": 1,
+      "title": "Observation Count",
+      "type": "integer"
+    },
+    "overall_pressure_mismatch_posture": {
+      "enum": [
+        "deterministic_high_severity_findings_present",
+        "mixed_findings",
+        "no_findings",
+        "review_only_or_meta_findings_present",
+        "safe_autofix_candidates_present"
+      ],
+      "title": "Overall Pressure Mismatch Posture",
+      "type": "string"
+    },
+    "registry_id": {
+      "minLength": 1,
+      "title": "Registry Id",
+      "type": "string"
+    },
+    "registry_reference_fixture": {
+      "minLength": 1,
+      "title": "Registry Reference Fixture",
+      "type": "string"
+    },
+    "registry_schema": {
+      "const": "synthetic_pressure_mismatch_rule_registry@1",
+      "default": "synthetic_pressure_mismatch_rule_registry@1",
+      "title": "Registry Schema",
+      "type": "string"
+    },
+    "report_id": {
+      "minLength": 1,
+      "title": "Report Id",
+      "type": "string"
+    },
+    "review_only_findings": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchFindingRef"
+      },
+      "title": "Review Only Findings",
+      "type": "array"
+    },
+    "safe_autofix_candidates": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchFindingRef"
+      },
+      "title": "Safe Autofix Candidates",
+      "type": "array"
+    },
+    "schema": {
+      "const": "synthetic_pressure_mismatch_conformance_report@1",
+      "default": "synthetic_pressure_mismatch_conformance_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "const": "vNext+74",
+      "default": "vNext+74",
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "const": "V39-C",
+      "default": "V39-C",
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "report_id",
+    "registry_id",
+    "registry_reference_fixture",
+    "aggregated_observation_packet_ids",
+    "aggregated_observation_packet_hashes",
+    "aggregated_subject_refs",
+    "observation_count",
+    "finding_count",
+    "overall_pressure_mismatch_posture",
+    "derivation_metadata"
+  ],
+  "title": "SyntheticPressureMismatchConformanceReport",
+  "type": "object"
+}

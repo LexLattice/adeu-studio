@@ -1,0 +1,6 @@
+{
+  "content": "if title is None:\n    title = \"\"\n",
+  "language": "python",
+  "subject_id": "unsupported_code_span_impossible_null_guard",
+  "subject_kind": "code_span"
+}

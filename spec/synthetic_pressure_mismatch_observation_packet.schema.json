@@ -1,0 +1,251 @@
+{
+  "$defs": {
+    "SyntheticPressureMismatchDetectorProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "detector_id": {
+          "minLength": 1,
+          "title": "Detector Id",
+          "type": "string"
+        },
+        "detector_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Detector Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "detector_id"
+      ],
+      "title": "SyntheticPressureMismatchDetectorProvenance",
+      "type": "object"
+    },
+    "SyntheticPressureMismatchObservationDerivationMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_local_subject_only": {
+          "const": true,
+          "default": true,
+          "title": "Canonical Local Subject Only",
+          "type": "boolean"
+        },
+        "deterministic_local_execution_only": {
+          "const": true,
+          "default": true,
+          "title": "Deterministic Local Execution Only",
+          "type": "boolean"
+        },
+        "evaluator_id": {
+          "const": "adeu_core_ir.synthetic_pressure_mismatch_observation.derive_v39c_observation_packet@1",
+          "default": "adeu_core_ir.synthetic_pressure_mismatch_observation.derive_v39c_observation_packet@1",
+          "title": "Evaluator Id",
+          "type": "string"
+        },
+        "evaluator_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Evaluator Version",
+          "type": "string"
+        },
+        "executed_rule_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Executed Rule Ids",
+          "type": "array"
+        },
+        "registry_reference_fixture_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Registry Reference Fixture Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "registry_reference_fixture_sha256"
+      ],
+      "title": "SyntheticPressureMismatchObservationDerivationMetadata",
+      "type": "object"
+    },
+    "SyntheticPressureMismatchObservationFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_action": {
+          "enum": [
+            "safe_autofix",
+            "deterministic_finding",
+            "review_only_finding",
+            "forbid",
+            "discourage",
+            "allow_with_justification",
+            "meta_artifact_correction"
+          ],
+          "title": "Allowed Action",
+          "type": "string"
+        },
+        "detector_provenance": {
+          "$ref": "#/$defs/SyntheticPressureMismatchDetectorProvenance"
+        },
+        "evidence_regime": {
+          "enum": [
+            "deterministic_local",
+            "static_contextual",
+            "semantic_ambiguous",
+            "meta_governance"
+          ],
+          "title": "Evidence Regime",
+          "type": "string"
+        },
+        "harm_kind": {
+          "enum": [
+            "correctness_risk",
+            "failure_signal_loss",
+            "trust_boundary_blur",
+            "maintainability_drag",
+            "semantic_density_loss",
+            "reviewer_load_inflation",
+            "intent_opacity"
+          ],
+          "title": "Harm Kind",
+          "type": "string"
+        },
+        "local_observation_locator": {
+          "minLength": 1,
+          "title": "Local Observation Locator",
+          "type": "string"
+        },
+        "resolution_route": {
+          "enum": [
+            "deterministic_only",
+            "oracle_assisted",
+            "human_only"
+          ],
+          "title": "Resolution Route",
+          "type": "string"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "signal_kind": {
+          "enum": [
+            "state_model_drift",
+            "abstraction_pressure_drift",
+            "semantic_communication_drift",
+            "shape_regularity_drift",
+            "meta_intent_failure"
+          ],
+          "title": "Signal Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "signal_kind",
+        "harm_kind",
+        "evidence_regime",
+        "allowed_action",
+        "resolution_route",
+        "local_observation_locator",
+        "detector_provenance"
+      ],
+      "title": "SyntheticPressureMismatchObservationFinding",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contract_source": {
+      "const": "docs/LOCKED_CONTINUATION_vNEXT_PLUS74.md#v39c_synthetic_pressure_mismatch_observation_contract@1",
+      "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS74.md#v39c_synthetic_pressure_mismatch_observation_contract@1",
+      "title": "Contract Source",
+      "type": "string"
+    },
+    "derivation_metadata": {
+      "$ref": "#/$defs/SyntheticPressureMismatchObservationDerivationMetadata"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchObservationFinding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "observation_packet_id": {
+      "minLength": 1,
+      "title": "Observation Packet Id",
+      "type": "string"
+    },
+    "registry_id": {
+      "minLength": 1,
+      "title": "Registry Id",
+      "type": "string"
+    },
+    "registry_reference_fixture": {
+      "minLength": 1,
+      "title": "Registry Reference Fixture",
+      "type": "string"
+    },
+    "registry_schema": {
+      "const": "synthetic_pressure_mismatch_rule_registry@1",
+      "default": "synthetic_pressure_mismatch_rule_registry@1",
+      "title": "Registry Schema",
+      "type": "string"
+    },
+    "schema": {
+      "const": "synthetic_pressure_mismatch_observation_packet@1",
+      "default": "synthetic_pressure_mismatch_observation_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "subject_content_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Subject Content Sha256",
+      "type": "string"
+    },
+    "subject_kind": {
+      "enum": [
+        "code_span",
+        "diff_hunk",
+        "function_or_method",
+        "test_case_or_fixture",
+        "comment_block",
+        "error_message",
+        "commit_message",
+        "review_note",
+        "recap_artifact"
+      ],
+      "title": "Subject Kind",
+      "type": "string"
+    },
+    "subject_ref": {
+      "minLength": 1,
+      "title": "Subject Ref",
+      "type": "string"
+    },
+    "target_arc": {
+      "const": "vNext+74",
+      "default": "vNext+74",
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "const": "V39-C",
+      "default": "V39-C",
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "observation_packet_id",
+    "registry_id",
+    "registry_reference_fixture",
+    "subject_kind",
+    "subject_ref",
+    "subject_content_sha256",
+    "derivation_metadata"
+  ],
+  "title": "SyntheticPressureMismatchObservationPacket",
+  "type": "object"
+}

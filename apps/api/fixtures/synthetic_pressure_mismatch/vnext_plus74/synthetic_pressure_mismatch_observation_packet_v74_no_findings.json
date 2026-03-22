@@ -1,0 +1,24 @@
+{
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS74.md#v39c_synthetic_pressure_mismatch_observation_contract@1",
+  "derivation_metadata": {
+    "canonical_local_subject_only": true,
+    "deterministic_local_execution_only": true,
+    "evaluator_id": "adeu_core_ir.synthetic_pressure_mismatch_observation.derive_v39c_observation_packet@1",
+    "evaluator_version": "1",
+    "executed_rule_ids": [
+      "state_model_impossible_null_check"
+    ],
+    "registry_reference_fixture_sha256": "fe47ddb2bb072be3b19d4aafdf1d70921ead64dea41633ac8ba86d4fcd6ff105"
+  },
+  "findings": [],
+  "observation_packet_id": "v39c_v74_obs_clean_no_findings",
+  "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
+  "registry_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
+  "registry_schema": "synthetic_pressure_mismatch_rule_registry@1",
+  "schema": "synthetic_pressure_mismatch_observation_packet@1",
+  "subject_content_sha256": "149efcb9b6f718710e7fd62a6f372cdf6efe85c39073b974065149fc087cafa6",
+  "subject_kind": "function_or_method",
+  "subject_ref": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/subject_function_clean_no_findings_v74.json",
+  "target_arc": "vNext+74",
+  "target_path": "V39-C"
+}

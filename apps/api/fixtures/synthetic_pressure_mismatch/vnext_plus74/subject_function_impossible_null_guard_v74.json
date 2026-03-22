@@ -1,0 +1,6 @@
+{
+  "content": "def render_title(title: str) -> str:\n    if title is None:\n        return \"\"\n    return title.upper()\n",
+  "language": "python",
+  "subject_id": "positive_impossible_null_guard",
+  "subject_kind": "function_or_method"
+}

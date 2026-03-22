@@ -1,0 +1,6 @@
+{
+  "content": "def render_title(title: str) -> str:\n    return title.upper()\n",
+  "language": "python",
+  "subject_id": "clean_no_findings",
+  "subject_kind": "function_or_method"
+}
