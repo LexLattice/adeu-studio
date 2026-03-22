@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_validator
 
@@ -152,6 +152,17 @@ def _projection_kind_for_posture(
         "meta_artifact_correction_only": "meta_artifact_correction",
     }
     return mapping[posture]
+
+
+def _is_plannable_category(
+    category: SyntheticPressureMismatchSourceFindingCategory,
+) -> bool:
+    return category in {
+        "deterministic_high_severity_findings",
+        "meta_governance_findings",
+        "review_only_findings",
+        "safe_autofix_candidates",
+    }
 
 
 class SyntheticPressureMismatchProjectedPlanItem(BaseModel):
@@ -433,6 +444,25 @@ class SyntheticPressureMismatchFixPlan(BaseModel):
             rules_by_id=rules_by_id,
             report_category_by_finding_id=report_category_by_finding_id,
         )
+        required_source_finding_ids = {
+            source_finding_id
+            for source_finding_id, category in report_category_by_finding_id.items()
+            if _is_plannable_category(category)
+        }
+        projected_source_finding_ids = {
+            item.source_finding_id
+            for item in (
+                self.forward_agent_projections + self.post_optimizer_projections
+            )
+        }
+        missing_source_finding_ids = sorted(
+            required_source_finding_ids - projected_source_finding_ids
+        )
+        if missing_source_finding_ids:
+            raise ValueError(
+                "plannable released conformance findings must be surfaced in at least one "
+                "projected plan item"
+            )
         all_ids = sorted(
             [item.projected_item_id for item in self.forward_agent_projections]
             + [item.projected_item_id for item in self.post_optimizer_projections]
@@ -458,8 +488,9 @@ def _report_category_by_source_finding_id(
         ("review_only_findings", report.review_only_findings),
         ("meta_governance_findings", report.meta_governance_findings),
     ):
+        category = cast(SyntheticPressureMismatchSourceFindingCategory, category_name)
         for ref in refs:
-            category_map[_source_finding_id_from_ref(ref)] = category_name
+            category_map[_source_finding_id_from_ref(ref)] = category
     return category_map
 
 
@@ -522,6 +553,17 @@ def _validate_projection_surface(
             raise ValueError(
                 f"{field_name}[].plan_posture must match the released conformance route for "
                 f"{source_category}"
+            )
+        expected_projected_item_id = _projected_item_id(
+            role=role,
+            source_finding_id=item.source_finding_id,
+            plan_posture=item.plan_posture,
+            projection_kind=item.projection_kind,
+            projected_next_step_text=item.projected_next_step_text,
+        )
+        if item.projected_item_id != expected_projected_item_id:
+            raise ValueError(
+                f"{field_name}[].projected_item_id must match the validated projection semantics"
             )
         semantic_ids.append(
             "::".join(
@@ -643,13 +685,14 @@ def derive_v39d_fix_plan(
         ("review_only_findings", report.review_only_findings),
         ("meta_governance_findings", report.meta_governance_findings),
     ):
+        category = cast(SyntheticPressureMismatchSourceFindingCategory, category_name)
         for ref in refs:
             rule = rules_by_id[ref.rule_id]
             source_finding_ids.append(_source_finding_id_from_ref(ref))
             forward_items.append(
                 _build_projected_item(
                     role="forward_agent",
-                    source_category=category_name,
+                    source_category=category,
                     ref=ref,
                     rule=rule,
                 )
@@ -657,7 +700,7 @@ def derive_v39d_fix_plan(
             post_items.append(
                 _build_projected_item(
                     role="post_optimizer",
-                    source_category=category_name,
+                    source_category=category,
                     ref=ref,
                     rule=rule,
                 )

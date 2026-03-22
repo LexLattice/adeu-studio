@@ -115,13 +115,51 @@ def test_v39d_invalid_unauthorized_route_fixture_fails_closed() -> None:
         )
 
 
+def test_v39d_fix_plan_rejects_no_op_for_plannable_report() -> None:
+    payload = _load_json("synthetic_pressure_mismatch_fix_plan_v75_reference.json")
+    payload["forward_agent_projections"] = []
+    payload["post_optimizer_projections"] = []
+
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "plannable released conformance findings must be surfaced in at least one "
+            "projected plan item"
+        ),
+    ):
+        SyntheticPressureMismatchFixPlan.model_validate(
+            payload,
+            context={"repository_root": _repo_root()},
+        )
+
+
 def test_v39d_fix_plan_rejects_duplicate_projected_item_id() -> None:
     payload = _load_json("synthetic_pressure_mismatch_fix_plan_v75_reference.json")
-    payload["post_optimizer_projections"][0]["projected_item_id"] = payload[  # type: ignore[index]
-        "forward_agent_projections"
-    ][0]["projected_item_id"]
+    payload["forward_agent_projections"].append(  # type: ignore[index]
+        dict(payload["forward_agent_projections"][0])  # type: ignore[index]
+    )
 
-    with pytest.raises(ValidationError, match="projected_item_id must not contain duplicates"):
+    with pytest.raises(
+        ValidationError,
+        match="forward_agent_projections\\.projected_item_id must not contain duplicates",
+    ):
+        SyntheticPressureMismatchFixPlan.model_validate(
+            payload,
+            context={"repository_root": _repo_root()},
+        )
+
+
+def test_v39d_fix_plan_rejects_stale_projected_item_id() -> None:
+    payload = _load_json("synthetic_pressure_mismatch_fix_plan_v75_reference.json")
+    payload["post_optimizer_projections"][0]["projected_item_id"] = "v39d_v75_item_stale"
+
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "post_optimizer_projections\\[\\]\\.projected_item_id must match the "
+            "validated projection semantics"
+        ),
+    ):
         SyntheticPressureMismatchFixPlan.model_validate(
             payload,
             context={"repository_root": _repo_root()},
