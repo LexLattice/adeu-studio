@@ -1,6 +1,10 @@
-# Assessment vNext+76 Edges
+# Assessment vNext+76 Edges (Post Closeout)
 
-Status: planning-edge assessment for `V39-E`.
+This document records edge disposition for `vNext+76` (`V39-E` synthetic
+pressure-mismatch hybrid checkpoint and oracle-execution baseline) after arc
+closeout.
+
+Status: post-closeout assessment (March 23, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,130 +12,159 @@ Status: planning-edge assessment for `V39-E`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS76_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
-  "required_in_decision": true
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v76_closeout_edge_disposition",
+  "required_in_decision": true,
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
-## Open Edges
+## Scope
 
-### Edge 1: Deterministic / Oracle Authority Collapse
+- In scope: bounded `V39-E` pressure-mismatch hybrid checkpoint and oracle-execution
+  baseline; canonical `synthetic_pressure_mismatch_oracle_request@1`,
+  `synthetic_pressure_mismatch_oracle_resolution@1`, and
+  `synthetic_pressure_mismatch_checkpoint_trace@1`; authoritative and mirrored schema
+  exports; deterministic trace replay from released v75 fix-plan projections; direct
+  binding to released conformance findings where applicable; committed local hybrid
+  fixtures for oracle-assisted and human-only coverage; exact replay/cache identity
+  pinning; one-round oracle enforcement; and closeout evidence/guard coverage.
+- Out of scope: patch generation, automatic repo mutation, file-edit payloads,
+  generic resident-agent orchestration outside typed requests, live-network evidence
+  sourcing, repo-wide scanning, new detector rollout, authorship classification,
+  merge-worthiness signaling, and any broader post-`V39-E` widening.
 
-- Risk:
-  the first hybrid lane could let oracle output become the de facto authority instead
-  of a typed advisory input to deterministic adjudication.
-- Response:
-  keep deterministic adjudication as the only authority over final checkpoint
-  disposition and trace materialization, and freeze exact
-  `checkpoint_class -> final_adjudication` transition law.
+## Inputs
 
-### Edge 2: Released Coverage Overclaim
+- `docs/DRAFT_SYNTHETIC_PRESSURE_MISMATCH_DRIFT_v0.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v16.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md`
+- `packages/adeu_core_ir/src/adeu_core_ir/synthetic_pressure_mismatch_hybrid_execution.py`
+- `packages/adeu_core_ir/src/adeu_core_ir/export_schema.py`
+- `packages/adeu_core_ir/tests/test_synthetic_pressure_mismatch_hybrid_execution.py`
+- `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/`
+- `artifacts/quality_dashboard_v76_closeout.json`
+- `artifacts/stop_gate/metrics_v76_closeout.json`
+- `artifacts/agent_harness/v76/evidence_inputs/metric_key_continuity_assertion_v76.json`
+- `artifacts/agent_harness/v76/evidence_inputs/runtime_observability_comparison_v76.json`
+- `artifacts/agent_harness/v76/evidence_inputs/v39e_synthetic_pressure_mismatch_hybrid_execution_evidence_v76.json`
+- merged PR: `#298`
 
-- Risk:
-  because released `V39-C` / `V39-D` fixtures are intentionally deterministic-local,
-  the first hybrid baseline could fake oracle-assisted coverage by pretending local
-  hybrid fixtures are already released conformance findings.
-- Response:
-  require explicit `source_kind` separation between released findings / fix-plan items
-  and local hybrid fixtures, and forbid laundering the latter into released
-  observation coverage.
+## Pre-Lock Edge Set Outcome (v76 Closeout)
 
-### Edge 3: Registry / Report / Plan Bypass
+1. Deterministic / oracle authority collapse: `resolved`.
+   - released `V39-E` keeps final adjudication and checkpoint trace materialization
+     under deterministic harness ownership only.
+2. Released coverage overclaim: `resolved`.
+   - oracle-assisted and human-only branches remain explicitly local-hybrid-fixture
+     driven unless exact released conformance or fix-plan bindings already exist.
+3. Registry / report / plan bypass: `resolved`.
+   - checkpoints consume released `V39-B` / `V39-C` / `V39-D` artifacts where
+     available and do not synthesize authority from raw repo scans.
+4. Cache / replay drift: `resolved`.
+   - replay identity now requires exact source, policy, model, and evaluator
+     identity equality.
+5. Unbounded oracle recursion: `resolved`.
+   - the released baseline allows at most one oracle request / resolution cycle per
+     checkpoint.
+6. Human-only route leakage: `resolved`.
+   - `human_only` checkpoints escalate directly to `human_needed` without oracle
+     request emission.
+7. Oracle-output mutation overclaim: `resolved`.
+   - oracle resolutions remain advisory-only and cannot mint rule metadata, subject
+     provenance, or mutation authority.
+8. Source-identity ambiguity: `resolved`.
+   - checkpoint identity is frozen to exact source binding plus rule/subject/anchor
+     tuple and rejects duplicates.
+9. Contradictory-output laundering: `resolved`.
+   - contradictory or replay-inconsistent oracle resolutions fail closed into human
+     escalation.
+10. Live-network evidence leakage: `resolved`.
+    - released artifacts remain local and committed; live GitHub/network state stays
+      outside canonical evidence.
+11. Detector-widening leakage: `resolved`.
+    - `V39-E` does not widen detector rollout; it consumes released deterministic
+      surfaces and explicitly declared local hybrid fixtures only.
+12. Authorship regression: `resolved`.
+    - the released schema/model/fixture/test set governs pressure-mismatch drift only
+      and does not reintroduce authorship or “AI-ness” rhetoric.
 
-- Risk:
-  the hybrid lane could skip released upstream artifacts and synthesize checkpoints
-  directly from raw repo scans or free-form prompts.
-- Response:
-  require exact binding to released registry, conformance, and fix-plan artifacts
-  whenever those bindings exist, fail closed on mismatches, and keep it explicit that
-  checkpoints may bind either to released conformance findings or released fix-plan
-  projections depending on source surface.
+## Guard Coverage Outcome
 
-### Edge 4: Cache / Replay Drift
+- merged implementation files:
+  - `packages/adeu_core_ir/src/adeu_core_ir/synthetic_pressure_mismatch_hybrid_execution.py`
+  - `packages/adeu_core_ir/src/adeu_core_ir/export_schema.py`
+  - `packages/adeu_core_ir/src/adeu_core_ir/__init__.py`
+  - `packages/adeu_core_ir/schema/synthetic_pressure_mismatch_oracle_request.v1.json`
+  - `packages/adeu_core_ir/schema/synthetic_pressure_mismatch_oracle_resolution.v1.json`
+  - `packages/adeu_core_ir/schema/synthetic_pressure_mismatch_checkpoint_trace.v1.json`
+  - `spec/synthetic_pressure_mismatch_oracle_request.schema.json`
+  - `spec/synthetic_pressure_mismatch_oracle_resolution.schema.json`
+  - `spec/synthetic_pressure_mismatch_checkpoint_trace.schema.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/local_hybrid_fixture_v76_narrative_comment.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/local_hybrid_fixture_v76_mirrored_branch.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_oracle_request_v76_reference.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_oracle_resolution_v76_reference.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_oracle_resolution_v76_invalid_replay_identity.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_checkpoint_trace_v76_deterministic.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_checkpoint_trace_v76_oracle.json`
+  - `apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_checkpoint_trace_v76_human.json`
+- merged guard files:
+  - `packages/adeu_core_ir/tests/test_synthetic_pressure_mismatch_hybrid_execution.py`
+- v76 closeout artifact regeneration on `main` emitted:
+  - canonical `metric_key_continuity_assertion@1`
+  - canonical `runtime_observability_comparison@1`
+  - canonical `v39e_synthetic_pressure_mismatch_hybrid_execution_evidence@1`
+  - committed parent-session closeout raw/event stream fixture under
+    `artifacts/agent_harness/v76/runtime/evidence/codex/copilot/v76-closeout-main-1/`
+- review-driven hardening now includes:
+  - exact full-policy-source-set enforcement in oracle replay identity,
+  - exact bounded-context matching against the referenced local hybrid fixture,
+  - direct support for oracle-assisted released conformance finding binding,
+  - continued fail-closed handling for contradictory or replay-inconsistent oracle
+    outputs.
 
-- Risk:
-  oracle request reuse could occur across different source, policy, or model
-  identities and silently distort adjudication.
-- Response:
-  pin replay identity across source hashes, policy hashes, model id, model version,
-  reasoning effort, and evaluator/template version, and reject non-exact cache reuse.
+## Stop-Gate Continuity Outcome
 
-### Edge 5: Unbounded Oracle Recursion
+```json
+{
+  "schema": "v76_edge_closeout_summary@1",
+  "arc": "vNext+76",
+  "target_path": "V39-E",
+  "prelock_edge_count": 12,
+  "resolved_edge_count": 12,
+  "open_blocking_edges": 0,
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v75": true,
+  "all_passed": true,
+  "blocking_issues": []
+}
+```
 
-- Risk:
-  once the lane can call an oracle, it could quietly expand into repeated oracle
-  retries or open-ended agent loops.
-- Response:
-  freeze one oracle request / resolution cycle maximum per checkpoint in `V39-E`.
+## Residual Risks (Post v76)
 
-### Edge 6: Human-Only Route Leakage
+1. The released lane remains intentionally bounded to typed hybrid adjudication only
+   and not patch generation or direct repo mutation.
+2. Oracle-assisted and human-only coverage remain partly local-fixture-driven by
+   design because the released `V39-C` / `V39-D` baseline is still intentionally
+   deterministic-local.
+3. Generic resident-agent orchestration, multi-round oracle loops, and live-network
+   evidence remain excluded from the released baseline.
+4. Any future mutation-capable or wider execution surface should be treated as a new
+   lock decision beyond the current completed `V39-A` through `V39-E` family.
 
-- Risk:
-  `human_only` rules could still emit oracle requests through convenience logic and
-  undermine the route boundary.
-- Response:
-  require direct `human_needed` disposition for `human_only` checkpoints with no
-  oracle request emission, and forbid request emission outside
-  `checkpoint_class = oracle_needed`.
+## Recommendation (Post Closeout)
 
-### Edge 7: Oracle-Output Mutation Overclaim
-
-- Risk:
-  oracle response text could be treated as if it were already an authorized edit,
-  patch payload, or repo-mutation instruction.
-- Response:
-  keep oracle output advisory-only and forbid any direct mutation authority in the
-  released artifacts, including minting new rule metadata or new subject provenance.
-
-### Edge 8: Source-Identity Ambiguity
-
-- Risk:
-  duplicate or stale checkpoints could survive validation if checkpoint identity is
-  left implicit rather than frozen to an exact source-binding tuple.
-- Response:
-  define checkpoint identity explicitly from `source_kind`, exact source binding,
-  `rule_id`, `subject_ref`, and local anchor, and reject exact duplicates.
-
-### Edge 9: Contradictory-Output Laundering
-
-- Risk:
-  contradictory or unstable oracle outputs could be normalized into apparent success
-  instead of surfacing as unresolved.
-- Response:
-  require fail-closed conversion of contradictory, unstable, or replay-inconsistent
-  resolutions into `human_needed`.
-
-### Edge 10: Live-Network Evidence Leakage
-
-- Risk:
-  the hybrid lane could start treating live GitHub state or live network responses as
-  canonical evaluation evidence rather than reproducible local inputs.
-- Response:
-  keep canonical evidence local and committed; allow only deterministic local
-  provenance in the released baseline.
-
-### Edge 11: Detector-Widening Leakage
-
-- Risk:
-  `V39-E` could quietly smuggle broader detector rollout or semantic-ambiguous
-  observation coverage into the family under the label of hybrid execution.
-- Response:
-  keep released detector coverage unchanged in this slice and route oracle/human cases
-  through explicit local hybrid fixtures only.
-
-### Edge 12: Authorship Regression
-
-- Risk:
-  once hybrid adjudication exists, the lane could slide back into governing against
-  “AI-looking code” rather than pressure-mismatch drift.
-- Response:
-  keep authorship/origin absent from the hybrid schemas, builders, fixtures, and
-  tests.
-
-## Current Judgment
-
-- `V39-E` is worth implementing now because `V39-A` through `V39-D` are released on
-  `main`, and the family now needs an explicit typed checkpoint and oracle lane before
-  any later widening into mutation or broader execution surfaces can be discussed
-  honestly.
+1. Mark the v76 edge set as closed with no blocking issues.
+2. Treat canonical `synthetic_pressure_mismatch_oracle_request@1`,
+   `synthetic_pressure_mismatch_oracle_resolution@1`, and
+   `synthetic_pressure_mismatch_checkpoint_trace@1` plus their exported schemas and
+   v76 deterministic/oracle/human fixtures as the released `V39-E` substrate going
+   forward.
+3. Keep the hybrid checkpoint lane explicitly advisory-only, replay-pinned,
+   one-round, anti-authorship, and anti-score until a later lock widens it.
+4. Treat the current planned `V39` slice ladder as complete at its bounded baseline on
+   `main`; any future widening should start from a new lock rather than implicitly
+   extending `V39-E`.
