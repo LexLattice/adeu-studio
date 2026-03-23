@@ -421,7 +421,7 @@
     ]
   },
   "schema": "adeu_architecture_semantic_ir@1",
-  "semantic_hash": "1f2844e2ad75b5dfe1b81861494a23c925090dd88032a3cd96f1800164c38c67",
+  "semantic_hash": "cf42da9738378d886311ad21fd96cbf0f211d2d62c3401cd91f48c9f47fc9573",
   "source_set": {
     "sources": [
       {
@@ -436,8 +436,8 @@
       {
         "goal_id": "goal_fast",
         "served_by_refs": [
-          "step_submit_request",
-          "hook_approval_latency"
+          "hook_approval_latency",
+          "step_submit_request"
         ],
         "statement": "Keep request turnaround low for routine approvals."
       },

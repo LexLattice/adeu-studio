@@ -22,6 +22,7 @@ from adeu_architecture_ir import (
     canonicalize_adeu_architecture_semantic_ir_payload,
     canonicalize_adeu_architecture_world_hypothesis_payload,
     compute_adeu_architecture_semantic_ir_hash,
+    materialize_adeu_architecture_semantic_ir_payload,
 )
 from adeu_ir.repo import repo_root
 from jsonschema import Draft202012Validator
@@ -197,6 +198,17 @@ def test_v40a_boundary_graph_rejects_unknown_node_ref() -> None:
         )
 
 
+def test_v40a_boundary_graph_rejects_unknown_crossing_without_ontology_frame() -> None:
+    payload = deepcopy(_load_json("adeu_architecture_boundary_graph_v77_reference.json"))
+    payload["authority_crossings"] = ["missing_edge"]
+
+    with pytest.raises(ValidationError, match="authority_crossings must resolve"):
+        ArchitectureBoundaryGraph.model_validate(
+            payload,
+            context={"repository_root": _repo_root()},
+        )
+
+
 def test_v40a_semantic_ir_rejects_deferred_state_fields() -> None:
     payload = deepcopy(_load_json("adeu_architecture_semantic_ir_v77_reference.json"))
     payload["projection_readiness"] = "blocked"
@@ -247,6 +259,53 @@ def test_v40a_semantic_ir_rejects_duplicate_actor_ids() -> None:
     payload["ontology"]["actors"].append(duplicate)
 
     with pytest.raises(ValidationError, match="duplicate id"):
+        AdeuArchitectureSemanticIR.model_validate(
+            payload,
+            context={"repository_root": _repo_root()},
+        )
+
+
+def test_v40a_canonicalization_sorts_set_like_lists() -> None:
+    payload = deepcopy(_load_json("adeu_architecture_intent_packet_v77_reference.json"))
+    payload["requested_outcomes"] = list(reversed(payload["requested_outcomes"]))
+
+    assert canonicalize_adeu_architecture_intent_packet_payload(
+        payload,
+        repository_root=_repo_root(),
+    ) == _load_json("adeu_architecture_intent_packet_v77_reference.json")
+
+
+def test_v40a_materialize_semantic_ir_hash_uses_normalized_payload() -> None:
+    payload = deepcopy(_load_json("adeu_architecture_semantic_ir_v77_reference.json"))
+    payload.pop("semantic_hash")
+    payload["architecture_id"] = f"  {payload['architecture_id']}  "
+    payload["epistemics"]["facts"][0]["statement"] = (
+        f"  {payload['epistemics']['facts'][0]['statement']}  "
+    )
+
+    assert materialize_adeu_architecture_semantic_ir_payload(
+        payload,
+        repository_root=_repo_root(),
+    ) == _load_json("adeu_architecture_semantic_ir_v77_reference.json")
+
+
+def test_v40a_semantic_ir_rejects_mismatched_accepted_hypothesis_binding() -> None:
+    payload = deepcopy(_load_json("adeu_architecture_semantic_ir_v77_reference.json"))
+    payload["variant_lineage"]["candidate_ids"].append("cand_alt_world")
+    payload["epistemics"]["hypothesis_bindings"][0]["accepted"] = False
+    payload["epistemics"]["hypothesis_bindings"].append(
+        {
+            "accepted": True,
+            "candidate_id": "cand_alt_world",
+            "coverage_summary": "Alternative candidate coverage summary.",
+            "rejection_reasons": [],
+        }
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match="accepted hypothesis_binding must match variant_lineage.accepted_candidate_id",
+    ):
         AdeuArchitectureSemanticIR.model_validate(
             payload,
             context={"repository_root": _repo_root()},

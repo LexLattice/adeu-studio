@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 from copy import deepcopy
 from pathlib import Path
@@ -8,7 +7,7 @@ from typing import Any, Literal
 
 from adeu_ir.repo import repo_root
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_validator
-from urm_runtime.hashing import canonical_json, sha256_canonical_json, sha256_text
+from urm_runtime.hashing import sha256_canonical_json, sha256_text
 
 ADEU_ARCHITECTURE_INTENT_PACKET_SCHEMA = "adeu_architecture_intent_packet@1"
 ADEU_ARCHITECTURE_ONTOLOGY_FRAME_SCHEMA = "adeu_architecture_ontology_frame@1"
@@ -28,8 +27,13 @@ ArchitectureEvaluableAs = Literal["deterministic", "contextual", "semantic"]
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"^[A-Za-z]:[\\/]")
 
 
-def _validation_context(repository_root: Path | None = None) -> dict[str, Any]:
-    return {"repository_root": repository_root}
+def _validation_context(
+    repository_root: Path | None = None,
+    **extra: Any,
+) -> dict[str, Any]:
+    context = {"repository_root": repository_root}
+    context.update(extra)
+    return context
 
 
 def _resolve_repository_root(explicit_root: Path | None = None) -> Path:
@@ -75,6 +79,13 @@ def _assert_non_empty_text(value: str, *, field_name: str) -> str:
 
 
 def _assert_sorted_unique(values: list[str], *, field_name: str) -> list[str]:
+    normalized = [_assert_non_empty_text(value, field_name=field_name) for value in values]
+    if len(normalized) != len(set(normalized)):
+        raise ValueError(f"{field_name} must not contain duplicates")
+    return sorted(normalized)
+
+
+def _assert_unique_preserving_order(values: list[str], *, field_name: str) -> list[str]:
     normalized = [_assert_non_empty_text(value, field_name=field_name) for value in values]
     if len(normalized) != len(set(normalized)):
         raise ValueError(f"{field_name} must not contain duplicates")
@@ -150,8 +161,16 @@ class ArchitectureSourceSet(BaseModel):
             raise ValueError("sources must not be empty")
         _require_unique_ids(self.sources, attr_name="source_ref_id", field_name="sources")
         paths = [item.path for item in self.sources]
-        if len(paths) != len(set(paths)):
+        normalized_paths = sorted(paths)
+        if len(normalized_paths) != len(set(normalized_paths)):
             raise ValueError("sources must not contain duplicate paths")
+        if normalized_paths != paths:
+            sources_by_path = {item.path: item for item in self.sources}
+            object.__setattr__(
+                self,
+                "sources",
+                [sources_by_path[path] for path in normalized_paths],
+            )
         return self
 
 
@@ -420,7 +439,9 @@ class OntologyWorkflow(BaseModel):
                 _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
             )
         object.__setattr__(
-            self, "step_refs", _assert_sorted_unique(self.step_refs, field_name="step_refs")
+            self,
+            "step_refs",
+            _assert_unique_preserving_order(self.step_refs, field_name="step_refs"),
         )
         object.__setattr__(
             self,
@@ -775,6 +796,11 @@ class ArchitectureBoundaryGraph(BaseModel):
             _assert_sorted_unique(self.sensitivity_crossings, field_name="sensitivity_crossings"),
         )
         _require_unique_ids(self.edge_set, attr_name="edge_id", field_name="edge_set")
+        edge_ids = {edge.edge_id for edge in self.edge_set}
+        if not set(self.authority_crossings).issubset(edge_ids):
+            raise ValueError("authority_crossings must resolve to edge ids")
+        if not set(self.sensitivity_crossings).issubset(edge_ids):
+            raise ValueError("sensitivity_crossings must resolve to edge ids")
 
         ontology_frame = info.context.get("ontology_frame") if info.context else None
         if ontology_frame is not None and not isinstance(ontology_frame, ArchitectureOntologyFrame):
@@ -799,11 +825,6 @@ class ArchitectureBoundaryGraph(BaseModel):
             all_refs = _all_ontology_refs(groups)
             if not set(self.node_refs).issubset(all_refs):
                 raise ValueError("boundary_graph.node_refs must resolve to ontology-frame node ids")
-            edge_ids = {edge.edge_id for edge in self.edge_set}
-            if not set(self.authority_crossings).issubset(edge_ids):
-                raise ValueError("authority_crossings must resolve to edge ids")
-            if not set(self.sensitivity_crossings).issubset(edge_ids):
-                raise ValueError("sensitivity_crossings must resolve to edge ids")
             boundary_ids = groups["boundary_ids"]
             for edge in self.edge_set:
                 if edge.from_ref not in set(self.node_refs) or edge.to_ref not in set(
@@ -1428,7 +1449,7 @@ class AdeuArchitectureSemanticIR(BaseModel):
     utility: SemanticUtilitySection
 
     @model_validator(mode="after")
-    def _validate_semantic_ir(self) -> AdeuArchitectureSemanticIR:
+    def _validate_semantic_ir(self, info: ValidationInfo) -> AdeuArchitectureSemanticIR:
         object.__setattr__(
             self,
             "architecture_id",
@@ -1526,6 +1547,18 @@ class AdeuArchitectureSemanticIR(BaseModel):
         for binding in self.epistemics.hypothesis_bindings:
             if binding.candidate_id not in set(self.variant_lineage.candidate_ids):
                 raise ValueError("hypothesis_binding candidate_id must exist in variant_lineage")
+        accepted_bindings = [
+            binding for binding in self.epistemics.hypothesis_bindings if binding.accepted
+        ]
+        if len(accepted_bindings) != 1:
+            raise ValueError("exactly one hypothesis_binding must be marked accepted")
+        if (
+            accepted_bindings[0].candidate_id
+            != self.variant_lineage.accepted_candidate_id
+        ):
+            raise ValueError(
+                "accepted hypothesis_binding must match variant_lineage.accepted_candidate_id"
+            )
 
         for obligation in self.deontics.obligations:
             if not set(obligation.target_refs).issubset(all_refs):
@@ -1569,9 +1602,15 @@ class AdeuArchitectureSemanticIR(BaseModel):
             if not set(tradeoff.between_refs).issubset(utility_refs):
                 raise ValueError("tradeoff.between_refs must resolve within utility section")
 
-        expected_hash = compute_adeu_architecture_semantic_ir_hash(_dump_json_payload(self))
-        if self.semantic_hash != expected_hash:
-            raise ValueError("semantic_hash must match canonical payload")
+        skip_semantic_hash_validation = False
+        if info.context:
+            skip_semantic_hash_validation = bool(
+                info.context.get("skip_semantic_hash_validation")
+            )
+        if not skip_semantic_hash_validation:
+            expected_hash = compute_adeu_architecture_semantic_ir_hash(_dump_json_payload(self))
+            if self.semantic_hash != expected_hash:
+                raise ValueError("semantic_hash must match canonical payload")
         return self
 
 
@@ -1646,7 +1685,23 @@ def canonicalize_adeu_architecture_semantic_ir_payload(
 
 def materialize_adeu_architecture_semantic_ir_payload(
     payload_without_hash: dict[str, Any],
+    *,
+    repository_root: Path | None = None,
 ) -> dict[str, Any]:
     payload = deepcopy(payload_without_hash)
-    payload["semantic_hash"] = compute_adeu_architecture_semantic_ir_hash(payload)
-    return json.loads(canonical_json(payload))
+    payload["semantic_hash"] = "0" * 64
+    validated = AdeuArchitectureSemanticIR.model_validate(
+        payload,
+        context=_validation_context(
+            repository_root,
+            skip_semantic_hash_validation=True,
+        ),
+    )
+    normalized_payload = _dump_json_payload(validated)
+    normalized_payload["semantic_hash"] = compute_adeu_architecture_semantic_ir_hash(
+        normalized_payload
+    )
+    return canonicalize_adeu_architecture_semantic_ir_payload(
+        normalized_payload,
+        repository_root=repository_root,
+    )

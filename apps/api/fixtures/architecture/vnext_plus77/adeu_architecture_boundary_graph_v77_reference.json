@@ -35,17 +35,17 @@
   ],
   "intent_packet_id": "intent_v77_trust_sensitive_approval_flow",
   "node_refs": [
-    "act_requester",
     "act_approver",
-    "act_policy_engine",
     "act_audit_service",
-    "srf_request_portal",
-    "srf_approval_workbench",
-    "srf_approval_api",
-    "srf_audit_log",
+    "act_policy_engine",
+    "act_requester",
+    "dec_outcome",
     "obj_approval_request",
     "obj_decision_record",
-    "dec_outcome"
+    "srf_approval_api",
+    "srf_approval_workbench",
+    "srf_audit_log",
+    "srf_request_portal"
   ],
   "schema": "adeu_architecture_boundary_graph@1",
   "sensitivity_crossings": [

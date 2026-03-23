@@ -23,8 +23,8 @@
     "inv_audit_record"
   ],
   "epistemic_bindings": [
-    "fact_policy_required",
-    "amb_auto_approve_threshold"
+    "amb_auto_approve_threshold",
+    "fact_policy_required"
   ],
   "intent_packet_id": "intent_v77_trust_sensitive_approval_flow",
   "ontology_bindings": [
