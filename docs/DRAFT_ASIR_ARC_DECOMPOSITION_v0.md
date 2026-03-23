@@ -1,6 +1,6 @@
 # Draft ASIR Arc Decomposition v0
 
-Status: working decomposition draft after `vNext+76` closeout and after
+Status: working decomposition draft after `vNext+77` closeout and after
 `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`.
 
 This document is an intermediate planning artifact between:
@@ -27,9 +27,10 @@ implementation by itself.
 ## Inputs
 
 - `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`
-- `docs/DRAFT_NEXT_ARC_OPTIONS_v16.md`
-- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS76.md`
-- `docs/ASSESSMENT_vNEXT_PLUS76_EDGES.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v17.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v18.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS77.md`
+- `docs/ASSESSMENT_vNEXT_PLUS77_EDGES.md`
 - `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
 - `docs/formal/asir/ASIR_FORMAL_KERNEL.md`
 - `docs/formal/asir/ASIRKernelHybrid.md`
@@ -59,9 +60,10 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 
 - `vNext+76` (`V39-E`) is closed on `main`.
 - The bounded `V39` family is complete at its intended baseline.
-- The next safe step should be a fresh family rather than widening `V39-E` in place.
-- ASIR is now the leading candidate for that next family.
-- The ASIR family should be decomposed before first implementation lock text is drafted.
+- `vNext+77` (`V40-A`) is now closed on `main` at its bounded baseline.
+- The ASIR root-family substrate is now released under `packages/adeu_architecture_ir`.
+- The next safe step is deterministic compiler activation rather than reopening the
+  released root boundary.
 - The Lean formal lane is useful but should remain sidecar-only unless a later lock
   explicitly promotes it into a required release surface.
 
@@ -71,7 +73,7 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 {
   "schema": "asir_arc_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+76",
+  "baseline_arc": "vNext+77",
   "closed_path_family": "V39",
   "closed_paths": [
     "V39-A",
@@ -81,11 +83,14 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
     "V39-E"
   ],
   "next_path_family": "V40",
-  "default_next_arc_candidate": "V40-A",
-  "default_next_concrete_arc_candidate": "vNext+77",
+  "closed_current_family_paths": [
+    "V40-A"
+  ],
+  "default_next_arc_candidate": "V40-B",
+  "default_next_concrete_arc_candidate": "vNext+78",
   "v40_path_count": 6,
   "v40_default_arc_span": {
-    "from": "vNext+77",
+    "from": "vNext+78",
     "to": "vNext+84"
   },
   "v40_paths_may_span_multiple_arcs": true,
@@ -150,15 +155,21 @@ decomposition rules:
 
 `V40` path labels are not assumed to map one-to-one onto concrete `vNext+` arcs.
 
-The initial recommended concrete split is:
+The current recommended concrete split is:
 
 - `vNext+77`
-  - default first concrete `V40-A` arc:
+  - closed first concrete `V40-A` arc:
     root schemas, models, exports, canonicalization/hashing, reference fixtures,
-    validator tests, and boundary exclusions in one integrated slice
+    validator tests, and boundary exclusions
 - `vNext+78`
-  - optional follow-on `V40-A` hardening only if richer reference coverage or broader
-    validator depth remains intentionally deferred from `vNext+77`
+  - default first concrete `V40-B` arc:
+    compiler package activation, conformance-report schema/export baseline,
+    deterministic assembly/integrity passes, blocked/ready gating, reference fixtures,
+    and validator tests
+- `vNext+79`
+  - optional follow-on `V40-B` hardening only if richer validator depth, broader
+    accepted fixture coverage, or check-id/report coverage remains intentionally
+    deferred from `vNext+78`
 
 Later `V40` paths may also take one or more concrete arcs when that keeps each lock
 comparable to earlier ADEU slices.
@@ -245,6 +256,9 @@ Scope:
 - whole-ASIR integrity pass;
 - validator check-id families;
 - canonical `adeu_architecture_conformance_report@1` baseline;
+- consumed-root replay lineage in the conformance report;
+- explicit required-vs-advisory check-result posture;
+- static deterministic human-escalation lineage only;
 - deterministic pre-projection conformance plus blocked/ready gating.
 
 Locks:
@@ -261,7 +275,9 @@ Acceptance:
 
 - deterministic compiler can assemble canonical ASIR from bounded inputs;
 - whole-ASIR integrity pass enforces cross-section laws;
-- conformance report remains downstream of the root and does not collapse back into it.
+- conformance report remains downstream of the root and does not collapse back into it;
+- `ASIR-P-xxx` in this path means pre-projection readiness honesty only rather than
+  manifest-integrity checking.
 
 Expected PR shape:
 
