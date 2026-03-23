@@ -45,6 +45,11 @@ from .read_surface_payload import AdeuReadSurfacePayload
 from .semantics_v4_candidate_packet import AdeuSemanticsV4CandidatePacket
 from .synthetic_pressure_mismatch import SyntheticPressureMismatchRuleRegistry
 from .synthetic_pressure_mismatch_fix_plan import SyntheticPressureMismatchFixPlan
+from .synthetic_pressure_mismatch_hybrid_execution import (
+    SyntheticPressureMismatchCheckpointTrace,
+    SyntheticPressureMismatchOracleRequest,
+    SyntheticPressureMismatchOracleResolution,
+)
 from .synthetic_pressure_mismatch_observation import (
     SyntheticPressureMismatchConformanceReport,
     SyntheticPressureMismatchObservationPacket,
@@ -117,6 +122,15 @@ def main() -> None:
     )
     synthetic_pressure_mismatch_fix_plan_schema = (
         SyntheticPressureMismatchFixPlan.model_json_schema(by_alias=True)
+    )
+    synthetic_pressure_mismatch_oracle_request_schema = (
+        SyntheticPressureMismatchOracleRequest.model_json_schema(by_alias=True)
+    )
+    synthetic_pressure_mismatch_oracle_resolution_schema = (
+        SyntheticPressureMismatchOracleResolution.model_json_schema(by_alias=True)
+    )
+    synthetic_pressure_mismatch_checkpoint_trace_schema = (
+        SyntheticPressureMismatchCheckpointTrace.model_json_schema(by_alias=True)
     )
     projection_alignment_fidelity_input_schema = (
         AdeuProjectionAlignmentFidelityInput.model_json_schema(by_alias=True)
@@ -248,6 +262,42 @@ def main() -> None:
     _write_schema(
         synthetic_pressure_mismatch_fix_plan_authoritative_path,
         synthetic_pressure_mismatch_fix_plan_schema,
+    )
+
+    synthetic_pressure_mismatch_oracle_request_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "synthetic_pressure_mismatch_oracle_request.v1.json"
+    )
+    _write_schema(
+        synthetic_pressure_mismatch_oracle_request_authoritative_path,
+        synthetic_pressure_mismatch_oracle_request_schema,
+    )
+
+    synthetic_pressure_mismatch_oracle_resolution_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "synthetic_pressure_mismatch_oracle_resolution.v1.json"
+    )
+    _write_schema(
+        synthetic_pressure_mismatch_oracle_resolution_authoritative_path,
+        synthetic_pressure_mismatch_oracle_resolution_schema,
+    )
+
+    synthetic_pressure_mismatch_checkpoint_trace_authoritative_path = (
+        root
+        / "packages"
+        / "adeu_core_ir"
+        / "schema"
+        / "synthetic_pressure_mismatch_checkpoint_trace.v1.json"
+    )
+    _write_schema(
+        synthetic_pressure_mismatch_checkpoint_trace_authoritative_path,
+        synthetic_pressure_mismatch_checkpoint_trace_schema,
     )
 
     lane_authoritative_path = (
@@ -599,6 +649,30 @@ def main() -> None:
     _write_schema(
         synthetic_pressure_mismatch_fix_plan_mirror_path,
         synthetic_pressure_mismatch_fix_plan_schema,
+    )
+
+    synthetic_pressure_mismatch_oracle_request_mirror_path = (
+        root / "spec" / "synthetic_pressure_mismatch_oracle_request.schema.json"
+    )
+    _write_schema(
+        synthetic_pressure_mismatch_oracle_request_mirror_path,
+        synthetic_pressure_mismatch_oracle_request_schema,
+    )
+
+    synthetic_pressure_mismatch_oracle_resolution_mirror_path = (
+        root / "spec" / "synthetic_pressure_mismatch_oracle_resolution.schema.json"
+    )
+    _write_schema(
+        synthetic_pressure_mismatch_oracle_resolution_mirror_path,
+        synthetic_pressure_mismatch_oracle_resolution_schema,
+    )
+
+    synthetic_pressure_mismatch_checkpoint_trace_mirror_path = (
+        root / "spec" / "synthetic_pressure_mismatch_checkpoint_trace.schema.json"
+    )
+    _write_schema(
+        synthetic_pressure_mismatch_checkpoint_trace_mirror_path,
+        synthetic_pressure_mismatch_checkpoint_trace_schema,
     )
 
     lane_mirror_path = root / "spec" / "adeu_lane_report.schema.json"

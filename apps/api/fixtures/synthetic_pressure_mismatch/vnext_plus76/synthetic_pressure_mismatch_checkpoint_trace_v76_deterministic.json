@@ -1,0 +1,62 @@
+{
+  "checkpoints": [
+    {
+      "allowed_action": "safe_autofix",
+      "checkpoint_class": "deterministic_fail",
+      "checkpoint_id": "v39e_v76_checkpoint_2ba81da5d9c11e22",
+      "evidence_regime": "deterministic_local",
+      "final_adjudication": "resolved_fail",
+      "harm_kind": "maintainability_drag",
+      "local_subject_anchor": "function:render_title:line:2:symbol:title",
+      "resolution_route": "deterministic_only",
+      "rule_id": "state_model_impossible_null_check",
+      "signal_kind": "state_model_drift",
+      "source_finding_id": "v39c_v74_obs_positive_impossible_null_guard::state_model_impossible_null_check::function:render_title:line:2:symbol:title",
+      "source_kind": "released_fix_plan_projection",
+      "source_projected_item_id": "v39d_v75_item_652f1ad6f2645741",
+      "subject_kind": "function_or_method",
+      "subject_ref": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/subject_function_impossible_null_guard_v74.json"
+    },
+    {
+      "allowed_action": "safe_autofix",
+      "checkpoint_class": "deterministic_fail",
+      "checkpoint_id": "v39e_v76_checkpoint_ee83a64099f06610",
+      "evidence_regime": "deterministic_local",
+      "final_adjudication": "resolved_fail",
+      "harm_kind": "maintainability_drag",
+      "local_subject_anchor": "function:render_title:line:2:symbol:title",
+      "resolution_route": "deterministic_only",
+      "rule_id": "state_model_impossible_null_check",
+      "signal_kind": "state_model_drift",
+      "source_finding_id": "v39c_v74_obs_positive_impossible_null_guard::state_model_impossible_null_check::function:render_title:line:2:symbol:title",
+      "source_kind": "released_fix_plan_projection",
+      "source_projected_item_id": "v39d_v75_item_586d07c2f2dcccbd",
+      "subject_kind": "function_or_method",
+      "subject_ref": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/subject_function_impossible_null_guard_v74.json"
+    }
+  ],
+  "conformance_report_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus74/synthetic_pressure_mismatch_conformance_report_v74_reference.json",
+  "conformance_report_schema": "synthetic_pressure_mismatch_conformance_report@1",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md#v39e_synthetic_pressure_mismatch_hybrid_execution_contract@1",
+  "derivation_metadata": {
+    "adjudicator_id": "adeu_core_ir.synthetic_pressure_mismatch_hybrid_execution.derive_v39e_checkpoint_trace@1",
+    "adjudicator_version": "1",
+    "cache_identity_exact_match_required": true,
+    "conformance_report_reference_fixture_sha256": "a686c59c391766aa416d1805ba61de7f9f773e031a0fbb28c06bda506f5cf916",
+    "deterministic_adjudicator_authoritative": true,
+    "fix_plan_reference_fixture_sha256": "3042a7a05f0056f2c02dbcd1165a241f2be734a1385c4157cf74e5d72630ef81",
+    "oracle_output_advisory_only": true,
+    "registry_reference_fixture_sha256": "fe47ddb2bb072be3b19d4aafdf1d70921ead64dea41633ac8ba86d4fcd6ff105",
+    "single_oracle_round_enforced": true
+  },
+  "fix_plan_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus75/synthetic_pressure_mismatch_fix_plan_v75_reference.json",
+  "fix_plan_schema": "synthetic_pressure_mismatch_fix_plan@1",
+  "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
+  "registry_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
+  "registry_schema": "synthetic_pressure_mismatch_rule_registry@1",
+  "schema": "synthetic_pressure_mismatch_checkpoint_trace@1",
+  "source_kind": "released_fix_plan_projection",
+  "target_arc": "vNext+76",
+  "target_path": "V39-E",
+  "trace_id": "v39e_v76_trace_53306d901c40c25d"
+}

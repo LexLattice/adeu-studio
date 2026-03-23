@@ -1,0 +1,124 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "advisory_summary": {
+      "minLength": 1,
+      "title": "Advisory Summary",
+      "type": "string"
+    },
+    "checkpoint_id": {
+      "minLength": 1,
+      "title": "Checkpoint Id",
+      "type": "string"
+    },
+    "contract_source": {
+      "const": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md#v39e_synthetic_pressure_mismatch_hybrid_execution_contract@1",
+      "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md#v39e_synthetic_pressure_mismatch_hybrid_execution_contract@1",
+      "title": "Contract Source",
+      "type": "string"
+    },
+    "model_id": {
+      "minLength": 1,
+      "title": "Model Id",
+      "type": "string"
+    },
+    "model_version": {
+      "minLength": 1,
+      "title": "Model Version",
+      "type": "string"
+    },
+    "oracle_request_id": {
+      "minLength": 1,
+      "title": "Oracle Request Id",
+      "type": "string"
+    },
+    "oracle_request_reference_fixture": {
+      "minLength": 1,
+      "title": "Oracle Request Reference Fixture",
+      "type": "string"
+    },
+    "oracle_resolution_id": {
+      "minLength": 1,
+      "title": "Oracle Resolution Id",
+      "type": "string"
+    },
+    "raw_output_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Raw Output Sha256",
+      "type": "string"
+    },
+    "raw_output_text": {
+      "minLength": 1,
+      "title": "Raw Output Text",
+      "type": "string"
+    },
+    "reasoning_effort": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "title": "Reasoning Effort",
+      "type": "string"
+    },
+    "request_replay_identity_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Request Replay Identity Sha256",
+      "type": "string"
+    },
+    "resolution_disposition": {
+      "enum": [
+        "advisory_support",
+        "advisory_reject",
+        "inconclusive",
+        "contradictory"
+      ],
+      "title": "Resolution Disposition",
+      "type": "string"
+    },
+    "resolution_origin": {
+      "enum": [
+        "fresh_model_output",
+        "cache_replay"
+      ],
+      "title": "Resolution Origin",
+      "type": "string"
+    },
+    "schema": {
+      "const": "synthetic_pressure_mismatch_oracle_resolution@1",
+      "default": "synthetic_pressure_mismatch_oracle_resolution@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "target_arc": {
+      "const": "vNext+76",
+      "default": "vNext+76",
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "const": "V39-E",
+      "default": "V39-E",
+      "title": "Target Path",
+      "type": "string"
+    }
+  },
+  "required": [
+    "oracle_resolution_id",
+    "oracle_request_id",
+    "oracle_request_reference_fixture",
+    "checkpoint_id",
+    "resolution_disposition",
+    "resolution_origin",
+    "model_id",
+    "model_version",
+    "reasoning_effort",
+    "request_replay_identity_sha256",
+    "advisory_summary",
+    "raw_output_text",
+    "raw_output_sha256"
+  ],
+  "title": "SyntheticPressureMismatchOracleResolution",
+  "type": "object"
+}

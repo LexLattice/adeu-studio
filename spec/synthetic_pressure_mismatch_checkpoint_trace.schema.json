@@ -1,0 +1,612 @@
+{
+  "$defs": {
+    "SyntheticPressureMismatchCheckpointEntry": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "checkpoint_class": {
+                "const": "deterministic_pass"
+              }
+            },
+            "required": [
+              "checkpoint_class"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "oracle_request_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "oracle_resolution_id"
+                  ]
+                }
+              ]
+            },
+            "properties": {
+              "final_adjudication": {
+                "const": "resolved_pass"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "checkpoint_class": {
+                "const": "deterministic_fail"
+              }
+            },
+            "required": [
+              "checkpoint_class"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "oracle_request_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "oracle_resolution_id"
+                  ]
+                }
+              ]
+            },
+            "properties": {
+              "final_adjudication": {
+                "const": "resolved_fail"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "checkpoint_class": {
+                "const": "oracle_needed"
+              }
+            },
+            "required": [
+              "checkpoint_class"
+            ]
+          },
+          "then": {
+            "properties": {
+              "final_adjudication": {
+                "enum": [
+                  "resolved_pass",
+                  "resolved_fail",
+                  "escalated_human"
+                ]
+              }
+            },
+            "required": [
+              "oracle_request_id"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "checkpoint_class": {
+                "const": "human_needed"
+              }
+            },
+            "required": [
+              "checkpoint_class"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "oracle_request_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "oracle_resolution_id"
+                  ]
+                }
+              ]
+            },
+            "properties": {
+              "final_adjudication": {
+                "const": "escalated_human"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "allowed_action": {
+          "enum": [
+            "safe_autofix",
+            "deterministic_finding",
+            "review_only_finding",
+            "forbid",
+            "discourage",
+            "allow_with_justification",
+            "meta_artifact_correction"
+          ],
+          "title": "Allowed Action",
+          "type": "string"
+        },
+        "checkpoint_class": {
+          "enum": [
+            "deterministic_pass",
+            "deterministic_fail",
+            "oracle_needed",
+            "human_needed"
+          ],
+          "title": "Checkpoint Class",
+          "type": "string"
+        },
+        "checkpoint_id": {
+          "minLength": 1,
+          "title": "Checkpoint Id",
+          "type": "string"
+        },
+        "evidence_regime": {
+          "enum": [
+            "deterministic_local",
+            "static_contextual",
+            "semantic_ambiguous",
+            "meta_governance"
+          ],
+          "title": "Evidence Regime",
+          "type": "string"
+        },
+        "final_adjudication": {
+          "enum": [
+            "resolved_pass",
+            "resolved_fail",
+            "escalated_human"
+          ],
+          "title": "Final Adjudication",
+          "type": "string"
+        },
+        "harm_kind": {
+          "enum": [
+            "correctness_risk",
+            "failure_signal_loss",
+            "trust_boundary_blur",
+            "maintainability_drag",
+            "semantic_density_loss",
+            "reviewer_load_inflation",
+            "intent_opacity"
+          ],
+          "title": "Harm Kind",
+          "type": "string"
+        },
+        "local_hybrid_fixture_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Local Hybrid Fixture Id"
+        },
+        "local_subject_anchor": {
+          "minLength": 1,
+          "title": "Local Subject Anchor",
+          "type": "string"
+        },
+        "oracle_request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oracle Request Id"
+        },
+        "oracle_resolution_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oracle Resolution Id"
+        },
+        "resolution_route": {
+          "enum": [
+            "deterministic_only",
+            "oracle_assisted",
+            "human_only"
+          ],
+          "title": "Resolution Route",
+          "type": "string"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "signal_kind": {
+          "enum": [
+            "state_model_drift",
+            "abstraction_pressure_drift",
+            "semantic_communication_drift",
+            "shape_regularity_drift",
+            "meta_intent_failure"
+          ],
+          "title": "Signal Kind",
+          "type": "string"
+        },
+        "source_finding_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Finding Id"
+        },
+        "source_kind": {
+          "enum": [
+            "released_conformance_finding",
+            "released_fix_plan_projection",
+            "local_hybrid_fixture"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_projected_item_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Projected Item Id"
+        },
+        "subject_kind": {
+          "enum": [
+            "code_span",
+            "diff_hunk",
+            "function_or_method",
+            "test_case_or_fixture",
+            "comment_block",
+            "error_message",
+            "commit_message",
+            "review_note",
+            "recap_artifact"
+          ],
+          "title": "Subject Kind",
+          "type": "string"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "checkpoint_id",
+        "checkpoint_class",
+        "source_kind",
+        "rule_id",
+        "signal_kind",
+        "harm_kind",
+        "evidence_regime",
+        "allowed_action",
+        "resolution_route",
+        "subject_kind",
+        "subject_ref",
+        "local_subject_anchor",
+        "final_adjudication"
+      ],
+      "title": "SyntheticPressureMismatchCheckpointEntry",
+      "type": "object"
+    },
+    "SyntheticPressureMismatchCheckpointTraceDerivationMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudicator_id": {
+          "const": "adeu_core_ir.synthetic_pressure_mismatch_hybrid_execution.derive_v39e_checkpoint_trace@1",
+          "default": "adeu_core_ir.synthetic_pressure_mismatch_hybrid_execution.derive_v39e_checkpoint_trace@1",
+          "title": "Adjudicator Id",
+          "type": "string"
+        },
+        "adjudicator_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Adjudicator Version",
+          "type": "string"
+        },
+        "cache_identity_exact_match_required": {
+          "const": true,
+          "default": true,
+          "title": "Cache Identity Exact Match Required",
+          "type": "boolean"
+        },
+        "conformance_report_reference_fixture_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Conformance Report Reference Fixture Sha256"
+        },
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "default": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fix_plan_reference_fixture_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fix Plan Reference Fixture Sha256"
+        },
+        "local_hybrid_fixture_reference_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Local Hybrid Fixture Reference Sha256"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "default": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "oracle_request_reference_fixture_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oracle Request Reference Fixture Sha256"
+        },
+        "oracle_resolution_reference_fixture_sha256": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oracle Resolution Reference Fixture Sha256"
+        },
+        "registry_reference_fixture_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Registry Reference Fixture Sha256",
+          "type": "string"
+        },
+        "single_oracle_round_enforced": {
+          "const": true,
+          "default": true,
+          "title": "Single Oracle Round Enforced",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "registry_reference_fixture_sha256"
+      ],
+      "title": "SyntheticPressureMismatchCheckpointTraceDerivationMetadata",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "checkpoints": {
+      "items": {
+        "$ref": "#/$defs/SyntheticPressureMismatchCheckpointEntry"
+      },
+      "minItems": 1,
+      "title": "Checkpoints",
+      "type": "array"
+    },
+    "conformance_report_reference_fixture": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Conformance Report Reference Fixture"
+    },
+    "conformance_report_schema": {
+      "anyOf": [
+        {
+          "const": "synthetic_pressure_mismatch_conformance_report@1",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Conformance Report Schema"
+    },
+    "contract_source": {
+      "const": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md#v39e_synthetic_pressure_mismatch_hybrid_execution_contract@1",
+      "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md#v39e_synthetic_pressure_mismatch_hybrid_execution_contract@1",
+      "title": "Contract Source",
+      "type": "string"
+    },
+    "derivation_metadata": {
+      "$ref": "#/$defs/SyntheticPressureMismatchCheckpointTraceDerivationMetadata"
+    },
+    "fix_plan_reference_fixture": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Fix Plan Reference Fixture"
+    },
+    "fix_plan_schema": {
+      "anyOf": [
+        {
+          "const": "synthetic_pressure_mismatch_fix_plan@1",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Fix Plan Schema"
+    },
+    "local_hybrid_fixture_reference": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Local Hybrid Fixture Reference"
+    },
+    "oracle_request_reference_fixture": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Oracle Request Reference Fixture"
+    },
+    "oracle_resolution_reference_fixture": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Oracle Resolution Reference Fixture"
+    },
+    "registry_id": {
+      "minLength": 1,
+      "title": "Registry Id",
+      "type": "string"
+    },
+    "registry_reference_fixture": {
+      "minLength": 1,
+      "title": "Registry Reference Fixture",
+      "type": "string"
+    },
+    "registry_schema": {
+      "const": "synthetic_pressure_mismatch_rule_registry@1",
+      "default": "synthetic_pressure_mismatch_rule_registry@1",
+      "title": "Registry Schema",
+      "type": "string"
+    },
+    "schema": {
+      "const": "synthetic_pressure_mismatch_checkpoint_trace@1",
+      "default": "synthetic_pressure_mismatch_checkpoint_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_kind": {
+      "enum": [
+        "released_conformance_finding",
+        "released_fix_plan_projection",
+        "local_hybrid_fixture"
+      ],
+      "title": "Source Kind",
+      "type": "string"
+    },
+    "target_arc": {
+      "const": "vNext+76",
+      "default": "vNext+76",
+      "title": "Target Arc",
+      "type": "string"
+    },
+    "target_path": {
+      "const": "V39-E",
+      "default": "V39-E",
+      "title": "Target Path",
+      "type": "string"
+    },
+    "trace_id": {
+      "minLength": 1,
+      "title": "Trace Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "trace_id",
+    "registry_id",
+    "registry_reference_fixture",
+    "source_kind",
+    "checkpoints",
+    "derivation_metadata"
+  ],
+  "title": "SyntheticPressureMismatchCheckpointTrace",
+  "type": "object"
+}

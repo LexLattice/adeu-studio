@@ -1,0 +1,10 @@
+{
+  "content": "def choose_branch(flag, left, right):\n    if flag:\n        return {\"status\": \"ok\", \"value\": left, \"label\": \"left\"}\n    else:\n        return {\"status\": \"ok\", \"value\": right, \"label\": \"right\"}\n",
+  "content_sha256": "1bb1afdb0f1ce18709725238d0cf7d57918f8075522eb3f28b8bdebc1af10843",
+  "fixture_id": "v39e_v76_local_hybrid_mirrored_branch",
+  "language": "python",
+  "local_subject_anchor": "function:choose_branch",
+  "rule_id": "shape_regularity_mirrored_branch_overfit",
+  "subject_kind": "function_or_method",
+  "subject_ref": "fixture:function:choose_branch"
+}

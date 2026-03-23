@@ -1,0 +1,10 @@
+{
+  "content": "# Assign the title to the local variable.\n# This checks whether title exists before returning it.",
+  "content_sha256": "b0b0f5bfd5957925dae3d0d8b318b5629b2f09d6861c4f2d5fa27b0fabfb043d",
+  "fixture_id": "v39e_v76_local_hybrid_narrative_comment",
+  "language": "text",
+  "local_subject_anchor": "comment:block:render_title:line:1-2",
+  "rule_id": "semantic_communication_narrative_comment",
+  "subject_kind": "comment_block",
+  "subject_ref": "fixture:comment_block:render_title:line:1-2"
+}
