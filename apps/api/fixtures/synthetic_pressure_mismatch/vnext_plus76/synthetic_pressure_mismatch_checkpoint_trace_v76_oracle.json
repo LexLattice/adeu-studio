@@ -1,0 +1,46 @@
+{
+  "checkpoints": [
+    {
+      "allowed_action": "review_only_finding",
+      "checkpoint_class": "oracle_needed",
+      "checkpoint_id": "v39e_v76_checkpoint_f588f2523dad6c35",
+      "evidence_regime": "semantic_ambiguous",
+      "final_adjudication": "resolved_fail",
+      "harm_kind": "semantic_density_loss",
+      "local_hybrid_fixture_id": "v39e_v76_local_hybrid_narrative_comment",
+      "local_subject_anchor": "comment:block:render_title:line:1-2",
+      "oracle_request_id": "v39e_v76_oracle_request_31fd566d9a0bea31",
+      "oracle_resolution_id": "v39e_v76_oracle_resolution_efedca27598f03dd",
+      "resolution_route": "oracle_assisted",
+      "rule_id": "semantic_communication_narrative_comment",
+      "signal_kind": "semantic_communication_drift",
+      "source_kind": "local_hybrid_fixture",
+      "subject_kind": "comment_block",
+      "subject_ref": "fixture:comment_block:render_title:line:1-2"
+    }
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md#v39e_synthetic_pressure_mismatch_hybrid_execution_contract@1",
+  "derivation_metadata": {
+    "adjudicator_id": "adeu_core_ir.synthetic_pressure_mismatch_hybrid_execution.derive_v39e_checkpoint_trace@1",
+    "adjudicator_version": "1",
+    "cache_identity_exact_match_required": true,
+    "deterministic_adjudicator_authoritative": true,
+    "local_hybrid_fixture_reference_sha256": "8402b1197003d06be4877ea07686522eae7e044b175050fde308486729a95d2d",
+    "oracle_output_advisory_only": true,
+    "oracle_request_reference_fixture_sha256": "49b42f5c4a02b6924ff9827fe68e55ba7fc18ed4853b1b9f3f1500ad8bbb3c3e",
+    "oracle_resolution_reference_fixture_sha256": "24ab4078d3c1af74b86c027e972954b43e86f6edcd59c85eec06af95c2435e55",
+    "registry_reference_fixture_sha256": "fe47ddb2bb072be3b19d4aafdf1d70921ead64dea41633ac8ba86d4fcd6ff105",
+    "single_oracle_round_enforced": true
+  },
+  "local_hybrid_fixture_reference": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/local_hybrid_fixture_v76_narrative_comment.json",
+  "oracle_request_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_oracle_request_v76_reference.json",
+  "oracle_resolution_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_oracle_resolution_v76_reference.json",
+  "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
+  "registry_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
+  "registry_schema": "synthetic_pressure_mismatch_rule_registry@1",
+  "schema": "synthetic_pressure_mismatch_checkpoint_trace@1",
+  "source_kind": "local_hybrid_fixture",
+  "target_arc": "vNext+76",
+  "target_path": "V39-E",
+  "trace_id": "v39e_v76_trace_20dad828e5c9914c"
+}

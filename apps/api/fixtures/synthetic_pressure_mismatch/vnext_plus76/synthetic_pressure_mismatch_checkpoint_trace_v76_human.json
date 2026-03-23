@@ -1,0 +1,40 @@
+{
+  "checkpoints": [
+    {
+      "allowed_action": "review_only_finding",
+      "checkpoint_class": "human_needed",
+      "checkpoint_id": "v39e_v76_checkpoint_2d2238459dd2a0d4",
+      "evidence_regime": "static_contextual",
+      "final_adjudication": "escalated_human",
+      "harm_kind": "reviewer_load_inflation",
+      "local_hybrid_fixture_id": "v39e_v76_local_hybrid_mirrored_branch",
+      "local_subject_anchor": "function:choose_branch",
+      "resolution_route": "human_only",
+      "rule_id": "shape_regularity_mirrored_branch_overfit",
+      "signal_kind": "shape_regularity_drift",
+      "source_kind": "local_hybrid_fixture",
+      "subject_kind": "function_or_method",
+      "subject_ref": "fixture:function:choose_branch"
+    }
+  ],
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md#v39e_synthetic_pressure_mismatch_hybrid_execution_contract@1",
+  "derivation_metadata": {
+    "adjudicator_id": "adeu_core_ir.synthetic_pressure_mismatch_hybrid_execution.derive_v39e_checkpoint_trace@1",
+    "adjudicator_version": "1",
+    "cache_identity_exact_match_required": true,
+    "deterministic_adjudicator_authoritative": true,
+    "local_hybrid_fixture_reference_sha256": "dfecda2a85b07d526be5d18871b86ace7250755c685a4a5d41018ef8fbcdc375",
+    "oracle_output_advisory_only": true,
+    "registry_reference_fixture_sha256": "fe47ddb2bb072be3b19d4aafdf1d70921ead64dea41633ac8ba86d4fcd6ff105",
+    "single_oracle_round_enforced": true
+  },
+  "local_hybrid_fixture_reference": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/local_hybrid_fixture_v76_mirrored_branch.json",
+  "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
+  "registry_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
+  "registry_schema": "synthetic_pressure_mismatch_rule_registry@1",
+  "schema": "synthetic_pressure_mismatch_checkpoint_trace@1",
+  "source_kind": "local_hybrid_fixture",
+  "target_arc": "vNext+76",
+  "target_path": "V39-E",
+  "trace_id": "v39e_v76_trace_0aaabedc3ca6a372"
+}

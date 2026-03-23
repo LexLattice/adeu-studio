@@ -1,0 +1,19 @@
+{
+  "advisory_summary": "The anchored comment repeats behavior already visible from the local return logic and adds no hidden invariant.",
+  "checkpoint_id": "v39e_v76_checkpoint_f588f2523dad6c35",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md#v39e_synthetic_pressure_mismatch_hybrid_execution_contract@1",
+  "model_id": "gpt-5.4",
+  "model_version": "2026-03-01",
+  "oracle_request_id": "v39e_v76_oracle_request_31fd566d9a0bea31",
+  "oracle_request_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/synthetic_pressure_mismatch_oracle_request_v76_reference.json",
+  "oracle_resolution_id": "v39e_v76_oracle_resolution_efedca27598f03dd",
+  "raw_output_sha256": "4f08b33630ce15fc485cac2b84d3d1704f824fa3e238a89b7ac51ce8f241ee40",
+  "raw_output_text": "advisory_support: the anchored comment narrates code that is already evident from the local return path.",
+  "reasoning_effort": "xhigh",
+  "request_replay_identity_sha256": "0fbd26180d1d5a12836386cae0c9f285908c220e4097004316cf19001866226e",
+  "resolution_disposition": "advisory_support",
+  "resolution_origin": "fresh_model_output",
+  "schema": "synthetic_pressure_mismatch_oracle_resolution@1",
+  "target_arc": "vNext+76",
+  "target_path": "V39-E"
+}

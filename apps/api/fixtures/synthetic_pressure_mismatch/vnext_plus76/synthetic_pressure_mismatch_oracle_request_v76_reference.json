@@ -1,0 +1,49 @@
+{
+  "allowed_action": "review_only_finding",
+  "bounded_context": "# Assign the title to the local variable.\n# This checks whether title exists before returning it.",
+  "checkpoint_id": "v39e_v76_checkpoint_f588f2523dad6c35",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md#v39e_synthetic_pressure_mismatch_hybrid_execution_contract@1",
+  "evidence_regime": "semantic_ambiguous",
+  "harm_kind": "semantic_density_loss",
+  "interpretation_prompt": "Interpret whether the anchored subject supports the released pressure-mismatch subpattern narrative_comment_without_new_semantics under the current counterexample policy.",
+  "local_hybrid_fixture_id": "v39e_v76_local_hybrid_narrative_comment",
+  "local_hybrid_fixture_reference": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/local_hybrid_fixture_v76_narrative_comment.json",
+  "local_subject_anchor": "comment:block:render_title:line:1-2",
+  "oracle_request_id": "v39e_v76_oracle_request_31fd566d9a0bea31",
+  "registry_id": "v39b_v73_pressure_mismatch_registry_baseline",
+  "registry_reference_fixture": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus73/synthetic_pressure_mismatch_rule_registry_v73_reference.json",
+  "registry_schema": "synthetic_pressure_mismatch_rule_registry@1",
+  "replay_identity": {
+    "evaluator_version": "1",
+    "model_id": "gpt-5.4",
+    "model_version": "2026-03-01",
+    "policy_sources": [
+      {
+        "path": "AGENTS.md",
+        "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+      },
+      {
+        "path": "docs/DRAFT_SYNTHETIC_PRESSURE_MISMATCH_DRIFT_v0.md",
+        "sha256": "63d36a286e0a6fa027209e7fc77377593deef80b71bf50fe495a25d8bcca55c5"
+      },
+      {
+        "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md",
+        "sha256": "73f7e287746b3ae05221466a54f2bdb5fd18c7e64f2175eb3d7e1b122716e993"
+      }
+    ],
+    "reasoning_effort": "xhigh",
+    "source_binding_id": "v39e_v76_local_hybrid_narrative_comment",
+    "source_fixture_path": "apps/api/fixtures/synthetic_pressure_mismatch/vnext_plus76/local_hybrid_fixture_v76_narrative_comment.json",
+    "source_fixture_sha256": "8402b1197003d06be4877ea07686522eae7e044b175050fde308486729a95d2d",
+    "source_kind": "local_hybrid_fixture"
+  },
+  "resolution_route": "oracle_assisted",
+  "rule_id": "semantic_communication_narrative_comment",
+  "schema": "synthetic_pressure_mismatch_oracle_request@1",
+  "signal_kind": "semantic_communication_drift",
+  "source_kind": "local_hybrid_fixture",
+  "subject_kind": "comment_block",
+  "subject_ref": "fixture:comment_block:render_title:line:1-2",
+  "target_arc": "vNext+76",
+  "target_path": "V39-E"
+}
