@@ -221,6 +221,10 @@ def _policy_source_paths() -> tuple[str, ...]:
     return _DEFAULT_V39E_POLICY_SOURCE_PATHS
 
 
+def _expected_policy_source_paths() -> list[str]:
+    return sorted(_policy_source_paths())
+
+
 def _replay_identity_sha256(payload: dict[str, Any]) -> str:
     return _canonical_json_hash(payload)
 
@@ -531,6 +535,12 @@ class SyntheticPressureMismatchOracleReplayIdentity(BaseModel):
             field_name="replay_identity.policy_sources.path",
             allow_empty=False,
         )
+        actual_policy_paths = [entry.path for entry in self.policy_sources]
+        if actual_policy_paths != _expected_policy_source_paths():
+            raise ValueError(
+                "replay_identity.policy_sources.path must match the full V39-E policy "
+                "source set"
+            )
         return self
 
 
@@ -653,6 +663,10 @@ class SyntheticPressureMismatchOracleRequest(BaseModel):
             if fixture.local_subject_anchor != self.local_subject_anchor:
                 raise ValueError(
                     "local_subject_anchor must match the local hybrid fixture"
+                )
+            if fixture.content != self.bounded_context:
+                raise ValueError(
+                    "bounded_context must match the referenced local hybrid fixture content"
                 )
             source_binding_id = fixture.fixture_id
             source_fixture_path = self.local_hybrid_fixture_reference
@@ -1831,9 +1845,10 @@ def _build_checkpoint_from_fix_plan_projection(
 
 def _build_checkpoint_from_conformance_finding(
     *,
-    report: SyntheticPressureMismatchConformanceReport,
     source_finding_id: str,
     rules_by_id: dict[str, SyntheticPressureMismatchRule],
+    request: SyntheticPressureMismatchOracleRequest | None = None,
+    resolution: SyntheticPressureMismatchOracleResolution | None = None,
     repository_root: Path | None = None,
 ) -> dict[str, Any]:
     observation_packet_id, rule_id, local_anchor = _parse_source_finding_id(source_finding_id)
@@ -1851,9 +1866,39 @@ def _build_checkpoint_from_conformance_finding(
         checkpoint_class = "human_needed"
         final_adjudication = "escalated_human"
     else:
+        if request is None or resolution is None:
+            raise ValueError(
+                "oracle_assisted released conformance findings require oracle request "
+                "and resolution fixtures"
+            )
+        if request.source_kind != "released_conformance_finding":
+            raise ValueError(
+                "oracle_assisted released conformance findings require "
+                "released_conformance_finding oracle requests"
+            )
+        if request.source_finding_id != source_finding_id:
+            raise ValueError(
+                "oracle request must bind the exact released conformance finding"
+            )
+        if request.rule_id != rule_id:
+            raise ValueError("oracle request rule_id must match the source finding")
+        if request.subject_kind != packet.subject_kind:
+            raise ValueError("oracle request subject_kind must match the source packet")
+        if request.subject_ref != packet.subject_ref:
+            raise ValueError("oracle request subject_ref must match the source packet")
+        if request.local_subject_anchor != local_anchor:
+            raise ValueError(
+                "oracle request local_subject_anchor must match the source finding locator"
+            )
+        if resolution.oracle_request_id != request.oracle_request_id:
+            raise ValueError(
+                "oracle resolution must bind the released conformance oracle request"
+            )
         checkpoint_class = "oracle_needed"
-        final_adjudication = "escalated_human"
-    return {
+        final_adjudication = _expected_final_adjudication_for_resolution(
+            resolution.resolution_disposition
+        )
+    payload = {
         "checkpoint_id": _checkpoint_id(
             source_kind="released_conformance_finding",
             source_binding_id=source_finding_id,
@@ -1875,6 +1920,11 @@ def _build_checkpoint_from_conformance_finding(
         "source_finding_id": source_finding_id,
         "final_adjudication": final_adjudication,
     }
+    if request is not None:
+        payload["oracle_request_id"] = request.oracle_request_id
+    if resolution is not None:
+        payload["oracle_resolution_id"] = resolution.oracle_resolution_id
+    return payload
 
 
 def _build_checkpoint_from_local_hybrid_fixture(
@@ -2039,15 +2089,107 @@ def derive_v39e_checkpoint_trace(
                 for ref in refs
             }
         )
-        checkpoints = [
-            _build_checkpoint_from_conformance_finding(
-                report=report,
-                source_finding_id=source_finding_id,
-                rules_by_id=rules_by_id,
+        oracle_assisted_source_finding_ids = [
+            source_finding_id
+            for source_finding_id in source_finding_ids
+            if rules_by_id[_parse_source_finding_id(source_finding_id)[1]].resolution_route
+            == "oracle_assisted"
+        ]
+        if len(oracle_assisted_source_finding_ids) > 1:
+            raise ValueError(
+                "V39-E first baseline supports at most one released conformance "
+                "oracle_assisted finding per trace"
+            )
+
+        request = None
+        resolution = None
+        if oracle_request_reference_fixture is not None:
+            normalized_request_path = _normalize_repo_relative_path(
+                oracle_request_reference_fixture,
+                field_name="oracle_request_reference_fixture",
+            )
+            request_payload = _load_repo_json_object(
+                normalized_request_path,
+                field_name="oracle_request_reference_fixture",
                 repository_root=repository_root,
             )
-            for source_finding_id in source_finding_ids
-        ]
+            request = SyntheticPressureMismatchOracleRequest.model_validate(
+                request_payload,
+                context=_validation_context(repository_root),
+            )
+            if request.source_kind != "released_conformance_finding":
+                raise ValueError(
+                    "released conformance trace derivation requires "
+                    "released_conformance_finding oracle requests"
+                )
+            if request.conformance_report_reference_fixture != normalized_report_path:
+                raise ValueError(
+                    "oracle request must reference the same conformance report fixture"
+                )
+        if oracle_resolution_reference_fixture is not None:
+            if request is None:
+                raise ValueError(
+                    "oracle_resolution_reference_fixture requires "
+                    "oracle_request_reference_fixture"
+                )
+            normalized_resolution_path = _normalize_repo_relative_path(
+                oracle_resolution_reference_fixture,
+                field_name="oracle_resolution_reference_fixture",
+            )
+            resolution_payload = _load_repo_json_object(
+                normalized_resolution_path,
+                field_name="oracle_resolution_reference_fixture",
+                repository_root=repository_root,
+            )
+            resolution = SyntheticPressureMismatchOracleResolution.model_validate(
+                resolution_payload,
+                context=_validation_context(repository_root),
+            )
+        elif request is not None:
+            raise ValueError(
+                "oracle_request_reference_fixture requires "
+                "oracle_resolution_reference_fixture"
+            )
+
+        oracle_assisted_source_finding_id = (
+            oracle_assisted_source_finding_ids[0]
+            if oracle_assisted_source_finding_ids
+            else None
+        )
+        if oracle_assisted_source_finding_id is None:
+            if request is not None or resolution is not None:
+                raise ValueError(
+                    "oracle request and resolution fixtures may be supplied only when "
+                    "the conformance report contains an oracle_assisted finding"
+                )
+        else:
+            if request is None or resolution is None:
+                raise ValueError(
+                    "oracle_assisted released conformance findings require oracle "
+                    "request and resolution fixtures"
+                )
+            if request.source_finding_id != oracle_assisted_source_finding_id:
+                raise ValueError(
+                    "oracle request must bind the released oracle_assisted finding"
+                )
+
+        checkpoints = []
+        for source_finding_id in source_finding_ids:
+            checkpoint_request = (
+                request if source_finding_id == oracle_assisted_source_finding_id else None
+            )
+            checkpoint_resolution = (
+                resolution if source_finding_id == oracle_assisted_source_finding_id else None
+            )
+            checkpoints.append(
+                _build_checkpoint_from_conformance_finding(
+                    source_finding_id=source_finding_id,
+                    rules_by_id=rules_by_id,
+                    request=checkpoint_request,
+                    resolution=checkpoint_resolution,
+                    repository_root=repository_root,
+                )
+            )
         checkpoints.sort(key=lambda entry: entry["checkpoint_id"])
         source_kind = "released_conformance_finding"
         trace_payload = {
@@ -2070,16 +2212,44 @@ def derive_v39e_checkpoint_trace(
                 ),
             },
         }
+        if request is not None:
+            normalized_request_path = _normalize_repo_relative_path(
+                oracle_request_reference_fixture,
+                field_name="oracle_request_reference_fixture",
+            )
+            trace_payload["oracle_request_reference_fixture"] = normalized_request_path
+            trace_payload["derivation_metadata"][
+                "oracle_request_reference_fixture_sha256"
+            ] = _sha256_repo_file(
+                normalized_request_path,
+                field_name="oracle_request_reference_fixture",
+                repository_root=repository_root,
+            )
+        if resolution is not None:
+            normalized_resolution_path = _normalize_repo_relative_path(
+                oracle_resolution_reference_fixture,
+                field_name="oracle_resolution_reference_fixture",
+            )
+            trace_payload["oracle_resolution_reference_fixture"] = normalized_resolution_path
+            trace_payload["derivation_metadata"][
+                "oracle_resolution_reference_fixture_sha256"
+            ] = _sha256_repo_file(
+                normalized_resolution_path,
+                field_name="oracle_resolution_reference_fixture",
+                repository_root=repository_root,
+            )
         trace_payload["trace_id"] = _trace_id(
             source_kind=source_kind,
             source_reference_fixture=normalized_report_path,
             checkpoint_ids=sorted(entry["checkpoint_id"] for entry in checkpoints),
-            oracle_request_id=None,
-            oracle_resolution_id=None,
+            oracle_request_id=request.oracle_request_id if request is not None else None,
+            oracle_resolution_id=(
+                resolution.oracle_resolution_id if resolution is not None else None
+            ),
         )
     else:
         normalized_fixture_path = _normalize_repo_relative_path(
-            local_hybrid_fixture_reference or "",
+            local_hybrid_fixture_reference,
             field_name="local_hybrid_fixture_reference",
         )
         fixture = _load_local_hybrid_fixture(
@@ -2154,7 +2324,7 @@ def derive_v39e_checkpoint_trace(
         }
         if request is not None:
             normalized_request_path = _normalize_repo_relative_path(
-                oracle_request_reference_fixture or "",
+                oracle_request_reference_fixture,
                 field_name="oracle_request_reference_fixture",
             )
             trace_payload["oracle_request_reference_fixture"] = normalized_request_path
@@ -2167,7 +2337,7 @@ def derive_v39e_checkpoint_trace(
             )
         if resolution is not None:
             normalized_resolution_path = _normalize_repo_relative_path(
-                oracle_resolution_reference_fixture or "",
+                oracle_resolution_reference_fixture,
                 field_name="oracle_resolution_reference_fixture",
             )
             trace_payload["oracle_resolution_reference_fixture"] = normalized_resolution_path
