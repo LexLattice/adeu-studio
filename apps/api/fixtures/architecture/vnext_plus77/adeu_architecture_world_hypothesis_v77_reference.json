@@ -1,0 +1,49 @@
+{
+  "authoritative": false,
+  "authority_boundary_policy": {
+    "deterministic_adjudicator_authoritative": true,
+    "fail_closed_on_high_impact_ambiguity": true,
+    "no_direct_brief_to_codegen": true,
+    "oracle_output_advisory_only": true,
+    "projections_may_express_but_may_not_mint_authority": true
+  },
+  "candidate_id": "cand_v77_single_approver_trust_world",
+  "coverage_summary": {
+    "covered_topics": [
+      "approval authority boundary",
+      "audit evidence emission",
+      "policy advisory role"
+    ],
+    "unresolved_questions": [
+      "Exact auto-approval threshold remains intentionally ambiguous."
+    ]
+  },
+  "deontic_bindings": [
+    "gate_decide",
+    "inv_audit_record"
+  ],
+  "epistemic_bindings": [
+    "amb_auto_approve_threshold",
+    "fact_policy_required"
+  ],
+  "intent_packet_id": "intent_v77_trust_sensitive_approval_flow",
+  "ontology_bindings": [
+    "dec_outcome",
+    "srf_approval_workbench",
+    "wf_approval_flow"
+  ],
+  "schema": "adeu_architecture_world_hypothesis@1",
+  "source_set": {
+    "sources": [
+      {
+        "path": "apps/api/fixtures/architecture/vnext_plus77/architecture_brief_v77.md",
+        "sha256": "ebce72ed165ec4b818af32eaf4574a6c6b68f6bde3887036fa2b501a1cd2530a",
+        "source_ref_id": "src_v77_architecture_brief"
+      }
+    ]
+  },
+  "utility_bindings": [
+    "goal_trust",
+    "metric_audit_coverage"
+  ]
+}

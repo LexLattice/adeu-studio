@@ -1,0 +1,32 @@
+{
+  "authority_boundary_policy": {
+    "deterministic_adjudicator_authoritative": true,
+    "fail_closed_on_high_impact_ambiguity": true,
+    "no_direct_brief_to_codegen": true,
+    "oracle_output_advisory_only": true,
+    "projections_may_express_but_may_not_mint_authority": true
+  },
+  "declared_constraints": [
+    "Fail closed on unresolved high-impact ambiguity around approval authority.",
+    "Keep the semantic root meaning-only and separate from downstream conformance state."
+  ],
+  "intent_packet_id": "intent_v77_trust_sensitive_approval_flow",
+  "non_goals": [
+    "Release UX or API workbench routes in the first ASIR slice.",
+    "Release downstream projection manifests or readiness claims."
+  ],
+  "requested_outcomes": [
+    "Capture approval-flow intent as a canonical semantic root before compiler release.",
+    "Preserve trust-boundary clarity between requester, approver, policy engine, and audit surfaces."
+  ],
+  "schema": "adeu_architecture_intent_packet@1",
+  "source_set": {
+    "sources": [
+      {
+        "path": "apps/api/fixtures/architecture/vnext_plus77/architecture_brief_v77.md",
+        "sha256": "ebce72ed165ec4b818af32eaf4574a6c6b68f6bde3887036fa2b501a1cd2530a",
+        "source_ref_id": "src_v77_architecture_brief"
+      }
+    ]
+  }
+}

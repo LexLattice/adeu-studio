@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "BoundaryGraphEdge": {
+      "additionalProperties": false,
+      "properties": {
+        "boundary_ref": {
+          "title": "Boundary Ref",
+          "type": "string"
+        },
+        "crossing_class": {
+          "title": "Crossing Class",
+          "type": "string"
+        },
+        "edge_id": {
+          "title": "Edge Id",
+          "type": "string"
+        },
+        "from_ref": {
+          "title": "From Ref",
+          "type": "string"
+        },
+        "to_ref": {
+          "title": "To Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edge_id",
+        "from_ref",
+        "to_ref",
+        "boundary_ref",
+        "crossing_class"
+      ],
+      "title": "BoundaryGraphEdge",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicy"
+    },
+    "authority_crossings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Authority Crossings",
+      "type": "array"
+    },
+    "boundary_graph_id": {
+      "title": "Boundary Graph Id",
+      "type": "string"
+    },
+    "edge_set": {
+      "items": {
+        "$ref": "#/$defs/BoundaryGraphEdge"
+      },
+      "title": "Edge Set",
+      "type": "array"
+    },
+    "intent_packet_id": {
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "node_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Node Refs",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_architecture_boundary_graph@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "sensitivity_crossings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Sensitivity Crossings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "boundary_graph_id",
+    "intent_packet_id",
+    "authority_boundary_policy",
+    "node_refs",
+    "edge_set",
+    "authority_crossings",
+    "sensitivity_crossings"
+  ],
+  "title": "ArchitectureBoundaryGraph",
+  "type": "object"
+}

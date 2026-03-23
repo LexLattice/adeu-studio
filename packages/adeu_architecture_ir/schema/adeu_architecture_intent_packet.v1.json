@@ -1,0 +1,134 @@
+{
+  "$defs": {
+    "ArchitectureSourceSet": {
+      "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/ArchitectureSourceSnapshot"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "sources"
+      ],
+      "title": "ArchitectureSourceSet",
+      "type": "object"
+    },
+    "ArchitectureSourceSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "source_ref_id": {
+          "title": "Source Ref Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref_id",
+        "path",
+        "sha256"
+      ],
+      "title": "ArchitectureSourceSnapshot",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicy"
+    },
+    "declared_constraints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Declared Constraints",
+      "type": "array"
+    },
+    "intent_packet_id": {
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "non_goals": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Non Goals",
+      "type": "array"
+    },
+    "requested_outcomes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Requested Outcomes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_architecture_intent_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_set": {
+      "$ref": "#/$defs/ArchitectureSourceSet"
+    }
+  },
+  "required": [
+    "schema",
+    "intent_packet_id",
+    "source_set",
+    "requested_outcomes",
+    "non_goals",
+    "declared_constraints",
+    "authority_boundary_policy"
+  ],
+  "title": "ArchitectureIntentPacket",
+  "type": "object"
+}

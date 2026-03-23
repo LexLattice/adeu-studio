@@ -1,0 +1,182 @@
+{
+  "$defs": {
+    "ArchitectureSourceSet": {
+      "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/ArchitectureSourceSnapshot"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "sources"
+      ],
+      "title": "ArchitectureSourceSet",
+      "type": "object"
+    },
+    "ArchitectureSourceSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "source_ref_id": {
+          "title": "Source Ref Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref_id",
+        "path",
+        "sha256"
+      ],
+      "title": "ArchitectureSourceSnapshot",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "CoverageSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "covered_topics": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Covered Topics",
+          "type": "array"
+        },
+        "unresolved_questions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unresolved Questions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "covered_topics",
+        "unresolved_questions"
+      ],
+      "title": "CoverageSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authoritative": {
+      "const": false,
+      "default": false,
+      "title": "Authoritative",
+      "type": "boolean"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicy"
+    },
+    "candidate_id": {
+      "title": "Candidate Id",
+      "type": "string"
+    },
+    "coverage_summary": {
+      "$ref": "#/$defs/CoverageSummary"
+    },
+    "deontic_bindings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deontic Bindings",
+      "type": "array"
+    },
+    "epistemic_bindings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Epistemic Bindings",
+      "type": "array"
+    },
+    "intent_packet_id": {
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "ontology_bindings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Ontology Bindings",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_architecture_world_hypothesis@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "source_set": {
+      "$ref": "#/$defs/ArchitectureSourceSet"
+    },
+    "utility_bindings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Utility Bindings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "candidate_id",
+    "intent_packet_id",
+    "authority_boundary_policy",
+    "source_set",
+    "coverage_summary",
+    "ontology_bindings",
+    "epistemic_bindings",
+    "deontic_bindings",
+    "utility_bindings"
+  ],
+  "title": "ArchitectureWorldHypothesis",
+  "type": "object"
+}

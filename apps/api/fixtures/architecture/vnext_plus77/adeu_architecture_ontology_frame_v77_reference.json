@@ -1,0 +1,263 @@
+{
+  "actors": [
+    {
+      "actor_id": "act_requester",
+      "authority_level": "request_submitter",
+      "kind": "human_role",
+      "label": "Requester",
+      "trust_domain": "requesting_team"
+    },
+    {
+      "actor_id": "act_approver",
+      "authority_level": "decision_authority",
+      "kind": "human_role",
+      "label": "Approver",
+      "trust_domain": "approval_ops"
+    },
+    {
+      "actor_id": "act_policy_engine",
+      "authority_level": "policy_advisory",
+      "kind": "service",
+      "label": "Policy Engine",
+      "trust_domain": "policy_runtime"
+    },
+    {
+      "actor_id": "act_audit_service",
+      "authority_level": "evidence_recorder",
+      "kind": "service",
+      "label": "Audit Service",
+      "trust_domain": "audit_runtime"
+    }
+  ],
+  "authority_boundary_policy": {
+    "deterministic_adjudicator_authoritative": true,
+    "fail_closed_on_high_impact_ambiguity": true,
+    "no_direct_brief_to_codegen": true,
+    "oracle_output_advisory_only": true,
+    "projections_may_express_but_may_not_mint_authority": true
+  },
+  "boundaries": [
+    {
+      "audit_required": true,
+      "auth_required": true,
+      "boundary_class": "trust_ingress",
+      "boundary_id": "bnd_request_to_core",
+      "from_ref": "srf_request_portal",
+      "to_ref": "srf_approval_api"
+    },
+    {
+      "audit_required": true,
+      "auth_required": true,
+      "boundary_class": "policy_advisory_boundary",
+      "boundary_id": "bnd_core_to_policy",
+      "from_ref": "srf_approval_api",
+      "to_ref": "act_policy_engine"
+    }
+  ],
+  "capabilities": [
+    {
+      "action": "submit",
+      "capability_id": "cap_submit_request",
+      "granted_by_ref": "act_approver",
+      "resource_ref": "obj_approval_request",
+      "subject_ref": "act_requester"
+    },
+    {
+      "action": "decide",
+      "capability_id": "cap_decide_request",
+      "granted_by_ref": "act_policy_engine",
+      "resource_ref": "obj_approval_request",
+      "subject_ref": "act_approver"
+    }
+  ],
+  "data_objects": [
+    {
+      "label": "Approval Request",
+      "object_id": "obj_approval_request",
+      "sensitivity_class": "internal_sensitive",
+      "source_of_truth_ref": "srf_request_portal"
+    },
+    {
+      "label": "Decision Record",
+      "object_id": "obj_decision_record",
+      "sensitivity_class": "regulated_audit",
+      "source_of_truth_ref": "srf_audit_log"
+    }
+  ],
+  "decisions": [
+    {
+      "ambiguity_default": "escalate_human",
+      "authority_source_ref": "srf_approval_workbench",
+      "decider_ref": "act_approver",
+      "decision_id": "dec_outcome",
+      "evidence_required_refs": [
+        "ev_policy_context"
+      ]
+    }
+  ],
+  "failure_modes": [
+    {
+      "affected_refs": [
+        "dec_outcome",
+        "obj_approval_request"
+      ],
+      "default_disposition": "block_until_evidence",
+      "failure_mode_id": "fail_missing_policy_context",
+      "observable_surface_ref": "srf_audit_log"
+    }
+  ],
+  "flow_steps": [
+    {
+      "actor_ref": "act_requester",
+      "inputs": [
+        "obj_approval_request"
+      ],
+      "kind": "user_submission",
+      "outputs": [
+        "obj_approval_request"
+      ],
+      "postconditions": [
+        "Request is persisted for review."
+      ],
+      "preconditions": [
+        "Requester has gathered request context."
+      ],
+      "step_id": "step_submit_request",
+      "surface_ref": "srf_request_portal"
+    },
+    {
+      "actor_ref": "act_policy_engine",
+      "inputs": [
+        "obj_approval_request"
+      ],
+      "kind": "policy_lookup",
+      "outputs": [
+        "obj_decision_record"
+      ],
+      "postconditions": [
+        "Policy evidence is available to the approver."
+      ],
+      "preconditions": [
+        "Request has crossed the ingress boundary."
+      ],
+      "step_id": "step_policy_evaluate",
+      "surface_ref": "srf_approval_api"
+    },
+    {
+      "actor_ref": "act_audit_service",
+      "inputs": [
+        "obj_decision_record"
+      ],
+      "kind": "audit_emit",
+      "outputs": [
+        "obj_decision_record"
+      ],
+      "postconditions": [
+        "Audit evidence has been emitted."
+      ],
+      "preconditions": [
+        "Decision has been recorded."
+      ],
+      "step_id": "step_emit_audit",
+      "surface_ref": "srf_audit_log"
+    }
+  ],
+  "intent_packet_id": "intent_v77_trust_sensitive_approval_flow",
+  "ontology_frame_id": "ont_v77_trust_sensitive_approval_flow",
+  "schema": "adeu_architecture_ontology_frame@1",
+  "states": [
+    {
+      "state_id": "st_submitted",
+      "state_kind": "pending_review",
+      "terminal": false,
+      "workflow_id": "wf_approval_flow"
+    },
+    {
+      "state_id": "st_approved",
+      "state_kind": "approved",
+      "terminal": true,
+      "workflow_id": "wf_approval_flow"
+    },
+    {
+      "state_id": "st_rejected",
+      "state_kind": "rejected",
+      "terminal": true,
+      "workflow_id": "wf_approval_flow"
+    }
+  ],
+  "surfaces": [
+    {
+      "authority_posture": "non_authoritative_input",
+      "exposed_actions": [
+        "submit_request"
+      ],
+      "kind": "ui_surface",
+      "owner_ref": "act_requester",
+      "surface_id": "srf_request_portal"
+    },
+    {
+      "authority_posture": "authoritative_decision_surface",
+      "exposed_actions": [
+        "approve_request",
+        "reject_request"
+      ],
+      "kind": "ui_surface",
+      "owner_ref": "act_approver",
+      "surface_id": "srf_approval_workbench"
+    },
+    {
+      "authority_posture": "deterministic_processing_surface",
+      "exposed_actions": [
+        "evaluate_policy",
+        "persist_decision"
+      ],
+      "kind": "api_surface",
+      "owner_ref": "act_policy_engine",
+      "surface_id": "srf_approval_api"
+    },
+    {
+      "authority_posture": "evidence_surface",
+      "exposed_actions": [
+        "record_decision_audit"
+      ],
+      "kind": "event_sink",
+      "owner_ref": "act_audit_service",
+      "surface_id": "srf_audit_log"
+    }
+  ],
+  "transitions": [
+    {
+      "from_state_ref": "st_submitted",
+      "guard_refs": [
+        "gate_decide"
+      ],
+      "to_state_ref": "st_approved",
+      "transition_id": "tr_submit_to_approved",
+      "trigger_ref": "dec_outcome"
+    },
+    {
+      "from_state_ref": "st_submitted",
+      "guard_refs": [
+        "gate_decide"
+      ],
+      "to_state_ref": "st_rejected",
+      "transition_id": "tr_submit_to_rejected",
+      "trigger_ref": "dec_outcome"
+    }
+  ],
+  "workflows": [
+    {
+      "entry_ref": "step_submit_request",
+      "step_refs": [
+        "step_submit_request",
+        "step_policy_evaluate",
+        "step_emit_audit"
+      ],
+      "terminal_state_refs": [
+        "st_approved",
+        "st_rejected"
+      ],
+      "workflow_id": "wf_approval_flow"
+    }
+  ]
+}

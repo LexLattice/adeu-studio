@@ -1,0 +1,1470 @@
+{
+  "$defs": {
+    "ArchitectureRootCompilerProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "canonicalization_profile": {
+          "const": "adeu_architecture_ir.root_family.v1",
+          "title": "Canonicalization Profile",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "schema_bundle_version": {
+          "title": "Schema Bundle Version",
+          "type": "string"
+        },
+        "scope": {
+          "const": "root_family_only",
+          "title": "Scope",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "scope",
+        "canonicalization_profile",
+        "schema_bundle_version"
+      ],
+      "title": "ArchitectureRootCompilerProvenance",
+      "type": "object"
+    },
+    "ArchitectureSourceSet": {
+      "additionalProperties": false,
+      "properties": {
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/ArchitectureSourceSnapshot"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "sources"
+      ],
+      "title": "ArchitectureSourceSet",
+      "type": "object"
+    },
+    "ArchitectureSourceSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "source_ref_id": {
+          "title": "Source Ref Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref_id",
+        "path",
+        "sha256"
+      ],
+      "title": "ArchitectureSourceSnapshot",
+      "type": "object"
+    },
+    "ArchitectureVariantLineage": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted_candidate_id": {
+          "title": "Accepted Candidate Id",
+          "type": "string"
+        },
+        "candidate_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Candidate Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "accepted_candidate_id",
+        "candidate_ids"
+      ],
+      "title": "ArchitectureVariantLineage",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "DeonticEscalationRule": {
+      "additionalProperties": false,
+      "properties": {
+        "default_disposition": {
+          "title": "Default Disposition",
+          "type": "string"
+        },
+        "escalate_to": {
+          "title": "Escalate To",
+          "type": "string"
+        },
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "trigger_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Trigger Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "rule_id",
+        "trigger_refs",
+        "escalate_to",
+        "default_disposition"
+      ],
+      "title": "DeonticEscalationRule",
+      "type": "object"
+    },
+    "DeonticGate": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_source_ref": {
+          "title": "Authority Source Ref",
+          "type": "string"
+        },
+        "fail_closed": {
+          "title": "Fail Closed",
+          "type": "boolean"
+        },
+        "gate_id": {
+          "title": "Gate Id",
+          "type": "string"
+        },
+        "required_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Refs",
+          "type": "array"
+        },
+        "subject_ref": {
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "gate_id",
+        "subject_ref",
+        "authority_source_ref",
+        "required_refs",
+        "fail_closed"
+      ],
+      "title": "DeonticGate",
+      "type": "object"
+    },
+    "DeonticInvariant": {
+      "additionalProperties": false,
+      "properties": {
+        "invariant_id": {
+          "title": "Invariant Id",
+          "type": "string"
+        },
+        "scope_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scope Refs",
+          "type": "array"
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "invariant_id",
+        "statement",
+        "scope_refs",
+        "severity"
+      ],
+      "title": "DeonticInvariant",
+      "type": "object"
+    },
+    "DeonticObligation": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "title": "Condition",
+          "type": "string"
+        },
+        "obligation_id": {
+          "title": "Obligation Id",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "obligation_id",
+        "statement",
+        "target_refs",
+        "condition"
+      ],
+      "title": "DeonticObligation",
+      "type": "object"
+    },
+    "DeonticPermission": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "title": "Condition",
+          "type": "string"
+        },
+        "permission_id": {
+          "title": "Permission Id",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "permission_id",
+        "statement",
+        "target_refs",
+        "condition"
+      ],
+      "title": "DeonticPermission",
+      "type": "object"
+    },
+    "DeonticProhibition": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "title": "Condition",
+          "type": "string"
+        },
+        "prohibition_id": {
+          "title": "Prohibition Id",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "target_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "prohibition_id",
+        "statement",
+        "target_refs",
+        "condition"
+      ],
+      "title": "DeonticProhibition",
+      "type": "object"
+    },
+    "EpistemicAmbiguity": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguity_id": {
+          "title": "Ambiguity Id",
+          "type": "string"
+        },
+        "evaluable_as": {
+          "enum": [
+            "deterministic",
+            "contextual",
+            "semantic"
+          ],
+          "title": "Evaluable As",
+          "type": "string"
+        },
+        "impact_class": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "title": "Impact Class",
+          "type": "string"
+        },
+        "question": {
+          "title": "Question",
+          "type": "string"
+        },
+        "resolution_route": {
+          "enum": [
+            "deterministic_only",
+            "oracle_assisted",
+            "human_only"
+          ],
+          "title": "Resolution Route",
+          "type": "string"
+        },
+        "touches_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Touches Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ambiguity_id",
+        "question",
+        "impact_class",
+        "touches_refs",
+        "resolution_route",
+        "evaluable_as"
+      ],
+      "title": "EpistemicAmbiguity",
+      "type": "object"
+    },
+    "EpistemicAnnotation": {
+      "additionalProperties": false,
+      "properties": {
+        "annotation_id": {
+          "title": "Annotation Id",
+          "type": "string"
+        },
+        "confidence_kind": {
+          "enum": [
+            "explicit",
+            "strongly_implied",
+            "weakly_implied"
+          ],
+          "title": "Confidence Kind",
+          "type": "string"
+        },
+        "evaluable_as": {
+          "enum": [
+            "deterministic",
+            "contextual",
+            "semantic"
+          ],
+          "title": "Evaluable As",
+          "type": "string"
+        },
+        "subject_ref": {
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "annotation_id",
+        "subject_ref",
+        "confidence_kind",
+        "evaluable_as"
+      ],
+      "title": "EpistemicAnnotation",
+      "type": "object"
+    },
+    "EpistemicAssumption": {
+      "additionalProperties": false,
+      "properties": {
+        "assumption_id": {
+          "title": "Assumption Id",
+          "type": "string"
+        },
+        "confidence_kind": {
+          "enum": [
+            "explicit",
+            "strongly_implied",
+            "weakly_implied"
+          ],
+          "title": "Confidence Kind",
+          "type": "string"
+        },
+        "impact_class": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ],
+          "title": "Impact Class",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "touches_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Touches Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "assumption_id",
+        "statement",
+        "impact_class",
+        "touches_refs",
+        "confidence_kind"
+      ],
+      "title": "EpistemicAssumption",
+      "type": "object"
+    },
+    "EpistemicEvidenceRequirement": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "evidence_kind": {
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "required_before_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Before Refs",
+          "type": "array"
+        },
+        "source_policy": {
+          "title": "Source Policy",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "required_before_refs",
+        "evidence_kind",
+        "source_policy"
+      ],
+      "title": "EpistemicEvidenceRequirement",
+      "type": "object"
+    },
+    "EpistemicFact": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence_kind": {
+          "enum": [
+            "explicit",
+            "strongly_implied",
+            "weakly_implied"
+          ],
+          "title": "Confidence Kind",
+          "type": "string"
+        },
+        "evaluable_as": {
+          "enum": [
+            "deterministic",
+            "contextual",
+            "semantic"
+          ],
+          "title": "Evaluable As",
+          "type": "string"
+        },
+        "fact_id": {
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "statement",
+        "source_refs",
+        "confidence_kind",
+        "evaluable_as"
+      ],
+      "title": "EpistemicFact",
+      "type": "object"
+    },
+    "EpistemicHypothesisBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted": {
+          "title": "Accepted",
+          "type": "boolean"
+        },
+        "candidate_id": {
+          "title": "Candidate Id",
+          "type": "string"
+        },
+        "coverage_summary": {
+          "title": "Coverage Summary",
+          "type": "string"
+        },
+        "rejection_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rejection Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "accepted",
+        "coverage_summary",
+        "rejection_reasons"
+      ],
+      "title": "EpistemicHypothesisBinding",
+      "type": "object"
+    },
+    "EpistemicObservabilityHook": {
+      "additionalProperties": false,
+      "properties": {
+        "hook_id": {
+          "title": "Hook Id",
+          "type": "string"
+        },
+        "observable_kind": {
+          "title": "Observable Kind",
+          "type": "string"
+        },
+        "required_for_metrics": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required For Metrics",
+          "type": "array"
+        },
+        "subject_ref": {
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hook_id",
+        "subject_ref",
+        "observable_kind",
+        "required_for_metrics"
+      ],
+      "title": "EpistemicObservabilityHook",
+      "type": "object"
+    },
+    "OntologyActor": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_id": {
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "authority_level": {
+          "title": "Authority Level",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "trust_domain": {
+          "title": "Trust Domain",
+          "type": "string"
+        }
+      },
+      "required": [
+        "actor_id",
+        "kind",
+        "label",
+        "trust_domain",
+        "authority_level"
+      ],
+      "title": "OntologyActor",
+      "type": "object"
+    },
+    "OntologyBoundary": {
+      "additionalProperties": false,
+      "properties": {
+        "audit_required": {
+          "title": "Audit Required",
+          "type": "boolean"
+        },
+        "auth_required": {
+          "title": "Auth Required",
+          "type": "boolean"
+        },
+        "boundary_class": {
+          "title": "Boundary Class",
+          "type": "string"
+        },
+        "boundary_id": {
+          "title": "Boundary Id",
+          "type": "string"
+        },
+        "from_ref": {
+          "title": "From Ref",
+          "type": "string"
+        },
+        "to_ref": {
+          "title": "To Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "boundary_id",
+        "from_ref",
+        "to_ref",
+        "boundary_class",
+        "auth_required",
+        "audit_required"
+      ],
+      "title": "OntologyBoundary",
+      "type": "object"
+    },
+    "OntologyCapability": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "capability_id": {
+          "title": "Capability Id",
+          "type": "string"
+        },
+        "granted_by_ref": {
+          "title": "Granted By Ref",
+          "type": "string"
+        },
+        "resource_ref": {
+          "title": "Resource Ref",
+          "type": "string"
+        },
+        "subject_ref": {
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "capability_id",
+        "subject_ref",
+        "action",
+        "resource_ref",
+        "granted_by_ref"
+      ],
+      "title": "OntologyCapability",
+      "type": "object"
+    },
+    "OntologyDataObject": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "object_id": {
+          "title": "Object Id",
+          "type": "string"
+        },
+        "sensitivity_class": {
+          "title": "Sensitivity Class",
+          "type": "string"
+        },
+        "source_of_truth_ref": {
+          "title": "Source Of Truth Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "object_id",
+        "label",
+        "sensitivity_class",
+        "source_of_truth_ref"
+      ],
+      "title": "OntologyDataObject",
+      "type": "object"
+    },
+    "OntologyDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguity_default": {
+          "title": "Ambiguity Default",
+          "type": "string"
+        },
+        "authority_source_ref": {
+          "title": "Authority Source Ref",
+          "type": "string"
+        },
+        "decider_ref": {
+          "title": "Decider Ref",
+          "type": "string"
+        },
+        "decision_id": {
+          "title": "Decision Id",
+          "type": "string"
+        },
+        "evidence_required_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Required Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "decision_id",
+        "decider_ref",
+        "authority_source_ref",
+        "evidence_required_refs",
+        "ambiguity_default"
+      ],
+      "title": "OntologyDecision",
+      "type": "object"
+    },
+    "OntologyFailureMode": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Affected Refs",
+          "type": "array"
+        },
+        "default_disposition": {
+          "title": "Default Disposition",
+          "type": "string"
+        },
+        "failure_mode_id": {
+          "title": "Failure Mode Id",
+          "type": "string"
+        },
+        "observable_surface_ref": {
+          "title": "Observable Surface Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "failure_mode_id",
+        "affected_refs",
+        "default_disposition",
+        "observable_surface_ref"
+      ],
+      "title": "OntologyFailureMode",
+      "type": "object"
+    },
+    "OntologyFlowStep": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_ref": {
+          "title": "Actor Ref",
+          "type": "string"
+        },
+        "inputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Inputs",
+          "type": "array"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "outputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Outputs",
+          "type": "array"
+        },
+        "postconditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Postconditions",
+          "type": "array"
+        },
+        "preconditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Preconditions",
+          "type": "array"
+        },
+        "step_id": {
+          "title": "Step Id",
+          "type": "string"
+        },
+        "surface_ref": {
+          "title": "Surface Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_id",
+        "kind",
+        "actor_ref",
+        "surface_ref",
+        "inputs",
+        "outputs",
+        "preconditions",
+        "postconditions"
+      ],
+      "title": "OntologyFlowStep",
+      "type": "object"
+    },
+    "OntologyState": {
+      "additionalProperties": false,
+      "properties": {
+        "state_id": {
+          "title": "State Id",
+          "type": "string"
+        },
+        "state_kind": {
+          "title": "State Kind",
+          "type": "string"
+        },
+        "terminal": {
+          "title": "Terminal",
+          "type": "boolean"
+        },
+        "workflow_id": {
+          "title": "Workflow Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "state_id",
+        "workflow_id",
+        "state_kind",
+        "terminal"
+      ],
+      "title": "OntologyState",
+      "type": "object"
+    },
+    "OntologySurface": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture": {
+          "title": "Authority Posture",
+          "type": "string"
+        },
+        "exposed_actions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exposed Actions",
+          "type": "array"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "owner_ref": {
+          "title": "Owner Ref",
+          "type": "string"
+        },
+        "surface_id": {
+          "title": "Surface Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_id",
+        "kind",
+        "owner_ref",
+        "authority_posture",
+        "exposed_actions"
+      ],
+      "title": "OntologySurface",
+      "type": "object"
+    },
+    "OntologyTransition": {
+      "additionalProperties": false,
+      "properties": {
+        "from_state_ref": {
+          "title": "From State Ref",
+          "type": "string"
+        },
+        "guard_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Guard Refs",
+          "type": "array"
+        },
+        "to_state_ref": {
+          "title": "To State Ref",
+          "type": "string"
+        },
+        "transition_id": {
+          "title": "Transition Id",
+          "type": "string"
+        },
+        "trigger_ref": {
+          "title": "Trigger Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transition_id",
+        "from_state_ref",
+        "to_state_ref",
+        "trigger_ref",
+        "guard_refs"
+      ],
+      "title": "OntologyTransition",
+      "type": "object"
+    },
+    "OntologyWorkflow": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_ref": {
+          "title": "Entry Ref",
+          "type": "string"
+        },
+        "step_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Step Refs",
+          "type": "array"
+        },
+        "terminal_state_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Terminal State Refs",
+          "type": "array"
+        },
+        "workflow_id": {
+          "title": "Workflow Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflow_id",
+        "entry_ref",
+        "step_refs",
+        "terminal_state_refs"
+      ],
+      "title": "OntologyWorkflow",
+      "type": "object"
+    },
+    "SemanticDeonticsSection": {
+      "additionalProperties": false,
+      "properties": {
+        "escalation_rules": {
+          "items": {
+            "$ref": "#/$defs/DeonticEscalationRule"
+          },
+          "title": "Escalation Rules",
+          "type": "array"
+        },
+        "gates": {
+          "items": {
+            "$ref": "#/$defs/DeonticGate"
+          },
+          "title": "Gates",
+          "type": "array"
+        },
+        "invariants": {
+          "items": {
+            "$ref": "#/$defs/DeonticInvariant"
+          },
+          "title": "Invariants",
+          "type": "array"
+        },
+        "obligations": {
+          "items": {
+            "$ref": "#/$defs/DeonticObligation"
+          },
+          "title": "Obligations",
+          "type": "array"
+        },
+        "permissions": {
+          "items": {
+            "$ref": "#/$defs/DeonticPermission"
+          },
+          "title": "Permissions",
+          "type": "array"
+        },
+        "prohibitions": {
+          "items": {
+            "$ref": "#/$defs/DeonticProhibition"
+          },
+          "title": "Prohibitions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "obligations",
+        "prohibitions",
+        "permissions",
+        "gates",
+        "invariants",
+        "escalation_rules"
+      ],
+      "title": "SemanticDeonticsSection",
+      "type": "object"
+    },
+    "SemanticEpistemicsSection": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguities": {
+          "items": {
+            "$ref": "#/$defs/EpistemicAmbiguity"
+          },
+          "title": "Ambiguities",
+          "type": "array"
+        },
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/EpistemicAnnotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/EpistemicAssumption"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "evidence_requirements": {
+          "items": {
+            "$ref": "#/$defs/EpistemicEvidenceRequirement"
+          },
+          "title": "Evidence Requirements",
+          "type": "array"
+        },
+        "facts": {
+          "items": {
+            "$ref": "#/$defs/EpistemicFact"
+          },
+          "title": "Facts",
+          "type": "array"
+        },
+        "hypothesis_bindings": {
+          "items": {
+            "$ref": "#/$defs/EpistemicHypothesisBinding"
+          },
+          "title": "Hypothesis Bindings",
+          "type": "array"
+        },
+        "observability_hooks": {
+          "items": {
+            "$ref": "#/$defs/EpistemicObservabilityHook"
+          },
+          "title": "Observability Hooks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "facts",
+        "assumptions",
+        "ambiguities",
+        "evidence_requirements",
+        "observability_hooks",
+        "hypothesis_bindings"
+      ],
+      "title": "SemanticEpistemicsSection",
+      "type": "object"
+    },
+    "SemanticOntologySection": {
+      "additionalProperties": false,
+      "properties": {
+        "actors": {
+          "items": {
+            "$ref": "#/$defs/OntologyActor"
+          },
+          "title": "Actors",
+          "type": "array"
+        },
+        "boundaries": {
+          "items": {
+            "$ref": "#/$defs/OntologyBoundary"
+          },
+          "title": "Boundaries",
+          "type": "array"
+        },
+        "capabilities": {
+          "items": {
+            "$ref": "#/$defs/OntologyCapability"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "data_objects": {
+          "items": {
+            "$ref": "#/$defs/OntologyDataObject"
+          },
+          "title": "Data Objects",
+          "type": "array"
+        },
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/OntologyDecision"
+          },
+          "title": "Decisions",
+          "type": "array"
+        },
+        "failure_modes": {
+          "items": {
+            "$ref": "#/$defs/OntologyFailureMode"
+          },
+          "title": "Failure Modes",
+          "type": "array"
+        },
+        "flow_steps": {
+          "items": {
+            "$ref": "#/$defs/OntologyFlowStep"
+          },
+          "title": "Flow Steps",
+          "type": "array"
+        },
+        "states": {
+          "items": {
+            "$ref": "#/$defs/OntologyState"
+          },
+          "title": "States",
+          "type": "array"
+        },
+        "surfaces": {
+          "items": {
+            "$ref": "#/$defs/OntologySurface"
+          },
+          "title": "Surfaces",
+          "type": "array"
+        },
+        "transitions": {
+          "items": {
+            "$ref": "#/$defs/OntologyTransition"
+          },
+          "title": "Transitions",
+          "type": "array"
+        },
+        "workflows": {
+          "items": {
+            "$ref": "#/$defs/OntologyWorkflow"
+          },
+          "title": "Workflows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "actors",
+        "surfaces",
+        "data_objects",
+        "boundaries",
+        "capabilities",
+        "workflows",
+        "states",
+        "transitions",
+        "decisions",
+        "failure_modes"
+      ],
+      "title": "SemanticOntologySection",
+      "type": "object"
+    },
+    "SemanticUtilitySection": {
+      "additionalProperties": false,
+      "properties": {
+        "goals": {
+          "items": {
+            "$ref": "#/$defs/UtilityGoal"
+          },
+          "title": "Goals",
+          "type": "array"
+        },
+        "metrics": {
+          "items": {
+            "$ref": "#/$defs/UtilityMetric"
+          },
+          "title": "Metrics",
+          "type": "array"
+        },
+        "priority_rules": {
+          "items": {
+            "$ref": "#/$defs/UtilityPriorityRule"
+          },
+          "title": "Priority Rules",
+          "type": "array"
+        },
+        "tradeoffs": {
+          "items": {
+            "$ref": "#/$defs/UtilityTradeoff"
+          },
+          "title": "Tradeoffs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "goals",
+        "metrics",
+        "priority_rules",
+        "tradeoffs"
+      ],
+      "title": "SemanticUtilitySection",
+      "type": "object"
+    },
+    "UtilityGoal": {
+      "additionalProperties": false,
+      "properties": {
+        "goal_id": {
+          "title": "Goal Id",
+          "type": "string"
+        },
+        "served_by_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Served By Refs",
+          "type": "array"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "goal_id",
+        "statement",
+        "served_by_refs"
+      ],
+      "title": "UtilityGoal",
+      "type": "object"
+    },
+    "UtilityMetric": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "measured_by_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Measured By Refs",
+          "type": "array"
+        },
+        "metric_id": {
+          "title": "Metric Id",
+          "type": "string"
+        },
+        "target_expression": {
+          "title": "Target Expression",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric_id",
+        "label",
+        "target_expression",
+        "measured_by_refs"
+      ],
+      "title": "UtilityMetric",
+      "type": "object"
+    },
+    "UtilityPriorityRule": {
+      "additionalProperties": false,
+      "properties": {
+        "condition": {
+          "title": "Condition",
+          "type": "string"
+        },
+        "higher_ref": {
+          "title": "Higher Ref",
+          "type": "string"
+        },
+        "lower_ref": {
+          "title": "Lower Ref",
+          "type": "string"
+        },
+        "priority_id": {
+          "title": "Priority Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "priority_id",
+        "higher_ref",
+        "lower_ref",
+        "condition"
+      ],
+      "title": "UtilityPriorityRule",
+      "type": "object"
+    },
+    "UtilityTradeoff": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudication_rule": {
+          "title": "Adjudication Rule",
+          "type": "string"
+        },
+        "between_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Between Refs",
+          "type": "array"
+        },
+        "tradeoff_id": {
+          "title": "Tradeoff Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tradeoff_id",
+        "between_refs",
+        "adjudication_rule"
+      ],
+      "title": "UtilityTradeoff",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "architecture_id": {
+      "title": "Architecture Id",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicy"
+    },
+    "compiler": {
+      "$ref": "#/$defs/ArchitectureRootCompilerProvenance"
+    },
+    "deontics": {
+      "$ref": "#/$defs/SemanticDeonticsSection"
+    },
+    "epistemics": {
+      "$ref": "#/$defs/SemanticEpistemicsSection"
+    },
+    "intent_packet_id": {
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "ontology": {
+      "$ref": "#/$defs/SemanticOntologySection"
+    },
+    "schema": {
+      "const": "adeu_architecture_semantic_ir@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "source_set": {
+      "$ref": "#/$defs/ArchitectureSourceSet"
+    },
+    "utility": {
+      "$ref": "#/$defs/SemanticUtilitySection"
+    },
+    "variant_lineage": {
+      "$ref": "#/$defs/ArchitectureVariantLineage"
+    }
+  },
+  "required": [
+    "schema",
+    "architecture_id",
+    "intent_packet_id",
+    "semantic_hash",
+    "compiler",
+    "authority_boundary_policy",
+    "source_set",
+    "variant_lineage",
+    "ontology",
+    "epistemics",
+    "deontics",
+    "utility"
+  ],
+  "title": "AdeuArchitectureSemanticIR",
+  "type": "object"
+}
