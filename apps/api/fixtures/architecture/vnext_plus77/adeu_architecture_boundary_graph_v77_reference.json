@@ -1,0 +1,54 @@
+{
+  "authority_boundary_policy": {
+    "deterministic_adjudicator_authoritative": true,
+    "fail_closed_on_high_impact_ambiguity": true,
+    "no_direct_brief_to_codegen": true,
+    "oracle_output_advisory_only": true,
+    "projections_may_express_but_may_not_mint_authority": true
+  },
+  "authority_crossings": [
+    "edge_request_ingress"
+  ],
+  "boundary_graph_id": "bg_v77_trust_sensitive_approval_flow",
+  "edge_set": [
+    {
+      "boundary_ref": "bnd_request_to_core",
+      "crossing_class": "authority_crossing",
+      "edge_id": "edge_request_ingress",
+      "from_ref": "srf_request_portal",
+      "to_ref": "srf_approval_api"
+    },
+    {
+      "boundary_ref": "bnd_core_to_policy",
+      "crossing_class": "sensitivity_crossing",
+      "edge_id": "edge_policy_advisory",
+      "from_ref": "srf_approval_api",
+      "to_ref": "act_policy_engine"
+    },
+    {
+      "boundary_ref": "bnd_request_to_core",
+      "crossing_class": "audit_crossing",
+      "edge_id": "edge_audit_emit",
+      "from_ref": "srf_approval_api",
+      "to_ref": "srf_audit_log"
+    }
+  ],
+  "intent_packet_id": "intent_v77_trust_sensitive_approval_flow",
+  "node_refs": [
+    "act_requester",
+    "act_approver",
+    "act_policy_engine",
+    "act_audit_service",
+    "srf_request_portal",
+    "srf_approval_workbench",
+    "srf_approval_api",
+    "srf_audit_log",
+    "obj_approval_request",
+    "obj_decision_record",
+    "dec_outcome"
+  ],
+  "schema": "adeu_architecture_boundary_graph@1",
+  "sensitivity_crossings": [
+    "edge_policy_advisory"
+  ]
+}

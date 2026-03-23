@@ -1,0 +1,561 @@
+{
+  "$defs": {
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "OntologyActor": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_id": {
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "authority_level": {
+          "title": "Authority Level",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "trust_domain": {
+          "title": "Trust Domain",
+          "type": "string"
+        }
+      },
+      "required": [
+        "actor_id",
+        "kind",
+        "label",
+        "trust_domain",
+        "authority_level"
+      ],
+      "title": "OntologyActor",
+      "type": "object"
+    },
+    "OntologyBoundary": {
+      "additionalProperties": false,
+      "properties": {
+        "audit_required": {
+          "title": "Audit Required",
+          "type": "boolean"
+        },
+        "auth_required": {
+          "title": "Auth Required",
+          "type": "boolean"
+        },
+        "boundary_class": {
+          "title": "Boundary Class",
+          "type": "string"
+        },
+        "boundary_id": {
+          "title": "Boundary Id",
+          "type": "string"
+        },
+        "from_ref": {
+          "title": "From Ref",
+          "type": "string"
+        },
+        "to_ref": {
+          "title": "To Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "boundary_id",
+        "from_ref",
+        "to_ref",
+        "boundary_class",
+        "auth_required",
+        "audit_required"
+      ],
+      "title": "OntologyBoundary",
+      "type": "object"
+    },
+    "OntologyCapability": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "capability_id": {
+          "title": "Capability Id",
+          "type": "string"
+        },
+        "granted_by_ref": {
+          "title": "Granted By Ref",
+          "type": "string"
+        },
+        "resource_ref": {
+          "title": "Resource Ref",
+          "type": "string"
+        },
+        "subject_ref": {
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "capability_id",
+        "subject_ref",
+        "action",
+        "resource_ref",
+        "granted_by_ref"
+      ],
+      "title": "OntologyCapability",
+      "type": "object"
+    },
+    "OntologyDataObject": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "object_id": {
+          "title": "Object Id",
+          "type": "string"
+        },
+        "sensitivity_class": {
+          "title": "Sensitivity Class",
+          "type": "string"
+        },
+        "source_of_truth_ref": {
+          "title": "Source Of Truth Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "object_id",
+        "label",
+        "sensitivity_class",
+        "source_of_truth_ref"
+      ],
+      "title": "OntologyDataObject",
+      "type": "object"
+    },
+    "OntologyDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguity_default": {
+          "title": "Ambiguity Default",
+          "type": "string"
+        },
+        "authority_source_ref": {
+          "title": "Authority Source Ref",
+          "type": "string"
+        },
+        "decider_ref": {
+          "title": "Decider Ref",
+          "type": "string"
+        },
+        "decision_id": {
+          "title": "Decision Id",
+          "type": "string"
+        },
+        "evidence_required_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Required Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "decision_id",
+        "decider_ref",
+        "authority_source_ref",
+        "evidence_required_refs",
+        "ambiguity_default"
+      ],
+      "title": "OntologyDecision",
+      "type": "object"
+    },
+    "OntologyFailureMode": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Affected Refs",
+          "type": "array"
+        },
+        "default_disposition": {
+          "title": "Default Disposition",
+          "type": "string"
+        },
+        "failure_mode_id": {
+          "title": "Failure Mode Id",
+          "type": "string"
+        },
+        "observable_surface_ref": {
+          "title": "Observable Surface Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "failure_mode_id",
+        "affected_refs",
+        "default_disposition",
+        "observable_surface_ref"
+      ],
+      "title": "OntologyFailureMode",
+      "type": "object"
+    },
+    "OntologyFlowStep": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_ref": {
+          "title": "Actor Ref",
+          "type": "string"
+        },
+        "inputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Inputs",
+          "type": "array"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "outputs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Outputs",
+          "type": "array"
+        },
+        "postconditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Postconditions",
+          "type": "array"
+        },
+        "preconditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Preconditions",
+          "type": "array"
+        },
+        "step_id": {
+          "title": "Step Id",
+          "type": "string"
+        },
+        "surface_ref": {
+          "title": "Surface Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "step_id",
+        "kind",
+        "actor_ref",
+        "surface_ref",
+        "inputs",
+        "outputs",
+        "preconditions",
+        "postconditions"
+      ],
+      "title": "OntologyFlowStep",
+      "type": "object"
+    },
+    "OntologyState": {
+      "additionalProperties": false,
+      "properties": {
+        "state_id": {
+          "title": "State Id",
+          "type": "string"
+        },
+        "state_kind": {
+          "title": "State Kind",
+          "type": "string"
+        },
+        "terminal": {
+          "title": "Terminal",
+          "type": "boolean"
+        },
+        "workflow_id": {
+          "title": "Workflow Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "state_id",
+        "workflow_id",
+        "state_kind",
+        "terminal"
+      ],
+      "title": "OntologyState",
+      "type": "object"
+    },
+    "OntologySurface": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_posture": {
+          "title": "Authority Posture",
+          "type": "string"
+        },
+        "exposed_actions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exposed Actions",
+          "type": "array"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "owner_ref": {
+          "title": "Owner Ref",
+          "type": "string"
+        },
+        "surface_id": {
+          "title": "Surface Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "surface_id",
+        "kind",
+        "owner_ref",
+        "authority_posture",
+        "exposed_actions"
+      ],
+      "title": "OntologySurface",
+      "type": "object"
+    },
+    "OntologyTransition": {
+      "additionalProperties": false,
+      "properties": {
+        "from_state_ref": {
+          "title": "From State Ref",
+          "type": "string"
+        },
+        "guard_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Guard Refs",
+          "type": "array"
+        },
+        "to_state_ref": {
+          "title": "To State Ref",
+          "type": "string"
+        },
+        "transition_id": {
+          "title": "Transition Id",
+          "type": "string"
+        },
+        "trigger_ref": {
+          "title": "Trigger Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "transition_id",
+        "from_state_ref",
+        "to_state_ref",
+        "trigger_ref",
+        "guard_refs"
+      ],
+      "title": "OntologyTransition",
+      "type": "object"
+    },
+    "OntologyWorkflow": {
+      "additionalProperties": false,
+      "properties": {
+        "entry_ref": {
+          "title": "Entry Ref",
+          "type": "string"
+        },
+        "step_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Step Refs",
+          "type": "array"
+        },
+        "terminal_state_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Terminal State Refs",
+          "type": "array"
+        },
+        "workflow_id": {
+          "title": "Workflow Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflow_id",
+        "entry_ref",
+        "step_refs",
+        "terminal_state_refs"
+      ],
+      "title": "OntologyWorkflow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "actors": {
+      "items": {
+        "$ref": "#/$defs/OntologyActor"
+      },
+      "title": "Actors",
+      "type": "array"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicy"
+    },
+    "boundaries": {
+      "items": {
+        "$ref": "#/$defs/OntologyBoundary"
+      },
+      "title": "Boundaries",
+      "type": "array"
+    },
+    "capabilities": {
+      "items": {
+        "$ref": "#/$defs/OntologyCapability"
+      },
+      "title": "Capabilities",
+      "type": "array"
+    },
+    "data_objects": {
+      "items": {
+        "$ref": "#/$defs/OntologyDataObject"
+      },
+      "title": "Data Objects",
+      "type": "array"
+    },
+    "decisions": {
+      "items": {
+        "$ref": "#/$defs/OntologyDecision"
+      },
+      "title": "Decisions",
+      "type": "array"
+    },
+    "failure_modes": {
+      "items": {
+        "$ref": "#/$defs/OntologyFailureMode"
+      },
+      "title": "Failure Modes",
+      "type": "array"
+    },
+    "flow_steps": {
+      "items": {
+        "$ref": "#/$defs/OntologyFlowStep"
+      },
+      "title": "Flow Steps",
+      "type": "array"
+    },
+    "intent_packet_id": {
+      "title": "Intent Packet Id",
+      "type": "string"
+    },
+    "ontology_frame_id": {
+      "title": "Ontology Frame Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_architecture_ontology_frame@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "states": {
+      "items": {
+        "$ref": "#/$defs/OntologyState"
+      },
+      "title": "States",
+      "type": "array"
+    },
+    "surfaces": {
+      "items": {
+        "$ref": "#/$defs/OntologySurface"
+      },
+      "title": "Surfaces",
+      "type": "array"
+    },
+    "transitions": {
+      "items": {
+        "$ref": "#/$defs/OntologyTransition"
+      },
+      "title": "Transitions",
+      "type": "array"
+    },
+    "workflows": {
+      "items": {
+        "$ref": "#/$defs/OntologyWorkflow"
+      },
+      "title": "Workflows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "ontology_frame_id",
+    "intent_packet_id",
+    "authority_boundary_policy",
+    "actors",
+    "surfaces",
+    "data_objects",
+    "boundaries",
+    "capabilities",
+    "workflows",
+    "states",
+    "transitions",
+    "decisions",
+    "failure_modes"
+  ],
+  "title": "ArchitectureOntologyFrame",
+  "type": "object"
+}
