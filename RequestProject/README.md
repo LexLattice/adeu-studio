@@ -20,3 +20,4 @@ Planned source paths:
 - `RequestProject/ASIRKernel.lean`
 - `RequestProject/ASIRKernelHybrid.lean`
 - `RequestProject/ASIRKernelGating.lean`
+- `RequestProject/ASIRKernelConnector.lean`

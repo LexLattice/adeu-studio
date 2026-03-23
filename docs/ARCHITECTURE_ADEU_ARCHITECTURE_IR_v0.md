@@ -685,7 +685,8 @@ The initial ASIR formal-kernel candidates are:
 - primitive-to-lane and artifact-marker separation for AAL vocabulary;
 - checkpoint-class and final-adjudication transition law;
 - route/checkpoint/oracle-emission compatibility;
-- projection-readiness gating from ambiguity severity and status.
+- projection-readiness gating from ambiguity severity and status;
+- adjudication-to-readiness connector law between hybrid outcomes and projection gating.
 
 These kernels should remain explicitly bounded:
 
@@ -698,6 +699,7 @@ Current working formal notes live under:
 - `docs/formal/asir/ASIR_FORMAL_KERNEL.md`
 - `docs/formal/asir/ASIRKernelHybrid.md`
 - `docs/formal/asir/ASIRKernelGating.md`
+- `docs/formal/asir/ASIRKernelConnector.md`
 
 The first ASIR family should therefore treat the formal lane as a sidecar proof surface for already-frozen law slices, not as a blocking prerequisite for every implementation slice.
 
