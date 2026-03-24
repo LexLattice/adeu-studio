@@ -1,0 +1,97 @@
+{
+  "advisory_only_oracle_boundary_verified": true,
+  "checkpoint_trace_deterministic_fixture_hash": "34609eab08b8c076c62560b608db7b949b2720c154afc6b7baafea5354139124",
+  "checkpoint_trace_deterministic_fixture_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_deterministic_pass_reference.json",
+  "checkpoint_trace_human_fixture_hash": "642eced7ed7339cf9dc45430c9ada6da340f1a6b7afb265a45e078506ea1b7d7",
+  "checkpoint_trace_human_fixture_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_human_needed_reference.json",
+  "checkpoint_trace_oracle_fixture_hash": "2cbdbed09c54f9fc6e84b4ffa8c75cfa3825da01248eb7135cd0c65474ad741e",
+  "checkpoint_trace_oracle_fixture_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_oracle_reference.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md#v79-continuation-contract-machine-checkable",
+  "delta_authority_rewrite_guard_verified": true,
+  "deterministic_failure_oracle_repair_forbidden_verified": true,
+  "evidence_input_path": "artifacts/agent_harness/v79/evidence_inputs/v40c_architecture_hybrid_evidence_v79.json",
+  "export_test_reference_hash": "0727dfa4d16db6843f38ae71cdda1b2535c3d6f41daa283ac45195ecce4cfa4d",
+  "export_test_reference_path": "packages/adeu_architecture_compiler/tests/test_architecture_compiler_export_schema.py",
+  "human_escalation_empty_trigger_fail_closed_verified": true,
+  "implementation_source_hash": "10fd33b54d2bbc571e15b99463b78c5b8d7c1f65941e8ec74cff578a4143d5d9",
+  "implementation_source_path": "packages/adeu_architecture_compiler/src/adeu_architecture_compiler/hybrid.py",
+  "invalid_replay_resolution_fixture_hash": "2188dcab10e9744126df23635037cc2e273320b54680508186301cf8064416da",
+  "invalid_replay_resolution_fixture_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_resolution_v79_invalid_replay.json",
+  "ir_delta_fixture_hash": "65dfe643d3c9997e21f44d37341a1fd5ad5a1ab4ddeed84687ebe17dcd16b7cd",
+  "ir_delta_fixture_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_ir_delta_v79_reference.json",
+  "ir_delta_proposal_only_verified": true,
+  "merged_pr": "#301",
+  "model_test_reference_hash": "8553dbc15082ce29e3a4d326323af92dd45329e39bfcd7f006b0ea8996bd9617",
+  "model_test_reference_path": "packages/adeu_architecture_compiler/tests/test_architecture_compiler_v40c.py",
+  "notes": "v79 evidence pins the released V40-C hybrid lane on main: canonical oracle request/resolution, checkpoint trace, and ir_delta schema exports; released v79 oracle/deterministic/human fixture ladders; frozen route-to-class and resolution-to-adjudication laws; one-round replay identity; advisory-only oracle boundaries; proposal-only delta semantics; and the merged review-driven hardening for empty-trigger human escalation guards and resolution evidence requirements for resolved oracle checkpoints.",
+  "one_round_oracle_verified": true,
+  "oracle_blocked_conformance_fixture_hash": "a4a0a85acc955608fbcf8be6f344b155a195e2f43b7910ba689d799114604dfb",
+  "oracle_blocked_conformance_fixture_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_conformance_report_v79_oracle_blocked_derivative.json",
+  "oracle_derivative_semantic_fixture_hash": "b5b78b443beb88683a23dba883d0499cba689a5666a9d98e19e283cb54942a8b",
+  "oracle_derivative_semantic_fixture_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_semantic_ir_v79_oracle_derivative.json",
+  "oracle_request_fixture_hash": "a00e06aed3c1547d9d9836b93eb9069aaea84c06faccf6dbb4a6fdee2067c4a2",
+  "oracle_request_fixture_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_request_v79_reference.json",
+  "oracle_resolution_evidence_required_for_resolved_adjudication_verified": true,
+  "oracle_resolution_fixture_hash": "d2cda88ccc4c3973c4d69dc8a5c1fdea1f85fbad3ef8014384be5c0cab98aa59",
+  "oracle_resolution_fixture_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_resolution_v79_reference.json",
+  "package_surface_hash": "2958cea567e29034c3faa09d1318d7d2028b3be565f856a8d03b1e542cb23497",
+  "package_surface_path": "packages/adeu_architecture_compiler/src/adeu_architecture_compiler/__init__.py",
+  "policy_sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+    },
+    {
+      "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+      "sha256": "73c22a4560969d6d93563a024539b0c7a61f310ad2064cbbf479a058edc86527"
+    },
+    {
+      "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md",
+      "sha256": "73f7e287746b3ae05221466a54f2bdb5fd18c7e64f2175eb3d7e1b122716e993"
+    },
+    {
+      "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md",
+      "sha256": "40e402b5d6f7c7c424cc435cc4628ac2860efe4c54ae14ff0d6bd00bfcbfee1b"
+    }
+  ],
+  "replay_identity_enforced_verified": true,
+  "replay_mismatch_escalates_verified": true,
+  "resolution_state_to_final_adjudication_law_verified": true,
+  "review_hardening_preserved": true,
+  "route_to_checkpoint_class_law_verified": true,
+  "schema": "v40c_architecture_hybrid_evidence@1",
+  "schema_export_parity_verified": true,
+  "schema_export_source_hash": "a9648901f899dc79167702646257fcf6644d41acacb1d3a208456948d0dc444b",
+  "schema_export_source_path": "packages/adeu_architecture_compiler/src/adeu_architecture_compiler/export_schema.py",
+  "schema_reference_hashes": {
+    "checkpoint_trace": {
+      "authoritative_hash": "3bcdce4c45208af6ddc62704ef057422d5f43445e7f51a2cb242ba2680aa49e2",
+      "authoritative_path": "packages/adeu_architecture_compiler/schema/adeu_architecture_checkpoint_trace.v1.json",
+      "mirror_hash": "3bcdce4c45208af6ddc62704ef057422d5f43445e7f51a2cb242ba2680aa49e2",
+      "mirror_matches_authoritative": true,
+      "mirror_path": "spec/adeu_architecture_checkpoint_trace.schema.json"
+    },
+    "ir_delta": {
+      "authoritative_hash": "e9c4170c9d3fa5f3c3fb16794debbd32e20c9e55b54a363b77ee4b6f220c6303",
+      "authoritative_path": "packages/adeu_architecture_compiler/schema/adeu_architecture_ir_delta.v1.json",
+      "mirror_hash": "e9c4170c9d3fa5f3c3fb16794debbd32e20c9e55b54a363b77ee4b6f220c6303",
+      "mirror_matches_authoritative": true,
+      "mirror_path": "spec/adeu_architecture_ir_delta.schema.json"
+    },
+    "oracle_request": {
+      "authoritative_hash": "b6e5bf05364491ecceb8e09e191516662383ebf11502d624c3c8836183beedc2",
+      "authoritative_path": "packages/adeu_architecture_compiler/schema/adeu_architecture_oracle_request.v1.json",
+      "mirror_hash": "b6e5bf05364491ecceb8e09e191516662383ebf11502d624c3c8836183beedc2",
+      "mirror_matches_authoritative": true,
+      "mirror_path": "spec/adeu_architecture_oracle_request.schema.json"
+    },
+    "oracle_resolution": {
+      "authoritative_hash": "6c4f8f5e2848ec190e1fc05453c50af6bddc6fd7ebbb38fe5d41772e8a01df85",
+      "authoritative_path": "packages/adeu_architecture_compiler/schema/adeu_architecture_oracle_resolution.v1.json",
+      "mirror_hash": "6c4f8f5e2848ec190e1fc05453c50af6bddc6fd7ebbb38fe5d41772e8a01df85",
+      "mirror_matches_authoritative": true,
+      "mirror_path": "spec/adeu_architecture_oracle_resolution.schema.json"
+    }
+  },
+  "upstream_root_and_conformance_lineage_verified": true
+}
