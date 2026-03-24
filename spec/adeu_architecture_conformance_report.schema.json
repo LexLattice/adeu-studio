@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "ArchitectureCompilerProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "config_hash": {
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "contract_source": {
+          "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS78.md#v78-continuation-contract-machine-checkable",
+          "title": "Contract Source",
+          "type": "string"
+        },
+        "name": {
+          "const": "adeu_architecture_compiler.v40b",
+          "default": "adeu_architecture_compiler.v40b",
+          "title": "Name",
+          "type": "string"
+        },
+        "report_generation_profile": {
+          "const": "v40b_deterministic_conformance.v1",
+          "default": "v40b_deterministic_conformance.v1",
+          "title": "Report Generation Profile",
+          "type": "string"
+        },
+        "version": {
+          "default": "1",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "title": "ArchitectureCompilerProvenance",
+      "type": "object"
+    },
+    "ArchitectureConsumedRootRef": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "artifact_path": {
+          "title": "Artifact Path",
+          "type": "string"
+        },
+        "artifact_schema": {
+          "enum": [
+            "adeu_architecture_intent_packet@1",
+            "adeu_architecture_ontology_frame@1",
+            "adeu_architecture_boundary_graph@1",
+            "adeu_architecture_world_hypothesis@1",
+            "adeu_architecture_semantic_ir@1"
+          ],
+          "title": "Artifact Schema",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_schema",
+        "artifact_id",
+        "artifact_path",
+        "sha256"
+      ],
+      "title": "ArchitectureConsumedRootRef",
+      "type": "object"
+    },
+    "ArchitectureValidationCheckResult": {
+      "additionalProperties": false,
+      "properties": {
+        "check_id": {
+          "title": "Check Id",
+          "type": "string"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "subject_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Subject Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "check_id",
+        "required",
+        "passed",
+        "subject_refs",
+        "detail"
+      ],
+      "title": "ArchitectureValidationCheckResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "architecture_id": {
+      "title": "Architecture Id",
+      "type": "string"
+    },
+    "blocking_ambiguity_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocking Ambiguity Refs",
+      "type": "array"
+    },
+    "check_results": {
+      "items": {
+        "$ref": "#/$defs/ArchitectureValidationCheckResult"
+      },
+      "title": "Check Results",
+      "type": "array"
+    },
+    "compiler": {
+      "$ref": "#/$defs/ArchitectureCompilerProvenance"
+    },
+    "consumed_root_refs": {
+      "items": {
+        "$ref": "#/$defs/ArchitectureConsumedRootRef"
+      },
+      "title": "Consumed Root Refs",
+      "type": "array"
+    },
+    "emitted_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Emitted Artifact Refs",
+      "type": "array"
+    },
+    "failed_check_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Failed Check Ids",
+      "type": "array"
+    },
+    "human_escalation_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Human Escalation Refs",
+      "type": "array"
+    },
+    "projection_readiness": {
+      "enum": [
+        "ready",
+        "blocked"
+      ],
+      "title": "Projection Readiness",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_architecture_conformance_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "architecture_id",
+    "semantic_hash",
+    "compiler",
+    "consumed_root_refs",
+    "projection_readiness",
+    "blocking_ambiguity_refs",
+    "failed_check_ids",
+    "human_escalation_refs",
+    "emitted_artifact_refs",
+    "check_results"
+  ],
+  "title": "AdeuArchitectureConformanceReport",
+  "type": "object"
+}
