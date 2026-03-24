@@ -1,0 +1,486 @@
+{
+  "architecture_id": "asir_v77_trust_sensitive_approval_flow",
+  "authority_boundary_policy": {
+    "deterministic_adjudicator_authoritative": true,
+    "fail_closed_on_high_impact_ambiguity": true,
+    "no_direct_brief_to_codegen": true,
+    "oracle_output_advisory_only": true,
+    "projections_may_express_but_may_not_mint_authority": true
+  },
+  "compiler": {
+    "canonicalization_profile": "adeu_architecture_ir.root_family.v1",
+    "name": "adeu_architecture_ir.root_family",
+    "schema_bundle_version": "v77-root-family",
+    "scope": "root_family_only",
+    "version": "1"
+  },
+  "deontics": {
+    "escalation_rules": [],
+    "gates": [
+      {
+        "authority_source_ref": "srf_approval_workbench",
+        "fail_closed": true,
+        "gate_id": "gate_decide",
+        "required_refs": [
+          "ev_policy_context",
+          "fact_policy_required"
+        ],
+        "subject_ref": "dec_outcome"
+      }
+    ],
+    "invariants": [
+      {
+        "invariant_id": "inv_audit_record",
+        "scope_refs": [
+          "obj_decision_record",
+          "srf_audit_log"
+        ],
+        "severity": "high",
+        "statement": "Decision evidence must be preserved in the audit log."
+      }
+    ],
+    "obligations": [
+      {
+        "condition": "A decision outcome has been chosen.",
+        "obligation_id": "obl_emit_audit_record",
+        "statement": "Every completed decision must emit an audit record.",
+        "target_refs": [
+          "obj_decision_record",
+          "step_emit_audit"
+        ]
+      }
+    ],
+    "permissions": [
+      {
+        "condition": "Required policy evidence is present.",
+        "permission_id": "perm_approver_decide",
+        "statement": "The approver may decide after the evidence gate is satisfied.",
+        "target_refs": [
+          "act_approver",
+          "dec_outcome"
+        ]
+      }
+    ],
+    "prohibitions": [
+      {
+        "condition": "Requester and approver identities coincide.",
+        "prohibition_id": "proh_requester_self_approve",
+        "statement": "The requester must not approve their own request.",
+        "target_refs": [
+          "act_requester",
+          "dec_outcome"
+        ]
+      }
+    ]
+  },
+  "epistemics": {
+    "ambiguities": [
+      {
+        "ambiguity_id": "amb_auto_approve_threshold",
+        "evaluable_as": "semantic",
+        "impact_class": "low",
+        "question": "What confidence threshold, if any, allows deterministic auto-approval?",
+        "resolution_route": "deterministic_only",
+        "touches_refs": [
+          "dec_outcome",
+          "gate_decide"
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "annotation_id": "ann_decision_authority",
+        "confidence_kind": "explicit",
+        "evaluable_as": "semantic",
+        "subject_ref": "dec_outcome"
+      }
+    ],
+    "assumptions": [
+      {
+        "assumption_id": "asm_single_approver_lane",
+        "confidence_kind": "strongly_implied",
+        "impact_class": "medium",
+        "statement": "The initial slice models a single authoritative approver lane.",
+        "touches_refs": [
+          "act_approver",
+          "dec_outcome"
+        ]
+      }
+    ],
+    "evidence_requirements": [
+      {
+        "evidence_id": "ev_policy_context",
+        "evidence_kind": "policy_snapshot",
+        "required_before_refs": [
+          "dec_outcome",
+          "gate_decide"
+        ],
+        "source_policy": "explicit_policy_snapshot_required"
+      }
+    ],
+    "facts": [
+      {
+        "confidence_kind": "explicit",
+        "evaluable_as": "deterministic",
+        "fact_id": "fact_policy_required",
+        "source_refs": [
+          "src_v77_architecture_brief"
+        ],
+        "statement": "Approval decisions require policy context before they can be finalized."
+      }
+    ],
+    "hypothesis_bindings": [
+      {
+        "accepted": true,
+        "candidate_id": "cand_v77_single_approver_trust_world",
+        "coverage_summary": "Accepted as the baseline single-approver trust-sensitive world.",
+        "rejection_reasons": []
+      }
+    ],
+    "observability_hooks": [
+      {
+        "hook_id": "hook_approval_latency",
+        "observable_kind": "latency_timer",
+        "required_for_metrics": [
+          "metric_turnaround"
+        ],
+        "subject_ref": "srf_approval_api"
+      },
+      {
+        "hook_id": "hook_audit_emit",
+        "observable_kind": "audit_event_counter",
+        "required_for_metrics": [
+          "metric_audit_coverage"
+        ],
+        "subject_ref": "srf_audit_log"
+      }
+    ]
+  },
+  "intent_packet_id": "intent_v77_trust_sensitive_approval_flow",
+  "ontology": {
+    "actors": [
+      {
+        "actor_id": "act_requester",
+        "authority_level": "request_submitter",
+        "kind": "human_role",
+        "label": "Requester",
+        "trust_domain": "requesting_team"
+      },
+      {
+        "actor_id": "act_approver",
+        "authority_level": "decision_authority",
+        "kind": "human_role",
+        "label": "Approver",
+        "trust_domain": "approval_ops"
+      },
+      {
+        "actor_id": "act_policy_engine",
+        "authority_level": "policy_advisory",
+        "kind": "service",
+        "label": "Policy Engine",
+        "trust_domain": "policy_runtime"
+      },
+      {
+        "actor_id": "act_audit_service",
+        "authority_level": "evidence_recorder",
+        "kind": "service",
+        "label": "Audit Service",
+        "trust_domain": "audit_runtime"
+      }
+    ],
+    "boundaries": [
+      {
+        "audit_required": true,
+        "auth_required": true,
+        "boundary_class": "trust_ingress",
+        "boundary_id": "bnd_request_to_core",
+        "from_ref": "srf_request_portal",
+        "to_ref": "srf_approval_api"
+      },
+      {
+        "audit_required": true,
+        "auth_required": true,
+        "boundary_class": "policy_advisory_boundary",
+        "boundary_id": "bnd_core_to_policy",
+        "from_ref": "srf_approval_api",
+        "to_ref": "act_policy_engine"
+      }
+    ],
+    "capabilities": [
+      {
+        "action": "submit",
+        "capability_id": "cap_submit_request",
+        "granted_by_ref": "act_approver",
+        "resource_ref": "obj_approval_request",
+        "subject_ref": "act_requester"
+      },
+      {
+        "action": "decide",
+        "capability_id": "cap_decide_request",
+        "granted_by_ref": "act_policy_engine",
+        "resource_ref": "obj_approval_request",
+        "subject_ref": "act_approver"
+      }
+    ],
+    "data_objects": [
+      {
+        "label": "Approval Request",
+        "object_id": "obj_approval_request",
+        "sensitivity_class": "internal_sensitive",
+        "source_of_truth_ref": "srf_request_portal"
+      },
+      {
+        "label": "Decision Record",
+        "object_id": "obj_decision_record",
+        "sensitivity_class": "regulated_audit",
+        "source_of_truth_ref": "srf_audit_log"
+      }
+    ],
+    "decisions": [
+      {
+        "ambiguity_default": "escalate_human",
+        "authority_source_ref": "srf_approval_workbench",
+        "decider_ref": "act_approver",
+        "decision_id": "dec_outcome",
+        "evidence_required_refs": [
+          "ev_policy_context"
+        ]
+      }
+    ],
+    "failure_modes": [
+      {
+        "affected_refs": [
+          "dec_outcome",
+          "obj_approval_request"
+        ],
+        "default_disposition": "block_until_evidence",
+        "failure_mode_id": "fail_missing_policy_context",
+        "observable_surface_ref": "srf_audit_log"
+      }
+    ],
+    "flow_steps": [
+      {
+        "actor_ref": "act_requester",
+        "inputs": [
+          "obj_approval_request"
+        ],
+        "kind": "user_submission",
+        "outputs": [
+          "obj_approval_request"
+        ],
+        "postconditions": [
+          "Request is persisted for review."
+        ],
+        "preconditions": [
+          "Requester has gathered request context."
+        ],
+        "step_id": "step_submit_request",
+        "surface_ref": "srf_request_portal"
+      },
+      {
+        "actor_ref": "act_policy_engine",
+        "inputs": [
+          "obj_approval_request"
+        ],
+        "kind": "policy_lookup",
+        "outputs": [
+          "obj_decision_record"
+        ],
+        "postconditions": [
+          "Policy evidence is available to the approver."
+        ],
+        "preconditions": [
+          "Request has crossed the ingress boundary."
+        ],
+        "step_id": "step_policy_evaluate",
+        "surface_ref": "srf_approval_api"
+      },
+      {
+        "actor_ref": "act_audit_service",
+        "inputs": [
+          "obj_decision_record"
+        ],
+        "kind": "audit_emit",
+        "outputs": [
+          "obj_decision_record"
+        ],
+        "postconditions": [
+          "Audit evidence has been emitted."
+        ],
+        "preconditions": [
+          "Decision has been recorded."
+        ],
+        "step_id": "step_emit_audit",
+        "surface_ref": "srf_audit_log"
+      }
+    ],
+    "states": [
+      {
+        "state_id": "st_submitted",
+        "state_kind": "pending_review",
+        "terminal": false,
+        "workflow_id": "wf_approval_flow"
+      },
+      {
+        "state_id": "st_approved",
+        "state_kind": "approved",
+        "terminal": true,
+        "workflow_id": "wf_approval_flow"
+      },
+      {
+        "state_id": "st_rejected",
+        "state_kind": "rejected",
+        "terminal": true,
+        "workflow_id": "wf_approval_flow"
+      }
+    ],
+    "surfaces": [
+      {
+        "authority_posture": "non_authoritative_input",
+        "exposed_actions": [
+          "submit_request"
+        ],
+        "kind": "ui_surface",
+        "owner_ref": "act_requester",
+        "surface_id": "srf_request_portal"
+      },
+      {
+        "authority_posture": "authoritative_decision_surface",
+        "exposed_actions": [
+          "approve_request",
+          "reject_request"
+        ],
+        "kind": "ui_surface",
+        "owner_ref": "act_approver",
+        "surface_id": "srf_approval_workbench"
+      },
+      {
+        "authority_posture": "deterministic_processing_surface",
+        "exposed_actions": [
+          "evaluate_policy",
+          "persist_decision"
+        ],
+        "kind": "api_surface",
+        "owner_ref": "act_policy_engine",
+        "surface_id": "srf_approval_api"
+      },
+      {
+        "authority_posture": "evidence_surface",
+        "exposed_actions": [
+          "record_decision_audit"
+        ],
+        "kind": "event_sink",
+        "owner_ref": "act_audit_service",
+        "surface_id": "srf_audit_log"
+      }
+    ],
+    "transitions": [
+      {
+        "from_state_ref": "st_submitted",
+        "guard_refs": [
+          "gate_decide"
+        ],
+        "to_state_ref": "st_approved",
+        "transition_id": "tr_submit_to_approved",
+        "trigger_ref": "dec_outcome"
+      },
+      {
+        "from_state_ref": "st_submitted",
+        "guard_refs": [
+          "gate_decide"
+        ],
+        "to_state_ref": "st_rejected",
+        "transition_id": "tr_submit_to_rejected",
+        "trigger_ref": "dec_outcome"
+      }
+    ],
+    "workflows": [
+      {
+        "entry_ref": "step_submit_request",
+        "step_refs": [
+          "step_submit_request",
+          "step_policy_evaluate",
+          "step_emit_audit"
+        ],
+        "terminal_state_refs": [
+          "st_approved",
+          "st_rejected"
+        ],
+        "workflow_id": "wf_approval_flow"
+      }
+    ]
+  },
+  "schema": "adeu_architecture_semantic_ir@1",
+  "semantic_hash": "10ed0209a14fb08e66457771237185c186946bc1e24c4e1fcfd3d39f60716a3f",
+  "source_set": {
+    "sources": [
+      {
+        "path": "apps/api/fixtures/architecture/vnext_plus77/architecture_brief_v77.md",
+        "sha256": "ebce72ed165ec4b818af32eaf4574a6c6b68f6bde3887036fa2b501a1cd2530a",
+        "source_ref_id": "src_v77_architecture_brief"
+      }
+    ]
+  },
+  "utility": {
+    "goals": [
+      {
+        "goal_id": "goal_fast",
+        "served_by_refs": [
+          "hook_approval_latency",
+          "step_submit_request"
+        ],
+        "statement": "Keep request turnaround low for routine approvals."
+      },
+      {
+        "goal_id": "goal_trust",
+        "served_by_refs": [
+          "gate_decide",
+          "step_emit_audit"
+        ],
+        "statement": "Preserve trustworthy approval and audit boundaries."
+      }
+    ],
+    "metrics": [
+      {
+        "label": "Approval turnaround",
+        "measured_by_refs": [
+          "hook_approval_latency"
+        ],
+        "metric_id": "metric_turnaround",
+        "target_expression": "p95_decision_latency < 4h"
+      },
+      {
+        "label": "Audit coverage",
+        "measured_by_refs": [
+          "hook_audit_emit"
+        ],
+        "metric_id": "metric_audit_coverage",
+        "target_expression": "decision_audit_events == completed_decisions"
+      }
+    ],
+    "priority_rules": [
+      {
+        "condition": "Trust-sensitive approval ambiguity remains unresolved.",
+        "higher_ref": "goal_trust",
+        "lower_ref": "goal_fast",
+        "priority_id": "priority_trust_over_speed"
+      }
+    ],
+    "tradeoffs": [
+      {
+        "adjudication_rule": "Prefer trust preservation whenever deterministic policy context is incomplete.",
+        "between_refs": [
+          "goal_fast",
+          "goal_trust"
+        ],
+        "tradeoff_id": "tradeoff_speed_vs_trust"
+      }
+    ]
+  },
+  "variant_lineage": {
+    "accepted_candidate_id": "cand_v77_single_approver_trust_world",
+    "candidate_ids": [
+      "cand_v77_single_approver_trust_world"
+    ]
+  }
+}
