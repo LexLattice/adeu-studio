@@ -1,0 +1,43 @@
+{
+  "adjudicator": {
+    "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md#v79-continuation-contract-machine-checkable",
+    "name": "adeu_architecture_compiler.v40c.adjudicator",
+    "one_round_only": true,
+    "version": "1"
+  },
+  "architecture_id": "asir_v77_trust_sensitive_approval_flow",
+  "checkpoint_entries": [
+    {
+      "ambiguity_ref": "amb_auto_approve_threshold",
+      "checkpoint_class": "human_needed",
+      "checkpoint_id": "v40c_v79_checkpoint_7732ceb7733a60c4",
+      "final_adjudication": "escalated_human",
+      "human_escalation_ref": "rule_policy_gap",
+      "replay_identity_hash": "e1c7acf474d221518ac0abac75cf74b7d0cf638c1b970343857a46614328a1cb",
+      "resolution_route": "human_only"
+    }
+  ],
+  "compiler_version": "1",
+  "conformance_report_ref": "apps/api/fixtures/architecture/vnext_plus78/adeu_architecture_conformance_report_v78_blocked_reference.json",
+  "hybrid_policy_hashes": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+    },
+    {
+      "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+      "sha256": "73c22a4560969d6d93563a024539b0c7a61f310ad2064cbbf479a058edc86527"
+    },
+    {
+      "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md",
+      "sha256": "73f7e287746b3ae05221466a54f2bdb5fd18c7e64f2175eb3d7e1b122716e993"
+    },
+    {
+      "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md",
+      "sha256": "40e402b5d6f7c7c424cc435cc4628ac2860efe4c54ae14ff0d6bd00bfcbfee1b"
+    }
+  ],
+  "schema": "adeu_architecture_checkpoint_trace@1",
+  "semantic_hash": "cf42da9738378d886311ad21fd96cbf0f211d2d62c3401cd91f48c9f47fc9573",
+  "trace_id": "v40c_v79_trace_1d78f59daed1716c"
+}

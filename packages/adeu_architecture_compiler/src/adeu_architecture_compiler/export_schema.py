@@ -6,6 +6,12 @@ from pathlib import Path
 from adeu_ir.repo import repo_root
 
 from .conformance import AdeuArchitectureConformanceReport
+from .hybrid import (
+    AdeuArchitectureCheckpointTrace,
+    AdeuArchitectureIRDelta,
+    AdeuArchitectureOracleRequest,
+    AdeuArchitectureOracleResolution,
+)
 
 
 def _write_schema(path: Path, schema: dict[str, object]) -> None:
@@ -15,17 +21,45 @@ def _write_schema(path: Path, schema: dict[str, object]) -> None:
 
 def main() -> None:
     root = repo_root(anchor=Path(__file__))
-    schema = AdeuArchitectureConformanceReport.model_json_schema(by_alias=True)
-    authoritative_path = (
-        root
-        / "packages"
-        / "adeu_architecture_compiler"
-        / "schema"
-        / "adeu_architecture_conformance_report.v1.json"
-    )
-    mirror_path = root / "spec" / "adeu_architecture_conformance_report.schema.json"
-    _write_schema(authoritative_path, schema)
-    _write_schema(mirror_path, schema)
+    targets = [
+        (
+            AdeuArchitectureConformanceReport,
+            "adeu_architecture_conformance_report.v1.json",
+            "adeu_architecture_conformance_report.schema.json",
+        ),
+        (
+            AdeuArchitectureOracleRequest,
+            "adeu_architecture_oracle_request.v1.json",
+            "adeu_architecture_oracle_request.schema.json",
+        ),
+        (
+            AdeuArchitectureOracleResolution,
+            "adeu_architecture_oracle_resolution.v1.json",
+            "adeu_architecture_oracle_resolution.schema.json",
+        ),
+        (
+            AdeuArchitectureCheckpointTrace,
+            "adeu_architecture_checkpoint_trace.v1.json",
+            "adeu_architecture_checkpoint_trace.schema.json",
+        ),
+        (
+            AdeuArchitectureIRDelta,
+            "adeu_architecture_ir_delta.v1.json",
+            "adeu_architecture_ir_delta.schema.json",
+        ),
+    ]
+    for model, authoritative_name, mirror_name in targets:
+        schema = model.model_json_schema(by_alias=True)
+        authoritative_path = (
+            root
+            / "packages"
+            / "adeu_architecture_compiler"
+            / "schema"
+            / authoritative_name
+        )
+        mirror_path = root / "spec" / mirror_name
+        _write_schema(authoritative_path, schema)
+        _write_schema(mirror_path, schema)
 
 
 if __name__ == "__main__":

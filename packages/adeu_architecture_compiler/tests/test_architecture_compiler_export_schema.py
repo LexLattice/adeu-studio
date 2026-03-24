@@ -4,47 +4,88 @@ import json
 import re
 from pathlib import Path
 
-from adeu_architecture_compiler import ADEU_ARCHITECTURE_CONFORMANCE_REPORT_SCHEMA
+from adeu_architecture_compiler import (
+    ADEU_ARCHITECTURE_CHECKPOINT_TRACE_SCHEMA,
+    ADEU_ARCHITECTURE_CONFORMANCE_REPORT_SCHEMA,
+    ADEU_ARCHITECTURE_IR_DELTA_SCHEMA,
+    ADEU_ARCHITECTURE_ORACLE_REQUEST_SCHEMA,
+    ADEU_ARCHITECTURE_ORACLE_RESOLUTION_SCHEMA,
+)
 from adeu_architecture_compiler.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\\\")
+_SCHEMA_TARGETS = (
+    (
+        ADEU_ARCHITECTURE_CONFORMANCE_REPORT_SCHEMA,
+        "adeu_architecture_conformance_report.v1.json",
+        "adeu_architecture_conformance_report.schema.json",
+    ),
+    (
+        ADEU_ARCHITECTURE_ORACLE_REQUEST_SCHEMA,
+        "adeu_architecture_oracle_request.v1.json",
+        "adeu_architecture_oracle_request.schema.json",
+    ),
+    (
+        ADEU_ARCHITECTURE_ORACLE_RESOLUTION_SCHEMA,
+        "adeu_architecture_oracle_resolution.v1.json",
+        "adeu_architecture_oracle_resolution.schema.json",
+    ),
+    (
+        ADEU_ARCHITECTURE_CHECKPOINT_TRACE_SCHEMA,
+        "adeu_architecture_checkpoint_trace.v1.json",
+        "adeu_architecture_checkpoint_trace.schema.json",
+    ),
+    (
+        ADEU_ARCHITECTURE_IR_DELTA_SCHEMA,
+        "adeu_architecture_ir_delta.v1.json",
+        "adeu_architecture_ir_delta.schema.json",
+    ),
+)
 
 
-def _schema_paths() -> tuple[Path, Path]:
+def _schema_paths() -> list[tuple[str, Path, Path]]:
     root = repo_root(anchor=Path(__file__))
-    return (
-        root
-        / "packages"
-        / "adeu_architecture_compiler"
-        / "schema"
-        / "adeu_architecture_conformance_report.v1.json",
-        root / "spec" / "adeu_architecture_conformance_report.schema.json",
-    )
+    return [
+        (
+            schema_marker,
+            root / "packages" / "adeu_architecture_compiler" / "schema" / authoritative_name,
+            root / "spec" / mirror_name,
+        )
+        for schema_marker, authoritative_name, mirror_name in _SCHEMA_TARGETS
+    ]
 
 
-def test_authoritative_and_mirror_schema_are_byte_identical() -> None:
-    authoritative, mirror = _schema_paths()
-    assert authoritative.read_bytes() == mirror.read_bytes()
+def test_authoritative_and_mirror_schemas_are_byte_identical() -> None:
+    for _marker, authoritative, mirror in _schema_paths():
+        assert authoritative.read_bytes() == mirror.read_bytes()
 
 
 def test_schema_export_rerun_is_clean_and_deterministic() -> None:
-    authoritative, mirror = _schema_paths()
-    before = (authoritative.read_bytes(), mirror.read_bytes())
+    before = [
+        (authoritative.read_bytes(), mirror.read_bytes())
+        for _, authoritative, mirror in _schema_paths()
+    ]
     export_schema_main()
-    after_first = (authoritative.read_bytes(), mirror.read_bytes())
+    after_first = [
+        (authoritative.read_bytes(), mirror.read_bytes())
+        for _, authoritative, mirror in _schema_paths()
+    ]
     export_schema_main()
-    after_second = (authoritative.read_bytes(), mirror.read_bytes())
+    after_second = [
+        (authoritative.read_bytes(), mirror.read_bytes())
+        for _, authoritative, mirror in _schema_paths()
+    ]
     assert before == after_first == after_second
 
 
-def test_exported_schema_has_stable_contract_marker() -> None:
-    authoritative, _mirror = _schema_paths()
-    payload = json.loads(authoritative.read_text(encoding="utf-8"))
-    assert payload["properties"]["schema"]["const"] == ADEU_ARCHITECTURE_CONFORMANCE_REPORT_SCHEMA
+def test_exported_schemas_have_stable_contract_markers() -> None:
+    for marker, authoritative, _mirror in _schema_paths():
+        payload = json.loads(authoritative.read_text(encoding="utf-8"))
+        assert payload["properties"]["schema"]["const"] == marker
 
 
-def test_exported_schema_has_no_absolute_path_material() -> None:
+def test_exported_schemas_have_no_absolute_path_material() -> None:
     root = repo_root(anchor=Path(__file__))
     root_text = root.as_posix()
 
@@ -65,6 +106,6 @@ def test_exported_schema_has_no_absolute_path_material() -> None:
         assert not normalized.startswith("/Users/")
         assert _WINDOWS_ABSOLUTE_PATH_RE.search(node) is None
 
-    authoritative, mirror = _schema_paths()
-    _check_node(json.loads(authoritative.read_text(encoding="utf-8")))
-    _check_node(json.loads(mirror.read_text(encoding="utf-8")))
+    for _marker, authoritative, mirror in _schema_paths():
+        _check_node(json.loads(authoritative.read_text(encoding="utf-8")))
+        _check_node(json.loads(mirror.read_text(encoding="utf-8")))

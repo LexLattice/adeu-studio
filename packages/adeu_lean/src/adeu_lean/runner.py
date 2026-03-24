@@ -385,7 +385,12 @@ def run_lean_request(
 
         source_path.write_text(request.theorem_src, encoding="utf-8")
 
-        for cmd in ([lake_bin, "env", "lean", source_argument], [lean_bin, source_argument]):
+        command_attempts = (
+            [[lake_bin, "env", "lean", source_argument], [lean_bin, source_argument]]
+            if lean_bin.strip() == "lean"
+            else [[lean_bin, source_argument]]
+        )
+        for cmd in command_attempts:
             try:
                 proc = _run_command(cmd=cmd, cwd=project_dir, timeout_s=timeout_s)
                 used_cmd = cmd

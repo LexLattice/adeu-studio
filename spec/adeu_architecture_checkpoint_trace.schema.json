@@ -1,0 +1,201 @@
+{
+  "$defs": {
+    "ArchitectureCheckpointTraceEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguity_ref": {
+          "title": "Ambiguity Ref",
+          "type": "string"
+        },
+        "checkpoint_class": {
+          "enum": [
+            "deterministic_pass",
+            "deterministic_fail",
+            "oracle_needed",
+            "human_needed"
+          ],
+          "title": "Checkpoint Class",
+          "type": "string"
+        },
+        "checkpoint_id": {
+          "title": "Checkpoint Id",
+          "type": "string"
+        },
+        "final_adjudication": {
+          "enum": [
+            "resolved_pass",
+            "resolved_fail",
+            "escalated_human"
+          ],
+          "title": "Final Adjudication",
+          "type": "string"
+        },
+        "human_escalation_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Human Escalation Ref"
+        },
+        "oracle_request_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oracle Request Ref"
+        },
+        "oracle_resolution_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oracle Resolution Ref"
+        },
+        "replay_identity_hash": {
+          "title": "Replay Identity Hash",
+          "type": "string"
+        },
+        "resolution_route": {
+          "enum": [
+            "deterministic_only",
+            "oracle_assisted",
+            "human_only"
+          ],
+          "title": "Resolution Route",
+          "type": "string"
+        }
+      },
+      "required": [
+        "checkpoint_id",
+        "ambiguity_ref",
+        "checkpoint_class",
+        "resolution_route",
+        "final_adjudication",
+        "replay_identity_hash"
+      ],
+      "title": "ArchitectureCheckpointTraceEntry",
+      "type": "object"
+    },
+    "ArchitectureHybridAdjudicator": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_source": {
+          "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md#v79-continuation-contract-machine-checkable",
+          "title": "Contract Source",
+          "type": "string"
+        },
+        "name": {
+          "const": "adeu_architecture_compiler.v40c.adjudicator",
+          "default": "adeu_architecture_compiler.v40c.adjudicator",
+          "title": "Name",
+          "type": "string"
+        },
+        "one_round_only": {
+          "const": true,
+          "default": true,
+          "title": "One Round Only",
+          "type": "boolean"
+        },
+        "version": {
+          "default": "1",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "title": "ArchitectureHybridAdjudicator",
+      "type": "object"
+    },
+    "ArchitecturePolicySourceHash": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "title": "ArchitecturePolicySourceHash",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adjudicator": {
+      "$ref": "#/$defs/ArchitectureHybridAdjudicator"
+    },
+    "architecture_id": {
+      "title": "Architecture Id",
+      "type": "string"
+    },
+    "checkpoint_entries": {
+      "items": {
+        "$ref": "#/$defs/ArchitectureCheckpointTraceEntry"
+      },
+      "title": "Checkpoint Entries",
+      "type": "array"
+    },
+    "compiler_version": {
+      "title": "Compiler Version",
+      "type": "string"
+    },
+    "conformance_report_ref": {
+      "title": "Conformance Report Ref",
+      "type": "string"
+    },
+    "hybrid_policy_hashes": {
+      "items": {
+        "$ref": "#/$defs/ArchitecturePolicySourceHash"
+      },
+      "title": "Hybrid Policy Hashes",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_architecture_checkpoint_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "trace_id": {
+      "title": "Trace Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "trace_id",
+    "architecture_id",
+    "semantic_hash",
+    "conformance_report_ref",
+    "compiler_version",
+    "hybrid_policy_hashes",
+    "adjudicator",
+    "checkpoint_entries"
+  ],
+  "title": "AdeuArchitectureCheckpointTrace",
+  "type": "object"
+}

@@ -1,0 +1,194 @@
+{
+  "$defs": {
+    "ArchitectureOracleReplayIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "compiler_version": {
+          "title": "Compiler Version",
+          "type": "string"
+        },
+        "conformance_report_ref": {
+          "title": "Conformance Report Ref",
+          "type": "string"
+        },
+        "context_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Context Refs",
+          "type": "array"
+        },
+        "intent_packet_hash": {
+          "title": "Intent Packet Hash",
+          "type": "string"
+        },
+        "model_id": {
+          "title": "Model Id",
+          "type": "string"
+        },
+        "model_version": {
+          "title": "Model Version",
+          "type": "string"
+        },
+        "policy_source_hashes": {
+          "items": {
+            "$ref": "#/$defs/ArchitecturePolicySourceHash"
+          },
+          "title": "Policy Source Hashes",
+          "type": "array"
+        },
+        "prompt_template_version": {
+          "title": "Prompt Template Version",
+          "type": "string"
+        },
+        "reasoning_effort": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "title": "Reasoning Effort",
+          "type": "string"
+        },
+        "semantic_hash": {
+          "title": "Semantic Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "intent_packet_hash",
+        "semantic_hash",
+        "conformance_report_ref",
+        "policy_source_hashes",
+        "model_id",
+        "model_version",
+        "reasoning_effort",
+        "prompt_template_version",
+        "compiler_version",
+        "context_refs"
+      ],
+      "title": "ArchitectureOracleReplayIdentity",
+      "type": "object"
+    },
+    "ArchitecturePolicySourceHash": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "title": "ArchitecturePolicySourceHash",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ambiguity_ref": {
+      "title": "Ambiguity Ref",
+      "type": "string"
+    },
+    "architecture_id": {
+      "title": "Architecture Id",
+      "type": "string"
+    },
+    "checkpoint_class": {
+      "const": "oracle_needed",
+      "title": "Checkpoint Class",
+      "type": "string"
+    },
+    "checkpoint_id": {
+      "title": "Checkpoint Id",
+      "type": "string"
+    },
+    "compiler_version": {
+      "title": "Compiler Version",
+      "type": "string"
+    },
+    "conformance_report_ref": {
+      "title": "Conformance Report Ref",
+      "type": "string"
+    },
+    "context_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Context Refs",
+      "type": "array"
+    },
+    "model_id": {
+      "title": "Model Id",
+      "type": "string"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "policy_source_hashes": {
+      "items": {
+        "$ref": "#/$defs/ArchitecturePolicySourceHash"
+      },
+      "title": "Policy Source Hashes",
+      "type": "array"
+    },
+    "prompt_template_version": {
+      "title": "Prompt Template Version",
+      "type": "string"
+    },
+    "reasoning_effort": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "title": "Reasoning Effort",
+      "type": "string"
+    },
+    "replay_identity": {
+      "$ref": "#/$defs/ArchitectureOracleReplayIdentity"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_architecture_oracle_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "request_id",
+    "architecture_id",
+    "semantic_hash",
+    "conformance_report_ref",
+    "checkpoint_id",
+    "ambiguity_ref",
+    "checkpoint_class",
+    "replay_identity",
+    "policy_source_hashes",
+    "model_id",
+    "model_version",
+    "reasoning_effort",
+    "prompt_template_version",
+    "compiler_version",
+    "context_refs"
+  ],
+  "title": "AdeuArchitectureOracleRequest",
+  "type": "object"
+}

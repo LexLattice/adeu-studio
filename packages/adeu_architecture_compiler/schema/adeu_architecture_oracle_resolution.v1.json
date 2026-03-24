@@ -1,0 +1,110 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "architecture_id": {
+      "title": "Architecture Id",
+      "type": "string"
+    },
+    "checkpoint_id": {
+      "title": "Checkpoint Id",
+      "type": "string"
+    },
+    "model_id": {
+      "title": "Model Id",
+      "type": "string"
+    },
+    "model_version": {
+      "title": "Model Version",
+      "type": "string"
+    },
+    "proposed_delta_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proposed Delta Ref"
+    },
+    "raw_output_hash": {
+      "title": "Raw Output Hash",
+      "type": "string"
+    },
+    "reasoning_effort": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "title": "Reasoning Effort",
+      "type": "string"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "request_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Ref"
+    },
+    "resolution_id": {
+      "title": "Resolution Id",
+      "type": "string"
+    },
+    "resolution_origin": {
+      "default": "fresh_model_output",
+      "enum": [
+        "fresh_model_output",
+        "cache_replay"
+      ],
+      "title": "Resolution Origin",
+      "type": "string"
+    },
+    "resolution_state": {
+      "enum": [
+        "advisory_support",
+        "advisory_reject",
+        "inconclusive",
+        "contradictory"
+      ],
+      "title": "Resolution State",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_architecture_oracle_resolution@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "resolution_id",
+    "request_id",
+    "checkpoint_id",
+    "architecture_id",
+    "semantic_hash",
+    "model_id",
+    "model_version",
+    "reasoning_effort",
+    "raw_output_hash",
+    "resolution_state"
+  ],
+  "title": "AdeuArchitectureOracleResolution",
+  "type": "object"
+}
