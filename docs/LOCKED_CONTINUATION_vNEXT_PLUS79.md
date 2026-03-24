@@ -330,12 +330,11 @@ projection or emitted artifact.
 
 ## PR Shape
 
-- Two tightly sequenced PRs within one arc.
+- Single integrated PR.
 
 Rationale:
 
-- hybrid schema/model/export scaffolding is one natural seam;
-- classifier, adjudication, replay/guard tests, and committed fixtures are a second
-  seam;
-- keeping them split preserves the repo’s usual arc scale without widening the slice
-  itself.
+- the hybrid schema/model/export surface, classifier/adjudication law, replay guards,
+  committed fixtures, and validator tests form one tight architectural brick;
+- landing them together keeps the released hybrid boundary exact and avoids inventing a
+  second sequencing seam inside an already-atomic slice.
