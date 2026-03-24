@@ -40,6 +40,24 @@ _CHECK_ID_RE = re.compile(r"^(ASIR-[OEDUP])-(\d{3})$")
 _HEX_64_RE = re.compile(r"^[0-9a-f]{64}$")
 
 _CROSSING_CLASSES = {"authority_crossing", "sensitivity_crossing", "audit_crossing"}
+_HUMAN_ESCALATION_DISPOSITIONS = {"escalated_human", "human_review"}
+_EXPECTED_CHECKS: tuple[tuple[str, bool], ...] = (
+    ("ASIR-O-001", True),
+    ("ASIR-O-002", True),
+    ("ASIR-O-003", True),
+    ("ASIR-E-001", True),
+    ("ASIR-E-002", True),
+    ("ASIR-E-003", True),
+    ("ASIR-D-001", True),
+    ("ASIR-D-002", True),
+    ("ASIR-U-001", True),
+    ("ASIR-U-002", False),
+    ("ASIR-P-001", True),
+    ("ASIR-P-002", True),
+    ("ASIR-P-003", True),
+)
+_EXPECTED_CHECK_REQUIREMENTS = dict(_EXPECTED_CHECKS)
+_EXPECTED_CHECK_IDS = sorted(_EXPECTED_CHECK_REQUIREMENTS)
 
 
 def _resolve_repository_root(explicit_root: Path | None = None) -> Path:
@@ -137,19 +155,11 @@ def _compiler_config_hash() -> str:
             "contract_source": V40B_V78_CONTRACT_SOURCE,
             "profile": "v40b_deterministic_conformance.v1",
             "checks": [
-                "ASIR-O-001",
-                "ASIR-O-002",
-                "ASIR-O-003",
-                "ASIR-E-001",
-                "ASIR-E-002",
-                "ASIR-E-003",
-                "ASIR-D-001",
-                "ASIR-D-002",
-                "ASIR-U-001",
-                "ASIR-U-002",
-                "ASIR-P-001",
-                "ASIR-P-002",
-                "ASIR-P-003",
+                {
+                    "check_id": check_id,
+                    "required": required,
+                }
+                for check_id, required in _EXPECTED_CHECKS
             ],
             "slice": "vNext+78",
             "target_path": "V40-B",
@@ -180,6 +190,12 @@ class ArchitectureCompilerProvenance(BaseModel):
         )
         if not _HEX_64_RE.match(self.config_hash):
             raise ValueError("compiler.config_hash must be a 64-character lowercase hex sha256")
+        expected_hash = _compiler_config_hash()
+        if self.config_hash != expected_hash:
+            raise ValueError(
+                "compiler.config_hash must match the fixed "
+                "v40b_deterministic_conformance.v1 profile"
+            )
         return self
 
 
@@ -314,6 +330,17 @@ class AdeuArchitectureConformanceReport(BaseModel):
         check_ids = [result.check_id for result in self.check_results]
         if sorted(check_ids) != check_ids or len(check_ids) != len(set(check_ids)):
             raise ValueError("check_results must be sorted by check_id with no duplicates")
+        if check_ids != _EXPECTED_CHECK_IDS:
+            raise ValueError(
+                "check_results must exactly cover the fixed V40-B "
+                "deterministic check profile"
+            )
+        for result in self.check_results:
+            expected_required = _EXPECTED_CHECK_REQUIREMENTS[result.check_id]
+            if result.required != expected_required:
+                raise ValueError(
+                    f"check_result.required must match the fixed profile for {result.check_id}"
+                )
         failed_required = sorted(
             result.check_id
             for result in self.check_results
@@ -586,9 +613,9 @@ def _build_validation_result(
         if item.impact_class in {"high", "critical"}
     )
     human_escalation_refs = sorted(
-        item.ambiguity_id
-        for item in semantic_ir.epistemics.ambiguities
-        if item.resolution_route == "human_only"
+        item.rule_id
+        for item in semantic_ir.deontics.escalation_rules
+        if item.default_disposition in _HUMAN_ESCALATION_DISPOSITIONS
     )
 
     checks = [

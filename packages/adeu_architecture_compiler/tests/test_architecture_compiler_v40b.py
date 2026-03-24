@@ -251,6 +251,61 @@ def test_v40b_compiler_rejects_nonempty_emitted_artifact_refs() -> None:
         )
 
 
+def test_v40b_compiler_rejects_mismatched_config_hash() -> None:
+    payload = deepcopy(_load_v78("adeu_architecture_conformance_report_v78_ready_reference.json"))
+    payload["compiler"]["config_hash"] = "0" * 64
+
+    with pytest.raises(ValidationError, match="compiler.config_hash must match the fixed"):
+        AdeuArchitectureConformanceReport.model_validate(
+            payload,
+            context={"repository_root": _repo_root()},
+        )
+
+
+def test_v40b_compiler_rejects_missing_required_check_coverage() -> None:
+    payload = deepcopy(_load_v78("adeu_architecture_conformance_report_v78_ready_reference.json"))
+    payload["check_results"] = [
+        entry for entry in payload["check_results"] if entry["check_id"] != "ASIR-D-001"
+    ]
+
+    with pytest.raises(ValidationError, match="check_results must exactly cover"):
+        AdeuArchitectureConformanceReport.model_validate(
+            payload,
+            context={"repository_root": _repo_root()},
+        )
+
+
+def test_v40b_compiler_blocks_on_static_human_escalation_rule(tmp_path: Path) -> None:
+    temp_root = _copy_fixture_tree(tmp_path)
+    semantic_path = (
+        temp_root
+        / "apps"
+        / "api"
+        / "fixtures"
+        / "architecture"
+        / "vnext_plus77"
+        / "adeu_architecture_semantic_ir_v77_reference.json"
+    )
+    payload = _load_json(semantic_path)
+    payload["epistemics"]["ambiguities"][0]["impact_class"] = "low"
+    payload["epistemics"]["ambiguities"][0]["resolution_route"] = "deterministic_only"
+    semantic_path.write_text(
+        json.dumps(
+            materialize_adeu_architecture_semantic_ir_payload(payload, repository_root=temp_root),
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = _derive_blocked_report(repository_root=temp_root)
+    assert report["projection_readiness"] == "blocked"
+    assert report["blocking_ambiguity_refs"] == []
+    assert report["human_escalation_refs"] == ["rule_policy_gap"]
+    assert "ASIR-P-002" in report["failed_check_ids"]
+
+
 def test_v40b_advisory_check_failure_does_not_block_ready_state(tmp_path: Path) -> None:
     temp_root = _copy_fixture_tree(tmp_path)
     ready_semantic_path = (

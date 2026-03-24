@@ -15,17 +15,7 @@
     "version": "1"
   },
   "deontics": {
-    "escalation_rules": [
-      {
-        "default_disposition": "human_review",
-        "escalate_to": "act_approver",
-        "rule_id": "rule_policy_gap",
-        "trigger_refs": [
-          "amb_auto_approve_threshold",
-          "fail_missing_policy_context"
-        ]
-      }
-    ],
+    "escalation_rules": [],
     "gates": [
       {
         "authority_source_ref": "srf_approval_workbench",
@@ -421,7 +411,7 @@
     ]
   },
   "schema": "adeu_architecture_semantic_ir@1",
-  "semantic_hash": "aca133e88c83a206c10099945bd4f52ece96eb6492d72f47cca4a459eaa3bf8e",
+  "semantic_hash": "10ed0209a14fb08e66457771237185c186946bc1e24c4e1fcfd3d39f60716a3f",
   "source_set": {
     "sources": [
       {

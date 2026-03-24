@@ -136,7 +136,7 @@
     }
   ],
   "compiler": {
-    "config_hash": "79b42aa05cc817772e720633dc63553ec594233ce5d9adb9aac90bd10536b079",
+    "config_hash": "e5ec77a8acde223eefd2f689d652b01cd3389ed815f492c5ef256fbc8f4f6deb",
     "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS78.md#v78-continuation-contract-machine-checkable",
     "name": "adeu_architecture_compiler.v40b",
     "report_generation_profile": "v40b_deterministic_conformance.v1",
@@ -171,7 +171,7 @@
       "artifact_id": "asir_v77_trust_sensitive_approval_flow",
       "artifact_path": "apps/api/fixtures/architecture/vnext_plus78/adeu_architecture_semantic_ir_v78_ready_derivative.json",
       "artifact_schema": "adeu_architecture_semantic_ir@1",
-      "sha256": "cf521b38954023ac48ef1c184a32cc5e1883880646e78f6a409eb66da7268225"
+      "sha256": "3b5d2704c6559f6b53884779c0e4bb2aedf9d51f97293eaeb8acd1d6356c56f4"
     }
   ],
   "emitted_artifact_refs": [],
@@ -179,5 +179,5 @@
   "human_escalation_refs": [],
   "projection_readiness": "ready",
   "schema": "adeu_architecture_conformance_report@1",
-  "semantic_hash": "aca133e88c83a206c10099945bd4f52ece96eb6492d72f47cca4a459eaa3bf8e"
+  "semantic_hash": "10ed0209a14fb08e66457771237185c186946bc1e24c4e1fcfd3d39f60716a3f"
 }
