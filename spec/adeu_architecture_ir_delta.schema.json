@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "ArchitectureIRDeltaOperation": {
+      "additionalProperties": false,
+      "properties": {
+        "field_path": {
+          "title": "Field Path",
+          "type": "string"
+        },
+        "operation_id": {
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "operation_kind": {
+          "enum": [
+            "replace_text",
+            "append_list_item",
+            "bind_placeholder"
+          ],
+          "title": "Operation Kind",
+          "type": "string"
+        },
+        "placeholder_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Placeholder Ref"
+        },
+        "target_ref": {
+          "title": "Target Ref",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation_id",
+        "operation_kind",
+        "target_ref",
+        "field_path",
+        "value"
+      ],
+      "title": "ArchitectureIRDeltaOperation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "architecture_id": {
+      "title": "Architecture Id",
+      "type": "string"
+    },
+    "authorized_placeholder_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Authorized Placeholder Refs",
+      "type": "array"
+    },
+    "checkpoint_id": {
+      "title": "Checkpoint Id",
+      "type": "string"
+    },
+    "delta_id": {
+      "title": "Delta Id",
+      "type": "string"
+    },
+    "operation_set": {
+      "items": {
+        "$ref": "#/$defs/ArchitectureIRDeltaOperation"
+      },
+      "title": "Operation Set",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_architecture_ir_delta@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_ref": {
+      "title": "Scope Ref",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "source_resolution_id": {
+      "title": "Source Resolution Id",
+      "type": "string"
+    },
+    "target_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "delta_id",
+    "architecture_id",
+    "semantic_hash",
+    "checkpoint_id",
+    "source_resolution_id",
+    "scope_ref",
+    "target_refs",
+    "authorized_placeholder_refs",
+    "operation_set"
+  ],
+  "title": "AdeuArchitectureIRDelta",
+  "type": "object"
+}

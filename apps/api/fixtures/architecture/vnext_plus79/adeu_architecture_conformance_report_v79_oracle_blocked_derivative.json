@@ -1,0 +1,187 @@
+{
+  "architecture_id": "asir_v77_trust_sensitive_approval_flow",
+  "blocking_ambiguity_refs": [
+    "amb_auto_approve_threshold"
+  ],
+  "check_results": [
+    {
+      "check_id": "ASIR-D-001",
+      "detail": "Authoritative decisions must name a consumed authoritative source surface.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "dec_outcome"
+      ]
+    },
+    {
+      "check_id": "ASIR-D-002",
+      "detail": "Each decision must have a fail-closed gate covering required evidence before commit.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "dec_outcome"
+      ]
+    },
+    {
+      "check_id": "ASIR-E-001",
+      "detail": "Decision evidence requirements must resolve to epistemic evidence ids.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "dec_outcome"
+      ]
+    },
+    {
+      "check_id": "ASIR-E-002",
+      "detail": "High-impact ambiguities may not claim deterministic-only resolution in V40-B.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "amb_auto_approve_threshold"
+      ]
+    },
+    {
+      "check_id": "ASIR-E-003",
+      "detail": "Consumed world hypothesis must align to the accepted semantic-root candidate lineage.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "cand_v77_single_approver_trust_world"
+      ]
+    },
+    {
+      "check_id": "ASIR-O-001",
+      "detail": "Cross-boundary edges must bind to declared ontology boundaries.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "edge_audit_emit",
+        "edge_policy_advisory",
+        "edge_request_ingress"
+      ]
+    },
+    {
+      "check_id": "ASIR-O-002",
+      "detail": "Boundary graph nodes must resolve within the consumed ontology frame.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "act_approver",
+        "act_audit_service",
+        "act_policy_engine",
+        "act_requester",
+        "dec_outcome",
+        "obj_approval_request",
+        "obj_decision_record",
+        "srf_approval_api",
+        "srf_approval_workbench",
+        "srf_audit_log",
+        "srf_request_portal"
+      ]
+    },
+    {
+      "check_id": "ASIR-O-003",
+      "detail": "Semantic IR ontology must exactly match the consumed ontology companion artifact.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "asir_v77_trust_sensitive_approval_flow",
+        "ontology_frame"
+      ]
+    },
+    {
+      "check_id": "ASIR-P-001",
+      "detail": "No unresolved high- or critical-impact ambiguity may survive pre-projection readiness.",
+      "passed": false,
+      "required": true,
+      "subject_refs": [
+        "amb_auto_approve_threshold"
+      ]
+    },
+    {
+      "check_id": "ASIR-P-002",
+      "detail": "Static human escalation lineage must remain empty before the hybrid lane is released.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "asir_v77_trust_sensitive_approval_flow"
+      ]
+    },
+    {
+      "check_id": "ASIR-P-003",
+      "detail": "V40-B conformance reports must keep emitted_artifact_refs structurally present but empty.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "asir_v77_trust_sensitive_approval_flow"
+      ]
+    },
+    {
+      "check_id": "ASIR-U-001",
+      "detail": "Utility metrics must remain measurable from evidence requirements or observability hooks.",
+      "passed": true,
+      "required": true,
+      "subject_refs": [
+        "metric_audit_coverage",
+        "metric_turnaround"
+      ]
+    },
+    {
+      "check_id": "ASIR-U-002",
+      "detail": "Utility goals should participate in an explicit priority or tradeoff relation.",
+      "passed": true,
+      "required": false,
+      "subject_refs": [
+        "goal_fast",
+        "goal_trust"
+      ]
+    }
+  ],
+  "compiler": {
+    "config_hash": "e5ec77a8acde223eefd2f689d652b01cd3389ed815f492c5ef256fbc8f4f6deb",
+    "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS78.md#v78-continuation-contract-machine-checkable",
+    "name": "adeu_architecture_compiler.v40b",
+    "report_generation_profile": "v40b_deterministic_conformance.v1",
+    "version": "1"
+  },
+  "consumed_root_refs": [
+    {
+      "artifact_id": "bg_v77_trust_sensitive_approval_flow",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_boundary_graph_v77_reference.json",
+      "artifact_schema": "adeu_architecture_boundary_graph@1",
+      "sha256": "5dcf9596c00a16a833a9f37a8bdcebcf72f7b039a061a4654016b3c4286402e4"
+    },
+    {
+      "artifact_id": "intent_v77_trust_sensitive_approval_flow",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_intent_packet_v77_reference.json",
+      "artifact_schema": "adeu_architecture_intent_packet@1",
+      "sha256": "879cc94ee2c545ade854d7e9735e4a90c621cf691d2b0b8954066c8bf932afbc"
+    },
+    {
+      "artifact_id": "ont_v77_trust_sensitive_approval_flow",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_ontology_frame_v77_reference.json",
+      "artifact_schema": "adeu_architecture_ontology_frame@1",
+      "sha256": "930abd72cf22197eb69ddee389f2eb42209309179192fba95c72bfc2169fafe5"
+    },
+    {
+      "artifact_id": "cand_v77_single_approver_trust_world",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_world_hypothesis_v77_reference.json",
+      "artifact_schema": "adeu_architecture_world_hypothesis@1",
+      "sha256": "e464ac057b241063df2881b33d4e2d8604c5731ecc25416588c348893412e348"
+    },
+    {
+      "artifact_id": "asir_v77_trust_sensitive_approval_flow",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_semantic_ir_v79_oracle_derivative.json",
+      "artifact_schema": "adeu_architecture_semantic_ir@1",
+      "sha256": "b5b78b443beb88683a23dba883d0499cba689a5666a9d98e19e283cb54942a8b"
+    }
+  ],
+  "emitted_artifact_refs": [],
+  "failed_check_ids": [
+    "ASIR-P-001"
+  ],
+  "human_escalation_refs": [],
+  "projection_readiness": "blocked",
+  "schema": "adeu_architecture_conformance_report@1",
+  "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
+}

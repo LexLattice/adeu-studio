@@ -1,0 +1,24 @@
+{
+  "architecture_id": "asir_v77_trust_sensitive_approval_flow",
+  "authorized_placeholder_refs": [
+    "ph_auto_approve_threshold_policy"
+  ],
+  "checkpoint_id": "v40c_v79_checkpoint_fdcaabd86537484f",
+  "delta_id": "v40c_v79_ir_delta_5acd739c472869a1",
+  "operation_set": [
+    {
+      "field_path": "epistemics.ambiguities.amb_auto_approve_threshold.question",
+      "operation_id": "op_replace_question",
+      "operation_kind": "replace_text",
+      "target_ref": "amb_auto_approve_threshold",
+      "value": "What policy-owned threshold definition governs advisory auto-approval without minting new authority?"
+    }
+  ],
+  "schema": "adeu_architecture_ir_delta@1",
+  "scope_ref": "epistemics.ambiguities.amb_auto_approve_threshold",
+  "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a",
+  "source_resolution_id": "v40c_v79_oracle_resolution_4777cf063f0b1c9c",
+  "target_refs": [
+    "amb_auto_approve_threshold"
+  ]
+}

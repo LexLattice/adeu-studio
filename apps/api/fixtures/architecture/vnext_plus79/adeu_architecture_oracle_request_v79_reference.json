@@ -1,0 +1,69 @@
+{
+  "ambiguity_ref": "amb_auto_approve_threshold",
+  "architecture_id": "asir_v77_trust_sensitive_approval_flow",
+  "checkpoint_class": "oracle_needed",
+  "checkpoint_id": "v40c_v79_checkpoint_fdcaabd86537484f",
+  "compiler_version": "1",
+  "conformance_report_ref": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_conformance_report_v79_oracle_blocked_derivative.json",
+  "context_refs": [
+    "dec_outcome",
+    "gate_decide"
+  ],
+  "model_id": "gpt-5.4",
+  "model_version": "2026-03-24",
+  "policy_source_hashes": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+    },
+    {
+      "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+      "sha256": "73c22a4560969d6d93563a024539b0c7a61f310ad2064cbbf479a058edc86527"
+    },
+    {
+      "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md",
+      "sha256": "73f7e287746b3ae05221466a54f2bdb5fd18c7e64f2175eb3d7e1b122716e993"
+    },
+    {
+      "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md",
+      "sha256": "40e402b5d6f7c7c424cc435cc4628ac2860efe4c54ae14ff0d6bd00bfcbfee1b"
+    }
+  ],
+  "prompt_template_version": "v40c_oracle_request.v1",
+  "reasoning_effort": "high",
+  "replay_identity": {
+    "compiler_version": "1",
+    "conformance_report_ref": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_conformance_report_v79_oracle_blocked_derivative.json",
+    "context_refs": [
+      "dec_outcome",
+      "gate_decide"
+    ],
+    "intent_packet_hash": "879cc94ee2c545ade854d7e9735e4a90c621cf691d2b0b8954066c8bf932afbc",
+    "model_id": "gpt-5.4",
+    "model_version": "2026-03-24",
+    "policy_source_hashes": [
+      {
+        "path": "AGENTS.md",
+        "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+      },
+      {
+        "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+        "sha256": "73c22a4560969d6d93563a024539b0c7a61f310ad2064cbbf479a058edc86527"
+      },
+      {
+        "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md",
+        "sha256": "73f7e287746b3ae05221466a54f2bdb5fd18c7e64f2175eb3d7e1b122716e993"
+      },
+      {
+        "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md",
+        "sha256": "40e402b5d6f7c7c424cc435cc4628ac2860efe4c54ae14ff0d6bd00bfcbfee1b"
+      }
+    ],
+    "prompt_template_version": "v40c_oracle_request.v1",
+    "reasoning_effort": "high",
+    "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
+  },
+  "request_id": "v40c_v79_oracle_request_93d7a7e0c266445b",
+  "schema": "adeu_architecture_oracle_request@1",
+  "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
+}

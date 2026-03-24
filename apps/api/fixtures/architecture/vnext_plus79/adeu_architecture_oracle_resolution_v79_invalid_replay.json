@@ -1,0 +1,16 @@
+{
+  "architecture_id": "asir_v77_trust_sensitive_approval_flow",
+  "checkpoint_id": "v40c_v79_checkpoint_fdcaabd86537484f",
+  "model_id": "gpt-5.4",
+  "model_version": "2026-03-25",
+  "proposed_delta_ref": "v40c_v79_ir_delta_5acd739c472869a1",
+  "raw_output_hash": "55ab397a71566e7ae52c76c8fc5ea046feadb85e7f0b8fec482104e33b79d43d",
+  "reasoning_effort": "high",
+  "request_id": "v40c_v79_oracle_request_93d7a7e0c266445b",
+  "request_ref": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_request_v79_reference.json",
+  "resolution_id": "v40c_v79_oracle_resolution_ead7d76be30a83c3",
+  "resolution_origin": "fresh_model_output",
+  "resolution_state": "advisory_support",
+  "schema": "adeu_architecture_oracle_resolution@1",
+  "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
+}
