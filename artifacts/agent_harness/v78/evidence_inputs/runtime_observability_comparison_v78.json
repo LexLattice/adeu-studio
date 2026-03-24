@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+77",
+  "baseline_elapsed_ms": 91,
+  "baseline_source": "artifacts/stop_gate/report_v77_closeout.md",
+  "current_arc": "vNext+78",
+  "current_elapsed_ms": 85,
+  "current_source": "artifacts/stop_gate/report_v78_closeout.md",
+  "delta_ms": -6,
+  "notes": "v78 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while adding the bounded V40-B deterministic compiler, canonical conformance report, consumed-root lineage, and blocked-vs-ready gating baseline.",
+  "schema": "runtime_observability_comparison@1"
+}

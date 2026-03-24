@@ -1,0 +1,51 @@
+{
+  "advisory_check_non_blocking_verified": true,
+  "blocked_fixture_hash": "04f37a4a68cdc97844c786a43ba1178ecdadc98f2bfa84bfeb3fce2363829317",
+  "blocked_fixture_path": "apps/api/fixtures/architecture/vnext_plus78/adeu_architecture_conformance_report_v78_blocked_reference.json",
+  "blocked_ready_fixture_replay_verified": true,
+  "check_family_split_verified": true,
+  "compiler_config_hash_locked_to_profile": true,
+  "conformance_schema_reference_hash": "e7d5110272387aba36bea437efe44ac34dd7ea4ad029102161d007ca67ae6c2b",
+  "conformance_schema_reference_mirror_hash": "e7d5110272387aba36bea437efe44ac34dd7ea4ad029102161d007ca67ae6c2b",
+  "conformance_schema_reference_mirror_path": "spec/adeu_architecture_conformance_report.schema.json",
+  "conformance_schema_reference_path": "packages/adeu_architecture_compiler/schema/adeu_architecture_conformance_report.v1.json",
+  "consumed_root_lineage_verified": true,
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS78.md#v78-continuation-contract-machine-checkable",
+  "emitted_artifact_refs_empty_verified": true,
+  "evidence_input_path": "artifacts/agent_harness/v78/evidence_inputs/v40b_architecture_compiler_evidence_v78.json",
+  "export_test_reference_hash": "b643ba2477d74c4d6b538101329208e7edabd6c9bfa92632125debf39117f0cb",
+  "export_test_reference_path": "packages/adeu_architecture_compiler/tests/test_architecture_compiler_export_schema.py",
+  "implementation_source_hash": "c4f0c2d185fb928bca7c82a4077a778d65ea76e765523270efd763cbee6cce36",
+  "implementation_source_path": "packages/adeu_architecture_compiler/src/adeu_architecture_compiler/conformance.py",
+  "merged_pr": "#300",
+  "model_test_reference_hash": "7983d3e6aef05ad9a667f493484c4e510931d6c02b717fe9bd31f4e4421435e1",
+  "model_test_reference_path": "packages/adeu_architecture_compiler/tests/test_architecture_compiler_v40b.py",
+  "notes": "v78 evidence pins the released V40-B deterministic compiler surface: canonical adeu_architecture_conformance_report@1 schema exports, consumed-root lineage, whole-ASIR plus section-local fail-closed validation, required-check profile coverage, static human-escalation lineage, blocked-vs-ready gating honesty, and the review-driven hardening for config-hash replay and imported-report tamper resistance on main.",
+  "policy_sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+    },
+    {
+      "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+      "sha256": "73c22a4560969d6d93563a024539b0c7a61f310ad2064cbbf479a058edc86527"
+    },
+    {
+      "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS78.md",
+      "sha256": "228f1ac907cbea5afeac925df9fe567f919ed411891a0178c0fbd679aadbec0c"
+    }
+  ],
+  "pre_projection_scope_boundary_preserved": true,
+  "ready_fixture_hash": "23bd79c299a8cd8269d4e090658cd1d747a6fb63eff5f51854b105c9d66bc888",
+  "ready_fixture_path": "apps/api/fixtures/architecture/vnext_plus78/adeu_architecture_conformance_report_v78_ready_reference.json",
+  "ready_semantic_ir_derivative_hash": "3b5d2704c6559f6b53884779c0e4bb2aedf9d51f97293eaeb8acd1d6356c56f4",
+  "ready_semantic_ir_derivative_path": "apps/api/fixtures/architecture/vnext_plus78/adeu_architecture_semantic_ir_v78_ready_derivative.json",
+  "required_check_fail_closed_verified": true,
+  "required_check_profile_coverage_verified": true,
+  "schema": "v40b_architecture_compiler_evidence@1",
+  "schema_export_parity_verified": true,
+  "schema_export_source_hash": "5d8f70d397c6d61e7bb9f59aab9af3fadd5f60c76251d5e5a845b6eb3834bf5f",
+  "schema_export_source_path": "packages/adeu_architecture_compiler/src/adeu_architecture_compiler/export_schema.py",
+  "static_human_escalation_lineage_verified": true,
+  "v40a_root_consumption_without_drift_verified": true
+}
