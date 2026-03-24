@@ -1,7 +1,7 @@
 # Draft ASIR Arc Decomposition v0
 
-Status: working decomposition draft after `vNext+77` closeout and after
-`docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`.
+Status: working decomposition draft after `vNext+77` closeout, `vNext+78`
+closeout, and `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`.
 
 This document is an intermediate planning artifact between:
 
@@ -31,10 +31,13 @@ implementation by itself.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v18.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS77.md`
 - `docs/ASSESSMENT_vNEXT_PLUS77_EDGES.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS78.md`
+- `docs/ASSESSMENT_vNEXT_PLUS78_EDGES.md`
 - `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
 - `docs/formal/asir/ASIR_FORMAL_KERNEL.md`
 - `docs/formal/asir/ASIRKernelHybrid.md`
 - `docs/formal/asir/ASIRKernelGating.md`
+- `docs/formal/asir/ASIRKernelConnector.md`
 
 ## Decomposition Thesis
 
@@ -60,10 +63,13 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 
 - `vNext+76` (`V39-E`) is closed on `main`.
 - The bounded `V39` family is complete at its intended baseline.
-- `vNext+77` (`V40-A`) is now closed on `main` at its bounded baseline.
-- The ASIR root-family substrate is now released under `packages/adeu_architecture_ir`.
-- The next safe step is deterministic compiler activation rather than reopening the
-  released root boundary.
+- `vNext+77` (`V40-A`) is closed on `main` at its bounded baseline.
+- `vNext+78` (`V40-B`) is now closed on `main` at its bounded baseline.
+- The ASIR root-family substrate is released under `packages/adeu_architecture_ir`.
+- The deterministic ASIR conformance substrate is released under
+  `packages/adeu_architecture_compiler`.
+- The next safe step is bounded hybrid ambiguity handling rather than reopening the
+  released semantic-root or deterministic-compiler boundary.
 - The Lean formal lane is useful but should remain sidecar-only unless a later lock
   explicitly promotes it into a required release surface.
 
@@ -73,7 +79,7 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 {
   "schema": "asir_arc_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+77",
+  "baseline_arc": "vNext+78",
   "closed_path_family": "V39",
   "closed_paths": [
     "V39-A",
@@ -84,14 +90,15 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
   ],
   "next_path_family": "V40",
   "closed_current_family_paths": [
-    "V40-A"
+    "V40-A",
+    "V40-B"
   ],
-  "default_next_arc_candidate": "V40-B",
-  "default_next_concrete_arc_candidate": "vNext+78",
+  "default_next_arc_candidate": "V40-C",
+  "default_next_concrete_arc_candidate": "vNext+79",
   "v40_path_count": 6,
   "v40_default_arc_span": {
-    "from": "vNext+78",
-    "to": "vNext+84"
+    "from": "vNext+79",
+    "to": "vNext+85"
   },
   "v40_paths_may_span_multiple_arcs": true,
   "planned_family_packages": [
@@ -108,6 +115,7 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
     "docs/formal/asir/ASIR_FORMAL_KERNEL.md",
     "docs/formal/asir/ASIRKernelHybrid.md",
     "docs/formal/asir/ASIRKernelGating.md",
+    "docs/formal/asir/ASIRKernelConnector.md",
     "RequestProject/"
   ],
   "formal_kernel_mode": "proof_mirror_sidecar_only",
@@ -162,14 +170,20 @@ The current recommended concrete split is:
     root schemas, models, exports, canonicalization/hashing, reference fixtures,
     validator tests, and boundary exclusions
 - `vNext+78`
-  - default first concrete `V40-B` arc:
+  - closed first concrete `V40-B` arc:
     compiler package activation, conformance-report schema/export baseline,
     deterministic assembly/integrity passes, blocked/ready gating, reference fixtures,
     and validator tests
 - `vNext+79`
-  - optional follow-on `V40-B` hardening only if richer validator depth, broader
-    accepted fixture coverage, or check-id/report coverage remains intentionally
-    deferred from `vNext+78`
+  - default first concrete `V40-C` arc:
+    hybrid schema/model/export baseline, deterministic checkpoint classifier,
+    typed oracle request/resolution/checkpoint-trace surfaces, replay identity,
+    one-round oracle law, bounded `ir_delta` proposal law, committed fixtures, and
+    validator tests
+- `vNext+80`
+  - optional follow-on `V40-C` hardening only if broader hybrid-branch coverage,
+    classifier depth, or replay/adjudication diagnostics remain intentionally deferred
+    from `vNext+79`
 
 Later `V40` paths may also take one or more concrete arcs when that keeps each lock
 comparable to earlier ADEU slices.
@@ -301,13 +315,18 @@ Scope:
 - canonical `adeu_architecture_checkpoint_trace@1`;
 - canonical `adeu_architecture_ir_delta@1`;
 - deterministic checkpoint classifier;
+- frozen `resolution_route -> checkpoint_class` law;
+- frozen `resolution_state -> final_adjudication` law;
 - exact replay identity and one-round oracle rule;
-- advisory-only oracle boundary and fail-closed escalation behavior.
+- advisory-only oracle boundary and fail-closed escalation behavior;
+- explicit preservation of deterministic required-check authority from `V40-B`.
 
 Locks:
 
 - no checkpoint fixtures may bypass the released root and deterministic assembly
   surfaces once those surfaces exist;
+- no failed required deterministic check may be reinterpreted as an oracle-repair
+  checkpoint in the first baseline;
 - no direct repo mutation;
 - no patch payload emission;
 - no multi-round oracle loop;
@@ -436,11 +455,14 @@ The correct decomposition is:
 
 - `docs/formal/asir/ASIR_FORMAL_KERNEL.md` aligns most naturally with `V40-A`;
 - `docs/formal/asir/ASIRKernelHybrid.md` aligns most naturally with `V40-C`;
-- `docs/formal/asir/ASIRKernelGating.md` aligns most naturally with `V40-B` and `V40-D`.
+- `docs/formal/asir/ASIRKernelGating.md` aligns most naturally with `V40-B` and `V40-D`;
+- `docs/formal/asir/ASIRKernelConnector.md` aligns most naturally with the
+  `V40-C` / `V40-D` boundary.
 
-A likely next proof-sidecar addition is a small connector kernel between final
-hybrid adjudication and readiness gating. If that lands later, it should mirror the
-`V40-C` / `V40-D` boundary rather than silently redefining it.
+A likely next proof-sidecar addition is a small pipeline-composition kernel that proves
+the already-frozen end-to-end law from lawful hybrid disposition through adjudication
+and into readiness outcome without silently redefining any architecture artifact
+boundary.
 
 Sidecar rules:
 
