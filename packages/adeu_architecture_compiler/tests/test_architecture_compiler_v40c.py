@@ -190,6 +190,100 @@ def test_v40c_human_needed_trace_fixture_validates_and_replays() -> None:
     )
 
 
+def test_v40c_human_escalation_trace_rejects_empty_trigger_refs(tmp_path: Path) -> None:
+    semantic_ir = deepcopy(_load_v77("adeu_architecture_semantic_ir_v77_reference.json"))
+    for rule in semantic_ir["deontics"]["escalation_rules"]:
+        if rule["rule_id"] == "rule_policy_gap":
+            rule["trigger_refs"] = []
+            break
+    temp_root = _copy_fixture_tree(tmp_path)
+    semantic_ir = materialize_adeu_architecture_semantic_ir_payload(
+        semantic_ir,
+        repository_root=temp_root,
+    )
+    semantic_path = (
+        temp_root
+        / "apps"
+        / "api"
+        / "fixtures"
+        / "architecture"
+        / "vnext_plus79"
+        / "adeu_architecture_semantic_ir_v79_empty_trigger_derivative.json"
+    )
+    semantic_path.parent.mkdir(parents=True, exist_ok=True)
+    semantic_path.write_text(
+        json.dumps(semantic_ir, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    conformance_report = derive_v40b_conformance_report(
+        intent_packet_payload=_load_json(
+            temp_root
+            / "apps"
+            / "api"
+            / "fixtures"
+            / "architecture"
+            / "vnext_plus77"
+            / "adeu_architecture_intent_packet_v77_reference.json"
+        ),
+        intent_packet_path="apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_intent_packet_v77_reference.json",
+        ontology_frame_payload=_load_json(
+            temp_root
+            / "apps"
+            / "api"
+            / "fixtures"
+            / "architecture"
+            / "vnext_plus77"
+            / "adeu_architecture_ontology_frame_v77_reference.json"
+        ),
+        ontology_frame_path="apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_ontology_frame_v77_reference.json",
+        boundary_graph_payload=_load_json(
+            temp_root
+            / "apps"
+            / "api"
+            / "fixtures"
+            / "architecture"
+            / "vnext_plus77"
+            / "adeu_architecture_boundary_graph_v77_reference.json"
+        ),
+        boundary_graph_path="apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_boundary_graph_v77_reference.json",
+        world_hypothesis_payload=_load_json(
+            temp_root
+            / "apps"
+            / "api"
+            / "fixtures"
+            / "architecture"
+            / "vnext_plus77"
+            / "adeu_architecture_world_hypothesis_v77_reference.json"
+        ),
+        world_hypothesis_path="apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_world_hypothesis_v77_reference.json",
+        semantic_ir_payload=semantic_ir,
+        semantic_ir_path="apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_semantic_ir_v79_empty_trigger_derivative.json",
+        repository_root=temp_root,
+    )
+    conformance_path = (
+        temp_root
+        / "apps"
+        / "api"
+        / "fixtures"
+        / "architecture"
+        / "vnext_plus79"
+        / "adeu_architecture_conformance_report_v79_empty_trigger_derivative.json"
+    )
+    conformance_path.write_text(
+        json.dumps(conformance_report, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="at least one trigger ref"):
+        derive_v40c_checkpoint_trace(
+            semantic_ir_payload=semantic_ir,
+            conformance_report_payload=conformance_report,
+            conformance_report_path="apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_conformance_report_v79_empty_trigger_derivative.json",
+            checkpoint_source_kind="human_escalation",
+            checkpoint_subject_ref="rule_policy_gap",
+            repository_root=temp_root,
+        )
+
+
 def test_v40c_oracle_reference_fixture_set_validates_and_replays() -> None:
     request_fixture = _load_v79("adeu_architecture_oracle_request_v79_reference.json")
     resolution_fixture = _load_v79("adeu_architecture_oracle_resolution_v79_reference.json")
@@ -292,6 +386,16 @@ def test_v40c_oracle_reference_fixture_set_validates_and_replays() -> None:
     assert derived_delta == delta_fixture
     assert derived_resolution == resolution_fixture
     assert derived_trace == trace_fixture
+
+
+def test_v40c_oracle_trace_rejects_resolved_adjudication_without_resolution_ref() -> None:
+    payload = deepcopy(_load_v79("adeu_architecture_checkpoint_trace_v79_oracle_reference.json"))
+    payload["checkpoint_entries"][0]["oracle_resolution_ref"] = None
+    with pytest.raises(ValidationError, match="require oracle_resolution_ref"):
+        AdeuArchitectureCheckpointTrace.model_validate(
+            payload,
+            context={"repository_root": _repo_root()},
+        )
 
 
 def test_v40c_exported_schemas_accept_reference_fixtures() -> None:

@@ -878,6 +878,14 @@ class ArchitectureCheckpointTraceEntry(BaseModel):
                 )
             if self.oracle_request_ref is None:
                 raise ValueError("oracle_needed checkpoints require oracle_request_ref")
+            if (
+                self.final_adjudication in {"resolved_pass", "resolved_fail"}
+                and self.oracle_resolution_ref is None
+            ):
+                raise ValueError(
+                    "oracle_needed checkpoints require oracle_resolution_ref "
+                    "before resolved adjudications"
+                )
         if self.oracle_resolution_ref is not None and self.oracle_request_ref is None:
             raise ValueError("oracle_resolution_ref requires oracle_request_ref")
         return self
@@ -1018,7 +1026,15 @@ def _classify_checkpoint(
         ambiguity_triggers = sorted(
             trigger_ref for trigger_ref in escalation.trigger_refs if trigger_ref in ambiguity_index
         )
-        ambiguity_ref = ambiguity_triggers[0] if ambiguity_triggers else escalation.trigger_refs[0]
+        if ambiguity_triggers:
+            ambiguity_ref = ambiguity_triggers[0]
+        elif escalation.trigger_refs:
+            ambiguity_ref = escalation.trigger_refs[0]
+        else:
+            raise ValueError(
+                "human escalation checkpoints require at least one trigger ref "
+                "to classify the checkpoint"
+            )
         return {
             "source_ref": escalation.rule_id,
             "ambiguity_ref": ambiguity_ref,
@@ -1469,24 +1485,21 @@ def derive_v40c_checkpoint_trace(
                 oracle_resolution_payload,
                 context=_validation_context(repository_root),
             )
-            if resolution.request_id != request.request_id:
-                final_adjudication = "escalated_human"
-            elif resolution.checkpoint_id != checkpoint_id:
-                final_adjudication = "escalated_human"
-            elif resolution.architecture_id != semantic_ir.architecture_id:
-                final_adjudication = "escalated_human"
-            elif resolution.semantic_hash != semantic_ir.semantic_hash:
-                final_adjudication = "escalated_human"
-            elif resolution.model_id != request.model_id:
-                final_adjudication = "escalated_human"
-            elif resolution.model_version != request.model_version:
-                final_adjudication = "escalated_human"
-            elif resolution.reasoning_effort != request.reasoning_effort:
-                final_adjudication = "escalated_human"
-            else:
+            is_valid_replay = (
+                resolution.request_id == request.request_id
+                and resolution.checkpoint_id == checkpoint_id
+                and resolution.architecture_id == semantic_ir.architecture_id
+                and resolution.semantic_hash == semantic_ir.semantic_hash
+                and resolution.model_id == request.model_id
+                and resolution.model_version == request.model_version
+                and resolution.reasoning_effort == request.reasoning_effort
+            )
+            if is_valid_replay:
                 final_adjudication = _expected_final_adjudication_for_resolution_state(
                     resolution.resolution_state
                 )
+            else:
+                final_adjudication = "escalated_human"
         else:
             final_adjudication = "escalated_human"
     assert final_adjudication is not None
@@ -1528,7 +1541,6 @@ __all__ = [
     "ADEU_ARCHITECTURE_IR_DELTA_SCHEMA",
     "ADEU_ARCHITECTURE_ORACLE_REQUEST_SCHEMA",
     "ADEU_ARCHITECTURE_ORACLE_RESOLUTION_SCHEMA",
-    "V40C_V79_CONTRACT_SOURCE",
     "AdeuArchitectureCheckpointTrace",
     "AdeuArchitectureIRDelta",
     "AdeuArchitectureOracleRequest",
@@ -1542,6 +1554,7 @@ __all__ = [
     "ArchitecturePolicySourceHash",
     "ArchitectureReasoningEffort",
     "ArchitectureResolutionState",
+    "V40C_V79_CONTRACT_SOURCE",
     "canonicalize_adeu_architecture_checkpoint_trace_payload",
     "canonicalize_adeu_architecture_ir_delta_payload",
     "canonicalize_adeu_architecture_oracle_request_payload",
