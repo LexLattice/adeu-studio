@@ -1,7 +1,7 @@
 # Draft ASIR Arc Decomposition v0
 
 Status: working decomposition draft after `vNext+77` closeout, `vNext+78`
-closeout, `vNext+79` closeout, and
+closeout, `vNext+79` closeout, `vNext+80` closeout, and
 `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`.
 
 This document is an intermediate planning artifact between:
@@ -31,12 +31,16 @@ implementation by itself.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v17.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v18.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v19.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v20.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v21.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS77.md`
 - `docs/ASSESSMENT_vNEXT_PLUS77_EDGES.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS78.md`
 - `docs/ASSESSMENT_vNEXT_PLUS78_EDGES.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS79.md`
 - `docs/ASSESSMENT_vNEXT_PLUS79_EDGES.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS80.md`
+- `docs/ASSESSMENT_vNEXT_PLUS80_EDGES.md`
 - `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
 - `docs/formal/asir/ASIR_FORMAL_KERNEL.md`
 - `docs/formal/asir/ASIRKernelHybrid.md`
@@ -70,13 +74,16 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 - `vNext+77` (`V40-A`) is closed on `main` at its bounded baseline.
 - `vNext+78` (`V40-B`) is now closed on `main` at its bounded baseline.
 - `vNext+79` (`V40-C`) is now closed on `main` at its bounded baseline.
+- `vNext+80` (`V40-D`) is now closed on `main` at its bounded baseline.
 - The ASIR root-family substrate is released under `packages/adeu_architecture_ir`.
 - The deterministic ASIR conformance substrate is released under
   `packages/adeu_architecture_compiler`.
 - The bounded hybrid checkpoint substrate is released under
   `packages/adeu_architecture_compiler`.
-- The next safe step is narrow `adeu_core_ir` lowering rather than reopening the
-  released semantic-root, deterministic-compiler, or hybrid boundary.
+- The narrow `adeu_core_ir` lowering substrate is now released under
+  `packages/adeu_architecture_compiler`.
+- The next safe step is narrow `ux_domain_packet@1` lowering rather than reopening the
+  released semantic-root, deterministic-compiler, hybrid, or `adeu_core_ir` boundary.
 - The Lean formal lane is useful but should remain sidecar-only unless a later lock
   explicitly promotes it into a required release surface.
 
@@ -86,7 +93,7 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 {
   "schema": "asir_arc_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+79",
+  "baseline_arc": "vNext+80",
   "closed_path_family": "V39",
   "closed_paths": [
     "V39-A",
@@ -99,13 +106,14 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
   "closed_current_family_paths": [
     "V40-A",
     "V40-B",
-    "V40-C"
+    "V40-C",
+    "V40-D"
   ],
-  "default_next_arc_candidate": "V40-D",
-  "default_next_concrete_arc_candidate": "vNext+80",
+  "default_next_arc_candidate": "V40-E",
+  "default_next_concrete_arc_candidate": "vNext+81",
   "v40_path_count": 6,
   "v40_default_arc_span": {
-    "from": "vNext+80",
+    "from": "vNext+81",
     "to": "vNext+86"
   },
   "v40_paths_may_span_multiple_arcs": true,
@@ -189,14 +197,19 @@ The current recommended concrete split is:
     one-round oracle law, bounded `ir_delta` proposal law, committed fixtures, and
     validator tests
 - `vNext+80`
-  - default first concrete `V40-D` arc:
+  - closed first concrete `V40-D` arc:
     projection bundle/manifest schema/model/export baseline, deterministic
     `adeu_core_ir` lowering, manifest/source-lineage honesty, blocked-vs-ready
     projection checks, committed fixtures, and validator tests
 - `vNext+81`
-  - optional follow-on `V40-D` hardening only if broader lowering coverage,
-    manifest diagnostics, or projection-unit honesty checks remain intentionally
-    deferred from `vNext+80`
+  - default first concrete `V40-E` arc:
+    ASIR-to-`ux_domain_packet@1` lowering, reuse of the existing UX governance
+    target-family schema under `packages/adeu_core_ir`, frozen approved-profile /
+    authority-boundary compatibility, committed fixtures, and validator tests
+- `vNext+82`
+  - optional follow-on `V40-E` hardening only if `ux_morph_ir@1`, deeper
+    reference-bundle compatibility, or broader UX-compatibility diagnostics remain
+    intentionally deferred from `vNext+81`
 
 Later `V40` paths may also take one or more concrete arcs when that keeps each lock
 comparable to earlier ADEU slices.
@@ -404,27 +417,39 @@ Goal:
 
 Scope:
 
-- lowering from ASIR into `ux_domain_packet@1`;
-- optional follow-on lowering into `ux_morph_ir@1`;
-- explicit compatibility checks against the `V36` family rules;
+- lowering from released ASIR / `V40-D` projection lineage into `ux_domain_packet@1`
+  only in the first concrete `V40-E` arc;
+- optional follow-on lowering into `ux_morph_ir@1` only after the first concrete
+  `V40-E` baseline is stable;
+- explicit compatibility checks against the released UX governance family under
+  `packages/adeu_core_ir`, including the frozen approved-profile and authority-boundary
+  posture;
+- exact one-to-one binding from each emitted UX packet to one released ready
+  `projection_id` in the first concrete `V40-E` arc;
 - continued preservation of no direct brief-to-UI-code without IR.
 
 Locks:
 
 - this slice is compatible-later rather than first-family blocking;
 - `V40-E` is non-blocking for first-family validity;
+- the first concrete `V40-E` arc may not emit `ux_morph_ir@1`;
 - no direct React tree generation;
 - no broad UI compiler export or workbench release by default.
 
 Acceptance:
 
-- ASIR can serve as a lawful upstream semantic source for the bounded UX IR lane;
-- UX lowering remains typed and intermediate rather than prompt-to-surface.
+- ASIR can serve as a lawful upstream semantic and projection source for emitted
+  `ux_domain_packet@1`;
+- emitted `ux_domain_packet@1` remains typed, approved-profile-bound, and intermediate
+  rather than prompt-to-surface;
+- blocked projection units emit zero UX packets and ready units emit at most one UX
+  packet in the first baseline;
+- `V40-D` projection honesty remains preserved while the target family widens from
+  `adeu_core_ir@0.1` to one existing UX IR surface only.
 
 Expected PR shape:
 
-- PR1: `ux_domain_packet` lowering
-- PR2: optional `ux_morph_ir` lowering and compatibility guards
+- single integrated PR
 
 ## Path V40-F: Evidence and Release Integration
 
