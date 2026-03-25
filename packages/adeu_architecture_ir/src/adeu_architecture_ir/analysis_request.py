@@ -177,6 +177,7 @@ def _infer_artifact_kind(path: str) -> AnalysisArtifactKind:
     lowered_name = name.lower()
     if (
         "tests" in parts
+        or lowered_name == "tests.py"
         or lowered_name.startswith("test_")
         or any(lowered_name.endswith(suffix_name) for suffix_name in _TEST_SUFFIXES)
     ):

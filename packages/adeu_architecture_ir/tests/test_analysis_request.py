@@ -161,6 +161,80 @@ def test_v41a_rejects_artifact_kind_mismatch() -> None:
         )
 
 
+def test_v41a_accepts_tests_py_as_test_artifact_kind(tmp_path: Path) -> None:
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "docs").mkdir()
+    tests_path = "pkg/tests.py"
+    brief_path = "docs/brief.md"
+    accepted_path = "docs/accepted.md"
+    policy_path = "docs/policy.md"
+    tests_content = "def test_placeholder() -> None:\n    assert True\n"
+    brief_content = "# Brief\n"
+    accepted_content = "# Accepted\n"
+    policy_content = "# Policy\n"
+    (tmp_path / tests_path).write_text(tests_content, encoding="utf-8")
+    (tmp_path / brief_path).write_text(brief_content, encoding="utf-8")
+    (tmp_path / accepted_path).write_text(accepted_content, encoding="utf-8")
+    (tmp_path / policy_path).write_text(policy_content, encoding="utf-8")
+
+    payload = {
+        "schema": ADEU_ARCHITECTURE_ANALYSIS_REQUEST_SCHEMA,
+        "analysis_request_id": "v41a_tests_py_materialized_snapshot",
+        "repo_root_ref": "tmp://v41a-tests-py",
+        "request_scope": {
+            "subtree_root": "pkg",
+            "include_paths": [accepted_path, brief_path],
+            "exclude_paths": [],
+            "allowed_artifact_kinds": ["documentation", "test"],
+        },
+        "snapshot_mode": "materialized_snapshot",
+        "snapshot_identity": {
+            "snapshot_manifest_hash": sha256_text("v41a_tests_py_materialized_snapshot")
+        },
+        "source_set": {
+            "items": sorted(
+                [
+                    {
+                        "path": tests_path,
+                        "artifact_kind": "test",
+                        "sha256": sha256_text(tests_content),
+                    },
+                    {
+                        "path": brief_path,
+                        "artifact_kind": "documentation",
+                        "sha256": sha256_text(brief_content),
+                    },
+                    {
+                        "path": accepted_path,
+                        "artifact_kind": "documentation",
+                        "sha256": sha256_text(accepted_content),
+                    },
+                ],
+                key=lambda item: item["path"],
+            )
+        },
+        "maintainer_brief_refs": [brief_path],
+        "accepted_doc_refs": [accepted_path],
+        "declared_non_goals": [],
+        "authority_boundary_policy": {"policy_ref": policy_path},
+        "captured_inputs": [],
+        "notes": [],
+    }
+    payload["source_set_hash"] = compute_adeu_architecture_analysis_source_set_hash(
+        payload["source_set"]
+    )
+
+    request = AdeuArchitectureAnalysisRequest.model_validate(
+        payload,
+        context={"repository_root": tmp_path},
+    )
+
+    assert any(
+        item.path == tests_path and item.artifact_kind == "test"
+        for item in request.source_set.items
+    )
+
+
 def test_v41a_rejects_unbound_brief_ref() -> None:
     payload = deepcopy(_load_json("adeu_architecture_analysis_request_v83_reference.json"))
     payload["maintainer_brief_refs"] = ["missing_brief.md"]
