@@ -26,7 +26,7 @@
     },
     {
       "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md",
-      "sha256": "40e402b5d6f7c7c424cc435cc4628ac2860efe4c54ae14ff0d6bd00bfcbfee1b"
+      "sha256": "21004d598dddccd3538f353fe021625430b5664cd261ef27ba98e72729f78ee9"
     }
   ],
   "prompt_template_version": "v40c_oracle_request.v1",
@@ -56,14 +56,14 @@
       },
       {
         "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md",
-        "sha256": "40e402b5d6f7c7c424cc435cc4628ac2860efe4c54ae14ff0d6bd00bfcbfee1b"
+        "sha256": "21004d598dddccd3538f353fe021625430b5664cd261ef27ba98e72729f78ee9"
       }
     ],
     "prompt_template_version": "v40c_oracle_request.v1",
     "reasoning_effort": "high",
     "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
   },
-  "request_id": "v40c_v79_oracle_request_93d7a7e0c266445b",
+  "request_id": "v40c_v79_oracle_request_50399a1de8bf2e2b",
   "schema": "adeu_architecture_oracle_request@1",
   "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
 }

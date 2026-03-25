@@ -1,0 +1,157 @@
+{
+  "$defs": {
+    "ArchitectureProjectionCompilerProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "config_hash": {
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "contract_source": {
+          "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS80.md#v80-continuation-contract-machine-checkable",
+          "title": "Contract Source",
+          "type": "string"
+        },
+        "lowering_profile": {
+          "const": "v40d_core_ir_projection.v1",
+          "default": "v40d_core_ir_projection.v1",
+          "title": "Lowering Profile",
+          "type": "string"
+        },
+        "name": {
+          "const": "adeu_architecture_compiler.v40d",
+          "default": "adeu_architecture_compiler.v40d",
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "default": "1",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "title": "ArchitectureProjectionCompilerProvenance",
+      "type": "object"
+    },
+    "ArchitectureProjectionUnit": {
+      "additionalProperties": false,
+      "properties": {
+        "blocked_by_ambiguity_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocked By Ambiguity Refs",
+          "type": "array"
+        },
+        "compiler_entrypoint": {
+          "const": "adeu_architecture_compiler.v40d.lower_to_adeu_core_ir",
+          "default": "adeu_architecture_compiler.v40d.lower_to_adeu_core_ir",
+          "title": "Compiler Entrypoint",
+          "type": "string"
+        },
+        "output_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Output Artifact Refs",
+          "type": "array"
+        },
+        "projection_id": {
+          "title": "Projection Id",
+          "type": "string"
+        },
+        "readiness": {
+          "enum": [
+            "ready",
+            "blocked"
+          ],
+          "title": "Readiness",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_family": {
+          "const": "adeu_core_ir@0.1",
+          "title": "Target Family",
+          "type": "string"
+        }
+      },
+      "required": [
+        "projection_id",
+        "target_family",
+        "source_refs",
+        "readiness",
+        "blocked_by_ambiguity_refs",
+        "output_artifact_refs"
+      ],
+      "title": "ArchitectureProjectionUnit",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "architecture_id": {
+      "title": "Architecture Id",
+      "type": "string"
+    },
+    "bundle_id": {
+      "title": "Bundle Id",
+      "type": "string"
+    },
+    "checkpoint_trace_ref": {
+      "title": "Checkpoint Trace Ref",
+      "type": "string"
+    },
+    "compiler": {
+      "$ref": "#/$defs/ArchitectureProjectionCompilerProvenance"
+    },
+    "compiler_version": {
+      "title": "Compiler Version",
+      "type": "string"
+    },
+    "conformance_report_ref": {
+      "title": "Conformance Report Ref",
+      "type": "string"
+    },
+    "projection_units": {
+      "items": {
+        "$ref": "#/$defs/ArchitectureProjectionUnit"
+      },
+      "title": "Projection Units",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_architecture_projection_bundle@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "target_family": {
+      "const": "adeu_core_ir@0.1",
+      "title": "Target Family",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "bundle_id",
+    "architecture_id",
+    "semantic_hash",
+    "conformance_report_ref",
+    "checkpoint_trace_ref",
+    "target_family",
+    "compiler",
+    "compiler_version",
+    "projection_units"
+  ],
+  "title": "AdeuArchitectureProjectionBundle",
+  "type": "object"
+}

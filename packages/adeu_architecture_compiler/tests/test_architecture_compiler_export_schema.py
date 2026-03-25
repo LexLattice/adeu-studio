@@ -10,6 +10,8 @@ from adeu_architecture_compiler import (
     ADEU_ARCHITECTURE_IR_DELTA_SCHEMA,
     ADEU_ARCHITECTURE_ORACLE_REQUEST_SCHEMA,
     ADEU_ARCHITECTURE_ORACLE_RESOLUTION_SCHEMA,
+    ADEU_ARCHITECTURE_PROJECTION_BUNDLE_SCHEMA,
+    ADEU_ARCHITECTURE_PROJECTION_MANIFEST_SCHEMA,
 )
 from adeu_architecture_compiler.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
@@ -40,6 +42,16 @@ _SCHEMA_TARGETS = (
         ADEU_ARCHITECTURE_IR_DELTA_SCHEMA,
         "adeu_architecture_ir_delta.v1.json",
         "adeu_architecture_ir_delta.schema.json",
+    ),
+    (
+        ADEU_ARCHITECTURE_PROJECTION_BUNDLE_SCHEMA,
+        "adeu_architecture_projection_bundle.v1.json",
+        "adeu_architecture_projection_bundle.schema.json",
+    ),
+    (
+        ADEU_ARCHITECTURE_PROJECTION_MANIFEST_SCHEMA,
+        "adeu_architecture_projection_manifest.v1.json",
+        "adeu_architecture_projection_manifest.schema.json",
     ),
 )
 

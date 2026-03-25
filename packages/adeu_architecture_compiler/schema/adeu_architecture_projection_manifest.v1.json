@@ -1,0 +1,186 @@
+{
+  "$defs": {
+    "ArchitectureConsumedRootRef": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "artifact_path": {
+          "title": "Artifact Path",
+          "type": "string"
+        },
+        "artifact_schema": {
+          "enum": [
+            "adeu_architecture_intent_packet@1",
+            "adeu_architecture_ontology_frame@1",
+            "adeu_architecture_boundary_graph@1",
+            "adeu_architecture_world_hypothesis@1",
+            "adeu_architecture_semantic_ir@1"
+          ],
+          "title": "Artifact Schema",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_schema",
+        "artifact_id",
+        "artifact_path",
+        "sha256"
+      ],
+      "title": "ArchitectureConsumedRootRef",
+      "type": "object"
+    },
+    "ArchitectureProjectionUnit": {
+      "additionalProperties": false,
+      "properties": {
+        "blocked_by_ambiguity_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocked By Ambiguity Refs",
+          "type": "array"
+        },
+        "compiler_entrypoint": {
+          "const": "adeu_architecture_compiler.v40d.lower_to_adeu_core_ir",
+          "default": "adeu_architecture_compiler.v40d.lower_to_adeu_core_ir",
+          "title": "Compiler Entrypoint",
+          "type": "string"
+        },
+        "output_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Output Artifact Refs",
+          "type": "array"
+        },
+        "projection_id": {
+          "title": "Projection Id",
+          "type": "string"
+        },
+        "readiness": {
+          "enum": [
+            "ready",
+            "blocked"
+          ],
+          "title": "Readiness",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "target_family": {
+          "const": "adeu_core_ir@0.1",
+          "title": "Target Family",
+          "type": "string"
+        }
+      },
+      "required": [
+        "projection_id",
+        "target_family",
+        "source_refs",
+        "readiness",
+        "blocked_by_ambiguity_refs",
+        "output_artifact_refs"
+      ],
+      "title": "ArchitectureProjectionUnit",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "architecture_id": {
+      "title": "Architecture Id",
+      "type": "string"
+    },
+    "blocked_by_ambiguity_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked By Ambiguity Refs",
+      "type": "array"
+    },
+    "checkpoint_trace_ref": {
+      "title": "Checkpoint Trace Ref",
+      "type": "string"
+    },
+    "compiler_entrypoint": {
+      "const": "adeu_architecture_compiler.v40d.lower_to_adeu_core_ir",
+      "default": "adeu_architecture_compiler.v40d.lower_to_adeu_core_ir",
+      "title": "Compiler Entrypoint",
+      "type": "string"
+    },
+    "compiler_version": {
+      "title": "Compiler Version",
+      "type": "string"
+    },
+    "conformance_report_ref": {
+      "title": "Conformance Report Ref",
+      "type": "string"
+    },
+    "manifest_id": {
+      "title": "Manifest Id",
+      "type": "string"
+    },
+    "projection_units": {
+      "items": {
+        "$ref": "#/$defs/ArchitectureProjectionUnit"
+      },
+      "title": "Projection Units",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_architecture_projection_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "source_root_refs": {
+      "items": {
+        "$ref": "#/$defs/ArchitectureConsumedRootRef"
+      },
+      "title": "Source Root Refs",
+      "type": "array"
+    },
+    "target_family": {
+      "const": "adeu_core_ir@0.1",
+      "title": "Target Family",
+      "type": "string"
+    },
+    "touched_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Touched Artifact Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "manifest_id",
+    "architecture_id",
+    "semantic_hash",
+    "conformance_report_ref",
+    "checkpoint_trace_ref",
+    "source_root_refs",
+    "target_family",
+    "compiler_version",
+    "projection_units",
+    "touched_artifact_refs",
+    "blocked_by_ambiguity_refs"
+  ],
+  "title": "AdeuArchitectureProjectionManifest",
+  "type": "object"
+}

@@ -1,0 +1,102 @@
+{
+  "architecture_id": "asir_v77_trust_sensitive_approval_flow",
+  "blocked_by_ambiguity_refs": [
+    "amb_auto_approve_threshold"
+  ],
+  "checkpoint_trace_ref": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_human_needed_reference.json",
+  "compiler_entrypoint": "adeu_architecture_compiler.v40d.lower_to_adeu_core_ir",
+  "compiler_version": "1",
+  "conformance_report_ref": "apps/api/fixtures/architecture/vnext_plus78/adeu_architecture_conformance_report_v78_blocked_reference.json",
+  "manifest_id": "v40d_v80_manifest_d9ecf58cbff39d55",
+  "projection_units": [
+    {
+      "blocked_by_ambiguity_refs": [
+        "amb_auto_approve_threshold"
+      ],
+      "compiler_entrypoint": "adeu_architecture_compiler.v40d.lower_to_adeu_core_ir",
+      "output_artifact_refs": [],
+      "projection_id": "v40d_v80_projection_75adaa54b44d37ee",
+      "readiness": "blocked",
+      "source_refs": [
+        "act_approver",
+        "act_audit_service",
+        "act_policy_engine",
+        "act_requester",
+        "amb_auto_approve_threshold",
+        "asm_single_approver_lane",
+        "bnd_core_to_policy",
+        "bnd_request_to_core",
+        "cap_decide_request",
+        "cap_submit_request",
+        "dec_outcome",
+        "ev_policy_context",
+        "fact_policy_required",
+        "fail_missing_policy_context",
+        "gate_decide",
+        "goal_fast",
+        "goal_trust",
+        "inv_audit_record",
+        "metric_audit_coverage",
+        "metric_turnaround",
+        "obj_approval_request",
+        "obj_decision_record",
+        "obl_emit_audit_record",
+        "perm_approver_decide",
+        "priority_trust_over_speed",
+        "proh_requester_self_approve",
+        "rule_policy_gap",
+        "srf_approval_api",
+        "srf_approval_workbench",
+        "srf_audit_log",
+        "srf_request_portal",
+        "st_approved",
+        "st_rejected",
+        "st_submitted",
+        "step_emit_audit",
+        "step_policy_evaluate",
+        "step_submit_request",
+        "tr_submit_to_approved",
+        "tr_submit_to_rejected",
+        "tradeoff_speed_vs_trust",
+        "wf_approval_flow"
+      ],
+      "target_family": "adeu_core_ir@0.1"
+    }
+  ],
+  "schema": "adeu_architecture_projection_manifest@1",
+  "semantic_hash": "cf42da9738378d886311ad21fd96cbf0f211d2d62c3401cd91f48c9f47fc9573",
+  "source_root_refs": [
+    {
+      "artifact_id": "bg_v77_trust_sensitive_approval_flow",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_boundary_graph_v77_reference.json",
+      "artifact_schema": "adeu_architecture_boundary_graph@1",
+      "sha256": "5dcf9596c00a16a833a9f37a8bdcebcf72f7b039a061a4654016b3c4286402e4"
+    },
+    {
+      "artifact_id": "intent_v77_trust_sensitive_approval_flow",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_intent_packet_v77_reference.json",
+      "artifact_schema": "adeu_architecture_intent_packet@1",
+      "sha256": "879cc94ee2c545ade854d7e9735e4a90c621cf691d2b0b8954066c8bf932afbc"
+    },
+    {
+      "artifact_id": "ont_v77_trust_sensitive_approval_flow",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_ontology_frame_v77_reference.json",
+      "artifact_schema": "adeu_architecture_ontology_frame@1",
+      "sha256": "930abd72cf22197eb69ddee389f2eb42209309179192fba95c72bfc2169fafe5"
+    },
+    {
+      "artifact_id": "asir_v77_trust_sensitive_approval_flow",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_semantic_ir_v77_reference.json",
+      "artifact_schema": "adeu_architecture_semantic_ir@1",
+      "sha256": "d187bb434890475e8e2ae84c4018cfb625d1e469d25a658efc3fd7e1e051c9c7"
+    },
+    {
+      "artifact_id": "cand_v77_single_approver_trust_world",
+      "artifact_path": "apps/api/fixtures/architecture/vnext_plus77/adeu_architecture_world_hypothesis_v77_reference.json",
+      "artifact_schema": "adeu_architecture_world_hypothesis@1",
+      "sha256": "e464ac057b241063df2881b33d4e2d8604c5731ecc25416588c348893412e348"
+    }
+  ],
+  "target_family": "adeu_core_ir@0.1",
+  "touched_artifact_refs": []
+}
