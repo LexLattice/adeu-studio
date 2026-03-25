@@ -56,6 +56,15 @@ from .projection import (
     derive_v40e_ux_domain_packet,
     derive_v40e_ux_domain_packets,
 )
+from .release_integration import (
+    V40F_ARCHITECTURE_RELEASE_INTEGRATION_EVIDENCE_SCHEMA,
+    V40F_RUNTIME_OBSERVABILITY_COMPARISON_REF,
+    V40F_V81_STOP_GATE_REF,
+    V40F_V82_CONTRACT_SOURCE,
+    V40FArchitectureReleaseIntegrationEvidence,
+    canonicalize_v40f_architecture_release_integration_evidence_payload,
+    derive_v40f_release_integration_evidence,
+)
 
 __all__ = [
     "ADEU_ARCHITECTURE_CHECKPOINT_TRACE_SCHEMA",
@@ -92,6 +101,11 @@ __all__ = [
     "V40D_V80_CONTRACT_SOURCE",
     "V40E_COMPILER_ENTRYPOINT",
     "V40E_V81_CONTRACT_SOURCE",
+    "V40F_ARCHITECTURE_RELEASE_INTEGRATION_EVIDENCE_SCHEMA",
+    "V40F_RUNTIME_OBSERVABILITY_COMPARISON_REF",
+    "V40F_V81_STOP_GATE_REF",
+    "V40F_V82_CONTRACT_SOURCE",
+    "V40FArchitectureReleaseIntegrationEvidence",
     "canonicalize_adeu_architecture_checkpoint_trace_payload",
     "canonicalize_adeu_architecture_conformance_report_payload",
     "canonicalize_adeu_architecture_ir_delta_payload",
@@ -99,6 +113,7 @@ __all__ = [
     "canonicalize_adeu_architecture_oracle_resolution_payload",
     "canonicalize_adeu_architecture_projection_bundle_payload",
     "canonicalize_adeu_architecture_projection_manifest_payload",
+    "canonicalize_v40f_architecture_release_integration_evidence_payload",
     "derive_v40b_conformance_report",
     "derive_v40c_checkpoint_trace",
     "derive_v40c_ir_delta",
@@ -109,5 +124,6 @@ __all__ = [
     "derive_v40d_projection_manifest",
     "derive_v40e_ux_domain_packet",
     "derive_v40e_ux_domain_packets",
+    "derive_v40f_release_integration_evidence",
     "export_schema_main",
 ]
