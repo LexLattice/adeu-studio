@@ -18,7 +18,7 @@
     },
     {
       "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-      "sha256": "2bb6b005291ba0d0213954eb635079422e2030660418df554f83f2d1dd980e00"
+      "sha256": "9f9956fb137edda2efccc7e1a50035f350c186ba4bf633f81270b03e297145fb"
     },
     {
       "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md",
@@ -48,7 +48,7 @@
       },
       {
         "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-        "sha256": "2bb6b005291ba0d0213954eb635079422e2030660418df554f83f2d1dd980e00"
+        "sha256": "9f9956fb137edda2efccc7e1a50035f350c186ba4bf633f81270b03e297145fb"
       },
       {
         "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md",
@@ -63,7 +63,7 @@
     "reasoning_effort": "high",
     "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
   },
-  "request_id": "v40c_v79_oracle_request_420afcd967dfe564",
+  "request_id": "v40c_v79_oracle_request_640481d50ceeb8bc",
   "schema": "adeu_architecture_oracle_request@1",
   "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a"
 }
