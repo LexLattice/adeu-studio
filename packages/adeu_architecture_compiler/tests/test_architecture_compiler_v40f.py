@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
@@ -32,8 +33,6 @@ def _load_v82(name: str) -> dict[str, object]:
 
 
 def _sha256_text(path: str) -> str:
-    import hashlib
-
     file_path = _repo_root() / path
     return hashlib.sha256(file_path.read_text(encoding="utf-8").encode("utf-8")).hexdigest()
 
