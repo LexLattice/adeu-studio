@@ -1,7 +1,7 @@
 # Draft V41 Practical Repo Analysis Decomposition v0
 
-Status: working decomposition draft after `vNext+83` closeout and released `V41-A`
-world-binding baseline on `main`.
+Status: working decomposition draft after `vNext+84` closeout and released `V41-A`
+and `V41-B` practical-analysis baselines on `main`.
 
 This document is an intermediate planning artifact between:
 
@@ -81,14 +81,15 @@ That loop requires one additional family because it introduces a new operational
 ## Baseline Agreement
 
 - `vNext+82` (`V40-F`) is closed on `main`.
-- `vNext+83` (`V41-A`) is closed on `main`.
+- `vNext+83` (`V41-A`) and `vNext+84` (`V41-B`) are closed on `main`.
 - The bounded `V40` family is complete on `main` at its intended baseline.
 - The released ASIR ladder now exists end-to-end for semantic-root, conformance,
   hybrid, lowering, UX compatibility, and family evidence, and the first practical
   request/world-binding seam now exists over a real repo scope.
-- The next safe step is not to reopen `V40` or relitigate request/source-set capture;
-  it is to externalize settlement, deontic typing, entitlement, and escalation over
-  that frozen world before compile claims begin.
+- The next safe step is not to reopen `V40`, relitigate request/source-set capture,
+  or widen settlement/entitlement semantics; it is to extract deterministic observed
+  implementation facts over that frozen world without collapsing them into intended
+  architecture or drift judgment.
 - The Lean formal lane remains useful but sidecar-only and should not become a hidden
   prerequisite for practical repo analysis.
 
@@ -98,7 +99,7 @@ That loop requires one additional family because it introduces a new operational
 {
   "schema": "v41_practical_repo_analysis_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+83",
+  "baseline_arc": "vNext+84",
   "closed_prior_family": "V40",
   "closed_prior_paths": [
     "V40-A",
@@ -110,13 +111,14 @@ That loop requires one additional family because it introduces a new operational
   ],
   "next_path_family": "V41",
   "closed_current_family_paths": [
-    "V41-A"
+    "V41-A",
+    "V41-B"
   ],
-  "default_next_arc_candidate": "V41-B",
-  "default_next_concrete_arc_candidate": "vNext+84",
+  "default_next_arc_candidate": "V41-C",
+  "default_next_concrete_arc_candidate": "vNext+85",
   "v41_path_count": 6,
   "v41_default_arc_span": {
-    "from": "vNext+84",
+    "from": "vNext+85",
     "to": "vNext+88"
   },
   "v41_paths_may_span_multiple_arcs": true,
@@ -129,6 +131,7 @@ That loop requires one additional family because it introduces a new operational
   "analysis_settlement_package": "packages/adeu_architecture_ir",
   "intended_lane_artifact": "adeu_architecture_semantic_ir@1",
   "observed_lane_artifact": "adeu_architecture_observation_frame@1",
+  "observed_lane_package": "packages/adeu_architecture_compiler",
   "alignment_artifact": "adeu_architecture_alignment_report@1",
   "intended_observed_lane_separation_required": true,
   "precompile_settlement_required": true,
@@ -187,7 +190,7 @@ The current recommended concrete split is:
     repo-scope selection, accepted-input hashing, authority-boundary policy pinning,
     and reference fixtures
 - `vNext+84`
-  - default first concrete `V41-B` arc:
+  - closed first concrete `V41-B` arc:
     settlement-frame schema/model/export baseline plus interpretation register,
     deontic typing, affordance decisions, claim posture, explicit compile-entitlement
     gating, and escalation trigger policy over the released request/source-set
@@ -383,12 +386,22 @@ Goal:
 Scope:
 
 - canonical `adeu_architecture_observation_frame@1`;
+- exact consumption of the released `V41-A` request boundary and released `V41-B`
+  settlement frame over the same repo world;
 - deterministic extraction of observed surfaces, boundaries, workflows, authority
   sources, evidence hooks, and observability surfaces from a bounded repo scope;
 - explicit provenance refs to concrete source files;
+- explicit per-entry `observation_mode = direct | derived` so later lanes can tell
+  raw file-grounded facts from bounded derived structure;
+- explicit carry-through of upstream settlement posture through
+  `upstream_compile_entitlement` and `upstream_blocking_refs`;
+- observation may consume either `compile_entitlement = entitled` or
+  `compile_entitlement = blocked` from the released settlement frame, but may not
+  upgrade, reinterpret, or erase that settlement posture;
 - observed-lane output is limited to extracted implementation facts and unresolved
   observations, not inferred intent, evaluation, or remediation;
-- explicit unknown / unresolved observation markers rather than silent invention.
+- explicit unknown / unresolved observation markers rather than silent invention,
+  including bounded unresolved-reason typing.
 
 Locks:
 
@@ -400,7 +413,11 @@ Locks:
 Acceptance:
 
 - one bounded repo scope emits a deterministic observed architecture frame;
-- extraction remains provenance-linked and fail-closed on missing required sources;
+- extraction remains provenance-linked and fail-closed on lineage/provenance contract
+  violations while preserving unresolved observations when bounded extraction cannot
+  determine a fact from a valid repo world;
+- cross-entry workflow/boundary refs resolve to typed in-frame observation entries
+  rather than floating above ungrounded structure;
 - unresolved observations remain explicit.
 
 Expected PR shape:

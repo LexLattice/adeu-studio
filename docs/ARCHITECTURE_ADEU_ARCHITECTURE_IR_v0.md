@@ -296,7 +296,12 @@ posture with one explicit pre-compile settlement gate:
    - emit a separate observed implementation artifact rather than pretending observed
      code state is the same thing as intended architecture meaning;
    - restrict the observed lane to extracted implementation facts and unresolved
-     observations, not inferred intent, evaluation, or remediation.
+     observations, not inferred intent, evaluation, or remediation;
+   - distinguish directly observed file-grounded facts from bounded derived
+     structural extraction rather than collapsing them into one undifferentiated
+     observation class;
+   - carry upstream settlement posture forward explicitly so later lanes know whether
+     observed extraction ran under entitled or blocked compile posture.
 4. **alignment lane**
    - compare intended and observed outputs deterministically;
    - emit drift diagnostics that make the difference between "what the project says it
@@ -330,6 +335,12 @@ Recommended companion practical-analysis artifacts:
     unless a later explicit proof surface is released;
 - `adeu_architecture_observation_frame@1`
   - captures deterministic observed implementation facts and their provenance refs;
+  - should mark whether each resolved observed entry is `direct` or `derived`;
+  - should carry forward upstream compile-entitlement and blocking lineage from the
+    settlement frame rather than forcing later consumers to reopen settlement state
+    implicitly;
+  - should preserve bounded unresolved-observation reason kinds rather than prose-only
+    unknown markers;
 - `adeu_architecture_alignment_report@1`
   - records deterministic misalignment classes and severity posture between intended
     and observed lanes.
