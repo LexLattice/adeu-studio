@@ -12,6 +12,7 @@ from adeu_architecture_compiler import (
     ADEU_ARCHITECTURE_ORACLE_RESOLUTION_SCHEMA,
     ADEU_ARCHITECTURE_PROJECTION_BUNDLE_SCHEMA,
     ADEU_ARCHITECTURE_PROJECTION_MANIFEST_SCHEMA,
+    V40F_ARCHITECTURE_RELEASE_INTEGRATION_EVIDENCE_SCHEMA,
 )
 from adeu_architecture_compiler.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
@@ -52,6 +53,11 @@ _SCHEMA_TARGETS = (
         ADEU_ARCHITECTURE_PROJECTION_MANIFEST_SCHEMA,
         "adeu_architecture_projection_manifest.v1.json",
         "adeu_architecture_projection_manifest.schema.json",
+    ),
+    (
+        V40F_ARCHITECTURE_RELEASE_INTEGRATION_EVIDENCE_SCHEMA,
+        "v40f_architecture_release_integration_evidence.v1.json",
+        "v40f_architecture_release_integration_evidence.schema.json",
     ),
 )
 

@@ -1,0 +1,171 @@
+{
+  "$defs": {
+    "ArchitecturePathReleaseClosure": {
+      "additionalProperties": false,
+      "properties": {
+        "closeout_doc_hash": {
+          "title": "Closeout Doc Hash",
+          "type": "string"
+        },
+        "closeout_doc_ref": {
+          "title": "Closeout Doc Ref",
+          "type": "string"
+        },
+        "evidence_hash": {
+          "title": "Evidence Hash",
+          "type": "string"
+        },
+        "evidence_ref": {
+          "title": "Evidence Ref",
+          "type": "string"
+        },
+        "path_label": {
+          "title": "Path Label",
+          "type": "string"
+        },
+        "release_surface_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Release Surface Hashes",
+          "type": "object"
+        },
+        "release_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Release Surface Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "path_label",
+        "evidence_ref",
+        "evidence_hash",
+        "closeout_doc_ref",
+        "closeout_doc_hash",
+        "release_surface_refs",
+        "release_surface_hashes"
+      ],
+      "title": "ArchitecturePathReleaseClosure",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "consumed_arc_evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Consumed Arc Evidence Refs",
+      "type": "array"
+    },
+    "consumed_closeout_doc_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Consumed Closeout Doc Refs",
+      "type": "array"
+    },
+    "deferred_surface_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Deferred Surface Refs",
+      "type": "array"
+    },
+    "family_evidence_hash": {
+      "title": "Family Evidence Hash",
+      "type": "string"
+    },
+    "family_label": {
+      "const": "V40",
+      "default": "V40",
+      "title": "Family Label",
+      "type": "string"
+    },
+    "family_release_surface_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Family Release Surface Refs",
+      "type": "array"
+    },
+    "metric_key_cardinality": {
+      "title": "Metric Key Cardinality",
+      "type": "integer"
+    },
+    "metric_key_exact_set_equal_v81": {
+      "title": "Metric Key Exact Set Equal V81",
+      "type": "boolean"
+    },
+    "metric_keys": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Metric Keys",
+      "type": "array"
+    },
+    "notes": {
+      "title": "Notes",
+      "type": "string"
+    },
+    "per_path_release_closure": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ArchitecturePathReleaseClosure"
+      },
+      "title": "Per Path Release Closure",
+      "type": "object"
+    },
+    "release_arc": {
+      "const": "vNext+82",
+      "default": "vNext+82",
+      "title": "Release Arc",
+      "type": "string"
+    },
+    "released_paths": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Released Paths",
+      "type": "array"
+    },
+    "runtime_observability_comparison_ref": {
+      "default": "artifacts/agent_harness/v81/evidence_inputs/runtime_observability_comparison_v81.json",
+      "title": "Runtime Observability Comparison Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "v40f_architecture_release_integration_evidence@1",
+      "default": "v40f_architecture_release_integration_evidence@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "stop_gate_schema_family": {
+      "const": "stop_gate_metrics@1",
+      "default": "stop_gate_metrics@1",
+      "title": "Stop Gate Schema Family",
+      "type": "string"
+    },
+    "v81_stop_gate_ref": {
+      "default": "artifacts/stop_gate/metrics_v81_closeout.json",
+      "title": "V81 Stop Gate Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "released_paths",
+    "per_path_release_closure",
+    "consumed_arc_evidence_refs",
+    "consumed_closeout_doc_refs",
+    "family_release_surface_refs",
+    "deferred_surface_refs",
+    "metric_key_cardinality",
+    "metric_keys",
+    "metric_key_exact_set_equal_v81",
+    "family_evidence_hash",
+    "notes"
+  ],
+  "title": "V40FArchitectureReleaseIntegrationEvidence",
+  "type": "object"
+}
