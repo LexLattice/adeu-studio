@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
@@ -204,7 +205,7 @@ def _validate_projection_units_against_consumed_lineage(
     conformance_report_ref: str,
     checkpoint_trace_ref: str,
     compiler_version: str,
-    repository_root: Path,
+    repository_root: Path | None = None,
 ) -> None:
     if conformance.architecture_id != architecture_id:
         raise ValueError("architecture_id must match the referenced conformance report")
@@ -241,15 +242,16 @@ def _validate_projection_units_against_consumed_lineage(
             raise ValueError(
                 "projection_unit readiness may not be ready while active blockers remain"
             )
-        _validate_projection_output_artifact_lineage(
-            unit=unit,
-            architecture_id=architecture_id,
-            semantic_hash=semantic_hash,
-            conformance_report_ref=conformance_report_ref,
-            checkpoint_trace_ref=checkpoint_trace_ref,
-            compiler_version=compiler_version,
-            repository_root=repository_root,
-        )
+        if repository_root is not None:
+            _validate_projection_output_artifact_lineage(
+                unit=unit,
+                architecture_id=architecture_id,
+                semantic_hash=semantic_hash,
+                conformance_report_ref=conformance_report_ref,
+                checkpoint_trace_ref=checkpoint_trace_ref,
+                compiler_version=compiler_version,
+                repository_root=repository_root,
+            )
 
 
 def _validate_v40d_inputs(
@@ -1191,6 +1193,18 @@ def derive_v40d_projection_manifest(
     )
 
 
+@dataclass(frozen=True)
+class V40EValidatedInputs:
+    semantic_ir: AdeuArchitectureSemanticIR
+    conformance_report: AdeuArchitectureConformanceReport
+    checkpoint_trace: AdeuArchitectureCheckpointTrace
+    projection_bundle: AdeuArchitectureProjectionBundle
+    projection_manifest: AdeuArchitectureProjectionManifest
+    domain_packet: UXDomainPacket
+    approved_profile_table: V36AFirstFamilyApprovedProfileTable
+    same_context_glossary: V36ASameContextReachabilityGlossary
+
+
 def _validate_v40e_inputs(
     *,
     semantic_ir_payload: dict[str, Any],
@@ -1209,16 +1223,7 @@ def _validate_v40e_inputs(
     same_context_glossary_payload: dict[str, Any],
     same_context_glossary_path: str,
     repository_root: Path | None = None,
-) -> tuple[
-    AdeuArchitectureSemanticIR,
-    AdeuArchitectureConformanceReport,
-    AdeuArchitectureCheckpointTrace,
-    AdeuArchitectureProjectionBundle,
-    AdeuArchitectureProjectionManifest,
-    UXDomainPacket,
-    V36AFirstFamilyApprovedProfileTable,
-    V36ASameContextReachabilityGlossary,
-]:
+) -> V40EValidatedInputs:
     (
         semantic_ir,
         conformance_report,
@@ -1289,6 +1294,19 @@ def _validate_v40e_inputs(
         raise ValueError("projection_manifest must bind to the consumed checkpoint_trace_path")
     if projection_bundle.projection_units != projection_manifest.projection_units:
         raise ValueError("projection_bundle and projection_manifest must share projection_units")
+    if projection_manifest.source_root_refs != conformance_report.consumed_root_refs:
+        raise ValueError("projection_manifest must preserve conformance consumed_root_refs")
+    _validate_projection_units_against_consumed_lineage(
+        projection_units=projection_manifest.projection_units,
+        conformance=conformance_report,
+        checkpoint_trace=checkpoint_trace,
+        architecture_id=semantic_ir.architecture_id,
+        semantic_hash=semantic_ir.semantic_hash,
+        conformance_report_ref=normalized_report_path,
+        checkpoint_trace_ref=normalized_trace_path,
+        compiler_version=projection_bundle.compiler_version,
+        repository_root=repository_root,
+    )
 
     if domain_packet.schema != UX_DOMAIN_PACKET_TARGET_FAMILY:
         raise ValueError("v40e emitted packet must validate as ux_domain_packet@1")
@@ -1360,15 +1378,15 @@ def _validate_v40e_inputs(
             if repo_payload != payload or repo_payload != _dump_json_payload(model):
                 raise ValueError(f"{field_name} must point to the canonical consumed artifact")
 
-    return (
-        semantic_ir,
-        conformance_report,
-        checkpoint_trace,
-        projection_bundle,
-        projection_manifest,
-        domain_packet,
-        approved_profile_table,
-        same_context_glossary,
+    return V40EValidatedInputs(
+        semantic_ir=semantic_ir,
+        conformance_report=conformance_report,
+        checkpoint_trace=checkpoint_trace,
+        projection_bundle=projection_bundle,
+        projection_manifest=projection_manifest,
+        domain_packet=domain_packet,
+        approved_profile_table=approved_profile_table,
+        same_context_glossary=same_context_glossary,
     )
 
 
@@ -1433,16 +1451,7 @@ def derive_v40e_ux_domain_packet(
     projection_id: str,
     repository_root: Path | None = None,
 ) -> dict[str, Any]:
-    (
-        _semantic_ir,
-        _conformance_report,
-        _checkpoint_trace,
-        projection_bundle,
-        projection_manifest,
-        domain_packet,
-        _approved_profile_table,
-        _same_context_glossary,
-    ) = _validate_v40e_inputs(
+    validated = _validate_v40e_inputs(
         semantic_ir_payload=semantic_ir_payload,
         conformance_report_payload=conformance_report_payload,
         conformance_report_path=conformance_report_path,
@@ -1461,13 +1470,13 @@ def derive_v40e_ux_domain_packet(
         repository_root=repository_root,
     )
     projection_unit = _projection_unit_for_v40e(
-        projection_bundle=projection_bundle,
-        projection_manifest=projection_manifest,
+        projection_bundle=validated.projection_bundle,
+        projection_manifest=validated.projection_manifest,
         projection_id=projection_id,
     )
     return _derive_v40e_ready_packet(
         projection_unit=projection_unit,
-        domain_packet=domain_packet,
+        domain_packet=validated.domain_packet,
     )
 
 
@@ -1490,16 +1499,7 @@ def derive_v40e_ux_domain_packets(
     same_context_glossary_path: str,
     repository_root: Path | None = None,
 ) -> dict[str, dict[str, Any]]:
-    (
-        _semantic_ir,
-        _conformance_report,
-        _checkpoint_trace,
-        projection_bundle,
-        projection_manifest,
-        domain_packet,
-        _approved_profile_table,
-        _same_context_glossary,
-    ) = _validate_v40e_inputs(
+    validated = _validate_v40e_inputs(
         semantic_ir_payload=semantic_ir_payload,
         conformance_report_payload=conformance_report_payload,
         conformance_report_path=conformance_report_path,
@@ -1518,16 +1518,11 @@ def derive_v40e_ux_domain_packets(
         repository_root=repository_root,
     )
     packets: dict[str, dict[str, Any]] = {}
-    for projection_unit in projection_manifest.projection_units:
-        _projection_unit_for_v40e(
-            projection_bundle=projection_bundle,
-            projection_manifest=projection_manifest,
-            projection_id=projection_unit.projection_id,
-        )
+    for projection_unit in validated.projection_manifest.projection_units:
         if projection_unit.readiness == "ready":
             packets[projection_unit.projection_id] = _derive_v40e_ready_packet(
                 projection_unit=projection_unit,
-                domain_packet=domain_packet,
+                domain_packet=validated.domain_packet,
             )
     return packets
 

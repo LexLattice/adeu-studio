@@ -10,6 +10,7 @@ from adeu_architecture_compiler import (
     derive_v40e_ux_domain_packet,
     derive_v40e_ux_domain_packets,
 )
+from adeu_architecture_compiler.projection import _bundle_id, _manifest_id
 from adeu_core_ir import UXDomainPacket, canonicalize_ux_domain_packet_payload
 from adeu_ir.repo import repo_root
 from pydantic import ValidationError
@@ -343,6 +344,97 @@ def test_v40e_rejects_governance_profile_drift() -> None:
             ),
             ux_domain_packet_path="apps/api/fixtures/ux_governance/vnext_plus61/ux_domain_packet_artifact_inspector_reference.json",
             approved_profile_table_payload=profile_table,
+            approved_profile_table_path="apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json",
+            same_context_glossary_payload=_load_ux_fixture(
+                "v36a_same_context_reachability_glossary.json"
+            ),
+            same_context_glossary_path="apps/api/fixtures/ux_governance/vnext_plus61/v36a_same_context_reachability_glossary.json",
+            repository_root=None,
+        )
+
+
+def test_v40e_rejects_forged_ready_projection_without_repository_root() -> None:
+    blocked_bundle = deepcopy(
+        _load_arch_fixture(
+            "vnext_plus80",
+            "adeu_architecture_projection_bundle_v80_blocked_reference.json",
+        )
+    )
+    blocked_manifest = deepcopy(
+        _load_arch_fixture(
+            "vnext_plus80",
+            "adeu_architecture_projection_manifest_v80_blocked_reference.json",
+        )
+    )
+    blocked_bundle["projection_units"][0]["readiness"] = "ready"  # type: ignore[index]
+    blocked_bundle["projection_units"][0]["blocked_by_ambiguity_refs"] = []  # type: ignore[index]
+    blocked_bundle["projection_units"][0]["output_artifact_refs"] = [  # type: ignore[index]
+        "apps/api/fixtures/architecture/vnext_plus80/adeu_core_ir_v80_ready_reference.json"
+    ]
+    blocked_bundle["bundle_id"] = _bundle_id(
+        architecture_id=blocked_bundle["architecture_id"],  # type: ignore[arg-type]
+        semantic_hash=blocked_bundle["semantic_hash"],  # type: ignore[arg-type]
+        conformance_report_ref=blocked_bundle["conformance_report_ref"],  # type: ignore[arg-type]
+        checkpoint_trace_ref=blocked_bundle["checkpoint_trace_ref"],  # type: ignore[arg-type]
+        target_family=blocked_bundle["target_family"],  # type: ignore[arg-type]
+        compiler=blocked_bundle["compiler"],  # type: ignore[arg-type]
+        compiler_version=blocked_bundle["compiler_version"],  # type: ignore[arg-type]
+        projection_units=blocked_bundle["projection_units"],  # type: ignore[arg-type]
+    )
+
+    blocked_manifest["projection_units"][0]["readiness"] = "ready"  # type: ignore[index]
+    blocked_manifest["projection_units"][0]["blocked_by_ambiguity_refs"] = []  # type: ignore[index]
+    blocked_manifest["projection_units"][0]["output_artifact_refs"] = [  # type: ignore[index]
+        "apps/api/fixtures/architecture/vnext_plus80/adeu_core_ir_v80_ready_reference.json"
+    ]
+    blocked_manifest["touched_artifact_refs"] = [
+        "apps/api/fixtures/architecture/vnext_plus80/adeu_core_ir_v80_ready_reference.json"
+    ]
+    blocked_manifest["blocked_by_ambiguity_refs"] = []
+    blocked_manifest["manifest_id"] = _manifest_id(
+        architecture_id=blocked_manifest["architecture_id"],  # type: ignore[arg-type]
+        semantic_hash=blocked_manifest["semantic_hash"],  # type: ignore[arg-type]
+        conformance_report_ref=blocked_manifest["conformance_report_ref"],  # type: ignore[arg-type]
+        checkpoint_trace_ref=blocked_manifest["checkpoint_trace_ref"],  # type: ignore[arg-type]
+        source_root_refs=blocked_manifest["source_root_refs"],  # type: ignore[arg-type]
+        target_family=blocked_manifest["target_family"],  # type: ignore[arg-type]
+        compiler_entrypoint=blocked_manifest["compiler_entrypoint"],  # type: ignore[arg-type]
+        compiler_version=blocked_manifest["compiler_version"],  # type: ignore[arg-type]
+        projection_units=blocked_manifest["projection_units"],  # type: ignore[arg-type]
+        touched_artifact_refs=blocked_manifest["touched_artifact_refs"],  # type: ignore[arg-type]
+        blocked_by_ambiguity_refs=blocked_manifest["blocked_by_ambiguity_refs"],  # type: ignore[arg-type]
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="projection_unit blocked_by_ambiguity_refs must match active unit-local blockers",
+    ):
+        derive_v40e_ux_domain_packets(
+            semantic_ir_payload=_load_arch_fixture(
+                "vnext_plus77",
+                "adeu_architecture_semantic_ir_v77_reference.json",
+            ),
+            conformance_report_payload=_load_arch_fixture(
+                "vnext_plus78",
+                "adeu_architecture_conformance_report_v78_blocked_reference.json",
+            ),
+            conformance_report_path="apps/api/fixtures/architecture/vnext_plus78/adeu_architecture_conformance_report_v78_blocked_reference.json",
+            checkpoint_trace_payload=_load_arch_fixture(
+                "vnext_plus79",
+                "adeu_architecture_checkpoint_trace_v79_human_needed_reference.json",
+            ),
+            checkpoint_trace_path="apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_human_needed_reference.json",
+            projection_bundle_payload=blocked_bundle,
+            projection_bundle_path="apps/api/fixtures/architecture/vnext_plus80/adeu_architecture_projection_bundle_v80_blocked_reference.json",
+            projection_manifest_payload=blocked_manifest,
+            projection_manifest_path="apps/api/fixtures/architecture/vnext_plus80/adeu_architecture_projection_manifest_v80_blocked_reference.json",
+            ux_domain_packet_payload=_load_ux_fixture(
+                "ux_domain_packet_artifact_inspector_reference.json"
+            ),
+            ux_domain_packet_path="apps/api/fixtures/ux_governance/vnext_plus61/ux_domain_packet_artifact_inspector_reference.json",
+            approved_profile_table_payload=_load_ux_fixture(
+                "v36a_first_family_approved_profile_table.json"
+            ),
             approved_profile_table_path="apps/api/fixtures/ux_governance/vnext_plus61/v36a_first_family_approved_profile_table.json",
             same_context_glossary_payload=_load_ux_fixture(
                 "v36a_same_context_reachability_glossary.json"
