@@ -12,6 +12,10 @@ from .hybrid import (
     AdeuArchitectureOracleRequest,
     AdeuArchitectureOracleResolution,
 )
+from .projection import (
+    AdeuArchitectureProjectionBundle,
+    AdeuArchitectureProjectionManifest,
+)
 
 
 def _write_schema(path: Path, schema: dict[str, object]) -> None:
@@ -46,6 +50,16 @@ def main() -> None:
             AdeuArchitectureIRDelta,
             "adeu_architecture_ir_delta.v1.json",
             "adeu_architecture_ir_delta.schema.json",
+        ),
+        (
+            AdeuArchitectureProjectionBundle,
+            "adeu_architecture_projection_bundle.v1.json",
+            "adeu_architecture_projection_bundle.schema.json",
+        ),
+        (
+            AdeuArchitectureProjectionManifest,
+            "adeu_architecture_projection_manifest.v1.json",
+            "adeu_architecture_projection_manifest.schema.json",
         ),
     ]
     for model, authoritative_name, mirror_name in targets:

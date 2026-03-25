@@ -1,7 +1,8 @@
 # Draft ASIR Arc Decomposition v0
 
 Status: working decomposition draft after `vNext+77` closeout, `vNext+78`
-closeout, and `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`.
+closeout, `vNext+79` closeout, and
+`docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`.
 
 This document is an intermediate planning artifact between:
 
@@ -29,10 +30,13 @@ implementation by itself.
 - `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v17.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v18.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v19.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS77.md`
 - `docs/ASSESSMENT_vNEXT_PLUS77_EDGES.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS78.md`
 - `docs/ASSESSMENT_vNEXT_PLUS78_EDGES.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS79.md`
+- `docs/ASSESSMENT_vNEXT_PLUS79_EDGES.md`
 - `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
 - `docs/formal/asir/ASIR_FORMAL_KERNEL.md`
 - `docs/formal/asir/ASIRKernelHybrid.md`
@@ -65,11 +69,14 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 - The bounded `V39` family is complete at its intended baseline.
 - `vNext+77` (`V40-A`) is closed on `main` at its bounded baseline.
 - `vNext+78` (`V40-B`) is now closed on `main` at its bounded baseline.
+- `vNext+79` (`V40-C`) is now closed on `main` at its bounded baseline.
 - The ASIR root-family substrate is released under `packages/adeu_architecture_ir`.
 - The deterministic ASIR conformance substrate is released under
   `packages/adeu_architecture_compiler`.
-- The next safe step is bounded hybrid ambiguity handling rather than reopening the
-  released semantic-root or deterministic-compiler boundary.
+- The bounded hybrid checkpoint substrate is released under
+  `packages/adeu_architecture_compiler`.
+- The next safe step is narrow `adeu_core_ir` lowering rather than reopening the
+  released semantic-root, deterministic-compiler, or hybrid boundary.
 - The Lean formal lane is useful but should remain sidecar-only unless a later lock
   explicitly promotes it into a required release surface.
 
@@ -79,7 +86,7 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 {
   "schema": "asir_arc_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+78",
+  "baseline_arc": "vNext+79",
   "closed_path_family": "V39",
   "closed_paths": [
     "V39-A",
@@ -91,14 +98,15 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
   "next_path_family": "V40",
   "closed_current_family_paths": [
     "V40-A",
-    "V40-B"
+    "V40-B",
+    "V40-C"
   ],
-  "default_next_arc_candidate": "V40-C",
-  "default_next_concrete_arc_candidate": "vNext+79",
+  "default_next_arc_candidate": "V40-D",
+  "default_next_concrete_arc_candidate": "vNext+80",
   "v40_path_count": 6,
   "v40_default_arc_span": {
-    "from": "vNext+79",
-    "to": "vNext+85"
+    "from": "vNext+80",
+    "to": "vNext+86"
   },
   "v40_paths_may_span_multiple_arcs": true,
   "planned_family_packages": [
@@ -175,15 +183,20 @@ The current recommended concrete split is:
     deterministic assembly/integrity passes, blocked/ready gating, reference fixtures,
     and validator tests
 - `vNext+79`
-  - default first concrete `V40-C` arc:
+  - closed first concrete `V40-C` arc:
     hybrid schema/model/export baseline, deterministic checkpoint classifier,
     typed oracle request/resolution/checkpoint-trace surfaces, replay identity,
     one-round oracle law, bounded `ir_delta` proposal law, committed fixtures, and
     validator tests
 - `vNext+80`
-  - optional follow-on `V40-C` hardening only if broader hybrid-branch coverage,
-    classifier depth, or replay/adjudication diagnostics remain intentionally deferred
-    from `vNext+79`
+  - default first concrete `V40-D` arc:
+    projection bundle/manifest schema/model/export baseline, deterministic
+    `adeu_core_ir` lowering, manifest/source-lineage honesty, blocked-vs-ready
+    projection checks, committed fixtures, and validator tests
+- `vNext+81`
+  - optional follow-on `V40-D` hardening only if broader lowering coverage,
+    manifest diagnostics, or projection-unit honesty checks remain intentionally
+    deferred from `vNext+80`
 
 Later `V40` paths may also take one or more concrete arcs when that keeps each lock
 comparable to earlier ADEU slices.
@@ -341,8 +354,7 @@ Acceptance:
 
 Expected PR shape:
 
-- PR1: hybrid schema/model/export baseline
-- PR2: classifier/validator/tests and fixtures
+- single integrated PR
 
 ## Path V40-D: Core IR Lowering Baseline
 
@@ -374,12 +386,12 @@ Acceptance:
 - one canonical ASIR fixture lowers deterministically into `adeu_core_ir@0.1`;
 - manifest lineage is inspectable and honest;
 - released readiness/blocking state governs whether lowering is allowed;
-- unresolved blocking ambiguity cannot be misreported as ready projection.
+- unresolved blocking ambiguity cannot be misreported as ready projection;
+- blocked projection units carry empty emitted-output refs in the first baseline.
 
 Expected PR shape:
 
-- PR1: lowering logic + manifest baseline
-- PR2: projection fixtures and honesty checks
+- single integrated PR
 
 ## Path V40-E: First UX Lowering Baseline
 
@@ -459,10 +471,18 @@ The correct decomposition is:
 - `docs/formal/asir/ASIRKernelConnector.md` aligns most naturally with the
   `V40-C` / `V40-D` boundary.
 
-A likely next proof-sidecar addition is a small pipeline-composition kernel that proves
-the already-frozen end-to-end law from lawful hybrid disposition through adjudication
-and into readiness outcome without silently redefining any architecture artifact
-boundary.
+An initial pipeline-composition kernel now exists in the Aristotle sidecar lane, but
+current review shows that it still sits below the full released `V40-C` artifact
+contract.
+
+The next proof-sidecar addition should therefore be a bounded artifact-law catch-up
+module covering:
+
+- targeted checkpoint application rather than blanket list-wide adjudication;
+- `resolution_state -> final_adjudication` law;
+- oracle-ref nullability by checkpoint class;
+- delta provenance via `source_resolution_id`;
+- preservation of `V40-B` deterministic-failure boundaries.
 
 Sidecar rules:
 
