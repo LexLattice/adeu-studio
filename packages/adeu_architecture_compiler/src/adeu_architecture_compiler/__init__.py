@@ -39,8 +39,11 @@ from .projection import (
     ADEU_ARCHITECTURE_PROJECTION_BUNDLE_SCHEMA,
     ADEU_ARCHITECTURE_PROJECTION_MANIFEST_SCHEMA,
     ADEU_CORE_IR_TARGET_FAMILY,
+    UX_DOMAIN_PACKET_TARGET_FAMILY,
     V40D_COMPILER_ENTRYPOINT,
     V40D_V80_CONTRACT_SOURCE,
+    V40E_COMPILER_ENTRYPOINT,
+    V40E_V81_CONTRACT_SOURCE,
     AdeuArchitectureProjectionBundle,
     AdeuArchitectureProjectionManifest,
     ArchitectureProjectionCompilerProvenance,
@@ -50,6 +53,8 @@ from .projection import (
     derive_v40d_adeu_core_ir,
     derive_v40d_projection_bundle,
     derive_v40d_projection_manifest,
+    derive_v40e_ux_domain_packet,
+    derive_v40e_ux_domain_packets,
 )
 
 __all__ = [
@@ -61,6 +66,7 @@ __all__ = [
     "ADEU_ARCHITECTURE_PROJECTION_BUNDLE_SCHEMA",
     "ADEU_ARCHITECTURE_PROJECTION_MANIFEST_SCHEMA",
     "ADEU_CORE_IR_TARGET_FAMILY",
+    "UX_DOMAIN_PACKET_TARGET_FAMILY",
     "AdeuArchitectureCheckpointTrace",
     "AdeuArchitectureConformanceReport",
     "AdeuArchitectureIRDelta",
@@ -84,6 +90,8 @@ __all__ = [
     "V40C_V79_CONTRACT_SOURCE",
     "V40D_COMPILER_ENTRYPOINT",
     "V40D_V80_CONTRACT_SOURCE",
+    "V40E_COMPILER_ENTRYPOINT",
+    "V40E_V81_CONTRACT_SOURCE",
     "canonicalize_adeu_architecture_checkpoint_trace_payload",
     "canonicalize_adeu_architecture_conformance_report_payload",
     "canonicalize_adeu_architecture_ir_delta_payload",
@@ -99,5 +107,7 @@ __all__ = [
     "derive_v40d_adeu_core_ir",
     "derive_v40d_projection_bundle",
     "derive_v40d_projection_manifest",
+    "derive_v40e_ux_domain_packet",
+    "derive_v40e_ux_domain_packets",
     "export_schema_main",
 ]

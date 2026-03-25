@@ -1,18 +1,26 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
 from adeu_architecture_ir import AdeuArchitectureSemanticIR
 from adeu_core_ir import (
+    V36A_REFERENCE_SURFACE_FAMILY,
     AdeuCoreIR,
     CoreDNode,
     CoreEdge,
     CoreENode,
     CoreONode,
     CoreUNode,
+    UXAuthorityBoundaryPolicy,
+    UXDomainPacket,
+    V36AFirstFamilyApprovedProfileTable,
+    V36ASameContextReachabilityGlossary,
+    approved_profile_for_id,
     canonicalize_core_ir_payload,
+    canonicalize_ux_domain_packet_payload,
 )
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, model_validator
 from urm_runtime.hashing import sha256_canonical_json
@@ -28,17 +36,20 @@ from .conformance import (
     _normalize_repo_relative_path,
     _validation_context,
 )
-from .hybrid import (
-    AdeuArchitectureCheckpointTrace,
-)
+from .hybrid import AdeuArchitectureCheckpointTrace
 
 ADEU_ARCHITECTURE_PROJECTION_BUNDLE_SCHEMA = "adeu_architecture_projection_bundle@1"
 ADEU_ARCHITECTURE_PROJECTION_MANIFEST_SCHEMA = "adeu_architecture_projection_manifest@1"
 ADEU_CORE_IR_TARGET_FAMILY = "adeu_core_ir@0.1"
+UX_DOMAIN_PACKET_TARGET_FAMILY = "ux_domain_packet@1"
 V40D_V80_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS80.md#v80-continuation-contract-machine-checkable"
 )
 V40D_COMPILER_ENTRYPOINT = "adeu_architecture_compiler.v40d.lower_to_adeu_core_ir"
+V40E_V81_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS81.md#v81-continuation-contract-machine-checkable"
+)
+V40E_COMPILER_ENTRYPOINT = "adeu_architecture_compiler.v40e.lower_to_ux_domain_packet"
 
 _ALLOWED_EDGE_TYPES = {"depends_on", "gates", "justifies", "prioritizes", "serves_goal"}
 _BLOCKING_FINAL_ADJUDICATIONS = {"resolved_fail", "escalated_human"}
@@ -194,7 +205,7 @@ def _validate_projection_units_against_consumed_lineage(
     conformance_report_ref: str,
     checkpoint_trace_ref: str,
     compiler_version: str,
-    repository_root: Path,
+    repository_root: Path | None = None,
 ) -> None:
     if conformance.architecture_id != architecture_id:
         raise ValueError("architecture_id must match the referenced conformance report")
@@ -231,15 +242,16 @@ def _validate_projection_units_against_consumed_lineage(
             raise ValueError(
                 "projection_unit readiness may not be ready while active blockers remain"
             )
-        _validate_projection_output_artifact_lineage(
-            unit=unit,
-            architecture_id=architecture_id,
-            semantic_hash=semantic_hash,
-            conformance_report_ref=conformance_report_ref,
-            checkpoint_trace_ref=checkpoint_trace_ref,
-            compiler_version=compiler_version,
-            repository_root=repository_root,
-        )
+        if repository_root is not None:
+            _validate_projection_output_artifact_lineage(
+                unit=unit,
+                architecture_id=architecture_id,
+                semantic_hash=semantic_hash,
+                conformance_report_ref=conformance_report_ref,
+                checkpoint_trace_ref=checkpoint_trace_ref,
+                compiler_version=compiler_version,
+                repository_root=repository_root,
+            )
 
 
 def _validate_v40d_inputs(
@@ -1181,12 +1193,349 @@ def derive_v40d_projection_manifest(
     )
 
 
+@dataclass(frozen=True)
+class V40EValidatedInputs:
+    semantic_ir: AdeuArchitectureSemanticIR
+    conformance_report: AdeuArchitectureConformanceReport
+    checkpoint_trace: AdeuArchitectureCheckpointTrace
+    projection_bundle: AdeuArchitectureProjectionBundle
+    projection_manifest: AdeuArchitectureProjectionManifest
+    domain_packet: UXDomainPacket
+    approved_profile_table: V36AFirstFamilyApprovedProfileTable
+    same_context_glossary: V36ASameContextReachabilityGlossary
+
+
+def _validate_v40e_inputs(
+    *,
+    semantic_ir_payload: dict[str, Any],
+    conformance_report_payload: dict[str, Any],
+    conformance_report_path: str,
+    checkpoint_trace_payload: dict[str, Any],
+    checkpoint_trace_path: str,
+    projection_bundle_payload: dict[str, Any],
+    projection_bundle_path: str,
+    projection_manifest_payload: dict[str, Any],
+    projection_manifest_path: str,
+    ux_domain_packet_payload: dict[str, Any],
+    ux_domain_packet_path: str,
+    approved_profile_table_payload: dict[str, Any],
+    approved_profile_table_path: str,
+    same_context_glossary_payload: dict[str, Any],
+    same_context_glossary_path: str,
+    repository_root: Path | None = None,
+) -> V40EValidatedInputs:
+    (
+        semantic_ir,
+        conformance_report,
+        checkpoint_trace,
+        normalized_report_path,
+        normalized_trace_path,
+    ) = _validate_v40d_inputs(
+        semantic_ir_payload=semantic_ir_payload,
+        conformance_report_payload=conformance_report_payload,
+        conformance_report_path=conformance_report_path,
+        checkpoint_trace_payload=checkpoint_trace_payload,
+        checkpoint_trace_path=checkpoint_trace_path,
+        repository_root=repository_root,
+    )
+    context = _validation_context(repository_root)
+    projection_bundle = AdeuArchitectureProjectionBundle.model_validate(
+        projection_bundle_payload,
+        context=context,
+    )
+    projection_manifest = AdeuArchitectureProjectionManifest.model_validate(
+        projection_manifest_payload,
+        context=context,
+    )
+    domain_packet = UXDomainPacket.model_validate(ux_domain_packet_payload)
+    approved_profile_table = V36AFirstFamilyApprovedProfileTable.model_validate(
+        approved_profile_table_payload
+    )
+    same_context_glossary = V36ASameContextReachabilityGlossary.model_validate(
+        same_context_glossary_payload
+    )
+
+    normalized_bundle_path = _normalize_repo_relative_path(
+        projection_bundle_path,
+        field_name="projection_bundle_path",
+    )
+    normalized_manifest_path = _normalize_repo_relative_path(
+        projection_manifest_path,
+        field_name="projection_manifest_path",
+    )
+    normalized_domain_packet_path = _normalize_repo_relative_path(
+        ux_domain_packet_path,
+        field_name="ux_domain_packet_path",
+    )
+    normalized_profile_table_path = _normalize_repo_relative_path(
+        approved_profile_table_path,
+        field_name="approved_profile_table_path",
+    )
+    normalized_glossary_path = _normalize_repo_relative_path(
+        same_context_glossary_path,
+        field_name="same_context_glossary_path",
+    )
+
+    if projection_bundle.architecture_id != semantic_ir.architecture_id:
+        raise ValueError("projection_bundle and semantic_ir must share architecture_id")
+    if projection_bundle.semantic_hash != semantic_ir.semantic_hash:
+        raise ValueError("projection_bundle and semantic_ir must share semantic_hash")
+    if projection_manifest.architecture_id != semantic_ir.architecture_id:
+        raise ValueError("projection_manifest and semantic_ir must share architecture_id")
+    if projection_manifest.semantic_hash != semantic_ir.semantic_hash:
+        raise ValueError("projection_manifest and semantic_ir must share semantic_hash")
+    if projection_bundle.conformance_report_ref != normalized_report_path:
+        raise ValueError("projection_bundle must bind to the consumed conformance_report_path")
+    if projection_manifest.conformance_report_ref != normalized_report_path:
+        raise ValueError("projection_manifest must bind to the consumed conformance_report_path")
+    if projection_bundle.checkpoint_trace_ref != normalized_trace_path:
+        raise ValueError("projection_bundle must bind to the consumed checkpoint_trace_path")
+    if projection_manifest.checkpoint_trace_ref != normalized_trace_path:
+        raise ValueError("projection_manifest must bind to the consumed checkpoint_trace_path")
+    if projection_bundle.projection_units != projection_manifest.projection_units:
+        raise ValueError("projection_bundle and projection_manifest must share projection_units")
+    if projection_manifest.source_root_refs != conformance_report.consumed_root_refs:
+        raise ValueError("projection_manifest must preserve conformance consumed_root_refs")
+    _validate_projection_units_against_consumed_lineage(
+        projection_units=projection_manifest.projection_units,
+        conformance=conformance_report,
+        checkpoint_trace=checkpoint_trace,
+        architecture_id=semantic_ir.architecture_id,
+        semantic_hash=semantic_ir.semantic_hash,
+        conformance_report_ref=normalized_report_path,
+        checkpoint_trace_ref=normalized_trace_path,
+        compiler_version=projection_bundle.compiler_version,
+        repository_root=repository_root,
+    )
+
+    if domain_packet.schema != UX_DOMAIN_PACKET_TARGET_FAMILY:
+        raise ValueError("v40e emitted packet must validate as ux_domain_packet@1")
+    if domain_packet.reference_surface_family != V36A_REFERENCE_SURFACE_FAMILY:
+        raise ValueError("ux_domain_packet reference_surface_family must remain the frozen family")
+    if approved_profile_table.reference_surface_family != domain_packet.reference_surface_family:
+        raise ValueError(
+            "approved_profile_table reference_surface_family must match ux_domain_packet"
+        )
+    if same_context_glossary.reference_surface_family != domain_packet.reference_surface_family:
+        raise ValueError(
+            "same_context_glossary reference_surface_family must match ux_domain_packet"
+        )
+    if (
+        domain_packet.supporting_artifacts.approved_profile_table_schema
+        != approved_profile_table.schema
+    ):
+        raise ValueError(
+            "ux_domain_packet supporting_artifacts must match approved_profile_table schema"
+        )
+    if (
+        domain_packet.supporting_artifacts.same_context_reachability_glossary_schema
+        != same_context_glossary.schema
+    ):
+        raise ValueError(
+            "ux_domain_packet supporting_artifacts must match same_context_glossary schema"
+        )
+    approved_profile_for_id(
+        approved_profile_table,
+        approved_profile_id=domain_packet.approved_profile_id,
+    )
+    if domain_packet.authority_boundary_policy != UXAuthorityBoundaryPolicy():
+        raise ValueError("ux_domain_packet authority_boundary_policy must remain frozen")
+
+    if repository_root is not None:
+        for normalized_path, payload, model, field_name in (
+            (
+                normalized_bundle_path,
+                projection_bundle_payload,
+                projection_bundle,
+                "projection_bundle_path",
+            ),
+            (
+                normalized_manifest_path,
+                projection_manifest_payload,
+                projection_manifest,
+                "projection_manifest_path",
+            ),
+            (
+                normalized_domain_packet_path,
+                ux_domain_packet_payload,
+                domain_packet,
+                "ux_domain_packet_path",
+            ),
+            (
+                normalized_profile_table_path,
+                approved_profile_table_payload,
+                approved_profile_table,
+                "approved_profile_table_path",
+            ),
+            (
+                normalized_glossary_path,
+                same_context_glossary_payload,
+                same_context_glossary,
+                "same_context_glossary_path",
+            ),
+        ):
+            repo_payload = _load_repo_json(normalized_path, repository_root=repository_root)
+            if repo_payload != payload or repo_payload != _dump_json_payload(model):
+                raise ValueError(f"{field_name} must point to the canonical consumed artifact")
+
+    return V40EValidatedInputs(
+        semantic_ir=semantic_ir,
+        conformance_report=conformance_report,
+        checkpoint_trace=checkpoint_trace,
+        projection_bundle=projection_bundle,
+        projection_manifest=projection_manifest,
+        domain_packet=domain_packet,
+        approved_profile_table=approved_profile_table,
+        same_context_glossary=same_context_glossary,
+    )
+
+
+def _projection_unit_for_v40e(
+    *,
+    projection_bundle: AdeuArchitectureProjectionBundle,
+    projection_manifest: AdeuArchitectureProjectionManifest,
+    projection_id: str,
+) -> ArchitectureProjectionUnit:
+    normalized_projection_id = _assert_non_empty_text(
+        projection_id,
+        field_name="projection_id",
+    )
+    bundle_units = [
+        unit
+        for unit in projection_bundle.projection_units
+        if unit.projection_id == normalized_projection_id
+    ]
+    manifest_units = [
+        unit
+        for unit in projection_manifest.projection_units
+        if unit.projection_id == normalized_projection_id
+    ]
+    if len(bundle_units) != 1 or len(manifest_units) != 1:
+        raise ValueError("projection_id must resolve to exactly one released projection unit")
+    if bundle_units[0] != manifest_units[0]:
+        raise ValueError(
+            "projection_id must resolve to the same released unit in bundle and manifest"
+        )
+    return bundle_units[0]
+
+
+def _derive_v40e_ready_packet(
+    *,
+    projection_unit: ArchitectureProjectionUnit,
+    domain_packet: UXDomainPacket,
+) -> dict[str, Any]:
+    if projection_unit.readiness != "ready":
+        raise ValueError("V40-E may not emit ux_domain_packet for blocked projection units")
+    if projection_unit.blocked_by_ambiguity_refs:
+        raise ValueError("V40-E ready projection units must not carry active blocker lineage")
+    return canonicalize_ux_domain_packet_payload(_dump_json_payload(domain_packet))
+
+
+def derive_v40e_ux_domain_packet(
+    *,
+    semantic_ir_payload: dict[str, Any],
+    conformance_report_payload: dict[str, Any],
+    conformance_report_path: str,
+    checkpoint_trace_payload: dict[str, Any],
+    checkpoint_trace_path: str,
+    projection_bundle_payload: dict[str, Any],
+    projection_bundle_path: str,
+    projection_manifest_payload: dict[str, Any],
+    projection_manifest_path: str,
+    ux_domain_packet_payload: dict[str, Any],
+    ux_domain_packet_path: str,
+    approved_profile_table_payload: dict[str, Any],
+    approved_profile_table_path: str,
+    same_context_glossary_payload: dict[str, Any],
+    same_context_glossary_path: str,
+    projection_id: str,
+    repository_root: Path | None = None,
+) -> dict[str, Any]:
+    validated = _validate_v40e_inputs(
+        semantic_ir_payload=semantic_ir_payload,
+        conformance_report_payload=conformance_report_payload,
+        conformance_report_path=conformance_report_path,
+        checkpoint_trace_payload=checkpoint_trace_payload,
+        checkpoint_trace_path=checkpoint_trace_path,
+        projection_bundle_payload=projection_bundle_payload,
+        projection_bundle_path=projection_bundle_path,
+        projection_manifest_payload=projection_manifest_payload,
+        projection_manifest_path=projection_manifest_path,
+        ux_domain_packet_payload=ux_domain_packet_payload,
+        ux_domain_packet_path=ux_domain_packet_path,
+        approved_profile_table_payload=approved_profile_table_payload,
+        approved_profile_table_path=approved_profile_table_path,
+        same_context_glossary_payload=same_context_glossary_payload,
+        same_context_glossary_path=same_context_glossary_path,
+        repository_root=repository_root,
+    )
+    projection_unit = _projection_unit_for_v40e(
+        projection_bundle=validated.projection_bundle,
+        projection_manifest=validated.projection_manifest,
+        projection_id=projection_id,
+    )
+    return _derive_v40e_ready_packet(
+        projection_unit=projection_unit,
+        domain_packet=validated.domain_packet,
+    )
+
+
+def derive_v40e_ux_domain_packets(
+    *,
+    semantic_ir_payload: dict[str, Any],
+    conformance_report_payload: dict[str, Any],
+    conformance_report_path: str,
+    checkpoint_trace_payload: dict[str, Any],
+    checkpoint_trace_path: str,
+    projection_bundle_payload: dict[str, Any],
+    projection_bundle_path: str,
+    projection_manifest_payload: dict[str, Any],
+    projection_manifest_path: str,
+    ux_domain_packet_payload: dict[str, Any],
+    ux_domain_packet_path: str,
+    approved_profile_table_payload: dict[str, Any],
+    approved_profile_table_path: str,
+    same_context_glossary_payload: dict[str, Any],
+    same_context_glossary_path: str,
+    repository_root: Path | None = None,
+) -> dict[str, dict[str, Any]]:
+    validated = _validate_v40e_inputs(
+        semantic_ir_payload=semantic_ir_payload,
+        conformance_report_payload=conformance_report_payload,
+        conformance_report_path=conformance_report_path,
+        checkpoint_trace_payload=checkpoint_trace_payload,
+        checkpoint_trace_path=checkpoint_trace_path,
+        projection_bundle_payload=projection_bundle_payload,
+        projection_bundle_path=projection_bundle_path,
+        projection_manifest_payload=projection_manifest_payload,
+        projection_manifest_path=projection_manifest_path,
+        ux_domain_packet_payload=ux_domain_packet_payload,
+        ux_domain_packet_path=ux_domain_packet_path,
+        approved_profile_table_payload=approved_profile_table_payload,
+        approved_profile_table_path=approved_profile_table_path,
+        same_context_glossary_payload=same_context_glossary_payload,
+        same_context_glossary_path=same_context_glossary_path,
+        repository_root=repository_root,
+    )
+    packets: dict[str, dict[str, Any]] = {}
+    for projection_unit in validated.projection_manifest.projection_units:
+        if projection_unit.readiness == "ready":
+            packets[projection_unit.projection_id] = _derive_v40e_ready_packet(
+                projection_unit=projection_unit,
+                domain_packet=validated.domain_packet,
+            )
+    return packets
+
+
 __all__ = [
     "ADEU_ARCHITECTURE_PROJECTION_BUNDLE_SCHEMA",
     "ADEU_ARCHITECTURE_PROJECTION_MANIFEST_SCHEMA",
     "ADEU_CORE_IR_TARGET_FAMILY",
+    "UX_DOMAIN_PACKET_TARGET_FAMILY",
     "V40D_COMPILER_ENTRYPOINT",
     "V40D_V80_CONTRACT_SOURCE",
+    "V40E_COMPILER_ENTRYPOINT",
+    "V40E_V81_CONTRACT_SOURCE",
     "AdeuArchitectureProjectionBundle",
     "AdeuArchitectureProjectionManifest",
     "ArchitectureProjectionCompilerProvenance",
@@ -1196,4 +1545,6 @@ __all__ = [
     "derive_v40d_adeu_core_ir",
     "derive_v40d_projection_bundle",
     "derive_v40d_projection_manifest",
+    "derive_v40e_ux_domain_packet",
+    "derive_v40e_ux_domain_packets",
 ]
