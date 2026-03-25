@@ -1,7 +1,7 @@
 # Draft ASIR Arc Decomposition v0
 
 Status: working decomposition draft after `vNext+77` closeout, `vNext+78`
-closeout, `vNext+79` closeout, `vNext+80` closeout, and
+closeout, `vNext+79` closeout, `vNext+80` closeout, `vNext+81` closeout, and
 `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`.
 
 This document is an intermediate planning artifact between:
@@ -33,6 +33,7 @@ implementation by itself.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v19.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v20.md`
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v21.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v22.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS77.md`
 - `docs/ASSESSMENT_vNEXT_PLUS77_EDGES.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS78.md`
@@ -41,6 +42,8 @@ implementation by itself.
 - `docs/ASSESSMENT_vNEXT_PLUS79_EDGES.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS80.md`
 - `docs/ASSESSMENT_vNEXT_PLUS80_EDGES.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS81.md`
+- `docs/ASSESSMENT_vNEXT_PLUS81_EDGES.md`
 - `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
 - `docs/formal/asir/ASIR_FORMAL_KERNEL.md`
 - `docs/formal/asir/ASIRKernelHybrid.md`
@@ -75,6 +78,7 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 - `vNext+78` (`V40-B`) is now closed on `main` at its bounded baseline.
 - `vNext+79` (`V40-C`) is now closed on `main` at its bounded baseline.
 - `vNext+80` (`V40-D`) is now closed on `main` at its bounded baseline.
+- `vNext+81` (`V40-E`) is now closed on `main` at its bounded baseline.
 - The ASIR root-family substrate is released under `packages/adeu_architecture_ir`.
 - The deterministic ASIR conformance substrate is released under
   `packages/adeu_architecture_compiler`.
@@ -82,8 +86,9 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
   `packages/adeu_architecture_compiler`.
 - The narrow `adeu_core_ir` lowering substrate is now released under
   `packages/adeu_architecture_compiler`.
-- The next safe step is narrow `ux_domain_packet@1` lowering rather than reopening the
-  released semantic-root, deterministic-compiler, hybrid, or `adeu_core_ir` boundary.
+- The next safe step is family-complete evidence and release integration rather than
+  reopening the released semantic-root, deterministic-compiler, hybrid,
+  `adeu_core_ir`, or `ux_domain_packet@1` boundary.
 - The Lean formal lane is useful but should remain sidecar-only unless a later lock
   explicitly promotes it into a required release surface.
 
@@ -93,7 +98,7 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 {
   "schema": "asir_arc_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+80",
+  "baseline_arc": "vNext+81",
   "closed_path_family": "V39",
   "closed_paths": [
     "V39-A",
@@ -107,13 +112,14 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
     "V40-A",
     "V40-B",
     "V40-C",
-    "V40-D"
+    "V40-D",
+    "V40-E"
   ],
-  "default_next_arc_candidate": "V40-E",
-  "default_next_concrete_arc_candidate": "vNext+81",
+  "default_next_arc_candidate": "V40-F",
+  "default_next_concrete_arc_candidate": "vNext+82",
   "v40_path_count": 6,
   "v40_default_arc_span": {
-    "from": "vNext+81",
+    "from": "vNext+82",
     "to": "vNext+86"
   },
   "v40_paths_may_span_multiple_arcs": true,
@@ -202,14 +208,20 @@ The current recommended concrete split is:
     `adeu_core_ir` lowering, manifest/source-lineage honesty, blocked-vs-ready
     projection checks, committed fixtures, and validator tests
 - `vNext+81`
-  - default first concrete `V40-E` arc:
+  - closed first concrete `V40-E` arc:
     ASIR-to-`ux_domain_packet@1` lowering, reuse of the existing UX governance
     target-family schema under `packages/adeu_core_ir`, frozen approved-profile /
     authority-boundary compatibility, committed fixtures, and validator tests
 - `vNext+82`
-  - optional follow-on `V40-E` hardening only if `ux_morph_ir@1`, deeper
-    reference-bundle compatibility, or broader UX-compatibility diagnostics remain
-    intentionally deferred from `vNext+81`
+  - default first concrete `V40-F` arc:
+    family-complete `V40-A` through `V40-E` evidence integration, canonical family
+    release evidence, explicit released-vs-deferred surface posture, stop-gate
+    continuity assertions, and bounded release-note wiring without stop-gate schema
+    drift
+- `vNext+83`
+  - optional follow-on `V40-F` hardening only if deeper release-summary diagnostics,
+    stricter family evidence guards, or broader release-note packaging remain
+    intentionally deferred from `vNext+82`
 
 Later `V40` paths may also take one or more concrete arcs when that keeps each lock
 comparable to earlier ADEU slices.
@@ -463,26 +475,38 @@ Goal:
 Scope:
 
 - ASIR family evidence inputs and closeout artifacts;
-- stop-gate continuity assertions;
+- one canonical family-level evidence artifact that binds the released `V40-A` through
+  `V40-E` surfaces and their closeout evidence together;
+- authoritative and mirrored schema exports for that family evidence artifact;
+- stop-gate continuity assertions with no schema-family or metric-key drift;
 - closeout evidence for schema export parity, deterministic compilation, hybrid replay,
-  and projection honesty where applicable;
-- family-complete release note posture for the first ASIR ladder.
+  projection honesty, and first UX lowering where applicable;
+- family-complete release note posture for the first ASIR ladder, including explicit
+  released-vs-deferred surface marking.
 
 Locks:
 
 - no stop-gate schema-family fork;
 - no implicit metric-key expansion;
-- no broader runtime observability claims than the implementation actually proves.
+- no broader runtime observability claims than the implementation actually proves;
+- runtime-observability deltas remain informational only and may not by themselves
+  change shipped/deferred surface status or block family evidence materialization;
+- no deferred `ux_morph_ir@1`, rendered-surface export, workbench/API route, or formal
+  sidecar surface may be misreported as a released `V40` family surface.
 
 Acceptance:
 
 - closeout artifacts truthfully represent the landed ASIR slice set;
 - stop-gate continuity is preserved;
-- remaining deferred surfaces are explicit.
+- remaining deferred surfaces are explicit;
+- one canonical family evidence artifact binds the shipped `V40-A` through `V40-E`
+  lane without overclaiming any unreleased surface;
+- per-path evidence closure is exact for `V40-A` through `V40-E` rather than only
+  list-shaped.
 
 Expected PR shape:
 
-- PR1: evidence generation and closeout wiring
+- single integrated PR
 
 ## Formal Proof-Mirror Sidecar
 
