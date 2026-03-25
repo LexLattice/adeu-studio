@@ -313,8 +313,19 @@ Recommended companion practical-analysis artifacts:
 - `adeu_architecture_analysis_settlement_frame@1`
   - captures the chosen interpretation, deontic typing, entitlement posture, and
     escalation triggers over the request boundary;
+  - should bind back to the released `analysis_request_id` and `source_set_hash`
+    rather than settling a different world implicitly;
+  - should keep each register entry explicitly addressable and request-grounded rather
+    than typed only at the top level;
   - should also record affordance decisions, including when a permitted affordance was
     intentionally deferred or declined;
+  - should carry an explicit pre-compile entitlement posture that remains blocked when
+    unresolved high-impact ambiguity, active escalation triggers, or unentitled
+    negative claims remain;
+  - should carry explicit blocking lineage when entitlement remains blocked;
+  - should treat any free-text notes field as advisory only and never as the real home
+    for interpretations, deontic classes, claim postures, escalation triggers, source
+    refs, or blocking reasons;
   - should keep search-bounded negative posture distinct from proved impossibility
     unless a later explicit proof surface is released;
 - `adeu_architecture_observation_frame@1`
