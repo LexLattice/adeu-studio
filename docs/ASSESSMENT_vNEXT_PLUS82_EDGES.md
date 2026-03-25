@@ -1,6 +1,9 @@
-# Assessment vNext+82 Edges
+# Assessment vNext+82 Edges (Post Closeout)
 
-Status: planning-edge assessment for `V40-F`.
+This document records edge disposition for `vNext+82` (`V40-F` architecture family
+evidence, release posture, and stop-gate continuity baseline) after arc closeout.
+
+Status: post-closeout assessment (March 25, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,88 +11,149 @@ Status: planning-edge assessment for `V40-F`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS82_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
-  "required_in_decision": true
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v82_closeout_edge_disposition",
+  "required_in_decision": true,
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
-## Open Edges
+## Scope
 
-### Edge 1: Family Release Overclaim Drift
+- In scope: bounded `V40-F` family release-integration baseline; deterministic
+  materialization of canonical `v40f_architecture_release_integration_evidence@1`;
+  exact released-path closure for `V40-A` through `V40-E`; authoritative/mirrored
+  schema parity; explicit released-vs-deferred family posture; exact metric-key
+  continuity versus v81; and informational-only runtime-observability comparison.
+- Out of scope: reopening `V40-A` semantic-root semantics, `V40-B` deterministic
+  conformance semantics, `V40-C` hybrid semantics, `V40-D` lowering semantics, or
+  `V40-E` UX compatibility semantics; `ux_morph_ir@1`; rendered-surface export;
+  API/workbench human-review surfaces; a new target-family rollout; and any promotion
+  of the formal Lean sidecar into authoritative release evidence.
 
-- Risk:
-  the slice could describe the completed ASIR ladder too broadly and silently treat
-  deferred surfaces as shipped family scope.
-- Response:
-  require exact released-vs-deferred surface accounting and fail closed on omitted or
-  vague deferred posture.
+## Inputs
 
-### Edge 2: Evidence-Source Bypass Drift
+- `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`
+- `docs/DRAFT_ASIR_ARC_DECOMPOSITION_v0.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v22.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS77.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS78.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS79.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS80.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS81.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS82.md`
+- `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/release_integration.py`
+- `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/__init__.py`
+- `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/export_schema.py`
+- `packages/adeu_architecture_compiler/tests/test_architecture_compiler_v40f.py`
+- `packages/adeu_architecture_compiler/tests/test_architecture_compiler_export_schema.py`
+- `packages/adeu_architecture_compiler/schema/v40f_architecture_release_integration_evidence.v1.json`
+- `spec/v40f_architecture_release_integration_evidence.schema.json`
+- `apps/api/fixtures/architecture/vnext_plus82/`
+- `artifacts/quality_dashboard_v82_closeout.json`
+- `artifacts/stop_gate/metrics_v82_closeout.json`
+- `artifacts/agent_harness/v82/evidence_inputs/metric_key_continuity_assertion_v82.json`
+- `artifacts/agent_harness/v82/evidence_inputs/runtime_observability_comparison_v82.json`
+- `artifacts/agent_harness/v82/evidence_inputs/v40f_architecture_release_integration_evidence_v82.json`
+- merged PR: `#304`
 
-- Risk:
-  the family summary could be built from prose or maintainer memory rather than from
-  released evidence refs and hashes.
-- Response:
-  require canonical family evidence to consume released `V40-A` through `V40-E`
-  evidence inputs and closeout docs explicitly.
+## Pre-Lock Edge Set Outcome (v82 Closeout)
 
-### Edge 3: Stop-Gate Continuity Drift
+1. Family release overclaim drift: `resolved`.
+   - the released lane binds the completed first ASIR ladder to exact released-path
+     evidence and explicit deferred-surface accounting, so `ux_morph_ir@1`,
+     rendered-surface export, API/workbench routes, and formal-sidecar authority are
+     not treated as shipped by omission.
+2. Evidence-source bypass drift: `resolved`.
+   - the released family summary consumes exact `V40-A` through `V40-E` evidence refs
+     and closeout docs instead of relying on prose or maintainer memory.
+3. Stop-gate continuity drift: `resolved`.
+   - the released lane keeps `stop_gate_metrics@1` fixed and preserves exact metric-key
+     equality versus the released v81 closeout artifact.
+4. Runtime-observability authority drift: `resolved`.
+   - runtime observability remains required but informational only and does not alter
+     released-vs-deferred posture or stop-gate continuity by itself.
+5. Formal-sidecar authority inflation: `resolved`.
+   - the active Aristotle / Lean lane remains parallel and non-authoritative, and
+     family release evidence rejects formal-sidecar files as released family surfaces.
+6. Path-lineage gaps: `resolved`.
+   - every released path in `V40-A` through `V40-E` now binds exact evidence refs,
+     evidence hashes, closeout-doc refs, and release-surface ref sets inside the
+     canonical family artifact.
+7. Schema-parity drift: `resolved`.
+   - the new `v40f_architecture_release_integration_evidence@1` artifact family ships
+     with authoritative schema under `packages/adeu_architecture_compiler/schema/`,
+     mirrored export under `spec/`, and deterministic byte-identical parity checks.
+8. UX/workbench boundary collapse: `resolved`.
+   - the release-integration lane keeps `V40-E`’s typed IR-only authority posture
+     explicit and continues to defer `ux_morph_ir@1`, surface compiler export, and
+     workbench route release.
 
-- Risk:
-  a family-integration slice could quietly fork the stop-gate schema family or expand
-  the metric-key set while claiming to be release-only.
-- Response:
-  freeze `stop_gate_metrics@1` and exact metric-key equality versus `vNext+81`.
+## Guard Coverage Outcome
 
-### Edge 4: Runtime-Observability Authority Drift
+- merged implementation files:
+  - `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/release_integration.py`
+  - `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/__init__.py`
+  - `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/export_schema.py`
+- committed reference fixture under
+  `apps/api/fixtures/architecture/vnext_plus82/v40f_architecture_release_integration_evidence_v82_reference.json`
+- authoritative and mirrored schema files:
+  - `packages/adeu_architecture_compiler/schema/v40f_architecture_release_integration_evidence.v1.json`
+  - `spec/v40f_architecture_release_integration_evidence.schema.json`
+- merged guard files:
+  - `packages/adeu_architecture_compiler/tests/test_architecture_compiler_v40f.py`
+  - `packages/adeu_architecture_compiler/tests/test_architecture_compiler_export_schema.py`
+- v82 closeout artifact regeneration on `main` emitted:
+  - canonical `metric_key_continuity_assertion@1`
+  - canonical `runtime_observability_comparison@1`
+  - canonical `v40f_architecture_release_integration_evidence@1`
+  - committed parent-session closeout raw/event stream fixture under
+    `artifacts/agent_harness/v82/runtime/evidence/codex/copilot/v82-closeout-main-1/`
+- merged guard coverage now proves:
+  - exact keyed `V40-A` through `V40-E` release closure,
+  - deterministic family-evidence replay and stable family-evidence hash derivation,
+  - rejection of deferred-surface overclaiming,
+  - rejection of formal-sidecar authority inflation,
+  - authoritative/mirrored schema parity with stable export reruns,
+  - exact stop-gate schema-family and metric-key continuity versus v81.
 
-- Risk:
-  runtime-observability delta rows could be treated as if they were allowed to change
-  shipped/deferred family status or block canonical family evidence materialization.
-- Response:
-  keep runtime observability required but informational only and forbid it from
-  changing release posture or continuity status by itself.
+## Stop-Gate Continuity Outcome
 
-### Edge 5: Formal-Sidecar Authority Inflation
+```json
+{
+  "schema": "v82_edge_closeout_summary@1",
+  "arc": "vNext+82",
+  "target_path": "V40-F",
+  "prelock_edge_count": 8,
+  "resolved_edge_count": 8,
+  "open_blocking_edges": 0,
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v81": true,
+  "all_passed": true,
+  "blocking_issues": []
+}
+```
 
-- Risk:
-  the active Aristotle / Lean sidecar lane could be mistaken for authoritative family
-  release evidence.
-- Response:
-  keep the formal lane parallel and optional, and reject any family release artifact
-  that treats it as required release authority.
+## Residual Risks (Post v82)
 
-### Edge 6: Path-Lineage Gaps
+1. The released lane remains intentionally bounded to family evidence and release
+   posture only and not new semantic, hybrid, projection, or UX target behavior.
+2. `ux_morph_ir@1`, rendered-surface export, API/workbench routes, and any broader
+   post-`V40` product surface remain deferred by design.
+3. The formal Lean sidecar remains optional and proof-mirror-only until a later
+   explicit lock promotes any finite-law subset further.
+4. Runtime observability remains informational only in `V40-F`; future runtime or
+   product-surface changes still require their own explicit lock and closeout evidence.
 
-- Risk:
-  the family evidence artifact could mention `V40-A` through `V40-E` generally while
-  failing to bind one or more released path closeouts by exact ref and hash.
-- Response:
-  require exact per-path evidence closure for all released current-family paths.
+## Recommendation (Post Closeout)
 
-### Edge 7: Schema-Parity Drift
-
-- Risk:
-  the new `v40f_architecture_release_integration_evidence@1` artifact family could be
-  released without the same authoritative/mirrored schema-discipline used elsewhere in
-  the family.
-- Response:
-  require authoritative schema under `packages/adeu_architecture_compiler/schema/`,
-  mirrored export under `spec/`, and byte-for-byte parity after canonical export.
-
-### Edge 8: UX/Workbench Boundary Collapse
-
-- Risk:
-  the release-integration lane could imply that shipped `ux_domain_packet@1`
-  compatibility is equivalent to rendered-surface or workbench release.
-- Response:
-  keep `V40-E`’s typed IR-only authority posture explicit and preserve deferred
-  `ux_morph_ir`, surface compiler, and workbench route status.
-
-## Current Judgment
-
-- `V40-F` is worth implementing now because the repo has released the full bounded
-  `V40-A` through `V40-E` ladder, but still lacks one canonical family evidence and
-  release surface that binds those shipped paths together honestly without widening the
-  stop-gate contract or misreporting deferred surfaces.
+1. Mark the v82 edge set as closed with no blocking issues.
+2. Treat `v40f_architecture_release_integration_evidence@1` as the canonical
+   family-level release integration artifact for the first bounded ASIR ladder.
+3. Treat `V40-F` as complete at its bounded baseline on `main`; any broader release
+   packaging or product-surface expansion should be justified as new scope, not
+   treated as implicit family carryover.
+4. Move the next default candidate only after its starter bundle is drafted
+   explicitly, without reopening the released `V40-A` through `V40-E` boundaries.
