@@ -145,6 +145,103 @@ def _active_blocking_ambiguity_refs(
     )
 
 
+def _validate_projection_output_artifact_lineage(
+    *,
+    unit: "ArchitectureProjectionUnit",
+    architecture_id: str,
+    semantic_hash: str,
+    conformance_report_ref: str,
+    checkpoint_trace_ref: str,
+    compiler_version: str,
+    repository_root: Path,
+) -> None:
+    for artifact_ref in unit.output_artifact_refs:
+        payload = _load_repo_json(artifact_ref, repository_root=repository_root)
+        core_ir = AdeuCoreIR.model_validate(payload)
+        if core_ir.schema != ADEU_CORE_IR_TARGET_FAMILY:
+            raise ValueError("output_artifact_refs must target adeu_core_ir@0.1 only")
+        if core_ir.source_text_hash != semantic_hash:
+            raise ValueError(
+                "output_artifact_refs must preserve semantic_hash as core_ir.source_text_hash"
+            )
+        metadata = core_ir.metadata
+        if not isinstance(metadata, dict):
+            raise ValueError("output_artifact_refs must carry V40-D lineage metadata")
+        expected_metadata = {
+            "architecture_id": architecture_id,
+            "semantic_hash": semantic_hash,
+            "conformance_report_ref": conformance_report_ref,
+            "checkpoint_trace_ref": checkpoint_trace_ref,
+            "projection_id": unit.projection_id,
+            "compiler_entrypoint": unit.compiler_entrypoint,
+            "compiler_version": compiler_version,
+            "source_refs": unit.source_refs,
+        }
+        for key, expected_value in expected_metadata.items():
+            if metadata.get(key) != expected_value:
+                raise ValueError(
+                    f"output_artifact_refs must preserve {key} in emitted core_ir metadata"
+                )
+
+
+def _validate_projection_units_against_consumed_lineage(
+    *,
+    projection_units: list["ArchitectureProjectionUnit"],
+    conformance: AdeuArchitectureConformanceReport,
+    checkpoint_trace: AdeuArchitectureCheckpointTrace,
+    architecture_id: str,
+    semantic_hash: str,
+    conformance_report_ref: str,
+    checkpoint_trace_ref: str,
+    compiler_version: str,
+    repository_root: Path,
+) -> None:
+    if conformance.architecture_id != architecture_id:
+        raise ValueError("architecture_id must match the referenced conformance report")
+    if conformance.semantic_hash != semantic_hash:
+        raise ValueError("semantic_hash must match the referenced conformance report")
+    if checkpoint_trace.architecture_id != architecture_id:
+        raise ValueError("architecture_id must match the referenced checkpoint trace")
+    if checkpoint_trace.semantic_hash != semantic_hash:
+        raise ValueError("semantic_hash must match the referenced checkpoint trace")
+    if checkpoint_trace.conformance_report_ref != conformance_report_ref:
+        raise ValueError("checkpoint_trace_ref must bind back to conformance_report_ref")
+
+    active_blockers = _active_blocking_ambiguity_refs(checkpoint_trace)
+    if conformance.projection_readiness != "ready" and not active_blockers:
+        raise ValueError(
+            "V40-D may not lower blocked conformance without active "
+            "checkpoint blocker lineage"
+        )
+    for unit in projection_units:
+        expected_unit_blockers = sorted(
+            blocker for blocker in active_blockers if blocker in unit.source_refs
+        )
+        if unit.blocked_by_ambiguity_refs != expected_unit_blockers:
+            raise ValueError(
+                "projection_unit blocked_by_ambiguity_refs must match "
+                "active unit-local blockers from checkpoint-trace lineage"
+            )
+        if unit.readiness == "ready" and conformance.projection_readiness != "ready":
+            raise ValueError(
+                "projection_unit readiness may not be ready while source "
+                "conformance remains blocked"
+            )
+        if unit.readiness == "ready" and expected_unit_blockers:
+            raise ValueError(
+                "projection_unit readiness may not be ready while active blockers remain"
+            )
+        _validate_projection_output_artifact_lineage(
+            unit=unit,
+            architecture_id=architecture_id,
+            semantic_hash=semantic_hash,
+            conformance_report_ref=conformance_report_ref,
+            checkpoint_trace_ref=checkpoint_trace_ref,
+            compiler_version=compiler_version,
+            repository_root=repository_root,
+        )
+
+
 def _validate_v40d_inputs(
     *,
     semantic_ir_payload: dict[str, Any],
@@ -424,13 +521,11 @@ def _build_ready_core_ir_payload(
                 )
     for goal in semantic_ir.utility.goals:
         for served_by_ref in goal.served_by_refs:
-            if d_kind_by_ref.get(served_by_ref) in {"PhysicalConstraint", "Norm", "Policy"}:
-                edges.append(
-                    CoreEdge.model_validate(
-                        {"type": "serves_goal", "from": served_by_ref, "to": goal.goal_id}
-                    )
-                )
-            elif e_kind_by_ref.get(served_by_ref) == "Claim":
+            if d_kind_by_ref.get(served_by_ref) in {
+                "PhysicalConstraint",
+                "Norm",
+                "Policy",
+            } or e_kind_by_ref.get(served_by_ref) == "Claim":
                 edges.append(
                     CoreEdge.model_validate(
                         {"type": "serves_goal", "from": served_by_ref, "to": goal.goal_id}
@@ -658,40 +753,17 @@ class AdeuArchitectureProjectionBundle(BaseModel):
                 checkpoint_payload,
                 context=_validation_context(repository_root),
             )
-            if conformance.architecture_id != self.architecture_id:
-                raise ValueError("architecture_id must match the referenced conformance report")
-            if conformance.semantic_hash != self.semantic_hash:
-                raise ValueError("semantic_hash must match the referenced conformance report")
-            if checkpoint_trace.architecture_id != self.architecture_id:
-                raise ValueError("architecture_id must match the referenced checkpoint trace")
-            if checkpoint_trace.semantic_hash != self.semantic_hash:
-                raise ValueError("semantic_hash must match the referenced checkpoint trace")
-            if checkpoint_trace.conformance_report_ref != self.conformance_report_ref:
-                raise ValueError("checkpoint_trace_ref must bind back to conformance_report_ref")
-            active_blockers = _active_blocking_ambiguity_refs(checkpoint_trace)
-            if conformance.projection_readiness != "ready" and not active_blockers:
-                raise ValueError(
-                    "V40-D may not lower blocked conformance without active "
-                    "checkpoint blocker lineage"
-                )
-            for unit in self.projection_units:
-                expected_unit_blockers = sorted(
-                    blocker for blocker in active_blockers if blocker in unit.source_refs
-                )
-                if unit.blocked_by_ambiguity_refs != expected_unit_blockers:
-                    raise ValueError(
-                        "projection_unit blocked_by_ambiguity_refs must match "
-                        "active unit-local blockers from checkpoint-trace lineage"
-                    )
-                if unit.readiness == "ready" and conformance.projection_readiness != "ready":
-                    raise ValueError(
-                        "projection_unit readiness may not be ready while source "
-                        "conformance remains blocked"
-                    )
-                if unit.readiness == "ready" and expected_unit_blockers:
-                    raise ValueError(
-                        "projection_unit readiness may not be ready while active blockers remain"
-                    )
+            _validate_projection_units_against_consumed_lineage(
+                projection_units=self.projection_units,
+                conformance=conformance,
+                checkpoint_trace=checkpoint_trace,
+                architecture_id=self.architecture_id,
+                semantic_hash=self.semantic_hash,
+                conformance_report_ref=self.conformance_report_ref,
+                checkpoint_trace_ref=self.checkpoint_trace_ref,
+                compiler_version=self.compiler_version,
+                repository_root=repository_root,
+            )
         return self
 
 
@@ -834,20 +906,21 @@ class AdeuArchitectureProjectionManifest(BaseModel):
                 checkpoint_payload,
                 context=_validation_context(repository_root),
             )
-            if conformance.architecture_id != self.architecture_id:
-                raise ValueError("architecture_id must match the referenced conformance report")
-            if conformance.semantic_hash != self.semantic_hash:
-                raise ValueError("semantic_hash must match the referenced conformance report")
-            if checkpoint_trace.architecture_id != self.architecture_id:
-                raise ValueError("architecture_id must match the referenced checkpoint trace")
-            if checkpoint_trace.semantic_hash != self.semantic_hash:
-                raise ValueError("semantic_hash must match the referenced checkpoint trace")
-            if checkpoint_trace.conformance_report_ref != self.conformance_report_ref:
-                raise ValueError("checkpoint_trace_ref must bind back to conformance_report_ref")
             if self.source_root_refs != conformance.consumed_root_refs:
                 raise ValueError(
                     "source_root_refs must match the consumed_root_refs in conformance"
                 )
+            _validate_projection_units_against_consumed_lineage(
+                projection_units=self.projection_units,
+                conformance=conformance,
+                checkpoint_trace=checkpoint_trace,
+                architecture_id=self.architecture_id,
+                semantic_hash=self.semantic_hash,
+                conformance_report_ref=self.conformance_report_ref,
+                checkpoint_trace_ref=self.checkpoint_trace_ref,
+                compiler_version=self.compiler_version,
+                repository_root=repository_root,
+            )
         return self
 
 

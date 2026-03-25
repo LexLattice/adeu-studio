@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from copy import deepcopy
 from pathlib import Path
 
@@ -61,6 +62,13 @@ def _load_v79(name: str) -> dict[str, object]:
 
 def _load_v80(name: str) -> dict[str, object]:
     return _load_json(_v80_root() / name)
+
+
+def _copy_fixture_tree(tmp_path: Path) -> Path:
+    shutil.copytree(_repo_root() / "apps", tmp_path / "apps")
+    shutil.copytree(_repo_root() / "docs", tmp_path / "docs")
+    shutil.copy2(_repo_root() / "AGENTS.md", tmp_path / "AGENTS.md")
+    return tmp_path
 
 
 def _schema_validator(stem: str) -> Draft202012Validator:
@@ -255,6 +263,33 @@ def test_v40d_projection_bundle_rejects_non_core_target_family() -> None:
         )
 
 
+def test_v40d_projection_bundle_rejects_output_artifact_lineage_drift(
+    tmp_path: Path,
+) -> None:
+    temp_root = _copy_fixture_tree(tmp_path)
+    core_ir_path = (
+        temp_root
+        / "apps"
+        / "api"
+        / "fixtures"
+        / "architecture"
+        / "vnext_plus80"
+        / "adeu_core_ir_v80_ready_reference.json"
+    )
+    core_ir = _load_json(core_ir_path)
+    core_ir["metadata"]["projection_id"] = "v40d_v80_projection_wrong"  # type: ignore[index]
+    core_ir_path.write_text(json.dumps(core_ir, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    with pytest.raises(
+        ValidationError,
+        match="output_artifact_refs must preserve projection_id in emitted core_ir metadata",
+    ):
+        AdeuArchitectureProjectionBundle.model_validate(
+            _load_v80("adeu_architecture_projection_bundle_v80_ready_reference.json"),
+            context={"repository_root": temp_root},
+        )
+
+
 def test_v40d_projection_manifest_rejects_touched_artifact_refs_mismatch() -> None:
     payload = deepcopy(_load_v80("adeu_architecture_projection_manifest_v80_ready_reference.json"))
     payload["touched_artifact_refs"] = []
@@ -266,6 +301,41 @@ def test_v40d_projection_manifest_rejects_touched_artifact_refs_mismatch() -> No
         AdeuArchitectureProjectionManifest.model_validate(
             payload,
             context={"repository_root": _repo_root()},
+        )
+
+
+def test_v40d_projection_manifest_rejects_blocked_conformance_without_active_trace_lineage(
+    tmp_path: Path,
+) -> None:
+    temp_root = _copy_fixture_tree(tmp_path)
+    conformance_path = (
+        temp_root
+        / "apps"
+        / "api"
+        / "fixtures"
+        / "architecture"
+        / "vnext_plus78"
+        / "adeu_architecture_conformance_report_v78_ready_reference.json"
+    )
+    conformance = _load_json(conformance_path)
+    conformance["projection_readiness"] = "blocked"
+    conformance["failed_check_ids"] = ["ASIR-P-001"]
+    for check_result in conformance["check_results"]:  # type: ignore[index]
+        if check_result["check_id"] == "ASIR-P-001":
+            check_result["passed"] = False
+            break
+    conformance_path.write_text(
+        json.dumps(conformance, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match="V40-D may not lower blocked conformance without active checkpoint blocker lineage",
+    ):
+        AdeuArchitectureProjectionManifest.model_validate(
+            _load_v80("adeu_architecture_projection_manifest_v80_ready_reference.json"),
+            context={"repository_root": temp_root},
         )
 
 
