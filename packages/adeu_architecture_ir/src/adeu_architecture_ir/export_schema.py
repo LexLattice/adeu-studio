@@ -5,6 +5,10 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 
+from .analysis_request import (
+    ADEU_ARCHITECTURE_ANALYSIS_REQUEST_SCHEMA,
+    AdeuArchitectureAnalysisRequest,
+)
 from .root_family import (
     ADEU_ARCHITECTURE_BOUNDARY_GRAPH_SCHEMA,
     ADEU_ARCHITECTURE_INTENT_PACKET_SCHEMA,
@@ -27,6 +31,16 @@ def _write_schema(path: Path, schema: dict[str, object]) -> None:
 def main() -> None:
     root = repo_root(anchor=Path(__file__))
     mappings = [
+        (
+            AdeuArchitectureAnalysisRequest.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_architecture_ir"
+            / "schema"
+            / "adeu_architecture_analysis_request.v1.json",
+            root / "spec" / "adeu_architecture_analysis_request.schema.json",
+            ADEU_ARCHITECTURE_ANALYSIS_REQUEST_SCHEMA,
+        ),
         (
             ArchitectureIntentPacket.model_json_schema(by_alias=True),
             root
