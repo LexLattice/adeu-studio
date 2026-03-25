@@ -1,16 +1,17 @@
 # Draft ASIR Arc Decomposition v0
 
-Status: working decomposition draft after `vNext+77` closeout, `vNext+78`
-closeout, `vNext+79` closeout, `vNext+80` closeout, `vNext+81` closeout, and
-`docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`.
+Status: historical decomposition draft after `vNext+77` closeout, `vNext+78`
+closeout, `vNext+79` closeout, `vNext+80` closeout, `vNext+81` closeout,
+`vNext+82` closeout, and bounded `V40` family completion on `main`.
 
 This document is an intermediate planning artifact between:
 
 - the ASIR architecture constitution; and
 - the next-family selection / first-lock docs.
 
-It exists to prevent a direct jump from "module architecture is defined" to "one large
-implementation arc tries to land too much at once."
+It exists to record how the `V40` ASIR family was split into repo-sized arcs and to
+prevent a direct jump from "module architecture is defined" to "one large implementation
+arc tries to land too much at once."
 
 This is not a lock doc. It does not authorize runtime behavior, schema release, or
 implementation by itself.
@@ -79,6 +80,7 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 - `vNext+79` (`V40-C`) is now closed on `main` at its bounded baseline.
 - `vNext+80` (`V40-D`) is now closed on `main` at its bounded baseline.
 - `vNext+81` (`V40-E`) is now closed on `main` at its bounded baseline.
+- `vNext+82` (`V40-F`) is now closed on `main` at its bounded baseline.
 - The ASIR root-family substrate is released under `packages/adeu_architecture_ir`.
 - The deterministic ASIR conformance substrate is released under
   `packages/adeu_architecture_compiler`.
@@ -86,9 +88,10 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
   `packages/adeu_architecture_compiler`.
 - The narrow `adeu_core_ir` lowering substrate is now released under
   `packages/adeu_architecture_compiler`.
-- The next safe step is family-complete evidence and release integration rather than
-  reopening the released semantic-root, deterministic-compiler, hybrid,
-  `adeu_core_ir`, or `ux_domain_packet@1` boundary.
+- The first bounded `V40` family is complete on `main`.
+- The next safe step is a fresh post-`V40` family rather than reopening the released
+  semantic-root, deterministic-compiler, hybrid, `adeu_core_ir`, UX compatibility, or
+  family-evidence boundaries.
 - The Lean formal lane is useful but should remain sidecar-only unless a later lock
   explicitly promotes it into a required release surface.
 
@@ -98,7 +101,7 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
 {
   "schema": "asir_arc_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+81",
+  "baseline_arc": "vNext+82",
   "closed_path_family": "V39",
   "closed_paths": [
     "V39-A",
@@ -113,10 +116,12 @@ recompiles it into implementation slices shaped more like prior ADEU path famili
     "V40-B",
     "V40-C",
     "V40-D",
-    "V40-E"
+    "V40-E",
+    "V40-F"
   ],
-  "default_next_arc_candidate": "V40-F",
-  "default_next_concrete_arc_candidate": "vNext+82",
+  "current_family_complete": true,
+  "default_next_arc_candidate": "post_V40_family_selection_required",
+  "default_next_concrete_arc_candidate": "post_V40_family_selection_required",
   "v40_path_count": 6,
   "v40_default_arc_span": {
     "from": "vNext+82",
@@ -212,16 +217,17 @@ The current recommended concrete split is:
     ASIR-to-`ux_domain_packet@1` lowering, reuse of the existing UX governance
     target-family schema under `packages/adeu_core_ir`, frozen approved-profile /
     authority-boundary compatibility, committed fixtures, and validator tests
-- `vNext+82`
-  - default first concrete `V40-F` arc:
+  - `vNext+82`
+  - closed first concrete `V40-F` arc:
     family-complete `V40-A` through `V40-E` evidence integration, canonical family
     release evidence, explicit released-vs-deferred surface posture, stop-gate
     continuity assertions, and bounded release-note wiring without stop-gate schema
     drift
-- `vNext+83`
-  - optional follow-on `V40-F` hardening only if deeper release-summary diagnostics,
-    stricter family evidence guards, or broader release-note packaging remain
-    intentionally deferred from `vNext+82`
+
+Any further work should now be treated as either:
+
+- explicit exceptional `V40` hardening under new lock text; or
+- a fresh post-`V40` family selection.
 
 Later `V40` paths may also take one or more concrete arcs when that keeps each lock
 comparable to earlier ADEU slices.

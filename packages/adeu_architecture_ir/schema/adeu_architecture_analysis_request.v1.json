@@ -1,0 +1,357 @@
+{
+  "$defs": {
+    "AnalysisRequestScope": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_artifact_kinds": {
+          "items": {
+            "enum": [
+              "documentation",
+              "source_code",
+              "configuration",
+              "test"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Artifact Kinds",
+          "type": "array"
+        },
+        "exclude_paths": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Exclude Paths",
+          "type": "array"
+        },
+        "include_paths": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Include Paths",
+          "type": "array"
+        },
+        "subtree_root": {
+          "title": "Subtree Root",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subtree_root",
+        "allowed_artifact_kinds"
+      ],
+      "title": "AnalysisRequestScope",
+      "type": "object"
+    },
+    "AnalysisSnapshotIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "commit_sha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Commit Sha"
+        },
+        "snapshot_manifest_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Snapshot Manifest Hash"
+        },
+        "snapshot_manifest_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Snapshot Manifest Ref"
+        },
+        "tree_sha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tree Sha"
+        }
+      },
+      "title": "AnalysisSnapshotIdentity",
+      "type": "object"
+    },
+    "ArchitectureAnalysisSourceItem": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_kind": {
+          "enum": [
+            "documentation",
+            "source_code",
+            "configuration",
+            "test"
+          ],
+          "title": "Artifact Kind",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "artifact_kind",
+        "sha256"
+      ],
+      "title": "ArchitectureAnalysisSourceItem",
+      "type": "object"
+    },
+    "ArchitectureAnalysisSourceSet": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/ArchitectureAnalysisSourceItem"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "items"
+      ],
+      "title": "ArchitectureAnalysisSourceSet",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicyPin": {
+      "additionalProperties": false,
+      "properties": {
+        "inline_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthorityBoundaryPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        }
+      },
+      "title": "AuthorityBoundaryPolicyPin",
+      "type": "object"
+    },
+    "CapturedInput": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "title": "Content",
+          "type": "string"
+        },
+        "content_sha256": {
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "input_kind": {
+          "enum": [
+            "maintainer_brief",
+            "accepted_doc"
+          ],
+          "title": "Input Kind",
+          "type": "string"
+        },
+        "input_ref": {
+          "title": "Input Ref",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input_ref",
+        "input_kind",
+        "label",
+        "content",
+        "content_sha256"
+      ],
+      "title": "CapturedInput",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "accepted_doc_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Accepted Doc Refs",
+      "type": "array"
+    },
+    "analysis_request_id": {
+      "title": "Analysis Request Id",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicyPin"
+    },
+    "captured_inputs": {
+      "items": {
+        "$ref": "#/$defs/CapturedInput"
+      },
+      "title": "Captured Inputs",
+      "type": "array"
+    },
+    "declared_non_goals": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Declared Non Goals",
+      "type": "array"
+    },
+    "maintainer_brief_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Maintainer Brief Refs",
+      "type": "array"
+    },
+    "notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notes",
+      "type": "array"
+    },
+    "repo_root_ref": {
+      "title": "Repo Root Ref",
+      "type": "string"
+    },
+    "request_scope": {
+      "$ref": "#/$defs/AnalysisRequestScope"
+    },
+    "schema": {
+      "const": "adeu_architecture_analysis_request@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_frame_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Settlement Frame Ref"
+    },
+    "snapshot_identity": {
+      "$ref": "#/$defs/AnalysisSnapshotIdentity"
+    },
+    "snapshot_mode": {
+      "enum": [
+        "committed_tree",
+        "materialized_snapshot"
+      ],
+      "title": "Snapshot Mode",
+      "type": "string"
+    },
+    "source_set": {
+      "$ref": "#/$defs/ArchitectureAnalysisSourceSet"
+    },
+    "source_set_hash": {
+      "title": "Source Set Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "analysis_request_id",
+    "repo_root_ref",
+    "request_scope",
+    "snapshot_mode",
+    "snapshot_identity",
+    "source_set",
+    "source_set_hash",
+    "maintainer_brief_refs",
+    "accepted_doc_refs",
+    "authority_boundary_policy"
+  ],
+  "title": "AdeuArchitectureAnalysisRequest",
+  "type": "object"
+}

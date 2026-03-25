@@ -1,3 +1,12 @@
+from .analysis_request import (
+    ADEU_ARCHITECTURE_ANALYSIS_REQUEST_SCHEMA,
+    V41A_V83_CONTRACT_SOURCE,
+    AdeuArchitectureAnalysisRequest,
+    canonicalize_adeu_architecture_analysis_request_payload,
+    capture_adeu_architecture_analysis_source_set_payload,
+    compute_adeu_architecture_analysis_source_set_hash,
+    materialize_adeu_architecture_analysis_request_payload,
+)
 from .export_schema import main as export_schema_main
 from .root_family import (
     ADEU_ARCHITECTURE_BOUNDARY_GRAPH_SCHEMA,
@@ -21,23 +30,30 @@ from .root_family import (
 )
 
 __all__ = [
+    "ADEU_ARCHITECTURE_ANALYSIS_REQUEST_SCHEMA",
     "ADEU_ARCHITECTURE_BOUNDARY_GRAPH_SCHEMA",
     "ADEU_ARCHITECTURE_INTENT_PACKET_SCHEMA",
     "ADEU_ARCHITECTURE_ONTOLOGY_FRAME_SCHEMA",
     "ADEU_ARCHITECTURE_SEMANTIC_IR_SCHEMA",
     "ADEU_ARCHITECTURE_WORLD_HYPOTHESIS_SCHEMA",
+    "V41A_V83_CONTRACT_SOURCE",
     "V40A_V77_CONTRACT_SOURCE",
+    "AdeuArchitectureAnalysisRequest",
     "AdeuArchitectureSemanticIR",
     "ArchitectureBoundaryGraph",
     "ArchitectureIntentPacket",
     "ArchitectureOntologyFrame",
     "ArchitectureWorldHypothesis",
+    "canonicalize_adeu_architecture_analysis_request_payload",
     "canonicalize_adeu_architecture_boundary_graph_payload",
     "canonicalize_adeu_architecture_intent_packet_payload",
     "canonicalize_adeu_architecture_ontology_frame_payload",
     "canonicalize_adeu_architecture_semantic_ir_payload",
     "canonicalize_adeu_architecture_world_hypothesis_payload",
+    "capture_adeu_architecture_analysis_source_set_payload",
+    "compute_adeu_architecture_analysis_source_set_hash",
     "compute_adeu_architecture_semantic_ir_hash",
     "export_schema_main",
+    "materialize_adeu_architecture_analysis_request_payload",
     "materialize_adeu_architecture_semantic_ir_payload",
 ]

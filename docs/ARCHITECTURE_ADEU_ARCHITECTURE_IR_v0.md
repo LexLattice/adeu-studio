@@ -272,6 +272,92 @@ This module should align explicitly to the existing `meta_loop_sequence_contract
 | `evidence_gate` | hash-bind artifacts, manifests, traces, and reference inputs |
 | `operator_gate` | receive any human escalation or final bounded approval surface |
 
+### 5.6 Practical Repo Analysis Mode
+
+The released `V40` ladder proves that ASIR can exist as a typed architecture
+artifact family. That is not yet the full practical use case.
+
+For habitual analysis against a real codebase, ASIR should support a dual-compile
+posture with one explicit pre-compile settlement gate:
+
+1. **settlement lane**
+   - consume the analysis request and the exact frozen `source_set`;
+   - externalize the chosen interpretation, deontic typing, entitlement posture, and
+     escalation triggers before observed extraction, intended compile, or drift claims
+     begin.
+2. **intended architecture lane**
+   - consume maintainer brief, accepted docs, and one hash-bound repo `source_set`;
+   - use the same frozen `source_set` snapshot that the observed lane consumes rather
+     than a separate changing brief universe;
+   - emit intended `adeu_architecture_semantic_ir@1` plus any required conformance or
+     checkpoint companions.
+3. **observed implementation lane**
+   - consume the same `source_set` through deterministic repo extraction;
+   - emit a separate observed implementation artifact rather than pretending observed
+     code state is the same thing as intended architecture meaning;
+   - restrict the observed lane to extracted implementation facts and unresolved
+     observations, not inferred intent, evaluation, or remediation.
+4. **alignment lane**
+   - compare intended and observed outputs deterministically;
+   - emit drift diagnostics that make the difference between "what the project says it
+     means" and "what the code currently does" inspectable.
+
+Recommended companion practical-analysis artifacts:
+
+- `adeu_architecture_analysis_request@1`
+  - binds repo scope, accepted brief inputs, and the exact `source_set`;
+  - should prefer per-item source hashes plus an aggregate `source_set` hash;
+  - should bind a committed-tree or explicitly materialized snapshot mode rather than
+    ambient live working-tree state by default;
+  - should bind immutable snapshot identity for the chosen mode;
+- `adeu_architecture_analysis_settlement_frame@1`
+  - captures the chosen interpretation, deontic typing, entitlement posture, and
+    escalation triggers over the request boundary;
+  - should also record affordance decisions, including when a permitted affordance was
+    intentionally deferred or declined;
+  - should keep search-bounded negative posture distinct from proved impossibility
+    unless a later explicit proof surface is released;
+- `adeu_architecture_observation_frame@1`
+  - captures deterministic observed implementation facts and their provenance refs;
+- `adeu_architecture_alignment_report@1`
+  - records deterministic misalignment classes and severity posture between intended
+    and observed lanes.
+
+Hard rule:
+
+- the practical analysis loop must not collapse intended and observed architecture into
+  one blended artifact if the goal is honest drift detection.
+
+The right comparison is:
+
+```text
+analysis_request + source_set
+    -> settlement frame
+analysis_request + source_set + settlement frame
+    -> intended ASIR
+analysis_request + source_set + settlement frame
+    -> observed implementation frame
+intended ASIR + observed implementation frame
+    -> alignment report
+```
+
+Recommended starter mismatch classes:
+
+- `declared_not_observed`
+- `observed_not_declared`
+- `authority_boundary_drift`
+- `workflow_or_state_drift`
+- `evidence_or_observability_gap`
+- `unresolved_unknown`
+
+This practical mode is downstream of the released ASIR artifact family and should not
+weaken the root/sibling boundary:
+
+- intended meaning still belongs in `adeu_architecture_semantic_ir@1`;
+- checkpoint trace, conformance, and projection state remain sibling artifacts;
+- observed implementation and alignment results should be companion artifacts, not
+  hidden fields inside the semantic root.
+
 ---
 
 ## 6. ASIR Root Contract

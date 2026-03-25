@@ -1,0 +1,474 @@
+# Draft V41 Practical Repo Analysis Decomposition v0
+
+Status: working decomposition draft after `vNext+82` closeout and bounded `V40`
+family completion on `main`.
+
+This document is an intermediate planning artifact between:
+
+- the released ASIR architecture ladder;
+- the practical repo-analysis use case now in view; and
+- the next-family selection / first-lock docs.
+
+It exists to prevent a direct jump from "ASIR exists as a typed artifact family" to
+"one large practical harness rollout tries to land repo capture, observation,
+alignment, and workflow wiring all at once."
+
+This is not a lock doc. It does not authorize runtime behavior, schema release, or
+implementation by itself.
+
+## Purpose
+
+- compile the practical repo-grounded ASIR use case into repo-sized implementation
+  slices;
+- keep the next family centered on habitual analysis of real codebases rather than on
+  further abstract ASIR-only completion work;
+- make the dual-compile model explicit before the first practical-analysis lock is
+  drafted;
+- keep intended architecture and observed implementation as separate typed lanes rather
+  than collapsing them into one artifact;
+- keep CLI / harness orchestration ahead of any future web or workbench widening.
+
+## Inputs
+
+- `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`
+- `docs/DRAFT_ASIR_ARC_DECOMPOSITION_v0.md`
+- `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v22.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS77.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS78.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS79.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS80.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS81.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS82.md`
+
+## Decomposition Thesis
+
+`V40` solved the ASIR artifact ladder itself:
+
+- semantic root;
+- deterministic conformance;
+- bounded hybrid;
+- `adeu_core_ir@0.1` lowering;
+- first UX compatibility lowering;
+- family evidence and stop-gate continuity.
+
+That is necessary, but it is not yet the practical loop the repo actually wants to
+exercise habitually.
+
+The missing practical loop is:
+
+```text
+repo scope + maintainer brief + accepted docs
+    -> canonical analysis request and source_set
+    -> analysis settlement / entitlement frame
+    -> observed implementation frame
+    -> intended architecture semantic IR
+    -> deterministic alignment / drift report
+    -> habitual runner that can be re-executed on real repos
+```
+
+That loop requires one additional family because it introduces a new operational seam:
+
+- ASIR is no longer being proven only against frozen fixtures;
+- it is being asked to analyze an actual repo subtree;
+- both intent and implementation have to be made explicit and compared;
+- the interpretive and entitlement frame for that comparison has to be externalized
+  before compile-time claims are allowed;
+- the result has to be repeatable enough that the same analysis can become a normal
+  engineering habit rather than a one-off experiment.
+
+## Baseline Agreement
+
+- `vNext+82` (`V40-F`) is closed on `main`.
+- The bounded `V40` family is complete on `main` at its intended baseline.
+- The released ASIR ladder now exists end-to-end for semantic-root, conformance,
+  hybrid, lowering, UX compatibility, and family evidence.
+- The next safe step is not to reopen `V40`; it is to operationalize ASIR against a
+  real repo in a truthful, typed, repeatable way.
+- The Lean formal lane remains useful but sidecar-only and should not become a hidden
+  prerequisite for practical repo analysis.
+
+## Machine-Checkable Decomposition Baseline
+
+```json
+{
+  "schema": "v41_practical_repo_analysis_decomposition@1",
+  "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+  "baseline_arc": "vNext+82",
+  "closed_prior_family": "V40",
+  "closed_prior_paths": [
+    "V40-A",
+    "V40-B",
+    "V40-C",
+    "V40-D",
+    "V40-E",
+    "V40-F"
+  ],
+  "next_path_family": "V41",
+  "default_next_arc_candidate": "V41-A",
+  "default_next_concrete_arc_candidate": "vNext+83",
+  "v41_path_count": 6,
+  "v41_default_arc_span": {
+    "from": "vNext+83",
+    "to": "vNext+88"
+  },
+  "v41_paths_may_span_multiple_arcs": true,
+  "planned_family_packages": [
+    "packages/adeu_architecture_ir",
+    "packages/adeu_architecture_compiler"
+  ],
+  "analysis_request_artifact": "adeu_architecture_analysis_request@1",
+  "analysis_settlement_artifact": "adeu_architecture_analysis_settlement_frame@1",
+  "analysis_settlement_package": "packages/adeu_architecture_ir",
+  "intended_lane_artifact": "adeu_architecture_semantic_ir@1",
+  "observed_lane_artifact": "adeu_architecture_observation_frame@1",
+  "alignment_artifact": "adeu_architecture_alignment_report@1",
+  "intended_observed_lane_separation_required": true,
+  "precompile_settlement_required": true,
+  "source_set_snapshot_mode": "committed_tree_or_explicit_materialized_snapshot_only",
+  "source_set_hashing_profile": "per_item_hashes_plus_aggregate_hash",
+  "runner_mode": "cli_first_repo_grounded",
+  "formal_kernel_mode": "proof_mirror_sidecar_only",
+  "forbidden_first_lock_widenings": [
+    "api_or_web_workbench_release",
+    "direct_prompt_to_code_generation",
+    "silent_intended_observed_artifact_collapse",
+    "automatic_repo_mutation",
+    "formal_kernel_required_for_practical_validity"
+  ]
+}
+```
+
+## Family Scale Rules
+
+To stay aligned with prior ADEU implementation families, `V41` should obey these
+decomposition rules:
+
+- each path introduces one practical seam, not several unrelated ones;
+- intended architecture and observed implementation must remain distinct until an
+  explicit alignment step compares them;
+- no path should mix repo capture, observation extraction, alignment, and workflow UI
+  release in one slice;
+- no path should require web or workbench integration merely to prove a lower-level
+  contract;
+- the first practical baseline should target one repo or bounded subtree, not a
+  cross-repo fleet workflow.
+
+## Package Activation Timing
+
+- `packages/adeu_architecture_ir` remains the natural home for canonical practical
+  request / source-set artifacts.
+- `packages/adeu_architecture_ir` is also the natural home for the canonical
+  settlement-frame artifact because it is a pre-compile governance surface.
+- `packages/adeu_architecture_compiler` remains the natural home for observed-frame,
+  alignment-report, and practical orchestration helpers.
+- `V41` should prefer extending the released ASIR packages before inventing a new
+  package family unless orchestration pressure makes a separate surface clearly
+  necessary later.
+
+## Concrete Arc Granularity
+
+`V41` path labels are not assumed to map one-to-one onto concrete `vNext+` arcs.
+
+The current recommended concrete split is:
+
+- `vNext+83`
+  - default first concrete `V41-A` arc:
+    analysis-request schema/model/export baseline, deterministic source-set capture,
+    repo-scope selection, accepted-input hashing, authority-boundary policy pinning,
+    and reference fixtures
+- `vNext+84`
+  - default first concrete `V41-B` arc:
+    settlement-frame schema/model/export baseline plus interpretation register,
+    deontic typing, entitlement posture, and escalation trigger policy over the
+    released request/source-set boundary
+- `vNext+85`
+  - default first concrete `V41-C` arc:
+    observed implementation frame schema/model/export baseline plus deterministic repo
+    observation over one bounded codebase slice
+- `vNext+86`
+  - default first concrete `V41-D` arc:
+    intended architecture compile entrypoint over the released ASIR lane using real
+    repo source_set inputs rather than only frozen synthetic fixtures
+- `vNext+87`
+  - default first concrete `V41-E` arc:
+    deterministic alignment report, mismatch classes, severity posture, and drift
+    diagnostics between intended and observed lanes
+- `vNext+88`
+  - default first concrete `V41-F` arc:
+    CLI-first practical runner / harness orchestration that produces the full analysis
+    bundle habitually for one internal repo or subtree
+
+Later `V41` paths may also take one or more concrete arcs when that keeps each lock
+comparable to earlier ADEU slices.
+
+## Recommended `V41` Slice Ladder
+
+| Path | Theme | Primary output | Baseline role |
+|---|---|---|---|
+| `V41-A` | analysis request + source-set capture | canonical repo-grounded request artifact | required |
+| `V41-B` | settlement + entitlement gating | analysis settlement frame | required |
+| `V41-C` | observed implementation observation | observed architecture frame | required |
+| `V41-D` | intended repo-grounded compile | intended `adeu_architecture_semantic_ir@1` over real repo context | required |
+| `V41-E` | alignment and drift diagnostics | deterministic alignment report | required |
+| `V41-F` | practical runner / habitual orchestration | repeatable CLI analysis loop | required |
+
+## Path V41-A: Analysis Request and Source-Set Capture
+
+Lock class: `L1`
+
+Goal:
+
+- establish one canonical request artifact and one deterministic source-set posture for
+  practical repo-grounded architecture analysis.
+
+Scope:
+
+- canonical `adeu_architecture_analysis_request@1`;
+- explicit repo-root-relative scope selection defined as:
+  - one subtree anchor;
+  - optional explicit file additions;
+  - explicit exclusion rules;
+  - allowed artifact kinds for docs, code, config, and tests;
+- hash-bound `source_set` capture for selected docs, code, config, and tests;
+- first-baseline snapshot posture limited to:
+  - committed tree content; or
+  - an explicitly materialized snapshot captured inside the request,
+  not ambient live working-tree state by itself;
+- immutable snapshot identity over the chosen mode;
+- per-item source hashes plus one aggregate `source_set` hash;
+- maintainer brief / non-goal / accepted-doc refs bound into the same request;
+- explicit pinned `authority_boundary_policy` or exact policy ref;
+- settlement-frame hooks only, without pretending semantic settlement is complete;
+- authoritative and mirrored schema exports;
+- one committed reference fixture over one bounded repo subtree.
+
+Locks:
+
+- no observed implementation extraction yet;
+- no intended ASIR compile yet;
+- no alignment report yet;
+- no semantic settlement, drift claim, or impossibility claim authority yet;
+- no runner release yet;
+- no API or web integration yet.
+
+Acceptance:
+
+- one bounded repo scope can be selected deterministically;
+- the request artifact binds source refs, per-item hashes, aggregate hash, snapshot
+  mode, accepted brief inputs, and policy pinning exactly;
+- source-set replay is deterministic.
+
+Expected PR shape:
+
+- single integrated PR
+
+## Path V41-B: Interpretation Settlement, Deontic Typing, and Entitlement Gating
+
+Lock class: `L1`
+
+Goal:
+
+- externalize the chosen interpretation and claim-governance posture before observed
+  extraction, intended compile, or drift claims begin.
+
+Scope:
+
+- canonical `adeu_architecture_analysis_settlement_frame@1`;
+- chosen interpretation or explicit interpretation register over the request;
+- prompt-content / brief-content deontic typing at least for:
+  - required
+  - forbidden
+  - permitted
+  - optional_hint
+  - fallback_affordance
+- affordance decisions recording when a permitted affordance was:
+  - used
+  - deferred
+  - intentionally declined
+  together with rationale;
+- claim posture classification at least for:
+  - observed
+  - inferred
+  - conjectural
+  - unentitled_negative_claim
+- the starter negative-claim posture must not collapse "not found within current
+  search/proof bound" into proved impossibility; any stronger impossibility taxonomy
+  remains deferred unless a later lock freezes an explicit proof surface;
+- escalation trigger policy at least for:
+  - unresolved_high_impact_ambiguity
+  - silent_semantic_assumption_needed
+  - impossibility_claim_without_proof
+  - externalized_search_or_check_required
+- authoritative and mirrored schema exports.
+
+Locks:
+
+- no observed implementation extraction yet;
+- no intended ASIR compile yet;
+- no final alignment report yet;
+- no automatic code edits or repair suggestions yet;
+- no hidden settlement through free prose or silent branch choice.
+
+Acceptance:
+
+- one bounded repo scope emits a deterministic settlement frame;
+- chosen reading, unresolved high-impact ambiguity, entitlement posture, and
+  escalation triggers remain explicit;
+- downstream compile lanes can no longer claim settlement was implicit.
+
+Expected PR shape:
+
+- single integrated PR
+
+## Path V41-C: Observed Implementation Observation
+
+Lock class: `L1`
+
+Goal:
+
+- compile one bounded codebase slice into a typed observed architecture frame with
+  exact provenance back to repo files.
+
+Scope:
+
+- canonical `adeu_architecture_observation_frame@1`;
+- deterministic extraction of observed surfaces, boundaries, workflows, authority
+  sources, evidence hooks, and observability surfaces from a bounded repo scope;
+- explicit provenance refs to concrete source files;
+- observed-lane output is limited to extracted implementation facts and unresolved
+  observations, not inferred intent, evaluation, or remediation;
+- explicit unknown / unresolved observation markers rather than silent invention.
+
+Locks:
+
+- observed implementation may not mint intended architecture truth;
+- no human brief semantics may be smuggled into the observed lane;
+- no alignment report yet;
+- no automatic code edits or repair suggestions yet.
+
+Acceptance:
+
+- one bounded repo scope emits a deterministic observed architecture frame;
+- extraction remains provenance-linked and fail-closed on missing required sources;
+- unresolved observations remain explicit.
+
+Expected PR shape:
+
+- single integrated PR
+
+## Path V41-D: Intended Repo-Grounded ASIR Compile
+
+Lock class: `L1`
+
+Goal:
+
+- compile one real repo-grounded maintainer brief into intended ASIR using the released
+  `V40` ladder rather than only synthetic reference fixtures.
+
+Scope:
+
+- settlement-frame-governed entrypoint into the released ASIR root/conformance/hybrid
+  lanes;
+- intended `adeu_architecture_semantic_ir@1` over the same frozen repo `source_set`
+  selected by `V41-A`, not an independent brief universe;
+- bounded reuse of the released checkpoint / oracle lane when ambiguity remains;
+- committed intended-architecture reference fixture for one internal repo or subtree.
+
+Locks:
+
+- intended and observed lanes must remain separate artifacts;
+- no alignment report yet;
+- no new projection or product-surface release is required in this path;
+- no direct prompt output becomes architecture truth without the released ASIR
+  validators, adjudication path, and settlement-frame gating.
+
+Acceptance:
+
+- one repo-grounded maintainer brief compiles into intended ASIR deterministically;
+- released ASIR validators and checkpoint rules remain authoritative;
+- source-set and settlement-frame lineage is preserved into emitted ASIR.
+
+Expected PR shape:
+
+- single integrated PR
+
+## Path V41-E: Alignment and Drift Diagnostics
+
+Lock class: `L0`
+
+Goal:
+
+- compare intended architecture and observed implementation deterministically and make
+  misalignment inspectable without collapsing the two lanes.
+
+Scope:
+
+- canonical `adeu_architecture_alignment_report@1`;
+- deterministic starter mismatch classes at least for:
+  - declared_not_observed
+  - observed_not_declared
+  - authority_boundary_drift
+  - workflow_or_state_drift
+  - evidence_or_observability_gap
+  - unresolved_unknown
+- the starter class set is intentionally bounded and not the whole future ontology of
+  drift;
+- severity / blocking posture for alignment findings;
+- exact lineage back to the intended ASIR, observed frame, settlement frame, and
+  analysis request.
+
+Locks:
+
+- no silent reconciliation of intended and observed artifacts into one merged truth;
+- no automatic repo mutation or patch generation;
+- no product-surface or workbench release yet.
+
+Acceptance:
+
+- one internal repo/subtree yields a deterministic alignment report;
+- intended and observed lanes remain separately inspectable;
+- high-impact misalignment fails closed rather than being normalized away.
+
+Expected PR shape:
+
+- single integrated PR
+
+## Path V41-F: Practical Runner and Habitual Orchestration
+
+Lock class: `L0`
+
+Goal:
+
+- make the repo-grounded ASIR analysis loop runnable habitually by a maintainer or
+  orchestrator over one bounded repo scope.
+
+Scope:
+
+- CLI-first orchestration over:
+  - analysis request
+  - source-set capture
+  - settlement frame
+  - observed frame
+  - intended ASIR
+  - alignment report
+- deterministic artifact placement under repo-native artifact directories;
+- bounded evidence bundle for reruns over one internal repo or subtree;
+- no requirement for web or workbench integration in the first baseline.
+
+Locks:
+
+- no web or API workbench release by default;
+- no multi-repo fleet orchestration in the first baseline;
+- no direct PR-authority or code-edit authority in the runner itself.
+
+Acceptance:
+
+- the practical loop can be re-run habitually against one internal repo or subtree;
+- artifacts remain deterministic and provenance-linked;
+- reruns make intent / implementation drift visible without requiring a separate
+  one-off maintainer assembly process.
+
+Expected PR shape:
+
+- single integrated PR
