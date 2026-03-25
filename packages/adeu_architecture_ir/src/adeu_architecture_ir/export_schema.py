@@ -9,6 +9,10 @@ from .analysis_request import (
     ADEU_ARCHITECTURE_ANALYSIS_REQUEST_SCHEMA,
     AdeuArchitectureAnalysisRequest,
 )
+from .analysis_settlement import (
+    ADEU_ARCHITECTURE_ANALYSIS_SETTLEMENT_FRAME_SCHEMA,
+    AdeuArchitectureAnalysisSettlementFrame,
+)
 from .root_family import (
     ADEU_ARCHITECTURE_BOUNDARY_GRAPH_SCHEMA,
     ADEU_ARCHITECTURE_INTENT_PACKET_SCHEMA,
@@ -40,6 +44,16 @@ def main() -> None:
             / "adeu_architecture_analysis_request.v1.json",
             root / "spec" / "adeu_architecture_analysis_request.schema.json",
             ADEU_ARCHITECTURE_ANALYSIS_REQUEST_SCHEMA,
+        ),
+        (
+            AdeuArchitectureAnalysisSettlementFrame.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_architecture_ir"
+            / "schema"
+            / "adeu_architecture_analysis_settlement_frame.v1.json",
+            root / "spec" / "adeu_architecture_analysis_settlement_frame.schema.json",
+            ADEU_ARCHITECTURE_ANALYSIS_SETTLEMENT_FRAME_SCHEMA,
         ),
         (
             ArchitectureIntentPacket.model_json_schema(by_alias=True),

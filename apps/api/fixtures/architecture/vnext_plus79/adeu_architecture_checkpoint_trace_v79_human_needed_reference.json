@@ -13,7 +13,7 @@
       "checkpoint_id": "v40c_v79_checkpoint_7732ceb7733a60c4",
       "final_adjudication": "escalated_human",
       "human_escalation_ref": "rule_policy_gap",
-      "replay_identity_hash": "9115a20073f210edfd6e85c73adfaa67aca52171b2f9818de2b449ce400e53f3",
+      "replay_identity_hash": "304efb0946e97cc8a39383b73371428151078db89e5708f67b8171d44da90762",
       "resolution_route": "human_only"
     }
   ],
@@ -26,7 +26,7 @@
     },
     {
       "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-      "sha256": "2bb6b005291ba0d0213954eb635079422e2030660418df554f83f2d1dd980e00"
+      "sha256": "9f9956fb137edda2efccc7e1a50035f350c186ba4bf633f81270b03e297145fb"
     },
     {
       "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md",
@@ -39,5 +39,5 @@
   ],
   "schema": "adeu_architecture_checkpoint_trace@1",
   "semantic_hash": "cf42da9738378d886311ad21fd96cbf0f211d2d62c3401cd91f48c9f47fc9573",
-  "trace_id": "v40c_v79_trace_b50f079041f4ec47"
+  "trace_id": "v40c_v79_trace_8d54de9b629f6056"
 }

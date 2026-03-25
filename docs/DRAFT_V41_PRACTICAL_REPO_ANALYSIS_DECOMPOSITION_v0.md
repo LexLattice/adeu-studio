@@ -1,7 +1,7 @@
 # Draft V41 Practical Repo Analysis Decomposition v0
 
-Status: working decomposition draft after `vNext+82` closeout and bounded `V40`
-family completion on `main`.
+Status: working decomposition draft after `vNext+83` closeout and released `V41-A`
+world-binding baseline on `main`.
 
 This document is an intermediate planning artifact between:
 
@@ -33,13 +33,14 @@ implementation by itself.
 - `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`
 - `docs/DRAFT_ASIR_ARC_DECOMPOSITION_v0.md`
 - `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
-- `docs/DRAFT_NEXT_ARC_OPTIONS_v22.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v23.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS77.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS78.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS79.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS80.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS81.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS82.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS83.md`
 
 ## Decomposition Thesis
 
@@ -80,11 +81,14 @@ That loop requires one additional family because it introduces a new operational
 ## Baseline Agreement
 
 - `vNext+82` (`V40-F`) is closed on `main`.
+- `vNext+83` (`V41-A`) is closed on `main`.
 - The bounded `V40` family is complete on `main` at its intended baseline.
 - The released ASIR ladder now exists end-to-end for semantic-root, conformance,
-  hybrid, lowering, UX compatibility, and family evidence.
-- The next safe step is not to reopen `V40`; it is to operationalize ASIR against a
-  real repo in a truthful, typed, repeatable way.
+  hybrid, lowering, UX compatibility, and family evidence, and the first practical
+  request/world-binding seam now exists over a real repo scope.
+- The next safe step is not to reopen `V40` or relitigate request/source-set capture;
+  it is to externalize settlement, deontic typing, entitlement, and escalation over
+  that frozen world before compile claims begin.
 - The Lean formal lane remains useful but sidecar-only and should not become a hidden
   prerequisite for practical repo analysis.
 
@@ -94,7 +98,7 @@ That loop requires one additional family because it introduces a new operational
 {
   "schema": "v41_practical_repo_analysis_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+82",
+  "baseline_arc": "vNext+83",
   "closed_prior_family": "V40",
   "closed_prior_paths": [
     "V40-A",
@@ -105,11 +109,14 @@ That loop requires one additional family because it introduces a new operational
     "V40-F"
   ],
   "next_path_family": "V41",
-  "default_next_arc_candidate": "V41-A",
-  "default_next_concrete_arc_candidate": "vNext+83",
+  "closed_current_family_paths": [
+    "V41-A"
+  ],
+  "default_next_arc_candidate": "V41-B",
+  "default_next_concrete_arc_candidate": "vNext+84",
   "v41_path_count": 6,
   "v41_default_arc_span": {
-    "from": "vNext+83",
+    "from": "vNext+84",
     "to": "vNext+88"
   },
   "v41_paths_may_span_multiple_arcs": true,
@@ -125,6 +132,8 @@ That loop requires one additional family because it introduces a new operational
   "alignment_artifact": "adeu_architecture_alignment_report@1",
   "intended_observed_lane_separation_required": true,
   "precompile_settlement_required": true,
+  "settlement_entry_grounding_required": true,
+  "settlement_blocking_lineage_required": true,
   "source_set_snapshot_mode": "committed_tree_or_explicit_materialized_snapshot_only",
   "source_set_hashing_profile": "per_item_hashes_plus_aggregate_hash",
   "runner_mode": "cli_first_repo_grounded",
@@ -173,15 +182,16 @@ decomposition rules:
 The current recommended concrete split is:
 
 - `vNext+83`
-  - default first concrete `V41-A` arc:
+  - closed first concrete `V41-A` arc:
     analysis-request schema/model/export baseline, deterministic source-set capture,
     repo-scope selection, accepted-input hashing, authority-boundary policy pinning,
     and reference fixtures
 - `vNext+84`
   - default first concrete `V41-B` arc:
     settlement-frame schema/model/export baseline plus interpretation register,
-    deontic typing, entitlement posture, and escalation trigger policy over the
-    released request/source-set boundary
+    deontic typing, affordance decisions, claim posture, explicit compile-entitlement
+    gating, and escalation trigger policy over the released request/source-set
+    boundary
 - `vNext+85`
   - default first concrete `V41-C` arc:
     observed implementation frame schema/model/export baseline plus deterministic repo
@@ -275,23 +285,52 @@ Goal:
 Scope:
 
 - canonical `adeu_architecture_analysis_settlement_frame@1`;
-- chosen interpretation or explicit interpretation register over the request;
+- exact consumption of the released `V41-A` analysis request over the same
+  `analysis_request_id`, `source_set_hash`, and pinned authority-boundary policy;
+- chosen interpretation plus explicit interpretation register over the request;
+- each interpretation entry should remain explicitly addressable and grounded at least
+  by:
+  - `interpretation_id`
+  - canonical summary
+  - support refs
+  - linked ambiguity refs;
 - prompt-content / brief-content deontic typing at least for:
   - required
   - forbidden
   - permitted
   - optional_hint
   - fallback_affordance
+- each deontic typing entry should remain explicitly addressable and grounded at least
+  by:
+  - `typing_id`
+  - `target_ref`
+  - `target_kind`
+  - `deontic_class`
+  - rationale;
 - affordance decisions recording when a permitted affordance was:
   - used
   - deferred
   - intentionally declined
   together with rationale;
+- every request-bound affordance surfaced by deontic typing should also emit one
+  explicit affordance-decision record;
 - claim posture classification at least for:
   - observed
   - inferred
   - conjectural
   - unentitled_negative_claim
+- each claim-posture entry should remain explicitly addressable and grounded at least
+  by:
+  - `claim_id`
+  - `claim_ref`
+  - `posture_class`
+  - rationale;
+- any `unentitled_negative_claim` should also record why it is unentitled, at least
+  through one bounded-support marker such as:
+  - `search_absence`
+  - `proof_not_attempted`
+  - `ambiguity_dependent`
+  - `assumption_pressure`;
 - the starter negative-claim posture must not collapse "not found within current
   search/proof bound" into proved impossibility; any stronger impossibility taxonomy
   remains deferred unless a later lock freezes an explicit proof surface;
@@ -300,6 +339,13 @@ Scope:
   - silent_semantic_assumption_needed
   - impossibility_claim_without_proof
   - externalized_search_or_check_required
+- explicit pre-compile entitlement posture with:
+  - entitled
+  - blocked
+  only;
+- explicit `blocking_lineage` when compile entitlement remains blocked;
+- any free-text notes field should stay advisory only and must not become the real
+  home for interpretations, typed classes, escalation support, or blocking reasons;
 - authoritative and mirrored schema exports.
 
 Locks:
@@ -308,13 +354,17 @@ Locks:
 - no intended ASIR compile yet;
 - no final alignment report yet;
 - no automatic code edits or repair suggestions yet;
-- no hidden settlement through free prose or silent branch choice.
+- no hidden settlement through free prose or silent branch choice;
+- no mushy typed-top / prose-inside register entries;
+- no silent promotion of permissions or fallback affordances into obligations;
+- no compile-entitlement claim while unresolved high-impact ambiguity, active
+  escalation triggers, or unentitled negative claims remain.
 
 Acceptance:
 
 - one bounded repo scope emits a deterministic settlement frame;
-- chosen reading, unresolved high-impact ambiguity, entitlement posture, and
-  escalation triggers remain explicit;
+- chosen reading, unresolved high-impact ambiguity, affordance decisions, claim
+  posture, compile entitlement, and escalation triggers remain explicit;
 - downstream compile lanes can no longer claim settlement was implicit.
 
 Expected PR shape:

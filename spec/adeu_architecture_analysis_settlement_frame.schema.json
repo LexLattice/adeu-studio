@@ -1,0 +1,425 @@
+{
+  "$defs": {
+    "ActiveEscalationRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "supporting_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Refs",
+          "type": "array"
+        },
+        "trigger_id": {
+          "enum": [
+            "unresolved_high_impact_ambiguity",
+            "silent_semantic_assumption_needed",
+            "impossibility_claim_without_proof",
+            "externalized_search_or_check_required"
+          ],
+          "title": "Trigger Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "trigger_id",
+        "supporting_refs"
+      ],
+      "title": "ActiveEscalationRecord",
+      "type": "object"
+    },
+    "AffordanceDecisionEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_class": {
+          "enum": [
+            "used",
+            "deferred",
+            "intentionally_declined"
+          ],
+          "title": "Decision Class",
+          "type": "string"
+        },
+        "decision_id": {
+          "title": "Decision Id",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "target_ref": {
+          "title": "Target Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_id",
+        "target_ref",
+        "decision_class",
+        "rationale"
+      ],
+      "title": "AffordanceDecisionEntry",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicyPin": {
+      "additionalProperties": false,
+      "properties": {
+        "inline_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthorityBoundaryPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        }
+      },
+      "title": "AuthorityBoundaryPolicyPin",
+      "type": "object"
+    },
+    "BlockingLineageEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "blocking_kind": {
+          "title": "Blocking Kind",
+          "type": "string"
+        },
+        "blocking_ref_id": {
+          "title": "Blocking Ref Id",
+          "type": "string"
+        },
+        "supporting_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "blocking_ref_id",
+        "blocking_kind",
+        "supporting_refs"
+      ],
+      "title": "BlockingLineageEntry",
+      "type": "object"
+    },
+    "ClaimPostureEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "claim_ref": {
+          "title": "Claim Ref",
+          "type": "string"
+        },
+        "posture_class": {
+          "enum": [
+            "observed",
+            "inferred",
+            "conjectural",
+            "unentitled_negative_claim"
+          ],
+          "title": "Posture Class",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "support_limit_class": {
+          "anyOf": [
+            {
+              "enum": [
+                "search_absence",
+                "proof_not_attempted",
+                "ambiguity_dependent",
+                "assumption_pressure"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Support Limit Class"
+        }
+      },
+      "required": [
+        "claim_id",
+        "claim_ref",
+        "posture_class",
+        "rationale"
+      ],
+      "title": "ClaimPostureEntry",
+      "type": "object"
+    },
+    "DeonticTypingEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "deontic_class": {
+          "enum": [
+            "required",
+            "forbidden",
+            "permitted",
+            "optional_hint",
+            "fallback_affordance"
+          ],
+          "title": "Deontic Class",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "target_kind": {
+          "title": "Target Kind",
+          "type": "string"
+        },
+        "target_ref": {
+          "title": "Target Ref",
+          "type": "string"
+        },
+        "typing_id": {
+          "title": "Typing Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "typing_id",
+        "target_ref",
+        "target_kind",
+        "deontic_class",
+        "rationale"
+      ],
+      "title": "DeonticTypingEntry",
+      "type": "object"
+    },
+    "EscalationTriggerPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "trigger_ids": {
+          "items": {
+            "enum": [
+              "unresolved_high_impact_ambiguity",
+              "silent_semantic_assumption_needed",
+              "impossibility_claim_without_proof",
+              "externalized_search_or_check_required"
+            ],
+            "type": "string"
+          },
+          "title": "Trigger Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "trigger_ids"
+      ],
+      "title": "EscalationTriggerPolicy",
+      "type": "object"
+    },
+    "InterpretationEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "interpretation_id": {
+          "title": "Interpretation Id",
+          "type": "string"
+        },
+        "linked_ambiguity_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Linked Ambiguity Refs",
+          "type": "array"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "support_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Support Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "interpretation_id",
+        "summary",
+        "support_refs"
+      ],
+      "title": "InterpretationEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "active_escalation_records": {
+      "items": {
+        "$ref": "#/$defs/ActiveEscalationRecord"
+      },
+      "title": "Active Escalation Records",
+      "type": "array"
+    },
+    "advisory_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Advisory Notes",
+      "type": "array"
+    },
+    "affordance_decisions": {
+      "items": {
+        "$ref": "#/$defs/AffordanceDecisionEntry"
+      },
+      "title": "Affordance Decisions",
+      "type": "array"
+    },
+    "analysis_request_id": {
+      "title": "Analysis Request Id",
+      "type": "string"
+    },
+    "analysis_request_ref": {
+      "title": "Analysis Request Ref",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicyPin"
+    },
+    "blocking_lineage": {
+      "items": {
+        "$ref": "#/$defs/BlockingLineageEntry"
+      },
+      "title": "Blocking Lineage",
+      "type": "array"
+    },
+    "chosen_interpretation_id": {
+      "title": "Chosen Interpretation Id",
+      "type": "string"
+    },
+    "claim_posture_register": {
+      "items": {
+        "$ref": "#/$defs/ClaimPostureEntry"
+      },
+      "title": "Claim Posture Register",
+      "type": "array"
+    },
+    "compile_entitlement": {
+      "enum": [
+        "entitled",
+        "blocked"
+      ],
+      "title": "Compile Entitlement",
+      "type": "string"
+    },
+    "deontic_typing_register": {
+      "items": {
+        "$ref": "#/$defs/DeonticTypingEntry"
+      },
+      "title": "Deontic Typing Register",
+      "type": "array"
+    },
+    "escalation_trigger_policy": {
+      "$ref": "#/$defs/EscalationTriggerPolicy"
+    },
+    "interpretation_register": {
+      "items": {
+        "$ref": "#/$defs/InterpretationEntry"
+      },
+      "title": "Interpretation Register",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_architecture_analysis_settlement_frame@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_frame_id": {
+      "title": "Settlement Frame Id",
+      "type": "string"
+    },
+    "source_set_hash": {
+      "title": "Source Set Hash",
+      "type": "string"
+    },
+    "unresolved_high_impact_ambiguity_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unresolved High Impact Ambiguity Refs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema",
+    "settlement_frame_id",
+    "analysis_request_id",
+    "analysis_request_ref",
+    "source_set_hash",
+    "authority_boundary_policy",
+    "interpretation_register",
+    "chosen_interpretation_id",
+    "escalation_trigger_policy",
+    "compile_entitlement"
+  ],
+  "title": "AdeuArchitectureAnalysisSettlementFrame",
+  "type": "object"
+}

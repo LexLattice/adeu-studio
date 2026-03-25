@@ -1,19 +1,15 @@
 # Draft Next Arc Options v23
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v22.md`, updated after
-`vNext+82` closeout and bounded `V40` family completion.
+`vNext+83` closeout and released `V41-A` world-binding baseline on `main`.
 
-This draft treats `V40-F` as closed on `main` at its bounded baseline and begins
-selection of the next family.
+This draft keeps `V41` active and selects the immediate next seam inside that family.
 
-The next question is no longer how to complete the ASIR artifact ladder itself.
+The next question is no longer how to bind the repo world deterministically.
 
-The next question is how to use the released ASIR ladder practically against a real
-repo so that ADEU can:
-
-- make intended architecture explicit;
-- make observed implementation explicit; and
-- compare the two truthfully rather than blurring them together.
+The next question is how to externalize interpretation, deontic typing, entitlement,
+and escalation posture over that already-frozen world before any observed extraction,
+intended compile, or drift claim begins.
 
 This is a planning document only. It is not a lock doc and does not authorize runtime
 behavior, schema release, or implementation by itself.
@@ -22,202 +18,201 @@ behavior, schema release, or implementation by itself.
 
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
-- `vNext+82` is the current baseline implementation state.
-- The released ASIR family substrate now includes:
-  - canonical semantic-root artifacts and schema exports;
-  - deterministic conformance and blocked/ready gating;
-  - bounded hybrid checkpoint, oracle, and delta artifacts;
-  - honest `adeu_core_ir@0.1` lowering through canonical projection bundle/manifest
-    lineage;
-  - first UX compatibility lowering into canonical `ux_domain_packet@1` only;
-  - family-complete evidence and stop-gate continuity for `vNext+77` through
-    `vNext+82`.
-- `docs/DRAFT_ASIR_ARC_DECOMPOSITION_v0.md` is now the historical closed decomposition
-  for `V40`.
+- `V41-A` is now closed on `main`.
+- `vNext+83` is the current baseline implementation state.
+- The released practical-analysis substrate now includes:
+  - canonical `adeu_architecture_analysis_request@1`;
+  - deterministic repo-root-relative scope selection;
+  - `committed_tree` / `materialized_snapshot` request discipline;
+  - per-item plus aggregate `source_set` hashing;
+  - exact brief/doc reference closure;
+  - explicit request-bound authority-boundary policy pinning;
+  - explicit settlement deferral over the released request boundary.
+- The released practical-analysis loop still does not yet include:
+  - canonical settlement / entitlement gating;
+  - observed implementation extraction;
+  - intended repo-grounded ASIR compile;
+  - deterministic alignment / drift reporting;
+  - habitual runner orchestration.
 
 ## Gap
 
-The missing layer is no longer semantic-root release, deterministic conformance,
-bounded hybrid disposition, lowering, UX compatibility, or family release evidence.
+The missing layer is no longer request/world binding itself.
 
-The missing layer is a practical repo-grounded analysis loop that can:
+The missing layer is the pre-compile governance seam that says:
 
-- bind one real repo scope plus maintainer brief into one canonical analysis request;
-- capture one exact `source_set` of docs, code, config, and tests rather than relying
-  on ad hoc file reads;
-- settle one explicit interpretive and deontic frame before observed extraction,
-  intended compile, or drift claims begin;
-- compile intended architecture over that `source_set` into canonical
-  `adeu_architecture_semantic_ir@1`;
-- compile observed implementation facts from the same repo scope into a separate
-  comparable artifact;
-- emit one deterministic alignment report that surfaces code-vs-intent drift without
-  silently merging the two lanes.
+- what interpretation of the maintainer brief / accepted docs was chosen;
+- what high-impact ambiguity remains unresolved;
+- how prompt and brief content was deontically typed;
+- which claims are entitled versus conjectural or unentitled;
+- when the system must escalate instead of silently continuing;
+- and whether downstream compile is currently entitled or blocked.
 
 Today the repo still lacks a released way to:
 
-- run ASIR habitually against one of our real codebases rather than only against
-  frozen synthetic fixtures;
-- externalize the chosen interpretation / entitlement / escalation posture before
-  compiling observed or intended architecture claims;
-- preserve the distinction between:
-  - intended architecture,
-  - observed implementation, and
-  - the deterministic comparison between them;
-- surface practical mismatch classes such as:
-  - declared but unimplemented behavior,
-  - implemented but undeclared behavior,
-  - authority-boundary drift,
-  - workflow drift,
-  - observability / evidence gaps;
-- orchestrate the resulting loop repeatably from one CLI-first runner.
+- externalize the chosen interpretation over a released `analysis_request_id` and
+  `source_set_hash` rather than settling a different world implicitly;
+- record permitted or fallback affordances that were noticed and intentionally
+  declined or deferred;
+- distinguish search-bounded negative posture from proved impossibility strongly
+  enough that compile does not overclaim certainty;
+- expose escalation triggers before observed extraction, intended compile, or drift
+  diagnostics begin;
+- block downstream compile honestly when unresolved high-impact ambiguity, active
+  escalation triggers, or unentitled negative claims remain.
 
-In this family, "one real repo scope" should mean:
+## Naming Convention (Active Family)
 
-- one repo-root-relative subtree as the default scope anchor;
-- optional explicit file additions outside that subtree when they are named
-  deterministically;
-- explicit exclusion rules;
-- and an allowed artifact-kind set for docs, code, config, and tests.
-
-## Naming Convention (New Family)
-
-- `V41-*` identifiers are reserved for the practical repo-grounded architecture
-  analysis family in this planning cycle.
-- `B41-*` identifiers are reserved for explicit multi-path bundles if later needed.
-- `V40-*` remains historical/closed and is not reused.
+- `V41-*` identifiers remain reserved for the practical repo-grounded architecture
+  analysis family.
+- `V40-*` remains historical / closed.
 
 ## Recommended Family
 
 - Family name: `V41`
 - Family theme: practical repo-grounded architecture analysis, settlement, and
   alignment
-- Closed prior family:
-  - `V40-A`
-  - `V40-B`
-  - `V40-C`
-  - `V40-D`
-  - `V40-E`
-  - `V40-F`
+- Closed current-family paths:
+  - `V41-A`
 - Recommended decomposition reference:
   - `docs/DRAFT_V41_PRACTICAL_REPO_ANALYSIS_DECOMPOSITION_v0.md`
 - Recommended next path:
-  - `V41-A`
+  - `V41-B`
 - Recommended next concrete arc:
-  - `vNext+83`
+  - `vNext+84`
 - Default path selection:
-  - select `V41-A` as the next default candidate
+  - select `V41-B` as the next default candidate
 
-## Closed Earlier Family (`V40`)
+## Closed Current Path (`V41-A`)
 
 Solved:
 
-- the complete ASIR artifact ladder from semantic-root through family evidence;
-- deterministic separation of semantic root, conformance, hybrid checkpoint state,
-  projection lineage, UX compatibility, and release evidence;
-- bounded advisory-only oracle law and fail-closed escalation;
-- bounded projection and UX honesty over released lineage;
-- family-complete release evidence and stop-gate continuity.
+- one canonical analysis-request artifact;
+- one deterministic repo scope and `source_set`;
+- one exact snapshot identity posture;
+- exact brief/doc reference closure;
+- explicit settlement deferral and no compile-claim authority from request capture
+  alone.
 
-What `V40` did not solve:
+What `V41-A` did not solve:
 
-- running the pipeline habitually against one real repo;
-- keeping intended architecture and observed implementation as separate comparable
-  typed lanes;
-- emitting one deterministic alignment report over the two lanes;
-- packaging the loop into one repeatable CLI-first practical runner.
+- chosen interpretation over that frozen request boundary;
+- prompt / brief deontic typing;
+- affordance decisions and entitlement posture;
+- escalation trigger policy;
+- downstream compile authorization.
 
-## Recommended Next Path (`V41-A`)
+## Recommended Next Path (`V41-B`)
 
-Implement the practical analysis-request and source-set capture baseline.
+Implement the practical analysis-settlement and entitlement-gating baseline.
 
-`V41-A` should introduce:
+`V41-B` should introduce:
 
-- one canonical `adeu_architecture_analysis_request@1` artifact;
-- exact maintainer-brief refs and accepted-doc refs bound into the request rather than
-  only free prose content;
-- deterministic repo-root-relative scope selection and inclusion/exclusion policy;
-- one exact `source_set` over accepted docs, code, config, and tests;
-- explicit snapshot mode over either:
-  - committed tree content; or
-  - an explicitly materialized snapshot captured as part of the request,
-  rather than whatever files happen to be present in an ambient live working tree;
-- immutable snapshot identity for the chosen mode;
-- per-source-item hash binding plus one aggregate `source_set` hash for replay-stable
-  canonicalization;
-- brief/doc refs that resolve either into the frozen `source_set` or into separately
-  materialized and hashed captured artifacts;
-- explicit request-bound `authority_boundary_policy` or exact policy ref;
-- room for a later settlement artifact ref without pretending settlement is already
-  complete;
-- one committed reference fixture over one bounded internal repo scope;
-- no observed extraction, intended compile, or alignment report yet.
+- one canonical `adeu_architecture_analysis_settlement_frame@1` artifact;
+- exact consumption of the released `V41-A` analysis request and its `source_set_hash`;
+- one explicit interpretation register plus one chosen interpretation;
+- register entries that remain typed all the way down rather than top-level-only,
+  including explicit ids, grounded refs, and rationale where appropriate;
+- prompt / brief deontic typing over the released request boundary using frozen
+  starter classes:
+  - `required`
+  - `forbidden`
+  - `permitted`
+  - `optional_hint`
+  - `fallback_affordance`
+- explicit `affordance_decisions` recording when a permitted or fallback affordance
+  was:
+  - `used`
+  - `deferred`
+  - `intentionally_declined`
+  with rationale;
+- explicit claim-posture classification at least for:
+  - `observed`
+  - `inferred`
+  - `conjectural`
+  - `unentitled_negative_claim`
+- explicit escalation-trigger policy at least for:
+  - `unresolved_high_impact_ambiguity`
+  - `silent_semantic_assumption_needed`
+  - `impossibility_claim_without_proof`
+  - `externalized_search_or_check_required`
+- one exact pre-compile entitlement gate, with:
+  - `entitled`
+  - `blocked`
+  only;
+- explicit `blocking_lineage` when `compile_entitlement = blocked`;
+- request-bound ref resolution for interpretation support refs, deontic targets,
+  affordance-decision targets, claim refs, ambiguity refs, and escalation support refs;
+- explicit advisory-only notes if any, with no authority to introduce new typed
+  meaning by prose;
+- one committed settlement reference fixture over the released v83 request boundary;
+- no observation frame, intended compile, alignment report, or runner release yet.
 
 ## Why This Path
 
-- It is the narrowest lawful next consumer of the released `V40` ladder.
-- It turns the practical loop into something deterministic immediately instead of
-  letting repo analysis start as ad hoc file selection.
-- It preserves the central architectural distinction:
-  intended architecture and observed implementation cannot be compared honestly unless
-  they are derived from the same explicit source set.
-- It keeps the next slice comparable to earlier ADEU seams instead of mixing request
-  capture, repo observation, alignment, and workflow UI in one first lock.
+- It is the next lawful seam after deterministic world binding.
+- It prevents the repo from compiling observed or intended claims over the right files
+  but under the wrong unexternalized interpretation.
+- It turns deontic and entitlement posture into inspectable typed state rather than
+  buried model behavior.
+- It makes the settlement frame harder to game by requiring grounded per-entry
+  structure, blocking lineage, and explicit affordance coverage instead of
+  semi-structured blobs.
+- It keeps practical analysis truthful: request capture alone does not entitle
+  compile, and compile may not proceed silently when high-impact ambiguity or
+  unentitled negative claims remain.
 
-## First-Slice Boundary (`V41-A`)
+## First-Slice Boundary (`V41-B`)
 
-`V41-A` should stay bounded to:
+`V41-B` should stay bounded to:
 
-- analysis-request schema/model/export baseline only;
-- deterministic `source_set` capture only;
-- repo-scope selection, inclusion/exclusion policy, and hash binding only;
-- request-bound authority policy and settlement hooks only;
-- artifact inputs for a later runner only, not the runner itself;
-- committed request/reference fixtures only;
+- settlement-frame schema/model/export baseline only;
+- released-request consumption only;
+- interpretation register, deontic typing, claim posture, affordance decisions, and
+  escalation-trigger policy only;
+- request-bound grounding for every typed entry inside those registers;
+- exact pre-compile entitlement gating only;
+- committed settlement reference fixtures only;
 - validator tests only.
 
 It should not attempt:
 
-- semantic settlement;
-- drift claims;
-- impossibility claims;
 - observed implementation extraction;
 - intended ASIR compile over a real repo;
-- alignment or drift diagnostics;
-- CLI orchestration of the full loop;
+- drift or alignment diagnostics;
+- remediation plans or repo-mutation instructions;
+- CLI orchestration of the full practical loop;
 - API or web inspection surfaces;
-- automatic repo mutation or prompt-to-code generation.
+- automatic code changes or prompt-to-code generation.
 
 ## Follow-On Paths Inside `V41`
 
-The recommended family ladder after `V41-A` is:
+The recommended family ladder after `V41-B` is:
 
-1. `V41-A`
-   - analysis request and deterministic `source_set` capture
-2. `V41-B`
+1. `V41-B`
    - interpretation settlement, deontic typing, and entitlement / escalation baseline
-3. `V41-C`
+2. `V41-C`
    - observed implementation observation frame
-4. `V41-D`
+3. `V41-D`
    - intended repo-grounded ASIR compile
-5. `V41-E`
+4. `V41-E`
    - deterministic alignment and drift diagnostics
-6. `V41-F`
+5. `V41-F`
    - practical runner / habitual orchestration
 
 ## Planning Boundary
 
-- no reopening of `V40-A` through `V40-F` semantics is authorized by this planning
-  draft;
-- no silent collapse of intended and observed architecture into one artifact is
-  authorized by this planning draft;
-- no direct prompt-to-code or automatic repo mutation is authorized by this planning
-  draft;
+- no reopening of the released `V41-A` request / `source_set` contract is authorized
+  by this planning draft;
+- no observed extraction, intended compile, or alignment report is authorized by this
+  planning draft;
+- no silent promotion of permissions into obligations or bounded search absence into
+  proved impossibility is authorized by this planning draft;
 - no API or web workbench release is authorized by this planning draft;
-- no formal Lean proof surface becomes authoritative over practical repo analysis by
+- no automatic repo mutation or direct prompt-to-code generation is authorized by this
+  planning draft;
+- no formal Lean sidecar becomes authoritative over practical settlement validity by
   this planning draft;
-- the practical loop should stay CLI-first and one-repo-scoped before any broader
-  orchestration widening;
 - no stop-gate schema-family fork or implicit metric-key expansion is authorized.
 
 ## Machine-Checkable Planning Baseline
@@ -226,7 +221,7 @@ The recommended family ladder after `V41-A` is:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v22.md",
-  "baseline_arc": "vNext+82",
+  "baseline_arc": "vNext+83",
   "closed_prior_family": "V40",
   "closed_prior_paths": [
     "V40-A",
@@ -236,23 +231,28 @@ The recommended family ladder after `V41-A` is:
     "V40-E",
     "V40-F"
   ],
-  "next_family": "V41",
-  "default_next_arc_candidate": "V41-A",
-  "default_next_concrete_arc_candidate": "vNext+83",
+  "active_family": "V41",
+  "closed_current_family_paths": [
+    "V41-A"
+  ],
+  "default_next_arc_candidate": "V41-B",
+  "default_next_concrete_arc_candidate": "vNext+84",
   "family_decomposition_doc": "docs/DRAFT_V41_PRACTICAL_REPO_ANALYSIS_DECOMPOSITION_v0.md",
   "analysis_request_artifact": "adeu_architecture_analysis_request@1",
   "analysis_settlement_artifact": "adeu_architecture_analysis_settlement_frame@1",
+  "analysis_settlement_package": "packages/adeu_architecture_ir",
   "observed_lane_artifact": "adeu_architecture_observation_frame@1",
   "intended_lane_artifact": "adeu_architecture_semantic_ir@1",
   "alignment_artifact": "adeu_architecture_alignment_report@1",
   "intended_observed_lane_separation_required": true,
   "alignment_requires_distinct_intended_and_observed_artifacts": true,
   "precompile_settlement_required": true,
-  "source_set_snapshot_mode": "committed_tree_or_explicit_materialized_snapshot_only",
-  "source_set_hashing_profile": "per_item_hashes_plus_aggregate_hash",
-  "dual_compile_required": true,
+  "settlement_entitlement_gate_required": true,
+  "settlement_entry_grounding_required": true,
+  "settlement_blocking_lineage_required": true,
+  "settlement_notes_authoritative": false,
   "formal_sidecar_authoritative": false,
   "cli_first_practical_runner": true,
-  "v41a_runner_deferred": true
+  "v41b_runner_deferred": true
 }
 ```

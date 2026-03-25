@@ -6,6 +6,7 @@ from pathlib import Path
 
 from adeu_architecture_ir import (
     ADEU_ARCHITECTURE_ANALYSIS_REQUEST_SCHEMA,
+    ADEU_ARCHITECTURE_ANALYSIS_SETTLEMENT_FRAME_SCHEMA,
     ADEU_ARCHITECTURE_BOUNDARY_GRAPH_SCHEMA,
     ADEU_ARCHITECTURE_INTENT_PACKET_SCHEMA,
     ADEU_ARCHITECTURE_ONTOLOGY_FRAME_SCHEMA,
@@ -28,6 +29,14 @@ def _schema_paths() -> list[tuple[Path, Path]]:
             / "schema"
             / "adeu_architecture_analysis_request.v1.json",
             root / "spec" / "adeu_architecture_analysis_request.schema.json",
+        ),
+        (
+            root
+            / "packages"
+            / "adeu_architecture_ir"
+            / "schema"
+            / "adeu_architecture_analysis_settlement_frame.v1.json",
+            root / "spec" / "adeu_architecture_analysis_settlement_frame.schema.json",
         ),
         (
             root
@@ -98,6 +107,9 @@ def test_schema_export_rerun_is_clean_and_deterministic() -> None:
 def test_exported_schema_has_stable_contract_markers() -> None:
     expected_consts = {
         "adeu_architecture_analysis_request.v1.json": ADEU_ARCHITECTURE_ANALYSIS_REQUEST_SCHEMA,
+        "adeu_architecture_analysis_settlement_frame.v1.json": (
+            ADEU_ARCHITECTURE_ANALYSIS_SETTLEMENT_FRAME_SCHEMA
+        ),
         "adeu_architecture_intent_packet.v1.json": ADEU_ARCHITECTURE_INTENT_PACKET_SCHEMA,
         "adeu_architecture_ontology_frame.v1.json": ADEU_ARCHITECTURE_ONTOLOGY_FRAME_SCHEMA,
         "adeu_architecture_boundary_graph.v1.json": ADEU_ARCHITECTURE_BOUNDARY_GRAPH_SCHEMA,
