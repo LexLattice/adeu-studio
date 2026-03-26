@@ -1,6 +1,10 @@
-# Draft Stop-Gate Decision vNext+86
+# Draft Stop-Gate Decision (Post vNext+86)
 
-Status: proposed gate for `V41-D`.
+This note records the arc-completion decision for:
+
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS86.md`
+
+Status: draft decision note (post-hoc closeout capture, March 26, 2026 UTC).
 
 ## Decision-State Marker (Machine-Checkable)
 
@@ -8,90 +12,156 @@ Status: proposed gate for `V41-D`.
 {
   "schema": "decision_artifact_state@1",
   "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS86.md",
-  "phase": "pre_start_scaffold",
-  "authoritative": false,
+  "phase": "post_closeout_decision",
+  "authoritative": true,
+  "authoritative_scope": "v86_closeout_stop_gate_decision",
   "required_in_closeout": true,
-  "all_passed": false
+  "all_passed": true,
+  "notes": "Pre-start scaffold markers are superseded by post-closeout evidence and final decision values in this document."
 }
 ```
 
-## Accept When
+## Decision Guardrail (Frozen)
 
-- deterministic intended-compile helpers land in
-  `packages/adeu_architecture_compiler` without redefining the released `V40-A`
-  root-family schemas;
-- the compile entrypoint consumes the released `V41-A` request, `V41-B` settlement,
-  and `V41-C` observation boundary exactly through:
-  - `analysis_request_id`
-  - `analysis_request_ref`
-  - `settlement_frame_id`
-  - `settlement_frame_ref`
-  - `observation_frame_id`
-  - `observation_frame_ref`
-  - `source_set_hash`
-  - `authority_boundary_policy`;
-- the only emitted artifact families in this slice are the already-released
-  `V40-A` root-family artifacts:
-  - `adeu_architecture_intent_packet@1`
-  - `adeu_architecture_ontology_frame@1`
-  - `adeu_architecture_boundary_graph@1`
-  - `adeu_architecture_world_hypothesis@1`
-  - `adeu_architecture_semantic_ir@1`;
-- emitted root-family outputs validate against the unchanged released
-  `packages/adeu_architecture_ir/schema/` and `spec/` schema surface;
-- intended compile runs over the same frozen repo `source_set` consumed by request,
-  settlement, and observation rather than a fresh ambient brief universe;
-- the released request boundary plus released settlement frame remain the normative
-  driver for intended compile; the observation frame may constrain, block, or force
-  ambiguity/advisory posture, but may not become the hidden source of intended
-  truth;
-- lawful emission of intended root-family outputs requires
-  released `compile_entitlement = entitled` consumed as-is from the settlement
-  frame;
-- blocked settlement or non-empty blocking lineage fails closed and emits no
-  authoritative intended root-family output;
-- blocked settlement may not emit shadow advisory intended artifacts under the same
-  released root-family family names;
-- observed facts may inform intended compile only through explicit released
-  root-family meaning structure and may not be silently copied in as settled truth;
-- any observation-driven unknown that matters to intended architecture remains
-  explicit as ambiguity or advisory root-family posture rather than disappearing;
-- emitted root-family artifacts remain free of:
-  - alignment verdicts,
-  - remediation plans,
-  - runner state,
-  - checkpoint state,
-  - projection state,
-  - UX state;
-- one committed fixture ladder under
-  `apps/api/fixtures/architecture/vnext_plus86/` proves deterministic repo-grounded
-  intended compile replay over one bounded repo slice;
-- Python tests cover:
-  - deterministic intended compile replay,
-  - exact request/settlement/observation consumption,
-  - validation against released `V40-A` schemas,
-  - fail-closed blocked-settlement behavior,
-  - fixture-visible carry-through of at least one unresolved or derived observation
-    into explicit ambiguity, advisory hypothesis, or refusal-to-settle posture,
-  - rejection of unresolved-observation laundering,
-  - rejection of alignment/remediation/runner/checkpoint/projection creep.
+- This draft records `vNext+86` closeout evidence only.
+- It must not redefine semantics, locks, or scope from
+  `docs/LOCKED_CONTINUATION_vNEXT_PLUS86.md`.
+- This note captures `V41-D` practical intended-compile closeout evidence only; it
+  does not authorize `adeu_architecture_alignment_report@1`, CLI runner release,
+  API/web inspection routes, remediation or repo-mutation planning, repo-grounded
+  checkpoint/oracle reuse, repo-grounded projection or UX outputs, or any practical
+  alignment/runner authority outside the intended lane.
+- Canonical `V41-D` release in v86 is carried by the extended
+  `packages/adeu_architecture_compiler` intended-compile surface, deterministic
+  helper coverage in `packages/adeu_architecture_compiler/tests/`, the committed
+  intended fixture ladder under `apps/api/fixtures/architecture/vnext_plus86/`, and
+  the canonical `v41d_architecture_intended_compile_evidence@1` evidence input under
+  `artifacts/agent_harness/v86/evidence_inputs/`.
+- The released v86 lane remains intentionally bounded: exact consumption of the
+  released `V41-A` request boundary, `V41-B` settlement frame, and `V41-C`
+  observation companion; entitled-only emission; reuse of unchanged `V40-A`
+  root-family schemas; explicit unresolved-observation carry-through; and strict
+  intended/observed lane separation remain authoritative.
+- Supporting downstream fixture refreshes in the merged PR remain replay-preserving
+  maintenance only; they do not widen the released `V41-D` semantic scope.
+- Runtime observability comparison remains required evidence and informational-only in
+  this arc.
 
-## Do Not Accept If
+## Evidence Source
 
-- the slice redefines released `V40-A` root-family schemas or bytes;
-- the compile entrypoint reads ambient repo state outside the released request world;
-- the compile entrypoint consumes settlement or observation artifacts outside the
-  released request boundary;
-- blocked settlement posture is upgraded into emitted intended output;
-- settlement entitlement is recomputed locally instead of consumed from the released
-  `V41-B` frame;
-- observed implementation summaries are silently promoted into intended truth without
-  released root-family meaning structure;
-- unresolved observed facts disappear instead of remaining explicit in intended
-  posture where they matter;
-- the slice widens into alignment, runner, checkpoint, projection, or UX outputs;
-- intended and observed lanes collapse into one artifact or one mixed truth surface.
+- CI workflow: `ci` on `main`
+- arc-completion merge commit: `ea51709adcccf332e64b05d458e51fe6308d1e6d`
+- arc-completion CI runs:
+  - PR `#308`
+    - head commit: `47f520d1a4dbcc1fc0352d0e185727c6eb0b7264`
+    - URL:
+      `https://github.com/LexLattice/adeu-studio/actions/runs/23574284788`
+    - conclusion: `success`
+  - branch push before merge
+    - head commit: `47f520d1a4dbcc1fc0352d0e185727c6eb0b7264`
+    - URL:
+      `https://github.com/LexLattice/adeu-studio/actions/runs/23574280909`
+    - conclusion: `success`
+  - merge push on `main`
+    - merge commit: `ea51709adcccf332e64b05d458e51fe6308d1e6d`
+    - URL:
+      `https://github.com/LexLattice/adeu-studio/actions/runs/23576426562`
+    - conclusion: `success`
+- merged implementation PRs:
+  - `#308` (`Implement v86 intended compile lane`)
+- deterministic closeout artifacts (reproducible):
+  - quality dashboard JSON: `artifacts/quality_dashboard_v86_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v86_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v86_closeout.md`
+  - metric-key continuity evidence input:
+    `artifacts/agent_harness/v86/evidence_inputs/metric_key_continuity_assertion_v86.json`
+  - runtime observability evidence input:
+    `artifacts/agent_harness/v86/evidence_inputs/runtime_observability_comparison_v86.json`
+  - `V41-D` intended-compile evidence input:
+    `artifacts/agent_harness/v86/evidence_inputs/v41d_architecture_intended_compile_evidence_v86.json`
+- supporting deterministic runtime closeout artifacts (reproducible):
+  - committed runtime evidence root:
+    `artifacts/agent_harness/v86/runtime/evidence/codex/copilot/v86-closeout-main-1/`
+  - parent-session raw/event streams:
+    `artifacts/agent_harness/v86/runtime/evidence/codex/copilot/v86-closeout-main-1/`
+  - the committed runtime stream remains provenance-only continuity evidence for the
+    unchanged runtime lane; gate-relevant truth in v86 remains carried by the typed
+    intended implementation, exact request/settlement/observation consumption,
+    entitled-only emission, unchanged `V40-A` schema validation, committed fixture
+    replay, unresolved-observation carry-through, and the closeout quality and
+    stop-gate bundle.
+- closeout edge assessment:
+  - `docs/ASSESSMENT_vNEXT_PLUS86_EDGES.md`
 
-## Local Gate
+## Exit-Criteria Check (vNext+86)
 
-- run `make check`
+| Criterion | Threshold | Current State | Evidence |
+|---|---|---|---|
+| `V41-D` merged with green CI | required | `pass` | PR `#308`, merge commit `ea51709adcccf332e64b05d458e51fe6308d1e6d`, Actions runs `23574284788`, `23574280909`, and `23576426562` |
+| Canonical repo-grounded intended helpers ship without widening artifact families | required | `pass` | `intended.py`, `test_v41d_fixture_replays_and_emitted_roots_validate`, and `emitted_root_family = ["adeu_architecture_intent_packet@1","adeu_architecture_ontology_frame@1","adeu_architecture_boundary_graph@1","adeu_architecture_world_hypothesis@1","adeu_architecture_semantic_ir@1"]` |
+| Exact `V41-A` request-bound replay remains enforced | required | `pass` | `analysis_request_ref = apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_request_v86_intended_derivative.json`, `analysis_request_id = v41a_v86_architecture_ir_intended_request_derivative`, `source_set_hash = e752a3c9d9cb49c7bbc4128181f48913bf8f99ce1990bc8e4dd35497230676b5`, and `request_boundary_consumption_verified = true` |
+| Exact `V41-B` settlement entitlement is consumed as-is | required | `pass` | `settlement_frame_ref = apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_settlement_frame_v86_intended_derivative.json`, `compile_entitlement = entitled`, `blocking_lineage_count = 0`, `compile_entitlement_consumed_as_is = true`, and `test_v41d_rejects_locally_recomputed_entitlement_drift` |
+| Exact `V41-C` observation companion is consumed without lane collapse | required | `pass` | `observation_frame_ref = apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_observation_frame_v86_intended_derivative.json`, `observation_boundary_consumption_verified = true`, `intended_observed_lane_separation_verified = true`, and `test_v41d_rejects_observed_claims_outside_request_boundary` |
+| Blocked settlement fails closed and emits no intended root-family output | required | `pass` | `blocked_settlement_refusal_verified = true`, `test_v41d_rejects_blocked_settlement_emission`, and `compile_entitlement = entitled` on the accepted v86 ladder |
+| Unresolved or derived observed facts remain visible in emitted intended posture | required | `pass` | `ambiguity_ids = ["amb_unresolved_runtime_signal_join"]`, `unresolved_observation_carrythrough_verified = true`, and `test_v41d_carries_unresolved_observation_into_emitted_posture` |
+| Emitted artifacts validate against unchanged released `V40-A` authoritative/mirrored schemas | required | `pass` | `root_schema_validation_verified = true`, `root_schema_pairs[*].mirror_matches_authoritative = true`, and `test_v41d_fixture_replays_and_emitted_roots_validate` |
+| Practical checkpoint/oracle reuse remains deferred in this first concrete `V41-D` arc | required | `pass` | `practical_checkpoint_oracle_deferred = true`, no repo-grounded checkpoint/oracle outputs in `apps/api/fixtures/architecture/vnext_plus86/`, and no such outputs claimed by `intended.py` |
+| Stop-gate schema-family continuity retained | required | `pass` | `artifacts/stop_gate/metrics_v86_closeout.json` keeps `schema = "stop_gate_metrics@1"`, `valid = true`, and `all_passed = true` |
+| Stop-gate metric-key continuity retained | required | `pass` | `artifacts/agent_harness/v86/evidence_inputs/metric_key_continuity_assertion_v86.json` records exact keyset equality versus v85 |
+| Runtime observability comparison captured | required | `pass` | `artifacts/agent_harness/v86/evidence_inputs/runtime_observability_comparison_v86.json` |
+
+## Stop-Gate Summary
+
+```json
+{
+  "schema": "v86_closeout_stop_gate_summary@1",
+  "arc": "vNext+86",
+  "target_path": "V41-D",
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v85": true,
+  "all_passed": true,
+  "runtime_observability_elapsed_ms": 101,
+  "runtime_observability_delta_ms": 4
+}
+```
+
+## Metric-Key Continuity Assertion
+
+```json
+{"baseline_metrics_path":"artifacts/stop_gate/metrics_v85_closeout.json","current_metrics_path":"artifacts/stop_gate/metrics_v86_closeout.json","expected_relation":"exact_keyset_equality","schema":"metric_key_continuity_assertion@1"}
+```
+
+## Runtime Observability Comparison
+
+```json
+{"baseline_arc":"vNext+85","baseline_elapsed_ms":97,"baseline_source":"artifacts/stop_gate/report_v85_closeout.md","current_arc":"vNext+86","current_elapsed_ms":101,"current_source":"artifacts/stop_gate/report_v86_closeout.md","delta_ms":4,"notes":"v86 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while adding the bounded V41-D repo-grounded intended compile lane over released request, settlement, and observation boundaries, with entitled-only emission, unresolved-observation carry-through, and no alignment/runner/checkpoint/projection/UX practical outputs.","schema":"runtime_observability_comparison@1"}
+```
+
+## V41D Intended-Compile Evidence
+
+```json
+{"schema":"v41d_architecture_intended_compile_evidence@1","contract_source":"docs/LOCKED_CONTINUATION_vNEXT_PLUS86.md#v41d_practical_analysis_intended_compile_contract@1","evidence_input_path":"artifacts/agent_harness/v86/evidence_inputs/v41d_architecture_intended_compile_evidence_v86.json","merged_pr":"#308","merge_commit":"ea51709adcccf332e64b05d458e51fe6308d1e6d","analysis_request_fixture_path":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_request_v86_intended_derivative.json","analysis_request_fixture_hash":"65dd6c9085dafa2bdb8e893b3bf18651a2452f4537b31e90fc1ac019324f44b8","analysis_request_id":"v41a_v86_architecture_ir_intended_request_derivative","analysis_request_ref":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_request_v86_intended_derivative.json","settlement_fixture_path":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_settlement_frame_v86_intended_derivative.json","settlement_fixture_hash":"ab72080ea9286796d62fa4fa936e1d5fbe80fc8054cdb787e92fd035a164421e","settlement_frame_id":"v41b_v86_architecture_ir_intended_settlement_derivative","settlement_frame_ref":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_settlement_frame_v86_intended_derivative.json","observation_fixture_path":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_observation_frame_v86_intended_derivative.json","observation_fixture_hash":"002ea5945c08e38a5821b67d6b0caa23e71709336de23eaddd7a1d5dd567f86b","observation_frame_id":"v41c_v86_architecture_ir_intended_observation_derivative","observation_frame_ref":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_observation_frame_v86_intended_derivative.json","intent_fixture_path":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_intent_packet_v86_reference.json","intent_fixture_hash":"3efeddd0b7468812e1447071d1ca532d14f0cf4783407188777651cc38ace0bf","intent_packet_id":"intent_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile","ontology_fixture_path":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_ontology_frame_v86_reference.json","ontology_fixture_hash":"75fb14da6534aead2de62961bf7c281f2940be9a527f854933bcadd055f883c6","ontology_frame_id":"ont_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile","boundary_fixture_path":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_boundary_graph_v86_reference.json","boundary_fixture_hash":"4003221ac4059c35a9123703ee7e19d450b16238a99966dfe499de051866b86a","boundary_graph_id":"bg_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile","world_fixture_path":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_world_hypothesis_v86_reference.json","world_fixture_hash":"a3c95a57c64c35bbfa9e7338d05dfd93c63861363faedb1018aba33ea4389b5c","world_hypothesis_id":"cand_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_request_bound_intended_world","semantic_ir_fixture_path":"apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_semantic_ir_v86_reference.json","semantic_ir_fixture_hash":"08fe952e0368024f465a9c550ad419c91c1ea9cb22db633503d14a3e5a4cb0a3","architecture_id":"asir_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile","semantic_hash":"f7403b33350a13cadf9c58cfd896dcbf2633c017f188c2e5fd8c68b03dce28d3","source_set_hash":"e752a3c9d9cb49c7bbc4128181f48913bf8f99ce1990bc8e4dd35497230676b5","scope_subtree_root":"packages/adeu_architecture_ir/src/adeu_architecture_ir","request_source_count":12,"compile_entitlement":"entitled","chosen_interpretation_id":"interpretation_request_bound_intended_compile","affordance_decision_count":2,"claim_posture_count":2,"observed_direct_unit_count":5,"observed_derived_boundary_count":1,"unresolved_observation_count":1,"unresolved_observation_ids":["unresolved_runtime_signal_join"],"implementation_source_path":"packages/adeu_architecture_compiler/src/adeu_architecture_compiler/intended.py","implementation_source_hash":"9682aa1f3c9fedb752543a10bf3580d480dc603cae1545144860718242b8566b","package_surface_path":"packages/adeu_architecture_compiler/src/adeu_architecture_compiler/__init__.py","package_surface_hash":"79b926cc669278352971b3d587581a15ffb74ad1bbd83b04d81d4eeee00c709e","model_test_reference_path":"packages/adeu_architecture_compiler/tests/test_architecture_compiler_v41d.py","model_test_reference_hash":"0e20389cff6bd778c3e6847bb5c984eb3cba2f15557660f4f321d239019921e6","export_test_reference_path":"packages/adeu_architecture_compiler/tests/test_architecture_compiler_export_schema.py","export_test_reference_hash":"390e741afa86aa4349eecd75da32c3390506a523e0e525e69c85188cb0314851","root_schema_pairs":[{"schema":"adeu_architecture_intent_packet@1","authoritative_path":"packages/adeu_architecture_ir/schema/adeu_architecture_intent_packet.v1.json","authoritative_hash":"811488b925db0ec265fd50f08913a563925c3581dcbd77b84914771eca629929","mirror_path":"spec/adeu_architecture_intent_packet.schema.json","mirror_hash":"811488b925db0ec265fd50f08913a563925c3581dcbd77b84914771eca629929","mirror_matches_authoritative":true},{"schema":"adeu_architecture_ontology_frame@1","authoritative_path":"packages/adeu_architecture_ir/schema/adeu_architecture_ontology_frame.v1.json","authoritative_hash":"20a8ee90e79935945f60dc8d40c9cbbeb1cc1be8cca7fe08b5f35f88154e9e95","mirror_path":"spec/adeu_architecture_ontology_frame.schema.json","mirror_hash":"20a8ee90e79935945f60dc8d40c9cbbeb1cc1be8cca7fe08b5f35f88154e9e95","mirror_matches_authoritative":true},{"schema":"adeu_architecture_boundary_graph@1","authoritative_path":"packages/adeu_architecture_ir/schema/adeu_architecture_boundary_graph.v1.json","authoritative_hash":"f2d01ec427ebd9e723b3172f2c53183c18415ea6053ef7bc811fc43c2b0d895d","mirror_path":"spec/adeu_architecture_boundary_graph.schema.json","mirror_hash":"f2d01ec427ebd9e723b3172f2c53183c18415ea6053ef7bc811fc43c2b0d895d","mirror_matches_authoritative":true},{"schema":"adeu_architecture_world_hypothesis@1","authoritative_path":"packages/adeu_architecture_ir/schema/adeu_architecture_world_hypothesis.v1.json","authoritative_hash":"b6e1318554e1eb5904f05ea6e378fdca709c2ac4167ac6115cc17fe116d4bcd3","mirror_path":"spec/adeu_architecture_world_hypothesis.schema.json","mirror_hash":"b6e1318554e1eb5904f05ea6e378fdca709c2ac4167ac6115cc17fe116d4bcd3","mirror_matches_authoritative":true},{"schema":"adeu_architecture_semantic_ir@1","authoritative_path":"packages/adeu_architecture_ir/schema/adeu_architecture_semantic_ir.v1.json","authoritative_hash":"00c496ffb745756c35ffcbdc33846cf5a8507d7b300b8b5103e9b825734d8dcf","mirror_path":"spec/adeu_architecture_semantic_ir.schema.json","mirror_hash":"00c496ffb745756c35ffcbdc33846cf5a8507d7b300b8b5103e9b825734d8dcf","mirror_matches_authoritative":true}],"canonical_replay_verified":true,"request_boundary_consumption_verified":true,"settlement_boundary_consumption_verified":true,"observation_boundary_consumption_verified":true,"compile_entitlement_consumed_as_is":true,"blocked_settlement_refusal_verified":true,"unresolved_observation_carrythrough_verified":true,"intended_observed_lane_separation_verified":true,"practical_checkpoint_oracle_deferred":true,"root_schema_validation_verified":true,"emitted_root_family":["adeu_architecture_intent_packet@1","adeu_architecture_ontology_frame@1","adeu_architecture_boundary_graph@1","adeu_architecture_world_hypothesis@1","adeu_architecture_semantic_ir@1"],"ambiguity_ids":["amb_unresolved_runtime_signal_join"],"ambiguity_questions":["How should intended compile account for unresolved observation unresolved_runtime_signal_join: Committed observability artifacts are present, but the released source_set does not by itself establish a live runtime signal join path."],"fact_ids":["fact_request_bound_normative_driver","fact_entitled_compile_required"],"hypothesis_candidate_ids":["cand_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_request_bound_intended_world"],"metric_key_cardinality":80,"metric_key_exact_set_equal_v85":true,"runtime_observability_comparison_ref":"artifacts/agent_harness/v86/evidence_inputs/runtime_observability_comparison_v86.json","policy_sources":[{"path":"AGENTS.md","sha256":"4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"},{"path":"docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md","sha256":"ca7ebacf2a1c1d6527ba816ff1f17339e0d1d490060441ed1fdae2dc59d10805"},{"path":"docs/DRAFT_NEXT_ARC_OPTIONS_v23.md","sha256":"4395095f8e018ecb1cd1254e855647d720789b6b2a6b077278cc5f22ed8941cb"},{"path":"docs/DRAFT_V41_PRACTICAL_REPO_ANALYSIS_DECOMPOSITION_v0.md","sha256":"6d3f2b9a3287b9c0825a526a43a6eb12af67beccb52b7384d4159260705d5407"},{"path":"docs/LOCKED_CONTINUATION_vNEXT_PLUS86.md","sha256":"f0bf6de9121fef5147043492a8898d8e540f762a69f173b6f294151f17023aab"}],"supporting_replay_refreshes":[{"path":"apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_deterministic_pass_reference.json","sha256":"0a7532d5b1357fda9a1b389202e78c5aea1cd9ca3670092aa5c5b2a7e5f6809c"},{"path":"apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_human_needed_reference.json","sha256":"0fcb3d0761272f1ccf192ea57a3b5db58866de7a71845ed7afd4f0622ea7ed47"},{"path":"apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_checkpoint_trace_v79_oracle_reference.json","sha256":"c6fed7f098b9b251ca7f5b880baccd68aaecb75d302937be9d9096fc8a0c4f52"},{"path":"apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_ir_delta_v79_reference.json","sha256":"05b90ae1de017937ecce1bc63799a25b476b5982356f2452157be68db3a21c97"},{"path":"apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_request_v79_reference.json","sha256":"f3500f44017e5a139221b2a5063f3a9fe240845e7f0b936bf2674ac0cfce518e"},{"path":"apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_resolution_v79_invalid_replay.json","sha256":"ade7af162d2f02a73fdaafbe518596c14c3b6d88bfab2c517d6be22fecce7267"},{"path":"apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_resolution_v79_reference.json","sha256":"d7476bb08e42d5adff10d5edc59534d8b5692233d7d32a5de099993e68bc5d39"},{"path":"apps/api/fixtures/architecture/vnext_plus82/v40f_architecture_release_integration_evidence_v82_reference.json","sha256":"3084289be3a5893a6bc8e797224e3b6f7b48e33dd1b2577fb225e31d146ba3b5"},{"path":"artifacts/agent_harness/v82/evidence_inputs/v40f_architecture_release_integration_evidence_v82.json","sha256":"3084289be3a5893a6bc8e797224e3b6f7b48e33dd1b2577fb225e31d146ba3b5"}],"notes":"v86 evidence pins the released V41-D lane on main: repo-grounded intended compile over the released V41-A request boundary, V41-B settlement frame, and V41-C observation companion, emitting only unchanged V40-A root-family artifacts with entitled-only emission, unresolved-observation carry-through, and no alignment/runner/checkpoint/projection/UX practical widening."}
+```
+
+## Recommendation (Post v86)
+
+- gate decision:
+  - `V41D_ARCHITECTURE_INTENDED_COMPILE_BASELINE_COMPLETE_ON_MAIN`
+- rationale:
+  - v86 closes the bounded `V41-D` baseline with canonical repo-grounded intended
+    compile over the released `V41-A` request boundary, `V41-B` settlement frame,
+    and `V41-C` observation companion, emitting only unchanged `V40-A` root-family
+    artifacts integrated on `main`.
+  - the released lane remains explicitly bounded to intended compile only: no
+    alignment report, runner release, repo-grounded checkpoint/oracle reuse,
+    remediation planning, or downstream projection/UX practical surfaces shipped in
+    v86.
+  - the committed reference fixture demonstrates the exact lesson this slice was
+    meant to lock: intended architecture can be materialized over a real repo world
+    without laundering observed implementation into hidden normative authority, while
+    unresolved observed facts remain explicit in emitted posture.
+  - no stop-gate schema-family or metric-key regressions were introduced by the lane;
+    runtime observability changed only informationally, and the planned `V41-D`
+    repo-grounded intended baseline is now complete on `main` at its intentionally
+    bounded scope.
