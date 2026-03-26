@@ -1,0 +1,91 @@
+{
+  "authority_boundary_policy": {
+    "deterministic_adjudicator_authoritative": true,
+    "fail_closed_on_high_impact_ambiguity": true,
+    "no_direct_brief_to_codegen": true,
+    "oracle_output_advisory_only": true,
+    "projections_may_express_but_may_not_mint_authority": true
+  },
+  "declared_constraints": [
+    "Consume released compile_entitlement from V41-B as-is.",
+    "Observation may constrain, block, or force ambiguity but may not become the hidden source of intended truth.",
+    "Unresolved or derived observations that matter to intent must remain explicit as ambiguity, advisory posture, or refusal to settle."
+  ],
+  "intent_packet_id": "intent_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
+  "non_goals": [
+    "alignment_diagnostics",
+    "practical_runner_release",
+    "remediation_planning",
+    "repo_grounded_checkpoint_oracle_reuse"
+  ],
+  "requested_outcomes": [
+    "Compile request-bound intended semantic-root architecture for the adeu_architecture_ir repo slice.",
+    "Emit only the released V40-A root-family artifacts over one bounded repo world.",
+    "Keep the released request and settlement boundary authoritative for intended compile."
+  ],
+  "schema": "adeu_architecture_intent_packet@1",
+  "source_set": {
+    "sources": [
+      {
+        "path": "artifacts/quality_dashboard_v83_closeout.json",
+        "sha256": "c70d1c4c1c60c1fd3a9f8d7b8c957320c912a3831f17ffaa4fb60d6ed4dc1bc7",
+        "source_ref_id": "src_artifacts_quality_dashboard_v83_closeout_json"
+      },
+      {
+        "path": "artifacts/stop_gate/metrics_v83_closeout.json",
+        "sha256": "55bdaa1bf91db73bebedb1afaa5060a83749ce19934fe9c908839f82e257d136",
+        "source_ref_id": "src_artifacts_stop_gate_metrics_v83_closeout_json"
+      },
+      {
+        "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+        "sha256": "ca7ebacf2a1c1d6527ba816ff1f17339e0d1d490060441ed1fdae2dc59d10805",
+        "source_ref_id": "src_docs_architecture_adeu_architecture_ir_v0_md"
+      },
+      {
+        "path": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
+        "sha256": "4395095f8e018ecb1cd1254e855647d720789b6b2a6b077278cc5f22ed8941cb",
+        "source_ref_id": "src_docs_draft_next_arc_options_v23_md"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/pyproject.toml",
+        "sha256": "b697c4c47b6a074c80fb371b35855bdd6350da74590f17f1d80d745cbd02dafc",
+        "source_ref_id": "src_packages_adeu_architecture_ir_pyproject_toml"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py",
+        "sha256": "466051eacfddd36ca2cab052fbfe85f5591fd79272d10d5aa0e5dfafa1fd2d16",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_init_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py",
+        "sha256": "d7fb92a6aafc0260c0c4fc8f7ee6fb47c0b7db9a91467b24d6936a181720085d",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_request_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py",
+        "sha256": "9e2ae229e3f2f5f19d7f462b2e115b18d29be253388b9adbbcd909bf3d8fde4a",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_settlement_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py",
+        "sha256": "babd1b68d92dfded0bd97e87dc2af9c5fd6d35e9068bde01b5df8e0a268ca03b",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_export_schema_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py",
+        "sha256": "98d447e946c966f1aebd333d7c23e1e332ca2e0952bda9f539d8ec68abf068d4",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_root_family_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/tests/test_analysis_request.py",
+        "sha256": "85e7d59e95c17e0476c803efa0df3f70f4d802af882efa337cee3d75e2bf3d6a",
+        "source_ref_id": "src_packages_adeu_architecture_ir_tests_test_analysis_request_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/tests/test_analysis_settlement.py",
+        "sha256": "201b66ea0c2c57b8e5a6f8b10fca18543a8b11549b1827eee7bb0135694630ad",
+        "source_ref_id": "src_packages_adeu_architecture_ir_tests_test_analysis_settlement_py"
+      }
+    ]
+  }
+}
