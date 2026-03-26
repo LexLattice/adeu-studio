@@ -35,6 +35,16 @@ from .hybrid import (
     derive_v40c_oracle_request,
     derive_v40c_oracle_resolution,
 )
+from .intended import (
+    V41D_V86_CONTRACT_SOURCE,
+    V41DIntendedCompileBundle,
+    derive_v41d_boundary_graph,
+    derive_v41d_intended_root_bundle,
+    derive_v41d_intent_packet,
+    derive_v41d_ontology_frame,
+    derive_v41d_semantic_ir,
+    derive_v41d_world_hypothesis,
+)
 from .observation import (
     ADEU_ARCHITECTURE_OBSERVATION_FRAME_SCHEMA,
     V41C_V85_CONTRACT_SOURCE,
@@ -124,6 +134,8 @@ __all__ = [
     "V40F_V82_CONTRACT_SOURCE",
     "V40FArchitectureReleaseIntegrationEvidence",
     "V41C_V85_CONTRACT_SOURCE",
+    "V41D_V86_CONTRACT_SOURCE",
+    "V41DIntendedCompileBundle",
     "ObservedAuthoritySource",
     "ObservedBoundary",
     "ObservedEvidenceHook",
@@ -153,5 +165,11 @@ __all__ = [
     "derive_v40e_ux_domain_packets",
     "derive_v40f_release_integration_evidence",
     "derive_v41c_observation_frame",
+    "derive_v41d_boundary_graph",
+    "derive_v41d_intended_root_bundle",
+    "derive_v41d_intent_packet",
+    "derive_v41d_ontology_frame",
+    "derive_v41d_semantic_ir",
+    "derive_v41d_world_hypothesis",
     "export_schema_main",
 ]

@@ -1,0 +1,633 @@
+{
+  "architecture_id": "asir_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
+  "authority_boundary_policy": {
+    "deterministic_adjudicator_authoritative": true,
+    "fail_closed_on_high_impact_ambiguity": true,
+    "no_direct_brief_to_codegen": true,
+    "oracle_output_advisory_only": true,
+    "projections_may_express_but_may_not_mint_authority": true
+  },
+  "compiler": {
+    "canonicalization_profile": "adeu_architecture_ir.root_family.v1",
+    "name": "adeu_architecture_ir.root_family",
+    "schema_bundle_version": "v86-intended-root-family",
+    "scope": "root_family_only",
+    "version": "1"
+  },
+  "deontics": {
+    "escalation_rules": [
+      {
+        "default_disposition": "human_review",
+        "escalate_to": "act_maintainer_brief_author",
+        "rule_id": "rule_unresolved_observation_to_human",
+        "trigger_refs": [
+          "amb_unresolved_runtime_signal_join"
+        ]
+      }
+    ],
+    "gates": [
+      {
+        "authority_source_ref": "srf_intended_compile_entry",
+        "fail_closed": true,
+        "gate_id": "gate_emit_intended_root",
+        "required_refs": [
+          "ev_evidence_packages_adeu_architecture_ir_tests_test_analysis_request_py",
+          "fact_entitled_compile_required"
+        ],
+        "subject_ref": "dec_emit_intended_root"
+      }
+    ],
+    "invariants": [
+      {
+        "invariant_id": "inv_intended_observed_separation",
+        "scope_refs": [
+          "obj_intended_semantic_root",
+          "obj_observation_frame_boundary"
+        ],
+        "severity": "high",
+        "statement": "Intended and observed lanes must remain separate even when observation constrains compile."
+      }
+    ],
+    "obligations": [
+      {
+        "condition": "Released compile entitlement remains entitled.",
+        "obligation_id": "obl_preserve_request_bound_intent",
+        "statement": "Emitted intended root artifacts must remain bound to the released request, settlement, and observation lineage.",
+        "target_refs": [
+          "obj_analysis_request_boundary",
+          "obj_intended_semantic_root",
+          "step_emit_intended_root"
+        ]
+      }
+    ],
+    "permissions": [
+      {
+        "condition": "Released settlement entitlement is entitled.",
+        "permission_id": "perm_emit_intended_root",
+        "statement": "The intended compile engine may emit root-family artifacts once released entitlement is entitled and gate evidence is satisfied.",
+        "target_refs": [
+          "act_intended_compile_engine",
+          "dec_emit_intended_root"
+        ]
+      }
+    ],
+    "prohibitions": [
+      {
+        "condition": "Observation is consumed only as companion input.",
+        "prohibition_id": "proh_observation_as_hidden_intent",
+        "statement": "Observed implementation facts must not silently become intended architecture truth.",
+        "target_refs": [
+          "dec_emit_intended_root",
+          "obj_observation_frame_boundary"
+        ]
+      }
+    ]
+  },
+  "epistemics": {
+    "ambiguities": [
+      {
+        "ambiguity_id": "amb_unresolved_runtime_signal_join",
+        "evaluable_as": "contextual",
+        "impact_class": "medium",
+        "question": "How should intended compile account for unresolved observation unresolved_runtime_signal_join: Committed observability artifacts are present, but the released source_set does not by itself establish a live runtime signal join path.",
+        "resolution_route": "human_only",
+        "touches_refs": [
+          "fail_unresolved_observation_carry",
+          "obj_observation_frame_boundary"
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "annotation_id": "ann_intended_compile_decision",
+        "confidence_kind": "explicit",
+        "evaluable_as": "semantic",
+        "subject_ref": "dec_emit_intended_root"
+      }
+    ],
+    "assumptions": [
+      {
+        "assumption_id": "asm_boundary_packages_adeu_architecture_ir_src_adeu_architecture_ir",
+        "confidence_kind": "strongly_implied",
+        "impact_class": "medium",
+        "statement": "The observed package boundary remains a useful companion constraint for intended compile without becoming the source of intent.",
+        "touches_refs": [
+          "bnd_observation_to_compile",
+          "obj_observation_frame_boundary"
+        ]
+      },
+      {
+        "assumption_id": "asm_workflow_packages_adeu_architecture_ir_src_adeu_architecture_ir_exports",
+        "confidence_kind": "strongly_implied",
+        "impact_class": "medium",
+        "statement": "Observed workflow structure constrains intended compile ordering without replacing request-bound semantic authority.",
+        "touches_refs": [
+          "obj_observation_frame_boundary",
+          "wf_repo_grounded_intended_compile"
+        ]
+      }
+    ],
+    "evidence_requirements": [
+      {
+        "evidence_id": "ev_evidence_packages_adeu_architecture_ir_tests_test_analysis_request_py",
+        "evidence_kind": "pytest_module",
+        "required_before_refs": [
+          "dec_emit_intended_root",
+          "gate_emit_intended_root"
+        ],
+        "source_policy": "request_bound_test_artifact_required"
+      },
+      {
+        "evidence_id": "ev_evidence_packages_adeu_architecture_ir_tests_test_analysis_settlement_py",
+        "evidence_kind": "pytest_module",
+        "required_before_refs": [
+          "dec_emit_intended_root",
+          "gate_emit_intended_root"
+        ],
+        "source_policy": "request_bound_test_artifact_required"
+      }
+    ],
+    "facts": [
+      {
+        "confidence_kind": "explicit",
+        "evaluable_as": "semantic",
+        "fact_id": "fact_request_bound_normative_driver",
+        "source_refs": [
+          "src_docs_architecture_adeu_architecture_ir_v0_md",
+          "src_docs_draft_next_arc_options_v23_md"
+        ],
+        "statement": "Intended compile is governed by the released request-bound maintainer brief and accepted architecture docs under the released settlement frame."
+      },
+      {
+        "confidence_kind": "explicit",
+        "evaluable_as": "deterministic",
+        "fact_id": "fact_entitled_compile_required",
+        "source_refs": [
+          "src_docs_architecture_adeu_architecture_ir_v0_md"
+        ],
+        "statement": "Authoritative intended root-family emission requires released compile_entitlement=entitled and may not be recomputed locally."
+      }
+    ],
+    "hypothesis_bindings": [
+      {
+        "accepted": true,
+        "candidate_id": "cand_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_request_bound_intended_world",
+        "coverage_summary": "Accepted as the request-bound intended compile world for the released adeu_architecture_ir slice.",
+        "rejection_reasons": []
+      }
+    ],
+    "observability_hooks": [
+      {
+        "hook_id": "hook_observability_artifacts_quality_dashboard_v83_closeout_json",
+        "observable_kind": "dashboard",
+        "required_for_metrics": [
+          "metric_observability_artifacts_quality_dashboard_v83_closeout_json"
+        ],
+        "subject_ref": "srf_validation_harness"
+      },
+      {
+        "hook_id": "hook_observability_artifacts_stop_gate_metrics_v83_closeout_json",
+        "observable_kind": "metrics",
+        "required_for_metrics": [
+          "metric_observability_artifacts_stop_gate_metrics_v83_closeout_json"
+        ],
+        "subject_ref": "srf_validation_harness"
+      }
+    ]
+  },
+  "intent_packet_id": "intent_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
+  "ontology": {
+    "actors": [
+      {
+        "actor_id": "act_maintainer_brief_author",
+        "authority_level": "intent_author",
+        "kind": "human_role",
+        "label": "Maintainer Brief Author",
+        "trust_domain": "maintainer_docs"
+      },
+      {
+        "actor_id": "act_intended_compile_engine",
+        "authority_level": "semantic_root_materializer",
+        "kind": "service",
+        "label": "Intended Compile Engine",
+        "trust_domain": "repo_compiler_runtime"
+      },
+      {
+        "actor_id": "act_observation_companion_lane",
+        "authority_level": "companion_evidence",
+        "kind": "service",
+        "label": "Observation Companion Lane",
+        "trust_domain": "repo_analysis_runtime"
+      },
+      {
+        "actor_id": "act_validation_harness",
+        "authority_level": "evidence_recorder",
+        "kind": "service",
+        "label": "Validation Harness",
+        "trust_domain": "repo_test_runtime"
+      }
+    ],
+    "boundaries": [
+      {
+        "audit_required": true,
+        "auth_required": true,
+        "boundary_class": "intent_governance_boundary",
+        "boundary_id": "bnd_request_to_compile",
+        "from_ref": "srf_request_boundary",
+        "to_ref": "srf_intended_compile_entry"
+      },
+      {
+        "audit_required": true,
+        "auth_required": true,
+        "boundary_class": "companion_evidence_boundary",
+        "boundary_id": "bnd_observation_to_compile",
+        "from_ref": "srf_observation_companion",
+        "to_ref": "srf_intended_compile_entry"
+      },
+      {
+        "audit_required": true,
+        "auth_required": true,
+        "boundary_class": "validation_evidence_boundary",
+        "boundary_id": "bnd_compile_to_validation",
+        "from_ref": "srf_intended_compile_entry",
+        "to_ref": "srf_validation_harness"
+      }
+    ],
+    "capabilities": [
+      {
+        "action": "compile",
+        "capability_id": "cap_compile_intended_root",
+        "granted_by_ref": "act_maintainer_brief_author",
+        "resource_ref": "obj_intended_semantic_root",
+        "subject_ref": "act_intended_compile_engine"
+      },
+      {
+        "action": "validate",
+        "capability_id": "cap_validate_intended_root",
+        "granted_by_ref": "act_intended_compile_engine",
+        "resource_ref": "obj_intended_semantic_root",
+        "subject_ref": "act_validation_harness"
+      }
+    ],
+    "data_objects": [
+      {
+        "label": "Analysis Request Boundary",
+        "object_id": "obj_analysis_request_boundary",
+        "sensitivity_class": "repo_internal",
+        "source_of_truth_ref": "srf_request_boundary"
+      },
+      {
+        "label": "Settlement Frame Boundary",
+        "object_id": "obj_settlement_frame_boundary",
+        "sensitivity_class": "repo_internal",
+        "source_of_truth_ref": "srf_request_boundary"
+      },
+      {
+        "label": "Observation Frame Boundary",
+        "object_id": "obj_observation_frame_boundary",
+        "sensitivity_class": "repo_internal",
+        "source_of_truth_ref": "srf_observation_companion"
+      },
+      {
+        "label": "adeu_architecture_ir Intended Semantic Root",
+        "object_id": "obj_intended_semantic_root",
+        "sensitivity_class": "repo_internal",
+        "source_of_truth_ref": "srf_intended_compile_entry"
+      }
+    ],
+    "decisions": [
+      {
+        "ambiguity_default": "escalate_human",
+        "authority_source_ref": "srf_intended_compile_entry",
+        "decider_ref": "act_intended_compile_engine",
+        "decision_id": "dec_emit_intended_root",
+        "evidence_required_refs": [
+          "ev_request_boundary_validation"
+        ]
+      },
+      {
+        "ambiguity_default": "escalate_human",
+        "authority_source_ref": "srf_intended_compile_entry",
+        "decider_ref": "act_intended_compile_engine",
+        "decision_id": "dec_refuse_intended_root",
+        "evidence_required_refs": [
+          "ev_request_boundary_validation"
+        ]
+      }
+    ],
+    "failure_modes": [
+      {
+        "affected_refs": [
+          "dec_refuse_intended_root",
+          "obj_intended_semantic_root"
+        ],
+        "default_disposition": "block_until_ambiguity_carry_through",
+        "failure_mode_id": "fail_unresolved_observation_carry",
+        "observable_surface_ref": "srf_validation_harness"
+      }
+    ],
+    "flow_steps": [
+      {
+        "actor_ref": "act_maintainer_brief_author",
+        "inputs": [
+          "obj_analysis_request_boundary"
+        ],
+        "kind": "request_bind",
+        "outputs": [
+          "obj_analysis_request_boundary"
+        ],
+        "postconditions": [
+          "The request-bound maintainer brief governs intended compile."
+        ],
+        "preconditions": [
+          "Released analysis request and accepted docs are present."
+        ],
+        "step_id": "step_consume_request_boundary",
+        "surface_ref": "srf_request_boundary"
+      },
+      {
+        "actor_ref": "act_observation_companion_lane",
+        "inputs": [
+          "obj_observation_frame_boundary"
+        ],
+        "kind": "companion_observation_read",
+        "outputs": [
+          "obj_observation_frame_boundary"
+        ],
+        "postconditions": [
+          "Observation constraints and unresolved findings are visible to intended compile."
+        ],
+        "preconditions": [
+          "Released observation frame is available over the same repo world."
+        ],
+        "step_id": "step_consume_observation_companion",
+        "surface_ref": "srf_observation_companion"
+      },
+      {
+        "actor_ref": "act_intended_compile_engine",
+        "inputs": [
+          "obj_analysis_request_boundary",
+          "obj_observation_frame_boundary",
+          "obj_settlement_frame_boundary"
+        ],
+        "kind": "semantic_root_emit",
+        "outputs": [
+          "obj_intended_semantic_root"
+        ],
+        "postconditions": [
+          "The intended semantic root for adeu_architecture_ir is materialized."
+        ],
+        "preconditions": [
+          "Observation does not replace request-bound intent.",
+          "Released compile entitlement is entitled."
+        ],
+        "step_id": "step_emit_intended_root",
+        "surface_ref": "srf_intended_compile_entry"
+      },
+      {
+        "actor_ref": "act_validation_harness",
+        "inputs": [
+          "obj_intended_semantic_root"
+        ],
+        "kind": "fixture_replay_validation",
+        "outputs": [
+          "obj_intended_semantic_root"
+        ],
+        "postconditions": [
+          "Released V40-A validation and replay evidence are preserved."
+        ],
+        "preconditions": [
+          "Emitted root-family artifacts are available for replay."
+        ],
+        "step_id": "step_validate_emitted_root",
+        "surface_ref": "srf_validation_harness"
+      }
+    ],
+    "states": [
+      {
+        "state_id": "st_world_bound",
+        "state_kind": "world_bound",
+        "terminal": false,
+        "workflow_id": "wf_repo_grounded_intended_compile"
+      },
+      {
+        "state_id": "st_intended_compiled",
+        "state_kind": "compiled",
+        "terminal": true,
+        "workflow_id": "wf_repo_grounded_intended_compile"
+      },
+      {
+        "state_id": "st_intended_blocked",
+        "state_kind": "blocked",
+        "terminal": true,
+        "workflow_id": "wf_repo_grounded_intended_compile"
+      }
+    ],
+    "surfaces": [
+      {
+        "authority_posture": "request_bound_intent_input",
+        "exposed_actions": [
+          "bind_repo_world",
+          "state_intent_scope"
+        ],
+        "kind": "documentation_surface",
+        "owner_ref": "act_maintainer_brief_author",
+        "surface_id": "srf_request_boundary"
+      },
+      {
+        "authority_posture": "companion_evidence_surface",
+        "exposed_actions": [
+          "carry_unresolved_observations",
+          "surface_observed_facts"
+        ],
+        "kind": "analysis_artifact_surface",
+        "owner_ref": "act_observation_companion_lane",
+        "surface_id": "srf_observation_companion"
+      },
+      {
+        "authority_posture": "authoritative_semantic_surface",
+        "exposed_actions": [
+          "emit_root_family",
+          "preserve_lane_separation"
+        ],
+        "kind": "compiler_surface",
+        "owner_ref": "act_intended_compile_engine",
+        "surface_id": "srf_intended_compile_entry"
+      },
+      {
+        "authority_posture": "evidence_surface",
+        "exposed_actions": [
+          "replay_fixture",
+          "validate_emitted_root"
+        ],
+        "kind": "test_surface",
+        "owner_ref": "act_validation_harness",
+        "surface_id": "srf_validation_harness"
+      }
+    ],
+    "transitions": [
+      {
+        "from_state_ref": "st_world_bound",
+        "guard_refs": [
+          "gate_emit_intended_root"
+        ],
+        "to_state_ref": "st_intended_compiled",
+        "transition_id": "tr_world_to_compiled",
+        "trigger_ref": "dec_emit_intended_root"
+      },
+      {
+        "from_state_ref": "st_world_bound",
+        "guard_refs": [
+          "gate_emit_intended_root"
+        ],
+        "to_state_ref": "st_intended_blocked",
+        "transition_id": "tr_world_to_blocked",
+        "trigger_ref": "dec_refuse_intended_root"
+      }
+    ],
+    "workflows": [
+      {
+        "entry_ref": "step_consume_request_boundary",
+        "step_refs": [
+          "step_consume_request_boundary",
+          "step_consume_observation_companion",
+          "step_emit_intended_root",
+          "step_validate_emitted_root"
+        ],
+        "terminal_state_refs": [
+          "st_intended_blocked",
+          "st_intended_compiled"
+        ],
+        "workflow_id": "wf_repo_grounded_intended_compile"
+      }
+    ]
+  },
+  "schema": "adeu_architecture_semantic_ir@1",
+  "semantic_hash": "f7403b33350a13cadf9c58cfd896dcbf2633c017f188c2e5fd8c68b03dce28d3",
+  "source_set": {
+    "sources": [
+      {
+        "path": "artifacts/quality_dashboard_v83_closeout.json",
+        "sha256": "c70d1c4c1c60c1fd3a9f8d7b8c957320c912a3831f17ffaa4fb60d6ed4dc1bc7",
+        "source_ref_id": "src_artifacts_quality_dashboard_v83_closeout_json"
+      },
+      {
+        "path": "artifacts/stop_gate/metrics_v83_closeout.json",
+        "sha256": "55bdaa1bf91db73bebedb1afaa5060a83749ce19934fe9c908839f82e257d136",
+        "source_ref_id": "src_artifacts_stop_gate_metrics_v83_closeout_json"
+      },
+      {
+        "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+        "sha256": "ca7ebacf2a1c1d6527ba816ff1f17339e0d1d490060441ed1fdae2dc59d10805",
+        "source_ref_id": "src_docs_architecture_adeu_architecture_ir_v0_md"
+      },
+      {
+        "path": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
+        "sha256": "4395095f8e018ecb1cd1254e855647d720789b6b2a6b077278cc5f22ed8941cb",
+        "source_ref_id": "src_docs_draft_next_arc_options_v23_md"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/pyproject.toml",
+        "sha256": "b697c4c47b6a074c80fb371b35855bdd6350da74590f17f1d80d745cbd02dafc",
+        "source_ref_id": "src_packages_adeu_architecture_ir_pyproject_toml"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py",
+        "sha256": "466051eacfddd36ca2cab052fbfe85f5591fd79272d10d5aa0e5dfafa1fd2d16",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_init_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py",
+        "sha256": "d7fb92a6aafc0260c0c4fc8f7ee6fb47c0b7db9a91467b24d6936a181720085d",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_request_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py",
+        "sha256": "9e2ae229e3f2f5f19d7f462b2e115b18d29be253388b9adbbcd909bf3d8fde4a",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_settlement_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py",
+        "sha256": "babd1b68d92dfded0bd97e87dc2af9c5fd6d35e9068bde01b5df8e0a268ca03b",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_export_schema_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py",
+        "sha256": "98d447e946c966f1aebd333d7c23e1e332ca2e0952bda9f539d8ec68abf068d4",
+        "source_ref_id": "src_packages_adeu_architecture_ir_src_adeu_architecture_ir_root_family_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/tests/test_analysis_request.py",
+        "sha256": "85e7d59e95c17e0476c803efa0df3f70f4d802af882efa337cee3d75e2bf3d6a",
+        "source_ref_id": "src_packages_adeu_architecture_ir_tests_test_analysis_request_py"
+      },
+      {
+        "path": "packages/adeu_architecture_ir/tests/test_analysis_settlement.py",
+        "sha256": "201b66ea0c2c57b8e5a6f8b10fca18543a8b11549b1827eee7bb0135694630ad",
+        "source_ref_id": "src_packages_adeu_architecture_ir_tests_test_analysis_settlement_py"
+      }
+    ]
+  },
+  "utility": {
+    "goals": [
+      {
+        "goal_id": "goal_semantic_fidelity",
+        "served_by_refs": [
+          "gate_emit_intended_root",
+          "step_emit_intended_root"
+        ],
+        "statement": "Preserve request-bound intended semantics without laundering observation into hidden authority."
+      },
+      {
+        "goal_id": "goal_deterministic_replay",
+        "served_by_refs": [
+          "hook_observability_artifacts_quality_dashboard_v83_closeout_json",
+          "step_validate_emitted_root"
+        ],
+        "statement": "Keep emitted intended artifacts replayable and fixture-stable."
+      }
+    ],
+    "metrics": [
+      {
+        "label": "Dashboard continuity",
+        "measured_by_refs": [
+          "hook_observability_artifacts_quality_dashboard_v83_closeout_json"
+        ],
+        "metric_id": "metric_observability_artifacts_quality_dashboard_v83_closeout_json",
+        "target_expression": "artifact_present_and_request_bound"
+      },
+      {
+        "label": "Metrics continuity",
+        "measured_by_refs": [
+          "hook_observability_artifacts_stop_gate_metrics_v83_closeout_json"
+        ],
+        "metric_id": "metric_observability_artifacts_stop_gate_metrics_v83_closeout_json",
+        "target_expression": "artifact_present_and_request_bound"
+      }
+    ],
+    "priority_rules": [
+      {
+        "condition": "If observation pressure conflicts with request-bound intent, preserve semantic fidelity first.",
+        "higher_ref": "goal_semantic_fidelity",
+        "lower_ref": "goal_deterministic_replay",
+        "priority_id": "priority_fidelity_over_convenience"
+      }
+    ],
+    "tradeoffs": [
+      {
+        "adjudication_rule": "Prefer preserving explicit ambiguity or advisory posture over forcing a cleaner but unjustified intended root.",
+        "between_refs": [
+          "goal_deterministic_replay",
+          "goal_semantic_fidelity"
+        ],
+        "tradeoff_id": "tradeoff_replay_vs_unknowns"
+      }
+    ]
+  },
+  "variant_lineage": {
+    "accepted_candidate_id": "cand_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_request_bound_intended_world",
+    "candidate_ids": [
+      "cand_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_request_bound_intended_world"
+    ]
+  }
+}

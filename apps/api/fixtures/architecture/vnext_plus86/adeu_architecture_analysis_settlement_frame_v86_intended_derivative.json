@@ -1,0 +1,100 @@
+{
+  "active_escalation_records": [],
+  "advisory_notes": [
+    "v86 grants compile entitlement for a bounded repo-grounded intended-compile baseline only; alignment, runner, and practical checkpoint/oracle reuse remain deferred."
+  ],
+  "affordance_decisions": [
+    {
+      "decision_class": "intentionally_declined",
+      "decision_id": "decision_decline_test_as_intent_source",
+      "rationale": "Request-bound tests are available for validation but are not promoted into a substitute source of intent.",
+      "target_ref": "packages/adeu_architecture_ir/tests/test_analysis_request.py"
+    },
+    {
+      "decision_class": "deferred",
+      "decision_id": "decision_defer_v41d_options_hint",
+      "rationale": "The planning draft is recorded as a hint while the architecture doc remains the governing semantic source.",
+      "target_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
+    }
+  ],
+  "analysis_request_id": "v41a_v86_architecture_ir_intended_request_derivative",
+  "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_request_v86_intended_derivative.json",
+  "authority_boundary_policy": {
+    "inline_policy": null,
+    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
+  },
+  "blocking_lineage": [],
+  "chosen_interpretation_id": "interpretation_request_bound_intended_compile",
+  "claim_posture_register": [
+    {
+      "claim_id": "claim_export_surface_present",
+      "claim_ref": "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py",
+      "posture_class": "observed",
+      "rationale": "The package initializer is a released implementation surface consumed as companion evidence, not as the hidden source of intent.",
+      "support_limit_class": null
+    },
+    {
+      "claim_id": "claim_request_bound_intended_compile",
+      "claim_ref": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+      "posture_class": "inferred",
+      "rationale": "The intended compile lane is inferred from the released architecture and planning boundary rather than from observation alone.",
+      "support_limit_class": null
+    }
+  ],
+  "compile_entitlement": "entitled",
+  "deontic_typing_register": [
+    {
+      "deontic_class": "required",
+      "rationale": "The architecture constitution remains the governing semantic source for repo-grounded intended compile.",
+      "target_kind": "accepted_doc",
+      "target_ref": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+      "typing_id": "typing_architecture_doc_required"
+    },
+    {
+      "deontic_class": "fallback_affordance",
+      "rationale": "Released request-bound tests remain a fallback affordance for boundary validation while compile proceeds entitled.",
+      "target_kind": "request_named_artifact",
+      "target_ref": "packages/adeu_architecture_ir/tests/test_analysis_request.py",
+      "typing_id": "typing_intended_compile_test_fallback"
+    },
+    {
+      "deontic_class": "optional_hint",
+      "rationale": "The active V41 planning draft guides the bounded intended-compile seam without replacing the governing architecture doc.",
+      "target_kind": "maintainer_brief",
+      "target_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
+      "typing_id": "typing_v41d_options_optional_hint"
+    }
+  ],
+  "escalation_trigger_policy": {
+    "trigger_ids": [
+      "externalized_search_or_check_required",
+      "impossibility_claim_without_proof",
+      "silent_semantic_assumption_needed",
+      "unresolved_high_impact_ambiguity"
+    ]
+  },
+  "interpretation_register": [
+    {
+      "interpretation_id": "interpretation_observation_companion_only",
+      "linked_ambiguity_refs": [],
+      "summary": "Observation remains a companion constraint for intended compile and may force ambiguity or refusal without becoming the source of intent.",
+      "support_refs": [
+        "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+        "packages/adeu_architecture_ir/pyproject.toml"
+      ]
+    },
+    {
+      "interpretation_id": "interpretation_request_bound_intended_compile",
+      "linked_ambiguity_refs": [],
+      "summary": "Compile intended architecture from the released request-bound architecture sources under an entitled settlement posture.",
+      "support_refs": [
+        "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
+      ]
+    }
+  ],
+  "schema": "adeu_architecture_analysis_settlement_frame@1",
+  "settlement_frame_id": "v41b_v86_architecture_ir_intended_settlement_derivative",
+  "source_set_hash": "e752a3c9d9cb49c7bbc4128181f48913bf8f99ce1990bc8e4dd35497230676b5",
+  "unresolved_high_impact_ambiguity_refs": []
+}

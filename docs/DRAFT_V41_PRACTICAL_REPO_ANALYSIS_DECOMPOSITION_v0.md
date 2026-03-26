@@ -1,7 +1,7 @@
 # Draft V41 Practical Repo Analysis Decomposition v0
 
-Status: working decomposition draft after `vNext+84` closeout and released `V41-A`
-and `V41-B` practical-analysis baselines on `main`.
+Status: working decomposition draft after `vNext+85` closeout and released `V41-A`,
+`V41-B`, and `V41-C` practical-analysis baselines on `main`.
 
 This document is an intermediate planning artifact between:
 
@@ -81,15 +81,16 @@ That loop requires one additional family because it introduces a new operational
 ## Baseline Agreement
 
 - `vNext+82` (`V40-F`) is closed on `main`.
-- `vNext+83` (`V41-A`) and `vNext+84` (`V41-B`) are closed on `main`.
+- `vNext+83` (`V41-A`), `vNext+84` (`V41-B`), and `vNext+85` (`V41-C`) are closed
+  on `main`.
 - The bounded `V40` family is complete on `main` at its intended baseline.
 - The released ASIR ladder now exists end-to-end for semantic-root, conformance,
   hybrid, lowering, UX compatibility, and family evidence, and the first practical
   request/world-binding seam now exists over a real repo scope.
 - The next safe step is not to reopen `V40`, relitigate request/source-set capture,
-  or widen settlement/entitlement semantics; it is to extract deterministic observed
-  implementation facts over that frozen world without collapsing them into intended
-  architecture or drift judgment.
+  widen settlement/entitlement semantics, or re-extract observed facts; it is to
+  compile repo-grounded intended architecture over that frozen world without
+  collapsing it into observed implementation or drift judgment.
 - The Lean formal lane remains useful but sidecar-only and should not become a hidden
   prerequisite for practical repo analysis.
 
@@ -99,7 +100,7 @@ That loop requires one additional family because it introduces a new operational
 {
   "schema": "v41_practical_repo_analysis_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+84",
+  "baseline_arc": "vNext+85",
   "closed_prior_family": "V40",
   "closed_prior_paths": [
     "V40-A",
@@ -112,13 +113,14 @@ That loop requires one additional family because it introduces a new operational
   "next_path_family": "V41",
   "closed_current_family_paths": [
     "V41-A",
-    "V41-B"
+    "V41-B",
+    "V41-C"
   ],
-  "default_next_arc_candidate": "V41-C",
-  "default_next_concrete_arc_candidate": "vNext+85",
+  "default_next_arc_candidate": "V41-D",
+  "default_next_concrete_arc_candidate": "vNext+86",
   "v41_path_count": 6,
   "v41_default_arc_span": {
-    "from": "vNext+85",
+    "from": "vNext+86",
     "to": "vNext+88"
   },
   "v41_paths_may_span_multiple_arcs": true,
@@ -196,13 +198,14 @@ The current recommended concrete split is:
     gating, and escalation trigger policy over the released request/source-set
     boundary
 - `vNext+85`
-  - default first concrete `V41-C` arc:
+  - closed first concrete `V41-C` arc:
     observed implementation frame schema/model/export baseline plus deterministic repo
     observation over one bounded codebase slice
 - `vNext+86`
   - default first concrete `V41-D` arc:
-    intended architecture compile entrypoint over the released ASIR lane using real
-    repo source_set inputs rather than only frozen synthetic fixtures
+    repo-grounded intended root-family compile over the released request,
+    settlement, and observation boundary using the released `V40-A` semantic-root
+    family rather than only frozen synthetic fixtures
 - `vNext+87`
   - default first concrete `V41-E` arc:
     deterministic alignment report, mismatch classes, severity posture, and drift
@@ -435,26 +438,42 @@ Goal:
 
 Scope:
 
-- settlement-frame-governed entrypoint into the released ASIR root/conformance/hybrid
-  lanes;
-- intended `adeu_architecture_semantic_ir@1` over the same frozen repo `source_set`
-  selected by `V41-A`, not an independent brief universe;
-- bounded reuse of the released checkpoint / oracle lane when ambiguity remains;
-- committed intended-architecture reference fixture for one internal repo or subtree.
+- settlement-frame-governed intended compile entrypoint into the released `V40-A`
+  semantic-root family;
+- request-bound maintainer brief and accepted-doc lineage under the released
+  settlement frame as the normative driver of intended compile;
+- exact consumption of the released `V41-C` observation frame as companion practical
+  input without collapsing intended and observed lanes;
+- repo-grounded intended `adeu_architecture_semantic_ir@1` plus companion released
+  root-family artifacts over the same frozen repo `source_set` selected by `V41-A`,
+  not an independent brief universe;
+- committed intended-architecture reference fixture ladder for one internal repo or
+  subtree.
 
 Locks:
 
 - intended and observed lanes must remain separate artifacts;
+- observation may constrain, block, or force ambiguity/advisory posture, but may not
+  become the hidden source of intended truth;
 - no alignment report yet;
+- no practical-loop conformance, checkpoint, projection, or UX emission yet;
+- the broader `V41-D` path may later admit bounded checkpoint/oracle reuse when
+  ambiguity remains, but the first concrete `vNext+86` arc intentionally defers that
+  practical reuse;
 - no new projection or product-surface release is required in this path;
 - no direct prompt output becomes architecture truth without the released ASIR
-  validators, adjudication path, and settlement-frame gating.
+  root-family validators and settlement-frame gating.
 
 Acceptance:
 
-- one repo-grounded maintainer brief compiles into intended ASIR deterministically;
-- released ASIR validators and checkpoint rules remain authoritative;
-- source-set and settlement-frame lineage is preserved into emitted ASIR.
+- one repo-grounded maintainer brief compiles into intended root-family artifacts
+  deterministically;
+- blocked settlement remains fail-closed and does not emit authoritative intended
+  output;
+- unresolved or derived observations that matter to intent remain visible as
+  ambiguity, advisory posture, or refusal to settle rather than disappearing;
+- request, settlement, and observation lineage is preserved into emitted intended
+  ASIR.
 
 Expected PR shape:
 
