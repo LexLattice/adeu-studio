@@ -1,6 +1,9 @@
-# Assessment vNext+85 Edges
+# Assessment vNext+85 Edges (Post Closeout)
 
-Status: planning-edge assessment for `V41-C`.
+This document records edge disposition for `vNext+85` (`V41-C` practical observed
+implementation frame baseline) after arc closeout.
+
+Status: post-closeout assessment (March 26, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,110 +11,162 @@ Status: planning-edge assessment for `V41-C`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS85_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
-  "required_in_decision": true
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v85_closeout_edge_disposition",
+  "required_in_decision": true,
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
-## Open Edges
+## Scope
 
-### Edge 1: Ambient Repo Read Drift
+- In scope: bounded `V41-C` practical observed-implementation baseline;
+  deterministic materialization of canonical
+  `adeu_architecture_observation_frame@1`; exact consumption of the released `V41-A`
+  request / `source_set` boundary and `V41-B` settlement carry-through; facts-only
+  observation entries; explicit `fact_kind` plus `observation_mode = direct |
+  derived`; grounded provenance closure; in-frame cross-entry grounding; explicit
+  `upstream_compile_entitlement` plus `upstream_blocking_refs`; unresolved
+  observations with bounded reason typing; committed reference fixture replay;
+  authoritative/mirrored schema parity; and stop-gate/evidence continuity for the
+  released observation lane.
+- Out of scope: repo-grounded intended
+  `adeu_architecture_semantic_ir@1` compile,
+  `adeu_architecture_alignment_report@1`, CLI runner release, API/web inspection
+  routes, automatic repo mutation, remediation planning, and any intended,
+  settlement, or alignment authority beyond the released observation frame.
 
-- Risk:
-  observation could claim to analyze the released request scope while actually reading
-  files outside the released `source_set` or outside the released repo boundary.
-- Response:
-  require exact request-bound provenance closure for every observed entry and fail
-  closed on any provenance ref outside the released request world.
+## Inputs
 
-### Edge 2: Observation / Intended Collapse
+- `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v23.md`
+- `docs/DRAFT_V41_PRACTICAL_REPO_ANALYSIS_DECOMPOSITION_v0.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS85.md`
+- `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/observation.py`
+- `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/__init__.py`
+- `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/export_schema.py`
+- `packages/adeu_architecture_compiler/tests/test_architecture_compiler_v41c.py`
+- `packages/adeu_architecture_compiler/tests/test_architecture_compiler_export_schema.py`
+- `packages/adeu_architecture_compiler/schema/adeu_architecture_observation_frame.v1.json`
+- `spec/adeu_architecture_observation_frame.schema.json`
+- `apps/api/fixtures/architecture/vnext_plus85/`
+- `artifacts/quality_dashboard_v85_closeout.json`
+- `artifacts/stop_gate/metrics_v85_closeout.json`
+- `artifacts/agent_harness/v85/evidence_inputs/metric_key_continuity_assertion_v85.json`
+- `artifacts/agent_harness/v85/evidence_inputs/runtime_observability_comparison_v85.json`
+- `artifacts/agent_harness/v85/evidence_inputs/v41c_architecture_observation_frame_evidence_v85.json`
+- merged PR: `#307`
 
-- Risk:
-  the observed lane could start emitting intended architecture truth, deontic
-  settlement, or semantic interpretations under the cover of “implementation facts.”
-- Response:
-  keep `adeu_architecture_observation_frame@1` facts-only and reject intended
-  semantics, settlement vocabulary, and alignment judgment inside the observed lane.
+## Pre-Lock Edge Set Outcome (v85 Closeout)
 
-### Edge 3: Settlement Posture Laundering
+1. Ambient repo read drift: `resolved`.
+   - the released frame binds exact request/`source_set` lineage and rejects observed
+     provenance outside the released `V41-A` world.
+2. Observation / intended collapse: `resolved`.
+   - the released frame remains facts-only and rejects intended semantics, settlement
+     deontics, alignment verdicts, and remediation payloads inside the observed lane.
+3. Settlement posture laundering: `resolved`.
+   - the released frame carries forward `upstream_compile_entitlement` plus exact
+     `upstream_blocking_refs` and rejects any drift from the released `V41-B`
+     settlement frame.
+4. Provenance-light / mushy observation entries: `resolved`.
+   - every observed entry remains explicitly addressable with ids, `fact_kind`,
+     `observation_mode`, concrete source refs, and typed entry-local fields rather
+     than floating provenance-linked prose.
+5. Silent invention instead of unresolved observation: `resolved`.
+   - the released frame preserves explicit `unresolved_observations` with bounded
+     `unresolved_reason_kind` rather than defaulting or inventing implementation
+     structure.
+6. Alignment / remediation creep: `resolved`.
+   - the released lane stays observation-only and rejects alignment, severity, and
+     repair-plan surfaces outright.
+7. Direct vs derived extraction blur: `resolved`.
+   - every resolved observed entry now declares `observation_mode = direct | derived`,
+     keeping raw source facts distinct from bounded structural extraction.
+8. Settlement carry-through drift: `resolved`.
+   - downstream consumers no longer need to reopen settlement artifacts just to know
+     observation posture, because the released frame carries the blocked state
+     forward explicitly.
+9. Floating cross-entry structure: `resolved`.
+   - workflow `step_refs` and boundary `crossing_refs` must resolve to typed in-frame
+     entries and stay anchored to concrete source refs instead of floating as an
+     internally referential graph.
+10. Duplicate or ambiguous observation identity: `resolved`.
+    - root-local observation ids remain globally unique across the frame and fail
+      closed on collisions.
 
-- Risk:
-  observation could consume a blocked settlement frame and then silently behave as if
-  downstream compile were now entitled.
-- Response:
-  allow observation to consume the released settlement frame, but forbid it from
-  upgrading, reinterpreting, or erasing upstream `compile_entitlement` posture.
+## Guard Coverage Outcome
 
-### Edge 4: Provenance-Light / Mushy Observation Entries
+- merged implementation files:
+  - `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/observation.py`
+  - `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/__init__.py`
+  - `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/export_schema.py`
+- committed reference fixture under
+  `apps/api/fixtures/architecture/vnext_plus85/adeu_architecture_observation_frame_v85_reference.json`
+- authoritative and mirrored schema files:
+  - `packages/adeu_architecture_compiler/schema/adeu_architecture_observation_frame.v1.json`
+  - `spec/adeu_architecture_observation_frame.schema.json`
+- merged guard files:
+  - `packages/adeu_architecture_compiler/tests/test_architecture_compiler_v41c.py`
+  - `packages/adeu_architecture_compiler/tests/test_architecture_compiler_export_schema.py`
+- v85 closeout artifact regeneration on `main` emitted:
+  - canonical `metric_key_continuity_assertion@1`
+  - canonical `runtime_observability_comparison@1`
+  - canonical `v41c_architecture_observation_frame_evidence@1`
+  - committed parent-session closeout raw/event stream fixture under
+    `artifacts/agent_harness/v85/runtime/evidence/codex/copilot/v85-closeout-main-1/`
+- merged guard coverage now proves:
+  - exact request-bound and settlement-bound replay over the released v85 world,
+  - facts-only observation with rejection of intended/alignment/remediation creep,
+  - direct-vs-derived marking across all resolved observed entry families,
+  - explicit blocked settlement carry-through without entitlement laundering,
+  - request-bound provenance closure and rejection of documentation items as
+    observed implementation facts,
+  - in-frame grounding for workflow and boundary cross-entry references,
+  - explicit unresolved observation preservation and bounded reason typing,
+  - structured observability-hook reasoning keyed on `observable_kind` instead of
+    brittle filename substring heuristics,
+  - schema export parity and deterministic fixture replay.
 
-- Risk:
-  the frame could look typed at the top level while actual evidence for observed
-  units, boundaries, workflows, and hooks hides in semi-structured blobs.
-- Response:
-  require every observed entry to remain explicitly addressable and provenance-linked
-  through ids, `fact_kind`, `observation_mode`, source refs, and minimal typed
-  fields so the lane does not collapse into provenance-linked prose summaries.
+## Stop-Gate Continuity Outcome
 
-### Edge 5: Silent Invention Instead Of Unresolved Observation
+```json
+{
+  "schema": "v85_edge_closeout_summary@1",
+  "arc": "vNext+85",
+  "target_path": "V41-C",
+  "prelock_edge_count": 10,
+  "resolved_edge_count": 10,
+  "open_blocking_edges": 0,
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v84": true,
+  "all_passed": true,
+  "blocking_issues": []
+}
+```
 
-- Risk:
-  missing code facts could be silently filled in, creating a polished but false
-  observation frame.
-- Response:
-  require explicit `unresolved_observations` with `unresolved_reason_kind`,
-  rationale, and source support rather than silent defaults or invented structure.
+## Residual Risks (Post v85)
 
-### Edge 6: Alignment / Remediation Creep
+1. The released lane remains intentionally bounded to observed implementation only
+   and not intended compile, alignment, runner behavior, or remediation.
+2. The committed reference fixture in v85 exercises a blocked settlement carry-through
+   posture only; an observation frame sourced from `compile_entitlement = entitled`
+   remains intentionally deferred until a later slice consumes settlement honestly.
+3. `observation_mode = derived` remains bounded structural extraction over the
+   released repo world, not proof that the derived structure is itself intended or
+   semantically final.
+4. Runtime observability remains informational only in `V41-C`; later practical-loop
+   widening still requires its own explicit lock and closeout evidence.
 
-- Risk:
-  `V41-C` could start reporting drift, severity, or repair advice under the cover of
-  “observed implementation context.”
-- Response:
-  keep alignment, intended compile, and remediation out of scope and reject such
-  fields in the observation frame.
+## Recommendation (Post Closeout)
 
-### Edge 7: Direct vs Derived Extraction Blur
-
-- Risk:
-  later intended/alignment lanes could not tell whether an observed fact came
-  straight from source text or from a bounded extraction heuristic, making mismatch
-  analysis harder and laundering derived structure as raw observation.
-- Response:
-  require every resolved observed entry to declare `observation_mode = direct |
-  derived` and keep derived structure bounded to provenance-linked extraction over
-  the released request world.
-
-### Edge 8: Settlement Carry-Through Drift
-
-- Risk:
-  downstream consumers could be forced to reopen settlement artifacts just to know
-  what entitlement posture the observation frame was produced under, or worse, the
-  observed frame could silently drop blocking lineage.
-- Response:
-  carry forward `upstream_compile_entitlement` plus explicit
-  `upstream_blocking_refs` from the released settlement frame and reject drift.
-
-### Edge 9: Floating Cross-Entry Structure
-
-- Risk:
-  workflow `step_refs` or boundary `crossing_refs` could form an internally
-  referential graph that is only weakly grounded in actual repo files.
-- Response:
-  require all cross-entry refs to resolve to typed in-frame observation entries and
-  forbid cross-entry structure that lacks concrete `source_ref` anchoring.
-
-### Edge 10: Duplicate Or Ambiguous Observation Identity
-
-- Risk:
-  root-local ids could collide, making later intended/alignment lanes ambiguous about
-  which observed entry is authoritative.
-- Response:
-  require uniqueness for root-local observation ids and fail closed on duplicates.
-
-## Current Judgment
-
-- `V41-C` is worth implementing now because `V41-A` already froze the repo world and
-  `V41-B` already froze the interpretive/entitlement seam; the next missing layer is
-  exactly the bounded observed implementation frame that later intended and alignment
-  slices must consume without collapsing lane boundaries.
+1. Mark the v85 edge set as closed with no blocking issues.
+2. Treat `adeu_architecture_observation_frame@1` as the canonical observed
+   implementation artifact for practical repo analysis going forward.
+3. Treat `V41-C` as complete at its bounded baseline on `main`; any observation-lane
+   widening should be justified as exceptional rather than assumed.
+4. Move the next default candidate to repo-grounded intended compile explicitly,
+   without reopening the released request or settlement boundaries and without
+   collapsing intended and observed lanes.
