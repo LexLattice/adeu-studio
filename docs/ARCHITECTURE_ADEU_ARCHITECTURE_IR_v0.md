@@ -311,8 +311,15 @@ posture with one explicit pre-compile settlement gate:
      artifact.
 4. **alignment lane**
    - compare intended and observed outputs deterministically;
+   - treat the request boundary plus settlement frame as the governing context for
+     intended authority even during comparison;
+   - let observation constrain, block, or force unresolved posture, but not become
+     the hidden source of intended truth;
    - emit drift diagnostics that make the difference between "what the project says it
-     means" and "what the code currently does" inspectable.
+     means" and "what the code currently does" inspectable;
+   - preserve intended and observed as distinct companion artifacts rather than
+     reconciling them into one merged truth surface;
+   - keep remediation or repo-mutation planning out of the first comparison artifact.
 
 Recommended companion practical-analysis artifacts:
 
@@ -349,8 +356,21 @@ Recommended companion practical-analysis artifacts:
   - should preserve bounded unresolved-observation reason kinds rather than prose-only
     unknown markers;
 - `adeu_architecture_alignment_report@1`
-  - records deterministic misalignment classes and severity posture between intended
-    and observed lanes.
+  - records deterministic misalignment classes and severity / blocking posture
+    between intended and observed lanes;
+  - should use released `adeu_architecture_semantic_ir@1` as the authoritative
+    intended comparison surface for the first baseline, with companion intended
+    root-family refs admitted only through an explicit support contract;
+  - should bind back to the released request, settlement, observed, and intended
+    artifacts rather than comparing a fresh or drifting world implicitly;
+  - should distinguish report-level `blocked` alignment posture from upstream
+    settlement `compile_entitlement = blocked`;
+  - should derive stable finding ids from canonical typed support tuples with
+    deterministic deduplication and ordering;
+  - should refuse findings that are supported only by prose notes or advisory-only
+    upstream fields rather than typed refs;
+  - should keep unresolved unknowns as first-class findings rather than burying them
+    in prose notes.
 
 Hard rule:
 

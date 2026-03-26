@@ -1,16 +1,17 @@
 # Draft Next Arc Options v23
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v22.md`, updated after
-`vNext+85` closeout and released `V41-A` + `V41-B` + `V41-C`
+`vNext+86` closeout and released `V41-A` + `V41-B` + `V41-C` + `V41-D`
 practical-analysis baselines on `main`.
 
 This draft keeps `V41` active and selects the immediate next seam inside that family.
 
 The next question is no longer how to bind the repo world deterministically.
 
-The next question is how to compile intended architecture over that already-frozen
-repo world, already-released settlement posture, and already-released observed frame
-without collapsing intended and observed lanes or smuggling in alignment verdicts.
+The next question is how to compare the now-released intended and observed practical
+lanes deterministically without collapsing them into one truth surface, silently
+normalizing drift, or widening immediately into runner, remediation, or repo-mutation
+behavior.
 
 This is a planning document only. It is not a lock doc and does not authorize runtime
 behavior, schema release, or implementation by itself.
@@ -19,8 +20,8 @@ behavior, schema release, or implementation by itself.
 
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
-- `V41-A`, `V41-B`, and `V41-C` are now closed on `main`.
-- `vNext+85` is the current baseline implementation state.
+- `V41-A`, `V41-B`, `V41-C`, and `V41-D` are now closed on `main`.
+- `vNext+86` is the current baseline implementation state.
 - The released practical-analysis substrate now includes:
   - canonical `adeu_architecture_analysis_request@1`;
   - deterministic repo-root-relative scope selection;
@@ -37,41 +38,52 @@ behavior, schema release, or implementation by itself.
   - facts-only observed implementation extraction;
   - explicit direct-vs-derived observation marking;
   - explicit unresolved observations with bounded reason typing;
-  - exact upstream blocked-settlement carry-through in the observed lane.
+  - exact upstream blocked-settlement carry-through in the observed lane;
+  - canonical repo-grounded intended compile over the released request, settlement,
+    and observation boundary;
+  - deterministic materialization of the released `V40-A` root-family artifacts over
+    one bounded repo slice;
+  - exact consumption of settlement `compile_entitlement = entitled` as-is rather
+    than local recomputation;
+  - explicit carry-through of unresolved observed facts into intended ambiguity or
+    advisory posture;
+  - continued intended vs observed lane separation with observation constrained to
+    companion evidence only.
 - The released practical-analysis loop still does not yet include:
-  - intended repo-grounded ASIR compile;
   - deterministic alignment / drift reporting;
   - habitual runner orchestration.
 
 ## Gap
 
 The missing layer is no longer request/world binding itself, it is no longer the
-settlement / entitlement seam, and it is no longer the observed implementation lane
-either.
+settlement / entitlement seam, it is no longer the observed implementation lane, and
+it is no longer the intended compile seam either.
 
-The missing layer is the intended repo-grounded compile lane that says:
+The missing layer is the deterministic alignment lane that says:
 
-- what intended architecture can be compiled over the same frozen repo world that the
-  observed lane consumed;
-- how that intended compile stays bound to the released request, settlement, and
-  observation boundary instead of drifting into a fresh brief universe;
-- how intended semantics remain explicit without silently inheriting unresolved
-  observed gaps as if they were settled truth;
-- and how the intended lane stays distinct from later alignment / drift judgment.
+- how intended and observed architecture are compared without collapsing into one
+  merged truth surface;
+- how request-bound intended authority remains primary while observation constrains,
+  blocks, or forces unresolved posture without becoming the hidden source of intent;
+- how starter mismatch classes remain explicit, stable, and grounded in the released
+  upstream artifacts;
+- how unresolved unknowns remain visible as unresolved alignment posture rather than
+  being normalized away;
+- and how drift becomes inspectable before any habitual runner starts materializing
+  the full practical loop by default.
 
 Today the repo still lacks a released way to:
 
-- compile one canonical repo-grounded intended
-  `adeu_architecture_semantic_ir@1` artifact over the released request, settlement,
-  and observation boundary;
-- keep intended compile sourced from the same frozen `source_set` rather than a fresh
-  drifting maintainer-brief universe;
-- force intended compile to respect blocked settlement posture and explicit unresolved
-  observation carry-through rather than laundering them away;
-- preserve intended semantics as a distinct typed lane rather than silently blending
-  them with observed implementation facts;
-- and hand later alignment lanes a released intended surface rather than expecting
-  them to compare observation against prose.
+- emit one canonical `adeu_architecture_alignment_report@1` artifact over the
+  released request, settlement, observation, and intended boundaries;
+- classify starter mismatches deterministically rather than leaving drift as prose or
+  reviewer intuition;
+- keep severity and blocking posture explicit without silently reconciling intended
+  and observed into one cleaned-up artifact;
+- preserve unresolved unknowns as first-class alignment findings rather than hiding
+  them inside notes or by omission;
+- and hand the later practical runner a released comparison surface rather than
+  forcing it to improvise comparison logic ad hoc.
 
 ## Naming Convention (Active Family)
 
@@ -82,22 +94,23 @@ Today the repo still lacks a released way to:
 ## Recommended Family
 
 - Family name: `V41`
-- Family theme: practical repo-grounded architecture analysis, settlement, and
-  alignment
+- Family theme: practical repo-grounded architecture analysis, settlement, intended
+  compile, alignment, and runner orchestration
 - Closed current-family paths:
   - `V41-A`
   - `V41-B`
   - `V41-C`
+  - `V41-D`
 - Recommended decomposition reference:
   - `docs/DRAFT_V41_PRACTICAL_REPO_ANALYSIS_DECOMPOSITION_v0.md`
 - Recommended next path:
-  - `V41-D`
+  - `V41-E`
 - Recommended next concrete arc:
-  - `vNext+86`
+  - `vNext+87`
 - Default path selection:
-  - select `V41-D` as the next default candidate
+  - select `V41-E` as the next default candidate
 
-## Closed Current Paths (`V41-A`, `V41-B`, `V41-C`)
+## Closed Current Paths (`V41-A`, `V41-B`, `V41-C`, `V41-D`)
 
 Solved:
 
@@ -110,115 +123,124 @@ Solved:
 - one canonical settlement-frame artifact;
 - explicit chosen interpretation and grounded registers;
 - explicit deontic typing, affordance decisions, claim posture, escalation policy,
-  and fail-closed compile entitlement.
+  and fail-closed compile entitlement;
 - one canonical observation-frame artifact;
 - facts-only observed implementation extraction over the released request +
   settlement boundary;
 - explicit direct-vs-derived observation marking;
 - explicit unresolved observation preservation and upstream blocked-settlement
-  carry-through.
+  carry-through;
+- one canonical repo-grounded intended compile lane over the same released request,
+  settlement, and observation boundary;
+- reuse of unchanged `V40-A` root-family artifact families rather than a fresh
+  practical schema family;
+- entitled-only emission with explicit refusal on blocked settlement posture;
+- explicit carry-through of unresolved or derived observed facts into intended
+  ambiguity/advisory posture.
 
-What `V41-A` + `V41-B` + `V41-C` did not solve:
+What `V41-A` + `V41-B` + `V41-C` + `V41-D` did not solve:
 
-- intended repo-grounded ASIR compile;
 - deterministic alignment and drift diagnostics;
 - habitual runner orchestration.
 
-## Recommended Next Path (`V41-D`)
+## Recommended Next Path (`V41-E`)
 
-Implement the repo-grounded intended-architecture compile baseline.
+Implement the deterministic intended-vs-observed alignment baseline.
 
-`V41-D` should introduce:
+`V41-E` should introduce:
 
-- one canonical repo-grounded `adeu_architecture_semantic_ir@1` artifact;
+- one canonical `adeu_architecture_alignment_report@1` artifact;
 - exact consumption of the released `V41-A` request boundary, released `V41-B`
-  settlement frame, and released `V41-C` observation frame over the same:
+  settlement frame, released `V41-C` observation frame, and released `V41-D`
+  intended root-family outputs over the same:
   - `analysis_request_id`
   - `analysis_request_ref`
   - `settlement_frame_id`
   - `settlement_frame_ref`
   - `observation_frame_id`
   - `observation_frame_ref`
+  - `architecture_id`
+  - `semantic_hash`
   - `source_set_hash`
   - `authority_boundary_policy`;
-- the released request boundary plus released settlement frame as the normative
-  driver of intended compile, with the observation frame limited to constraining
-  overreach, forcing ambiguity/advisory posture, or triggering refusal rather than
-  becoming the hidden source of intended truth;
-- deterministic intended compile from the same frozen request world rather than a
-  fresh ambient brief universe;
-- exact carry-through of settlement posture and unresolved observation posture into
-  compile legality;
-- explicit intended semantics over at least:
-  - ontology
-  - epistemics
-  - deontics
-  - utility
-  with the same bounded honesty law already frozen in `V40-A`;
-- no observed implementation facts silently promoted into intended truth without an
-  explicit compile claim posture;
-- no local recomputation of `compile_entitlement`; the intended lane consumes the
-  released settlement posture as-is;
-- no alignment severity, remediation, or runner behavior inside the intended lane;
-- one committed intended-compile reference fixture over one bounded internal repo
-  slice, including at least one visible carry-through case where an unresolved or
-  derived observation remains ambiguity, advisory posture, or refusal to settle.
+- released `adeu_architecture_semantic_ir@1` as the authoritative intended
+  comparison surface for the first baseline, with any companion intended
+  root-family refs allowed only through an explicit declared support contract;
+- deterministic starter mismatch classes at least for:
+  - `declared_not_observed`
+  - `observed_not_declared`
+  - `authority_boundary_drift`
+  - `workflow_or_state_drift`
+  - `evidence_or_observability_gap`
+  - `unresolved_unknown`;
+- stable deterministic finding ids derived from canonical typed support tuples,
+  deterministic finding dedup/order rules, and explicit severity / blocking posture
+  over those starter classes;
+- exact carry-through of settlement and unresolved-observation context into the
+  comparison surface without reopening or redefining the upstream artifacts;
+- explicit distinction between report-level `blocked` alignment posture and upstream
+  settlement `compile_entitlement = blocked`;
+- no silent reconciliation or normalization of intended and observed lanes into one
+  merged truth surface;
+- one committed alignment reference fixture over one bounded internal repo slice,
+  including at least one explicit unresolved or blocking drift case and at least one
+  upstream ambiguity or unresolved observation that survives into an explicit
+  `unresolved_unknown` finding.
 
 ## Why This Path
 
 - It is the next lawful seam after world binding plus settlement / entitlement plus
-  observed implementation extraction.
-- It keeps intended and observed lanes separate before any later alignment slice tries
-  to compare them.
-- It forces intended compile to earn its semantics over the same frozen repo world
-  already consumed by the observation lane.
-- It prevents later alignment from comparing observation against prose or ad hoc
-  maintainer restatement.
-- It gives later drift lanes a deterministic intended surface to consume habitually.
+  observed implementation extraction plus intended compile.
+- It keeps intended and observed lanes separate while making their differences
+  inspectable before any runner tries to habitualize the loop.
+- It prevents later orchestration from comparing observation against prose or against
+  an implied intended surface that was never released deterministically.
+- It gives later practical-runner lanes one stable comparison artifact to consume
+  habitually.
 
-## First-Slice Boundary (`V41-D`)
+## First-Slice Boundary (`V41-E`)
 
-`V41-D` should stay bounded to:
+`V41-E` should stay bounded to:
 
-- intended semantic-root compile only;
-- released request + settlement + observation consumption only;
-- exact carry-through of blocked settlement and unresolved observation posture only;
-- no practical checkpoint/oracle reuse in the first concrete `vNext+86` arc even if
-  the broader `V41-D` path may later admit bounded reuse when ambiguity remains;
-- committed intended-compile reference fixtures only;
+- deterministic alignment-report materialization only;
+- released request + settlement + observation + intended consumption only;
+- starter mismatch classes and severity / blocking posture only;
+- basis-typed findings grounded only in typed upstream refs, not prose-only notes;
+- explicit unresolved-unknown carry-through only;
+- no remediation generation or repo-mutation planning;
+- no CLI runner rollout in the first concrete `vNext+87` arc;
+- committed alignment reference fixtures only;
 - validator tests only.
 
 It should not attempt:
 
-- drift or alignment diagnostics;
+- runner orchestration;
 - remediation plans or repo-mutation instructions;
-- CLI orchestration of the full practical loop;
+- automatic reconciliation or auto-acceptance of drift;
 - API or web inspection surfaces;
 - automatic code changes or prompt-to-code generation.
 
 ## Follow-On Paths Inside `V41`
 
-The recommended family ladder after `V41-C` is:
+The recommended family ladder after `V41-D` is:
 
-1. `V41-D`
-   - intended repo-grounded ASIR compile
-2. `V41-E`
+1. `V41-E`
    - deterministic alignment and drift diagnostics
-3. `V41-F`
+2. `V41-F`
    - practical runner / habitual orchestration
 
 ## Planning Boundary
 
 - no reopening of the released `V41-A` request / `source_set` contract is authorized
   by this planning draft;
-- no observed extraction, intended compile, or alignment report is authorized by this
-  planning draft;
+- no observation extraction, intended compile, or alignment report is authorized by
+  this planning draft;
 - no silent promotion of permissions into obligations or bounded search absence into
   proved impossibility is authorized by this planning draft;
 - no API or web workbench release is authorized by this planning draft;
 - no automatic repo mutation or direct prompt-to-code generation is authorized by this
   planning draft;
-- no formal Lean sidecar becomes authoritative over practical settlement validity by
+- no formal Lean sidecar becomes authoritative over practical alignment validity by
   this planning draft;
 - no stop-gate schema-family fork or implicit metric-key expansion is authorized.
 
@@ -228,7 +250,7 @@ The recommended family ladder after `V41-C` is:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v22.md",
-  "baseline_arc": "vNext+85",
+  "baseline_arc": "vNext+86",
   "closed_prior_family": "V40",
   "closed_prior_paths": [
     "V40-A",
@@ -242,10 +264,11 @@ The recommended family ladder after `V41-C` is:
   "closed_current_family_paths": [
     "V41-A",
     "V41-B",
-    "V41-C"
+    "V41-C",
+    "V41-D"
   ],
-  "default_next_arc_candidate": "V41-D",
-  "default_next_concrete_arc_candidate": "vNext+86",
+  "default_next_arc_candidate": "V41-E",
+  "default_next_concrete_arc_candidate": "vNext+87",
   "family_decomposition_doc": "docs/DRAFT_V41_PRACTICAL_REPO_ANALYSIS_DECOMPOSITION_v0.md",
   "analysis_request_artifact": "adeu_architecture_analysis_request@1",
   "analysis_settlement_artifact": "adeu_architecture_analysis_settlement_frame@1",
@@ -254,17 +277,19 @@ The recommended family ladder after `V41-C` is:
   "observed_lane_package": "packages/adeu_architecture_compiler",
   "intended_lane_artifact": "adeu_architecture_semantic_ir@1",
   "alignment_artifact": "adeu_architecture_alignment_report@1",
+  "alignment_package": "packages/adeu_architecture_compiler",
+  "alignment_authoritative_intended_surface": "adeu_architecture_semantic_ir@1",
   "intended_observed_lane_separation_required": true,
   "alignment_requires_distinct_intended_and_observed_artifacts": true,
   "precompile_settlement_required": true,
   "settlement_entitlement_gate_required": true,
   "settlement_entry_grounding_required": true,
   "settlement_blocking_lineage_required": true,
+  "alignment_blocked_distinct_from_settlement_blocked": true,
   "settlement_notes_authoritative": false,
   "formal_sidecar_authoritative": false,
   "cli_first_practical_runner": true,
-  "v41b_runner_deferred": true,
-  "v41c_runner_deferred": true,
-  "v41d_runner_deferred": true
+  "v41e_runner_deferred": true,
+  "v41e_remediation_deferred": true
 }
 ```

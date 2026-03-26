@@ -1,7 +1,7 @@
 # Draft V41 Practical Repo Analysis Decomposition v0
 
-Status: working decomposition draft after `vNext+85` closeout and released `V41-A`,
-`V41-B`, and `V41-C` practical-analysis baselines on `main`.
+Status: working decomposition draft after `vNext+86` closeout and released `V41-A`,
+`V41-B`, `V41-C`, and `V41-D` practical-analysis baselines on `main`.
 
 This document is an intermediate planning artifact between:
 
@@ -81,16 +81,17 @@ That loop requires one additional family because it introduces a new operational
 ## Baseline Agreement
 
 - `vNext+82` (`V40-F`) is closed on `main`.
-- `vNext+83` (`V41-A`), `vNext+84` (`V41-B`), and `vNext+85` (`V41-C`) are closed
-  on `main`.
+- `vNext+83` (`V41-A`), `vNext+84` (`V41-B`), `vNext+85` (`V41-C`), and
+  `vNext+86` (`V41-D`) are closed on `main`.
 - The bounded `V40` family is complete on `main` at its intended baseline.
 - The released ASIR ladder now exists end-to-end for semantic-root, conformance,
   hybrid, lowering, UX compatibility, and family evidence, and the first practical
   request/world-binding seam now exists over a real repo scope.
 - The next safe step is not to reopen `V40`, relitigate request/source-set capture,
-  widen settlement/entitlement semantics, or re-extract observed facts; it is to
-  compile repo-grounded intended architecture over that frozen world without
-  collapsing it into observed implementation or drift judgment.
+  widen settlement/entitlement semantics, re-extract observed facts, or relitigate
+  intended compile authority; it is to compare released intended and observed lanes
+  deterministically without collapsing them into one merged truth surface or jumping
+  straight to runner behavior.
 - The Lean formal lane remains useful but sidecar-only and should not become a hidden
   prerequisite for practical repo analysis.
 
@@ -100,7 +101,7 @@ That loop requires one additional family because it introduces a new operational
 {
   "schema": "v41_practical_repo_analysis_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+85",
+  "baseline_arc": "vNext+86",
   "closed_prior_family": "V40",
   "closed_prior_paths": [
     "V40-A",
@@ -114,13 +115,14 @@ That loop requires one additional family because it introduces a new operational
   "closed_current_family_paths": [
     "V41-A",
     "V41-B",
-    "V41-C"
+    "V41-C",
+    "V41-D"
   ],
-  "default_next_arc_candidate": "V41-D",
-  "default_next_concrete_arc_candidate": "vNext+86",
+  "default_next_arc_candidate": "V41-E",
+  "default_next_concrete_arc_candidate": "vNext+87",
   "v41_path_count": 6,
   "v41_default_arc_span": {
-    "from": "vNext+86",
+    "from": "vNext+87",
     "to": "vNext+88"
   },
   "v41_paths_may_span_multiple_arcs": true,
@@ -202,14 +204,14 @@ The current recommended concrete split is:
     observed implementation frame schema/model/export baseline plus deterministic repo
     observation over one bounded codebase slice
 - `vNext+86`
-  - default first concrete `V41-D` arc:
+  - closed first concrete `V41-D` arc:
     repo-grounded intended root-family compile over the released request,
     settlement, and observation boundary using the released `V40-A` semantic-root
     family rather than only frozen synthetic fixtures
 - `vNext+87`
   - default first concrete `V41-E` arc:
-    deterministic alignment report, mismatch classes, severity posture, and drift
-    diagnostics between intended and observed lanes
+    deterministic alignment report, mismatch classes, stable finding ids, severity /
+    blocking posture, and drift diagnostics between intended and observed lanes
 - `vNext+88`
   - default first concrete `V41-F` arc:
     CLI-first practical runner / harness orchestration that produces the full analysis
@@ -491,6 +493,12 @@ Goal:
 Scope:
 
 - canonical `adeu_architecture_alignment_report@1`;
+- exact consumption of the released `V41-A` request boundary, released `V41-B`
+  settlement frame, released `V41-C` observation frame, and released `V41-D`
+  intended root-family outputs over the same practical repo world;
+- released `adeu_architecture_semantic_ir@1` as the authoritative intended
+  comparison surface for the first concrete alignment baseline, with companion
+  intended root-family refs admitted only through an explicit support contract;
 - deterministic starter mismatch classes at least for:
   - declared_not_observed
   - observed_not_declared
@@ -500,13 +508,25 @@ Scope:
   - unresolved_unknown
 - the starter class set is intentionally bounded and not the whole future ontology of
   drift;
+- stable deterministic finding ids over the starter classes, derived from canonical
+  typed support tuples with deterministic deduplication and ordering;
 - severity / blocking posture for alignment findings;
+- unresolved unknowns must remain first-class findings rather than vanishing into
+  notes or by omission;
 - exact lineage back to the intended ASIR, observed frame, settlement frame, and
   analysis request.
 
 Locks:
 
 - no silent reconciliation of intended and observed artifacts into one merged truth;
+- request boundary plus settlement frame remain the normative driver of intended
+  truth, while observation may constrain, block, or force unresolved posture but may
+  not become the hidden source of intended architecture;
+- report-level `blocked` remains an alignment diagnostic posture over an already
+  entitled comparison world and is not equivalent to upstream settlement
+  `compile_entitlement = blocked`;
+- no remediation plans or repo-mutation instructions in the first concrete `V41-E`
+  arc;
 - no automatic repo mutation or patch generation;
 - no product-surface or workbench release yet.
 
@@ -514,6 +534,8 @@ Acceptance:
 
 - one internal repo/subtree yields a deterministic alignment report;
 - intended and observed lanes remain separately inspectable;
+- at least one upstream ambiguity or unresolved observation survives into an explicit
+  `unresolved_unknown` finding in the committed fixture ladder;
 - high-impact misalignment fails closed rather than being normalized away.
 
 Expected PR shape:
