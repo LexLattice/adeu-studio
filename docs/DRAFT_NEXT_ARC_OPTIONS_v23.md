@@ -72,16 +72,23 @@ The missing layer is the practical runner that says:
   seams ad hoc;
 - how a CLI-first practical loop can materialize the already-released artifacts in
   lawful sequence while preserving replay identity and evidence capture;
+- how one canonical run-manifest artifact can record exact sequencing, emitted refs,
+  and bounded stop posture for that loop without silently becoming remediation or
+  repo-mutation authority;
 - how the runner remains orchestration-only rather than silently widening into repo
   mutation, remediation authority, or merged-truth reconciliation;
-- and how practical execution can remain fail-closed when released settlement or
-  alignment posture says the loop must stop.
+- and how practical execution can remain fail-closed when released settlement posture
+  stops intended/alignment emission while still recording terminal alignment posture
+  honestly when the full comparison run completes.
 
 Today the repo still lacks a released way to:
 
 - run one canonical CLI-first practical-analysis loop over a bounded repo slice;
 - materialize the already-released `V41-A` through `V41-E` artifact ladder from one
   runner entrypoint;
+- materialize one canonical `adeu_architecture_analysis_run_manifest@1` that binds
+  exact request / settlement / observation / intended / alignment lineage for that
+  loop;
 - preserve replay-stable orchestration lineage, evidence capture, and stop/fail
   boundaries for that loop;
 - and habitualize practical analysis without improvising the sequence manually across
@@ -157,14 +164,21 @@ Implement the practical runner / habitual orchestration baseline.
 
 `V41-F` should introduce:
 
+- one canonical `adeu_architecture_analysis_run_manifest@1` artifact;
 - one canonical CLI-first orchestration entrypoint over the released `V41-A` through
   `V41-E` stack;
 - exact sequencing for request capture, settlement consumption, observation
   extraction, intended compile, and alignment generation over one bounded repo slice;
 - replay-stable run identity, evidence capture, and artifact lineage across that
   sequence;
-- fail-closed stop behavior when released settlement or alignment posture blocks the
-  loop;
+- deterministic `run_id` derivation plus a canonical stage ledger over request,
+  settlement, observation, intended, alignment, and manifest stages;
+- fail-closed stop behavior when released settlement posture blocks intended compile
+  or alignment emission;
+- authoritative manifest emission even for settlement-blocked runs, so the stop
+  witness remains typed and replayable;
+- explicit distinction between runner-level `run_outcome = blocked` and a completed
+  run whose consumed alignment report may still carry `alignment_posture = blocked`;
 - explicit runner evidence and committed reference harness output proving the full
   practical loop can be replayed habitually without silently mutating the repo or
   reconciling intended and observed into one surface.
@@ -182,10 +196,14 @@ Implement the practical runner / habitual orchestration baseline.
 
 `V41-F` should stay bounded to:
 
+- deterministic run-manifest materialization only;
 - deterministic runner/orchestration materialization only;
 - released request + settlement + observation + intended + alignment consumption only;
 - CLI-first habitual execution over one bounded repo slice only;
+- deterministic output-root placement and runtime-evidence placement only;
 - explicit evidence capture and replay identity only;
+- explicit blocked-stop recording without hidden shadow artifacts only;
+- explicit terminal alignment posture of `none` for blocked runs only;
 - no remediation generation or repo-mutation planning;
 - no merged-truth reconciliation or hidden semantic settlement;
 - committed orchestration reference fixtures only;
@@ -256,6 +274,7 @@ The recommended family ladder after closed `V41-E` has one default slice left:
   "alignment_artifact": "adeu_architecture_alignment_report@1",
   "alignment_package": "packages/adeu_architecture_compiler",
   "alignment_authoritative_intended_surface": "adeu_architecture_semantic_ir@1",
+  "practical_runner_artifact": "adeu_architecture_analysis_run_manifest@1",
   "practical_runner_package": "packages/adeu_architecture_compiler",
   "intended_observed_lane_separation_required": true,
   "alignment_requires_distinct_intended_and_observed_artifacts": true,
@@ -264,6 +283,10 @@ The recommended family ladder after closed `V41-E` has one default slice left:
   "settlement_entry_grounding_required": true,
   "settlement_blocking_lineage_required": true,
   "alignment_blocked_distinct_from_settlement_blocked": true,
+  "runner_blocked_distinct_from_alignment_blocked": true,
+  "run_manifest_emitted_on_blocked_run": true,
+  "run_id_deterministic": true,
+  "stage_ledger_required": true,
   "settlement_notes_authoritative": false,
   "formal_sidecar_authoritative": false,
   "cli_first_practical_runner": true,

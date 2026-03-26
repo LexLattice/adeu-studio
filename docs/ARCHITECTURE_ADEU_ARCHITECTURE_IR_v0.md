@@ -371,6 +371,24 @@ Recommended companion practical-analysis artifacts:
     upstream fields rather than typed refs;
   - should keep unresolved unknowns as first-class findings rather than burying them
     in prose notes.
+- `adeu_architecture_analysis_run_manifest@1`
+  - records deterministic CLI-first orchestration lineage over one practical
+    repo-analysis run;
+  - should bind to the emitted request, settlement, observation, intended, and
+    alignment artifacts actually materialized in that run rather than re-describing a
+    drifting world;
+  - should derive `run_id` deterministically from canonical upstream artifact
+    identity plus frozen runner configuration rather than wall-clock or ambient
+    execution state;
+  - should remain an authoritative stop witness even for settlement-blocked runs;
+  - should carry a canonical stage ledger over request, settlement, observation,
+    intended, alignment, and manifest stages;
+  - should distinguish runner-level blocked stop from a completed run whose consumed
+    alignment report may still carry `alignment_posture = blocked`;
+  - should force `terminal_alignment_posture = none` when the run stops before
+    alignment emission;
+  - should record deterministic output-root and runtime-evidence-root placement
+    without becoming remediation, repo-mutation, or merged-truth authority.
 
 Hard rule:
 
@@ -388,6 +406,8 @@ analysis_request + source_set + settlement frame + observed implementation frame
     -> intended ASIR
 intended ASIR + observed implementation frame
     -> alignment report
+analysis_request + settlement frame + observed implementation frame + intended ASIR + alignment report
+    -> analysis run manifest
 ```
 
 Recommended starter mismatch classes:
