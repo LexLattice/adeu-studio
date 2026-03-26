@@ -1,0 +1,324 @@
+{
+  "$defs": {
+    "ArchitectureAnalysisRunStageStatus": {
+      "additionalProperties": false,
+      "properties": {
+        "stage_id": {
+          "enum": [
+            "request",
+            "settlement",
+            "observation",
+            "intended",
+            "alignment",
+            "manifest"
+          ],
+          "title": "Stage Id",
+          "type": "string"
+        },
+        "stage_state": {
+          "enum": [
+            "completed",
+            "not_run"
+          ],
+          "title": "Stage State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage_id",
+        "stage_state"
+      ],
+      "title": "ArchitectureAnalysisRunStageStatus",
+      "type": "object"
+    },
+    "ArchitectureAnalysisRunner": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_source": {
+          "default": "docs/LOCKED_CONTINUATION_vNEXT_PLUS88.md#v88-continuation-contract-machine-checkable",
+          "title": "Contract Source",
+          "type": "string"
+        },
+        "mode": {
+          "const": "cli_first",
+          "default": "cli_first",
+          "title": "Mode",
+          "type": "string"
+        },
+        "name": {
+          "const": "adeu_architecture_compiler.v41f",
+          "default": "adeu_architecture_compiler.v41f",
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "default": "1",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "title": "ArchitectureAnalysisRunner",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicyPin": {
+      "additionalProperties": false,
+      "properties": {
+        "inline_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthorityBoundaryPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        }
+      },
+      "title": "AuthorityBoundaryPolicyPin",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alignment_report_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Alignment Report Id"
+    },
+    "alignment_report_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Alignment Report Ref"
+    },
+    "analysis_request_id": {
+      "title": "Analysis Request Id",
+      "type": "string"
+    },
+    "analysis_request_ref": {
+      "title": "Analysis Request Ref",
+      "type": "string"
+    },
+    "architecture_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Architecture Id"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicyPin"
+    },
+    "emitted_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Emitted Artifact Refs",
+      "type": "array"
+    },
+    "observation_frame_id": {
+      "title": "Observation Frame Id",
+      "type": "string"
+    },
+    "observation_frame_ref": {
+      "title": "Observation Frame Ref",
+      "type": "string"
+    },
+    "output_root_ref": {
+      "title": "Output Root Ref",
+      "type": "string"
+    },
+    "repo_root_ref": {
+      "title": "Repo Root Ref",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "run_outcome": {
+      "enum": [
+        "completed",
+        "blocked"
+      ],
+      "title": "Run Outcome",
+      "type": "string"
+    },
+    "runner": {
+      "$ref": "#/$defs/ArchitectureAnalysisRunner"
+    },
+    "runtime_evidence_root_ref": {
+      "title": "Runtime Evidence Root Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_architecture_analysis_run_manifest@1",
+      "default": "adeu_architecture_analysis_run_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Semantic Hash"
+    },
+    "semantic_ir_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Semantic Ir Id"
+    },
+    "semantic_ir_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Semantic Ir Ref"
+    },
+    "settlement_frame_id": {
+      "title": "Settlement Frame Id",
+      "type": "string"
+    },
+    "settlement_frame_ref": {
+      "title": "Settlement Frame Ref",
+      "type": "string"
+    },
+    "source_set_hash": {
+      "title": "Source Set Hash",
+      "type": "string"
+    },
+    "stage_statuses": {
+      "items": {
+        "$ref": "#/$defs/ArchitectureAnalysisRunStageStatus"
+      },
+      "title": "Stage Statuses",
+      "type": "array"
+    },
+    "stop_reason_kind": {
+      "enum": [
+        "none",
+        "settlement_blocked"
+      ],
+      "title": "Stop Reason Kind",
+      "type": "string"
+    },
+    "terminal_alignment_posture": {
+      "enum": [
+        "none",
+        "aligned",
+        "drifted",
+        "blocked"
+      ],
+      "title": "Terminal Alignment Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "run_id",
+    "runner",
+    "repo_root_ref",
+    "output_root_ref",
+    "runtime_evidence_root_ref",
+    "analysis_request_id",
+    "analysis_request_ref",
+    "settlement_frame_id",
+    "settlement_frame_ref",
+    "observation_frame_id",
+    "observation_frame_ref",
+    "source_set_hash",
+    "authority_boundary_policy",
+    "run_outcome",
+    "stop_reason_kind",
+    "terminal_alignment_posture"
+  ],
+  "title": "AdeuArchitectureAnalysisRunManifest",
+  "type": "object"
+}

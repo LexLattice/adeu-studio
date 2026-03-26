@@ -43,7 +43,7 @@
   "schema": "adeu_architecture_analysis_request@1",
   "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_settlement_frame_v86_intended_derivative.json",
   "snapshot_identity": {
-    "commit_sha": "f41a3ca2aea5de29ce71bf2f99c8181832f3b6ed",
+    "commit_sha": "d2894077b99948a58370b5a6cc799d5ebf207942",
     "snapshot_manifest_hash": null,
     "snapshot_manifest_ref": null,
     "tree_sha": null
@@ -64,12 +64,12 @@
       {
         "artifact_kind": "documentation",
         "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-        "sha256": "f9ee27a26150e51232616bd243074151849b18a2227377fdd3f1cf4f639c431e"
+        "sha256": "1a4c5ef8967bd60d9529c0234615cae9941328da6be10695894da4c10f1f118a"
       },
       {
         "artifact_kind": "documentation",
         "path": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
-        "sha256": "e8eb8c069af921be27866a1eee91a6b73fb88e602bb27fa4ea5b12ce13036bf1"
+        "sha256": "0a2d971b642096e7bde6344ecac3abdeca97c1afc6a53d2704d5f0618f56b5c7"
       },
       {
         "artifact_kind": "configuration",
@@ -113,5 +113,5 @@
       }
     ]
   },
-  "source_set_hash": "4509271c7ba8e3333c869c8e2bd4256eff5a8d76cb822c5c4d28c5a3e6ee8ade"
+  "source_set_hash": "4033bcde128047aa5e994492b352d068d4b082b44ca8903883ab75135a2d1f0b"
 }

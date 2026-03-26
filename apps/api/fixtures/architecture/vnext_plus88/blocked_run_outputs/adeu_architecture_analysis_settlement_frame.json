@@ -1,0 +1,132 @@
+{
+  "active_escalation_records": [
+    {
+      "supporting_refs": [
+        "artifacts/stop_gate/metrics_v83_closeout.json"
+      ],
+      "trigger_id": "impossibility_claim_without_proof"
+    },
+    {
+      "supporting_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41c"
+      ],
+      "trigger_id": "unresolved_high_impact_ambiguity"
+    }
+  ],
+  "advisory_notes": [
+    "v88 runner blocked case over the released practical analysis stack."
+  ],
+  "affordance_decisions": [
+    {
+      "decision_class": "intentionally_declined",
+      "decision_id": "decision_decline_request_test_fallback",
+      "rationale": "The fallback request test is not used as a substitute for observed implementation facts in this slice.",
+      "target_ref": "packages/adeu_architecture_ir/tests/test_analysis_request.py"
+    },
+    {
+      "decision_class": "deferred",
+      "decision_id": "decision_defer_v41c_options_hint",
+      "rationale": "The planning draft is recorded as a hint but not promoted into implementation fact by settlement.",
+      "target_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
+    }
+  ],
+  "analysis_request_id": "v41a_v88_architecture_ir_blocked_runner_request_derivative",
+  "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs/adeu_architecture_analysis_request.json",
+  "authority_boundary_policy": {
+    "inline_policy": null,
+    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
+  },
+  "blocking_lineage": [
+    {
+      "blocking_kind": "claim_posture",
+      "blocking_ref_id": "blocking_runtime_signal_unproved",
+      "supporting_refs": [
+        "artifacts/stop_gate/metrics_v83_closeout.json"
+      ]
+    },
+    {
+      "blocking_kind": "unresolved_high_impact_ambiguity",
+      "blocking_ref_id": "blocking_v41c_governance_gap",
+      "supporting_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41c"
+      ]
+    }
+  ],
+  "chosen_interpretation_id": "interpretation_observe_architecture_ir_slice",
+  "claim_posture_register": [
+    {
+      "claim_id": "claim_public_export_surface_inferred",
+      "claim_ref": "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py",
+      "posture_class": "inferred",
+      "rationale": "The package initializer is an implementation-authored export surface over the released architecture IR slice.",
+      "support_limit_class": null
+    },
+    {
+      "claim_id": "claim_runtime_signal_join_not_proved",
+      "claim_ref": "artifacts/stop_gate/metrics_v83_closeout.json",
+      "posture_class": "unentitled_negative_claim",
+      "rationale": "The released metrics artifact alone does not prove a live runtime signal join path for observed extraction.",
+      "support_limit_class": "search_absence"
+    }
+  ],
+  "compile_entitlement": "blocked",
+  "deontic_typing_register": [
+    {
+      "deontic_class": "required",
+      "rationale": "The architecture constitution remains the governing semantic source while observed extraction stays facts-only.",
+      "target_kind": "accepted_doc",
+      "target_ref": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+      "typing_id": "typing_architecture_doc_required"
+    },
+    {
+      "deontic_class": "fallback_affordance",
+      "rationale": "Released tests remain a fallback affordance for checking the request and settlement boundary before deeper practical analysis widens.",
+      "target_kind": "request_named_artifact",
+      "target_ref": "packages/adeu_architecture_ir/tests/test_analysis_request.py",
+      "typing_id": "typing_observation_test_fallback"
+    },
+    {
+      "deontic_class": "optional_hint",
+      "rationale": "The active V41 planning draft is a bounded hint for selecting the observed slice, not an implementation fact source by itself.",
+      "target_kind": "maintainer_brief",
+      "target_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
+      "typing_id": "typing_v41c_options_optional_hint"
+    }
+  ],
+  "escalation_trigger_policy": {
+    "trigger_ids": [
+      "externalized_search_or_check_required",
+      "impossibility_claim_without_proof",
+      "silent_semantic_assumption_needed",
+      "unresolved_high_impact_ambiguity"
+    ]
+  },
+  "interpretation_register": [
+    {
+      "interpretation_id": "interpretation_blocked_settlement_carrythrough",
+      "linked_ambiguity_refs": [],
+      "summary": "Observed extraction may proceed over the frozen request world while keeping compile entitlement blocked and explicit.",
+      "support_refs": [
+        "packages/adeu_architecture_ir/pyproject.toml",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py"
+      ]
+    },
+    {
+      "interpretation_id": "interpretation_observe_architecture_ir_slice",
+      "linked_ambiguity_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41c"
+      ],
+      "summary": "Observe the released adeu_architecture_ir package slice as implementation fact only, without promoting intended semantics or alignment judgment.",
+      "support_refs": [
+        "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
+      ]
+    }
+  ],
+  "schema": "adeu_architecture_analysis_settlement_frame@1",
+  "settlement_frame_id": "v41b_v88_architecture_ir_blocked_runner_settlement_derivative",
+  "source_set_hash": "4033bcde128047aa5e994492b352d068d4b082b44ca8903883ab75135a2d1f0b",
+  "unresolved_high_impact_ambiguity_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41c"
+  ]
+}

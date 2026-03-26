@@ -1,7 +1,7 @@
 {
   "active_escalation_records": [],
   "advisory_notes": [
-    "v86 grants compile entitlement for a bounded repo-grounded intended-compile baseline only; alignment, runner, and practical checkpoint/oracle reuse remain deferred."
+    "v88 runner completed case over the released practical analysis stack."
   ],
   "affordance_decisions": [
     {
@@ -17,8 +17,8 @@
       "target_ref": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
     }
   ],
-  "analysis_request_id": "v41a_v86_architecture_ir_intended_request_derivative",
-  "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus87/adeu_architecture_analysis_request_v87_alignment_derivative.json",
+  "analysis_request_id": "v41a_v88_architecture_ir_completed_runner_request_derivative",
+  "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_request.json",
   "authority_boundary_policy": {
     "inline_policy": null,
     "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
@@ -94,7 +94,7 @@
     }
   ],
   "schema": "adeu_architecture_analysis_settlement_frame@1",
-  "settlement_frame_id": "v41b_v86_architecture_ir_intended_settlement_derivative",
+  "settlement_frame_id": "v41b_v88_architecture_ir_completed_runner_settlement_derivative",
   "source_set_hash": "4033bcde128047aa5e994492b352d068d4b082b44ca8903883ab75135a2d1f0b",
   "unresolved_high_impact_ambiguity_refs": []
 }

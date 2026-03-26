@@ -1,0 +1,65 @@
+{
+  "alignment_report_id": "v41e_v87_packages_adeu_architecture_ir_src_adeu_architecture_ir_alignment_report",
+  "alignment_report_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_alignment_report.json",
+  "analysis_request_id": "v41a_v88_architecture_ir_completed_runner_request_derivative",
+  "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_request.json",
+  "architecture_id": "asir_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
+  "authority_boundary_policy": {
+    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
+  },
+  "emitted_artifact_refs": [
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_request.json",
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_settlement_frame.json",
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_observation_frame.json",
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_semantic_ir.json",
+    "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_alignment_report.json"
+  ],
+  "observation_frame_id": "v41b_v88_architecture_ir_completed_runner_observation_derivative",
+  "observation_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_observation_frame.json",
+  "output_root_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs",
+  "repo_root_ref": ".",
+  "run_id": "run_v88_f444befe9909aea0",
+  "run_outcome": "completed",
+  "runner": {
+    "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS88.md#v88-continuation-contract-machine-checkable",
+    "mode": "cli_first",
+    "name": "adeu_architecture_compiler.v41f",
+    "version": "1"
+  },
+  "runtime_evidence_root_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_runtime",
+  "schema": "adeu_architecture_analysis_run_manifest@1",
+  "semantic_hash": "da94ea73754b1e561c1ebb9e558d517c5ad1fa21a10f2cf98c78597f48227f09",
+  "semantic_ir_id": "asir_v86_packages_adeu_architecture_ir_src_adeu_architecture_ir_repo_grounded_compile",
+  "semantic_ir_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_semantic_ir.json",
+  "settlement_frame_id": "v41b_v88_architecture_ir_completed_runner_settlement_derivative",
+  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/completed_run_outputs/adeu_architecture_analysis_settlement_frame.json",
+  "source_set_hash": "4033bcde128047aa5e994492b352d068d4b082b44ca8903883ab75135a2d1f0b",
+  "stage_statuses": [
+    {
+      "stage_id": "request",
+      "stage_state": "completed"
+    },
+    {
+      "stage_id": "settlement",
+      "stage_state": "completed"
+    },
+    {
+      "stage_id": "observation",
+      "stage_state": "completed"
+    },
+    {
+      "stage_id": "intended",
+      "stage_state": "completed"
+    },
+    {
+      "stage_id": "alignment",
+      "stage_state": "completed"
+    },
+    {
+      "stage_id": "manifest",
+      "stage_state": "completed"
+    }
+  ],
+  "stop_reason_kind": "none",
+  "terminal_alignment_posture": "blocked"
+}
