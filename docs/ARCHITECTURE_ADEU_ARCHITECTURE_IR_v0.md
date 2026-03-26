@@ -285,13 +285,7 @@ posture with one explicit pre-compile settlement gate:
    - externalize the chosen interpretation, deontic typing, entitlement posture, and
      escalation triggers before observed extraction, intended compile, or drift claims
      begin.
-2. **intended architecture lane**
-   - consume maintainer brief, accepted docs, and one hash-bound repo `source_set`;
-   - use the same frozen `source_set` snapshot that the observed lane consumes rather
-     than a separate changing brief universe;
-   - emit intended `adeu_architecture_semantic_ir@1` plus any required conformance or
-     checkpoint companions.
-3. **observed implementation lane**
+2. **observed implementation lane**
    - consume the same `source_set` through deterministic repo extraction;
    - emit a separate observed implementation artifact rather than pretending observed
      code state is the same thing as intended architecture meaning;
@@ -302,6 +296,19 @@ posture with one explicit pre-compile settlement gate:
      observation class;
    - carry upstream settlement posture forward explicitly so later lanes know whether
      observed extraction ran under entitled or blocked compile posture.
+3. **intended architecture lane**
+   - consume maintainer brief, accepted docs, one hash-bound repo `source_set`, and
+     the released observed frame over that same repo world;
+   - treat the request-bound maintainer brief and the released settlement frame as
+     the normative driver of intended compile;
+   - use the same frozen `source_set` snapshot that the observed lane consumes rather
+     than a separate changing brief universe;
+   - allow the observed frame to constrain overreach, force ambiguity/advisory
+     posture, or block compile, but not to become the hidden source of intended
+     truth;
+   - emit intended `adeu_architecture_semantic_ir@1` plus any required released
+     root-family companions without collapsing intended and observed lanes into one
+     artifact.
 4. **alignment lane**
    - compare intended and observed outputs deterministically;
    - emit drift diagnostics that make the difference between "what the project says it
@@ -356,9 +363,9 @@ The right comparison is:
 analysis_request + source_set
     -> settlement frame
 analysis_request + source_set + settlement frame
-    -> intended ASIR
-analysis_request + source_set + settlement frame
     -> observed implementation frame
+analysis_request + source_set + settlement frame + observed implementation frame
+    -> intended ASIR
 intended ASIR + observed implementation frame
     -> alignment report
 ```
