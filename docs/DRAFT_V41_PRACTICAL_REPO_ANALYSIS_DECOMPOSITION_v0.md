@@ -101,7 +101,7 @@ That loop requires one additional family because it introduces a new operational
 {
   "schema": "v41_practical_repo_analysis_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+86",
+  "baseline_arc": "vNext+87",
   "closed_prior_family": "V40",
   "closed_prior_paths": [
     "V40-A",
@@ -116,13 +116,14 @@ That loop requires one additional family because it introduces a new operational
     "V41-A",
     "V41-B",
     "V41-C",
-    "V41-D"
+    "V41-D",
+    "V41-E"
   ],
-  "default_next_arc_candidate": "V41-E",
-  "default_next_concrete_arc_candidate": "vNext+87",
+  "default_next_arc_candidate": "V41-F",
+  "default_next_concrete_arc_candidate": "vNext+88",
   "v41_path_count": 6,
   "v41_default_arc_span": {
-    "from": "vNext+87",
+    "from": "vNext+88",
     "to": "vNext+88"
   },
   "v41_paths_may_span_multiple_arcs": true,
@@ -209,7 +210,7 @@ The current recommended concrete split is:
     settlement, and observation boundary using the released `V40-A` semantic-root
     family rather than only frozen synthetic fixtures
 - `vNext+87`
-  - default first concrete `V41-E` arc:
+  - closed first concrete `V41-E` arc:
     deterministic alignment report, mismatch classes, stable finding ids, severity /
     blocking posture, and drift diagnostics between intended and observed lanes
 - `vNext+88`
