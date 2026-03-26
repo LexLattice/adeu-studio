@@ -1,3 +1,12 @@
+from .alignment import (
+    ADEU_ARCHITECTURE_ALIGNMENT_REPORT_SCHEMA,
+    V41E_V87_CONTRACT_SOURCE,
+    AdeuArchitectureAlignmentReport,
+    AlignmentFinding,
+    AlignmentSeverityCounts,
+    canonicalize_adeu_architecture_alignment_report_payload,
+    derive_v41e_alignment_report,
+)
 from .conformance import (
     ADEU_ARCHITECTURE_CONFORMANCE_REPORT_SCHEMA,
     V40B_V78_CONTRACT_SOURCE,
@@ -92,6 +101,7 @@ from .release_integration import (
 )
 
 __all__ = [
+    "ADEU_ARCHITECTURE_ALIGNMENT_REPORT_SCHEMA",
     "ADEU_ARCHITECTURE_CHECKPOINT_TRACE_SCHEMA",
     "ADEU_ARCHITECTURE_CONFORMANCE_REPORT_SCHEMA",
     "ADEU_ARCHITECTURE_IR_DELTA_SCHEMA",
@@ -102,6 +112,7 @@ __all__ = [
     "ADEU_ARCHITECTURE_PROJECTION_MANIFEST_SCHEMA",
     "ADEU_CORE_IR_TARGET_FAMILY",
     "UX_DOMAIN_PACKET_TARGET_FAMILY",
+    "AdeuArchitectureAlignmentReport",
     "AdeuArchitectureCheckpointTrace",
     "AdeuArchitectureConformanceReport",
     "AdeuArchitectureIRDelta",
@@ -110,6 +121,8 @@ __all__ = [
     "AdeuArchitectureOracleResolution",
     "AdeuArchitectureProjectionBundle",
     "AdeuArchitectureProjectionManifest",
+    "AlignmentFinding",
+    "AlignmentSeverityCounts",
     "ArchitectureCheckpointTraceEntry",
     "ArchitectureCompilerInputBundle",
     "ArchitectureCompilerProvenance",
@@ -132,6 +145,7 @@ __all__ = [
     "V40F_RUNTIME_OBSERVABILITY_COMPARISON_REF",
     "V40F_V81_STOP_GATE_REF",
     "V40F_V82_CONTRACT_SOURCE",
+    "V41E_V87_CONTRACT_SOURCE",
     "V40FArchitectureReleaseIntegrationEvidence",
     "V41C_V85_CONTRACT_SOURCE",
     "V41D_V86_CONTRACT_SOURCE",
@@ -143,6 +157,7 @@ __all__ = [
     "ObservedObservabilityHook",
     "ObservedWorkflow",
     "UnresolvedObservation",
+    "canonicalize_adeu_architecture_alignment_report_payload",
     "canonicalize_adeu_architecture_checkpoint_trace_payload",
     "canonicalize_adeu_architecture_conformance_report_payload",
     "canonicalize_adeu_architecture_ir_delta_payload",
@@ -171,5 +186,6 @@ __all__ = [
     "derive_v41d_ontology_frame",
     "derive_v41d_semantic_ir",
     "derive_v41d_world_hypothesis",
+    "derive_v41e_alignment_report",
     "export_schema_main",
 ]

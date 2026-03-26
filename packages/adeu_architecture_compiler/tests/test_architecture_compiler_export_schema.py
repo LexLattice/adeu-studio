@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 from adeu_architecture_compiler import (
+    ADEU_ARCHITECTURE_ALIGNMENT_REPORT_SCHEMA,
     ADEU_ARCHITECTURE_CHECKPOINT_TRACE_SCHEMA,
     ADEU_ARCHITECTURE_CONFORMANCE_REPORT_SCHEMA,
     ADEU_ARCHITECTURE_IR_DELTA_SCHEMA,
@@ -20,6 +21,11 @@ from adeu_ir.repo import repo_root
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\\\")
 _SCHEMA_TARGETS = (
+    (
+        ADEU_ARCHITECTURE_ALIGNMENT_REPORT_SCHEMA,
+        "adeu_architecture_alignment_report.v1.json",
+        "adeu_architecture_alignment_report.schema.json",
+    ),
     (
         ADEU_ARCHITECTURE_CONFORMANCE_REPORT_SCHEMA,
         "adeu_architecture_conformance_report.v1.json",

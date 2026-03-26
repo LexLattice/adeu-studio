@@ -41,7 +41,7 @@
     "subtree_root": "packages/adeu_architecture_ir/src/adeu_architecture_ir"
   },
   "schema": "adeu_architecture_analysis_request@1",
-  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_settlement_frame_v86_intended_derivative.json",
+  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus87/adeu_architecture_analysis_settlement_frame_v87_alignment_derivative.json",
   "snapshot_identity": {
     "commit_sha": "f41a3ca2aea5de29ce71bf2f99c8181832f3b6ed",
     "snapshot_manifest_hash": null,
