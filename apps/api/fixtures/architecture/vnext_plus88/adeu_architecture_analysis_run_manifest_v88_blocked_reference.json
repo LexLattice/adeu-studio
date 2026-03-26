@@ -13,7 +13,7 @@
   "observation_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs/adeu_architecture_observation_frame.json",
   "output_root_ref": "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs",
   "repo_root_ref": ".",
-  "run_id": "run_v88_b82cc33a6f41d070",
+  "run_id": "run_v88_b82cc33a6f41d07080f50dda15560550",
   "run_outcome": "blocked",
   "runner": {
     "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS88.md#v88-continuation-contract-machine-checkable",

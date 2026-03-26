@@ -115,7 +115,7 @@ def _expected_run_id(
             "alignment_report_id": alignment_report_id or _ABSENT_MARKER,
             "runner": _runner_identity_payload(runner),
         }
-    )[:16]
+    )[:32]
     return f"run_v88_{digest}"
 
 

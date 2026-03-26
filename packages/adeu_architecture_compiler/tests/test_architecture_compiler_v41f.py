@@ -324,3 +324,4 @@ def test_v41f_run_id_is_deterministic_and_runner_sensitive() -> None:
 
     assert first.run_manifest_payload["run_id"] == second.run_manifest_payload["run_id"]
     assert first.run_manifest_payload["run_id"] != changed.run_manifest_payload["run_id"]
+    assert len(first.run_manifest_payload["run_id"]) == len("run_v88_") + 32
