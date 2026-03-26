@@ -1,6 +1,6 @@
 # ADEU Architecture Semantic IR (ASIR) - High-Level Design Spec
 
-**Status:** working draft snapshot - 2026-03-23
+**Status:** working draft snapshot - 2026-03-26
 **Scope:** proposed ADEU Studio module for architecture-intent compilation
 **Method:** repo-native extension of the ADEU semantic compiler lane, the V36 UX IR/compiler family, and the V39-E hybrid checkpoint/oracle lane
 
@@ -426,6 +426,11 @@ weaken the root/sibling boundary:
 - checkpoint trace, conformance, and projection state remain sibling artifacts;
 - observed implementation and alignment results should be companion artifacts, not
   hidden fields inside the semantic root.
+
+At the bounded practical baseline now released on `main`, that loop is complete
+through `V41-F`: request, settlement, observation, intended compile, alignment, and
+runner orchestration all exist as distinct typed seams, with no merged-truth or
+repo-mutation authority folded into the runner.
 
 ---
 

@@ -1,6 +1,9 @@
-# Assessment vNext+88 Edges
+# Assessment vNext+88 Edges (Post Closeout)
 
-Status: planning-edge assessment for `V41-F`.
+This document records edge disposition for `vNext+88` (`V41-F` practical runner /
+habitual orchestration baseline) after arc closeout.
+
+Status: post-closeout assessment (March 26, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,107 +11,169 @@ Status: planning-edge assessment for `V41-F`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS88_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v88_closeout_edge_disposition",
   "required_in_decision": true,
-  "notes": "This pre-lock assessment is a starter-bundle planning artifact and will be superseded by post-closeout edge disposition."
+  "notes": "Pre-lock edge planning is superseded by post-closeout edge disposition in this document."
 }
 ```
 
-## Open Edges
+## Scope
 
-### Edge 1: Runner as Hidden Reconciler
+- In scope: bounded `V41-F` practical runner baseline; canonical
+  `adeu_architecture_analysis_run_manifest@1`; exact sequencing over the released
+  `V41-A` request boundary, `V41-B` settlement frame, `V41-C` observation frame,
+  `V41-D` intended semantic IR, and `V41-E` alignment report; deterministic
+  `run_id`; canonical `stage_statuses`; deterministic output/runtime-evidence
+  placement; authoritative blocked-run manifest emission; explicit
+  `terminal_alignment_posture = none` for blocked runs; committed reference fixture
+  replay; authoritative/mirrored schema parity; and stop-gate/evidence continuity
+  for the released runner lane.
+- Out of scope: remediation or repo-mutation planning, merged-truth reconciliation,
+  checkpoint/projection/UX practical reruns, API/web inspection routes, multi-repo
+  orchestration, and any mutation authority beyond the released run manifest.
 
-- Risk:
-  the runner could silently collapse intended and observed lanes into one blended
-  truth surface while claiming to be orchestration-only.
-- Response:
-  keep request plus settlement as the normative driver of intended truth, treat
-  observation as constraining companion evidence only, and forbid merged-truth
-  reconciliation inside the run manifest.
+## Inputs
 
-### Edge 2: Settlement-Blocked Stop Laundering
+- `docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md`
+- `docs/DRAFT_NEXT_ARC_OPTIONS_v23.md`
+- `docs/DRAFT_V41_PRACTICAL_REPO_ANALYSIS_DECOMPOSITION_v0.md`
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS88.md`
+- `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/runner.py`
+- `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/__init__.py`
+- `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/export_schema.py`
+- `packages/adeu_architecture_compiler/tests/test_architecture_compiler_v41f.py`
+- `packages/adeu_architecture_compiler/tests/test_architecture_compiler_export_schema.py`
+- `packages/adeu_architecture_compiler/schema/adeu_architecture_analysis_run_manifest.v1.json`
+- `spec/adeu_architecture_analysis_run_manifest.schema.json`
+- `apps/api/fixtures/architecture/vnext_plus88/`
+- `artifacts/quality_dashboard_v88_closeout.json`
+- `artifacts/stop_gate/metrics_v88_closeout.json`
+- `artifacts/agent_harness/v88/evidence_inputs/metric_key_continuity_assertion_v88.json`
+- `artifacts/agent_harness/v88/evidence_inputs/runtime_observability_comparison_v88.json`
+- `artifacts/agent_harness/v88/evidence_inputs/v41f_architecture_analysis_run_manifest_evidence_v88.json`
+- merged PR: `#310`
 
-- Risk:
-  a settlement-blocked world could still emit shadow intended or alignment artifacts
-  that look almost authoritative.
-- Response:
-  freeze exact stop behavior: a blocked run stops after observation and emits no
-  `semantic_ir_ref`, no `alignment_report_ref`, and no artifact-shaped shadows under
-  the released family names.
+## Pre-Lock Edge Set Outcome (v88 Closeout)
 
-### Edge 3: Runner Blocked vs Alignment Blocked Confusion
+1. Runner as hidden reconciler: `resolved`.
+   - the released lane keeps request plus settlement as the normative driver for
+     intended truth, uses observation only as constraining companion evidence, and
+     keeps the run manifest strictly lineage-only rather than a merged-truth surface.
+2. Settlement-blocked stop laundering: `resolved`.
+   - settlement-blocked runs stop after observation, emit one authoritative manifest
+     stop witness, and emit no `semantic_ir_*`, no `alignment_report_*`, and no
+     artifact-shaped shadows under the released intended/alignment family names.
+3. Runner blocked vs alignment blocked confusion: `resolved`.
+   - the released lane freezes `run_outcome` / `stop_reason_kind` separately from
+     consumed alignment posture and proves that a completed run may still consume an
+     emitted alignment report whose posture is `blocked`.
+4. Non-deterministic run identity or placement: `resolved`.
+   - `run_id`, `output_root_ref`, and `runtime_evidence_root_ref` derive only from
+     canonical run inputs plus frozen runner configuration and are replay-stable.
+5. Stage-ledger drift: `resolved`.
+   - the released lane carries canonical `stage_statuses` over request, settlement,
+     observation, intended, alignment, and manifest, and blocked runs mark
+     intended/alignment as `not_run`.
+6. Upstream seam recomputation inside the runner: `resolved`.
+   - the released lane consumes request, settlement, observation, intended, and
+     alignment artifacts as released seams and rejects local recomputation of
+     settlement entitlement or alignment posture.
+7. Repo-mutation or remediation creep: `resolved`.
+   - the released lane keeps the run manifest lineage-only and rejects remediation,
+     repo-mutation, and merged-truth fields outright.
+8. Runtime evidence overclaim: `resolved`.
+   - runtime evidence remains required but informational-only, while gate-relevant
+     truth stays with typed artifacts, fixture replay, and stop-gate continuity.
+9. Orchestration widening beyond one bounded repo scope: `resolved`.
+   - the first runner baseline stays on one bounded repo scope only and does not
+     widen into fleet or multi-repo orchestration.
 
-- Risk:
-  later users could confuse a completed run whose alignment report is `blocked` with
-  a runner-level blocked stop before intended/alignment emission.
-- Response:
-  keep `run_outcome` / `stop_reason_kind` first-class in the run manifest and require
-  a fixture that proves a completed run may still carry an emitted alignment report
-  whose posture is `blocked`.
+## Guard Coverage Outcome
 
-### Edge 4: Non-Deterministic Output Placement
+- merged implementation files:
+  - `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/runner.py`
+  - `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/__init__.py`
+  - `packages/adeu_architecture_compiler/src/adeu_architecture_compiler/export_schema.py`
+- committed reference fixture ladder under `apps/api/fixtures/architecture/vnext_plus88/`:
+  - `blocked_run_outputs/adeu_architecture_analysis_request.json`
+  - `blocked_run_outputs/adeu_architecture_analysis_settlement_frame.json`
+  - `blocked_run_outputs/adeu_architecture_observation_frame.json`
+  - `adeu_architecture_analysis_run_manifest_v88_blocked_reference.json`
+  - `completed_run_outputs/adeu_architecture_analysis_request.json`
+  - `completed_run_outputs/adeu_architecture_analysis_settlement_frame.json`
+  - `completed_run_outputs/adeu_architecture_observation_frame.json`
+  - `completed_run_outputs/adeu_architecture_semantic_ir.json`
+  - `completed_run_outputs/adeu_architecture_alignment_report.json`
+  - `adeu_architecture_analysis_run_manifest_v88_completed_reference.json`
+- authoritative and mirrored schema files:
+  - `packages/adeu_architecture_compiler/schema/adeu_architecture_analysis_run_manifest.v1.json`
+  - `spec/adeu_architecture_analysis_run_manifest.schema.json`
+- merged guard files:
+  - `packages/adeu_architecture_compiler/tests/test_architecture_compiler_v41f.py`
+  - `packages/adeu_architecture_compiler/tests/test_architecture_compiler_export_schema.py`
+- v88 closeout artifact regeneration on `main` emitted:
+  - canonical `metric_key_continuity_assertion@1`
+  - canonical `runtime_observability_comparison@1`
+  - canonical `v41f_architecture_analysis_run_manifest_evidence@1`
+  - committed parent-session closeout raw/event stream fixture under
+    `artifacts/agent_harness/v88/runtime/evidence/codex/copilot/v88-closeout-main-1/`
+- merged guard coverage now proves:
+  - exact replay over the released request, settlement, observation, intended, and
+    alignment world when settlement remains entitled,
+  - exact replay over the released request, settlement, and observation world when
+    settlement blocks intended/alignment emission,
+  - deterministic `run_id` derivation and canonical stage-ledger replay,
+  - authoritative blocked-run manifest emission with
+    `terminal_alignment_posture = none`,
+  - explicit distinction between runner-level blocked stop and alignment-level
+    blocked posture in a completed run,
+  - rejection of blocked-run shadow intended/alignment refs,
+  - schema export parity and deterministic fixture replay,
+  - replay-preserving maintenance refreshes for affected `v79`, `v82`, `v86`, and
+    `v87` fixtures.
 
-- Risk:
-  the same practical run could emit the right artifacts into different paths or in
-  different orders across reruns, weakening replay and closeout diffing.
-- Response:
-  freeze deterministic `output_root_ref`, `runtime_evidence_root_ref`, and canonical
-  `emitted_artifact_refs` ordering, and derive `run_id` only from canonical run
-  inputs plus frozen runner configuration.
+## Stop-Gate Continuity Outcome
 
-### Edge 5: Stage-Ledger Drift
+```json
+{
+  "schema": "v88_edge_closeout_summary@1",
+  "arc": "vNext+88",
+  "target_path": "V41-F",
+  "prelock_edge_count": 9,
+  "resolved_edge_count": 9,
+  "open_blocking_edges": 0,
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v87": true,
+  "all_passed": true,
+  "blocking_issues": []
+}
+```
 
-- Risk:
-  blocked-stop replay could become prose-shaped if the manifest does not carry a
-  typed execution ledger for which stages actually completed.
-- Response:
-  require canonical `stage_statuses` over request, settlement, observation, intended,
-  alignment, and manifest, and force blocked runs to mark intended/alignment as
-  `not_run`.
+## Residual Risks (Post v88)
 
-### Edge 6: Upstream Seam Drift Inside the Runner
+1. The released lane remains intentionally bounded to orchestration only and not
+   remediation planning, repo mutation, merged-truth reconciliation, API/web
+   inspection routes, or multi-repo execution.
+2. The accepted v88 ladder is intentionally narrow and exercises one completed run
+   plus one settlement-blocked stop, not future multi-run scheduling or fleet
+   management semantics.
+3. Runner completion remains an execution posture only; it does not imply alignment
+   success or auto-acceptance of drift.
+4. No default `V41` slices remain; any further widening now belongs to next-family
+   selection rather than another `V41-*` continuation.
 
-- Risk:
-  the runner could silently recompute settlement entitlement, reinterpret alignment,
-  or reopen request/source-set scope while claiming to consume the released stack.
-- Response:
-  require exact reuse of the released `V41-A` through `V41-E` seams and reject local
-  recomputation of settlement or alignment authority.
+## Recommendation (Post Closeout)
 
-### Edge 7: Repo-Mutation or Remediation Creep
-
-- Risk:
-  practical orchestration could overreach into patch generation, remediation plans,
-  or code-edit authority because it has all the upstream analysis artifacts in hand.
-- Response:
-  keep the run manifest lineage-only, forbid remediation and repo-mutation fields,
-  and keep direct code-change authority out of the runner surface.
-
-### Edge 8: Runtime Evidence Overclaim
-
-- Risk:
-  runtime evidence streams could start acting like the real source of truth for
-  artifact validity instead of provenance-only continuity evidence.
-- Response:
-  keep runtime evidence required but informational-only and make the typed released
-  artifacts plus fixture replay the gate-relevant truth.
-
-### Edge 9: Orchestration Widening Beyond One Repo Scope
-
-- Risk:
-  the first runner baseline could widen into multi-repo or fleet orchestration before
-  one bounded repo/subtree loop is actually frozen.
-- Response:
-  keep the first slice to one bounded repo scope only and defer any broader
-  orchestration model to later arcs.
-
-## Current Judgment
-
-- `V41-F` is worth implementing now because it is the only remaining default seam in
-  the practical-analysis family and it can habitualize the released `V41-A` through
-  `V41-E` stack without reopening prior contracts.
-- The starter bundle addresses the highest-risk edges directly:
-  lane collapse, settlement-blocked shadow emission, runner-vs-alignment blocked
-  confusion, run/stage identity drift, output non-determinism, and mutation creep
-  are all explicitly frozen as fail-closed boundaries.
+1. Mark the v88 edge set as closed with no blocking issues.
+2. Treat `adeu_architecture_analysis_run_manifest@1` as the canonical practical
+   runner stop-witness/orchestration artifact for practical repo analysis going
+   forward.
+3. Treat `V41-F` as complete at its bounded baseline on `main`; any attempt to turn
+   the runner into remediation, repo-mutation, or merged-truth authority should be
+   treated as a regression.
+4. Mark the bounded `V41` practical-analysis family as complete on `main`; further
+   work should start with a new family-selection step rather than an additional
+   `V41-*` slice.

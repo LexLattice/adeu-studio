@@ -1,7 +1,8 @@
 # Draft V41 Practical Repo Analysis Decomposition v0
 
-Status: working decomposition draft after `vNext+87` closeout and released `V41-A`,
-`V41-B`, `V41-C`, `V41-D`, and `V41-E` practical-analysis baselines on `main`.
+Status: working decomposition draft after `vNext+88` closeout and released `V41-A`,
+`V41-B`, `V41-C`, `V41-D`, `V41-E`, and `V41-F` practical-analysis baselines on
+`main`.
 
 This document is an intermediate planning artifact between:
 
@@ -86,7 +87,8 @@ That loop requires one additional family because it introduces a new operational
 
 - `vNext+82` (`V40-F`) is closed on `main`.
 - `vNext+83` (`V41-A`), `vNext+84` (`V41-B`), `vNext+85` (`V41-C`),
-  `vNext+86` (`V41-D`), and `vNext+87` (`V41-E`) are closed on `main`.
+  `vNext+86` (`V41-D`), `vNext+87` (`V41-E`), and `vNext+88` (`V41-F`) are closed
+  on `main`.
 - The bounded `V40` family is complete on `main` at its intended baseline.
 - The released ASIR ladder now exists end-to-end for semantic-root, conformance,
   hybrid, lowering, UX compatibility, and family evidence, and the practical
@@ -94,10 +96,9 @@ That loop requires one additional family because it introduces a new operational
   real repo scope.
 - The next safe step is not to reopen `V40`, relitigate request/source-set capture,
   widen settlement/entitlement semantics, re-extract observed facts, relitigate
-  intended compile authority, or reopen deterministic alignment; it is to
-  habitualize the already-released stack through one bounded orchestration surface
-  without silently widening into remediation, repo mutation, or merged-truth
-  reconciliation.
+  intended compile authority, reopen deterministic alignment, or reopen runner
+  orchestration; it is to select a new family if the repo wants to widen beyond the
+  bounded practical-analysis baseline.
 - The Lean formal lane remains useful but sidecar-only and should not become a hidden
   prerequisite for practical repo analysis.
 
@@ -107,7 +108,7 @@ That loop requires one additional family because it introduces a new operational
 {
   "schema": "v41_practical_repo_analysis_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+87",
+  "baseline_arc": "vNext+88",
   "closed_prior_family": "V40",
   "closed_prior_paths": [
     "V40-A",
@@ -123,13 +124,14 @@ That loop requires one additional family because it introduces a new operational
     "V41-B",
     "V41-C",
     "V41-D",
-    "V41-E"
+    "V41-E",
+    "V41-F"
   ],
-  "default_next_arc_candidate": "V41-F",
-  "default_next_concrete_arc_candidate": "vNext+88",
+  "default_next_arc_candidate": null,
+  "default_next_concrete_arc_candidate": null,
   "v41_path_count": 6,
   "v41_default_arc_span": {
-    "from": "vNext+88",
+    "from": "vNext+83",
     "to": "vNext+88"
   },
   "v41_paths_may_span_multiple_arcs": true,
@@ -153,6 +155,7 @@ That loop requires one additional family because it introduces a new operational
   "source_set_hashing_profile": "per_item_hashes_plus_aggregate_hash",
   "runner_mode": "cli_first_repo_grounded",
   "runner_blocked_distinct_from_alignment_blocked": true,
+  "v41_family_complete_on_main": true,
   "formal_kernel_mode": "proof_mirror_sidecar_only",
   "forbidden_first_lock_widenings": [
     "api_or_web_workbench_release",
@@ -222,12 +225,15 @@ The current recommended concrete split is:
     deterministic alignment report, mismatch classes, stable finding ids, severity /
     blocking posture, and drift diagnostics between intended and observed lanes
 - `vNext+88`
-  - default first concrete `V41-F` arc:
-    CLI-first practical runner / harness orchestration that produces the full analysis
-    bundle habitually for one internal repo or subtree
+  - closed first concrete `V41-F` arc:
+    CLI-first practical runner / harness orchestration that produces the full
+    analysis bundle habitually for one internal repo or subtree
 
 Later `V41` paths may also take one or more concrete arcs when that keeps each lock
 comparable to earlier ADEU slices.
+
+No default `V41` slices remain after `vNext+88`; the family is complete on `main`
+at its bounded baseline.
 
 ## Recommended `V41` Slice Ladder
 
