@@ -2,7 +2,7 @@
   "accepted_doc_refs": [
     "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md"
   ],
-  "analysis_request_id": "v41a_v86_architecture_ir_intended_request_derivative",
+  "analysis_request_id": "v41a_v88_architecture_ir_blocked_runner_request_derivative",
   "authority_boundary_policy": {
     "inline_policy": null,
     "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
@@ -10,15 +10,17 @@
   "captured_inputs": [],
   "declared_non_goals": [
     "alignment_diagnostics",
+    "intended_compile",
     "practical_runner_release",
     "remediation_planning",
-    "repo_grounded_checkpoint_oracle_reuse"
+    "repo_mutation_authority",
+    "workbench_release"
   ],
   "maintainer_brief_refs": [
     "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
   ],
   "notes": [
-    "v86 freezes repo-grounded intended compile over the released request, settlement, and observation boundary using a committed-tree repo slice."
+    "v88 runner blocked case over the released practical analysis stack."
   ],
   "repo_root_ref": ".",
   "request_scope": {
@@ -41,7 +43,7 @@
     "subtree_root": "packages/adeu_architecture_ir/src/adeu_architecture_ir"
   },
   "schema": "adeu_architecture_analysis_request@1",
-  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus87/adeu_architecture_analysis_settlement_frame_v87_alignment_derivative.json",
+  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs/adeu_architecture_analysis_settlement_frame.json",
   "snapshot_identity": {
     "commit_sha": "d2894077b99948a58370b5a6cc799d5ebf207942",
     "snapshot_manifest_hash": null,

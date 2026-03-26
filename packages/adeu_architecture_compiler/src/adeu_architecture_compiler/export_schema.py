@@ -19,6 +19,7 @@ from .projection import (
     AdeuArchitectureProjectionManifest,
 )
 from .release_integration import V40FArchitectureReleaseIntegrationEvidence
+from .runner import AdeuArchitectureAnalysisRunManifest
 
 
 def _write_schema(path: Path, schema: dict[str, object]) -> None:
@@ -78,6 +79,11 @@ def main() -> None:
             V40FArchitectureReleaseIntegrationEvidence,
             "v40f_architecture_release_integration_evidence.v1.json",
             "v40f_architecture_release_integration_evidence.schema.json",
+        ),
+        (
+            AdeuArchitectureAnalysisRunManifest,
+            "adeu_architecture_analysis_run_manifest.v1.json",
+            "adeu_architecture_analysis_run_manifest.schema.json",
         ),
     ]
     for model, authoritative_name, mirror_name in targets:

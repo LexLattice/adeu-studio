@@ -1,0 +1,57 @@
+{
+  "analysis_request_id": "v41a_v88_architecture_ir_blocked_runner_request_derivative",
+  "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs/adeu_architecture_analysis_request.json",
+  "authority_boundary_policy": {
+    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
+  },
+  "emitted_artifact_refs": [
+    "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs/adeu_architecture_analysis_request.json",
+    "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs/adeu_architecture_analysis_settlement_frame.json",
+    "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs/adeu_architecture_observation_frame.json"
+  ],
+  "observation_frame_id": "v41b_v88_architecture_ir_blocked_runner_observation_derivative",
+  "observation_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs/adeu_architecture_observation_frame.json",
+  "output_root_ref": "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs",
+  "repo_root_ref": ".",
+  "run_id": "run_v88_b82cc33a6f41d07080f50dda15560550",
+  "run_outcome": "blocked",
+  "runner": {
+    "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS88.md#v88-continuation-contract-machine-checkable",
+    "mode": "cli_first",
+    "name": "adeu_architecture_compiler.v41f",
+    "version": "1"
+  },
+  "runtime_evidence_root_ref": "apps/api/fixtures/architecture/vnext_plus88/blocked_run_runtime",
+  "schema": "adeu_architecture_analysis_run_manifest@1",
+  "settlement_frame_id": "v41b_v88_architecture_ir_blocked_runner_settlement_derivative",
+  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus88/blocked_run_outputs/adeu_architecture_analysis_settlement_frame.json",
+  "source_set_hash": "4033bcde128047aa5e994492b352d068d4b082b44ca8903883ab75135a2d1f0b",
+  "stage_statuses": [
+    {
+      "stage_id": "request",
+      "stage_state": "completed"
+    },
+    {
+      "stage_id": "settlement",
+      "stage_state": "completed"
+    },
+    {
+      "stage_id": "observation",
+      "stage_state": "completed"
+    },
+    {
+      "stage_id": "intended",
+      "stage_state": "not_run"
+    },
+    {
+      "stage_id": "alignment",
+      "stage_state": "not_run"
+    },
+    {
+      "stage_id": "manifest",
+      "stage_state": "completed"
+    }
+  ],
+  "stop_reason_kind": "settlement_blocked",
+  "terminal_alignment_posture": "none"
+}

@@ -1,7 +1,7 @@
 # Draft V41 Practical Repo Analysis Decomposition v0
 
-Status: working decomposition draft after `vNext+86` closeout and released `V41-A`,
-`V41-B`, `V41-C`, and `V41-D` practical-analysis baselines on `main`.
+Status: working decomposition draft after `vNext+87` closeout and released `V41-A`,
+`V41-B`, `V41-C`, `V41-D`, and `V41-E` practical-analysis baselines on `main`.
 
 This document is an intermediate planning artifact between:
 
@@ -41,6 +41,10 @@ implementation by itself.
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS81.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS82.md`
 - `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS83.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS84.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS85.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS86.md`
+- `docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS87.md`
 
 ## Decomposition Thesis
 
@@ -81,17 +85,19 @@ That loop requires one additional family because it introduces a new operational
 ## Baseline Agreement
 
 - `vNext+82` (`V40-F`) is closed on `main`.
-- `vNext+83` (`V41-A`), `vNext+84` (`V41-B`), `vNext+85` (`V41-C`), and
-  `vNext+86` (`V41-D`) are closed on `main`.
+- `vNext+83` (`V41-A`), `vNext+84` (`V41-B`), `vNext+85` (`V41-C`),
+  `vNext+86` (`V41-D`), and `vNext+87` (`V41-E`) are closed on `main`.
 - The bounded `V40` family is complete on `main` at its intended baseline.
 - The released ASIR ladder now exists end-to-end for semantic-root, conformance,
-  hybrid, lowering, UX compatibility, and family evidence, and the first practical
-  request/world-binding seam now exists over a real repo scope.
+  hybrid, lowering, UX compatibility, and family evidence, and the practical
+  request, settlement, observation, intended, and alignment seams now exist over one
+  real repo scope.
 - The next safe step is not to reopen `V40`, relitigate request/source-set capture,
-  widen settlement/entitlement semantics, re-extract observed facts, or relitigate
-  intended compile authority; it is to compare released intended and observed lanes
-  deterministically without collapsing them into one merged truth surface or jumping
-  straight to runner behavior.
+  widen settlement/entitlement semantics, re-extract observed facts, relitigate
+  intended compile authority, or reopen deterministic alignment; it is to
+  habitualize the already-released stack through one bounded orchestration surface
+  without silently widening into remediation, repo mutation, or merged-truth
+  reconciliation.
 - The Lean formal lane remains useful but sidecar-only and should not become a hidden
   prerequisite for practical repo analysis.
 
@@ -101,7 +107,7 @@ That loop requires one additional family because it introduces a new operational
 {
   "schema": "v41_practical_repo_analysis_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-  "baseline_arc": "vNext+86",
+  "baseline_arc": "vNext+87",
   "closed_prior_family": "V40",
   "closed_prior_paths": [
     "V40-A",
@@ -116,13 +122,14 @@ That loop requires one additional family because it introduces a new operational
     "V41-A",
     "V41-B",
     "V41-C",
-    "V41-D"
+    "V41-D",
+    "V41-E"
   ],
-  "default_next_arc_candidate": "V41-E",
-  "default_next_concrete_arc_candidate": "vNext+87",
+  "default_next_arc_candidate": "V41-F",
+  "default_next_concrete_arc_candidate": "vNext+88",
   "v41_path_count": 6,
   "v41_default_arc_span": {
-    "from": "vNext+87",
+    "from": "vNext+88",
     "to": "vNext+88"
   },
   "v41_paths_may_span_multiple_arcs": true,
@@ -137,6 +144,7 @@ That loop requires one additional family because it introduces a new operational
   "observed_lane_artifact": "adeu_architecture_observation_frame@1",
   "observed_lane_package": "packages/adeu_architecture_compiler",
   "alignment_artifact": "adeu_architecture_alignment_report@1",
+  "practical_runner_artifact": "adeu_architecture_analysis_run_manifest@1",
   "intended_observed_lane_separation_required": true,
   "precompile_settlement_required": true,
   "settlement_entry_grounding_required": true,
@@ -144,6 +152,7 @@ That loop requires one additional family because it introduces a new operational
   "source_set_snapshot_mode": "committed_tree_or_explicit_materialized_snapshot_only",
   "source_set_hashing_profile": "per_item_hashes_plus_aggregate_hash",
   "runner_mode": "cli_first_repo_grounded",
+  "runner_blocked_distinct_from_alignment_blocked": true,
   "formal_kernel_mode": "proof_mirror_sidecar_only",
   "forbidden_first_lock_widenings": [
     "api_or_web_workbench_release",
@@ -209,7 +218,7 @@ The current recommended concrete split is:
     settlement, and observation boundary using the released `V40-A` semantic-root
     family rather than only frozen synthetic fixtures
 - `vNext+87`
-  - default first concrete `V41-E` arc:
+  - closed first concrete `V41-E` arc:
     deterministic alignment report, mismatch classes, stable finding ids, severity /
     blocking posture, and drift diagnostics between intended and observed lanes
 - `vNext+88`
@@ -229,7 +238,7 @@ comparable to earlier ADEU slices.
 | `V41-C` | observed implementation observation | observed architecture frame | required |
 | `V41-D` | intended repo-grounded compile | intended `adeu_architecture_semantic_ir@1` over real repo context | required |
 | `V41-E` | alignment and drift diagnostics | deterministic alignment report | required |
-| `V41-F` | practical runner / habitual orchestration | repeatable CLI analysis loop | required |
+| `V41-F` | practical runner / habitual orchestration | canonical analysis run manifest + repeatable CLI analysis loop | required |
 
 ## Path V41-A: Analysis Request and Source-Set Capture
 
@@ -549,10 +558,12 @@ Lock class: `L0`
 Goal:
 
 - make the repo-grounded ASIR analysis loop runnable habitually by a maintainer or
-  orchestrator over one bounded repo scope.
+  orchestrator over one bounded repo scope without widening into remediation or
+  repo-mutation authority.
 
 Scope:
 
+- canonical `adeu_architecture_analysis_run_manifest@1`;
 - CLI-first orchestration over:
   - analysis request
   - source-set capture
@@ -560,12 +571,36 @@ Scope:
   - observed frame
   - intended ASIR
   - alignment report
+- exact sequencing over the released `V41-A` through `V41-E` stack;
+- deterministic run identity plus deterministic output-root and runtime-evidence-root
+  placement;
+- authoritative manifest emission even for settlement-blocked runs, so blocked stops
+  remain typed and replayable;
+- canonical stage ledger over:
+  - request
+  - settlement
+  - observation
+  - intended
+  - alignment
+  - manifest;
+- explicit runner-level stop posture when settlement blocks intended compile or
+  alignment emission;
+- explicit distinction between runner-level blocked stop and a completed run whose
+  consumed alignment report may still carry `alignment_posture = blocked`;
 - deterministic artifact placement under repo-native artifact directories;
 - bounded evidence bundle for reruns over one internal repo or subtree;
 - no requirement for web or workbench integration in the first baseline.
 
 Locks:
 
+- no hidden recomputation of settlement entitlement or alignment posture inside the
+  runner;
+- no shadow intended or alignment artifacts may be emitted after a settlement-blocked
+  stop;
+- blocked runs must carry `terminal_alignment_posture = none` rather than inferred
+  alignment state;
+- no silent reconciliation of intended and observed artifacts into one merged truth;
+- no remediation plans or repo-mutation instructions in the runner output;
 - no web or API workbench release by default;
 - no multi-repo fleet orchestration in the first baseline;
 - no direct PR-authority or code-edit authority in the runner itself.
@@ -574,6 +609,11 @@ Acceptance:
 
 - the practical loop can be re-run habitually against one internal repo or subtree;
 - artifacts remain deterministic and provenance-linked;
+- the accepted fixture ladder proves one completed run over the full released stack
+  and one settlement-blocked stop before intended or alignment emission;
+- `run_id` and stage-ledger replay remain deterministic across reruns;
+- runner-level blocked stop is visibly distinct from an emitted alignment report whose
+  own posture is `blocked`;
 - reruns make intent / implementation drift visible without requiring a separate
   one-off maintainer assembly process.
 
