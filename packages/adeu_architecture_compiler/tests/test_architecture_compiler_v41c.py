@@ -11,6 +11,11 @@ from adeu_architecture_compiler import (
     canonicalize_adeu_architecture_observation_frame_payload,
     derive_v41c_observation_frame,
 )
+from adeu_architecture_compiler.observation import (
+    ObservedObservabilityHook,
+    _derive_unresolved_observations,
+)
+from adeu_architecture_ir import AdeuArchitectureAnalysisRequest
 from adeu_ir.repo import repo_root
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
@@ -63,6 +68,7 @@ def test_v41c_observation_fixture_validates_and_replays() -> None:
         "blocking_runtime_signal_unproved",
         "blocking_v41c_governance_gap",
     ]
+    assert observation.observed_boundaries[0].crossing_refs == []
 
     derived = derive_v41c_observation_frame(
         analysis_request_payload=request,
@@ -174,6 +180,37 @@ def test_v41c_rejects_unresolved_observation_without_reason_kind() -> None:
             payload,
             context={"repository_root": _repo_root()},
         )
+
+
+def test_v41c_uses_observable_kind_not_filename_substrings_for_resolution() -> None:
+    request_payload = _load_v85(
+        "adeu_architecture_analysis_request_v85_observation_derivative.json"
+    )
+    request = AdeuArchitectureAnalysisRequest.model_validate(
+        request_payload,
+        context={"repository_root": _repo_root()},
+    )
+    event_like_hook = ObservedObservabilityHook.model_validate(
+        {
+            "observability_hook_id": "observability_runtime_signal_join",
+            "hook_kind": "events_artifact",
+            "observable_kind": "events",
+            "observation_mode": "direct",
+            "source_refs": ["artifacts/quality_dashboard_v83_closeout.json"],
+            "source_hashes": {
+                "artifacts/quality_dashboard_v83_closeout.json": next(
+                    item["sha256"]
+                    for item in request_payload["source_set"]["items"]
+                    if item["path"] == "artifacts/quality_dashboard_v83_closeout.json"
+                )
+            },
+        }
+    )
+
+    assert _derive_unresolved_observations(
+        request=request,
+        observability_hooks=[event_like_hook],
+    ) == []
 
 
 def test_v41c_rejects_alignment_creep() -> None:

@@ -30,6 +30,7 @@ V41C_V85_CONTRACT_SOURCE = (
 
 ObservationMode = Literal["direct", "derived"]
 ObservationCompileEntitlement = Literal["entitled", "blocked"]
+ObservableKind = Literal["dashboard", "events", "metrics", "observability", "report", "telemetry"]
 ObservationFactKind = Literal[
     "authority_source",
     "boundary",
@@ -396,6 +397,7 @@ class ObservedObservabilityHook(_ObservationEntryBase):
 
     observability_hook_id: str
     hook_kind: str
+    observable_kind: ObservableKind
     fact_kind: Literal["observability_hook"] = "observability_hook"
 
     @model_validator(mode="after")
@@ -796,9 +798,8 @@ def _derive_boundaries(
     crossing_unit_ids: set[str] = set()
     for path in boundary_source_refs:
         for dependency_path in import_paths_by_path.get(path, []):
-            crossing_unit_ids.add(unit_id_by_path[dependency_path])
-    if not crossing_unit_ids:
-        crossing_unit_ids = {unit_id_by_path[path] for path in boundary_source_refs}
+            if dependency_path not in boundary_source_refs:
+                crossing_unit_ids.add(unit_id_by_path[dependency_path])
 
     return [
         ObservedBoundary.model_validate(
@@ -940,6 +941,7 @@ def _derive_observability_hooks(
                 {
                     "observability_hook_id": f"observability_{_slug(item.path)}",
                     "hook_kind": hook_kind,
+                    "observable_kind": marker,
                     "observation_mode": "direct",
                     "source_refs": [item.path],
                     "source_hashes": _source_hashes_for_refs([item.path], request=request),
@@ -986,7 +988,7 @@ def _derive_unresolved_observations(
             )
         ]
 
-    if any("events" in PurePosixPath(ref).name.lower() for ref in observability_source_refs):
+    if any(hook.observable_kind == "events" for hook in observability_hooks):
         return []
 
     source_refs = observability_source_refs[:2]

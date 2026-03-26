@@ -298,6 +298,18 @@
           "title": "Observability Hook Id",
           "type": "string"
         },
+        "observable_kind": {
+          "enum": [
+            "dashboard",
+            "events",
+            "metrics",
+            "observability",
+            "report",
+            "telemetry"
+          ],
+          "title": "Observable Kind",
+          "type": "string"
+        },
         "observation_mode": {
           "enum": [
             "direct",
@@ -326,7 +338,8 @@
         "source_refs",
         "source_hashes",
         "observability_hook_id",
-        "hook_kind"
+        "hook_kind",
+        "observable_kind"
       ],
       "title": "ObservedObservabilityHook",
       "type": "object"

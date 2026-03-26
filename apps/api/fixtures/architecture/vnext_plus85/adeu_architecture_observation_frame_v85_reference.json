@@ -35,12 +35,7 @@
     {
       "boundary_id": "boundary_packages_adeu_architecture_ir_src_adeu_architecture_ir",
       "boundary_kind": "package_subtree_boundary",
-      "crossing_refs": [
-        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_request_py",
-        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_settlement_py",
-        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_export_schema_py",
-        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_root_family_py"
-      ],
+      "crossing_refs": [],
       "fact_kind": "boundary",
       "observation_mode": "derived",
       "source_hashes": {
@@ -90,6 +85,7 @@
       "fact_kind": "observability_hook",
       "hook_kind": "dashboard_artifact",
       "observability_hook_id": "observability_artifacts_quality_dashboard_v83_closeout_json",
+      "observable_kind": "dashboard",
       "observation_mode": "direct",
       "source_hashes": {
         "artifacts/quality_dashboard_v83_closeout.json": "c70d1c4c1c60c1fd3a9f8d7b8c957320c912a3831f17ffaa4fb60d6ed4dc1bc7"
@@ -102,6 +98,7 @@
       "fact_kind": "observability_hook",
       "hook_kind": "metrics_artifact",
       "observability_hook_id": "observability_artifacts_stop_gate_metrics_v83_closeout_json",
+      "observable_kind": "metrics",
       "observation_mode": "direct",
       "source_hashes": {
         "artifacts/stop_gate/metrics_v83_closeout.json": "55bdaa1bf91db73bebedb1afaa5060a83749ce19934fe9c908839f82e257d136"
