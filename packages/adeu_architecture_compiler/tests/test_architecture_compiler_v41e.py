@@ -176,6 +176,12 @@ def test_v41e_missing_observability_hook_yields_warning_drift() -> None:
     assert derived["severity_counts"] == {"advisory": 0, "warning": 1, "blocking": 0}
     assert derived["findings"][0]["mismatch_class"] == "evidence_or_observability_gap"
     assert derived["findings"][0]["basis_kind"] == "missing_observation"
+    assert derived["findings"][0]["request_support_refs"] == sorted(
+        {
+            *request["accepted_doc_refs"],  # type: ignore[index]
+            *request["maintainer_brief_refs"],  # type: ignore[index]
+        }
+    )
 
 
 def test_v41e_rejects_blocked_settlement_world() -> None:

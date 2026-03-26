@@ -61,9 +61,6 @@ _MISMATCH_PREFIX = {
     "unresolved_unknown": "ALIGN-UNK-",
 }
 _HEX_64_RE = re.compile(r"^[0-9a-f]{64}$")
-_PATHISH_PREFIXES = ("apps/", "artifacts/", "docs/", "packages/", "spec/")
-
-
 def _validation_context(
     repository_root: Path | None = None,
     **extra: Any,
@@ -90,7 +87,7 @@ def _artifact_ref_path(ref: str) -> str:
 
 def _normalize_support_ref(raw_ref: str, *, field_name: str) -> str:
     normalized = _assert_non_empty_text(raw_ref, field_name=field_name)
-    if normalized.startswith(_PATHISH_PREFIXES) or "#" in normalized:
+    if "#" in normalized or "/" in normalized:
         return _normalize_artifact_ref(normalized, field_name=field_name)
     return normalized
 
@@ -953,14 +950,6 @@ def _derive_observability_gap_findings(
     for observable_kind, intended_refs in sorted(intended_by_kind.items()):
         if observable_kind in observed_by_kind:
             continue
-        request_support_refs = _request_support_refs_for_paths(
-            [
-                item.path
-                for item in validated.analysis_request.source_set.items
-                if observable_kind in item.path.lower()
-            ],
-            request=validated.analysis_request,
-        )
         findings.append(
             _make_finding(
                 mismatch_class="evidence_or_observability_gap",
@@ -972,7 +961,7 @@ def _derive_observability_gap_findings(
                 ),
                 intended_refs=intended_refs,
                 observed_refs=[],
-                request_support_refs=request_support_refs,
+                request_support_refs=_default_request_support_refs(validated.analysis_request),
                 settlement_support_refs=settlement_support_refs,
                 context=context,
             )
