@@ -4,7 +4,7 @@
     "ph_auto_approve_threshold_policy"
   ],
   "checkpoint_id": "v40c_v79_checkpoint_fdcaabd86537484f",
-  "delta_id": "v40c_v79_ir_delta_39c1c56806cd7960",
+  "delta_id": "v40c_v79_ir_delta_17c8229569e2392f",
   "operation_set": [
     {
       "field_path": "epistemics.ambiguities.amb_auto_approve_threshold.question",
@@ -17,7 +17,7 @@
   "schema": "adeu_architecture_ir_delta@1",
   "scope_ref": "epistemics.ambiguities.amb_auto_approve_threshold",
   "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a",
-  "source_resolution_id": "v40c_v79_oracle_resolution_d4dba0a8053b265f",
+  "source_resolution_id": "v40c_v79_oracle_resolution_8e138098ab7a85f4",
   "target_refs": [
     "amb_auto_approve_threshold"
   ]

@@ -1,0 +1,280 @@
+{
+  "$defs": {
+    "AlignmentFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "basis_kind": {
+          "enum": [
+            "contradictory_evidence",
+            "missing_observation",
+            "missing_intended_declaration",
+            "authority_mismatch",
+            "unresolved_upstream_unknown"
+          ],
+          "title": "Basis Kind",
+          "type": "string"
+        },
+        "finding_id": {
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "intended_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Intended Refs",
+          "type": "array"
+        },
+        "mismatch_class": {
+          "enum": [
+            "declared_not_observed",
+            "observed_not_declared",
+            "authority_boundary_drift",
+            "workflow_or_state_drift",
+            "evidence_or_observability_gap",
+            "unresolved_unknown"
+          ],
+          "title": "Mismatch Class",
+          "type": "string"
+        },
+        "observed_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Refs",
+          "type": "array"
+        },
+        "request_support_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Request Support Refs",
+          "type": "array"
+        },
+        "settlement_support_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Settlement Support Refs",
+          "type": "array"
+        },
+        "severity": {
+          "enum": [
+            "advisory",
+            "warning",
+            "blocking"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "finding_id",
+        "mismatch_class",
+        "basis_kind",
+        "severity",
+        "summary",
+        "intended_refs",
+        "observed_refs",
+        "request_support_refs",
+        "settlement_support_refs"
+      ],
+      "title": "AlignmentFinding",
+      "type": "object"
+    },
+    "AlignmentSeverityCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "advisory": {
+          "title": "Advisory",
+          "type": "integer"
+        },
+        "blocking": {
+          "title": "Blocking",
+          "type": "integer"
+        },
+        "warning": {
+          "title": "Warning",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "advisory",
+        "warning",
+        "blocking"
+      ],
+      "title": "AlignmentSeverityCounts",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicyPin": {
+      "additionalProperties": false,
+      "properties": {
+        "inline_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthorityBoundaryPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        }
+      },
+      "title": "AuthorityBoundaryPolicyPin",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alignment_posture": {
+      "enum": [
+        "aligned",
+        "drifted",
+        "blocked"
+      ],
+      "title": "Alignment Posture",
+      "type": "string"
+    },
+    "alignment_report_id": {
+      "title": "Alignment Report Id",
+      "type": "string"
+    },
+    "analysis_request_id": {
+      "title": "Analysis Request Id",
+      "type": "string"
+    },
+    "analysis_request_ref": {
+      "title": "Analysis Request Ref",
+      "type": "string"
+    },
+    "architecture_id": {
+      "title": "Architecture Id",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicyPin"
+    },
+    "blocking_finding_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocking Finding Ids",
+      "type": "array"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/AlignmentFinding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "observation_frame_id": {
+      "title": "Observation Frame Id",
+      "type": "string"
+    },
+    "observation_frame_ref": {
+      "title": "Observation Frame Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_architecture_alignment_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "settlement_frame_id": {
+      "title": "Settlement Frame Id",
+      "type": "string"
+    },
+    "settlement_frame_ref": {
+      "title": "Settlement Frame Ref",
+      "type": "string"
+    },
+    "severity_counts": {
+      "$ref": "#/$defs/AlignmentSeverityCounts"
+    },
+    "source_set_hash": {
+      "title": "Source Set Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "alignment_report_id",
+    "analysis_request_id",
+    "analysis_request_ref",
+    "settlement_frame_id",
+    "settlement_frame_ref",
+    "observation_frame_id",
+    "observation_frame_ref",
+    "architecture_id",
+    "semantic_hash",
+    "source_set_hash",
+    "authority_boundary_policy",
+    "alignment_posture",
+    "blocking_finding_ids",
+    "severity_counts",
+    "findings"
+  ],
+  "title": "AdeuArchitectureAlignmentReport",
+  "type": "object"
+}

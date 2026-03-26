@@ -5,6 +5,7 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 
+from .alignment import AdeuArchitectureAlignmentReport
 from .conformance import AdeuArchitectureConformanceReport
 from .hybrid import (
     AdeuArchitectureCheckpointTrace,
@@ -28,6 +29,11 @@ def _write_schema(path: Path, schema: dict[str, object]) -> None:
 def main() -> None:
     root = repo_root(anchor=Path(__file__))
     targets = [
+        (
+            AdeuArchitectureAlignmentReport,
+            "adeu_architecture_alignment_report.v1.json",
+            "adeu_architecture_alignment_report.schema.json",
+        ),
         (
             AdeuArchitectureConformanceReport,
             "adeu_architecture_conformance_report.v1.json",

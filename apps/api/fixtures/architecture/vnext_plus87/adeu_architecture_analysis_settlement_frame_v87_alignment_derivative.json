@@ -18,7 +18,7 @@
     }
   ],
   "analysis_request_id": "v41a_v86_architecture_ir_intended_request_derivative",
-  "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_request_v86_intended_derivative.json",
+  "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus87/adeu_architecture_analysis_request_v87_alignment_derivative.json",
   "authority_boundary_policy": {
     "inline_policy": null,
     "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
