@@ -12,6 +12,7 @@ from .hybrid import (
     AdeuArchitectureOracleRequest,
     AdeuArchitectureOracleResolution,
 )
+from .observation import AdeuArchitectureObservationFrame
 from .projection import (
     AdeuArchitectureProjectionBundle,
     AdeuArchitectureProjectionManifest,
@@ -46,6 +47,11 @@ def main() -> None:
             AdeuArchitectureCheckpointTrace,
             "adeu_architecture_checkpoint_trace.v1.json",
             "adeu_architecture_checkpoint_trace.schema.json",
+        ),
+        (
+            AdeuArchitectureObservationFrame,
+            "adeu_architecture_observation_frame.v1.json",
+            "adeu_architecture_observation_frame.schema.json",
         ),
         (
             AdeuArchitectureIRDelta,

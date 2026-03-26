@@ -1,0 +1,235 @@
+{
+  "analysis_request_id": "v41a_v85_architecture_ir_observation_request_derivative",
+  "analysis_request_ref": "apps/api/fixtures/architecture/vnext_plus85/adeu_architecture_analysis_request_v85_observation_derivative.json",
+  "authority_boundary_policy": {
+    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
+  },
+  "observation_frame_id": "v41c_v85_architecture_ir_observation_reference",
+  "observed_authority_sources": [
+    {
+      "authority_source_id": "authority_packages_adeu_architecture_ir_pyproject_toml",
+      "fact_kind": "authority_source",
+      "mechanism_kind": "package_configuration",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/pyproject.toml": "b697c4c47b6a074c80fb371b35855bdd6350da74590f17f1d80d745cbd02dafc"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/pyproject.toml"
+      ]
+    },
+    {
+      "authority_source_id": "authority_packages_adeu_architecture_ir_src_adeu_architecture_ir_init_py",
+      "fact_kind": "authority_source",
+      "mechanism_kind": "module_export_table",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py": "466051eacfddd36ca2cab052fbfe85f5591fd79272d10d5aa0e5dfafa1fd2d16"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py"
+      ]
+    }
+  ],
+  "observed_boundaries": [
+    {
+      "boundary_id": "boundary_packages_adeu_architecture_ir_src_adeu_architecture_ir",
+      "boundary_kind": "package_subtree_boundary",
+      "crossing_refs": [
+        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_request_py",
+        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_settlement_py",
+        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_export_schema_py",
+        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_root_family_py"
+      ],
+      "fact_kind": "boundary",
+      "observation_mode": "derived",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py": "466051eacfddd36ca2cab052fbfe85f5591fd79272d10d5aa0e5dfafa1fd2d16",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py": "d7fb92a6aafc0260c0c4fc8f7ee6fb47c0b7db9a91467b24d6936a181720085d",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py": "9e2ae229e3f2f5f19d7f462b2e115b18d29be253388b9adbbcd909bf3d8fde4a",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py": "babd1b68d92dfded0bd97e87dc2af9c5fd6d35e9068bde01b5df8e0a268ca03b",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py": "98d447e946c966f1aebd333d7c23e1e332ca2e0952bda9f539d8ec68abf068d4"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py"
+      ]
+    }
+  ],
+  "observed_evidence_hooks": [
+    {
+      "evidence_hook_id": "evidence_packages_adeu_architecture_ir_tests_test_analysis_request_py",
+      "fact_kind": "evidence_hook",
+      "hook_kind": "pytest_module",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/tests/test_analysis_request.py": "85e7d59e95c17e0476c803efa0df3f70f4d802af882efa337cee3d75e2bf3d6a"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/tests/test_analysis_request.py"
+      ]
+    },
+    {
+      "evidence_hook_id": "evidence_packages_adeu_architecture_ir_tests_test_analysis_settlement_py",
+      "fact_kind": "evidence_hook",
+      "hook_kind": "pytest_module",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/tests/test_analysis_settlement.py": "201b66ea0c2c57b8e5a6f8b10fca18543a8b11549b1827eee7bb0135694630ad"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/tests/test_analysis_settlement.py"
+      ]
+    }
+  ],
+  "observed_observability_hooks": [
+    {
+      "fact_kind": "observability_hook",
+      "hook_kind": "dashboard_artifact",
+      "observability_hook_id": "observability_artifacts_quality_dashboard_v83_closeout_json",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "artifacts/quality_dashboard_v83_closeout.json": "c70d1c4c1c60c1fd3a9f8d7b8c957320c912a3831f17ffaa4fb60d6ed4dc1bc7"
+      },
+      "source_refs": [
+        "artifacts/quality_dashboard_v83_closeout.json"
+      ]
+    },
+    {
+      "fact_kind": "observability_hook",
+      "hook_kind": "metrics_artifact",
+      "observability_hook_id": "observability_artifacts_stop_gate_metrics_v83_closeout_json",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "artifacts/stop_gate/metrics_v83_closeout.json": "55bdaa1bf91db73bebedb1afaa5060a83749ce19934fe9c908839f82e257d136"
+      },
+      "source_refs": [
+        "artifacts/stop_gate/metrics_v83_closeout.json"
+      ]
+    }
+  ],
+  "observed_units": [
+    {
+      "fact_kind": "implementation_unit",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py": "d7fb92a6aafc0260c0c4fc8f7ee6fb47c0b7db9a91467b24d6936a181720085d"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py"
+      ],
+      "summary": "Observed implementation unit at packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py.",
+      "unit_id": "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_request_py",
+      "unit_kind": "python_module"
+    },
+    {
+      "fact_kind": "implementation_unit",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py": "9e2ae229e3f2f5f19d7f462b2e115b18d29be253388b9adbbcd909bf3d8fde4a"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py"
+      ],
+      "summary": "Observed implementation unit at packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py.",
+      "unit_id": "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_settlement_py",
+      "unit_kind": "python_module"
+    },
+    {
+      "fact_kind": "implementation_unit",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py": "babd1b68d92dfded0bd97e87dc2af9c5fd6d35e9068bde01b5df8e0a268ca03b"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py"
+      ],
+      "summary": "Observed implementation unit at packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py.",
+      "unit_id": "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_export_schema_py",
+      "unit_kind": "schema_export_module"
+    },
+    {
+      "fact_kind": "implementation_unit",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py": "466051eacfddd36ca2cab052fbfe85f5591fd79272d10d5aa0e5dfafa1fd2d16"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py"
+      ],
+      "summary": "Observed implementation unit at packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py.",
+      "unit_id": "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_init_py",
+      "unit_kind": "package_initializer"
+    },
+    {
+      "fact_kind": "implementation_unit",
+      "observation_mode": "direct",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py": "98d447e946c966f1aebd333d7c23e1e332ca2e0952bda9f539d8ec68abf068d4"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py"
+      ],
+      "summary": "Observed implementation unit at packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py.",
+      "unit_id": "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_root_family_py",
+      "unit_kind": "python_module"
+    }
+  ],
+  "observed_workflows": [
+    {
+      "fact_kind": "workflow",
+      "observation_mode": "derived",
+      "source_hashes": {
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py": "466051eacfddd36ca2cab052fbfe85f5591fd79272d10d5aa0e5dfafa1fd2d16",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py": "d7fb92a6aafc0260c0c4fc8f7ee6fb47c0b7db9a91467b24d6936a181720085d",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py": "9e2ae229e3f2f5f19d7f462b2e115b18d29be253388b9adbbcd909bf3d8fde4a",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py": "babd1b68d92dfded0bd97e87dc2af9c5fd6d35e9068bde01b5df8e0a268ca03b",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py": "98d447e946c966f1aebd333d7c23e1e332ca2e0952bda9f539d8ec68abf068d4"
+      },
+      "source_refs": [
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py",
+        "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py"
+      ],
+      "step_refs": [
+        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_request_py",
+        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_analysis_settlement_py",
+        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_export_schema_py",
+        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_init_py",
+        "unit_packages_adeu_architecture_ir_src_adeu_architecture_ir_root_family_py"
+      ],
+      "workflow_id": "workflow_packages_adeu_architecture_ir_src_adeu_architecture_ir_exports"
+    }
+  ],
+  "schema": "adeu_architecture_observation_frame@1",
+  "settlement_frame_id": "v41b_v85_architecture_ir_observation_settlement_derivative",
+  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus85/adeu_architecture_analysis_settlement_frame_v85_observation_derivative.json",
+  "source_set_hash": "0420b6ef8626fb4e5fdecec355952857554499d13fda12d798e4e5570b62278e",
+  "unresolved_observations": [
+    {
+      "observation_id": "unresolved_runtime_signal_join",
+      "observation_kind": "observability_signal_join",
+      "observation_mode": "derived",
+      "rationale": "Committed observability artifacts are present, but the released source_set does not by itself establish a live runtime signal join path.",
+      "source_hashes": {
+        "artifacts/quality_dashboard_v83_closeout.json": "c70d1c4c1c60c1fd3a9f8d7b8c957320c912a3831f17ffaa4fb60d6ed4dc1bc7",
+        "artifacts/stop_gate/metrics_v83_closeout.json": "55bdaa1bf91db73bebedb1afaa5060a83749ce19934fe9c908839f82e257d136"
+      },
+      "source_refs": [
+        "artifacts/quality_dashboard_v83_closeout.json",
+        "artifacts/stop_gate/metrics_v83_closeout.json"
+      ],
+      "unresolved_reason_kind": "requires_non_source_context"
+    }
+  ],
+  "upstream_blocking_refs": [
+    "blocking_runtime_signal_unproved",
+    "blocking_v41c_governance_gap"
+  ],
+  "upstream_compile_entitlement": "blocked"
+}

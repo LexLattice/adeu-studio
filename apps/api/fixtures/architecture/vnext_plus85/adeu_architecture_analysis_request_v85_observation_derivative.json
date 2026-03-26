@@ -1,0 +1,117 @@
+{
+  "accepted_doc_refs": [
+    "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md"
+  ],
+  "analysis_request_id": "v41a_v85_architecture_ir_observation_request_derivative",
+  "authority_boundary_policy": {
+    "inline_policy": null,
+    "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
+  },
+  "captured_inputs": [],
+  "declared_non_goals": [
+    "alignment_diagnostics",
+    "intended_compile",
+    "practical_runner_release",
+    "remediation_planning"
+  ],
+  "maintainer_brief_refs": [
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md"
+  ],
+  "notes": [
+    "v85 freezes facts-only observed extraction over the released request and settlement boundary using a committed-tree repo slice."
+  ],
+  "repo_root_ref": ".",
+  "request_scope": {
+    "allowed_artifact_kinds": [
+      "configuration",
+      "documentation",
+      "source_code",
+      "test"
+    ],
+    "exclude_paths": [],
+    "include_paths": [
+      "artifacts/quality_dashboard_v83_closeout.json",
+      "artifacts/stop_gate/metrics_v83_closeout.json",
+      "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+      "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
+      "packages/adeu_architecture_ir/pyproject.toml",
+      "packages/adeu_architecture_ir/tests/test_analysis_request.py",
+      "packages/adeu_architecture_ir/tests/test_analysis_settlement.py"
+    ],
+    "subtree_root": "packages/adeu_architecture_ir/src/adeu_architecture_ir"
+  },
+  "schema": "adeu_architecture_analysis_request@1",
+  "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus85/adeu_architecture_analysis_settlement_frame_v85_observation_derivative.json",
+  "snapshot_identity": {
+    "commit_sha": "7fe8c96135bbb168fa67abf5e6c3361c51f933f4",
+    "snapshot_manifest_hash": null,
+    "snapshot_manifest_ref": null,
+    "tree_sha": null
+  },
+  "snapshot_mode": "committed_tree",
+  "source_set": {
+    "items": [
+      {
+        "artifact_kind": "configuration",
+        "path": "artifacts/quality_dashboard_v83_closeout.json",
+        "sha256": "c70d1c4c1c60c1fd3a9f8d7b8c957320c912a3831f17ffaa4fb60d6ed4dc1bc7"
+      },
+      {
+        "artifact_kind": "configuration",
+        "path": "artifacts/stop_gate/metrics_v83_closeout.json",
+        "sha256": "55bdaa1bf91db73bebedb1afaa5060a83749ce19934fe9c908839f82e257d136"
+      },
+      {
+        "artifact_kind": "documentation",
+        "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
+        "sha256": "211d0c2e5610b0e0a7d99024b34a6c1fcda909b1cefd7b8408976af50aa9ce9d"
+      },
+      {
+        "artifact_kind": "documentation",
+        "path": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
+        "sha256": "ecba0cc429e0c2acba42123eb6d5c21525fe7b06fe4429269785a9c4fdac5379"
+      },
+      {
+        "artifact_kind": "configuration",
+        "path": "packages/adeu_architecture_ir/pyproject.toml",
+        "sha256": "b697c4c47b6a074c80fb371b35855bdd6350da74590f17f1d80d745cbd02dafc"
+      },
+      {
+        "artifact_kind": "source_code",
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/__init__.py",
+        "sha256": "466051eacfddd36ca2cab052fbfe85f5591fd79272d10d5aa0e5dfafa1fd2d16"
+      },
+      {
+        "artifact_kind": "source_code",
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py",
+        "sha256": "d7fb92a6aafc0260c0c4fc8f7ee6fb47c0b7db9a91467b24d6936a181720085d"
+      },
+      {
+        "artifact_kind": "source_code",
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py",
+        "sha256": "9e2ae229e3f2f5f19d7f462b2e115b18d29be253388b9adbbcd909bf3d8fde4a"
+      },
+      {
+        "artifact_kind": "source_code",
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py",
+        "sha256": "babd1b68d92dfded0bd97e87dc2af9c5fd6d35e9068bde01b5df8e0a268ca03b"
+      },
+      {
+        "artifact_kind": "source_code",
+        "path": "packages/adeu_architecture_ir/src/adeu_architecture_ir/root_family.py",
+        "sha256": "98d447e946c966f1aebd333d7c23e1e332ca2e0952bda9f539d8ec68abf068d4"
+      },
+      {
+        "artifact_kind": "test",
+        "path": "packages/adeu_architecture_ir/tests/test_analysis_request.py",
+        "sha256": "85e7d59e95c17e0476c803efa0df3f70f4d802af882efa337cee3d75e2bf3d6a"
+      },
+      {
+        "artifact_kind": "test",
+        "path": "packages/adeu_architecture_ir/tests/test_analysis_settlement.py",
+        "sha256": "201b66ea0c2c57b8e5a6f8b10fca18543a8b11549b1827eee7bb0135694630ad"
+      }
+    ]
+  },
+  "source_set_hash": "0420b6ef8626fb4e5fdecec355952857554499d13fda12d798e4e5570b62278e"
+}
