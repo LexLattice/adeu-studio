@@ -8,6 +8,7 @@ from adeu_architecture_compiler import (
     ADEU_ARCHITECTURE_CHECKPOINT_TRACE_SCHEMA,
     ADEU_ARCHITECTURE_CONFORMANCE_REPORT_SCHEMA,
     ADEU_ARCHITECTURE_IR_DELTA_SCHEMA,
+    ADEU_ARCHITECTURE_OBSERVATION_FRAME_SCHEMA,
     ADEU_ARCHITECTURE_ORACLE_REQUEST_SCHEMA,
     ADEU_ARCHITECTURE_ORACLE_RESOLUTION_SCHEMA,
     ADEU_ARCHITECTURE_PROJECTION_BUNDLE_SCHEMA,
@@ -38,6 +39,11 @@ _SCHEMA_TARGETS = (
         ADEU_ARCHITECTURE_CHECKPOINT_TRACE_SCHEMA,
         "adeu_architecture_checkpoint_trace.v1.json",
         "adeu_architecture_checkpoint_trace.schema.json",
+    ),
+    (
+        ADEU_ARCHITECTURE_OBSERVATION_FRAME_SCHEMA,
+        "adeu_architecture_observation_frame.v1.json",
+        "adeu_architecture_observation_frame.schema.json",
     ),
     (
         ADEU_ARCHITECTURE_IR_DELTA_SCHEMA,

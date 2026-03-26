@@ -1,0 +1,573 @@
+{
+  "$defs": {
+    "AuthorityBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "deterministic_adjudicator_authoritative": {
+          "const": true,
+          "title": "Deterministic Adjudicator Authoritative",
+          "type": "boolean"
+        },
+        "fail_closed_on_high_impact_ambiguity": {
+          "const": true,
+          "title": "Fail Closed On High Impact Ambiguity",
+          "type": "boolean"
+        },
+        "no_direct_brief_to_codegen": {
+          "const": true,
+          "title": "No Direct Brief To Codegen",
+          "type": "boolean"
+        },
+        "oracle_output_advisory_only": {
+          "const": true,
+          "title": "Oracle Output Advisory Only",
+          "type": "boolean"
+        },
+        "projections_may_express_but_may_not_mint_authority": {
+          "const": true,
+          "title": "Projections May Express But May Not Mint Authority",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "no_direct_brief_to_codegen",
+        "projections_may_express_but_may_not_mint_authority",
+        "deterministic_adjudicator_authoritative",
+        "oracle_output_advisory_only",
+        "fail_closed_on_high_impact_ambiguity"
+      ],
+      "title": "AuthorityBoundaryPolicy",
+      "type": "object"
+    },
+    "AuthorityBoundaryPolicyPin": {
+      "additionalProperties": false,
+      "properties": {
+        "inline_policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AuthorityBoundaryPolicy"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "policy_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Ref"
+        }
+      },
+      "title": "AuthorityBoundaryPolicyPin",
+      "type": "object"
+    },
+    "ObservedAuthoritySource": {
+      "additionalProperties": false,
+      "properties": {
+        "authority_source_id": {
+          "title": "Authority Source Id",
+          "type": "string"
+        },
+        "fact_kind": {
+          "const": "authority_source",
+          "default": "authority_source",
+          "title": "Fact Kind",
+          "type": "string"
+        },
+        "mechanism_kind": {
+          "title": "Mechanism Kind",
+          "type": "string"
+        },
+        "observation_mode": {
+          "enum": [
+            "direct",
+            "derived"
+          ],
+          "title": "Observation Mode",
+          "type": "string"
+        },
+        "source_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Hashes",
+          "type": "object"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_mode",
+        "source_refs",
+        "source_hashes",
+        "authority_source_id",
+        "mechanism_kind"
+      ],
+      "title": "ObservedAuthoritySource",
+      "type": "object"
+    },
+    "ObservedBoundary": {
+      "additionalProperties": false,
+      "properties": {
+        "boundary_id": {
+          "title": "Boundary Id",
+          "type": "string"
+        },
+        "boundary_kind": {
+          "title": "Boundary Kind",
+          "type": "string"
+        },
+        "crossing_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Crossing Refs",
+          "type": "array"
+        },
+        "fact_kind": {
+          "const": "boundary",
+          "default": "boundary",
+          "title": "Fact Kind",
+          "type": "string"
+        },
+        "observation_mode": {
+          "enum": [
+            "direct",
+            "derived"
+          ],
+          "title": "Observation Mode",
+          "type": "string"
+        },
+        "source_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Hashes",
+          "type": "object"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_mode",
+        "source_refs",
+        "source_hashes",
+        "boundary_id",
+        "boundary_kind"
+      ],
+      "title": "ObservedBoundary",
+      "type": "object"
+    },
+    "ObservedEvidenceHook": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_hook_id": {
+          "title": "Evidence Hook Id",
+          "type": "string"
+        },
+        "fact_kind": {
+          "const": "evidence_hook",
+          "default": "evidence_hook",
+          "title": "Fact Kind",
+          "type": "string"
+        },
+        "hook_kind": {
+          "title": "Hook Kind",
+          "type": "string"
+        },
+        "observation_mode": {
+          "enum": [
+            "direct",
+            "derived"
+          ],
+          "title": "Observation Mode",
+          "type": "string"
+        },
+        "source_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Hashes",
+          "type": "object"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_mode",
+        "source_refs",
+        "source_hashes",
+        "evidence_hook_id",
+        "hook_kind"
+      ],
+      "title": "ObservedEvidenceHook",
+      "type": "object"
+    },
+    "ObservedImplementationUnit": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_kind": {
+          "const": "implementation_unit",
+          "default": "implementation_unit",
+          "title": "Fact Kind",
+          "type": "string"
+        },
+        "observation_mode": {
+          "enum": [
+            "direct",
+            "derived"
+          ],
+          "title": "Observation Mode",
+          "type": "string"
+        },
+        "source_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Hashes",
+          "type": "object"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "unit_id": {
+          "title": "Unit Id",
+          "type": "string"
+        },
+        "unit_kind": {
+          "title": "Unit Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_mode",
+        "source_refs",
+        "source_hashes",
+        "unit_id",
+        "unit_kind",
+        "summary"
+      ],
+      "title": "ObservedImplementationUnit",
+      "type": "object"
+    },
+    "ObservedObservabilityHook": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_kind": {
+          "const": "observability_hook",
+          "default": "observability_hook",
+          "title": "Fact Kind",
+          "type": "string"
+        },
+        "hook_kind": {
+          "title": "Hook Kind",
+          "type": "string"
+        },
+        "observability_hook_id": {
+          "title": "Observability Hook Id",
+          "type": "string"
+        },
+        "observable_kind": {
+          "enum": [
+            "dashboard",
+            "events",
+            "metrics",
+            "observability",
+            "report",
+            "telemetry"
+          ],
+          "title": "Observable Kind",
+          "type": "string"
+        },
+        "observation_mode": {
+          "enum": [
+            "direct",
+            "derived"
+          ],
+          "title": "Observation Mode",
+          "type": "string"
+        },
+        "source_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Hashes",
+          "type": "object"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_mode",
+        "source_refs",
+        "source_hashes",
+        "observability_hook_id",
+        "hook_kind",
+        "observable_kind"
+      ],
+      "title": "ObservedObservabilityHook",
+      "type": "object"
+    },
+    "ObservedWorkflow": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_kind": {
+          "const": "workflow",
+          "default": "workflow",
+          "title": "Fact Kind",
+          "type": "string"
+        },
+        "observation_mode": {
+          "enum": [
+            "direct",
+            "derived"
+          ],
+          "title": "Observation Mode",
+          "type": "string"
+        },
+        "source_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Hashes",
+          "type": "object"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "step_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Step Refs",
+          "type": "array"
+        },
+        "workflow_id": {
+          "title": "Workflow Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_mode",
+        "source_refs",
+        "source_hashes",
+        "workflow_id",
+        "step_refs"
+      ],
+      "title": "ObservedWorkflow",
+      "type": "object"
+    },
+    "UnresolvedObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "observation_id": {
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "observation_kind": {
+          "title": "Observation Kind",
+          "type": "string"
+        },
+        "observation_mode": {
+          "enum": [
+            "direct",
+            "derived"
+          ],
+          "title": "Observation Mode",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "source_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Hashes",
+          "type": "object"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "unresolved_reason_kind": {
+          "enum": [
+            "ambiguous_structure",
+            "missing_source_signal",
+            "requires_cross_file_resolution",
+            "requires_non_source_context"
+          ],
+          "title": "Unresolved Reason Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_id",
+        "observation_kind",
+        "observation_mode",
+        "source_refs",
+        "source_hashes",
+        "unresolved_reason_kind",
+        "rationale"
+      ],
+      "title": "UnresolvedObservation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "analysis_request_id": {
+      "title": "Analysis Request Id",
+      "type": "string"
+    },
+    "analysis_request_ref": {
+      "title": "Analysis Request Ref",
+      "type": "string"
+    },
+    "authority_boundary_policy": {
+      "$ref": "#/$defs/AuthorityBoundaryPolicyPin"
+    },
+    "observation_frame_id": {
+      "title": "Observation Frame Id",
+      "type": "string"
+    },
+    "observed_authority_sources": {
+      "items": {
+        "$ref": "#/$defs/ObservedAuthoritySource"
+      },
+      "title": "Observed Authority Sources",
+      "type": "array"
+    },
+    "observed_boundaries": {
+      "items": {
+        "$ref": "#/$defs/ObservedBoundary"
+      },
+      "title": "Observed Boundaries",
+      "type": "array"
+    },
+    "observed_evidence_hooks": {
+      "items": {
+        "$ref": "#/$defs/ObservedEvidenceHook"
+      },
+      "title": "Observed Evidence Hooks",
+      "type": "array"
+    },
+    "observed_observability_hooks": {
+      "items": {
+        "$ref": "#/$defs/ObservedObservabilityHook"
+      },
+      "title": "Observed Observability Hooks",
+      "type": "array"
+    },
+    "observed_units": {
+      "items": {
+        "$ref": "#/$defs/ObservedImplementationUnit"
+      },
+      "title": "Observed Units",
+      "type": "array"
+    },
+    "observed_workflows": {
+      "items": {
+        "$ref": "#/$defs/ObservedWorkflow"
+      },
+      "title": "Observed Workflows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_architecture_observation_frame@1",
+      "default": "adeu_architecture_observation_frame@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_frame_id": {
+      "title": "Settlement Frame Id",
+      "type": "string"
+    },
+    "settlement_frame_ref": {
+      "title": "Settlement Frame Ref",
+      "type": "string"
+    },
+    "source_set_hash": {
+      "title": "Source Set Hash",
+      "type": "string"
+    },
+    "unresolved_observations": {
+      "items": {
+        "$ref": "#/$defs/UnresolvedObservation"
+      },
+      "title": "Unresolved Observations",
+      "type": "array"
+    },
+    "upstream_blocking_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Upstream Blocking Refs",
+      "type": "array"
+    },
+    "upstream_compile_entitlement": {
+      "enum": [
+        "entitled",
+        "blocked"
+      ],
+      "title": "Upstream Compile Entitlement",
+      "type": "string"
+    }
+  },
+  "required": [
+    "observation_frame_id",
+    "analysis_request_id",
+    "analysis_request_ref",
+    "settlement_frame_id",
+    "settlement_frame_ref",
+    "source_set_hash",
+    "authority_boundary_policy",
+    "upstream_compile_entitlement"
+  ],
+  "title": "AdeuArchitectureObservationFrame",
+  "type": "object"
+}
