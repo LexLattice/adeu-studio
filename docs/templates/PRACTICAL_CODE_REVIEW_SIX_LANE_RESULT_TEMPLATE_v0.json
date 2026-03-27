@@ -1,0 +1,92 @@
+{
+  "schema": "practical_code_review_six_lane_result@1",
+  "template_version": "v0",
+  "review_metadata": {
+    "review_id": "",
+    "model_id": "",
+    "task_label": "",
+    "target_scope": "",
+    "snapshot_stance": "",
+    "timestamp_utc": ""
+  },
+  "frozen_repo_world": {
+    "authoritative_intent_sources": [],
+    "authoritative_observed_sources": [],
+    "accepted_support_docs": [],
+    "explicit_exclusions": [],
+    "repo_scope": {
+      "subtree_roots": [],
+      "explicit_file_additions": [],
+      "exclusion_rules": []
+    },
+    "provenance_notes": [],
+    "freeze_warnings": []
+  },
+  "settlement_entitlement": {
+    "chosen_interpretation": {
+      "interpretation_id": "",
+      "summary": "",
+      "support_refs": [],
+      "ambiguity_refs": []
+    },
+    "competing_readings": [],
+    "authority_hierarchy": [],
+    "deontic_typing": [],
+    "affordance_decisions": [],
+    "claim_posture_summary": [],
+    "entitlement_level": "",
+    "blocking_reasons": [],
+    "semantic_narrowings": [],
+    "second_order_claims_requiring_reentry": []
+  },
+  "intended_interpretation": {
+    "responsibilities": [],
+    "invariants": [],
+    "authority_boundaries": [],
+    "workflows": [],
+    "admissibility_conditions": [],
+    "evidence_obligations": [],
+    "non_goals": [],
+    "conditionally_settled_claims": [],
+    "blocked_intended_claims": []
+  },
+  "observed_facts": {
+    "direct_observations": [],
+    "derived_observations": [],
+    "existing_test_inventory": [],
+    "actual_evidence_surfaces": [],
+    "unresolved_unknowns": []
+  },
+  "alignment_findings": {
+    "aligned_elements": [],
+    "findings": [
+      {
+        "finding_id": "",
+        "title": "",
+        "mismatch_class": "",
+        "severity": "",
+        "entitlement_level": "",
+        "summary": "",
+        "intended_refs": [],
+        "observed_refs": [],
+        "support_refs": [],
+        "file_refs": [],
+        "blocked_by": [],
+        "failure_classes": []
+      }
+    ],
+    "ambiguities": [],
+    "blocked_comparisons": [],
+    "comparison_notes": []
+  },
+  "final_answer": {
+    "verdict": "",
+    "verdict_conditionality": "",
+    "concise_summary": "",
+    "what_is_aligned": [],
+    "what_is_misaligned": [],
+    "what_is_ambiguous": [],
+    "what_is_blocked": [],
+    "clarifications_or_artifacts_needed": []
+  }
+}
