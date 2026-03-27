@@ -1,0 +1,90 @@
+{
+  "schema": "practical_intent_stress_six_lane_result@1",
+  "template_version": "v0",
+  "review_metadata": {
+    "review_id": "",
+    "model_id": "",
+    "task_label": "",
+    "target_scope": "",
+    "snapshot_stance": "",
+    "timestamp_utc": ""
+  },
+  "frozen_intent_world": {
+    "authoritative_intent_sources": [],
+    "accepted_support_docs": [],
+    "explicit_exclusions": [],
+    "repo_scope": {
+      "doc_roots": [],
+      "explicit_file_additions": [],
+      "exclusion_rules": []
+    },
+    "provenance_notes": [],
+    "freeze_warnings": []
+  },
+  "settlement_entitlement": {
+    "chosen_interpretation": {
+      "interpretation_id": "",
+      "summary": "",
+      "support_refs": [],
+      "ambiguity_refs": []
+    },
+    "competing_readings": [],
+    "authority_hierarchy": [],
+    "deontic_typing": [],
+    "affordance_decisions": [],
+    "claim_posture_summary": [],
+    "entitlement_level": "",
+    "blocking_reasons": [],
+    "semantic_narrowings": [],
+    "second_order_claims_requiring_reentry": []
+  },
+  "stated_doctrine": {
+    "responsibilities": [],
+    "invariants": [],
+    "authority_boundaries": [],
+    "workflows": [],
+    "admissibility_conditions": [],
+    "evidence_obligations": [],
+    "non_goals": [],
+    "explicit_exclusions": []
+  },
+  "alternative_paths_hidden_branches": {
+    "live_competing_readings": [],
+    "implicit_transitions": [],
+    "hidden_assumptions": [],
+    "silent_exclusions": [],
+    "unconsidered_expansions": [],
+    "future_seams": []
+  },
+  "pressure_blindspot_findings": {
+    "well_settled_elements": [],
+    "findings": [
+      {
+        "finding_id": "",
+        "title": "",
+        "finding_class": "",
+        "severity": "",
+        "entitlement_level": "",
+        "summary": "",
+        "intent_refs": [],
+        "support_refs": [],
+        "file_refs": [],
+        "blocked_by": [],
+        "failure_classes": []
+      }
+    ],
+    "ambiguities": [],
+    "blocked_comparisons": [],
+    "comparison_notes": []
+  },
+  "final_answer": {
+    "verdict": "",
+    "verdict_conditionality": "",
+    "concise_summary": "",
+    "what_is_explicit_and_well_settled": [],
+    "what_is_only_implicit": [],
+    "what_alternative_paths_remain_live": [],
+    "what_is_blocked": [],
+    "clarifications_or_doctrine_notes_needed": []
+  }
+}
