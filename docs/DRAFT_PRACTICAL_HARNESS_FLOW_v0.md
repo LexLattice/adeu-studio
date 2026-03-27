@@ -35,6 +35,22 @@ Current feedback cycle for the lock doc:
 
 This phase happens on `main` because the docs are the control plane for the slice.
 
+Required doctrine hygiene during this phase:
+
+- state the authority layer of each controlling doc explicitly:
+  - lock
+  - architecture / decomposition
+  - planning
+  - support
+- use horizon-sensitive terms such as `bounded`, `complete`, `closed`, `deferred`,
+  and `forbidden` consistently with
+  `docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md`;
+- if a planning doc uses "not authorized by this planning draft", make clear that this
+  is a planning-boundary scope guard rather than a lock-equivalent permanent
+  prohibition;
+- if the slice depends on "X may constrain Y but may not mint Y", enumerate the lawful
+  constrain actions explicitly rather than leaving the boundary implicit.
+
 ### 2. Implement the slice as the lock defines it
 
 - each PR starts from a fresh branch;
@@ -120,8 +136,18 @@ flowchart TD
 Before any implementation PR starts, confirm:
 
 - the three-doc bundle agrees on scope, exclusions, and acceptance;
+- the bundle agrees on the authority layer of each cited doc;
 - the PR split is frozen;
 - deferred items are named explicitly;
+- future seams are classified explicitly at least as:
+  - instantiated_here
+  - deferred_to_later_family
+  - superseded_by_alternate_surface
+  - not_selected_yet
+- horizon-sensitive claims such as `complete`, `closed`, `deferred`, and `forbidden`
+  are horizon-qualified rather than left to ambient interpretation;
+- any "constrain but not mint" doctrine is translated into an explicit allowed-action
+  list;
 - any edge marked `resolved` is actually resolved in pipeline shape, not only in tests or
   helpers.
 
@@ -171,6 +197,23 @@ Before drafting the next lock:
 - check whether there is a thin hardening slice worth doing before scope expansion.
 
 This is especially useful for slices that add new authority boundaries.
+
+### 6. A doctrine-edge check before next-family selection
+
+Before selecting a successor family:
+
+- check whether planning-boundary text is being over-read as lock authority;
+- check whether broader architecture-family seams have been explicitly classified as:
+  - instantiated_here
+  - deferred_to_later_family
+  - superseded_by_alternate_surface
+  - not_selected_yet;
+- check whether any "working draft" doctrine surface is being relied on as active
+  intent and, if so, whether that authority posture is stated plainly;
+- check whether the future-family promotion posture is explicit:
+  - stable substrate
+  - bounded baseline likely to be extended
+  - bounded baseline likely to be superseded
 
 ## What Institutionalization Should Mean
 

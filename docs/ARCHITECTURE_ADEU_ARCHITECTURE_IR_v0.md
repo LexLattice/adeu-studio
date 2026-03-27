@@ -306,6 +306,12 @@ posture with one explicit pre-compile settlement gate:
    - allow the observed frame to constrain overreach, force ambiguity/advisory
      posture, or block compile, but not to become the hidden source of intended
      truth;
+   - more specifically, observation should constrain intended compile only by:
+     - blocking unsupported intended claims;
+     - forcing ambiguity or advisory posture; or
+     - refusing overreach beyond request/settlement support,
+     and should not introduce a new intended responsibility, invariant, or boundary
+     that lacks request-bound and settlement-bound support;
    - emit intended `adeu_architecture_semantic_ir@1` plus any required released
      root-family companions without collapsing intended and observed lanes into one
      artifact.
@@ -431,6 +437,16 @@ At the bounded practical baseline now released on `main`, that loop is complete
 through `V41-F`: request, settlement, observation, intended compile, alignment, and
 runner orchestration all exist as distinct typed seams, with no merged-truth or
 repo-mutation authority folded into the runner.
+
+That `V41` practical-analysis family should be read as:
+
+- one bounded instantiation of the broader ASIR architecture surface; and
+- not an exhaustive realization of every artifact family named earlier in this
+  architecture doc.
+
+Artifacts and seams from the broader architecture family that `V41` did not
+instantiate should be treated as deferred or not-yet-selected unless a later authority
+surface explicitly classifies them as superseded.
 
 ---
 

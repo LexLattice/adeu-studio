@@ -33,6 +33,35 @@
 - If you intentionally use an arc-bundle shortcut instead of `make check`, say that the
   full Python lane was skipped because the change was docs/artifacts only.
 
+## Intent Doctrine Hygiene
+
+- When drafting or reviewing arc, family, or architecture docs, state the authority
+  layer of the controlling docs explicitly:
+  - lock
+  - architecture / decomposition
+  - planning
+  - support
+- Use horizon-sensitive terms such as `bounded`, `complete`, `closed`, `deferred`, and
+  `forbidden` consistently. Do not silently promote a planning-boundary statement into
+  a permanent lock-level prohibition.
+- If a planning doc says "not authorized by this planning draft", treat that as a scope
+  guard and absence-of-authorization statement unless a lock or released contract binds
+  the same rule more strongly.
+- When a broader architecture family is narrowed into a concrete family or slice,
+  classify deferred seams explicitly rather than leaving them implicit. Prefer:
+  - `instantiated_here`
+  - `deferred_to_later_family`
+  - `superseded_by_alternate_surface`
+  - `not_selected_yet`
+- If one lane may "constrain but not mint" another, enumerate the allowed constrain
+  actions explicitly rather than leaving the boundary implicit.
+- See:
+  - `docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md`
+  - `docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md`
+  - `docs/DRAFT_FUTURE_SEAM_PROMOTION_RULES_v0.md`
+  - `docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md`
+  - `docs/DRAFT_PRACTICAL_REASONING_SIX_LANE_LOOP_v0.md`
+
 ## Contribution Taxonomy
 
 - Keep two contribution lanes distinct:

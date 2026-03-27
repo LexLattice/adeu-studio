@@ -33,6 +33,9 @@ reasoning-contract doc:
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS86.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS87.md`
 - `docs/LOCKED_CONTINUATION_vNEXT_PLUS88.md`
+- `docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md`
+- `docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md`
+- `docs/DRAFT_FUTURE_SEAM_PROMOTION_RULES_v0.md`
 
 ## Six-Lane Loop
 
@@ -73,6 +76,7 @@ Minimum contents:
 
 - exact repo scope;
 - exact source set;
+- exact authority-source set for the run;
 - snapshot stance such as `committed_tree` or explicit materialized snapshot;
 - per-item provenance;
 - explicit refusal to reason from ad hoc file selection after freeze.
@@ -87,6 +91,8 @@ Minimum contents:
 
 - chosen interpretation;
 - competing readings when still live;
+- explicit authority hierarchy between lock, architecture/decomposition, planning, and
+  support surfaces;
 - deontic typing;
 - affordance decisions;
 - claim posture;
@@ -106,6 +112,22 @@ Examples of narrowing moves that must stay explicit in this lane:
 - local convenience reading -> global impossibility claim;
 - missing proof surface -> silently assumed exclusion.
 
+Horizon-sensitive terms should also be settled explicitly here when they appear in the
+frozen world, especially:
+
+- `bounded`
+- `complete`
+- `closed`
+- `deferred`
+- `forbidden`
+
+Those terms should not be allowed to drift between:
+
+- scope-bound statement;
+- planning-boundary statement;
+- lock-level prohibition;
+- future-family impossibility claim.
+
 If a downstream conclusion depends on such a narrowing step, that dependence must remain
 visible in the settlement record rather than being hidden in prose.
 
@@ -122,6 +144,14 @@ Minimum contents:
 
 Observed facts may constrain later lanes, but they may not become the hidden source of
 intended truth.
+
+If the doctrinal rule is "observation may constrain but may not mint intended truth",
+the lawful constrain actions should be made explicit rather than left implicit. Typical
+allowed actions are:
+
+- block unsupported intended claims;
+- force ambiguity or advisory posture;
+- refuse overreach beyond request/settlement support.
 
 ### Lane 4: Intended Interpretation
 
@@ -172,6 +202,27 @@ Therefore:
 - a negative answer that depends on an unsettled narrowing step remains unentitled;
 - if the reasoning cannot lawfully choose among live interpretations, the run should stay
   blocked rather than manufacture certainty.
+
+## Future-Seam Discipline
+
+When the frozen world discusses future or deferred seams, the reasoning loop should keep
+their status explicit. A future seam should not silently jump from:
+
+- "not selected here"
+
+to:
+
+- "forbidden forever"; or
+- "already superseded"
+
+without an explicit authority surface.
+
+Useful classifications are:
+
+- `instantiated_here`
+- `deferred_to_later_family`
+- `superseded_by_alternate_surface`
+- `not_selected_yet`
 
 ## Prompt Use
 

@@ -12,6 +12,19 @@ Its role is now to record that the bounded practical-analysis family is complete
 This is a planning document only. It is not a lock doc and does not authorize runtime
 behavior, schema release, or implementation by itself.
 
+Interpretive doctrine for this planning surface:
+
+- horizon-sensitive terms such as `bounded`, `complete`, `closed`, `deferred`, and
+  `forbidden` should be read using
+  `docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md`;
+- planning-boundary lines below are scope guards and absence-of-authorization
+  statements for this planning draft, not lock-equivalent permanent prohibitions by
+  themselves;
+- planning-vs-lock authority transfer should be read using
+  `docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md`;
+- future seam selection and widening posture should be read using
+  `docs/DRAFT_FUTURE_SEAM_PROMOTION_RULES_v0.md`.
+
 ## Baseline
 
 - `V39-A` through `V39-E` are closed on `main`.
@@ -114,6 +127,15 @@ The family is complete on `main` at its intentionally bounded scope.
   release, or direct prompt-to-code generation is authorized by this planning draft;
 - no next family is selected by this document.
 
+These planning-boundary lines should be read as:
+
+- explicit statements that this planning surface does not itself authorize widening or
+  reopening; and
+- scope guards for the current family horizon
+
+rather than as lock-level proof that no later authority may lawfully select an adjacent
+future seam.
+
 ## Machine-Checkable Planning Baseline
 
 ```json
@@ -167,6 +189,11 @@ The family is complete on `main` at its intentionally bounded scope.
   "stage_ledger_required": true,
   "settlement_notes_authoritative": false,
   "formal_sidecar_authoritative": false,
+  "planning_boundary_mode": "scope_guard_not_lock_authority",
+  "authority_layering_note": "docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md",
+  "horizon_glossary_note": "docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md",
+  "future_seam_promotion_rules_note": "docs/DRAFT_FUTURE_SEAM_PROMOTION_RULES_v0.md",
+  "released_family_consumption_default": "stable_substrate_unless_explicitly_superseded",
   "cli_first_practical_runner": true,
   "remaining_default_paths_in_family": [],
   "v41_family_complete_on_main": true,
