@@ -1,0 +1,35 @@
+{
+  "adapter": "arc_toolkit_local/v1",
+  "adapter_boundary_policy": {
+    "competition_mode_allowed": false,
+    "environment_semantics_redefinition_allowed": false,
+    "local_offline_only": true,
+    "observation_hypothesis_action_allowed": false,
+    "policy_semantics": "deontic_admissibility_only",
+    "replay_authority_allowed": false,
+    "scorecard_authority_allowed": false
+  },
+  "environment_authority": "official_arc_toolkit",
+  "game_ref": "toolkit://local/arcagi3/game/sample_game_001",
+  "initial_state_hash": "2f6fcbf68f2f5f0c3073b7479247138ba68f75d84a38d64f8ef96f5c3f028de9",
+  "initial_state_ref": "toolkit://local/arcagi3/state/sample_state_001",
+  "legal_action_envelope": [
+    "edit_cell"
+  ],
+  "legal_action_envelope_provenance": {
+    "dropped_actions": [
+      "submit"
+    ],
+    "normalization_kind": "subset",
+    "source": "toolkit_mirror",
+    "toolkit_envelope_hash": "9ba8600628699069cc84fce242b2cf4c2091d7cb3b393bcfb4e8407b10d62b31"
+  },
+  "mode_posture": "local_offline",
+  "schema": "adeu_arc_task_packet@1",
+  "session_ref": "toolkit://local/arcagi3/session/sample_session_001",
+  "task_packet_id": "arc_task_8d3ab27bba2ea851b09d0ff57e13da2c",
+  "toolkit_legal_action_envelope": [
+    "edit_cell",
+    "submit"
+  ]
+}
