@@ -1,0 +1,338 @@
+{
+  "$defs": {
+    "ArcAdherenceFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "metric_key": {
+          "title": "Metric Key",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric_key",
+        "reason",
+        "evidence_refs"
+      ],
+      "title": "ArcAdherenceFailure",
+      "type": "object"
+    },
+    "ArcAdherenceMetricEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "metric_key": {
+          "title": "Metric Key",
+          "type": "string"
+        },
+        "metric_value": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Metric Value",
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric_key",
+        "metric_value",
+        "status",
+        "evidence_refs"
+      ],
+      "title": "ArcAdherenceMetricEntry",
+      "type": "object"
+    },
+    "ArcControlPlaneAdherenceMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "adherence_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Adherence Rate",
+          "type": "number"
+        },
+        "checks_passed": {
+          "minimum": 0,
+          "title": "Checks Passed",
+          "type": "integer"
+        },
+        "checks_total": {
+          "minimum": 1,
+          "title": "Checks Total",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "checks_passed",
+        "checks_total",
+        "adherence_rate"
+      ],
+      "title": "ArcControlPlaneAdherenceMetrics",
+      "type": "object"
+    },
+    "ArcSettlementPostureChecks": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguity_posture_preserved": {
+          "title": "Ambiguity Posture Preserved",
+          "type": "boolean"
+        },
+        "claim_posture_preserved": {
+          "title": "Claim Posture Preserved",
+          "type": "boolean"
+        },
+        "necessity_laundering_detected": {
+          "title": "Necessity Laundering Detected",
+          "type": "boolean"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ambiguity_posture_preserved",
+        "claim_posture_preserved",
+        "necessity_laundering_detected",
+        "summary"
+      ],
+      "title": "ArcSettlementPostureChecks",
+      "type": "object"
+    },
+    "ArcTaskSuccessMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "goal_condition_summary": {
+          "title": "Goal Condition Summary",
+          "type": "string"
+        },
+        "steps_executed": {
+          "minimum": 0,
+          "title": "Steps Executed",
+          "type": "integer"
+        },
+        "task_solved": {
+          "title": "Task Solved",
+          "type": "boolean"
+        },
+        "terminal_rollout_status": {
+          "enum": [
+            "completed",
+            "blocked",
+            "stopped"
+          ],
+          "title": "Terminal Rollout Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_solved",
+        "steps_executed",
+        "terminal_rollout_status",
+        "goal_condition_summary"
+      ],
+      "title": "ArcTaskSuccessMetrics",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_proposal_id": {
+      "title": "Action Proposal Id",
+      "type": "string"
+    },
+    "action_proposal_ref": {
+      "title": "Action Proposal Ref",
+      "type": "string"
+    },
+    "adherence_failure_register": {
+      "items": {
+        "$ref": "#/$defs/ArcAdherenceFailure"
+      },
+      "title": "Adherence Failure Register",
+      "type": "array"
+    },
+    "adherence_metric_basis": {
+      "title": "Adherence Metric Basis",
+      "type": "string"
+    },
+    "adherence_metric_register": {
+      "items": {
+        "$ref": "#/$defs/ArcAdherenceMetricEntry"
+      },
+      "minItems": 1,
+      "title": "Adherence Metric Register",
+      "type": "array"
+    },
+    "benchmark_profile": {
+      "title": "Benchmark Profile",
+      "type": "string"
+    },
+    "benchmark_scope": {
+      "const": "single_run_local_eval",
+      "title": "Benchmark Scope",
+      "type": "string"
+    },
+    "control_plane_adherence_metrics": {
+      "$ref": "#/$defs/ArcControlPlaneAdherenceMetrics"
+    },
+    "deferred_authority_assertions": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Deferred Authority Assertions",
+      "type": "array"
+    },
+    "evaluation_method_version": {
+      "title": "Evaluation Method Version",
+      "type": "string"
+    },
+    "evaluation_rule_set_ref": {
+      "title": "Evaluation Rule Set Ref",
+      "type": "string"
+    },
+    "evaluation_summary": {
+      "title": "Evaluation Summary",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "ground_truth_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Ground Truth Refs",
+      "type": "array"
+    },
+    "hypothesis_frame_id": {
+      "title": "Hypothesis Frame Id",
+      "type": "string"
+    },
+    "hypothesis_frame_ref": {
+      "title": "Hypothesis Frame Ref",
+      "type": "string"
+    },
+    "local_eval_record_id": {
+      "title": "Local Eval Record Id",
+      "type": "string"
+    },
+    "model_id": {
+      "title": "Model Id",
+      "type": "string"
+    },
+    "observation_frame_id": {
+      "title": "Observation Frame Id",
+      "type": "string"
+    },
+    "observation_frame_ref": {
+      "title": "Observation Frame Ref",
+      "type": "string"
+    },
+    "rollout_trace_id": {
+      "title": "Rollout Trace Id",
+      "type": "string"
+    },
+    "rollout_trace_ref": {
+      "title": "Rollout Trace Ref",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "sample_basis": {
+      "title": "Sample Basis",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_arc_local_eval_record@1",
+      "default": "adeu_arc_local_eval_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_posture_checks": {
+      "$ref": "#/$defs/ArcSettlementPostureChecks"
+    },
+    "task_packet_id": {
+      "title": "Task Packet Id",
+      "type": "string"
+    },
+    "task_packet_ref": {
+      "title": "Task Packet Ref",
+      "type": "string"
+    },
+    "task_success_basis": {
+      "title": "Task Success Basis",
+      "type": "string"
+    },
+    "task_success_metrics": {
+      "$ref": "#/$defs/ArcTaskSuccessMetrics"
+    }
+  },
+  "required": [
+    "local_eval_record_id",
+    "task_packet_id",
+    "task_packet_ref",
+    "observation_frame_id",
+    "observation_frame_ref",
+    "hypothesis_frame_id",
+    "hypothesis_frame_ref",
+    "action_proposal_id",
+    "action_proposal_ref",
+    "rollout_trace_id",
+    "rollout_trace_ref",
+    "benchmark_scope",
+    "benchmark_profile",
+    "model_id",
+    "run_id",
+    "sample_basis",
+    "evaluation_rule_set_ref",
+    "evaluation_method_version",
+    "task_success_basis",
+    "adherence_metric_basis",
+    "ground_truth_refs",
+    "task_success_metrics",
+    "adherence_metric_register",
+    "adherence_failure_register",
+    "control_plane_adherence_metrics",
+    "settlement_posture_checks",
+    "evaluation_summary",
+    "evidence_refs",
+    "deferred_authority_assertions"
+  ],
+  "title": "AdeuArcLocalEvalRecord",
+  "type": "object"
+}
