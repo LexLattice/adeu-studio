@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from adeu_arc_solver import derive_v42c_action_and_rollout
 from adeu_ir.repo import repo_root
@@ -11,7 +12,7 @@ def _repo_root() -> Path:
     return repo_root(anchor=Path(__file__))
 
 
-def _load_json(path: Path) -> dict[str, object]:
+def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 

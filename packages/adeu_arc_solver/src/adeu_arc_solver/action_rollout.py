@@ -49,7 +49,7 @@ def derive_v42c_action_and_rollout(
     rollout_trace = derive_v42c_arc_rollout_trace(
         task_packet=deepcopy(task_packet),
         task_packet_ref=task_packet_ref,
-        action_proposal=deepcopy(action_proposal),
+        action_proposal=action_proposal,
         action_proposal_ref=action_proposal_ref,
         rollout_steps=deepcopy(rollout_inputs["rollout_steps"]),
         terminal_rollout_status=rollout_inputs["terminal_rollout_status"],
