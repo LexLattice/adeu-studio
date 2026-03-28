@@ -307,6 +307,7 @@ class AdeuArcLocalEvalRecord(BaseModel):
             for metric in self.adherence_metric_register
             if metric.status == "fail"
         }
+        metric_by_key = {metric.metric_key: metric for metric in self.adherence_metric_register}
         failure_keys = [failure.metric_key for failure in self.adherence_failure_register]
         if len(failure_keys) != len(set(failure_keys)):
             raise ValueError("adherence_failure_register metric_key values must be unique")
@@ -321,6 +322,34 @@ class AdeuArcLocalEvalRecord(BaseModel):
             raise ValueError(
                 "adherence_failure_register must be empty when all adherence metrics pass"
             )
+
+        necessity_metric_key = "retroactive_necessity_laundering_absent"
+        necessity_metric = metric_by_key[necessity_metric_key]
+        failure_key_set = set(failure_keys)
+        if self.settlement_posture_checks.necessity_laundering_detected:
+            if necessity_metric.status != "fail":
+                raise ValueError(
+                    "retroactive_necessity_laundering_absent must fail when "
+                    "necessity_laundering_detected is true"
+                )
+            if necessity_metric_key not in failure_key_set:
+                raise ValueError(
+                    "adherence_failure_register must include "
+                    "retroactive_necessity_laundering_absent when "
+                    "necessity_laundering_detected is true"
+                )
+        else:
+            if necessity_metric.status != "pass":
+                raise ValueError(
+                    "retroactive_necessity_laundering_absent must pass when "
+                    "necessity_laundering_detected is false"
+                )
+            if necessity_metric_key in failure_key_set:
+                raise ValueError(
+                    "adherence_failure_register must not include "
+                    "retroactive_necessity_laundering_absent when "
+                    "necessity_laundering_detected is false"
+                )
 
         checks_total = len(self.adherence_metric_register)
         checks_passed = len(
@@ -406,6 +435,8 @@ def derive_v42d_arc_local_eval_record(
         raise ValueError("action_proposal must bind to released hypothesis_frame_id")
     if rollout_trace["task_packet_id"] != task_packet_id:
         raise ValueError("rollout_trace must bind to released task_packet_id")
+    if rollout_trace["expectation_surface_ref"] != action_proposal_ref:
+        raise ValueError("rollout_trace must preserve released action_proposal_ref lineage")
     if rollout_trace["expectation_surface_hash"] != action_proposal["expectation_surface_hash"]:
         raise ValueError("rollout_trace must preserve released action expectation lineage")
 
