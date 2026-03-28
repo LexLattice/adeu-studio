@@ -1,0 +1,19 @@
+{
+  "dashboard_version": "quality.dashboard.v1",
+  "generated_at": "1970-01-01T00:00:00Z",
+  "config": {
+    "evaluation_ts": "1970-01-01T00:00:00Z",
+    "budget_version": "budget.v1"
+  },
+  "metrics": {
+    "bridge_loss_utilization_rate": 0.0,
+    "coherence_alert_count": 2,
+    "evidence_coverage_rate": 1.0,
+    "redundancy_rate": 0.0,
+    "top_k_stability@10": 0.2
+  },
+  "delta_report": {
+    "schema": "quality.dashboard.delta.v1",
+    "non_negative_quality": true
+  }
+}

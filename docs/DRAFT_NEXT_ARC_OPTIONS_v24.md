@@ -1,7 +1,7 @@
 # Draft Next Arc Options v24
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v23.md`, updated after
-`vNext+90` closeout and released `V42-B` ARC observation/hypothesis baseline on `main`.
+`vNext+91` closeout and released `V42-C` ARC action/rollout baseline on `main`.
 
 This draft moves from "bounded repo-grounded practical analysis is complete" to the next
 family-selection question:
@@ -31,7 +31,7 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+90` is the current baseline implementation state.
+- `vNext+91` is the current baseline implementation state.
 - `V42-A` is now closed on `main` at its intentionally bounded scope:
   - official local ARC toolkit adapter grounding;
   - canonical `adeu_arc_task_packet@1`;
@@ -46,6 +46,15 @@ Interpretive doctrine for this planning surface:
   - fail-closed rejection of observation/hypothesis bleed and unsupported impossibility
     posture;
   - no action/rollout/scorecard/competition widening.
+- `V42-C` is now closed on `main` at its intentionally bounded scope:
+  - canonical `adeu_arc_action_proposal@1` and `adeu_arc_rollout_trace@1`;
+  - explicit proposal status, decision-basis surfaces, utility posture, and
+    ambiguity-preserving alternative-action register;
+  - structured pre-action expectation surfaces with expectation hash identity;
+  - deterministic rollout lineage with pre-step/post-step state refs;
+  - fail-closed rejection of hidden tactical utility laundering, expectation-lineage
+    omissions, post-hoc expectation rewrite, and retroactive necessity laundering;
+  - no scorecard/replay/competition widening.
 - The released practical-analysis substrate now includes:
   - canonical analysis request, settlement, observation, intended, alignment, and run
     manifest artifacts;
@@ -66,25 +75,28 @@ The missing layer is no longer first-contact adapter grounding.
 
 `V42-A` established that baseline.
 
-The missing layer now is explicit ARC action commitment and rollout lineage over the
-released decomposition baseline, specifically:
+The missing layer now is local benchmark/evaluation discipline over released
+action/rollout artifacts, specifically:
 
 - consume the official ARC toolkit as the environment authority rather than replacing
   it;
-- keep released ontology/decomposition surfaces separate from tactical action policy;
-- carry settlement/entitlement posture from observation/hypothesis into
-  action/rollout artifacts;
-- keep control-plane honesty testable so opaque solving plus post-hoc paraphrase does
-  not count as ADEU adherence;
-- widen locally first into action/rollout only after `V42-B` decomposition quality is
+- keep released decomposition/action lineage surfaces separate from scorecard authority
+  and competition/deployment posture;
+- evaluate control-plane honesty and task performance together so opaque solving plus
+  post-hoc paraphrase does not count as ADEU adherence;
+- preserve settlement/entitlement posture through local benchmark evaluation rather than
+  laundering successful traces into universal necessity claims;
+- widen locally first into benchmark/eval only after `V42-C` tactical action posture is
   explicit and machine-checkable.
 
 Today the repo still lacks a released way to:
 
-- map ADEU's practical six-lane loop onto one ARC-AGI-3 game/session lifecycle;
-- release admissible action proposal and rollout lineage artifacts;
-- benchmark ADEU-guided ARC runs locally with typed replay/evidence rather than
-  free-form experiment logs;
+- run a bounded local ARC benchmark/eval discipline over released
+  `V42-A`/`V42-B`/`V42-C` artifacts with explicit adherence scoring;
+- compare model-class control-plane adherence and task performance under one deterministic
+  local replay/evidence harness;
+- emit a first bounded local evaluation manifest family before scorecard/replay authority
+  widening;
 - bind ARC scorecard/replay lineage back to ADEU-side artifacts once online widening is
   selected later.
 
@@ -104,11 +116,11 @@ Today the repo still lacks a released way to:
 - Recommended decomposition reference:
   - `docs/DRAFT_V42_ARC_AGI_PARTICIPATION_DECOMPOSITION_v0.md`
 - Recommended next path:
-  - `V42-C`
+  - `V42-D`
 - Recommended next concrete arc:
-  - `vNext+91`
+  - `vNext+92`
 - Default path selection:
-  - select `V42-C` as the next default candidate
+  - select `V42-D` as the next default candidate
 
 ## Closed Earlier Paths
 
@@ -155,6 +167,22 @@ Solved:
 
 `V42-B` is complete on `main` at intentionally bounded scope.
 
+### `V42-C`
+
+Solved:
+
+- deterministic ARC action-proposal and rollout-trace release over frozen
+  `V42-A`/`V42-B` artifacts;
+- explicit deontic admissibility gate and non-forced blocked/deferred proposal posture;
+- explicit proposal decision-basis and utility posture carry-through;
+- structured expectation surface capture with hash identity and expectation/outcome
+  comparison in rollout;
+- deterministic pre-step/post-step lineage and settlement-posture carry-through;
+- fail-closed rejection of hidden utility laundering, expectation rewrite, and
+  retroactive necessity laundering.
+
+`V42-C` is complete on `main` at intentionally bounded scope.
+
 ## Recommended Next Family (`V42`)
 
 `V42` should turn the released internal reasoning substrate into a local-first ARC
@@ -187,7 +215,7 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V42-A` | local toolkit adapter + task/session freeze | `adeu_arc_task_packet@1` plus bounded local adapter baseline | closed_on_main |
 | `V42-B` | observed frame extraction + hypothesis register | `adeu_arc_observation_frame@1` and `adeu_arc_hypothesis_frame@1` | closed_on_main |
-| `V42-C` | action proposal + rollout trace | `adeu_arc_action_proposal@1` and `adeu_arc_rollout_trace@1` | deferred_to_later_family |
+| `V42-C` | action proposal + rollout trace | `adeu_arc_action_proposal@1` and `adeu_arc_rollout_trace@1` | closed_on_main |
 | `V42-D` | local benchmark runner / eval discipline | deterministic local ARC run/benchmark surface | deferred_to_later_family |
 | `V42-E` | online scorecard / replay integration | `adeu_arc_scorecard_manifest@1` and competition-mode adapter | deferred_to_later_family |
 
@@ -214,26 +242,27 @@ Additional possible widenings remain:
 - It respects the official ARC recommendation to develop locally first before leaning
   on online scorecards or competition submission.
 
-## Recommended Next Path (`V42-C`)
+## Recommended Next Path (`V42-D`)
 
-Implement the first explicit ARC action-proposal and rollout widening over the released
-`V42-B` observation/hypothesis baseline.
+Implement the first explicit local benchmark/evaluation widening over the released
+`V42-C` action/rollout baseline.
 
-`V42-C` should introduce:
+`V42-D` should introduce:
 
-- one canonical `adeu_arc_action_proposal@1` artifact over released hypothesis posture;
-- one canonical `adeu_arc_rollout_trace@1` artifact with deterministic step lineage;
-- explicit admissibility posture carrying forward `V42-A` deontic boundaries and
-  `V42-B` claim/ambiguity posture;
-- explicit pre-action vs post-action expectation-to-outcome linkage without laundering
-  outcomes into retroactive necessity.
+- one canonical bounded local benchmark/evaluation manifest over released
+  `V42-A`/`V42-B`/`V42-C` lineage;
+- deterministic local run/evidence aggregation for task performance plus
+  control-plane-adherence scoring;
+- explicit model-class sensitivity comparison posture (empirical, not assumed);
+- fail-closed rejection of benchmark result laundering into scorecard authority or
+  competition claims.
 
-## Path Boundary (`V42-C`)
+## Path Boundary (`V42-D`)
 
-`V42-C` should stay bounded to:
+`V42-D` should stay bounded to:
 
-- action-proposal and rollout emission over released `V42-B` artifacts only;
-- explicit admissibility and expectation lineage checks before scorecard widening;
+- local benchmark/eval compilation over released `V42-C` artifacts only;
+- explicit adherence + performance evaluation posture without scorecard authority;
 - deterministic local fixtures only;
 - no scorecard/replay authority yet.
 
@@ -246,21 +275,22 @@ It should not attempt:
 - web or API workbench surfaces;
 - generic multi-benchmark abstraction;
 - leaderboard or challenge-readiness claims;
-- action outcomes laundering into retroactive task-rule necessity claims.
+- benchmark outcomes laundering into scorecard authority or competition readiness claims.
 
-## Follow-On Path After `V42-C`
+## Follow-On Path After `V42-D`
 
-If `V42-C` lands cleanly, the next default path should likely be `V42-D`.
+If `V42-D` lands cleanly, the next default path should likely be `V42-E`.
 
-That would be the first slice that turns deterministic rollout artifacts into local
-benchmark/eval discipline over model adherence and task performance.
+That would be the first slice that widens into scorecard/replay integration and
+competition-mode posture over already-released local evaluation lineage.
 
-Before `V42-D` is locked, the family decomposition should keep three rules explicit:
+Before `V42-E` is locked, the family decomposition should keep three rules explicit:
 
-- hypothesis and action-proposal artifacts must carry settlement-style claim posture and
-  unresolved ambiguity state rather than only raw candidate/action content;
-- successful local rollout may not silently mint second-order necessity claims about the
-  task rule.
+- local benchmark/eval outputs may constrain but not mint scorecard authority claims;
+- successful local benchmark results may not be promoted to leaderboard-readiness claims
+  without explicit online authority and replay lineage;
+- settlement/entitlement posture must remain explicit when widening from local
+  evaluation into scorecard/competition seams.
 
 The detailed family decomposition is not drafted yet.
 The active decomposition reference for the current family is now:
@@ -290,7 +320,7 @@ The active decomposition reference for the current family is now:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
-  "baseline_arc": "vNext+90",
+  "baseline_arc": "vNext+91",
   "closed_prior_family": "V41",
   "closed_prior_paths": [
     "V41-A",
@@ -301,13 +331,14 @@ The active decomposition reference for the current family is now:
     "V41-F"
   ],
   "active_family": "V42",
-  "active_family_status": "in_progress_with_v42a_v42b_closed_on_main",
+  "active_family_status": "in_progress_with_v42a_v42b_v42c_closed_on_main",
   "closed_current_family_paths": [
     "V42-A",
-    "V42-B"
+    "V42-B",
+    "V42-C"
   ],
-  "default_next_arc_candidate": "V42-C",
-  "default_next_concrete_arc_candidate": "vNext+91",
+  "default_next_arc_candidate": "V42-D",
+  "default_next_concrete_arc_candidate": "vNext+92",
   "family_architecture_doc": "docs/ARCHITECTURE_ADEU_ARC_AGI_v0.md",
   "family_decomposition_doc": "docs/DRAFT_V42_ARC_AGI_PARTICIPATION_DECOMPOSITION_v0.md",
   "challenge_reference": "ARC-AGI-3",
@@ -320,6 +351,7 @@ The active decomposition reference for the current family is now:
   "adapter_deontic_boundary_required": true,
   "v42a_task_packet_baseline_closed_on_main": true,
   "v42b_observation_hypothesis_baseline_closed_on_main": true,
+  "v42c_action_rollout_baseline_closed_on_main": true,
   "task_packet_artifact": "adeu_arc_task_packet@1",
   "observation_artifact": "adeu_arc_observation_frame@1",
   "hypothesis_artifact": "adeu_arc_hypothesis_frame@1",

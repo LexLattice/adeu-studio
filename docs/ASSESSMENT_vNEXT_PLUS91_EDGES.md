@@ -1,6 +1,6 @@
 # Assessment vNext+91 Edges
 
-Status: planning-edge assessment for `V42-C`.
+Status: post-closeout edge assessment for `V42-C`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,8 +8,9 @@ Status: planning-edge assessment for `V42-C`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS91_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v91_closeout_edge_assessment",
   "required_in_decision": true
 }
 ```
@@ -106,6 +107,6 @@ Status: planning-edge assessment for `V42-C`.
 
 - `V42-C` is the correct next slice because it introduces tactical commitment while
   preserving released decomposition and settlement posture.
-- The slice is safe only if decision basis, utility posture, proposal status, structured
-  expectation lineage, settlement carry-through, and anti-laundering rules stay
-  machine-checkable and fail closed.
+- `V42-C` closed safely on `main` because decision basis, utility posture, proposal
+  status, structured expectation lineage, settlement carry-through, and anti-laundering
+  constraints shipped as machine-checkable fail-closed surfaces.
