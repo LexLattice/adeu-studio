@@ -1,7 +1,7 @@
 # Draft V42 ARC-AGI Participation Decomposition v0
 
-Status: working decomposition draft after `vNext+90` closeout on `main`, where
-`V42-A` and `V42-B` are now released at bounded scope.
+Status: working decomposition draft after `vNext+93` closeout on `main`, where
+`V42-A` through `V42-E` are now released at bounded scope.
 
 This document is an intermediate planning artifact between:
 
@@ -68,10 +68,13 @@ The safe first move is:
 - prove ADEU can wrap the official local adapter without inventing environment
   semantics.
 
-After `vNext+90`, the first two bounded moves are now complete:
+After `vNext+93`, the first five bounded moves are now complete:
 
 - `V42-A`: official local adapter + frozen task packet baseline;
-- `V42-B`: explicit ontology/observation/hypothesis decomposition baseline.
+- `V42-B`: explicit ontology/observation/hypothesis decomposition baseline;
+- `V42-C`: bounded action-proposal/rollout baseline;
+- `V42-D`: bounded local-eval baseline;
+- `V42-E`: bounded scorecard/replay and competition-posture baseline.
 
 The next move should keep the same doctrine order:
 
@@ -91,15 +94,16 @@ first semantic anatomy, then tactical intelligence
 - `V41-A` through `V41-F` are closed on `main`.
 - `V42-A` is closed on `main`.
 - `V42-B` is closed on `main`.
-- `vNext+90` is the current baseline implementation state.
-- The next safe step is not to reopen `V41` or to widen straight into ARC observation,
-  hypothesis, action, rollout, or scorecard semantics without first locking the
-  environment-adapter boundary.
+- `V42-C` is closed on `main`.
+- `V42-D` is closed on `main`.
+- `V42-E` is closed on `main`.
+- `vNext+93` is the current baseline implementation state.
+- The next safe step is not to reopen `V41` or released `V42-A` through `V42-E`
+  semantics while widening into direct submission execution and later deployment seams.
 - The official ARC toolkit should remain the environment authority in this family.
 - Local/offline mode should remain the first execution horizon in this family.
-- Model fit should be treated as empirical rather than assumed: later local evaluation
-  should measure both benchmark performance and whether the model actually inhabits the
-  explicit ADEU control plane.
+- Model fit should be treated as empirical rather than assumed: released local evaluation
+  and scorecard posture should remain explicit while widening execution seams.
 
 ## Machine-Checkable Decomposition Baseline
 
@@ -107,7 +111,7 @@ first semantic anatomy, then tactical intelligence
 {
   "schema": "v42_arc_agi_participation_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARC_AGI_v0.md",
-  "baseline_arc": "vNext+90",
+  "baseline_arc": "vNext+93",
   "closed_prior_family": "V41",
   "closed_prior_paths": [
     "V41-A",
@@ -120,11 +124,14 @@ first semantic anatomy, then tactical intelligence
   "next_path_family": "V42",
   "closed_current_family_paths": [
     "V42-A",
-    "V42-B"
+    "V42-B",
+    "V42-C",
+    "V42-D",
+    "V42-E"
   ],
-  "default_next_arc_candidate": "V42-C",
-  "default_next_concrete_arc_candidate": "vNext+91",
-  "v42_path_count": 5,
+  "default_next_arc_candidate": "V42-F",
+  "default_next_concrete_arc_candidate": "vNext+94",
+  "v42_path_count": 6,
   "planned_family_packages": [
     "packages/adeu_arc_agi",
     "packages/adeu_arc_solver"
@@ -143,7 +150,10 @@ first semantic anatomy, then tactical intelligence
   "deontic_boundary_surface_required": true,
   "control_plane_honesty_acceptance_required": true,
   "v42b_static_decomposition_gate_closed_on_main": true,
-  "v42c_action_rollout_gate_required": true,
+  "v42c_action_rollout_gate_closed_on_main": true,
+  "v42d_local_eval_gate_closed_on_main": true,
+  "v42e_scorecard_gate_closed_on_main": true,
+  "v42f_submission_execution_gate_required": true,
   "settlement_carry_required_before_hypothesis_action_widening": true,
   "model_class_sensitivity_empirical_eval_required": true,
   "opaque_prompt_only_solving_rejected": true,
@@ -183,10 +193,11 @@ decomposition rules:
 
 - `packages/adeu_arc_agi` is the natural home for the first canonical ARC task/session
   packet and its local adapter-boundary policy.
-- `packages/adeu_arc_solver` is now active at bounded scope for `V42-B`
-  observation/hypothesis derivation helpers;
-- further widening inside `adeu_arc_solver` into action/rollout policy logic remains
-  deferred to `V42-C`.
+- `packages/adeu_arc_solver` is now active at bounded scope through `V42-E`,
+  including observation/hypothesis, action/rollout, local-eval, and scorecard
+  derivation helpers;
+- further widening inside `adeu_arc_solver` into direct submission execution posture
+  remains deferred to `V42-F`.
 - `apps/api` and `apps/web` integration remain deferred until the family proves the
   lower-level ARC adapter and task-packet contract first.
 
@@ -206,17 +217,21 @@ The current recommended concrete split is:
     explicit observed ARC frame extraction plus ontology inventory,
     denominator-bound decomposition coverage, hypothesis register, ambiguity /
     claim-posture carry-through, and utility-pressure posture
-- later `V42-C`
+- `vNext+91` (closed on `main`)
   - first action and rollout widening:
     explicit action proposal, admissibility posture, and rollout trace
-- later `V42-D`
+- `vNext+92` (closed on `main`)
   - local benchmark runner / evaluation discipline:
     deterministic local benchmark surface that measures both task success and
     control-plane adherence
-- later `V42-E`
+- `vNext+93` (closed on `main`)
   - online scorecard/replay integration:
-    scorecard lineage and competition-mode adapter if the family still selects that
-    widening
+    scorecard lineage and competition-mode posture with explicit authority
+    discrimination
+- later `V42-F`
+  - direct submission execution and bounded orchestration selection:
+    explicit submission authority import and execution guardrails over released
+    scorecard posture
 
 ## Recommended `V42` Slice Ladder
 
@@ -224,9 +239,10 @@ The current recommended concrete split is:
 |---|---|---|---|
 | `V42-A` | local adapter + task/session freeze | `adeu_arc_task_packet@1` and adapter-boundary contract | required |
 | `V42-B` | observed frame extraction + hypothesis state | `adeu_arc_observation_frame@1` and `adeu_arc_hypothesis_frame@1` | closed_on_main |
-| `V42-C` | action proposal + rollout trace | `adeu_arc_action_proposal@1` and `adeu_arc_rollout_trace@1` | deferred_to_later_family |
-| `V42-D` | local benchmark runner / eval discipline | deterministic local ARC benchmark surface | deferred_to_later_family |
-| `V42-E` | scorecard / competition-mode integration | `adeu_arc_scorecard_manifest@1` and online adapter | not_selected_yet |
+| `V42-C` | action proposal + rollout trace | `adeu_arc_action_proposal@1` and `adeu_arc_rollout_trace@1` | closed_on_main |
+| `V42-D` | local benchmark runner / eval discipline | deterministic local ARC benchmark surface | closed_on_main |
+| `V42-E` | scorecard / competition-mode integration | `adeu_arc_scorecard_manifest@1` and online adapter | closed_on_main |
+| `V42-F` | direct submission execution / bounded orchestration selection | submission execution posture and authority-import guardrails | deferred_to_later_family |
 
 ## Path `V42-A`: Local Adapter and Task/Session Freeze (Closed on Main)
 
@@ -295,10 +311,10 @@ action/rollout checklist remains explicit and passed:
 
 ## Bottom Line
 
-`V42-A` and `V42-B` were intentionally bounded and are now closed on `main`.
+`V42-A` through `V42-E` were intentionally bounded and are now closed on `main`.
 
-The next family step is successful only if tactical action commitment remains explicitly
-grounded in released ontology/observation/hypothesis posture before benchmark or
-scorecard widening.
+The next family step is successful only if direct submission execution posture remains
+explicitly grounded in released task/observation/hypothesis/action/rollout/local-eval/
+scorecard lineage and explicit authority-import checks.
 
-Any larger claim belongs to later `V42` selection, not to the family start.
+Any larger claim belongs to later `V42` widening selection, not to implicit carryover.
