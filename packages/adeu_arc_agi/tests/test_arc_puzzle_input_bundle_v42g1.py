@@ -9,8 +9,12 @@ import pytest
 from adeu_arc_agi import (
     ADEU_ARC_PUZZLE_INPUT_BUNDLE_SCHEMA,
     AdeuArcPuzzleInputBundle,
+    compute_adeu_arc_bundle_identity_hash,
     compute_adeu_arc_puzzle_input_bundle_id,
+    compute_adeu_arc_selection_register_hash,
+    compute_adeu_arc_selection_register_id,
     derive_v42g1_arc_puzzle_input_bundle,
+    materialize_adeu_arc_puzzle_input_bundle_payload,
 )
 from adeu_ir.repo import repo_root
 from jsonschema import Draft202012Validator
@@ -103,6 +107,17 @@ def test_v95_bundle_id_is_deterministic() -> None:
     )
 
 
+def test_v95_materialize_defaults_booleans_before_bundle_id() -> None:
+    payload = _load_v95("adeu_arc_puzzle_input_bundle_v95_reference.json")
+    without_id = deepcopy(payload)
+    without_id.pop("puzzle_input_bundle_id")
+    without_id.pop("no_retrospective_swap_posture")
+    without_id.pop("summary_non_authoritative")
+
+    materialized = materialize_adeu_arc_puzzle_input_bundle_payload(without_id)
+    assert materialized == payload
+
+
 def test_v95_exported_schema_accepts_reference_fixture() -> None:
     _bundle_schema_validator().validate(_load_v95("adeu_arc_puzzle_input_bundle_v95_reference.json"))
 
@@ -126,7 +141,10 @@ def test_v95_rejects_missing_provenance_refs_fixture() -> None:
 def test_v95_rejects_source_kind_drift() -> None:
     payload = deepcopy(_load_v95("adeu_arc_puzzle_input_bundle_v95_reference.json"))
     payload["puzzle_entries"][0]["source_kind"] = "open_text_source_kind_drift"
-    with pytest.raises(ValidationError, match="official_toolkit_local_export"):
+    with pytest.raises(
+        ValidationError,
+        match="repo_frozen_fixture|official_toolkit_local_export|approved_imported_local_copy",
+    ):
         AdeuArcPuzzleInputBundle.model_validate(payload)
 
 
@@ -149,6 +167,50 @@ def test_v95_rejects_bundle_identity_hash_mismatch_fixture() -> None:
 def test_v95_rejects_non_declared_retrospective_swap_fixture() -> None:
     payload = _load_v95("adeu_arc_puzzle_input_bundle_v95_reject_retroactive_selection_swap.json")
     with pytest.raises(ValidationError, match="puzzle_entries must follow canonical_puzzle_order"):
+        AdeuArcPuzzleInputBundle.model_validate(payload)
+
+
+def test_v95_rejects_selection_register_ref_payload_drift_even_if_recomputed() -> None:
+    payload = deepcopy(_load_v95("adeu_arc_puzzle_input_bundle_v95_reference.json"))
+    swapped_ids = [
+        payload["selected_puzzle_ids"][1],
+        payload["selected_puzzle_ids"][0],
+        payload["selected_puzzle_ids"][2],
+    ]
+    payload["selected_puzzle_ids"] = swapped_ids
+    payload["canonical_puzzle_order"] = swapped_ids
+    payload["puzzle_entries"] = [
+        payload["puzzle_entries"][1],
+        payload["puzzle_entries"][0],
+        payload["puzzle_entries"][2],
+    ]
+    payload["selection_register_id"] = compute_adeu_arc_selection_register_id(
+        selection_basis=payload["selection_basis"],
+        selected_puzzle_ids=swapped_ids,
+        no_retrospective_swap_posture=payload["no_retrospective_swap_posture"],
+    )
+    payload["selection_register_hash"] = compute_adeu_arc_selection_register_hash(
+        selection_register_id=payload["selection_register_id"],
+        selection_basis=payload["selection_basis"],
+        selected_puzzle_ids=swapped_ids,
+        no_retrospective_swap_posture=payload["no_retrospective_swap_posture"],
+    )
+    payload["bundle_identity_hash"] = compute_adeu_arc_bundle_identity_hash(
+        selection_register_hash=payload["selection_register_hash"],
+        canonical_puzzle_order=swapped_ids,
+        puzzle_entries=payload["puzzle_entries"],
+    )
+    payload_without_id = deepcopy(payload)
+    payload_without_id.pop("puzzle_input_bundle_id")
+    payload["puzzle_input_bundle_id"] = compute_adeu_arc_puzzle_input_bundle_id(payload_without_id)
+
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "selection_register_id must match authoritative "
+            "selection_register_ref payload"
+        ),
+    ):
         AdeuArcPuzzleInputBundle.model_validate(payload)
 
 

@@ -38,8 +38,8 @@
         },
         "source_kind": {
           "enum": [
-            "official_toolkit_local_export",
             "repo_frozen_fixture",
+            "official_toolkit_local_export",
             "approved_imported_local_copy"
           ],
           "title": "Source Kind",
@@ -148,8 +148,8 @@
     "source_precedence_policy": {
       "items": {
         "enum": [
-          "official_toolkit_local_export",
           "repo_frozen_fixture",
+          "official_toolkit_local_export",
           "approved_imported_local_copy"
         ],
         "type": "string"

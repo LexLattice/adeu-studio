@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
 from copy import deepcopy
+from pathlib import Path
 from typing import Any, Literal
 
+from adeu_ir.repo import repo_root
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from urm_runtime.hashing import sha256_canonical_json
 
@@ -11,8 +14,8 @@ V42G1_V95_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS95.md#v95-continuation-contract-machine-checkable"
 )
 PuzzleSourceKind = Literal[
-    "official_toolkit_local_export",
     "repo_frozen_fixture",
+    "official_toolkit_local_export",
     "approved_imported_local_copy",
 ]
 
@@ -21,10 +24,20 @@ _REQUIRED_SOURCE_PRECEDENCE_POLICY: tuple[PuzzleSourceKind, ...] = (
     "official_toolkit_local_export",
     "approved_imported_local_copy",
 )
+_V95_FIXTURE_PREFIX = "apps/api/fixtures/arc_agi/vnext_plus95/"
+_REQUIRED_SELECTION_REGISTER_FIELDS = (
+    "selection_register_id",
+    "selection_register_hash",
+    "selection_basis",
+    "selected_puzzle_ids",
+    "no_retrospective_swap_posture",
+)
 _EXPECTED_PUZZLE_COUNT = 3
 
 
 def _assert_non_empty_text(value: str, *, field_name: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"{field_name} must be a string")
     if not value:
         raise ValueError(f"{field_name} must not be empty")
     if value != value.strip():
@@ -58,13 +71,31 @@ def _assert_hash(value: str, *, field_name: str) -> str:
     return normalized
 
 
-def _assert_frozen_local_ref(value: str, *, field_name: str) -> str:
+def _assert_v95_fixture_ref(value: str, *, field_name: str) -> str:
     normalized = _assert_non_empty_text(value, field_name=field_name)
     if normalized.startswith(("http://", "https://")):
         raise ValueError(f"{field_name} must not depend on live external fetch URLs")
-    if not normalized.startswith("apps/api/fixtures/arc_agi/vnext_plus95/"):
-        raise ValueError(f"{field_name} must reference frozen local v95 fixture payload")
+    if not normalized.startswith(_V95_FIXTURE_PREFIX):
+        raise ValueError(f"{field_name} must reference frozen local v95 fixture content")
     return normalized
+
+
+def _load_repo_json_object_from_ref(path_ref: str, *, field_name: str) -> dict[str, Any]:
+    repository_root = repo_root(anchor=Path(__file__)).resolve()
+    candidate = (repository_root / path_ref).resolve()
+    try:
+        candidate.relative_to(repository_root)
+    except ValueError as exc:
+        raise ValueError(f"{field_name} must remain within the repository root") from exc
+    if not candidate.is_file():
+        raise ValueError(f"{field_name} must reference an existing frozen fixture file")
+    try:
+        payload = json.loads(candidate.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{field_name} must reference valid JSON fixture content") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"{field_name} must reference a JSON object fixture")
+    return payload
 
 
 def compute_adeu_arc_selection_register_id(
@@ -179,7 +210,7 @@ class AdeuArcPuzzleInputEntry(BaseModel):
         object.__setattr__(
             self,
             "normalized_payload_ref",
-            _assert_frozen_local_ref(
+            _assert_v95_fixture_ref(
                 self.normalized_payload_ref, field_name="normalized_payload_ref"
             ),
         )
@@ -215,7 +246,7 @@ class AdeuArcPuzzleInputEntry(BaseModel):
         )
         if self.puzzle_identity_hash != expected_puzzle_identity_hash:
             raise ValueError(
-                "puzzle_identity_hash must match puzzle_id + normalized_payload_hash identity"
+                "puzzle_identity_hash must match canonical hash of normalized_payload_hash"
             )
 
         expected_puzzle_input_id = compute_adeu_arc_puzzle_input_id(
@@ -277,11 +308,97 @@ class AdeuArcPuzzleInputBundle(BaseModel):
         object.__setattr__(
             self,
             "selection_register_ref",
-            _assert_non_empty_text(
+            _assert_v95_fixture_ref(
                 self.selection_register_ref,
                 field_name="selection_register_ref",
             ),
         )
+        selection_register_payload = _load_repo_json_object_from_ref(
+            self.selection_register_ref,
+            field_name="selection_register_ref",
+        )
+        missing_register_fields = [
+            field_name
+            for field_name in _REQUIRED_SELECTION_REGISTER_FIELDS
+            if field_name not in selection_register_payload
+        ]
+        if missing_register_fields:
+            missing_fields = ", ".join(sorted(missing_register_fields))
+            raise ValueError(
+                f"selection_register_ref payload missing required fields: {missing_fields}"
+            )
+
+        register_selection_basis = _assert_non_empty_text(
+            selection_register_payload["selection_basis"],
+            field_name="selection_register_ref.selection_basis",
+        )
+        selected_ids_raw = selection_register_payload["selected_puzzle_ids"]
+        if not isinstance(selected_ids_raw, list):
+            raise ValueError(
+                "selection_register_ref.selected_puzzle_ids must be a list of puzzle IDs"
+            )
+        register_selected_puzzle_ids = _assert_unique_preserving_order(
+            selected_ids_raw,
+            field_name="selection_register_ref.selected_puzzle_ids",
+        )
+        register_no_retrospective_swap_posture = selection_register_payload[
+            "no_retrospective_swap_posture"
+        ]
+        if not isinstance(register_no_retrospective_swap_posture, bool):
+            raise ValueError(
+                "selection_register_ref.no_retrospective_swap_posture must be a boolean"
+            )
+        register_selection_register_id = _assert_non_empty_text(
+            selection_register_payload["selection_register_id"],
+            field_name="selection_register_ref.selection_register_id",
+        )
+        register_selection_register_hash = _assert_hash(
+            selection_register_payload["selection_register_hash"],
+            field_name="selection_register_ref.selection_register_hash",
+        )
+
+        expected_register_id_from_payload = compute_adeu_arc_selection_register_id(
+            selection_basis=register_selection_basis,
+            selected_puzzle_ids=register_selected_puzzle_ids,
+            no_retrospective_swap_posture=register_no_retrospective_swap_posture,
+        )
+        if register_selection_register_id != expected_register_id_from_payload:
+            raise ValueError(
+                "selection_register_ref payload selection_register_id must match canonical identity"
+            )
+        expected_register_hash_from_payload = compute_adeu_arc_selection_register_hash(
+            selection_register_id=register_selection_register_id,
+            selection_basis=register_selection_basis,
+            selected_puzzle_ids=register_selected_puzzle_ids,
+            no_retrospective_swap_posture=register_no_retrospective_swap_posture,
+        )
+        if register_selection_register_hash != expected_register_hash_from_payload:
+            raise ValueError(
+                "selection_register_ref payload selection_register_hash must match canonical hash"
+            )
+
+        if self.selection_register_id != register_selection_register_id:
+            raise ValueError(
+                "selection_register_id must match authoritative selection_register_ref payload"
+            )
+        if self.selection_register_hash != register_selection_register_hash:
+            raise ValueError(
+                "selection_register_hash must match authoritative selection_register_ref payload"
+            )
+        if self.selection_basis != register_selection_basis:
+            raise ValueError(
+                "selection_basis must match authoritative selection_register_ref payload"
+            )
+        if self.selected_puzzle_ids != register_selected_puzzle_ids:
+            raise ValueError(
+                "selected_puzzle_ids must match authoritative selection_register_ref payload"
+            )
+        if self.no_retrospective_swap_posture != register_no_retrospective_swap_posture:
+            raise ValueError(
+                "no_retrospective_swap_posture must match authoritative "
+                "selection_register_ref payload"
+            )
+
         object.__setattr__(
             self,
             "source_precedence_policy",
@@ -339,31 +456,11 @@ class AdeuArcPuzzleInputBundle(BaseModel):
         if len(puzzle_identity_hashes) != len(set(puzzle_identity_hashes)):
             raise ValueError("duplicate puzzle identity hashes are forbidden in the same bundle")
 
-        expected_selection_register_id = compute_adeu_arc_selection_register_id(
-            selection_basis=self.selection_basis,
-            selected_puzzle_ids=self.selected_puzzle_ids,
-            no_retrospective_swap_posture=self.no_retrospective_swap_posture,
-        )
-        if self.selection_register_id != expected_selection_register_id:
-            raise ValueError(
-                "selection_register_id must match canonical selection register identity"
-            )
-
-        expected_selection_register_hash = compute_adeu_arc_selection_register_hash(
-            selection_register_id=self.selection_register_id,
-            selection_basis=self.selection_basis,
-            selected_puzzle_ids=self.selected_puzzle_ids,
-            no_retrospective_swap_posture=self.no_retrospective_swap_posture,
-        )
         object.__setattr__(
             self,
             "selection_register_hash",
             _assert_hash(self.selection_register_hash, field_name="selection_register_hash"),
         )
-        if self.selection_register_hash != expected_selection_register_hash:
-            raise ValueError(
-                "selection_register_hash must match canonical register payload hash"
-            )
 
         expected_bundle_identity_hash = compute_adeu_arc_bundle_identity_hash(
             selection_register_hash=self.selection_register_hash,
@@ -411,6 +508,8 @@ def materialize_adeu_arc_puzzle_input_bundle_payload(
 ) -> dict[str, Any]:
     payload = deepcopy(payload_without_puzzle_input_bundle_id)
     payload.setdefault("schema", ADEU_ARC_PUZZLE_INPUT_BUNDLE_SCHEMA)
+    payload.setdefault("no_retrospective_swap_posture", True)
+    payload.setdefault("summary_non_authoritative", True)
     payload["puzzle_input_bundle_id"] = compute_adeu_arc_puzzle_input_bundle_id(payload)
     return canonicalize_adeu_arc_puzzle_input_bundle_payload(payload)
 
