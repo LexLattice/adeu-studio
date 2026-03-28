@@ -25,6 +25,10 @@ from .scorecard import (
     ADEU_ARC_SCORECARD_MANIFEST_SCHEMA,
     AdeuArcScorecardManifest,
 )
+from .submission_execution import (
+    ADEU_ARC_SUBMISSION_EXECUTION_RECORD_SCHEMA,
+    AdeuArcSubmissionExecutionRecord,
+)
 from .task_packet import ADEU_ARC_TASK_PACKET_SCHEMA, AdeuArcTaskPacket
 
 
@@ -62,6 +66,14 @@ def main() -> None:
         != ADEU_ARC_SCORECARD_MANIFEST_SCHEMA
     ):
         raise ValueError("exported schema marker drift for adeu_arc_scorecard_manifest@1")
+    submission_execution_schema = AdeuArcSubmissionExecutionRecord.model_json_schema(by_alias=True)
+    if (
+        submission_execution_schema["properties"]["schema"]["const"]
+        != ADEU_ARC_SUBMISSION_EXECUTION_RECORD_SCHEMA
+    ):
+        raise ValueError(
+            "exported schema marker drift for adeu_arc_submission_execution_record@1"
+        )
 
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
@@ -91,6 +103,14 @@ def main() -> None:
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_scorecard_manifest.v1.json",
         scorecard_manifest_schema,
     )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_arc_agi"
+        / "schema"
+        / "adeu_arc_submission_execution_record.v1.json",
+        submission_execution_schema,
+    )
     _write_schema(root / "spec" / "adeu_arc_task_packet.schema.json", task_packet_schema)
     _write_schema(
         root / "spec" / "adeu_arc_observation_frame.schema.json",
@@ -115,6 +135,10 @@ def main() -> None:
     _write_schema(
         root / "spec" / "adeu_arc_scorecard_manifest.schema.json",
         scorecard_manifest_schema,
+    )
+    _write_schema(
+        root / "spec" / "adeu_arc_submission_execution_record.schema.json",
+        submission_execution_schema,
     )
 
 

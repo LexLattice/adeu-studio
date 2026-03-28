@@ -1,0 +1,75 @@
+{
+  "action_proposal_id": "arc_act_5cb07a5bee5f9009d6174cc501bb2cff",
+  "action_proposal_ref": "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_action_proposal_v91_reference.json",
+  "bounded_orchestration_constraint_register": [
+    "deferred_multi_run",
+    "no_parallel_competition_fanout",
+    "no_tournament_execution",
+    "single_submission_only"
+  ],
+  "competition_scope_ref": "arc_agi3_public_practice_scope",
+  "deferred_authority_assertions": [
+    "api_web_operator_surfaces_deferred",
+    "benchmark_tournament_orchestration_execution_deferred",
+    "generalized_multi_agent_orchestration_deferred"
+  ],
+  "environment_ref": "official_arc_toolkit",
+  "evidence_refs": [
+    "evidence:request_receipt_result_identity_chain",
+    "evidence:scorecard_manifest_v93_official_imported",
+    "evidence:submission_lifecycle_stage_register"
+  ],
+  "external_request_ref": "external:arc_agi3/request/2026-03-28/run_001",
+  "hypothesis_frame_id": "arc_hyp_f1911743c3511e2278fba08d41c2f88f",
+  "hypothesis_frame_ref": "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_hypothesis_frame_v90_reference.json",
+  "lifecycle_transition_matrix_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS94.md#v42f_submission_lifecycle_transition_matrix@1",
+  "local_eval_record_id": "arc_eval_feda8ef1e3bd4bc57fcd025deded1ea9",
+  "local_eval_record_ref": "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_reference.json",
+  "model_id": "gpt-5.4",
+  "observation_frame_id": "arc_obs_ba2b85d437f9804244b69c8200feb849",
+  "observation_frame_ref": "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_observation_frame_v90_reference.json",
+  "result_authority_basis_refs": [
+    "apps/api/fixtures/arc_agi/vnext_plus93/adeu_arc_scorecard_manifest_v93_case_official_imported.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS94.md#v42f_arc_submission_execution_contract@1",
+    "external:arc_agi3/official_result/2026-03-28/run_001"
+  ],
+  "result_authority_validity": "valid",
+  "result_import_hash": "f8c10f4c6b7e83347874bf04e8e6649389d3f0f8f8e53b5309c19cf8f2b97c6f",
+  "result_import_ref": "external:arc_agi3/result/external:arc_agi3/request/2026-03-28/run_001|official_arc_toolkit|toolkit://local/arcagi3/session/sample_session_001|arc_agi3_public_practice_scope",
+  "result_import_status": "official_imported",
+  "result_import_ts": 1711603200900,
+  "result_source_kind": "official_imported",
+  "rollout_trace_id": "arc_roll_3304ff47df20c2ab86f95d74282e14ea",
+  "rollout_trace_ref": "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_rollout_trace_v91_reference.json",
+  "run_id": "vnext_plus92_ref_run_001",
+  "schema": "adeu_arc_submission_execution_record@1",
+  "scorecard_manifest_id": "arc_score_75fb7775f8fd15bb737ba75b6d84cc35",
+  "scorecard_manifest_ref": "apps/api/fixtures/arc_agi/vnext_plus93/adeu_arc_scorecard_manifest_v93_case_official_imported.json",
+  "session_ref": "toolkit://local/arcagi3/session/sample_session_001",
+  "settlement_posture_carry": {
+    "ambiguity_posture_preserved": true,
+    "claim_posture_preserved": true,
+    "necessity_laundering_detected": false,
+    "summary": "settlement posture is preserved from released lineage through submission lifecycle"
+  },
+  "submission_authorization_basis_refs": [
+    "apps/api/fixtures/arc_agi/vnext_plus93/adeu_arc_scorecard_manifest_v93_case_official_imported.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS94.md#v42f_arc_submission_execution_contract@1"
+  ],
+  "submission_authorization_source_kind": "official_imported",
+  "submission_authorization_status": "authorized",
+  "submission_authorization_validity": "valid",
+  "submission_execution_id": "arc_submit_c76f1c64651b82553e5b6562e6c75ddb",
+  "submission_execution_status": "submitted_acknowledged",
+  "submission_payload_hash": "7ec8e8d5e5f309f5304db95d08cc5feaeb9d2f2ca8cb0f63db247f83d4f88bc4",
+  "submission_payload_ref": "external:arc_agi3/payload/external:arc_agi3/request/2026-03-28/run_001|official_arc_toolkit|toolkit://local/arcagi3/session/sample_session_001|arc_agi3_public_practice_scope",
+  "submission_receipt_hash": "9dd4fcb4f80f1d0ccf2f89e0f9eb0f9ea4602dbf97002f95f85dbf5ccb7f8a19",
+  "submission_receipt_ref": "external:arc_agi3/receipt/external:arc_agi3/request/2026-03-28/run_999|official_arc_toolkit|toolkit://local/arcagi3/session/sample_session_001|arc_agi3_public_practice_scope",
+  "submission_receipt_ts": 1711603200500,
+  "submission_request_ts": 1711603200000,
+  "submission_result_posture": "bounded_submission_execution_recorded_without_overclaim",
+  "submission_result_summary": "submission lifecycle posture recorded with explicit typed authority stages",
+  "submission_transport_profile": "arc_agi3_direct_submission_v1",
+  "task_packet_id": "arc_task_8d3ab27bba2ea851b09d0ff57e13da2c",
+  "task_packet_ref": "apps/api/fixtures/arc_agi/vnext_plus89/adeu_arc_task_packet_v89_reference.json"
+}
