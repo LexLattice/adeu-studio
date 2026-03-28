@@ -1,6 +1,6 @@
 # Assessment vNext+92 Edges
 
-Status: planning-edge assessment for `V42-D`.
+Status: post-closeout edge assessment for `V42-D`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,8 +8,9 @@ Status: planning-edge assessment for `V42-D`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS92_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v92_closeout_edge_assessment",
   "required_in_decision": true
 }
 ```
@@ -115,8 +116,8 @@ Status: planning-edge assessment for `V42-D`.
 
 ## Current Judgment
 
-- `V42-D` is the correct next slice because it evaluates released action/rollout posture
-  without widening into scorecard or competition seams.
-- The slice is safe only if single-run eval-record identity stays explicit, adherence and
-  provenance surfaces are decomposed, orthogonality fixtures are explicit, and
-  anti-overclaim posture remains machine-checkable and fail closed.
+- `V42-D` was the correct next slice because it evaluates released action/rollout
+  posture without widening into scorecard or competition seams.
+- `V42-D` closed safely on `main` because single-run eval-record identity,
+  adherence/provenance decomposition, orthogonality fixture coverage, and anti-overclaim
+  posture all shipped as machine-checkable fail-closed surfaces.
