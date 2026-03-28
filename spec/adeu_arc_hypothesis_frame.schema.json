@@ -1,0 +1,293 @@
+{
+  "$defs": {
+    "ArcAmbiguityRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguity_id": {
+          "title": "Ambiguity Id",
+          "type": "string"
+        },
+        "related_hypothesis_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Related Hypothesis Ids",
+          "type": "array"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ambiguity_id",
+        "summary",
+        "related_hypothesis_ids"
+      ],
+      "title": "ArcAmbiguityRecord",
+      "type": "object"
+    },
+    "ArcClaimPostureRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_posture": {
+          "enum": [
+            "observed",
+            "inferred",
+            "conjectural",
+            "blocked"
+          ],
+          "title": "Claim Posture",
+          "type": "string"
+        },
+        "hypothesis_id": {
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "claim_posture",
+        "rationale"
+      ],
+      "title": "ArcClaimPostureRecord",
+      "type": "object"
+    },
+    "ArcDeonticAdmissibilityRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "deontic_class": {
+          "enum": [
+            "allowed",
+            "deferred",
+            "forbidden"
+          ],
+          "title": "Deontic Class",
+          "type": "string"
+        },
+        "hypothesis_id": {
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        },
+        "source_legal_action_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Legal Action Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "deontic_class",
+        "rationale",
+        "source_legal_action_refs"
+      ],
+      "title": "ArcDeonticAdmissibilityRecord",
+      "type": "object"
+    },
+    "ArcHypothesisCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_posture": {
+          "enum": [
+            "observed",
+            "inferred",
+            "conjectural",
+            "blocked"
+          ],
+          "title": "Claim Posture",
+          "type": "string"
+        },
+        "hypothesis_id": {
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "supporting_observation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Observation Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "summary",
+        "supporting_observation_refs",
+        "claim_posture"
+      ],
+      "title": "ArcHypothesisCandidate",
+      "type": "object"
+    },
+    "ArcUtilityPressureRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "pressure_id": {
+          "title": "Pressure Id",
+          "type": "string"
+        },
+        "pressure_kind": {
+          "enum": [
+            "task_success_alignment",
+            "search_cost_pressure",
+            "ambiguity_pressure"
+          ],
+          "title": "Pressure Kind",
+          "type": "string"
+        },
+        "pressure_level": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Pressure Level",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pressure_id",
+        "pressure_kind",
+        "pressure_level",
+        "rationale"
+      ],
+      "title": "ArcUtilityPressureRecord",
+      "type": "object"
+    },
+    "ArcWorkingHypothesisPosture": {
+      "additionalProperties": false,
+      "properties": {
+        "action_commitment_allowed": {
+          "default": false,
+          "title": "Action Commitment Allowed",
+          "type": "boolean"
+        },
+        "active_hypothesis_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Active Hypothesis Ids",
+          "type": "array"
+        },
+        "posture_kind": {
+          "const": "non_committing_investigation",
+          "default": "non_committing_investigation",
+          "title": "Posture Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "active_hypothesis_ids"
+      ],
+      "title": "ArcWorkingHypothesisPosture",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ambiguity_register": {
+      "items": {
+        "$ref": "#/$defs/ArcAmbiguityRecord"
+      },
+      "title": "Ambiguity Register",
+      "type": "array"
+    },
+    "claim_posture_register": {
+      "items": {
+        "$ref": "#/$defs/ArcClaimPostureRecord"
+      },
+      "minItems": 1,
+      "title": "Claim Posture Register",
+      "type": "array"
+    },
+    "deontic_admissibility_register": {
+      "items": {
+        "$ref": "#/$defs/ArcDeonticAdmissibilityRecord"
+      },
+      "minItems": 1,
+      "title": "Deontic Admissibility Register",
+      "type": "array"
+    },
+    "hypothesis_frame_id": {
+      "title": "Hypothesis Frame Id",
+      "type": "string"
+    },
+    "hypothesis_register": {
+      "items": {
+        "$ref": "#/$defs/ArcHypothesisCandidate"
+      },
+      "minItems": 1,
+      "title": "Hypothesis Register",
+      "type": "array"
+    },
+    "observation_frame_id": {
+      "title": "Observation Frame Id",
+      "type": "string"
+    },
+    "observation_frame_ref": {
+      "title": "Observation Frame Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_arc_hypothesis_frame@1",
+      "default": "adeu_arc_hypothesis_frame@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "task_packet_id": {
+      "title": "Task Packet Id",
+      "type": "string"
+    },
+    "task_packet_ref": {
+      "title": "Task Packet Ref",
+      "type": "string"
+    },
+    "utility_pressure_register": {
+      "items": {
+        "$ref": "#/$defs/ArcUtilityPressureRecord"
+      },
+      "minItems": 1,
+      "title": "Utility Pressure Register",
+      "type": "array"
+    },
+    "working_hypothesis_posture": {
+      "$ref": "#/$defs/ArcWorkingHypothesisPosture"
+    }
+  },
+  "required": [
+    "hypothesis_frame_id",
+    "task_packet_id",
+    "task_packet_ref",
+    "observation_frame_id",
+    "observation_frame_ref",
+    "hypothesis_register",
+    "ambiguity_register",
+    "claim_posture_register",
+    "deontic_admissibility_register",
+    "utility_pressure_register",
+    "working_hypothesis_posture"
+  ],
+  "title": "AdeuArcHypothesisFrame",
+  "type": "object"
+}

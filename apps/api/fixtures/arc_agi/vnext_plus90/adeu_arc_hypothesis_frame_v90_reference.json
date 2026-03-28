@@ -1,0 +1,88 @@
+{
+  "ambiguity_register": [
+    {
+      "ambiguity_id": "amb_primary_transform",
+      "related_hypothesis_ids": [
+        "hyp_h1",
+        "hyp_h2"
+      ],
+      "summary": "both hypotheses remain live under current observations"
+    }
+  ],
+  "claim_posture_register": [
+    {
+      "claim_posture": "inferred",
+      "hypothesis_id": "hyp_h1",
+      "rationale": "supported by derived adjacency structure"
+    },
+    {
+      "claim_posture": "conjectural",
+      "hypothesis_id": "hyp_h2",
+      "rationale": "supported by direct cluster presence only"
+    }
+  ],
+  "deontic_admissibility_register": [
+    {
+      "deontic_class": "allowed",
+      "hypothesis_id": "hyp_h1",
+      "rationale": "consistent with local legal action envelope",
+      "source_legal_action_refs": [
+        "legal:edit_cell"
+      ]
+    },
+    {
+      "deontic_class": "deferred",
+      "hypothesis_id": "hyp_h2",
+      "rationale": "requires additional observation before narrowing",
+      "source_legal_action_refs": [
+        "legal:submit"
+      ]
+    }
+  ],
+  "hypothesis_frame_id": "arc_hyp_f1911743c3511e2278fba08d41c2f88f",
+  "hypothesis_register": [
+    {
+      "claim_posture": "inferred",
+      "hypothesis_id": "hyp_h1",
+      "summary": "horizontal adjacency may preserve anchor orientation",
+      "supporting_observation_refs": [
+        "obs:obs_derived_c"
+      ]
+    },
+    {
+      "claim_posture": "conjectural",
+      "hypothesis_id": "hyp_h2",
+      "summary": "color-role inversion remains plausible under current evidence",
+      "supporting_observation_refs": [
+        "obs:obs_direct_a",
+        "obs:obs_direct_b"
+      ]
+    }
+  ],
+  "observation_frame_id": "arc_obs_ba2b85d437f9804244b69c8200feb849",
+  "observation_frame_ref": "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_observation_frame_v90_reference.json",
+  "schema": "adeu_arc_hypothesis_frame@1",
+  "task_packet_id": "arc_task_8d3ab27bba2ea851b09d0ff57e13da2c",
+  "task_packet_ref": "apps/api/fixtures/arc_agi/vnext_plus89/adeu_arc_task_packet_v89_reference.json",
+  "utility_pressure_register": [
+    {
+      "pressure_id": "upr_task_success",
+      "pressure_kind": "task_success_alignment",
+      "pressure_level": "high",
+      "rationale": "must maintain consistency with target transformation objective"
+    },
+    {
+      "pressure_id": "upr_ambiguity",
+      "pressure_kind": "ambiguity_pressure",
+      "pressure_level": "medium",
+      "rationale": "retain both hypotheses until additional evidence appears"
+    }
+  ],
+  "working_hypothesis_posture": {
+    "action_commitment_allowed": false,
+    "active_hypothesis_ids": [
+      "hyp_h1"
+    ],
+    "posture_kind": "non_committing_investigation"
+  }
+}

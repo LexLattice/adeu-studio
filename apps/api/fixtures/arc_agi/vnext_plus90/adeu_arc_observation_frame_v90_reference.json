@@ -1,0 +1,132 @@
+{
+  "coverage_basis": "required_dimension_set",
+  "decomposition_coverage": 1.0,
+  "entity_inventory": [
+    {
+      "entity_id": "ent_cluster_a",
+      "entity_kind": "color_cluster",
+      "source_observation_refs": [
+        "obs:obs_direct_a"
+      ]
+    },
+    {
+      "entity_id": "ent_cluster_b",
+      "entity_kind": "color_cluster",
+      "source_observation_refs": [
+        "obs:obs_direct_b"
+      ]
+    }
+  ],
+  "environment_authority": "official_arc_toolkit",
+  "game_ref": "toolkit://local/arcagi3/game/sample_game_001",
+  "missing_dimension_register": [],
+  "mode_posture": "local_offline",
+  "observation_entries": [
+    {
+      "derived_from_observation_ids": [],
+      "evidence_refs": [
+        "grid:cellset:a"
+      ],
+      "observation_id": "obs_direct_a",
+      "observation_mode": "direct",
+      "resolution_posture": "resolved",
+      "source_refs": [
+        "state:frame:0"
+      ],
+      "structural_kind": "cluster_presence",
+      "summary": "cluster A contains four connected foreground cells"
+    },
+    {
+      "derived_from_observation_ids": [],
+      "evidence_refs": [
+        "grid:cellset:b"
+      ],
+      "observation_id": "obs_direct_b",
+      "observation_mode": "direct",
+      "resolution_posture": "resolved",
+      "source_refs": [
+        "state:frame:0"
+      ],
+      "structural_kind": "cluster_presence",
+      "summary": "cluster B contains four connected foreground cells"
+    },
+    {
+      "derived_from_observation_ids": [
+        "obs_direct_a",
+        "obs_direct_b"
+      ],
+      "evidence_refs": [
+        "grid:adjacency:a_b"
+      ],
+      "observation_id": "obs_derived_c",
+      "observation_mode": "derived",
+      "resolution_posture": "unresolved",
+      "source_refs": [
+        "state:frame:0"
+      ],
+      "structural_kind": "adjacency_pattern",
+      "summary": "clusters A and B show stable horizontal adjacency pattern"
+    }
+  ],
+  "observation_frame_id": "arc_obs_ba2b85d437f9804244b69c8200feb849",
+  "ontology_register": [
+    {
+      "summary": "current grid snapshot",
+      "unit_id": "ont_grid",
+      "unit_kind": "grid_state"
+    },
+    {
+      "summary": "connected color groups",
+      "unit_id": "ont_cluster",
+      "unit_kind": "color_cluster"
+    },
+    {
+      "summary": "adjacency and enclosure",
+      "unit_id": "ont_relation",
+      "unit_kind": "spatial_relation"
+    }
+  ],
+  "ontology_uncertainty_register": [
+    {
+      "summary": "adjacency strength under noise is uncertain",
+      "uncertainty_id": "unc_relation_strength"
+    }
+  ],
+  "relation_inventory": [
+    {
+      "endpoint_entity_ids": [
+        "ent_cluster_a",
+        "ent_cluster_b"
+      ],
+      "relation_id": "rel_adjacent_ab",
+      "relation_kind": "horizontal_adjacency"
+    }
+  ],
+  "required_dimension_set": [
+    "entity_inventory",
+    "observation_entries",
+    "ontology_register",
+    "relation_inventory",
+    "state_partition_register",
+    "unresolved_observation_entries"
+  ],
+  "schema": "adeu_arc_observation_frame@1",
+  "session_ref": "toolkit://local/arcagi3/session/sample_session_001",
+  "state_partition_register": [
+    {
+      "covered_cell_ref_hash": "9ff58f3ebe176285274c4a64387a9fbe6108b0a085bb2b0cf7da4ad28946d97e",
+      "partition_id": "part_foreground",
+      "partition_kind": "foreground_cells"
+    },
+    {
+      "covered_cell_ref_hash": "6940985c3305bf473712fad8764f795b0fc972598441d0e5b4907912aed8da79",
+      "partition_id": "part_background",
+      "partition_kind": "background_cells"
+    }
+  ],
+  "task_packet_id": "arc_task_8d3ab27bba2ea851b09d0ff57e13da2c",
+  "task_packet_ref": "apps/api/fixtures/arc_agi/vnext_plus89/adeu_arc_task_packet_v89_reference.json",
+  "unresolved_observation_entries": [
+    "obs_derived_c"
+  ]
+}
