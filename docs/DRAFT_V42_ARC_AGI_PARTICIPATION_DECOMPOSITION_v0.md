@@ -1,8 +1,7 @@
 # Draft V42 ARC-AGI Participation Decomposition v0
 
-Status: working decomposition draft after the released `V41` practical-analysis family
-closeout on `main` and the first `V42` family-selection draft in
-`docs/DRAFT_NEXT_ARC_OPTIONS_v24.md`.
+Status: working decomposition draft after `vNext+89` closeout on `main`, where the
+first `V42-A` local ARC adapter/task-packet baseline is now released.
 
 This document is an intermediate planning artifact between:
 
@@ -69,12 +68,26 @@ The safe first move is:
 - prove ADEU can wrap the official local adapter without inventing environment
   semantics.
 
+After `vNext+89`, that first move is now complete.
+
+The next move should keep the same doctrine order:
+
+- first semantic anatomy and decomposition quality (`O/E/D/U`) over frozen ARC packets;
+- then tactical reasoning machinery over that explicit decomposition.
+
+In short:
+
+```text
+first semantic anatomy, then tactical intelligence
+```
+
 ## Baseline Agreement
 
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+88` is the current baseline implementation state.
+- `V42-A` is closed on `main`.
+- `vNext+89` is the current baseline implementation state.
 - The next safe step is not to reopen `V41` or to widen straight into ARC observation,
   hypothesis, action, rollout, or scorecard semantics without first locking the
   environment-adapter boundary.
@@ -90,7 +103,7 @@ The safe first move is:
 {
   "schema": "v42_arc_agi_participation_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARC_AGI_v0.md",
-  "baseline_arc": "vNext+88",
+  "baseline_arc": "vNext+89",
   "closed_prior_family": "V41",
   "closed_prior_paths": [
     "V41-A",
@@ -101,9 +114,11 @@ The safe first move is:
     "V41-F"
   ],
   "next_path_family": "V42",
-  "closed_current_family_paths": [],
-  "default_next_arc_candidate": "V42-A",
-  "default_next_concrete_arc_candidate": "vNext+89",
+  "closed_current_family_paths": [
+    "V42-A"
+  ],
+  "default_next_arc_candidate": "V42-B",
+  "default_next_concrete_arc_candidate": "vNext+90",
   "v42_path_count": 5,
   "planned_family_packages": [
     "packages/adeu_arc_agi",
@@ -119,7 +134,10 @@ The safe first move is:
   "scorecard_authority_initially_deferred": true,
   "replay_authority_initially_deferred": true,
   "task_packet_artifact": "adeu_arc_task_packet@1",
+  "v42a_static_semantic_anatomy_priority_required": true,
   "deontic_boundary_surface_required": true,
+  "control_plane_honesty_acceptance_required": true,
+  "v42b_requires_static_decomposition_gate": true,
   "settlement_carry_required_before_hypothesis_action_widening": true,
   "model_class_sensitivity_empirical_eval_required": true,
   "opaque_prompt_only_solving_rejected": true,
@@ -149,6 +167,11 @@ decomposition rules:
 - no family slice should assume model-agnostic uplift from the ADEU harness;
 - no slice should mix local adapter baseline, scorecard authority, competition-mode
   policy, and UI/workbench release in one lock.
+- ARC decomposition should be judged statically before tactical heuristics are widened:
+  - `O`: ontology units and boundaries;
+  - `E`: direct-vs-derived observation and explicit epistemic posture;
+  - `D`: legal action/mode admissibility boundaries;
+  - `U`: explicit utility/pressure surfaces without hidden certainty minting.
 
 ## Package Activation Timing
 
@@ -165,7 +188,7 @@ decomposition rules:
 
 The current recommended concrete split is:
 
-- `vNext+89`
+- `vNext+89` (closed on `main`)
   - first concrete `V42-A` arc:
     local ARC toolkit adapter and canonical `adeu_arc_task_packet@1` baseline,
     including task/session freeze, local mode posture, legal-action envelope, and
@@ -196,7 +219,7 @@ The current recommended concrete split is:
 | `V42-D` | local benchmark runner / eval discipline | deterministic local ARC benchmark surface | deferred_to_later_family |
 | `V42-E` | scorecard / competition-mode integration | `adeu_arc_scorecard_manifest@1` and online adapter | not_selected_yet |
 
-## Path `V42-A`: Local Adapter and Task/Session Freeze
+## Path `V42-A`: Local Adapter and Task/Session Freeze (Closed on Main)
 
 Lock class: `L1`
 
@@ -231,11 +254,38 @@ Acceptance:
 - legal-action / mode-policy surfaces are explicit and machine-readable;
 - no hidden widening into solver or scorecard semantics is shipped in the slice.
 
+Static decomposition doctrine carried forward from `V42-A` into `V42-B`:
+
+- no hidden solver assumptions inside ontology or boundary-policy surfaces;
+- no blending of observed facts and inferred hypotheses inside one lane;
+- no post-hoc prose compliance accepted when control-plane semantics were not explicit
+  at decision time.
+
+## Next Path Gate (`V42-B`)
+
+`V42-B` should not be selected as implementation-ready unless the following static
+decomposition checklist remains explicit and passed:
+
+- `O` checklist:
+  - ARC game/task/session/frame/grid/action units are explicit and typed;
+  - ontology does not pre-solve tasks through hidden heuristic assumptions.
+- `E` checklist:
+  - direct observations remain separate from derived inferences;
+  - unresolved ambiguity and claim posture remain explicit.
+- `D` checklist:
+  - mode/legal-action admissibility remains deontic and machine-checkable;
+  - no action legality is minted by model inference.
+- `U` checklist:
+  - utility pressure is explicit and bounded;
+  - no hidden utility override mints certainty.
+- control-plane honesty checklist:
+  - opaque solving plus post-hoc paraphrase is rejected as ADEU adherence.
+
 ## Bottom Line
 
-`V42-A` should be boring on purpose.
+`V42-A` was boring on purpose and is now closed on `main`.
 
-The first family slice is successful if it proves that ADEU can wrap the official local
-ARC toolkit and freeze the session boundary honestly.
+The next family step is successful only if ARC semantic anatomy remains explicit and
+auditable before tactical action heuristics are widened.
 
 Any larger claim belongs to later `V42` selection, not to the family start.

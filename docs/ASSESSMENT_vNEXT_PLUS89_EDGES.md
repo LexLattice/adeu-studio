@@ -1,6 +1,6 @@
 # Assessment vNext+89 Edges
 
-Status: planning-edge assessment for `V42-A`.
+Status: post-closeout edge assessment for `V42-A`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,8 +8,9 @@ Status: planning-edge assessment for `V42-A`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS89_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v89_closeout_edge_assessment",
   "required_in_decision": true
 }
 ```
