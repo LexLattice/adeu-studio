@@ -9,8 +9,8 @@
       "harm_kind": "semantic_density_loss",
       "local_hybrid_fixture_id": "v39e_v76_local_hybrid_narrative_comment",
       "local_subject_anchor": "comment:block:render_title:line:1-2",
-      "oracle_request_id": "v39e_v76_oracle_request_31fd566d9a0bea31",
-      "oracle_resolution_id": "v39e_v76_oracle_resolution_efedca27598f03dd",
+      "oracle_request_id": "v39e_v76_oracle_request_c0aabd2181f4bbe6",
+      "oracle_resolution_id": "v39e_v76_oracle_resolution_f61839bf51934f86",
       "resolution_route": "oracle_assisted",
       "rule_id": "semantic_communication_narrative_comment",
       "signal_kind": "semantic_communication_drift",
@@ -27,8 +27,8 @@
     "deterministic_adjudicator_authoritative": true,
     "local_hybrid_fixture_reference_sha256": "8402b1197003d06be4877ea07686522eae7e044b175050fde308486729a95d2d",
     "oracle_output_advisory_only": true,
-    "oracle_request_reference_fixture_sha256": "49b42f5c4a02b6924ff9827fe68e55ba7fc18ed4853b1b9f3f1500ad8bbb3c3e",
-    "oracle_resolution_reference_fixture_sha256": "24ab4078d3c1af74b86c027e972954b43e86f6edcd59c85eec06af95c2435e55",
+    "oracle_request_reference_fixture_sha256": "76b4a3a3e87d01365b10b8ba43fb85c0ffcbdc18f0113bae382b962e5fc36fd6",
+    "oracle_resolution_reference_fixture_sha256": "0c30381b2bd004a12cabd567504c4b830a73561de50d104b4eb47ce3d929c4e5",
     "registry_reference_fixture_sha256": "fe47ddb2bb072be3b19d4aafdf1d70921ead64dea41633ac8ba86d4fcd6ff105",
     "single_oracle_round_enforced": true
   },
@@ -42,5 +42,5 @@
   "source_kind": "local_hybrid_fixture",
   "target_arc": "vNext+76",
   "target_path": "V39-E",
-  "trace_id": "v39e_v76_trace_20dad828e5c9914c"
+  "trace_id": "v39e_v76_trace_143d29da12a53472"
 }

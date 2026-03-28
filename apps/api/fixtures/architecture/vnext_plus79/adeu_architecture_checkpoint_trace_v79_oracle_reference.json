@@ -14,7 +14,7 @@
       "final_adjudication": "resolved_pass",
       "oracle_request_ref": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_request_v79_reference.json",
       "oracle_resolution_ref": "apps/api/fixtures/architecture/vnext_plus79/adeu_architecture_oracle_resolution_v79_reference.json",
-      "replay_identity_hash": "27f825d59ed3779f4da25e627e59e447b6e7046a40e879486c51a53a4126e027",
+      "replay_identity_hash": "b50c952703d7e7135f072b38a4d7a5bb8c4793c85389102cd30f800d238a33b3",
       "resolution_route": "oracle_assisted"
     }
   ],
@@ -23,11 +23,11 @@
   "hybrid_policy_hashes": [
     {
       "path": "AGENTS.md",
-      "sha256": "4ee9bbb70d02036e72deaaba7348a3b7e8d93b0a7431535a4597be08b7af7f93"
+      "sha256": "582d99edbb06c4cc73e60ce2e04dc019b57ac42cd34b50b372c149a15d4eddbb"
     },
     {
       "path": "docs/ARCHITECTURE_ADEU_ARCHITECTURE_IR_v0.md",
-      "sha256": "1a4c5ef8967bd60d9529c0234615cae9941328da6be10695894da4c10f1f118a"
+      "sha256": "48338497f866736184a3cc1d5fa5c29f3ae2cafdb39295b98636ad69a1373fd9"
     },
     {
       "path": "docs/LOCKED_CONTINUATION_vNEXT_PLUS76.md",
@@ -40,5 +40,5 @@
   ],
   "schema": "adeu_architecture_checkpoint_trace@1",
   "semantic_hash": "ad8898738f3ac53a822aadc2d2f8905374bd7a68ba49584ff0acf2c464594e6a",
-  "trace_id": "v40c_v79_trace_6bf59f85916f4e51"
+  "trace_id": "v40c_v79_trace_2c7af3b8b6886637"
 }

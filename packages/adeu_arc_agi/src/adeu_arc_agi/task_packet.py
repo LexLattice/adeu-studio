@@ -22,17 +22,20 @@ _TOOLKIT_LOCAL_REF_PREFIX = "toolkit://local/"
 
 
 def _assert_non_empty_text(value: str, *, field_name: str) -> str:
-    normalized = value.strip()
-    if not normalized:
+    if not value:
         raise ValueError(f"{field_name} must not be empty")
-    return normalized
+    if value != value.strip():
+        raise ValueError(f"{field_name} must not include leading or trailing whitespace")
+    return value
 
 
 def _assert_sorted_unique(values: list[str], *, field_name: str) -> list[str]:
     normalized = [_assert_non_empty_text(value, field_name=field_name) for value in values]
     if len(normalized) != len(set(normalized)):
         raise ValueError(f"{field_name} must not contain duplicates")
-    return sorted(normalized)
+    if normalized != sorted(normalized):
+        raise ValueError(f"{field_name} must be sorted lexicographically")
+    return normalized
 
 
 def _assert_sha256_hex(value: str, *, field_name: str) -> str:
@@ -246,11 +249,11 @@ def derive_v42a_arc_task_packet(
     adapter_boundary_policy: dict[str, Any] | ArcAdapterBoundaryPolicy | None = None,
 ) -> dict[str, Any]:
     mirrored = (
-        sorted(toolkit_legal_action_envelope)
+        deepcopy(toolkit_legal_action_envelope)
         if legal_action_envelope is None
-        else sorted(legal_action_envelope)
+        else deepcopy(legal_action_envelope)
     )
-    toolkit = sorted(toolkit_legal_action_envelope)
+    toolkit = deepcopy(toolkit_legal_action_envelope)
     dropped = sorted(set(toolkit) - set(mirrored))
     payload_without_task_packet_id: dict[str, Any] = {
         "schema": ADEU_ARC_TASK_PACKET_SCHEMA,
