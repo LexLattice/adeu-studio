@@ -1,6 +1,6 @@
 # Assessment vNext+94 Edges
 
-Status: planning-edge assessment for `V42-F`.
+Status: post-closeout edge assessment for `V42-F` (March 28, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,8 +8,8 @@ Status: planning-edge assessment for `V42-F`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS94_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -110,3 +110,6 @@ Status: planning-edge assessment for `V42-F`.
 - `V42-F` is the correct next seam after `V42-E` because the missing bounded capability
   is direct submission execution with explicit stage-separated authority lifecycle and
   fail-closed lineage binding.
+- `vNext+94` closeout evidence on `main` confirms these edges were implemented with
+  typed lifecycle constraints, deterministic identity-chain validation, and explicit
+  rejection fixtures for authority laundering and deferred-surface leakage.
