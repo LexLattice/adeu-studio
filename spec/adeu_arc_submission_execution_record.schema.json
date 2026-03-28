@@ -1,0 +1,390 @@
+{
+  "$defs": {
+    "ArcSubmissionSettlementPostureCarry": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguity_posture_preserved": {
+          "title": "Ambiguity Posture Preserved",
+          "type": "boolean"
+        },
+        "claim_posture_preserved": {
+          "title": "Claim Posture Preserved",
+          "type": "boolean"
+        },
+        "necessity_laundering_detected": {
+          "title": "Necessity Laundering Detected",
+          "type": "boolean"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ambiguity_posture_preserved",
+        "claim_posture_preserved",
+        "necessity_laundering_detected",
+        "summary"
+      ],
+      "title": "ArcSubmissionSettlementPostureCarry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_proposal_id": {
+      "title": "Action Proposal Id",
+      "type": "string"
+    },
+    "action_proposal_ref": {
+      "title": "Action Proposal Ref",
+      "type": "string"
+    },
+    "bounded_orchestration_constraint_register": {
+      "items": {
+        "enum": [
+          "deferred_multi_run",
+          "no_parallel_competition_fanout",
+          "no_tournament_execution",
+          "single_submission_only"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Bounded Orchestration Constraint Register",
+      "type": "array"
+    },
+    "competition_scope_ref": {
+      "title": "Competition Scope Ref",
+      "type": "string"
+    },
+    "deferred_authority_assertions": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Deferred Authority Assertions",
+      "type": "array"
+    },
+    "environment_ref": {
+      "title": "Environment Ref",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "external_request_ref": {
+      "title": "External Request Ref",
+      "type": "string"
+    },
+    "hypothesis_frame_id": {
+      "title": "Hypothesis Frame Id",
+      "type": "string"
+    },
+    "hypothesis_frame_ref": {
+      "title": "Hypothesis Frame Ref",
+      "type": "string"
+    },
+    "lifecycle_transition_matrix_ref": {
+      "title": "Lifecycle Transition Matrix Ref",
+      "type": "string"
+    },
+    "local_eval_record_id": {
+      "title": "Local Eval Record Id",
+      "type": "string"
+    },
+    "local_eval_record_ref": {
+      "title": "Local Eval Record Ref",
+      "type": "string"
+    },
+    "model_id": {
+      "title": "Model Id",
+      "type": "string"
+    },
+    "observation_frame_id": {
+      "title": "Observation Frame Id",
+      "type": "string"
+    },
+    "observation_frame_ref": {
+      "title": "Observation Frame Ref",
+      "type": "string"
+    },
+    "result_authority_basis_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Result Authority Basis Refs",
+      "type": "array"
+    },
+    "result_authority_validity": {
+      "enum": [
+        "valid",
+        "deferred",
+        "invalid"
+      ],
+      "title": "Result Authority Validity",
+      "type": "string"
+    },
+    "result_import_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Import Hash"
+    },
+    "result_import_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Import Ref"
+    },
+    "result_import_status": {
+      "enum": [
+        "not_imported",
+        "deferred",
+        "official_imported",
+        "import_failed"
+      ],
+      "title": "Result Import Status",
+      "type": "string"
+    },
+    "result_import_ts": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Import Ts"
+    },
+    "result_source_kind": {
+      "enum": [
+        "local_shadow_only",
+        "official_imported",
+        "competition_posture_declared_no_official_scorecard",
+        "deferred_absent"
+      ],
+      "title": "Result Source Kind",
+      "type": "string"
+    },
+    "rollout_trace_id": {
+      "title": "Rollout Trace Id",
+      "type": "string"
+    },
+    "rollout_trace_ref": {
+      "title": "Rollout Trace Ref",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_arc_submission_execution_record@1",
+      "default": "adeu_arc_submission_execution_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scorecard_manifest_id": {
+      "title": "Scorecard Manifest Id",
+      "type": "string"
+    },
+    "scorecard_manifest_ref": {
+      "title": "Scorecard Manifest Ref",
+      "type": "string"
+    },
+    "session_ref": {
+      "title": "Session Ref",
+      "type": "string"
+    },
+    "settlement_posture_carry": {
+      "$ref": "#/$defs/ArcSubmissionSettlementPostureCarry"
+    },
+    "submission_authorization_basis_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Submission Authorization Basis Refs",
+      "type": "array"
+    },
+    "submission_authorization_source_kind": {
+      "enum": [
+        "local_shadow_only",
+        "official_imported",
+        "competition_posture_declared_no_official_scorecard",
+        "deferred_absent"
+      ],
+      "title": "Submission Authorization Source Kind",
+      "type": "string"
+    },
+    "submission_authorization_status": {
+      "enum": [
+        "not_authorized",
+        "deferred",
+        "authorized"
+      ],
+      "title": "Submission Authorization Status",
+      "type": "string"
+    },
+    "submission_authorization_validity": {
+      "enum": [
+        "valid",
+        "deferred",
+        "invalid"
+      ],
+      "title": "Submission Authorization Validity",
+      "type": "string"
+    },
+    "submission_execution_id": {
+      "title": "Submission Execution Id",
+      "type": "string"
+    },
+    "submission_execution_status": {
+      "enum": [
+        "not_submitted",
+        "submitted_pending_receipt",
+        "submitted_acknowledged",
+        "submission_failed"
+      ],
+      "title": "Submission Execution Status",
+      "type": "string"
+    },
+    "submission_payload_hash": {
+      "title": "Submission Payload Hash",
+      "type": "string"
+    },
+    "submission_payload_ref": {
+      "title": "Submission Payload Ref",
+      "type": "string"
+    },
+    "submission_receipt_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Submission Receipt Hash"
+    },
+    "submission_receipt_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Submission Receipt Ref"
+    },
+    "submission_receipt_ts": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Submission Receipt Ts"
+    },
+    "submission_request_ts": {
+      "minimum": 0,
+      "title": "Submission Request Ts",
+      "type": "integer"
+    },
+    "submission_result_posture": {
+      "title": "Submission Result Posture",
+      "type": "string"
+    },
+    "submission_result_summary": {
+      "title": "Submission Result Summary",
+      "type": "string"
+    },
+    "submission_transport_profile": {
+      "title": "Submission Transport Profile",
+      "type": "string"
+    },
+    "task_packet_id": {
+      "title": "Task Packet Id",
+      "type": "string"
+    },
+    "task_packet_ref": {
+      "title": "Task Packet Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "submission_execution_id",
+    "task_packet_id",
+    "task_packet_ref",
+    "observation_frame_id",
+    "observation_frame_ref",
+    "hypothesis_frame_id",
+    "hypothesis_frame_ref",
+    "action_proposal_id",
+    "action_proposal_ref",
+    "rollout_trace_id",
+    "rollout_trace_ref",
+    "local_eval_record_id",
+    "local_eval_record_ref",
+    "scorecard_manifest_id",
+    "scorecard_manifest_ref",
+    "environment_ref",
+    "session_ref",
+    "competition_scope_ref",
+    "model_id",
+    "run_id",
+    "submission_authorization_status",
+    "submission_authorization_source_kind",
+    "submission_authorization_validity",
+    "submission_authorization_basis_refs",
+    "submission_execution_status",
+    "submission_transport_profile",
+    "external_request_ref",
+    "submission_payload_ref",
+    "submission_payload_hash",
+    "submission_request_ts",
+    "result_import_status",
+    "result_source_kind",
+    "result_authority_validity",
+    "result_authority_basis_refs",
+    "lifecycle_transition_matrix_ref",
+    "submission_result_posture",
+    "submission_result_summary",
+    "bounded_orchestration_constraint_register",
+    "settlement_posture_carry",
+    "deferred_authority_assertions",
+    "evidence_refs"
+  ],
+  "title": "AdeuArcSubmissionExecutionRecord",
+  "type": "object"
+}

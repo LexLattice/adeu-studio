@@ -11,6 +11,7 @@ from adeu_arc_agi import (
     ADEU_ARC_OBSERVATION_FRAME_SCHEMA,
     ADEU_ARC_ROLLOUT_TRACE_SCHEMA,
     ADEU_ARC_SCORECARD_MANIFEST_SCHEMA,
+    ADEU_ARC_SUBMISSION_EXECUTION_RECORD_SCHEMA,
     ADEU_ARC_TASK_PACKET_SCHEMA,
 )
 from adeu_arc_agi.export_schema import main as export_schema_main
@@ -49,6 +50,14 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
         ADEU_ARC_SCORECARD_MANIFEST_SCHEMA: (
             root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_scorecard_manifest.v1.json",
             root / "spec" / "adeu_arc_scorecard_manifest.schema.json",
+        ),
+        ADEU_ARC_SUBMISSION_EXECUTION_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_arc_agi"
+            / "schema"
+            / "adeu_arc_submission_execution_record.v1.json",
+            root / "spec" / "adeu_arc_submission_execution_record.schema.json",
         ),
     }
 
