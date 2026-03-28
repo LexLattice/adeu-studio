@@ -9,6 +9,7 @@ from adeu_arc_agi import (
     ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA,
     ADEU_ARC_LOCAL_EVAL_RECORD_SCHEMA,
     ADEU_ARC_OBSERVATION_FRAME_SCHEMA,
+    ADEU_ARC_PUZZLE_INPUT_BUNDLE_SCHEMA,
     ADEU_ARC_ROLLOUT_TRACE_SCHEMA,
     ADEU_ARC_SCORECARD_MANIFEST_SCHEMA,
     ADEU_ARC_SUBMISSION_EXECUTION_RECORD_SCHEMA,
@@ -50,6 +51,10 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
         ADEU_ARC_SCORECARD_MANIFEST_SCHEMA: (
             root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_scorecard_manifest.v1.json",
             root / "spec" / "adeu_arc_scorecard_manifest.schema.json",
+        ),
+        ADEU_ARC_PUZZLE_INPUT_BUNDLE_SCHEMA: (
+            root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_puzzle_input_bundle.v1.json",
+            root / "spec" / "adeu_arc_puzzle_input_bundle.schema.json",
         ),
         ADEU_ARC_SUBMISSION_EXECUTION_RECORD_SCHEMA: (
             root

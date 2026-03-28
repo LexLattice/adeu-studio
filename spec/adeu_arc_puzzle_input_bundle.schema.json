@@ -1,0 +1,188 @@
+{
+  "$defs": {
+    "AdeuArcPuzzleInputEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "normalized_payload": {
+          "additionalProperties": true,
+          "title": "Normalized Payload",
+          "type": "object"
+        },
+        "normalized_payload_hash": {
+          "title": "Normalized Payload Hash",
+          "type": "string"
+        },
+        "normalized_payload_ref": {
+          "title": "Normalized Payload Ref",
+          "type": "string"
+        },
+        "provenance_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Provenance Refs",
+          "type": "array"
+        },
+        "puzzle_id": {
+          "title": "Puzzle Id",
+          "type": "string"
+        },
+        "puzzle_identity_hash": {
+          "title": "Puzzle Identity Hash",
+          "type": "string"
+        },
+        "puzzle_input_id": {
+          "title": "Puzzle Input Id",
+          "type": "string"
+        },
+        "source_kind": {
+          "enum": [
+            "official_toolkit_local_export",
+            "repo_frozen_fixture",
+            "approved_imported_local_copy"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "puzzle_input_id",
+        "puzzle_id",
+        "source_kind",
+        "source_ref",
+        "normalized_payload_ref",
+        "normalized_payload",
+        "normalized_payload_hash",
+        "puzzle_identity_hash",
+        "provenance_refs"
+      ],
+      "title": "AdeuArcPuzzleInputEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bundle_identity_hash": {
+      "title": "Bundle Identity Hash",
+      "type": "string"
+    },
+    "canonical_puzzle_order": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Canonical Puzzle Order",
+      "type": "array"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "no_retrospective_swap_posture": {
+      "default": true,
+      "title": "No Retrospective Swap Posture",
+      "type": "boolean"
+    },
+    "provenance_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Provenance Refs",
+      "type": "array"
+    },
+    "puzzle_entries": {
+      "items": {
+        "$ref": "#/$defs/AdeuArcPuzzleInputEntry"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Puzzle Entries",
+      "type": "array"
+    },
+    "puzzle_input_bundle_id": {
+      "title": "Puzzle Input Bundle Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_arc_puzzle_input_bundle@1",
+      "default": "adeu_arc_puzzle_input_bundle@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_puzzle_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Selected Puzzle Ids",
+      "type": "array"
+    },
+    "selection_basis": {
+      "title": "Selection Basis",
+      "type": "string"
+    },
+    "selection_register_hash": {
+      "title": "Selection Register Hash",
+      "type": "string"
+    },
+    "selection_register_id": {
+      "title": "Selection Register Id",
+      "type": "string"
+    },
+    "selection_register_ref": {
+      "title": "Selection Register Ref",
+      "type": "string"
+    },
+    "source_precedence_policy": {
+      "items": {
+        "enum": [
+          "official_toolkit_local_export",
+          "repo_frozen_fixture",
+          "approved_imported_local_copy"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Precedence Policy",
+      "type": "array"
+    },
+    "source_profile": {
+      "title": "Source Profile",
+      "type": "string"
+    },
+    "summary_non_authoritative": {
+      "default": true,
+      "title": "Summary Non Authoritative",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "puzzle_input_bundle_id",
+    "selection_register_id",
+    "selection_register_ref",
+    "selection_register_hash",
+    "selection_basis",
+    "source_profile",
+    "source_precedence_policy",
+    "selected_puzzle_ids",
+    "canonical_puzzle_order",
+    "puzzle_entries",
+    "bundle_identity_hash",
+    "provenance_refs",
+    "evidence_refs"
+  ],
+  "title": "AdeuArcPuzzleInputBundle",
+  "type": "object"
+}

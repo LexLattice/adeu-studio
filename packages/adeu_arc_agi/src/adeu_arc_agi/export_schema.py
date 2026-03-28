@@ -21,6 +21,10 @@ from .observation_hypothesis import (
     AdeuArcHypothesisFrame,
     AdeuArcObservationFrame,
 )
+from .puzzle_input_bundle import (
+    ADEU_ARC_PUZZLE_INPUT_BUNDLE_SCHEMA,
+    AdeuArcPuzzleInputBundle,
+)
 from .scorecard import (
     ADEU_ARC_SCORECARD_MANIFEST_SCHEMA,
     AdeuArcScorecardManifest,
@@ -74,6 +78,12 @@ def main() -> None:
         raise ValueError(
             "exported schema marker drift for adeu_arc_submission_execution_record@1"
         )
+    puzzle_input_bundle_schema = AdeuArcPuzzleInputBundle.model_json_schema(by_alias=True)
+    if (
+        puzzle_input_bundle_schema["properties"]["schema"]["const"]
+        != ADEU_ARC_PUZZLE_INPUT_BUNDLE_SCHEMA
+    ):
+        raise ValueError("exported schema marker drift for adeu_arc_puzzle_input_bundle@1")
 
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
@@ -102,6 +112,10 @@ def main() -> None:
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_scorecard_manifest.v1.json",
         scorecard_manifest_schema,
+    )
+    _write_schema(
+        root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_puzzle_input_bundle.v1.json",
+        puzzle_input_bundle_schema,
     )
     _write_schema(
         root
@@ -135,6 +149,10 @@ def main() -> None:
     _write_schema(
         root / "spec" / "adeu_arc_scorecard_manifest.schema.json",
         scorecard_manifest_schema,
+    )
+    _write_schema(
+        root / "spec" / "adeu_arc_puzzle_input_bundle.schema.json",
+        puzzle_input_bundle_schema,
     )
     _write_schema(
         root / "spec" / "adeu_arc_submission_execution_record.schema.json",
