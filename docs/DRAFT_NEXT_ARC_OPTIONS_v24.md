@@ -1,7 +1,7 @@
 # Draft Next Arc Options v24
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v23.md`, updated after
-`vNext+92` closeout and released `V42-D` ARC local-eval baseline on `main`.
+`vNext+93` closeout and released `V42-E` ARC scorecard baseline on `main`.
 
 This draft moves from "bounded repo-grounded practical analysis is complete" to the next
 family-selection question:
@@ -31,7 +31,7 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+92` is the current baseline implementation state.
+- `vNext+93` is the current baseline implementation state.
 - `V42-A` is now closed on `main` at its intentionally bounded scope:
   - official local ARC toolkit adapter grounding;
   - canonical `adeu_arc_task_packet@1`;
@@ -65,6 +65,17 @@ Interpretive doctrine for this planning surface:
   - fail-closed rejection of authority leakage, leaderboard overclaim, and local
     trajectory necessity laundering;
   - no scorecard/replay/competition widening.
+- `V42-E` is now closed on `main` at its intentionally bounded scope:
+  - canonical `adeu_arc_scorecard_manifest@1` over released
+    `V42-A`/`V42-B`/`V42-C`/`V42-D` lineage;
+  - explicit scorecard source-kind discrimination and decomposed authority posture;
+  - explicit competition-mode posture enums and local-vs-external replay authority
+    separation;
+  - explicit environment/session/competition-scope identity carry-through;
+  - fail-closed rejection of local-as-official authority laundering, leaderboard
+    overclaim, settlement-posture erasure, and deferred-surface leakage;
+  - no direct online submission execution, tournament orchestration, or API/web operator
+    widening.
 - The released practical-analysis substrate now includes:
   - canonical analysis request, settlement, observation, intended, alignment, and run
     manifest artifacts;
@@ -85,30 +96,28 @@ The missing layer is no longer first-contact adapter grounding.
 
 `V42-A` established that baseline.
 
-The missing layer now is scorecard/replay and competition-mode integration over the
-released local evaluation baseline, specifically:
+The missing layer now is post-scorecard execution/sequencing over the released
+scorecard baseline, specifically:
 
 - consume the official ARC toolkit as the environment authority rather than replacing
   it;
-- keep released decomposition/action lineage surfaces separate from scorecard authority
-  and competition/deployment posture;
-- preserve explicit local-vs-online authority boundaries so local evaluation does not
-  silently mint scorecard authority;
-- carry released local evaluation lineage into scorecard/replay seams without collapsing
+- preserve explicit local-vs-online authority boundaries so scorecard posture does not
+  silently mint direct submission authority;
+- carry released scorecard/replay lineage into execution seams without collapsing
   settlement/entitlement posture;
-- widen into online scorecard and competition posture only after local benchmark/eval
-  doctrine is already explicit and machine-checkable.
+- decide whether direct submission execution, tournament orchestration, or operator
+  surfaces should be selected next, and in what bounded order.
 
 Today the repo still lacks a released way to:
 
-- release a bounded scorecard/replay manifest family that is lineage-bound to released
-  local-eval records;
-- express competition-mode posture and online authority boundaries without laundering
-  local evaluation success into challenge-readiness claims;
-- bind scorecard/replay artifacts back to released local-eval evidence while preserving
-  fail-closed control-plane-honesty posture;
-- widen into scorecard/competition seams without collapsing explicit deontic and
-  settlement discipline.
+- execute direct online submission under explicit authority import rules over released
+  scorecard posture;
+- model bounded tournament-orchestration posture without collapsing fail-closed authority
+  boundaries;
+- add operator/API/web surfaces for competition interaction without bypassing typed
+  lineage and settlement carry;
+- choose a post-`V42-E` widening seam without conflating deployment execution with
+  scorecard posture declaration.
 
 ## Recommended Family
 
@@ -126,11 +135,11 @@ Today the repo still lacks a released way to:
 - Recommended decomposition reference:
   - `docs/DRAFT_V42_ARC_AGI_PARTICIPATION_DECOMPOSITION_v0.md`
 - Recommended next path:
-  - `V42-E`
+  - `V42-F`
 - Recommended next concrete arc:
-  - `vNext+93`
+  - `vNext+94`
 - Default path selection:
-  - select `V42-E` as the next default candidate
+  - select `V42-F` as the next default candidate
 
 ## Closed Earlier Paths
 
@@ -241,7 +250,8 @@ The current recommended path ladder is:
 | `V42-B` | observed frame extraction + hypothesis register | `adeu_arc_observation_frame@1` and `adeu_arc_hypothesis_frame@1` | closed_on_main |
 | `V42-C` | action proposal + rollout trace | `adeu_arc_action_proposal@1` and `adeu_arc_rollout_trace@1` | closed_on_main |
 | `V42-D` | local benchmark runner / eval discipline | deterministic local ARC run/benchmark surface | closed_on_main |
-| `V42-E` | online scorecard / replay integration | `adeu_arc_scorecard_manifest@1` and competition-mode adapter | deferred_to_later_family |
+| `V42-E` | online scorecard / replay integration | `adeu_arc_scorecard_manifest@1` and competition-mode adapter | closed_on_main |
+| `V42-F` | direct submission execution / bounded orchestration selection | submission execution guardrails and bounded orchestration posture | deferred_to_later_family |
 
 Additional possible widenings remain:
 
@@ -266,41 +276,43 @@ Additional possible widenings remain:
 - It respects the official ARC recommendation to develop locally first before leaning
   on online scorecards or competition submission.
 
-## Recommended Next Path (`V42-E`)
+## Recommended Next Path (`V42-F`)
 
-Implement the first explicit scorecard/replay and competition-mode widening over the
-released `V42-D` local-eval baseline.
+Implement the first execution-focused widening over the released `V42-E` scorecard
+baseline.
 
-`V42-E` should introduce:
+`V42-F` should introduce:
 
-- one canonical bounded scorecard/replay manifest over released
-  `V42-A`/`V42-B`/`V42-C`/`V42-D` lineage;
-- explicit online-versus-local authority posture and deontic boundary carry-through;
-- explicit replay-lineage binding from scorecard surfaces back to released local-eval
-  evidence;
-- fail-closed rejection of leaderboard/competition overclaim when scorecard authority
-  posture is not explicitly satisfied.
+- one bounded direct-submission execution posture over released
+  `V42-A`/`V42-B`/`V42-C`/`V42-D`/`V42-E` lineage;
+- explicit authority-import and admissibility checks for submission execution;
+- explicit separation between submission execution, tournament orchestration posture, and
+  operator-surface posture;
+- fail-closed rejection of local or shadow scorecard evidence being treated as official
+  execution authority.
 
-## Path Boundary (`V42-E`)
+## Path Boundary (`V42-F`)
 
-`V42-E` should stay bounded to:
+`V42-F` should stay bounded to:
 
-- scorecard/replay and competition-mode posture over released `V42-D` artifacts only;
-- explicit online authority posture without reopening local-eval semantics;
-- deterministic fixture/evidence posture for scorecard lineage boundaries;
-- no product UI, API operator workbench, or generalized tournament orchestration seams.
+- direct submission execution posture over released `V42-E` artifacts only;
+- explicit authority import and settlement carry without reopening released
+  decomposition/eval/scorecard semantics;
+- deterministic fixture/evidence posture for execution authority boundaries;
+- no generalized tournament orchestration, product UI, or broad API operator workbench
+  seams.
 
 It should not attempt:
 
 - large search or multi-agent swarm infrastructure;
-- full benchmark tournament orchestration beyond bounded scorecard/replay posture;
+- full benchmark tournament orchestration beyond bounded execution posture;
 - web or API workbench surfaces;
 - generic multi-benchmark abstraction;
-- unrelated reopening of `V42-A` through `V42-D` semantics.
+- unrelated reopening of `V42-A` through `V42-E` semantics.
 
-## Follow-On Path After `V42-E`
+## Follow-On Path After `V42-F`
 
-If `V42-E` lands cleanly, subsequent widening should be explicitly selected rather than
+If `V42-F` lands cleanly, subsequent widening should be explicitly selected rather than
 assumed by default.
 
 Possible later candidates (not selected yet):
@@ -311,11 +323,11 @@ Possible later candidates (not selected yet):
 - multi-agent orchestration or tournament-scale coordination;
 - UI/workbench productization.
 
-Before any post-`V42-E` widening is locked, the family decomposition should keep three
+Before any post-`V42-F` widening is locked, the family decomposition should keep three
 rules explicit:
 
-- released scorecard/replay outputs may constrain but not mint claims outside explicit
-  online authority posture;
+- released scorecard/replay and submission artifacts may constrain but not mint claims
+  outside explicit authority posture;
 - successful scorecard trajectories may not be laundered into universal necessity or
   blanket model-agnostic uplift claims;
 - settlement/entitlement posture must remain explicit when widening from scorecard seams
@@ -349,7 +361,7 @@ The active decomposition reference for the current family is now:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md",
-  "baseline_arc": "vNext+92",
+  "baseline_arc": "vNext+93",
   "closed_prior_family": "V41",
   "closed_prior_paths": [
     "V41-A",
@@ -360,15 +372,16 @@ The active decomposition reference for the current family is now:
     "V41-F"
   ],
   "active_family": "V42",
-  "active_family_status": "in_progress_with_v42a_v42b_v42c_v42d_closed_on_main",
+  "active_family_status": "in_progress_with_v42a_v42b_v42c_v42d_v42e_closed_on_main",
   "closed_current_family_paths": [
     "V42-A",
     "V42-B",
     "V42-C",
-    "V42-D"
+    "V42-D",
+    "V42-E"
   ],
-  "default_next_arc_candidate": "V42-E",
-  "default_next_concrete_arc_candidate": "vNext+93",
+  "default_next_arc_candidate": "V42-F",
+  "default_next_concrete_arc_candidate": "vNext+94",
   "family_architecture_doc": "docs/ARCHITECTURE_ADEU_ARC_AGI_v0.md",
   "family_decomposition_doc": "docs/DRAFT_V42_ARC_AGI_PARTICIPATION_DECOMPOSITION_v0.md",
   "challenge_reference": "ARC-AGI-3",
@@ -383,6 +396,7 @@ The active decomposition reference for the current family is now:
   "v42b_observation_hypothesis_baseline_closed_on_main": true,
   "v42c_action_rollout_baseline_closed_on_main": true,
   "v42d_local_eval_baseline_closed_on_main": true,
+  "v42e_scorecard_baseline_closed_on_main": true,
   "task_packet_artifact": "adeu_arc_task_packet@1",
   "observation_artifact": "adeu_arc_observation_frame@1",
   "hypothesis_artifact": "adeu_arc_hypothesis_frame@1",

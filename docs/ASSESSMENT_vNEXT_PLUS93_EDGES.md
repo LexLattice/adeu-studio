@@ -1,6 +1,6 @@
 # Assessment vNext+93 Edges
 
-Status: planning-edge assessment for `V42-E`.
+Status: post-closeout edge assessment for `V42-E`.
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,77 +8,82 @@ Status: planning-edge assessment for `V42-E`.
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS93_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
+  "authoritative_scope": "v93_closeout_edge_assessment",
   "required_in_decision": true
 }
 ```
 
 ## Open Edges
 
-### Edge 1: Local-To-Scorecard Authority Leakage
+### Edge 1: Local-To-Official Scorecard Authority Laundering
 
 - Risk:
-  local evaluation success could be treated as scorecard authority without explicit
-  source kind, posture, and basis refs.
+  local or shadow scorecard outputs could be represented as official scorecard
+  authority without explicit imported basis.
 - Response:
-  require explicit `scorecard_source_kind`, decomposed authority posture fields, and
-  `authority_basis_refs`; fail closed otherwise.
+  require explicit `scorecard_source_kind` discrimination, decomposed authority posture,
+  and valid `authority_basis_refs` for `official_imported` posture.
 
-### Edge 2: Replay-Lineage Gaps
+### Edge 2: Authority Surface Compression
 
 - Risk:
-  scorecard outputs could claim replay authority while missing deterministic lineage, or
-  conflating internal local replay with external replay authority.
+  scorecard authority could collapse into summary-only prose that bypasses typed
+  machine checks.
 - Response:
-  require explicit local replay lineage refs, separate external replay authority refs,
-  and deterministic replay validation.
+  keep `scorecard_outcome_summary` descriptive-only and enforce authority from typed
+  fields (`authority_scope`, `authority_source_kind`, `authority_validity`,
+  `authority_limitations`, `authority_basis_refs`).
 
-### Edge 3: Competition-Mode Ambiguity
+### Edge 3: Competition-Posture Ambiguity
 
 - Risk:
-  competition posture could be implied by naming instead of explicit typed status.
+  competition semantics could be implied by naming rather than explicit bounded states.
 - Response:
-  require explicit enum-bounded `competition_mode_posture` values and separate deferred
-  assertions.
+  require enum-bounded `competition_mode_posture` and fail closed when
+  `officially_exercised` is not supported by official imported authority.
 
-### Edge 4: Summary-Only Authority Claims
+### Edge 4: Replay Authority Conflation
 
 - Risk:
-  scorecard summaries could become hidden authority surfaces.
+  local replay lineage could be conflated with external replay authority, masking source
+  boundaries.
 - Response:
-  make summaries descriptive-only; authority must come from source-kind and typed
-  authority registers.
+  keep `local_replay_lineage_refs` and `external_replay_authority_refs` explicit and
+  non-overlapping.
 
-### Edge 5: Settlement-Posture Erasure
+### Edge 5: Environment/Session Identity Drift
 
 - Risk:
-  scorecard outputs could present finality while dropping ambiguity/claim posture carry.
+  scorecard authority interpretation could lose environment/session/scope identity
+  anchors.
 - Response:
-  require explicit `settlement_posture_carry` with fail-closed validation.
+  require explicit `environment_ref`, `session_ref`, and `competition_scope_ref`
+  carry-through in scorecard artifacts.
 
-### Edge 6: Leaderboard Overclaim
+### Edge 6: Settlement-Posture Erasure
 
 - Risk:
-  bounded local/scorecard artifacts could be over-promoted into leaderboard-readiness
-  claims.
+  scorecard outputs could claim finality while dropping ambiguity/claim-posture carry.
 - Response:
-  reject leaderboard-readiness or competition-success claims in `V42-E`.
+  require explicit settlement carry and reject erasure fixtures.
 
-### Edge 7: Retroactive Necessity Laundering
+### Edge 7: Leaderboard/Competition Overclaim From Local-Only Evidence
 
 - Risk:
-  one strong scorecard trajectory could be interpreted as universal task-rule necessity.
+  bounded local evidence could be over-promoted to leaderboard-readiness or competition
+  success authority.
 - Response:
-  reject necessity overclaim without explicit entitlement evidence.
+  reject overclaim terms and local-as-official laundering in non-official source kinds.
 
-### Edge 8: Deployment Surface Creep
+### Edge 8: Post-Hoc Necessity Laundering
 
 - Risk:
-  direct online submission, API/web routes, or tournament orchestration could be mixed
-  into the scorecard seam.
+  one successful scorecard trajectory could be interpreted as universal task-rule
+  necessity.
 - Response:
-  keep `V42-E` bounded to scorecard/replay and competition-posture surfaces only.
+  reject necessity-laundering language and preserve explicit settlement/claim posture.
 
 ### Edge 9: Upstream Contract Drift
 
@@ -86,29 +91,23 @@ Status: planning-edge assessment for `V42-E`.
   scorecard implementation could silently reinterpret released `V42-A` through `V42-D`
   semantics.
 - Response:
-  require strict lineage consumption and prohibit upstream contract redefinition.
+  require full lineage binding to released task/observation/hypothesis/action/rollout/
+  local-eval artifacts and fail closed on mismatches.
 
-### Edge 10: Model-Sensitivity Collapse
-
-- Risk:
-  model/run identity might be dropped at scorecard level, obscuring empirical
-  model-class behavior.
-- Response:
-  require explicit model/run identity carry-through in scorecard artifacts.
-
-### Edge 11: Authority-Class Matrix Under-Specified
+### Edge 10: Deferred-Surface Creep
 
 - Risk:
-  the artifact could remain ambiguous if only one authority class is represented in
-  fixtures.
+  direct online submission execution, benchmark-tournament orchestration, or API/web
+  operator surfaces could leak into the scorecard seam.
 - Response:
-  require explicit authority-class fixture coverage:
-  - `local_shadow_only`
-  - `competition_posture_declared_no_official_scorecard`
-  - `official_imported`
+  keep `V42-E` bounded to scorecard/replay and competition-posture representation only;
+  reject deferred-surface leakage fixtures.
 
 ## Current Judgment
 
-- `V42-E` is the correct next slice because `V42-D` is closed on `main` and the missing
-  seam is now scorecard/replay authority plus competition-posture boundary control over
-  released local-eval lineage.
+- `V42-E` was the correct next slice because `V42-D` closed local evaluation posture and
+  the missing seam was scorecard/replay authority boundaries over released local-eval
+  lineage.
+- `V42-E` closed safely on `main` because source-kind discrimination, authority posture
+  decomposition, competition-posture enum bounds, replay-authority separation, and
+  anti-overclaim rejection all shipped as machine-checkable fail-closed surfaces.
