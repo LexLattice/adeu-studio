@@ -92,7 +92,8 @@ def _normalize_for_term_match(value: str) -> str:
 def _assert_no_forbidden_terms(*, value: str, field_name: str, terms: tuple[str, ...]) -> None:
     normalized = _normalize_for_term_match(value)
     for term in terms:
-        if term in normalized:
+        normalized_term = _normalize_for_term_match(term)
+        if normalized_term in normalized:
             raise ValueError(f"{field_name} may not contain forbidden term '{term}'")
 
 
@@ -329,11 +330,6 @@ class AdeuArcScorecardManifest(BaseModel):
                     "official_scorecard_outcome_metrics requires scorecard_source_kind="
                     "official_imported"
                 )
-            if self.competition_mode_posture == "officially_exercised":
-                raise ValueError(
-                    "competition_mode_posture=officially_exercised requires official_imported "
-                    "scorecard source"
-                )
 
         if (
             self.competition_mode_posture == "officially_exercised"
@@ -455,14 +451,24 @@ def derive_v42e_arc_scorecard_manifest(
         raise ValueError("rollout_trace must bind to released task_packet_id")
     if local_eval_record["task_packet_id"] != task_packet_id:
         raise ValueError("local_eval_record must bind to released task_packet_id")
+    if local_eval_record["task_packet_ref"] != task_packet_ref:
+        raise ValueError("local_eval_record must preserve released task_packet_ref")
     if local_eval_record["observation_frame_id"] != observation_frame["observation_frame_id"]:
         raise ValueError("local_eval_record must preserve released observation_frame_id")
+    if local_eval_record["observation_frame_ref"] != observation_frame_ref:
+        raise ValueError("local_eval_record must preserve released observation_frame_ref")
     if local_eval_record["hypothesis_frame_id"] != hypothesis_frame["hypothesis_frame_id"]:
         raise ValueError("local_eval_record must preserve released hypothesis_frame_id")
+    if local_eval_record["hypothesis_frame_ref"] != hypothesis_frame_ref:
+        raise ValueError("local_eval_record must preserve released hypothesis_frame_ref")
     if local_eval_record["action_proposal_id"] != action_proposal["action_proposal_id"]:
         raise ValueError("local_eval_record must preserve released action_proposal_id")
+    if local_eval_record["action_proposal_ref"] != action_proposal_ref:
+        raise ValueError("local_eval_record must preserve released action_proposal_ref")
     if local_eval_record["rollout_trace_id"] != rollout_trace["rollout_trace_id"]:
         raise ValueError("local_eval_record must preserve released rollout_trace_id")
+    if local_eval_record["rollout_trace_ref"] != rollout_trace_ref:
+        raise ValueError("local_eval_record must preserve released rollout_trace_ref")
     if local_eval_record["model_id"] != model_id:
         raise ValueError("model_id must match released local_eval_record model lineage")
     if local_eval_record["run_id"] != run_id:
