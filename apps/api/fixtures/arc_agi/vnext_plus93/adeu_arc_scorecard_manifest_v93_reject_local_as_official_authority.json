@@ -1,0 +1,97 @@
+{
+  "action_proposal_id": "arc_act_5cb07a5bee5f9009d6174cc501bb2cff",
+  "action_proposal_ref": "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_action_proposal_v91_reference.json",
+  "authority_basis_refs": [
+    "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_reference.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS93.md#v42e_arc_scorecard_competition_contract@1"
+  ],
+  "authority_limitations": "local and imported scorecard posture only; no submission or tournament authority in this slice",
+  "authority_posture": "bounded_scorecard_posture_over_released_local_eval_lineage",
+  "authority_scope": "local_only",
+  "authority_source_kind": "local_shadow_only",
+  "authority_validity": "provisional",
+  "competition_mode_posture": "declared_deferred",
+  "competition_scope_ref": "arc_agi3_public_practice_scope",
+  "deferred_authority_assertions": [
+    "api_web_operator_surfaces_deferred",
+    "benchmark_tournament_orchestration_deferred",
+    "direct_online_submission_deferred",
+    "generalized_multi_benchmark_orchestration_deferred"
+  ],
+  "environment_ref": "official_arc_toolkit",
+  "evidence_refs": [
+    "evidence:local_eval_v92_reference_chain",
+    "evidence:scorecard_authority_basis_refs",
+    "evidence:settlement_posture_carry"
+  ],
+  "external_replay_authority_refs": [],
+  "hypothesis_frame_id": "arc_hyp_f1911743c3511e2278fba08d41c2f88f",
+  "hypothesis_frame_ref": "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_hypothesis_frame_v90_reference.json",
+  "local_eval_record_id": "arc_eval_feda8ef1e3bd4bc57fcd025deded1ea9",
+  "local_eval_record_ref": "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_reference.json",
+  "local_replay_lineage_refs": [
+    "apps/api/fixtures/arc_agi/vnext_plus89/adeu_arc_task_packet_v89_reference.json",
+    "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_hypothesis_frame_v90_reference.json",
+    "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_observation_frame_v90_reference.json",
+    "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_action_proposal_v91_reference.json",
+    "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_rollout_trace_v91_reference.json",
+    "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_reference.json"
+  ],
+  "model_id": "gpt-5.4",
+  "observation_frame_id": "arc_obs_ba2b85d437f9804244b69c8200feb849",
+  "observation_frame_ref": "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_observation_frame_v90_reference.json",
+  "official_scorecard_outcome_metrics": [
+    {
+      "evidence_refs": [
+        "evidence:local_eval_v92_reference_chain"
+      ],
+      "metric_key": "official_scorecard_points",
+      "metric_value": 1.0,
+      "status": "pass"
+    }
+  ],
+  "rollout_trace_id": "arc_roll_3304ff47df20c2ab86f95d74282e14ea",
+  "rollout_trace_ref": "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_rollout_trace_v91_reference.json",
+  "run_id": "vnext_plus92_ref_run_001",
+  "schema": "adeu_arc_scorecard_manifest@1",
+  "scorecard_facing_metrics": [
+    {
+      "evidence_refs": [
+        "evidence:local_eval_control_plane_adherence_rate"
+      ],
+      "metric_key": "control_plane_adherence_rate",
+      "metric_value": 1.0,
+      "status": "pass"
+    },
+    {
+      "evidence_refs": [
+        "evidence:released_lineage_ref_chain_complete"
+      ],
+      "metric_key": "lineage_binding_integrity",
+      "metric_value": 1.0,
+      "status": "pass"
+    },
+    {
+      "evidence_refs": [
+        "evidence:local_eval_task_success_metric"
+      ],
+      "metric_key": "task_success_rate",
+      "metric_value": 1.0,
+      "status": "pass"
+    }
+  ],
+  "scorecard_manifest_id": "arc_score_d255f8eccecc559dc7d12dbf7b957692",
+  "scorecard_outcome_summary": "scorecard-facing posture recorded over released lineage without universal claims",
+  "scorecard_profile": "v42e_scorecard_posture_baseline",
+  "scorecard_scope": "single_run_scorecard_posture",
+  "scorecard_source_kind": "local_shadow_only",
+  "session_ref": "toolkit://local/arcagi3/session/sample_session_001",
+  "settlement_posture_carry": {
+    "ambiguity_posture_preserved": true,
+    "claim_posture_preserved": true,
+    "necessity_laundering_detected": false,
+    "summary": "settlement posture is preserved from released decomposition through scorecard posture"
+  },
+  "task_packet_id": "arc_task_8d3ab27bba2ea851b09d0ff57e13da2c",
+  "task_packet_ref": "apps/api/fixtures/arc_agi/vnext_plus89/adeu_arc_task_packet_v89_reference.json"
+}

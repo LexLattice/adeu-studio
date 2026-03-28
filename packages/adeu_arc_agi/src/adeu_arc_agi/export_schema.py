@@ -21,6 +21,10 @@ from .observation_hypothesis import (
     AdeuArcHypothesisFrame,
     AdeuArcObservationFrame,
 )
+from .scorecard import (
+    ADEU_ARC_SCORECARD_MANIFEST_SCHEMA,
+    AdeuArcScorecardManifest,
+)
 from .task_packet import ADEU_ARC_TASK_PACKET_SCHEMA, AdeuArcTaskPacket
 
 
@@ -52,6 +56,12 @@ def main() -> None:
         != ADEU_ARC_LOCAL_EVAL_RECORD_SCHEMA
     ):
         raise ValueError("exported schema marker drift for adeu_arc_local_eval_record@1")
+    scorecard_manifest_schema = AdeuArcScorecardManifest.model_json_schema(by_alias=True)
+    if (
+        scorecard_manifest_schema["properties"]["schema"]["const"]
+        != ADEU_ARC_SCORECARD_MANIFEST_SCHEMA
+    ):
+        raise ValueError("exported schema marker drift for adeu_arc_scorecard_manifest@1")
 
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
@@ -77,6 +87,10 @@ def main() -> None:
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_local_eval_record.v1.json",
         local_eval_record_schema,
     )
+    _write_schema(
+        root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_scorecard_manifest.v1.json",
+        scorecard_manifest_schema,
+    )
     _write_schema(root / "spec" / "adeu_arc_task_packet.schema.json", task_packet_schema)
     _write_schema(
         root / "spec" / "adeu_arc_observation_frame.schema.json",
@@ -97,6 +111,10 @@ def main() -> None:
     _write_schema(
         root / "spec" / "adeu_arc_local_eval_record.schema.json",
         local_eval_record_schema,
+    )
+    _write_schema(
+        root / "spec" / "adeu_arc_scorecard_manifest.schema.json",
+        scorecard_manifest_schema,
     )
 
 
