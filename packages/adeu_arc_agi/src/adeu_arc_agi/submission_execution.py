@@ -138,18 +138,14 @@ def _assert_identity_chain_binding(
     session_ref: str,
     competition_scope_ref: str,
 ) -> None:
-    required_tokens = (
-        external_request_ref,
-        environment_ref,
-        session_ref,
-        competition_scope_ref,
+    expected_chain = (
+        f"{external_request_ref}|{environment_ref}|{session_ref}|{competition_scope_ref}"
     )
-    for token in required_tokens:
-        if token not in ref_value:
-            raise ValueError(
-                f"{ref_field_name} must bind to the same request/environment/session/"
-                "competition identity chain"
-            )
+    if not ref_value.endswith(expected_chain):
+        raise ValueError(
+            f"{ref_field_name} must bind to the same request/environment/session/"
+            "competition identity chain"
+        )
 
 
 class ArcSubmissionSettlementPostureCarry(BaseModel):
@@ -493,11 +489,6 @@ class AdeuArcSubmissionExecutionRecord(BaseModel):
         if self.result_import_status in ("official_imported", "import_failed"):
             assert self.submission_receipt_ts is not None
             assert self.result_import_ts is not None
-            if self.submission_request_ts > self.submission_receipt_ts:
-                raise ValueError(
-                    "submission_request_ts may not exceed submission_receipt_ts for the same "
-                    "request chain"
-                )
             if self.submission_receipt_ts > self.result_import_ts:
                 raise ValueError(
                     "submission_receipt_ts may not exceed result_import_ts for the same request "
@@ -697,6 +688,10 @@ def derive_v42f_arc_submission_execution_record(
         if scorecard_manifest_ref not in result_authority_basis_refs:
             raise ValueError(
                 "result_authority_basis_refs must include released scorecard_manifest_ref"
+            )
+        if V42F_V94_CONTRACT_SOURCE not in result_authority_basis_refs:
+            raise ValueError(
+                "result_authority_basis_refs must include the released v42f contract source"
             )
 
     payload_without_id: dict[str, Any] = {
