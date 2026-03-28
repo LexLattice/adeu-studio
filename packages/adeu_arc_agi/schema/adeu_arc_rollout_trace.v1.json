@@ -1,0 +1,252 @@
+{
+  "$defs": {
+    "ArcExpectationOutcomeComparison": {
+      "additionalProperties": false,
+      "properties": {
+        "comparison_posture": {
+          "enum": [
+            "matched",
+            "partially_matched",
+            "mismatched",
+            "not_evaluated"
+          ],
+          "title": "Comparison Posture",
+          "type": "string"
+        },
+        "comparison_summary": {
+          "title": "Comparison Summary",
+          "type": "string"
+        },
+        "matched_by_hash": {
+          "default": true,
+          "title": "Matched By Hash",
+          "type": "boolean"
+        },
+        "proposal_expectation_surface_hash": {
+          "title": "Proposal Expectation Surface Hash",
+          "type": "string"
+        },
+        "unmet_expectation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unmet Expectation Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "comparison_posture",
+        "comparison_summary",
+        "unmet_expectation_refs",
+        "proposal_expectation_surface_hash"
+      ],
+      "title": "ArcExpectationOutcomeComparison",
+      "type": "object"
+    },
+    "ArcOutcomeHypothesisEffect": {
+      "additionalProperties": false,
+      "properties": {
+        "hypothesis_id": {
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "observed_effect": {
+          "enum": [
+            "strengthen",
+            "weaken",
+            "unchanged"
+          ],
+          "title": "Observed Effect",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "observed_effect",
+        "rationale"
+      ],
+      "title": "ArcOutcomeHypothesisEffect",
+      "type": "object"
+    },
+    "ArcRolloutStep": {
+      "additionalProperties": false,
+      "properties": {
+        "action_proposal_ref": {
+          "title": "Action Proposal Ref",
+          "type": "string"
+        },
+        "observed_outcome_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Observed Outcome Refs",
+          "type": "array"
+        },
+        "observed_outcome_summary": {
+          "title": "Observed Outcome Summary",
+          "type": "string"
+        },
+        "post_step_state_ref": {
+          "title": "Post Step State Ref",
+          "type": "string"
+        },
+        "pre_step_state_ref": {
+          "title": "Pre Step State Ref",
+          "type": "string"
+        },
+        "step_index": {
+          "minimum": 0,
+          "title": "Step Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "step_index",
+        "action_proposal_ref",
+        "pre_step_state_ref",
+        "post_step_state_ref",
+        "observed_outcome_refs",
+        "observed_outcome_summary"
+      ],
+      "title": "ArcRolloutStep",
+      "type": "object"
+    },
+    "ArcSettlementPostureCarry": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguity_posture_preserved": {
+          "default": true,
+          "title": "Ambiguity Posture Preserved",
+          "type": "boolean"
+        },
+        "claim_posture_preserved": {
+          "default": true,
+          "title": "Claim Posture Preserved",
+          "type": "boolean"
+        },
+        "necessity_laundering_detected": {
+          "default": false,
+          "title": "Necessity Laundering Detected",
+          "type": "boolean"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "summary"
+      ],
+      "title": "ArcSettlementPostureCarry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expectation_outcome_comparison": {
+      "$ref": "#/$defs/ArcExpectationOutcomeComparison"
+    },
+    "expectation_surface_hash": {
+      "title": "Expectation Surface Hash",
+      "type": "string"
+    },
+    "expectation_surface_ref": {
+      "title": "Expectation Surface Ref",
+      "type": "string"
+    },
+    "outcome_hypothesis_effects": {
+      "items": {
+        "$ref": "#/$defs/ArcOutcomeHypothesisEffect"
+      },
+      "title": "Outcome Hypothesis Effects",
+      "type": "array"
+    },
+    "post_step_state_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Post Step State Refs",
+      "type": "array"
+    },
+    "pre_step_state_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Pre Step State Refs",
+      "type": "array"
+    },
+    "rollout_steps": {
+      "items": {
+        "$ref": "#/$defs/ArcRolloutStep"
+      },
+      "minItems": 1,
+      "title": "Rollout Steps",
+      "type": "array"
+    },
+    "rollout_stop_reason": {
+      "enum": [
+        "none",
+        "deontic_blocked",
+        "deferred_pending_resolution",
+        "expectation_mismatch_stop",
+        "manual_stop"
+      ],
+      "title": "Rollout Stop Reason",
+      "type": "string"
+    },
+    "rollout_trace_id": {
+      "title": "Rollout Trace Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_arc_rollout_trace@1",
+      "default": "adeu_arc_rollout_trace@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "settlement_posture_carry": {
+      "$ref": "#/$defs/ArcSettlementPostureCarry"
+    },
+    "task_packet_id": {
+      "title": "Task Packet Id",
+      "type": "string"
+    },
+    "task_packet_ref": {
+      "title": "Task Packet Ref",
+      "type": "string"
+    },
+    "terminal_rollout_status": {
+      "enum": [
+        "completed",
+        "blocked",
+        "stopped"
+      ],
+      "title": "Terminal Rollout Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "rollout_trace_id",
+    "task_packet_id",
+    "task_packet_ref",
+    "rollout_steps",
+    "pre_step_state_refs",
+    "post_step_state_refs",
+    "terminal_rollout_status",
+    "rollout_stop_reason",
+    "outcome_hypothesis_effects",
+    "expectation_surface_ref",
+    "expectation_surface_hash",
+    "expectation_outcome_comparison",
+    "settlement_posture_carry"
+  ],
+  "title": "AdeuArcRolloutTrace",
+  "type": "object"
+}

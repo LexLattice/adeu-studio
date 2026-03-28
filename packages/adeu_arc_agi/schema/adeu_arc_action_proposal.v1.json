@@ -1,0 +1,319 @@
+{
+  "$defs": {
+    "ArcAlternativeActionRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "title": "Action Id",
+          "type": "string"
+        },
+        "action_kind": {
+          "title": "Action Kind",
+          "type": "string"
+        },
+        "deontic_class": {
+          "enum": [
+            "allowed",
+            "deferred",
+            "forbidden"
+          ],
+          "title": "Deontic Class",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action_id",
+        "action_kind",
+        "rationale",
+        "deontic_class"
+      ],
+      "title": "ArcAlternativeActionRecord",
+      "type": "object"
+    },
+    "ArcExpectedFalsificationCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "condition_id": {
+          "title": "Condition Id",
+          "type": "string"
+        },
+        "falsifies_hypothesis_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Falsifies Hypothesis Ids",
+          "type": "array"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "condition_id",
+        "summary",
+        "falsifies_hypothesis_ids"
+      ],
+      "title": "ArcExpectedFalsificationCondition",
+      "type": "object"
+    },
+    "ArcExpectedHypothesisEffect": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_effect": {
+          "enum": [
+            "strengthen",
+            "weaken",
+            "unchanged"
+          ],
+          "title": "Expected Effect",
+          "type": "string"
+        },
+        "hypothesis_id": {
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "expected_effect",
+        "rationale"
+      ],
+      "title": "ArcExpectedHypothesisEffect",
+      "type": "object"
+    },
+    "ArcExpectedStateDelta": {
+      "additionalProperties": false,
+      "properties": {
+        "delta_id": {
+          "title": "Delta Id",
+          "type": "string"
+        },
+        "expected_cell_ref_hash": {
+          "title": "Expected Cell Ref Hash",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "delta_id",
+        "summary",
+        "expected_cell_ref_hash"
+      ],
+      "title": "ArcExpectedStateDelta",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_proposal_id": {
+      "title": "Action Proposal Id",
+      "type": "string"
+    },
+    "alternative_action_register": {
+      "items": {
+        "$ref": "#/$defs/ArcAlternativeActionRecord"
+      },
+      "minItems": 1,
+      "title": "Alternative Action Register",
+      "type": "array"
+    },
+    "ambiguity_handling_basis": {
+      "title": "Ambiguity Handling Basis",
+      "type": "string"
+    },
+    "expectation_surface_hash": {
+      "title": "Expectation Surface Hash",
+      "type": "string"
+    },
+    "expected_ambiguity_effects": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Ambiguity Effects",
+      "type": "array"
+    },
+    "expected_falsification_conditions": {
+      "items": {
+        "$ref": "#/$defs/ArcExpectedFalsificationCondition"
+      },
+      "title": "Expected Falsification Conditions",
+      "type": "array"
+    },
+    "expected_hypothesis_effects": {
+      "items": {
+        "$ref": "#/$defs/ArcExpectedHypothesisEffect"
+      },
+      "title": "Expected Hypothesis Effects",
+      "type": "array"
+    },
+    "expected_outcome_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Expected Outcome Refs",
+      "type": "array"
+    },
+    "expected_outcome_summary": {
+      "title": "Expected Outcome Summary",
+      "type": "string"
+    },
+    "expected_state_delta": {
+      "items": {
+        "$ref": "#/$defs/ArcExpectedStateDelta"
+      },
+      "title": "Expected State Delta",
+      "type": "array"
+    },
+    "hypothesis_frame_id": {
+      "title": "Hypothesis Frame Id",
+      "type": "string"
+    },
+    "hypothesis_frame_ref": {
+      "title": "Hypothesis Frame Ref",
+      "type": "string"
+    },
+    "hypothesis_selection_basis": {
+      "title": "Hypothesis Selection Basis",
+      "type": "string"
+    },
+    "observation_frame_id": {
+      "title": "Observation Frame Id",
+      "type": "string"
+    },
+    "observation_frame_ref": {
+      "title": "Observation Frame Ref",
+      "type": "string"
+    },
+    "proposal_decision_basis": {
+      "title": "Proposal Decision Basis",
+      "type": "string"
+    },
+    "proposal_deontic_admissibility": {
+      "enum": [
+        "allowed",
+        "deferred",
+        "forbidden"
+      ],
+      "title": "Proposal Deontic Admissibility",
+      "type": "string"
+    },
+    "proposal_status": {
+      "enum": [
+        "admissible_candidate",
+        "blocked",
+        "deferred_pending_resolution"
+      ],
+      "title": "Proposal Status",
+      "type": "string"
+    },
+    "proposal_step_index": {
+      "minimum": 0,
+      "title": "Proposal Step Index",
+      "type": "integer"
+    },
+    "proposal_utility_posture": {
+      "enum": [
+        "progress_seeking",
+        "ambiguity_reducing",
+        "discriminative_probe",
+        "conservative_low_risk",
+        "bounded_search_pressure"
+      ],
+      "title": "Proposal Utility Posture",
+      "type": "string"
+    },
+    "proposed_action_kind": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proposed Action Kind"
+    },
+    "proposed_action_payload": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Proposed Action Payload"
+    },
+    "schema": {
+      "const": "adeu_arc_action_proposal@1",
+      "default": "adeu_arc_action_proposal@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "supporting_hypothesis_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Supporting Hypothesis Refs",
+      "type": "array"
+    },
+    "task_packet_id": {
+      "title": "Task Packet Id",
+      "type": "string"
+    },
+    "task_packet_ref": {
+      "title": "Task Packet Ref",
+      "type": "string"
+    },
+    "utility_pressure_basis": {
+      "title": "Utility Pressure Basis",
+      "type": "string"
+    }
+  },
+  "required": [
+    "action_proposal_id",
+    "task_packet_id",
+    "task_packet_ref",
+    "observation_frame_id",
+    "observation_frame_ref",
+    "hypothesis_frame_id",
+    "hypothesis_frame_ref",
+    "proposal_step_index",
+    "proposal_status",
+    "proposal_deontic_admissibility",
+    "proposal_decision_basis",
+    "hypothesis_selection_basis",
+    "utility_pressure_basis",
+    "ambiguity_handling_basis",
+    "proposal_utility_posture",
+    "supporting_hypothesis_refs",
+    "alternative_action_register",
+    "expected_state_delta",
+    "expected_hypothesis_effects",
+    "expected_falsification_conditions",
+    "expected_ambiguity_effects",
+    "expected_outcome_summary",
+    "expected_outcome_refs",
+    "expectation_surface_hash"
+  ],
+  "title": "AdeuArcActionProposal",
+  "type": "object"
+}

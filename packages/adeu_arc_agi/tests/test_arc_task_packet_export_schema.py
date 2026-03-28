@@ -5,8 +5,10 @@ import re
 from pathlib import Path
 
 from adeu_arc_agi import (
+    ADEU_ARC_ACTION_PROPOSAL_SCHEMA,
     ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA,
     ADEU_ARC_OBSERVATION_FRAME_SCHEMA,
+    ADEU_ARC_ROLLOUT_TRACE_SCHEMA,
     ADEU_ARC_TASK_PACKET_SCHEMA,
 )
 from adeu_arc_agi.export_schema import main as export_schema_main
@@ -29,6 +31,14 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
         ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA: (
             root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_hypothesis_frame.v1.json",
             root / "spec" / "adeu_arc_hypothesis_frame.schema.json",
+        ),
+        ADEU_ARC_ACTION_PROPOSAL_SCHEMA: (
+            root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_action_proposal.v1.json",
+            root / "spec" / "adeu_arc_action_proposal.schema.json",
+        ),
+        ADEU_ARC_ROLLOUT_TRACE_SCHEMA: (
+            root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_rollout_trace.v1.json",
+            root / "spec" / "adeu_arc_rollout_trace.schema.json",
         ),
     }
 
