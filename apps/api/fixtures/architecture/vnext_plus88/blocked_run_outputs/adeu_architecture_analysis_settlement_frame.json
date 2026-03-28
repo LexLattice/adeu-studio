@@ -125,7 +125,7 @@
   ],
   "schema": "adeu_architecture_analysis_settlement_frame@1",
   "settlement_frame_id": "v41b_v88_architecture_ir_blocked_runner_settlement_derivative",
-  "source_set_hash": "4033bcde128047aa5e994492b352d068d4b082b44ca8903883ab75135a2d1f0b",
+  "source_set_hash": "554ed5195d7e82ac78a4eb827dedb360ee573aab703fb91124c0e6b77299ecbb",
   "unresolved_high_impact_ambiguity_refs": [
     "docs/DRAFT_NEXT_ARC_OPTIONS_v23.md#v41c"
   ]

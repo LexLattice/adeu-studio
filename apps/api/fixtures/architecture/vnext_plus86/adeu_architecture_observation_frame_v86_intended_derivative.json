@@ -4,7 +4,7 @@
   "authority_boundary_policy": {
     "policy_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS83.md#v41a_practical_analysis_request_contract@1"
   },
-  "observation_frame_id": "v41c_v86_architecture_ir_intended_observation_derivative",
+  "observation_frame_id": "v41b_v86_architecture_ir_intended_observation_derivative",
   "observed_authority_sources": [
     {
       "authority_source_id": "authority_packages_adeu_architecture_ir_pyproject_toml",
@@ -206,7 +206,7 @@
   "schema": "adeu_architecture_observation_frame@1",
   "settlement_frame_id": "v41b_v86_architecture_ir_intended_settlement_derivative",
   "settlement_frame_ref": "apps/api/fixtures/architecture/vnext_plus86/adeu_architecture_analysis_settlement_frame_v86_intended_derivative.json",
-  "source_set_hash": "4033bcde128047aa5e994492b352d068d4b082b44ca8903883ab75135a2d1f0b",
+  "source_set_hash": "554ed5195d7e82ac78a4eb827dedb360ee573aab703fb91124c0e6b77299ecbb",
   "unresolved_observations": [
     {
       "observation_id": "unresolved_runtime_signal_join",

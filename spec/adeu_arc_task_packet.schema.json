@@ -1,0 +1,164 @@
+{
+  "$defs": {
+    "ArcAdapterBoundaryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "competition_mode_allowed": {
+          "default": false,
+          "title": "Competition Mode Allowed",
+          "type": "boolean"
+        },
+        "environment_semantics_redefinition_allowed": {
+          "default": false,
+          "title": "Environment Semantics Redefinition Allowed",
+          "type": "boolean"
+        },
+        "local_offline_only": {
+          "default": true,
+          "title": "Local Offline Only",
+          "type": "boolean"
+        },
+        "observation_hypothesis_action_allowed": {
+          "default": false,
+          "title": "Observation Hypothesis Action Allowed",
+          "type": "boolean"
+        },
+        "policy_semantics": {
+          "const": "deontic_admissibility_only",
+          "default": "deontic_admissibility_only",
+          "title": "Policy Semantics",
+          "type": "string"
+        },
+        "replay_authority_allowed": {
+          "default": false,
+          "title": "Replay Authority Allowed",
+          "type": "boolean"
+        },
+        "scorecard_authority_allowed": {
+          "default": false,
+          "title": "Scorecard Authority Allowed",
+          "type": "boolean"
+        }
+      },
+      "title": "ArcAdapterBoundaryPolicy",
+      "type": "object"
+    },
+    "ArcLegalActionEnvelopeProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "dropped_actions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dropped Actions",
+          "type": "array"
+        },
+        "normalization_kind": {
+          "enum": [
+            "identity",
+            "subset"
+          ],
+          "title": "Normalization Kind",
+          "type": "string"
+        },
+        "source": {
+          "const": "toolkit_mirror",
+          "default": "toolkit_mirror",
+          "title": "Source",
+          "type": "string"
+        },
+        "toolkit_envelope_hash": {
+          "title": "Toolkit Envelope Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "toolkit_envelope_hash",
+        "normalization_kind"
+      ],
+      "title": "ArcLegalActionEnvelopeProvenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adapter": {
+      "title": "Adapter",
+      "type": "string"
+    },
+    "adapter_boundary_policy": {
+      "$ref": "#/$defs/ArcAdapterBoundaryPolicy"
+    },
+    "environment_authority": {
+      "const": "official_arc_toolkit",
+      "default": "official_arc_toolkit",
+      "title": "Environment Authority",
+      "type": "string"
+    },
+    "game_ref": {
+      "title": "Game Ref",
+      "type": "string"
+    },
+    "initial_state_hash": {
+      "title": "Initial State Hash",
+      "type": "string"
+    },
+    "initial_state_ref": {
+      "title": "Initial State Ref",
+      "type": "string"
+    },
+    "legal_action_envelope": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Legal Action Envelope",
+      "type": "array"
+    },
+    "legal_action_envelope_provenance": {
+      "$ref": "#/$defs/ArcLegalActionEnvelopeProvenance"
+    },
+    "mode_posture": {
+      "const": "local_offline",
+      "default": "local_offline",
+      "title": "Mode Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_arc_task_packet@1",
+      "default": "adeu_arc_task_packet@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "session_ref": {
+      "title": "Session Ref",
+      "type": "string"
+    },
+    "task_packet_id": {
+      "title": "Task Packet Id",
+      "type": "string"
+    },
+    "toolkit_legal_action_envelope": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Toolkit Legal Action Envelope",
+      "type": "array"
+    }
+  },
+  "required": [
+    "task_packet_id",
+    "adapter",
+    "game_ref",
+    "session_ref",
+    "initial_state_ref",
+    "initial_state_hash",
+    "toolkit_legal_action_envelope",
+    "legal_action_envelope",
+    "legal_action_envelope_provenance",
+    "adapter_boundary_policy"
+  ],
+  "title": "AdeuArcTaskPacket",
+  "type": "object"
+}
