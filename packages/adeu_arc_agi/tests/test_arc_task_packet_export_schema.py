@@ -7,6 +7,7 @@ from pathlib import Path
 from adeu_arc_agi import (
     ADEU_ARC_ACTION_PROPOSAL_SCHEMA,
     ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA,
+    ADEU_ARC_LOCAL_EVAL_RECORD_SCHEMA,
     ADEU_ARC_OBSERVATION_FRAME_SCHEMA,
     ADEU_ARC_ROLLOUT_TRACE_SCHEMA,
     ADEU_ARC_TASK_PACKET_SCHEMA,
@@ -39,6 +40,10 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
         ADEU_ARC_ROLLOUT_TRACE_SCHEMA: (
             root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_rollout_trace.v1.json",
             root / "spec" / "adeu_arc_rollout_trace.schema.json",
+        ),
+        ADEU_ARC_LOCAL_EVAL_RECORD_SCHEMA: (
+            root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_local_eval_record.v1.json",
+            root / "spec" / "adeu_arc_local_eval_record.schema.json",
         ),
     }
 

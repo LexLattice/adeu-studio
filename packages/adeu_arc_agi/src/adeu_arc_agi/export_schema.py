@@ -11,6 +11,10 @@ from .action_rollout import (
     AdeuArcActionProposal,
     AdeuArcRolloutTrace,
 )
+from .local_eval import (
+    ADEU_ARC_LOCAL_EVAL_RECORD_SCHEMA,
+    AdeuArcLocalEvalRecord,
+)
 from .observation_hypothesis import (
     ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA,
     ADEU_ARC_OBSERVATION_FRAME_SCHEMA,
@@ -42,6 +46,12 @@ def main() -> None:
     rollout_trace_schema = AdeuArcRolloutTrace.model_json_schema(by_alias=True)
     if rollout_trace_schema["properties"]["schema"]["const"] != ADEU_ARC_ROLLOUT_TRACE_SCHEMA:
         raise ValueError("exported schema marker drift for adeu_arc_rollout_trace@1")
+    local_eval_record_schema = AdeuArcLocalEvalRecord.model_json_schema(by_alias=True)
+    if (
+        local_eval_record_schema["properties"]["schema"]["const"]
+        != ADEU_ARC_LOCAL_EVAL_RECORD_SCHEMA
+    ):
+        raise ValueError("exported schema marker drift for adeu_arc_local_eval_record@1")
 
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
@@ -63,6 +73,10 @@ def main() -> None:
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_rollout_trace.v1.json",
         rollout_trace_schema,
     )
+    _write_schema(
+        root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_local_eval_record.v1.json",
+        local_eval_record_schema,
+    )
     _write_schema(root / "spec" / "adeu_arc_task_packet.schema.json", task_packet_schema)
     _write_schema(
         root / "spec" / "adeu_arc_observation_frame.schema.json",
@@ -79,6 +93,10 @@ def main() -> None:
     _write_schema(
         root / "spec" / "adeu_arc_rollout_trace.schema.json",
         rollout_trace_schema,
+    )
+    _write_schema(
+        root / "spec" / "adeu_arc_local_eval_record.schema.json",
+        local_eval_record_schema,
     )
 
 
