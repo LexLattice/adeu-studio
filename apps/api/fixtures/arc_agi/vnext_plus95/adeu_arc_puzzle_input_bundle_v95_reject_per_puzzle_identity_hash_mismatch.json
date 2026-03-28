@@ -1,0 +1,260 @@
+{
+  "bundle_identity_hash": "7c7d599a1063fcf7599836129d56dd2dd93d8ca1ee84be630364d3c592527b6c",
+  "canonical_puzzle_order": [
+    "arcagi3_local_p001",
+    "arcagi3_local_p002",
+    "arcagi3_local_p003"
+  ],
+  "evidence_refs": [
+    "evidence:canonical_bundle_order",
+    "evidence:deterministic_puzzle_freeze",
+    "evidence:selection_register_binding"
+  ],
+  "no_retrospective_swap_posture": true,
+  "provenance_refs": [
+    "apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_selection_register_v95_reference.json",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS95.md#v95-continuation-contract-machine-checkable"
+  ],
+  "puzzle_entries": [
+    {
+      "normalized_payload": {
+        "test": [
+          {
+            "input": [
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                1,
+                0,
+                1
+              ],
+              [
+                0,
+                1,
+                0
+              ]
+            ]
+          }
+        ],
+        "train": [
+          {
+            "input": [
+              [
+                0,
+                1,
+                0
+              ],
+              [
+                1,
+                0,
+                1
+              ],
+              [
+                0,
+                1,
+                0
+              ]
+            ],
+            "output": [
+              [
+                2,
+                1,
+                2
+              ],
+              [
+                1,
+                2,
+                1
+              ],
+              [
+                2,
+                1,
+                2
+              ]
+            ]
+          }
+        ]
+      },
+      "normalized_payload_hash": "ab2bf9bc1832436f0590e2410b7ee8aebaa3338f45944ba7159e72cd3e756063",
+      "normalized_payload_ref": "apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_payload_v95_arcagi3_local_p001.json",
+      "provenance_refs": [
+        "payload:apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_payload_v95_arcagi3_local_p001.json",
+        "source:apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_payload_v95_arcagi3_local_p001.json"
+      ],
+      "puzzle_id": "arcagi3_local_p001",
+      "puzzle_identity_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "puzzle_input_id": "arc_puz_66392a7ce139923fbc8d2d36bacf6f92",
+      "source_kind": "repo_frozen_fixture",
+      "source_ref": "apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_payload_v95_arcagi3_local_p001.json"
+    },
+    {
+      "normalized_payload": {
+        "test": [
+          {
+            "input": [
+              [
+                3,
+                3,
+                0
+              ],
+              [
+                0,
+                3,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ]
+          }
+        ],
+        "train": [
+          {
+            "input": [
+              [
+                3,
+                3,
+                0
+              ],
+              [
+                0,
+                3,
+                0
+              ],
+              [
+                0,
+                0,
+                0
+              ]
+            ],
+            "output": [
+              [
+                3,
+                3,
+                4
+              ],
+              [
+                4,
+                3,
+                4
+              ],
+              [
+                4,
+                4,
+                4
+              ]
+            ]
+          }
+        ]
+      },
+      "normalized_payload_hash": "df7c4e31a2d06c111d1ce9ee88a184b4bfae029f95096c139cf781ed03d600e8",
+      "normalized_payload_ref": "apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_payload_v95_arcagi3_local_p002.json",
+      "provenance_refs": [
+        "payload:apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_payload_v95_arcagi3_local_p002.json",
+        "source:toolkit://local/arcagi3/puzzle/arcagi3_local_p002"
+      ],
+      "puzzle_id": "arcagi3_local_p002",
+      "puzzle_identity_hash": "553eefee88dc8d2538ae13a1a81f9871eb7daaa4f5c9bfda02876d1a55db6eb2",
+      "puzzle_input_id": "arc_puz_90bdff5ea70abb003ff9fe7558744b05",
+      "source_kind": "official_toolkit_local_export",
+      "source_ref": "toolkit://local/arcagi3/puzzle/arcagi3_local_p002"
+    },
+    {
+      "normalized_payload": {
+        "test": [
+          {
+            "input": [
+              [
+                5,
+                0,
+                0
+              ],
+              [
+                0,
+                5,
+                0
+              ],
+              [
+                0,
+                0,
+                5
+              ]
+            ]
+          }
+        ],
+        "train": [
+          {
+            "input": [
+              [
+                5,
+                0,
+                0
+              ],
+              [
+                0,
+                5,
+                0
+              ],
+              [
+                0,
+                0,
+                5
+              ]
+            ],
+            "output": [
+              [
+                5,
+                5,
+                5
+              ],
+              [
+                5,
+                5,
+                5
+              ],
+              [
+                5,
+                5,
+                5
+              ]
+            ]
+          }
+        ]
+      },
+      "normalized_payload_hash": "9d391cccf5a0fa36312f597b10db122e052e590c2f681c749562435a78d94c98",
+      "normalized_payload_ref": "apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_payload_v95_arcagi3_local_p003.json",
+      "provenance_refs": [
+        "payload:apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_payload_v95_arcagi3_local_p003.json",
+        "source:import://approved/arcagi3/local_copy/arcagi3_local_p003"
+      ],
+      "puzzle_id": "arcagi3_local_p003",
+      "puzzle_identity_hash": "e89bcbd8161a48b495fee6c6899c730222f4fd9f0517c82770a4aad2573c470b",
+      "puzzle_input_id": "arc_puz_a90802b8df13eb7f068366318bc6f820",
+      "source_kind": "approved_imported_local_copy",
+      "source_ref": "import://approved/arcagi3/local_copy/arcagi3_local_p003"
+    }
+  ],
+  "puzzle_input_bundle_id": "arc_bundle_e26977b6060dc81cb3967fb1c344a624",
+  "schema": "adeu_arc_puzzle_input_bundle@1",
+  "selected_puzzle_ids": [
+    "arcagi3_local_p001",
+    "arcagi3_local_p002",
+    "arcagi3_local_p003"
+  ],
+  "selection_basis": "v95_initial_three_puzzle_reference_set_v1",
+  "selection_register_hash": "b1e4ab21d12636e36d07b64ca3be529316e8cc7fd7e1cb0d9547294e505d8666",
+  "selection_register_id": "arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c",
+  "selection_register_ref": "apps/api/fixtures/arc_agi/vnext_plus95/adeu_arc_puzzle_selection_register_v95_reference.json",
+  "source_precedence_policy": [
+    "repo_frozen_fixture",
+    "official_toolkit_local_export",
+    "approved_imported_local_copy"
+  ],
+  "source_profile": "arc_agi3_local_puzzle_ingest_v1",
+  "summary_non_authoritative": true
+}

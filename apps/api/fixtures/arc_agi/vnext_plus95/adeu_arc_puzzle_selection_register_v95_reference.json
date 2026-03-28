@@ -1,0 +1,12 @@
+{
+  "no_retrospective_swap_posture": true,
+  "selected_puzzle_ids": [
+    "arcagi3_local_p001",
+    "arcagi3_local_p002",
+    "arcagi3_local_p003"
+  ],
+  "selection_basis": "v95_initial_three_puzzle_reference_set_v1",
+  "selection_register_hash": "b1e4ab21d12636e36d07b64ca3be529316e8cc7fd7e1cb0d9547294e505d8666",
+  "selection_register_id": "arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c",
+  "source_scope": "arc_agi3_local_first"
+}
