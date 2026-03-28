@@ -1,7 +1,7 @@
 # Draft V42 ARC-AGI Participation Decomposition v0
 
-Status: working decomposition draft after `vNext+89` closeout on `main`, where the
-first `V42-A` local ARC adapter/task-packet baseline is now released.
+Status: working decomposition draft after `vNext+90` closeout on `main`, where
+`V42-A` and `V42-B` are now released at bounded scope.
 
 This document is an intermediate planning artifact between:
 
@@ -68,7 +68,10 @@ The safe first move is:
 - prove ADEU can wrap the official local adapter without inventing environment
   semantics.
 
-After `vNext+89`, that first move is now complete.
+After `vNext+90`, the first two bounded moves are now complete:
+
+- `V42-A`: official local adapter + frozen task packet baseline;
+- `V42-B`: explicit ontology/observation/hypothesis decomposition baseline.
 
 The next move should keep the same doctrine order:
 
@@ -87,7 +90,8 @@ first semantic anatomy, then tactical intelligence
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
 - `V42-A` is closed on `main`.
-- `vNext+89` is the current baseline implementation state.
+- `V42-B` is closed on `main`.
+- `vNext+90` is the current baseline implementation state.
 - The next safe step is not to reopen `V41` or to widen straight into ARC observation,
   hypothesis, action, rollout, or scorecard semantics without first locking the
   environment-adapter boundary.
@@ -103,7 +107,7 @@ first semantic anatomy, then tactical intelligence
 {
   "schema": "v42_arc_agi_participation_decomposition@1",
   "source_architecture_doc": "docs/ARCHITECTURE_ADEU_ARC_AGI_v0.md",
-  "baseline_arc": "vNext+89",
+  "baseline_arc": "vNext+90",
   "closed_prior_family": "V41",
   "closed_prior_paths": [
     "V41-A",
@@ -115,10 +119,11 @@ first semantic anatomy, then tactical intelligence
   ],
   "next_path_family": "V42",
   "closed_current_family_paths": [
-    "V42-A"
+    "V42-A",
+    "V42-B"
   ],
-  "default_next_arc_candidate": "V42-B",
-  "default_next_concrete_arc_candidate": "vNext+90",
+  "default_next_arc_candidate": "V42-C",
+  "default_next_concrete_arc_candidate": "vNext+91",
   "v42_path_count": 5,
   "planned_family_packages": [
     "packages/adeu_arc_agi",
@@ -137,7 +142,8 @@ first semantic anatomy, then tactical intelligence
   "v42a_static_semantic_anatomy_priority_required": true,
   "deontic_boundary_surface_required": true,
   "control_plane_honesty_acceptance_required": true,
-  "v42b_requires_static_decomposition_gate": true,
+  "v42b_static_decomposition_gate_closed_on_main": true,
+  "v42c_action_rollout_gate_required": true,
   "settlement_carry_required_before_hypothesis_action_widening": true,
   "model_class_sensitivity_empirical_eval_required": true,
   "opaque_prompt_only_solving_rejected": true,
@@ -177,8 +183,10 @@ decomposition rules:
 
 - `packages/adeu_arc_agi` is the natural home for the first canonical ARC task/session
   packet and its local adapter-boundary policy.
-- `packages/adeu_arc_solver` should remain deferred until the family explicitly widens
-  into observed-frame extraction, hypothesis state, action proposal, or rollout logic.
+- `packages/adeu_arc_solver` is now active at bounded scope for `V42-B`
+  observation/hypothesis derivation helpers;
+- further widening inside `adeu_arc_solver` into action/rollout policy logic remains
+  deferred to `V42-C`.
 - `apps/api` and `apps/web` integration remain deferred until the family proves the
   lower-level ARC adapter and task-packet contract first.
 
@@ -193,10 +201,11 @@ The current recommended concrete split is:
     local ARC toolkit adapter and canonical `adeu_arc_task_packet@1` baseline,
     including task/session freeze, local mode posture, legal-action envelope, and
     adapter-boundary policy
-- later `V42-B`
-  - first observation and hypothesis widening:
-    explicit observed ARC frame extraction plus hypothesis register and ambiguity /
-    claim-posture carry-through
+- `vNext+90` (closed on `main`)
+  - first concrete `V42-B` arc:
+    explicit observed ARC frame extraction plus ontology inventory,
+    denominator-bound decomposition coverage, hypothesis register, ambiguity /
+    claim-posture carry-through, and utility-pressure posture
 - later `V42-C`
   - first action and rollout widening:
     explicit action proposal, admissibility posture, and rollout trace
@@ -214,7 +223,7 @@ The current recommended concrete split is:
 | Path | Theme | Primary output | Baseline role |
 |---|---|---|---|
 | `V42-A` | local adapter + task/session freeze | `adeu_arc_task_packet@1` and adapter-boundary contract | required |
-| `V42-B` | observed frame extraction + hypothesis state | `adeu_arc_observation_frame@1` and `adeu_arc_hypothesis_frame@1` | deferred_to_later_family |
+| `V42-B` | observed frame extraction + hypothesis state | `adeu_arc_observation_frame@1` and `adeu_arc_hypothesis_frame@1` | closed_on_main |
 | `V42-C` | action proposal + rollout trace | `adeu_arc_action_proposal@1` and `adeu_arc_rollout_trace@1` | deferred_to_later_family |
 | `V42-D` | local benchmark runner / eval discipline | deterministic local ARC benchmark surface | deferred_to_later_family |
 | `V42-E` | scorecard / competition-mode integration | `adeu_arc_scorecard_manifest@1` and online adapter | not_selected_yet |
@@ -261,31 +270,35 @@ Static decomposition doctrine carried forward from `V42-A` into `V42-B`:
 - no post-hoc prose compliance accepted when control-plane semantics were not explicit
   at decision time.
 
-## Next Path Gate (`V42-B`)
+`V42-B` closeout confirms this doctrine is now released at bounded scope.
 
-`V42-B` should not be selected as implementation-ready unless the following static
-decomposition checklist remains explicit and passed:
+## Next Path Gate (`V42-C`)
 
-- `O` checklist:
-  - ARC game/task/session/frame/grid/action units are explicit and typed;
-  - ontology does not pre-solve tasks through hidden heuristic assumptions.
-- `E` checklist:
-  - direct observations remain separate from derived inferences;
-  - unresolved ambiguity and claim posture remain explicit.
-- `D` checklist:
-  - mode/legal-action admissibility remains deontic and machine-checkable;
+`V42-C` should not be selected as implementation-ready unless the following
+action/rollout checklist remains explicit and passed:
+
+- admissibility checklist:
+  - every action proposal is explicitly deontic-admissible under released mode/legal
+    boundaries;
   - no action legality is minted by model inference.
-- `U` checklist:
-  - utility pressure is explicit and bounded;
-  - no hidden utility override mints certainty.
+- expectation lineage checklist:
+  - each action proposal binds to supporting hypothesis refs and expected outcomes;
+  - rollout outcomes preserve expectation-to-outcome comparison without laundering.
+- settlement posture checklist:
+  - ambiguity/claim posture from `V42-B` survives into action/rollout artifacts;
+  - successful rollout steps do not mint second-order necessity claims by default.
+- bounded-widening checklist:
+  - no scorecard/replay/competition authority is released in `V42-C`;
+  - no benchmark tournament orchestration is smuggled into action/rollout surfaces.
 - control-plane honesty checklist:
   - opaque solving plus post-hoc paraphrase is rejected as ADEU adherence.
 
 ## Bottom Line
 
-`V42-A` was boring on purpose and is now closed on `main`.
+`V42-A` and `V42-B` were intentionally bounded and are now closed on `main`.
 
-The next family step is successful only if ARC semantic anatomy remains explicit and
-auditable before tactical action heuristics are widened.
+The next family step is successful only if tactical action commitment remains explicitly
+grounded in released ontology/observation/hypothesis posture before benchmark or
+scorecard widening.
 
 Any larger claim belongs to later `V42` selection, not to the family start.
