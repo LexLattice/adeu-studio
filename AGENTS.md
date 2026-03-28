@@ -9,29 +9,34 @@
 
 ## Pre-PR Gate
 
-- Before opening or updating a Python PR, run `make check`.
-- `make check` is the default local gate for the Python lane and includes:
-  - Ruff lint
-  - pytest
-  - closeout consistency lint
-  - semantic compiler closeout lint
-  - generated instruction policy doc check
-- If you intentionally run a narrower subset instead of `make check`, state what was skipped.
+- Before opening or updating a Python PR, run a targeted local gate for the changed
+  surfaces.
+- Default targeted local gate for Python changes:
+  - Ruff lint (`make lint`)
+  - focused pytest selection covering touched modules/fixtures (for example
+    `.venv/bin/python -m pytest <relevant paths>`)
+  - generated instruction policy doc check when relevant (`make instruction-policy-check`)
+- Full `make check` is optional locally and recommended for high-risk or cross-cutting
+  changes.
+- GitHub PR CI is the authoritative full-suite regression gate; full-suite failures
+  outside the local targeted scope are expected to be caught there.
+- When running narrower local checks, state exactly what was run and that full-suite
+  coverage is deferred to PR CI.
 
 ## Docs-Only Arc Bundles
 
 - For docs-only arc starting-bundle work, use `make arc-start-check ARC=<n>`.
 - For docs/artifacts-only arc closeout bundle work, use `make arc-closeout-check ARC=<n>`.
 - These shortcuts are only for diffs limited to arc planning/closeout docs and committed
-  closeout artifacts; they are not a replacement for `make check` when Python source,
-  tests, `Makefile`, CI, or lint scripts change.
+  closeout artifacts; they are not a replacement for the targeted Python gate when
+  Python source, tests, `Makefile`, CI, or lint scripts change.
 - `make arc-start-check` runs the arc-bundle scaffold lint plus the generated instruction
   policy doc check.
 - `make arc-closeout-check` runs the arc-bundle closeout lint, closeout consistency lint,
   semantic closeout lint, committed URM event-stream validation for that arc bundle, and
   the generated instruction policy doc check.
-- If you intentionally use an arc-bundle shortcut instead of `make check`, say that the
-  full Python lane was skipped because the change was docs/artifacts only.
+- If you intentionally use an arc-bundle shortcut without Python-targeted checks, say
+  that Python lane checks were skipped because the change was docs/artifacts only.
 
 ## Intent Doctrine Hygiene
 
