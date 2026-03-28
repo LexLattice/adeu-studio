@@ -5,6 +5,12 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 
+from .action_rollout import (
+    ADEU_ARC_ACTION_PROPOSAL_SCHEMA,
+    ADEU_ARC_ROLLOUT_TRACE_SCHEMA,
+    AdeuArcActionProposal,
+    AdeuArcRolloutTrace,
+)
 from .observation_hypothesis import (
     ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA,
     ADEU_ARC_OBSERVATION_FRAME_SCHEMA,
@@ -30,6 +36,12 @@ def main() -> None:
     hypothesis_schema = AdeuArcHypothesisFrame.model_json_schema(by_alias=True)
     if hypothesis_schema["properties"]["schema"]["const"] != ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA:
         raise ValueError("exported schema marker drift for adeu_arc_hypothesis_frame@1")
+    action_proposal_schema = AdeuArcActionProposal.model_json_schema(by_alias=True)
+    if action_proposal_schema["properties"]["schema"]["const"] != ADEU_ARC_ACTION_PROPOSAL_SCHEMA:
+        raise ValueError("exported schema marker drift for adeu_arc_action_proposal@1")
+    rollout_trace_schema = AdeuArcRolloutTrace.model_json_schema(by_alias=True)
+    if rollout_trace_schema["properties"]["schema"]["const"] != ADEU_ARC_ROLLOUT_TRACE_SCHEMA:
+        raise ValueError("exported schema marker drift for adeu_arc_rollout_trace@1")
 
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
@@ -43,6 +55,14 @@ def main() -> None:
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_hypothesis_frame.v1.json",
         hypothesis_schema,
     )
+    _write_schema(
+        root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_action_proposal.v1.json",
+        action_proposal_schema,
+    )
+    _write_schema(
+        root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_rollout_trace.v1.json",
+        rollout_trace_schema,
+    )
     _write_schema(root / "spec" / "adeu_arc_task_packet.schema.json", task_packet_schema)
     _write_schema(
         root / "spec" / "adeu_arc_observation_frame.schema.json",
@@ -51,6 +71,14 @@ def main() -> None:
     _write_schema(
         root / "spec" / "adeu_arc_hypothesis_frame.schema.json",
         hypothesis_schema,
+    )
+    _write_schema(
+        root / "spec" / "adeu_arc_action_proposal.schema.json",
+        action_proposal_schema,
+    )
+    _write_schema(
+        root / "spec" / "adeu_arc_rollout_trace.schema.json",
+        rollout_trace_schema,
     )
 
 

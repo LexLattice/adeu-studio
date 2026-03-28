@@ -1,0 +1,49 @@
+{
+  "expectation_outcome_comparison": {
+    "comparison_posture": "matched",
+    "comparison_summary": "observed outcomes match the structured expectation surface for the committed probe",
+    "matched_by_hash": true,
+    "proposal_expectation_surface_hash": "bbef0bc2605853fae1939f75dce6641c82abc10385fdce6b05592d58edaeea5c",
+    "unmet_expectation_refs": []
+  },
+  "expectation_surface_hash": "bbef0bc2605853fae1939f75dce6641c82abc10385fdce6b05592d58edaeea5c",
+  "expectation_surface_ref": "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_action_proposal_v91_reference.json",
+  "outcome_hypothesis_effects": [
+    {
+      "hypothesis_id": "hyp_h1",
+      "observed_effect": "strengthen",
+      "rationale": "this outcome proves the rule as universal necessity for all future states"
+    }
+  ],
+  "post_step_state_refs": [
+    "toolkit://local/arcagi3/state/sample_state_001_step1"
+  ],
+  "pre_step_state_refs": [
+    "toolkit://local/arcagi3/state/sample_state_001"
+  ],
+  "rollout_steps": [
+    {
+      "action_proposal_ref": "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_action_proposal_v91_reference.json",
+      "observed_outcome_refs": [
+        "obs_outcome:delta_primary",
+        "obs_outcome:hypothesis_h1_strengthen"
+      ],
+      "observed_outcome_summary": "targeted recolor executed and anchor relation preserved in resulting local patch",
+      "post_step_state_ref": "toolkit://local/arcagi3/state/sample_state_001_step1",
+      "pre_step_state_ref": "toolkit://local/arcagi3/state/sample_state_001",
+      "step_index": 0
+    }
+  ],
+  "rollout_stop_reason": "none",
+  "rollout_trace_id": "arc_roll_3304ff47df20c2ab86f95d74282e14ea",
+  "schema": "adeu_arc_rollout_trace@1",
+  "settlement_posture_carry": {
+    "ambiguity_posture_preserved": true,
+    "claim_posture_preserved": true,
+    "necessity_laundering_detected": false,
+    "summary": "hypothesis uncertainty remains explicit while recording one successful admissible step"
+  },
+  "task_packet_id": "arc_task_8d3ab27bba2ea851b09d0ff57e13da2c",
+  "task_packet_ref": "apps/api/fixtures/arc_agi/vnext_plus89/adeu_arc_task_packet_v89_reference.json",
+  "terminal_rollout_status": "completed"
+}

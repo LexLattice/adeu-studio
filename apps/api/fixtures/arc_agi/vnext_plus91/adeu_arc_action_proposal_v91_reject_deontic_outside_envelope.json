@@ -1,0 +1,71 @@
+{
+  "action_proposal_id": "arc_act_5cb07a5bee5f9009d6174cc501bb2cff",
+  "alternative_action_register": [
+    {
+      "action_id": "alt_01",
+      "action_kind": "edit_cell",
+      "deontic_class": "allowed",
+      "rationale": "alternative edit at neighboring cell preserves admissibility"
+    },
+    {
+      "action_id": "alt_02",
+      "action_kind": "edit_cell",
+      "deontic_class": "deferred",
+      "rationale": "defer mutation and gather one more local structural witness"
+    }
+  ],
+  "ambiguity_handling_basis": "retain alternative branch visibility while committing one lawful probe",
+  "expectation_surface_hash": "bbef0bc2605853fae1939f75dce6641c82abc10385fdce6b05592d58edaeea5c",
+  "expected_ambiguity_effects": [
+    "ambiguity_reduced_h1_vs_h2"
+  ],
+  "expected_falsification_conditions": [
+    {
+      "condition_id": "falsify_h2",
+      "falsifies_hypothesis_ids": [
+        "hyp_h2"
+      ],
+      "summary": "if expected anchor recolor does not occur then h2 remains unresolved"
+    }
+  ],
+  "expected_hypothesis_effects": [
+    {
+      "expected_effect": "strengthen",
+      "hypothesis_id": "hyp_h1",
+      "rationale": "observed delta should increase support for anchor-preserving transform"
+    }
+  ],
+  "expected_outcome_refs": [
+    "expect:delta_primary",
+    "expect:hypothesis_h1_strengthen"
+  ],
+  "expected_outcome_summary": "single-step probe should produce measurable local delta and update hypothesis posture",
+  "expected_state_delta": [
+    {
+      "delta_id": "delta_primary",
+      "expected_cell_ref_hash": "9ff58f3ebe176285274c4a64387a9fbe6108b0a085bb2b0cf7da4ad28946d97e",
+      "summary": "cell r1c1 recolors to align local anchor pattern"
+    }
+  ],
+  "hypothesis_frame_id": "arc_hyp_f1911743c3511e2278fba08d41c2f88f",
+  "hypothesis_frame_ref": "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_hypothesis_frame_v90_reference.json",
+  "hypothesis_selection_basis": "hyp_h1 has inferred posture with direct structural support",
+  "observation_frame_id": "arc_obs_ba2b85d437f9804244b69c8200feb849",
+  "observation_frame_ref": "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_observation_frame_v90_reference.json",
+  "proposal_decision_basis": "select hyp_h1 as strongest admissible branch under current evidence",
+  "proposal_deontic_admissibility": "allowed",
+  "proposal_status": "admissible_candidate",
+  "proposal_step_index": 0,
+  "proposal_utility_posture": "discriminative_probe",
+  "proposed_action_kind": "submit",
+  "proposed_action_payload": {
+    "submission_payload_ref": "toolkit://local/arcagi3/payload/attempt_001"
+  },
+  "schema": "adeu_arc_action_proposal@1",
+  "supporting_hypothesis_refs": [
+    "hyp_h1"
+  ],
+  "task_packet_id": "arc_task_8d3ab27bba2ea851b09d0ff57e13da2c",
+  "task_packet_ref": "apps/api/fixtures/arc_agi/vnext_plus89/adeu_arc_task_packet_v89_reference.json",
+  "utility_pressure_basis": "prioritize progress while keeping ambiguity reduction explicit"
+}
