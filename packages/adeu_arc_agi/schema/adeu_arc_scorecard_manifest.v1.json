@@ -1,0 +1,319 @@
+{
+  "$defs": {
+    "ArcScorecardMetricEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "metric_key": {
+          "title": "Metric Key",
+          "type": "string"
+        },
+        "metric_value": {
+          "title": "Metric Value",
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "informational"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric_key",
+        "metric_value",
+        "status",
+        "evidence_refs"
+      ],
+      "title": "ArcScorecardMetricEntry",
+      "type": "object"
+    },
+    "ArcScorecardSettlementPostureCarry": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguity_posture_preserved": {
+          "title": "Ambiguity Posture Preserved",
+          "type": "boolean"
+        },
+        "claim_posture_preserved": {
+          "title": "Claim Posture Preserved",
+          "type": "boolean"
+        },
+        "necessity_laundering_detected": {
+          "title": "Necessity Laundering Detected",
+          "type": "boolean"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ambiguity_posture_preserved",
+        "claim_posture_preserved",
+        "necessity_laundering_detected",
+        "summary"
+      ],
+      "title": "ArcScorecardSettlementPostureCarry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action_proposal_id": {
+      "title": "Action Proposal Id",
+      "type": "string"
+    },
+    "action_proposal_ref": {
+      "title": "Action Proposal Ref",
+      "type": "string"
+    },
+    "authority_basis_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Authority Basis Refs",
+      "type": "array"
+    },
+    "authority_limitations": {
+      "title": "Authority Limitations",
+      "type": "string"
+    },
+    "authority_posture": {
+      "title": "Authority Posture",
+      "type": "string"
+    },
+    "authority_scope": {
+      "enum": [
+        "local_only",
+        "official_imported",
+        "competition_posture_only",
+        "deferred"
+      ],
+      "title": "Authority Scope",
+      "type": "string"
+    },
+    "authority_source_kind": {
+      "enum": [
+        "local_shadow_only",
+        "official_imported",
+        "competition_posture_declared_no_official_scorecard",
+        "deferred_absent"
+      ],
+      "title": "Authority Source Kind",
+      "type": "string"
+    },
+    "authority_validity": {
+      "enum": [
+        "valid",
+        "provisional",
+        "deferred"
+      ],
+      "title": "Authority Validity",
+      "type": "string"
+    },
+    "competition_mode_posture": {
+      "enum": [
+        "not_applicable",
+        "declared_deferred",
+        "eligible_but_not_exercised",
+        "officially_exercised"
+      ],
+      "title": "Competition Mode Posture",
+      "type": "string"
+    },
+    "competition_scope_ref": {
+      "title": "Competition Scope Ref",
+      "type": "string"
+    },
+    "deferred_authority_assertions": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Deferred Authority Assertions",
+      "type": "array"
+    },
+    "environment_ref": {
+      "title": "Environment Ref",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "external_replay_authority_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "External Replay Authority Refs",
+      "type": "array"
+    },
+    "hypothesis_frame_id": {
+      "title": "Hypothesis Frame Id",
+      "type": "string"
+    },
+    "hypothesis_frame_ref": {
+      "title": "Hypothesis Frame Ref",
+      "type": "string"
+    },
+    "local_eval_record_id": {
+      "title": "Local Eval Record Id",
+      "type": "string"
+    },
+    "local_eval_record_ref": {
+      "title": "Local Eval Record Ref",
+      "type": "string"
+    },
+    "local_replay_lineage_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Local Replay Lineage Refs",
+      "type": "array"
+    },
+    "model_id": {
+      "title": "Model Id",
+      "type": "string"
+    },
+    "observation_frame_id": {
+      "title": "Observation Frame Id",
+      "type": "string"
+    },
+    "observation_frame_ref": {
+      "title": "Observation Frame Ref",
+      "type": "string"
+    },
+    "official_scorecard_outcome_metrics": {
+      "items": {
+        "$ref": "#/$defs/ArcScorecardMetricEntry"
+      },
+      "title": "Official Scorecard Outcome Metrics",
+      "type": "array"
+    },
+    "rollout_trace_id": {
+      "title": "Rollout Trace Id",
+      "type": "string"
+    },
+    "rollout_trace_ref": {
+      "title": "Rollout Trace Ref",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_arc_scorecard_manifest@1",
+      "default": "adeu_arc_scorecard_manifest@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scorecard_facing_metrics": {
+      "items": {
+        "$ref": "#/$defs/ArcScorecardMetricEntry"
+      },
+      "minItems": 1,
+      "title": "Scorecard Facing Metrics",
+      "type": "array"
+    },
+    "scorecard_manifest_id": {
+      "title": "Scorecard Manifest Id",
+      "type": "string"
+    },
+    "scorecard_outcome_summary": {
+      "title": "Scorecard Outcome Summary",
+      "type": "string"
+    },
+    "scorecard_profile": {
+      "title": "Scorecard Profile",
+      "type": "string"
+    },
+    "scorecard_scope": {
+      "const": "single_run_scorecard_posture",
+      "title": "Scorecard Scope",
+      "type": "string"
+    },
+    "scorecard_source_kind": {
+      "enum": [
+        "local_shadow_only",
+        "official_imported",
+        "competition_posture_declared_no_official_scorecard",
+        "deferred_absent"
+      ],
+      "title": "Scorecard Source Kind",
+      "type": "string"
+    },
+    "session_ref": {
+      "title": "Session Ref",
+      "type": "string"
+    },
+    "settlement_posture_carry": {
+      "$ref": "#/$defs/ArcScorecardSettlementPostureCarry"
+    },
+    "task_packet_id": {
+      "title": "Task Packet Id",
+      "type": "string"
+    },
+    "task_packet_ref": {
+      "title": "Task Packet Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scorecard_manifest_id",
+    "task_packet_id",
+    "task_packet_ref",
+    "observation_frame_id",
+    "observation_frame_ref",
+    "hypothesis_frame_id",
+    "hypothesis_frame_ref",
+    "action_proposal_id",
+    "action_proposal_ref",
+    "rollout_trace_id",
+    "rollout_trace_ref",
+    "local_eval_record_id",
+    "local_eval_record_ref",
+    "environment_ref",
+    "session_ref",
+    "competition_scope_ref",
+    "scorecard_scope",
+    "scorecard_profile",
+    "model_id",
+    "run_id",
+    "scorecard_source_kind",
+    "authority_posture",
+    "authority_scope",
+    "authority_source_kind",
+    "authority_validity",
+    "authority_limitations",
+    "competition_mode_posture",
+    "local_replay_lineage_refs",
+    "external_replay_authority_refs",
+    "scorecard_facing_metrics",
+    "official_scorecard_outcome_metrics",
+    "scorecard_outcome_summary",
+    "settlement_posture_carry",
+    "authority_basis_refs",
+    "deferred_authority_assertions",
+    "evidence_refs"
+  ],
+  "title": "AdeuArcScorecardManifest",
+  "type": "object"
+}
