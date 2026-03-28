@@ -4,46 +4,69 @@ import json
 import re
 from pathlib import Path
 
-from adeu_arc_agi import ADEU_ARC_TASK_PACKET_SCHEMA
+from adeu_arc_agi import (
+    ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA,
+    ADEU_ARC_OBSERVATION_FRAME_SCHEMA,
+    ADEU_ARC_TASK_PACKET_SCHEMA,
+)
 from adeu_arc_agi.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\\\")
 
 
-def _schema_paths() -> tuple[Path, Path]:
+def _schema_pairs() -> dict[str, tuple[Path, Path]]:
     root = repo_root(anchor=Path(__file__))
-    return (
-        root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
-        root / "spec" / "adeu_arc_task_packet.schema.json",
-    )
+    return {
+        ADEU_ARC_TASK_PACKET_SCHEMA: (
+            root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
+            root / "spec" / "adeu_arc_task_packet.schema.json",
+        ),
+        ADEU_ARC_OBSERVATION_FRAME_SCHEMA: (
+            root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_observation_frame.v1.json",
+            root / "spec" / "adeu_arc_observation_frame.schema.json",
+        ),
+        ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA: (
+            root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_hypothesis_frame.v1.json",
+            root / "spec" / "adeu_arc_hypothesis_frame.schema.json",
+        ),
+    }
 
 
 def test_authoritative_and_mirror_schema_are_byte_identical() -> None:
-    authoritative, mirror = _schema_paths()
-    assert authoritative.read_bytes() == mirror.read_bytes()
+    for authoritative, mirror in _schema_pairs().values():
+        assert authoritative.read_bytes() == mirror.read_bytes()
 
 
 def test_schema_export_rerun_is_clean_and_deterministic() -> None:
-    authoritative, mirror = _schema_paths()
-    before = (authoritative.read_bytes(), mirror.read_bytes())
+    pairs = _schema_pairs()
+    before = {
+        schema: (authoritative.read_bytes(), mirror.read_bytes())
+        for schema, (authoritative, mirror) in pairs.items()
+    }
     export_schema_main()
-    after_first = (authoritative.read_bytes(), mirror.read_bytes())
+    after_first = {
+        schema: (authoritative.read_bytes(), mirror.read_bytes())
+        for schema, (authoritative, mirror) in pairs.items()
+    }
     export_schema_main()
-    after_second = (authoritative.read_bytes(), mirror.read_bytes())
+    after_second = {
+        schema: (authoritative.read_bytes(), mirror.read_bytes())
+        for schema, (authoritative, mirror) in pairs.items()
+    }
     assert before == after_first == after_second
 
 
 def test_exported_schema_has_stable_contract_markers() -> None:
-    authoritative, _mirror = _schema_paths()
-    payload = json.loads(authoritative.read_text(encoding="utf-8"))
-    assert payload["properties"]["schema"]["const"] == ADEU_ARC_TASK_PACKET_SCHEMA
+    for expected_schema, (authoritative, _mirror) in _schema_pairs().items():
+        payload = json.loads(authoritative.read_text(encoding="utf-8"))
+        assert payload["properties"]["schema"]["const"] == expected_schema
 
 
 def test_exported_schema_has_no_absolute_path_material() -> None:
     root = repo_root(anchor=Path(__file__))
     root_text = root.as_posix()
-    authoritative, mirror = _schema_paths()
+    pair_values = _schema_pairs().values()
 
     def _check_node(node: object) -> None:
         if isinstance(node, dict):
@@ -62,5 +85,6 @@ def test_exported_schema_has_no_absolute_path_material() -> None:
         assert not normalized.startswith("/Users/")
         assert _WINDOWS_ABSOLUTE_PATH_RE.search(node) is None
 
-    _check_node(json.loads(authoritative.read_text(encoding="utf-8")))
-    _check_node(json.loads(mirror.read_text(encoding="utf-8")))
+    for authoritative, mirror in pair_values:
+        _check_node(json.loads(authoritative.read_text(encoding="utf-8")))
+        _check_node(json.loads(mirror.read_text(encoding="utf-8")))

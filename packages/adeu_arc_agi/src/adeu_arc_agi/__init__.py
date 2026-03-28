@@ -1,4 +1,19 @@
 from .export_schema import main as export_schema_main
+from .observation_hypothesis import (
+    ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA,
+    ADEU_ARC_OBSERVATION_FRAME_SCHEMA,
+    V42B_V90_CONTRACT_SOURCE,
+    AdeuArcHypothesisFrame,
+    AdeuArcObservationFrame,
+    canonicalize_adeu_arc_hypothesis_frame_payload,
+    canonicalize_adeu_arc_observation_frame_payload,
+    compute_adeu_arc_hypothesis_frame_id,
+    compute_adeu_arc_observation_frame_id,
+    derive_v42b_arc_hypothesis_frame,
+    derive_v42b_arc_observation_frame,
+    materialize_adeu_arc_hypothesis_frame_payload,
+    materialize_adeu_arc_observation_frame_payload,
+)
 from .task_packet import (
     ADEU_ARC_TASK_PACKET_SCHEMA,
     V42A_V89_CONTRACT_SOURCE,
@@ -13,14 +28,26 @@ from .task_packet import (
 
 __all__ = [
     "ADEU_ARC_TASK_PACKET_SCHEMA",
+    "ADEU_ARC_OBSERVATION_FRAME_SCHEMA",
+    "ADEU_ARC_HYPOTHESIS_FRAME_SCHEMA",
     "V42A_V89_CONTRACT_SOURCE",
+    "V42B_V90_CONTRACT_SOURCE",
     "AdeuArcTaskPacket",
+    "AdeuArcObservationFrame",
+    "AdeuArcHypothesisFrame",
     "ArcAdapterBoundaryPolicy",
     "ArcLegalActionEnvelopeProvenance",
+    "canonicalize_adeu_arc_observation_frame_payload",
+    "canonicalize_adeu_arc_hypothesis_frame_payload",
     "canonicalize_adeu_arc_task_packet_payload",
+    "compute_adeu_arc_observation_frame_id",
+    "compute_adeu_arc_hypothesis_frame_id",
     "compute_adeu_arc_task_packet_id",
+    "derive_v42b_arc_observation_frame",
+    "derive_v42b_arc_hypothesis_frame",
     "derive_v42a_arc_task_packet",
     "export_schema_main",
+    "materialize_adeu_arc_observation_frame_payload",
+    "materialize_adeu_arc_hypothesis_frame_payload",
     "materialize_adeu_arc_task_packet_payload",
 ]
-

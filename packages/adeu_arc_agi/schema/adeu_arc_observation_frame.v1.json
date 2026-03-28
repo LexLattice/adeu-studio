@@ -1,0 +1,335 @@
+{
+  "$defs": {
+    "ArcEntityRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "entity_kind": {
+          "title": "Entity Kind",
+          "type": "string"
+        },
+        "source_observation_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Observation Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "entity_id",
+        "entity_kind",
+        "source_observation_refs"
+      ],
+      "title": "ArcEntityRecord",
+      "type": "object"
+    },
+    "ArcObservationEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "derived_from_observation_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Derived From Observation Ids",
+          "type": "array"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "observation_id": {
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "observation_mode": {
+          "enum": [
+            "direct",
+            "derived"
+          ],
+          "title": "Observation Mode",
+          "type": "string"
+        },
+        "resolution_posture": {
+          "enum": [
+            "resolved",
+            "unresolved"
+          ],
+          "title": "Resolution Posture",
+          "type": "string"
+        },
+        "source_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        },
+        "structural_kind": {
+          "title": "Structural Kind",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_id",
+        "observation_mode",
+        "structural_kind",
+        "summary",
+        "source_refs",
+        "evidence_refs",
+        "resolution_posture"
+      ],
+      "title": "ArcObservationEntry",
+      "type": "object"
+    },
+    "ArcOntologyUncertainty": {
+      "additionalProperties": false,
+      "properties": {
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "uncertainty_id": {
+          "title": "Uncertainty Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uncertainty_id",
+        "summary"
+      ],
+      "title": "ArcOntologyUncertainty",
+      "type": "object"
+    },
+    "ArcOntologyUnit": {
+      "additionalProperties": false,
+      "properties": {
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "unit_id": {
+          "title": "Unit Id",
+          "type": "string"
+        },
+        "unit_kind": {
+          "title": "Unit Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "unit_id",
+        "unit_kind",
+        "summary"
+      ],
+      "title": "ArcOntologyUnit",
+      "type": "object"
+    },
+    "ArcRelationRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "endpoint_entity_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2,
+          "title": "Endpoint Entity Ids",
+          "type": "array"
+        },
+        "relation_id": {
+          "title": "Relation Id",
+          "type": "string"
+        },
+        "relation_kind": {
+          "title": "Relation Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "relation_id",
+        "relation_kind",
+        "endpoint_entity_ids"
+      ],
+      "title": "ArcRelationRecord",
+      "type": "object"
+    },
+    "ArcStatePartitionRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "covered_cell_ref_hash": {
+          "title": "Covered Cell Ref Hash",
+          "type": "string"
+        },
+        "partition_id": {
+          "title": "Partition Id",
+          "type": "string"
+        },
+        "partition_kind": {
+          "title": "Partition Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "partition_id",
+        "partition_kind",
+        "covered_cell_ref_hash"
+      ],
+      "title": "ArcStatePartitionRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "coverage_basis": {
+      "const": "required_dimension_set",
+      "default": "required_dimension_set",
+      "title": "Coverage Basis",
+      "type": "string"
+    },
+    "decomposition_coverage": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Decomposition Coverage",
+      "type": "number"
+    },
+    "entity_inventory": {
+      "items": {
+        "$ref": "#/$defs/ArcEntityRecord"
+      },
+      "minItems": 1,
+      "title": "Entity Inventory",
+      "type": "array"
+    },
+    "environment_authority": {
+      "const": "official_arc_toolkit",
+      "default": "official_arc_toolkit",
+      "title": "Environment Authority",
+      "type": "string"
+    },
+    "game_ref": {
+      "title": "Game Ref",
+      "type": "string"
+    },
+    "missing_dimension_register": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Dimension Register",
+      "type": "array"
+    },
+    "mode_posture": {
+      "const": "local_offline",
+      "default": "local_offline",
+      "title": "Mode Posture",
+      "type": "string"
+    },
+    "observation_entries": {
+      "items": {
+        "$ref": "#/$defs/ArcObservationEntry"
+      },
+      "minItems": 1,
+      "title": "Observation Entries",
+      "type": "array"
+    },
+    "observation_frame_id": {
+      "title": "Observation Frame Id",
+      "type": "string"
+    },
+    "ontology_register": {
+      "items": {
+        "$ref": "#/$defs/ArcOntologyUnit"
+      },
+      "minItems": 1,
+      "title": "Ontology Register",
+      "type": "array"
+    },
+    "ontology_uncertainty_register": {
+      "items": {
+        "$ref": "#/$defs/ArcOntologyUncertainty"
+      },
+      "title": "Ontology Uncertainty Register",
+      "type": "array"
+    },
+    "relation_inventory": {
+      "items": {
+        "$ref": "#/$defs/ArcRelationRecord"
+      },
+      "minItems": 1,
+      "title": "Relation Inventory",
+      "type": "array"
+    },
+    "required_dimension_set": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Required Dimension Set",
+      "type": "array"
+    },
+    "schema": {
+      "const": "adeu_arc_observation_frame@1",
+      "default": "adeu_arc_observation_frame@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "session_ref": {
+      "title": "Session Ref",
+      "type": "string"
+    },
+    "state_partition_register": {
+      "items": {
+        "$ref": "#/$defs/ArcStatePartitionRecord"
+      },
+      "minItems": 1,
+      "title": "State Partition Register",
+      "type": "array"
+    },
+    "task_packet_id": {
+      "title": "Task Packet Id",
+      "type": "string"
+    },
+    "task_packet_ref": {
+      "title": "Task Packet Ref",
+      "type": "string"
+    },
+    "unresolved_observation_entries": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unresolved Observation Entries",
+      "type": "array"
+    }
+  },
+  "required": [
+    "observation_frame_id",
+    "task_packet_id",
+    "task_packet_ref",
+    "game_ref",
+    "session_ref",
+    "ontology_register",
+    "entity_inventory",
+    "relation_inventory",
+    "state_partition_register",
+    "ontology_uncertainty_register",
+    "observation_entries",
+    "unresolved_observation_entries",
+    "decomposition_coverage",
+    "required_dimension_set",
+    "missing_dimension_register"
+  ],
+  "title": "AdeuArcObservationFrame",
+  "type": "object"
+}
