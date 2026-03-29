@@ -1,0 +1,401 @@
+{
+  "$defs": {
+    "AdeuArcThreePuzzleHarnessRunEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_profile_ref": {
+          "title": "Agent Profile Ref",
+          "type": "string"
+        },
+        "local_eval_ref": {
+          "title": "Local Eval Ref",
+          "type": "string"
+        },
+        "model_id": {
+          "title": "Model Id",
+          "type": "string"
+        },
+        "prompt_profile_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Profile Ref"
+        },
+        "puzzle_id": {
+          "title": "Puzzle Id",
+          "type": "string"
+        },
+        "puzzle_index": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Puzzle Index",
+          "type": "integer"
+        },
+        "puzzle_input_id": {
+          "title": "Puzzle Input Id",
+          "type": "string"
+        },
+        "reasoning_effort_observed": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "xhigh"
+          ],
+          "title": "Reasoning Effort Observed",
+          "type": "string"
+        },
+        "reasoning_run_record_ref": {
+          "title": "Reasoning Run Record Ref",
+          "type": "string"
+        },
+        "rollout_presence_posture": {
+          "enum": [
+            "rollout_present",
+            "rollout_absent"
+          ],
+          "title": "Rollout Presence Posture",
+          "type": "string"
+        },
+        "run_config_hash": {
+          "title": "Run Config Hash",
+          "type": "string"
+        },
+        "run_config_ref": {
+          "title": "Run Config Ref",
+          "type": "string"
+        },
+        "run_execution_status": {
+          "enum": [
+            "started",
+            "failed_before_task_packet",
+            "task_emitted",
+            "observation_emitted",
+            "hypothesis_emitted",
+            "action_emitted",
+            "rollout_emitted",
+            "blocked_or_deferred",
+            "completed"
+          ],
+          "title": "Run Execution Status",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "run_terminal_posture": {
+          "enum": [
+            "completed_with_rollout",
+            "completed_without_rollout",
+            "blocked_or_deferred",
+            "failed"
+          ],
+          "title": "Run Terminal Posture",
+          "type": "string"
+        },
+        "scorecard_manifest_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scorecard Manifest Ref"
+        },
+        "scorecard_presence_posture": {
+          "enum": [
+            "scorecard_present",
+            "scorecard_absent_deferred"
+          ],
+          "title": "Scorecard Presence Posture",
+          "type": "string"
+        },
+        "stage_evidence_ref_set": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Stage Evidence Ref Set",
+          "type": "array"
+        },
+        "submission_execution_record_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Submission Execution Record Ref"
+        },
+        "submission_presence_posture": {
+          "enum": [
+            "submission_present",
+            "submission_absent_deferred"
+          ],
+          "title": "Submission Presence Posture",
+          "type": "string"
+        }
+      },
+      "required": [
+        "puzzle_index",
+        "puzzle_input_id",
+        "puzzle_id",
+        "run_id",
+        "reasoning_run_record_ref",
+        "run_execution_status",
+        "run_terminal_posture",
+        "rollout_presence_posture",
+        "model_id",
+        "agent_profile_ref",
+        "run_config_ref",
+        "run_config_hash",
+        "reasoning_effort_observed",
+        "stage_evidence_ref_set",
+        "local_eval_ref",
+        "scorecard_presence_posture",
+        "submission_presence_posture"
+      ],
+      "title": "AdeuArcThreePuzzleHarnessRunEntry",
+      "type": "object"
+    },
+    "ArcHarnessSequenceEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "puzzle_id": {
+          "title": "Puzzle Id",
+          "type": "string"
+        },
+        "puzzle_index": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Puzzle Index",
+          "type": "integer"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "sequence_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Sequence Evidence Refs",
+          "type": "array"
+        },
+        "sequence_step": {
+          "minimum": 1,
+          "title": "Sequence Step",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sequence_step",
+        "puzzle_index",
+        "puzzle_id",
+        "run_id",
+        "sequence_evidence_refs"
+      ],
+      "title": "ArcHarnessSequenceEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "agent_profile_ref": {
+      "title": "Agent Profile Ref",
+      "type": "string"
+    },
+    "aggregated_local_eval_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Aggregated Local Eval Ref"
+    },
+    "aggregated_scorecard_posture_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Aggregated Scorecard Posture Ref"
+    },
+    "aggregated_submission_posture_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Aggregated Submission Posture Ref"
+    },
+    "canonical_puzzle_order": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Canonical Puzzle Order",
+      "type": "array"
+    },
+    "config_consistency_posture": {
+      "enum": [
+        "uniform_across_all_puzzles",
+        "explicit_divergence_declared"
+      ],
+      "title": "Config Consistency Posture",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "expected_puzzle_count": {
+      "default": 3,
+      "title": "Expected Puzzle Count",
+      "type": "integer"
+    },
+    "harness_execution_status": {
+      "enum": [
+        "in_progress",
+        "completed",
+        "completed_with_failures",
+        "invalid"
+      ],
+      "title": "Harness Execution Status",
+      "type": "string"
+    },
+    "harness_run_id": {
+      "title": "Harness Run Id",
+      "type": "string"
+    },
+    "harness_sequence_entries": {
+      "items": {
+        "$ref": "#/$defs/ArcHarnessSequenceEntry"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Harness Sequence Entries",
+      "type": "array"
+    },
+    "harness_sequence_register": {
+      "title": "Harness Sequence Register",
+      "type": "string"
+    },
+    "prompt_profile_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Profile Ref"
+    },
+    "puzzle_input_bundle_id": {
+      "title": "Puzzle Input Bundle Id",
+      "type": "string"
+    },
+    "puzzle_run_entries": {
+      "items": {
+        "$ref": "#/$defs/AdeuArcThreePuzzleHarnessRunEntry"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Puzzle Run Entries",
+      "type": "array"
+    },
+    "run_config_hash": {
+      "title": "Run Config Hash",
+      "type": "string"
+    },
+    "run_config_ref": {
+      "title": "Run Config Ref",
+      "type": "string"
+    },
+    "run_summary": {
+      "title": "Run Summary",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_arc_three_puzzle_harness_record@1",
+      "default": "adeu_arc_three_puzzle_harness_record@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_puzzle_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Selected Puzzle Ids",
+      "type": "array"
+    },
+    "selection_register_hash": {
+      "title": "Selection Register Hash",
+      "type": "string"
+    },
+    "selection_register_id": {
+      "title": "Selection Register Id",
+      "type": "string"
+    },
+    "three_puzzle_harness_record_id": {
+      "title": "Three Puzzle Harness Record Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "three_puzzle_harness_record_id",
+    "harness_run_id",
+    "puzzle_input_bundle_id",
+    "selection_register_id",
+    "selection_register_hash",
+    "selected_puzzle_ids",
+    "canonical_puzzle_order",
+    "harness_execution_status",
+    "puzzle_run_entries",
+    "harness_sequence_register",
+    "harness_sequence_entries",
+    "agent_profile_ref",
+    "run_config_ref",
+    "run_config_hash",
+    "config_consistency_posture",
+    "run_summary",
+    "evidence_refs"
+  ],
+  "title": "AdeuArcThreePuzzleHarnessRecord",
+  "type": "object"
+}
