@@ -38,6 +38,10 @@ from .submission_execution import (
     AdeuArcSubmissionExecutionRecord,
 )
 from .task_packet import ADEU_ARC_TASK_PACKET_SCHEMA, AdeuArcTaskPacket
+from .three_puzzle_harness import (
+    ADEU_ARC_THREE_PUZZLE_HARNESS_RECORD_SCHEMA,
+    AdeuArcThreePuzzleHarnessRecord,
+)
 
 
 def _write_schema(path: Path, schema: dict[str, object]) -> None:
@@ -94,6 +98,14 @@ def main() -> None:
         != ADEU_ARC_REASONING_RUN_RECORD_SCHEMA
     ):
         raise ValueError("exported schema marker drift for adeu_arc_reasoning_run_record@1")
+    three_puzzle_harness_schema = AdeuArcThreePuzzleHarnessRecord.model_json_schema(by_alias=True)
+    if (
+        three_puzzle_harness_schema["properties"]["schema"]["const"]
+        != ADEU_ARC_THREE_PUZZLE_HARNESS_RECORD_SCHEMA
+    ):
+        raise ValueError(
+            "exported schema marker drift for adeu_arc_three_puzzle_harness_record@1"
+        )
 
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
@@ -139,6 +151,14 @@ def main() -> None:
         / "adeu_arc_submission_execution_record.v1.json",
         submission_execution_schema,
     )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_arc_agi"
+        / "schema"
+        / "adeu_arc_three_puzzle_harness_record.v1.json",
+        three_puzzle_harness_schema,
+    )
     _write_schema(root / "spec" / "adeu_arc_task_packet.schema.json", task_packet_schema)
     _write_schema(
         root / "spec" / "adeu_arc_observation_frame.schema.json",
@@ -175,6 +195,10 @@ def main() -> None:
     _write_schema(
         root / "spec" / "adeu_arc_submission_execution_record.schema.json",
         submission_execution_schema,
+    )
+    _write_schema(
+        root / "spec" / "adeu_arc_three_puzzle_harness_record.schema.json",
+        three_puzzle_harness_schema,
     )
 
 

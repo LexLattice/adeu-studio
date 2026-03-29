@@ -15,6 +15,7 @@ from adeu_arc_agi import (
     ADEU_ARC_SCORECARD_MANIFEST_SCHEMA,
     ADEU_ARC_SUBMISSION_EXECUTION_RECORD_SCHEMA,
     ADEU_ARC_TASK_PACKET_SCHEMA,
+    ADEU_ARC_THREE_PUZZLE_HARNESS_RECORD_SCHEMA,
 )
 from adeu_arc_agi.export_schema import main as export_schema_main
 from adeu_ir.repo import repo_root
@@ -68,6 +69,14 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "adeu_arc_submission_execution_record.v1.json",
             root / "spec" / "adeu_arc_submission_execution_record.schema.json",
+        ),
+        ADEU_ARC_THREE_PUZZLE_HARNESS_RECORD_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_arc_agi"
+            / "schema"
+            / "adeu_arc_three_puzzle_harness_record.v1.json",
+            root / "spec" / "adeu_arc_three_puzzle_harness_record.schema.json",
         ),
     }
 
