@@ -1,0 +1,85 @@
+{
+  "action_proposal_emission_evidence_refs": [
+    "evidence:action_emit:step_004|mismatched_identity_chain"
+  ],
+  "action_proposal_ref": "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_action_proposal_v91_reference.json",
+  "agent_profile_ref": "profiles://agents/v42g2/single_attempt_baseline@1",
+  "branch_event_refs": [],
+  "branching_posture": "no_branching",
+  "branching_visibility_status": "not_applicable",
+  "competition_scope_ref": "scope://arcagi3/local_three_puzzle_reference",
+  "emission_sequence_register": [
+    {
+      "evidence_ref": "evidence:task_packet_emit:step_001|run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+      "sequence_index": 1,
+      "stage": "task_packet"
+    },
+    {
+      "evidence_ref": "evidence:observation_emit:step_002|run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+      "sequence_index": 2,
+      "stage": "observation_frame"
+    },
+    {
+      "evidence_ref": "evidence:hypothesis_emit:step_003|run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+      "sequence_index": 3,
+      "stage": "hypothesis_frame"
+    },
+    {
+      "evidence_ref": "evidence:action_emit:step_004|run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+      "sequence_index": 4,
+      "stage": "action_proposal"
+    },
+    {
+      "evidence_ref": "evidence:rollout_emit:step_005|run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+      "sequence_index": 5,
+      "stage": "rollout_trace"
+    }
+  ],
+  "environment_ref": "env://local/arcagi3/v95_reference_env",
+  "evidence_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS96.md#v96-continuation-contract-machine-checkable",
+    "identity_chain:run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+    "policy:deterministic_replay_scope=fixed_emitted_artifacts_and_in_band_evidence"
+  ],
+  "hypothesis_frame_emission_evidence_refs": [
+    "evidence:hypothesis_emit:step_003|run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference"
+  ],
+  "hypothesis_frame_ref": "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_hypothesis_frame_v90_reference.json",
+  "model_id": "gpt-5.4",
+  "observation_frame_emission_evidence_refs": [
+    "evidence:observation_emit:step_002|run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference"
+  ],
+  "observation_frame_ref": "apps/api/fixtures/arc_agi/vnext_plus90/adeu_arc_observation_frame_v90_reference.json",
+  "prompt_profile_ref": "prompts://arc/v42g2/reasoning_bridge@1",
+  "puzzle_id": "arcagi3_local_p001",
+  "puzzle_input_bundle_id": "arc_bundle_e26977b6060dc81cb3967fb1c344a624",
+  "puzzle_input_id": "arc_puz_66392a7ce139923fbc8d2d36bacf6f92",
+  "reasoning_effort_observed": "xhigh",
+  "reasoning_effort_requested": "xhigh",
+  "reasoning_effort_source_kind": "provider_observed",
+  "reasoning_run_record_id": "arc_run_901dffb04211b1c2ec9e21b74255a332",
+  "rollout_presence_posture": "rollout_present",
+  "rollout_trace_emission_evidence_refs": [
+    "evidence:rollout_emit:step_005|run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference"
+  ],
+  "rollout_trace_ref": "apps/api/fixtures/arc_agi/vnext_plus91/adeu_arc_rollout_trace_v91_reference.json",
+  "run_config_hash": "5787031e5d1f919a2c5c104d630b0b5cc6754052b59ce026acf256d7218fcd34",
+  "run_config_ref": "configs://arc/v42g2/run/single_attempt_with_rollout@1",
+  "run_execution_status": "completed",
+  "run_id": "run_v96_001",
+  "run_summary": "Single-attempt in-band ladder occupation captured with staged evidence.",
+  "run_terminal_posture": "completed_with_rollout",
+  "schema": "adeu_arc_reasoning_run_record@1",
+  "selection_register_id": "arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c",
+  "session_ref": "session://local/arcagi3/v95_reference_session",
+  "settlement_posture_carry": {
+    "ambiguity_posture_preserved": true,
+    "claim_posture_preserved": true,
+    "necessity_laundering_detected": false,
+    "summary": "single-attempt settlement carry remains explicit and bounded"
+  },
+  "task_packet_emission_evidence_refs": [
+    "evidence:task_packet_emit:step_001|run_v96_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference"
+  ],
+  "task_packet_ref": "apps/api/fixtures/arc_agi/vnext_plus89/adeu_arc_task_packet_v89_reference.json"
+}

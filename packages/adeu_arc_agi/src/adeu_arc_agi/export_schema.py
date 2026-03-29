@@ -25,6 +25,10 @@ from .puzzle_input_bundle import (
     ADEU_ARC_PUZZLE_INPUT_BUNDLE_SCHEMA,
     AdeuArcPuzzleInputBundle,
 )
+from .reasoning_run_record import (
+    ADEU_ARC_REASONING_RUN_RECORD_SCHEMA,
+    AdeuArcReasoningRunRecord,
+)
 from .scorecard import (
     ADEU_ARC_SCORECARD_MANIFEST_SCHEMA,
     AdeuArcScorecardManifest,
@@ -84,6 +88,12 @@ def main() -> None:
         != ADEU_ARC_PUZZLE_INPUT_BUNDLE_SCHEMA
     ):
         raise ValueError("exported schema marker drift for adeu_arc_puzzle_input_bundle@1")
+    reasoning_run_record_schema = AdeuArcReasoningRunRecord.model_json_schema(by_alias=True)
+    if (
+        reasoning_run_record_schema["properties"]["schema"]["const"]
+        != ADEU_ARC_REASONING_RUN_RECORD_SCHEMA
+    ):
+        raise ValueError("exported schema marker drift for adeu_arc_reasoning_run_record@1")
 
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
@@ -116,6 +126,10 @@ def main() -> None:
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_puzzle_input_bundle.v1.json",
         puzzle_input_bundle_schema,
+    )
+    _write_schema(
+        root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_reasoning_run_record.v1.json",
+        reasoning_run_record_schema,
     )
     _write_schema(
         root
@@ -153,6 +167,10 @@ def main() -> None:
     _write_schema(
         root / "spec" / "adeu_arc_puzzle_input_bundle.schema.json",
         puzzle_input_bundle_schema,
+    )
+    _write_schema(
+        root / "spec" / "adeu_arc_reasoning_run_record.schema.json",
+        reasoning_run_record_schema,
     )
     _write_schema(
         root / "spec" / "adeu_arc_submission_execution_record.schema.json",
