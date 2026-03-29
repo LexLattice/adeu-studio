@@ -1,6 +1,10 @@
-# Draft Stop-Gate Decision vNext+96
+# Draft Stop-Gate Decision (Post vNext+96)
 
-Status: proposed gate for `V42-G2`.
+This note records the arc-completion decision for:
+
+- `docs/LOCKED_CONTINUATION_vNEXT_PLUS96.md`
+
+Status: draft decision note (post-hoc closeout capture, March 29, 2026 UTC).
 
 ## Decision-State Marker (Machine-Checkable)
 
@@ -8,60 +12,115 @@ Status: proposed gate for `V42-G2`.
 {
   "schema": "decision_artifact_state@1",
   "artifact": "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS96.md",
-  "phase": "pre_start_scaffold",
-  "authoritative": false,
+  "phase": "post_closeout_decision",
+  "authoritative": true,
+  "authoritative_scope": "v96_closeout_stop_gate_decision",
   "required_in_closeout": true,
-  "all_passed": false
+  "all_passed": true,
+  "notes": "Pre-start scaffold markers are superseded by post-closeout evidence and final decision values in this document."
 }
 ```
 
-## Accept When
+## Decision Guardrail (Frozen)
 
-- one canonical `adeu_arc_reasoning_run_record@1` is released with authoritative/mirror
-  schema parity;
-- one bounded entrypoint consumes a released `adeu_arc_puzzle_input_bundle@1` plus one
-  selected puzzle and emits in-band `V42-A`/`V42-B`/`V42-C` ladder occupancy;
-- deterministic replay scope is explicitly limited to deterministic derivation/validation
-  over fixed emitted artifacts and fixed in-band evidence;
-- run identity chain is typed and stable across run/puzzle/environment/session/
-  competition refs;
-- run configuration identity is typed and stable (`agent_profile_ref`, `run_config_ref`,
-  `run_config_hash`, optional `prompt_profile_ref`);
-- run execution lifecycle, terminal posture, and rollout-presence posture are explicit
-  and machine-checkable;
-- stage-aware emission evidence refs are present per occupied surface plus one monotonic
-  `emission_sequence_register`;
-- blocked/deferred action posture is admissible with required `action_proposal_ref`
-  (without forced committed rollout);
-- post-hoc artifact reconstruction posture is rejected fail closed;
-- all-at-once compatible dump posture (all refs present but no staged monotonic emission
-  evidence) is rejected fail closed;
-- prompt-only hidden branching is not treated as equivalent to explicit typed ladder
-  occupation and branching visibility surfaces are required when branching affects
-  posture;
-- fixture ladder is committed under `apps/api/fixtures/arc_agi/vnext_plus96/` with one
-  accepted run record and rejection fixtures for reconstruction, surface omissions,
-  staged-emission ordering gaps, identity/config mismatch, hidden-branching laundering,
-  and rollout-presence contradiction;
-- Python tests cover schema validation, schema parity, deterministic accepted replay, and
-  required rejection paths.
+- This draft records `vNext+96` closeout evidence only.
+- It must not redefine semantics, locks, or scope from
+  `docs/LOCKED_CONTINUATION_vNEXT_PLUS96.md`.
+- This note captures `V42-G2` closeout evidence only; it does not authorize
+  three-puzzle harness orchestration widening (`V42-G3`), behavior-evidence synthesis
+  widening (`V42-G4`), benchmark tournament execution, API/web operator routes, or
+  generalized multi-agent/multi-benchmark orchestration.
+- Canonical `V42-G2` release in v96 is carried by the
+  `packages/adeu_arc_agi`/`packages/adeu_arc_solver` reasoning-run surfaces,
+  deterministic fixture replay under `apps/api/fixtures/arc_agi/vnext_plus96/`, and
+  the canonical `v42g2_arc_reasoning_run_record_evidence@1` evidence input under
+  `artifacts/agent_harness/v96/evidence_inputs/`.
+- Runtime observability comparison remains required evidence and informational-only in
+  this arc.
 
-## Do Not Accept If
+## Evidence Source
 
-- `V42-G2` redefines released semantics from `V42-A`..`V42-F` or `V42-G1`;
-- implementation widens into `V42-G3` three-puzzle orchestration or `V42-G4`
-  behavior-evidence synthesis;
-- intermediate surfaces are backfilled after-the-fact rather than emitted in-band;
-- deterministic replay language is overclaimed as deterministic fresh model
-  re-execution;
-- staged per-surface emission evidence is missing or sequence ordering is non-monotonic;
-- rollout presence/absence is contradictory with terminal posture and `rollout_trace_ref`;
-- summary or narrative fields override typed run identity or occupation surfaces;
-- benchmark tournament execution, API/web operator routes, or generalized multi-agent
-  orchestration are introduced.
+- CI workflow: `ci` on `main`
+- arc-completion merge commit: `2c7214ec2c2773256ed0b1ec390105f4d7f7c52a`
+- merged implementation PRs:
+  - `#318` (`V42-G2: reasoning-agent run bridge`)
+- deterministic closeout artifacts (reproducible):
+  - quality dashboard JSON: `artifacts/quality_dashboard_v96_closeout.json`
+  - stop-gate JSON: `artifacts/stop_gate/metrics_v96_closeout.json`
+  - stop-gate Markdown: `artifacts/stop_gate/report_v96_closeout.md`
+  - metric-key continuity evidence input:
+    `artifacts/agent_harness/v96/evidence_inputs/metric_key_continuity_assertion_v96.json`
+  - runtime observability evidence input:
+    `artifacts/agent_harness/v96/evidence_inputs/runtime_observability_comparison_v96.json`
+  - `V42-G2` reasoning-run evidence input:
+    `artifacts/agent_harness/v96/evidence_inputs/v42g2_arc_reasoning_run_record_evidence_v96.json`
+  - runtime event stream evidence:
+    `artifacts/agent_harness/v96/runtime/evidence/local/urm_events.ndjson`
+- closeout edge assessment:
+  - `docs/ASSESSMENT_vNEXT_PLUS96_EDGES.md`
 
-## Local Gate
+## Exit-Criteria Check (vNext+96)
 
-- run `make arc-start-check ARC=96` for starter-bundle validation;
-- for implementation PRs that touch Python/runtime surfaces, run `make check` (or state
-  skipped scopes explicitly when running a narrower subset).
+| Criterion | Threshold | Current State | Evidence |
+|---|---|---|---|
+| `V42-G2` merged with green CI | required | `pass` | PR `#318`, merge commit `2c7214ec2c2773256ed0b1ec390105f4d7f7c52a` |
+| Canonical `adeu_arc_reasoning_run_record@1` shipped with authoritative/mirror schema parity | required | `pass` | `packages/adeu_arc_agi/schema/adeu_arc_reasoning_run_record.v1.json`, `spec/adeu_arc_reasoning_run_record.schema.json` |
+| Deterministic single-attempt replay over accepted run-record fixture is stable | required | `pass` | replay checks in `packages/adeu_arc_agi/tests/test_arc_reasoning_run_record_v42g2.py` and accepted fixture `apps/api/fixtures/arc_agi/vnext_plus96/adeu_arc_reasoning_run_record_v96_reference.json` |
+| In-band stage occupation carries stage-aware refs plus monotonic `emission_sequence_register` | required | `pass` | staged evidence/lifecycle checks in `packages/adeu_arc_agi/src/adeu_arc_agi/reasoning_run_record.py` |
+| Post-hoc reconstruction and all-at-once compatible dump postures are rejected fail-closed | required | `pass` | rejected fixtures `..._reject_post_hoc_reconstruction.json` and `..._reject_all_at_once_dump_without_staged_monotonic_evidence.json` |
+| Missing intermediate occupancy, identity-chain mismatch, and rollout-posture contradiction are rejected fail-closed | required | `pass` | rejected fixtures `..._reject_missing_intermediate_occupancy.json`, `..._reject_identity_chain_mismatch.json`, `..._reject_rollout_presence_posture_contradiction.json` |
+| Hidden-branching laundering over typed surfaces is rejected fail-closed | required | `pass` | rejected fixture `..._reject_hidden_branching_laundering.json` |
+| Blocked/deferred posture remains admissible with required `action_proposal_ref` and without forced rollout | required | `pass` | `run_terminal_posture`/`rollout_presence_posture` rules in `reasoning_run_record.py` |
+| Stop-gate schema-family continuity retained | required | `pass` | `artifacts/stop_gate/metrics_v96_closeout.json` with `schema = stop_gate_metrics@1`, `valid = true`, `all_passed = true` |
+| Stop-gate metric-key continuity retained | required | `pass` | `artifacts/agent_harness/v96/evidence_inputs/metric_key_continuity_assertion_v96.json` |
+| Runtime observability comparison captured | required | `pass` | `artifacts/agent_harness/v96/evidence_inputs/runtime_observability_comparison_v96.json` |
+
+## Stop-Gate Summary
+
+```json
+{
+  "schema": "v96_closeout_stop_gate_summary@1",
+  "arc": "vNext+96",
+  "target_path": "V42-G2",
+  "stop_gate_schema_family": "stop_gate_metrics@1",
+  "metric_key_cardinality": 80,
+  "metric_key_exact_set_equal_v95": true,
+  "all_passed": true,
+  "runtime_observability_elapsed_ms": 83,
+  "runtime_observability_delta_ms": -18
+}
+```
+
+## Metric-Key Continuity Assertion
+
+```json
+{"baseline_metrics_path":"artifacts/stop_gate/metrics_v95_closeout.json","current_metrics_path":"artifacts/stop_gate/metrics_v96_closeout.json","expected_relation":"exact_keyset_equality","schema":"metric_key_continuity_assertion@1"}
+```
+
+## Runtime Observability Comparison
+
+```json
+{"baseline_arc":"vNext+95","baseline_elapsed_ms":101,"baseline_source":"artifacts/stop_gate/report_v95_closeout.md","current_arc":"vNext+96","current_elapsed_ms":83,"current_source":"artifacts/stop_gate/report_v96_closeout.md","delta_ms":-18,"notes":"v96 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while adding the bounded V42-G2 reasoning-run bridge baseline on main.","schema":"runtime_observability_comparison@1"}
+```
+
+## V42G2 Reasoning-Run Bridge Evidence
+
+```json
+{"schema":"v42g2_arc_reasoning_run_record_evidence@1","evidence_input_path":"artifacts/agent_harness/v96/evidence_inputs/v42g2_arc_reasoning_run_record_evidence_v96.json","contract_source":"docs/LOCKED_CONTINUATION_vNEXT_PLUS96.md#v96-continuation-contract-machine-checkable","merged_pr":"#318","merge_commit":"2c7214ec2c2773256ed0b1ec390105f4d7f7c52a","reasoning_run_record_authoritative_schema_path":"packages/adeu_arc_agi/schema/adeu_arc_reasoning_run_record.v1.json","reasoning_run_record_mirror_schema_path":"spec/adeu_arc_reasoning_run_record.schema.json","accepted_reference_fixture_path":"apps/api/fixtures/arc_agi/vnext_plus96/adeu_arc_reasoning_run_record_v96_reference.json"}
+```
+
+## Recommendation (Post v96)
+
+- gate decision:
+  - `V42G2_REASONING_RUN_BRIDGE_BASELINE_COMPLETE_ON_MAIN`
+- rationale:
+  - v96 closes the bounded `V42-G2` baseline with typed run/puzzle/config identity
+    binding, staged in-band ladder evidence, lifecycle/terminal/rollout posture
+    coherence, and fail-closed rejection of reconstruction/ordering/branching drift on
+    `main`.
+  - three-puzzle harness orchestration (`V42-G3`) and behavior-evidence synthesis
+    (`V42-G4`) remain deferred.
+  - no stop-gate schema-family or metric-key regressions were introduced; runtime
+    observability changed only informationally.
+  - the next default seam now belongs to `V42-G3` widening selection rather than
+    another `V42-G2` continuation.
