@@ -1,7 +1,7 @@
 # Draft Next Arc Options v25
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v24.md`, updated after
-`vNext+95` closeout to select the next concrete `V42-G` operational lane over the
+`vNext+96` closeout to select the next concrete `V42-G` operational lane over the
 released ARC participation stack.
 
 This draft moves from "post-submission widening is not selected yet" to an explicit
@@ -12,8 +12,8 @@ ARC-AGI-3 puzzle ingestion, reasoning-run capture, and three-puzzle local evalua
 replayable through released ADEU artifacts.
 
 `V42-G` is the first operationalization lane in this family: it does not primarily
-widen the released artifact ladder; it consumes released `V42-A`..`V42-F` artifacts in a
-bounded local-testing workflow.
+widen the released artifact ladder; it consumes released `V42-A`..`V42-G2` artifacts in
+a bounded local-testing workflow.
 
 This is a planning document only. It is not a lock doc and does not authorize runtime
 behavior, schema release, or implementation by itself.
@@ -36,8 +36,8 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+95` is the current baseline implementation state.
-- `V42-A` through `V42-G1` are closed on `main` at intentionally bounded scope:
+- `vNext+96` is the current baseline implementation state.
+- `V42-A` through `V42-G2` are closed on `main` at intentionally bounded scope:
   - `V42-A`: local toolkit adapter and canonical `adeu_arc_task_packet@1`;
   - `V42-B`: canonical observation and hypothesis artifacts;
   - `V42-C`: canonical action proposal and rollout trace artifacts;
@@ -47,34 +47,33 @@ Interpretive doctrine for this planning surface:
     request/receipt/result identity-chain validation;
   - `V42-G1`: canonical local puzzle ingest/freeze surface and deterministic three-puzzle
     selection register posture (`adeu_arc_puzzle_input_bundle@1`).
+  - `V42-G2`: canonical reasoning-agent run bridge surface with stage-aware in-band
+    ladder evidence posture (`adeu_arc_reasoning_run_record@1`).
 - The practical-analysis six-lane substrate from `V41` remains released and reusable.
 - `V42-G` remains inside `V42` because it is ARC-participation-specific and consumes
-  the released `V42-A`..`V42-F` stack without redefining those contracts.
+  the released `V42-A`..`V42-G2` stack without redefining those contracts.
 
 ## Gap
 
 The missing layer is no longer schema-grounded local reasoning artifacts.
 
 The missing layer now is practical local ARC-AGI-3 puzzle testing workflow over the
-released `V42-A`..`V42-F` stack, specifically:
+released `V42-A`..`V42-G2` stack, specifically:
 
-- get puzzle inputs into this repo in a deterministic, replayable, local-first way;
-- run a reasoning agent through the ADEU scaffold so decomposition/observation/
-  hypothesis/action traces are explicit;
-- execute a bounded multi-puzzle local run (initially three puzzles) and retain full
-  lineage and evidence;
+- execute a bounded multi-puzzle local run (initially exactly three selected puzzles)
+  and retain full lineage and evidence;
+- preserve stage-aware reasoning-run occupation posture across each puzzle while the
+  harness remains bounded to local-first control-plane constraints;
 - evaluate behavior quality and control-plane adherence from produced artifacts without
   requiring tournament/API/web widening.
 
 Today the repo still lacks a released way to:
 
-- run one end-to-end local "reasoning agent attempt" flow that emits an auditable
-  artifact ladder per puzzle using the current stack;
 - aggregate a small local puzzle set run in one deterministic harness flow;
 - ship a canonical behavior-mapping evidence bundle focused on how the agent reasons
   and where it fails under ADEU controls.
-- verify that a reasoning run actually occupied the ADEU control plane during execution
-  rather than being post-hoc reconstructed into artifact-compatible outputs.
+- preserve explicit staged occupation/evidence posture across exactly three bounded local
+  puzzles under one typed harness run boundary.
 
 ## Recommended Family
 
@@ -85,13 +84,13 @@ Today the repo still lacks a released way to:
 - Recommended decomposition reference:
   - `docs/DRAFT_V42_ARC_AGI_PARTICIPATION_DECOMPOSITION_v0.md`
 - Recommended next path:
-  - `V42-G` local ARC-AGI-3 testing lane over released `V42-A`..`V42-F` (workflow
+  - `V42-G` local ARC-AGI-3 testing lane over released `V42-A`..`V42-G2` (workflow
     consumption lane, not primary artifact-ladder widening)
 - Recommended next concrete arc:
-  - `vNext+96` (`V42-G2`)
+  - `vNext+97` (`V42-G3`)
 - Default path selection:
-  - select `V42-G2` as the next default candidate;
-  - instantiate `V42-G2` first, then advance `G3`..`G4` in order.
+  - select `V42-G3` as the next default candidate;
+  - instantiate `V42-G3` first, then advance `G4`.
 
 ## Suggested `V42` Path Ladder
 
@@ -104,8 +103,8 @@ Today the repo still lacks a released way to:
 | `V42-E` | scorecard / replay posture | `adeu_arc_scorecard_manifest@1` | closed_on_main |
 | `V42-F` | submission execution / bounded orchestration posture | `adeu_arc_submission_execution_record@1` | closed_on_main |
 | `V42-G1` | local puzzle ingest and freeze | deterministic local ARC-AGI-3 puzzle input bundle + fixture ladder | closed_on_main |
-| `V42-G2` | reasoning-agent ADEU run bridge | bounded local agent-run entrypoint over released `V42-A`..`V42-C` surfaces | planned |
-| `V42-G3` | three-puzzle local run harness | deterministic `3`-puzzle execution/eval harness over released `V42-A`..`V42-F` | planned |
+| `V42-G2` | reasoning-agent ADEU run bridge | bounded local single-attempt run bridge over released `V42-A`..`V42-G1` surfaces | closed_on_main |
+| `V42-G3` | three-puzzle local run harness | deterministic `3`-puzzle execution/eval harness over released `V42-A`..`V42-G2` | planned |
 | `V42-G4` | behavior mapping and evidence bundle | canonical local behavior analysis/evidence package with fail-closed claim posture | planned |
 
 ## `V42-G` Four Subpath Subtasks
@@ -188,7 +187,7 @@ Non-goals:
 
 ## Planning Boundary
 
-- no reopening of released `V41` or released `V42-A`..`V42-F` contracts is authorized
+- no reopening of released `V41` or released `V42-A`..`V42-G2` contracts is authorized
   by this planning draft;
 - no benchmark tournament orchestration execution is authorized by this planning draft;
 - no API or web operator product surface release is authorized by this planning draft;
@@ -203,7 +202,7 @@ Non-goals:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v24.md",
-  "baseline_arc": "vNext+95",
+  "baseline_arc": "vNext+96",
   "closed_prior_family": "V41",
   "closed_prior_paths": [
     "V41-A",
@@ -214,7 +213,7 @@ Non-goals:
     "V41-F"
   ],
   "active_family": "V42",
-  "active_family_status": "in_progress_with_v42a_v42b_v42c_v42d_v42e_v42f_v42g1_closed_on_main_and_v42g2_v42g3_v42g4_planned",
+  "active_family_status": "in_progress_with_v42a_v42b_v42c_v42d_v42e_v42f_v42g1_v42g2_closed_on_main_and_v42g3_v42g4_planned",
   "closed_current_family_paths": [
     "V42-A",
     "V42-B",
@@ -222,15 +221,15 @@ Non-goals:
     "V42-D",
     "V42-E",
     "V42-F",
-    "V42-G1"
+    "V42-G1",
+    "V42-G2"
   ],
   "planned_current_family_paths": [
-    "V42-G2",
     "V42-G3",
     "V42-G4"
   ],
-  "default_next_arc_candidate": "V42-G2",
-  "default_next_concrete_arc_candidate": "vNext+96",
+  "default_next_arc_candidate": "V42-G3",
+  "default_next_concrete_arc_candidate": "vNext+97",
   "family_architecture_doc": "docs/ARCHITECTURE_ADEU_ARC_AGI_v0.md",
   "family_decomposition_doc": "docs/DRAFT_V42_ARC_AGI_PARTICIPATION_DECOMPOSITION_v0.md",
   "challenge_reference": "ARC-AGI-3",
@@ -248,9 +247,9 @@ Non-goals:
   "v42g1_local_puzzle_ingest_freeze_closed_on_main": true,
   "v42g1_authoritative_puzzle_source_binding_required": true,
   "v42g1_predeclared_selection_register_required": true,
-  "v42g2_reasoning_agent_run_bridge_planned": true,
-  "v42g2_in_band_ladder_emission_required": true,
-  "v42g2_post_hoc_artifact_reconstruction_rejected": true,
+  "v42g2_reasoning_agent_run_bridge_closed_on_main": true,
+  "v42g2_in_band_ladder_emission_baseline_closed_on_main": true,
+  "v42g2_post_hoc_artifact_reconstruction_rejected_in_baseline": true,
   "v42g3_three_puzzle_local_harness_planned": true,
   "v42g3_fixed_selection_basis_no_retrospective_swap_required": true,
   "v42g4_behavior_mapping_evidence_bundle_planned": true,
