@@ -423,6 +423,15 @@ class AdeuArcReasoningRunRecord(BaseModel):
         if sequence_indexes != sorted(sequence_indexes):
             raise ValueError("emission_sequence_register sequence_index values must be monotonic")
 
+        for stage, refs in stage_to_refs.items():
+            sequence_ref_set = set(stage_sequence_refs[stage])
+            stage_ref_set = set(refs)
+            if len(stage_sequence_refs[stage]) != len(refs) or sequence_ref_set != stage_ref_set:
+                raise ValueError(
+                    "emission_sequence_register must include each per-stage evidence ref "
+                    "exactly once"
+                )
+
         for required_stage in _REQUIRED_STAGES:
             if not stage_sequence_refs[required_stage]:
                 raise ValueError(
@@ -434,6 +443,12 @@ class AdeuArcReasoningRunRecord(BaseModel):
                 raise ValueError(
                     "emission_sequence_register required stages must follow canonical stage order"
                 )
+        previous_stage_order = 0
+        for entry in self.emission_sequence_register:
+            stage_order = _EMISSION_STAGE_ORDER[entry.stage]
+            if stage_order < previous_stage_order:
+                raise ValueError("emission_sequence_register stage order must be non-regressing")
+            previous_stage_order = stage_order
 
         if self.rollout_presence_posture == "rollout_present":
             if self.rollout_trace_ref is None:

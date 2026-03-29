@@ -243,7 +243,11 @@ def test_v96_rejects_all_at_once_dump_without_staged_monotonic_evidence_fixture(
     payload = _load_v96(
         "adeu_arc_reasoning_run_record_v96_reject_all_at_once_dump_without_staged_monotonic_evidence.json"
     )
-    with pytest.raises(ValidationError, match="must include all required non-rollout stages"):
+    with pytest.raises(
+        ValidationError,
+        match="must include each per-stage evidence ref exactly once|"
+        "must include all required non-rollout stages",
+    ):
         AdeuArcReasoningRunRecord.model_validate(payload)
 
 
@@ -264,4 +268,33 @@ def test_v96_rejects_rollout_presence_posture_contradiction_fixture() -> None:
         "adeu_arc_reasoning_run_record_v96_reject_rollout_presence_posture_contradiction.json"
     )
     with pytest.raises(ValidationError, match="rollout_absent posture forbids rollout_trace_ref"):
+        AdeuArcReasoningRunRecord.model_validate(payload)
+
+
+def test_v96_rejects_stage_evidence_ref_missing_from_sequence_register() -> None:
+    payload = _load_v96("adeu_arc_reasoning_run_record_v96_reference.json")
+    identity_chain = payload["evidence_refs"][1].split("identity_chain:", maxsplit=1)[1]
+    payload["action_proposal_emission_evidence_refs"].append(
+        f"evidence:action_emit:step_999|{identity_chain}"
+    )
+    with pytest.raises(
+        ValidationError,
+        match="must include each per-stage evidence ref exactly once",
+    ):
+        AdeuArcReasoningRunRecord.model_validate(payload)
+
+
+def test_v96_rejects_stage_order_regression_in_emission_sequence_register() -> None:
+    payload = _load_v96("adeu_arc_reasoning_run_record_v96_reference.json")
+    identity_chain = payload["evidence_refs"][1].split("identity_chain:", maxsplit=1)[1]
+    extra_obs_ref = f"evidence:observation_emit:step_999|{identity_chain}"
+    payload["observation_frame_emission_evidence_refs"].append(extra_obs_ref)
+    payload["emission_sequence_register"].append(
+        {
+            "stage": "observation_frame",
+            "sequence_index": 6,
+            "evidence_ref": extra_obs_ref,
+        }
+    )
+    with pytest.raises(ValidationError, match="stage order must be non-regressing"):
         AdeuArcReasoningRunRecord.model_validate(payload)
