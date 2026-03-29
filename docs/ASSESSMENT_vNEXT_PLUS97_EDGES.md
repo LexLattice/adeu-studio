@@ -1,6 +1,6 @@
 # Assessment vNext+97 Edges
 
-Status: planning-edge assessment for `V42-G3` (pre-lock).
+Status: post-closeout edge assessment for `V42-G3` (March 29, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,8 +8,8 @@ Status: planning-edge assessment for `V42-G3` (pre-lock).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS97_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -21,86 +21,120 @@ Status: planning-edge assessment for `V42-G3` (pre-lock).
 - Risk:
   harness execution could use puzzles outside the frozen selection register.
 - Response:
-  keep selection register authority typed and fail closed on undeclared puzzle IDs.
+  selection authority remains typed and fail-closed on undeclared puzzle IDs.
+- Closeout Evidence:
+  accepted fixture binds one released selection register and rejected fixture
+  `.../adeu_arc_three_puzzle_harness_record_v97_reject_retroactive_selection_swap.json`.
 
-### Edge 2: Retrospective Swap and Order Drift
-
-- Risk:
-  outcomes could influence puzzle replacement or ordering after execution.
-- Response:
-  require exact canonical order from selection register and reject retrospective swap.
-
-### Edge 3: Per-Puzzle Occupation Regression
+### Edge 2: Retrospective Swap and Canonical-Order Drift
 
 - Risk:
-  three-puzzle harness aggregation could keep refs while dropping `V42-G2` staged
-  occupation rigor per puzzle.
+  outcomes could influence puzzle replacement or execution order after observation.
 - Response:
-  require each puzzle entry to bind to a valid reasoning-run record with preserved
-  stage-evidence posture.
+  exact canonical order from selection register is enforced; swap/order drift is
+  rejected fail-closed.
+- Closeout Evidence:
+  rejected fixtures
+  `..._reject_retroactive_selection_swap.json` and
+  `..._reject_canonical_order_violation.json`.
 
-### Edge 4: Cross-Puzzle Identity-Chain Breakage
-
-- Risk:
-  harness records could mix puzzle/run/session identity from different chains.
-- Response:
-  enforce one coherent identity chain across bundle/register/puzzle/run refs.
-
-### Edge 5: Harness Sequence Non-Determinism
-
-- Risk:
-  the same three puzzles could produce non-replayable harness ordering/evidence layout.
-- Response:
-  require monotonic harness sequence register and deterministic replay over fixed
-  emitted artifacts/evidence.
-
-### Edge 6: Aggregation Contradiction
-
-- Risk:
-  harness-level local-eval/scorecard/submission refs could disagree with puzzle-run
-  entries while still being accepted.
-- Response:
-  keep per-puzzle downstream refs explicit and validate optional aggregate refs against
-  per-puzzle entries; fail closed on contradiction.
-
-### Edge 7: Incomplete-Entry Laundering
+### Edge 3: Incomplete-Entry Laundering
 
 - Risk:
   harness records could claim completion while omitting one canonical puzzle entry.
 - Response:
-  require exactly three canonical puzzle-entry slots in all accepted harness records,
-  including blocked/failed outcomes.
+  exactly three canonical puzzle-entry slots are required for accepted records.
+- Closeout Evidence:
+  rejected fixture
+  `.../adeu_arc_three_puzzle_harness_record_v97_reject_omitted_third_entry_laundering.json`
+  and model constraints in `three_puzzle_harness.py`.
 
-### Edge 8: Cross-Run Config Drift
-
-- Risk:
-  three puzzle runs could be executed under differing hidden configurations while being
-  interpreted as one comparable harness outcome.
-- Response:
-  enforce cross-puzzle agent/config identity consistency unless explicit typed
-  divergence posture is declared.
-
-### Edge 9: Scope Creep Into G4
+### Edge 4: Per-Puzzle Stage-Evidence Regression
 
 - Risk:
-  this slice could silently widen from bounded harness orchestration into behavior
-  synthesis semantics.
+  harness derivation could accept weaker or overridden stage evidence than the bound
+  `V42-G2` run record.
 - Response:
-  keep `V42-G3` focused on deterministic three-puzzle orchestration; defer synthesis
-  to `V42-G4`.
+  per-entry stage evidence must exactly match the staged evidence derived from the bound
+  reasoning-run record; drift is rejected fail-closed.
+- Closeout Evidence:
+  stage-evidence parity checks in
+  `packages/adeu_arc_agi/src/adeu_arc_agi/three_puzzle_harness.py` and targeted test
+  `test_v97_derive_rejects_stage_evidence_override_drift`.
+
+### Edge 5: Cross-Puzzle Runtime Identity-Chain Mismatch
+
+- Risk:
+  a harness could aggregate runs from mixed runtime contexts while presenting one
+  coherent run boundary.
+- Response:
+  all three runs must share `environment_ref`, `session_ref`, and
+  `competition_scope_ref`; mixed identity chains are rejected fail-closed.
+- Closeout Evidence:
+  runtime-identity consistency checks in `three_puzzle_harness.py` and targeted test
+  `test_v97_derive_rejects_mixed_runtime_identity_chain`.
+
+### Edge 6: Cross-Puzzle Config Drift
+
+- Risk:
+  run-config differences across puzzles could be silently treated as comparable output.
+- Response:
+  cross-puzzle agent/config identity remains required unless explicit divergence posture
+  is typed.
+- Closeout Evidence:
+  rejected fixture
+  `.../adeu_arc_three_puzzle_harness_record_v97_reject_untyped_config_drift.json`.
+
+### Edge 7: Harness Sequence Non-Determinism
+
+- Risk:
+  harness sequence ordering/evidence could drift while still appearing structurally
+  complete.
+- Response:
+  structured monotonic `harness_sequence_entries` with per-step evidence refs is
+  required.
+- Closeout Evidence:
+  rejected fixture
+  `.../adeu_arc_three_puzzle_harness_record_v97_reject_missing_monotonic_sequence_evidence.json`.
+
+### Edge 8: Aggregation Contradiction
+
+- Risk:
+  optional harness aggregate refs could contradict per-puzzle downstream refs.
+- Response:
+  aggregate refs are optional but, when present, must be recomputed and match
+  per-puzzle refs exactly.
+- Closeout Evidence:
+  aggregate-ref recomputation checks in `three_puzzle_harness.py` and rejected fixture
+  `..._reject_aggregated_ref_contradiction.json`.
+
+### Edge 9: Premature Widening Into G4
+
+- Risk:
+  `V42-G3` could silently widen into behavior-evidence synthesis semantics.
+- Response:
+  shipped surfaces remain bounded to deterministic three-puzzle orchestration only;
+  `V42-G4` remains deferred.
+- Closeout Evidence:
+  delivered schemas/fixtures/tests are bounded to `adeu_arc_three_puzzle_harness_record@1`
+  and do not mint `V42-G4` evidence-synthesis artifacts.
 
 ### Edge 10: Narrative Overclaim
 
 - Risk:
-  run summaries could be interpreted as authoritative over typed harness fields.
+  run summary text could be interpreted as authoritative over typed harness fields.
 - Response:
-  keep summary non-authoritative and subordinate to typed surfaces.
+  narrative remains non-authoritative and subordinate to typed identity/occupation
+  surfaces.
+- Closeout Evidence:
+  `run_summary` forbidden-term validation in `three_puzzle_harness.py`.
 
 ## Current Judgment
 
-- `V42-G3` is the correct next seam after `V42-G2` because the remaining practical gap
-  is deterministic bounded multi-puzzle harness orchestration over released control
-  plane artifacts.
-- The slice should be accepted only if three-puzzle selection authority, per-puzzle
-  stage occupation carry-through, cross-puzzle identity/config coherence, exact-entry
-  occupancy, and aggregation fail-closed checks are all machine-validated.
+- `V42-G3` closeout on `main` resolves the practical deterministic multi-puzzle local
+  orchestration seam over released `V42-G1`/`V42-G2` surfaces.
+- The shipped baseline preserves fail-closed posture for selection/order/entry/stage/
+  identity/config/aggregation contradictions under one typed three-puzzle harness
+  boundary.
+- Remaining practical widening now belongs to `V42-G4` (behavior mapping and evidence
+  bundle), while retaining the authority discipline established through `V42-G1`..`G3`.
