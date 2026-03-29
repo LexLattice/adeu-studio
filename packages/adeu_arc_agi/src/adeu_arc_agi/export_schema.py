@@ -11,6 +11,10 @@ from .action_rollout import (
     AdeuArcActionProposal,
     AdeuArcRolloutTrace,
 )
+from .behavior_evidence_bundle import (
+    ADEU_ARC_BEHAVIOR_EVIDENCE_BUNDLE_SCHEMA,
+    AdeuArcBehaviorEvidenceBundle,
+)
 from .local_eval import (
     ADEU_ARC_LOCAL_EVAL_RECORD_SCHEMA,
     AdeuArcLocalEvalRecord,
@@ -106,6 +110,16 @@ def main() -> None:
         raise ValueError(
             "exported schema marker drift for adeu_arc_three_puzzle_harness_record@1"
         )
+    behavior_evidence_bundle_schema = AdeuArcBehaviorEvidenceBundle.model_json_schema(
+        by_alias=True
+    )
+    if (
+        behavior_evidence_bundle_schema["properties"]["schema"]["const"]
+        != ADEU_ARC_BEHAVIOR_EVIDENCE_BUNDLE_SCHEMA
+    ):
+        raise ValueError(
+            "exported schema marker drift for adeu_arc_behavior_evidence_bundle@1"
+        )
 
     _write_schema(
         root / "packages" / "adeu_arc_agi" / "schema" / "adeu_arc_task_packet.v1.json",
@@ -159,6 +173,14 @@ def main() -> None:
         / "adeu_arc_three_puzzle_harness_record.v1.json",
         three_puzzle_harness_schema,
     )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_arc_agi"
+        / "schema"
+        / "adeu_arc_behavior_evidence_bundle.v1.json",
+        behavior_evidence_bundle_schema,
+    )
     _write_schema(root / "spec" / "adeu_arc_task_packet.schema.json", task_packet_schema)
     _write_schema(
         root / "spec" / "adeu_arc_observation_frame.schema.json",
@@ -199,6 +221,10 @@ def main() -> None:
     _write_schema(
         root / "spec" / "adeu_arc_three_puzzle_harness_record.schema.json",
         three_puzzle_harness_schema,
+    )
+    _write_schema(
+        root / "spec" / "adeu_arc_behavior_evidence_bundle.schema.json",
+        behavior_evidence_bundle_schema,
     )
 
 
