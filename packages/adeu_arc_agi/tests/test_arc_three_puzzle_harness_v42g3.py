@@ -11,6 +11,7 @@ from adeu_arc_agi import (
     AdeuArcThreePuzzleHarnessRecord,
     compute_adeu_arc_three_puzzle_harness_record_id,
     derive_v42g3_arc_three_puzzle_harness_record,
+    materialize_adeu_arc_reasoning_run_record_payload,
 )
 from adeu_arc_solver import derive_v42g3_three_puzzle_harness_record
 from adeu_ir.repo import repo_root
@@ -40,6 +41,18 @@ def _load_v95(name: str) -> dict[str, Any]:
 
 def _load_v97(name: str) -> dict[str, Any]:
     return _load_json(_v97_root() / name)
+
+
+def _replace_text_recursive(value: Any, *, old: str, new: str) -> Any:
+    if isinstance(value, str):
+        return value.replace(old, new)
+    if isinstance(value, list):
+        return [_replace_text_recursive(item, old=old, new=new) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: _replace_text_recursive(item, old=old, new=new) for key, item in value.items()
+        }
+    return value
 
 
 def _harness_schema_validator() -> Draft202012Validator:
@@ -161,6 +174,98 @@ def test_v97_exported_schema_accepts_reference_fixture() -> None:
     _harness_schema_validator().validate(
         _load_v97("adeu_arc_three_puzzle_harness_record_v97_reference.json")
     )
+
+
+def test_v97_derive_rejects_stage_evidence_override_drift() -> None:
+    puzzle_input_bundle = _load_v95("adeu_arc_puzzle_input_bundle_v95_reference.json")
+    run_records = [
+        _load_v97("adeu_arc_reasoning_run_record_v97_reference_p001.json"),
+        _load_v97("adeu_arc_reasoning_run_record_v97_reference_p002.json"),
+        _load_v97("adeu_arc_reasoning_run_record_v97_reference_p003.json"),
+    ]
+    accepted_harness = _load_v97("adeu_arc_three_puzzle_harness_record_v97_reference.json")
+    run_records_by_puzzle_id = {run_record["puzzle_id"]: run_record for run_record in run_records}
+    puzzle_run_inputs = _puzzle_run_inputs_from_reference(
+        accepted_harness=accepted_harness,
+        run_records_by_puzzle_id=run_records_by_puzzle_id,
+    )
+    puzzle_run_inputs[0]["stage_evidence_ref_set"] = puzzle_run_inputs[0]["stage_evidence_ref_set"][
+        :-1
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "stage_evidence_ref_set must exactly match stage evidence derived from "
+            "reasoning_run_record"
+        ),
+    ):
+        derive_v42g3_arc_three_puzzle_harness_record(
+            puzzle_input_bundle=puzzle_input_bundle,
+            harness_run_id=accepted_harness["harness_run_id"],
+            harness_execution_status=accepted_harness["harness_execution_status"],
+            harness_sequence_register=accepted_harness["harness_sequence_register"],
+            config_consistency_posture=accepted_harness["config_consistency_posture"],
+            puzzle_run_inputs=puzzle_run_inputs,
+            run_summary=accepted_harness["run_summary"],
+            evidence_refs=accepted_harness["evidence_refs"],
+            aggregated_local_eval_ref=accepted_harness["aggregated_local_eval_ref"],
+            aggregated_scorecard_posture_ref=accepted_harness[
+                "aggregated_scorecard_posture_ref"
+            ],
+            aggregated_submission_posture_ref=accepted_harness[
+                "aggregated_submission_posture_ref"
+            ],
+        )
+
+
+def test_v97_derive_rejects_mixed_runtime_identity_chain() -> None:
+    puzzle_input_bundle = _load_v95("adeu_arc_puzzle_input_bundle_v95_reference.json")
+    run_records = [
+        _load_v97("adeu_arc_reasoning_run_record_v97_reference_p001.json"),
+        _load_v97("adeu_arc_reasoning_run_record_v97_reference_p002.json"),
+        _load_v97("adeu_arc_reasoning_run_record_v97_reference_p003.json"),
+    ]
+    accepted_harness = _load_v97("adeu_arc_three_puzzle_harness_record_v97_reference.json")
+    run_records_by_puzzle_id = {run_record["puzzle_id"]: run_record for run_record in run_records}
+    puzzle_run_inputs = _puzzle_run_inputs_from_reference(
+        accepted_harness=accepted_harness,
+        run_records_by_puzzle_id=run_records_by_puzzle_id,
+    )
+    mutated_run = deepcopy(puzzle_run_inputs[1]["reasoning_run_record"])
+    old_environment_ref = mutated_run["environment_ref"]
+    new_environment_ref = f"{old_environment_ref}_alternate"
+    mutated_run = _replace_text_recursive(
+        mutated_run,
+        old=old_environment_ref,
+        new=new_environment_ref,
+    )
+    mutated_run.pop("reasoning_run_record_id", None)
+    puzzle_run_inputs[1]["reasoning_run_record"] = (
+        materialize_adeu_arc_reasoning_run_record_payload(mutated_run)
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="must share environment_ref, session_ref, and competition_scope_ref",
+    ):
+        derive_v42g3_arc_three_puzzle_harness_record(
+            puzzle_input_bundle=puzzle_input_bundle,
+            harness_run_id=accepted_harness["harness_run_id"],
+            harness_execution_status=accepted_harness["harness_execution_status"],
+            harness_sequence_register=accepted_harness["harness_sequence_register"],
+            config_consistency_posture=accepted_harness["config_consistency_posture"],
+            puzzle_run_inputs=puzzle_run_inputs,
+            run_summary=accepted_harness["run_summary"],
+            evidence_refs=accepted_harness["evidence_refs"],
+            aggregated_local_eval_ref=accepted_harness["aggregated_local_eval_ref"],
+            aggregated_scorecard_posture_ref=accepted_harness[
+                "aggregated_scorecard_posture_ref"
+            ],
+            aggregated_submission_posture_ref=accepted_harness[
+                "aggregated_submission_posture_ref"
+            ],
+        )
 
 
 @pytest.mark.parametrize(

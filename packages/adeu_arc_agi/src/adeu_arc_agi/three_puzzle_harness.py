@@ -609,8 +609,21 @@ def derive_v42g3_arc_three_puzzle_harness_record(
         entry.puzzle_id: entry for entry in validated_bundle.puzzle_entries
     }
     run_inputs_by_puzzle_id: dict[str, dict[str, Any]] = {}
+    shared_runtime_identity: tuple[str, str, str] | None = None
     for run_input in puzzle_run_inputs:
         run_record = AdeuArcReasoningRunRecord.model_validate(run_input["reasoning_run_record"])
+        runtime_identity = (
+            run_record.environment_ref,
+            run_record.session_ref,
+            run_record.competition_scope_ref,
+        )
+        if shared_runtime_identity is None:
+            shared_runtime_identity = runtime_identity
+        elif runtime_identity != shared_runtime_identity:
+            raise ValueError(
+                "puzzle_run_inputs reasoning runs must share environment_ref, session_ref, "
+                "and competition_scope_ref across the harness"
+            )
         puzzle_id = run_record.puzzle_id
         if puzzle_id in run_inputs_by_puzzle_id:
             raise ValueError("puzzle_run_inputs must not contain duplicate puzzle_id entries")
@@ -637,20 +650,42 @@ def derive_v42g3_arc_three_puzzle_harness_record(
         if run_record.puzzle_input_id != bundle_entry.puzzle_input_id:
             raise ValueError("reasoning run records must bind to canonical puzzle_input_id")
 
-        stage_evidence_ref_set = run_input.get(
-            "stage_evidence_ref_set",
+        expected_stage_evidence_ref_set_raw = (
             run_record.task_packet_emission_evidence_refs
             + run_record.observation_frame_emission_evidence_refs
             + run_record.hypothesis_frame_emission_evidence_refs
             + run_record.action_proposal_emission_evidence_refs
-            + run_record.rollout_trace_emission_evidence_refs,
+            + run_record.rollout_trace_emission_evidence_refs
         )
-        stage_evidence_ref_set = sorted(
-            {
-                _assert_non_empty_text(ref, field_name="stage_evidence_ref_set")
-                for ref in stage_evidence_ref_set
-            }
-        )
+        expected_stage_evidence_ref_set = [
+            _assert_non_empty_text(ref, field_name="stage_evidence_ref_set")
+            for ref in expected_stage_evidence_ref_set_raw
+        ]
+        if len(expected_stage_evidence_ref_set) != len(set(expected_stage_evidence_ref_set)):
+            raise ValueError(
+                "reasoning run records must not repeat stage evidence refs across occupied stages"
+            )
+        expected_stage_evidence_ref_set = sorted(expected_stage_evidence_ref_set)
+        if not expected_stage_evidence_ref_set:
+            raise ValueError(
+                "reasoning run records must provide non-empty stage evidence for each harness entry"
+            )
+
+        stage_evidence_ref_set_source = run_input.get("stage_evidence_ref_set")
+        if stage_evidence_ref_set_source is None:
+            stage_evidence_ref_set = expected_stage_evidence_ref_set
+        else:
+            if not isinstance(stage_evidence_ref_set_source, list):
+                raise ValueError("stage_evidence_ref_set must be a list when explicitly provided")
+            stage_evidence_ref_set = _assert_sorted_unique(
+                stage_evidence_ref_set_source,
+                field_name="stage_evidence_ref_set",
+            )
+            if stage_evidence_ref_set != expected_stage_evidence_ref_set:
+                raise ValueError(
+                    "stage_evidence_ref_set must exactly match stage evidence derived from "
+                    "reasoning_run_record"
+                )
         sequence_evidence_refs = sorted(
             {
                 _assert_non_empty_text(
