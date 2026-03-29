@@ -135,6 +135,18 @@ def test_v98_exported_schema_accepts_reference_fixture() -> None:
     )
 
 
+def test_v98_rejects_forbidden_reexecution_term_in_replay_scope_note() -> None:
+    payload = _load_v98("adeu_arc_behavior_evidence_bundle_v98_reference.json")
+    payload["deterministic_replay_scope_note"] = (
+        "fixed artifacts with deterministic_fresh_model_reexecution claim"
+    )
+    with pytest.raises(
+        ValidationError,
+        match="deterministic_replay_scope_note may not contain forbidden term",
+    ):
+        AdeuArcBehaviorEvidenceBundle.model_validate(payload)
+
+
 @pytest.mark.parametrize(
     ("fixture_name", "match"),
     [

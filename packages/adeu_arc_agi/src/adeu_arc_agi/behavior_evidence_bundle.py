@@ -438,6 +438,11 @@ class AdeuArcBehaviorEvidenceBundle(BaseModel):
                 "replay scope"
             )
         _assert_no_forbidden_terms(
+            value=self.deterministic_replay_scope_note,
+            field_name="deterministic_replay_scope_note",
+            terms=_FORBIDDEN_AUTHORITY_TERMS,
+        )
+        _assert_no_forbidden_terms(
             value=self.behavior_summary,
             field_name="behavior_summary",
             terms=_FORBIDDEN_AUTHORITY_TERMS,
