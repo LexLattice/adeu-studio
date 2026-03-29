@@ -1,0 +1,219 @@
+{
+  "authority_boundary_register": {
+    "authoritative_surface_refs": [
+      "harness_record:arc_harness_06188e81a7aa36bee0a6921b540ed606",
+      "typed_surface:claim_posture_register",
+      "typed_surface:cross_puzzle_pattern_entries",
+      "typed_surface:failure_mode_catalog",
+      "typed_surface:per_puzzle_behavior_entries"
+    ],
+    "boundary_violation_flags": [],
+    "deferred_claim_refs": [
+      "deferred_claim:benchmark_tournament_orchestration_execution"
+    ],
+    "descriptive_only_surface_refs": [
+      "descriptive_surface:behavior_summary"
+    ]
+  },
+  "behavior_evidence_bundle_id": "arc_behavior_bundle_cb574226841dd7da17c391853f2c27b6",
+  "behavior_summary": "Behavior evidence bundle maps per-puzzle observed behavior and one bounded cross-puzzle synthesis over typed upstream refs.",
+  "canonical_puzzle_order": [
+    "arcagi3_local_p001",
+    "arcagi3_local_p002",
+    "arcagi3_local_p003"
+  ],
+  "claim_posture_register": [
+    {
+      "claim_id": "claim_observed_arcagi3_local_p001",
+      "claim_inference_kind": "observed_per_puzzle",
+      "claim_target_ref": "puzzle_behavior:arcagi3_local_p001",
+      "limitation_scope": "leaderboard_ready claim without typed authority",
+      "posture_kind": "bounded_observation",
+      "supporting_refs": [
+        "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_reference.json",
+        "apps/api/fixtures/arc_agi/vnext_plus97/adeu_arc_reasoning_run_record_v97_reference_p001.json"
+      ]
+    },
+    {
+      "claim_id": "claim_observed_arcagi3_local_p002",
+      "claim_inference_kind": "observed_per_puzzle",
+      "claim_target_ref": "puzzle_behavior:arcagi3_local_p002",
+      "limitation_scope": "observed only within fixed local three-puzzle harness",
+      "posture_kind": "bounded_observation",
+      "supporting_refs": [
+        "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_case_task_fail_control_success.json",
+        "apps/api/fixtures/arc_agi/vnext_plus97/adeu_arc_reasoning_run_record_v97_reference_p002.json"
+      ]
+    },
+    {
+      "claim_id": "claim_observed_arcagi3_local_p003",
+      "claim_inference_kind": "observed_per_puzzle",
+      "claim_target_ref": "puzzle_behavior:arcagi3_local_p003",
+      "limitation_scope": "observed only within fixed local three-puzzle harness",
+      "posture_kind": "bounded_observation",
+      "supporting_refs": [
+        "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_case_task_success_control_fail.json",
+        "apps/api/fixtures/arc_agi/vnext_plus97/adeu_arc_reasoning_run_record_v97_reference_p003.json"
+      ]
+    },
+    {
+      "claim_id": "claim_pattern_all_three",
+      "claim_inference_kind": "inferred_cross_puzzle",
+      "claim_target_ref": "cross_pattern:pattern:shared_three_puzzle_staged_reasoning",
+      "limitation_scope": "inferred over fixed three-puzzle harness only",
+      "posture_kind": "bounded_cross_puzzle_inference",
+      "supporting_refs": [
+        "puzzle_behavior:arcagi3_local_p001",
+        "puzzle_behavior:arcagi3_local_p002",
+        "puzzle_behavior:arcagi3_local_p003"
+      ]
+    }
+  ],
+  "cross_puzzle_config_consistency_posture": "uniform_across_all_puzzles",
+  "cross_puzzle_pattern_entries": [
+    {
+      "pattern_claim_posture": "claim_pattern_all_three",
+      "pattern_id": "pattern:shared_three_puzzle_staged_reasoning",
+      "pattern_kind": "shared_staged_reasoning_tendency",
+      "support_behavior_entry_refs": [
+        "puzzle_behavior:arcagi3_local_p001",
+        "puzzle_behavior:arcagi3_local_p002",
+        "puzzle_behavior:arcagi3_local_p003"
+      ],
+      "support_evidence_refs": [
+        "evidence:action_emit:step_004|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:action_emit:step_004|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:action_emit:step_004|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:hypothesis_emit:step_003|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:hypothesis_emit:step_003|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:hypothesis_emit:step_003|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:observation_emit:step_002|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:observation_emit:step_002|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:observation_emit:step_002|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:rollout_emit:step_005|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:rollout_emit:step_005|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:rollout_emit:step_005|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:task_packet_emit:step_001|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:task_packet_emit:step_001|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:task_packet_emit:step_001|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference"
+      ],
+      "support_posture": "supported_all_three",
+      "support_puzzle_ids": [
+        "arcagi3_local_p001",
+        "arcagi3_local_p002",
+        "arcagi3_local_p003"
+      ]
+    }
+  ],
+  "deterministic_replay_scope_note": "Deterministic replay is bounded to fixed emitted artifacts and fixed evidence refs; fresh model re-execution is out of scope.",
+  "evidence_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS98.md#v98-continuation-contract-machine-checkable",
+    "harness_record:arc_harness_06188e81a7aa36bee0a6921b540ed606",
+    "policy:deterministic_replay_scope=fixed_emitted_artifacts_and_fixed_evidence_refs"
+  ],
+  "failure_mode_catalog": [
+    {
+      "claim_posture": "claim_observed_arcagi3_local_p001",
+      "evidence_refs": [
+        "evidence:action_emit:step_004|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:hypothesis_emit:step_003|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:observation_emit:step_002|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:rollout_emit:step_005|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:task_packet_emit:step_001|run_v97_001|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_66392a7ce139923fbc8d2d36bacf6f92|arcagi3_local_p001|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference"
+      ],
+      "failure_mode_id": "failure_mode:arcagi3_local_p001:staged_reasoning_limit",
+      "failure_mode_kind": "partial_rule_inference",
+      "failure_mode_scope": "puzzle:arcagi3_local_p001:local_scope"
+    },
+    {
+      "claim_posture": "claim_observed_arcagi3_local_p002",
+      "evidence_refs": [
+        "evidence:action_emit:step_004|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:hypothesis_emit:step_003|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:observation_emit:step_002|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:rollout_emit:step_005|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:task_packet_emit:step_001|run_v97_002|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_90bdff5ea70abb003ff9fe7558744b05|arcagi3_local_p002|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference"
+      ],
+      "failure_mode_id": "failure_mode:arcagi3_local_p002:staged_reasoning_limit",
+      "failure_mode_kind": "partial_rule_inference",
+      "failure_mode_scope": "puzzle:arcagi3_local_p002:local_scope"
+    },
+    {
+      "claim_posture": "claim_observed_arcagi3_local_p003",
+      "evidence_refs": [
+        "evidence:action_emit:step_004|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:hypothesis_emit:step_003|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:observation_emit:step_002|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:rollout_emit:step_005|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference",
+        "evidence:task_packet_emit:step_001|run_v97_003|arc_bundle_e26977b6060dc81cb3967fb1c344a624|arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c|arc_puz_a90802b8df13eb7f068366318bc6f820|arcagi3_local_p003|env://local/arcagi3/v95_reference_env|session://local/arcagi3/v95_reference_session|scope://arcagi3/local_three_puzzle_reference"
+      ],
+      "failure_mode_id": "failure_mode:arcagi3_local_p003:staged_reasoning_limit",
+      "failure_mode_kind": "partial_rule_inference",
+      "failure_mode_scope": "puzzle:arcagi3_local_p003:local_scope"
+    }
+  ],
+  "harness_record_id": "arc_harness_06188e81a7aa36bee0a6921b540ed606",
+  "harness_run_id": "harness_v97_run_001",
+  "per_puzzle_behavior_entries": [
+    {
+      "behavior_signal_refs": [
+        "behavior_signal:arcagi3_local_p001:rollout_presence_posture=rollout_present",
+        "behavior_signal:arcagi3_local_p001:run_execution_status=completed",
+        "behavior_signal:arcagi3_local_p001:run_terminal_posture=completed_with_rollout"
+      ],
+      "claim_posture": "claim_observed_arcagi3_local_p001",
+      "local_eval_ref": "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_reference.json",
+      "mapped_failure_mode_ids": [
+        "failure_mode:arcagi3_local_p001:staged_reasoning_limit"
+      ],
+      "puzzle_id": "arcagi3_local_p001",
+      "puzzle_index": 1,
+      "reasoning_run_record_ref": "apps/api/fixtures/arc_agi/vnext_plus97/adeu_arc_reasoning_run_record_v97_reference_p001.json",
+      "scorecard_manifest_ref": "apps/api/fixtures/arc_agi/vnext_plus93/adeu_arc_scorecard_manifest_v93_reference.json",
+      "submission_execution_record_ref": "apps/api/fixtures/arc_agi/vnext_plus94/adeu_arc_submission_execution_record_v94_reference.json"
+    },
+    {
+      "behavior_signal_refs": [
+        "behavior_signal:arcagi3_local_p002:rollout_presence_posture=rollout_present",
+        "behavior_signal:arcagi3_local_p002:run_execution_status=completed",
+        "behavior_signal:arcagi3_local_p002:run_terminal_posture=completed_with_rollout"
+      ],
+      "claim_posture": "claim_observed_arcagi3_local_p002",
+      "local_eval_ref": "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_case_task_fail_control_success.json",
+      "mapped_failure_mode_ids": [
+        "failure_mode:arcagi3_local_p002:staged_reasoning_limit"
+      ],
+      "puzzle_id": "arcagi3_local_p002",
+      "puzzle_index": 2,
+      "reasoning_run_record_ref": "apps/api/fixtures/arc_agi/vnext_plus97/adeu_arc_reasoning_run_record_v97_reference_p002.json",
+      "scorecard_manifest_ref": null,
+      "submission_execution_record_ref": null
+    },
+    {
+      "behavior_signal_refs": [
+        "behavior_signal:arcagi3_local_p003:rollout_presence_posture=rollout_present",
+        "behavior_signal:arcagi3_local_p003:run_execution_status=completed",
+        "behavior_signal:arcagi3_local_p003:run_terminal_posture=completed_with_rollout"
+      ],
+      "claim_posture": "claim_observed_arcagi3_local_p003",
+      "local_eval_ref": "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_case_task_success_control_fail.json",
+      "mapped_failure_mode_ids": [
+        "failure_mode:arcagi3_local_p003:staged_reasoning_limit"
+      ],
+      "puzzle_id": "arcagi3_local_p003",
+      "puzzle_index": 3,
+      "reasoning_run_record_ref": "apps/api/fixtures/arc_agi/vnext_plus97/adeu_arc_reasoning_run_record_v97_reference_p003.json",
+      "scorecard_manifest_ref": "apps/api/fixtures/arc_agi/vnext_plus93/adeu_arc_scorecard_manifest_v93_case_competition_posture_declared_no_official_scorecard.json",
+      "submission_execution_record_ref": "apps/api/fixtures/arc_agi/vnext_plus94/adeu_arc_submission_execution_record_v94_case_authorized_not_submitted.json"
+    }
+  ],
+  "puzzle_input_bundle_id": "arc_bundle_e26977b6060dc81cb3967fb1c344a624",
+  "schema": "adeu_arc_behavior_evidence_bundle@1",
+  "selected_puzzle_ids": [
+    "arcagi3_local_p001",
+    "arcagi3_local_p002",
+    "arcagi3_local_p003"
+  ],
+  "selection_register_hash": "b1e4ab21d12636e36d07b64ca3be529316e8cc7fd7e1cb0d9547294e505d8666",
+  "selection_register_id": "arc_sel_4ccefa9f14ea2dbdb40b06df4559fb9c"
+}

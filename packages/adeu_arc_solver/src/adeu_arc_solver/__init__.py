@@ -1,4 +1,5 @@
 from .action_rollout import derive_v42c_action_and_rollout
+from .behavior_evidence_bundle import derive_v42g4_behavior_evidence_bundle
 from .local_eval import derive_v42d_local_eval_record
 from .observation_hypothesis import derive_v42b_observation_and_hypothesis
 from .puzzle_input_bundle import derive_v42g1_puzzle_input_bundle
@@ -16,4 +17,5 @@ __all__ = [
     "derive_v42g1_puzzle_input_bundle",
     "derive_v42g2_reasoning_run_record",
     "derive_v42g3_three_puzzle_harness_record",
+    "derive_v42g4_behavior_evidence_bundle",
 ]

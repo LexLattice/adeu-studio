@@ -1,0 +1,400 @@
+{
+  "$defs": {
+    "AdeuArcPerPuzzleBehaviorEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "behavior_signal_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Behavior Signal Refs",
+          "type": "array"
+        },
+        "claim_posture": {
+          "title": "Claim Posture",
+          "type": "string"
+        },
+        "local_eval_ref": {
+          "title": "Local Eval Ref",
+          "type": "string"
+        },
+        "mapped_failure_mode_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Mapped Failure Mode Ids",
+          "type": "array"
+        },
+        "puzzle_id": {
+          "title": "Puzzle Id",
+          "type": "string"
+        },
+        "puzzle_index": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Puzzle Index",
+          "type": "integer"
+        },
+        "reasoning_run_record_ref": {
+          "title": "Reasoning Run Record Ref",
+          "type": "string"
+        },
+        "scorecard_manifest_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scorecard Manifest Ref"
+        },
+        "submission_execution_record_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Submission Execution Record Ref"
+        }
+      },
+      "required": [
+        "puzzle_index",
+        "puzzle_id",
+        "reasoning_run_record_ref",
+        "local_eval_ref",
+        "behavior_signal_refs",
+        "mapped_failure_mode_ids",
+        "claim_posture"
+      ],
+      "title": "AdeuArcPerPuzzleBehaviorEntry",
+      "type": "object"
+    },
+    "ArcBehaviorAuthorityBoundaryRegister": {
+      "additionalProperties": false,
+      "properties": {
+        "authoritative_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Authoritative Surface Refs",
+          "type": "array"
+        },
+        "boundary_violation_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Boundary Violation Flags",
+          "type": "array"
+        },
+        "deferred_claim_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Deferred Claim Refs",
+          "type": "array"
+        },
+        "descriptive_only_surface_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Descriptive Only Surface Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "authoritative_surface_refs",
+        "descriptive_only_surface_refs"
+      ],
+      "title": "ArcBehaviorAuthorityBoundaryRegister",
+      "type": "object"
+    },
+    "ArcBehaviorClaimPostureEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "claim_inference_kind": {
+          "enum": [
+            "observed_per_puzzle",
+            "inferred_cross_puzzle"
+          ],
+          "title": "Claim Inference Kind",
+          "type": "string"
+        },
+        "claim_target_ref": {
+          "title": "Claim Target Ref",
+          "type": "string"
+        },
+        "limitation_scope": {
+          "title": "Limitation Scope",
+          "type": "string"
+        },
+        "posture_kind": {
+          "title": "Posture Kind",
+          "type": "string"
+        },
+        "supporting_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "claim_id",
+        "claim_target_ref",
+        "supporting_refs",
+        "posture_kind",
+        "limitation_scope",
+        "claim_inference_kind"
+      ],
+      "title": "ArcBehaviorClaimPostureEntry",
+      "type": "object"
+    },
+    "ArcBehaviorCrossPuzzlePatternEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "pattern_claim_posture": {
+          "title": "Pattern Claim Posture",
+          "type": "string"
+        },
+        "pattern_id": {
+          "title": "Pattern Id",
+          "type": "string"
+        },
+        "pattern_kind": {
+          "title": "Pattern Kind",
+          "type": "string"
+        },
+        "support_behavior_entry_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Support Behavior Entry Refs",
+          "type": "array"
+        },
+        "support_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Support Evidence Refs",
+          "type": "array"
+        },
+        "support_posture": {
+          "enum": [
+            "supported_subset",
+            "supported_all_three"
+          ],
+          "title": "Support Posture",
+          "type": "string"
+        },
+        "support_puzzle_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Support Puzzle Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pattern_id",
+        "pattern_kind",
+        "support_puzzle_ids",
+        "support_behavior_entry_refs",
+        "support_evidence_refs",
+        "pattern_claim_posture",
+        "support_posture"
+      ],
+      "title": "ArcBehaviorCrossPuzzlePatternEntry",
+      "type": "object"
+    },
+    "ArcBehaviorFailureModeEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_posture": {
+          "title": "Claim Posture",
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "failure_mode_id": {
+          "title": "Failure Mode Id",
+          "type": "string"
+        },
+        "failure_mode_kind": {
+          "title": "Failure Mode Kind",
+          "type": "string"
+        },
+        "failure_mode_scope": {
+          "title": "Failure Mode Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "failure_mode_id",
+        "failure_mode_kind",
+        "failure_mode_scope",
+        "evidence_refs",
+        "claim_posture"
+      ],
+      "title": "ArcBehaviorFailureModeEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "authority_boundary_register": {
+      "$ref": "#/$defs/ArcBehaviorAuthorityBoundaryRegister"
+    },
+    "behavior_evidence_bundle_id": {
+      "title": "Behavior Evidence Bundle Id",
+      "type": "string"
+    },
+    "behavior_summary": {
+      "title": "Behavior Summary",
+      "type": "string"
+    },
+    "canonical_puzzle_order": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Canonical Puzzle Order",
+      "type": "array"
+    },
+    "claim_posture_register": {
+      "items": {
+        "$ref": "#/$defs/ArcBehaviorClaimPostureEntry"
+      },
+      "minItems": 1,
+      "title": "Claim Posture Register",
+      "type": "array"
+    },
+    "cross_puzzle_config_consistency_posture": {
+      "enum": [
+        "uniform_across_all_puzzles",
+        "explicit_divergence_declared"
+      ],
+      "title": "Cross Puzzle Config Consistency Posture",
+      "type": "string"
+    },
+    "cross_puzzle_pattern_entries": {
+      "items": {
+        "$ref": "#/$defs/ArcBehaviorCrossPuzzlePatternEntry"
+      },
+      "minItems": 1,
+      "title": "Cross Puzzle Pattern Entries",
+      "type": "array"
+    },
+    "deterministic_replay_scope_note": {
+      "title": "Deterministic Replay Scope Note",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "failure_mode_catalog": {
+      "items": {
+        "$ref": "#/$defs/ArcBehaviorFailureModeEntry"
+      },
+      "minItems": 1,
+      "title": "Failure Mode Catalog",
+      "type": "array"
+    },
+    "harness_record_id": {
+      "title": "Harness Record Id",
+      "type": "string"
+    },
+    "harness_run_id": {
+      "title": "Harness Run Id",
+      "type": "string"
+    },
+    "per_puzzle_behavior_entries": {
+      "items": {
+        "$ref": "#/$defs/AdeuArcPerPuzzleBehaviorEntry"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Per Puzzle Behavior Entries",
+      "type": "array"
+    },
+    "puzzle_input_bundle_id": {
+      "title": "Puzzle Input Bundle Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "adeu_arc_behavior_evidence_bundle@1",
+      "default": "adeu_arc_behavior_evidence_bundle@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selected_puzzle_ids": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Selected Puzzle Ids",
+      "type": "array"
+    },
+    "selection_register_hash": {
+      "title": "Selection Register Hash",
+      "type": "string"
+    },
+    "selection_register_id": {
+      "title": "Selection Register Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "behavior_evidence_bundle_id",
+    "harness_record_id",
+    "harness_run_id",
+    "puzzle_input_bundle_id",
+    "selection_register_id",
+    "selection_register_hash",
+    "selected_puzzle_ids",
+    "canonical_puzzle_order",
+    "per_puzzle_behavior_entries",
+    "cross_puzzle_pattern_entries",
+    "failure_mode_catalog",
+    "claim_posture_register",
+    "authority_boundary_register",
+    "cross_puzzle_config_consistency_posture",
+    "deterministic_replay_scope_note",
+    "behavior_summary",
+    "evidence_refs"
+  ],
+  "title": "AdeuArcBehaviorEvidenceBundle",
+  "type": "object"
+}
