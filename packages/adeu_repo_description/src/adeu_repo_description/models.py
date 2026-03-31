@@ -181,7 +181,7 @@ def compute_v45c_v100_dependency_policy_hash() -> str:
     return sha256_canonical_json(_v45c_v100_dependency_policy_payload())
 
 
-def _v45c_dependency_policy_payload() -> dict[str, Any]:
+def _v45c_v102_dependency_policy_payload() -> dict[str, Any]:
     return {
         "policy_ref": V45C_DEPENDENCY_POLICY_REF,
         "allowed_phase_statuses": [
@@ -231,8 +231,8 @@ def _v45c_dependency_policy_payload() -> dict[str, Any]:
     }
 
 
-def compute_v45c_dependency_policy_hash() -> str:
-    return sha256_canonical_json(_v45c_dependency_policy_payload())
+def compute_v45c_v102_dependency_policy_hash() -> str:
+    return sha256_canonical_json(_v45c_v102_dependency_policy_payload())
 
 
 def _assert_non_empty_text(value: str, *, field_name: str) -> str:
@@ -1132,7 +1132,7 @@ class RepoArcDependencyRegister(BaseModel):
         )
         if self.dependency_policy_ref != V45C_DEPENDENCY_POLICY_REF:
             raise ValueError("dependency_policy_ref must bind to the v45c dependency policy")
-        if self.dependency_policy_hash != compute_v45c_dependency_policy_hash():
+        if self.dependency_policy_hash != compute_v45c_v102_dependency_policy_hash():
             raise ValueError("dependency_policy_hash must match bound policy content")
 
         evidence_by_ref = {entry.evidence_ref: entry for entry in self.evidence_refs}
@@ -1322,7 +1322,7 @@ def materialize_repo_arc_dependency_register_payload(
     payload = deepcopy(payload_without_register_id)
     payload.setdefault("schema", REPO_ARC_DEPENDENCY_REGISTER_SCHEMA)
     payload.setdefault("dependency_policy_ref", V45C_DEPENDENCY_POLICY_REF)
-    payload.setdefault("dependency_policy_hash", compute_v45c_dependency_policy_hash())
+    payload.setdefault("dependency_policy_hash", compute_v45c_v102_dependency_policy_hash())
     payload["repo_arc_dependency_register_id"] = compute_repo_arc_dependency_register_id(payload)
     return RepoArcDependencyRegister.model_validate(payload).model_dump(mode="json")
 

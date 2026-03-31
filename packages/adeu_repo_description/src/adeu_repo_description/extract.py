@@ -16,7 +16,7 @@ from .models import (
     RepoDescriptionEvidenceRef,
     RepoSchemaFamilyRegistry,
     compute_v45a_classification_policy_hash,
-    compute_v45c_dependency_policy_hash,
+    compute_v45c_v102_dependency_policy_hash,
     materialize_repo_arc_dependency_register_payload,
     materialize_repo_entity_catalog_payload,
     materialize_repo_schema_family_registry_payload,
@@ -36,10 +36,6 @@ _DEFAULT_V45C_SOURCE_PATHS: tuple[str, ...] = (
     "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md",
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md",
-)
-_DEFAULT_V45C_V100_SOURCE_PATHS: tuple[str, ...] = (
-    "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-    "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md",
 )
 
 
@@ -782,7 +778,7 @@ def derive_v45c_repo_arc_dependency_register(
         "cycle_posture": "cycles_forbidden",
         "cycle_detection_scope": "all_declared_edges",
         "dependency_policy_ref": V45C_DEPENDENCY_POLICY_REF,
-        "dependency_policy_hash": compute_v45c_dependency_policy_hash(),
+        "dependency_policy_hash": compute_v45c_v102_dependency_policy_hash(),
         "extraction_posture": "derived_deterministically",
         "extraction_method": "deterministic_projection",
         "open_arc_entries": sorted(open_arc_entries, key=lambda row: row["arc_id"]),
