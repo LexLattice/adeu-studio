@@ -7,7 +7,12 @@ from typing import Any
 
 from adeu_ir.repo import repo_root
 
-from .models import RepoArcDependencyRegister, RepoEntityCatalog, RepoSchemaFamilyRegistry
+from .models import (
+    RepoArcDependencyRegister,
+    RepoArcDependencyRegisterV1,
+    RepoEntityCatalog,
+    RepoSchemaFamilyRegistry,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
@@ -61,10 +66,12 @@ def _assert_no_absolute_path_material(
 
 def main() -> None:
     root = repo_root(anchor=Path(__file__))
+    dependency_register_v1_schema = RepoArcDependencyRegisterV1.model_json_schema(by_alias=True)
     dependency_register_schema = RepoArcDependencyRegister.model_json_schema(by_alias=True)
     registry_schema = RepoSchemaFamilyRegistry.model_json_schema(by_alias=True)
     catalog_schema = RepoEntityCatalog.model_json_schema(by_alias=True)
 
+    _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
     _assert_no_absolute_path_material(registry_schema, repo_root_path=root)
     _assert_no_absolute_path_material(catalog_schema, repo_root_path=root)
@@ -75,6 +82,14 @@ def main() -> None:
         / "adeu_repo_description"
         / "schema"
         / "repo_arc_dependency_register.v1.json",
+        dependency_register_v1_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_arc_dependency_register.v2.json",
         dependency_register_schema,
     )
     _write_schema(
