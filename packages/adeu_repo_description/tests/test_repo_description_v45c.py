@@ -14,6 +14,7 @@ from adeu_repo_description import (
     default_v45c_source_paths,
     derive_v45c_repo_arc_dependency_register,
 )
+from adeu_repo_description.extract import _extract_selected_v45_path
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 
@@ -100,4 +101,63 @@ def test_v100_exported_schema_accepts_reference_fixture() -> None:
 def test_v100_rejects_invalid_reference_fixtures(fixture_name: str, match: str) -> None:
     payload = _load_v100(fixture_name)
     with pytest.raises(ValidationError, match=match):
+        RepoArcDependencyRegister.model_validate(payload)
+
+
+def test_v100_selected_path_extraction_accepts_consistent_non_phrase_markers() -> None:
+    text = """
+## Recommended Family
+
+- Recommended next path for this branch:
+  - `V45-C`
+
+## Suggested `V45` Path Ladder
+
+| Path | Theme | Primary output | Status |
+|---|---|---|---|
+| `V45-B` | symbol catalog + typed dependency graph | candidate outputs | planned_not_selected_yet |
+| `V45-C` | open arc/slice dependency register | candidate output | selected_next_branch_local |
+
+## Recommended Next Path (`V45-C`)
+"""
+    assert _extract_selected_v45_path(text=text) == "V45-C"
+
+
+def test_v100_rejects_dependency_cycles_even_when_edges_are_non_blocking() -> None:
+    payload = deepcopy(_load_v100("repo_arc_dependency_register_v100_reference.json"))
+    payload["dependency_edges"].append(
+        {
+            "edge_id": "edge:v45-f-to-v45-b",
+            "from_arc_id": "V45-F",
+            "to_arc_id": "V45-B",
+            "dependency_kind": "family_progression",
+            "dependency_strength": "soft",
+            "dependency_status": "informational",
+            "supports_all_three_way_claim": False,
+            "supporting_evidence_refs": [
+                "evidence:planning:v28:row:V45-B",
+                "evidence:planning:v28:row:V45-F",
+                "evidence:policy:v45c",
+            ],
+        }
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "dependency cycles are forbidden in v45c because no explicit cycle posture "
+            "is modeled"
+        ),
+    ):
+        RepoArcDependencyRegister.model_validate(payload)
+
+
+def test_v100_rejects_authority_terms_with_natural_language_separators() -> None:
+    payload = deepcopy(_load_v100("repo_arc_dependency_register_v100_reference.json"))
+    payload["register_scope"] = "v45 register with scheduling entitlement and automatic-priority"
+
+    with pytest.raises(
+        ValidationError,
+        match="register_scope may not carry scheduling or mutation entitlement claims",
+    ):
         RepoArcDependencyRegister.model_validate(payload)

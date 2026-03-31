@@ -285,13 +285,46 @@ def _extract_v45_path_rows(*, text: str) -> dict[str, str]:
 
 
 def _extract_selected_v45_path(*, text: str) -> str:
-    match = re.search(
+    candidates: set[str] = set()
+
+    phrase_match = re.search(
         r"select\s+`(?P<path>V45-[A-Z])`\s+as the next default candidate",
         text,
     )
-    if match is None:
-        raise ValueError("branch-local V45 default selection phrase is missing")
-    return match.group("path")
+    if phrase_match is not None:
+        candidates.add(phrase_match.group("path"))
+
+    branch_path_match = re.search(
+        r"Recommended next path for this branch:\s*\n\s*-\s*`(?P<path>V45-[A-Z])`",
+        text,
+    )
+    if branch_path_match is not None:
+        candidates.add(branch_path_match.group("path"))
+
+    section_match = re.search(
+        r"^## Recommended Next Path \(`(?P<path>V45-[A-Z])`\)$",
+        text,
+        flags=re.MULTILINE,
+    )
+    if section_match is not None:
+        candidates.add(section_match.group("path"))
+
+    try:
+        path_rows = _extract_v45_path_rows(text=text)
+    except ValueError:
+        path_rows = {}
+    selected_table_paths = sorted(
+        path for path, status in path_rows.items() if status == "selected_next_branch_local"
+    )
+    candidates.update(selected_table_paths)
+
+    if not candidates:
+        raise ValueError("branch-local V45 default selection markers are missing")
+    if len(candidates) != 1:
+        raise ValueError(
+            "branch-local V45 default selection markers must agree on one selected path"
+        )
+    return next(iter(candidates))
 
 
 def derive_v45a_repo_schema_family_registry(

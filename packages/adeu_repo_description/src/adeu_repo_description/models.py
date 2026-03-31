@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from copy import deepcopy
 from pathlib import PurePosixPath
 from typing import Any, Literal
@@ -206,14 +207,14 @@ def _assert_sorted_unique(values: list[str], *, field_name: str) -> list[str]:
 
 def _normalize_for_equality(value: str) -> str:
     lowered = value.lower()
-    return lowered.replace("-", "_").replace(" ", "_")
+    return re.sub(r"[^a-z0-9]+", "_", lowered).strip("_")
 
 
 def _assert_no_forbidden_authority_terms(value: str, *, field_name: str) -> str:
     normalized = _assert_non_empty_text(value, field_name=field_name)
-    lowered = normalized.lower()
+    normalized_tokens = _normalize_for_equality(normalized)
     for forbidden_term in _FORBIDDEN_AUTHORITY_TERMS:
-        if forbidden_term in lowered:
+        if _normalize_for_equality(forbidden_term) in normalized_tokens:
             raise ValueError(
                 f"{field_name} may not carry scheduling or mutation entitlement claims"
             )
@@ -812,7 +813,7 @@ class RepoArcDependencyRegister(BaseModel):
             raise ValueError("dependency_edges must be sorted lexicographically by edge_id")
 
         unresolved_hard_incoming: dict[str, list[str]] = {arc_id: [] for arc_id in entries_by_id}
-        adjacency: dict[str, list[str]] = {arc_id: [] for arc_id in entries_by_id}
+        cycle_adjacency: dict[str, list[str]] = {arc_id: [] for arc_id in entries_by_id}
 
         for edge in self.dependency_edges:
             edge_evidence = [evidence_by_ref.get(ref) for ref in edge.supporting_evidence_refs]
@@ -823,9 +824,9 @@ class RepoArcDependencyRegister(BaseModel):
                 )
             if edge.from_arc_id not in entries_by_id or edge.to_arc_id not in entries_by_id:
                 raise ValueError("dependency edges must reference known open_arc_entries arc_id")
+            cycle_adjacency[edge.from_arc_id].append(edge.to_arc_id)
             if edge.dependency_strength == "hard" and edge.dependency_status == "unresolved":
                 unresolved_hard_incoming[edge.to_arc_id].append(edge.from_arc_id)
-                adjacency[edge.from_arc_id].append(edge.to_arc_id)
 
         for entry in self.open_arc_entries:
             row_evidence = [evidence_by_ref.get(ref) for ref in entry.supporting_evidence_refs]
@@ -850,16 +851,19 @@ class RepoArcDependencyRegister(BaseModel):
 
         def visit(node: str) -> None:
             if node in active:
-                raise ValueError("dependency cycles are forbidden unless explicitly flagged")
+                raise ValueError(
+                    "dependency cycles are forbidden in v45c because no explicit cycle posture "
+                    "is modeled"
+                )
             if node in visited:
                 return
             visited.add(node)
             active.add(node)
-            for neighbor in sorted(adjacency[node]):
+            for neighbor in sorted(cycle_adjacency[node]):
                 visit(neighbor)
             active.remove(node)
 
-        for arc_id in sorted(adjacency):
+        for arc_id in sorted(cycle_adjacency):
             visit(arc_id)
 
         payload_without_id = self.model_dump(mode="json")
