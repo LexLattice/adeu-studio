@@ -1,0 +1,234 @@
+{
+  "cycle_detection_scope": "all_declared_edges",
+  "cycle_posture": "cycles_forbidden",
+  "dependency_edges": [
+    {
+      "dependency_kind": "descriptive_prerequisite",
+      "dependency_status": "unresolved",
+      "dependency_strength": "hard",
+      "derivation_method": "deterministic_projection",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge:v45-b-to-v45-f",
+      "from_arc_id": "V45-B",
+      "source_artifact_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:planning:v28:row:V45-B",
+        "evidence:planning:v28:row:V45-F",
+        "evidence:policy:v45c"
+      ],
+      "to_arc_id": "V45-F"
+    },
+    {
+      "dependency_kind": "descriptive_prerequisite",
+      "dependency_status": "unresolved",
+      "dependency_strength": "hard",
+      "derivation_method": "deterministic_projection",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge:v45-c-to-v45-f",
+      "from_arc_id": "V45-C",
+      "source_artifact_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:planning:v28:row:V45-C",
+        "evidence:planning:v28:row:V45-F",
+        "evidence:policy:v45c"
+      ],
+      "to_arc_id": "V45-F"
+    },
+    {
+      "dependency_kind": "descriptive_prerequisite",
+      "dependency_status": "unresolved",
+      "dependency_strength": "hard",
+      "derivation_method": "deterministic_projection",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge:v45-d-to-v45-f",
+      "from_arc_id": "V45-D",
+      "source_artifact_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:planning:v28:row:V45-D",
+        "evidence:planning:v28:row:V45-F",
+        "evidence:policy:v45c"
+      ],
+      "to_arc_id": "V45-F"
+    },
+    {
+      "dependency_kind": "descriptive_prerequisite",
+      "dependency_status": "unresolved",
+      "dependency_strength": "hard",
+      "derivation_method": "deterministic_projection",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge:v45-e-to-v45-f",
+      "from_arc_id": "V45-E",
+      "source_artifact_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:planning:v28:row:V45-E",
+        "evidence:planning:v28:row:V45-F",
+        "evidence:policy:v45c"
+      ],
+      "to_arc_id": "V45-F"
+    }
+  ],
+  "dependency_policy_hash": "65a35663bc9b01f2ec01721450e702f39ec499cd7d2a35838e8af585fbf767c4",
+  "dependency_policy_ref": "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md#v45c-open-arc-dependency-register-policy",
+  "evidence_refs": [
+    {
+      "evidence_kind": "lock_contract_evidence",
+      "evidence_ref": "evidence:lock:v100:contract"
+    },
+    {
+      "evidence_kind": "lock_contract_evidence",
+      "evidence_ref": "evidence:lock:v102:contract"
+    },
+    {
+      "evidence_kind": "planning_selection_evidence",
+      "evidence_ref": "evidence:planning:v28:corrective_selection"
+    },
+    {
+      "evidence_kind": "planning_table_row_evidence",
+      "evidence_ref": "evidence:planning:v28:row:V45-A"
+    },
+    {
+      "evidence_kind": "planning_table_row_evidence",
+      "evidence_ref": "evidence:planning:v28:row:V45-B"
+    },
+    {
+      "evidence_kind": "planning_table_row_evidence",
+      "evidence_ref": "evidence:planning:v28:row:V45-C"
+    },
+    {
+      "evidence_kind": "planning_table_row_evidence",
+      "evidence_ref": "evidence:planning:v28:row:V45-D"
+    },
+    {
+      "evidence_kind": "planning_table_row_evidence",
+      "evidence_ref": "evidence:planning:v28:row:V45-E"
+    },
+    {
+      "evidence_kind": "planning_table_row_evidence",
+      "evidence_ref": "evidence:planning:v28:row:V45-F"
+    },
+    {
+      "evidence_kind": "dependency_policy_evidence",
+      "evidence_ref": "evidence:policy:v45c"
+    }
+  ],
+  "extraction_method": "deterministic_projection",
+  "extraction_posture": "derived_deterministically",
+  "open_arc_entries": [
+    {
+      "arc_id": "V45-B",
+      "authority_layer": "planning",
+      "blocked_by_arc_ids": [],
+      "blocker_arc_ids": [],
+      "derivation_method": "deterministic_projection",
+      "derivation_posture": "derived_deterministically",
+      "family_path": "V45-B",
+      "phase_status": "selected_next_branch_local",
+      "readiness_posture": "ready",
+      "source_artifact_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:planning:v28:row:V45-B"
+      ]
+    },
+    {
+      "arc_id": "V45-C",
+      "authority_layer": "lock",
+      "blocked_by_arc_ids": [],
+      "blocker_arc_ids": [],
+      "derivation_method": "deterministic_projection",
+      "derivation_posture": "derived_deterministically",
+      "family_path": "V45-C",
+      "phase_status": "locked_start_bundle",
+      "readiness_posture": "ready",
+      "source_artifact_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md",
+        "docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:lock:v100:contract",
+        "evidence:lock:v102:contract",
+        "evidence:planning:v28:corrective_selection",
+        "evidence:planning:v28:row:V45-C"
+      ]
+    },
+    {
+      "arc_id": "V45-D",
+      "authority_layer": "planning",
+      "blocked_by_arc_ids": [],
+      "blocker_arc_ids": [],
+      "derivation_method": "deterministic_projection",
+      "derivation_posture": "derived_deterministically",
+      "family_path": "V45-D",
+      "phase_status": "planned",
+      "readiness_posture": "ready",
+      "source_artifact_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:planning:v28:row:V45-D"
+      ]
+    },
+    {
+      "arc_id": "V45-E",
+      "authority_layer": "planning",
+      "blocked_by_arc_ids": [],
+      "blocker_arc_ids": [],
+      "derivation_method": "deterministic_projection",
+      "derivation_posture": "derived_deterministically",
+      "family_path": "V45-E",
+      "phase_status": "planned",
+      "readiness_posture": "ready",
+      "source_artifact_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:planning:v28:row:V45-E"
+      ]
+    },
+    {
+      "arc_id": "V45-F",
+      "authority_layer": "planning",
+      "blocked_by_arc_ids": [
+        "V45-B",
+        "V45-C",
+        "V45-D",
+        "V45-E"
+      ],
+      "blocker_arc_ids": [
+        "V45-B",
+        "V45-C",
+        "V45-D",
+        "V45-E"
+      ],
+      "derivation_method": "deterministic_projection",
+      "derivation_posture": "derived_deterministically",
+      "family_path": "V45-F",
+      "phase_status": "planned_later_not_selected_here",
+      "readiness_posture": "blocked",
+      "source_artifact_refs": [
+        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:planning:v28:row:V45-F"
+      ]
+    }
+  ],
+  "pending_list_posture": "machine_enforced_open_arc_register",
+  "register_scope": "v45-open-arc-dependency-register-corrective-hardening-over-branch-local-selection",
+  "repo_arc_dependency_register_id": "repo_arc_dependency_register_8ce8eed2f900d2b0b9e3efa8",
+  "repo_snapshot_hash": "a475e43b42bdf6f9fe4dc6e0fc9fc13b15e97e3180da4239c78b0dee7c6059f5",
+  "repo_snapshot_id": "repo_snapshot_a475e43b42bdf6f9fe4dc6e0",
+  "schema": "repo_arc_dependency_register@2",
+  "snapshot_validity_posture": "snapshot_bound_current",
+  "source_set_hash": "a475e43b42bdf6f9fe4dc6e0fc9fc13b15e97e3180da4239c78b0dee7c6059f5"
+}

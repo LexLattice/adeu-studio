@@ -35,6 +35,11 @@ _DEFAULT_SOURCE_PATHS: tuple[str, ...] = (
 _DEFAULT_V45C_SOURCE_PATHS: tuple[str, ...] = (
     "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md",
+)
+_DEFAULT_V45C_V100_SOURCE_PATHS: tuple[str, ...] = (
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md",
 )
 
 
@@ -249,11 +254,11 @@ def _extract_json_blocks(text: str) -> list[dict[str, Any]]:
     return blocks
 
 
-def _extract_lock_contract(*, text: str) -> dict[str, Any]:
+def _extract_lock_contract(*, text: str, target_arc: str, target_path: str) -> dict[str, Any]:
     for payload in _extract_json_blocks(text):
-        if payload.get("target_arc") == "vNext+100" and payload.get("target_path") == "V45-C":
+        if payload.get("target_arc") == target_arc and payload.get("target_path") == target_path:
             return payload
-    raise ValueError("v100 lock contract block is missing from source set")
+    raise ValueError(f"{target_arc} lock contract block is missing from source set")
 
 
 def _extract_v45_path_rows(*, text: str) -> dict[str, str]:
@@ -568,6 +573,7 @@ def derive_v45c_repo_arc_dependency_register(
     source_hashes: dict[str, str] = {}
     options_text: str | None = None
     lock_text: str | None = None
+    lock102_text: str | None = None
     for source_path in normalized_source_paths:
         absolute_path = root / source_path
         if not absolute_path.is_file():
@@ -578,20 +584,36 @@ def derive_v45c_repo_arc_dependency_register(
         if filename == "DRAFT_NEXT_ARC_OPTIONS_v28.md":
             options_text = text
         elif filename == "LOCKED_CONTINUATION_vNEXT_PLUS100.md":
+            if lock_text is not None:
+                raise ValueError("duplicate v100 lock source provided")
             lock_text = text
+        elif filename == "LOCKED_CONTINUATION_vNEXT_PLUS102.md":
+            if lock102_text is not None:
+                raise ValueError("duplicate v102 lock source provided")
+            lock102_text = text
 
     if options_text is None:
         raise ValueError("source_paths must include docs/DRAFT_NEXT_ARC_OPTIONS_v28.md")
     if lock_text is None:
         raise ValueError("source_paths must include docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md")
+    if lock102_text is None:
+        raise ValueError("source_paths must include docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md")
 
-    selected_path = _extract_selected_v45_path(text=options_text)
+    if "select `V45-C` as the next default candidate for" not in options_text:
+        raise ValueError("planning source must include the bounded V45-C corrective follow-up note")
+
     path_rows = _extract_v45_path_rows(text=options_text)
-    lock_contract = _extract_lock_contract(text=lock_text)
-    if selected_path != "V45-C":
-        raise ValueError("v45c extractor requires V45-C to be the selected branch-local path")
-    if lock_contract.get("target_path") != selected_path:
-        raise ValueError("lock target path must match the selected V45 path in planning")
+    lock_contract_v100 = _extract_lock_contract(
+        text=lock_text,
+        target_arc="vNext+100",
+        target_path="V45-C",
+    )
+    lock_contract_v102 = _extract_lock_contract(
+        text=lock102_text,
+        target_arc="vNext+102",
+        target_path="V45-C",
+    )
+    selected_path = lock_contract_v102["target_path"]
 
     source_set_hash = sha256_canonical_json(
         {
@@ -609,8 +631,8 @@ def derive_v45c_repo_arc_dependency_register(
             evidence_ref=evidence_ref,
             evidence_kind="planning_table_row_evidence",
         )
-    evidence_refs_by_id["evidence:planning:v28:selection"] = RepoDescriptionEvidenceRef(
-        evidence_ref="evidence:planning:v28:selection",
+    evidence_refs_by_id["evidence:planning:v28:corrective_selection"] = RepoDescriptionEvidenceRef(
+        evidence_ref="evidence:planning:v28:corrective_selection",
         evidence_kind="planning_selection_evidence",
     )
     evidence_refs_by_id["evidence:lock:v100:contract"] = RepoDescriptionEvidenceRef(
@@ -620,6 +642,10 @@ def derive_v45c_repo_arc_dependency_register(
     evidence_refs_by_id["evidence:policy:v45c"] = RepoDescriptionEvidenceRef(
         evidence_ref="evidence:policy:v45c",
         evidence_kind="dependency_policy_evidence",
+    )
+    evidence_refs_by_id["evidence:lock:v102:contract"] = RepoDescriptionEvidenceRef(
+        evidence_ref="evidence:lock:v102:contract",
+        evidence_kind="lock_contract_evidence",
     )
 
     dependency_map: dict[str, list[str]] = {
@@ -648,11 +674,31 @@ def derive_v45c_repo_arc_dependency_register(
                 "readiness_posture": "blocked" if blocked_by else "ready",
                 "blocker_arc_ids": blocked_by,
                 "blocked_by_arc_ids": blocked_by,
+                "derivation_posture": "derived_deterministically",
+                "derivation_method": "deterministic_projection",
+                "source_artifact_refs": sorted(
+                    {
+                        "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
+                        *(
+                            {
+                                "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md",
+                                "docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md",
+                            }
+                            if path == selected_path
+                            else set()
+                        ),
+                    }
+                ),
                 "supporting_evidence_refs": sorted(
                     {
                         f"evidence:planning:v28:row:{path}",
                         (
-                            "evidence:planning:v28:selection"
+                            "evidence:planning:v28:corrective_selection"
+                            if path == selected_path
+                            else f"evidence:planning:v28:row:{path}"
+                        ),
+                        (
+                            "evidence:lock:v102:contract"
                             if path == selected_path
                             else f"evidence:planning:v28:row:{path}"
                         ),
@@ -679,7 +725,9 @@ def derive_v45c_repo_arc_dependency_register(
                     else "family_progression",
                     "dependency_strength": "hard",
                     "dependency_status": "unresolved",
-                    "supports_all_three_way_claim": False,
+                    "derivation_posture": "derived_deterministically",
+                    "derivation_method": "deterministic_projection",
+                    "source_artifact_refs": ["docs/DRAFT_NEXT_ARC_OPTIONS_v28.md"],
                     "supporting_evidence_refs": sorted(
                         {
                             f"evidence:planning:v28:row:{from_arc_id}",
@@ -691,19 +739,31 @@ def derive_v45c_repo_arc_dependency_register(
             )
 
     payload_without_register_id = {
-        "schema": "repo_arc_dependency_register@1",
+        "schema": "repo_arc_dependency_register@2",
         "repo_snapshot_id": repo_snapshot_id,
         "repo_snapshot_hash": repo_snapshot_hash,
         "snapshot_validity_posture": snapshot_validity_posture,
-        "register_scope": "v45-open-arc-dependency-register-over-branch-local-selection",
+        "source_set": normalized_source_paths,
+        "source_set_hash": source_set_hash,
+        "register_scope": (
+            "v45-open-arc-dependency-register-corrective-hardening-over-"
+            "branch-local-selection"
+        ),
+        "pending_list_posture": "machine_enforced_open_arc_register",
+        "cycle_posture": "cycles_forbidden",
+        "cycle_detection_scope": "all_declared_edges",
         "dependency_policy_ref": V45C_DEPENDENCY_POLICY_REF,
         "dependency_policy_hash": compute_v45c_dependency_policy_hash(),
+        "extraction_posture": "derived_deterministically",
+        "extraction_method": "deterministic_projection",
         "open_arc_entries": sorted(open_arc_entries, key=lambda row: row["arc_id"]),
         "dependency_edges": sorted(dependency_edges, key=lambda row: row["edge_id"]),
         "evidence_refs": [
             evidence_refs_by_id[key].model_dump(mode="json") for key in sorted(evidence_refs_by_id)
         ],
     }
+    if lock_contract_v100.get("target_path") != selected_path:
+        raise ValueError("released v100 and corrective v102 lock target paths must agree")
     return materialize_repo_arc_dependency_register_payload(payload_without_register_id)
 
 

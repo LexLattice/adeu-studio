@@ -7,6 +7,7 @@ from pathlib import Path
 from adeu_ir.repo import repo_root
 from adeu_repo_description import (
     REPO_ARC_DEPENDENCY_REGISTER_SCHEMA,
+    REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
 )
@@ -23,7 +24,7 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "packages"
             / "adeu_repo_description"
             / "schema"
-            / "repo_arc_dependency_register.v1.json",
+            / "repo_arc_dependency_register.v2.json",
             root / "spec" / "repo_arc_dependency_register.schema.json",
         ),
         REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA: (
@@ -37,6 +38,19 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
         REPO_ENTITY_CATALOG_SCHEMA: (
             root / "packages" / "adeu_repo_description" / "schema" / "repo_entity_catalog.v1.json",
             root / "spec" / "repo_entity_catalog.schema.json",
+        ),
+    }
+
+
+def _historical_schema_paths() -> dict[str, Path]:
+    root = repo_root(anchor=Path(__file__))
+    return {
+        REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_arc_dependency_register.v1.json"
         ),
     }
 
@@ -69,6 +83,9 @@ def test_exported_schema_has_stable_contract_markers() -> None:
     for expected_schema, (authoritative, _mirror) in _schema_pairs().items():
         payload = json.loads(authoritative.read_text(encoding="utf-8"))
         assert payload["properties"]["schema"]["const"] == expected_schema
+    for expected_schema, authoritative in _historical_schema_paths().items():
+        payload = json.loads(authoritative.read_text(encoding="utf-8"))
+        assert payload["properties"]["schema"]["const"] == expected_schema
 
 
 def test_exported_schema_has_no_absolute_path_material() -> None:
@@ -95,3 +112,5 @@ def test_exported_schema_has_no_absolute_path_material() -> None:
     for authoritative, mirror in _schema_pairs().values():
         _check_node(json.loads(authoritative.read_text(encoding="utf-8")))
         _check_node(json.loads(mirror.read_text(encoding="utf-8")))
+    for authoritative in _historical_schema_paths().values():
+        _check_node(json.loads(authoritative.read_text(encoding="utf-8")))

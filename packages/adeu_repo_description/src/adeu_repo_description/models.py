@@ -10,7 +10,8 @@ from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA = "repo_schema_family_registry@1"
 REPO_ENTITY_CATALOG_SCHEMA = "repo_entity_catalog@1"
-REPO_ARC_DEPENDENCY_REGISTER_SCHEMA = "repo_arc_dependency_register@1"
+REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA = "repo_arc_dependency_register@1"
+REPO_ARC_DEPENDENCY_REGISTER_SCHEMA = "repo_arc_dependency_register@2"
 V45A_V99_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS99.md#v99-continuation-contract-machine-checkable"
 )
@@ -19,6 +20,9 @@ V45A_CLASSIFICATION_POLICY_REF = (
 )
 V45C_V100_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md#v100-continuation-contract-machine-checkable"
+)
+V45C_V102_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md#v102-continuation-contract-machine-checkable"
 )
 V45C_DEPENDENCY_POLICY_REF = (
     "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md"
@@ -87,6 +91,15 @@ ReadinessPosture = Literal["ready", "blocked", "deferred"]
 DependencyKind = Literal["family_progression", "descriptive_prerequisite"]
 DependencyStrength = Literal["hard", "soft"]
 DependencyStatus = Literal["resolved", "unresolved", "informational"]
+DependencyRegisterMethod = Literal[
+    "direct_source_parse",
+    "deterministic_projection",
+    "bounded_inference_rule",
+    "adjudicated_policy",
+]
+CyclePosture = Literal["cycles_forbidden", "cycles_present_with_explicit_binding"]
+CycleDetectionScope = Literal["hard_unresolved_edges_only", "all_declared_edges"]
+PendingListPosture = Literal["machine_enforced_open_arc_register"]
 
 _STRONGER_PRECEDENCE_EVIDENCE_KINDS: tuple[EvidenceKind, ...] = (
     "structural_signature_evidence",
@@ -142,7 +155,7 @@ def compute_v45a_classification_policy_hash() -> str:
     return sha256_canonical_json(_v45a_classification_policy_payload())
 
 
-def _v45c_dependency_policy_payload() -> dict[str, Any]:
+def _v45c_v100_dependency_policy_payload() -> dict[str, Any]:
     return {
         "policy_ref": V45C_DEPENDENCY_POLICY_REF,
         "allowed_phase_statuses": [
@@ -161,6 +174,60 @@ def _v45c_dependency_policy_payload() -> dict[str, Any]:
         "cycle_policy": "reject_unflagged_cycles",
         "blocked_posture_rule": "blocked_entries_must_match_unresolved_hard_incoming_edges",
         "forbidden_authority_terms": list(_FORBIDDEN_AUTHORITY_TERMS),
+    }
+
+
+def compute_v45c_v100_dependency_policy_hash() -> str:
+    return sha256_canonical_json(_v45c_v100_dependency_policy_payload())
+
+
+def _v45c_dependency_policy_payload() -> dict[str, Any]:
+    return {
+        "policy_ref": V45C_DEPENDENCY_POLICY_REF,
+        "allowed_phase_statuses": [
+            "planned",
+            "planned_not_selected_yet",
+            "planned_later_not_selected_here",
+            "selected_next_branch_local",
+            "locked_start_bundle",
+            "closed_on_main",
+        ],
+        "allowed_authority_layers": ["planning", "lock", "closeout", "support"],
+        "allowed_readiness_postures": ["ready", "blocked", "deferred"],
+        "allowed_dependency_kinds": ["family_progression", "descriptive_prerequisite"],
+        "allowed_dependency_strengths": ["hard", "soft"],
+        "allowed_dependency_statuses": ["resolved", "unresolved", "informational"],
+        "allowed_postures": [
+            "observed",
+            "derived_deterministically",
+            "inferred_heuristically",
+            "adjudicated",
+            "settled",
+        ],
+        "allowed_methods": [
+            "direct_source_parse",
+            "deterministic_projection",
+            "bounded_inference_rule",
+            "adjudicated_policy",
+        ],
+        "allowed_cycle_postures": [
+            "cycles_forbidden",
+            "cycles_present_with_explicit_binding",
+        ],
+        "allowed_cycle_detection_scopes": [
+            "hard_unresolved_edges_only",
+            "all_declared_edges",
+        ],
+        "allowed_pending_list_postures": [
+            "machine_enforced_open_arc_register",
+        ],
+        "source_artifact_membership_rule": (
+            "entry_and_edge_source_artifact_refs_must_resolve_inside_source_set"
+        ),
+        "blocked_posture_rule": "blocked_entries_must_match_unresolved_hard_incoming_edges",
+        "cycle_policy": "explicit_cycle_posture_and_scope_required",
+        "forbidden_authority_terms": list(_FORBIDDEN_AUTHORITY_TERMS),
+        "forbidden_undefined_vocabulary": ["supports_all_three_way_claim"],
     }
 
 
@@ -654,7 +721,7 @@ class RepoEntityCatalog(BaseModel):
         return self
 
 
-class RepoArcDependencyRegisterEntry(BaseModel):
+class RepoArcDependencyRegisterEntryV1(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     arc_id: str
@@ -667,7 +734,7 @@ class RepoArcDependencyRegisterEntry(BaseModel):
     supporting_evidence_refs: list[str] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def _validate_entry(self) -> RepoArcDependencyRegisterEntry:
+    def _validate_entry(self) -> RepoArcDependencyRegisterEntryV1:
         object.__setattr__(self, "arc_id", _assert_non_empty_text(self.arc_id, field_name="arc_id"))
         object.__setattr__(
             self,
@@ -704,7 +771,7 @@ class RepoArcDependencyRegisterEntry(BaseModel):
         return self
 
 
-class RepoArcDependencyEdge(BaseModel):
+class RepoArcDependencyEdgeV1(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     edge_id: str
@@ -717,7 +784,7 @@ class RepoArcDependencyEdge(BaseModel):
     supporting_evidence_refs: list[str] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def _validate_edge(self) -> RepoArcDependencyEdge:
+    def _validate_edge(self) -> RepoArcDependencyEdgeV1:
         for field_name in ("edge_id", "from_arc_id", "to_arc_id"):
             object.__setattr__(
                 self,
@@ -736,10 +803,10 @@ class RepoArcDependencyEdge(BaseModel):
         return self
 
 
-class RepoArcDependencyRegister(BaseModel):
+class RepoArcDependencyRegisterV1(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, protected_namespaces=())
 
-    schema: Literal["repo_arc_dependency_register@1"] = REPO_ARC_DEPENDENCY_REGISTER_SCHEMA
+    schema: Literal["repo_arc_dependency_register@1"] = REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA
     repo_arc_dependency_register_id: str
     repo_snapshot_id: str
     repo_snapshot_hash: str
@@ -747,12 +814,12 @@ class RepoArcDependencyRegister(BaseModel):
     register_scope: str
     dependency_policy_ref: str
     dependency_policy_hash: str
-    open_arc_entries: list[RepoArcDependencyRegisterEntry] = Field(min_length=1)
-    dependency_edges: list[RepoArcDependencyEdge] = Field(default_factory=list)
+    open_arc_entries: list[RepoArcDependencyRegisterEntryV1] = Field(min_length=1)
+    dependency_edges: list[RepoArcDependencyEdgeV1] = Field(default_factory=list)
     evidence_refs: list[RepoDescriptionEvidenceRef] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def _validate_register(self) -> RepoArcDependencyRegister:
+    def _validate_register(self) -> RepoArcDependencyRegisterV1:
         object.__setattr__(
             self,
             "repo_arc_dependency_register_id",
@@ -791,7 +858,7 @@ class RepoArcDependencyRegister(BaseModel):
         )
         if self.dependency_policy_ref != V45C_DEPENDENCY_POLICY_REF:
             raise ValueError("dependency_policy_ref must bind to the v45c dependency policy")
-        if self.dependency_policy_hash != compute_v45c_dependency_policy_hash():
+        if self.dependency_policy_hash != compute_v45c_v100_dependency_policy_hash():
             raise ValueError("dependency_policy_hash must match bound policy content")
 
         evidence_by_ref = {entry.evidence_ref: entry for entry in self.evidence_refs}
@@ -868,6 +935,300 @@ class RepoArcDependencyRegister(BaseModel):
 
         payload_without_id = self.model_dump(mode="json")
         payload_without_id.pop("repo_arc_dependency_register_id", None)
+        expected_id = compute_repo_arc_dependency_register_v1_id(payload_without_id)
+        if self.repo_arc_dependency_register_id != expected_id:
+            raise ValueError(
+                "repo_arc_dependency_register_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoArcDependencyRegisterEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    arc_id: str
+    family_path: str
+    phase_status: ArcPhaseStatus
+    authority_layer: AuthorityLayer
+    readiness_posture: ReadinessPosture
+    blocker_arc_ids: list[str] = Field(default_factory=list)
+    blocked_by_arc_ids: list[str] = Field(default_factory=list)
+    derivation_posture: ClassificationPosture
+    derivation_method: DependencyRegisterMethod
+    source_artifact_refs: list[str] = Field(min_length=1)
+    supporting_evidence_refs: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> RepoArcDependencyRegisterEntry:
+        object.__setattr__(self, "arc_id", _assert_non_empty_text(self.arc_id, field_name="arc_id"))
+        object.__setattr__(
+            self,
+            "family_path",
+            _assert_non_empty_text(self.family_path, field_name="family_path"),
+        )
+        object.__setattr__(
+            self,
+            "blocker_arc_ids",
+            _assert_sorted_unique(self.blocker_arc_ids, field_name="blocker_arc_ids"),
+        )
+        object.__setattr__(
+            self,
+            "blocked_by_arc_ids",
+            _assert_sorted_unique(self.blocked_by_arc_ids, field_name="blocked_by_arc_ids"),
+        )
+        object.__setattr__(
+            self,
+            "source_artifact_refs",
+            _assert_sorted_unique(
+                [
+                    _assert_repo_rel_path(path, field_name="source_artifact_refs")
+                    for path in self.source_artifact_refs
+                ],
+                field_name="source_artifact_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_evidence_refs",
+            _assert_sorted_unique(
+                self.supporting_evidence_refs, field_name="supporting_evidence_refs"
+            ),
+        )
+        if self.readiness_posture == "blocked" and not self.blocked_by_arc_ids:
+            raise ValueError("blocked readiness_posture requires blocked_by_arc_ids")
+        if self.readiness_posture != "blocked" and (
+            self.blocked_by_arc_ids or self.blocker_arc_ids
+        ):
+            raise ValueError(
+                "non-blocked readiness_posture may not carry blocker_arc_ids or blocked_by_arc_ids"
+            )
+        if self.blocker_arc_ids != self.blocked_by_arc_ids:
+            raise ValueError("blocker_arc_ids and blocked_by_arc_ids must match in v45c")
+        return self
+
+
+class RepoArcDependencyEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    edge_id: str
+    from_arc_id: str
+    to_arc_id: str
+    dependency_kind: DependencyKind
+    dependency_strength: DependencyStrength
+    dependency_status: DependencyStatus
+    derivation_posture: ClassificationPosture
+    derivation_method: DependencyRegisterMethod
+    source_artifact_refs: list[str] = Field(min_length=1)
+    supporting_evidence_refs: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_edge(self) -> RepoArcDependencyEdge:
+        for field_name in ("edge_id", "from_arc_id", "to_arc_id"):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "source_artifact_refs",
+            _assert_sorted_unique(
+                [
+                    _assert_repo_rel_path(path, field_name="source_artifact_refs")
+                    for path in self.source_artifact_refs
+                ],
+                field_name="source_artifact_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_evidence_refs",
+            _assert_sorted_unique(
+                self.supporting_evidence_refs, field_name="supporting_evidence_refs"
+            ),
+        )
+        if self.from_arc_id == self.to_arc_id:
+            raise ValueError("dependency edges may not be self-referential")
+        return self
+
+
+class RepoArcDependencyRegister(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, protected_namespaces=())
+
+    schema: Literal["repo_arc_dependency_register@2"] = REPO_ARC_DEPENDENCY_REGISTER_SCHEMA
+    repo_arc_dependency_register_id: str
+    repo_snapshot_id: str
+    repo_snapshot_hash: str
+    snapshot_validity_posture: SnapshotValidityPosture
+    source_set: list[str] = Field(min_length=1)
+    source_set_hash: str
+    register_scope: str
+    pending_list_posture: PendingListPosture
+    cycle_posture: CyclePosture
+    cycle_detection_scope: CycleDetectionScope
+    dependency_policy_ref: str
+    dependency_policy_hash: str
+    extraction_posture: ClassificationPosture
+    extraction_method: DependencyRegisterMethod
+    open_arc_entries: list[RepoArcDependencyRegisterEntry] = Field(min_length=1)
+    dependency_edges: list[RepoArcDependencyEdge] = Field(default_factory=list)
+    evidence_refs: list[RepoDescriptionEvidenceRef] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> RepoArcDependencyRegister:
+        object.__setattr__(
+            self,
+            "repo_arc_dependency_register_id",
+            _assert_non_empty_text(
+                self.repo_arc_dependency_register_id, field_name="repo_arc_dependency_register_id"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_id",
+            _assert_non_empty_text(self.repo_snapshot_id, field_name="repo_snapshot_id"),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_hash",
+            _assert_hash(self.repo_snapshot_hash, field_name="repo_snapshot_hash"),
+        )
+        object.__setattr__(
+            self,
+            "source_set",
+            _assert_sorted_unique(
+                [
+                    _assert_repo_rel_path(path, field_name="source_set")
+                    for path in self.source_set
+                ],
+                field_name="source_set",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "source_set_hash",
+            _assert_hash(self.source_set_hash, field_name="source_set_hash"),
+        )
+        object.__setattr__(
+            self,
+            "register_scope",
+            _assert_no_forbidden_authority_terms(
+                self.register_scope, field_name="register_scope"
+            ),
+        )
+        if "repo_dependency_graph" in self.register_scope:
+            raise ValueError("register_scope may not claim the later repo_dependency_graph surface")
+        object.__setattr__(
+            self,
+            "dependency_policy_ref",
+            _assert_non_empty_text(
+                self.dependency_policy_ref, field_name="dependency_policy_ref"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "dependency_policy_hash",
+            _assert_hash(self.dependency_policy_hash, field_name="dependency_policy_hash"),
+        )
+        if self.dependency_policy_ref != V45C_DEPENDENCY_POLICY_REF:
+            raise ValueError("dependency_policy_ref must bind to the v45c dependency policy")
+        if self.dependency_policy_hash != compute_v45c_dependency_policy_hash():
+            raise ValueError("dependency_policy_hash must match bound policy content")
+
+        evidence_by_ref = {entry.evidence_ref: entry for entry in self.evidence_refs}
+        if len(evidence_by_ref) != len(self.evidence_refs):
+            raise ValueError("evidence_refs evidence_ref values must be unique")
+        if [entry.evidence_ref for entry in self.evidence_refs] != sorted(evidence_by_ref):
+            raise ValueError("evidence_refs must be sorted lexicographically by evidence_ref")
+
+        entries_by_id = {entry.arc_id: entry for entry in self.open_arc_entries}
+        if len(entries_by_id) != len(self.open_arc_entries):
+            raise ValueError("open_arc_entries arc_id values must be unique")
+        if [entry.arc_id for entry in self.open_arc_entries] != sorted(entries_by_id):
+            raise ValueError("open_arc_entries must be sorted lexicographically by arc_id")
+
+        edges_by_id = {edge.edge_id: edge for edge in self.dependency_edges}
+        if len(edges_by_id) != len(self.dependency_edges):
+            raise ValueError("dependency_edges edge_id values must be unique")
+        if [edge.edge_id for edge in self.dependency_edges] != sorted(edges_by_id):
+            raise ValueError("dependency_edges must be sorted lexicographically by edge_id")
+
+        source_set_membership = set(self.source_set)
+        unresolved_hard_incoming: dict[str, list[str]] = {arc_id: [] for arc_id in entries_by_id}
+        cycle_adjacency: dict[str, list[str]] = {arc_id: [] for arc_id in entries_by_id}
+
+        for entry in self.open_arc_entries:
+            row_evidence = [evidence_by_ref.get(ref) for ref in entry.supporting_evidence_refs]
+            if any(item is None for item in row_evidence):
+                raise ValueError(
+                    "open_arc_entries supporting_evidence_refs must reference "
+                    "top-level evidence_refs"
+                )
+            for source_ref in entry.source_artifact_refs:
+                if source_ref not in source_set_membership:
+                    raise ValueError("entry source_artifact_refs must resolve inside source_set")
+
+        for edge in self.dependency_edges:
+            edge_evidence = [evidence_by_ref.get(ref) for ref in edge.supporting_evidence_refs]
+            if any(item is None for item in edge_evidence):
+                raise ValueError(
+                    "dependency_edges supporting_evidence_refs must reference "
+                    "top-level evidence_refs"
+                )
+            for source_ref in edge.source_artifact_refs:
+                if source_ref not in source_set_membership:
+                    raise ValueError("edge source_artifact_refs must resolve inside source_set")
+            if edge.from_arc_id not in entries_by_id or edge.to_arc_id not in entries_by_id:
+                raise ValueError("dependency edges must reference known open_arc_entries arc_id")
+            cycle_adjacency[edge.from_arc_id].append(edge.to_arc_id)
+            if edge.dependency_strength == "hard" and edge.dependency_status == "unresolved":
+                unresolved_hard_incoming[edge.to_arc_id].append(edge.from_arc_id)
+
+        for entry in self.open_arc_entries:
+            incoming = sorted(set(unresolved_hard_incoming[entry.arc_id]))
+            if entry.readiness_posture == "blocked":
+                if incoming != entry.blocked_by_arc_ids:
+                    raise ValueError(
+                        "blocked readiness_posture must match unresolved hard incoming dependencies"
+                    )
+            elif incoming:
+                raise ValueError(
+                    "ready/deferred readiness_posture may not coexist with unresolved hard blockers"
+                )
+
+        if self.cycle_posture == "cycles_forbidden":
+            if self.cycle_detection_scope == "hard_unresolved_edges_only":
+                scoped_adjacency = {arc_id: [] for arc_id in entries_by_id}
+                for edge in self.dependency_edges:
+                    if (
+                        edge.dependency_strength == "hard"
+                        and edge.dependency_status == "unresolved"
+                    ):
+                        scoped_adjacency[edge.from_arc_id].append(edge.to_arc_id)
+            else:
+                scoped_adjacency = cycle_adjacency
+
+            visited: set[str] = set()
+            active: set[str] = set()
+
+            def visit(node: str) -> None:
+                if node in active:
+                    raise ValueError(
+                        "dependency cycles are forbidden under the declared cycle posture"
+                    )
+                if node in visited:
+                    return
+                visited.add(node)
+                active.add(node)
+                for neighbor in sorted(scoped_adjacency[node]):
+                    visit(neighbor)
+                active.remove(node)
+
+            for arc_id in sorted(scoped_adjacency):
+                visit(arc_id)
+
+        payload_without_id = self.model_dump(mode="json")
+        payload_without_id.pop("repo_arc_dependency_register_id", None)
         expected_id = compute_repo_arc_dependency_register_id(payload_without_id)
         if self.repo_arc_dependency_register_id != expected_id:
             raise ValueError(
@@ -922,6 +1283,29 @@ def materialize_repo_entity_catalog_payload(
 
 def canonicalize_repo_entity_catalog_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return RepoEntityCatalog.model_validate(payload).model_dump(mode="json")
+
+
+def compute_repo_arc_dependency_register_v1_id(payload_without_id: dict[str, Any]) -> str:
+    canonical_payload = deepcopy(payload_without_id)
+    canonical_payload.setdefault("schema", REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA)
+    canonical_payload.pop("repo_arc_dependency_register_id", None)
+    digest = sha256_canonical_json(canonical_payload)
+    return f"repo_arc_dependency_register_{digest[:24]}"
+
+
+def materialize_repo_arc_dependency_register_v1_payload(
+    payload_without_register_id: dict[str, Any],
+) -> dict[str, Any]:
+    payload = deepcopy(payload_without_register_id)
+    payload.setdefault("schema", REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA)
+    payload.setdefault("dependency_policy_ref", V45C_DEPENDENCY_POLICY_REF)
+    payload.setdefault("dependency_policy_hash", compute_v45c_v100_dependency_policy_hash())
+    payload["repo_arc_dependency_register_id"] = compute_repo_arc_dependency_register_v1_id(payload)
+    return RepoArcDependencyRegisterV1.model_validate(payload).model_dump(mode="json")
+
+
+def canonicalize_repo_arc_dependency_register_v1_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    return RepoArcDependencyRegisterV1.model_validate(payload).model_dump(mode="json")
 
 
 def compute_repo_arc_dependency_register_id(payload_without_id: dict[str, Any]) -> str:
