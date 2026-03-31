@@ -17,7 +17,11 @@ from adeu_repo_description import (
     default_v45c_source_paths,
     derive_v45c_repo_arc_dependency_register,
 )
-from adeu_repo_description.extract import _extract_selected_v45_path
+from adeu_repo_description.extract import (
+    _extract_selected_v45_path,
+    _extract_v45c_corrective_selected_path,
+    _validate_v45c_corrective_planning_markers,
+)
 from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 
@@ -202,6 +206,41 @@ def test_v100_selected_path_extraction_accepts_consistent_non_phrase_markers() -
 ## Recommended Next Path (`V45-C`)
 """
     assert _extract_selected_v45_path(text=text) == "V45-C"
+
+
+def test_v102_corrective_selected_path_extraction_reads_bounded_followup_note() -> None:
+    text = """
+- Corrective follow-up note on this same planning surface:
+  - if released `V45-C` hardening is selected before broader `V45-B` consumers rely on
+    `repo_arc_dependency_register@1`, select `V45-C` as the next default candidate for
+    that bounded corrective follow-up;
+"""
+    assert _extract_v45c_corrective_selected_path(text=text) == "V45-C"
+
+
+def test_v102_corrective_planning_validation_rejects_table_drift() -> None:
+    mutated_text = """
+## Suggested `V45` Path Ladder
+
+| Path | Theme | Primary output | Status |
+|---|---|---|---|
+| `V45-B` | symbol catalog + typed dependency graph | candidate outputs | planned |
+| `V45-C` | open arc/slice dependency register | candidate output | closed_on_main |
+| `V45-D` | test intent matrix | candidate output | selected_next_branch_local |
+
+- Corrective follow-up note on this same planning surface:
+  - if released `V45-C` hardening is selected before broader `V45-B` consumers rely on
+    `repo_arc_dependency_register@1`, select `V45-C` as the next default candidate for
+    that bounded corrective follow-up;
+"""
+    with pytest.raises(
+        ValueError,
+        match=(
+            "v45c corrective extractor requires V45-B to remain the broader "
+            "selected_next_branch_local path in planning"
+        ),
+    ):
+        _validate_v45c_corrective_planning_markers(text=mutated_text)
 
 
 def test_v102_rejects_cycles_when_cycle_posture_forbids_all_declared_edges() -> None:

@@ -332,6 +332,33 @@ def _extract_selected_v45_path(*, text: str) -> str:
     return next(iter(candidates))
 
 
+def _extract_v45c_corrective_selected_path(*, text: str) -> str:
+    corrective_match = re.search(
+        (
+            r"select\s+`(?P<path>V45-[A-Z])`\s+as the next default "
+            r"candidate\s+for\s+that bounded corrective follow-up"
+        ),
+        text,
+        flags=re.MULTILINE,
+    )
+    if corrective_match is None:
+        raise ValueError("bounded V45-C corrective selection marker is missing")
+    return corrective_match.group("path")
+
+
+def _validate_v45c_corrective_planning_markers(*, text: str) -> str:
+    path_rows = _extract_v45_path_rows(text=text)
+    selected_table_paths = sorted(
+        path for path, status in path_rows.items() if status == "selected_next_branch_local"
+    )
+    if selected_table_paths != ["V45-B"]:
+        raise ValueError(
+            "v45c corrective extractor requires V45-B to remain the broader "
+            "selected_next_branch_local path in planning"
+        )
+    return _extract_v45c_corrective_selected_path(text=text)
+
+
 def derive_v45a_repo_schema_family_registry(
     *,
     source_paths: list[str] | None = None,
@@ -599,10 +626,8 @@ def derive_v45c_repo_arc_dependency_register(
     if lock102_text is None:
         raise ValueError("source_paths must include docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md")
 
-    if "select `V45-C` as the next default candidate for" not in options_text:
-        raise ValueError("planning source must include the bounded V45-C corrective follow-up note")
-
     path_rows = _extract_v45_path_rows(text=options_text)
+    corrective_selected_path = _validate_v45c_corrective_planning_markers(text=options_text)
     lock_contract_v100 = _extract_lock_contract(
         text=lock_text,
         target_arc="vNext+100",
@@ -614,6 +639,10 @@ def derive_v45c_repo_arc_dependency_register(
         target_path="V45-C",
     )
     selected_path = lock_contract_v102["target_path"]
+    if corrective_selected_path != selected_path:
+        raise ValueError(
+            "planning corrective V45 path must match the v102 lock target path"
+        )
 
     source_set_hash = sha256_canonical_json(
         {
