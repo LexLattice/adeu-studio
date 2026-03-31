@@ -1,0 +1,255 @@
+{
+  "$defs": {
+    "RepoArcDependencyEdge": {
+      "additionalProperties": false,
+      "properties": {
+        "dependency_kind": {
+          "enum": [
+            "family_progression",
+            "descriptive_prerequisite"
+          ],
+          "title": "Dependency Kind",
+          "type": "string"
+        },
+        "dependency_status": {
+          "enum": [
+            "resolved",
+            "unresolved",
+            "informational"
+          ],
+          "title": "Dependency Status",
+          "type": "string"
+        },
+        "dependency_strength": {
+          "enum": [
+            "hard",
+            "soft"
+          ],
+          "title": "Dependency Strength",
+          "type": "string"
+        },
+        "edge_id": {
+          "title": "Edge Id",
+          "type": "string"
+        },
+        "from_arc_id": {
+          "title": "From Arc Id",
+          "type": "string"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        },
+        "supports_all_three_way_claim": {
+          "default": false,
+          "title": "Supports All Three Way Claim",
+          "type": "boolean"
+        },
+        "to_arc_id": {
+          "title": "To Arc Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "edge_id",
+        "from_arc_id",
+        "to_arc_id",
+        "dependency_kind",
+        "dependency_strength",
+        "dependency_status",
+        "supporting_evidence_refs"
+      ],
+      "title": "RepoArcDependencyEdge",
+      "type": "object"
+    },
+    "RepoArcDependencyRegisterEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "arc_id": {
+          "title": "Arc Id",
+          "type": "string"
+        },
+        "authority_layer": {
+          "enum": [
+            "planning",
+            "lock",
+            "closeout",
+            "support"
+          ],
+          "title": "Authority Layer",
+          "type": "string"
+        },
+        "blocked_by_arc_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocked By Arc Ids",
+          "type": "array"
+        },
+        "blocker_arc_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Blocker Arc Ids",
+          "type": "array"
+        },
+        "family_path": {
+          "title": "Family Path",
+          "type": "string"
+        },
+        "phase_status": {
+          "enum": [
+            "planned",
+            "planned_not_selected_yet",
+            "planned_later_not_selected_here",
+            "selected_next_branch_local",
+            "locked_start_bundle",
+            "closed_on_main"
+          ],
+          "title": "Phase Status",
+          "type": "string"
+        },
+        "readiness_posture": {
+          "enum": [
+            "ready",
+            "blocked",
+            "deferred"
+          ],
+          "title": "Readiness Posture",
+          "type": "string"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "arc_id",
+        "family_path",
+        "phase_status",
+        "authority_layer",
+        "readiness_posture",
+        "supporting_evidence_refs"
+      ],
+      "title": "RepoArcDependencyRegisterEntry",
+      "type": "object"
+    },
+    "RepoDescriptionEvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "enum": [
+            "observed_anchor_tuple_evidence",
+            "structural_signature_evidence",
+            "semantic_function_cue_evidence",
+            "governance_cue_evidence",
+            "lexical_cue_evidence",
+            "adjudication_artifact_evidence",
+            "reconstruction_subset_evidence",
+            "planning_table_row_evidence",
+            "planning_selection_evidence",
+            "lock_contract_evidence",
+            "dependency_policy_evidence"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_ref": {
+          "title": "Evidence Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "evidence_kind"
+      ],
+      "title": "RepoDescriptionEvidenceRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dependency_edges": {
+      "items": {
+        "$ref": "#/$defs/RepoArcDependencyEdge"
+      },
+      "title": "Dependency Edges",
+      "type": "array"
+    },
+    "dependency_policy_hash": {
+      "title": "Dependency Policy Hash",
+      "type": "string"
+    },
+    "dependency_policy_ref": {
+      "title": "Dependency Policy Ref",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/RepoDescriptionEvidenceRef"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "open_arc_entries": {
+      "items": {
+        "$ref": "#/$defs/RepoArcDependencyRegisterEntry"
+      },
+      "minItems": 1,
+      "title": "Open Arc Entries",
+      "type": "array"
+    },
+    "register_scope": {
+      "title": "Register Scope",
+      "type": "string"
+    },
+    "repo_arc_dependency_register_id": {
+      "title": "Repo Arc Dependency Register Id",
+      "type": "string"
+    },
+    "repo_snapshot_hash": {
+      "title": "Repo Snapshot Hash",
+      "type": "string"
+    },
+    "repo_snapshot_id": {
+      "title": "Repo Snapshot Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_arc_dependency_register@1",
+      "default": "repo_arc_dependency_register@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_validity_posture": {
+      "enum": [
+        "snapshot_bound_current",
+        "snapshot_bound_historical"
+      ],
+      "title": "Snapshot Validity Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "repo_arc_dependency_register_id",
+    "repo_snapshot_id",
+    "repo_snapshot_hash",
+    "snapshot_validity_posture",
+    "register_scope",
+    "dependency_policy_ref",
+    "dependency_policy_hash",
+    "open_arc_entries",
+    "evidence_refs"
+  ],
+  "title": "RepoArcDependencyRegister",
+  "type": "object"
+}
