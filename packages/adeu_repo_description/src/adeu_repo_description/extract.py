@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import json
 import re
 from copy import deepcopy
@@ -10,17 +11,24 @@ from adeu_ir.repo import repo_root
 from urm_runtime.hashing import sha256_canonical_json
 
 from .models import (
+    REPO_DEPENDENCY_GRAPH_SCHEMA,
+    REPO_SYMBOL_CATALOG_SCHEMA,
     SCHEMA_VISIBLE_ENTITY_COVERAGE_MODE,
     V45A_CLASSIFICATION_POLICY_REF,
     V45C_DEPENDENCY_POLICY_REF,
     RepoDescriptionEvidenceRef,
     RepoSchemaFamilyRegistry,
+    compute_internal_module_boundary_ref,
+    compute_symbol_id,
     compute_v45a_classification_policy_hash,
     compute_v45c_v102_dependency_policy_hash,
     materialize_repo_arc_dependency_register_payload,
+    materialize_repo_dependency_graph_payload,
     materialize_repo_entity_catalog_payload,
     materialize_repo_schema_family_registry_payload,
+    materialize_repo_symbol_catalog_payload,
     representative_schema_keys,
+    validate_repo_symbol_catalog_dependency_graph_pair,
 )
 
 _DEFAULT_SOURCE_PATHS: tuple[str, ...] = (
@@ -36,6 +44,12 @@ _DEFAULT_V45C_SOURCE_PATHS: tuple[str, ...] = (
     "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md",
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md",
+)
+_DEFAULT_V45B_SOURCE_PATHS: tuple[str, ...] = (
+    "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/models.py",
 )
 
 
@@ -224,6 +238,153 @@ def _as_repo_rel(path: Path, *, root: Path) -> str:
 
 def _default_source_paths() -> list[str]:
     return list(_DEFAULT_SOURCE_PATHS)
+
+
+def _default_v45b_source_paths() -> list[str]:
+    return list(_DEFAULT_V45B_SOURCE_PATHS)
+
+
+def _module_import_path_for_source_path(source_path: str) -> str:
+    normalized = _assert_repo_rel_path(source_path, field_name="source_path")
+    marker = "/src/"
+    if marker not in normalized or not normalized.endswith(".py"):
+        raise ValueError("v45b source_path must be a Python file under a src/ tree")
+    module_suffix = normalized.split(marker, 1)[1]
+    if module_suffix.endswith("/__init__.py"):
+        module_suffix = module_suffix[: -len("/__init__.py")]
+    else:
+        module_suffix = module_suffix[: -len(".py")]
+    return module_suffix.replace("/", ".")
+
+
+def _source_path_for_module_import_path(
+    *,
+    module_import_path: str,
+    module_to_source_path: dict[str, str],
+) -> str | None:
+    return module_to_source_path.get(module_import_path)
+
+
+def _current_package_for_source_path(source_path: str) -> str:
+    module_import_path = _module_import_path_for_source_path(source_path)
+    if Path(source_path).name == "__init__.py":
+        return module_import_path
+    if "." not in module_import_path:
+        return module_import_path
+    return module_import_path.rsplit(".", 1)[0]
+
+
+def _resolve_import_from_module(
+    *,
+    source_path: str,
+    module: str | None,
+    level: int,
+) -> str:
+    if level == 0:
+        return module or ""
+    package = _current_package_for_source_path(source_path)
+    package_parts = package.split(".") if package else []
+    ascend = max(level - 1, 0)
+    if ascend > len(package_parts):
+        raise ValueError("relative import level exceeds package depth")
+    base_parts = package_parts[: len(package_parts) - ascend]
+    if module:
+        base_parts.extend(module.split("."))
+    return ".".join(base_parts)
+
+
+def _qualname_join(parent: str | None, name: str) -> str:
+    if not parent:
+        return name
+    return f"{parent}.{name}"
+
+
+def _assignment_target_names_from_target(target: ast.expr) -> set[str]:
+    if isinstance(target, ast.Name):
+        return {target.id}
+    if isinstance(target, (ast.Tuple, ast.List)):
+        names: set[str] = set()
+        for element in target.elts:
+            names.update(_assignment_target_names_from_target(element))
+        return names
+    if isinstance(target, ast.Starred):
+        return _assignment_target_names_from_target(target.value)
+    return set()
+
+
+def _assignment_target_names(node: ast.Assign | ast.AnnAssign) -> list[str]:
+    targets: set[str] = set()
+    if isinstance(node, ast.Assign):
+        raw_targets = node.targets
+    else:
+        raw_targets = [node.target]
+    for target in raw_targets:
+        targets.update(_assignment_target_names_from_target(target))
+    return sorted(targets)
+
+
+def _symbol_role_method_for_node(node: ast.AST) -> str:
+    if isinstance(node, ast.ClassDef):
+        if node.bases or node.decorator_list:
+            return "decorator_or_baseclass_rule"
+        return "ast_signature"
+    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        if node.decorator_list:
+            return "decorator_or_baseclass_rule"
+        return "ast_signature"
+    return "ast_signature"
+
+
+def _expr_to_dotted_name(node: ast.AST) -> str | None:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        parent = _expr_to_dotted_name(node.value)
+        if parent is None:
+            return None
+        return f"{parent}.{node.attr}"
+    return None
+
+
+def _nested_statement_bodies(node: ast.stmt) -> list[list[ast.stmt]]:
+    if isinstance(node, (ast.If, ast.For, ast.AsyncFor, ast.While, ast.With, ast.AsyncWith)):
+        return [body for body in (node.body, node.orelse) if body]
+    if isinstance(node, ast.Try):
+        bodies = [node.body, node.orelse, node.finalbody]
+        bodies.extend(handler.body for handler in node.handlers)
+        return [body for body in bodies if body]
+    if isinstance(node, ast.Match):
+        return [case.body for case in node.cases if case.body]
+    return []
+
+
+def _repo_out_of_scope_module(module_import_path: str) -> bool:
+    root = module_import_path.split(".", 1)[0]
+    return root.startswith("adeu_") or root.startswith("urm_")
+
+
+def _classify_external_target(module_or_symbol: str) -> tuple[str, str]:
+    if _repo_out_of_scope_module(module_or_symbol):
+        return "boundary_out_of_scope", f"out_of_scope:{module_or_symbol}"
+    return "boundary_external", f"external:{module_or_symbol}"
+
+
+def _edge_id_for_payload(payload: dict[str, Any]) -> str:
+    digest = sha256_canonical_json(payload)
+    return f"edge_{digest[:24]}"
+
+
+def _merge_external_dependency_suffix(*, endpoint_ref: str, rest: list[str]) -> str:
+    prefix, suffix = endpoint_ref.split(":", 1)
+    suffix_parts = suffix.split(".")
+    overlap = 0
+    max_overlap = min(len(suffix_parts), len(rest))
+    for size in range(max_overlap, 0, -1):
+        if suffix_parts[-size:] == rest[:size]:
+            overlap = size
+            break
+    merged_parts = suffix_parts + rest[overlap:]
+    return f"{prefix}:{'.'.join(merged_parts)}"
 
 
 def _extract_json_blocks(text: str) -> list[dict[str, Any]]:
@@ -578,6 +739,436 @@ def derive_v45a_repo_description_bundle(
     return registry, catalog
 
 
+def _collect_v45b_symbol_entries(
+    *,
+    tree: ast.Module,
+    source_path: str,
+) -> tuple[list[dict[str, Any]], list[tuple[str, ast.ClassDef]]]:
+    entries: list[dict[str, Any]] = []
+    class_nodes: list[tuple[str, ast.ClassDef]] = []
+    seen_symbol_ids: set[str] = set()
+    evidence_ref = f"evidence:source:{source_path}"
+
+    def add_symbol(*, qualname: str, symbol_kind: str, method: str) -> None:
+        symbol_id = compute_symbol_id(
+            module_path=source_path,
+            qualname=qualname,
+            symbol_kind=symbol_kind,
+        )
+        if symbol_id in seen_symbol_ids:
+            return
+        seen_symbol_ids.add(symbol_id)
+        entries.append(
+            {
+                "symbol_id": symbol_id,
+                "module_path": source_path,
+                "qualname": qualname,
+                "symbol_kind": symbol_kind,
+                "role_classification_posture": "derived_deterministically",
+                "role_classification_method": method,
+                "source_artifact_refs": [source_path],
+                "supporting_evidence_refs": [evidence_ref],
+            }
+        )
+
+    add_symbol(qualname="__module__", symbol_kind="module", method="ast_signature")
+
+    def visit_body(body: list[ast.stmt], *, parent_qualname: str | None = None) -> None:
+        for node in body:
+            if isinstance(node, ast.ClassDef):
+                qualname = _qualname_join(parent_qualname, node.name)
+                add_symbol(
+                    qualname=qualname,
+                    symbol_kind="class",
+                    method=_symbol_role_method_for_node(node),
+                )
+                class_nodes.append((qualname, node))
+                visit_body(node.body, parent_qualname=qualname)
+                continue
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                qualname = _qualname_join(parent_qualname, node.name)
+                add_symbol(
+                    qualname=qualname,
+                    symbol_kind="method" if parent_qualname else "function",
+                    method=_symbol_role_method_for_node(node),
+                )
+                continue
+            if isinstance(node, (ast.Assign, ast.AnnAssign)):
+                for name in _assignment_target_names(node):
+                    qualname = _qualname_join(parent_qualname, name)
+                    add_symbol(qualname=qualname, symbol_kind="attribute", method="ast_signature")
+            for nested_body in _nested_statement_bodies(node):
+                visit_body(nested_body, parent_qualname=parent_qualname)
+
+    visit_body(tree.body)
+    return sorted(entries, key=lambda row: row["symbol_id"]), class_nodes
+
+
+def _build_v45b_top_level_symbol_index(
+    *,
+    symbol_entries: list[dict[str, Any]],
+) -> dict[str, dict[str, str]]:
+    index: dict[str, dict[str, str]] = {}
+    for entry in symbol_entries:
+        qualname = entry["qualname"]
+        if qualname == "__module__" or "." in qualname:
+            continue
+        module_import_path = _module_import_path_for_source_path(entry["module_path"])
+        index.setdefault(module_import_path, {})[qualname] = entry["symbol_id"]
+    return index
+
+
+def _module_endpoint_info(
+    *,
+    module_import_path: str,
+    module_to_source_path: dict[str, str],
+) -> tuple[str, str, str]:
+    source_path = _source_path_for_module_import_path(
+        module_import_path=module_import_path,
+        module_to_source_path=module_to_source_path,
+    )
+    if source_path is not None:
+        return (
+            "internal_module_boundary",
+            compute_internal_module_boundary_ref(module_path=source_path),
+            "internal_resolved",
+        )
+    posture, ref = _classify_external_target(module_import_path)
+    return "external_dependency", ref, posture
+
+
+def _symbol_endpoint_info(
+    *,
+    module_import_path: str,
+    symbol_name: str,
+    top_level_symbol_index: dict[str, dict[str, str]],
+    module_to_source_path: dict[str, str],
+) -> tuple[str, str, str]:
+    internal_symbols = top_level_symbol_index.get(module_import_path, {})
+    symbol_id = internal_symbols.get(symbol_name)
+    if symbol_id is not None:
+        return "internal_symbol", symbol_id, "internal_resolved"
+    return _module_endpoint_info(
+        module_import_path=module_import_path,
+        module_to_source_path=module_to_source_path,
+    )
+
+
+def _resolve_dotted_dependency_target(
+    *,
+    dotted_name: str,
+    current_module_import_path: str,
+    alias_map: dict[str, tuple[str, str, str]],
+    top_level_symbol_index: dict[str, dict[str, str]],
+    module_to_source_path: dict[str, str],
+) -> tuple[str, str, str]:
+    if dotted_name in top_level_symbol_index.get(current_module_import_path, {}):
+        return (
+            "internal_symbol",
+            top_level_symbol_index[current_module_import_path][dotted_name],
+            "internal_resolved",
+        )
+    root, *rest = dotted_name.split(".")
+    if root in alias_map:
+        endpoint_kind, endpoint_ref, dependency_posture = alias_map[root]
+        if endpoint_kind == "internal_symbol" or not rest:
+            return endpoint_kind, endpoint_ref, dependency_posture
+        if endpoint_kind == "internal_module_boundary":
+            module_path = endpoint_ref[len("module:") :]
+            target_module = _module_import_path_for_source_path(module_path)
+            internal_symbols = top_level_symbol_index.get(target_module, {})
+            candidate = internal_symbols.get(rest[0])
+            if candidate is not None:
+                return "internal_symbol", candidate, "internal_resolved"
+            return endpoint_kind, endpoint_ref, dependency_posture
+        return (
+            "external_dependency",
+            _merge_external_dependency_suffix(endpoint_ref=endpoint_ref, rest=rest),
+            dependency_posture,
+        )
+    return _symbol_endpoint_info(
+        module_import_path=current_module_import_path,
+        symbol_name=dotted_name,
+        top_level_symbol_index=top_level_symbol_index,
+        module_to_source_path=module_to_source_path,
+    )
+
+
+def derive_v45b_repo_symbol_catalog_and_dependency_graph(
+    *,
+    source_paths: list[str] | None = None,
+    snapshot_validity_posture: str = "snapshot_bound_current",
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    root = repo_root(anchor=Path(__file__))
+    normalized_source_paths = (
+        source_paths if source_paths is not None else list(_DEFAULT_V45B_SOURCE_PATHS)
+    )
+    normalized_source_paths = sorted(
+        {_assert_repo_rel_path(path, field_name="source_paths") for path in normalized_source_paths}
+    )
+    if not normalized_source_paths:
+        raise ValueError("source_paths must not be empty")
+
+    source_hashes: dict[str, str] = {}
+    parsed_modules: dict[str, dict[str, Any]] = {}
+    module_to_source_path: dict[str, str] = {}
+    evidence_refs_by_id: dict[str, RepoDescriptionEvidenceRef] = {}
+
+    for source_path in normalized_source_paths:
+        absolute_path = root / source_path
+        if not absolute_path.is_file():
+            raise FileNotFoundError(f"source path does not exist: {source_path}")
+        text = absolute_path.read_text(encoding="utf-8")
+        source_hashes[source_path] = sha256_canonical_json({"text": text})
+        tree = ast.parse(text, filename=source_path)
+        module_import_path = _module_import_path_for_source_path(source_path)
+        existing_source_path = module_to_source_path.get(module_import_path)
+        if existing_source_path is not None and existing_source_path != source_path:
+            raise ValueError(
+                "source_paths must not normalize to duplicate module import paths: "
+                f"{module_import_path}"
+            )
+        parsed_modules[source_path] = {
+            "tree": tree,
+            "module_import_path": module_import_path,
+            "text": text,
+        }
+        module_to_source_path[module_import_path] = source_path
+        evidence_ref = f"evidence:source:{source_path}"
+        evidence_refs_by_id[evidence_ref] = RepoDescriptionEvidenceRef(
+            evidence_ref=evidence_ref,
+            evidence_kind="structural_signature_evidence",
+        )
+
+    source_set_hash = sha256_canonical_json(
+        {
+            "source_paths": normalized_source_paths,
+            "source_hashes": {path: source_hashes[path] for path in normalized_source_paths},
+        }
+    )
+    repo_snapshot_hash = source_set_hash
+    repo_snapshot_id = f"repo_snapshot_{repo_snapshot_hash[:24]}"
+    graph_scope = (
+        "v45b-bounded-python-symbol-catalog-and-dependency-graph-over-adeu_repo_description"
+    )
+
+    symbol_entries: list[dict[str, Any]] = []
+    class_nodes_by_source: dict[str, list[tuple[str, ast.ClassDef]]] = {}
+    for source_path in normalized_source_paths:
+        entries, class_nodes = _collect_v45b_symbol_entries(
+            tree=parsed_modules[source_path]["tree"],
+            source_path=source_path,
+        )
+        symbol_entries.extend(entries)
+        class_nodes_by_source[source_path] = class_nodes
+
+    symbol_entries = sorted(symbol_entries, key=lambda row: row["symbol_id"])
+    top_level_symbol_index = _build_v45b_top_level_symbol_index(symbol_entries=symbol_entries)
+
+    dependency_edges: list[dict[str, Any]] = []
+    seen_edge_ids: set[str] = set()
+    for source_path in normalized_source_paths:
+        module_import_path = parsed_modules[source_path]["module_import_path"]
+        tree = parsed_modules[source_path]["tree"]
+        module_boundary_ref = compute_internal_module_boundary_ref(module_path=source_path)
+        evidence_ref = f"evidence:source:{source_path}"
+        alias_map: dict[str, tuple[str, str, str]] = {}
+
+        def visit_dependency_body(body: list[ast.stmt]) -> None:
+            for node in body:
+                if isinstance(node, ast.Import):
+                    for alias in sorted(node.names, key=lambda item: item.asname or item.name):
+                        endpoint_kind, endpoint_ref, dependency_posture = _module_endpoint_info(
+                            module_import_path=alias.name,
+                            module_to_source_path=module_to_source_path,
+                        )
+                        local_name = alias.asname or alias.name.split(".", 1)[0]
+                        alias_map[local_name] = (endpoint_kind, endpoint_ref, dependency_posture)
+                        payload = {
+                            "from_ref_kind": "internal_module_boundary",
+                            "from_ref": module_boundary_ref,
+                            "to_ref_kind": endpoint_kind,
+                            "to_ref": endpoint_ref,
+                            "dependency_kind": "module_import",
+                            "dependency_posture": dependency_posture,
+                            "derivation_posture": "derived_deterministically",
+                            "derivation_method": "ast_parse",
+                            "source_artifact_refs": [source_path],
+                            "supporting_evidence_refs": [evidence_ref],
+                        }
+                        edge_id = _edge_id_for_payload(payload)
+                        if edge_id not in seen_edge_ids:
+                            seen_edge_ids.add(edge_id)
+                            dependency_edges.append({"edge_id": edge_id, **payload})
+                elif isinstance(node, ast.ImportFrom):
+                    resolved_module = _resolve_import_from_module(
+                        source_path=source_path,
+                        module=node.module,
+                        level=node.level,
+                    )
+                    if resolved_module == "__future__":
+                        continue
+                    for alias in sorted(node.names, key=lambda item: item.asname or item.name):
+                        local_name = alias.asname or alias.name
+                        if node.module is None and alias.name != "*":
+                            candidate_module = (
+                                f"{resolved_module}.{alias.name}" if resolved_module else alias.name
+                            )
+                            if candidate_module in module_to_source_path:
+                                endpoint_kind, endpoint_ref, dependency_posture = (
+                                    _module_endpoint_info(
+                                        module_import_path=candidate_module,
+                                        module_to_source_path=module_to_source_path,
+                                    )
+                                )
+                                dependency_kind = "module_import"
+                            else:
+                                endpoint_kind, endpoint_ref, dependency_posture = (
+                                    _symbol_endpoint_info(
+                                        module_import_path=resolved_module,
+                                        symbol_name=alias.name,
+                                        top_level_symbol_index=top_level_symbol_index,
+                                        module_to_source_path=module_to_source_path,
+                                    )
+                                )
+                                dependency_kind = "symbol_reference"
+                        elif alias.name == "*":
+                            endpoint_kind, endpoint_ref, dependency_posture = _module_endpoint_info(
+                                module_import_path=resolved_module,
+                                module_to_source_path=module_to_source_path,
+                            )
+                            dependency_kind = "module_import"
+                        else:
+                            endpoint_kind, endpoint_ref, dependency_posture = _symbol_endpoint_info(
+                                module_import_path=resolved_module,
+                                symbol_name=alias.name,
+                                top_level_symbol_index=top_level_symbol_index,
+                                module_to_source_path=module_to_source_path,
+                            )
+                            dependency_kind = "symbol_reference"
+                        alias_map[local_name] = (endpoint_kind, endpoint_ref, dependency_posture)
+                        payload = {
+                            "from_ref_kind": "internal_module_boundary",
+                            "from_ref": module_boundary_ref,
+                            "to_ref_kind": endpoint_kind,
+                            "to_ref": endpoint_ref,
+                            "dependency_kind": dependency_kind,
+                            "dependency_posture": dependency_posture,
+                            "derivation_posture": "derived_deterministically",
+                            "derivation_method": "ast_parse",
+                            "source_artifact_refs": [source_path],
+                            "supporting_evidence_refs": [evidence_ref],
+                        }
+                        edge_id = _edge_id_for_payload(payload)
+                        if edge_id not in seen_edge_ids:
+                            seen_edge_ids.add(edge_id)
+                            dependency_edges.append({"edge_id": edge_id, **payload})
+                for nested_body in _nested_statement_bodies(node):
+                    visit_dependency_body(nested_body)
+
+        visit_dependency_body(tree.body)
+
+        for class_qualname, class_node in class_nodes_by_source[source_path]:
+            from_ref = compute_symbol_id(
+                module_path=source_path,
+                qualname=class_qualname,
+                symbol_kind="class",
+            )
+            for base in class_node.bases:
+                dotted = _expr_to_dotted_name(base)
+                if dotted is None:
+                    continue
+                endpoint_kind, endpoint_ref, dependency_posture = _resolve_dotted_dependency_target(
+                    dotted_name=dotted,
+                    current_module_import_path=module_import_path,
+                    alias_map=alias_map,
+                    top_level_symbol_index=top_level_symbol_index,
+                    module_to_source_path=module_to_source_path,
+                )
+                payload = {
+                    "from_ref_kind": "internal_symbol",
+                    "from_ref": from_ref,
+                    "to_ref_kind": endpoint_kind,
+                    "to_ref": endpoint_ref,
+                    "dependency_kind": "inheritance",
+                    "dependency_posture": dependency_posture,
+                    "derivation_posture": "derived_deterministically",
+                    "derivation_method": "ast_parse",
+                    "source_artifact_refs": [source_path],
+                    "supporting_evidence_refs": [evidence_ref],
+                }
+                edge_id = _edge_id_for_payload(payload)
+                if edge_id not in seen_edge_ids:
+                    seen_edge_ids.add(edge_id)
+                    dependency_edges.append({"edge_id": edge_id, **payload})
+
+    symbol_catalog = materialize_repo_symbol_catalog_payload(
+        {
+            "schema": REPO_SYMBOL_CATALOG_SCHEMA,
+            "repo_snapshot_id": repo_snapshot_id,
+            "repo_snapshot_hash": repo_snapshot_hash,
+            "snapshot_validity_posture": snapshot_validity_posture,
+            "source_set": normalized_source_paths,
+            "source_set_hash": source_set_hash,
+            "graph_scope": graph_scope,
+            "extraction_posture": "derived_deterministically",
+            "extraction_method": "ast_parse",
+            "symbol_entries": symbol_entries,
+            "evidence_refs": [
+                evidence_refs_by_id[key].model_dump(mode="json")
+                for key in sorted(evidence_refs_by_id)
+            ],
+        }
+    )
+    dependency_graph = materialize_repo_dependency_graph_payload(
+        {
+            "schema": REPO_DEPENDENCY_GRAPH_SCHEMA,
+            "repo_snapshot_id": repo_snapshot_id,
+            "repo_snapshot_hash": repo_snapshot_hash,
+            "snapshot_validity_posture": snapshot_validity_posture,
+            "source_set": normalized_source_paths,
+            "source_set_hash": source_set_hash,
+            "graph_scope": graph_scope,
+            "extraction_posture": "derived_deterministically",
+            "extraction_method": "ast_parse",
+            "dependency_edges": sorted(dependency_edges, key=lambda row: row["edge_id"]),
+            "evidence_refs": [
+                evidence_refs_by_id[key].model_dump(mode="json")
+                for key in sorted(evidence_refs_by_id)
+            ],
+        }
+    )
+    validate_repo_symbol_catalog_dependency_graph_pair(
+        symbol_catalog_payload=symbol_catalog,
+        dependency_graph_payload=dependency_graph,
+    )
+    return symbol_catalog, dependency_graph
+
+
+def derive_v45b_repo_symbol_catalog(
+    *,
+    source_paths: list[str] | None = None,
+    snapshot_validity_posture: str = "snapshot_bound_current",
+) -> dict[str, Any]:
+    symbol_catalog, _dependency_graph = derive_v45b_repo_symbol_catalog_and_dependency_graph(
+        source_paths=source_paths,
+        snapshot_validity_posture=snapshot_validity_posture,
+    )
+    return symbol_catalog
+
+
+def derive_v45b_repo_dependency_graph(
+    *,
+    source_paths: list[str] | None = None,
+    snapshot_validity_posture: str = "snapshot_bound_current",
+) -> dict[str, Any]:
+    _symbol_catalog, dependency_graph = derive_v45b_repo_symbol_catalog_and_dependency_graph(
+        source_paths=source_paths,
+        snapshot_validity_posture=snapshot_validity_posture,
+    )
+    return dependency_graph
+
+
 def derive_v45c_repo_arc_dependency_register(
     *,
     source_paths: list[str] | None = None,
@@ -636,9 +1227,7 @@ def derive_v45c_repo_arc_dependency_register(
     )
     selected_path = lock_contract_v102["target_path"]
     if corrective_selected_path != selected_path:
-        raise ValueError(
-            "planning corrective V45 path must match the v102 lock target path"
-        )
+        raise ValueError("planning corrective V45 path must match the v102 lock target path")
 
     source_set_hash = sha256_canonical_json(
         {
@@ -771,8 +1360,7 @@ def derive_v45c_repo_arc_dependency_register(
         "source_set": normalized_source_paths,
         "source_set_hash": source_set_hash,
         "register_scope": (
-            "v45-open-arc-dependency-register-corrective-hardening-over-"
-            "branch-local-selection"
+            "v45-open-arc-dependency-register-corrective-hardening-over-branch-local-selection"
         ),
         "pending_list_posture": "machine_enforced_open_arc_register",
         "cycle_posture": "cycles_forbidden",
@@ -794,6 +1382,10 @@ def derive_v45c_repo_arc_dependency_register(
 
 def default_v45a_source_paths() -> list[str]:
     return list(_DEFAULT_SOURCE_PATHS)
+
+
+def default_v45b_source_paths() -> list[str]:
+    return list(_DEFAULT_V45B_SOURCE_PATHS)
 
 
 def default_v45c_source_paths() -> list[str]:

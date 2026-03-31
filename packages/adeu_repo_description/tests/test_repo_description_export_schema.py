@@ -8,8 +8,10 @@ from adeu_ir.repo import repo_root
 from adeu_repo_description import (
     REPO_ARC_DEPENDENCY_REGISTER_SCHEMA,
     REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA,
+    REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
+    REPO_SYMBOL_CATALOG_SCHEMA,
 )
 from adeu_repo_description.export_schema import main as export_schema_main
 
@@ -27,6 +29,14 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "repo_arc_dependency_register.v2.json",
             root / "spec" / "repo_arc_dependency_register.schema.json",
         ),
+        REPO_DEPENDENCY_GRAPH_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_dependency_graph.v1.json",
+            root / "spec" / "repo_dependency_graph.schema.json",
+        ),
         REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA: (
             root
             / "packages"
@@ -38,6 +48,10 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
         REPO_ENTITY_CATALOG_SCHEMA: (
             root / "packages" / "adeu_repo_description" / "schema" / "repo_entity_catalog.v1.json",
             root / "spec" / "repo_entity_catalog.schema.json",
+        ),
+        REPO_SYMBOL_CATALOG_SCHEMA: (
+            root / "packages" / "adeu_repo_description" / "schema" / "repo_symbol_catalog.v1.json",
+            root / "spec" / "repo_symbol_catalog.schema.json",
         ),
     }
 

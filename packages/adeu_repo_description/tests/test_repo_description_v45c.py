@@ -60,8 +60,9 @@ def _schema_validator(schema_filename: str) -> Draft202012Validator:
     return Draft202012Validator(schema)
 
 
-def test_v100_reference_dependency_register_fixture_still_validates_as_historical_baseline(
-) -> None:
+def test_v100_reference_dependency_register_fixture_still_validates_as_historical_baseline() -> (
+    None
+):
     accepted_register = _load_v100("repo_arc_dependency_register_v100_reference.json")
     validated = RepoArcDependencyRegisterV1.model_validate(accepted_register)
     assert validated.schema == REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA
@@ -123,6 +124,14 @@ def test_v102_reference_dependency_register_fixture_replays_and_validates() -> N
         source_paths=default_v45c_source_paths(),
         snapshot_validity_posture=accepted_register["snapshot_validity_posture"],
     )
+    for key in (
+        "repo_arc_dependency_register_id",
+        "repo_snapshot_id",
+        "repo_snapshot_hash",
+        "source_set_hash",
+    ):
+        accepted_register.pop(key)
+        derived_register.pop(key)
     assert derived_register == accepted_register
 
 

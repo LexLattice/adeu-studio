@@ -1,0 +1,210 @@
+{
+  "$defs": {
+    "RepoDescriptionEvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "enum": [
+            "observed_anchor_tuple_evidence",
+            "structural_signature_evidence",
+            "semantic_function_cue_evidence",
+            "governance_cue_evidence",
+            "lexical_cue_evidence",
+            "adjudication_artifact_evidence",
+            "reconstruction_subset_evidence",
+            "planning_table_row_evidence",
+            "planning_selection_evidence",
+            "lock_contract_evidence",
+            "dependency_policy_evidence"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_ref": {
+          "title": "Evidence Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "evidence_kind"
+      ],
+      "title": "RepoDescriptionEvidenceRef",
+      "type": "object"
+    },
+    "RepoSymbolCatalogEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "module_path": {
+          "title": "Module Path",
+          "type": "string"
+        },
+        "qualname": {
+          "title": "Qualname",
+          "type": "string"
+        },
+        "role_classification_method": {
+          "enum": [
+            "ast_signature",
+            "decorator_or_baseclass_rule",
+            "bounded_inference_rule",
+            "adjudicated_policy"
+          ],
+          "title": "Role Classification Method",
+          "type": "string"
+        },
+        "role_classification_posture": {
+          "enum": [
+            "observed",
+            "derived_deterministically",
+            "inferred_heuristically",
+            "adjudicated",
+            "settled"
+          ],
+          "title": "Role Classification Posture",
+          "type": "string"
+        },
+        "source_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Artifact Refs",
+          "type": "array"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        },
+        "symbol_id": {
+          "title": "Symbol Id",
+          "type": "string"
+        },
+        "symbol_kind": {
+          "enum": [
+            "module",
+            "class",
+            "function",
+            "method",
+            "attribute"
+          ],
+          "title": "Symbol Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "symbol_id",
+        "module_path",
+        "qualname",
+        "symbol_kind",
+        "role_classification_posture",
+        "role_classification_method",
+        "source_artifact_refs",
+        "supporting_evidence_refs"
+      ],
+      "title": "RepoSymbolCatalogEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/RepoDescriptionEvidenceRef"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "extraction_method": {
+      "enum": [
+        "ast_parse",
+        "deterministic_projection",
+        "bounded_inference_rule",
+        "adjudicated_policy"
+      ],
+      "title": "Extraction Method",
+      "type": "string"
+    },
+    "extraction_posture": {
+      "enum": [
+        "observed",
+        "derived_deterministically",
+        "inferred_heuristically",
+        "adjudicated",
+        "settled"
+      ],
+      "title": "Extraction Posture",
+      "type": "string"
+    },
+    "graph_scope": {
+      "title": "Graph Scope",
+      "type": "string"
+    },
+    "repo_snapshot_hash": {
+      "title": "Repo Snapshot Hash",
+      "type": "string"
+    },
+    "repo_snapshot_id": {
+      "title": "Repo Snapshot Id",
+      "type": "string"
+    },
+    "repo_symbol_catalog_id": {
+      "title": "Repo Symbol Catalog Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_symbol_catalog@1",
+      "default": "repo_symbol_catalog@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_validity_posture": {
+      "enum": [
+        "snapshot_bound_current",
+        "snapshot_bound_historical"
+      ],
+      "title": "Snapshot Validity Posture",
+      "type": "string"
+    },
+    "source_set": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Source Set",
+      "type": "array"
+    },
+    "source_set_hash": {
+      "title": "Source Set Hash",
+      "type": "string"
+    },
+    "symbol_entries": {
+      "items": {
+        "$ref": "#/$defs/RepoSymbolCatalogEntry"
+      },
+      "minItems": 1,
+      "title": "Symbol Entries",
+      "type": "array"
+    }
+  },
+  "required": [
+    "repo_symbol_catalog_id",
+    "repo_snapshot_id",
+    "repo_snapshot_hash",
+    "snapshot_validity_posture",
+    "source_set",
+    "source_set_hash",
+    "graph_scope",
+    "extraction_posture",
+    "extraction_method",
+    "symbol_entries",
+    "evidence_refs"
+  ],
+  "title": "RepoSymbolCatalog",
+  "type": "object"
+}

@@ -10,6 +10,8 @@ from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA = "repo_schema_family_registry@1"
 REPO_ENTITY_CATALOG_SCHEMA = "repo_entity_catalog@1"
+REPO_SYMBOL_CATALOG_SCHEMA = "repo_symbol_catalog@1"
+REPO_DEPENDENCY_GRAPH_SCHEMA = "repo_dependency_graph@1"
 REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA = "repo_arc_dependency_register@1"
 REPO_ARC_DEPENDENCY_REGISTER_SCHEMA = "repo_arc_dependency_register@2"
 V45A_V99_CONTRACT_SOURCE = (
@@ -17,6 +19,9 @@ V45A_V99_CONTRACT_SOURCE = (
 )
 V45A_CLASSIFICATION_POLICY_REF = (
     "docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md#v45a-role-form-classification-policy"
+)
+V45B_V101_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS101.md#v101-continuation-contract-machine-checkable"
 )
 V45C_V100_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md#v100-continuation-contract-machine-checkable"
@@ -52,6 +57,13 @@ ClassificationMethod = Literal[
     "semantic_function",
     "governance_role",
     "lexical_naming",
+    "adjudicated_policy",
+]
+SymbolKind = Literal["module", "class", "function", "method", "attribute"]
+SymbolRoleClassificationMethod = Literal[
+    "ast_signature",
+    "decorator_or_baseclass_rule",
+    "bounded_inference_rule",
     "adjudicated_policy",
 ]
 SnapshotValidityPosture = Literal["snapshot_bound_current", "snapshot_bound_historical"]
@@ -97,6 +109,19 @@ DependencyRegisterMethod = Literal[
     "bounded_inference_rule",
     "adjudicated_policy",
 ]
+DependencyGraphKind = Literal["module_import", "symbol_reference", "inheritance"]
+DependencyGraphPosture = Literal[
+    "internal_resolved",
+    "boundary_external",
+    "boundary_out_of_scope",
+]
+DependencyGraphMethod = Literal[
+    "ast_parse",
+    "deterministic_projection",
+    "bounded_inference_rule",
+    "adjudicated_policy",
+]
+EndpointKind = Literal["internal_symbol", "internal_module_boundary", "external_dependency"]
 CyclePosture = Literal["cycles_forbidden", "cycles_present_with_explicit_binding"]
 CycleDetectionScope = Literal["hard_unresolved_edges_only", "all_declared_edges"]
 PendingListPosture = Literal["machine_enforced_open_arc_register"]
@@ -112,6 +137,11 @@ _FORBIDDEN_AUTHORITY_TERMS: tuple[str, ...] = (
     "mutation_entitlement",
     "automatic_priority",
     "planning_resolution_authority",
+)
+_FORBIDDEN_V45B_GRAPH_SCOPE_TERMS: tuple[str, ...] = (
+    "refactor_entitlement",
+    "automatic_refactor",
+    "automatic_refactor_entitlement",
 )
 
 
@@ -285,6 +315,57 @@ def _assert_no_forbidden_authority_terms(value: str, *, field_name: str) -> str:
             raise ValueError(
                 f"{field_name} may not carry scheduling or mutation entitlement claims"
             )
+    return normalized
+
+
+def _assert_no_forbidden_v45b_graph_scope_terms(value: str, *, field_name: str) -> str:
+    normalized = _assert_no_forbidden_authority_terms(value, field_name=field_name)
+    normalized_tokens = _normalize_for_equality(normalized)
+    for forbidden_term in _FORBIDDEN_V45B_GRAPH_SCOPE_TERMS:
+        if _normalize_for_equality(forbidden_term) in normalized_tokens:
+            raise ValueError(
+                f"{field_name} may not carry refactor, scheduling, or mutation entitlement claims"
+            )
+    return normalized
+
+
+def compute_symbol_id(*, module_path: str, qualname: str, symbol_kind: SymbolKind) -> str:
+    normalized_module_path = _assert_repo_rel_path(module_path, field_name="module_path")
+    normalized_qualname = _assert_non_empty_text(qualname, field_name="qualname")
+    return f"symbol:{normalized_module_path}:{normalized_qualname}:{symbol_kind}"
+
+
+def compute_internal_module_boundary_ref(*, module_path: str) -> str:
+    normalized_module_path = _assert_repo_rel_path(module_path, field_name="module_path")
+    return f"module:{normalized_module_path}"
+
+
+def _assert_internal_module_boundary_ref(value: str, *, field_name: str) -> str:
+    normalized = _assert_non_empty_text(value, field_name=field_name)
+    prefix = "module:"
+    if not normalized.startswith(prefix):
+        raise ValueError(f"{field_name} must use the module: prefix")
+    module_path = normalized[len(prefix) :]
+    _assert_repo_rel_path(module_path, field_name=field_name)
+    return f"{prefix}{module_path}"
+
+
+def _assert_external_dependency_ref(
+    value: str,
+    *,
+    field_name: str,
+    dependency_posture: DependencyGraphPosture,
+) -> str:
+    normalized = _assert_non_empty_text(value, field_name=field_name)
+    required_prefix = "external:" if dependency_posture == "boundary_external" else "out_of_scope:"
+    if not normalized.startswith(required_prefix):
+        raise ValueError(
+            f"{field_name} must use the {required_prefix} prefix "
+            "for the declared dependency_posture"
+        )
+    suffix = normalized[len(required_prefix) :]
+    if not suffix.strip():
+        raise ValueError(f"{field_name} must not be empty after the prefix")
     return normalized
 
 
@@ -721,6 +802,392 @@ class RepoEntityCatalog(BaseModel):
         return self
 
 
+class RepoSymbolCatalogEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    symbol_id: str
+    module_path: str
+    qualname: str
+    symbol_kind: SymbolKind
+    role_classification_posture: ClassificationPosture
+    role_classification_method: SymbolRoleClassificationMethod
+    source_artifact_refs: list[str] = Field(min_length=1)
+    supporting_evidence_refs: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> RepoSymbolCatalogEntry:
+        object.__setattr__(
+            self,
+            "module_path",
+            _assert_repo_rel_path(self.module_path, field_name="module_path"),
+        )
+        object.__setattr__(
+            self,
+            "qualname",
+            _assert_non_empty_text(self.qualname, field_name="qualname"),
+        )
+        object.__setattr__(
+            self,
+            "source_artifact_refs",
+            _assert_sorted_unique(
+                [
+                    _assert_repo_rel_path(path, field_name="source_artifact_refs")
+                    for path in self.source_artifact_refs
+                ],
+                field_name="source_artifact_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_evidence_refs",
+            _assert_sorted_unique(
+                self.supporting_evidence_refs, field_name="supporting_evidence_refs"
+            ),
+        )
+        expected_symbol_id = compute_symbol_id(
+            module_path=self.module_path,
+            qualname=self.qualname,
+            symbol_kind=self.symbol_kind,
+        )
+        if self.symbol_id != expected_symbol_id:
+            raise ValueError("symbol_id must match canonical module_path + qualname + symbol_kind")
+        if self.module_path not in self.source_artifact_refs:
+            raise ValueError("source_artifact_refs must include the symbol module_path")
+        return self
+
+
+class RepoSymbolCatalog(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, protected_namespaces=())
+
+    schema: Literal["repo_symbol_catalog@1"] = REPO_SYMBOL_CATALOG_SCHEMA
+    repo_symbol_catalog_id: str
+    repo_snapshot_id: str
+    repo_snapshot_hash: str
+    snapshot_validity_posture: SnapshotValidityPosture
+    source_set: list[str] = Field(min_length=1)
+    source_set_hash: str
+    graph_scope: str
+    extraction_posture: ClassificationPosture
+    extraction_method: DependencyGraphMethod
+    symbol_entries: list[RepoSymbolCatalogEntry] = Field(min_length=1)
+    evidence_refs: list[RepoDescriptionEvidenceRef] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_catalog(self) -> RepoSymbolCatalog:
+        object.__setattr__(
+            self,
+            "repo_symbol_catalog_id",
+            _assert_non_empty_text(
+                self.repo_symbol_catalog_id, field_name="repo_symbol_catalog_id"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_id",
+            _assert_non_empty_text(self.repo_snapshot_id, field_name="repo_snapshot_id"),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_hash",
+            _assert_hash(self.repo_snapshot_hash, field_name="repo_snapshot_hash"),
+        )
+        object.__setattr__(
+            self,
+            "source_set",
+            _assert_sorted_unique(
+                [_assert_repo_rel_path(path, field_name="source_set") for path in self.source_set],
+                field_name="source_set",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "source_set_hash",
+            _assert_hash(self.source_set_hash, field_name="source_set_hash"),
+        )
+        object.__setattr__(
+            self,
+            "graph_scope",
+            _assert_no_forbidden_v45b_graph_scope_terms(
+                self.graph_scope,
+                field_name="graph_scope",
+            ),
+        )
+
+        evidence_by_ref = {entry.evidence_ref: entry for entry in self.evidence_refs}
+        if len(evidence_by_ref) != len(self.evidence_refs):
+            raise ValueError("evidence_refs evidence_ref values must be unique")
+        if [entry.evidence_ref for entry in self.evidence_refs] != sorted(evidence_by_ref):
+            raise ValueError("evidence_refs must be sorted lexicographically by evidence_ref")
+
+        entries_by_id = {entry.symbol_id: entry for entry in self.symbol_entries}
+        if len(entries_by_id) != len(self.symbol_entries):
+            raise ValueError("symbol_entries symbol_id values must be unique")
+        if [entry.symbol_id for entry in self.symbol_entries] != sorted(entries_by_id):
+            raise ValueError("symbol_entries must be sorted lexicographically by symbol_id")
+
+        source_set_membership = set(self.source_set)
+        for entry in self.symbol_entries:
+            if entry.module_path not in source_set_membership:
+                raise ValueError("symbol_entries module_path must resolve inside source_set")
+            if any(ref not in source_set_membership for ref in entry.source_artifact_refs):
+                raise ValueError(
+                    "symbol_entries source_artifact_refs must resolve inside source_set"
+                )
+            row_evidence = [evidence_by_ref.get(ref) for ref in entry.supporting_evidence_refs]
+            if any(item is None for item in row_evidence):
+                raise ValueError(
+                    "symbol_entries supporting_evidence_refs must reference top-level evidence_refs"
+                )
+
+        payload_without_id = self.model_dump(mode="json")
+        payload_without_id.pop("repo_symbol_catalog_id", None)
+        expected_id = compute_repo_symbol_catalog_id(payload_without_id)
+        if self.repo_symbol_catalog_id != expected_id:
+            raise ValueError(
+                "repo_symbol_catalog_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+class RepoDependencyGraphEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    edge_id: str
+    from_ref_kind: EndpointKind
+    from_ref: str
+    to_ref_kind: EndpointKind
+    to_ref: str
+    dependency_kind: DependencyGraphKind
+    dependency_posture: DependencyGraphPosture
+    derivation_posture: ClassificationPosture
+    derivation_method: DependencyGraphMethod
+    source_artifact_refs: list[str] = Field(min_length=1)
+    supporting_evidence_refs: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_edge(self) -> RepoDependencyGraphEdge:
+        object.__setattr__(
+            self, "edge_id", _assert_non_empty_text(self.edge_id, field_name="edge_id")
+        )
+        object.__setattr__(
+            self,
+            "from_ref",
+            _assert_non_empty_text(self.from_ref, field_name="from_ref"),
+        )
+        object.__setattr__(
+            self,
+            "to_ref",
+            _assert_non_empty_text(self.to_ref, field_name="to_ref"),
+        )
+        object.__setattr__(
+            self,
+            "source_artifact_refs",
+            _assert_sorted_unique(
+                [
+                    _assert_repo_rel_path(path, field_name="source_artifact_refs")
+                    for path in self.source_artifact_refs
+                ],
+                field_name="source_artifact_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_evidence_refs",
+            _assert_sorted_unique(
+                self.supporting_evidence_refs, field_name="supporting_evidence_refs"
+            ),
+        )
+        if self.from_ref_kind == "external_dependency":
+            raise ValueError("from_ref_kind may not be external_dependency in v45b")
+        if self.from_ref_kind == "internal_module_boundary":
+            object.__setattr__(
+                self,
+                "from_ref",
+                _assert_internal_module_boundary_ref(self.from_ref, field_name="from_ref"),
+            )
+        if self.to_ref_kind == "internal_module_boundary":
+            object.__setattr__(
+                self,
+                "to_ref",
+                _assert_internal_module_boundary_ref(self.to_ref, field_name="to_ref"),
+            )
+        if self.to_ref_kind == "external_dependency":
+            object.__setattr__(
+                self,
+                "to_ref",
+                _assert_external_dependency_ref(
+                    self.to_ref,
+                    field_name="to_ref",
+                    dependency_posture=self.dependency_posture,
+                ),
+            )
+        elif self.dependency_posture != "internal_resolved":
+            raise ValueError(
+                "boundary dependency_posture requires to_ref_kind = external_dependency"
+            )
+        if (
+            self.dependency_posture == "internal_resolved"
+            and self.to_ref_kind == "external_dependency"
+        ):
+            raise ValueError(
+                "internal_resolved dependency_posture may not target external_dependency"
+            )
+        if self.from_ref_kind == self.to_ref_kind and self.from_ref == self.to_ref:
+            raise ValueError("dependency edges may not be self-referential")
+        return self
+
+
+class RepoDependencyGraph(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, protected_namespaces=())
+
+    schema: Literal["repo_dependency_graph@1"] = REPO_DEPENDENCY_GRAPH_SCHEMA
+    repo_dependency_graph_id: str
+    repo_snapshot_id: str
+    repo_snapshot_hash: str
+    snapshot_validity_posture: SnapshotValidityPosture
+    source_set: list[str] = Field(min_length=1)
+    source_set_hash: str
+    graph_scope: str
+    extraction_posture: ClassificationPosture
+    extraction_method: DependencyGraphMethod
+    dependency_edges: list[RepoDependencyGraphEdge] = Field(default_factory=list)
+    evidence_refs: list[RepoDescriptionEvidenceRef] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_graph(self) -> RepoDependencyGraph:
+        object.__setattr__(
+            self,
+            "repo_dependency_graph_id",
+            _assert_non_empty_text(
+                self.repo_dependency_graph_id, field_name="repo_dependency_graph_id"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_id",
+            _assert_non_empty_text(self.repo_snapshot_id, field_name="repo_snapshot_id"),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_hash",
+            _assert_hash(self.repo_snapshot_hash, field_name="repo_snapshot_hash"),
+        )
+        object.__setattr__(
+            self,
+            "source_set",
+            _assert_sorted_unique(
+                [_assert_repo_rel_path(path, field_name="source_set") for path in self.source_set],
+                field_name="source_set",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "source_set_hash",
+            _assert_hash(self.source_set_hash, field_name="source_set_hash"),
+        )
+        object.__setattr__(
+            self,
+            "graph_scope",
+            _assert_no_forbidden_v45b_graph_scope_terms(
+                self.graph_scope,
+                field_name="graph_scope",
+            ),
+        )
+
+        evidence_by_ref = {entry.evidence_ref: entry for entry in self.evidence_refs}
+        if len(evidence_by_ref) != len(self.evidence_refs):
+            raise ValueError("evidence_refs evidence_ref values must be unique")
+        if [entry.evidence_ref for entry in self.evidence_refs] != sorted(evidence_by_ref):
+            raise ValueError("evidence_refs must be sorted lexicographically by evidence_ref")
+
+        edges_by_id = {edge.edge_id: edge for edge in self.dependency_edges}
+        if len(edges_by_id) != len(self.dependency_edges):
+            raise ValueError("dependency_edges edge_id values must be unique")
+        if [edge.edge_id for edge in self.dependency_edges] != sorted(edges_by_id):
+            raise ValueError("dependency_edges must be sorted lexicographically by edge_id")
+
+        source_set_membership = set(self.source_set)
+        module_boundary_refs = {
+            compute_internal_module_boundary_ref(module_path=path) for path in self.source_set
+        }
+        for edge in self.dependency_edges:
+            if any(ref not in source_set_membership for ref in edge.source_artifact_refs):
+                raise ValueError(
+                    "dependency_edges source_artifact_refs must resolve inside source_set"
+                )
+            row_evidence = [evidence_by_ref.get(ref) for ref in edge.supporting_evidence_refs]
+            if any(item is None for item in row_evidence):
+                raise ValueError(
+                    "dependency_edges supporting_evidence_refs must reference "
+                    "top-level evidence_refs"
+                )
+            if (
+                edge.from_ref_kind == "internal_module_boundary"
+                and edge.from_ref not in module_boundary_refs
+            ):
+                raise ValueError(
+                    "dependency_edges from_ref must resolve inside source_set module boundaries"
+                )
+            if (
+                edge.to_ref_kind == "internal_module_boundary"
+                and edge.to_ref not in module_boundary_refs
+            ):
+                raise ValueError(
+                    "dependency_edges to_ref must resolve inside source_set module boundaries"
+                )
+
+        payload_without_id = self.model_dump(mode="json")
+        payload_without_id.pop("repo_dependency_graph_id", None)
+        expected_id = compute_repo_dependency_graph_id(payload_without_id)
+        if self.repo_dependency_graph_id != expected_id:
+            raise ValueError(
+                "repo_dependency_graph_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+def validate_repo_symbol_catalog_dependency_graph_pair(
+    *,
+    symbol_catalog_payload: dict[str, Any],
+    dependency_graph_payload: dict[str, Any],
+) -> tuple[RepoSymbolCatalog, RepoDependencyGraph]:
+    symbol_catalog = RepoSymbolCatalog.model_validate(symbol_catalog_payload)
+    dependency_graph = RepoDependencyGraph.model_validate(dependency_graph_payload)
+    if symbol_catalog.repo_snapshot_id != dependency_graph.repo_snapshot_id:
+        raise ValueError("symbol catalog and dependency graph must share repo_snapshot_id")
+    if symbol_catalog.repo_snapshot_hash != dependency_graph.repo_snapshot_hash:
+        raise ValueError("symbol catalog and dependency graph must share repo_snapshot_hash")
+    if symbol_catalog.source_set != dependency_graph.source_set:
+        raise ValueError("symbol catalog and dependency graph must share source_set")
+    if symbol_catalog.source_set_hash != dependency_graph.source_set_hash:
+        raise ValueError("symbol catalog and dependency graph must share source_set_hash")
+
+    symbol_ids = {entry.symbol_id for entry in symbol_catalog.symbol_entries}
+    module_boundary_refs = {
+        compute_internal_module_boundary_ref(module_path=path) for path in symbol_catalog.source_set
+    }
+    for edge in dependency_graph.dependency_edges:
+        if edge.from_ref_kind == "internal_symbol" and edge.from_ref not in symbol_ids:
+            raise ValueError("dependency edge from_ref must resolve against repo_symbol_catalog")
+        if edge.to_ref_kind == "internal_symbol" and edge.to_ref not in symbol_ids:
+            raise ValueError("dependency edge to_ref must resolve against repo_symbol_catalog")
+        if (
+            edge.from_ref_kind == "internal_module_boundary"
+            and edge.from_ref not in module_boundary_refs
+        ):
+            raise ValueError(
+                "dependency edge from_ref must resolve against internal module boundaries"
+            )
+        if (
+            edge.to_ref_kind == "internal_module_boundary"
+            and edge.to_ref not in module_boundary_refs
+        ):
+            raise ValueError(
+                "dependency edge to_ref must resolve against internal module boundaries"
+            )
+    return symbol_catalog, dependency_graph
+
+
 class RepoArcDependencyRegisterEntryV1(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -840,16 +1307,12 @@ class RepoArcDependencyRegisterV1(BaseModel):
         object.__setattr__(
             self,
             "register_scope",
-            _assert_no_forbidden_authority_terms(
-                self.register_scope, field_name="register_scope"
-            ),
+            _assert_no_forbidden_authority_terms(self.register_scope, field_name="register_scope"),
         )
         object.__setattr__(
             self,
             "dependency_policy_ref",
-            _assert_non_empty_text(
-                self.dependency_policy_ref, field_name="dependency_policy_ref"
-            ),
+            _assert_non_empty_text(self.dependency_policy_ref, field_name="dependency_policy_ref"),
         )
         object.__setattr__(
             self,
@@ -1097,10 +1560,7 @@ class RepoArcDependencyRegister(BaseModel):
             self,
             "source_set",
             _assert_sorted_unique(
-                [
-                    _assert_repo_rel_path(path, field_name="source_set")
-                    for path in self.source_set
-                ],
+                [_assert_repo_rel_path(path, field_name="source_set") for path in self.source_set],
                 field_name="source_set",
             ),
         )
@@ -1112,18 +1572,14 @@ class RepoArcDependencyRegister(BaseModel):
         object.__setattr__(
             self,
             "register_scope",
-            _assert_no_forbidden_authority_terms(
-                self.register_scope, field_name="register_scope"
-            ),
+            _assert_no_forbidden_authority_terms(self.register_scope, field_name="register_scope"),
         )
         if "repo_dependency_graph" in self.register_scope:
             raise ValueError("register_scope may not claim the later repo_dependency_graph surface")
         object.__setattr__(
             self,
             "dependency_policy_ref",
-            _assert_non_empty_text(
-                self.dependency_policy_ref, field_name="dependency_policy_ref"
-            ),
+            _assert_non_empty_text(self.dependency_policy_ref, field_name="dependency_policy_ref"),
         )
         object.__setattr__(
             self,
@@ -1283,6 +1739,48 @@ def materialize_repo_entity_catalog_payload(
 
 def canonicalize_repo_entity_catalog_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return RepoEntityCatalog.model_validate(payload).model_dump(mode="json")
+
+
+def compute_repo_symbol_catalog_id(payload_without_id: dict[str, Any]) -> str:
+    canonical_payload = deepcopy(payload_without_id)
+    canonical_payload.setdefault("schema", REPO_SYMBOL_CATALOG_SCHEMA)
+    canonical_payload.pop("repo_symbol_catalog_id", None)
+    digest = sha256_canonical_json(canonical_payload)
+    return f"repo_symbol_catalog_{digest[:24]}"
+
+
+def materialize_repo_symbol_catalog_payload(
+    payload_without_catalog_id: dict[str, Any],
+) -> dict[str, Any]:
+    payload = deepcopy(payload_without_catalog_id)
+    payload.setdefault("schema", REPO_SYMBOL_CATALOG_SCHEMA)
+    payload["repo_symbol_catalog_id"] = compute_repo_symbol_catalog_id(payload)
+    return RepoSymbolCatalog.model_validate(payload).model_dump(mode="json")
+
+
+def canonicalize_repo_symbol_catalog_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    return RepoSymbolCatalog.model_validate(payload).model_dump(mode="json")
+
+
+def compute_repo_dependency_graph_id(payload_without_id: dict[str, Any]) -> str:
+    canonical_payload = deepcopy(payload_without_id)
+    canonical_payload.setdefault("schema", REPO_DEPENDENCY_GRAPH_SCHEMA)
+    canonical_payload.pop("repo_dependency_graph_id", None)
+    digest = sha256_canonical_json(canonical_payload)
+    return f"repo_dependency_graph_{digest[:24]}"
+
+
+def materialize_repo_dependency_graph_payload(
+    payload_without_graph_id: dict[str, Any],
+) -> dict[str, Any]:
+    payload = deepcopy(payload_without_graph_id)
+    payload.setdefault("schema", REPO_DEPENDENCY_GRAPH_SCHEMA)
+    payload["repo_dependency_graph_id"] = compute_repo_dependency_graph_id(payload)
+    return RepoDependencyGraph.model_validate(payload).model_dump(mode="json")
+
+
+def canonicalize_repo_dependency_graph_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    return RepoDependencyGraph.model_validate(payload).model_dump(mode="json")
 
 
 def compute_repo_arc_dependency_register_v1_id(payload_without_id: dict[str, Any]) -> str:
