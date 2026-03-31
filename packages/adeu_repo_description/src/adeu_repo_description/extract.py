@@ -13,12 +13,16 @@ from urm_runtime.hashing import sha256_canonical_json
 from .models import (
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
+    REPO_TEST_INTENT_MATRIX_SCHEMA,
     SCHEMA_VISIBLE_ENTITY_COVERAGE_MODE,
     V45A_CLASSIFICATION_POLICY_REF,
     V45C_DEPENDENCY_POLICY_REF,
     RepoDescriptionEvidenceRef,
     RepoSchemaFamilyRegistry,
+    compute_claimed_invariant_binding_id,
     compute_internal_module_boundary_ref,
+    compute_repo_test_intent_entry_id,
+    compute_repo_test_ref,
     compute_symbol_id,
     compute_v45a_classification_policy_hash,
     compute_v45c_v102_dependency_policy_hash,
@@ -27,8 +31,10 @@ from .models import (
     materialize_repo_entity_catalog_payload,
     materialize_repo_schema_family_registry_payload,
     materialize_repo_symbol_catalog_payload,
+    materialize_repo_test_intent_matrix_payload,
     representative_schema_keys,
     validate_repo_symbol_catalog_dependency_graph_pair,
+    validate_repo_test_intent_matrix_against_v45b,
 )
 
 _DEFAULT_SOURCE_PATHS: tuple[str, ...] = (
@@ -50,6 +56,9 @@ _DEFAULT_V45B_SOURCE_PATHS: tuple[str, ...] = (
     "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
     "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
     "packages/adeu_repo_description/src/adeu_repo_description/models.py",
+)
+_DEFAULT_V45D_SOURCE_PATHS: tuple[str, ...] = (
+    "packages/adeu_repo_description/tests/test_repo_description_v45b.py",
 )
 
 
@@ -244,6 +253,10 @@ def _default_v45b_source_paths() -> list[str]:
     return list(_DEFAULT_V45B_SOURCE_PATHS)
 
 
+def _default_v45d_source_paths() -> list[str]:
+    return list(_DEFAULT_V45D_SOURCE_PATHS)
+
+
 def _module_import_path_for_source_path(source_path: str) -> str:
     normalized = _assert_repo_rel_path(source_path, field_name="source_path")
     marker = "/src/"
@@ -346,9 +359,525 @@ def _expr_to_dotted_name(node: ast.AST) -> str | None:
     return None
 
 
+def _bound_unique_symbol_index(
+    *,
+    symbol_catalog: dict[str, Any],
+) -> tuple[dict[str, str], dict[tuple[str, str], str], dict[str, str]]:
+    qualname_to_symbol_ids: dict[str, set[str]] = {}
+    module_qualname_to_symbol: dict[tuple[str, str], str] = {}
+    source_path_to_module_import_path: dict[str, str] = {}
+    for entry in symbol_catalog["symbol_entries"]:
+        qualname_to_symbol_ids.setdefault(entry["qualname"], set()).add(entry["symbol_id"])
+        module_import_path = _module_import_path_for_source_path(entry["module_path"])
+        source_path_to_module_import_path[entry["module_path"]] = module_import_path
+        module_qualname_to_symbol[(module_import_path, entry["qualname"])] = entry["symbol_id"]
+    unique_qualname_index = {
+        qualname: next(iter(symbol_ids))
+        for qualname, symbol_ids in qualname_to_symbol_ids.items()
+        if len(symbol_ids) == 1
+    }
+    return unique_qualname_index, module_qualname_to_symbol, source_path_to_module_import_path
+
+
+def _resolve_import_binding(
+    *,
+    imported_module: str,
+    imported_name: str | None,
+    unique_qualname_index: dict[str, str],
+    module_qualname_to_symbol: dict[tuple[str, str], str],
+    bound_module_to_source_path: dict[str, str],
+) -> tuple[str, str] | None:
+    if imported_name is not None:
+        symbol_id = module_qualname_to_symbol.get((imported_module, imported_name))
+        if symbol_id is None:
+            symbol_id = unique_qualname_index.get(imported_name)
+        if symbol_id is not None:
+            return ("internal_symbol", symbol_id)
+    source_path = bound_module_to_source_path.get(imported_module)
+    if source_path is not None:
+        return (
+            "internal_module_boundary",
+            compute_internal_module_boundary_ref(module_path=source_path),
+        )
+    if imported_module.startswith("adeu_") or imported_module.startswith("urm_"):
+        return ("external_boundary", f"out_of_scope:{imported_module}")
+    return ("external_boundary", f"external:{imported_module}")
+
+
+def _extract_test_import_aliases(
+    *,
+    tree: ast.Module,
+    unique_qualname_index: dict[str, str],
+    module_qualname_to_symbol: dict[tuple[str, str], str],
+    bound_module_to_source_path: dict[str, str],
+) -> dict[str, tuple[str, str]]:
+    alias_map: dict[str, tuple[str, str]] = {}
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                local_name = alias.asname or alias.name.split(".", 1)[0]
+                resolved = _resolve_import_binding(
+                    imported_module=alias.name,
+                    imported_name=None,
+                    unique_qualname_index=unique_qualname_index,
+                    module_qualname_to_symbol=module_qualname_to_symbol,
+                    bound_module_to_source_path=bound_module_to_source_path,
+                )
+                if resolved is not None:
+                    alias_map[local_name] = resolved
+        elif isinstance(node, ast.ImportFrom):
+            if node.module is None:
+                continue
+            for alias in node.names:
+                if alias.name == "*":
+                    continue
+                local_name = alias.asname or alias.name
+                resolved = _resolve_import_binding(
+                    imported_module=node.module,
+                    imported_name=alias.name,
+                    unique_qualname_index=unique_qualname_index,
+                    module_qualname_to_symbol=module_qualname_to_symbol,
+                    bound_module_to_source_path=bound_module_to_source_path,
+                )
+                if resolved is not None:
+                    alias_map[local_name] = resolved
+    return alias_map
+
+
+def _ref_from_expr(
+    expr: ast.AST,
+    *,
+    alias_map: dict[str, tuple[str, str]],
+    provenance_map: dict[str, tuple[str, str]],
+) -> tuple[str, str] | None:
+    if isinstance(expr, ast.Name):
+        return provenance_map.get(expr.id) or alias_map.get(expr.id)
+    if isinstance(expr, ast.Attribute):
+        return _ref_from_expr(expr.value, alias_map=alias_map, provenance_map=provenance_map)
+    if isinstance(expr, ast.Call):
+        return _ref_from_expr(expr.func, alias_map=alias_map, provenance_map=provenance_map)
+    if isinstance(expr, ast.Subscript):
+        return _ref_from_expr(expr.value, alias_map=alias_map, provenance_map=provenance_map)
+    collected: list[tuple[str, str]] = []
+    for child in ast.iter_child_nodes(expr):
+        child_ref = _ref_from_expr(child, alias_map=alias_map, provenance_map=provenance_map)
+        if child_ref is not None:
+            collected.append(child_ref)
+    unique = sorted(set(collected))
+    if len(unique) == 1:
+        return unique[0]
+    return None
+
+
+def _assignment_target_identifiers(target: ast.expr) -> list[str]:
+    return sorted(_assignment_target_names_from_expr_target(target))
+
+
+def _assignment_target_names_from_expr_target(target: ast.expr) -> set[str]:
+    if isinstance(target, ast.Name):
+        return {target.id}
+    if isinstance(target, (ast.Tuple, ast.List)):
+        names: set[str] = set()
+        for element in target.elts:
+            names.update(_assignment_target_names_from_expr_target(element))
+        return names
+    if isinstance(target, ast.Starred):
+        return _assignment_target_names_from_expr_target(target.value)
+    return set()
+
+
+def _update_test_provenance_for_assignment(
+    node: ast.Assign | ast.AnnAssign,
+    *,
+    alias_map: dict[str, tuple[str, str]],
+    provenance_map: dict[str, tuple[str, str]],
+) -> None:
+    value_ref = _ref_from_expr(
+        node.value,
+        alias_map=alias_map,
+        provenance_map=provenance_map,
+    )
+    if value_ref is None:
+        return
+    targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+    for target in targets:
+        for name in _assignment_target_identifiers(target):
+            provenance_map[name] = value_ref
+
+
+def _iter_assertion_units(body: list[ast.stmt]) -> list[tuple[ast.AST, ast.AST]]:
+    units: list[tuple[ast.AST, ast.AST]] = []
+    for node in body:
+        if isinstance(node, ast.Assert):
+            units.append((node, node.test))
+        elif isinstance(node, (ast.With, ast.AsyncWith)):
+            for item in node.items:
+                context_expr = item.context_expr
+                dotted = _expr_to_dotted_name(
+                    context_expr.func if isinstance(context_expr, ast.Call) else context_expr
+                )
+                if dotted == "pytest.raises":
+                    units.append((node, context_expr))
+        elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+            func_name = _expr_to_dotted_name(node.value.func) or ""
+            terminal = func_name.rsplit(".", 1)[-1]
+            if terminal in {"validate", "model_validate", "check_schema"}:
+                units.append((node, node.value))
+    return units
+
+
+def _collect_candidate_refs(
+    node: ast.AST,
+    *,
+    alias_map: dict[str, tuple[str, str]],
+    provenance_map: dict[str, tuple[str, str]],
+    unique_qualname_index: dict[str, str],
+) -> list[tuple[str, str, str]]:
+    candidates: list[tuple[str, str, str]] = []
+
+    class Visitor(ast.NodeVisitor):
+        def visit_Name(self, inner: ast.Name) -> None:
+            resolved = provenance_map.get(inner.id) or alias_map.get(inner.id)
+            if resolved is not None:
+                candidates.append((resolved[0], resolved[1], "direct_reference"))
+            self.generic_visit(inner)
+
+        def visit_Constant(self, inner: ast.Constant) -> None:
+            if isinstance(inner.value, str):
+                literal = inner.value
+                if "repo_symbol_catalog" in literal:
+                    symbol_id = unique_qualname_index.get("REPO_SYMBOL_CATALOG_SCHEMA")
+                    if symbol_id is not None:
+                        candidates.append(("internal_symbol", symbol_id, "bounded_inference"))
+                if "repo_dependency_graph" in literal:
+                    symbol_id = unique_qualname_index.get("REPO_DEPENDENCY_GRAPH_SCHEMA")
+                    if symbol_id is not None:
+                        candidates.append(("internal_symbol", symbol_id, "bounded_inference"))
+            self.generic_visit(inner)
+
+    Visitor().visit(node)
+    kind_order = {
+        "internal_symbol": 0,
+        "internal_module_boundary": 1,
+        "external_boundary": 2,
+    }
+    source_order = {
+        "direct_reference": 0,
+        "bounded_inference": 1,
+        "test_name_convention": 2,
+    }
+    unique_candidates = sorted(
+        set(candidates),
+        key=lambda row: (
+            kind_order.get(row[0], 99),
+            source_order.get(row[2], 99),
+            row[1],
+        ),
+    )
+    return unique_candidates
+
+
+def _fallback_guarded_surface_ref(
+    *,
+    test_name: str,
+    unique_qualname_index: dict[str, str],
+    bound_module_to_source_path: dict[str, str],
+) -> tuple[str, str, str]:
+    lowered = test_name.lower()
+    fallback_symbol_names: list[str] = []
+    if "symbol_catalog_id" in lowered:
+        fallback_symbol_names.append("compute_repo_symbol_catalog_id")
+    elif "dependency_graph_id" in lowered:
+        fallback_symbol_names.append("compute_repo_dependency_graph_id")
+    elif "symbol_catalog" in lowered:
+        fallback_symbol_names.append("RepoSymbolCatalog")
+        fallback_symbol_names.append("REPO_SYMBOL_CATALOG_SCHEMA")
+    elif "dependency_graph" in lowered:
+        fallback_symbol_names.append("RepoDependencyGraph")
+        fallback_symbol_names.append("REPO_DEPENDENCY_GRAPH_SCHEMA")
+    for symbol_name in fallback_symbol_names:
+        symbol_id = unique_qualname_index.get(symbol_name)
+        if symbol_id is not None:
+            return ("internal_symbol", symbol_id, "test_name_convention")
+    extract_source = bound_module_to_source_path.get("adeu_repo_description.extract")
+    if extract_source is not None:
+        return (
+            "internal_module_boundary",
+            compute_internal_module_boundary_ref(module_path=extract_source),
+            "test_name_convention",
+        )
+    return ("external_boundary", "external:pytest", "test_name_convention")
+
+
+def _humanize_test_name(name: str) -> str:
+    tokens = [token for token in name.split("_") if token and token != "test"]
+    if tokens and re.fullmatch(r"v[0-9]+[a-z]?", tokens[0]):
+        tokens = tokens[1:]
+    return " ".join(tokens)
+
+
+def _infer_invariant_domain(binding_statement: str) -> str:
+    normalized = binding_statement.lower()
+    has_deontic = any(
+        token in normalized
+        for token in (
+            "authority",
+            "entitlement",
+            "gating",
+            "scheduler",
+            "mutation",
+            "blocked",
+        )
+    )
+    has_epistemic = any(
+        token in normalized
+        for token in (
+            "deterministic",
+            "validate",
+            "replay",
+            "snapshot",
+            "source",
+            "hash",
+            "id",
+        )
+    )
+    has_ontic = any(
+        token in normalized
+        for token in ("schema", "symbol", "dependency", "module", "fixture", "graph")
+    )
+    if sum([has_deontic, has_epistemic, has_ontic]) > 1:
+        return "mixed"
+    if has_deontic:
+        return "deontics"
+    if has_epistemic:
+        return "epistemics"
+    return "ontology" if has_ontic else "epistemics"
+
+
+def _assertion_surface_kind(unit_node: ast.AST, unit_expr: ast.AST) -> str:
+    if isinstance(unit_node, ast.Assert):
+        if isinstance(unit_expr, ast.Compare) and any(
+            isinstance(op, (ast.Eq, ast.NotEq)) for op in unit_expr.ops
+        ):
+            return "equality_assertion"
+        return "assert_statement"
+    if isinstance(unit_node, (ast.With, ast.AsyncWith)):
+        return "pytest_raises"
+    return "predicate_call_assertion"
+
+
+def _derivation_labels(source_kind: str, assertion_surface_kind: str) -> tuple[str, str]:
+    if source_kind == "direct_reference":
+        return (
+            "derived_deterministically",
+            "assertion_ast"
+            if assertion_surface_kind in {"assert_statement", "equality_assertion", "pytest_raises"}
+            else "fixture_or_helper_binding",
+        )
+    if source_kind == "bounded_inference":
+        return ("inferred_heuristically", "bounded_inference_rule")
+    return ("inferred_heuristically", "test_name_convention")
+
+
+def _confidence_posture(derivation_method: str, assertion_surface_kind: str) -> str:
+    if derivation_method == "assertion_ast":
+        if assertion_surface_kind in {"equality_assertion", "pytest_raises"}:
+            return "high"
+        return "medium"
+    if derivation_method == "fixture_or_helper_binding":
+        return "medium"
+    return "low"
+
+
+def _binding_statement_from_test_name(test_name: str) -> str:
+    humanized = _humanize_test_name(test_name)
+    if not humanized:
+        return "bounded test intent claim"
+    return humanized
+
+
+def _entry_payload_for_assertion_unit(
+    *,
+    source_path: str,
+    qualname: str,
+    test_kind: str,
+    test_name: str,
+    unit_node: ast.AST,
+    unit_expr: ast.AST,
+    alias_map: dict[str, tuple[str, str]],
+    provenance_map: dict[str, tuple[str, str]],
+    unique_qualname_index: dict[str, str],
+    bound_module_to_source_path: dict[str, str],
+    evidence_ref: str,
+) -> dict[str, Any]:
+    assertion_kind = _assertion_surface_kind(unit_node, unit_expr)
+    candidate_nodes: list[ast.AST] = [unit_expr]
+    if isinstance(unit_node, (ast.With, ast.AsyncWith)):
+        candidate_nodes.extend(unit_node.body)
+    candidates: list[tuple[str, str, str]] = []
+    for candidate_node in candidate_nodes:
+        candidates.extend(
+            _collect_candidate_refs(
+                candidate_node,
+                alias_map=alias_map,
+                provenance_map=provenance_map,
+                unique_qualname_index=unique_qualname_index,
+            )
+        )
+    deduped_candidates = sorted(
+        set(candidates),
+        key=lambda row: (
+            {"internal_symbol": 0, "internal_module_boundary": 1, "external_boundary": 2}.get(
+                row[0], 99
+            ),
+            {"direct_reference": 0, "bounded_inference": 1, "test_name_convention": 2}.get(
+                row[2], 99
+            ),
+            row[1],
+        ),
+    )
+    if deduped_candidates:
+        guarded_ref_kind, guarded_ref_value, source_kind = deduped_candidates[0]
+    else:
+        guarded_ref_kind, guarded_ref_value, source_kind = _fallback_guarded_surface_ref(
+            test_name=test_name,
+            unique_qualname_index=unique_qualname_index,
+            bound_module_to_source_path=bound_module_to_source_path,
+        )
+    derivation_posture, derivation_method = _derivation_labels(source_kind, assertion_kind)
+    binding_statement = _binding_statement_from_test_name(test_name)
+    test_ref = compute_repo_test_ref(source_path=source_path, qualname=qualname)
+    observed_assertion_surface = {
+        "assertion_surface_kind": assertion_kind,
+        "assertion_source_ref": f"assertion:{source_path}#L{unit_node.lineno}",
+        "assertion_summary": ast.unparse(unit_expr),
+    }
+    payload_without_entry_id = {
+        "test_ref": test_ref,
+        "test_kind": test_kind,
+        "guarded_surface_ref": {
+            "guarded_surface_ref_kind": guarded_ref_kind,
+            "guarded_surface_ref_value": guarded_ref_value,
+        },
+        "claimed_invariant_binding": {
+            "binding_id": compute_claimed_invariant_binding_id(
+                binding_statement=binding_statement
+            ),
+            "binding_statement": binding_statement,
+        },
+        "observed_assertion_surface": observed_assertion_surface,
+        "invariant_domain": _infer_invariant_domain(binding_statement),
+        "gating_posture": "release_gating",
+        "confidence_posture": _confidence_posture(derivation_method, assertion_kind),
+        "derivation_posture": derivation_posture,
+        "derivation_method": derivation_method,
+        "source_artifact_refs": [source_path],
+        "supporting_evidence_refs": [evidence_ref],
+    }
+    return {
+        "entry_id": compute_repo_test_intent_entry_id(payload_without_entry_id),
+        **payload_without_entry_id,
+    }
+
+
+def _derive_entries_for_test_function(
+    *,
+    source_path: str,
+    function_node: ast.FunctionDef | ast.AsyncFunctionDef,
+    qualname: str,
+    test_kind: str,
+    alias_map: dict[str, tuple[str, str]],
+    unique_qualname_index: dict[str, str],
+    bound_module_to_source_path: dict[str, str],
+    evidence_ref: str,
+) -> list[dict[str, Any]]:
+    entries: list[dict[str, Any]] = []
+
+    def visit_body(body: list[ast.stmt], *, provenance_map: dict[str, tuple[str, str]]) -> None:
+        for node in body:
+            if isinstance(node, (ast.Assign, ast.AnnAssign)):
+                _update_test_provenance_for_assignment(
+                    node,
+                    alias_map=alias_map,
+                    provenance_map=provenance_map,
+                )
+            units = _iter_assertion_units([node])
+            for unit_node, unit_expr in units:
+                entries.append(
+                    _entry_payload_for_assertion_unit(
+                        source_path=source_path,
+                        qualname=qualname,
+                        test_kind=test_kind,
+                        test_name=function_node.name,
+                        unit_node=unit_node,
+                        unit_expr=unit_expr,
+                        alias_map=alias_map,
+                        provenance_map=provenance_map,
+                        unique_qualname_index=unique_qualname_index,
+                        bound_module_to_source_path=bound_module_to_source_path,
+                        evidence_ref=evidence_ref,
+                    )
+                )
+            for nested in _nested_statement_bodies(node):
+                visit_body(nested, provenance_map=provenance_map)
+
+    visit_body(function_node.body, provenance_map={})
+    return entries
+
+
+def _derive_v45d_entries_for_source_path(
+    *,
+    source_path: str,
+    tree: ast.Module,
+    alias_map: dict[str, tuple[str, str]],
+    unique_qualname_index: dict[str, str],
+    bound_module_to_source_path: dict[str, str],
+) -> list[dict[str, Any]]:
+    evidence_ref = f"evidence:test_source:{source_path}:ast"
+    entries: list[dict[str, Any]] = []
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith(
+            "test_"
+        ):
+            entries.extend(
+                _derive_entries_for_test_function(
+                    source_path=source_path,
+                    function_node=node,
+                    qualname=node.name,
+                    test_kind="pytest_function",
+                    alias_map=alias_map,
+                    unique_qualname_index=unique_qualname_index,
+                    bound_module_to_source_path=bound_module_to_source_path,
+                    evidence_ref=evidence_ref,
+                )
+            )
+        elif isinstance(node, ast.ClassDef) and node.name.startswith("Test"):
+            for inner in node.body:
+                if isinstance(
+                    inner, (ast.FunctionDef, ast.AsyncFunctionDef)
+                ) and inner.name.startswith("test_"):
+                    entries.extend(
+                        _derive_entries_for_test_function(
+                            source_path=source_path,
+                            function_node=inner,
+                            qualname=f"{node.name}.{inner.name}",
+                            test_kind="pytest_method",
+                            alias_map=alias_map,
+                            unique_qualname_index=unique_qualname_index,
+                            bound_module_to_source_path=bound_module_to_source_path,
+                            evidence_ref=evidence_ref,
+                        )
+                    )
+    if not entries:
+        raise ValueError(f"test source path did not yield any test-intent rows: {source_path}")
+    return entries
+
+
 def _nested_statement_bodies(node: ast.stmt) -> list[list[ast.stmt]]:
-    if isinstance(node, (ast.If, ast.For, ast.AsyncFor, ast.While, ast.With, ast.AsyncWith)):
+    if isinstance(node, (ast.If, ast.For, ast.AsyncFor, ast.While)):
         return [body for body in (node.body, node.orelse) if body]
+    if isinstance(node, (ast.With, ast.AsyncWith)):
+        return [node.body] if node.body else []
     if isinstance(node, ast.Try):
         bodies = [node.body, node.orelse, node.finalbody]
         bodies.extend(handler.body for handler in node.handlers)
@@ -1380,6 +1909,153 @@ def derive_v45c_repo_arc_dependency_register(
     return materialize_repo_arc_dependency_register_payload(payload_without_register_id)
 
 
+def derive_v45d_repo_test_intent_matrix(
+    *,
+    source_paths: list[str] | None = None,
+    bound_symbol_catalog_payload: dict[str, Any] | None = None,
+    bound_dependency_graph_payload: dict[str, Any] | None = None,
+    snapshot_validity_posture: str | None = None,
+) -> dict[str, Any]:
+    root = repo_root(anchor=Path(__file__))
+    normalized_source_paths = (
+        source_paths if source_paths is not None else _default_v45d_source_paths()
+    )
+    normalized_source_paths = sorted(
+        {_assert_repo_rel_path(path, field_name="source_paths") for path in normalized_source_paths}
+    )
+    if not normalized_source_paths:
+        raise ValueError("source_paths must not be empty")
+
+    if bound_symbol_catalog_payload is None or bound_dependency_graph_payload is None:
+        (
+            derived_symbol_catalog,
+            derived_dependency_graph,
+        ) = derive_v45b_repo_symbol_catalog_and_dependency_graph(
+            source_paths=default_v45b_source_paths(),
+            snapshot_validity_posture="snapshot_bound_current",
+        )
+        bound_symbol_catalog_payload = (
+            derived_symbol_catalog
+            if bound_symbol_catalog_payload is None
+            else bound_symbol_catalog_payload
+        )
+        bound_dependency_graph_payload = (
+            derived_dependency_graph
+            if bound_dependency_graph_payload is None
+            else bound_dependency_graph_payload
+        )
+
+    (
+        bound_symbol_catalog,
+        bound_dependency_graph,
+    ) = validate_repo_symbol_catalog_dependency_graph_pair(
+        symbol_catalog_payload=bound_symbol_catalog_payload,
+        dependency_graph_payload=bound_dependency_graph_payload,
+    )
+    effective_snapshot_validity_posture = (
+        snapshot_validity_posture or bound_symbol_catalog.snapshot_validity_posture
+    )
+    if effective_snapshot_validity_posture != bound_symbol_catalog.snapshot_validity_posture:
+        raise ValueError(
+            "snapshot_validity_posture must match the bound V45-B snapshot_validity_posture"
+        )
+
+    source_hashes: dict[str, str] = {}
+    parsed_trees: dict[str, ast.Module] = {}
+    for source_path in normalized_source_paths:
+        absolute_path = root / source_path
+        if not absolute_path.is_file():
+            raise FileNotFoundError(f"source path does not exist: {source_path}")
+        text = absolute_path.read_text(encoding="utf-8")
+        source_hashes[source_path] = sha256_canonical_json({"text": text})
+        parsed_trees[source_path] = ast.parse(text, filename=source_path)
+
+    test_source_set_hash = sha256_canonical_json(
+        {
+            "source_paths": normalized_source_paths,
+            "source_hashes": {path: source_hashes[path] for path in normalized_source_paths},
+        }
+    )
+
+    unique_qualname_index, module_qualname_to_symbol, source_path_to_module_import_path = (
+        _bound_unique_symbol_index(symbol_catalog=bound_symbol_catalog.model_dump(mode="json"))
+    )
+    bound_module_to_source_path = {
+        module_import_path: source_path
+        for source_path, module_import_path in source_path_to_module_import_path.items()
+    }
+
+    evidence_refs_by_id: dict[str, RepoDescriptionEvidenceRef] = {}
+    evidence_refs_by_id["evidence:contract:v45d:v103"] = RepoDescriptionEvidenceRef(
+        evidence_ref="evidence:contract:v45d:v103",
+        evidence_kind="lock_contract_evidence",
+    )
+    evidence_refs_by_id["evidence:bound:v45b:symbol_catalog"] = RepoDescriptionEvidenceRef(
+        evidence_ref="evidence:bound:v45b:symbol_catalog",
+        evidence_kind="observed_anchor_tuple_evidence",
+    )
+    evidence_refs_by_id["evidence:bound:v45b:dependency_graph"] = RepoDescriptionEvidenceRef(
+        evidence_ref="evidence:bound:v45b:dependency_graph",
+        evidence_kind="observed_anchor_tuple_evidence",
+    )
+
+    entries: list[dict[str, Any]] = []
+    for source_path in normalized_source_paths:
+        evidence_ref = f"evidence:test_source:{source_path}:ast"
+        evidence_refs_by_id[evidence_ref] = RepoDescriptionEvidenceRef(
+            evidence_ref=evidence_ref,
+            evidence_kind="structural_signature_evidence",
+        )
+        evidence_refs_by_id[f"evidence:test_source:{source_path}:inference"] = (
+            RepoDescriptionEvidenceRef(
+                evidence_ref=f"evidence:test_source:{source_path}:inference",
+                evidence_kind="semantic_function_cue_evidence",
+            )
+        )
+        alias_map = _extract_test_import_aliases(
+            tree=parsed_trees[source_path],
+            unique_qualname_index=unique_qualname_index,
+            module_qualname_to_symbol=module_qualname_to_symbol,
+            bound_module_to_source_path=bound_module_to_source_path,
+        )
+        entries.extend(
+            _derive_v45d_entries_for_source_path(
+                source_path=source_path,
+                tree=parsed_trees[source_path],
+                alias_map=alias_map,
+                unique_qualname_index=unique_qualname_index,
+                bound_module_to_source_path=bound_module_to_source_path,
+            )
+        )
+
+    payload_without_matrix_id = {
+        "schema": REPO_TEST_INTENT_MATRIX_SCHEMA,
+        "repo_snapshot_id": bound_symbol_catalog.repo_snapshot_id,
+        "repo_snapshot_hash": bound_symbol_catalog.repo_snapshot_hash,
+        "snapshot_validity_posture": effective_snapshot_validity_posture,
+        "test_source_set": normalized_source_paths,
+        "test_source_set_hash": test_source_set_hash,
+        "bound_symbol_catalog_ref": bound_symbol_catalog.repo_symbol_catalog_id,
+        "bound_dependency_graph_ref": bound_dependency_graph.repo_dependency_graph_id,
+        "matrix_scope": (
+            "v45d-bounded-python-test-intent-matrix-over-adeu_repo_description-tests"
+        ),
+        "extraction_posture": "derived_deterministically",
+        "extraction_method": "bounded_inference_rule",
+        "test_intent_entries": sorted(entries, key=lambda row: row["entry_id"]),
+        "evidence_refs": [
+            evidence_refs_by_id[key].model_dump(mode="json") for key in sorted(evidence_refs_by_id)
+        ],
+    }
+    matrix = materialize_repo_test_intent_matrix_payload(payload_without_matrix_id)
+    validate_repo_test_intent_matrix_against_v45b(
+        test_intent_matrix_payload=matrix,
+        symbol_catalog_payload=bound_symbol_catalog.model_dump(mode="json"),
+        dependency_graph_payload=bound_dependency_graph.model_dump(mode="json"),
+    )
+    return matrix
+
+
 def default_v45a_source_paths() -> list[str]:
     return list(_DEFAULT_SOURCE_PATHS)
 
@@ -1390,3 +2066,7 @@ def default_v45b_source_paths() -> list[str]:
 
 def default_v45c_source_paths() -> list[str]:
     return list(_DEFAULT_V45C_SOURCE_PATHS)
+
+
+def default_v45d_source_paths() -> list[str]:
+    return _default_v45d_source_paths()

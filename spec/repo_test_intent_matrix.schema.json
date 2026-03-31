@@ -1,0 +1,334 @@
+{
+  "$defs": {
+    "RepoClaimedInvariantBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_id": {
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "binding_statement": {
+          "title": "Binding Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "binding_id",
+        "binding_statement"
+      ],
+      "title": "RepoClaimedInvariantBinding",
+      "type": "object"
+    },
+    "RepoDescriptionEvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "enum": [
+            "observed_anchor_tuple_evidence",
+            "structural_signature_evidence",
+            "semantic_function_cue_evidence",
+            "governance_cue_evidence",
+            "lexical_cue_evidence",
+            "adjudication_artifact_evidence",
+            "reconstruction_subset_evidence",
+            "planning_table_row_evidence",
+            "planning_selection_evidence",
+            "lock_contract_evidence",
+            "dependency_policy_evidence"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_ref": {
+          "title": "Evidence Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "evidence_kind"
+      ],
+      "title": "RepoDescriptionEvidenceRef",
+      "type": "object"
+    },
+    "RepoGuardedSurfaceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "guarded_surface_ref_kind": {
+          "enum": [
+            "internal_symbol",
+            "internal_module_boundary",
+            "external_boundary"
+          ],
+          "title": "Guarded Surface Ref Kind",
+          "type": "string"
+        },
+        "guarded_surface_ref_value": {
+          "title": "Guarded Surface Ref Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "guarded_surface_ref_kind",
+        "guarded_surface_ref_value"
+      ],
+      "title": "RepoGuardedSurfaceRef",
+      "type": "object"
+    },
+    "RepoObservedAssertionSurface": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion_source_ref": {
+          "title": "Assertion Source Ref",
+          "type": "string"
+        },
+        "assertion_summary": {
+          "title": "Assertion Summary",
+          "type": "string"
+        },
+        "assertion_surface_kind": {
+          "enum": [
+            "assert_statement",
+            "pytest_raises",
+            "equality_assertion",
+            "predicate_call_assertion",
+            "response_or_status_assertion"
+          ],
+          "title": "Assertion Surface Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "assertion_surface_kind",
+        "assertion_source_ref",
+        "assertion_summary"
+      ],
+      "title": "RepoObservedAssertionSurface",
+      "type": "object"
+    },
+    "RepoTestIntentEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "claimed_invariant_binding": {
+          "$ref": "#/$defs/RepoClaimedInvariantBinding"
+        },
+        "confidence_posture": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "adjudicated",
+            "settled"
+          ],
+          "title": "Confidence Posture",
+          "type": "string"
+        },
+        "derivation_method": {
+          "enum": [
+            "assertion_ast",
+            "fixture_or_helper_binding",
+            "test_name_convention",
+            "bounded_inference_rule",
+            "adjudicated_policy"
+          ],
+          "title": "Derivation Method",
+          "type": "string"
+        },
+        "derivation_posture": {
+          "enum": [
+            "observed",
+            "derived_deterministically",
+            "inferred_heuristically",
+            "adjudicated",
+            "settled"
+          ],
+          "title": "Derivation Posture",
+          "type": "string"
+        },
+        "entry_id": {
+          "title": "Entry Id",
+          "type": "string"
+        },
+        "gating_posture": {
+          "enum": [
+            "release_gating",
+            "advisory",
+            "informational"
+          ],
+          "title": "Gating Posture",
+          "type": "string"
+        },
+        "guarded_surface_ref": {
+          "$ref": "#/$defs/RepoGuardedSurfaceRef"
+        },
+        "invariant_domain": {
+          "enum": [
+            "ontology",
+            "epistemics",
+            "deontics",
+            "utility",
+            "mixed"
+          ],
+          "title": "Invariant Domain",
+          "type": "string"
+        },
+        "observed_assertion_surface": {
+          "$ref": "#/$defs/RepoObservedAssertionSurface"
+        },
+        "source_artifact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Artifact Refs",
+          "type": "array"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        },
+        "test_kind": {
+          "enum": [
+            "pytest_function",
+            "pytest_method"
+          ],
+          "title": "Test Kind",
+          "type": "string"
+        },
+        "test_ref": {
+          "title": "Test Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entry_id",
+        "test_ref",
+        "test_kind",
+        "guarded_surface_ref",
+        "claimed_invariant_binding",
+        "observed_assertion_surface",
+        "invariant_domain",
+        "gating_posture",
+        "confidence_posture",
+        "derivation_posture",
+        "derivation_method",
+        "source_artifact_refs",
+        "supporting_evidence_refs"
+      ],
+      "title": "RepoTestIntentEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bound_dependency_graph_ref": {
+      "title": "Bound Dependency Graph Ref",
+      "type": "string"
+    },
+    "bound_symbol_catalog_ref": {
+      "title": "Bound Symbol Catalog Ref",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/RepoDescriptionEvidenceRef"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "extraction_method": {
+      "enum": [
+        "assertion_ast",
+        "fixture_or_helper_binding",
+        "test_name_convention",
+        "bounded_inference_rule",
+        "adjudicated_policy"
+      ],
+      "title": "Extraction Method",
+      "type": "string"
+    },
+    "extraction_posture": {
+      "enum": [
+        "observed",
+        "derived_deterministically",
+        "inferred_heuristically",
+        "adjudicated",
+        "settled"
+      ],
+      "title": "Extraction Posture",
+      "type": "string"
+    },
+    "matrix_scope": {
+      "title": "Matrix Scope",
+      "type": "string"
+    },
+    "repo_snapshot_hash": {
+      "title": "Repo Snapshot Hash",
+      "type": "string"
+    },
+    "repo_snapshot_id": {
+      "title": "Repo Snapshot Id",
+      "type": "string"
+    },
+    "repo_test_intent_matrix_id": {
+      "title": "Repo Test Intent Matrix Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_test_intent_matrix@1",
+      "default": "repo_test_intent_matrix@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_validity_posture": {
+      "enum": [
+        "snapshot_bound_current",
+        "snapshot_bound_historical"
+      ],
+      "title": "Snapshot Validity Posture",
+      "type": "string"
+    },
+    "test_intent_entries": {
+      "items": {
+        "$ref": "#/$defs/RepoTestIntentEntry"
+      },
+      "minItems": 1,
+      "title": "Test Intent Entries",
+      "type": "array"
+    },
+    "test_source_set": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Test Source Set",
+      "type": "array"
+    },
+    "test_source_set_hash": {
+      "title": "Test Source Set Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "repo_test_intent_matrix_id",
+    "repo_snapshot_id",
+    "repo_snapshot_hash",
+    "snapshot_validity_posture",
+    "test_source_set",
+    "test_source_set_hash",
+    "bound_symbol_catalog_ref",
+    "bound_dependency_graph_ref",
+    "matrix_scope",
+    "extraction_posture",
+    "extraction_method",
+    "test_intent_entries",
+    "evidence_refs"
+  ],
+  "title": "RepoTestIntentMatrix",
+  "type": "object"
+}
