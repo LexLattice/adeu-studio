@@ -20,9 +20,9 @@
   "extraction_method": "ast_parse",
   "extraction_posture": "derived_deterministically",
   "graph_scope": "v45b-bounded-python-symbol-catalog-and-dependency-graph-over-adeu_repo_description",
-  "repo_snapshot_hash": "37304ab5b77ec7bd32e3251b7c00a027237d017c9021281cba4da583dc633fbb",
-  "repo_snapshot_id": "repo_snapshot_37304ab5b77ec7bd32e3251b",
-  "repo_symbol_catalog_id": "repo_symbol_catalog_dc92052a0fed46f991eff41f",
+  "repo_snapshot_hash": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+  "repo_snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
+  "repo_symbol_catalog_id": "repo_symbol_catalog_e3a740c4aa05f8af16ba2c4d",
   "schema": "repo_symbol_catalog@1",
   "snapshot_validity_posture": "snapshot_bound_current",
   "source_set": [
@@ -31,7 +31,7 @@
     "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
     "packages/adeu_repo_description/src/adeu_repo_description/models.py"
   ],
-  "source_set_hash": "37304ab5b77ec7bd32e3251b7c00a027237d017c9021281cba4da583dc633fbb",
+  "source_set_hash": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
   "symbol_entries": [
     {
       "module_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
@@ -241,6 +241,20 @@
         "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
       ],
       "symbol_id": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:_assignment_target_names:function",
+      "symbol_kind": "function"
+    },
+    {
+      "module_path": "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "qualname": "_assignment_target_names_from_target",
+      "role_classification_method": "ast_signature",
+      "role_classification_posture": "derived_deterministically",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "symbol_id": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:_assignment_target_names_from_target:function",
       "symbol_kind": "function"
     },
     {
@@ -497,6 +511,20 @@
     },
     {
       "module_path": "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "qualname": "_merge_external_dependency_suffix",
+      "role_classification_method": "ast_signature",
+      "role_classification_posture": "derived_deterministically",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "symbol_id": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:_merge_external_dependency_suffix:function",
+      "symbol_kind": "function"
+    },
+    {
+      "module_path": "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
       "qualname": "_module_endpoint_info",
       "role_classification_method": "ast_signature",
       "role_classification_posture": "derived_deterministically",
@@ -521,6 +549,20 @@
         "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
       ],
       "symbol_id": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:_module_import_path_for_source_path:function",
+      "symbol_kind": "function"
+    },
+    {
+      "module_path": "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "qualname": "_nested_statement_bodies",
+      "role_classification_method": "ast_signature",
+      "role_classification_posture": "derived_deterministically",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "symbol_id": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:_nested_statement_bodies:function",
       "symbol_kind": "function"
     },
     {

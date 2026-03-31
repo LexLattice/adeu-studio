@@ -2181,9 +2181,9 @@
   "extraction_method": "ast_parse",
   "extraction_posture": "derived_deterministically",
   "graph_scope": "v45b-bounded-python-symbol-catalog-and-dependency-graph-over-adeu_repo_description",
-  "repo_dependency_graph_id": "repo_dependency_graph_c7c8373674b9367856ec1dd0",
-  "repo_snapshot_hash": "37304ab5b77ec7bd32e3251b7c00a027237d017c9021281cba4da583dc633fbb",
-  "repo_snapshot_id": "repo_snapshot_37304ab5b77ec7bd32e3251b",
+  "repo_dependency_graph_id": "repo_dependency_graph_a54debd5c552372cdea97e74",
+  "repo_snapshot_hash": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+  "repo_snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
   "schema": "repo_dependency_graph@1",
   "snapshot_validity_posture": "snapshot_bound_current",
   "source_set": [
@@ -2192,5 +2192,5 @@
     "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
     "packages/adeu_repo_description/src/adeu_repo_description/models.py"
   ],
-  "source_set_hash": "37304ab5b77ec7bd32e3251b7c00a027237d017c9021281cba4da583dc633fbb"
+  "source_set_hash": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab"
 }

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import tempfile
+from contextlib import contextmanager
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -46,6 +48,20 @@ def _schema_validator(schema_filename: str) -> Draft202012Validator:
     )
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema)
+
+
+@contextmanager
+def _write_repo_temp_source(
+    *,
+    relative_path: str,
+    source_text: str,
+) -> Any:
+    with tempfile.TemporaryDirectory(dir=_repo_root()) as tmpdir:
+        temp_root = Path(tmpdir)
+        source_path = temp_root / relative_path
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        source_path.write_text(source_text, encoding="utf-8")
+        yield source_path.relative_to(_repo_root()).as_posix()
 
 
 def test_v101_reference_symbol_catalog_and_dependency_graph_replay_and_validate() -> None:
@@ -162,3 +178,87 @@ def test_v101_rejects_pair_with_mismatched_snapshot_source_identity() -> None:
             symbol_catalog_payload=payload["symbol_catalog"],
             dependency_graph_payload=payload["dependency_graph"],
         )
+
+
+def test_v45b_collects_unpacking_targets_and_control_flow_symbols() -> None:
+    source_text = """
+if FLAG:
+    x, (y, z) = value
+    class Inner:
+        pass
+else:
+    def fallback():
+        return None
+"""
+    with _write_repo_temp_source(
+        relative_path="tmp_v45b_case/src/test_pkg/sample.py",
+        source_text=source_text,
+    ) as source_path:
+        catalog, _graph = derive_v45b_repo_symbol_catalog_and_dependency_graph(
+            source_paths=[source_path]
+        )
+
+    qualnames = {entry["qualname"] for entry in catalog["symbol_entries"]}
+    assert {"__module__", "Inner", "fallback", "x", "y", "z"} <= qualnames
+
+
+def test_v45b_collects_nested_control_flow_imports() -> None:
+    source_text = """
+if ENABLE_JSON:
+    import json
+"""
+    with _write_repo_temp_source(
+        relative_path="tmp_v45b_case/src/test_pkg/imports.py",
+        source_text=source_text,
+    ) as source_path:
+        _catalog, graph = derive_v45b_repo_symbol_catalog_and_dependency_graph(
+            source_paths=[source_path]
+        )
+
+    assert any(
+        edge["dependency_kind"] == "module_import" and edge["to_ref"] == "external:json"
+        for edge in graph["dependency_edges"]
+    )
+
+
+def test_v45b_rejects_duplicate_normalized_module_import_paths() -> None:
+    with tempfile.TemporaryDirectory(dir=_repo_root()) as tmpdir:
+        temp_root = Path(tmpdir)
+        first = temp_root / "pkg_a" / "src" / "dup_pkg" / "mod.py"
+        second = temp_root / "pkg_b" / "src" / "dup_pkg" / "mod.py"
+        first.parent.mkdir(parents=True, exist_ok=True)
+        second.parent.mkdir(parents=True, exist_ok=True)
+        first.write_text("VALUE = 1\n", encoding="utf-8")
+        second.write_text("VALUE = 2\n", encoding="utf-8")
+        source_paths = [
+            first.relative_to(_repo_root()).as_posix(),
+            second.relative_to(_repo_root()).as_posix(),
+        ]
+
+        with pytest.raises(
+            ValueError,
+            match="source_paths must not normalize to duplicate module import paths: dup_pkg.mod",
+        ):
+            derive_v45b_repo_symbol_catalog_and_dependency_graph(source_paths=source_paths)
+
+
+def test_v45b_external_dotted_refs_do_not_duplicate_segments() -> None:
+    source_text = """
+import external_pkg.submod
+
+class Derived(external_pkg.submod.Base):
+    pass
+"""
+    with _write_repo_temp_source(
+        relative_path="tmp_v45b_case/src/test_pkg/external_refs.py",
+        source_text=source_text,
+    ) as source_path:
+        _catalog, graph = derive_v45b_repo_symbol_catalog_and_dependency_graph(
+            source_paths=[source_path]
+        )
+
+    inheritance_edges = [
+        edge for edge in graph["dependency_edges"] if edge["dependency_kind"] == "inheritance"
+    ]
+    assert len(inheritance_edges) == 1
+    assert inheritance_edges[0]["to_ref"] == "external:external_pkg.submod.Base"

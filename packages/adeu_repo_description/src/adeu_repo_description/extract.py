@@ -299,16 +299,28 @@ def _qualname_join(parent: str | None, name: str) -> str:
     return f"{parent}.{name}"
 
 
+def _assignment_target_names_from_target(target: ast.expr) -> set[str]:
+    if isinstance(target, ast.Name):
+        return {target.id}
+    if isinstance(target, (ast.Tuple, ast.List)):
+        names: set[str] = set()
+        for element in target.elts:
+            names.update(_assignment_target_names_from_target(element))
+        return names
+    if isinstance(target, ast.Starred):
+        return _assignment_target_names_from_target(target.value)
+    return set()
+
+
 def _assignment_target_names(node: ast.Assign | ast.AnnAssign) -> list[str]:
-    targets: list[str] = []
+    targets: set[str] = set()
     if isinstance(node, ast.Assign):
         raw_targets = node.targets
     else:
         raw_targets = [node.target]
     for target in raw_targets:
-        if isinstance(target, ast.Name):
-            targets.append(target.id)
-    return sorted(set(targets))
+        targets.update(_assignment_target_names_from_target(target))
+    return sorted(targets)
 
 
 def _symbol_role_method_for_node(node: ast.AST) -> str:
@@ -334,6 +346,18 @@ def _expr_to_dotted_name(node: ast.AST) -> str | None:
     return None
 
 
+def _nested_statement_bodies(node: ast.stmt) -> list[list[ast.stmt]]:
+    if isinstance(node, (ast.If, ast.For, ast.AsyncFor, ast.While, ast.With, ast.AsyncWith)):
+        return [body for body in (node.body, node.orelse) if body]
+    if isinstance(node, ast.Try):
+        bodies = [node.body, node.orelse, node.finalbody]
+        bodies.extend(handler.body for handler in node.handlers)
+        return [body for body in bodies if body]
+    if isinstance(node, ast.Match):
+        return [case.body for case in node.cases if case.body]
+    return []
+
+
 def _repo_out_of_scope_module(module_import_path: str) -> bool:
     root = module_import_path.split(".", 1)[0]
     return root.startswith("adeu_") or root.startswith("urm_")
@@ -348,6 +372,19 @@ def _classify_external_target(module_or_symbol: str) -> tuple[str, str]:
 def _edge_id_for_payload(payload: dict[str, Any]) -> str:
     digest = sha256_canonical_json(payload)
     return f"edge_{digest[:24]}"
+
+
+def _merge_external_dependency_suffix(*, endpoint_ref: str, rest: list[str]) -> str:
+    prefix, suffix = endpoint_ref.split(":", 1)
+    suffix_parts = suffix.split(".")
+    overlap = 0
+    max_overlap = min(len(suffix_parts), len(rest))
+    for size in range(max_overlap, 0, -1):
+        if suffix_parts[-size:] == rest[:size]:
+            overlap = size
+            break
+    merged_parts = suffix_parts + rest[overlap:]
+    return f"{prefix}:{'.'.join(merged_parts)}"
 
 
 def _extract_json_blocks(text: str) -> list[dict[str, Any]]:
@@ -760,6 +797,8 @@ def _collect_v45b_symbol_entries(
                 for name in _assignment_target_names(node):
                     qualname = _qualname_join(parent_qualname, name)
                     add_symbol(qualname=qualname, symbol_kind="attribute", method="ast_signature")
+            for nested_body in _nested_statement_bodies(node):
+                visit_body(nested_body, parent_qualname=parent_qualname)
 
     visit_body(tree.body)
     return sorted(entries, key=lambda row: row["symbol_id"]), class_nodes
@@ -842,9 +881,11 @@ def _resolve_dotted_dependency_target(
             if candidate is not None:
                 return "internal_symbol", candidate, "internal_resolved"
             return endpoint_kind, endpoint_ref, dependency_posture
-        prefix = "external:" if dependency_posture == "boundary_external" else "out_of_scope:"
-        suffix = endpoint_ref[len(prefix) :]
-        return "external_dependency", f"{prefix}{suffix}.{'.'.join(rest)}", dependency_posture
+        return (
+            "external_dependency",
+            _merge_external_dependency_suffix(endpoint_ref=endpoint_ref, rest=rest),
+            dependency_posture,
+        )
     return _symbol_endpoint_info(
         module_import_path=current_module_import_path,
         symbol_name=dotted_name,
@@ -881,6 +922,12 @@ def derive_v45b_repo_symbol_catalog_and_dependency_graph(
         source_hashes[source_path] = sha256_canonical_json({"text": text})
         tree = ast.parse(text, filename=source_path)
         module_import_path = _module_import_path_for_source_path(source_path)
+        existing_source_path = module_to_source_path.get(module_import_path)
+        if existing_source_path is not None and existing_source_path != source_path:
+            raise ValueError(
+                "source_paths must not normalize to duplicate module import paths: "
+                f"{module_import_path}"
+            )
         parsed_modules[source_path] = {
             "tree": tree,
             "module_import_path": module_import_path,
@@ -927,48 +974,67 @@ def derive_v45b_repo_symbol_catalog_and_dependency_graph(
         evidence_ref = f"evidence:source:{source_path}"
         alias_map: dict[str, tuple[str, str, str]] = {}
 
-        for node in tree.body:
-            if isinstance(node, ast.Import):
-                for alias in sorted(node.names, key=lambda item: item.asname or item.name):
-                    endpoint_kind, endpoint_ref, dependency_posture = _module_endpoint_info(
-                        module_import_path=alias.name,
-                        module_to_source_path=module_to_source_path,
-                    )
-                    local_name = alias.asname or alias.name.split(".", 1)[0]
-                    alias_map[local_name] = (endpoint_kind, endpoint_ref, dependency_posture)
-                    payload = {
-                        "from_ref_kind": "internal_module_boundary",
-                        "from_ref": module_boundary_ref,
-                        "to_ref_kind": endpoint_kind,
-                        "to_ref": endpoint_ref,
-                        "dependency_kind": "module_import",
-                        "dependency_posture": dependency_posture,
-                        "derivation_posture": "derived_deterministically",
-                        "derivation_method": "ast_parse",
-                        "source_artifact_refs": [source_path],
-                        "supporting_evidence_refs": [evidence_ref],
-                    }
-                    edge_id = _edge_id_for_payload(payload)
-                    if edge_id not in seen_edge_ids:
-                        seen_edge_ids.add(edge_id)
-                        dependency_edges.append({"edge_id": edge_id, **payload})
-            elif isinstance(node, ast.ImportFrom):
-                resolved_module = _resolve_import_from_module(
-                    source_path=source_path,
-                    module=node.module,
-                    level=node.level,
-                )
-                if resolved_module == "__future__":
-                    continue
-                for alias in sorted(node.names, key=lambda item: item.asname or item.name):
-                    local_name = alias.asname or alias.name
-                    if node.module is None and alias.name != "*":
-                        candidate_module = (
-                            f"{resolved_module}.{alias.name}" if resolved_module else alias.name
+        def visit_dependency_body(body: list[ast.stmt]) -> None:
+            for node in body:
+                if isinstance(node, ast.Import):
+                    for alias in sorted(node.names, key=lambda item: item.asname or item.name):
+                        endpoint_kind, endpoint_ref, dependency_posture = _module_endpoint_info(
+                            module_import_path=alias.name,
+                            module_to_source_path=module_to_source_path,
                         )
-                        if candidate_module in module_to_source_path:
+                        local_name = alias.asname or alias.name.split(".", 1)[0]
+                        alias_map[local_name] = (endpoint_kind, endpoint_ref, dependency_posture)
+                        payload = {
+                            "from_ref_kind": "internal_module_boundary",
+                            "from_ref": module_boundary_ref,
+                            "to_ref_kind": endpoint_kind,
+                            "to_ref": endpoint_ref,
+                            "dependency_kind": "module_import",
+                            "dependency_posture": dependency_posture,
+                            "derivation_posture": "derived_deterministically",
+                            "derivation_method": "ast_parse",
+                            "source_artifact_refs": [source_path],
+                            "supporting_evidence_refs": [evidence_ref],
+                        }
+                        edge_id = _edge_id_for_payload(payload)
+                        if edge_id not in seen_edge_ids:
+                            seen_edge_ids.add(edge_id)
+                            dependency_edges.append({"edge_id": edge_id, **payload})
+                elif isinstance(node, ast.ImportFrom):
+                    resolved_module = _resolve_import_from_module(
+                        source_path=source_path,
+                        module=node.module,
+                        level=node.level,
+                    )
+                    if resolved_module == "__future__":
+                        continue
+                    for alias in sorted(node.names, key=lambda item: item.asname or item.name):
+                        local_name = alias.asname or alias.name
+                        if node.module is None and alias.name != "*":
+                            candidate_module = (
+                                f"{resolved_module}.{alias.name}" if resolved_module else alias.name
+                            )
+                            if candidate_module in module_to_source_path:
+                                endpoint_kind, endpoint_ref, dependency_posture = (
+                                    _module_endpoint_info(
+                                        module_import_path=candidate_module,
+                                        module_to_source_path=module_to_source_path,
+                                    )
+                                )
+                                dependency_kind = "module_import"
+                            else:
+                                endpoint_kind, endpoint_ref, dependency_posture = (
+                                    _symbol_endpoint_info(
+                                        module_import_path=resolved_module,
+                                        symbol_name=alias.name,
+                                        top_level_symbol_index=top_level_symbol_index,
+                                        module_to_source_path=module_to_source_path,
+                                    )
+                                )
+                                dependency_kind = "symbol_reference"
+                        elif alias.name == "*":
                             endpoint_kind, endpoint_ref, dependency_posture = _module_endpoint_info(
-                                module_import_path=candidate_module,
+                                module_import_path=resolved_module,
                                 module_to_source_path=module_to_source_path,
                             )
                             dependency_kind = "module_import"
@@ -980,37 +1046,27 @@ def derive_v45b_repo_symbol_catalog_and_dependency_graph(
                                 module_to_source_path=module_to_source_path,
                             )
                             dependency_kind = "symbol_reference"
-                    elif alias.name == "*":
-                        endpoint_kind, endpoint_ref, dependency_posture = _module_endpoint_info(
-                            module_import_path=resolved_module,
-                            module_to_source_path=module_to_source_path,
-                        )
-                        dependency_kind = "module_import"
-                    else:
-                        endpoint_kind, endpoint_ref, dependency_posture = _symbol_endpoint_info(
-                            module_import_path=resolved_module,
-                            symbol_name=alias.name,
-                            top_level_symbol_index=top_level_symbol_index,
-                            module_to_source_path=module_to_source_path,
-                        )
-                        dependency_kind = "symbol_reference"
-                    alias_map[local_name] = (endpoint_kind, endpoint_ref, dependency_posture)
-                    payload = {
-                        "from_ref_kind": "internal_module_boundary",
-                        "from_ref": module_boundary_ref,
-                        "to_ref_kind": endpoint_kind,
-                        "to_ref": endpoint_ref,
-                        "dependency_kind": dependency_kind,
-                        "dependency_posture": dependency_posture,
-                        "derivation_posture": "derived_deterministically",
-                        "derivation_method": "ast_parse",
-                        "source_artifact_refs": [source_path],
-                        "supporting_evidence_refs": [evidence_ref],
-                    }
-                    edge_id = _edge_id_for_payload(payload)
-                    if edge_id not in seen_edge_ids:
-                        seen_edge_ids.add(edge_id)
-                        dependency_edges.append({"edge_id": edge_id, **payload})
+                        alias_map[local_name] = (endpoint_kind, endpoint_ref, dependency_posture)
+                        payload = {
+                            "from_ref_kind": "internal_module_boundary",
+                            "from_ref": module_boundary_ref,
+                            "to_ref_kind": endpoint_kind,
+                            "to_ref": endpoint_ref,
+                            "dependency_kind": dependency_kind,
+                            "dependency_posture": dependency_posture,
+                            "derivation_posture": "derived_deterministically",
+                            "derivation_method": "ast_parse",
+                            "source_artifact_refs": [source_path],
+                            "supporting_evidence_refs": [evidence_ref],
+                        }
+                        edge_id = _edge_id_for_payload(payload)
+                        if edge_id not in seen_edge_ids:
+                            seen_edge_ids.add(edge_id)
+                            dependency_edges.append({"edge_id": edge_id, **payload})
+                for nested_body in _nested_statement_bodies(node):
+                    visit_dependency_body(nested_body)
+
+        visit_dependency_body(tree.body)
 
         for class_qualname, class_node in class_nodes_by_source[source_path]:
             from_ref = compute_symbol_id(
