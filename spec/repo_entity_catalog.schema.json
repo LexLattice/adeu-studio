@@ -1,0 +1,192 @@
+{
+  "$defs": {
+    "RepoDescriptionEvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "enum": [
+            "observed_anchor_tuple_evidence",
+            "structural_signature_evidence",
+            "semantic_function_cue_evidence",
+            "governance_cue_evidence",
+            "lexical_cue_evidence",
+            "adjudication_artifact_evidence",
+            "reconstruction_subset_evidence"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_ref": {
+          "title": "Evidence Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "evidence_kind"
+      ],
+      "title": "RepoDescriptionEvidenceRef",
+      "type": "object"
+    },
+    "RepoEntityCatalogEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudicator_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adjudicator Ref"
+        },
+        "classification_method": {
+          "enum": [
+            "structural_signature",
+            "semantic_function",
+            "governance_role",
+            "lexical_naming",
+            "adjudicated_policy"
+          ],
+          "title": "Classification Method",
+          "type": "string"
+        },
+        "classification_posture": {
+          "enum": [
+            "observed",
+            "derived_deterministically",
+            "inferred_heuristically",
+            "adjudicated",
+            "settled"
+          ],
+          "title": "Classification Posture",
+          "type": "string"
+        },
+        "derivation_posture": {
+          "title": "Derivation Posture",
+          "type": "string"
+        },
+        "entity_ref": {
+          "title": "Entity Ref",
+          "type": "string"
+        },
+        "governance_posture": {
+          "title": "Governance Posture",
+          "type": "string"
+        },
+        "mutation_posture": {
+          "title": "Mutation Posture",
+          "type": "string"
+        },
+        "semantic_role": {
+          "title": "Semantic Role",
+          "type": "string"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        },
+        "surface_kind": {
+          "title": "Surface Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_ref",
+        "surface_kind",
+        "semantic_role",
+        "governance_posture",
+        "derivation_posture",
+        "mutation_posture",
+        "classification_posture",
+        "classification_method",
+        "supporting_evidence_refs"
+      ],
+      "title": "RepoEntityCatalogEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "catalog_scope": {
+      "title": "Catalog Scope",
+      "type": "string"
+    },
+    "classification_policy_hash": {
+      "title": "Classification Policy Hash",
+      "type": "string"
+    },
+    "classification_policy_ref": {
+      "title": "Classification Policy Ref",
+      "type": "string"
+    },
+    "entities": {
+      "items": {
+        "$ref": "#/$defs/RepoEntityCatalogEntry"
+      },
+      "minItems": 1,
+      "title": "Entities",
+      "type": "array"
+    },
+    "entity_coverage_mode": {
+      "const": "bounded_schema_visible_slice",
+      "default": "bounded_schema_visible_slice",
+      "title": "Entity Coverage Mode",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/RepoDescriptionEvidenceRef"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "repo_entity_catalog_id": {
+      "title": "Repo Entity Catalog Id",
+      "type": "string"
+    },
+    "repo_snapshot_hash": {
+      "title": "Repo Snapshot Hash",
+      "type": "string"
+    },
+    "repo_snapshot_id": {
+      "title": "Repo Snapshot Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_entity_catalog@1",
+      "default": "repo_entity_catalog@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "snapshot_validity_posture": {
+      "enum": [
+        "snapshot_bound_current",
+        "snapshot_bound_historical"
+      ],
+      "title": "Snapshot Validity Posture",
+      "type": "string"
+    }
+  },
+  "required": [
+    "repo_entity_catalog_id",
+    "repo_snapshot_id",
+    "repo_snapshot_hash",
+    "snapshot_validity_posture",
+    "catalog_scope",
+    "classification_policy_ref",
+    "classification_policy_hash",
+    "entities",
+    "evidence_refs"
+  ],
+  "title": "RepoEntityCatalog",
+  "type": "object"
+}

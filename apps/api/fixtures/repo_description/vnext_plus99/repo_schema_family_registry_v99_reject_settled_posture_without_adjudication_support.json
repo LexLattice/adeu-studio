@@ -1,0 +1,4574 @@
+{
+  "classification_policy_hash": "6b55833c30f7628c0c623ba6b9c8d0a798d5b1e39c0e572b5118804b36ab9f8c",
+  "classification_policy_ref": "docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md#v45a-role-form-classification-policy",
+  "evidence_refs": [
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:adeu.validator_result:anchor"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:adeu.validator_result:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:adeu.validator_result:reconstruction"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:adeu_arc_task_packet:anchor"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:adeu_arc_task_packet:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:adeu_arc_task_packet:reconstruction"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:adeu_arc_task_packet:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:anchor"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:reconstruction"
+    },
+    {
+      "evidence_kind": "semantic_function_cue_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:semantic"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:adeu_core_ir:anchor"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:adeu_core_ir:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:adeu_core_ir:reconstruction"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:adeu_core_ir:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:anchor"
+    },
+    {
+      "evidence_kind": "governance_cue_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:governance"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:reconstruction"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:policy_registry:anchor"
+    },
+    {
+      "evidence_kind": "governance_cue_evidence",
+      "evidence_ref": "evidence:policy_registry:governance"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:policy_registry:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:policy_registry:reconstruction"
+    },
+    {
+      "evidence_kind": "semantic_function_cue_evidence",
+      "evidence_ref": "evidence:policy_registry:semantic"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:policy_registry:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:anchor"
+    },
+    {
+      "evidence_kind": "governance_cue_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:governance"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:reconstruction"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:structural"
+    }
+  ],
+  "reconstruction_equivalence_mode": "canonical_normalized_semantic_equivalence",
+  "reconstruction_subset": [
+    {
+      "evidence_refs": [
+        "evidence:adeu.validator_result:anchor",
+        "evidence:adeu.validator_result:reconstruction"
+      ],
+      "reconstructed_schema_definition": {
+        "$defs": {
+          "SolverEvidence": {
+            "additionalProperties": false,
+            "properties": {
+              "error": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Error"
+              },
+              "model": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "title": "Model",
+                "type": "object"
+              },
+              "stats": {
+                "additionalProperties": true,
+                "title": "Stats",
+                "type": "object"
+              },
+              "unsat_core": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Unsat Core",
+                "type": "array"
+              }
+            },
+            "title": "SolverEvidence",
+            "type": "object"
+          },
+          "ValidatorAtomRef": {
+            "additionalProperties": false,
+            "properties": {
+              "assertion_name": {
+                "title": "Assertion Name",
+                "type": "string"
+              },
+              "json_path": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Json Path"
+              },
+              "object_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Object Id"
+              }
+            },
+            "required": [
+              "assertion_name"
+            ],
+            "title": "ValidatorAtomRef",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "assurance": {
+            "enum": [
+              "kernel_only",
+              "solver_backed",
+              "proof_checked"
+            ],
+            "title": "Assurance",
+            "type": "string"
+          },
+          "backend": {
+            "enum": [
+              "z3",
+              "lean",
+              "mock"
+            ],
+            "title": "Backend",
+            "type": "string"
+          },
+          "backend_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Backend Version"
+          },
+          "evidence": {
+            "$ref": "#/$defs/SolverEvidence"
+          },
+          "formula_hash": {
+            "title": "Formula Hash",
+            "type": "string"
+          },
+          "options": {
+            "additionalProperties": true,
+            "title": "Options",
+            "type": "object"
+          },
+          "request_hash": {
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "SAT",
+              "UNSAT",
+              "UNKNOWN",
+              "TIMEOUT",
+              "INVALID_REQUEST",
+              "ERROR"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "timeout_ms": {
+            "minimum": 0,
+            "title": "Timeout Ms",
+            "type": "integer"
+          },
+          "trace": {
+            "items": {
+              "$ref": "#/$defs/ValidatorAtomRef"
+            },
+            "title": "Trace",
+            "type": "array"
+          }
+        },
+        "required": [
+          "status",
+          "assurance",
+          "backend",
+          "timeout_ms",
+          "request_hash",
+          "formula_hash"
+        ],
+        "title": "ValidatorResult",
+        "type": "object"
+      },
+      "schema_key": "adeu.validator_result",
+      "source_schema_definition": {
+        "$defs": {
+          "SolverEvidence": {
+            "additionalProperties": false,
+            "properties": {
+              "error": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Error"
+              },
+              "model": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "title": "Model",
+                "type": "object"
+              },
+              "stats": {
+                "additionalProperties": true,
+                "title": "Stats",
+                "type": "object"
+              },
+              "unsat_core": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Unsat Core",
+                "type": "array"
+              }
+            },
+            "title": "SolverEvidence",
+            "type": "object"
+          },
+          "ValidatorAtomRef": {
+            "additionalProperties": false,
+            "properties": {
+              "assertion_name": {
+                "title": "Assertion Name",
+                "type": "string"
+              },
+              "json_path": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Json Path"
+              },
+              "object_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Object Id"
+              }
+            },
+            "required": [
+              "assertion_name"
+            ],
+            "title": "ValidatorAtomRef",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "assurance": {
+            "enum": [
+              "kernel_only",
+              "solver_backed",
+              "proof_checked"
+            ],
+            "title": "Assurance",
+            "type": "string"
+          },
+          "backend": {
+            "enum": [
+              "z3",
+              "lean",
+              "mock"
+            ],
+            "title": "Backend",
+            "type": "string"
+          },
+          "backend_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Backend Version"
+          },
+          "evidence": {
+            "$ref": "#/$defs/SolverEvidence"
+          },
+          "formula_hash": {
+            "title": "Formula Hash",
+            "type": "string"
+          },
+          "options": {
+            "additionalProperties": true,
+            "title": "Options",
+            "type": "object"
+          },
+          "request_hash": {
+            "title": "Request Hash",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "SAT",
+              "UNSAT",
+              "UNKNOWN",
+              "TIMEOUT",
+              "INVALID_REQUEST",
+              "ERROR"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "timeout_ms": {
+            "minimum": 0,
+            "title": "Timeout Ms",
+            "type": "integer"
+          },
+          "trace": {
+            "items": {
+              "$ref": "#/$defs/ValidatorAtomRef"
+            },
+            "title": "Trace",
+            "type": "array"
+          }
+        },
+        "required": [
+          "status",
+          "assurance",
+          "backend",
+          "timeout_ms",
+          "request_hash",
+          "formula_hash"
+        ],
+        "title": "ValidatorResult",
+        "type": "object"
+      }
+    },
+    {
+      "evidence_refs": [
+        "evidence:adeu_arc_task_packet:anchor",
+        "evidence:adeu_arc_task_packet:reconstruction"
+      ],
+      "reconstructed_schema_definition": {
+        "$defs": {
+          "ArcAdapterBoundaryPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "competition_mode_allowed": {
+                "default": false,
+                "title": "Competition Mode Allowed",
+                "type": "boolean"
+              },
+              "environment_semantics_redefinition_allowed": {
+                "default": false,
+                "title": "Environment Semantics Redefinition Allowed",
+                "type": "boolean"
+              },
+              "local_offline_only": {
+                "default": true,
+                "title": "Local Offline Only",
+                "type": "boolean"
+              },
+              "observation_hypothesis_action_allowed": {
+                "default": false,
+                "title": "Observation Hypothesis Action Allowed",
+                "type": "boolean"
+              },
+              "policy_semantics": {
+                "const": "deontic_admissibility_only",
+                "default": "deontic_admissibility_only",
+                "title": "Policy Semantics",
+                "type": "string"
+              },
+              "replay_authority_allowed": {
+                "default": false,
+                "title": "Replay Authority Allowed",
+                "type": "boolean"
+              },
+              "scorecard_authority_allowed": {
+                "default": false,
+                "title": "Scorecard Authority Allowed",
+                "type": "boolean"
+              }
+            },
+            "title": "ArcAdapterBoundaryPolicy",
+            "type": "object"
+          },
+          "ArcLegalActionEnvelopeProvenance": {
+            "additionalProperties": false,
+            "properties": {
+              "dropped_actions": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Dropped Actions",
+                "type": "array"
+              },
+              "normalization_kind": {
+                "enum": [
+                  "identity",
+                  "subset"
+                ],
+                "title": "Normalization Kind",
+                "type": "string"
+              },
+              "source": {
+                "const": "toolkit_mirror",
+                "default": "toolkit_mirror",
+                "title": "Source",
+                "type": "string"
+              },
+              "toolkit_envelope_hash": {
+                "title": "Toolkit Envelope Hash",
+                "type": "string"
+              }
+            },
+            "required": [
+              "toolkit_envelope_hash",
+              "normalization_kind"
+            ],
+            "title": "ArcLegalActionEnvelopeProvenance",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "adapter": {
+            "title": "Adapter",
+            "type": "string"
+          },
+          "adapter_boundary_policy": {
+            "$ref": "#/$defs/ArcAdapterBoundaryPolicy"
+          },
+          "environment_authority": {
+            "const": "official_arc_toolkit",
+            "default": "official_arc_toolkit",
+            "title": "Environment Authority",
+            "type": "string"
+          },
+          "game_ref": {
+            "title": "Game Ref",
+            "type": "string"
+          },
+          "initial_state_hash": {
+            "title": "Initial State Hash",
+            "type": "string"
+          },
+          "initial_state_ref": {
+            "title": "Initial State Ref",
+            "type": "string"
+          },
+          "legal_action_envelope": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Legal Action Envelope",
+            "type": "array"
+          },
+          "legal_action_envelope_provenance": {
+            "$ref": "#/$defs/ArcLegalActionEnvelopeProvenance"
+          },
+          "mode_posture": {
+            "const": "local_offline",
+            "default": "local_offline",
+            "title": "Mode Posture",
+            "type": "string"
+          },
+          "schema": {
+            "const": "adeu_arc_task_packet@1",
+            "default": "adeu_arc_task_packet@1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "session_ref": {
+            "title": "Session Ref",
+            "type": "string"
+          },
+          "task_packet_id": {
+            "title": "Task Packet Id",
+            "type": "string"
+          },
+          "toolkit_legal_action_envelope": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Toolkit Legal Action Envelope",
+            "type": "array"
+          }
+        },
+        "required": [
+          "task_packet_id",
+          "adapter",
+          "game_ref",
+          "session_ref",
+          "initial_state_ref",
+          "initial_state_hash",
+          "toolkit_legal_action_envelope",
+          "legal_action_envelope",
+          "legal_action_envelope_provenance",
+          "adapter_boundary_policy"
+        ],
+        "title": "AdeuArcTaskPacket",
+        "type": "object"
+      },
+      "schema_key": "adeu_arc_task_packet",
+      "source_schema_definition": {
+        "$defs": {
+          "ArcAdapterBoundaryPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "competition_mode_allowed": {
+                "default": false,
+                "title": "Competition Mode Allowed",
+                "type": "boolean"
+              },
+              "environment_semantics_redefinition_allowed": {
+                "default": false,
+                "title": "Environment Semantics Redefinition Allowed",
+                "type": "boolean"
+              },
+              "local_offline_only": {
+                "default": true,
+                "title": "Local Offline Only",
+                "type": "boolean"
+              },
+              "observation_hypothesis_action_allowed": {
+                "default": false,
+                "title": "Observation Hypothesis Action Allowed",
+                "type": "boolean"
+              },
+              "policy_semantics": {
+                "const": "deontic_admissibility_only",
+                "default": "deontic_admissibility_only",
+                "title": "Policy Semantics",
+                "type": "string"
+              },
+              "replay_authority_allowed": {
+                "default": false,
+                "title": "Replay Authority Allowed",
+                "type": "boolean"
+              },
+              "scorecard_authority_allowed": {
+                "default": false,
+                "title": "Scorecard Authority Allowed",
+                "type": "boolean"
+              }
+            },
+            "title": "ArcAdapterBoundaryPolicy",
+            "type": "object"
+          },
+          "ArcLegalActionEnvelopeProvenance": {
+            "additionalProperties": false,
+            "properties": {
+              "dropped_actions": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Dropped Actions",
+                "type": "array"
+              },
+              "normalization_kind": {
+                "enum": [
+                  "identity",
+                  "subset"
+                ],
+                "title": "Normalization Kind",
+                "type": "string"
+              },
+              "source": {
+                "const": "toolkit_mirror",
+                "default": "toolkit_mirror",
+                "title": "Source",
+                "type": "string"
+              },
+              "toolkit_envelope_hash": {
+                "title": "Toolkit Envelope Hash",
+                "type": "string"
+              }
+            },
+            "required": [
+              "toolkit_envelope_hash",
+              "normalization_kind"
+            ],
+            "title": "ArcLegalActionEnvelopeProvenance",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "adapter": {
+            "title": "Adapter",
+            "type": "string"
+          },
+          "adapter_boundary_policy": {
+            "$ref": "#/$defs/ArcAdapterBoundaryPolicy"
+          },
+          "environment_authority": {
+            "const": "official_arc_toolkit",
+            "default": "official_arc_toolkit",
+            "title": "Environment Authority",
+            "type": "string"
+          },
+          "game_ref": {
+            "title": "Game Ref",
+            "type": "string"
+          },
+          "initial_state_hash": {
+            "title": "Initial State Hash",
+            "type": "string"
+          },
+          "initial_state_ref": {
+            "title": "Initial State Ref",
+            "type": "string"
+          },
+          "legal_action_envelope": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Legal Action Envelope",
+            "type": "array"
+          },
+          "legal_action_envelope_provenance": {
+            "$ref": "#/$defs/ArcLegalActionEnvelopeProvenance"
+          },
+          "mode_posture": {
+            "const": "local_offline",
+            "default": "local_offline",
+            "title": "Mode Posture",
+            "type": "string"
+          },
+          "schema": {
+            "const": "adeu_arc_task_packet@1",
+            "default": "adeu_arc_task_packet@1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "session_ref": {
+            "title": "Session Ref",
+            "type": "string"
+          },
+          "task_packet_id": {
+            "title": "Task Packet Id",
+            "type": "string"
+          },
+          "toolkit_legal_action_envelope": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Toolkit Legal Action Envelope",
+            "type": "array"
+          }
+        },
+        "required": [
+          "task_packet_id",
+          "adapter",
+          "game_ref",
+          "session_ref",
+          "initial_state_ref",
+          "initial_state_hash",
+          "toolkit_legal_action_envelope",
+          "legal_action_envelope",
+          "legal_action_envelope_provenance",
+          "adapter_boundary_policy"
+        ],
+        "title": "AdeuArcTaskPacket",
+        "type": "object"
+      }
+    },
+    {
+      "evidence_refs": [
+        "evidence:adeu_architecture_analysis_request:anchor",
+        "evidence:adeu_architecture_analysis_request:reconstruction"
+      ],
+      "reconstructed_schema_definition": {
+        "$defs": {
+          "AnalysisRequestScope": {
+            "additionalProperties": false,
+            "properties": {
+              "allowed_artifact_kinds": {
+                "items": {
+                  "enum": [
+                    "documentation",
+                    "source_code",
+                    "configuration",
+                    "test"
+                  ],
+                  "type": "string"
+                },
+                "title": "Allowed Artifact Kinds",
+                "type": "array"
+              },
+              "exclude_paths": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Exclude Paths",
+                "type": "array"
+              },
+              "include_paths": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Include Paths",
+                "type": "array"
+              },
+              "subtree_root": {
+                "title": "Subtree Root",
+                "type": "string"
+              }
+            },
+            "required": [
+              "subtree_root",
+              "allowed_artifact_kinds"
+            ],
+            "title": "AnalysisRequestScope",
+            "type": "object"
+          },
+          "AnalysisSnapshotIdentity": {
+            "additionalProperties": false,
+            "properties": {
+              "commit_sha": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Commit Sha"
+              },
+              "snapshot_manifest_hash": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Snapshot Manifest Hash"
+              },
+              "snapshot_manifest_ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Snapshot Manifest Ref"
+              },
+              "tree_sha": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tree Sha"
+              }
+            },
+            "title": "AnalysisSnapshotIdentity",
+            "type": "object"
+          },
+          "ArchitectureAnalysisSourceItem": {
+            "additionalProperties": false,
+            "properties": {
+              "artifact_kind": {
+                "enum": [
+                  "documentation",
+                  "source_code",
+                  "configuration",
+                  "test"
+                ],
+                "title": "Artifact Kind",
+                "type": "string"
+              },
+              "path": {
+                "title": "Path",
+                "type": "string"
+              },
+              "sha256": {
+                "title": "Sha256",
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "artifact_kind",
+              "sha256"
+            ],
+            "title": "ArchitectureAnalysisSourceItem",
+            "type": "object"
+          },
+          "ArchitectureAnalysisSourceSet": {
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "items": {
+                  "$ref": "#/$defs/ArchitectureAnalysisSourceItem"
+                },
+                "title": "Items",
+                "type": "array"
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "title": "ArchitectureAnalysisSourceSet",
+            "type": "object"
+          },
+          "AuthorityBoundaryPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "deterministic_adjudicator_authoritative": {
+                "const": true,
+                "title": "Deterministic Adjudicator Authoritative",
+                "type": "boolean"
+              },
+              "fail_closed_on_high_impact_ambiguity": {
+                "const": true,
+                "title": "Fail Closed On High Impact Ambiguity",
+                "type": "boolean"
+              },
+              "no_direct_brief_to_codegen": {
+                "const": true,
+                "title": "No Direct Brief To Codegen",
+                "type": "boolean"
+              },
+              "oracle_output_advisory_only": {
+                "const": true,
+                "title": "Oracle Output Advisory Only",
+                "type": "boolean"
+              },
+              "projections_may_express_but_may_not_mint_authority": {
+                "const": true,
+                "title": "Projections May Express But May Not Mint Authority",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "no_direct_brief_to_codegen",
+              "projections_may_express_but_may_not_mint_authority",
+              "deterministic_adjudicator_authoritative",
+              "oracle_output_advisory_only",
+              "fail_closed_on_high_impact_ambiguity"
+            ],
+            "title": "AuthorityBoundaryPolicy",
+            "type": "object"
+          },
+          "AuthorityBoundaryPolicyPin": {
+            "additionalProperties": false,
+            "properties": {
+              "inline_policy": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/AuthorityBoundaryPolicy"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "policy_ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Policy Ref"
+              }
+            },
+            "title": "AuthorityBoundaryPolicyPin",
+            "type": "object"
+          },
+          "CapturedInput": {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "title": "Content",
+                "type": "string"
+              },
+              "content_sha256": {
+                "title": "Content Sha256",
+                "type": "string"
+              },
+              "input_kind": {
+                "enum": [
+                  "maintainer_brief",
+                  "accepted_doc"
+                ],
+                "title": "Input Kind",
+                "type": "string"
+              },
+              "input_ref": {
+                "title": "Input Ref",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              }
+            },
+            "required": [
+              "input_ref",
+              "input_kind",
+              "label",
+              "content",
+              "content_sha256"
+            ],
+            "title": "CapturedInput",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "accepted_doc_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Accepted Doc Refs",
+            "type": "array"
+          },
+          "analysis_request_id": {
+            "title": "Analysis Request Id",
+            "type": "string"
+          },
+          "authority_boundary_policy": {
+            "$ref": "#/$defs/AuthorityBoundaryPolicyPin"
+          },
+          "captured_inputs": {
+            "items": {
+              "$ref": "#/$defs/CapturedInput"
+            },
+            "title": "Captured Inputs",
+            "type": "array"
+          },
+          "declared_non_goals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Declared Non Goals",
+            "type": "array"
+          },
+          "maintainer_brief_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Maintainer Brief Refs",
+            "type": "array"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "repo_root_ref": {
+            "title": "Repo Root Ref",
+            "type": "string"
+          },
+          "request_scope": {
+            "$ref": "#/$defs/AnalysisRequestScope"
+          },
+          "schema": {
+            "const": "adeu_architecture_analysis_request@1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "settlement_frame_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Settlement Frame Ref"
+          },
+          "snapshot_identity": {
+            "$ref": "#/$defs/AnalysisSnapshotIdentity"
+          },
+          "snapshot_mode": {
+            "enum": [
+              "committed_tree",
+              "materialized_snapshot"
+            ],
+            "title": "Snapshot Mode",
+            "type": "string"
+          },
+          "source_set": {
+            "$ref": "#/$defs/ArchitectureAnalysisSourceSet"
+          },
+          "source_set_hash": {
+            "title": "Source Set Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema",
+          "analysis_request_id",
+          "repo_root_ref",
+          "request_scope",
+          "snapshot_mode",
+          "snapshot_identity",
+          "source_set",
+          "source_set_hash",
+          "maintainer_brief_refs",
+          "accepted_doc_refs",
+          "authority_boundary_policy"
+        ],
+        "title": "AdeuArchitectureAnalysisRequest",
+        "type": "object"
+      },
+      "schema_key": "adeu_architecture_analysis_request",
+      "source_schema_definition": {
+        "$defs": {
+          "AnalysisRequestScope": {
+            "additionalProperties": false,
+            "properties": {
+              "allowed_artifact_kinds": {
+                "items": {
+                  "enum": [
+                    "documentation",
+                    "source_code",
+                    "configuration",
+                    "test"
+                  ],
+                  "type": "string"
+                },
+                "title": "Allowed Artifact Kinds",
+                "type": "array"
+              },
+              "exclude_paths": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Exclude Paths",
+                "type": "array"
+              },
+              "include_paths": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Include Paths",
+                "type": "array"
+              },
+              "subtree_root": {
+                "title": "Subtree Root",
+                "type": "string"
+              }
+            },
+            "required": [
+              "subtree_root",
+              "allowed_artifact_kinds"
+            ],
+            "title": "AnalysisRequestScope",
+            "type": "object"
+          },
+          "AnalysisSnapshotIdentity": {
+            "additionalProperties": false,
+            "properties": {
+              "commit_sha": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Commit Sha"
+              },
+              "snapshot_manifest_hash": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Snapshot Manifest Hash"
+              },
+              "snapshot_manifest_ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Snapshot Manifest Ref"
+              },
+              "tree_sha": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Tree Sha"
+              }
+            },
+            "title": "AnalysisSnapshotIdentity",
+            "type": "object"
+          },
+          "ArchitectureAnalysisSourceItem": {
+            "additionalProperties": false,
+            "properties": {
+              "artifact_kind": {
+                "enum": [
+                  "documentation",
+                  "source_code",
+                  "configuration",
+                  "test"
+                ],
+                "title": "Artifact Kind",
+                "type": "string"
+              },
+              "path": {
+                "title": "Path",
+                "type": "string"
+              },
+              "sha256": {
+                "title": "Sha256",
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "artifact_kind",
+              "sha256"
+            ],
+            "title": "ArchitectureAnalysisSourceItem",
+            "type": "object"
+          },
+          "ArchitectureAnalysisSourceSet": {
+            "additionalProperties": false,
+            "properties": {
+              "items": {
+                "items": {
+                  "$ref": "#/$defs/ArchitectureAnalysisSourceItem"
+                },
+                "title": "Items",
+                "type": "array"
+              }
+            },
+            "required": [
+              "items"
+            ],
+            "title": "ArchitectureAnalysisSourceSet",
+            "type": "object"
+          },
+          "AuthorityBoundaryPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "deterministic_adjudicator_authoritative": {
+                "const": true,
+                "title": "Deterministic Adjudicator Authoritative",
+                "type": "boolean"
+              },
+              "fail_closed_on_high_impact_ambiguity": {
+                "const": true,
+                "title": "Fail Closed On High Impact Ambiguity",
+                "type": "boolean"
+              },
+              "no_direct_brief_to_codegen": {
+                "const": true,
+                "title": "No Direct Brief To Codegen",
+                "type": "boolean"
+              },
+              "oracle_output_advisory_only": {
+                "const": true,
+                "title": "Oracle Output Advisory Only",
+                "type": "boolean"
+              },
+              "projections_may_express_but_may_not_mint_authority": {
+                "const": true,
+                "title": "Projections May Express But May Not Mint Authority",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "no_direct_brief_to_codegen",
+              "projections_may_express_but_may_not_mint_authority",
+              "deterministic_adjudicator_authoritative",
+              "oracle_output_advisory_only",
+              "fail_closed_on_high_impact_ambiguity"
+            ],
+            "title": "AuthorityBoundaryPolicy",
+            "type": "object"
+          },
+          "AuthorityBoundaryPolicyPin": {
+            "additionalProperties": false,
+            "properties": {
+              "inline_policy": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/AuthorityBoundaryPolicy"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "policy_ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Policy Ref"
+              }
+            },
+            "title": "AuthorityBoundaryPolicyPin",
+            "type": "object"
+          },
+          "CapturedInput": {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "title": "Content",
+                "type": "string"
+              },
+              "content_sha256": {
+                "title": "Content Sha256",
+                "type": "string"
+              },
+              "input_kind": {
+                "enum": [
+                  "maintainer_brief",
+                  "accepted_doc"
+                ],
+                "title": "Input Kind",
+                "type": "string"
+              },
+              "input_ref": {
+                "title": "Input Ref",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              }
+            },
+            "required": [
+              "input_ref",
+              "input_kind",
+              "label",
+              "content",
+              "content_sha256"
+            ],
+            "title": "CapturedInput",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "accepted_doc_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Accepted Doc Refs",
+            "type": "array"
+          },
+          "analysis_request_id": {
+            "title": "Analysis Request Id",
+            "type": "string"
+          },
+          "authority_boundary_policy": {
+            "$ref": "#/$defs/AuthorityBoundaryPolicyPin"
+          },
+          "captured_inputs": {
+            "items": {
+              "$ref": "#/$defs/CapturedInput"
+            },
+            "title": "Captured Inputs",
+            "type": "array"
+          },
+          "declared_non_goals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Declared Non Goals",
+            "type": "array"
+          },
+          "maintainer_brief_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Maintainer Brief Refs",
+            "type": "array"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "repo_root_ref": {
+            "title": "Repo Root Ref",
+            "type": "string"
+          },
+          "request_scope": {
+            "$ref": "#/$defs/AnalysisRequestScope"
+          },
+          "schema": {
+            "const": "adeu_architecture_analysis_request@1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "settlement_frame_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Settlement Frame Ref"
+          },
+          "snapshot_identity": {
+            "$ref": "#/$defs/AnalysisSnapshotIdentity"
+          },
+          "snapshot_mode": {
+            "enum": [
+              "committed_tree",
+              "materialized_snapshot"
+            ],
+            "title": "Snapshot Mode",
+            "type": "string"
+          },
+          "source_set": {
+            "$ref": "#/$defs/ArchitectureAnalysisSourceSet"
+          },
+          "source_set_hash": {
+            "title": "Source Set Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema",
+          "analysis_request_id",
+          "repo_root_ref",
+          "request_scope",
+          "snapshot_mode",
+          "snapshot_identity",
+          "source_set",
+          "source_set_hash",
+          "maintainer_brief_refs",
+          "accepted_doc_refs",
+          "authority_boundary_policy"
+        ],
+        "title": "AdeuArchitectureAnalysisRequest",
+        "type": "object"
+      }
+    },
+    {
+      "evidence_refs": [
+        "evidence:adeu_core_ir:anchor",
+        "evidence:adeu_core_ir:reconstruction"
+      ],
+      "reconstructed_schema_definition": {
+        "$defs": {
+          "CoreDNode": {
+            "additionalProperties": false,
+            "properties": {
+              "condition": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Condition"
+              },
+              "constraint_kind": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "mechanism",
+                      "resource_limit",
+                      "invariant",
+                      "law",
+                      "assumption"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Constraint Kind"
+              },
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "PhysicalConstraint",
+                  "Norm",
+                  "Policy",
+                  "Exception"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "layer": {
+                "const": "D",
+                "default": "D",
+                "title": "Layer",
+                "type": "string"
+              },
+              "modality": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "obligatory",
+                      "forbidden",
+                      "permitted"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Modality"
+              },
+              "priority": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Priority"
+              },
+              "target": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Target"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "label"
+            ],
+            "title": "CoreDNode",
+            "type": "object"
+          },
+          "CoreENode": {
+            "additionalProperties": false,
+            "properties": {
+              "B": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "B"
+              },
+              "B_milli": {
+                "anyOf": [
+                  {
+                    "maximum": 1000,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "B Milli"
+              },
+              "R": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "R"
+              },
+              "R_milli": {
+                "anyOf": [
+                  {
+                    "maximum": 1000,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "R Milli"
+              },
+              "S": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "S"
+              },
+              "S_milli": {
+                "anyOf": [
+                  {
+                    "maximum": 1000,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "S Milli"
+              },
+              "confidence": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Confidence"
+              },
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "Claim",
+                  "Assumption",
+                  "Question",
+                  "Evidence"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "layer": {
+                "const": "E",
+                "default": "E",
+                "title": "Layer",
+                "type": "string"
+              },
+              "ledger_version": {
+                "anyOf": [
+                  {
+                    "const": "adeu.sbr.v0_1",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Ledger Version"
+              },
+              "spans": {
+                "items": {
+                  "$ref": "#/$defs/SourceSpan"
+                },
+                "title": "Spans",
+                "type": "array"
+              },
+              "text": {
+                "title": "Text",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "text"
+            ],
+            "title": "CoreENode",
+            "type": "object"
+          },
+          "CoreEdge": {
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "title": "From",
+                "type": "string"
+              },
+              "to": {
+                "title": "To",
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "about",
+                  "defines",
+                  "supports",
+                  "refutes",
+                  "depends_on",
+                  "justifies",
+                  "gates",
+                  "serves_goal",
+                  "prioritizes",
+                  "excepts"
+                ],
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "from",
+              "to"
+            ],
+            "title": "CoreEdge",
+            "type": "object"
+          },
+          "CoreONode": {
+            "additionalProperties": false,
+            "properties": {
+              "aliases": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Aliases",
+                "type": "array"
+              },
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "Entity",
+                  "Concept",
+                  "RelationType"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "layer": {
+                "const": "O",
+                "default": "O",
+                "title": "Layer",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "label"
+            ],
+            "title": "CoreONode",
+            "type": "object"
+          },
+          "CoreUNode": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "Goal",
+                  "Metric",
+                  "Preference"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "layer": {
+                "const": "U",
+                "default": "U",
+                "title": "Layer",
+                "type": "string"
+              },
+              "weight": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Weight"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "label"
+            ],
+            "title": "CoreUNode",
+            "type": "object"
+          },
+          "SourceSpan": {
+            "additionalProperties": false,
+            "properties": {
+              "end": {
+                "exclusiveMinimum": 0,
+                "title": "End",
+                "type": "integer"
+              },
+              "start": {
+                "minimum": 0,
+                "title": "Start",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ],
+            "title": "SourceSpan",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "edges": {
+            "items": {
+              "$ref": "#/$defs/CoreEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Metadata"
+          },
+          "nodes": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CoreONode"
+                },
+                {
+                  "$ref": "#/$defs/CoreENode"
+                },
+                {
+                  "$ref": "#/$defs/CoreDNode"
+                },
+                {
+                  "$ref": "#/$defs/CoreUNode"
+                }
+              ]
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "schema": {
+            "const": "adeu_core_ir@0.1",
+            "default": "adeu_core_ir@0.1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "source_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Text"
+          },
+          "source_text_hash": {
+            "title": "Source Text Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_text_hash"
+        ],
+        "title": "AdeuCoreIR",
+        "type": "object"
+      },
+      "schema_key": "adeu_core_ir",
+      "source_schema_definition": {
+        "$defs": {
+          "CoreDNode": {
+            "additionalProperties": false,
+            "properties": {
+              "condition": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Condition"
+              },
+              "constraint_kind": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "mechanism",
+                      "resource_limit",
+                      "invariant",
+                      "law",
+                      "assumption"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Constraint Kind"
+              },
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "PhysicalConstraint",
+                  "Norm",
+                  "Policy",
+                  "Exception"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "layer": {
+                "const": "D",
+                "default": "D",
+                "title": "Layer",
+                "type": "string"
+              },
+              "modality": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "obligatory",
+                      "forbidden",
+                      "permitted"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Modality"
+              },
+              "priority": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Priority"
+              },
+              "target": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Target"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "label"
+            ],
+            "title": "CoreDNode",
+            "type": "object"
+          },
+          "CoreENode": {
+            "additionalProperties": false,
+            "properties": {
+              "B": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "B"
+              },
+              "B_milli": {
+                "anyOf": [
+                  {
+                    "maximum": 1000,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "B Milli"
+              },
+              "R": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "R"
+              },
+              "R_milli": {
+                "anyOf": [
+                  {
+                    "maximum": 1000,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "R Milli"
+              },
+              "S": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "S"
+              },
+              "S_milli": {
+                "anyOf": [
+                  {
+                    "maximum": 1000,
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "S Milli"
+              },
+              "confidence": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Confidence"
+              },
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "Claim",
+                  "Assumption",
+                  "Question",
+                  "Evidence"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "layer": {
+                "const": "E",
+                "default": "E",
+                "title": "Layer",
+                "type": "string"
+              },
+              "ledger_version": {
+                "anyOf": [
+                  {
+                    "const": "adeu.sbr.v0_1",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Ledger Version"
+              },
+              "spans": {
+                "items": {
+                  "$ref": "#/$defs/SourceSpan"
+                },
+                "title": "Spans",
+                "type": "array"
+              },
+              "text": {
+                "title": "Text",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "text"
+            ],
+            "title": "CoreENode",
+            "type": "object"
+          },
+          "CoreEdge": {
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "title": "From",
+                "type": "string"
+              },
+              "to": {
+                "title": "To",
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "about",
+                  "defines",
+                  "supports",
+                  "refutes",
+                  "depends_on",
+                  "justifies",
+                  "gates",
+                  "serves_goal",
+                  "prioritizes",
+                  "excepts"
+                ],
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "from",
+              "to"
+            ],
+            "title": "CoreEdge",
+            "type": "object"
+          },
+          "CoreONode": {
+            "additionalProperties": false,
+            "properties": {
+              "aliases": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Aliases",
+                "type": "array"
+              },
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "Entity",
+                  "Concept",
+                  "RelationType"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "layer": {
+                "const": "O",
+                "default": "O",
+                "title": "Layer",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "label"
+            ],
+            "title": "CoreONode",
+            "type": "object"
+          },
+          "CoreUNode": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "Goal",
+                  "Metric",
+                  "Preference"
+                ],
+                "title": "Kind",
+                "type": "string"
+              },
+              "label": {
+                "title": "Label",
+                "type": "string"
+              },
+              "layer": {
+                "const": "U",
+                "default": "U",
+                "title": "Layer",
+                "type": "string"
+              },
+              "weight": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Weight"
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "label"
+            ],
+            "title": "CoreUNode",
+            "type": "object"
+          },
+          "SourceSpan": {
+            "additionalProperties": false,
+            "properties": {
+              "end": {
+                "exclusiveMinimum": 0,
+                "title": "End",
+                "type": "integer"
+              },
+              "start": {
+                "minimum": 0,
+                "title": "Start",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ],
+            "title": "SourceSpan",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "edges": {
+            "items": {
+              "$ref": "#/$defs/CoreEdge"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Metadata"
+          },
+          "nodes": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CoreONode"
+                },
+                {
+                  "$ref": "#/$defs/CoreENode"
+                },
+                {
+                  "$ref": "#/$defs/CoreDNode"
+                },
+                {
+                  "$ref": "#/$defs/CoreUNode"
+                }
+              ]
+            },
+            "title": "Nodes",
+            "type": "array"
+          },
+          "schema": {
+            "const": "adeu_core_ir@0.1",
+            "default": "adeu_core_ir@0.1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "source_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Text"
+          },
+          "source_text_hash": {
+            "title": "Source Text Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_text_hash"
+        ],
+        "title": "AdeuCoreIR",
+        "type": "object"
+      }
+    },
+    {
+      "evidence_refs": [
+        "evidence:meta_loop_sequence_contract:anchor",
+        "evidence:meta_loop_sequence_contract:reconstruction"
+      ],
+      "reconstructed_schema_definition": {
+        "$defs": {
+          "MetaLoopBranchCondition": {
+            "additionalProperties": false,
+            "properties": {
+              "branch_condition_id": {
+                "minLength": 1,
+                "title": "Branch Condition Id",
+                "type": "string"
+              },
+              "condition_kind": {
+                "enum": [
+                  "all_required_inputs_available",
+                  "all_required_generated_artifacts_available",
+                  "downstream_gate_required"
+                ],
+                "title": "Condition Kind",
+                "type": "string"
+              },
+              "description": {
+                "minLength": 1,
+                "title": "Description",
+                "type": "string"
+              }
+            },
+            "required": [
+              "branch_condition_id",
+              "condition_kind",
+              "description"
+            ],
+            "title": "MetaLoopBranchCondition",
+            "type": "object"
+          },
+          "MetaLoopFailureEdge": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "minLength": 1,
+                "title": "Description",
+                "type": "string"
+              },
+              "failure_edge_id": {
+                "minLength": 1,
+                "title": "Failure Edge Id",
+                "type": "string"
+              },
+              "from_step_id": {
+                "minLength": 1,
+                "title": "From Step Id",
+                "type": "string"
+              },
+              "to_step_id": {
+                "minLength": 1,
+                "title": "To Step Id",
+                "type": "string"
+              },
+              "trigger": {
+                "enum": [
+                  "checkpoint_failure",
+                  "evidence_gate_failure",
+                  "operator_rejection"
+                ],
+                "title": "Trigger",
+                "type": "string"
+              }
+            },
+            "required": [
+              "failure_edge_id",
+              "from_step_id",
+              "to_step_id",
+              "trigger",
+              "description"
+            ],
+            "title": "MetaLoopFailureEdge",
+            "type": "object"
+          },
+          "MetaLoopOperatorGate": {
+            "additionalProperties": false,
+            "properties": {
+              "acceptance_scope": {
+                "minLength": 1,
+                "title": "Acceptance Scope",
+                "type": "string"
+              },
+              "module_id": {
+                "minLength": 1,
+                "title": "Module Id",
+                "type": "string"
+              },
+              "operator_gate_id": {
+                "minLength": 1,
+                "title": "Operator Gate Id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "operator_gate_id",
+              "module_id",
+              "acceptance_scope"
+            ],
+            "title": "MetaLoopOperatorGate",
+            "type": "object"
+          },
+          "MetaLoopRetryEdge": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "minLength": 1,
+                "title": "Description",
+                "type": "string"
+              },
+              "from_step_id": {
+                "minLength": 1,
+                "title": "From Step Id",
+                "type": "string"
+              },
+              "retry_edge_id": {
+                "minLength": 1,
+                "title": "Retry Edge Id",
+                "type": "string"
+              },
+              "to_step_id": {
+                "minLength": 1,
+                "title": "To Step Id",
+                "type": "string"
+              },
+              "trigger": {
+                "enum": [
+                  "fixture_refresh_required",
+                  "generated_artifact_refresh_required"
+                ],
+                "title": "Trigger",
+                "type": "string"
+              }
+            },
+            "required": [
+              "retry_edge_id",
+              "from_step_id",
+              "to_step_id",
+              "trigger",
+              "description"
+            ],
+            "title": "MetaLoopRetryEdge",
+            "type": "object"
+          },
+          "MetaLoopSequenceStep": {
+            "additionalProperties": false,
+            "properties": {
+              "branch_condition_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Branch Condition Id"
+              },
+              "checkpoint_binding_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Checkpoint Binding Id"
+              },
+              "dispatch_provenance_ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Dispatch Provenance Ref"
+              },
+              "downstream_gate_module_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Downstream Gate Module Id"
+              },
+              "expected_outputs": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Expected Outputs",
+                "type": "array"
+              },
+              "failure_edge_ids": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Failure Edge Ids",
+                "type": "array"
+              },
+              "module_id": {
+                "minLength": 1,
+                "title": "Module Id",
+                "type": "string"
+              },
+              "operator_gate_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Operator Gate Id"
+              },
+              "phase_boundary": {
+                "enum": [
+                  "intent_interpretation",
+                  "pre_generation_validation",
+                  "artifact_generation",
+                  "post_generation_validation",
+                  "evidence_gate",
+                  "operator_gate"
+                ],
+                "title": "Phase Boundary",
+                "type": "string"
+              },
+              "required_inputs": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Required Inputs",
+                "type": "array"
+              },
+              "retry_edge_ids": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Retry Edge Ids",
+                "type": "array"
+              },
+              "step_id": {
+                "minLength": 1,
+                "title": "Step Id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "step_id",
+              "module_id",
+              "phase_boundary",
+              "required_inputs",
+              "expected_outputs",
+              "checkpoint_binding_id",
+              "branch_condition_id",
+              "failure_edge_ids",
+              "retry_edge_ids",
+              "operator_gate_id",
+              "dispatch_provenance_ref"
+            ],
+            "title": "MetaLoopSequenceStep",
+            "type": "object"
+          },
+          "MetaReferenceLoopAnchor": {
+            "additionalProperties": false,
+            "properties": {
+              "reference_arc": {
+                "minimum": 1,
+                "title": "Reference Arc",
+                "type": "integer"
+              },
+              "reference_phase": {
+                "const": "closeout",
+                "default": "closeout",
+                "title": "Reference Phase",
+                "type": "string"
+              },
+              "shape": {
+                "const": "arc_closeout_bundle_instance",
+                "default": "arc_closeout_bundle_instance",
+                "title": "Shape",
+                "type": "string"
+              }
+            },
+            "required": [
+              "reference_arc"
+            ],
+            "title": "MetaReferenceLoopAnchor",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "accepted_compilation_threshold_explicit": {
+            "const": true,
+            "default": true,
+            "title": "Accepted Compilation Threshold Explicit",
+            "type": "boolean"
+          },
+          "branch_conditions": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopBranchCondition"
+            },
+            "title": "Branch Conditions",
+            "type": "array"
+          },
+          "failure_edges": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopFailureEdge"
+            },
+            "title": "Failure Edges",
+            "type": "array"
+          },
+          "intent_packet_id": {
+            "minLength": 1,
+            "title": "Intent Packet Id",
+            "type": "string"
+          },
+          "no_hidden_branch_logic": {
+            "const": true,
+            "default": true,
+            "title": "No Hidden Branch Logic",
+            "type": "boolean"
+          },
+          "no_hidden_prompt_only_step_order": {
+            "const": true,
+            "default": true,
+            "title": "No Hidden Prompt Only Step Order",
+            "type": "boolean"
+          },
+          "no_model_prose_truth_substitution": {
+            "const": true,
+            "default": true,
+            "title": "No Model Prose Truth Substitution",
+            "type": "boolean"
+          },
+          "operational_influence_threshold_explicit": {
+            "const": true,
+            "default": true,
+            "title": "Operational Influence Threshold Explicit",
+            "type": "boolean"
+          },
+          "operator_gates": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopOperatorGate"
+            },
+            "title": "Operator Gates",
+            "type": "array"
+          },
+          "phase_boundaries_in_order": {
+            "items": {
+              "enum": [
+                "intent_interpretation",
+                "pre_generation_validation",
+                "artifact_generation",
+                "post_generation_validation",
+                "evidence_gate",
+                "operator_gate"
+              ],
+              "type": "string"
+            },
+            "title": "Phase Boundaries In Order",
+            "type": "array"
+          },
+          "reference_anchor": {
+            "$ref": "#/$defs/MetaReferenceLoopAnchor"
+          },
+          "reference_instance_id": {
+            "minLength": 1,
+            "title": "Reference Instance Id",
+            "type": "string"
+          },
+          "reference_loop_family": {
+            "const": "arc_bundle_recursive_compilation_loop",
+            "default": "arc_bundle_recursive_compilation_loop",
+            "title": "Reference Loop Family",
+            "type": "string"
+          },
+          "retry_edges": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopRetryEdge"
+            },
+            "title": "Retry Edges",
+            "type": "array"
+          },
+          "schema": {
+            "const": "meta_loop_sequence_contract@1",
+            "default": "meta_loop_sequence_contract@1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopSequenceStep"
+            },
+            "title": "Steps",
+            "type": "array"
+          }
+        },
+        "required": [
+          "reference_instance_id",
+          "intent_packet_id",
+          "reference_anchor",
+          "phase_boundaries_in_order",
+          "branch_conditions",
+          "failure_edges",
+          "retry_edges",
+          "operator_gates",
+          "steps"
+        ],
+        "title": "MetaLoopSequenceContract",
+        "type": "object"
+      },
+      "schema_key": "meta_loop_sequence_contract",
+      "source_schema_definition": {
+        "$defs": {
+          "MetaLoopBranchCondition": {
+            "additionalProperties": false,
+            "properties": {
+              "branch_condition_id": {
+                "minLength": 1,
+                "title": "Branch Condition Id",
+                "type": "string"
+              },
+              "condition_kind": {
+                "enum": [
+                  "all_required_inputs_available",
+                  "all_required_generated_artifacts_available",
+                  "downstream_gate_required"
+                ],
+                "title": "Condition Kind",
+                "type": "string"
+              },
+              "description": {
+                "minLength": 1,
+                "title": "Description",
+                "type": "string"
+              }
+            },
+            "required": [
+              "branch_condition_id",
+              "condition_kind",
+              "description"
+            ],
+            "title": "MetaLoopBranchCondition",
+            "type": "object"
+          },
+          "MetaLoopFailureEdge": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "minLength": 1,
+                "title": "Description",
+                "type": "string"
+              },
+              "failure_edge_id": {
+                "minLength": 1,
+                "title": "Failure Edge Id",
+                "type": "string"
+              },
+              "from_step_id": {
+                "minLength": 1,
+                "title": "From Step Id",
+                "type": "string"
+              },
+              "to_step_id": {
+                "minLength": 1,
+                "title": "To Step Id",
+                "type": "string"
+              },
+              "trigger": {
+                "enum": [
+                  "checkpoint_failure",
+                  "evidence_gate_failure",
+                  "operator_rejection"
+                ],
+                "title": "Trigger",
+                "type": "string"
+              }
+            },
+            "required": [
+              "failure_edge_id",
+              "from_step_id",
+              "to_step_id",
+              "trigger",
+              "description"
+            ],
+            "title": "MetaLoopFailureEdge",
+            "type": "object"
+          },
+          "MetaLoopOperatorGate": {
+            "additionalProperties": false,
+            "properties": {
+              "acceptance_scope": {
+                "minLength": 1,
+                "title": "Acceptance Scope",
+                "type": "string"
+              },
+              "module_id": {
+                "minLength": 1,
+                "title": "Module Id",
+                "type": "string"
+              },
+              "operator_gate_id": {
+                "minLength": 1,
+                "title": "Operator Gate Id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "operator_gate_id",
+              "module_id",
+              "acceptance_scope"
+            ],
+            "title": "MetaLoopOperatorGate",
+            "type": "object"
+          },
+          "MetaLoopRetryEdge": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "minLength": 1,
+                "title": "Description",
+                "type": "string"
+              },
+              "from_step_id": {
+                "minLength": 1,
+                "title": "From Step Id",
+                "type": "string"
+              },
+              "retry_edge_id": {
+                "minLength": 1,
+                "title": "Retry Edge Id",
+                "type": "string"
+              },
+              "to_step_id": {
+                "minLength": 1,
+                "title": "To Step Id",
+                "type": "string"
+              },
+              "trigger": {
+                "enum": [
+                  "fixture_refresh_required",
+                  "generated_artifact_refresh_required"
+                ],
+                "title": "Trigger",
+                "type": "string"
+              }
+            },
+            "required": [
+              "retry_edge_id",
+              "from_step_id",
+              "to_step_id",
+              "trigger",
+              "description"
+            ],
+            "title": "MetaLoopRetryEdge",
+            "type": "object"
+          },
+          "MetaLoopSequenceStep": {
+            "additionalProperties": false,
+            "properties": {
+              "branch_condition_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Branch Condition Id"
+              },
+              "checkpoint_binding_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Checkpoint Binding Id"
+              },
+              "dispatch_provenance_ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Dispatch Provenance Ref"
+              },
+              "downstream_gate_module_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Downstream Gate Module Id"
+              },
+              "expected_outputs": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Expected Outputs",
+                "type": "array"
+              },
+              "failure_edge_ids": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Failure Edge Ids",
+                "type": "array"
+              },
+              "module_id": {
+                "minLength": 1,
+                "title": "Module Id",
+                "type": "string"
+              },
+              "operator_gate_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Operator Gate Id"
+              },
+              "phase_boundary": {
+                "enum": [
+                  "intent_interpretation",
+                  "pre_generation_validation",
+                  "artifact_generation",
+                  "post_generation_validation",
+                  "evidence_gate",
+                  "operator_gate"
+                ],
+                "title": "Phase Boundary",
+                "type": "string"
+              },
+              "required_inputs": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Required Inputs",
+                "type": "array"
+              },
+              "retry_edge_ids": {
+                "items": {
+                  "type": "string"
+                },
+                "title": "Retry Edge Ids",
+                "type": "array"
+              },
+              "step_id": {
+                "minLength": 1,
+                "title": "Step Id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "step_id",
+              "module_id",
+              "phase_boundary",
+              "required_inputs",
+              "expected_outputs",
+              "checkpoint_binding_id",
+              "branch_condition_id",
+              "failure_edge_ids",
+              "retry_edge_ids",
+              "operator_gate_id",
+              "dispatch_provenance_ref"
+            ],
+            "title": "MetaLoopSequenceStep",
+            "type": "object"
+          },
+          "MetaReferenceLoopAnchor": {
+            "additionalProperties": false,
+            "properties": {
+              "reference_arc": {
+                "minimum": 1,
+                "title": "Reference Arc",
+                "type": "integer"
+              },
+              "reference_phase": {
+                "const": "closeout",
+                "default": "closeout",
+                "title": "Reference Phase",
+                "type": "string"
+              },
+              "shape": {
+                "const": "arc_closeout_bundle_instance",
+                "default": "arc_closeout_bundle_instance",
+                "title": "Shape",
+                "type": "string"
+              }
+            },
+            "required": [
+              "reference_arc"
+            ],
+            "title": "MetaReferenceLoopAnchor",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "accepted_compilation_threshold_explicit": {
+            "const": true,
+            "default": true,
+            "title": "Accepted Compilation Threshold Explicit",
+            "type": "boolean"
+          },
+          "branch_conditions": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopBranchCondition"
+            },
+            "title": "Branch Conditions",
+            "type": "array"
+          },
+          "failure_edges": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopFailureEdge"
+            },
+            "title": "Failure Edges",
+            "type": "array"
+          },
+          "intent_packet_id": {
+            "minLength": 1,
+            "title": "Intent Packet Id",
+            "type": "string"
+          },
+          "no_hidden_branch_logic": {
+            "const": true,
+            "default": true,
+            "title": "No Hidden Branch Logic",
+            "type": "boolean"
+          },
+          "no_hidden_prompt_only_step_order": {
+            "const": true,
+            "default": true,
+            "title": "No Hidden Prompt Only Step Order",
+            "type": "boolean"
+          },
+          "no_model_prose_truth_substitution": {
+            "const": true,
+            "default": true,
+            "title": "No Model Prose Truth Substitution",
+            "type": "boolean"
+          },
+          "operational_influence_threshold_explicit": {
+            "const": true,
+            "default": true,
+            "title": "Operational Influence Threshold Explicit",
+            "type": "boolean"
+          },
+          "operator_gates": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopOperatorGate"
+            },
+            "title": "Operator Gates",
+            "type": "array"
+          },
+          "phase_boundaries_in_order": {
+            "items": {
+              "enum": [
+                "intent_interpretation",
+                "pre_generation_validation",
+                "artifact_generation",
+                "post_generation_validation",
+                "evidence_gate",
+                "operator_gate"
+              ],
+              "type": "string"
+            },
+            "title": "Phase Boundaries In Order",
+            "type": "array"
+          },
+          "reference_anchor": {
+            "$ref": "#/$defs/MetaReferenceLoopAnchor"
+          },
+          "reference_instance_id": {
+            "minLength": 1,
+            "title": "Reference Instance Id",
+            "type": "string"
+          },
+          "reference_loop_family": {
+            "const": "arc_bundle_recursive_compilation_loop",
+            "default": "arc_bundle_recursive_compilation_loop",
+            "title": "Reference Loop Family",
+            "type": "string"
+          },
+          "retry_edges": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopRetryEdge"
+            },
+            "title": "Retry Edges",
+            "type": "array"
+          },
+          "schema": {
+            "const": "meta_loop_sequence_contract@1",
+            "default": "meta_loop_sequence_contract@1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/$defs/MetaLoopSequenceStep"
+            },
+            "title": "Steps",
+            "type": "array"
+          }
+        },
+        "required": [
+          "reference_instance_id",
+          "intent_packet_id",
+          "reference_anchor",
+          "phase_boundaries_in_order",
+          "branch_conditions",
+          "failure_edges",
+          "retry_edges",
+          "operator_gates",
+          "steps"
+        ],
+        "title": "MetaLoopSequenceContract",
+        "type": "object"
+      }
+    },
+    {
+      "evidence_refs": [
+        "evidence:policy_registry:anchor",
+        "evidence:policy_registry:reconstruction"
+      ],
+      "reconstructed_schema_definition": {
+        "$id": "https://lexlattice.local/spec/policy_registry.schema.json",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "materialized_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "policy_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          "policy_ir_version": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "policy_schema_version": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "schema": {
+            "const": "policy_registry@1",
+            "type": "string"
+          },
+          "schema_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "semantic_policy_json": {
+            "type": "object"
+          },
+          "source_policy_ref": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema",
+          "policy_hash",
+          "schema_id",
+          "policy_schema_version",
+          "policy_ir_version",
+          "semantic_policy_json",
+          "source_policy_ref",
+          "materialized_at"
+        ],
+        "title": "policy_registry@1",
+        "type": "object"
+      },
+      "schema_key": "policy_registry",
+      "source_schema_definition": {
+        "$id": "https://lexlattice.local/spec/policy_registry.schema.json",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "materialized_at": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "policy_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          },
+          "policy_ir_version": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "policy_schema_version": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "schema": {
+            "const": "policy_registry@1",
+            "type": "string"
+          },
+          "schema_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "semantic_policy_json": {
+            "type": "object"
+          },
+          "source_policy_ref": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema",
+          "policy_hash",
+          "schema_id",
+          "policy_schema_version",
+          "policy_ir_version",
+          "semantic_policy_json",
+          "source_policy_ref",
+          "materialized_at"
+        ],
+        "title": "policy_registry@1",
+        "type": "object"
+      }
+    },
+    {
+      "evidence_refs": [
+        "evidence:ux_interaction_contract:anchor",
+        "evidence:ux_interaction_contract:reconstruction"
+      ],
+      "reconstructed_schema_definition": {
+        "$defs": {
+          "UXAuthoritativeGateSource": {
+            "additionalProperties": false,
+            "properties": {
+              "source_kind": {
+                "enum": [
+                  "accepted_governance_artifact",
+                  "accepted_v35_runtime_authority_artifact"
+                ],
+                "title": "Source Kind",
+                "type": "string"
+              },
+              "source_ref": {
+                "minLength": 1,
+                "title": "Source Ref",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source_kind",
+              "source_ref"
+            ],
+            "title": "UXAuthoritativeGateSource",
+            "type": "object"
+          },
+          "UXAuthorityBoundaryPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "no_free_form_ui_codegen_without_ir": {
+                "const": true,
+                "default": true,
+                "title": "No Free Form Ui Codegen Without Ir",
+                "type": "boolean"
+              },
+              "no_visual_authority_inflation": {
+                "const": true,
+                "default": true,
+                "title": "No Visual Authority Inflation",
+                "type": "boolean"
+              },
+              "ui_artifacts_may_express_but_may_not_mint_authority": {
+                "const": true,
+                "default": true,
+                "title": "Ui Artifacts May Express But May Not Mint Authority",
+                "type": "boolean"
+              }
+            },
+            "title": "UXAuthorityBoundaryPolicy",
+            "type": "object"
+          },
+          "UXImplementationObservableBinding": {
+            "additionalProperties": false,
+            "properties": {
+              "binding_id": {
+                "minLength": 1,
+                "title": "Binding Id",
+                "type": "string"
+              },
+              "binding_token": {
+                "minLength": 1,
+                "title": "Binding Token",
+                "type": "string"
+              },
+              "source_path": {
+                "minLength": 1,
+                "title": "Source Path",
+                "type": "string"
+              },
+              "source_schema": {
+                "enum": [
+                  "ux_interaction_contract@1",
+                  "ux_surface_projection@1"
+                ],
+                "title": "Source Schema",
+                "type": "string"
+              },
+              "target_kind": {
+                "enum": [
+                  "advisory_action",
+                  "authoritative_action",
+                  "commit_or_approval_gate",
+                  "diagnostic_surface",
+                  "disabled_or_unavailable_gated_state",
+                  "required_evidence_reachability_anchor",
+                  "status_surface",
+                  "warning_surface"
+                ],
+                "title": "Target Kind",
+                "type": "string"
+              },
+              "target_ref": {
+                "minLength": 1,
+                "title": "Target Ref",
+                "type": "string"
+              }
+            },
+            "required": [
+              "binding_id",
+              "source_schema",
+              "target_kind",
+              "target_ref",
+              "binding_token",
+              "source_path"
+            ],
+            "title": "UXImplementationObservableBinding",
+            "type": "object"
+          },
+          "UXInteractionContractEntry": {
+            "additionalProperties": false,
+            "properties": {
+              "action_cluster_id": {
+                "minLength": 1,
+                "title": "Action Cluster Id",
+                "type": "string"
+              },
+              "approval_bearing": {
+                "default": false,
+                "title": "Approval Bearing",
+                "type": "boolean"
+              },
+              "authoritative": {
+                "default": false,
+                "title": "Authoritative",
+                "type": "boolean"
+              },
+              "authoritative_gate_source": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/UXAuthoritativeGateSource"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "committing": {
+                "default": false,
+                "title": "Committing",
+                "type": "boolean"
+              },
+              "confirmation_required": {
+                "title": "Confirmation Required",
+                "type": "boolean"
+              },
+              "evidence_required": {
+                "title": "Evidence Required",
+                "type": "boolean"
+              },
+              "failure_surface": {
+                "enum": [
+                  "action_lane",
+                  "status_lane",
+                  "trust_boundary_lane"
+                ],
+                "title": "Failure Surface",
+                "type": "string"
+              },
+              "gated": {
+                "default": false,
+                "title": "Gated",
+                "type": "boolean"
+              },
+              "interaction_id": {
+                "minLength": 1,
+                "title": "Interaction Id",
+                "type": "string"
+              },
+              "preconditions": {
+                "items": {
+                  "enum": [
+                    "candidate_context_available",
+                    "commit_gate_rendered",
+                    "required_evidence_reachable",
+                    "trust_boundary_visible"
+                  ],
+                  "type": "string"
+                },
+                "title": "Preconditions",
+                "type": "array"
+              },
+              "requested_runtime_effect": {
+                "$ref": "#/$defs/UXRequestedRuntimeEffect"
+              },
+              "reversible": {
+                "title": "Reversible",
+                "type": "boolean"
+              },
+              "rollback_path": {
+                "enum": [
+                  "clear_pending_request",
+                  "none_required",
+                  "restore_previous_focus"
+                ],
+                "title": "Rollback Path",
+                "type": "string"
+              },
+              "runtime_visible_consequence": {
+                "$ref": "#/$defs/UXRuntimeVisibleConsequence"
+              },
+              "success_surface": {
+                "enum": [
+                  "action_lane",
+                  "status_lane",
+                  "work_context_lane"
+                ],
+                "title": "Success Surface",
+                "type": "string"
+              },
+              "surface_event": {
+                "enum": [
+                  "focus_evidence_lane",
+                  "focus_source_artifact",
+                  "open_commit_review",
+                  "run_advisory_action",
+                  "submit_commit_request"
+                ],
+                "title": "Surface Event",
+                "type": "string"
+              },
+              "ui_transition": {
+                "enum": [
+                  "bounded_workbench_focus_shift",
+                  "bounded_workbench_position_shift",
+                  "bounded_workbench_state_reveal"
+                ],
+                "title": "Ui Transition",
+                "type": "string"
+              },
+              "user_visible_consequence": {
+                "enum": [
+                  "advisory_action_selection_visible",
+                  "commit_review_revealed",
+                  "evidence_focus_visible",
+                  "request_submission_visible",
+                  "source_focus_visible"
+                ],
+                "title": "User Visible Consequence",
+                "type": "string"
+              }
+            },
+            "required": [
+              "interaction_id",
+              "action_cluster_id",
+              "surface_event",
+              "ui_transition",
+              "preconditions",
+              "user_visible_consequence",
+              "requested_runtime_effect",
+              "runtime_visible_consequence",
+              "reversible",
+              "confirmation_required",
+              "evidence_required",
+              "rollback_path",
+              "failure_surface",
+              "success_surface"
+            ],
+            "title": "UXInteractionContractEntry",
+            "type": "object"
+          },
+          "UXProjectionInteractionSupportingArtifactRefs": {
+            "additionalProperties": false,
+            "properties": {
+              "approved_profile_table_schema": {
+                "const": "v36a_first_family_approved_profile_table@1",
+                "default": "v36a_first_family_approved_profile_table@1",
+                "title": "Approved Profile Table Schema",
+                "type": "string"
+              },
+              "same_context_reachability_glossary_schema": {
+                "const": "v36a_same_context_reachability_glossary@1",
+                "default": "v36a_same_context_reachability_glossary@1",
+                "title": "Same Context Reachability Glossary Schema",
+                "type": "string"
+              },
+              "ux_domain_packet_schema": {
+                "const": "ux_domain_packet@1",
+                "default": "ux_domain_packet@1",
+                "title": "Ux Domain Packet Schema",
+                "type": "string"
+              },
+              "ux_morph_ir_schema": {
+                "const": "ux_morph_ir@1",
+                "default": "ux_morph_ir@1",
+                "title": "Ux Morph Ir Schema",
+                "type": "string"
+              }
+            },
+            "title": "UXProjectionInteractionSupportingArtifactRefs",
+            "type": "object"
+          },
+          "UXRequestedRuntimeEffect": {
+            "additionalProperties": false,
+            "properties": {
+              "descriptive_only": {
+                "const": true,
+                "default": true,
+                "title": "Descriptive Only",
+                "type": "boolean"
+              },
+              "effect_kind": {
+                "enum": [
+                  "advisory_action_requested",
+                  "artifact_focus_requested",
+                  "commit_review_requested",
+                  "commit_submission_requested",
+                  "evidence_focus_requested"
+                ],
+                "title": "Effect Kind",
+                "type": "string"
+              }
+            },
+            "required": [
+              "effect_kind"
+            ],
+            "title": "UXRequestedRuntimeEffect",
+            "type": "object"
+          },
+          "UXRuntimeVisibleConsequence": {
+            "additionalProperties": false,
+            "properties": {
+              "outcome_kind": {
+                "enum": [
+                  "advisory_selection_visible",
+                  "bounded_context_focus_visible",
+                  "gated_pending_confirmation_visible",
+                  "provisional_request_visible",
+                  "request_submission_visible",
+                  "status_feedback_visible"
+                ],
+                "title": "Outcome Kind",
+                "type": "string"
+              },
+              "truth_posture": {
+                "enum": [
+                  "accepted_effect_confirmed",
+                  "provisional",
+                  "request_only"
+                ],
+                "title": "Truth Posture",
+                "type": "string"
+              }
+            },
+            "required": [
+              "outcome_kind",
+              "truth_posture"
+            ],
+            "title": "UXRuntimeVisibleConsequence",
+            "type": "object"
+          },
+          "UXStableProvenanceHook": {
+            "additionalProperties": false,
+            "properties": {
+              "hook_id": {
+                "minLength": 1,
+                "title": "Hook Id",
+                "type": "string"
+              },
+              "source_path": {
+                "minLength": 1,
+                "title": "Source Path",
+                "type": "string"
+              },
+              "source_schema": {
+                "enum": [
+                  "ux_interaction_contract@1",
+                  "ux_surface_projection@1"
+                ],
+                "title": "Source Schema",
+                "type": "string"
+              },
+              "target_kind": {
+                "enum": [
+                  "action_cluster",
+                  "authority_bearing_control",
+                  "evidence_bearing_region",
+                  "projection_unit",
+                  "state_distinction_surface"
+                ],
+                "title": "Target Kind",
+                "type": "string"
+              },
+              "target_ref": {
+                "minLength": 1,
+                "title": "Target Ref",
+                "type": "string"
+              }
+            },
+            "required": [
+              "hook_id",
+              "source_schema",
+              "target_kind",
+              "target_ref",
+              "source_path"
+            ],
+            "title": "UXStableProvenanceHook",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "approved_profile_id": {
+            "enum": [
+              "artifact_inspector_alternate",
+              "artifact_inspector_reference"
+            ],
+            "title": "Approved Profile Id",
+            "type": "string"
+          },
+          "authority_boundary_policy": {
+            "$ref": "#/$defs/UXAuthorityBoundaryPolicy"
+          },
+          "implementation_observable_bindings": {
+            "items": {
+              "$ref": "#/$defs/UXImplementationObservableBinding"
+            },
+            "title": "Implementation Observable Bindings",
+            "type": "array"
+          },
+          "interaction_entries": {
+            "items": {
+              "$ref": "#/$defs/UXInteractionContractEntry"
+            },
+            "title": "Interaction Entries",
+            "type": "array"
+          },
+          "reference_instance_id": {
+            "minLength": 1,
+            "title": "Reference Instance Id",
+            "type": "string"
+          },
+          "reference_surface_family": {
+            "const": "artifact_inspector_advisory_workbench",
+            "default": "artifact_inspector_advisory_workbench",
+            "title": "Reference Surface Family",
+            "type": "string"
+          },
+          "schema": {
+            "const": "ux_interaction_contract@1",
+            "default": "ux_interaction_contract@1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "stable_provenance_hooks": {
+            "items": {
+              "$ref": "#/$defs/UXStableProvenanceHook"
+            },
+            "title": "Stable Provenance Hooks",
+            "type": "array"
+          },
+          "supporting_artifacts": {
+            "$ref": "#/$defs/UXProjectionInteractionSupportingArtifactRefs"
+          }
+        },
+        "required": [
+          "reference_instance_id",
+          "approved_profile_id",
+          "interaction_entries",
+          "stable_provenance_hooks",
+          "implementation_observable_bindings"
+        ],
+        "title": "UXInteractionContract",
+        "type": "object"
+      },
+      "schema_key": "ux_interaction_contract",
+      "source_schema_definition": {
+        "$defs": {
+          "UXAuthoritativeGateSource": {
+            "additionalProperties": false,
+            "properties": {
+              "source_kind": {
+                "enum": [
+                  "accepted_governance_artifact",
+                  "accepted_v35_runtime_authority_artifact"
+                ],
+                "title": "Source Kind",
+                "type": "string"
+              },
+              "source_ref": {
+                "minLength": 1,
+                "title": "Source Ref",
+                "type": "string"
+              }
+            },
+            "required": [
+              "source_kind",
+              "source_ref"
+            ],
+            "title": "UXAuthoritativeGateSource",
+            "type": "object"
+          },
+          "UXAuthorityBoundaryPolicy": {
+            "additionalProperties": false,
+            "properties": {
+              "no_free_form_ui_codegen_without_ir": {
+                "const": true,
+                "default": true,
+                "title": "No Free Form Ui Codegen Without Ir",
+                "type": "boolean"
+              },
+              "no_visual_authority_inflation": {
+                "const": true,
+                "default": true,
+                "title": "No Visual Authority Inflation",
+                "type": "boolean"
+              },
+              "ui_artifacts_may_express_but_may_not_mint_authority": {
+                "const": true,
+                "default": true,
+                "title": "Ui Artifacts May Express But May Not Mint Authority",
+                "type": "boolean"
+              }
+            },
+            "title": "UXAuthorityBoundaryPolicy",
+            "type": "object"
+          },
+          "UXImplementationObservableBinding": {
+            "additionalProperties": false,
+            "properties": {
+              "binding_id": {
+                "minLength": 1,
+                "title": "Binding Id",
+                "type": "string"
+              },
+              "binding_token": {
+                "minLength": 1,
+                "title": "Binding Token",
+                "type": "string"
+              },
+              "source_path": {
+                "minLength": 1,
+                "title": "Source Path",
+                "type": "string"
+              },
+              "source_schema": {
+                "enum": [
+                  "ux_interaction_contract@1",
+                  "ux_surface_projection@1"
+                ],
+                "title": "Source Schema",
+                "type": "string"
+              },
+              "target_kind": {
+                "enum": [
+                  "advisory_action",
+                  "authoritative_action",
+                  "commit_or_approval_gate",
+                  "diagnostic_surface",
+                  "disabled_or_unavailable_gated_state",
+                  "required_evidence_reachability_anchor",
+                  "status_surface",
+                  "warning_surface"
+                ],
+                "title": "Target Kind",
+                "type": "string"
+              },
+              "target_ref": {
+                "minLength": 1,
+                "title": "Target Ref",
+                "type": "string"
+              }
+            },
+            "required": [
+              "binding_id",
+              "source_schema",
+              "target_kind",
+              "target_ref",
+              "binding_token",
+              "source_path"
+            ],
+            "title": "UXImplementationObservableBinding",
+            "type": "object"
+          },
+          "UXInteractionContractEntry": {
+            "additionalProperties": false,
+            "properties": {
+              "action_cluster_id": {
+                "minLength": 1,
+                "title": "Action Cluster Id",
+                "type": "string"
+              },
+              "approval_bearing": {
+                "default": false,
+                "title": "Approval Bearing",
+                "type": "boolean"
+              },
+              "authoritative": {
+                "default": false,
+                "title": "Authoritative",
+                "type": "boolean"
+              },
+              "authoritative_gate_source": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/UXAuthoritativeGateSource"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "committing": {
+                "default": false,
+                "title": "Committing",
+                "type": "boolean"
+              },
+              "confirmation_required": {
+                "title": "Confirmation Required",
+                "type": "boolean"
+              },
+              "evidence_required": {
+                "title": "Evidence Required",
+                "type": "boolean"
+              },
+              "failure_surface": {
+                "enum": [
+                  "action_lane",
+                  "status_lane",
+                  "trust_boundary_lane"
+                ],
+                "title": "Failure Surface",
+                "type": "string"
+              },
+              "gated": {
+                "default": false,
+                "title": "Gated",
+                "type": "boolean"
+              },
+              "interaction_id": {
+                "minLength": 1,
+                "title": "Interaction Id",
+                "type": "string"
+              },
+              "preconditions": {
+                "items": {
+                  "enum": [
+                    "candidate_context_available",
+                    "commit_gate_rendered",
+                    "required_evidence_reachable",
+                    "trust_boundary_visible"
+                  ],
+                  "type": "string"
+                },
+                "title": "Preconditions",
+                "type": "array"
+              },
+              "requested_runtime_effect": {
+                "$ref": "#/$defs/UXRequestedRuntimeEffect"
+              },
+              "reversible": {
+                "title": "Reversible",
+                "type": "boolean"
+              },
+              "rollback_path": {
+                "enum": [
+                  "clear_pending_request",
+                  "none_required",
+                  "restore_previous_focus"
+                ],
+                "title": "Rollback Path",
+                "type": "string"
+              },
+              "runtime_visible_consequence": {
+                "$ref": "#/$defs/UXRuntimeVisibleConsequence"
+              },
+              "success_surface": {
+                "enum": [
+                  "action_lane",
+                  "status_lane",
+                  "work_context_lane"
+                ],
+                "title": "Success Surface",
+                "type": "string"
+              },
+              "surface_event": {
+                "enum": [
+                  "focus_evidence_lane",
+                  "focus_source_artifact",
+                  "open_commit_review",
+                  "run_advisory_action",
+                  "submit_commit_request"
+                ],
+                "title": "Surface Event",
+                "type": "string"
+              },
+              "ui_transition": {
+                "enum": [
+                  "bounded_workbench_focus_shift",
+                  "bounded_workbench_position_shift",
+                  "bounded_workbench_state_reveal"
+                ],
+                "title": "Ui Transition",
+                "type": "string"
+              },
+              "user_visible_consequence": {
+                "enum": [
+                  "advisory_action_selection_visible",
+                  "commit_review_revealed",
+                  "evidence_focus_visible",
+                  "request_submission_visible",
+                  "source_focus_visible"
+                ],
+                "title": "User Visible Consequence",
+                "type": "string"
+              }
+            },
+            "required": [
+              "interaction_id",
+              "action_cluster_id",
+              "surface_event",
+              "ui_transition",
+              "preconditions",
+              "user_visible_consequence",
+              "requested_runtime_effect",
+              "runtime_visible_consequence",
+              "reversible",
+              "confirmation_required",
+              "evidence_required",
+              "rollback_path",
+              "failure_surface",
+              "success_surface"
+            ],
+            "title": "UXInteractionContractEntry",
+            "type": "object"
+          },
+          "UXProjectionInteractionSupportingArtifactRefs": {
+            "additionalProperties": false,
+            "properties": {
+              "approved_profile_table_schema": {
+                "const": "v36a_first_family_approved_profile_table@1",
+                "default": "v36a_first_family_approved_profile_table@1",
+                "title": "Approved Profile Table Schema",
+                "type": "string"
+              },
+              "same_context_reachability_glossary_schema": {
+                "const": "v36a_same_context_reachability_glossary@1",
+                "default": "v36a_same_context_reachability_glossary@1",
+                "title": "Same Context Reachability Glossary Schema",
+                "type": "string"
+              },
+              "ux_domain_packet_schema": {
+                "const": "ux_domain_packet@1",
+                "default": "ux_domain_packet@1",
+                "title": "Ux Domain Packet Schema",
+                "type": "string"
+              },
+              "ux_morph_ir_schema": {
+                "const": "ux_morph_ir@1",
+                "default": "ux_morph_ir@1",
+                "title": "Ux Morph Ir Schema",
+                "type": "string"
+              }
+            },
+            "title": "UXProjectionInteractionSupportingArtifactRefs",
+            "type": "object"
+          },
+          "UXRequestedRuntimeEffect": {
+            "additionalProperties": false,
+            "properties": {
+              "descriptive_only": {
+                "const": true,
+                "default": true,
+                "title": "Descriptive Only",
+                "type": "boolean"
+              },
+              "effect_kind": {
+                "enum": [
+                  "advisory_action_requested",
+                  "artifact_focus_requested",
+                  "commit_review_requested",
+                  "commit_submission_requested",
+                  "evidence_focus_requested"
+                ],
+                "title": "Effect Kind",
+                "type": "string"
+              }
+            },
+            "required": [
+              "effect_kind"
+            ],
+            "title": "UXRequestedRuntimeEffect",
+            "type": "object"
+          },
+          "UXRuntimeVisibleConsequence": {
+            "additionalProperties": false,
+            "properties": {
+              "outcome_kind": {
+                "enum": [
+                  "advisory_selection_visible",
+                  "bounded_context_focus_visible",
+                  "gated_pending_confirmation_visible",
+                  "provisional_request_visible",
+                  "request_submission_visible",
+                  "status_feedback_visible"
+                ],
+                "title": "Outcome Kind",
+                "type": "string"
+              },
+              "truth_posture": {
+                "enum": [
+                  "accepted_effect_confirmed",
+                  "provisional",
+                  "request_only"
+                ],
+                "title": "Truth Posture",
+                "type": "string"
+              }
+            },
+            "required": [
+              "outcome_kind",
+              "truth_posture"
+            ],
+            "title": "UXRuntimeVisibleConsequence",
+            "type": "object"
+          },
+          "UXStableProvenanceHook": {
+            "additionalProperties": false,
+            "properties": {
+              "hook_id": {
+                "minLength": 1,
+                "title": "Hook Id",
+                "type": "string"
+              },
+              "source_path": {
+                "minLength": 1,
+                "title": "Source Path",
+                "type": "string"
+              },
+              "source_schema": {
+                "enum": [
+                  "ux_interaction_contract@1",
+                  "ux_surface_projection@1"
+                ],
+                "title": "Source Schema",
+                "type": "string"
+              },
+              "target_kind": {
+                "enum": [
+                  "action_cluster",
+                  "authority_bearing_control",
+                  "evidence_bearing_region",
+                  "projection_unit",
+                  "state_distinction_surface"
+                ],
+                "title": "Target Kind",
+                "type": "string"
+              },
+              "target_ref": {
+                "minLength": 1,
+                "title": "Target Ref",
+                "type": "string"
+              }
+            },
+            "required": [
+              "hook_id",
+              "source_schema",
+              "target_kind",
+              "target_ref",
+              "source_path"
+            ],
+            "title": "UXStableProvenanceHook",
+            "type": "object"
+          }
+        },
+        "additionalProperties": false,
+        "properties": {
+          "approved_profile_id": {
+            "enum": [
+              "artifact_inspector_alternate",
+              "artifact_inspector_reference"
+            ],
+            "title": "Approved Profile Id",
+            "type": "string"
+          },
+          "authority_boundary_policy": {
+            "$ref": "#/$defs/UXAuthorityBoundaryPolicy"
+          },
+          "implementation_observable_bindings": {
+            "items": {
+              "$ref": "#/$defs/UXImplementationObservableBinding"
+            },
+            "title": "Implementation Observable Bindings",
+            "type": "array"
+          },
+          "interaction_entries": {
+            "items": {
+              "$ref": "#/$defs/UXInteractionContractEntry"
+            },
+            "title": "Interaction Entries",
+            "type": "array"
+          },
+          "reference_instance_id": {
+            "minLength": 1,
+            "title": "Reference Instance Id",
+            "type": "string"
+          },
+          "reference_surface_family": {
+            "const": "artifact_inspector_advisory_workbench",
+            "default": "artifact_inspector_advisory_workbench",
+            "title": "Reference Surface Family",
+            "type": "string"
+          },
+          "schema": {
+            "const": "ux_interaction_contract@1",
+            "default": "ux_interaction_contract@1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "stable_provenance_hooks": {
+            "items": {
+              "$ref": "#/$defs/UXStableProvenanceHook"
+            },
+            "title": "Stable Provenance Hooks",
+            "type": "array"
+          },
+          "supporting_artifacts": {
+            "$ref": "#/$defs/UXProjectionInteractionSupportingArtifactRefs"
+          }
+        },
+        "required": [
+          "reference_instance_id",
+          "approved_profile_id",
+          "interaction_entries",
+          "stable_provenance_hooks",
+          "implementation_observable_bindings"
+        ],
+        "title": "UXInteractionContract",
+        "type": "object"
+      }
+    }
+  ],
+  "repo_snapshot_hash": "5d6c038f70300760e5bdc55829759dd8dfe8cd9918728232cceb74a885a5bec3",
+  "repo_snapshot_id": "repo_snapshot_5d6c038f70300760e5bdc558",
+  "schema": "repo_schema_family_registry@1",
+  "schema_entries": [
+    {
+      "adjudicator_ref": null,
+      "classification_method": "lexical_naming",
+      "classification_posture": "inferred_heuristically",
+      "core_envelope_features": [
+        "closed_root",
+        "has_defs",
+        "missing_schema_const"
+      ],
+      "family_cluster": "adeu_validator",
+      "lineage_overlay": "validator_lineage",
+      "primary_carrier_class": "Adjudication",
+      "residual_flags": [
+        "missing_schema_const"
+      ],
+      "schema_discriminator": "missing_schema_discriminator:packages/adeu_ir/schema/adeu.validator_result.v0.json",
+      "schema_key": "adeu.validator_result",
+      "schema_path": "packages/adeu_ir/schema/adeu.validator_result.v0.json",
+      "secondary_role_form_tags": [
+        "result"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:adeu.validator_result:anchor",
+        "evidence:adeu.validator_result:lexical"
+      ]
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "settled",
+      "core_envelope_features": [
+        "closed_root",
+        "has_defs",
+        "has_schema_const"
+      ],
+      "family_cluster": "adeu_arc",
+      "lineage_overlay": "arc_agi_lineage",
+      "primary_carrier_class": "IntakeFrame",
+      "residual_flags": [],
+      "schema_discriminator": "adeu_arc_task_packet@1",
+      "schema_key": "adeu_arc_task_packet",
+      "schema_path": "packages/adeu_arc_agi/schema/adeu_arc_task_packet.v1.json",
+      "secondary_role_form_tags": [
+        "packet"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:adeu_arc_task_packet:anchor",
+        "evidence:adeu_arc_task_packet:lexical",
+        "evidence:adeu_arc_task_packet:structural"
+      ]
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "core_envelope_features": [
+        "closed_root",
+        "has_defs",
+        "has_schema_const"
+      ],
+      "family_cluster": "adeu_architecture",
+      "lineage_overlay": "architecture_lineage",
+      "primary_carrier_class": "IntakeFrame",
+      "residual_flags": [],
+      "schema_discriminator": "adeu_architecture_analysis_request@1",
+      "schema_key": "adeu_architecture_analysis_request",
+      "schema_path": "packages/adeu_architecture_ir/schema/adeu_architecture_analysis_request.v1.json",
+      "secondary_role_form_tags": [
+        "request"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:adeu_architecture_analysis_request:anchor",
+        "evidence:adeu_architecture_analysis_request:lexical",
+        "evidence:adeu_architecture_analysis_request:semantic",
+        "evidence:adeu_architecture_analysis_request:structural"
+      ]
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "core_envelope_features": [
+        "closed_root",
+        "has_defs",
+        "has_schema_const"
+      ],
+      "family_cluster": "adeu_core_ir",
+      "lineage_overlay": "core_ir_lineage",
+      "primary_carrier_class": "StructuralModel",
+      "residual_flags": [],
+      "schema_discriminator": "adeu_core_ir@0.1",
+      "schema_key": "adeu_core_ir",
+      "schema_path": "packages/adeu_core_ir/schema/adeu_core_ir.v0_1.json",
+      "secondary_role_form_tags": [
+        "ir"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:adeu_core_ir:anchor",
+        "evidence:adeu_core_ir:lexical",
+        "evidence:adeu_core_ir:structural"
+      ]
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "core_envelope_features": [
+        "closed_root",
+        "has_defs",
+        "has_schema_const"
+      ],
+      "family_cluster": "meta",
+      "lineage_overlay": "meta_control_lineage",
+      "primary_carrier_class": "ContractGate",
+      "residual_flags": [],
+      "schema_discriminator": "meta_loop_sequence_contract@1",
+      "schema_key": "meta_loop_sequence_contract",
+      "schema_path": "packages/adeu_core_ir/schema/meta_loop_sequence_contract.v1.json",
+      "secondary_role_form_tags": [
+        "contract"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:meta_loop_sequence_contract:anchor",
+        "evidence:meta_loop_sequence_contract:governance",
+        "evidence:meta_loop_sequence_contract:lexical",
+        "evidence:meta_loop_sequence_contract:structural"
+      ]
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "core_envelope_features": [
+        "closed_root",
+        "has_schema_const"
+      ],
+      "family_cluster": "policy",
+      "lineage_overlay": "policy_lineage",
+      "primary_carrier_class": "ContractGate",
+      "residual_flags": [],
+      "schema_discriminator": "policy_registry@1",
+      "schema_key": "policy_registry",
+      "schema_path": "spec/policy_registry.schema.json",
+      "secondary_role_form_tags": [
+        "policy",
+        "registry"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:policy_registry:anchor",
+        "evidence:policy_registry:governance",
+        "evidence:policy_registry:lexical",
+        "evidence:policy_registry:semantic",
+        "evidence:policy_registry:structural"
+      ]
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "core_envelope_features": [
+        "closed_root",
+        "has_defs",
+        "has_schema_const"
+      ],
+      "family_cluster": "ux",
+      "lineage_overlay": "ux_governance_lineage",
+      "primary_carrier_class": "ContractGate",
+      "residual_flags": [],
+      "schema_discriminator": "ux_interaction_contract@1",
+      "schema_key": "ux_interaction_contract",
+      "schema_path": "packages/adeu_core_ir/schema/ux_interaction_contract.v1.json",
+      "secondary_role_form_tags": [
+        "contract"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:ux_interaction_contract:anchor",
+        "evidence:ux_interaction_contract:governance",
+        "evidence:ux_interaction_contract:lexical",
+        "evidence:ux_interaction_contract:structural"
+      ]
+    }
+  ],
+  "schema_family_registry_id": "repo_schema_family_registry_0295d9730ab7a2c940d7b56d",
+  "snapshot_validity_posture": "snapshot_bound_current",
+  "source_set": {
+    "source_paths": [
+      "packages/adeu_arc_agi/schema/adeu_arc_task_packet.v1.json",
+      "packages/adeu_architecture_ir/schema/adeu_architecture_analysis_request.v1.json",
+      "packages/adeu_core_ir/schema/adeu_core_ir.v0_1.json",
+      "packages/adeu_core_ir/schema/meta_loop_sequence_contract.v1.json",
+      "packages/adeu_core_ir/schema/ux_interaction_contract.v1.json",
+      "packages/adeu_ir/schema/adeu.validator_result.v0.json",
+      "spec/policy_registry.schema.json"
+    ],
+    "source_set_hash": "5d6c038f70300760e5bdc55829759dd8dfe8cd9918728232cceb74a885a5bec3"
+  }
+}
