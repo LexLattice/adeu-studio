@@ -207,6 +207,15 @@ The strongest immediate first-family candidates are:
 Those two surfaces together start turning the repo from prose-described to self-
 described.
 
+The schema corpus is likely the strongest first bounded subcorpus inside that move,
+because schemas already expose:
+
+- closed-world shape;
+- anchor vocabularies;
+- governance posture;
+- lineage posture;
+- visible recurring carrier forms.
+
 ### 6.1 Epistemic posture of descriptive outputs
 
 The descriptive plane should not only emit typed objects.
@@ -414,6 +423,50 @@ The registry should also make explicit:
 - whether the classification is mechanically derived, heuristically inferred, or
   adjudicated;
 - what differentiates nearby role-forms when the boundary is not obvious.
+
+### 8.2 Current working schema-core hypothesis
+
+The current best branch-local hypothesis for the schema-family-registry lane is not:
+
+- one flat universal meta-schema;
+- or one fully fragmented family-per-family ontology.
+
+The current best working hypothesis is:
+
+```text
+common core envelope
+  + carrier overlays
+  + lineage overlays
+  + narrow named residuals
+```
+
+Under this hypothesis, the stable thing is primarily the envelope:
+
+- discriminator posture;
+- closure and local-def posture;
+- anchor posture;
+- governance posture;
+- evidence, derivation, and lineage posture;
+- settlement or boundedness posture.
+
+Carrier variation and lineage-specific anchor vocabularies should then be modeled
+explicitly rather than flattened away.
+
+This should remain:
+
+- a branch-local conceptual hypothesis for `V45-A`;
+- not yet settled ADEU schema constitution;
+- not yet sufficient for lock-level doctrine without a bounded reconstruction check.
+
+So `V45-A` should likely require one bounded schema subset where representative schemas
+are decomposed into:
+
+- core fields;
+- carrier overlay;
+- lineage overlay;
+- residuals;
+
+and then explicitly reconstructed back.
 
 ## 9. Symbol, Dependency, And Test-Intent Doctrine
 

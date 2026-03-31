@@ -133,15 +133,17 @@ Planning relationship:
   - `docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md`
 - Recommended decomposition reference:
   - required before the first `V45` lock and should explicitly include:
+    - `docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md`
     - `docs/DRAFT_REPO_ENTITY_ROLE_TAXONOMY_v0.md`
+    - `docs/DRAFT_SCHEMA_META_CORE_v0.md`
     - `docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md`
-    - one concrete `V45` decomposition draft (`not_selected_yet`)
 - Recommended next path for this branch:
   - `V45-A`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+101_placeholder`
+  - `vNext+99`
 - Default path selection for this branch:
-  - select `V45-A` as the bounded starter
+  - select `V45-A` as the next default candidate
+  - treat `V45-A` as the bounded starter
 
 This family/path recommendation is branch-local to the `v28` planning surface.
 
@@ -180,6 +182,13 @@ reopening practical-analysis or recursive-governance releases.
 - explicit promotion law for descriptive posture transitions:
   - inferred -> adjudicated;
   - adjudicated -> settled.
+- current best branch-local schema-core hypothesis for the registry lane:
+  - common core envelope
+  - plus carrier overlays
+  - plus lineage overlays
+  - plus narrow named residuals
+- explicit bounded reconstruction check before that schema-core hypothesis may be treated
+  as stronger than planning-level conceptual support.
 
 The family should treat recursive-governance or amendment logic as:
 
@@ -199,6 +208,8 @@ At minimum, later `V45` work should make explicit:
 - what evidence is sufficient for that promotion;
 - who or what may promote an adjudicated classification to settled posture;
 - whether different entity classes may use different promotion rules.
+- whether the current schema-core hypothesis survives bounded decomposition and
+  reconstruction over a representative schema subset.
 
 ## Suggested `V45` Path Ladder
 
@@ -208,13 +219,14 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V45-A` | repo entity catalog + schema family registry substrate | candidate `repo_entity_catalog@1` and candidate `repo_schema_family_registry@1` | planned |
 | `V45-B` | symbol catalog + typed dependency graph | candidate `repo_symbol_catalog@1` and candidate `repo_dependency_graph@1` | planned |
-| `V45-C` | test intent matrix | candidate `repo_test_intent_matrix@1` | planned |
-| `V45-D` | optimization register | candidate `repo_optimization_register@1` | planned |
-| `V45-E` | descriptive-to-normative binding seam | recursive-governance binding over released descriptive objects | planned_later_not_selected_here |
+| `V45-C` | open arc/slice dependency register | candidate `repo_arc_dependency_register@1` | planned |
+| `V45-D` | test intent matrix | candidate `repo_test_intent_matrix@1` | planned |
+| `V45-E` | optimization register | candidate `repo_optimization_register@1` | planned |
+| `V45-F` | descriptive-to-normative binding seam | recursive-governance binding over released descriptive objects | planned_later_not_selected_here |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-The `V45-B` through `V45-D` ladder should be read as provisional planning scaffolding.
+The `V45-B` through `V45-E` ladder should be read as provisional planning scaffolding.
 
 If `V45-A` reveals that classification stability, adjudication burden, or extraction
 confidence are weaker than expected, widening into later paths may need to pause,
@@ -244,6 +256,11 @@ Implement the bounded repo entity-catalog and schema-family-registry lane first.
 - one canonical bounded schema family registry candidate artifact:
   - explicit schema family membership;
   - explicit role-form classification;
+  - explicit schema-core mapping posture using:
+    - common envelope fields;
+    - carrier overlay;
+    - lineage overlay;
+    - named residuals;
   - explicit role-form precedence across:
     - structural signature;
     - semantic function;
@@ -251,6 +268,20 @@ Implement the bounded repo entity-catalog and schema-family-registry lane first.
     - lexical naming;
   - explicit confidence or adjudication posture when structure alone does not settle the
     role;
+- one bounded representative schema subset and reconstruction appendix over at least:
+  - one ARC operational schema;
+  - one architecture analysis schema;
+  - one meta-loop schema;
+  - one UX schema;
+  - one core structural integrity schema;
+  - one policy/runtime schema;
+  - one legacy or residual schema;
+  with explicit decomposition into:
+  - core fields;
+  - carrier overlay;
+  - lineage overlay;
+  - residuals;
+  and explicit reconstruction back to the concrete schema definition;
 - one bounded reference snapshot or fixture posture over the ADEU repo;
 - no widening yet into mutation proposals, recursive amendment logic, or optimization
   prescriptions.
@@ -307,13 +338,24 @@ Symbol and dependency lane:
 
 ### `V45-C`
 
+Open arc/slice dependency register lane:
+
+- candidate `repo_arc_dependency_register@1`;
+- explicit register over open arcs, selected paths, dependencies, and blockers;
+- descriptive only:
+  - no automatic scheduling authority;
+  - no priority entitlement;
+  - no mutation or planning resolution authority.
+
+### `V45-D`
+
 Test-intent lane:
 
 - candidate `repo_test_intent_matrix@1`;
 - explicit distinction between claimed invariant binding and observed assertion surface;
 - confidence posture over invariant-defense claims.
 
-### `V45-D`
+### `V45-E`
 
 Optimization-register lane:
 
@@ -321,7 +363,7 @@ Optimization-register lane:
 - hotspot, consolidation, and compression diagnostics;
 - explicit non-equivalence between surfaced diagnostics and amendment permission.
 
-### `V45-E`
+### `V45-F`
 
 Deferred descriptive-to-normative binding seam:
 
@@ -408,14 +450,16 @@ are:
     "V45-B",
     "V45-C",
     "V45-D",
-    "V45-E"
+    "V45-E",
+    "V45-F"
   ],
   "default_next_arc_candidate_for_this_branch": "V45-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+101_placeholder",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+99",
   "family_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
-  "family_decomposition_doc": "not_selected_yet",
+  "family_decomposition_doc": "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_REPO_ENTITY_ROLE_TAXONOMY_v0.md",
+    "docs/DRAFT_SCHEMA_META_CORE_v0.md",
     "docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md"
   ],
   "planned_family_packages": [
@@ -428,20 +472,23 @@ are:
   "branch_local_planning_selection_only": true,
   "descriptive_plane_first_required": true,
   "classification_promotion_law_required": true,
+  "branch_local_schema_core_hypothesis_selected": "common_core_plus_carrier_and_lineage_overlays_with_narrow_residuals",
   "repo_visible_snapshot_scope_required": true,
   "extraction_provenance_required": true,
   "determinism_confidence_and_adjudication_postures_required": true,
   "multi_axis_entity_taxonomy_required": true,
   "schema_role_form_registry_first_required": true,
+  "bounded_schema_reconstruction_subset_required": true,
   "role_form_precedence_required": true,
   "v45a_repo_entity_catalog_required": true,
   "v45a_repo_schema_family_registry_required": true,
   "v45a_descriptive_first_non_promotional_required": true,
-  "v45bcd_path_order_provisional_pending_v45a_quality_required": true,
+  "v45bcde_path_order_provisional_pending_v45a_quality_required": true,
   "v45b_symbol_catalog_dependency_graph_planned": true,
-  "v45c_test_intent_matrix_planned": true,
-  "v45d_optimization_register_planned": true,
-  "v45e_recursive_governance_binding_not_selected_here": true,
+  "v45c_arc_dependency_register_planned": true,
+  "v45d_test_intent_matrix_planned": true,
+  "v45e_optimization_register_planned": true,
+  "v45f_recursive_governance_binding_not_selected_here": true,
   "recursive_amendment_binding_initially_deferred": true,
   "automatic_repo_mutation_initially_deferred": true,
   "optimization_findings_non_promotional_required": true,
