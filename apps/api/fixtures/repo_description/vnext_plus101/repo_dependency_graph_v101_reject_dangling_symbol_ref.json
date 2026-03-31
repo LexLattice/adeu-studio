@@ -1,0 +1,2196 @@
+{
+  "dependency_edges": [
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_009f1d2ce5d1165d92db1e38",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:MissingSymbol:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "module_import",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_00d7a484f631ef3b427509b1",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "external:re",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_0249a65a49664c328fe1d2fe",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyEdge:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_02d7d0ef5f83af15bdb4733c",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_symbol_catalog_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_0348b2b1df8ce7bb25dbefed",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_03b225cc85c9ffc64cb13b34",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:default_v45a_source_paths:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_06a115fb33fb1e7d5c6ce868",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45b_repo_dependency_graph:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_0ad52200fd8e014f299b7fac",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "external:typing",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_0b4647f37c49ebb7d3a769d2",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSymbolCatalog:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_0f64be69634546ee83097062",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegisterEntryV1:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_12cff41bdbddfd65340b6c0d",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:REPO_DEPENDENCY_GRAPH_SCHEMA:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_14c39f27397b51b3e9c04fdf",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_repo_dependency_graph_id:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_15e3227204923bd2c142e61a",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_repo_symbol_catalog_id:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_17b4085b91d74cfcae0d5db2",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:canonicalize_repo_arc_dependency_register_v1_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_18df89abf67adfe6b47dff3b",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_repo_arc_dependency_register_v1_id:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_1d4861609cd2f0e308cdb3f6",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyEdgeV1:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_210b2d5ccc2fd6a87a19ba0e",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegister:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_21c68353e97ec08b4ab74360",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_internal_module_boundary_ref:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_263099ccfa62eb5769a7b4ff",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RECONSTRUCTION_EQUIVALENCE_MODE:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_28963c7b9bf632314a8a341a",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:default_v45b_source_paths:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_296504e294faeb11e875dbae",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_symbol_catalog_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_2bbb9331dcf317de282c307e",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_symbol_id:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_2cd68d06b3f4129c6a783526",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45b_repo_symbol_catalog_and_dependency_graph:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_2d036882a86e2825025d3631",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:V45A_V99_CONTRACT_SOURCE:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_30d7d442813d3d03f7e55a83",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_v45a_classification_policy_hash:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_out_of_scope",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_31af50b59e6dfcdf2bb5e27d",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "out_of_scope:adeu_ir.repo",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_33347694607ae40bdb9cebd2",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_repo_schema_family_registry_id:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "module_import",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_340af5d04ca16bc30c3fd4a7",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "external:re",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_34539a50ee4909ef0e2316c4",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_dependency_graph_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_349f530b3c3ba01a8413ee75",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSchemaFamilyRegistry:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_35edab83424425537ade9d3a",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "external:typing",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_36a676e121ed5a69fbd660e4",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_v45c_v100_dependency_policy_hash:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_3720a53b3e707a2135029283",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45a_repo_entity_catalog:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_3a451966b89a2aa779590ca8",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegister:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "module_import",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_3b97d6eebc0aabe5ce184438",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "external:json",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_3ffbbb94246d7cdbb062a1db",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSchemaFamilyRegistry:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_41d1024e563d9c0dbec49f10",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:canonicalize_repo_entity_catalog_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_43087136c8be6339f2e17765",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSymbolCatalogEntry:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_43f5581cb0fa41828064c2ee",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:V45A_CLASSIFICATION_POLICY_REF:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_4bf145197cd553f83a121143",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py:main:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_out_of_scope",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_4c2a9afce3cf9019157fab7e",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "out_of_scope:urm_runtime.hashing",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_4fbde47907ff7179c4b01070",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSchemaReconstructionRow:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_531c29ec6f8f93f3916fa8be",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyEdgeV1:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_54a41081391602b22ddc0c77",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegisterV1:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_56735645486df97d4314dc32",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSchemaReconstructionRow:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_57a9b719fbc7099402d8cb1b",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:V45C_V102_CONTRACT_SOURCE:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_59ce81cd75370d81053c475c",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegisterV1:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_5e46562f442be7b3c6c37b1d",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:REPO_SYMBOL_CATALOG_SCHEMA:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_6b6a02be42c2a597617261b2",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:default_v45c_source_paths:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_6bec56c725065db371b48155",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_dependency_graph_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_6cb5e1ae2de6320cc3082f6c",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:validate_repo_symbol_catalog_dependency_graph_pair:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_6fcaa4ee18284a5770c36064",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSchemaFamilyRegistryEntry:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_7328122027f74a7a7e49f88d",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/models.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:copy",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_7a711aaa994596d22833c4ef",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:V45C_V100_CONTRACT_SOURCE:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_7bc015c5214986e193edf978",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoDependencyGraphEdge:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_7e20f62a69d7a2d2655db41b",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_symbol_id:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_7f0824e195dfd6a1d757e6b3",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoDependencyGraph:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_802800df9925e58e55a5585b",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_repo_entity_catalog_id:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_805fc4348eaeb8a916f68608",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:canonicalize_repo_dependency_graph_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_820ea88b03207c0893ac975d",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegisterV1:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_8228263af7602ad7b051ef49",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_schema_family_registry_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_82e4e7793d31d01075d0c679",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSymbolCatalogEntry:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_837cff198a552c916431b207",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:REPO_DEPENDENCY_GRAPH_SCHEMA:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_889be74aeca03dfa9e390364",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoEntityCatalogEntry:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_8919e322cf879c489e5630bf",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:V45C_DEPENDENCY_POLICY_REF:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_8aedd068527bf48b64d6f566",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSchemaFamilyRegistry:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_8cbb851028656c2c6730e129",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45a_repo_description_bundle:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_8e426b7d9a54257e18420c10",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegister:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_8e5dec625df38b5df238cc95",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_8ee9cb6e38f55e2e9caa77b8",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/models.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:typing",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_927d856b7541df8c78540716",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoDependencyGraphEdge:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_93119a166120df9b275b275e",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoDescriptionEvidenceRef:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_935ba77202ebd6a5ab073cf9",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_schema_family_registry_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_93603d817e751f3e5c3b110c",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoDescriptionEvidenceRef:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_96f616197823bc6f162f7bf7",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "external:pathlib",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_992d814ebc4b0e61169b2b5d",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:representative_schema_keys:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_9d854de67e2627a5c3adc730",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyEdge:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_a1c69b632ebe6fbf505c6dca",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegisterEntry:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_a2e6f8f5fb4756d8495dd75a",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45b_repo_symbol_catalog:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_a35f8775c0d192924141f097",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:SCHEMA_VISIBLE_ENTITY_COVERAGE_MODE:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_a3f55839c321d9eb23044155",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_arc_dependency_register_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_a6c217cde62a970e3f5ae573",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:V45B_V101_CONTRACT_SOURCE:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_a7c2c90bd1b78e1fb866d2e1",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:representative_schema_keys:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_a90f11b1f1896d8aa2adc304",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoEntityCatalog:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_aebfede302db820bda4fb6e0",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_v45c_v102_dependency_policy_hash:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_afb0bcabb95327d1bf56214a",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:REPO_ENTITY_CATALOG_SCHEMA:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_b414deef563ca602b883512f",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_arc_dependency_register_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_b801aa618b853fe29651fcea",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_internal_module_boundary_ref:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_b83c35f97f314455d2db1ce2",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoDependencyGraph:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_bbafbe0baf564d6f6c8b84c8",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_arc_dependency_register_v1_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_be9bc202b626b13b13a2826f",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_v45a_classification_policy_hash:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_c052a370bd545aa567fc6876",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:REPO_ARC_DEPENDENCY_REGISTER_SCHEMA:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_c221300e60345082d20047c6",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:REPO_SYMBOL_CATALOG_SCHEMA:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_c538873189e458f1c1f59dc8",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoEntityCatalog:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_out_of_scope",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_c558a5174750bc4bca8593ff",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/models.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "out_of_scope:urm_runtime.hashing",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_c5a555220733c8607d5fbe5f",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:V45C_DEPENDENCY_POLICY_REF:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_c83e203b5e3f373ca503a402",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoDependencyGraph:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_c89353472dee55662e1d4a44",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSourceSet:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_c8f7601f9f094902182da0d5",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSchemaFamilyRegistryEntry:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_c9a70adb9c64d6e269ce26f7",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoEntityCatalogEntry:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_cd1aa1cce2e0531c99fa4160",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSourceSet:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_cecb3ffbbf888fde7737b34f",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:canonicalize_repo_symbol_catalog_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_d082fd7d8e553c97dc679113",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "external:copy",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_d1abc08d0eb6e5cf6238fdfa",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45a_repo_schema_family_registry:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_d1d003782ecbece80d50e94b",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45c_repo_arc_dependency_register:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_d5bb9bcfcf4124098fbee695",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoDescriptionEvidenceRef:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_d78bd01324bda9c012e844c3",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:canonicalize_repo_schema_family_registry_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_d83f72a295e8b0e1a2d1436f",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/models.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pathlib",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "module_import",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_da6d5c996d77841b5466daf1",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "external:ast",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_dac3d41c3d94084dc32ae189",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSchemaFamilyRegistry:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_db065d2900521b6d84482709",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/models.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "module_import",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_dc6310b6d491f31cb3fa7f1d",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "external:json",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_ddc421e6ee690d928d3fbfb6",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:SCHEMA_VISIBLE_ENTITY_COVERAGE_MODE:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_e0cb23054fa0ef8e7e33ef41",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:canonicalize_repo_arc_dependency_register_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_e4e7239cb4da2c2b52d7f4b1",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoEntityCatalog:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "module_import",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_e69751aaa52339e7250b4c14",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/models.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:re",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_ea52a005cdb4988f3bd1bdec",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegisterEntry:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_ec8d03afa6ecbe9852127321",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSymbolCatalog:class",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_ef679ae6732a7762d31f3c32",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:V45A_CLASSIFICATION_POLICY_REF:attribute",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_out_of_scope",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_f161a951e902993a81ecc2db",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "out_of_scope:adeu_ir.repo",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_f24363f8b1bd0bb72380bf46",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:compute_v45c_v102_dependency_policy_hash:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_f5c1a302d2ff51c0db3b0769",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_entity_catalog_payload:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_f7d51d9d9fb6da1afe1453ab",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoSymbolCatalog:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_f84a39e55ae08728d9657b8e",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:validate_repo_symbol_catalog_dependency_graph_pair:function",
+      "to_ref_kind": "internal_symbol"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_fba5937fdb762b0398b338cc",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+      ],
+      "to_ref": "external:pathlib",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "inheritance",
+      "dependency_posture": "boundary_external",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_fe7c65006061e2009659e47d",
+      "from_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:RepoArcDependencyRegisterEntryV1:class",
+      "from_ref_kind": "internal_symbol",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "to_ref": "external:pydantic",
+      "to_ref_kind": "external_dependency"
+    },
+    {
+      "dependency_kind": "symbol_reference",
+      "dependency_posture": "internal_resolved",
+      "derivation_method": "ast_parse",
+      "derivation_posture": "derived_deterministically",
+      "edge_id": "edge_feef3fe884a8384629d7c287",
+      "from_ref": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+      "from_ref_kind": "internal_module_boundary",
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "to_ref": "symbol:packages/adeu_repo_description/src/adeu_repo_description/models.py:materialize_repo_entity_catalog_payload:function",
+      "to_ref_kind": "internal_symbol"
+    }
+  ],
+  "evidence_refs": [
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py"
+    }
+  ],
+  "extraction_method": "ast_parse",
+  "extraction_posture": "derived_deterministically",
+  "graph_scope": "v45b-bounded-python-symbol-catalog-and-dependency-graph-over-adeu_repo_description",
+  "repo_dependency_graph_id": "repo_dependency_graph_c5e574f6aa3aceacbacb81ea",
+  "repo_snapshot_hash": "37304ab5b77ec7bd32e3251b7c00a027237d017c9021281cba4da583dc633fbb",
+  "repo_snapshot_id": "repo_snapshot_37304ab5b77ec7bd32e3251b",
+  "schema": "repo_dependency_graph@1",
+  "snapshot_validity_posture": "snapshot_bound_current",
+  "source_set": [
+    "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+  ],
+  "source_set_hash": "37304ab5b77ec7bd32e3251b7c00a027237d017c9021281cba4da583dc633fbb"
+}
