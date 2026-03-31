@@ -1,0 +1,81 @@
+# Assessment vNext+101 Edges
+
+Status: planning-edge assessment for `V45-B`.
+
+## Assessment-State Marker (Machine-Checkable)
+
+```json
+{
+  "schema": "assessment_artifact_state@1",
+  "artifact": "docs/ASSESSMENT_vNEXT_PLUS101_EDGES.md",
+  "phase": "pre_lock_assessment",
+  "authoritative": false,
+  "required_in_decision": true
+}
+```
+
+## Open Edges
+
+### Edge 1: Symbol-As-Authority Drift
+
+- Risk:
+  symbol-catalog outputs could be overread as refactor or scheduling authority.
+- Response:
+  keep symbol and dependency outputs descriptive-first and non-promotional.
+
+### Edge 2: Dangling Dependency Laundering
+
+- Risk:
+  dependency edges could reference unknown symbol or module targets while still
+  appearing valid.
+- Response:
+  fail closed on any edge whose endpoints are not present in typed symbol or bound
+  source surfaces.
+
+### Edge 3: Symbol-Role Overclaim
+
+- Risk:
+  symbol-role classifications could collapse into vague naming heuristics or unstated
+  assumptions about implementation importance.
+- Response:
+  require explicit role-classification posture and classification method on typed symbol
+  entries.
+
+### Edge 4: Snapshot Overread
+
+- Risk:
+  one snapshot-bound symbol/dependency graph could be overread as current repo truth
+  after repo drift.
+- Response:
+  keep snapshot validity posture explicit and treat stale outputs as historical.
+
+### Edge 5: Whole-Repo And Cross-Language Scope Creep
+
+- Risk:
+  the first code-graph seam could widen early into whole-repo exhaustive or
+  multi-language inventory work.
+- Response:
+  keep `v101` bounded to one explicit Python source-set posture only.
+
+### Edge 6: Test-Intent Laundering
+
+- Risk:
+  typed code-graph outputs could be overread as test-intent or invariant-binding
+  doctrine.
+- Response:
+  defer test-intent matrix release to later `V45-D` work.
+
+### Edge 7: Optimization Entitlement Creep
+
+- Risk:
+  hotspot or dependency concentration signals could be interpreted as automatic split,
+  abstraction, or optimization entitlement.
+- Response:
+  keep `V45-B` descriptive-only and defer optimization-register doctrine to `V45-E`.
+
+## Current Judgment
+
+- `V45-B` is worth starting now because the next missing descriptive layer after the
+  released `V45-A` and `V45-C` baselines is typed code-level self-description.
+- The safest first seam is symbol catalog plus typed dependency graph release, not
+  optimization advice, test-intent claims, or normative binding.
