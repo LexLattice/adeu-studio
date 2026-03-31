@@ -1,0 +1,10 @@
+{
+  "schema": "v45c_repo_arc_dependency_register_hardening_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v102/evidence_inputs/v45c_repo_arc_dependency_register_hardening_evidence_v102.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md#v102-continuation-contract-machine-checkable",
+  "merged_pr": "#323",
+  "merge_commit": "dc25623edc192f11ea9921f25254d4d4a8fec35e",
+  "repo_arc_dependency_register_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_arc_dependency_register.v2.json",
+  "repo_arc_dependency_register_mirror_schema_path": "spec/repo_arc_dependency_register.schema.json",
+  "accepted_dependency_register_fixture_path": "apps/api/fixtures/repo_description/vnext_plus102/repo_arc_dependency_register_v102_reference.json"
+}

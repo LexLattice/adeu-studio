@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+100",
+  "current_arc": "vNext+102",
+  "baseline_source": "artifacts/stop_gate/report_v100_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v102_closeout.md",
+  "baseline_elapsed_ms": 96,
+  "current_elapsed_ms": 96,
+  "delta_ms": 0,
+  "notes": "v102 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while hardening the released V45-C dependency register to repo_arc_dependency_register@2 with explicit provenance, bounded posture vocabularies, cycle posture scope, and corrective planning-marker consistency guards."
+}

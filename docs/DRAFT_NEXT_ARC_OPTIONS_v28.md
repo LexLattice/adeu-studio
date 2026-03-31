@@ -2,7 +2,8 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v27.md`, updated after the
 repo self-description seed was clarified as a separate but connected family direction
-and refreshed after `vNext+100` (`V45-A` and `V45-C`) closed on `main`.
+and refreshed after `vNext+100` and `vNext+102` (`V45-A` plus `V45-C` baseline and
+corrective hardening) closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` or the structural-reasoning assessment planning
@@ -35,14 +36,15 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+100` is the current baseline implementation state on `main`.
+- `vNext+102` is the current baseline implementation state on `main`.
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` is closed on `main`:
   - bounded `repo_schema_family_registry@1`
   - bounded `repo_entity_catalog@1`
   - bounded representative schema reconstruction appendix
 - `V45-C` is closed on `main`:
-  - bounded `repo_arc_dependency_register@1`
+  - bounded `repo_arc_dependency_register@1` baseline (v100)
+  - bounded corrective hardening to `repo_arc_dependency_register@2` (v102)
   - open arc/slice dependency posture over one repo snapshot
 - `vNext+101` starter docs are drafted on `main` for the broader `V45-B` widening seam.
 - released `meta_*` schema/control surfaces already exist on `main`, including:
@@ -239,7 +241,7 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V45-A` | repo entity catalog + schema family registry substrate | candidate `repo_entity_catalog@1` and candidate `repo_schema_family_registry@1` | closed_on_main |
 | `V45-B` | symbol catalog + typed dependency graph | candidate `repo_symbol_catalog@1` and candidate `repo_dependency_graph@1` | selected_next_branch_local |
-| `V45-C` | open arc/slice dependency register | candidate `repo_arc_dependency_register@1` | closed_on_main |
+| `V45-C` | open arc/slice dependency register | candidate `repo_arc_dependency_register@1` baseline plus bounded corrective hardening to `@2` | closed_on_main |
 | `V45-D` | test intent matrix | candidate `repo_test_intent_matrix@1` | planned |
 | `V45-E` | optimization register | candidate `repo_optimization_register@1` | planned |
 | `V45-F` | descriptive-to-normative binding seam | recursive-governance binding over released descriptive objects | planned_later_not_selected_here |
@@ -252,21 +254,14 @@ If `V45-A` reveals that classification stability, adjudication burden, or extrac
 confidence are weaker than expected, widening into later paths may need to pause,
 reorder, or narrow.
 
-After `V45-C` closes on `main`, a bounded corrective follow-up under the same `V45-C`
-path may still be pulled forward before stronger consumers rely on the released surface.
+The bounded `V45-C` corrective follow-up has now been shipped as `vNext+102`.
 
-That corrective follow-up should be read as:
+Its interpretation remains:
 
 - released-surface hardening under `V45-C`;
 - not a reclassification of `V45-C` into `V45-B`;
 - and not a replacement for `V45-B` as the next broader code-self-description widening
   lane.
-- when that hardening seam is the immediate next implementation move, select `V45-C` as
-  the next default candidate for the corrective sub-branch while leaving `V45-B` as the
-  broader next widening lane;
-- because current arc-bundle tooling is numeric-only, the starter bundle may need to
-  use a later numeric arc label even when the intended planning meaning is
-  `100-bis`-style chronology.
 
 ## Recommended Next Path (`V45-B`)
 
