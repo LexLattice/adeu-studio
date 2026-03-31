@@ -1,0 +1,13 @@
+{
+  "schema": "v45b_repo_symbol_catalog_dependency_graph_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v101/evidence_inputs/v45b_repo_symbol_catalog_dependency_graph_evidence_v101.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS101.md#v101-continuation-contract-machine-checkable",
+  "merged_pr": "#324",
+  "merge_commit": "0eee0354867c1959f0d34cc8134d283369f99d96",
+  "repo_symbol_catalog_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_symbol_catalog.v1.json",
+  "repo_symbol_catalog_mirror_schema_path": "spec/repo_symbol_catalog.schema.json",
+  "repo_dependency_graph_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_dependency_graph.v1.json",
+  "repo_dependency_graph_mirror_schema_path": "spec/repo_dependency_graph.schema.json",
+  "accepted_symbol_catalog_fixture_path": "apps/api/fixtures/repo_description/vnext_plus101/repo_symbol_catalog_v101_reference.json",
+  "accepted_dependency_graph_fixture_path": "apps/api/fixtures/repo_description/vnext_plus101/repo_dependency_graph_v101_reference.json"
+}

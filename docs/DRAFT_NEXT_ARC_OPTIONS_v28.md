@@ -2,8 +2,8 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v27.md`, updated after the
 repo self-description seed was clarified as a separate but connected family direction
-and refreshed after `vNext+100` and `vNext+102` (`V45-A` plus `V45-C` baseline and
-corrective hardening) closed on `main`.
+and refreshed after `vNext+100`, `vNext+102`, and `vNext+101` (`V45-A`, `V45-C`
+baseline plus corrective hardening, and `V45-B`) closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` or the structural-reasoning assessment planning
@@ -36,7 +36,8 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+102` is the current baseline implementation state on `main`.
+- `vNext+101` and `vNext+102` are both closed on `main` as the current `V45`
+  implementation baseline.
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` is closed on `main`:
   - bounded `repo_schema_family_registry@1`
@@ -46,7 +47,10 @@ Interpretive doctrine for this planning surface:
   - bounded `repo_arc_dependency_register@1` baseline (v100)
   - bounded corrective hardening to `repo_arc_dependency_register@2` (v102)
   - open arc/slice dependency posture over one repo snapshot
-- `vNext+101` starter docs are drafted on `main` for the broader `V45-B` widening seam.
+- `V45-B` is closed on `main`:
+  - bounded `repo_symbol_catalog@1`
+  - bounded `repo_dependency_graph@1`
+  - bounded Python symbol/dependency self-description over one repo snapshot
 - released `meta_*` schema/control surfaces already exist on `main`, including:
   - `meta_module_catalog@1`
   - `meta_loop_sequence_contract@1`
@@ -76,10 +80,6 @@ schema-visible entity-catalog outputs.
 
 The repo still lacks a released way to:
 
-- widen that descriptive baseline into symbol-level visibility and typed dependency
-  graph surfaces;
-- surface open arc/slice dependency posture as a machine-enforced pending list rather
-  than mainly maintainer memory and prose continuity;
 - surface test intent and hotspot/consolidation signals as named descriptive objects;
 - define a structural home for short-lived branch-local "hot memory" continuation
   artifacts without overloading next-arc-options docs for that purpose;
@@ -152,20 +152,13 @@ Planning relationship:
   - `docs/DRAFT_SCHEMA_META_CORE_v0.md`
   - `docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md`
 - Recommended next path for this branch:
-  - `V45-B`
+  - `V45-D`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+101`
+  - `vNext+103`
 - Default path selection for this branch:
-  - select `V45-B` as the next default candidate
-  - treat `V45-B` as the bounded next widening for symbol catalog and typed
-    dependency-graph release after the released `V45-A` and `V45-C` descriptive
-    baselines
-- Corrective follow-up note on this same planning surface:
-  - if released `V45-C` hardening is selected before broader `V45-B` consumers rely on
-    `repo_arc_dependency_register@1`, select `V45-C` as the next default candidate for
-    that bounded corrective follow-up;
-  - treat that follow-up as conceptually `100-bis` relative to released `vNext+100`,
-    while current arc-bundle tooling remains numeric-only.
+  - select `V45-D` as the next default candidate
+  - treat `V45-D` as the bounded next widening for test-intent visibility after the
+    released `V45-A`, `V45-B`, and `V45-C` descriptive baselines
 
 This family/path recommendation is branch-local to the `v28` planning surface.
 
@@ -240,15 +233,15 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V45-A` | repo entity catalog + schema family registry substrate | candidate `repo_entity_catalog@1` and candidate `repo_schema_family_registry@1` | closed_on_main |
-| `V45-B` | symbol catalog + typed dependency graph | candidate `repo_symbol_catalog@1` and candidate `repo_dependency_graph@1` | selected_next_branch_local |
+| `V45-B` | symbol catalog + typed dependency graph | candidate `repo_symbol_catalog@1` and candidate `repo_dependency_graph@1` | closed_on_main |
 | `V45-C` | open arc/slice dependency register | candidate `repo_arc_dependency_register@1` baseline plus bounded corrective hardening to `@2` | closed_on_main |
-| `V45-D` | test intent matrix | candidate `repo_test_intent_matrix@1` | planned |
+| `V45-D` | test intent matrix | candidate `repo_test_intent_matrix@1` | selected_next_branch_local |
 | `V45-E` | optimization register | candidate `repo_optimization_register@1` | planned |
 | `V45-F` | descriptive-to-normative binding seam | recursive-governance binding over released descriptive objects | planned_later_not_selected_here |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-The `V45-B` through `V45-E` ladder should be read as provisional planning scaffolding.
+The `V45-D` through `V45-E` ladder should be read as provisional planning scaffolding.
 
 If `V45-A` reveals that classification stability, adjudication burden, or extraction
 confidence are weaker than expected, widening into later paths may need to pause,
@@ -260,73 +253,60 @@ Its interpretation remains:
 
 - released-surface hardening under `V45-C`;
 - not a reclassification of `V45-C` into `V45-B`;
-- and not a replacement for `V45-B` as the next broader code-self-description widening
-  lane.
+- and not a replacement for the released `V45-B` code-self-description widening lane.
 
-## Recommended Next Path (`V45-B`)
+## Recommended Next Path (`V45-D`)
 
-Implement the bounded symbol-catalog and typed dependency-graph lane next.
+Implement the bounded test-intent matrix lane next.
 
-`V45-C` is now closed on `main` and resolves the open-arc dependency visibility seam.
+`V45-A`, `V45-B`, and `V45-C` are now closed on `main` and together provide the first
+released descriptive baseline for schema-visible entities, typed code self-description,
+and open arc/slice dependency posture.
 
-`V45-B` is the natural next widening because later `V45-D` through `V45-F` work needs a
-typed code-level self-description layer in addition to the released schema registry and
-released arc dependency register.
+`V45-D` is the natural next widening because later `V45-E` and `V45-F` work needs an
+explicit mapping from released code/test surfaces to claimed invariant-defense posture,
+not only schema rows, symbol rows, or open-arc dependency posture.
 
-`V45-B` should introduce:
+`V45-D` should introduce:
 
-- one canonical `repo_symbol_catalog@1` candidate artifact;
-- one canonical `repo_dependency_graph@1` candidate artifact;
-- explicit snapshot identity/hash and stale-snapshot posture;
-- typed symbol entries carrying at least:
-  - symbol identity;
-  - module path;
-  - qualified name;
-  - symbol kind;
-  - bounded role classification posture;
-- typed dependency edges carrying at least:
-  - source symbol or module ref;
-  - target symbol or module ref;
-  - dependency kind;
-  - dependency posture;
+- one canonical `repo_test_intent_matrix@1` candidate artifact;
+- explicit binding between tests, bounded invariants, and observed assertion surfaces;
+- claimed-vs-observed separation for test intent posture;
+- bounded confidence/adjudication posture for invariant-defense claims;
 - fail-closed rejection of:
-  - dangling symbol or dependency targets;
-  - duplicate identities;
-  - missing snapshot/source binding;
-  - cross-snapshot or malformed dependency laundering;
-  - scheduling or mutation entitlement laundering.
+  - aspirational invariant claims without observed assertion support;
+  - drift between declared source scope and emitted matrix rows;
+  - mutation or optimization entitlement laundering from diagnostic findings.
 
-`V45-B` is descriptive-first and non-promotional:
+`V45-D` is descriptive-first and non-promotional:
 
-- it may emit machine-legible code symbol and dependency visibility;
-- it may not emit automatic scheduling authority, planning-resolution authority, or
+- it may emit machine-legible test-intent visibility;
+- it may not emit automatic release-gating authority, optimization priority, or
   mutation entitlement.
 
 ## Why This Path
 
 - `V45-A` already established the first descriptive substrate on `main`.
+- `V45-B` already established the typed code-symbol and dependency baseline on `main`.
 - `V45-C` already established the open-arc dependency-register baseline on `main`.
-- the next missing layer is typed code-level self-description rather than another
+- the next missing layer is typed test-intent visibility rather than another code or
   planning-surface register.
-- if the released `V45-C` surface needs bounded corrective hardening, that follow-up may
-  be scheduled before broader `V45-B` consumers rely on `repo_arc_dependency_register@1`.
-- this seam turns Python/package/module/symbol structure into ADEU-native descriptive
-  objects that later `V45-D` through `V45-F` lanes can consume.
+- the released `V45-B` seam already turns Python/package/module/symbol structure into
+  ADEU-native descriptive objects that later `V45-D` through `V45-F` lanes can consume.
 - it keeps the family descriptive-first instead of jumping into optimizer or normative
   binding surfaces.
 
-## Current Boundary (`V45-B`)
+## Current Boundary (`V45-D`)
 
-`V45-B` should stay bounded to:
+`V45-D` should stay bounded to:
 
-- symbol catalog and typed dependency graph definition only;
-- explicit snapshot and stale-snapshot semantics only;
-- typed symbol identity and typed dependency visibility only;
+- test-intent matrix definition only;
+- explicit claimed-vs-observed invariant binding only;
+- bounded confidence/adjudication posture only;
 - one bounded repo snapshot or fixture posture only.
 
 It should not attempt:
 
-- broad test-intent inference;
 - optimization-register release;
 - recursive amendment logic;
 - mutation recommendation or refactor entitlement;
@@ -342,7 +322,7 @@ Symbol and dependency lane:
 - candidate `repo_symbol_catalog@1`;
 - candidate `repo_dependency_graph@1`;
 - typed import and dependency posture;
-- overlap signals without mutation entitlement.
+- now closed on `main`.
 
 ### `V45-C`
 
@@ -436,7 +416,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v27.md",
-  "baseline_arc": "vNext+100",
+  "baseline_arc": "vNext+101",
   "closed_prior_families": [
     "V41",
     "V42"
@@ -455,6 +435,7 @@ are:
   ],
   "closed_current_family_paths": [
     "V45-A",
+    "V45-B",
     "V45-C"
   ],
   "planned_current_family_paths": [
@@ -465,9 +446,9 @@ are:
     "V45-E",
     "V45-F"
   ],
-  "default_next_arc_candidate_for_this_branch": "V45-B",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+101",
-  "v45b_starter_bundle_drafted_on_main": true,
+  "default_next_arc_candidate_for_this_branch": "V45-D",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+103",
+  "v45b_closed_on_main": true,
   "family_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
   "family_decomposition_doc": "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md",
   "pre_lock_companion_docs_expected": [
@@ -496,14 +477,14 @@ are:
   "v45a_repo_entity_catalog_required": true,
   "v45a_repo_schema_family_registry_required": true,
   "v45a_descriptive_first_non_promotional_required": true,
-  "v45bcde_path_order_provisional_pending_v45a_quality_required": true,
-  "v45b_symbol_catalog_dependency_graph_selected_next": true,
+  "v45de_path_order_provisional_pending_released_v45abc_quality_required": true,
+  "v45b_symbol_catalog_dependency_graph_closed_on_main": true,
   "v45c_arc_dependency_register_closed_on_main": true,
   "v45c_corrective_followup_may_precede_v45b_consumers_when_released_surface_hardening_required": true,
   "v45c_corrective_followup_mode": "same_surface_branch_local_subselection",
   "v45c_corrective_followup_concrete_arc_candidate": "vNext+102",
   "non_numeric_bis_arc_taxonomy_not_yet_supported_by_current_bundle_tooling": true,
-  "v45d_test_intent_matrix_planned": true,
+  "v45d_test_intent_matrix_selected_next": true,
   "v45e_optimization_register_planned": true,
   "v45f_recursive_governance_binding_not_selected_here": true,
   "recursive_amendment_binding_initially_deferred": true,
