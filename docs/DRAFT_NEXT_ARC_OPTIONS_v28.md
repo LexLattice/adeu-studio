@@ -2,7 +2,7 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v27.md`, updated after the
 repo self-description seed was clarified as a separate but connected family direction
-and refreshed after `vNext+99` (`V45-A`) closed on `main`.
+and refreshed after `vNext+100` (`V45-A` and `V45-C`) closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` or the structural-reasoning assessment planning
@@ -35,12 +35,16 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+99` is the current baseline implementation state.
+- `vNext+100` is the current baseline implementation state on `main`.
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` is closed on `main`:
   - bounded `repo_schema_family_registry@1`
   - bounded `repo_entity_catalog@1`
   - bounded representative schema reconstruction appendix
+- `V45-C` is closed on `main`:
+  - bounded `repo_arc_dependency_register@1`
+  - open arc/slice dependency posture over one repo snapshot
+- `vNext+101` starter docs are drafted on `main` for the broader `V45-B` widening seam.
 - released `meta_*` schema/control surfaces already exist on `main`, including:
   - `meta_module_catalog@1`
   - `meta_loop_sequence_contract@1`
@@ -154,6 +158,12 @@ Planning relationship:
   - treat `V45-B` as the bounded next widening for symbol catalog and typed
     dependency-graph release after the released `V45-A` and `V45-C` descriptive
     baselines
+- Corrective follow-up note on this same planning surface:
+  - if released `V45-C` hardening is selected before broader `V45-B` consumers rely on
+    `repo_arc_dependency_register@1`, select `V45-C` as the next default candidate for
+    that bounded corrective follow-up;
+  - treat that follow-up as conceptually `100-bis` relative to released `vNext+100`,
+    while current arc-bundle tooling remains numeric-only.
 
 This family/path recommendation is branch-local to the `v28` planning surface.
 
@@ -242,6 +252,22 @@ If `V45-A` reveals that classification stability, adjudication burden, or extrac
 confidence are weaker than expected, widening into later paths may need to pause,
 reorder, or narrow.
 
+After `V45-C` closes on `main`, a bounded corrective follow-up under the same `V45-C`
+path may still be pulled forward before stronger consumers rely on the released surface.
+
+That corrective follow-up should be read as:
+
+- released-surface hardening under `V45-C`;
+- not a reclassification of `V45-C` into `V45-B`;
+- and not a replacement for `V45-B` as the next broader code-self-description widening
+  lane.
+- when that hardening seam is the immediate next implementation move, select `V45-C` as
+  the next default candidate for the corrective sub-branch while leaving `V45-B` as the
+  broader next widening lane;
+- because current arc-bundle tooling is numeric-only, the starter bundle may need to
+  use a later numeric arc label even when the intended planning meaning is
+  `100-bis`-style chronology.
+
 ## Recommended Next Path (`V45-B`)
 
 Implement the bounded symbol-catalog and typed dependency-graph lane next.
@@ -287,6 +313,8 @@ released arc dependency register.
 - `V45-C` already established the open-arc dependency-register baseline on `main`.
 - the next missing layer is typed code-level self-description rather than another
   planning-surface register.
+- if the released `V45-C` surface needs bounded corrective hardening, that follow-up may
+  be scheduled before broader `V45-B` consumers rely on `repo_arc_dependency_register@1`.
 - this seam turns Python/package/module/symbol structure into ADEU-native descriptive
   objects that later `V45-D` through `V45-F` lanes can consume.
 - it keeps the family descriptive-first instead of jumping into optimizer or normative
@@ -413,7 +441,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v27.md",
-  "baseline_arc": "vNext+98",
+  "baseline_arc": "vNext+100",
   "closed_prior_families": [
     "V41",
     "V42"
@@ -444,6 +472,7 @@ are:
   ],
   "default_next_arc_candidate_for_this_branch": "V45-B",
   "default_next_concrete_arc_candidate_for_this_branch": "vNext+101",
+  "v45b_starter_bundle_drafted_on_main": true,
   "family_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
   "family_decomposition_doc": "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md",
   "pre_lock_companion_docs_expected": [
@@ -475,6 +504,10 @@ are:
   "v45bcde_path_order_provisional_pending_v45a_quality_required": true,
   "v45b_symbol_catalog_dependency_graph_selected_next": true,
   "v45c_arc_dependency_register_closed_on_main": true,
+  "v45c_corrective_followup_may_precede_v45b_consumers_when_released_surface_hardening_required": true,
+  "v45c_corrective_followup_mode": "same_surface_branch_local_subselection",
+  "v45c_corrective_followup_concrete_arc_candidate": "vNext+102",
+  "non_numeric_bis_arc_taxonomy_not_yet_supported_by_current_bundle_tooling": true,
   "v45d_test_intent_matrix_planned": true,
   "v45e_optimization_register_planned": true,
   "v45f_recursive_governance_binding_not_selected_here": true,

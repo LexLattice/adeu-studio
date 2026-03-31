@@ -81,6 +81,7 @@ first schema registry kernel, then wider repo self-description
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` is closed on `main` through `vNext+99`.
 - `V45-C` is closed on `main` through `vNext+100`.
+- `vNext+101` starter docs are drafted on `main` for the broader `V45-B` widening seam.
 - `V45` is the current connected planning family from
   `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
 - The first safe move is still descriptive-plane first.
@@ -91,6 +92,11 @@ first schema registry kernel, then wider repo self-description
   require released symbol-catalog outputs.
 - `V45-B` is now the natural next widening seam after the released `V45-A` and `V45-C`
   descriptive baselines.
+- a bounded `V45-C` corrective follow-up may still be scheduled before broader `V45-B`
+  consumers rely on `repo_arc_dependency_register@1` if released-surface hardening is
+  needed.
+- that corrective follow-up is conceptually a `100-bis` continuation relative to the
+  released `V45-C` seam, even though current arc-bundle tooling remains numeric-only.
 
 ## Recommended First Concrete `V45-A` Slice
 
@@ -154,11 +160,15 @@ In particular:
 
 - `V45-B` should now be read as the default next lane for symbol catalog and typed
   dependency graph widening;
+- `V45-B` remains the broader next widening seam even if one bounded `V45-C`
+  corrective follow-up is pulled forward first;
 - `V45-C` is now closed on `main` as the open arc/slice dependency register baseline
   under `repo_arc_dependency_register@1`;
 - `V45-C` was correctly pulled forward before `V45-B` because the active need was
   dependency visibility over planning/lock/closeout surfaces rather than symbol-level
   code graph release;
+- any corrective continuation under `V45-C` should be read as released-surface
+  hardening rather than as a reclassification of `V45-B`;
 - the released dependency-register seam remains descriptive-first:
   - no automatic scheduling authority;
   - no priority entitlement;
@@ -196,6 +206,7 @@ To stay aligned with the `V45` branch, the first slice should obey these rules:
   "next_path_family": "V45",
   "default_next_path": "V45-B",
   "default_next_concrete_arc_candidate": "vNext+101",
+  "v45b_starter_bundle_drafted_on_main": true,
   "planned_family_packages": [
     "packages/adeu_repo_description"
   ],
@@ -220,6 +231,7 @@ To stay aligned with the `V45` branch, the first slice should obey these rules:
   "symbol_catalog_initially_deferred": false,
   "arc_dependency_register_released_on_main": true,
   "v45c_preceded_v45b_when_symbol_catalog_not_required": true,
+  "v45c_corrective_followup_may_precede_v45b_consumers_when_released_surface_hardening_required": true,
   "test_intent_matrix_initially_deferred": true,
   "optimization_register_initially_deferred": true,
   "recursive_governance_binding_initially_deferred": true,
