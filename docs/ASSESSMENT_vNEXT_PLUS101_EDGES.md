@@ -27,10 +27,11 @@ Status: planning-edge assessment for `V45-B`.
 
 - Risk:
   dependency edges could reference unknown symbol or module targets while still
-  appearing valid.
+  appearing valid, or collapse several endpoint kinds into one untyped ref string.
 - Response:
-  fail closed on any edge whose endpoints are not present in typed symbol or bound
-  source surfaces.
+  fail closed on any edge whose internal endpoints are not present in typed symbol or
+  declared internal module-boundary surfaces, and require explicit endpoint kinds for
+  boundary targets.
 
 ### Edge 3: Symbol-Role Overclaim
 
@@ -49,7 +50,28 @@ Status: planning-edge assessment for `V45-B`.
 - Response:
   keep snapshot validity posture explicit and treat stale outputs as historical.
 
-### Edge 5: Whole-Repo And Cross-Language Scope Creep
+### Edge 5: Provenance Regression Relative To `V102`
+
+- Risk:
+  `V45-B` could regress below the provenance rigor added in the `V45-C` hardening pass
+  by omitting `source_set_hash`, top-level extraction posture/method, or per-row source
+  and derivation anchors.
+- Response:
+  carry forward explicit source-set hash, top-level extraction posture/method, per-symbol
+  source artifact refs, and per-edge derivation posture/method.
+
+### Edge 6: Cross-Artifact Drift
+
+- Risk:
+  the symbol catalog and dependency graph could each validate independently while
+  drifting across snapshot identity, source-set identity, or internal endpoint
+  resolution.
+- Response:
+  require the emitted pair to reconcile over the same snapshot/source-set binding and
+  require internal graph endpoints to resolve against the emitted symbol catalog or the
+  declared internal module-boundary namespace.
+
+### Edge 7: Whole-Repo And Cross-Language Scope Creep
 
 - Risk:
   the first code-graph seam could widen early into whole-repo exhaustive or
@@ -57,7 +79,17 @@ Status: planning-edge assessment for `V45-B`.
 - Response:
   keep `v101` bounded to one explicit Python source-set posture only.
 
-### Edge 6: Test-Intent Laundering
+### Edge 8: Boundary Endpoint Ambiguity
+
+- Risk:
+  legitimate stdlib, third-party, or otherwise out-of-scope dependencies could be
+  either rejected incorrectly or silently accepted as dangling strings if boundary
+  typing remains implicit.
+- Response:
+  make external or out-of-scope dependencies explicit through bounded endpoint-kind and
+  dependency-posture vocabularies rather than leaving them untyped.
+
+### Edge 9: Test-Intent Laundering
 
 - Risk:
   typed code-graph outputs could be overread as test-intent or invariant-binding
@@ -65,7 +97,7 @@ Status: planning-edge assessment for `V45-B`.
 - Response:
   defer test-intent matrix release to later `V45-D` work.
 
-### Edge 7: Optimization Entitlement Creep
+### Edge 10: Optimization Entitlement Creep
 
 - Risk:
   hotspot or dependency concentration signals could be interpreted as automatic split,

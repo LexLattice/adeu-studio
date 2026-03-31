@@ -22,12 +22,24 @@ Status: `V45-B` implementation contract.
   "repo_visible_snapshot_scope_required": true,
   "explicit_stale_snapshot_semantics_required": true,
   "source_set_binding_required": true,
+  "source_set_hash_required": true,
+  "top_level_extraction_posture_required": true,
+  "top_level_extraction_method_required": true,
   "typed_symbol_entry_required": true,
   "typed_dependency_edge_required": true,
+  "typed_endpoint_kind_model_required": true,
+  "external_or_out_of_scope_dependency_representation_required": true,
+  "cross_artifact_snapshot_source_consistency_required": true,
   "symbol_kind_required": true,
+  "symbol_identity_canonicalization_strategy_required": true,
   "symbol_role_classification_posture_required": true,
   "symbol_role_classification_method_required": true,
+  "symbol_source_artifact_refs_required": true,
   "dependency_posture_required": true,
+  "dependency_derivation_posture_required": true,
+  "dependency_derivation_method_required": true,
+  "dependency_source_artifact_refs_required": true,
+  "bounded_vocabulary_note_required": true,
   "dangling_symbol_ref_rejection_required": true,
   "authority_posture_non_promotional_required": true,
   "automatic_refactor_or_mutation_entitlement_forbidden": true,
@@ -56,8 +68,8 @@ Release the bounded `V45-B` code-self-description lane by materializing:
 - one canonical `repo_dependency_graph@1`;
 
 while preserving snapshot identity, explicit source-set posture, descriptive-only
-authority boundaries, and fail-closed rejection of dangling refs or refactor-entitlement
-laundering.
+authority boundaries, cross-artifact consistency, and fail-closed rejection of dangling
+refs, untyped boundary endpoints, or refactor-entitlement laundering.
 
 This slice is descriptive code-structure compilation, not optimization entitlement,
 test-intent inference, or recursive-governance binding.
@@ -76,6 +88,8 @@ test-intent inference, or recursive-governance binding.
 3. Source authority strategy:
    - all emitted artifacts must bind to one explicit repo-visible snapshot identity and
      one explicit bounded Python source set;
+   - both artifacts must also bind one explicit source-set hash and one explicit
+     extraction posture/method pair;
    - stale-snapshot semantics must be explicit rather than implied;
    - outputs are valid for the bound snapshot only and become historical evidence when
      stale.
@@ -85,17 +99,86 @@ test-intent inference, or recursive-governance binding.
 5. Symbol modeling strategy:
    - symbol entries must be typed and inspectable;
    - each symbol row must carry stable identity, module path, qualified name, symbol
-     kind, and bounded role-classification posture;
+     kind, bounded role-classification posture, and explicit source artifact refs;
+   - the first release should derive `symbol_id` deterministically from
+     `module_path + qualname + symbol_kind` or an equivalent explicitly documented
+     canonicalization rule emitted by the same artifact family;
    - naming-only role claims are insufficient.
 6. Dependency-graph strategy:
    - dependency edges must be represented as typed refs over the bound source set, not
      prose-only statements;
-   - dependency posture must be explicit and inspectable.
-7. Anti-overreach strategy:
+   - the first `V45-B` release should use a typed mixed graph rather than silently
+     collapsing all endpoints into one string namespace;
+   - every endpoint must therefore carry an explicit endpoint-kind model that
+     distinguishes at least:
+     - internal symbol refs;
+     - internal module-boundary refs;
+     - external or out-of-scope dependency refs;
+   - dependency posture must be explicit and inspectable;
+   - edge derivation posture/method and source artifact refs must be explicit.
+7. Cross-artifact consistency strategy:
+   - `repo_symbol_catalog@1` and `repo_dependency_graph@1` must reconcile over the same
+     snapshot identity/hash and the same source-set identity/hash;
+   - every internal graph endpoint must resolve against the emitted symbol catalog or an
+     explicitly declared internal module-boundary namespace;
+   - every out-of-scope target must be represented through valid typed boundary or
+     external endpoint kinds rather than as an untyped dangling string.
+8. Anti-overreach strategy:
    - overlap, hotspot, or strong-dependency findings may not be treated as refactor
      entitlement;
    - `V45-B` may not claim test intent, optimization priority, or recursive-governance
      authority.
+
+## Bounded Vocabulary Note
+
+The first `V45-B` release should freeze bounded starter vocabularies for the new typed
+fields rather than leaving them to implementation taste.
+
+The intended bounded starter vocabularies are:
+
+- `symbol_kind`:
+  - `module`
+  - `class`
+  - `function`
+  - `method`
+  - `attribute`
+- `role_classification_posture`:
+  - `observed`
+  - `derived_deterministically`
+  - `inferred_heuristically`
+  - `adjudicated`
+  - `settled`
+- `role_classification_method`:
+  - `ast_signature`
+  - `decorator_or_baseclass_rule`
+  - `bounded_inference_rule`
+  - `adjudicated_policy`
+- `dependency_kind`:
+  - `module_import`
+  - `symbol_reference`
+  - `inheritance`
+- `dependency_posture`:
+  - `internal_resolved`
+  - `boundary_external`
+  - `boundary_out_of_scope`
+- `dependency_derivation_posture`:
+  - `observed`
+  - `derived_deterministically`
+  - `inferred_heuristically`
+  - `adjudicated`
+  - `settled`
+- `dependency_derivation_method`:
+  - `ast_parse`
+  - `deterministic_projection`
+  - `bounded_inference_rule`
+  - `adjudicated_policy`
+- `endpoint_kind`:
+  - `internal_symbol`
+  - `internal_module_boundary`
+  - `external_dependency`
+
+Any widening beyond these starter vocabularies should require a later bounded
+continuation rather than silent vocabulary creep.
 
 ## Required Deliverables
 
@@ -105,11 +188,13 @@ test-intent inference, or recursive-governance binding.
    - authoritative and mirrored schema export parity.
 2. Deterministic extraction entrypoint(s) that:
    - consume one explicit repo snapshot and one bounded Python source set;
-   - derive typed symbol rows and typed dependency edges;
-   - emit explicit role-classification posture, dependency posture, and typed evidence
-     refs;
-   - fail closed on dangling refs, duplicate identities, malformed source binding, or
-     authority laundering posture.
+   - derive typed symbol rows and typed dependency edges as one consistent pair of
+     outputs;
+   - emit explicit source-set hash, top-level extraction posture/method, explicit
+     role-classification posture, explicit dependency posture, explicit dependency
+     derivation posture/method, and typed evidence refs;
+   - fail closed on dangling refs, duplicate identities, malformed source binding,
+     cross-artifact drift, untyped boundary endpoints, or authority laundering posture.
 3. Top-level schema anchors for `repo_symbol_catalog@1`:
    - `schema`
    - `repo_symbol_catalog_id`
@@ -117,7 +202,10 @@ test-intent inference, or recursive-governance binding.
    - `repo_snapshot_hash`
    - `snapshot_validity_posture`
    - `source_set`
+   - `source_set_hash`
    - `graph_scope`
+   - `extraction_posture`
+   - `extraction_method`
    - `symbol_entries`
    - `evidence_refs`
    - per evidence ref anchors:
@@ -130,6 +218,7 @@ test-intent inference, or recursive-governance binding.
      - `symbol_kind`
      - `role_classification_posture`
      - `role_classification_method`
+     - `source_artifact_refs`
      - `supporting_evidence_refs`
 4. Top-level schema anchors for `repo_dependency_graph@1`:
    - `schema`
@@ -138,39 +227,60 @@ test-intent inference, or recursive-governance binding.
    - `repo_snapshot_hash`
    - `snapshot_validity_posture`
    - `source_set`
+   - `source_set_hash`
    - `graph_scope`
+   - `extraction_posture`
+   - `extraction_method`
    - `dependency_edges`
    - `evidence_refs`
    - per dependency edge anchors:
      - `edge_id`
+     - `from_ref_kind`
      - `from_ref`
+     - `to_ref_kind`
      - `to_ref`
      - `dependency_kind`
      - `dependency_posture`
+     - `derivation_posture`
+     - `derivation_method`
+     - `source_artifact_refs`
      - `supporting_evidence_refs`
 5. Deterministic laws that fail closed on at least:
    - missing snapshot identity/hash binding;
    - missing or empty bounded source set binding;
+   - missing source-set hash;
+   - missing top-level extraction posture or extraction method;
    - any symbol entry missing required identity/module/kind/posture fields;
+   - any symbol entry missing source artifact refs;
    - duplicate symbol IDs or duplicate edge IDs;
-   - any dependency edge referencing an unknown symbol or unknown bound source target;
-   - any dependency edge missing explicit dependency posture or typed evidence refs;
+   - any catalog/graph pair with mismatched snapshot identity/hash or mismatched
+     source-set identity/hash;
+   - any dependency edge whose internal endpoint kinds do not resolve against the
+     emitted symbol catalog or declared internal module-boundary namespace;
+   - any dependency edge carrying an out-of-scope target without valid boundary typing;
+   - any dependency edge missing explicit dependency posture, derivation posture,
+     derivation method, source artifact refs, or typed evidence refs;
    - symbol/dependency outputs carrying refactor, scheduling, or mutation entitlement as
      authoritative outcomes;
    - outputs overreaching into test-intent or optimization authority posture.
 6. Committed reference fixtures under `apps/api/fixtures/repo_description/vnext_plus101/`:
    - one accepted symbol-catalog reference fixture;
-   - one accepted dependency-graph reference fixture;
+   - one accepted dependency-graph reference fixture paired to the same snapshot and
+     source-set identity as the accepted symbol-catalog fixture;
    - one rejected symbol-catalog fixture with missing snapshot identity;
    - one rejected dependency-graph fixture with dangling symbol ref;
    - one rejected symbol-catalog fixture with duplicate symbol identity;
    - one rejected dependency-graph fixture with missing dependency posture;
+   - one rejected dependency-graph fixture with out-of-scope endpoint lacking valid
+     boundary typing;
+   - one rejected paired-fixture bundle with mismatched snapshot/source-set identity;
    - one rejected fixture with refactor-entitlement laundering.
 7. Python tests covering:
    - schema/model validation for symbol-catalog and dependency-graph artifacts;
    - authoritative/mirrored schema parity;
    - deterministic replay for accepted fixtures;
-   - rejection of identity/source/dependency/authority contradictions.
+   - rejection of identity/source/dependency/authority contradictions;
+   - paired catalog/graph consistency over one snapshot/source-set.
 
 ## Hard Constraints
 

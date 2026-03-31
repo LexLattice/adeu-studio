@@ -21,14 +21,22 @@ Status: proposed gate for `V45-B`.
   export cleanly with authoritative/mirror parity;
 - deterministic entrypoint(s) materialize the accepted symbol-catalog and
   dependency-graph reference fixtures from one bounded snapshot on repeated runs;
-- outputs carry explicit snapshot identity/hash, explicit source-set binding, and
-  explicit stale-snapshot posture;
-- symbol rows carry typed identity/module/qualname/kind/classification posture fields;
-- dependency edges carry typed source/target/kind/posture fields;
+- outputs carry explicit snapshot identity/hash, explicit source-set binding,
+  `source_set_hash`, explicit extraction posture/method, and explicit stale-snapshot
+  posture;
+- symbol rows carry typed identity/module/qualname/kind/classification posture fields
+  plus explicit source artifact refs;
+- dependency edges carry typed endpoint-kind/source-target/kind/posture fields plus
+  explicit derivation posture/method;
+- accepted catalog and graph fixtures reconcile over one shared snapshot/source-set
+  identity;
 - fail-closed rules reject:
   - dangling symbol or dependency targets;
+  - out-of-scope dependency endpoints lacking valid boundary typing;
   - duplicate symbol or edge identities;
-  - missing source-set or snapshot binding;
+  - mismatched snapshot/source-set identity across the paired artifacts;
+  - missing source-set hash, extraction posture/method, or per-edge derivation
+    posture/method;
   - missing dependency posture;
   - refactor or mutation entitlement laundering from descriptive diagnostics;
 - Python tests cover schema/model validation, schema parity, deterministic replay, and
