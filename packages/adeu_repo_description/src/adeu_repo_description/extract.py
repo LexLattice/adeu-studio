@@ -314,7 +314,7 @@ def derive_v45a_repo_schema_family_registry(
                 "classification_method": classification_method,
                 "adjudicator_ref": None,
                 "supporting_evidence_refs": sorted(
-                    evidence_refs_by_id_id.evidence_ref for evidence_refs_by_id_id in row_evidence
+                    evidence.evidence_ref for evidence in row_evidence
                 ),
             }
         )

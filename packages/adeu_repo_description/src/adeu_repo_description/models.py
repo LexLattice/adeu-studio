@@ -287,18 +287,16 @@ class RepoSchemaFamilyRegistryEntry(BaseModel):
                 "adjudicator_ref",
                 _assert_non_empty_text(self.adjudicator_ref, field_name="adjudicator_ref"),
             )
-        if _normalize_for_equality(self.family_cluster) == _normalize_for_equality(
-            self.primary_carrier_class
-        ):
-            raise ValueError("family_cluster and primary_carrier_class must remain non-equivalent")
-        if _normalize_for_equality(self.family_cluster) == _normalize_for_equality(
-            self.lineage_overlay
-        ):
-            raise ValueError("family_cluster and lineage_overlay must remain non-equivalent")
-        if _normalize_for_equality(self.lineage_overlay) == _normalize_for_equality(
-            self.primary_carrier_class
-        ):
-            raise ValueError("lineage_overlay and primary_carrier_class must remain non-equivalent")
+        normalized_values = [
+            _normalize_for_equality(self.family_cluster),
+            _normalize_for_equality(self.primary_carrier_class),
+            _normalize_for_equality(self.lineage_overlay),
+        ]
+        if len(set(normalized_values)) != len(normalized_values):
+            raise ValueError(
+                "family_cluster, primary_carrier_class, and lineage_overlay must remain "
+                "mutually non-equivalent"
+            )
         return self
 
 

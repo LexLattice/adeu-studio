@@ -11,7 +11,7 @@ from adeu_repo_description import (
 )
 from adeu_repo_description.export_schema import main as export_schema_main
 
-_WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\\\")
+_WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 
 
 def _schema_pairs() -> dict[str, tuple[Path, Path]]:
