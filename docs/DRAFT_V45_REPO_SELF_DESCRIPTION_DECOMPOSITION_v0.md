@@ -1,7 +1,7 @@
 # Draft V45 Repo Self-Description Decomposition v0
 
 Status: working decomposition draft for the first bounded `V45` slice after
-`docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
+`docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`, refreshed after `V45-A` closed on `main`.
 
 This document is an intermediate planning artifact between:
 
@@ -77,12 +77,15 @@ first schema registry kernel, then wider repo self-description
 
 - `V41-A` through `V41-F` are closed on `main`.
 - `V42-A` through `V42-G4` are closed on `main`.
+- `V45-A` is closed on `main` through `vNext+99`.
 - `V45` is the current connected planning family from
   `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
 - The first safe move is still descriptive-plane first.
 - Recursive amendment or mutation entitlement remains deferred.
 - Schema classification quality should be treated as empirical and bounded rather than
   assumed from naming style alone.
+- `V45-B` remains a natural later widening seam, but `V45-C` does not require released
+  symbol-catalog outputs in order to proceed.
 
 ## Recommended First Concrete `V45-A` Slice
 
@@ -148,6 +151,9 @@ In particular:
   widening;
 - `V45-C` remains the natural later lane for an open arc/slice dependency register,
   with a candidate artifact such as `repo_arc_dependency_register@1`;
+- `V45-C` may be pulled forward before `V45-B` when the active need is dependency
+  visibility over planning/lock/closeout surfaces rather than symbol-level code graph
+  release;
 - that later dependency-register seam should remain descriptive-first:
   - no automatic scheduling authority;
   - no priority entitlement;
@@ -181,10 +187,10 @@ To stay aligned with the `V45` branch, the first slice should obey these rules:
   "schema": "v45_repo_self_description_decomposition@1",
   "source_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
   "source_options_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-  "baseline_arc": "vNext+98",
+  "baseline_arc": "vNext+99",
   "next_path_family": "V45",
-  "default_next_path": "V45-A",
-  "default_next_concrete_arc_candidate": "vNext+99",
+  "default_next_path": "V45-C",
+  "default_next_concrete_arc_candidate": "vNext+100",
   "planned_family_packages": [
     "packages/adeu_repo_description"
   ],
@@ -208,6 +214,7 @@ To stay aligned with the `V45` branch, the first slice should obey these rules:
   "whole_repo_entity_catalog_initially_deferred": true,
   "symbol_catalog_initially_deferred": true,
   "arc_dependency_register_initially_deferred": true,
+  "v45c_may_precede_v45b_when_symbol_catalog_not_required": true,
   "test_intent_matrix_initially_deferred": true,
   "optimization_register_initially_deferred": true,
   "recursive_governance_binding_initially_deferred": true,

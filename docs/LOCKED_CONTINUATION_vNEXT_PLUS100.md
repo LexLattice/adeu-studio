@@ -36,7 +36,9 @@ Status: `V45-C` implementation contract.
   "authoritative_and_mirrored_schema_export_parity_required": true,
   "source_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
   "decomposition_doc": "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md",
-  "planning_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v30.md"
+  "planning_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
+  "v45b_symbol_catalog_prerequisite_required": false,
+  "v45c_may_precede_v45b_when_dependency_register_consumes_released_docs_only": true
 }
 ```
 
@@ -64,21 +66,27 @@ auto-resolution, or mutation authority.
 1. Descriptive-first dependency strategy:
    - register outputs are descriptive constraints over open arc/slice posture;
    - outputs may constrain planning but may not mint scheduling or mutation authority.
-2. Snapshot authority strategy:
+2. Path-order strategy:
+   - `V45-B` remains a natural later widening seam for symbol and typed dependency-graph
+     release;
+   - `V45-C` does not depend on released `V45-B` outputs and may proceed first because
+     it compiles dependency posture from released planning/lock/closeout surfaces rather
+     than from a symbol graph.
+3. Snapshot authority strategy:
    - each register emission binds to one explicit repo snapshot identity/hash;
    - stale outputs are historical snapshot-bound evidence, not current planning truth.
-3. Dependency modeling strategy:
+4. Dependency modeling strategy:
    - open arcs/slices are represented as typed entries with explicit phase status and
      authority layer posture;
    - dependencies are represented as typed directed edges, not prose-only references.
-4. Policy binding strategy:
+5. Policy binding strategy:
    - each output binds to one dependency-policy reference plus immutable policy hash;
    - missing policy binding is invalid.
-5. Status/consistency strategy:
+6. Status/consistency strategy:
    - dependency edges must reference known arc entries;
    - blocked/ready posture must be consistent with declared dependencies;
    - cycle posture must be explicit and inspectable.
-6. Anti-overreach strategy:
+7. Anti-overreach strategy:
    - register diagnostics may not be treated as execution priority entitlement;
    - register diagnostics may not directly authorize plan closure or code mutation.
 

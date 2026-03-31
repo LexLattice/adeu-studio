@@ -1,7 +1,8 @@
 # Draft Next Arc Options v28
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v27.md`, updated after the
-repo self-description seed was clarified as a separate but connected family direction.
+repo self-description seed was clarified as a separate but connected family direction
+and refreshed after `vNext+99` (`V45-A`) closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` or the structural-reasoning assessment planning
@@ -34,8 +35,12 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+98` is the current baseline implementation state.
+- `vNext+99` is the current baseline implementation state.
 - `V42-A` through `V42-G4` are closed on `main`.
+- `V45-A` is closed on `main`:
+  - bounded `repo_schema_family_registry@1`
+  - bounded `repo_entity_catalog@1`
+  - bounded representative schema reconstruction appendix
 - released `meta_*` schema/control surfaces already exist on `main`, including:
   - `meta_module_catalog@1`
   - `meta_loop_sequence_contract@1`
@@ -58,18 +63,22 @@ Interpretive doctrine for this planning surface:
 
 ## Gap
 
+The repo no longer lacks a released self-description starter entirely.
+
+`V45-A` now ships the first bounded descriptive baseline for schema-family registry and
+schema-visible entity-catalog outputs.
+
 The repo still lacks a released way to:
 
-- emit a typed descriptive model of its own current surfaces rather than relying mainly
-  on prose atlases and maintainer continuity;
-- classify repo entities across carrier kind, semantic role, governance posture,
-  derivation posture, and mutation posture;
-- classify schemas by role-form and authority posture using explicit precedence rules
-  rather than filename families alone;
-- surface test intent, dependency posture, and hotspot/consolidation signals as named
-  descriptive objects;
-- carry explicit epistemic posture for generated self-description outputs:
-  observed, derived, inferred, adjudicated, and settled.
+- widen that descriptive baseline into symbol-level visibility and typed dependency
+  graph surfaces;
+- surface open arc/slice dependency posture as a machine-enforced pending list rather
+  than mainly maintainer memory and prose continuity;
+- surface test intent and hotspot/consolidation signals as named descriptive objects;
+- define a structural home for short-lived branch-local "hot memory" continuation
+  artifacts without overloading next-arc-options docs for that purpose;
+- bind later descriptive outputs into recursive-governance consumers without laundering
+  descriptive findings into mutation entitlement.
 
 The missing layer is therefore not another constitutional policy note and not yet a
 recursive amendment engine.
@@ -131,19 +140,19 @@ Planning relationship:
   - `V44`
 - Recommended architecture reference:
   - `docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md`
-- Recommended decomposition reference:
-  - required before the first `V45` lock and should explicitly include:
-    - `docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md`
-    - `docs/DRAFT_REPO_ENTITY_ROLE_TAXONOMY_v0.md`
-    - `docs/DRAFT_SCHEMA_META_CORE_v0.md`
-    - `docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md`
+- Recommended decomposition/reference set for ongoing `V45` continuation:
+  - `docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md`
+  - `docs/DRAFT_REPO_ENTITY_ROLE_TAXONOMY_v0.md`
+  - `docs/DRAFT_SCHEMA_META_CORE_v0.md`
+  - `docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md`
 - Recommended next path for this branch:
-  - `V45-A`
+  - `V45-C`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+99`
+  - `vNext+100`
 - Default path selection for this branch:
-  - select `V45-A` as the next default candidate
-  - treat `V45-A` as the bounded starter
+  - select `V45-C` as the next default candidate
+  - treat `V45-C` as the bounded starter for machine-enforced open arc/slice
+    dependency visibility
 
 This family/path recommendation is branch-local to the `v28` planning surface.
 
@@ -217,9 +226,9 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V45-A` | repo entity catalog + schema family registry substrate | candidate `repo_entity_catalog@1` and candidate `repo_schema_family_registry@1` | planned |
-| `V45-B` | symbol catalog + typed dependency graph | candidate `repo_symbol_catalog@1` and candidate `repo_dependency_graph@1` | planned |
-| `V45-C` | open arc/slice dependency register | candidate `repo_arc_dependency_register@1` | planned |
+| `V45-A` | repo entity catalog + schema family registry substrate | candidate `repo_entity_catalog@1` and candidate `repo_schema_family_registry@1` | closed_on_main |
+| `V45-B` | symbol catalog + typed dependency graph | candidate `repo_symbol_catalog@1` and candidate `repo_dependency_graph@1` | planned_not_selected_yet |
+| `V45-C` | open arc/slice dependency register | candidate `repo_arc_dependency_register@1` | selected_next_branch_local |
 | `V45-D` | test intent matrix | candidate `repo_test_intent_matrix@1` | planned |
 | `V45-E` | optimization register | candidate `repo_optimization_register@1` | planned |
 | `V45-F` | descriptive-to-normative binding seam | recursive-governance binding over released descriptive objects | planned_later_not_selected_here |
@@ -232,92 +241,71 @@ If `V45-A` reveals that classification stability, adjudication burden, or extrac
 confidence are weaker than expected, widening into later paths may need to pause,
 reorder, or narrow.
 
-## Recommended Next Path (`V45-A`)
+## Recommended Next Path (`V45-C`)
 
-Implement the bounded repo entity-catalog and schema-family-registry lane first.
+Implement the bounded open arc/slice dependency-register lane next.
 
-`V45-A` should introduce:
+`V45-B` remains the natural later widening for symbol catalog and typed dependency
+graph work, but `V45-C` does not depend on released `V45-B` outputs.
 
-- one canonical bounded repo entity catalog candidate artifact:
-  - explicit repo-visible snapshot scope;
-  - explicit extraction provenance;
-  - explicit multi-axis entity taxonomy over at least:
-    - surface kind;
-    - semantic role;
-    - governance posture;
-    - derivation posture;
-    - mutation posture;
-  - explicit epistemic posture over emitted classifications:
-    - observed;
-    - derived deterministically;
-    - inferred heuristically;
-    - adjudicated;
-    - settled;
-- one canonical bounded schema family registry candidate artifact:
-  - explicit schema family membership;
-  - explicit role-form classification;
-  - explicit schema-core mapping posture using:
-    - common envelope fields;
-    - carrier overlay;
-    - lineage overlay;
-    - named residuals;
-  - explicit role-form precedence across:
-    - structural signature;
-    - semantic function;
-    - governance role;
-    - lexical naming;
-  - explicit confidence or adjudication posture when structure alone does not settle the
-    role;
-- one bounded representative schema subset and reconstruction appendix over at least:
-  - one ARC operational schema;
-  - one architecture analysis schema;
-  - one meta-loop schema;
-  - one UX schema;
-  - one core structural integrity schema;
-  - one policy/runtime schema;
-  - one legacy or residual schema;
-  with explicit decomposition into:
-  - core fields;
-  - carrier overlay;
-  - lineage overlay;
-  - residuals;
-  and explicit reconstruction back to the concrete schema definition;
-- one bounded reference snapshot or fixture posture over the ADEU repo;
-- no widening yet into mutation proposals, recursive amendment logic, or optimization
-  prescriptions.
+The dependency-register seam can proceed first because it compiles planning/lock/
+closeout dependency posture from released doc and artifact surfaces rather than from a
+symbol-level code graph.
 
-`V45-A` is descriptive-first and non-promotional:
+`V45-C` should introduce:
 
-- it may emit bounded descriptive catalogs and diagnostics;
-- it may not yet emit mutation entitlement, recursive amendment entitlement, or
-  optimization prescriptions.
+- one canonical `repo_arc_dependency_register@1` candidate artifact;
+- explicit snapshot identity/hash and stale-snapshot posture;
+- explicit dependency-policy binding through reference plus immutable hash;
+- typed open arc/slice entries carrying at least:
+  - arc identity;
+  - family/path identity;
+  - phase status;
+  - authority layer;
+  - readiness posture;
+  - blocker posture;
+- typed dependency edges carrying at least:
+  - source arc;
+  - target arc;
+  - dependency kind;
+  - dependency strength;
+  - dependency status;
+- fail-closed rejection of:
+  - dangling dependency targets;
+  - duplicate identities;
+  - contradictory ready-vs-blocked posture;
+  - silent cycle posture;
+  - scheduling or mutation entitlement laundering.
+
+`V45-C` is descriptive-first and non-promotional:
+
+- it may emit machine-legible dependency visibility and blocker state;
+- it may not emit automatic scheduling authority, planning-resolution authority, or
+  mutation entitlement.
 
 ## Why This Path
 
-- It is the narrowest safe consumer of the repo self-description seed.
-- It turns the current prose-atlas posture into typed self-description without jumping
-  into mutation authority.
-- It establishes extraction trust and classification posture before broader symbol,
-  test, or optimization surfaces are added.
-- It creates the explicit object layer that later recursive-governance lanes would need
-  if they are ever selected.
-- It prevents the family from collapsing immediately into a stealth refactor queue or
-  self-amendment engine.
+- `V45-A` already established the first descriptive substrate on `main`.
+- open-arc dependency visibility is the next highest-leverage infrastructure seam now
+  that multiple parallel branch candidates exist.
+- this seam hardens planning continuity without requiring prior symbol-catalog release.
+- it addresses a real operational gap: too much current dependency state still lives in
+  maintainer continuity and scattered prose.
+- it keeps the family descriptive-first instead of jumping into scheduler automation.
 
-## First-Slice Boundary (`V45-A`)
+## Current Boundary (`V45-C`)
 
-`V45-A` should stay bounded to:
+`V45-C` should stay bounded to:
 
-- repo entity catalog definition only;
-- schema family registry definition only;
+- open arc/slice dependency register definition only;
 - explicit snapshot and stale-snapshot semantics only;
-- explicit extraction provenance and confidence posture only;
-- bounded deterministic or adjudicated classification posture only;
-- one bounded repo snapshot or fixture surface only.
+- explicit dependency-policy binding only;
+- typed blocker/readiness/dependency visibility only;
+- one bounded repo snapshot or fixture posture only.
 
 It should not attempt:
 
-- broad symbol-level overlap mining;
+- symbol catalog release;
 - broad test-intent inference;
 - optimization-register release;
 - recursive amendment logic;
