@@ -146,13 +146,14 @@ Planning relationship:
   - `docs/DRAFT_SCHEMA_META_CORE_v0.md`
   - `docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md`
 - Recommended next path for this branch:
-  - `V45-C`
+  - `V45-B`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+100`
+  - `vNext+101`
 - Default path selection for this branch:
-  - select `V45-C` as the next default candidate
-  - treat `V45-C` as the bounded starter for machine-enforced open arc/slice
-    dependency visibility
+  - select `V45-B` as the next default candidate
+  - treat `V45-B` as the bounded next widening for symbol catalog and typed
+    dependency-graph release after the released `V45-A` and `V45-C` descriptive
+    baselines
 
 This family/path recommendation is branch-local to the `v28` planning surface.
 
@@ -227,8 +228,8 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V45-A` | repo entity catalog + schema family registry substrate | candidate `repo_entity_catalog@1` and candidate `repo_schema_family_registry@1` | closed_on_main |
-| `V45-B` | symbol catalog + typed dependency graph | candidate `repo_symbol_catalog@1` and candidate `repo_dependency_graph@1` | planned_not_selected_yet |
-| `V45-C` | open arc/slice dependency register | candidate `repo_arc_dependency_register@1` | selected_next_branch_local |
+| `V45-B` | symbol catalog + typed dependency graph | candidate `repo_symbol_catalog@1` and candidate `repo_dependency_graph@1` | selected_next_branch_local |
+| `V45-C` | open arc/slice dependency register | candidate `repo_arc_dependency_register@1` | closed_on_main |
 | `V45-D` | test intent matrix | candidate `repo_test_intent_matrix@1` | planned |
 | `V45-E` | optimization register | candidate `repo_optimization_register@1` | planned |
 | `V45-F` | descriptive-to-normative binding seam | recursive-governance binding over released descriptive objects | planned_later_not_selected_here |
@@ -241,71 +242,67 @@ If `V45-A` reveals that classification stability, adjudication burden, or extrac
 confidence are weaker than expected, widening into later paths may need to pause,
 reorder, or narrow.
 
-## Recommended Next Path (`V45-C`)
+## Recommended Next Path (`V45-B`)
 
-Implement the bounded open arc/slice dependency-register lane next.
+Implement the bounded symbol-catalog and typed dependency-graph lane next.
 
-`V45-B` remains the natural later widening for symbol catalog and typed dependency
-graph work, but `V45-C` does not depend on released `V45-B` outputs.
+`V45-C` is now closed on `main` and resolves the open-arc dependency visibility seam.
 
-The dependency-register seam can proceed first because it compiles planning/lock/
-closeout dependency posture from released doc and artifact surfaces rather than from a
-symbol-level code graph.
+`V45-B` is the natural next widening because later `V45-D` through `V45-F` work needs a
+typed code-level self-description layer in addition to the released schema registry and
+released arc dependency register.
 
-`V45-C` should introduce:
+`V45-B` should introduce:
 
-- one canonical `repo_arc_dependency_register@1` candidate artifact;
+- one canonical `repo_symbol_catalog@1` candidate artifact;
+- one canonical `repo_dependency_graph@1` candidate artifact;
 - explicit snapshot identity/hash and stale-snapshot posture;
-- explicit dependency-policy binding through reference plus immutable hash;
-- typed open arc/slice entries carrying at least:
-  - arc identity;
-  - family/path identity;
-  - phase status;
-  - authority layer;
-  - readiness posture;
-  - blocker posture;
+- typed symbol entries carrying at least:
+  - symbol identity;
+  - module path;
+  - qualified name;
+  - symbol kind;
+  - bounded role classification posture;
 - typed dependency edges carrying at least:
-  - source arc;
-  - target arc;
+  - source symbol or module ref;
+  - target symbol or module ref;
   - dependency kind;
-  - dependency strength;
-  - dependency status;
+  - dependency posture;
 - fail-closed rejection of:
-  - dangling dependency targets;
+  - dangling symbol or dependency targets;
   - duplicate identities;
-  - contradictory ready-vs-blocked posture;
-  - silent cycle posture;
+  - missing snapshot/source binding;
+  - cross-snapshot or malformed dependency laundering;
   - scheduling or mutation entitlement laundering.
 
-`V45-C` is descriptive-first and non-promotional:
+`V45-B` is descriptive-first and non-promotional:
 
-- it may emit machine-legible dependency visibility and blocker state;
+- it may emit machine-legible code symbol and dependency visibility;
 - it may not emit automatic scheduling authority, planning-resolution authority, or
   mutation entitlement.
 
 ## Why This Path
 
 - `V45-A` already established the first descriptive substrate on `main`.
-- open-arc dependency visibility is the next highest-leverage infrastructure seam now
-  that multiple parallel branch candidates exist.
-- this seam hardens planning continuity without requiring prior symbol-catalog release.
-- it addresses a real operational gap: too much current dependency state still lives in
-  maintainer continuity and scattered prose.
-- it keeps the family descriptive-first instead of jumping into scheduler automation.
+- `V45-C` already established the open-arc dependency-register baseline on `main`.
+- the next missing layer is typed code-level self-description rather than another
+  planning-surface register.
+- this seam turns Python/package/module/symbol structure into ADEU-native descriptive
+  objects that later `V45-D` through `V45-F` lanes can consume.
+- it keeps the family descriptive-first instead of jumping into optimizer or normative
+  binding surfaces.
 
-## Current Boundary (`V45-C`)
+## Current Boundary (`V45-B`)
 
-`V45-C` should stay bounded to:
+`V45-B` should stay bounded to:
 
-- open arc/slice dependency register definition only;
+- symbol catalog and typed dependency graph definition only;
 - explicit snapshot and stale-snapshot semantics only;
-- explicit dependency-policy binding only;
-- typed blocker/readiness/dependency visibility only;
+- typed symbol identity and typed dependency visibility only;
 - one bounded repo snapshot or fixture posture only.
 
 It should not attempt:
 
-- symbol catalog release;
 - broad test-intent inference;
 - optimization-register release;
 - recursive amendment logic;
@@ -330,6 +327,7 @@ Open arc/slice dependency register lane:
 
 - candidate `repo_arc_dependency_register@1`;
 - explicit register over open arcs, selected paths, dependencies, and blockers;
+- now closed on `main`;
 - descriptive only:
   - no automatic scheduling authority;
   - no priority entitlement;
@@ -432,7 +430,10 @@ are:
     "V43",
     "V44"
   ],
-  "closed_current_family_paths": [],
+  "closed_current_family_paths": [
+    "V45-A",
+    "V45-C"
+  ],
   "planned_current_family_paths": [
     "V45-A",
     "V45-B",
@@ -441,8 +442,8 @@ are:
     "V45-E",
     "V45-F"
   ],
-  "default_next_arc_candidate_for_this_branch": "V45-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+99",
+  "default_next_arc_candidate_for_this_branch": "V45-B",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+101",
   "family_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
   "family_decomposition_doc": "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md",
   "pre_lock_companion_docs_expected": [
@@ -472,8 +473,8 @@ are:
   "v45a_repo_schema_family_registry_required": true,
   "v45a_descriptive_first_non_promotional_required": true,
   "v45bcde_path_order_provisional_pending_v45a_quality_required": true,
-  "v45b_symbol_catalog_dependency_graph_planned": true,
-  "v45c_arc_dependency_register_planned": true,
+  "v45b_symbol_catalog_dependency_graph_selected_next": true,
+  "v45c_arc_dependency_register_closed_on_main": true,
   "v45d_test_intent_matrix_planned": true,
   "v45e_optimization_register_planned": true,
   "v45f_recursive_governance_binding_not_selected_here": true,

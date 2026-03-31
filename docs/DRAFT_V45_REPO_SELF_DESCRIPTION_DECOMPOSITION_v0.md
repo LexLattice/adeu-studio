@@ -1,21 +1,23 @@
 # Draft V45 Repo Self-Description Decomposition v0
 
-Status: working decomposition draft for the first bounded `V45` slice after
-`docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`, refreshed after `V45-A` closed on `main`.
+Status: working decomposition draft for bounded `V45` continuation after
+`docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`, refreshed after `V45-A` and `V45-C` closed on
+`main`.
 
 This document is an intermediate planning artifact between:
 
 - the high-level repo self-description architecture in
   `docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md`;
 - the branch-local schema-core and role-form companions;
-- and the first `V45` lock bundle.
+- and the active `V45` continuation locks.
 
 This is not a lock doc. It does not authorize runtime behavior, schema release, or
 implementation by itself.
 
 ## Purpose
 
-- compile the `V45-A` planning branch into one bounded first slice;
+- preserve the bounded `V45-A` kernel decomposition while carrying the active `V45`
+  continuation ordering forward;
 - keep repo self-description descriptive-first and non-promotional;
 - use the schema corpus as the first bounded high-signal subcorpus rather than jumping
   immediately to whole-repo maximal inventory;
@@ -78,14 +80,17 @@ first schema registry kernel, then wider repo self-description
 - `V41-A` through `V41-F` are closed on `main`.
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` is closed on `main` through `vNext+99`.
+- `V45-C` is closed on `main` through `vNext+100`.
 - `V45` is the current connected planning family from
   `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
 - The first safe move is still descriptive-plane first.
 - Recursive amendment or mutation entitlement remains deferred.
 - Schema classification quality should be treated as empirical and bounded rather than
   assumed from naming style alone.
-- `V45-B` remains a natural later widening seam, but `V45-C` does not require released
-  symbol-catalog outputs in order to proceed.
+- `V45-C` legitimately preceded `V45-B` because dependency-register release did not
+  require released symbol-catalog outputs.
+- `V45-B` is now the natural next widening seam after the released `V45-A` and `V45-C`
+  descriptive baselines.
 
 ## Recommended First Concrete `V45-A` Slice
 
@@ -147,14 +152,14 @@ collapsing them into the first slice.
 
 In particular:
 
-- `V45-B` remains the natural later lane for symbol catalog and typed dependency graph
-  widening;
-- `V45-C` remains the natural later lane for an open arc/slice dependency register,
-  with a candidate artifact such as `repo_arc_dependency_register@1`;
-- `V45-C` may be pulled forward before `V45-B` when the active need is dependency
-  visibility over planning/lock/closeout surfaces rather than symbol-level code graph
-  release;
-- that later dependency-register seam should remain descriptive-first:
+- `V45-B` should now be read as the default next lane for symbol catalog and typed
+  dependency graph widening;
+- `V45-C` is now closed on `main` as the open arc/slice dependency register baseline
+  under `repo_arc_dependency_register@1`;
+- `V45-C` was correctly pulled forward before `V45-B` because the active need was
+  dependency visibility over planning/lock/closeout surfaces rather than symbol-level
+  code graph release;
+- the released dependency-register seam remains descriptive-first:
   - no automatic scheduling authority;
   - no priority entitlement;
   - no planning-resolution or mutation authority.
@@ -187,10 +192,10 @@ To stay aligned with the `V45` branch, the first slice should obey these rules:
   "schema": "v45_repo_self_description_decomposition@1",
   "source_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
   "source_options_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-  "baseline_arc": "vNext+99",
+  "baseline_arc": "vNext+100",
   "next_path_family": "V45",
-  "default_next_path": "V45-C",
-  "default_next_concrete_arc_candidate": "vNext+100",
+  "default_next_path": "V45-B",
+  "default_next_concrete_arc_candidate": "vNext+101",
   "planned_family_packages": [
     "packages/adeu_repo_description"
   ],
@@ -212,9 +217,9 @@ To stay aligned with the `V45` branch, the first slice should obey these rules:
     "adeu.validator_result"
   ],
   "whole_repo_entity_catalog_initially_deferred": true,
-  "symbol_catalog_initially_deferred": true,
-  "arc_dependency_register_initially_deferred": true,
-  "v45c_may_precede_v45b_when_symbol_catalog_not_required": true,
+  "symbol_catalog_initially_deferred": false,
+  "arc_dependency_register_released_on_main": true,
+  "v45c_preceded_v45b_when_symbol_catalog_not_required": true,
   "test_intent_matrix_initially_deferred": true,
   "optimization_register_initially_deferred": true,
   "recursive_governance_binding_initially_deferred": true,

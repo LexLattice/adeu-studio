@@ -1,0 +1,11 @@
+{
+  "baseline_arc": "vNext+99",
+  "baseline_elapsed_ms": 100,
+  "baseline_source": "artifacts/stop_gate/report_v99_closeout.md",
+  "current_arc": "vNext+100",
+  "current_elapsed_ms": 96,
+  "current_source": "artifacts/stop_gate/report_v100_closeout.md",
+  "delta_ms": -4,
+  "notes": "v100 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while adding the bounded V45-C open arc dependency-register baseline on main, including cycle rejection across all dependency edge types and normalized authority-laundering guards.",
+  "schema": "runtime_observability_comparison@1"
+}

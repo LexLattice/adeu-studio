@@ -1,0 +1,28 @@
+{
+  "schema": "v45c_repo_arc_dependency_register_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v100/evidence_inputs/v45c_repo_arc_dependency_register_evidence_v100.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS100.md#v100-continuation-contract-machine-checkable",
+  "merged_pr": "#322",
+  "merge_commit": "a22d0642d9f3e562d3152245a92c5298d9ccab74",
+  "implementation_packages": [
+    "packages/adeu_repo_description"
+  ],
+  "repo_description_models_source_path": "packages/adeu_repo_description/src/adeu_repo_description/models.py",
+  "repo_description_extract_source_path": "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+  "repo_arc_dependency_register_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_arc_dependency_register.v1.json",
+  "repo_arc_dependency_register_mirror_schema_path": "spec/repo_arc_dependency_register.schema.json",
+  "accepted_dependency_register_fixture_path": "apps/api/fixtures/repo_description/vnext_plus100/repo_arc_dependency_register_v100_reference.json",
+  "rejected_missing_snapshot_identity_fixture_path": "apps/api/fixtures/repo_description/vnext_plus100/repo_arc_dependency_register_v100_reject_missing_snapshot_identity.json",
+  "rejected_dangling_dependency_target_arc_fixture_path": "apps/api/fixtures/repo_description/vnext_plus100/repo_arc_dependency_register_v100_reject_dangling_dependency_target_arc.json",
+  "rejected_duplicate_edge_identity_fixture_path": "apps/api/fixtures/repo_description/vnext_plus100/repo_arc_dependency_register_v100_reject_duplicate_edge_identity.json",
+  "rejected_unresolved_blocker_ready_posture_fixture_path": "apps/api/fixtures/repo_description/vnext_plus100/repo_arc_dependency_register_v100_reject_unresolved_blocker_ready_posture.json",
+  "rejected_authority_laundering_fixture_path": "apps/api/fixtures/repo_description/vnext_plus100/repo_arc_dependency_register_v100_reject_authority_laundering_scheduling_entitlement.json",
+  "test_reference_paths": [
+    "packages/adeu_repo_description/tests/test_repo_description_v45c.py",
+    "packages/adeu_repo_description/tests/test_repo_description_export_schema.py"
+  ],
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v100/evidence_inputs/metric_key_continuity_assertion_v100.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v100/evidence_inputs/runtime_observability_comparison_v100.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v100/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v100 evidence pins the released V45-C dependency-register baseline on main: deterministic extraction of repo arc dependency register surfaces with typed arc entries, typed dependency edges, explicit snapshot/policy binding, fail-closed rejection of dangling/duplicate/status/authority contradictions, and merged review hardening for full-edge cycle rejection plus normalized authority-laundering guards."
+}
