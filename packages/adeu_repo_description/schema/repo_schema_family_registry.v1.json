@@ -1,0 +1,287 @@
+{
+  "$defs": {
+    "RepoDescriptionEvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_kind": {
+          "enum": [
+            "observed_anchor_tuple_evidence",
+            "structural_signature_evidence",
+            "semantic_function_cue_evidence",
+            "governance_cue_evidence",
+            "lexical_cue_evidence",
+            "adjudication_artifact_evidence",
+            "reconstruction_subset_evidence"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        },
+        "evidence_ref": {
+          "title": "Evidence Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_ref",
+        "evidence_kind"
+      ],
+      "title": "RepoDescriptionEvidenceRef",
+      "type": "object"
+    },
+    "RepoSchemaFamilyRegistryEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "adjudicator_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adjudicator Ref"
+        },
+        "classification_method": {
+          "enum": [
+            "structural_signature",
+            "semantic_function",
+            "governance_role",
+            "lexical_naming",
+            "adjudicated_policy"
+          ],
+          "title": "Classification Method",
+          "type": "string"
+        },
+        "classification_posture": {
+          "enum": [
+            "observed",
+            "derived_deterministically",
+            "inferred_heuristically",
+            "adjudicated",
+            "settled"
+          ],
+          "title": "Classification Posture",
+          "type": "string"
+        },
+        "core_envelope_features": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Core Envelope Features",
+          "type": "array"
+        },
+        "family_cluster": {
+          "title": "Family Cluster",
+          "type": "string"
+        },
+        "lineage_overlay": {
+          "title": "Lineage Overlay",
+          "type": "string"
+        },
+        "primary_carrier_class": {
+          "enum": [
+            "IntakeFrame",
+            "TraceRecord",
+            "CuratedSet",
+            "Adjudication",
+            "ContractGate",
+            "StructuralModel"
+          ],
+          "title": "Primary Carrier Class",
+          "type": "string"
+        },
+        "residual_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Residual Flags",
+          "type": "array"
+        },
+        "schema_discriminator": {
+          "title": "Schema Discriminator",
+          "type": "string"
+        },
+        "schema_key": {
+          "title": "Schema Key",
+          "type": "string"
+        },
+        "schema_path": {
+          "title": "Schema Path",
+          "type": "string"
+        },
+        "secondary_role_form_tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Secondary Role Form Tags",
+          "type": "array"
+        },
+        "supporting_evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Supporting Evidence Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_key",
+        "schema_path",
+        "schema_discriminator",
+        "family_cluster",
+        "primary_carrier_class",
+        "lineage_overlay",
+        "classification_posture",
+        "classification_method",
+        "supporting_evidence_refs"
+      ],
+      "title": "RepoSchemaFamilyRegistryEntry",
+      "type": "object"
+    },
+    "RepoSchemaReconstructionRow": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_refs": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "reconstructed_schema_definition": {
+          "additionalProperties": true,
+          "title": "Reconstructed Schema Definition",
+          "type": "object"
+        },
+        "schema_key": {
+          "title": "Schema Key",
+          "type": "string"
+        },
+        "source_schema_definition": {
+          "additionalProperties": true,
+          "title": "Source Schema Definition",
+          "type": "object"
+        }
+      },
+      "required": [
+        "schema_key",
+        "source_schema_definition",
+        "reconstructed_schema_definition",
+        "evidence_refs"
+      ],
+      "title": "RepoSchemaReconstructionRow",
+      "type": "object"
+    },
+    "RepoSourceSet": {
+      "additionalProperties": false,
+      "properties": {
+        "source_paths": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Paths",
+          "type": "array"
+        },
+        "source_set_hash": {
+          "title": "Source Set Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_paths",
+        "source_set_hash"
+      ],
+      "title": "RepoSourceSet",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "classification_policy_hash": {
+      "title": "Classification Policy Hash",
+      "type": "string"
+    },
+    "classification_policy_ref": {
+      "title": "Classification Policy Ref",
+      "type": "string"
+    },
+    "evidence_refs": {
+      "items": {
+        "$ref": "#/$defs/RepoDescriptionEvidenceRef"
+      },
+      "minItems": 1,
+      "title": "Evidence Refs",
+      "type": "array"
+    },
+    "reconstruction_equivalence_mode": {
+      "const": "canonical_normalized_semantic_equivalence",
+      "default": "canonical_normalized_semantic_equivalence",
+      "title": "Reconstruction Equivalence Mode",
+      "type": "string"
+    },
+    "reconstruction_subset": {
+      "items": {
+        "$ref": "#/$defs/RepoSchemaReconstructionRow"
+      },
+      "minItems": 1,
+      "title": "Reconstruction Subset",
+      "type": "array"
+    },
+    "repo_snapshot_hash": {
+      "title": "Repo Snapshot Hash",
+      "type": "string"
+    },
+    "repo_snapshot_id": {
+      "title": "Repo Snapshot Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "repo_schema_family_registry@1",
+      "default": "repo_schema_family_registry@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "schema_entries": {
+      "items": {
+        "$ref": "#/$defs/RepoSchemaFamilyRegistryEntry"
+      },
+      "minItems": 1,
+      "title": "Schema Entries",
+      "type": "array"
+    },
+    "schema_family_registry_id": {
+      "title": "Schema Family Registry Id",
+      "type": "string"
+    },
+    "snapshot_validity_posture": {
+      "enum": [
+        "snapshot_bound_current",
+        "snapshot_bound_historical"
+      ],
+      "title": "Snapshot Validity Posture",
+      "type": "string"
+    },
+    "source_set": {
+      "$ref": "#/$defs/RepoSourceSet"
+    }
+  },
+  "required": [
+    "schema_family_registry_id",
+    "repo_snapshot_id",
+    "repo_snapshot_hash",
+    "snapshot_validity_posture",
+    "source_set",
+    "classification_policy_ref",
+    "classification_policy_hash",
+    "schema_entries",
+    "reconstruction_subset",
+    "evidence_refs"
+  ],
+  "title": "RepoSchemaFamilyRegistry",
+  "type": "object"
+}

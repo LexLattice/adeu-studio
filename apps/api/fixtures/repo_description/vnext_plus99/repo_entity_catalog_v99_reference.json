@@ -1,0 +1,259 @@
+{
+  "catalog_scope": "schema-visible-entity-catalog-over-bounded-repo-snapshot",
+  "classification_policy_hash": "6b55833c30f7628c0c623ba6b9c8d0a798d5b1e39c0e572b5118804b36ab9f8c",
+  "classification_policy_ref": "docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md#v45a-role-form-classification-policy",
+  "entities": [
+    {
+      "adjudicator_ref": null,
+      "classification_method": "lexical_naming",
+      "classification_posture": "inferred_heuristically",
+      "derivation_posture": "inferred",
+      "entity_ref": "schema:adeu.validator_result",
+      "governance_posture": "descriptive_registry_row",
+      "mutation_posture": "read_only_descriptive",
+      "semantic_role": "adjudication_surface",
+      "supporting_evidence_refs": [
+        "evidence:adeu.validator_result:anchor",
+        "evidence:adeu.validator_result:lexical"
+      ],
+      "surface_kind": "schema"
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "derivation_posture": "derived",
+      "entity_ref": "schema:adeu_arc_task_packet",
+      "governance_posture": "descriptive_registry_row",
+      "mutation_posture": "read_only_descriptive",
+      "semantic_role": "intake_surface",
+      "supporting_evidence_refs": [
+        "evidence:adeu_arc_task_packet:anchor",
+        "evidence:adeu_arc_task_packet:lexical",
+        "evidence:adeu_arc_task_packet:structural"
+      ],
+      "surface_kind": "schema"
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "derivation_posture": "derived",
+      "entity_ref": "schema:adeu_architecture_analysis_request",
+      "governance_posture": "descriptive_registry_row",
+      "mutation_posture": "read_only_descriptive",
+      "semantic_role": "intake_surface",
+      "supporting_evidence_refs": [
+        "evidence:adeu_architecture_analysis_request:anchor",
+        "evidence:adeu_architecture_analysis_request:lexical",
+        "evidence:adeu_architecture_analysis_request:semantic",
+        "evidence:adeu_architecture_analysis_request:structural"
+      ],
+      "surface_kind": "schema"
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "derivation_posture": "derived",
+      "entity_ref": "schema:adeu_core_ir",
+      "governance_posture": "descriptive_registry_row",
+      "mutation_posture": "read_only_descriptive",
+      "semantic_role": "structural_model_surface",
+      "supporting_evidence_refs": [
+        "evidence:adeu_core_ir:anchor",
+        "evidence:adeu_core_ir:lexical",
+        "evidence:adeu_core_ir:structural"
+      ],
+      "surface_kind": "schema"
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "derivation_posture": "derived",
+      "entity_ref": "schema:meta_loop_sequence_contract",
+      "governance_posture": "descriptive_registry_row",
+      "mutation_posture": "read_only_descriptive",
+      "semantic_role": "contract_surface",
+      "supporting_evidence_refs": [
+        "evidence:meta_loop_sequence_contract:anchor",
+        "evidence:meta_loop_sequence_contract:governance",
+        "evidence:meta_loop_sequence_contract:lexical",
+        "evidence:meta_loop_sequence_contract:structural"
+      ],
+      "surface_kind": "schema"
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "derivation_posture": "derived",
+      "entity_ref": "schema:policy_registry",
+      "governance_posture": "descriptive_registry_row",
+      "mutation_posture": "read_only_descriptive",
+      "semantic_role": "contract_surface",
+      "supporting_evidence_refs": [
+        "evidence:policy_registry:anchor",
+        "evidence:policy_registry:governance",
+        "evidence:policy_registry:lexical",
+        "evidence:policy_registry:semantic",
+        "evidence:policy_registry:structural"
+      ],
+      "surface_kind": "schema"
+    },
+    {
+      "adjudicator_ref": null,
+      "classification_method": "structural_signature",
+      "classification_posture": "derived_deterministically",
+      "derivation_posture": "derived",
+      "entity_ref": "schema:ux_interaction_contract",
+      "governance_posture": "descriptive_registry_row",
+      "mutation_posture": "read_only_descriptive",
+      "semantic_role": "contract_surface",
+      "supporting_evidence_refs": [
+        "evidence:ux_interaction_contract:anchor",
+        "evidence:ux_interaction_contract:governance",
+        "evidence:ux_interaction_contract:lexical",
+        "evidence:ux_interaction_contract:structural"
+      ],
+      "surface_kind": "schema"
+    }
+  ],
+  "entity_coverage_mode": "bounded_schema_visible_slice",
+  "evidence_refs": [
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:adeu.validator_result:anchor"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:adeu.validator_result:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:adeu.validator_result:reconstruction"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:adeu_arc_task_packet:anchor"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:adeu_arc_task_packet:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:adeu_arc_task_packet:reconstruction"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:adeu_arc_task_packet:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:anchor"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:reconstruction"
+    },
+    {
+      "evidence_kind": "semantic_function_cue_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:semantic"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:adeu_architecture_analysis_request:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:adeu_core_ir:anchor"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:adeu_core_ir:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:adeu_core_ir:reconstruction"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:adeu_core_ir:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:anchor"
+    },
+    {
+      "evidence_kind": "governance_cue_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:governance"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:reconstruction"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:meta_loop_sequence_contract:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:policy_registry:anchor"
+    },
+    {
+      "evidence_kind": "governance_cue_evidence",
+      "evidence_ref": "evidence:policy_registry:governance"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:policy_registry:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:policy_registry:reconstruction"
+    },
+    {
+      "evidence_kind": "semantic_function_cue_evidence",
+      "evidence_ref": "evidence:policy_registry:semantic"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:policy_registry:structural"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:anchor"
+    },
+    {
+      "evidence_kind": "governance_cue_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:governance"
+    },
+    {
+      "evidence_kind": "lexical_cue_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:lexical"
+    },
+    {
+      "evidence_kind": "reconstruction_subset_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:reconstruction"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:ux_interaction_contract:structural"
+    }
+  ],
+  "repo_entity_catalog_id": "repo_entity_catalog_4f3bea1652190f3266973fef",
+  "repo_snapshot_hash": "5d6c038f70300760e5bdc55829759dd8dfe8cd9918728232cceb74a885a5bec3",
+  "repo_snapshot_id": "repo_snapshot_5d6c038f70300760e5bdc558",
+  "schema": "repo_entity_catalog@1",
+  "snapshot_validity_posture": "snapshot_bound_current"
+}
