@@ -11,7 +11,11 @@
             "governance_cue_evidence",
             "lexical_cue_evidence",
             "adjudication_artifact_evidence",
-            "reconstruction_subset_evidence"
+            "reconstruction_subset_evidence",
+            "planning_table_row_evidence",
+            "planning_selection_evidence",
+            "lock_contract_evidence",
+            "dependency_policy_evidence"
           ],
           "title": "Evidence Kind",
           "type": "string"

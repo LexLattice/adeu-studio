@@ -6,6 +6,7 @@ from pathlib import Path
 
 from adeu_ir.repo import repo_root
 from adeu_repo_description import (
+    REPO_ARC_DEPENDENCY_REGISTER_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
 )
@@ -17,6 +18,14 @@ _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\")
 def _schema_pairs() -> dict[str, tuple[Path, Path]]:
     root = repo_root(anchor=Path(__file__))
     return {
+        REPO_ARC_DEPENDENCY_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_arc_dependency_register.v1.json",
+            root / "spec" / "repo_arc_dependency_register.schema.json",
+        ),
         REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA: (
             root
             / "packages"
