@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import json
-from hashlib import sha256
 from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, model_validator
+from urm_runtime.hashing import canonical_json, sha256_canonical_json
 
 JsonScalar = str | int | float | bool | None
 
@@ -65,14 +64,8 @@ LedgerState = Literal[
     "blocked_unknown_resolution",
 ]
 NoticeKind = Literal["selector_zero_match"]
-
-
-def _canonical_json(value: Any) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
-
-
 def stable_payload_hash(value: Any) -> str:
-    return sha256(_canonical_json(value).encode("utf-8")).hexdigest()
+    return sha256_canonical_json(value)
 
 
 def _require_non_empty(value: str, *, field_name: str) -> str:
@@ -170,7 +163,7 @@ class D1Clause(BaseModel):
                 item.normalized_predicate_id,
                 item.target_path or "",
                 item.expected_count if item.expected_count is not None else -1,
-                json.dumps(item.expected_scalar, sort_keys=True),
+                canonical_json(item.expected_scalar),
             )
             for item in self.qualifiers
         ]
