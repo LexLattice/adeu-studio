@@ -13,6 +13,7 @@ CHECKER_FACT_BUNDLE_SCHEMA = "checker_fact_bundle@1"
 POLICY_EVALUATION_RESULT_SET_SCHEMA = "policy_evaluation_result_set@1"
 POLICY_OBLIGATION_LEDGER_SCHEMA = "policy_obligation_ledger@1"
 ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA = "anm_markdown_coexistence_profile@1"
+ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA = "anm_selector_predicate_ownership_profile@1"
 
 D1SchemaVersion = Literal["d1_normalized_ir@1"]
 PredicateContractsBootstrapSchemaVersion = Literal["predicate_contracts_bootstrap@1"]
@@ -20,6 +21,9 @@ CheckerFactBundleSchemaVersion = Literal["checker_fact_bundle@1"]
 PolicyEvaluationResultSetSchemaVersion = Literal["policy_evaluation_result_set@1"]
 PolicyObligationLedgerSchemaVersion = Literal["policy_obligation_ledger@1"]
 AnmMarkdownCoexistenceProfileSchemaVersion = Literal["anm_markdown_coexistence_profile@1"]
+AnmSelectorPredicateOwnershipProfileSchemaVersion = Literal[
+    "anm_selector_predicate_ownership_profile@1"
+]
 
 SelectorKind = Literal["bootstrap_string_selector"]
 SelectorZeroMatchPolicy = Literal["allow_empty_with_notice"]
@@ -87,6 +91,27 @@ AllowedConstrainAction = Literal[
 ]
 AdoptionBoundaryPosture = Literal["allowed_now", "allowed_with_later_lock", "forbidden_in_v47c"]
 NonOverrideRule = Literal["current_markdown_not_overridden"]
+SelectorOwnershipRefKind = Literal[
+    "bootstrap_string_selector",
+    "imported_o_owned_selector_handle",
+]
+SelectorOwnershipOwnerLayer = Literal["bootstrap", "o_owned"]
+PredicateOwnershipRefKind = Literal[
+    "bootstrap_predicate_contract",
+    "imported_e_owned_predicate_ref",
+]
+PredicateOwnershipOwnerLayer = Literal["bootstrap", "e_owned"]
+OwnershipCompatibilityPosture = Literal[
+    "bootstrap_only",
+    "bootstrap_compatible_with_owned_successor",
+    "owned_preferred_bootstrap_still_allowed",
+    "mixed_ownership_forbidden",
+]
+BootstrapRetirementPosture = Literal[
+    "not_selected",
+    "later_lock_required",
+    "owned_successor_available_bootstrap_still_allowed",
+]
 
 
 def stable_payload_hash(value: Any) -> str:
@@ -782,6 +807,263 @@ class AnmMarkdownCoexistenceProfile(BaseModel):
         return self
 
 
+class SelectorOwnershipRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selector_ref: str = Field(min_length=1)
+    selector_ref_kind: SelectorOwnershipRefKind
+    selector_owner_layer: SelectorOwnershipOwnerLayer
+    bootstrap_selector_source_ref: str | None = None
+    imported_selector_handle_ref: str | None = None
+    imported_selector_identity: str | None = None
+    imported_selector_version: str | None = None
+    compatibility_posture: OwnershipCompatibilityPosture
+    bootstrap_retirement_posture: BootstrapRetirementPosture
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "SelectorOwnershipRow":
+        self.selector_ref = _require_non_empty(self.selector_ref, field_name="selector_ref")
+        if self.bootstrap_selector_source_ref is not None:
+            self.bootstrap_selector_source_ref = _require_non_empty(
+                self.bootstrap_selector_source_ref,
+                field_name="bootstrap_selector_source_ref",
+            )
+        if self.imported_selector_handle_ref is not None:
+            self.imported_selector_handle_ref = _require_non_empty(
+                self.imported_selector_handle_ref,
+                field_name="imported_selector_handle_ref",
+            )
+        if self.imported_selector_identity is not None:
+            self.imported_selector_identity = _require_non_empty(
+                self.imported_selector_identity,
+                field_name="imported_selector_identity",
+            )
+        if self.imported_selector_version is not None:
+            self.imported_selector_version = _require_non_empty(
+                self.imported_selector_version,
+                field_name="imported_selector_version",
+            )
+
+        if self.selector_ref_kind == "bootstrap_string_selector":
+            if self.bootstrap_selector_source_ref is None:
+                raise ValueError(
+                    "bootstrap_string_selector rows require bootstrap_selector_source_ref"
+                )
+            if self.imported_selector_handle_ref is not None:
+                raise ValueError(
+                    "bootstrap_string_selector rows may not set imported_selector_handle_ref"
+                )
+            if self.imported_selector_identity is not None:
+                raise ValueError(
+                    "bootstrap_string_selector rows may not set imported_selector_identity"
+                )
+            if self.imported_selector_version is not None:
+                raise ValueError(
+                    "bootstrap_string_selector rows may not set imported_selector_version"
+                )
+            if self.selector_owner_layer != "bootstrap":
+                raise ValueError(
+                    "bootstrap_string_selector rows require selector_owner_layer = bootstrap"
+                )
+        else:
+            if self.imported_selector_handle_ref is None:
+                raise ValueError(
+                    "imported_o_owned_selector_handle rows require imported_selector_handle_ref"
+                )
+            if self.imported_selector_identity is None or self.imported_selector_version is None:
+                raise ValueError(
+                    "imported_o_owned_selector_handle rows require imported selector "
+                    "identity/version"
+                )
+            if self.bootstrap_selector_source_ref is not None:
+                raise ValueError(
+                    "imported_o_owned_selector_handle rows may not set "
+                    "bootstrap_selector_source_ref"
+                )
+            if self.selector_owner_layer != "o_owned":
+                raise ValueError(
+                    "imported_o_owned_selector_handle rows require "
+                    "selector_owner_layer = o_owned"
+                )
+        return self
+
+
+class PredicateOwnershipRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    predicate_ref: str = Field(min_length=1)
+    predicate_ref_kind: PredicateOwnershipRefKind
+    predicate_owner_layer: PredicateOwnershipOwnerLayer
+    bootstrap_predicate_contract_ref: str | None = None
+    imported_predicate_registry_ref: str | None = None
+    imported_predicate_identity: str | None = None
+    imported_predicate_version: str | None = None
+    compatibility_posture: OwnershipCompatibilityPosture
+    bootstrap_retirement_posture: BootstrapRetirementPosture
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "PredicateOwnershipRow":
+        self.predicate_ref = _require_non_empty(self.predicate_ref, field_name="predicate_ref")
+        if self.bootstrap_predicate_contract_ref is not None:
+            self.bootstrap_predicate_contract_ref = _require_non_empty(
+                self.bootstrap_predicate_contract_ref,
+                field_name="bootstrap_predicate_contract_ref",
+            )
+        if self.imported_predicate_registry_ref is not None:
+            self.imported_predicate_registry_ref = _require_non_empty(
+                self.imported_predicate_registry_ref,
+                field_name="imported_predicate_registry_ref",
+            )
+        if self.imported_predicate_identity is not None:
+            self.imported_predicate_identity = _require_non_empty(
+                self.imported_predicate_identity,
+                field_name="imported_predicate_identity",
+            )
+        if self.imported_predicate_version is not None:
+            self.imported_predicate_version = _require_non_empty(
+                self.imported_predicate_version,
+                field_name="imported_predicate_version",
+            )
+
+        if self.predicate_ref_kind == "bootstrap_predicate_contract":
+            if self.bootstrap_predicate_contract_ref is None:
+                raise ValueError(
+                    "bootstrap_predicate_contract rows require "
+                    "bootstrap_predicate_contract_ref"
+                )
+            if self.imported_predicate_registry_ref is not None:
+                raise ValueError(
+                    "bootstrap_predicate_contract rows may not set "
+                    "imported_predicate_registry_ref"
+                )
+            if self.imported_predicate_identity is not None:
+                raise ValueError(
+                    "bootstrap_predicate_contract rows may not set "
+                    "imported_predicate_identity"
+                )
+            if self.imported_predicate_version is not None:
+                raise ValueError(
+                    "bootstrap_predicate_contract rows may not set "
+                    "imported_predicate_version"
+                )
+            if self.predicate_owner_layer != "bootstrap":
+                raise ValueError(
+                    "bootstrap_predicate_contract rows require "
+                    "predicate_owner_layer = bootstrap"
+                )
+        else:
+            if self.imported_predicate_registry_ref is None:
+                raise ValueError(
+                    "imported_e_owned_predicate_ref rows require "
+                    "imported_predicate_registry_ref"
+                )
+            if self.imported_predicate_identity is None or self.imported_predicate_version is None:
+                raise ValueError(
+                    "imported_e_owned_predicate_ref rows require imported predicate "
+                    "identity/version"
+                )
+            if self.bootstrap_predicate_contract_ref is not None:
+                raise ValueError(
+                    "imported_e_owned_predicate_ref rows may not set "
+                    "bootstrap_predicate_contract_ref"
+                )
+            if self.predicate_owner_layer != "e_owned":
+                raise ValueError(
+                    "imported_e_owned_predicate_ref rows require "
+                    "predicate_owner_layer = e_owned"
+                )
+        return self
+
+
+class OwnershipCompatibilityRule(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    selector_ref_kind: SelectorOwnershipRefKind
+    predicate_ref_kind: PredicateOwnershipRefKind
+    combination_allowed: bool
+    compatibility_posture: OwnershipCompatibilityPosture
+    backward_replay_preserved: bool
+    later_lock_required_before_retirement: bool
+    mixed_ownership_normatively_constrained: bool
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "OwnershipCompatibilityRule":
+        if (
+            not self.combination_allowed
+            and self.compatibility_posture != "mixed_ownership_forbidden"
+        ):
+            raise ValueError(
+                "forbidden compatibility rows require compatibility_posture = "
+                "mixed_ownership_forbidden"
+            )
+        return self
+
+
+class AnmSelectorPredicateOwnershipProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: AnmSelectorPredicateOwnershipProfileSchemaVersion = (
+        ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA
+    )
+    ownership_profile_id: str = Field(min_length=1)
+    snapshot_id: str = Field(min_length=1)
+    snapshot_sha256: str = Field(min_length=1)
+    source_scope_profile: str = Field(min_length=1)
+    released_stack_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    selector_rows: list[SelectorOwnershipRow] = Field(default_factory=list)
+    predicate_rows: list[PredicateOwnershipRow] = Field(default_factory=list)
+    compatibility_rules: list[OwnershipCompatibilityRule] = Field(default_factory=list)
+    semantic_hash: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmSelectorPredicateOwnershipProfile":
+        self.ownership_profile_id = _require_non_empty(
+            self.ownership_profile_id,
+            field_name="ownership_profile_id",
+        )
+        self.snapshot_id = _require_non_empty(self.snapshot_id, field_name="snapshot_id")
+        self.snapshot_sha256 = _require_non_empty(
+            self.snapshot_sha256,
+            field_name="snapshot_sha256",
+        )
+        self.source_scope_profile = _require_non_empty(
+            self.source_scope_profile,
+            field_name="source_scope_profile",
+        )
+        self.semantic_hash = _require_non_empty(self.semantic_hash, field_name="semantic_hash")
+        _require_sorted_unique(self.released_stack_refs, field_name="released_stack_refs")
+
+        selector_refs = [item.selector_ref for item in self.selector_rows]
+        _require_sorted_unique(selector_refs, field_name="selector_rows.selector_ref")
+        predicate_refs = [item.predicate_ref for item in self.predicate_rows]
+        _require_sorted_unique(predicate_refs, field_name="predicate_rows.predicate_ref")
+
+        compatibility_pairs = [
+            (item.selector_ref_kind, item.predicate_ref_kind)
+            for item in self.compatibility_rules
+        ]
+        if compatibility_pairs != sorted(compatibility_pairs):
+            raise ValueError(
+                "compatibility_rules must be sorted by "
+                "(selector_ref_kind, predicate_ref_kind)"
+            )
+        if len(compatibility_pairs) != len(set(compatibility_pairs)):
+            raise ValueError("compatibility_rules must not contain duplicate combinations")
+
+        expected_pairs = {
+            ("bootstrap_string_selector", "bootstrap_predicate_contract"),
+            ("bootstrap_string_selector", "imported_e_owned_predicate_ref"),
+            ("imported_o_owned_selector_handle", "bootstrap_predicate_contract"),
+            ("imported_o_owned_selector_handle", "imported_e_owned_predicate_ref"),
+        }
+        if set(compatibility_pairs) != expected_pairs:
+            raise ValueError("compatibility_rules must cover the four ownership combinations")
+        return self
+
+
 def canonicalize_d1_normalized_ir_payload(
     payload: D1NormalizedIR | dict[str, Any],
 ) -> dict[str, Any]:
@@ -848,12 +1130,25 @@ def canonicalize_anm_markdown_coexistence_profile_payload(
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
+def canonicalize_anm_selector_predicate_ownership_profile_payload(
+    payload: AnmSelectorPredicateOwnershipProfile | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmSelectorPredicateOwnershipProfile)
+        else AnmSelectorPredicateOwnershipProfile.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
 __all__ = [
     "D1_NORMALIZED_IR_SCHEMA",
     "PREDICATE_CONTRACTS_BOOTSTRAP_SCHEMA",
     "CHECKER_FACT_BUNDLE_SCHEMA",
     "POLICY_EVALUATION_RESULT_SET_SCHEMA",
     "POLICY_OBLIGATION_LEDGER_SCHEMA",
+    "ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA",
+    "ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA",
     "D1NormalizedIR",
     "D1Clause",
     "D1Qualifier",
@@ -877,10 +1172,26 @@ __all__ = [
     "PolicyEvaluationResultSet",
     "PolicyObligationLedgerRow",
     "PolicyObligationLedger",
+    "MigrationDiscipline",
+    "AnmCoexistenceSourceRow",
+    "AnmAdoptionBoundaryRow",
+    "AnmMarkdownCoexistenceProfile",
+    "SelectorOwnershipRow",
+    "PredicateOwnershipRow",
+    "OwnershipCompatibilityRule",
+    "AnmSelectorPredicateOwnershipProfile",
     "stable_payload_hash",
+    "canonicalize_anm_markdown_coexistence_profile_payload",
+    "canonicalize_anm_selector_predicate_ownership_profile_payload",
     "canonicalize_d1_normalized_ir_payload",
     "canonicalize_predicate_contracts_bootstrap_payload",
     "canonicalize_checker_fact_bundle_payload",
     "canonicalize_policy_evaluation_result_set_payload",
     "canonicalize_policy_obligation_ledger_payload",
+    "SelectorOwnershipRefKind",
+    "SelectorOwnershipOwnerLayer",
+    "PredicateOwnershipRefKind",
+    "PredicateOwnershipOwnerLayer",
+    "OwnershipCompatibilityPosture",
+    "BootstrapRetirementPosture",
 ]
