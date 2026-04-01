@@ -23,7 +23,8 @@
             "type": "string"
           },
           "title": "Allowed Now Actions",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "consumer_surface": {
           "minLength": 1,
@@ -41,7 +42,8 @@
             "type": "string"
           },
           "title": "Forbidden Actions",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "later_lock_required_actions": {
           "items": {
@@ -54,7 +56,8 @@
             "type": "string"
           },
           "title": "Later Lock Required Actions",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         }
       },
       "required": [
@@ -78,7 +81,8 @@
             "type": "string"
           },
           "title": "Allowed Constrain Actions",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "companion_embedding_posture": {
           "enum": [
@@ -167,7 +171,8 @@
             "type": "string"
           },
           "title": "Compatible Local Source Scopes",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "current_markdown_supersession_requires_later_lock": {
           "title": "Current Markdown Supersession Requires Later Lock",
@@ -182,7 +187,8 @@
             "type": "string"
           },
           "title": "Preferred Source Postures",
-          "type": "array"
+          "type": "array",
+          "uniqueItems": true
         },
         "repo_wide_migration_forbidden": {
           "title": "Repo Wide Migration Forbidden",
@@ -225,7 +231,8 @@
         "type": "string"
       },
       "title": "Released Stack Refs",
-      "type": "array"
+      "type": "array",
+      "uniqueItems": true
     },
     "schema": {
       "const": "anm_markdown_coexistence_profile@1",

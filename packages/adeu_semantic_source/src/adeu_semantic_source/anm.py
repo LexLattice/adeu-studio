@@ -57,11 +57,26 @@ def _sha256_text(text: str) -> str:
     return sha256(text.encode("utf-8")).hexdigest()
 
 
-def _require_non_empty_text(value: str, *, field_name: str) -> str:
+def _require_non_empty_text(value: Any, *, field_name: str) -> str:
+    if not isinstance(value, str):
+        raise AnmCompileError(f"{field_name} must be a string")
     normalized = value.strip()
     if not normalized:
         raise AnmCompileError(f"{field_name} must not be empty")
     return normalized
+
+
+def _require_mapping(value: Any, *, field_name: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise AnmCompileError(f"{field_name} must be a mapping")
+    return value
+
+
+def _require_mapping_value(mapping: dict[str, Any], key: str, *, field_name: str) -> Any:
+    try:
+        return mapping[key]
+    except KeyError as error:
+        raise AnmCompileError(f"{field_name} missing required field {key}") from error
 
 
 def _json_scalar_from_text(value_text: str) -> str | int | bool | None:
@@ -281,24 +296,36 @@ def build_v47c_coexistence_profile(
         )
 
     row_specs_by_ref: dict[str, dict[str, Any]] = {}
+    row_spec_labels_by_ref: dict[str, str] = {}
     local_scope_by_source_ref: dict[str, str] = {}
-    for spec in source_row_specs:
-        source_ref = _require_non_empty_text(spec["source_ref"], field_name="source_ref")
+    for index, payload in enumerate(source_row_specs):
+        spec_label = f"source_row_specs[{index}]"
+        spec = _require_mapping(payload, field_name=spec_label)
+        source_ref = _require_non_empty_text(
+            _require_mapping_value(spec, "source_ref", field_name=spec_label),
+            field_name="source_ref",
+        )
         local_source_scope = _require_non_empty_text(
-            spec["local_source_scope"],
+            _require_mapping_value(spec, "local_source_scope", field_name=spec_label),
             field_name="local_source_scope",
         )
         if source_ref in row_specs_by_ref:
             raise AnmCompileError(f"duplicate source_row_specs entry for {source_ref}")
         row_specs_by_ref[source_ref] = spec
+        row_spec_labels_by_ref[source_ref] = spec_label
         local_scope_by_source_ref[source_ref] = local_source_scope
 
     if sorted(row_specs_by_ref) != sorted(normalized_source_docs):
         raise AnmCompileError("source_row_specs must exactly cover source_docs")
 
     host_registry_index: dict[str, dict[str, Any]] = {}
-    for entry in host_registry or []:
-        host_ref = _require_non_empty_text(entry["host_ref"], field_name="host_ref")
+    for index, payload in enumerate(host_registry or []):
+        entry_label = f"host_registry[{index}]"
+        entry = _require_mapping(payload, field_name=entry_label)
+        host_ref = _require_non_empty_text(
+            _require_mapping_value(entry, "host_ref", field_name=entry_label),
+            field_name="host_ref",
+        )
         if host_ref in host_registry_index:
             raise AnmCompileError(f"duplicate host_registry entry for {host_ref}")
         host_registry_index[host_ref] = entry
@@ -306,6 +333,7 @@ def build_v47c_coexistence_profile(
     built_rows: list[AnmCoexistenceSourceRow] = []
     for source_ref in sorted(row_specs_by_ref):
         spec = row_specs_by_ref[source_ref]
+        spec_label = row_spec_labels_by_ref[source_ref]
         local_source_scope = local_scope_by_source_ref[source_ref]
         if local_source_scope not in compatible_scopes:
             raise AnmCompileError(
@@ -320,9 +348,11 @@ def build_v47c_coexistence_profile(
                 {
                     "source_ref": source_ref,
                     "source_posture": source_posture,
-                    "current_markdown_authority_relation": spec[
-                        "current_markdown_authority_relation"
-                    ],
+                    "current_markdown_authority_relation": _require_mapping_value(
+                        spec,
+                        "current_markdown_authority_relation",
+                        field_name=spec_label,
+                    ),
                     "host_or_companion_ref": spec.get("host_or_companion_ref"),
                     "companion_embedding_posture": spec.get(
                         "companion_embedding_posture",
@@ -333,14 +363,28 @@ def build_v47c_coexistence_profile(
                         "current_markdown_not_overridden",
                     ),
                     "allowed_constrain_actions": spec.get("allowed_constrain_actions", []),
-                    "migration_posture": spec["migration_posture"],
-                    "requires_later_lock_for_supersession": spec[
-                        "requires_later_lock_for_supersession"
-                    ],
+                    "migration_posture": _require_mapping_value(
+                        spec,
+                        "migration_posture",
+                        field_name=spec_label,
+                    ),
+                    "requires_later_lock_for_supersession": _require_mapping_value(
+                        spec,
+                        "requires_later_lock_for_supersession",
+                        field_name=spec_label,
+                    ),
                 }
             )
         except ValidationError as error:
             raise AnmCompileError(str(error)) from error
+        if row.source_posture == "standalone_anm" and not migration.standalone_posture_allowed:
+            raise AnmCompileError(
+                f"source {source_ref} standalone_anm posture is forbidden by migration_discipline"
+            )
+        if row.source_posture == "companion_anm" and not migration.companion_posture_allowed:
+            raise AnmCompileError(
+                f"source {source_ref} companion_anm posture is forbidden by migration_discipline"
+            )
         if row.source_posture == "companion_anm":
             host_ref = row.host_or_companion_ref
             assert host_ref is not None
@@ -361,7 +405,11 @@ def build_v47c_coexistence_profile(
                         f"host_or_companion_ref {host_ref} is stale for snapshot {snapshot_id}"
                     )
                 host_scope = _require_non_empty_text(
-                    host_entry["local_source_scope"],
+                    _require_mapping_value(
+                        host_entry,
+                        "local_source_scope",
+                        field_name=f"host_registry[{host_ref}]",
+                    ),
                     field_name="host_registry.local_source_scope",
                 )
                 if host_scope not in compatible_scopes:

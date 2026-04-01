@@ -147,3 +147,43 @@ def test_v47c_rejects_boundary_action_drift_spec() -> None:
             adoption_boundary_rows=spec["adoption_boundary_rows"],
             host_registry=spec["host_registry"],
         )
+
+
+def test_v47c_rejects_source_row_posture_forbidden_by_migration_discipline() -> None:
+    spec = _read_spec("reference_coexistence_spec.json")
+    spec["migration_discipline"]["companion_posture_allowed"] = False
+
+    with pytest.raises(
+        AnmCompileError,
+        match="companion_anm posture is forbidden by migration_discipline",
+    ):
+        build_v47c_coexistence_profile(
+            snapshot_id=spec["snapshot_id"],
+            source_scope_profile=spec["source_scope_profile"],
+            released_stack_refs=spec["released_stack_refs"],
+            source_docs=_source_docs(),
+            source_row_specs=spec["source_row_specs"],
+            migration_discipline=spec["migration_discipline"],
+            adoption_boundary_rows=spec["adoption_boundary_rows"],
+            host_registry=spec["host_registry"],
+        )
+
+
+def test_v47c_wraps_malformed_source_row_specs_in_anm_compile_error() -> None:
+    spec = _read_spec("reference_coexistence_spec.json")
+    del spec["source_row_specs"][0]["local_source_scope"]
+
+    with pytest.raises(
+        AnmCompileError,
+        match=r"source_row_specs\[0\] missing required field local_source_scope",
+    ):
+        build_v47c_coexistence_profile(
+            snapshot_id=spec["snapshot_id"],
+            source_scope_profile=spec["source_scope_profile"],
+            released_stack_refs=spec["released_stack_refs"],
+            source_docs=_source_docs(),
+            source_row_specs=spec["source_row_specs"],
+            migration_discipline=spec["migration_discipline"],
+            adoption_boundary_rows=spec["adoption_boundary_rows"],
+            host_registry=spec["host_registry"],
+        )

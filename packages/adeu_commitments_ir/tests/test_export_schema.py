@@ -162,6 +162,38 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "embedded_in_host_markdown",
         "adjacent_companion_document",
     ]
+    assert (
+        schema_payloads[ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA]["properties"][
+            "released_stack_refs"
+        ]["uniqueItems"]
+        is True
+    )
+    assert (
+        coexistence_defs["MigrationDiscipline"]["properties"]["compatible_local_source_scopes"][
+            "uniqueItems"
+        ]
+        is True
+    )
+    assert (
+        coexistence_defs["MigrationDiscipline"]["properties"]["preferred_source_postures"][
+            "uniqueItems"
+        ]
+        is True
+    )
+    assert (
+        coexistence_defs["AnmCoexistenceSourceRow"]["properties"][
+            "allowed_constrain_actions"
+        ]["uniqueItems"]
+        is True
+    )
+    for field_name in (
+        "allowed_now_actions",
+        "later_lock_required_actions",
+        "forbidden_actions",
+    ):
+        assert coexistence_defs["AnmAdoptionBoundaryRow"]["properties"][field_name][
+            "uniqueItems"
+        ] is True
 
 
 def test_exported_schema_has_no_absolute_path_material() -> None:

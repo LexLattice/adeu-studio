@@ -615,8 +615,14 @@ class MigrationDiscipline(BaseModel):
     current_markdown_supersession_requires_later_lock: bool
     standalone_posture_allowed: bool
     companion_posture_allowed: bool
-    compatible_local_source_scopes: list[str] = Field(default_factory=list)
-    preferred_source_postures: list[SourcePosture] = Field(default_factory=list)
+    compatible_local_source_scopes: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    preferred_source_postures: list[SourcePosture] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "MigrationDiscipline":
@@ -638,7 +644,10 @@ class AnmCoexistenceSourceRow(BaseModel):
     host_or_companion_ref: str | None = None
     companion_embedding_posture: CompanionEmbeddingPosture
     non_override_rule: NonOverrideRule
-    allowed_constrain_actions: list[AllowedConstrainAction] = Field(default_factory=list)
+    allowed_constrain_actions: list[AllowedConstrainAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
     migration_posture: MigrationPosture
     requires_later_lock_for_supersession: bool
 
@@ -687,9 +696,18 @@ class AnmAdoptionBoundaryRow(BaseModel):
 
     consumer_surface: str = Field(min_length=1)
     adoption_boundary_posture: AdoptionBoundaryPosture
-    allowed_now_actions: list[AllowedConstrainAction] = Field(default_factory=list)
-    later_lock_required_actions: list[AllowedConstrainAction] = Field(default_factory=list)
-    forbidden_actions: list[AllowedConstrainAction] = Field(default_factory=list)
+    allowed_now_actions: list[AllowedConstrainAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    later_lock_required_actions: list[AllowedConstrainAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    forbidden_actions: list[AllowedConstrainAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "AnmAdoptionBoundaryRow":
@@ -728,7 +746,10 @@ class AnmMarkdownCoexistenceProfile(BaseModel):
     snapshot_id: str = Field(min_length=1)
     snapshot_sha256: str = Field(min_length=1)
     source_scope_profile: str = Field(min_length=1)
-    released_stack_refs: list[str] = Field(default_factory=list)
+    released_stack_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
     source_rows: list[AnmCoexistenceSourceRow] = Field(default_factory=list)
     migration_discipline: MigrationDiscipline
     adoption_boundary_rows: list[AnmAdoptionBoundaryRow] = Field(default_factory=list)
