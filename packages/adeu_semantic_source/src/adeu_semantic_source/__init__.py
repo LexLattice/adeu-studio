@@ -1,3 +1,11 @@
+from .anm import (
+    AnmCompileError,
+    build_v47a_reference_chain,
+    compile_authoritative_normative_markdown,
+    default_bootstrap_predicate_contracts,
+    evaluate_authoritative_normative_markdown,
+    project_policy_obligation_ledger,
+)
 from .compile import (
     SEMANTIC_SOURCE_COLLECTION_SCHEMA,
     SEMANTIC_SOURCE_DIAGNOSTICS_SCHEMA,
@@ -7,6 +15,12 @@ from .compile import (
 )
 
 __all__ = [
+    "AnmCompileError",
+    "compile_authoritative_normative_markdown",
+    "default_bootstrap_predicate_contracts",
+    "evaluate_authoritative_normative_markdown",
+    "project_policy_obligation_ledger",
+    "build_v47a_reference_chain",
     "SEMANTIC_SOURCE_COLLECTION_SCHEMA",
     "SEMANTIC_SOURCE_DIAGNOSTICS_SCHEMA",
     "CompileResult",

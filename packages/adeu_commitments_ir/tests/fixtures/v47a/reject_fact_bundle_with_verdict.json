@@ -1,0 +1,29 @@
+{
+  "schema": "checker_fact_bundle@1",
+  "bundle_id": "fact-bundle:bad-verdict",
+  "scope_snapshot": "snapshot:v47a-reference",
+  "checker_profile": {
+    "checker_ids": [
+      "checker:v47a"
+    ],
+    "checker_profile_id": "checker-profile:v47a"
+  },
+  "facts": [
+    {
+      "checker_id": "checker:v47a",
+      "effective_verdict": "pass",
+      "emitted_at": "2026-04-01T00:00:00Z",
+      "fact_id": "fact:bad",
+      "fact_type": "value_observation",
+      "path": "snapshot.identity",
+      "provenance": {
+        "carrier_ref": "carrier:artifact-alpha",
+        "mode": "direct"
+      },
+      "subject_ref": "artifact:alpha",
+      "values": [
+        "alpha"
+      ]
+    }
+  ]
+}

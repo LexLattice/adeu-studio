@@ -1,0 +1,12 @@
+{
+  "schema": "checker_fact_bundle@1",
+  "bundle_id": "fact-bundle:v47a-zero-match",
+  "scope_snapshot": "snapshot:v47a-reference",
+  "checker_profile": {
+    "checker_ids": [
+      "checker:v47a"
+    ],
+    "checker_profile_id": "checker-profile:v47a"
+  },
+  "facts": []
+}

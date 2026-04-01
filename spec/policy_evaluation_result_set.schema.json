@@ -1,0 +1,298 @@
+{
+  "$defs": {
+    "ClauseScopeBlockerResultRow": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability": {
+          "enum": [
+            "active",
+            "gated_off",
+            "excepted"
+          ],
+          "title": "Applicability",
+          "type": "string"
+        },
+        "clause_ref": {
+          "minLength": 1,
+          "title": "Clause Ref",
+          "type": "string"
+        },
+        "clause_semantic_hash": {
+          "minLength": 1,
+          "title": "Clause Semantic Hash",
+          "type": "string"
+        },
+        "effective_verdict": {
+          "enum": [
+            "pass",
+            "fail",
+            "waived",
+            "deferred",
+            "gated_off",
+            "unknown_evidence",
+            "unknown_resolution"
+          ],
+          "title": "Effective Verdict",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "observed_outcome": {
+          "enum": [
+            "not_evaluated",
+            "pass",
+            "fail",
+            "unknown_evidence",
+            "unknown_resolution"
+          ],
+          "title": "Observed Outcome",
+          "type": "string"
+        },
+        "result_id": {
+          "minLength": 1,
+          "title": "Result Id",
+          "type": "string"
+        },
+        "result_scope_kind": {
+          "const": "clause_scope_blocker",
+          "default": "clause_scope_blocker",
+          "title": "Result Scope Kind",
+          "type": "string"
+        },
+        "supporting_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Contract Refs",
+          "type": "array"
+        },
+        "supporting_fact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Fact Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result_id",
+        "clause_ref",
+        "clause_semantic_hash",
+        "applicability",
+        "observed_outcome",
+        "effective_verdict",
+        "message"
+      ],
+      "title": "ClauseScopeBlockerResultRow",
+      "type": "object"
+    },
+    "EvaluationNotice": {
+      "additionalProperties": false,
+      "properties": {
+        "clause_ref": {
+          "minLength": 1,
+          "title": "Clause Ref",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "notice_id": {
+          "minLength": 1,
+          "title": "Notice Id",
+          "type": "string"
+        },
+        "notice_kind": {
+          "const": "selector_zero_match",
+          "title": "Notice Kind",
+          "type": "string"
+        },
+        "selector_ref": {
+          "minLength": 1,
+          "title": "Selector Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "notice_id",
+        "notice_kind",
+        "clause_ref",
+        "selector_ref",
+        "message"
+      ],
+      "title": "EvaluationNotice",
+      "type": "object"
+    },
+    "SubjectScopedResultRow": {
+      "additionalProperties": false,
+      "properties": {
+        "applicability": {
+          "enum": [
+            "active",
+            "gated_off",
+            "excepted"
+          ],
+          "title": "Applicability",
+          "type": "string"
+        },
+        "clause_ref": {
+          "minLength": 1,
+          "title": "Clause Ref",
+          "type": "string"
+        },
+        "clause_semantic_hash": {
+          "minLength": 1,
+          "title": "Clause Semantic Hash",
+          "type": "string"
+        },
+        "effective_verdict": {
+          "enum": [
+            "pass",
+            "fail",
+            "waived",
+            "deferred",
+            "gated_off",
+            "unknown_evidence",
+            "unknown_resolution"
+          ],
+          "title": "Effective Verdict",
+          "type": "string"
+        },
+        "message": {
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "observed_outcome": {
+          "enum": [
+            "not_evaluated",
+            "pass",
+            "fail",
+            "unknown_evidence",
+            "unknown_resolution"
+          ],
+          "title": "Observed Outcome",
+          "type": "string"
+        },
+        "result_id": {
+          "minLength": 1,
+          "title": "Result Id",
+          "type": "string"
+        },
+        "result_scope_kind": {
+          "const": "subject_scoped",
+          "default": "subject_scoped",
+          "title": "Result Scope Kind",
+          "type": "string"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        },
+        "supporting_contract_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Contract Refs",
+          "type": "array"
+        },
+        "supporting_fact_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Fact Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "result_id",
+        "clause_ref",
+        "clause_semantic_hash",
+        "applicability",
+        "observed_outcome",
+        "effective_verdict",
+        "message",
+        "subject_ref"
+      ],
+      "title": "SubjectScopedResultRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "d_ir_ref": {
+      "minLength": 1,
+      "title": "D Ir Ref",
+      "type": "string"
+    },
+    "fact_bundle_ref": {
+      "minLength": 1,
+      "title": "Fact Bundle Ref",
+      "type": "string"
+    },
+    "notices": {
+      "items": {
+        "$ref": "#/$defs/EvaluationNotice"
+      },
+      "title": "Notices",
+      "type": "array"
+    },
+    "predicate_contract_ref": {
+      "minLength": 1,
+      "title": "Predicate Contract Ref",
+      "type": "string"
+    },
+    "result_set_id": {
+      "minLength": 1,
+      "title": "Result Set Id",
+      "type": "string"
+    },
+    "results": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "clause_scope_blocker": "#/$defs/ClauseScopeBlockerResultRow",
+            "subject_scoped": "#/$defs/SubjectScopedResultRow"
+          },
+          "propertyName": "result_scope_kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/SubjectScopedResultRow"
+          },
+          {
+            "$ref": "#/$defs/ClauseScopeBlockerResultRow"
+          }
+        ]
+      },
+      "title": "Results",
+      "type": "array"
+    },
+    "schema": {
+      "const": "policy_evaluation_result_set@1",
+      "default": "policy_evaluation_result_set@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_snapshot": {
+      "minLength": 1,
+      "title": "Scope Snapshot",
+      "type": "string"
+    }
+  },
+  "required": [
+    "result_set_id",
+    "scope_snapshot",
+    "d_ir_ref",
+    "fact_bundle_ref",
+    "predicate_contract_ref"
+  ],
+  "title": "PolicyEvaluationResultSet",
+  "type": "object"
+}

@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "PredicateArgumentSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "path",
+            "integer",
+            "scalar"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "kind"
+      ],
+      "title": "PredicateArgumentSpec",
+      "type": "object"
+    },
+    "PredicateContract": {
+      "additionalProperties": false,
+      "properties": {
+        "argument_schema": {
+          "items": {
+            "$ref": "#/$defs/PredicateArgumentSpec"
+          },
+          "title": "Argument Schema",
+          "type": "array"
+        },
+        "evidence_failure_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Failure Conditions",
+          "type": "array"
+        },
+        "owner_layer": {
+          "const": "bootstrap_d",
+          "title": "Owner Layer",
+          "type": "string"
+        },
+        "predicate_id": {
+          "minLength": 1,
+          "title": "Predicate Id",
+          "type": "string"
+        },
+        "required_evidence_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Evidence Kinds",
+          "type": "array"
+        },
+        "resolution_failure_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Resolution Failure Conditions",
+          "type": "array"
+        },
+        "truth_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Truth Conditions",
+          "type": "array"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "predicate_id",
+        "owner_layer",
+        "version"
+      ],
+      "title": "PredicateContract",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contracts": {
+      "items": {
+        "$ref": "#/$defs/PredicateContract"
+      },
+      "title": "Contracts",
+      "type": "array"
+    },
+    "predicate_contract_bundle_id": {
+      "minLength": 1,
+      "title": "Predicate Contract Bundle Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "predicate_contracts_bootstrap@1",
+      "default": "predicate_contracts_bootstrap@1",
+      "title": "Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "predicate_contract_bundle_id"
+  ],
+  "title": "PredicateContractsBootstrap",
+  "type": "object"
+}

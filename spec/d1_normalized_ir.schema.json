@@ -1,0 +1,288 @@
+{
+  "$defs": {
+    "D1Clause": {
+      "additionalProperties": false,
+      "properties": {
+        "assertion_kind": {
+          "enum": [
+            "required",
+            "explicit",
+            "exactly_one",
+            "comparison",
+            "predicate_call"
+          ],
+          "title": "Assertion Kind",
+          "type": "string"
+        },
+        "clause_label": {
+          "minLength": 1,
+          "title": "Clause Label",
+          "type": "string"
+        },
+        "clause_ref": {
+          "minLength": 1,
+          "title": "Clause Ref",
+          "type": "string"
+        },
+        "expected_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Count"
+        },
+        "expected_scalar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Scalar"
+        },
+        "modal": {
+          "enum": [
+            "MUST",
+            "MUST_NOT"
+          ],
+          "title": "Modal",
+          "type": "string"
+        },
+        "normalized_predicate_id": {
+          "enum": [
+            "present",
+            "explicit",
+            "cardinality_eq",
+            "bind_to",
+            "eq"
+          ],
+          "title": "Normalized Predicate Id",
+          "type": "string"
+        },
+        "origin_block_ref": {
+          "minLength": 1,
+          "title": "Origin Block Ref",
+          "type": "string"
+        },
+        "qualifiers": {
+          "items": {
+            "$ref": "#/$defs/D1Qualifier"
+          },
+          "title": "Qualifiers",
+          "type": "array"
+        },
+        "subject_selector_ref": {
+          "minLength": 1,
+          "title": "Subject Selector Ref",
+          "type": "string"
+        },
+        "target_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Path"
+        }
+      },
+      "required": [
+        "clause_ref",
+        "clause_label",
+        "modal",
+        "assertion_kind",
+        "normalized_predicate_id",
+        "subject_selector_ref",
+        "origin_block_ref"
+      ],
+      "title": "D1Clause",
+      "type": "object"
+    },
+    "D1Qualifier": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Count"
+        },
+        "expected_scalar": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Scalar"
+        },
+        "normalized_predicate_id": {
+          "enum": [
+            "present",
+            "explicit",
+            "cardinality_eq",
+            "bind_to",
+            "eq"
+          ],
+          "title": "Normalized Predicate Id",
+          "type": "string"
+        },
+        "qualifier_kind": {
+          "enum": [
+            "only_if",
+            "unless"
+          ],
+          "title": "Qualifier Kind",
+          "type": "string"
+        },
+        "target_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Path"
+        }
+      },
+      "required": [
+        "qualifier_kind",
+        "normalized_predicate_id"
+      ],
+      "title": "D1Qualifier",
+      "type": "object"
+    },
+    "D1SelectorRef": {
+      "additionalProperties": false,
+      "properties": {
+        "selector_kind": {
+          "const": "bootstrap_string_selector",
+          "title": "Selector Kind",
+          "type": "string"
+        },
+        "selector_ref": {
+          "minLength": 1,
+          "title": "Selector Ref",
+          "type": "string"
+        },
+        "selector_source_text": {
+          "minLength": 1,
+          "title": "Selector Source Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "selector_ref",
+        "selector_source_text",
+        "selector_kind"
+      ],
+      "title": "D1SelectorRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "clauses": {
+      "items": {
+        "$ref": "#/$defs/D1Clause"
+      },
+      "title": "Clauses",
+      "type": "array"
+    },
+    "d1_ir_id": {
+      "minLength": 1,
+      "title": "D1 Ir Id",
+      "type": "string"
+    },
+    "schema": {
+      "const": "d1_normalized_ir@1",
+      "default": "d1_normalized_ir@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selector_refs": {
+      "items": {
+        "$ref": "#/$defs/D1SelectorRef"
+      },
+      "title": "Selector Refs",
+      "type": "array"
+    },
+    "selector_zero_match_policy": {
+      "const": "allow_empty_with_notice",
+      "title": "Selector Zero Match Policy",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "source_block_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Source Block Refs",
+      "type": "array"
+    },
+    "source_doc_ref": {
+      "minLength": 1,
+      "title": "Source Doc Ref",
+      "type": "string"
+    },
+    "source_doc_sha256": {
+      "minLength": 1,
+      "title": "Source Doc Sha256",
+      "type": "string"
+    }
+  },
+  "required": [
+    "d1_ir_id",
+    "source_doc_ref",
+    "source_doc_sha256",
+    "selector_zero_match_policy",
+    "semantic_hash"
+  ],
+  "title": "D1NormalizedIR",
+  "type": "object"
+}

@@ -1,0 +1,502 @@
+{
+  "$defs": {
+    "BindingObservationFact": {
+      "additionalProperties": false,
+      "properties": {
+        "binding_payload": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Binding Payload",
+          "type": "object"
+        },
+        "checker_id": {
+          "minLength": 1,
+          "title": "Checker Id",
+          "type": "string"
+        },
+        "emitted_at": {
+          "minLength": 1,
+          "title": "Emitted At",
+          "type": "string"
+        },
+        "fact_id": {
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "fact_type": {
+          "const": "binding_observation",
+          "default": "binding_observation",
+          "title": "Fact Type",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/FactProvenance"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "subject_ref",
+        "provenance",
+        "checker_id",
+        "emitted_at"
+      ],
+      "title": "BindingObservationFact",
+      "type": "object"
+    },
+    "CarrierReadFact": {
+      "additionalProperties": false,
+      "properties": {
+        "carrier_payload": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Carrier Payload",
+          "type": "object"
+        },
+        "checker_id": {
+          "minLength": 1,
+          "title": "Checker Id",
+          "type": "string"
+        },
+        "emitted_at": {
+          "minLength": 1,
+          "title": "Emitted At",
+          "type": "string"
+        },
+        "fact_id": {
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "fact_type": {
+          "const": "carrier_read",
+          "default": "carrier_read",
+          "title": "Fact Type",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/FactProvenance"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "subject_ref",
+        "provenance",
+        "checker_id",
+        "emitted_at"
+      ],
+      "title": "CarrierReadFact",
+      "type": "object"
+    },
+    "CheckerProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "checker_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Checker Ids",
+          "type": "array"
+        },
+        "checker_profile_id": {
+          "minLength": 1,
+          "title": "Checker Profile Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "checker_profile_id"
+      ],
+      "title": "CheckerProfile",
+      "type": "object"
+    },
+    "ExplicitCarriageObservationFact": {
+      "additionalProperties": false,
+      "properties": {
+        "checker_id": {
+          "minLength": 1,
+          "title": "Checker Id",
+          "type": "string"
+        },
+        "emitted_at": {
+          "minLength": 1,
+          "title": "Emitted At",
+          "type": "string"
+        },
+        "fact_id": {
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "fact_type": {
+          "const": "explicit_carriage_observation",
+          "default": "explicit_carriage_observation",
+          "title": "Fact Type",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/FactProvenance"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "type": "boolean"
+          },
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fact_id",
+        "subject_ref",
+        "provenance",
+        "checker_id",
+        "emitted_at",
+        "path"
+      ],
+      "title": "ExplicitCarriageObservationFact",
+      "type": "object"
+    },
+    "FactProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "carrier_ref": {
+          "minLength": 1,
+          "title": "Carrier Ref",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "direct",
+            "derived",
+            "absent",
+            "inconclusive"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "carrier_ref",
+        "mode"
+      ],
+      "title": "FactProvenance",
+      "type": "object"
+    },
+    "PathCardinalityObservationFact": {
+      "additionalProperties": false,
+      "properties": {
+        "checker_id": {
+          "minLength": 1,
+          "title": "Checker Id",
+          "type": "string"
+        },
+        "emitted_at": {
+          "minLength": 1,
+          "title": "Emitted At",
+          "type": "string"
+        },
+        "fact_id": {
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "fact_type": {
+          "const": "path_cardinality_observation",
+          "default": "path_cardinality_observation",
+          "title": "Fact Type",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/FactProvenance"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fact_id",
+        "subject_ref",
+        "provenance",
+        "checker_id",
+        "emitted_at",
+        "path"
+      ],
+      "title": "PathCardinalityObservationFact",
+      "type": "object"
+    },
+    "PathPresenceObservationFact": {
+      "additionalProperties": false,
+      "properties": {
+        "checker_id": {
+          "minLength": 1,
+          "title": "Checker Id",
+          "type": "string"
+        },
+        "emitted_at": {
+          "minLength": 1,
+          "title": "Emitted At",
+          "type": "string"
+        },
+        "fact_id": {
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "fact_type": {
+          "const": "path_presence_observation",
+          "default": "path_presence_observation",
+          "title": "Fact Type",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/FactProvenance"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "type": "boolean"
+          },
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fact_id",
+        "subject_ref",
+        "provenance",
+        "checker_id",
+        "emitted_at",
+        "path"
+      ],
+      "title": "PathPresenceObservationFact",
+      "type": "object"
+    },
+    "ValueObservationFact": {
+      "additionalProperties": false,
+      "properties": {
+        "checker_id": {
+          "minLength": 1,
+          "title": "Checker Id",
+          "type": "string"
+        },
+        "emitted_at": {
+          "minLength": 1,
+          "title": "Emitted At",
+          "type": "string"
+        },
+        "fact_id": {
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "fact_type": {
+          "const": "value_observation",
+          "default": "value_observation",
+          "title": "Fact Type",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/FactProvenance"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fact_id",
+        "subject_ref",
+        "provenance",
+        "checker_id",
+        "emitted_at",
+        "path"
+      ],
+      "title": "ValueObservationFact",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bundle_id": {
+      "minLength": 1,
+      "title": "Bundle Id",
+      "type": "string"
+    },
+    "checker_profile": {
+      "$ref": "#/$defs/CheckerProfile"
+    },
+    "facts": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "binding_observation": "#/$defs/BindingObservationFact",
+            "carrier_read": "#/$defs/CarrierReadFact",
+            "explicit_carriage_observation": "#/$defs/ExplicitCarriageObservationFact",
+            "path_cardinality_observation": "#/$defs/PathCardinalityObservationFact",
+            "path_presence_observation": "#/$defs/PathPresenceObservationFact",
+            "value_observation": "#/$defs/ValueObservationFact"
+          },
+          "propertyName": "fact_type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ValueObservationFact"
+          },
+          {
+            "$ref": "#/$defs/BindingObservationFact"
+          },
+          {
+            "$ref": "#/$defs/CarrierReadFact"
+          },
+          {
+            "$ref": "#/$defs/PathPresenceObservationFact"
+          },
+          {
+            "$ref": "#/$defs/PathCardinalityObservationFact"
+          },
+          {
+            "$ref": "#/$defs/ExplicitCarriageObservationFact"
+          }
+        ]
+      },
+      "title": "Facts",
+      "type": "array"
+    },
+    "schema": {
+      "const": "checker_fact_bundle@1",
+      "default": "checker_fact_bundle@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_snapshot": {
+      "minLength": 1,
+      "title": "Scope Snapshot",
+      "type": "string"
+    }
+  },
+  "required": [
+    "bundle_id",
+    "scope_snapshot",
+    "checker_profile"
+  ],
+  "title": "CheckerFactBundle",
+  "type": "object"
+}

@@ -1,0 +1,96 @@
+{
+  "d_ir_ref": "d1-ir:6357356a5903",
+  "fact_bundle_ref": "fact-bundle:v47a-reference",
+  "notices": [],
+  "predicate_contract_ref": "predicate-contracts:20d4cce83292",
+  "result_set_id": "result-set:v47a-reference",
+  "results": [
+    {
+      "applicability": "active",
+      "clause_ref": "artifact_governance:carrier",
+      "clause_semantic_hash": "abbb2160585260d8843bc00ff389da26aa9bb940fb1f404928451e653386d342",
+      "effective_verdict": "pass",
+      "message": "evaluated artifact_governance:carrier for artifact:alpha",
+      "observed_outcome": "pass",
+      "result_id": "result:artifact_governance:carrier:artifact:alpha",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:alpha",
+      "supporting_contract_refs": [
+        "cardinality_eq"
+      ],
+      "supporting_fact_refs": [
+        "fact:carrier"
+      ]
+    },
+    {
+      "applicability": "gated_off",
+      "clause_ref": "artifact_governance:guarded",
+      "clause_semantic_hash": "68a3fa1e3fb95e464e536a2b6df6d55e5a271b03e3bfad0d3b9f0edfbb724bc7",
+      "effective_verdict": "gated_off",
+      "message": "artifact_governance:guarded gated off by ONLY_IF false",
+      "observed_outcome": "not_evaluated",
+      "result_id": "result:artifact_governance:guarded:artifact:alpha",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:alpha",
+      "supporting_contract_refs": [
+        "present"
+      ],
+      "supporting_fact_refs": [
+        "fact:gate"
+      ]
+    },
+    {
+      "applicability": "active",
+      "clause_ref": "artifact_governance:identity",
+      "clause_semantic_hash": "d6d67a4a321bbf843d1aee7dadd504ac1c33b34787139872a6d1a54d3cf8b2dd",
+      "effective_verdict": "pass",
+      "message": "evaluated artifact_governance:identity for artifact:alpha",
+      "observed_outcome": "pass",
+      "result_id": "result:artifact_governance:identity:artifact:alpha",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:alpha",
+      "supporting_contract_refs": [
+        "present"
+      ],
+      "supporting_fact_refs": [
+        "fact:identity"
+      ]
+    },
+    {
+      "applicability": "active",
+      "clause_ref": "artifact_governance:identity_explicit",
+      "clause_semantic_hash": "fc0ac1269b46ad837f84bd1af9eb94b2e3626aec2867377cd07007cef3ab1c6f",
+      "effective_verdict": "pass",
+      "message": "evaluated artifact_governance:identity_explicit for artifact:alpha",
+      "observed_outcome": "pass",
+      "result_id": "result:artifact_governance:identity_explicit:artifact:alpha",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:alpha",
+      "supporting_contract_refs": [
+        "explicit"
+      ],
+      "supporting_fact_refs": [
+        "fact:explicit"
+      ]
+    },
+    {
+      "applicability": "active",
+      "clause_ref": "artifact_governance:no_override",
+      "clause_semantic_hash": "23d4bd2a485762cfd68efd54937518180cbf72f1a128a6afbb121d34a44a2e96",
+      "effective_verdict": "pass",
+      "message": "evaluated artifact_governance:no_override for artifact:alpha",
+      "observed_outcome": "fail",
+      "result_id": "result:artifact_governance:no_override:artifact:alpha",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:alpha",
+      "supporting_contract_refs": [
+        "eq"
+      ],
+      "supporting_fact_refs": [
+        "fact:no_override"
+      ]
+    }
+  ],
+  "schema": "policy_evaluation_result_set@1",
+  "scope_snapshot": "snapshot:v47a-reference"
+}
