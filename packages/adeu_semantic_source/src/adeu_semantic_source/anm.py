@@ -429,6 +429,37 @@ def _facts_for_subject(
     return selected
 
 
+def _fact_values_for_subject(
+    fact_bundle: CheckerFactBundle,
+    *,
+    subject_ref: str,
+    fact_type: str,
+    path: str,
+) -> tuple[list[Any] | None, list[str]]:
+    facts = _facts_for_subject(
+        fact_bundle,
+        subject_ref=subject_ref,
+        fact_type=fact_type,
+        path=path,
+    )
+    if not facts:
+        return None, []
+    return [value for fact in facts for value in fact.values], sorted(
+        item.fact_id for item in facts
+    )
+
+
+def _scalar_matches_expected(*, observed: Any, expected: Any) -> bool:
+    return type(observed) is type(expected) and observed == expected
+
+
+def _supporting_contract_refs_for_clause(clause: D1Clause) -> list[str]:
+    return sorted(
+        {clause.normalized_predicate_id}
+        | {qualifier.normalized_predicate_id for qualifier in clause.qualifiers}
+    )
+
+
 def _evaluate_predicate(
     *,
     predicate_id: str,
@@ -439,42 +470,36 @@ def _evaluate_predicate(
     expected_count: int | None = None,
 ) -> tuple[str, list[str]]:
     if predicate_id == "present":
-        facts = _facts_for_subject(
+        values, fact_ids = _fact_values_for_subject(
             fact_bundle,
             subject_ref=subject_ref,
             fact_type="path_presence_observation",
             path=target_path,
         )
-        if not facts:
+        if values is None:
             return "unknown_evidence", []
-        fact_ids = sorted(item.fact_id for item in facts)
-        values = [value for fact in facts for value in fact.values]
         return ("pass" if any(values) else "fail"), fact_ids
 
     if predicate_id == "explicit":
-        facts = _facts_for_subject(
+        values, fact_ids = _fact_values_for_subject(
             fact_bundle,
             subject_ref=subject_ref,
             fact_type="explicit_carriage_observation",
             path=target_path,
         )
-        if not facts:
+        if values is None:
             return "unknown_evidence", []
-        fact_ids = sorted(item.fact_id for item in facts)
-        values = [value for fact in facts for value in fact.values]
         return ("pass" if any(values) else "fail"), fact_ids
 
     if predicate_id == "cardinality_eq":
-        facts = _facts_for_subject(
+        values, fact_ids = _fact_values_for_subject(
             fact_bundle,
             subject_ref=subject_ref,
             fact_type="path_cardinality_observation",
             path=target_path,
         )
-        if not facts:
+        if values is None:
             return "unknown_evidence", []
-        fact_ids = sorted(item.fact_id for item in facts)
-        values = [value for fact in facts for value in fact.values]
         return ("pass" if expected_count in values else "fail"), fact_ids
 
     if predicate_id == "bind_to":
@@ -491,17 +516,23 @@ def _evaluate_predicate(
         return ("pass" if any(bound_values) else "fail"), fact_ids
 
     if predicate_id == "eq":
-        facts = _facts_for_subject(
+        values, fact_ids = _fact_values_for_subject(
             fact_bundle,
             subject_ref=subject_ref,
             fact_type="value_observation",
             path=target_path,
         )
-        if not facts:
+        if values is None:
             return "unknown_evidence", []
-        fact_ids = sorted(item.fact_id for item in facts)
-        values = [value for fact in facts for value in fact.values]
-        return ("pass" if expected_scalar in values else "fail"), fact_ids
+        return (
+            "pass"
+            if any(
+                _scalar_matches_expected(observed=value, expected=expected_scalar)
+                for value in values
+            )
+            else "fail",
+            fact_ids,
+        )
 
     raise AnmCompileError(f"unsupported predicate_id: {predicate_id}")
 
@@ -529,11 +560,17 @@ def evaluate_authoritative_normative_markdown(
     selector_index = {selector.selector_ref: selector for selector in d1_ir.selector_refs}
 
     for clause in d1_ir.clauses:
-        if clause.normalized_predicate_id not in contract_ids:
+        supporting_contract_refs = _supporting_contract_refs_for_clause(clause)
+        missing_contract_ids = [
+            predicate_id
+            for predicate_id in supporting_contract_refs
+            if predicate_id not in contract_ids
+        ]
+        if missing_contract_ids:
             raise AnmCompileError(
                 "clause "
-                f"{clause.clause_ref} references missing predicate contract "
-                f"{clause.normalized_predicate_id}"
+                f"{clause.clause_ref} references missing predicate contract(s) "
+                + ", ".join(missing_contract_ids)
             )
 
         selector = selector_index[clause.subject_selector_ref]
@@ -548,7 +585,7 @@ def evaluate_authoritative_normative_markdown(
                     observed_outcome="unknown_resolution",
                     effective_verdict="unknown_resolution",
                     supporting_fact_refs=[],
-                    supporting_contract_refs=[clause.normalized_predicate_id],
+                    supporting_contract_refs=supporting_contract_refs,
                     message=selector_error,
                 )
             )
@@ -652,7 +689,7 @@ def evaluate_authoritative_normative_markdown(
                     observed_outcome=observed_outcome,
                     effective_verdict=effective_verdict,
                     supporting_fact_refs=sorted(supporting_fact_refs),
-                    supporting_contract_refs=sorted({clause.normalized_predicate_id}),
+                    supporting_contract_refs=supporting_contract_refs,
                     message=message,
                 )
             )
@@ -688,6 +725,13 @@ def project_policy_obligation_ledger(
     previous_ledger: PolicyObligationLedger | None = None,
     updated_at: str | None = None,
 ) -> PolicyObligationLedger:
+    if (
+        previous_ledger is not None
+        and previous_ledger.scope_snapshot != result_set.scope_snapshot
+    ):
+        raise ValueError(
+            "previous_ledger scope_snapshot must match result_set scope_snapshot"
+        )
     existing = {
         row.obligation_id: row
         for row in previous_ledger.rows

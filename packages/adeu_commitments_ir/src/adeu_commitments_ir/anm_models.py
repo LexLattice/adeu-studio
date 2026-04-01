@@ -543,29 +543,20 @@ class PolicyObligationLedgerRow(BaseModel):
             field_name="latest_result_run",
         )
         self.updated_at = _require_non_empty(self.updated_at, field_name="updated_at")
-        if self.latest_effective_verdict == "pass" and self.ledger_state != "satisfied":
-            raise ValueError("pass verdict must map to satisfied ledger_state")
-        if self.latest_effective_verdict == "fail" and self.ledger_state != "violated":
-            raise ValueError("fail verdict must map to violated ledger_state")
-        if self.latest_effective_verdict == "waived" and self.ledger_state != "waived":
-            raise ValueError("waived verdict must map to waived ledger_state")
-        if self.latest_effective_verdict == "deferred" and self.ledger_state != "deferred":
-            raise ValueError("deferred verdict must map to deferred ledger_state")
-        if self.latest_effective_verdict == "gated_off" and self.ledger_state != "gated_off":
-            raise ValueError("gated_off verdict must map to gated_off ledger_state")
-        if (
-            self.latest_effective_verdict == "unknown_evidence"
-            and self.ledger_state != "blocked_unknown_evidence"
-        ):
+        mapping = {
+            "pass": "satisfied",
+            "fail": "violated",
+            "waived": "waived",
+            "deferred": "deferred",
+            "gated_off": "gated_off",
+            "unknown_evidence": "blocked_unknown_evidence",
+            "unknown_resolution": "blocked_unknown_resolution",
+        }
+        expected_ledger_state = mapping[self.latest_effective_verdict]
+        if self.ledger_state != expected_ledger_state:
             raise ValueError(
-                "unknown_evidence verdict must map to blocked_unknown_evidence ledger_state"
-            )
-        if (
-            self.latest_effective_verdict == "unknown_resolution"
-            and self.ledger_state != "blocked_unknown_resolution"
-        ):
-            raise ValueError(
-                "unknown_resolution verdict must map to blocked_unknown_resolution ledger_state"
+                f"{self.latest_effective_verdict} verdict must map to "
+                f"{expected_ledger_state} ledger_state"
             )
         return self
 

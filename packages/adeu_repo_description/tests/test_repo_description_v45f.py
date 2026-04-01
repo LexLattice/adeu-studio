@@ -58,15 +58,19 @@ def _schema_validator(schema_filename: str) -> Draft202012Validator:
     return Draft202012Validator(schema)
 
 
-def test_v105_reference_binding_frame_replays_and_validates() -> None:
+def test_v105_reference_binding_frame_validates_as_historical_baseline() -> None:
     accepted_frame = _load_v105("repo_descriptive_normative_binding_frame_v105_reference.json")
     validated_frame = RepoDescriptiveNormativeBindingFrame.model_validate(accepted_frame)
 
+    assert validated_frame.schema == REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA
+
+
+def test_v45f_current_binding_frame_derivation_validates_against_current_baseline() -> None:
     derived_frame = derive_v45f_repo_descriptive_normative_binding_frame(
         source_paths=default_v45f_source_paths(),
-        snapshot_validity_posture=accepted_frame["snapshot_validity_posture"],
+        snapshot_validity_posture="snapshot_bound_current",
     )
-    assert derived_frame == accepted_frame
+    validated_frame = RepoDescriptiveNormativeBindingFrame.model_validate(derived_frame)
 
     bound_schema_registry, bound_entity_catalog = derive_v45a_repo_description_bundle()
     bound_symbol_catalog, bound_dependency_graph = (
@@ -96,7 +100,7 @@ def test_v105_reference_binding_frame_replays_and_validates() -> None:
         _test_intent_matrix,
         _optimization_register,
     ) = validate_repo_descriptive_normative_binding_frame_against_v45_baseline(
-        binding_frame_payload=accepted_frame,
+        binding_frame_payload=derived_frame,
         entity_catalog_payload=bound_entity_catalog,
         schema_family_registry_payload=bound_schema_registry,
         symbol_catalog_payload=bound_symbol_catalog,
@@ -106,7 +110,6 @@ def test_v105_reference_binding_frame_replays_and_validates() -> None:
         optimization_register_payload=bound_optimization_register,
     )
 
-    assert validated_frame.schema == REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA
     assert pair_frame == validated_frame
 
 

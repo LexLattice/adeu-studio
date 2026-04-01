@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from adeu_commitments_ir import CheckerFactBundle
+from adeu_commitments_ir import CheckerFactBundle, PolicyEvaluationResultSet, PolicyObligationLedger
 from adeu_semantic_source import (
     AnmCompileError,
     build_v47a_reference_chain,
@@ -117,6 +118,106 @@ def test_v47a_unsupported_selector_stays_clause_scope_blocker_without_ledger_row
     assert row.result_scope_kind == "clause_scope_blocker"
     assert row.effective_verdict == "unknown_resolution"
     assert ledger.rows == []
+
+
+def test_v47a_missing_qualifier_contract_fails_closed() -> None:
+    source_text = _read_text("reference_policy.adeu.md")
+    d1_ir = compile_authoritative_normative_markdown(
+        source_text=source_text,
+        source_doc_ref="packages/adeu_semantic_source/tests/fixtures/v47a/reference_policy.adeu.md",
+    )
+    fact_bundle = CheckerFactBundle.model_validate(
+        _read_commitments_fixture("reference_fact_bundle.json")
+    )
+    predicate_contracts = default_bootstrap_predicate_contracts().model_copy(
+        update={
+            "contracts": [
+                contract
+                for contract in default_bootstrap_predicate_contracts().contracts
+                if contract.predicate_id != "present"
+            ]
+        }
+    )
+
+    with pytest.raises(
+        AnmCompileError,
+        match="references missing predicate contract\\(s\\) present",
+    ):
+        evaluate_authoritative_normative_markdown(
+            d1_ir=d1_ir,
+            fact_bundle=fact_bundle,
+            predicate_contracts=predicate_contracts,
+            result_set_id="result-set:v47a-missing-qualifier-contract",
+        )
+
+
+def test_v47a_eq_is_type_sensitive_for_boolean_vs_integer() -> None:
+    source_text = """
+:::D@1 id=bool-eq
+ON artifact.emitted[*]
+@enabled MUST settings.enabled == true
+:::
+"""
+    d1_ir = compile_authoritative_normative_markdown(
+        source_text=source_text,
+        source_doc_ref="packages/adeu_semantic_source/tests/fixtures/v47a/type_sensitive_eq.adeu.md",
+    )
+    fact_bundle = CheckerFactBundle.model_validate(
+        {
+            "schema": "checker_fact_bundle@1",
+            "bundle_id": "fact-bundle:type-sensitive-eq",
+            "scope_snapshot": "snapshot:type-sensitive-eq",
+            "checker_profile": {
+                "checker_profile_id": "checker-profile:type-sensitive-eq",
+                "checker_ids": ["checker:type-sensitive-eq"],
+            },
+            "facts": [
+                {
+                    "fact_id": "fact:type-sensitive-eq",
+                    "subject_ref": "artifact:item",
+                    "fact_type": "value_observation",
+                    "path": "settings.enabled",
+                    "values": [1],
+                    "provenance": {
+                        "carrier_ref": "carrier:type-sensitive-eq",
+                        "mode": "direct",
+                    },
+                    "checker_id": "checker:type-sensitive-eq",
+                    "emitted_at": "2026-04-01T00:00:00Z",
+                }
+            ],
+        }
+    )
+
+    result_set = evaluate_authoritative_normative_markdown(
+        d1_ir=d1_ir,
+        fact_bundle=fact_bundle,
+        predicate_contracts=default_bootstrap_predicate_contracts(),
+        result_set_id="result-set:type-sensitive-eq",
+    )
+
+    assert len(result_set.results) == 1
+    row = result_set.results[0]
+    assert row.observed_outcome == "fail"
+    assert row.effective_verdict == "fail"
+
+
+def test_v47a_rejects_scope_mismatched_previous_ledger() -> None:
+    result_set = PolicyEvaluationResultSet.model_validate(
+        _read_commitments_fixture("reference_policy_evaluation_result_set.json")
+    )
+    previous_ledger = deepcopy(_read_commitments_fixture("reference_policy_obligation_ledger.json"))
+    previous_ledger["scope_snapshot"] = "snapshot:other-scope"
+
+    with pytest.raises(
+        ValueError,
+        match="previous_ledger scope_snapshot must match result_set scope_snapshot",
+    ):
+        project_policy_obligation_ledger(
+            result_set=result_set,
+            ledger_id="ledger:v47a-scope-mismatch",
+            previous_ledger=PolicyObligationLedger.model_validate(previous_ledger),
+        )
 
 
 @pytest.mark.parametrize(
