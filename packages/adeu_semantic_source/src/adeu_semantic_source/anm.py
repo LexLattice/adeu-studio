@@ -784,16 +784,14 @@ def project_policy_obligation_ledger(
         )
         updated_obligation_ids.add(obligation_id)
 
-    zero_match_clause_refs = {
-        notice.clause_ref
-        for notice in result_set.notices
-        if notice.notice_kind == "selector_zero_match"
+    current_clause_refs = {result.clause_ref for result in result_set.results} | {
+        notice.clause_ref for notice in result_set.notices
     }
-    if zero_match_clause_refs:
+    if current_clause_refs:
         for obligation_id, prior_row in list(rows.items()):
             if obligation_id in updated_obligation_ids:
                 continue
-            if prior_row.clause_ref not in zero_match_clause_refs:
+            if prior_row.clause_ref not in current_clause_refs:
                 continue
             rows[obligation_id] = PolicyObligationLedgerRow(
                 obligation_id=prior_row.obligation_id,
