@@ -1,0 +1,9 @@
+{
+  "ledger_id": "ledger:v47b-standalone-zero-match",
+  "result_set_refs": [
+    "result-set:v47b-standalone-zero-match"
+  ],
+  "rows": [],
+  "schema": "policy_obligation_ledger@1",
+  "scope_snapshot": "snapshot:v47b-standalone"
+}

@@ -1,0 +1,62 @@
+{
+  "ledger_id": "ledger:v47b-standalone",
+  "result_set_refs": [
+    "result-set:v47b-standalone"
+  ],
+  "rows": [
+    {
+      "clause_ref": "release_envelope:owner_explicit",
+      "clause_semantic_hash": "702e468871b735d9eb9dc0e7e3a00d56a7f03789be35510be813349e21667153",
+      "first_seen_run": "result-set:v47b-standalone",
+      "latest_applicability": "active",
+      "latest_effective_verdict": "pass",
+      "latest_observed_outcome": "pass",
+      "latest_result_run": "result-set:v47b-standalone",
+      "ledger_state": "satisfied",
+      "obligation_id": "obligation:194532b50981",
+      "subject_ref": "artifact:beta",
+      "updated_at": "result-set:v47b-standalone"
+    },
+    {
+      "clause_ref": "release_envelope:owner_binding",
+      "clause_semantic_hash": "c523e5dbcbcacb1eb1efbe1110c2288d1735455cfc5bbd2ae2026ee0809d2693",
+      "first_seen_run": "result-set:v47b-standalone",
+      "latest_applicability": "active",
+      "latest_effective_verdict": "pass",
+      "latest_observed_outcome": "pass",
+      "latest_result_run": "result-set:v47b-standalone",
+      "ledger_state": "satisfied",
+      "obligation_id": "obligation:660f3e160373",
+      "subject_ref": "artifact:beta",
+      "updated_at": "result-set:v47b-standalone"
+    },
+    {
+      "clause_ref": "release_envelope:owner",
+      "clause_semantic_hash": "de23182d991265e258f1e6d1a6b49b27ffc0c449ac7c65d21d559b21a45897ba",
+      "first_seen_run": "result-set:v47b-standalone",
+      "latest_applicability": "active",
+      "latest_effective_verdict": "pass",
+      "latest_observed_outcome": "pass",
+      "latest_result_run": "result-set:v47b-standalone",
+      "ledger_state": "satisfied",
+      "obligation_id": "obligation:de4ac5c4f735",
+      "subject_ref": "artifact:beta",
+      "updated_at": "result-set:v47b-standalone"
+    },
+    {
+      "clause_ref": "release_envelope:runtime_guard",
+      "clause_semantic_hash": "f15a71961788d63b7be8c2094239a5e7281593c64989bca24c7753f5cd1bd4a1",
+      "first_seen_run": "result-set:v47b-standalone",
+      "latest_applicability": "gated_off",
+      "latest_effective_verdict": "gated_off",
+      "latest_observed_outcome": "not_evaluated",
+      "latest_result_run": "result-set:v47b-standalone",
+      "ledger_state": "gated_off",
+      "obligation_id": "obligation:f683193b7434",
+      "subject_ref": "artifact:beta",
+      "updated_at": "result-set:v47b-standalone"
+    }
+  ],
+  "schema": "policy_obligation_ledger@1",
+  "scope_snapshot": "snapshot:v47b-standalone"
+}

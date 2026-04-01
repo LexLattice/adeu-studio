@@ -1,0 +1,93 @@
+{
+  "schema": "checker_fact_bundle@1",
+  "bundle_id": "fact-bundle:v47b-standalone",
+  "scope_snapshot": "snapshot:v47b-standalone",
+  "checker_profile": {
+    "checker_ids": [
+      "checker:v47b"
+    ],
+    "checker_profile_id": "checker-profile:v47b"
+  },
+  "facts": [
+    {
+      "checker_id": "checker:v47b",
+      "emitted_at": "2026-04-01T00:00:00Z",
+      "fact_id": "fact:owner_binding",
+      "fact_type": "binding_observation",
+      "binding_payload": {
+        "bound": true,
+        "path": "metadata.owner"
+      },
+      "provenance": {
+        "carrier_ref": "carrier:artifact-beta",
+        "mode": "direct",
+        "notes": "binding emitted directly by the carrier"
+      },
+      "subject_ref": "artifact:beta"
+    },
+    {
+      "checker_id": "checker:v47b",
+      "emitted_at": "2026-04-01T00:00:00Z",
+      "fact_id": "fact:owner_explicit",
+      "fact_type": "explicit_carriage_observation",
+      "path": "metadata.owner",
+      "provenance": {
+        "carrier_ref": "carrier:artifact-beta",
+        "mode": "direct",
+        "notes": "field explicitly carried"
+      },
+      "subject_ref": "artifact:beta",
+      "values": [
+        true
+      ]
+    },
+    {
+      "checker_id": "checker:v47b",
+      "emitted_at": "2026-04-01T00:00:00Z",
+      "fact_id": "fact:owner_presence",
+      "fact_type": "path_presence_observation",
+      "path": "metadata.owner",
+      "provenance": {
+        "carrier_ref": "carrier:artifact-beta",
+        "mode": "direct",
+        "notes": "field present"
+      },
+      "subject_ref": "artifact:beta",
+      "values": [
+        true
+      ]
+    },
+    {
+      "checker_id": "checker:v47b",
+      "emitted_at": "2026-04-01T00:00:00Z",
+      "fact_id": "fact:owner_type",
+      "fact_type": "value_type_observation",
+      "path": "metadata.owner",
+      "provenance": {
+        "carrier_ref": "carrier:artifact-beta",
+        "mode": "indirect",
+        "notes": "value type inferred from the serialized carrier"
+      },
+      "subject_ref": "artifact:beta",
+      "values": [
+        "string"
+      ]
+    },
+    {
+      "checker_id": "checker:v47b",
+      "emitted_at": "2026-04-01T00:00:00Z",
+      "fact_id": "fact:runtime_enabled",
+      "fact_type": "path_presence_observation",
+      "path": "runtime.enabled",
+      "provenance": {
+        "carrier_ref": "carrier:artifact-beta",
+        "mode": "derived",
+        "notes": "runtime switch presence derived from emitted config"
+      },
+      "subject_ref": "artifact:beta",
+      "values": [
+        false
+      ]
+    }
+  ]
+}

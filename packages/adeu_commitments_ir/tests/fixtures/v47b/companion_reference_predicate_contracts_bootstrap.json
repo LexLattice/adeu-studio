@@ -1,0 +1,129 @@
+{
+  "contracts": [
+    {
+      "argument_schema": [
+        {
+          "kind": "path",
+          "name": "path"
+        }
+      ],
+      "evidence_failure_conditions": [
+        "no binding_observation facts present for target path"
+      ],
+      "owner_layer": "bootstrap_d",
+      "predicate_id": "bind_to",
+      "required_evidence_kinds": [
+        "binding_observation"
+      ],
+      "resolution_failure_conditions": [
+        "subject resolution failed before predicate evaluation"
+      ],
+      "truth_conditions": [
+        "binding_payload.path matches target path and binding_payload.bound == true"
+      ],
+      "version": "1"
+    },
+    {
+      "argument_schema": [
+        {
+          "kind": "path",
+          "name": "path"
+        },
+        {
+          "kind": "integer",
+          "name": "count"
+        }
+      ],
+      "evidence_failure_conditions": [
+        "no path_cardinality_observation facts present for target path"
+      ],
+      "owner_layer": "bootstrap_d",
+      "predicate_id": "cardinality_eq",
+      "required_evidence_kinds": [
+        "path_cardinality_observation"
+      ],
+      "resolution_failure_conditions": [
+        "subject resolution failed before predicate evaluation"
+      ],
+      "truth_conditions": [
+        "at least one observed cardinality equals expected count"
+      ],
+      "version": "1"
+    },
+    {
+      "argument_schema": [
+        {
+          "kind": "path",
+          "name": "path"
+        },
+        {
+          "kind": "scalar",
+          "name": "value"
+        }
+      ],
+      "evidence_failure_conditions": [
+        "no value_observation facts present for target path"
+      ],
+      "owner_layer": "bootstrap_d",
+      "predicate_id": "eq",
+      "required_evidence_kinds": [
+        "value_observation"
+      ],
+      "resolution_failure_conditions": [
+        "subject resolution failed before predicate evaluation"
+      ],
+      "truth_conditions": [
+        "at least one observed value equals expected scalar"
+      ],
+      "version": "1"
+    },
+    {
+      "argument_schema": [
+        {
+          "kind": "path",
+          "name": "path"
+        }
+      ],
+      "evidence_failure_conditions": [
+        "no explicit_carriage_observation facts present for target path"
+      ],
+      "owner_layer": "bootstrap_d",
+      "predicate_id": "explicit",
+      "required_evidence_kinds": [
+        "explicit_carriage_observation"
+      ],
+      "resolution_failure_conditions": [
+        "subject resolution failed before predicate evaluation"
+      ],
+      "truth_conditions": [
+        "at least one explicit_carriage_observation is true for target path"
+      ],
+      "version": "1"
+    },
+    {
+      "argument_schema": [
+        {
+          "kind": "path",
+          "name": "path"
+        }
+      ],
+      "evidence_failure_conditions": [
+        "no path_presence_observation facts present for target path"
+      ],
+      "owner_layer": "bootstrap_d",
+      "predicate_id": "present",
+      "required_evidence_kinds": [
+        "path_presence_observation"
+      ],
+      "resolution_failure_conditions": [
+        "subject resolution failed before predicate evaluation"
+      ],
+      "truth_conditions": [
+        "at least one path_presence_observation is true for target path"
+      ],
+      "version": "1"
+    }
+  ],
+  "predicate_contract_bundle_id": "predicate-contracts:20d4cce83292",
+  "schema": "predicate_contracts_bootstrap@1"
+}

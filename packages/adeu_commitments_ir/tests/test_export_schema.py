@@ -134,6 +134,11 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         schema_payloads[POLICY_OBLIGATION_LEDGER_SCHEMA]["properties"]["schema"]["const"]
         == POLICY_OBLIGATION_LEDGER_SCHEMA
     )
+    checker_fact_row_defs = schema_payloads[CHECKER_FACT_BUNDLE_SCHEMA]["$defs"]
+    value_type_fact = checker_fact_row_defs["ValueTypeObservationFact"]
+    assert value_type_fact["properties"]["fact_type"]["const"] == "value_type_observation"
+    provenance_mode = checker_fact_row_defs["FactProvenance"]["properties"]["mode"]["enum"]
+    assert provenance_mode == ["direct", "derived", "indirect", "absent", "inconclusive"]
 
 
 def test_exported_schema_has_no_absolute_path_material() -> None:

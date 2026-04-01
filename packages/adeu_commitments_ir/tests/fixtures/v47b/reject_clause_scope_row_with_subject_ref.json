@@ -1,0 +1,26 @@
+{
+  "schema": "policy_evaluation_result_set@1",
+  "result_set_id": "result-set:v47b-invalid-clause-scope-subject",
+  "scope_snapshot": "snapshot:v47b-standalone",
+  "d_ir_ref": "d1-ir:blocked",
+  "fact_bundle_ref": "fact-bundle:v47b-standalone",
+  "predicate_contract_ref": "predicate-contracts:bootstrap",
+  "results": [
+    {
+      "result_id": "result:blocked_surface:owner",
+      "clause_ref": "blocked_surface:owner",
+      "clause_semantic_hash": "hash:blocked",
+      "result_scope_kind": "clause_scope_blocker",
+      "subject_ref": "artifact:beta",
+      "applicability": "active",
+      "observed_outcome": "unknown_resolution",
+      "effective_verdict": "unknown_resolution",
+      "supporting_fact_refs": [],
+      "supporting_contract_refs": [
+        "present"
+      ],
+      "message": "unsupported bootstrap selector"
+    }
+  ],
+  "notices": []
+}

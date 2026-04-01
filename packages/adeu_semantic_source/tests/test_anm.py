@@ -5,7 +5,13 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-from adeu_commitments_ir import CheckerFactBundle, PolicyEvaluationResultSet, PolicyObligationLedger
+from adeu_commitments_ir import (
+    CheckerFactBundle,
+    PolicyEvaluationResultSet,
+    PolicyObligationLedger,
+    PolicyObligationLedgerRow,
+    stable_payload_hash,
+)
 from adeu_semantic_source import (
     AnmCompileError,
     build_v47a_reference_chain,
@@ -20,8 +26,16 @@ def _fixture_path(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "v47a" / name
 
 
+def _fixture_path_v47b(name: str) -> Path:
+    return Path(__file__).parent / "fixtures" / "v47b" / name
+
+
 def _read_text(name: str) -> str:
     return _fixture_path(name).read_text(encoding="utf-8")
+
+
+def _read_text_v47b(name: str) -> str:
+    return _fixture_path_v47b(name).read_text(encoding="utf-8")
 
 
 def _read_json(path: Path) -> dict[str, object]:
@@ -35,6 +49,18 @@ def _read_commitments_fixture(name: str) -> dict[str, object]:
         / "tests"
         / "fixtures"
         / "v47a"
+        / name
+    )
+    return _read_json(path)
+
+
+def _read_commitments_fixture_v47b(name: str) -> dict[str, object]:
+    path = (
+        Path(__file__).resolve().parents[2]
+        / "adeu_commitments_ir"
+        / "tests"
+        / "fixtures"
+        / "v47b"
         / name
     )
     return _read_json(path)
@@ -65,6 +91,86 @@ def test_v47a_reference_chain_replays_deterministically() -> None:
     )
     assert ledger.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture(
         "reference_policy_obligation_ledger.json"
+    )
+
+
+@pytest.mark.parametrize(
+    (
+        "source_name",
+        "source_doc_ref",
+        "fact_bundle_name",
+        "result_set_id",
+        "ledger_id",
+        "d1_name",
+        "contracts_name",
+        "result_name",
+        "ledger_name",
+    ),
+    [
+        (
+            "standalone_policy.adeu.md",
+            "packages/adeu_semantic_source/tests/fixtures/v47b/standalone_policy.adeu.md",
+            "standalone_fact_bundle.json",
+            "result-set:v47b-standalone",
+            "ledger:v47b-standalone",
+            "standalone_reference_d1_normalized_ir.json",
+            "standalone_reference_predicate_contracts_bootstrap.json",
+            "standalone_reference_policy_evaluation_result_set.json",
+            "standalone_reference_policy_obligation_ledger.json",
+        ),
+        (
+            "companion_policy.md",
+            "packages/adeu_semantic_source/tests/fixtures/v47b/companion_policy.md",
+            "companion_fact_bundle.json",
+            "result-set:v47b-companion",
+            "ledger:v47b-companion",
+            "companion_reference_d1_normalized_ir.json",
+            "companion_reference_predicate_contracts_bootstrap.json",
+            "companion_reference_policy_evaluation_result_set.json",
+            "companion_reference_policy_obligation_ledger.json",
+        ),
+    ],
+)
+def test_v47b_examples_replay_deterministically(
+    source_name: str,
+    source_doc_ref: str,
+    fact_bundle_name: str,
+    result_set_id: str,
+    ledger_id: str,
+    d1_name: str,
+    contracts_name: str,
+    result_name: str,
+    ledger_name: str,
+) -> None:
+    source_text = _read_text_v47b(source_name)
+    d1_ir = compile_authoritative_normative_markdown(
+        source_text=source_text,
+        source_doc_ref=source_doc_ref,
+    )
+    fact_bundle = CheckerFactBundle.model_validate(_read_commitments_fixture_v47b(fact_bundle_name))
+    contracts = default_bootstrap_predicate_contracts()
+    result_set = evaluate_authoritative_normative_markdown(
+        d1_ir=d1_ir,
+        fact_bundle=fact_bundle,
+        predicate_contracts=contracts,
+        result_set_id=result_set_id,
+    )
+    ledger = project_policy_obligation_ledger(
+        result_set=result_set,
+        ledger_id=ledger_id,
+    )
+
+    assert d1_ir.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        d1_name
+    )
+    assert contracts.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        contracts_name
+    )
+    assert result_set.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        result_name
+    )
+    assert ledger.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        ledger_name
     )
 
 
@@ -118,6 +224,200 @@ def test_v47a_unsupported_selector_stays_clause_scope_blocker_without_ledger_row
     assert row.result_scope_kind == "clause_scope_blocker"
     assert row.effective_verdict == "unknown_resolution"
     assert ledger.rows == []
+
+
+def test_v47b_clause_scope_blocker_example_stays_distinct_from_subject_rows() -> None:
+    source_text = _read_text_v47b("clause_scope_blocker_policy.adeu.md")
+    d1_ir = compile_authoritative_normative_markdown(
+        source_text=source_text,
+        source_doc_ref=(
+            "packages/adeu_semantic_source/tests/fixtures/v47b/"
+            "clause_scope_blocker_policy.adeu.md"
+        ),
+    )
+    fact_bundle = CheckerFactBundle.model_validate(
+        _read_commitments_fixture_v47b("standalone_fact_bundle.json")
+    )
+    result_set = evaluate_authoritative_normative_markdown(
+        d1_ir=d1_ir,
+        fact_bundle=fact_bundle,
+        predicate_contracts=default_bootstrap_predicate_contracts(),
+        result_set_id="result-set:v47b-clause-blocker",
+    )
+    ledger = project_policy_obligation_ledger(
+        result_set=result_set,
+        ledger_id="ledger:v47b-clause-blocker",
+    )
+
+    assert d1_ir.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        "clause_scope_blocker_reference_d1_normalized_ir.json"
+    )
+    assert result_set.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        "clause_scope_blocker_reference_policy_evaluation_result_set.json"
+    )
+    assert ledger.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        "clause_scope_blocker_reference_policy_obligation_ledger.json"
+    )
+    assert len(result_set.results) == 1
+    assert result_set.results[0].result_scope_kind == "clause_scope_blocker"
+    assert "subject_ref" not in result_set.model_dump(mode="json", exclude_none=True)["results"][0]
+
+
+def test_v47b_zero_match_emits_notices_without_first_ledger_rows() -> None:
+    source_text = _read_text_v47b("standalone_policy.adeu.md")
+    d1_ir = compile_authoritative_normative_markdown(
+        source_text=source_text,
+        source_doc_ref="packages/adeu_semantic_source/tests/fixtures/v47b/standalone_policy.adeu.md",
+    )
+    fact_bundle = CheckerFactBundle.model_validate(
+        _read_commitments_fixture_v47b("standalone_zero_match_fact_bundle.json")
+    )
+    result_set = evaluate_authoritative_normative_markdown(
+        d1_ir=d1_ir,
+        fact_bundle=fact_bundle,
+        predicate_contracts=default_bootstrap_predicate_contracts(),
+        result_set_id="result-set:v47b-standalone-zero-match",
+    )
+    ledger = project_policy_obligation_ledger(
+        result_set=result_set,
+        ledger_id="ledger:v47b-standalone-zero-match",
+    )
+
+    assert result_set.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        "standalone_zero_match_policy_evaluation_result_set.json"
+    )
+    assert ledger.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        "standalone_zero_match_policy_obligation_ledger.json"
+    )
+    assert result_set.results == []
+    assert ledger.rows == []
+
+
+def test_v47b_zero_match_after_prior_instantiation_reconciles_existing_rows() -> None:
+    result_set = PolicyEvaluationResultSet.model_validate(
+        _read_commitments_fixture_v47b("standalone_zero_match_policy_evaluation_result_set.json")
+    )
+    previous_ledger = PolicyObligationLedger.model_validate(
+        _read_commitments_fixture_v47b("standalone_reference_policy_obligation_ledger.json")
+    )
+
+    ledger = project_policy_obligation_ledger(
+        result_set=result_set,
+        ledger_id="ledger:v47b-standalone-zero-match",
+        previous_ledger=previous_ledger,
+    )
+
+    assert ledger.model_dump(mode="json", exclude_none=True) == _read_commitments_fixture_v47b(
+        "standalone_zero_match_reconciled_policy_obligation_ledger.json"
+    )
+
+
+def test_v47b_clause_scope_blocker_reconciles_prior_rows_fail_closed() -> None:
+    result_set = PolicyEvaluationResultSet.model_validate(
+        _read_commitments_fixture_v47b("clause_scope_blocker_reference_policy_evaluation_result_set.json")
+    )
+    blocker_row = result_set.results[0]
+    assert blocker_row.result_scope_kind == "clause_scope_blocker"
+    previous_ledger = PolicyObligationLedger(
+        ledger_id="ledger:v47b-clause-blocker-previous",
+        scope_snapshot=result_set.scope_snapshot,
+        result_set_refs=["result-set:v47b-prior"],
+        rows=[
+            PolicyObligationLedgerRow(
+                obligation_id=(
+                    "obligation:"
+                    + stable_payload_hash(
+                        {
+                            "clause_ref": blocker_row.clause_ref,
+                            "clause_semantic_hash": blocker_row.clause_semantic_hash,
+                            "subject_ref": "artifact:beta",
+                            "scope_snapshot": result_set.scope_snapshot,
+                        }
+                    )[:12]
+                ),
+                clause_ref=blocker_row.clause_ref,
+                clause_semantic_hash=blocker_row.clause_semantic_hash,
+                subject_ref="artifact:beta",
+                latest_applicability="active",
+                latest_observed_outcome="pass",
+                latest_effective_verdict="pass",
+                ledger_state="satisfied",
+                first_seen_run="result-set:v47b-prior",
+                latest_result_run="result-set:v47b-prior",
+                updated_at="result-set:v47b-prior",
+            )
+        ],
+    )
+
+    ledger = project_policy_obligation_ledger(
+        result_set=result_set,
+        ledger_id="ledger:v47b-clause-blocker-reconciled",
+        previous_ledger=previous_ledger,
+    )
+
+    assert len(ledger.rows) == 1
+    row = ledger.rows[0]
+    assert row.latest_effective_verdict == "unknown_resolution"
+    assert row.ledger_state == "blocked_unknown_resolution"
+    assert row.latest_result_run == result_set.result_set_id
+
+
+def test_v47b_missing_subject_reconciles_prior_row_fail_closed() -> None:
+    result_set = PolicyEvaluationResultSet.model_validate(
+        _read_commitments_fixture_v47b("standalone_reference_policy_evaluation_result_set.json")
+    )
+    previous_ledger = PolicyObligationLedger.model_validate(
+        _read_commitments_fixture_v47b("standalone_reference_policy_obligation_ledger.json")
+    )
+    stale_row = PolicyObligationLedgerRow(
+        obligation_id=(
+            "obligation:"
+            + stable_payload_hash(
+                {
+                    "clause_ref": "release_envelope:owner",
+                    "clause_semantic_hash": (
+                        "de23182d991265e258f1e6d1a6b49b27ffc0c449ac7c65d21d559b21a45897ba"
+                    ),
+                    "subject_ref": "artifact:gamma",
+                    "scope_snapshot": result_set.scope_snapshot,
+                }
+            )[:12]
+        ),
+        clause_ref="release_envelope:owner",
+        clause_semantic_hash="de23182d991265e258f1e6d1a6b49b27ffc0c449ac7c65d21d559b21a45897ba",
+        subject_ref="artifact:gamma",
+        latest_applicability="active",
+        latest_observed_outcome="pass",
+        latest_effective_verdict="pass",
+        ledger_state="satisfied",
+        first_seen_run="result-set:v47b-prior",
+        latest_result_run="result-set:v47b-prior",
+        updated_at="result-set:v47b-prior",
+    )
+    previous_ledger = previous_ledger.model_copy(
+        update={
+            "result_set_refs": sorted(
+                set(previous_ledger.result_set_refs) | {"result-set:v47b-prior"}
+            ),
+            "rows": sorted(
+                [*previous_ledger.rows, stale_row],
+                key=lambda item: item.obligation_id,
+            ),
+        }
+    )
+
+    ledger = project_policy_obligation_ledger(
+        result_set=result_set,
+        ledger_id="ledger:v47b-missing-subject-reconciled",
+        previous_ledger=previous_ledger,
+    )
+
+    gamma_rows = [row for row in ledger.rows if row.subject_ref == "artifact:gamma"]
+    assert len(gamma_rows) == 1
+    gamma_row = gamma_rows[0]
+    assert gamma_row.latest_effective_verdict == "unknown_resolution"
+    assert gamma_row.ledger_state == "blocked_unknown_resolution"
+    assert gamma_row.latest_result_run == result_set.result_set_id
 
 
 def test_v47a_missing_qualifier_contract_fails_closed() -> None:
