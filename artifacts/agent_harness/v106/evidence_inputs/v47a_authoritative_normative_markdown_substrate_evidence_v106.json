@@ -1,0 +1,23 @@
+{
+  "schema": "v47a_authoritative_normative_markdown_substrate_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v106/evidence_inputs/v47a_authoritative_normative_markdown_substrate_evidence_v106.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS106.md#v106-continuation-contract-machine-checkable",
+  "merged_pr": "#328",
+  "merge_commit": "c89991552fbd72ac36906fdc879c677a031d9369",
+  "d1_normalized_ir_authoritative_schema_path": "packages/adeu_commitments_ir/schema/d1_normalized_ir.v1.json",
+  "d1_normalized_ir_mirror_schema_path": "spec/d1_normalized_ir.schema.json",
+  "predicate_contracts_bootstrap_authoritative_schema_path": "packages/adeu_commitments_ir/schema/predicate_contracts_bootstrap.v1.json",
+  "predicate_contracts_bootstrap_mirror_schema_path": "spec/predicate_contracts_bootstrap.schema.json",
+  "checker_fact_bundle_authoritative_schema_path": "packages/adeu_commitments_ir/schema/checker_fact_bundle.v1.json",
+  "checker_fact_bundle_mirror_schema_path": "spec/checker_fact_bundle.schema.json",
+  "policy_evaluation_result_set_authoritative_schema_path": "packages/adeu_commitments_ir/schema/policy_evaluation_result_set.v1.json",
+  "policy_evaluation_result_set_mirror_schema_path": "spec/policy_evaluation_result_set.schema.json",
+  "policy_obligation_ledger_authoritative_schema_path": "packages/adeu_commitments_ir/schema/policy_obligation_ledger.v1.json",
+  "policy_obligation_ledger_mirror_schema_path": "spec/policy_obligation_ledger.schema.json",
+  "accepted_source_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47a/reference_policy.adeu.md",
+  "accepted_d1_normalized_ir_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v47a/reference_d1_normalized_ir.json",
+  "accepted_predicate_contracts_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v47a/reference_predicate_contracts_bootstrap.json",
+  "accepted_fact_bundle_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v47a/reference_fact_bundle.json",
+  "accepted_policy_evaluation_result_set_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v47a/reference_policy_evaluation_result_set.json",
+  "accepted_policy_obligation_ledger_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v47a/reference_policy_obligation_ledger.json"
+}

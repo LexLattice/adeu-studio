@@ -41,7 +41,9 @@ Interpretive doctrine for this planning surface:
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` through `V45-F` are closed on `main` and now constitute the completed bounded
   repo self-description ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
-- `vNext+105` is the current baseline implementation state on `main`.
+- `V47-A` is closed on `main` and now constitutes the released first ANM / `D@1`
+  substrate slice for this family.
+- `vNext+106` is the current baseline implementation state on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` records one connected candidate family:
   - `V43`
   - ADEU external governed contest participation substrate
@@ -179,12 +181,12 @@ Planning relationship:
   - `docs/DRAFT_POLICY_EVALUATION_RESULT_SET_SPEC_v0.md`
   - `docs/DRAFT_POLICY_OBLIGATION_LEDGER_SPEC_v0.md`
 - Recommended next path for this branch:
-  - `V47-A`
+  - `V47-B`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+106`
+  - `vNext+107`
 - Default path selection for this branch:
-  - select `V47-A` as the next default candidate
-  - treat that default as the bounded starter
+  - select `V47-B` as the next default candidate
+  - treat that default as the bounded next hardening lane after released `V47-A`
 
 This family/path recommendation is branch-local to the `v30` planning surface.
 
@@ -218,6 +220,23 @@ superseded here.
 `V47` is the planning move that generalizes the normative authoring and obligation-state
 thread without reopening descriptive self-modeling, benchmarking doctrine, or current
 markdown lock authority.
+
+`V47-A` should now be read as a released first substrate on `main`:
+
+- markdown-native ANM source posture;
+- explicit authoritative `D@1` blocks;
+- normalized `D-IR`;
+- semantic bootstrap predicate contracts;
+- fact-only checker bundles;
+- run-specific evaluation result sets;
+- cross-run obligation ledger projection.
+
+`V47-A` did not release:
+
+- widened fact-kind or provenance vocabularies beyond the bounded starter set;
+- broader current-markdown migration or adoption doctrine;
+- imported O-owned selector handles or E-owned predicate registries;
+- downstream execution, mutation, waiver, deferral, or approval authority.
 
 ## Recommended Next Family (`V47`)
 
@@ -273,8 +292,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V47-A` | bounded ANM / `D@1` compilation substrate | candidate `d1_normalized_ir@1`, candidate `predicate_contracts_bootstrap@1`, candidate `checker_fact_bundle@1`, candidate `policy_evaluation_result_set@1`, candidate `policy_obligation_ledger@1`, plus one tiny end-to-end ANM reference chain and minimal starter vocabulary/coexistence freeze sufficient for that chain | planned |
-| `V47-B` | schema/example and vocabulary hardening | widened and hardened fact-kind / provenance vocabulary plus concrete ANM / fact-bundle / result-set / ledger examples | planned |
+| `V47-A` | bounded ANM / `D@1` compilation substrate | released `d1_normalized_ir@1`, `predicate_contracts_bootstrap@1`, `checker_fact_bundle@1`, `policy_evaluation_result_set@1`, and `policy_obligation_ledger@1`, plus one tiny end-to-end ANM reference chain and minimal starter vocabulary/coexistence freeze sufficient for that chain | closed_on_main |
+| `V47-B` | schema/example and vocabulary hardening | widened and hardened fact-kind / provenance vocabulary plus concrete ANM / fact-bundle / result-set / ledger examples | planned_next_default_candidate |
 | `V47-C` | coexistence and companion-doc adoption lane | broader standalone-vs-companion posture, current-markdown coexistence rules, and bounded migration discipline beyond the `V47-A` minimum non-override freeze | planned |
 | `V47-D` | selector / predicate ownership transition lane | later move from bootstrap string selectors and bootstrap contracts toward imported O-owned selectors and E-owned predicate registries | planned_later_not_selected_here |
 | `V47-E` | downstream policy-bearing consumer seam | later consumers over descriptive, benchmark, or runtime artifact worlds using the released ANM substrate | planned_later_not_selected_here |

@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+105",
+  "current_arc": "vNext+106",
+  "baseline_source": "artifacts/stop_gate/report_v105_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v106_closeout.md",
+  "baseline_elapsed_ms": 96,
+  "current_elapsed_ms": 108,
+  "delta_ms": 12,
+  "notes": "v106 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the released V47-A ANM/D@1 substrate: markdown-native authoritative blocks, normalized D-IR with explicit selector refs, semantic bootstrap predicate contracts, fact-only checker bundles, run-specific result sets, cross-run ledger projection, fail-closed clause-scope blocker posture, and shared canonical hash reuse instead of package-local canonical-json drift."
+}
