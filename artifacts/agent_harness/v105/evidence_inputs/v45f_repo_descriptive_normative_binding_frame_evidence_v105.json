@@ -1,0 +1,10 @@
+{
+  "schema": "v45f_repo_descriptive_normative_binding_frame_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v105/evidence_inputs/v45f_repo_descriptive_normative_binding_frame_evidence_v105.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md#v105-continuation-contract-machine-checkable",
+  "merged_pr": "#327",
+  "merge_commit": "ffbf0fe8a042aa4529ef615a5ba750fd30d9124e",
+  "repo_descriptive_normative_binding_frame_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_descriptive_normative_binding_frame.v1.json",
+  "repo_descriptive_normative_binding_frame_mirror_schema_path": "spec/repo_descriptive_normative_binding_frame.schema.json",
+  "accepted_binding_frame_fixture_path": "apps/api/fixtures/repo_description/vnext_plus105/repo_descriptive_normative_binding_frame_v105_reference.json"
+}

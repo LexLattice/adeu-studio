@@ -2,9 +2,9 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v27.md`, updated after the
 repo self-description seed was clarified as a separate but connected family direction
-and refreshed after `vNext+100`, `vNext+102`, `vNext+101`, and `vNext+103`
-(`V45-A`, `V45-C` baseline plus corrective hardening, `V45-B`, and `V45-D`) closed on
-`main`.
+and refreshed after `vNext+100`, `vNext+102`, `vNext+101`, `vNext+103`, `vNext+104`,
+and `vNext+105` (`V45-A`, `V45-C` baseline plus corrective hardening, `V45-B`,
+`V45-D`, `V45-E`, and `V45-F`) closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` or the structural-reasoning assessment planning
@@ -37,8 +37,8 @@ Interpretive doctrine for this planning surface:
 - `V39-A` through `V39-E` are closed on `main`.
 - `V40-A` through `V40-F` are closed on `main`.
 - `V41-A` through `V41-F` are closed on `main`.
-- `vNext+101`, `vNext+102`, and `vNext+103` are closed on `main` as the current
-  `V45` implementation baseline.
+- `vNext+101`, `vNext+102`, `vNext+103`, `vNext+104`, and `vNext+105` are closed on
+  `main` as the current `V45` implementation baseline.
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` is closed on `main`:
   - bounded `repo_schema_family_registry@1`
@@ -77,23 +77,25 @@ Interpretive doctrine for this planning surface:
 
 ## Gap
 
-The repo no longer lacks a released self-description starter entirely.
+The repo no longer lacks the bounded self-description substrate targeted by this
+branch.
 
-`V45-A` now ships the first bounded descriptive baseline for schema-family registry and
-schema-visible entity-catalog outputs.
+`V45` now ships the planned bounded stack on `main`:
 
-The repo still lacks a released way to:
+- schema-family and entity-catalog baseline;
+- symbol and dependency baseline;
+- open arc/slice dependency baseline plus corrective hardening;
+- test-intent matrix;
+- optimization register;
+- descriptive-to-normative binding seam.
 
-- surface hotspot and consolidation signals as named descriptive objects;
-- define a structural home for short-lived branch-local "hot memory" continuation
-  artifacts without overloading next-arc-options docs for that purpose;
-- bind later descriptive outputs into recursive-governance consumers without laundering
-  descriptive findings into mutation entitlement.
+One unresolved repo-infra question remains separate from the closed `V45` ladder:
 
-The missing layer is therefore not another constitutional policy note and not yet a
-recursive amendment engine.
+- defining a structural home for short-lived branch-local "hot memory" continuation
+  artifacts without overloading next-arc-options docs for that purpose.
 
-The missing layer is a descriptive self-model of ADEU itself.
+That question is not solved by `V45` and should not be backfilled into the completed
+repo self-description family by implication.
 
 ## Relationship To `V43` And `V44`
 
@@ -155,14 +157,16 @@ Planning relationship:
   - `docs/DRAFT_REPO_ENTITY_ROLE_TAXONOMY_v0.md`
   - `docs/DRAFT_SCHEMA_META_CORE_v0.md`
   - `docs/DRAFT_SCHEMA_ROLE_FORM_REGISTRY_v0.md`
+- Current family state for this branch:
+  - bounded `V45-A` through `V45-F` ladder closed on `main`
 - Recommended next path for this branch:
-  - `V45-F`
+  - none currently selected inside `V45`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+105`
+  - none currently selected inside `V45`
 - Default path selection for this branch:
-  - select `V45-F` as the next default candidate
-  - treat `V45-F` as the bounded next widening for descriptive-to-normative binding
-    over the released `V45-A` through `V45-E` descriptive baselines
+  - no further `V45` continuation is currently selected
+  - later recursive-governance or amendment-execution consumers, if chosen, should be
+    treated as downstream family work rather than another implicit `V45` widening
 
 This family/path recommendation is branch-local to the `v28` planning surface.
 
@@ -241,15 +245,15 @@ The current recommended path ladder is:
 | `V45-C` | open arc/slice dependency register | candidate `repo_arc_dependency_register@1` baseline plus bounded corrective hardening to `@2` | closed_on_main |
 | `V45-D` | test intent matrix | candidate `repo_test_intent_matrix@1` | closed_on_main |
 | `V45-E` | optimization register | candidate `repo_optimization_register@1` | closed_on_main |
-| `V45-F` | descriptive-to-normative binding seam | recursive-governance binding over released descriptive objects | selected_next_branch_local |
+| `V45-F` | descriptive-to-normative binding seam | recursive-governance binding over released descriptive objects | closed_on_main |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-The `V45-F` seam should still be read as provisional planning scaffolding.
+The bounded `V45` ladder is now fully shipped on `main` through `V45-F`.
 
-If `V45-A` reveals that classification stability, adjudication burden, or extraction
-confidence are weaker than expected, widening into later paths may need to pause,
-reorder, or narrow.
+Further recursive-governance or amendment-execution consumers, if selected later,
+should be treated as downstream family work rather than another implicit `V45`
+continuation.
 
 The bounded `V45-C` corrective follow-up has now been shipped as `vNext+102`.
 
@@ -259,71 +263,56 @@ Its interpretation remains:
 - not a reclassification of `V45-C` into `V45-B`;
 - and not a replacement for the released `V45-B` code-self-description widening lane.
 
-## Recommended Next Path (`V45-F`)
+## Current Family Status (Post `V45-F`)
 
-Implement the bounded descriptive-to-normative binding seam next.
+`V45-F` is now closed on `main`.
 
-`V45-A` through `V45-E` are now closed on `main` and together provide the first
-released descriptive baseline for schema-visible entities, typed code
-self-description, open arc/slice dependency posture, test-intent visibility, and
-optimization diagnostics.
+`V45-A` through `V45-F` together now provide the bounded `V45` release stack for:
 
-`V45-F` is the natural next widening because later recursive-governance or amendment
-lanes should not bind directly to raw catalogs, dependency graphs, or optimization
-findings without one explicit typed seam that preserves the difference between:
+- schema-visible entity and schema-family self-description;
+- typed Python symbol and dependency self-description;
+- open arc/slice dependency posture;
+- test-intent visibility;
+- optimization diagnostics;
+- descriptive-to-normative binding doctrine over the released descriptive baseline.
 
-- descriptive fact;
-- optimization candidate;
-- and any later normative or amendment-routing consumption.
+The bounded family thesis for `V45` is therefore now implemented on `main`.
 
-`V45-F` should introduce:
+Later recursive-governance or amendment-execution consumers may still be worth
+selecting, but they should be treated as downstream family work rather than another
+implicit `V45` continuation.
 
-- one bounded descriptive-to-normative binding seam over released `V45-A` through
-  `V45-E` artifacts;
-- explicit separation between descriptive evidence and any downstream normative
-  consumption posture;
-- explicit guards around promotion law, authority source, and admissible bound inputs;
-- fail-closed rejection of:
-  - recursive-governance laundering from descriptive artifacts alone;
-  - amendment entitlement emitted without explicit separate authority;
-  - silent promotion of optimization findings into scheduler or mutation authority.
-
-`V45-F` should remain bounded:
-
-- it may define typed binding doctrine;
-- it may not itself authorize automatic repo mutation or recursive self-amendment.
-
-## Why This Path
+## Why `V45-F` Was The Right Final Path
 
 - `V45-A` already established the first descriptive substrate on `main`.
 - `V45-B` already established the typed code-symbol and dependency baseline on `main`.
 - `V45-C` already established the open-arc dependency-register baseline on `main`.
 - `V45-D` already established bounded test-intent visibility on `main`.
-- `V45-E` now already establishes typed optimization diagnostics on `main`.
-- the next missing layer is not another descriptive register but an explicit controlled
-  binding seam over the released descriptive baseline.
+- `V45-E` already established typed optimization diagnostics on `main`.
+- the final missing layer inside `V45` was not another descriptive register but one
+  explicit controlled binding seam over the released descriptive baseline.
 - the released `V45-B` through `V45-E` seams already turn Python/package/module/symbol,
   dependency, test, and optimization surfaces into ADEU-native descriptive objects that
-  later `V45-F` and recursive-governance lanes can consume.
-- it keeps the family descriptive-first instead of jumping into optimizer or normative
-  binding surfaces.
+  later downstream consumers can consume.
+- it closed the family descriptively and non-executively instead of jumping straight
+  from descriptive outputs into execution-grade recursive governance.
 
-## Current Boundary (`V45-F`)
+## Current Boundary (After `V45-F`)
 
-`V45-F` should stay bounded to:
+The completed `V45` family should still be read as bounded to:
 
 - descriptive-to-normative binding doctrine only;
 - explicit admissibility, authority, and promotion-law constraints only;
 - one bounded seam over already released descriptive artifacts only.
 
-It should not attempt:
+It should not be overread as having attempted:
 
 - direct recursive amendment execution;
 - mutation recommendation or refactor entitlement from this seam alone;
 - constitutional override or self-modification doctrine beyond bounded binding rules;
 - automatic repo mutation.
 
-## Follow-On Paths Inside `V45`
+## Released Paths Inside `V45`
 
 ### `V45-B`
 
@@ -366,11 +355,13 @@ Optimization-register lane:
 
 ### `V45-F`
 
-Deferred descriptive-to-normative binding seam:
+Descriptive-to-normative binding seam:
 
-- recursive-governance or amendment lanes may later bind to released descriptive
-  surfaces;
-- that seam remains later and not selected by this planning draft.
+- candidate `repo_descriptive_normative_binding_frame@1`;
+- explicit doctrine over how later consumers may bind to released descriptive surfaces
+  without laundering authority out of them;
+- now closed on `main`;
+- remains non-executive and non-approving by itself.
 
 ## Candidate Package Ownership
 
@@ -428,7 +419,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v27.md",
-  "baseline_arc": "vNext+104",
+  "baseline_arc": "vNext+105",
   "closed_prior_families": [
     "V41",
     "V42"
@@ -450,7 +441,8 @@ are:
     "V45-B",
     "V45-C",
     "V45-D",
-    "V45-E"
+    "V45-E",
+    "V45-F"
   ],
   "planned_current_family_paths": [
     "V45-A",
@@ -460,8 +452,8 @@ are:
     "V45-E",
     "V45-F"
   ],
-  "default_next_arc_candidate_for_this_branch": "V45-F",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+105",
+  "default_next_arc_candidate_for_this_branch": null,
+  "default_next_concrete_arc_candidate_for_this_branch": null,
   "v45b_closed_on_main": true,
   "family_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
   "family_decomposition_doc": "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md",
@@ -500,9 +492,10 @@ are:
   "non_numeric_bis_arc_taxonomy_not_yet_supported_by_current_bundle_tooling": true,
   "v45d_test_intent_matrix_closed_on_main": true,
   "v45e_optimization_register_closed_on_main": true,
-  "v45f_recursive_governance_binding_selected_next": true,
-  "recursive_amendment_binding_initially_deferred": true,
-  "automatic_repo_mutation_initially_deferred": true,
+  "v45f_descriptive_normative_binding_closed_on_main": true,
+  "v45_branch_local_family_buildout_closed_on_main": true,
+  "recursive_amendment_execution_still_deferred": true,
+  "automatic_repo_mutation_still_deferred": true,
   "optimization_findings_non_promotional_required": true,
   "package_ownership_assumption_provisional_pending_decomposition_required": true,
   "planning_boundary_mode": "scope_guard_not_lock_authority",

@@ -1,8 +1,8 @@
 # Draft V45 Repo Self-Description Decomposition v0
 
 Status: working decomposition draft for bounded `V45` continuation after
-`docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`, refreshed after `V45-A`, `V45-B`, `V45-C`, and
-`V45-D` and `V45-E` closed on `main`.
+`docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`, refreshed after `V45-A`, `V45-B`, `V45-C`,
+`V45-D`, `V45-E`, and `V45-F` closed on `main`.
 
 This document is an intermediate planning artifact between:
 
@@ -16,8 +16,8 @@ implementation by itself.
 
 ## Purpose
 
-- preserve the bounded `V45-A` kernel decomposition while carrying the active `V45`
-  continuation ordering forward;
+- preserve the bounded `V45-A` kernel decomposition while carrying the completed
+  `V45` ladder forward as downstream reference;
 - keep repo self-description descriptive-first and non-promotional;
 - use the schema corpus as the first bounded high-signal subcorpus rather than jumping
   immediately to whole-repo maximal inventory;
@@ -85,6 +85,7 @@ first schema registry kernel, then wider repo self-description
 - `V45-B` is closed on `main` through `vNext+101`.
 - `V45-D` is closed on `main` through `vNext+103`.
 - `V45-E` is closed on `main` through `vNext+104`.
+- `V45-F` is closed on `main` through `vNext+105`.
 - `V45` is the current connected planning family from
   `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
 - The first safe move is still descriptive-plane first.
@@ -93,11 +94,13 @@ first schema registry kernel, then wider repo self-description
   assumed from naming style alone.
 - `V45-C` legitimately preceded `V45-B` because dependency-register release did not
   require released symbol-catalog outputs.
-- `V45-F` is now the natural next widening seam after the released `V45-A`, `V45-B`,
-  `V45-C`, `V45-D`, and `V45-E` descriptive baselines.
-- the bounded `V45-C` corrective follow-up has already shipped as `vNext+102`, so later
-  `V45-E` and `V45-F` consumers should treat `repo_arc_dependency_register@2` as the current
-  planning-surface dependency baseline.
+- the bounded `V45-C` corrective follow-up has already shipped as `vNext+102`, so the
+  released `V45-E` and `V45-F` consumers now treat
+  `repo_arc_dependency_register@2` as the current planning-surface dependency
+  baseline.
+- the bounded `V45` family ladder is now complete on `main`; any later recursive
+  governance or amendment-execution work should be treated as downstream family work
+  rather than another implicit `V45` continuation.
 
 ## Recommended First Concrete `V45-A` Slice
 
@@ -152,10 +155,10 @@ For each case, the appendix should show:
 
 This appendix is the main anti-laundering check on the current schema-core hypothesis.
 
-## Later `V45` Widening Seams
+## Released `V45` Lanes
 
-The first decomposition should remain explicit about later `V45` lanes without
-collapsing them into the first slice.
+The decomposition should remain explicit about the released `V45` lanes without
+collapsing them back into the first slice.
 
 In particular:
 
@@ -169,11 +172,11 @@ In particular:
   - `repo_test_intent_matrix@1`;
 - `V45-E` is now closed on `main` as the optimization-register lane for:
   - `repo_optimization_register@1`;
-- `V45-F` should now be read as the default next lane for descriptive-to-normative
-  binding widening;
-- `V45-F` should consume the released `V45-A` through `V45-E` descriptive baseline,
-  with explicit authority-source and promotion-law doctrine rather than collapsing
-  descriptive artifacts directly into normative entitlement;
+- `V45-F` is now closed on `main` as the descriptive-to-normative binding lane for:
+  - `repo_descriptive_normative_binding_frame@1`;
+- the released `V45-F` seam consumes the released `V45-A` through `V45-E`
+  descriptive baseline with explicit authority-source and promotion-law doctrine
+  rather than collapsing descriptive artifacts directly into normative entitlement;
 - the released dependency-register seam remains descriptive-first:
   - no automatic scheduling authority;
   - no priority entitlement;
@@ -207,13 +210,15 @@ To stay aligned with the `V45` branch, the first slice should obey these rules:
   "schema": "v45_repo_self_description_decomposition@1",
   "source_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
   "source_options_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-  "baseline_arc": "vNext+104",
+  "baseline_arc": "vNext+105",
   "next_path_family": "V45",
-  "default_next_path": "V45-F",
-  "default_next_concrete_arc_candidate": "vNext+105",
+  "default_next_path": null,
+  "default_next_concrete_arc_candidate": null,
   "v45b_closed_on_main": true,
   "v45d_closed_on_main": true,
   "v45e_closed_on_main": true,
+  "v45f_closed_on_main": true,
+  "v45_family_buildout_closed_on_main": true,
   "planned_family_packages": [
     "packages/adeu_repo_description"
   ],
