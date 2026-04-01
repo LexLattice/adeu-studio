@@ -1,6 +1,6 @@
 # Assessment vNext+108 Edges
 
-Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
+Status: post-closeout edge assessment for `V47-C` (April 2, 2026 UTC).
 
 ## Assessment-State Marker (Machine-Checkable)
 
@@ -8,8 +8,8 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
 {
   "schema": "assessment_artifact_state@1",
   "artifact": "docs/ASSESSMENT_vNEXT_PLUS108_EDGES.md",
-  "phase": "pre_lock_assessment",
-  "authoritative": false,
+  "phase": "post_closeout_assessment",
+  "authoritative": true,
   "required_in_decision": true
 }
 ```
@@ -25,6 +25,12 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
   require explicit current-markdown authority relation, explicit non-override rule, and
   an exact invariant between that relation and
   `requires_later_lock_for_supersession`.
+- Closeout Evidence:
+  `packages/adeu_commitments_ir/src/adeu_commitments_ir/anm_models.py`,
+  `packages/adeu_semantic_source/tests/fixtures/v47c/reference_coexistence_spec.json`,
+  and tests `test_v47c_reference_profile_replays_deterministically`,
+  `test_v47c_rejects_inconsistent_supersession_spec`, and
+  `test_v47c_rejects_inconsistent_supersession_fields`.
 
 ### Edge 2: Companion-Posture Ambiguity
 
@@ -34,6 +40,12 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
 - Response:
   classify source posture deterministically and require explicit host-or-companion
   linkage plus explicit companion embedding posture for companion rows.
+- Closeout Evidence:
+  source-posture classification in
+  `packages/adeu_semantic_source/src/adeu_semantic_source/anm.py`,
+  committed fixtures `standalone_policy.adeu.md`, `companion_policy.md`,
+  `current_authority.md`, and accepted profile fixture
+  `packages/adeu_commitments_ir/tests/fixtures/v47c/reference_anm_markdown_coexistence_profile.json`.
 
 ### Edge 3: Silent Migration Doctrine
 
@@ -42,6 +54,11 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
 - Response:
   freeze migration posture vocabulary and reject repo-wide conversion claims in
   `V47-C`.
+- Closeout Evidence:
+  `MigrationDiscipline` in
+  `packages/adeu_commitments_ir/src/adeu_commitments_ir/anm_models.py`,
+  migration enforcement in `packages/adeu_semantic_source/src/adeu_semantic_source/anm.py`,
+  and test `test_v47c_rejects_source_row_posture_forbidden_by_migration_discipline`.
 
 ### Edge 4: Snapshot / Source-Scope Drift
 
@@ -51,6 +68,12 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
 - Response:
   require same snapshot identity and explicit artifact-local source-scope compatibility
   checks.
+- Closeout Evidence:
+  same-snapshot/source-scope checks in
+  `packages/adeu_semantic_source/src/adeu_semantic_source/anm.py`,
+  accepted mixed-scope reference spec
+  `packages/adeu_semantic_source/tests/fixtures/v47c/reference_coexistence_spec.json`,
+  and deterministic replay coverage in `test_v47c_reference_profile_replays_deterministically`.
 
 ### Edge 5: Orphaned Or Contradictory Linkage
 
@@ -59,6 +82,12 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
   incompatible, or authority-contradictory, while still looking structurally valid.
 - Response:
   fail closed on orphaned, stale, or contradictory host-or-companion linkage.
+- Closeout Evidence:
+  reject specs `reject_orphaned_host_spec.json` and
+  `reject_stale_or_contradictory_host_spec.json`,
+  plus tests `test_v47c_rejects_orphaned_host_linkage`,
+  `test_v47c_rejects_stale_or_contradictory_host_linkage`, and
+  `test_v47c_rejects_contradictory_host_authority_kind`.
 
 ### Edge 6: Adoption-Boundary Thinness
 
@@ -68,6 +97,12 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
 - Response:
   ship explicit adoption-boundary rows with `allowed_now`, `later_lock_required`, and
   `forbidden` surfaces.
+- Closeout Evidence:
+  `AnmAdoptionBoundaryRow` in
+  `packages/adeu_commitments_ir/src/adeu_commitments_ir/anm_models.py`,
+  accepted adoption-boundary rows in
+  `packages/adeu_semantic_source/tests/fixtures/v47c/reference_coexistence_spec.json`,
+  and accepted profile replay in `test_v47c_reference_profile_replays_deterministically`.
 
 ### Edge 7: Constrain-Action Overreach
 
@@ -77,6 +112,11 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
 - Response:
   enumerate allowed constrain actions exactly and require adoption-boundary rows to use
   the same frozen action vocabulary.
+- Closeout Evidence:
+  `AllowedConstrainAction` typing and exported schema parity in
+  `packages/adeu_commitments_ir/tests/test_export_schema.py`,
+  plus `test_v47c_rejects_boundary_action_drift_spec` and
+  `test_v47c_rejects_boundary_action_outside_frozen_vocabulary`.
 
 ### Edge 8: Ownership-Transition Leakage
 
@@ -86,6 +126,12 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
 - Response:
   forbid imported O-owned selector handles and imported E-owned predicate registries in
   this slice.
+- Closeout Evidence:
+  frozen `V47-C` lock scope in `docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md`,
+  bounded implementation footprint in
+  `packages/adeu_semantic_source/src/adeu_semantic_source/anm.py` and
+  `packages/adeu_commitments_ir/src/adeu_commitments_ir/anm_models.py`,
+  and absence of ownership-transition surfaces in shipped `v47c` fixtures.
 
 ### Edge 9: Execution Or Approval Laundering
 
@@ -95,6 +141,11 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
 - Response:
   keep the release explicitly non-executive and non-approving, with later lock-level
   adoption still required for those powers.
+- Closeout Evidence:
+  adoption-boundary action matrix in the committed `v47c` profile fixture,
+  bounded constrain-action vocabulary in `anm_models.py`,
+  and the frozen non-executive/non-approving scope in
+  `docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md`.
 
 ### Edge 10: Example-Backed Coexistence Drift
 
@@ -104,6 +155,11 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
 - Response:
   require accepted fixtures for each of those postures plus reject fixtures for the
   failure modes they are meant to block.
+- Closeout Evidence:
+  accepted standalone/companion/current-authority/reference profile fixtures under
+  `packages/adeu_semantic_source/tests/fixtures/v47c/` and
+  `packages/adeu_commitments_ir/tests/fixtures/v47c/`,
+  plus reject specs for supersession, orphaned/stale linkage, and action drift.
 
 ### Edge 11: Package-Boundary Sprawl
 
@@ -112,15 +168,20 @@ Status: pre-lock edge assessment for `V47-C` (April 2, 2026 UTC).
   before the bounded profile surface is stable.
 - Response:
   keep `V47-C` bounded to `adeu_semantic_source` plus `adeu_commitments_ir`.
+- Closeout Evidence:
+  shipped implementation footprint in
+  `packages/adeu_semantic_source/src/adeu_semantic_source/anm.py`,
+  `packages/adeu_commitments_ir/src/adeu_commitments_ir/anm_models.py`,
+  and bounded package selection in `docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md`.
 
 ## Current Judgment
 
-- `V47-C` is the right next move because `V47-A` and `V47-B` already released the ANM
-  substrate and its first hardening layer, while coexistence/adoption doctrine remains
-  the next unclosed gap.
-- The slice is only worth shipping if it stays doctrine-first and non-executive:
-  explicit non-override, explicit companion posture, explicit migration discipline, and
-  explicit adoption boundaries.
-- If `V47-C` cannot keep those boundaries machine-inspectable, the lane should narrow
-  rather than quietly widening into migration, ownership transition, or authority
-  laundering.
+- `V47-C` was the right next move because `V47-A` and `V47-B` had already released the
+  bounded ANM substrate and its first hardening layer on `main`, while coexistence and
+  companion-doc adoption doctrine remained the next unclosed gap.
+- `V47-C` on `main` now resolves that gap by shipping one typed coexistence profile
+  with deterministic source-posture classification, explicit non-override and
+  embedding posture, bounded migration discipline, and explicit adoption-boundary rows.
+- the shipped seam remains doctrine-first and non-authorizing, so later `V47-D+`
+  ownership-transition or downstream-consumer lanes can build on it without being
+  silently authorized by companion ANM existence alone.

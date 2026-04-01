@@ -1,0 +1,33 @@
+{
+  "schema": "v47c_authoritative_normative_markdown_coexistence_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v108/evidence_inputs/v47c_authoritative_normative_markdown_coexistence_evidence_v108.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md#v108-continuation-contract-machine-checkable",
+  "merged_pr": "#330",
+  "merge_commit": "a2adfb4d94692cd7e3a041ed57df4a5266a8a56a",
+  "implementation_packages": [
+    "adeu_semantic_source",
+    "adeu_commitments_ir"
+  ],
+  "coexistence_profile_implementation_source_path": "packages/adeu_semantic_source/src/adeu_semantic_source/anm.py",
+  "coexistence_profile_model_source_path": "packages/adeu_commitments_ir/src/adeu_commitments_ir/anm_models.py",
+  "coexistence_profile_authoritative_schema_path": "packages/adeu_commitments_ir/schema/anm_markdown_coexistence_profile.v1.json",
+  "coexistence_profile_mirror_schema_path": "spec/anm_markdown_coexistence_profile.schema.json",
+  "test_reference_paths": [
+    "packages/adeu_semantic_source/tests/test_anm_coexistence.py",
+    "packages/adeu_commitments_ir/tests/test_anm_coexistence_profile.py",
+    "packages/adeu_commitments_ir/tests/test_export_schema.py"
+  ],
+  "accepted_standalone_source_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47c/standalone_policy.adeu.md",
+  "accepted_companion_source_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47c/companion_policy.md",
+  "accepted_current_authority_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47c/current_authority.md",
+  "accepted_reference_spec_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47c/reference_coexistence_spec.json",
+  "accepted_profile_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v47c/reference_anm_markdown_coexistence_profile.json",
+  "rejected_inconsistent_supersession_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47c/reject_inconsistent_supersession_spec.json",
+  "rejected_orphaned_host_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47c/reject_orphaned_host_spec.json",
+  "rejected_stale_or_contradictory_host_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47c/reject_stale_or_contradictory_host_spec.json",
+  "rejected_boundary_action_drift_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47c/reject_boundary_action_drift_spec.json",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v108/evidence_inputs/metric_key_continuity_assertion_v108.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v108/evidence_inputs/runtime_observability_comparison_v108.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v108/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v108 evidence pins the released V47-C coexistence/adoption baseline on main: one canonical anm_markdown_coexistence_profile@1, deterministic standalone-versus-companion classification, exact supersession-field consistency, explicit embedding posture, fail-closed host/companion linkage validation, bounded migration discipline, explicit adoption-boundary action matrix, and retained non-executive/non-migratory authority posture."
+}

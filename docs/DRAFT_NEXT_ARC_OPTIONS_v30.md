@@ -41,9 +41,10 @@ Interpretive doctrine for this planning surface:
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` through `V45-F` are closed on `main` and now constitute the completed bounded
   repo self-description ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
-- `V47-A` and `V47-B` are closed on `main` and now constitute the released ANM / `D@1`
-  substrate plus the first schema/example/vocabulary hardening slice for this family.
-- `vNext+107` is the current baseline implementation state on `main`.
+- `V47-A`, `V47-B`, and `V47-C` are closed on `main` and now constitute the released
+  ANM / `D@1` substrate plus the first hardening and coexistence/adoption slices for
+  this family.
+- `vNext+108` is the current baseline implementation state on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` records one connected candidate family:
   - `V43`
   - ADEU external governed contest participation substrate
@@ -181,13 +182,13 @@ Planning relationship:
   - `docs/DRAFT_POLICY_EVALUATION_RESULT_SET_SPEC_v0.md`
   - `docs/DRAFT_POLICY_OBLIGATION_LEDGER_SPEC_v0.md`
 - Recommended next path for this branch:
-  - `V47-C`
+  - `V47-D`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+108`
+  - `vNext+109`
 - Default path selection for this branch:
-  - select `V47-C` as the next default candidate
-  - treat that default as the bounded next coexistence/adoption lane after released
-    `V47-A` plus `V47-B`
+  - select `V47-D` as the next default candidate
+  - treat that default as the bounded next selector/predicate ownership-transition lane
+    after released `V47-A` plus `V47-B` plus `V47-C`
 
 This family/path recommendation is branch-local to the `v30` planning surface.
 
@@ -295,84 +296,76 @@ The current recommended path ladder is:
 |---|---|---|---|
 | `V47-A` | bounded ANM / `D@1` compilation substrate | released `d1_normalized_ir@1`, `predicate_contracts_bootstrap@1`, `checker_fact_bundle@1`, `policy_evaluation_result_set@1`, and `policy_obligation_ledger@1`, plus one tiny end-to-end ANM reference chain and minimal starter vocabulary/coexistence freeze sufficient for that chain | closed_on_main |
 | `V47-B` | schema/example and vocabulary hardening | widened and hardened fact-kind / provenance vocabulary plus concrete ANM / fact-bundle / result-set / ledger examples | closed_on_main |
-| `V47-C` | coexistence and companion-doc adoption lane | broader standalone-vs-companion posture, current-markdown coexistence rules, and bounded migration discipline beyond the `V47-A` minimum non-override freeze | planned_next_default_candidate |
-| `V47-D` | selector / predicate ownership transition lane | later move from bootstrap string selectors and bootstrap contracts toward imported O-owned selectors and E-owned predicate registries | planned_later_not_selected_here |
+| `V47-C` | coexistence and companion-doc adoption lane | broader standalone-vs-companion posture, current-markdown coexistence rules, and bounded migration discipline beyond the `V47-A` minimum non-override freeze | closed_on_main |
+| `V47-D` | selector / predicate ownership transition lane | later move from bootstrap string selectors and bootstrap contracts toward imported O-owned selectors and E-owned predicate registries | planned_next_default_candidate |
 | `V47-E` | downstream policy-bearing consumer seam | later consumers over descriptive, benchmark, or runtime artifact worlds using the released ANM substrate | planned_later_not_selected_here |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-The `V47-C` through `V47-E` ladder should be read as provisional planning scaffolding.
+The `V47-D` through `V47-E` ladder should be read as provisional planning scaffolding.
 
-If the released `V47-A` plus `V47-B` stack reveals that coexistence posture,
-companion-doc adoption, or migration discipline is weaker or noisier than expected,
+If the released `V47-A` through `V47-C` stack reveals that ownership-transition posture
+or downstream consumer doctrine is weaker or noisier than expected,
 widening into later paths may need to pause, reorder, or narrow.
 
-## Recommended Next Path (`V47-C`)
+## Recommended Next Path (`V47-D`)
 
-Implement the bounded coexistence and companion-doc adoption lane next.
+Implement the bounded selector / predicate ownership-transition lane next.
 
-`V47-C` should introduce:
+`V47-D` should introduce:
 
-- one canonical bounded standalone-vs-companion doctrine over the released `V47-A` +
-  `V47-B` stack;
-- one explicit non-override rule relative to current markdown lock/planning authority;
-- one explicit companion embedding posture for readable markdown that contains
-  authoritative `D@1` blocks without becoming a repo-wide migration mandate;
-- one bounded migration discipline:
-  - when companion posture is allowed;
-  - when standalone posture is preferred;
-  - when existing current-markdown authority remains controlling;
-  - what may constrain a later migration decision without minting it;
-- one explicit adoption boundary for later policy-bearing docs:
-  - what the released ANM stack may constrain;
-  - what still requires later authority or lock-level adoption;
+- one bounded move from bootstrap string selectors toward imported O-owned selector
+  handles where that ownership transition is explicit rather than implicit;
+- one bounded move from bootstrap predicate contracts toward imported E-owned predicate
+  registries where semantic ownership is explicit rather than embedded locally;
+- one explicit compatibility doctrine between released bootstrap artifacts and later
+  owned selector/predicate surfaces;
+- one explicit anti-leakage rule for when bootstrap carriers remain permitted and when
+  mixed ownership would be forbidden;
 - no widening yet into:
-  - imported O-owned selector handles;
-  - imported E-owned predicate registries;
+  - repo-wide markdown migration;
+  - downstream policy-bearing consumer seams;
   - source-level `DEFERRED`;
   - waiver or deferral issuance;
   - execution or approval authority.
 
-`V47-C` remains adoption-first and non-executive:
+`V47-D` remains ownership-transition-first and non-executive:
 
-- it may define how the released ANM stack coexists with current markdown doctrine;
+- it may define how the released ANM stack transitions from bootstrap selector and
+  predicate ownership toward later owned surfaces;
 - it may not yet authorize execution, mutation, scheduling, approval, or repo-wide
   markdown supersession by itself.
 
 ## Why This Path
 
-- `V47-A` and `V47-B` are already closed, so the next unclosed gap is broader
-  coexistence and companion-doc adoption doctrine rather than more substrate or example
-  hardening.
-- The released stack is now strong enough that coexistence can be made explicit without
-  reopening ANM source syntax, `D-IR`, checker facts, result sets, or ledger state.
-- The family still needs a bounded rule for how current markdown authority and ANM
-  companion posture coexist before any later ownership transition or downstream consumer
-  lane widens further.
-- Doing this before `V47-D` or `V47-E` keeps adoption boundaries explicit and avoids
-  smuggling migration or authority assumptions into selector/predicate ownership work or
-  later consumers.
+- `V47-A` through `V47-C` are already closed, so the next unclosed gap is explicit
+  selector/predicate ownership transition rather than more substrate, hardening, or
+  coexistence doctrine.
+- The released stack is now strong enough that ownership transition can be made explicit
+  without reopening ANM source syntax, `D-IR`, checker facts, result sets, ledger
+  state, or coexistence/adoption posture.
+- The family still needs a bounded rule for when bootstrap selector and predicate
+  carriers remain authoritative enough and when later owned surfaces must take over
+  before any broader downstream consumer lane widens further.
+- Doing this before `V47-E` keeps consumer seams from silently inheriting bootstrap
+  ownership assumptions.
 
-## First-Slice Boundary (`V47-C`)
+## First-Slice Boundary (`V47-D`)
 
-`V47-C` should stay bounded to:
+`V47-D` should stay bounded to:
 
-- coexistence/adoption doctrine only over the released ANM stack;
-- standalone-vs-companion posture only;
-- current-markdown non-override rule only;
-- bounded migration discipline only;
+- selector/predicate ownership transition doctrine only over the released ANM stack;
+- bootstrap-to-owned transition posture only;
+- explicit compatibility and anti-leakage rules only;
 - explicit allowed constrain actions only:
-  - companion posture may coexist with current markdown authority;
-  - released ANM artifacts may be referenced or embedded without automatic authority
-    supersession;
-  - later migration may be informed by released ANM hardening outputs but not minted by
-    them automatically.
+  - released bootstrap selectors/predicate contracts may remain referenceable where
+    later owned surfaces are not yet selected;
+  - later owned selector/predicate surfaces may constrain bootstrap retirement without
+    silently minting execution or migration authority.
 
 It should not attempt:
 
 - repo-wide conversion of existing docs;
-- imported O-owned selector handles;
-- imported E-owned predicate registries;
 - source-level `DEFERRED`;
 - execution, approval, or mutation authority;
 - broad downstream consumer integrations.
@@ -501,15 +494,15 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
   ],
   "closed_current_family_paths": [
     "V47-A",
-    "V47-B"
+    "V47-B",
+    "V47-C"
   ],
   "planned_current_family_paths": [
-    "V47-C",
     "V47-D",
     "V47-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V47-C",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+108",
+  "default_next_arc_candidate_for_this_branch": "V47-D",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+109",
   "family_architecture_doc": "docs/DRAFT_AUTHORITATIVE_NORMATIVE_MARKDOWN_SPEC_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_D1_DIALECT_SPEC_v0.md",
