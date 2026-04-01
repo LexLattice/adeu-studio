@@ -41,9 +41,9 @@ Interpretive doctrine for this planning surface:
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` through `V45-F` are closed on `main` and now constitute the completed bounded
   repo self-description ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
-- `V47-A` is closed on `main` and now constitutes the released first ANM / `D@1`
-  substrate slice for this family.
-- `vNext+106` is the current baseline implementation state on `main`.
+- `V47-A` and `V47-B` are closed on `main` and now constitute the released ANM / `D@1`
+  substrate plus the first schema/example/vocabulary hardening slice for this family.
+- `vNext+107` is the current baseline implementation state on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` records one connected candidate family:
   - `V43`
   - ADEU external governed contest participation substrate
@@ -181,12 +181,13 @@ Planning relationship:
   - `docs/DRAFT_POLICY_EVALUATION_RESULT_SET_SPEC_v0.md`
   - `docs/DRAFT_POLICY_OBLIGATION_LEDGER_SPEC_v0.md`
 - Recommended next path for this branch:
-  - `V47-B`
+  - `V47-C`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+107`
+  - `vNext+108`
 - Default path selection for this branch:
-  - select `V47-B` as the next default candidate
-  - treat that default as the bounded next hardening lane after released `V47-A`
+  - select `V47-C` as the next default candidate
+  - treat that default as the bounded next coexistence/adoption lane after released
+    `V47-A` plus `V47-B`
 
 This family/path recommendation is branch-local to the `v30` planning surface.
 
@@ -293,148 +294,100 @@ The current recommended path ladder is:
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
 | `V47-A` | bounded ANM / `D@1` compilation substrate | released `d1_normalized_ir@1`, `predicate_contracts_bootstrap@1`, `checker_fact_bundle@1`, `policy_evaluation_result_set@1`, and `policy_obligation_ledger@1`, plus one tiny end-to-end ANM reference chain and minimal starter vocabulary/coexistence freeze sufficient for that chain | closed_on_main |
-| `V47-B` | schema/example and vocabulary hardening | widened and hardened fact-kind / provenance vocabulary plus concrete ANM / fact-bundle / result-set / ledger examples | planned_next_default_candidate |
-| `V47-C` | coexistence and companion-doc adoption lane | broader standalone-vs-companion posture, current-markdown coexistence rules, and bounded migration discipline beyond the `V47-A` minimum non-override freeze | planned |
+| `V47-B` | schema/example and vocabulary hardening | widened and hardened fact-kind / provenance vocabulary plus concrete ANM / fact-bundle / result-set / ledger examples | closed_on_main |
+| `V47-C` | coexistence and companion-doc adoption lane | broader standalone-vs-companion posture, current-markdown coexistence rules, and bounded migration discipline beyond the `V47-A` minimum non-override freeze | planned_next_default_candidate |
 | `V47-D` | selector / predicate ownership transition lane | later move from bootstrap string selectors and bootstrap contracts toward imported O-owned selectors and E-owned predicate registries | planned_later_not_selected_here |
 | `V47-E` | downstream policy-bearing consumer seam | later consumers over descriptive, benchmark, or runtime artifact worlds using the released ANM substrate | planned_later_not_selected_here |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-The `V47-B` through `V47-E` ladder should be read as provisional planning scaffolding.
+The `V47-C` through `V47-E` ladder should be read as provisional planning scaffolding.
 
-If `V47-A` reveals that result-to-ledger mapping, checker-fact vocabulary, provenance
-mode, or coexistence posture is weaker or noisier than expected, widening into later
-paths may need to pause, reorder, or narrow.
+If the released `V47-A` plus `V47-B` stack reveals that coexistence posture,
+companion-doc adoption, or migration discipline is weaker or noisier than expected,
+widening into later paths may need to pause, reorder, or narrow.
 
-## Recommended Next Path (`V47-A`)
+## Recommended Next Path (`V47-C`)
 
-Implement the bounded ANM / `D@1` substrate first.
+Implement the bounded coexistence and companion-doc adoption lane next.
 
-`V47-A` should introduce:
+`V47-C` should introduce:
 
-- one canonical bounded ANM source posture:
-  - readable markdown container;
-  - authoritative `D@1` blocks only for machine-compiled policy;
-  - explicit no-prose-inference boundary;
-- one canonical bounded `D@1` dialect candidate artifact:
-  - one modal head;
-  - one assertion body;
-  - optional qualifiers;
-  - no general boolean algebra;
-  - explicit `ONLY_IF`, `UNLESS`, and zero-match semantics;
-- one canonical bounded normalized `D-IR` candidate artifact:
-  - semantic clause normalization;
-  - selector binding posture;
-  - predicate and comparison normalization;
-  - no run-state or ledger-state ownership;
-- one canonical bounded bootstrap predicate-contract candidate artifact:
-  - explicit `predicate_id`;
-  - argument schema;
-  - required evidence kinds;
-  - truth conditions;
-  - evidence-failure conditions;
-  - resolution-failure conditions;
-- one canonical bounded checker fact-bundle candidate artifact:
-  - fact-only checker posture;
-  - subject, fact, provenance, and checker identity fields;
-  - no policy-verdict ownership;
-- one canonical bounded policy evaluation result-set candidate artifact:
-  - run-specific evaluation over `D-IR x facts x predicate contracts x scope`;
-  - explicit `applicability`, `observed_outcome`, and `effective_verdict`;
-  - no ledger replacement posture;
-- one canonical bounded policy obligation-ledger candidate artifact:
-  - current-state projection over instantiated obligations only;
-  - linkage back to immutable result sets;
-  - no waiver or deferral minting by ledger row alone;
-- one tiny end-to-end ANM reference chain sufficient to exercise:
-  - source markdown;
-  - `D@1`;
-  - normalized `D-IR`;
-  - predicate contracts;
-  - checker facts;
-  - result set;
-  - obligation ledger;
-- one bounded starter freeze for:
-  - minimal checker fact kinds sufficient for the tiny reference chain;
-  - minimal provenance modes sufficient for the tiny reference chain;
-  - result-to-ledger mapping;
-  - zero-match notice posture;
-  - minimal non-override / no-migration / companion-allowed coexistence posture;
+- one canonical bounded standalone-vs-companion doctrine over the released `V47-A` +
+  `V47-B` stack;
+- one explicit non-override rule relative to current markdown lock/planning authority;
+- one explicit companion embedding posture for readable markdown that contains
+  authoritative `D@1` blocks without becoming a repo-wide migration mandate;
+- one bounded migration discipline:
+  - when companion posture is allowed;
+  - when standalone posture is preferred;
+  - when existing current-markdown authority remains controlling;
+  - what may constrain a later migration decision without minting it;
+- one explicit adoption boundary for later policy-bearing docs:
+  - what the released ANM stack may constrain;
+  - what still requires later authority or lock-level adoption;
 - no widening yet into:
-  - repo-wide doc migration;
   - imported O-owned selector handles;
   - imported E-owned predicate registries;
   - source-level `DEFERRED`;
   - waiver or deferral issuance;
-  - recursive execution entitlement.
+  - execution or approval authority.
 
-`V47-A` is substrate-first and non-executive:
+`V47-C` remains adoption-first and non-executive:
 
-- it may emit normative source, normalized semantics, facts, results, and ledger state;
-- it may not yet authorize execution, mutation, scheduling, or approval by itself.
+- it may define how the released ANM stack coexists with current markdown doctrine;
+- it may not yet authorize execution, mutation, scheduling, approval, or repo-wide
+  markdown supersession by itself.
 
 ## Why This Path
 
-- It is the narrowest safe consumer of the now-stable ANM seed bundle.
-- It preserves the crucial separation between:
-  - source law;
-  - compiled semantics;
-  - observed facts;
-  - run-specific evaluation;
-  - cross-run obligation state.
-- It establishes the inspectable artifact family before any stronger migration or
-  execution claims are made.
-- It creates the bounded normative substrate that later descriptive, benchmarking, or
-  runtime branches may consume without reopening `V45`.
-- It prevents the family from collapsing immediately into:
-  - prose inference;
-  - hidden evaluator semantics;
-  - ledger authority laundering;
-  - recursive execution doctrine.
+- `V47-A` and `V47-B` are already closed, so the next unclosed gap is broader
+  coexistence and companion-doc adoption doctrine rather than more substrate or example
+  hardening.
+- The released stack is now strong enough that coexistence can be made explicit without
+  reopening ANM source syntax, `D-IR`, checker facts, result sets, or ledger state.
+- The family still needs a bounded rule for how current markdown authority and ANM
+  companion posture coexist before any later ownership transition or downstream consumer
+  lane widens further.
+- Doing this before `V47-D` or `V47-E` keeps adoption boundaries explicit and avoids
+  smuggling migration or authority assumptions into selector/predicate ownership work or
+  later consumers.
 
-## First-Slice Boundary (`V47-A`)
+## First-Slice Boundary (`V47-C`)
 
-`V47-A` should stay bounded to:
+`V47-C` should stay bounded to:
 
-- markdown-native authority container posture only;
-- bounded `D@1` dialect only;
-- bounded normalized `D-IR` only;
-- bootstrap predicate-contract artifact only;
-- checker fact bundle only;
-- policy evaluation result set only;
-- policy obligation ledger only;
-- one tiny end-to-end reference chain only;
-- frozen minimal fact-kind and provenance vocabulary only;
-- explicit result-to-ledger mapping only;
-- explicit minimal coexistence posture only:
-  - no override of existing markdown authority;
-  - no repo-wide migration;
-  - companion posture allowed.
+- coexistence/adoption doctrine only over the released ANM stack;
+- standalone-vs-companion posture only;
+- current-markdown non-override rule only;
+- bounded migration discipline only;
+- explicit allowed constrain actions only:
+  - companion posture may coexist with current markdown authority;
+  - released ANM artifacts may be referenced or embedded without automatic authority
+    supersession;
+  - later migration may be informed by released ANM hardening outputs but not minted by
+    them automatically.
 
 It should not attempt:
 
 - repo-wide conversion of existing docs;
-- generalized theorem proving;
-- broad boolean or quantified policy language;
-- general selector algebra;
 - imported O-owned selector handles;
 - imported E-owned predicate registries;
 - source-level `DEFERRED`;
-- automatic waiver issuance;
-- automatic deferral issuance;
-- recursive execution or mutation authority;
+- execution, approval, or mutation authority;
 - broad downstream consumer integrations.
 
 ## Follow-On Paths Inside `V47`
 
 ### `V47-B`
 
-Schema/example and vocabulary hardening lane:
+Schema/example and vocabulary hardening lane, now closed on `main`:
 
-- harden and widen starter checker-fact union shapes beyond the `V47-A` minimum;
-- harden and widen provenance-mode vocabulary beyond the `V47-A` minimum;
-- add concrete ANM source, fact-bundle, result-set, and ledger examples;
-- harden example parity between docs and eventual schema exports.
+- widened fact-kind and provenance vocabulary in bounded, typed ways;
+- committed standalone, companion, clause-scope blocker, zero-match, and
+  stale-row-reconciliation example families;
+- retained authoritative/mirror schema parity and deterministic replay over the
+  hardened example surface.
 
 ### `V47-C`
 
@@ -525,7 +478,7 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v29.md",
-  "baseline_arc": "vNext+105",
+  "baseline_arc": "vNext+107",
   "closed_prior_families": [
     "V41",
     "V42",
@@ -546,16 +499,17 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
     "V45",
     "V46"
   ],
-  "closed_current_family_paths": [],
-  "planned_current_family_paths": [
+  "closed_current_family_paths": [
     "V47-A",
-    "V47-B",
+    "V47-B"
+  ],
+  "planned_current_family_paths": [
     "V47-C",
     "V47-D",
     "V47-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V47-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+106",
+  "default_next_arc_candidate_for_this_branch": "V47-C",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+108",
   "family_architecture_doc": "docs/DRAFT_AUTHORITATIVE_NORMATIVE_MARKDOWN_SPEC_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_D1_DIALECT_SPEC_v0.md",
@@ -586,11 +540,11 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
   "v47a_minimal_provenance_mode_freeze_required": true,
   "v47a_minimal_coexistence_boundary_required": true,
   "v47a_non_executive_substrate_required": true,
+  "v47b_schema_example_and_vocabulary_hardening_closed_on_main": true,
   "selector_zero_match_policy_required": true,
   "only_if_and_unless_semantics_required": true,
   "waiver_and_deferral_authority_initially_external_or_deferred": true,
   "repo_wide_migration_initially_deferred": true,
-  "v47b_schema_example_and_vocabulary_hardening_planned": true,
   "v47c_broader_companion_doc_and_coexistence_lane_planned": true,
   "v47d_selector_predicate_ownership_transition_deferred": true,
   "v47e_downstream_consumer_seam_not_selected_here": true,

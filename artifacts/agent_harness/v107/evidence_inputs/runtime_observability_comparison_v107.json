@@ -1,0 +1,11 @@
+{
+  "schema": "runtime_observability_comparison@1",
+  "baseline_arc": "vNext+106",
+  "current_arc": "vNext+107",
+  "baseline_source": "artifacts/stop_gate/report_v106_closeout.md",
+  "current_source": "artifacts/stop_gate/report_v107_closeout.md",
+  "baseline_elapsed_ms": 108,
+  "current_elapsed_ms": 111,
+  "delta_ms": 3,
+  "notes": "v107 closeout keeps the frozen stop-gate schema family and exact metric keyset unchanged while shipping the released V47-B hardening lane: widened value_type_observation and indirect provenance vocabulary, companion selector coverage, committed standalone and companion example families, clause-scope blocker examples, zero-match first-run posture, later stale-row fail-closed reconciliation, and retained authoritative/mirrored schema export parity."
+}
