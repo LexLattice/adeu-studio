@@ -66,12 +66,14 @@ Release the bounded `V45-F` binding seam by materializing:
 
 - one canonical `repo_descriptive_normative_binding_frame@1`;
 
-while preserving snapshot identity, explicit bounded source-set posture, explicit
-distinction between descriptive input, binding posture, and authority source, explicit
-promotion-law requirements for any later normative consumption, explicit binding back
-to the released `V45-A` through `V45-E` descriptive baselines, and fail-closed
-rejection of recursive-governance laundering, mutation laundering, or self-authorizing
-normative use.
+while preserving one explicit operational snapshot identity for the bound `V45-B`,
+`V45-D`, and `V45-E` descriptive baseline, explicit snapshot-validity and
+source-scope-compatibility posture for the bound `V45-A` and `V45-C` artifacts,
+explicit bounded source-set posture, explicit distinction between descriptive input,
+binding posture, and authority source, explicit promotion-law requirements for any
+later normative consumption, explicit binding back to the released `V45-A` through
+`V45-E` descriptive baselines, and fail-closed rejection of recursive-governance
+laundering, mutation laundering, or self-authorizing normative use.
 
 This slice is binding doctrine only. It is not mutation permission, scheduler
 authority, recursive execution, a mutation request, an execution plan, an approval
@@ -97,9 +99,9 @@ artifact, or constitutional override.
      lanes should bind to explicit typed doctrine rather than raw descriptive artifacts
      or ad hoc prose interpretation.
 3. Source authority strategy:
-   - the artifact must bind to one explicit repo-visible snapshot identity and one
-     explicit bounded source set over the consumed descriptive inputs and binding
-     doctrine sources;
+   - the artifact must bind to one explicit operational snapshot identity for the
+     bound `V45-B`, `V45-D`, and `V45-E` baseline, plus one explicit bounded source
+     set over the consumed descriptive inputs and binding doctrine sources;
    - the artifact must also bind one explicit source-set hash and one explicit
      extraction posture/method pair;
    - stale-snapshot semantics must remain explicit rather than implied;
@@ -108,12 +110,15 @@ artifact, or constitutional override.
 4. Cross-artifact binding strategy:
    - `repo_descriptive_normative_binding_frame@1` must bind to one released or same-run
      `repo_entity_catalog@1`, `repo_schema_family_registry@1`, `repo_symbol_catalog@1`,
-     `repo_dependency_graph@1`, `repo_test_intent_matrix@1`, and
-     `repo_optimization_register@1` over the same snapshot identity with explicit
-     artifact-local source-scope compatibility;
+     `repo_dependency_graph@1`, `repo_arc_dependency_register@2`,
+     `repo_test_intent_matrix@1`, and `repo_optimization_register@1` over one
+     operational bound baseline with:
+     - shared snapshot identity for the bound `V45-B`, `V45-D`, and `V45-E` artifacts;
+     - shared snapshot-validity posture and explicit artifact-local source-scope
+       compatibility for `V45-A` and `V45-C`;
    - any internal `descriptive_input_ref` must resolve against one of those bound
-     released descriptive artifacts under the same snapshot identity and explicit
-     artifact-local source-scope compatibility posture;
+     released descriptive artifacts under that same bound-baseline compatibility
+     posture;
    - the frame may consult descriptive diagnostics from `V45-E`, but it may not treat
      those diagnostics as self-authorizing normative output.
 5. Binding-entry modeling strategy:
@@ -219,8 +224,8 @@ permission.
 2. Deterministic extraction entrypoint(s) that:
    - consume one explicit repo snapshot and one bounded source set over the released
      descriptive baselines;
-   - bind to released `V45-A` through `V45-E` artifacts over the same
-     snapshot identity and explicit artifact-local source-scope compatibility posture;
+   - bind to released `V45-A` through `V45-E` artifacts over the same bound-baseline
+     compatibility posture;
    - derive typed binding rows with explicit descriptive input kind/ref, consumer
      class, binding posture, authority source kind, promotion-law posture,
      allowed-use summary, forbidden-use summary, derivation posture/method, and
@@ -239,6 +244,7 @@ permission.
    - `bound_schema_family_registry_ref`
    - `bound_symbol_catalog_ref`
    - `bound_dependency_graph_ref`
+   - `bound_arc_dependency_register_ref`
    - `bound_test_intent_matrix_ref`
    - `bound_optimization_register_ref`
    - `binding_scope`
@@ -267,17 +273,16 @@ permission.
    - missing snapshot identity/hash binding;
    - missing or empty bounded source set binding;
    - missing source-set hash;
-   - missing any bound `V45-A` through `V45-E` reference or mismatched
-     snapshot/source-scope compatibility posture between the frame and those bound
-     descriptive artifacts;
+   - missing any bound `V45-A` through `V45-E` reference or mismatched operational
+     snapshot / snapshot-validity / source-scope compatibility posture between the
+     frame and those bound descriptive artifacts;
    - missing top-level extraction posture or extraction method;
    - any entry missing required descriptive-input, consumer, posture, authority,
      promotion-law, summary, derivation, or source-artifact fields;
    - any `source_artifact_ref` that does not resolve inside the declared `source_set`;
    - duplicate entry IDs;
    - any `descriptive_input_ref` that does not resolve against one of the bound
-     descriptive artifacts under the same snapshot identity and artifact-local
-     source-scope compatibility posture;
+     descriptive artifacts under the same bound-baseline compatibility posture;
    - any entry whose `binding_posture`, `authority_source_kind`, and
      `promotion_law_posture` jointly imply self-authorizing mutation, scheduler
      control, release gating, settlement, or recursive execution;
@@ -313,8 +318,9 @@ Accept this slice only if:
 1. canonical `repo_descriptive_normative_binding_frame@1` compiles deterministically
    over one bounded snapshot and one bounded source set;
 2. the artifact binds cleanly to released `V45-A` through `V45-E` descriptive
-   surfaces over the same snapshot identity with explicit artifact-local
-   source-scope compatibility;
+   surfaces over one explicit operational snapshot identity for `V45-B`, `V45-D`, and
+   `V45-E`, plus explicit snapshot-validity and artifact-local source-scope
+   compatibility for `V45-A` and `V45-C`;
 3. every row preserves explicit distinction between descriptive input, binding posture,
    authority source, and promotion-law requirement;
 4. bounded consumer-class doctrine remains explicit and one row maps to one consumer
@@ -337,8 +343,8 @@ Do not accept this slice if:
 - `authority_source_kind` and `promotion_law_posture` can jointly imply execution
   permission without a stronger separate authority source;
 - descriptive artifacts are allowed to mint recursive execution or auto-mutation;
-- bound descriptive references drift across snapshot identity or source-scope
-  compatibility posture;
+- bound descriptive references drift across operational snapshot identity,
+  snapshot-validity posture, or source-scope compatibility posture;
 - `descriptive_input_ref` does not resolve against one of the bound `V45-A` through
   `V45-E` artifacts under the same snapshot-compatible baseline;
 - source artifact refs are textual only and not source-set-membership checked;

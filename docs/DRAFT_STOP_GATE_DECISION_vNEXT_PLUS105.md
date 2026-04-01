@@ -22,8 +22,9 @@ Status: proposed gate for `V45-F`.
 - the frame binds to one explicit repo snapshot and one explicit bounded source set
   with source-set hash, extraction posture, and extraction method;
 - the frame binds consistently to released `V45-A` through `V45-E` descriptive
-  artifacts over the same snapshot identity with explicit artifact-local
-  source-scope compatibility;
+  artifacts over one explicit operational snapshot identity for the bound `V45-B`,
+  `V45-D`, and `V45-E` baseline, plus explicit snapshot-validity and artifact-local
+  source-scope compatibility for the bound `V45-A` and `V45-C` artifacts;
 - each binding row preserves explicit distinction between:
   - descriptive input;
   - consumer class;
@@ -33,8 +34,7 @@ Status: proposed gate for `V45-F`.
 - bounded starter consumer-class doctrine is explicit rather than implementation-soft;
 - each binding row carries explicit derivation posture/method and source artifact refs;
 - each `descriptive_input_ref` resolves against one of the bound `V45-A` through
-  `V45-E` artifacts under the same snapshot identity and artifact-local source-scope
-  compatibility posture;
+  `V45-E` artifacts under that same bound-baseline compatibility posture;
 - authority source is necessary but not sufficient for normative promotion;
 - promotion-law posture is necessary but not sufficient for normative promotion;
 - rows that name advisory-only authority sources cannot be elevated into execution use
@@ -57,7 +57,8 @@ Status: proposed gate for `V45-F`.
 - `authority_source_kind` and `promotion_law_posture` can jointly imply execution
   permission without a stronger separate authority source;
 - cross-artifact binding to released `V45-A` through `V45-E` surfaces is missing or
-  snapshot-inconsistent or source-scope-incompatible;
+  operational-snapshot-inconsistent, snapshot-validity-inconsistent, or
+  source-scope-incompatible;
 - `descriptive_input_ref` does not resolve against the bound `V45-A` through `V45-E`
   baseline;
 - `source_artifact_refs` are not source-set-membership checked;

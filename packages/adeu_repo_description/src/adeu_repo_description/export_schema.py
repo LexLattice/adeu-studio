@@ -11,6 +11,7 @@ from .models import (
     RepoArcDependencyRegister,
     RepoArcDependencyRegisterV1,
     RepoDependencyGraph,
+    RepoDescriptiveNormativeBindingFrame,
     RepoEntityCatalog,
     RepoOptimizationRegister,
     RepoSchemaFamilyRegistry,
@@ -73,6 +74,7 @@ def main() -> None:
     dependency_register_v1_schema = RepoArcDependencyRegisterV1.model_json_schema(by_alias=True)
     dependency_register_schema = RepoArcDependencyRegister.model_json_schema(by_alias=True)
     dependency_graph_schema = RepoDependencyGraph.model_json_schema(by_alias=True)
+    binding_frame_schema = RepoDescriptiveNormativeBindingFrame.model_json_schema(by_alias=True)
     optimization_register_schema = RepoOptimizationRegister.model_json_schema(by_alias=True)
     test_intent_matrix_schema = RepoTestIntentMatrix.model_json_schema(by_alias=True)
     registry_schema = RepoSchemaFamilyRegistry.model_json_schema(by_alias=True)
@@ -82,6 +84,7 @@ def main() -> None:
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_graph_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(binding_frame_schema, repo_root_path=root)
     _assert_no_absolute_path_material(optimization_register_schema, repo_root_path=root)
     _assert_no_absolute_path_material(test_intent_matrix_schema, repo_root_path=root)
     _assert_no_absolute_path_material(registry_schema, repo_root_path=root)
@@ -115,6 +118,18 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_dependency_graph.schema.json",
         dependency_graph_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_descriptive_normative_binding_frame.v1.json",
+        binding_frame_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_descriptive_normative_binding_frame.schema.json",
+        binding_frame_schema,
     )
     _write_schema(
         root / "packages" / "adeu_repo_description" / "schema" / "repo_test_intent_matrix.v1.json",

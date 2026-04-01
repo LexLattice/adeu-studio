@@ -40,12 +40,15 @@ Status: planning-edge assessment for `V45-F`.
 
 - Risk:
   the binding frame could cite released descriptive surfaces that do not actually match
-  the same snapshot identity or artifact-local source-scope posture.
+  the intended operational snapshot / snapshot-validity / artifact-local
+  source-scope posture.
 - Response:
-  require shared snapshot identity, explicit source-scope compatibility, and fail
-  closed on unresolved or mismatched bound references;
+  require shared operational snapshot identity for the bound `V45-B`, `V45-D`, and
+  `V45-E` artifacts, plus explicit snapshot-validity and source-scope compatibility
+  for the bound `V45-A` and `V45-C` artifacts, and fail closed on unresolved or
+  mismatched bound references;
   each `descriptive_input_ref` must resolve against one of the bound `V45-A` through
-  `V45-E` artifacts under the same snapshot-compatible baseline.
+  `V45-E` artifacts under that same bound-baseline compatibility posture.
 
 ### Edge 4: Consumer-Class Overbreadth
 

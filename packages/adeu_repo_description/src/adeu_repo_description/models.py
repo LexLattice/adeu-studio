@@ -14,6 +14,9 @@ REPO_SYMBOL_CATALOG_SCHEMA = "repo_symbol_catalog@1"
 REPO_DEPENDENCY_GRAPH_SCHEMA = "repo_dependency_graph@1"
 REPO_TEST_INTENT_MATRIX_SCHEMA = "repo_test_intent_matrix@1"
 REPO_OPTIMIZATION_REGISTER_SCHEMA = "repo_optimization_register@1"
+REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA = (
+    "repo_descriptive_normative_binding_frame@1"
+)
 REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA = "repo_arc_dependency_register@1"
 REPO_ARC_DEPENDENCY_REGISTER_SCHEMA = "repo_arc_dependency_register@2"
 V45A_V99_CONTRACT_SOURCE = (
@@ -36,6 +39,9 @@ V45D_V103_CONTRACT_SOURCE = (
 )
 V45E_V104_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS104.md#v104-continuation-contract-machine-checkable"
+)
+V45F_V105_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md#v105-continuation-contract-machine-checkable"
 )
 V45C_DEPENDENCY_POLICY_REF = (
     "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md"
@@ -123,6 +129,43 @@ OptimizationDerivationMethod = Literal[
     "descriptive_projection",
     "bounded_signal_rule",
     "cross_artifact_join",
+    "adjudicated_policy",
+]
+DescriptiveInputKind = Literal[
+    "repo_entity_catalog",
+    "repo_schema_family_registry",
+    "repo_symbol_catalog",
+    "repo_dependency_graph",
+    "repo_test_intent_matrix",
+    "repo_optimization_register",
+]
+ConsumerClass = Literal[
+    "planning_consumer",
+    "adjudication_consumer",
+    "policy_consumer",
+    "recursive_governance_consumer",
+]
+BindingPosture = Literal[
+    "advisory_only",
+    "eligibility_signal_only",
+    "adjudication_required",
+    "separate_normative_authority_required",
+]
+AuthoritySourceKind = Literal[
+    "descriptive_artifact_only_forbidden",
+    "separate_lock_required",
+    "separate_decision_required",
+    "separate_normative_artifact_required",
+]
+PromotionLawPosture = Literal[
+    "inferred_not_sufficient",
+    "adjudication_required_before_normative_use",
+    "settled_authority_required_before_execution",
+]
+BindingFrameDerivationMethod = Literal[
+    "descriptive_projection",
+    "cross_artifact_join",
+    "policy_binding_rule",
     "adjudicated_policy",
 ]
 FindingScopeKind = Literal[
@@ -349,6 +392,23 @@ def _v45c_v102_dependency_policy_payload() -> dict[str, Any]:
 
 def compute_v45c_v102_dependency_policy_hash() -> str:
     return sha256_canonical_json(_v45c_v102_dependency_policy_payload())
+
+
+def _authority_source_strength(value: AuthoritySourceKind) -> int:
+    return {
+        "descriptive_artifact_only_forbidden": 0,
+        "separate_decision_required": 1,
+        "separate_lock_required": 2,
+        "separate_normative_artifact_required": 3,
+    }[value]
+
+
+def _promotion_law_strength(value: PromotionLawPosture) -> int:
+    return {
+        "inferred_not_sufficient": 0,
+        "adjudication_required_before_normative_use": 1,
+        "settled_authority_required_before_execution": 2,
+    }[value]
 
 
 def _assert_non_empty_text(value: str, *, field_name: str) -> str:
@@ -2642,6 +2702,385 @@ class RepoArcDependencyRegister(BaseModel):
         return self
 
 
+class RepoDescriptiveNormativeBindingEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    entry_id: str
+    descriptive_input_kind: DescriptiveInputKind
+    descriptive_input_ref: str
+    consumer_class: ConsumerClass
+    binding_posture: BindingPosture
+    authority_source_kind: AuthoritySourceKind
+    promotion_law_posture: PromotionLawPosture
+    allowed_use_summary: str
+    forbidden_use_summary: str
+    derivation_posture: ClassificationPosture
+    derivation_method: BindingFrameDerivationMethod
+    source_artifact_refs: list[str] = Field(min_length=1)
+    supporting_evidence_refs: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> RepoDescriptiveNormativeBindingEntry:
+        object.__setattr__(
+            self,
+            "entry_id",
+            _assert_non_empty_text(self.entry_id, field_name="entry_id"),
+        )
+        object.__setattr__(
+            self,
+            "descriptive_input_ref",
+            _assert_non_empty_text(
+                self.descriptive_input_ref, field_name="descriptive_input_ref"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "allowed_use_summary",
+            _assert_no_forbidden_authority_terms(
+                self.allowed_use_summary, field_name="allowed_use_summary"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "forbidden_use_summary",
+            _assert_non_empty_text(
+                self.forbidden_use_summary, field_name="forbidden_use_summary"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "source_artifact_refs",
+            _assert_sorted_unique(
+                [
+                    _assert_repo_rel_path(path, field_name="source_artifact_refs")
+                    for path in self.source_artifact_refs
+                ],
+                field_name="source_artifact_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_evidence_refs",
+            _assert_sorted_unique(
+                self.supporting_evidence_refs, field_name="supporting_evidence_refs"
+            ),
+        )
+        if (
+            self.binding_posture != "advisory_only"
+            and self.authority_source_kind == "descriptive_artifact_only_forbidden"
+        ):
+            raise ValueError(
+                "non-advisory binding rows must name a separate authority_source_kind"
+            )
+        if (
+            self.promotion_law_posture == "settled_authority_required_before_execution"
+            and _authority_source_strength(self.authority_source_kind)
+            < _authority_source_strength("separate_lock_required")
+        ):
+            raise ValueError(
+                "settled_authority_required_before_execution requires a stronger separate "
+                "authority_source_kind"
+            )
+        if (
+            self.consumer_class == "recursive_governance_consumer"
+            and self.binding_posture != "separate_normative_authority_required"
+        ):
+            raise ValueError(
+                "recursive_governance_consumer requires separate_normative_authority_required"
+            )
+        if (
+            self.consumer_class == "recursive_governance_consumer"
+            and self.promotion_law_posture
+            != "settled_authority_required_before_execution"
+        ):
+            raise ValueError(
+                "recursive_governance_consumer requires "
+                "settled_authority_required_before_execution"
+            )
+        if (
+            _promotion_law_strength(self.promotion_law_posture)
+            > _authority_source_strength(self.authority_source_kind) + 1
+        ):
+            raise ValueError(
+                "authority_source_kind is too weak for the declared promotion_law_posture"
+            )
+        payload_without_id = self.model_dump(mode="json")
+        payload_without_id.pop("entry_id", None)
+        expected_id = compute_repo_descriptive_normative_binding_entry_id(payload_without_id)
+        if self.entry_id != expected_id:
+            raise ValueError("entry_id must match canonical full payload hash identity")
+        return self
+
+
+class RepoDescriptiveNormativeBindingFrame(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, protected_namespaces=())
+
+    schema: Literal["repo_descriptive_normative_binding_frame@1"] = (
+        REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA
+    )
+    repo_descriptive_normative_binding_frame_id: str
+    repo_snapshot_id: str
+    repo_snapshot_hash: str
+    snapshot_validity_posture: SnapshotValidityPosture
+    source_set: list[str] = Field(min_length=1)
+    source_set_hash: str
+    bound_entity_catalog_ref: str
+    bound_schema_family_registry_ref: str
+    bound_symbol_catalog_ref: str
+    bound_dependency_graph_ref: str
+    bound_arc_dependency_register_ref: str
+    bound_test_intent_matrix_ref: str
+    bound_optimization_register_ref: str
+    binding_scope: str
+    extraction_posture: ClassificationPosture
+    extraction_method: BindingFrameDerivationMethod
+    binding_entries: list[RepoDescriptiveNormativeBindingEntry] = Field(min_length=1)
+    evidence_refs: list[RepoDescriptionEvidenceRef] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_frame(self) -> RepoDescriptiveNormativeBindingFrame:
+        object.__setattr__(
+            self,
+            "repo_descriptive_normative_binding_frame_id",
+            _assert_non_empty_text(
+                self.repo_descriptive_normative_binding_frame_id,
+                field_name="repo_descriptive_normative_binding_frame_id",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_id",
+            _assert_non_empty_text(self.repo_snapshot_id, field_name="repo_snapshot_id"),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_hash",
+            _assert_hash(self.repo_snapshot_hash, field_name="repo_snapshot_hash"),
+        )
+        object.__setattr__(
+            self,
+            "source_set",
+            _assert_sorted_unique(
+                [_assert_repo_rel_path(path, field_name="source_set") for path in self.source_set],
+                field_name="source_set",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "source_set_hash",
+            _assert_hash(self.source_set_hash, field_name="source_set_hash"),
+        )
+        for field_name in (
+            "bound_entity_catalog_ref",
+            "bound_schema_family_registry_ref",
+            "bound_symbol_catalog_ref",
+            "bound_dependency_graph_ref",
+            "bound_arc_dependency_register_ref",
+            "bound_test_intent_matrix_ref",
+            "bound_optimization_register_ref",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "binding_scope",
+            _assert_no_forbidden_authority_terms(
+                self.binding_scope, field_name="binding_scope"
+            ),
+        )
+        evidence_by_ref = {entry.evidence_ref: entry for entry in self.evidence_refs}
+        if len(evidence_by_ref) != len(self.evidence_refs):
+            raise ValueError("evidence_refs evidence_ref values must be unique")
+        if [entry.evidence_ref for entry in self.evidence_refs] != sorted(evidence_by_ref):
+            raise ValueError("evidence_refs must be sorted lexicographically by evidence_ref")
+
+        entries_by_id = {entry.entry_id: entry for entry in self.binding_entries}
+        if len(entries_by_id) != len(self.binding_entries):
+            raise ValueError("binding_entries entry_id values must be unique")
+        if [entry.entry_id for entry in self.binding_entries] != sorted(entries_by_id):
+            raise ValueError("binding_entries must be sorted lexicographically by entry_id")
+
+        source_set_membership = set(self.source_set)
+        for entry in self.binding_entries:
+            if any(ref not in source_set_membership for ref in entry.source_artifact_refs):
+                raise ValueError(
+                    "binding_entries source_artifact_refs must resolve inside source_set"
+                )
+            row_evidence = [evidence_by_ref.get(ref) for ref in entry.supporting_evidence_refs]
+            if any(item is None for item in row_evidence):
+                raise ValueError(
+                    "binding_entries supporting_evidence_refs must reference top-level "
+                    "evidence_refs"
+                )
+
+        payload_without_id = self.model_dump(mode="json")
+        payload_without_id.pop("repo_descriptive_normative_binding_frame_id", None)
+        expected_id = compute_repo_descriptive_normative_binding_frame_id(payload_without_id)
+        if self.repo_descriptive_normative_binding_frame_id != expected_id:
+            raise ValueError(
+                "repo_descriptive_normative_binding_frame_id must match canonical full payload "
+                "hash identity"
+            )
+        return self
+
+
+def validate_repo_descriptive_normative_binding_frame_against_v45_baseline(
+    *,
+    binding_frame_payload: dict[str, Any],
+    entity_catalog_payload: dict[str, Any],
+    schema_family_registry_payload: dict[str, Any],
+    symbol_catalog_payload: dict[str, Any],
+    dependency_graph_payload: dict[str, Any],
+    arc_dependency_register_payload: dict[str, Any],
+    test_intent_matrix_payload: dict[str, Any],
+    optimization_register_payload: dict[str, Any],
+) -> tuple[
+    RepoDescriptiveNormativeBindingFrame,
+    RepoEntityCatalog,
+    RepoSchemaFamilyRegistry,
+    RepoSymbolCatalog,
+    RepoDependencyGraph,
+    RepoArcDependencyRegister,
+    RepoTestIntentMatrix,
+    RepoOptimizationRegister,
+]:
+    binding_frame = RepoDescriptiveNormativeBindingFrame.model_validate(binding_frame_payload)
+    entity_catalog = RepoEntityCatalog.model_validate(entity_catalog_payload)
+    schema_family_registry = RepoSchemaFamilyRegistry.model_validate(
+        schema_family_registry_payload
+    )
+    symbol_catalog, dependency_graph = validate_repo_symbol_catalog_dependency_graph_pair(
+        symbol_catalog_payload=symbol_catalog_payload,
+        dependency_graph_payload=dependency_graph_payload,
+    )
+    arc_dependency_register = RepoArcDependencyRegister.model_validate(
+        arc_dependency_register_payload
+    )
+    (
+        optimization_register,
+        _entity_catalog,
+        _schema_family_registry,
+        _symbol_catalog,
+        _dependency_graph,
+        test_intent_matrix,
+    ) = validate_repo_optimization_register_against_v45_baseline(
+        optimization_register_payload=optimization_register_payload,
+        entity_catalog_payload=entity_catalog_payload,
+        schema_family_registry_payload=schema_family_registry_payload,
+        symbol_catalog_payload=symbol_catalog_payload,
+        dependency_graph_payload=dependency_graph_payload,
+        test_intent_matrix_payload=test_intent_matrix_payload,
+        arc_dependency_register_payload=arc_dependency_register_payload,
+    )
+
+    if binding_frame.bound_entity_catalog_ref != entity_catalog.repo_entity_catalog_id:
+        raise ValueError(
+            "repo_descriptive_normative_binding_frame must bind the provided "
+            "repo_entity_catalog"
+        )
+    if (
+        binding_frame.bound_schema_family_registry_ref
+        != schema_family_registry.schema_family_registry_id
+    ):
+        raise ValueError(
+            "repo_descriptive_normative_binding_frame must bind the provided "
+            "repo_schema_family_registry"
+        )
+    if binding_frame.bound_symbol_catalog_ref != symbol_catalog.repo_symbol_catalog_id:
+        raise ValueError(
+            "repo_descriptive_normative_binding_frame must bind the provided "
+            "repo_symbol_catalog"
+        )
+    if binding_frame.bound_dependency_graph_ref != dependency_graph.repo_dependency_graph_id:
+        raise ValueError(
+            "repo_descriptive_normative_binding_frame must bind the provided "
+            "repo_dependency_graph"
+        )
+    if (
+        binding_frame.bound_arc_dependency_register_ref
+        != arc_dependency_register.repo_arc_dependency_register_id
+    ):
+        raise ValueError(
+            "repo_descriptive_normative_binding_frame must bind the provided "
+            "repo_arc_dependency_register"
+        )
+    if (
+        binding_frame.bound_test_intent_matrix_ref
+        != test_intent_matrix.repo_test_intent_matrix_id
+    ):
+        raise ValueError(
+            "repo_descriptive_normative_binding_frame must bind the provided "
+            "repo_test_intent_matrix"
+        )
+    if (
+        binding_frame.bound_optimization_register_ref
+        != optimization_register.repo_optimization_register_id
+    ):
+        raise ValueError(
+            "repo_descriptive_normative_binding_frame must bind the provided "
+            "repo_optimization_register"
+        )
+
+    for artifact_name, artifact in (
+        ("V45-A entity catalog", entity_catalog),
+        ("V45-A schema registry", schema_family_registry),
+        ("V45-C arc dependency register", arc_dependency_register),
+        ("V45-D test intent matrix", test_intent_matrix),
+        ("V45-E optimization register", optimization_register),
+    ):
+        if binding_frame.snapshot_validity_posture != artifact.snapshot_validity_posture:
+            raise ValueError(
+                "repo_descriptive_normative_binding_frame must share "
+                f"snapshot_validity_posture with {artifact_name}"
+            )
+
+    for artifact_name, artifact in (
+        ("V45-B symbol catalog", symbol_catalog),
+        ("V45-B dependency graph", dependency_graph),
+        ("V45-D test intent matrix", test_intent_matrix),
+        ("V45-E optimization register", optimization_register),
+    ):
+        if binding_frame.repo_snapshot_id != artifact.repo_snapshot_id:
+            raise ValueError(
+                "repo_descriptive_normative_binding_frame must share repo_snapshot_id with "
+                f"{artifact_name}"
+            )
+        if binding_frame.repo_snapshot_hash != artifact.repo_snapshot_hash:
+            raise ValueError(
+                "repo_descriptive_normative_binding_frame must share repo_snapshot_hash with "
+                f"{artifact_name}"
+            )
+
+    descriptive_ref_map = {
+        "repo_entity_catalog": entity_catalog.repo_entity_catalog_id,
+        "repo_schema_family_registry": schema_family_registry.schema_family_registry_id,
+        "repo_symbol_catalog": symbol_catalog.repo_symbol_catalog_id,
+        "repo_dependency_graph": dependency_graph.repo_dependency_graph_id,
+        "repo_test_intent_matrix": test_intent_matrix.repo_test_intent_matrix_id,
+        "repo_optimization_register": optimization_register.repo_optimization_register_id,
+    }
+    for entry in binding_frame.binding_entries:
+        if entry.descriptive_input_ref != descriptive_ref_map[entry.descriptive_input_kind]:
+            raise ValueError(
+                "repo_descriptive_normative_binding_frame descriptive_input_ref must resolve "
+                "against the bound V45-A through V45-E descriptive baseline"
+            )
+
+    return (
+        binding_frame,
+        entity_catalog,
+        schema_family_registry,
+        symbol_catalog,
+        dependency_graph,
+        arc_dependency_register,
+        test_intent_matrix,
+        optimization_register,
+    )
+
+
 def compute_repo_schema_family_registry_id(payload_without_id: dict[str, Any]) -> str:
     canonical_payload = deepcopy(payload_without_id)
     canonical_payload.setdefault("schema", REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA)
@@ -2818,6 +3257,44 @@ def materialize_repo_arc_dependency_register_payload(
 
 def canonicalize_repo_arc_dependency_register_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return RepoArcDependencyRegister.model_validate(payload).model_dump(mode="json")
+
+
+def compute_repo_descriptive_normative_binding_entry_id(
+    payload_without_id: dict[str, Any],
+) -> str:
+    canonical_payload = deepcopy(payload_without_id)
+    canonical_payload.pop("entry_id", None)
+    digest = sha256_canonical_json(canonical_payload)
+    return f"binding_entry_{digest[:24]}"
+
+
+def compute_repo_descriptive_normative_binding_frame_id(
+    payload_without_id: dict[str, Any],
+) -> str:
+    canonical_payload = deepcopy(payload_without_id)
+    canonical_payload.setdefault("schema", REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA)
+    canonical_payload.pop("repo_descriptive_normative_binding_frame_id", None)
+    digest = sha256_canonical_json(canonical_payload)
+    return f"repo_descriptive_normative_binding_frame_{digest[:24]}"
+
+
+def materialize_repo_descriptive_normative_binding_frame_payload(
+    payload_without_frame_id: dict[str, Any],
+) -> dict[str, Any]:
+    payload = deepcopy(payload_without_frame_id)
+    payload.setdefault("schema", REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA)
+    payload["repo_descriptive_normative_binding_frame_id"] = (
+        compute_repo_descriptive_normative_binding_frame_id(payload)
+    )
+    return RepoDescriptiveNormativeBindingFrame.model_validate(payload).model_dump(
+        mode="json"
+    )
+
+
+def canonicalize_repo_descriptive_normative_binding_frame_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    return RepoDescriptiveNormativeBindingFrame.model_validate(payload).model_dump(mode="json")
 
 
 def representative_schema_keys() -> tuple[str, ...]:
