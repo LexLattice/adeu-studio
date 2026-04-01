@@ -12,12 +12,14 @@ PREDICATE_CONTRACTS_BOOTSTRAP_SCHEMA = "predicate_contracts_bootstrap@1"
 CHECKER_FACT_BUNDLE_SCHEMA = "checker_fact_bundle@1"
 POLICY_EVALUATION_RESULT_SET_SCHEMA = "policy_evaluation_result_set@1"
 POLICY_OBLIGATION_LEDGER_SCHEMA = "policy_obligation_ledger@1"
+ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA = "anm_markdown_coexistence_profile@1"
 
 D1SchemaVersion = Literal["d1_normalized_ir@1"]
 PredicateContractsBootstrapSchemaVersion = Literal["predicate_contracts_bootstrap@1"]
 CheckerFactBundleSchemaVersion = Literal["checker_fact_bundle@1"]
 PolicyEvaluationResultSetSchemaVersion = Literal["policy_evaluation_result_set@1"]
 PolicyObligationLedgerSchemaVersion = Literal["policy_obligation_ledger@1"]
+AnmMarkdownCoexistenceProfileSchemaVersion = Literal["anm_markdown_coexistence_profile@1"]
 
 SelectorKind = Literal["bootstrap_string_selector"]
 SelectorZeroMatchPolicy = Literal["allow_empty_with_notice"]
@@ -65,6 +67,28 @@ LedgerState = Literal[
     "blocked_unknown_resolution",
 ]
 NoticeKind = Literal["selector_zero_match"]
+SourcePosture = Literal["standalone_anm", "companion_anm"]
+CurrentMarkdownAuthorityRelation = Literal[
+    "current_markdown_controlling",
+    "coexisting_non_override",
+    "later_lock_required_for_supersession",
+]
+MigrationPosture = Literal["none", "prefer_companion", "prefer_standalone", "defer_to_later_lock"]
+CompanionEmbeddingPosture = Literal[
+    "not_applicable",
+    "embedded_in_host_markdown",
+    "adjacent_companion_document",
+]
+AllowedConstrainAction = Literal[
+    "reference_released_anm_artifact",
+    "embed_authoritative_d1_block",
+    "record_non_override_binding",
+    "emit_migration_signal",
+]
+AdoptionBoundaryPosture = Literal["allowed_now", "allowed_with_later_lock", "forbidden_in_v47c"]
+NonOverrideRule = Literal["current_markdown_not_overridden"]
+
+
 def stable_payload_hash(value: Any) -> str:
     return sha256_canonical_json(value)
 
@@ -584,6 +608,180 @@ class PolicyObligationLedger(BaseModel):
         return self
 
 
+class MigrationDiscipline(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    repo_wide_migration_forbidden: bool
+    current_markdown_supersession_requires_later_lock: bool
+    standalone_posture_allowed: bool
+    companion_posture_allowed: bool
+    compatible_local_source_scopes: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    preferred_source_postures: list[SourcePosture] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "MigrationDiscipline":
+        _require_sorted_unique(
+            self.compatible_local_source_scopes,
+            field_name="compatible_local_source_scopes",
+        )
+        if self.preferred_source_postures != sorted(set(self.preferred_source_postures)):
+            raise ValueError("preferred_source_postures must be sorted and unique")
+        return self
+
+
+class AnmCoexistenceSourceRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    source_ref: str = Field(min_length=1)
+    source_posture: SourcePosture
+    current_markdown_authority_relation: CurrentMarkdownAuthorityRelation
+    host_or_companion_ref: str | None = None
+    companion_embedding_posture: CompanionEmbeddingPosture
+    non_override_rule: NonOverrideRule
+    allowed_constrain_actions: list[AllowedConstrainAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    migration_posture: MigrationPosture
+    requires_later_lock_for_supersession: bool
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmCoexistenceSourceRow":
+        self.source_ref = _require_non_empty(self.source_ref, field_name="source_ref")
+        if self.host_or_companion_ref is not None:
+            self.host_or_companion_ref = _require_non_empty(
+                self.host_or_companion_ref,
+                field_name="host_or_companion_ref",
+            )
+        if self.allowed_constrain_actions != sorted(set(self.allowed_constrain_actions)):
+            raise ValueError("allowed_constrain_actions must be sorted and unique")
+        expects_later_lock = (
+            self.current_markdown_authority_relation
+            == "later_lock_required_for_supersession"
+        )
+        if self.requires_later_lock_for_supersession != expects_later_lock:
+            raise ValueError(
+                "requires_later_lock_for_supersession must match "
+                "current_markdown_authority_relation"
+            )
+        if self.source_posture == "standalone_anm":
+            if self.host_or_companion_ref is not None:
+                raise ValueError("standalone_anm rows may not set host_or_companion_ref")
+            if self.companion_embedding_posture != "not_applicable":
+                raise ValueError(
+                    "standalone_anm rows require companion_embedding_posture = not_applicable"
+                )
+        else:
+            if self.host_or_companion_ref is None:
+                raise ValueError("companion_anm rows require host_or_companion_ref")
+            if self.companion_embedding_posture == "not_applicable":
+                raise ValueError(
+                    "companion_anm rows must declare explicit companion_embedding_posture"
+                )
+            if self.current_markdown_authority_relation == "current_markdown_controlling":
+                raise ValueError(
+                    "companion_anm rows may not declare current_markdown_controlling"
+                )
+        return self
+
+
+class AnmAdoptionBoundaryRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    consumer_surface: str = Field(min_length=1)
+    adoption_boundary_posture: AdoptionBoundaryPosture
+    allowed_now_actions: list[AllowedConstrainAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    later_lock_required_actions: list[AllowedConstrainAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    forbidden_actions: list[AllowedConstrainAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmAdoptionBoundaryRow":
+        self.consumer_surface = _require_non_empty(
+            self.consumer_surface,
+            field_name="consumer_surface",
+        )
+        for field_name in (
+            "allowed_now_actions",
+            "later_lock_required_actions",
+            "forbidden_actions",
+        ):
+            values = getattr(self, field_name)
+            if values != sorted(set(values)):
+                raise ValueError(f"{field_name} must be sorted and unique")
+        action_sets = [
+            set(self.allowed_now_actions),
+            set(self.later_lock_required_actions),
+            set(self.forbidden_actions),
+        ]
+        overlaps = (
+            action_sets[0] & action_sets[1],
+            action_sets[0] & action_sets[2],
+            action_sets[1] & action_sets[2],
+        )
+        if any(overlaps):
+            raise ValueError("adoption boundary action lists must not overlap")
+        return self
+
+
+class AnmMarkdownCoexistenceProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: AnmMarkdownCoexistenceProfileSchemaVersion = ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA
+    coexistence_profile_id: str = Field(min_length=1)
+    snapshot_id: str = Field(min_length=1)
+    snapshot_sha256: str = Field(min_length=1)
+    source_scope_profile: str = Field(min_length=1)
+    released_stack_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    source_rows: list[AnmCoexistenceSourceRow] = Field(default_factory=list)
+    migration_discipline: MigrationDiscipline
+    adoption_boundary_rows: list[AnmAdoptionBoundaryRow] = Field(default_factory=list)
+    semantic_hash: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmMarkdownCoexistenceProfile":
+        self.coexistence_profile_id = _require_non_empty(
+            self.coexistence_profile_id,
+            field_name="coexistence_profile_id",
+        )
+        self.snapshot_id = _require_non_empty(self.snapshot_id, field_name="snapshot_id")
+        self.snapshot_sha256 = _require_non_empty(
+            self.snapshot_sha256,
+            field_name="snapshot_sha256",
+        )
+        self.source_scope_profile = _require_non_empty(
+            self.source_scope_profile,
+            field_name="source_scope_profile",
+        )
+        self.semantic_hash = _require_non_empty(self.semantic_hash, field_name="semantic_hash")
+        _require_sorted_unique(self.released_stack_refs, field_name="released_stack_refs")
+        source_refs = [item.source_ref for item in self.source_rows]
+        _require_sorted_unique(source_refs, field_name="source_rows.source_ref")
+        consumer_surfaces = [item.consumer_surface for item in self.adoption_boundary_rows]
+        _require_sorted_unique(
+            consumer_surfaces,
+            field_name="adoption_boundary_rows.consumer_surface",
+        )
+        return self
+
+
 def canonicalize_d1_normalized_ir_payload(
     payload: D1NormalizedIR | dict[str, Any],
 ) -> dict[str, Any]:
@@ -635,6 +833,17 @@ def canonicalize_policy_obligation_ledger_payload(
         payload
         if isinstance(payload, PolicyObligationLedger)
         else PolicyObligationLedger.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
+def canonicalize_anm_markdown_coexistence_profile_payload(
+    payload: AnmMarkdownCoexistenceProfile | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmMarkdownCoexistenceProfile)
+        else AnmMarkdownCoexistenceProfile.model_validate(payload)
     )
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
 

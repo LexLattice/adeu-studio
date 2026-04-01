@@ -1,6 +1,7 @@
 from .anm import (
     AnmCompileError,
     build_v47a_reference_chain,
+    build_v47c_coexistence_profile,
     compile_authoritative_normative_markdown,
     default_bootstrap_predicate_contracts,
     evaluate_authoritative_normative_markdown,
@@ -21,6 +22,7 @@ __all__ = [
     "evaluate_authoritative_normative_markdown",
     "project_policy_obligation_ledger",
     "build_v47a_reference_chain",
+    "build_v47c_coexistence_profile",
     "SEMANTIC_SOURCE_COLLECTION_SCHEMA",
     "SEMANTIC_SOURCE_DIAGNOSTICS_SCHEMA",
     "CompileResult",

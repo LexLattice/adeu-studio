@@ -1,0 +1,101 @@
+{
+  "snapshot_id": "snapshot:v47c-reference",
+  "source_scope_profile": "mixed_v47c_reference_scope",
+  "released_stack_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS106.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS107.md"
+  ],
+  "migration_discipline": {
+    "repo_wide_migration_forbidden": true,
+    "current_markdown_supersession_requires_later_lock": true,
+    "standalone_posture_allowed": true,
+    "companion_posture_allowed": true,
+    "compatible_local_source_scopes": [
+      "anm_companion",
+      "anm_standalone",
+      "markdown_current_authority"
+    ],
+    "preferred_source_postures": [
+      "companion_anm",
+      "standalone_anm"
+    ]
+  },
+  "source_row_specs": [
+    {
+      "source_ref": "packages/adeu_semantic_source/tests/fixtures/v47c/companion_policy.md",
+      "local_source_scope": "anm_companion",
+      "current_markdown_authority_relation": "coexisting_non_override",
+      "host_or_companion_ref": "packages/adeu_semantic_source/tests/fixtures/v47c/current_authority.md",
+      "companion_embedding_posture": "embedded_in_host_markdown",
+      "non_override_rule": "current_markdown_not_overridden",
+      "allowed_constrain_actions": [
+        "embed_authoritative_d1_block",
+        "emit_migration_signal",
+        "record_non_override_binding",
+        "reference_released_anm_artifact"
+      ],
+      "migration_posture": "prefer_companion",
+      "requires_later_lock_for_supersession": false
+    },
+    {
+      "source_ref": "packages/adeu_semantic_source/tests/fixtures/v47c/standalone_policy.adeu.md",
+      "local_source_scope": "anm_standalone",
+      "current_markdown_authority_relation": "later_lock_required_for_supersession",
+      "companion_embedding_posture": "not_applicable",
+      "non_override_rule": "current_markdown_not_overridden",
+      "allowed_constrain_actions": [
+        "reference_released_anm_artifact"
+      ],
+      "migration_posture": "prefer_standalone",
+      "requires_later_lock_for_supersession": true
+    }
+  ],
+  "adoption_boundary_rows": [
+    {
+      "consumer_surface": "current_markdown_authority",
+      "adoption_boundary_posture": "allowed_now",
+      "allowed_now_actions": [
+        "record_non_override_binding",
+        "reference_released_anm_artifact"
+      ],
+      "later_lock_required_actions": [],
+      "forbidden_actions": [
+        "embed_authoritative_d1_block",
+        "emit_migration_signal"
+      ]
+    },
+    {
+      "consumer_surface": "execution_authority_surface",
+      "adoption_boundary_posture": "forbidden_in_v47c",
+      "allowed_now_actions": [],
+      "later_lock_required_actions": [],
+      "forbidden_actions": [
+        "embed_authoritative_d1_block",
+        "emit_migration_signal",
+        "record_non_override_binding",
+        "reference_released_anm_artifact"
+      ]
+    },
+    {
+      "consumer_surface": "later_markdown_supersession",
+      "adoption_boundary_posture": "allowed_with_later_lock",
+      "allowed_now_actions": [],
+      "later_lock_required_actions": [
+        "embed_authoritative_d1_block",
+        "emit_migration_signal"
+      ],
+      "forbidden_actions": [
+        "record_non_override_binding",
+        "reference_released_anm_artifact"
+      ]
+    }
+  ],
+  "host_registry": [
+    {
+      "host_ref": "packages/adeu_semantic_source/tests/fixtures/v47c/current_authority.md",
+      "snapshot_id": "snapshot:v47c-reference",
+      "local_source_scope": "markdown_current_authority",
+      "authority_surface_kind": "current_markdown_authority"
+    }
+  ]
+}

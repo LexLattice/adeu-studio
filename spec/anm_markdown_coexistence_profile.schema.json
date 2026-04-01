@@ -1,0 +1,281 @@
+{
+  "$defs": {
+    "AnmAdoptionBoundaryRow": {
+      "additionalProperties": false,
+      "properties": {
+        "adoption_boundary_posture": {
+          "enum": [
+            "allowed_now",
+            "allowed_with_later_lock",
+            "forbidden_in_v47c"
+          ],
+          "title": "Adoption Boundary Posture",
+          "type": "string"
+        },
+        "allowed_now_actions": {
+          "items": {
+            "enum": [
+              "reference_released_anm_artifact",
+              "embed_authoritative_d1_block",
+              "record_non_override_binding",
+              "emit_migration_signal"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Now Actions",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "consumer_surface": {
+          "minLength": 1,
+          "title": "Consumer Surface",
+          "type": "string"
+        },
+        "forbidden_actions": {
+          "items": {
+            "enum": [
+              "reference_released_anm_artifact",
+              "embed_authoritative_d1_block",
+              "record_non_override_binding",
+              "emit_migration_signal"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden Actions",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "later_lock_required_actions": {
+          "items": {
+            "enum": [
+              "reference_released_anm_artifact",
+              "embed_authoritative_d1_block",
+              "record_non_override_binding",
+              "emit_migration_signal"
+            ],
+            "type": "string"
+          },
+          "title": "Later Lock Required Actions",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "consumer_surface",
+        "adoption_boundary_posture"
+      ],
+      "title": "AnmAdoptionBoundaryRow",
+      "type": "object"
+    },
+    "AnmCoexistenceSourceRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_constrain_actions": {
+          "items": {
+            "enum": [
+              "reference_released_anm_artifact",
+              "embed_authoritative_d1_block",
+              "record_non_override_binding",
+              "emit_migration_signal"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Constrain Actions",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "companion_embedding_posture": {
+          "enum": [
+            "not_applicable",
+            "embedded_in_host_markdown",
+            "adjacent_companion_document"
+          ],
+          "title": "Companion Embedding Posture",
+          "type": "string"
+        },
+        "current_markdown_authority_relation": {
+          "enum": [
+            "current_markdown_controlling",
+            "coexisting_non_override",
+            "later_lock_required_for_supersession"
+          ],
+          "title": "Current Markdown Authority Relation",
+          "type": "string"
+        },
+        "host_or_companion_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Host Or Companion Ref"
+        },
+        "migration_posture": {
+          "enum": [
+            "none",
+            "prefer_companion",
+            "prefer_standalone",
+            "defer_to_later_lock"
+          ],
+          "title": "Migration Posture",
+          "type": "string"
+        },
+        "non_override_rule": {
+          "const": "current_markdown_not_overridden",
+          "title": "Non Override Rule",
+          "type": "string"
+        },
+        "requires_later_lock_for_supersession": {
+          "title": "Requires Later Lock For Supersession",
+          "type": "boolean"
+        },
+        "source_posture": {
+          "enum": [
+            "standalone_anm",
+            "companion_anm"
+          ],
+          "title": "Source Posture",
+          "type": "string"
+        },
+        "source_ref": {
+          "minLength": 1,
+          "title": "Source Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref",
+        "source_posture",
+        "current_markdown_authority_relation",
+        "companion_embedding_posture",
+        "non_override_rule",
+        "migration_posture",
+        "requires_later_lock_for_supersession"
+      ],
+      "title": "AnmCoexistenceSourceRow",
+      "type": "object"
+    },
+    "MigrationDiscipline": {
+      "additionalProperties": false,
+      "properties": {
+        "companion_posture_allowed": {
+          "title": "Companion Posture Allowed",
+          "type": "boolean"
+        },
+        "compatible_local_source_scopes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Compatible Local Source Scopes",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "current_markdown_supersession_requires_later_lock": {
+          "title": "Current Markdown Supersession Requires Later Lock",
+          "type": "boolean"
+        },
+        "preferred_source_postures": {
+          "items": {
+            "enum": [
+              "standalone_anm",
+              "companion_anm"
+            ],
+            "type": "string"
+          },
+          "title": "Preferred Source Postures",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "repo_wide_migration_forbidden": {
+          "title": "Repo Wide Migration Forbidden",
+          "type": "boolean"
+        },
+        "standalone_posture_allowed": {
+          "title": "Standalone Posture Allowed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "repo_wide_migration_forbidden",
+        "current_markdown_supersession_requires_later_lock",
+        "standalone_posture_allowed",
+        "companion_posture_allowed"
+      ],
+      "title": "MigrationDiscipline",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adoption_boundary_rows": {
+      "items": {
+        "$ref": "#/$defs/AnmAdoptionBoundaryRow"
+      },
+      "title": "Adoption Boundary Rows",
+      "type": "array"
+    },
+    "coexistence_profile_id": {
+      "minLength": 1,
+      "title": "Coexistence Profile Id",
+      "type": "string"
+    },
+    "migration_discipline": {
+      "$ref": "#/$defs/MigrationDiscipline"
+    },
+    "released_stack_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Released Stack Refs",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema": {
+      "const": "anm_markdown_coexistence_profile@1",
+      "default": "anm_markdown_coexistence_profile@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "minLength": 1,
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "snapshot_sha256": {
+      "minLength": 1,
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "source_rows": {
+      "items": {
+        "$ref": "#/$defs/AnmCoexistenceSourceRow"
+      },
+      "title": "Source Rows",
+      "type": "array"
+    },
+    "source_scope_profile": {
+      "minLength": 1,
+      "title": "Source Scope Profile",
+      "type": "string"
+    }
+  },
+  "required": [
+    "coexistence_profile_id",
+    "snapshot_id",
+    "snapshot_sha256",
+    "source_scope_profile",
+    "migration_discipline",
+    "semantic_hash"
+  ],
+  "title": "AnmMarkdownCoexistenceProfile",
+  "type": "object"
+}
