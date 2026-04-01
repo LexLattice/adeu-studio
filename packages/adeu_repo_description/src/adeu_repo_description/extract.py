@@ -12,6 +12,7 @@ from urm_runtime.hashing import sha256_canonical_json
 
 from .models import (
     REPO_DEPENDENCY_GRAPH_SCHEMA,
+    REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
@@ -22,6 +23,7 @@ from .models import (
     RepoSchemaFamilyRegistry,
     compute_claimed_invariant_binding_id,
     compute_internal_module_boundary_ref,
+    compute_repo_descriptive_normative_binding_entry_id,
     compute_repo_optimization_entry_id,
     compute_repo_test_intent_entry_id,
     compute_repo_test_ref,
@@ -30,12 +32,14 @@ from .models import (
     compute_v45c_v102_dependency_policy_hash,
     materialize_repo_arc_dependency_register_payload,
     materialize_repo_dependency_graph_payload,
+    materialize_repo_descriptive_normative_binding_frame_payload,
     materialize_repo_entity_catalog_payload,
     materialize_repo_optimization_register_payload,
     materialize_repo_schema_family_registry_payload,
     materialize_repo_symbol_catalog_payload,
     materialize_repo_test_intent_matrix_payload,
     representative_schema_keys,
+    validate_repo_descriptive_normative_binding_frame_against_v45_baseline,
     validate_repo_optimization_register_against_v45_baseline,
     validate_repo_symbol_catalog_dependency_graph_pair,
     validate_repo_test_intent_matrix_against_v45b,
@@ -70,6 +74,13 @@ _DEFAULT_V45E_SOURCE_PATHS: tuple[str, ...] = (
     "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
     "packages/adeu_repo_description/src/adeu_repo_description/models.py",
     "packages/adeu_repo_description/tests/test_repo_description_v45b.py",
+)
+_DEFAULT_V45F_SOURCE_PATHS: tuple[str, ...] = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md",
+    "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
+    "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
+    "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
+    "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md",
 )
 _V45C_V102_REFERENCE_FIXTURE_PATH = (
     "apps/api/fixtures/repo_description/vnext_plus102/"
@@ -274,6 +285,10 @@ def _default_v45d_source_paths() -> list[str]:
 
 def _default_v45e_source_paths() -> list[str]:
     return list(_DEFAULT_V45E_SOURCE_PATHS)
+
+
+def _default_v45f_source_paths() -> list[str]:
+    return list(_DEFAULT_V45F_SOURCE_PATHS)
 
 
 def _load_historical_v45c_v102_reference(*, root: Path) -> dict[str, Any]:
@@ -2435,6 +2450,401 @@ def derive_v45e_repo_optimization_register(
     return register
 
 
+def derive_v45f_repo_descriptive_normative_binding_frame(
+    *,
+    source_paths: list[str] | None = None,
+    bound_entity_catalog_payload: dict[str, Any] | None = None,
+    bound_schema_family_registry_payload: dict[str, Any] | None = None,
+    bound_symbol_catalog_payload: dict[str, Any] | None = None,
+    bound_dependency_graph_payload: dict[str, Any] | None = None,
+    bound_arc_dependency_register_payload: dict[str, Any] | None = None,
+    bound_test_intent_matrix_payload: dict[str, Any] | None = None,
+    bound_optimization_register_payload: dict[str, Any] | None = None,
+    snapshot_validity_posture: str | None = None,
+) -> dict[str, Any]:
+    root = repo_root(anchor=Path(__file__))
+    requested_snapshot_validity_posture = snapshot_validity_posture or "snapshot_bound_current"
+    normalized_source_paths = (
+        source_paths if source_paths is not None else _default_v45f_source_paths()
+    )
+    normalized_source_paths = sorted(
+        {_assert_repo_rel_path(path, field_name="source_paths") for path in normalized_source_paths}
+    )
+    if not normalized_source_paths:
+        raise ValueError("source_paths must not be empty")
+
+    if bound_schema_family_registry_payload is None or bound_entity_catalog_payload is None:
+        derived_schema_registry, derived_entity_catalog = derive_v45a_repo_description_bundle(
+            snapshot_validity_posture=requested_snapshot_validity_posture
+        )
+        bound_schema_family_registry_payload = (
+            derived_schema_registry
+            if bound_schema_family_registry_payload is None
+            else bound_schema_family_registry_payload
+        )
+        bound_entity_catalog_payload = (
+            derived_entity_catalog
+            if bound_entity_catalog_payload is None
+            else bound_entity_catalog_payload
+        )
+    if bound_symbol_catalog_payload is None or bound_dependency_graph_payload is None:
+        derived_symbol_catalog, derived_dependency_graph = (
+            derive_v45b_repo_symbol_catalog_and_dependency_graph(
+                source_paths=default_v45b_source_paths(),
+                snapshot_validity_posture=requested_snapshot_validity_posture,
+            )
+        )
+        bound_symbol_catalog_payload = (
+            derived_symbol_catalog
+            if bound_symbol_catalog_payload is None
+            else bound_symbol_catalog_payload
+        )
+        bound_dependency_graph_payload = (
+            derived_dependency_graph
+            if bound_dependency_graph_payload is None
+            else bound_dependency_graph_payload
+        )
+    if bound_arc_dependency_register_payload is None:
+        bound_arc_dependency_register_payload = _load_historical_v45c_v102_reference(root=root)
+    if bound_test_intent_matrix_payload is None:
+        bound_test_intent_matrix_payload = derive_v45d_repo_test_intent_matrix(
+            source_paths=default_v45d_source_paths(),
+            bound_symbol_catalog_payload=bound_symbol_catalog_payload,
+            bound_dependency_graph_payload=bound_dependency_graph_payload,
+            snapshot_validity_posture=requested_snapshot_validity_posture,
+        )
+    if bound_optimization_register_payload is None:
+        bound_optimization_register_payload = derive_v45e_repo_optimization_register(
+            source_paths=default_v45e_source_paths(),
+            bound_entity_catalog_payload=bound_entity_catalog_payload,
+            bound_schema_family_registry_payload=bound_schema_family_registry_payload,
+            bound_symbol_catalog_payload=bound_symbol_catalog_payload,
+            bound_dependency_graph_payload=bound_dependency_graph_payload,
+            bound_test_intent_matrix_payload=bound_test_intent_matrix_payload,
+            bound_arc_dependency_register_payload=bound_arc_dependency_register_payload,
+            snapshot_validity_posture=requested_snapshot_validity_posture,
+        )
+
+    effective_snapshot_validity_posture = (
+        snapshot_validity_posture
+        or bound_optimization_register_payload["snapshot_validity_posture"]
+    )
+    if (
+        effective_snapshot_validity_posture
+        != bound_optimization_register_payload["snapshot_validity_posture"]
+    ):
+        raise ValueError(
+            "snapshot_validity_posture must match the bound V45-E snapshot_validity_posture"
+        )
+
+    source_hashes: dict[str, str] = {}
+    for source_path in normalized_source_paths:
+        absolute_path = root / source_path
+        if not absolute_path.is_file():
+            raise FileNotFoundError(f"source path does not exist: {source_path}")
+        text = absolute_path.read_text(encoding="utf-8")
+        source_hashes[source_path] = sha256_canonical_json({"text": text})
+
+    source_set_hash = sha256_canonical_json(
+        {
+            "source_paths": normalized_source_paths,
+            "source_hashes": {path: source_hashes[path] for path in normalized_source_paths},
+        }
+    )
+
+    evidence_refs_by_id: dict[str, RepoDescriptionEvidenceRef] = {
+        "evidence:contract:v45f:v105": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:contract:v45f:v105",
+            evidence_kind="lock_contract_evidence",
+        ),
+        "evidence:planning:v28:v45f": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:planning:v28:v45f",
+            evidence_kind="planning_table_row_evidence",
+        ),
+        "evidence:decomposition:v45f": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:decomposition:v45f",
+            evidence_kind="governance_cue_evidence",
+        ),
+        "evidence:bound:v45a:entity_catalog": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45a:entity_catalog",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45a:schema_family_registry": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45a:schema_family_registry",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45b:symbol_catalog": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45b:symbol_catalog",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45b:dependency_graph": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45b:dependency_graph",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45c:arc_dependency_register": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45c:arc_dependency_register",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45d:test_intent_matrix": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45d:test_intent_matrix",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45e:optimization_register": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45e:optimization_register",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+    }
+    for source_path in normalized_source_paths:
+        evidence_refs_by_id[f"evidence:source:{source_path}:binding"] = RepoDescriptionEvidenceRef(
+            evidence_ref=f"evidence:source:{source_path}:binding",
+            evidence_kind="governance_cue_evidence",
+        )
+
+    row_specs = [
+        {
+            "descriptive_input_kind": "repo_entity_catalog",
+            "descriptive_input_ref": bound_entity_catalog_payload["repo_entity_catalog_id"],
+            "consumer_class": "planning_consumer",
+            "binding_posture": "advisory_only",
+            "authority_source_kind": "descriptive_artifact_only_forbidden",
+            "promotion_law_posture": "inferred_not_sufficient",
+            "allowed_use_summary": (
+                "Planning consumers may use the entity catalog as descriptive context when "
+                "scoping follow-on repo work."
+            ),
+            "forbidden_use_summary": (
+                "May not approve mutation, scheduling, execution, or settlement by itself."
+            ),
+            "derivation_posture": "derived_deterministically",
+            "derivation_method": "policy_binding_rule",
+            "source_artifact_refs": [
+                "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md",
+            ],
+            "supporting_evidence_refs": [
+                "evidence:bound:v45a:entity_catalog",
+                "evidence:contract:v45f:v105",
+                "evidence:planning:v28:v45f",
+                "evidence:source:docs/DRAFT_NEXT_ARC_OPTIONS_v28.md:binding",
+                "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding",
+            ],
+        },
+        {
+            "descriptive_input_kind": "repo_schema_family_registry",
+            "descriptive_input_ref": bound_schema_family_registry_payload[
+                "schema_family_registry_id"
+            ],
+            "consumer_class": "adjudication_consumer",
+            "binding_posture": "eligibility_signal_only",
+            "authority_source_kind": "separate_decision_required",
+            "promotion_law_posture": "adjudication_required_before_normative_use",
+            "allowed_use_summary": (
+                "Adjudication consumers may use schema-family structure to determine whether a "
+                "later decision surface needs explicit policy review."
+            ),
+            "forbidden_use_summary": (
+                "May not be treated as settled normative authority or direct execution approval."
+            ),
+            "derivation_posture": "derived_deterministically",
+            "derivation_method": "policy_binding_rule",
+            "source_artifact_refs": [
+                "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md",
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md",
+            ],
+            "supporting_evidence_refs": [
+                "evidence:bound:v45a:schema_family_registry",
+                "evidence:contract:v45f:v105",
+                "evidence:decomposition:v45f",
+                "evidence:source:docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md:binding",
+                "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding",
+            ],
+        },
+        {
+            "descriptive_input_kind": "repo_symbol_catalog",
+            "descriptive_input_ref": bound_symbol_catalog_payload["repo_symbol_catalog_id"],
+            "consumer_class": "policy_consumer",
+            "binding_posture": "adjudication_required",
+            "authority_source_kind": "separate_decision_required",
+            "promotion_law_posture": "adjudication_required_before_normative_use",
+            "allowed_use_summary": (
+                "Policy consumers may use symbol topology as one input when evaluating whether "
+                "later governance artifacts need narrower scope boundaries."
+            ),
+            "forbidden_use_summary": (
+                "May not convert code-shape visibility into automatic authority or direct repo "
+                "changes."
+            ),
+            "derivation_posture": "derived_deterministically",
+            "derivation_method": "cross_artifact_join",
+            "source_artifact_refs": [
+                "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md",
+            ],
+            "supporting_evidence_refs": [
+                "evidence:bound:v45b:symbol_catalog",
+                "evidence:contract:v45f:v105",
+                "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
+                "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding",
+            ],
+        },
+        {
+            "descriptive_input_kind": "repo_dependency_graph",
+            "descriptive_input_ref": bound_dependency_graph_payload["repo_dependency_graph_id"],
+            "consumer_class": "recursive_governance_consumer",
+            "binding_posture": "separate_normative_authority_required",
+            "authority_source_kind": "separate_normative_artifact_required",
+            "promotion_law_posture": "settled_authority_required_before_execution",
+            "allowed_use_summary": (
+                "Recursive-governance consumers may use dependency structure only as an "
+                "eligibility input inside a stronger separately settled normative frame."
+            ),
+            "forbidden_use_summary": (
+                "May not authorize recursive execution, auto-mutation, or scheduler control by "
+                "itself."
+            ),
+            "derivation_posture": "derived_deterministically",
+            "derivation_method": "cross_artifact_join",
+            "source_artifact_refs": [
+                "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
+                "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md",
+            ],
+            "supporting_evidence_refs": [
+                "evidence:bound:v45b:dependency_graph",
+                "evidence:bound:v45c:arc_dependency_register",
+                "evidence:contract:v45f:v105",
+                "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
+                "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
+                "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding",
+            ],
+        },
+        {
+            "descriptive_input_kind": "repo_test_intent_matrix",
+            "descriptive_input_ref": bound_test_intent_matrix_payload[
+                "repo_test_intent_matrix_id"
+            ],
+            "consumer_class": "adjudication_consumer",
+            "binding_posture": "adjudication_required",
+            "authority_source_kind": "separate_decision_required",
+            "promotion_law_posture": "adjudication_required_before_normative_use",
+            "allowed_use_summary": (
+                "Adjudication consumers may use test-intent visibility as supporting context "
+                "when checking whether a later decision claim is actually defended."
+            ),
+            "forbidden_use_summary": (
+                "May not be overread as direct release gating, merge approval, or settlement."
+            ),
+            "derivation_posture": "derived_deterministically",
+            "derivation_method": "cross_artifact_join",
+            "source_artifact_refs": [
+                "docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md",
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md",
+            ],
+            "supporting_evidence_refs": [
+                "evidence:bound:v45d:test_intent_matrix",
+                "evidence:contract:v45f:v105",
+                "evidence:source:docs/ASSESSMENT_vNEXT_PLUS105_EDGES.md:binding",
+                "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding",
+            ],
+        },
+        {
+            "descriptive_input_kind": "repo_optimization_register",
+            "descriptive_input_ref": bound_optimization_register_payload[
+                "repo_optimization_register_id"
+            ],
+            "consumer_class": "policy_consumer",
+            "binding_posture": "separate_normative_authority_required",
+            "authority_source_kind": "separate_lock_required",
+            "promotion_law_posture": "settled_authority_required_before_execution",
+            "allowed_use_summary": (
+                "Policy consumers may use optimization diagnostics to decide whether a later "
+                "lock should narrow or reject a proposed amendment path."
+            ),
+            "forbidden_use_summary": (
+                "May not convert diagnostics into amendment entitlement, scheduling priority, or "
+                "execution approval."
+            ),
+            "derivation_posture": "derived_deterministically",
+            "derivation_method": "policy_binding_rule",
+            "source_artifact_refs": [
+                "docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md",
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md",
+            ],
+            "supporting_evidence_refs": [
+                "evidence:bound:v45e:optimization_register",
+                "evidence:contract:v45f:v105",
+                "evidence:source:docs/DRAFT_STOP_GATE_DECISION_vNEXT_PLUS105.md:binding",
+                "evidence:source:docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md:binding",
+            ],
+        },
+    ]
+
+    binding_entries = []
+    for row in row_specs:
+        payload_without_entry_id = {
+            **row,
+            "source_artifact_refs": row["source_artifact_refs"],
+            "supporting_evidence_refs": row["supporting_evidence_refs"],
+        }
+        binding_entries.append(
+            {
+                "entry_id": compute_repo_descriptive_normative_binding_entry_id(
+                    payload_without_entry_id
+                ),
+                **payload_without_entry_id,
+            }
+        )
+
+    payload_without_frame_id = {
+        "schema": REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
+        "repo_snapshot_id": bound_optimization_register_payload["repo_snapshot_id"],
+        "repo_snapshot_hash": bound_optimization_register_payload["repo_snapshot_hash"],
+        "snapshot_validity_posture": effective_snapshot_validity_posture,
+        "source_set": normalized_source_paths,
+        "source_set_hash": source_set_hash,
+        "bound_entity_catalog_ref": bound_entity_catalog_payload["repo_entity_catalog_id"],
+        "bound_schema_family_registry_ref": bound_schema_family_registry_payload[
+            "schema_family_registry_id"
+        ],
+        "bound_symbol_catalog_ref": bound_symbol_catalog_payload["repo_symbol_catalog_id"],
+        "bound_dependency_graph_ref": bound_dependency_graph_payload[
+            "repo_dependency_graph_id"
+        ],
+        "bound_arc_dependency_register_ref": bound_arc_dependency_register_payload[
+            "repo_arc_dependency_register_id"
+        ],
+        "bound_test_intent_matrix_ref": bound_test_intent_matrix_payload[
+            "repo_test_intent_matrix_id"
+        ],
+        "bound_optimization_register_ref": bound_optimization_register_payload[
+            "repo_optimization_register_id"
+        ],
+        "binding_scope": (
+            "v45f-bounded-descriptive-to-normative-binding-frame-over-released-v45-baseline"
+        ),
+        "extraction_posture": "derived_deterministically",
+        "extraction_method": "policy_binding_rule",
+        "binding_entries": sorted(binding_entries, key=lambda row: row["entry_id"]),
+        "evidence_refs": [
+            evidence_refs_by_id[key].model_dump(mode="json") for key in sorted(evidence_refs_by_id)
+        ],
+    }
+    frame = materialize_repo_descriptive_normative_binding_frame_payload(
+        payload_without_frame_id
+    )
+    validate_repo_descriptive_normative_binding_frame_against_v45_baseline(
+        binding_frame_payload=frame,
+        entity_catalog_payload=bound_entity_catalog_payload,
+        schema_family_registry_payload=bound_schema_family_registry_payload,
+        symbol_catalog_payload=bound_symbol_catalog_payload,
+        dependency_graph_payload=bound_dependency_graph_payload,
+        arc_dependency_register_payload=bound_arc_dependency_register_payload,
+        test_intent_matrix_payload=bound_test_intent_matrix_payload,
+        optimization_register_payload=bound_optimization_register_payload,
+    )
+    return frame
+
+
 def default_v45a_source_paths() -> list[str]:
     return list(_DEFAULT_SOURCE_PATHS)
 
@@ -2453,3 +2863,7 @@ def default_v45d_source_paths() -> list[str]:
 
 def default_v45e_source_paths() -> list[str]:
     return _default_v45e_source_paths()
+
+
+def default_v45f_source_paths() -> list[str]:
+    return _default_v45f_source_paths()

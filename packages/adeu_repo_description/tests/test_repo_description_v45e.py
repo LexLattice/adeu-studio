@@ -10,8 +10,8 @@ from adeu_ir.repo import repo_root
 from adeu_repo_description import (
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
     RepoOptimizationRegister,
+    compute_repo_optimization_entry_id,
     compute_repo_optimization_register_id,
-    default_v45e_source_paths,
     derive_v45a_repo_description_bundle,
     derive_v45b_repo_symbol_catalog_and_dependency_graph,
     derive_v45d_repo_test_intent_matrix,
@@ -30,6 +30,18 @@ def _v104_root() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "repo_description" / "vnext_plus104"
 
 
+def _v103_root() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "repo_description" / "vnext_plus103"
+
+
+def _v101_root() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "repo_description" / "vnext_plus101"
+
+
+def _v99_root() -> Path:
+    return _repo_root() / "apps" / "api" / "fixtures" / "repo_description" / "vnext_plus99"
+
+
 def _v102_root() -> Path:
     return _repo_root() / "apps" / "api" / "fixtures" / "repo_description" / "vnext_plus102"
 
@@ -40,6 +52,18 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def _load_v104(name: str) -> dict[str, Any]:
     return _load_json(_v104_root() / name)
+
+
+def _load_v103(name: str) -> dict[str, Any]:
+    return _load_json(_v103_root() / name)
+
+
+def _load_v101(name: str) -> dict[str, Any]:
+    return _load_json(_v101_root() / name)
+
+
+def _load_v99(name: str) -> dict[str, Any]:
+    return _load_json(_v99_root() / name)
 
 
 def _load_v102(name: str) -> dict[str, Any]:
@@ -56,16 +80,13 @@ def _schema_validator(schema_filename: str) -> Draft202012Validator:
     return Draft202012Validator(schema)
 
 
-def test_v104_reference_optimization_register_replays_and_validates() -> None:
+def test_v104_reference_optimization_register_validates_as_historical_baseline() -> None:
     accepted_register = _load_v104("repo_optimization_register_v104_reference.json")
     validated_register = RepoOptimizationRegister.model_validate(accepted_register)
+    assert validated_register.schema == REPO_OPTIMIZATION_REGISTER_SCHEMA
 
-    derived_register = derive_v45e_repo_optimization_register(
-        source_paths=default_v45e_source_paths(),
-        snapshot_validity_posture=accepted_register["snapshot_validity_posture"],
-    )
-    assert derived_register == accepted_register
 
+def test_v45e_current_optimization_register_derivation_validates_against_current_baseline() -> None:
     bound_schema_registry, bound_entity_catalog = derive_v45a_repo_description_bundle()
     bound_symbol_catalog, bound_dependency_graph = (
         derive_v45b_repo_symbol_catalog_and_dependency_graph()
@@ -75,6 +96,14 @@ def test_v104_reference_optimization_register_replays_and_validates() -> None:
         bound_dependency_graph_payload=bound_dependency_graph,
     )
     bound_arc_dependency_register = _load_v102("repo_arc_dependency_register_v102_reference.json")
+    derived_register = derive_v45e_repo_optimization_register(
+        bound_entity_catalog_payload=bound_entity_catalog,
+        bound_schema_family_registry_payload=bound_schema_registry,
+        bound_symbol_catalog_payload=bound_symbol_catalog,
+        bound_dependency_graph_payload=bound_dependency_graph,
+        bound_test_intent_matrix_payload=bound_test_intent_matrix,
+        bound_arc_dependency_register_payload=bound_arc_dependency_register,
+    )
 
     (
         pair_register,
@@ -84,7 +113,7 @@ def test_v104_reference_optimization_register_replays_and_validates() -> None:
         _dependency_graph,
         _test_intent_matrix,
     ) = validate_repo_optimization_register_against_v45_baseline(
-        optimization_register_payload=accepted_register,
+        optimization_register_payload=derived_register,
         entity_catalog_payload=bound_entity_catalog,
         schema_family_registry_payload=bound_schema_registry,
         symbol_catalog_payload=bound_symbol_catalog,
@@ -93,8 +122,7 @@ def test_v104_reference_optimization_register_replays_and_validates() -> None:
         arc_dependency_register_payload=bound_arc_dependency_register,
     )
 
-    assert validated_register.schema == REPO_OPTIMIZATION_REGISTER_SCHEMA
-    assert pair_register == validated_register
+    assert pair_register == RepoOptimizationRegister.model_validate(derived_register)
 
 
 def test_v104_optimization_register_id_is_deterministic() -> None:
@@ -131,41 +159,71 @@ def test_v104_exported_schema_accepts_reference_fixture() -> None:
             "repo_optimization_register_v104_reject_amendment_entitlement_laundering.json",
             "Input should be 'not_authorized_by_this_artifact'",
         ),
-        (
-            "repo_optimization_register_v104_reject_unresolved_finding_scope.json",
-            "repo_optimization_register finding_scope must resolve against source_set",
-        ),
     ],
 )
 def test_v104_rejects_invalid_reference_fixtures(fixture_name: str, match: str) -> None:
     payload = _load_v104(fixture_name)
 
-    if fixture_name == "repo_optimization_register_v104_reject_unresolved_finding_scope.json":
-        bound_schema_registry, bound_entity_catalog = derive_v45a_repo_description_bundle()
-        bound_symbol_catalog, bound_dependency_graph = (
-            derive_v45b_repo_symbol_catalog_and_dependency_graph()
-        )
-        bound_test_intent_matrix = derive_v45d_repo_test_intent_matrix(
-            bound_symbol_catalog_payload=bound_symbol_catalog,
-            bound_dependency_graph_payload=bound_dependency_graph,
-        )
-        bound_arc_dependency_register = _load_v102(
-            "repo_arc_dependency_register_v102_reference.json"
-        )
-        with pytest.raises(ValueError, match=match):
-            validate_repo_optimization_register_against_v45_baseline(
-                optimization_register_payload=payload,
-                entity_catalog_payload=bound_entity_catalog,
-                schema_family_registry_payload=bound_schema_registry,
-                symbol_catalog_payload=bound_symbol_catalog,
-                dependency_graph_payload=bound_dependency_graph,
-                test_intent_matrix_payload=bound_test_intent_matrix,
-                arc_dependency_register_payload=bound_arc_dependency_register,
-            )
-        return
-
     with pytest.raises(ValidationError, match=match):
         RepoOptimizationRegister.model_validate(payload)
+
+
+def test_v45e_current_baseline_rejects_unresolved_finding_scope() -> None:
+    bound_schema_registry, bound_entity_catalog = derive_v45a_repo_description_bundle()
+    bound_symbol_catalog, bound_dependency_graph = (
+        derive_v45b_repo_symbol_catalog_and_dependency_graph()
+    )
+    bound_test_intent_matrix = derive_v45d_repo_test_intent_matrix(
+        bound_symbol_catalog_payload=bound_symbol_catalog,
+        bound_dependency_graph_payload=bound_dependency_graph,
+    )
+    bound_arc_dependency_register = _load_v102("repo_arc_dependency_register_v102_reference.json")
+    derived_register = derive_v45e_repo_optimization_register(
+        bound_entity_catalog_payload=bound_entity_catalog,
+        bound_schema_family_registry_payload=bound_schema_registry,
+        bound_symbol_catalog_payload=bound_symbol_catalog,
+        bound_dependency_graph_payload=bound_dependency_graph,
+        bound_test_intent_matrix_payload=bound_test_intent_matrix,
+        bound_arc_dependency_register_payload=bound_arc_dependency_register,
+    )
+    mutated_register = deepcopy(derived_register)
+    mutated_register["optimization_entries"][0]["finding_scope"]["finding_scope_ref"] = (
+        "packages/not_in_bound_scope.py"
+    )
+    mutated_register["optimization_entries"][0]["entry_id"] = compute_repo_optimization_entry_id(
+        {
+            key: value
+            for key, value in mutated_register["optimization_entries"][0].items()
+            if key != "entry_id"
+        }
+    )
+    mutated_register["optimization_entries"] = sorted(
+        mutated_register["optimization_entries"], key=lambda row: row["entry_id"]
+    )
+    mutated_register["repo_optimization_register_id"] = compute_repo_optimization_register_id(
+        {
+            key: value
+            for key, value in mutated_register.items()
+            if key != "repo_optimization_register_id"
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            "repo_optimization_register finding_scope must resolve against source_set "
+            "or a bound V45-A through V45-D descriptive artifact"
+        ),
+    ):
+        validate_repo_optimization_register_against_v45_baseline(
+            optimization_register_payload=mutated_register,
+            entity_catalog_payload=bound_entity_catalog,
+            schema_family_registry_payload=bound_schema_registry,
+            symbol_catalog_payload=bound_symbol_catalog,
+            dependency_graph_payload=bound_dependency_graph,
+            test_intent_matrix_payload=bound_test_intent_matrix,
+            arc_dependency_register_payload=bound_arc_dependency_register,
+        )
 
 
 def test_v104_rejects_bundle_with_mismatched_bound_v45b_snapshot_identity() -> None:

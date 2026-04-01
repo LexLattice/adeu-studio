@@ -9,6 +9,7 @@ from adeu_repo_description import (
     REPO_ARC_DEPENDENCY_REGISTER_SCHEMA,
     REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
+    REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
     REPO_OPTIMIZATION_REGISTER_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
@@ -38,6 +39,14 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_dependency_graph.v1.json",
             root / "spec" / "repo_dependency_graph.schema.json",
+        ),
+        REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_descriptive_normative_binding_frame.v1.json",
+            root / "spec" / "repo_descriptive_normative_binding_frame.schema.json",
         ),
         REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA: (
             root
