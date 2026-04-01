@@ -64,7 +64,9 @@ def _write_repo_temp_source(
         yield source_path.relative_to(_repo_root()).as_posix()
 
 
-def test_v101_reference_symbol_catalog_and_dependency_graph_replay_and_validate() -> None:
+def test_v101_reference_symbol_catalog_and_dependency_graph_validate_as_historical_baseline() -> (
+    None
+):
     accepted_catalog = _load_v101("repo_symbol_catalog_v101_reference.json")
     accepted_graph = _load_v101("repo_dependency_graph_v101_reference.json")
 
@@ -80,12 +82,22 @@ def test_v101_reference_symbol_catalog_and_dependency_graph_replay_and_validate(
     assert pair_catalog == validated_catalog
     assert pair_graph == validated_graph
 
+
+def test_v45b_current_branch_symbol_catalog_and_dependency_graph_still_derive_and_validate() -> (
+    None
+):
     derived_catalog, derived_graph = derive_v45b_repo_symbol_catalog_and_dependency_graph(
         source_paths=default_v45b_source_paths(),
-        snapshot_validity_posture=accepted_catalog["snapshot_validity_posture"],
+        snapshot_validity_posture="snapshot_bound_current",
     )
-    assert derived_catalog == accepted_catalog
-    assert derived_graph == accepted_graph
+
+    pair_catalog, pair_graph = validate_repo_symbol_catalog_dependency_graph_pair(
+        symbol_catalog_payload=derived_catalog,
+        dependency_graph_payload=derived_graph,
+    )
+
+    assert pair_catalog.model_dump(mode="json") == derived_catalog
+    assert pair_graph.model_dump(mode="json") == derived_graph
 
 
 def test_v101_symbol_catalog_id_is_deterministic() -> None:

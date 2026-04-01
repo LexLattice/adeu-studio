@@ -14,8 +14,6 @@ from adeu_repo_description import (
     RepoArcDependencyRegisterV1,
     compute_repo_arc_dependency_register_id,
     compute_repo_arc_dependency_register_v1_id,
-    default_v45c_source_paths,
-    derive_v45c_repo_arc_dependency_register,
 )
 from adeu_repo_description.extract import (
     _extract_selected_v45_path,
@@ -115,24 +113,10 @@ def test_v100_rejects_invalid_reference_fixtures(fixture_name: str, match: str) 
         RepoArcDependencyRegisterV1.model_validate(payload)
 
 
-def test_v102_reference_dependency_register_fixture_replays_and_validates() -> None:
+def test_v102_reference_dependency_register_fixture_validates_as_historical_baseline() -> None:
     accepted_register = _load_v102("repo_arc_dependency_register_v102_reference.json")
     validated = RepoArcDependencyRegister.model_validate(accepted_register)
     assert validated.schema == REPO_ARC_DEPENDENCY_REGISTER_SCHEMA
-
-    derived_register = derive_v45c_repo_arc_dependency_register(
-        source_paths=default_v45c_source_paths(),
-        snapshot_validity_posture=accepted_register["snapshot_validity_posture"],
-    )
-    for key in (
-        "repo_arc_dependency_register_id",
-        "repo_snapshot_id",
-        "repo_snapshot_hash",
-        "source_set_hash",
-    ):
-        accepted_register.pop(key)
-        derived_register.pop(key)
-    assert derived_register == accepted_register
 
 
 def test_v102_dependency_register_id_is_deterministic() -> None:

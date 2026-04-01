@@ -12,6 +12,7 @@ REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA = "repo_schema_family_registry@1"
 REPO_ENTITY_CATALOG_SCHEMA = "repo_entity_catalog@1"
 REPO_SYMBOL_CATALOG_SCHEMA = "repo_symbol_catalog@1"
 REPO_DEPENDENCY_GRAPH_SCHEMA = "repo_dependency_graph@1"
+REPO_TEST_INTENT_MATRIX_SCHEMA = "repo_test_intent_matrix@1"
 REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA = "repo_arc_dependency_register@1"
 REPO_ARC_DEPENDENCY_REGISTER_SCHEMA = "repo_arc_dependency_register@2"
 V45A_V99_CONTRACT_SOURCE = (
@@ -28,6 +29,9 @@ V45C_V100_CONTRACT_SOURCE = (
 )
 V45C_V102_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS102.md#v102-continuation-contract-machine-checkable"
+)
+V45D_V103_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS103.md#v103-continuation-contract-machine-checkable"
 )
 V45C_DEPENDENCY_POLICY_REF = (
     "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md"
@@ -65,6 +69,29 @@ SymbolRoleClassificationMethod = Literal[
     "decorator_or_baseclass_rule",
     "bounded_inference_rule",
     "adjudicated_policy",
+]
+TestKind = Literal["pytest_function", "pytest_method"]
+InvariantDomain = Literal["ontology", "epistemics", "deontics", "utility", "mixed"]
+GatingPosture = Literal["release_gating", "advisory", "informational"]
+TestIntentDerivationMethod = Literal[
+    "assertion_ast",
+    "fixture_or_helper_binding",
+    "test_name_convention",
+    "bounded_inference_rule",
+    "adjudicated_policy",
+]
+ConfidencePosture = Literal["low", "medium", "high", "adjudicated", "settled"]
+GuardedSurfaceRefKind = Literal[
+    "internal_symbol",
+    "internal_module_boundary",
+    "external_boundary",
+]
+AssertionSurfaceKind = Literal[
+    "assert_statement",
+    "pytest_raises",
+    "equality_assertion",
+    "predicate_call_assertion",
+    "response_or_status_assertion",
 ]
 SnapshotValidityPosture = Literal["snapshot_bound_current", "snapshot_bound_historical"]
 PrimaryCarrierClass = Literal[
@@ -142,6 +169,12 @@ _FORBIDDEN_V45B_GRAPH_SCOPE_TERMS: tuple[str, ...] = (
     "refactor_entitlement",
     "automatic_refactor",
     "automatic_refactor_entitlement",
+)
+_FORBIDDEN_V45D_MATRIX_SCOPE_TERMS: tuple[str, ...] = (
+    "optimization_entitlement",
+    "automatic_release_gating",
+    "automatic_release_authority",
+    "automatic_merge_block",
 )
 
 
@@ -329,6 +362,18 @@ def _assert_no_forbidden_v45b_graph_scope_terms(value: str, *, field_name: str) 
     return normalized
 
 
+def _assert_no_forbidden_v45d_matrix_scope_terms(value: str, *, field_name: str) -> str:
+    normalized = _assert_no_forbidden_authority_terms(value, field_name=field_name)
+    normalized_tokens = _normalize_for_equality(normalized)
+    for forbidden_term in _FORBIDDEN_V45D_MATRIX_SCOPE_TERMS:
+        if _normalize_for_equality(forbidden_term) in normalized_tokens:
+            raise ValueError(
+                f"{field_name} may not carry release-gating, optimization, scheduling, or "
+                "mutation entitlement claims"
+            )
+    return normalized
+
+
 def compute_symbol_id(*, module_path: str, qualname: str, symbol_kind: SymbolKind) -> str:
     normalized_module_path = _assert_repo_rel_path(module_path, field_name="module_path")
     normalized_qualname = _assert_non_empty_text(qualname, field_name="qualname")
@@ -338,6 +383,78 @@ def compute_symbol_id(*, module_path: str, qualname: str, symbol_kind: SymbolKin
 def compute_internal_module_boundary_ref(*, module_path: str) -> str:
     normalized_module_path = _assert_repo_rel_path(module_path, field_name="module_path")
     return f"module:{normalized_module_path}"
+
+
+def compute_repo_test_ref(*, source_path: str, qualname: str) -> str:
+    normalized_source_path = _assert_repo_rel_path(source_path, field_name="source_path")
+    normalized_qualname = _assert_non_empty_text(qualname, field_name="qualname")
+    return f"test:{normalized_source_path}#{normalized_qualname}"
+
+
+def compute_claimed_invariant_binding_id(*, binding_statement: str) -> str:
+    payload = {
+        "binding_statement": _assert_non_empty_text(
+            binding_statement, field_name="binding_statement"
+        ),
+    }
+    digest = sha256_canonical_json(payload)
+    return f"binding_{digest[:24]}"
+
+
+def _assert_test_ref(value: str, *, field_name: str) -> str:
+    normalized = _assert_non_empty_text(value, field_name=field_name)
+    prefix = "test:"
+    if not normalized.startswith(prefix):
+        raise ValueError(f"{field_name} must use the test: prefix")
+    remainder = normalized[len(prefix) :]
+    if "#" not in remainder:
+        raise ValueError(f"{field_name} must include a #qualified-name suffix")
+    source_path, qualname = remainder.split("#", 1)
+    _assert_repo_rel_path(source_path, field_name=field_name)
+    _assert_non_empty_text(qualname, field_name=field_name)
+    return f"{prefix}{source_path}#{qualname}"
+
+
+def _test_source_path_from_test_ref(test_ref: str) -> str:
+    normalized = _assert_test_ref(test_ref, field_name="test_ref")
+    return normalized[len("test:") :].split("#", 1)[0]
+
+
+def _assert_assertion_source_ref(value: str, *, field_name: str) -> str:
+    normalized = _assert_non_empty_text(value, field_name=field_name)
+    prefix = "assertion:"
+    if not normalized.startswith(prefix):
+        raise ValueError(f"{field_name} must use the assertion: prefix")
+    remainder = normalized[len(prefix) :]
+    if "#L" not in remainder:
+        raise ValueError(f"{field_name} must include a #L<line> suffix")
+    source_path, line_suffix = remainder.split("#L", 1)
+    _assert_repo_rel_path(source_path, field_name=field_name)
+    if not line_suffix.isdigit():
+        raise ValueError(f"{field_name} line suffix must be numeric")
+    return f"{prefix}{source_path}#L{line_suffix}"
+
+
+def _assert_guarded_surface_ref(
+    value: str,
+    *,
+    field_name: str,
+    guarded_surface_ref_kind: GuardedSurfaceRefKind,
+) -> str:
+    normalized = _assert_non_empty_text(value, field_name=field_name)
+    if guarded_surface_ref_kind == "internal_symbol":
+        if not normalized.startswith("symbol:"):
+            raise ValueError(f"{field_name} must use the symbol: prefix")
+        return normalized
+    if guarded_surface_ref_kind == "internal_module_boundary":
+        return _assert_internal_module_boundary_ref(normalized, field_name=field_name)
+    if guarded_surface_ref_kind == "external_boundary":
+        if normalized.startswith("external:") or normalized.startswith("out_of_scope:"):
+            return normalized
+        raise ValueError(
+            f"{field_name} must use the external: or out_of_scope: prefix for external_boundary"
+        )
+    raise ValueError(f"unsupported guarded_surface_ref_kind: {guarded_surface_ref_kind}")
 
 
 def _assert_internal_module_boundary_ref(value: str, *, field_name: str) -> str:
@@ -1146,6 +1263,286 @@ class RepoDependencyGraph(BaseModel):
         return self
 
 
+class RepoGuardedSurfaceRef(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    guarded_surface_ref_kind: GuardedSurfaceRefKind
+    guarded_surface_ref_value: str
+
+    @model_validator(mode="after")
+    def _validate_ref(self) -> RepoGuardedSurfaceRef:
+        object.__setattr__(
+            self,
+            "guarded_surface_ref_value",
+            _assert_guarded_surface_ref(
+                self.guarded_surface_ref_value,
+                field_name="guarded_surface_ref_value",
+                guarded_surface_ref_kind=self.guarded_surface_ref_kind,
+            ),
+        )
+        return self
+
+
+class RepoClaimedInvariantBinding(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    binding_id: str
+    binding_statement: str
+
+    @model_validator(mode="after")
+    def _validate_binding(self) -> RepoClaimedInvariantBinding:
+        object.__setattr__(
+            self,
+            "binding_statement",
+            _assert_non_empty_text(self.binding_statement, field_name="binding_statement"),
+        )
+        expected_binding_id = compute_claimed_invariant_binding_id(
+            binding_statement=self.binding_statement,
+        )
+        if self.binding_id == expected_binding_id:
+            return self
+        raise ValueError("binding_id must match canonical binding payload identity")
+
+
+class RepoObservedAssertionSurface(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    assertion_surface_kind: AssertionSurfaceKind
+    assertion_source_ref: str
+    assertion_summary: str
+
+    @model_validator(mode="after")
+    def _validate_surface(self) -> RepoObservedAssertionSurface:
+        object.__setattr__(
+            self,
+            "assertion_source_ref",
+            _assert_assertion_source_ref(
+                self.assertion_source_ref, field_name="assertion_source_ref"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "assertion_summary",
+            _assert_non_empty_text(self.assertion_summary, field_name="assertion_summary"),
+        )
+        return self
+
+
+def compute_repo_test_intent_entry_id(payload_without_entry_id: dict[str, Any]) -> str:
+    canonical_payload = deepcopy(payload_without_entry_id)
+    canonical_payload.pop("entry_id", None)
+    digest = sha256_canonical_json(canonical_payload)
+    return f"test_intent_entry_{digest[:24]}"
+
+
+class RepoTestIntentEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    entry_id: str
+    test_ref: str
+    test_kind: TestKind
+    guarded_surface_ref: RepoGuardedSurfaceRef
+    claimed_invariant_binding: RepoClaimedInvariantBinding
+    observed_assertion_surface: RepoObservedAssertionSurface
+    invariant_domain: InvariantDomain
+    gating_posture: GatingPosture
+    confidence_posture: ConfidencePosture
+    derivation_posture: ClassificationPosture
+    derivation_method: TestIntentDerivationMethod
+    source_artifact_refs: list[str] = Field(min_length=1)
+    supporting_evidence_refs: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> RepoTestIntentEntry:
+        object.__setattr__(
+            self,
+            "test_ref",
+            _assert_test_ref(self.test_ref, field_name="test_ref"),
+        )
+        object.__setattr__(
+            self,
+            "source_artifact_refs",
+            _assert_sorted_unique(
+                [
+                    _assert_repo_rel_path(path, field_name="source_artifact_refs")
+                    for path in self.source_artifact_refs
+                ],
+                field_name="source_artifact_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_evidence_refs",
+            _assert_sorted_unique(
+                self.supporting_evidence_refs, field_name="supporting_evidence_refs"
+            ),
+        )
+        test_source_path = _test_source_path_from_test_ref(self.test_ref)
+        if test_source_path not in self.source_artifact_refs:
+            raise ValueError("source_artifact_refs must include the test source path")
+        assertion_source_path = self.observed_assertion_surface.assertion_source_ref[
+            len("assertion:") :
+        ].split("#L", 1)[0]
+        if assertion_source_path not in self.source_artifact_refs:
+            raise ValueError(
+                "observed_assertion_surface assertion_source_ref must resolve inside "
+                "source_artifact_refs"
+            )
+        if self.derivation_method == "test_name_convention" and self.confidence_posture not in {
+            "low",
+            "medium",
+        }:
+            raise ValueError(
+                "test_name_convention derivation may not carry high, adjudicated, or settled "
+                "confidence_posture"
+            )
+        if self.derivation_method == "bounded_inference_rule" and self.confidence_posture not in {
+            "low",
+            "medium",
+        }:
+            raise ValueError(
+                "bounded_inference_rule derivation may not carry high, adjudicated, or settled "
+                "confidence_posture"
+            )
+        if self.confidence_posture == "settled" and self.derivation_posture != "settled":
+            raise ValueError("settled confidence_posture requires settled derivation_posture")
+        if self.confidence_posture == "adjudicated" and self.derivation_posture not in {
+            "adjudicated",
+            "settled",
+        }:
+            raise ValueError(
+                "adjudicated confidence_posture requires adjudicated or settled derivation_posture"
+            )
+        payload_without_id = self.model_dump(mode="json")
+        payload_without_id.pop("entry_id", None)
+        expected_id = compute_repo_test_intent_entry_id(payload_without_id)
+        if self.entry_id != expected_id:
+            raise ValueError("entry_id must match canonical full payload hash identity")
+        return self
+
+
+class RepoTestIntentMatrix(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, protected_namespaces=())
+
+    schema: Literal["repo_test_intent_matrix@1"] = REPO_TEST_INTENT_MATRIX_SCHEMA
+    repo_test_intent_matrix_id: str
+    repo_snapshot_id: str
+    repo_snapshot_hash: str
+    snapshot_validity_posture: SnapshotValidityPosture
+    test_source_set: list[str] = Field(min_length=1)
+    test_source_set_hash: str
+    bound_symbol_catalog_ref: str
+    bound_dependency_graph_ref: str
+    matrix_scope: str
+    extraction_posture: ClassificationPosture
+    extraction_method: TestIntentDerivationMethod
+    test_intent_entries: list[RepoTestIntentEntry] = Field(min_length=1)
+    evidence_refs: list[RepoDescriptionEvidenceRef] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_matrix(self) -> RepoTestIntentMatrix:
+        object.__setattr__(
+            self,
+            "repo_test_intent_matrix_id",
+            _assert_non_empty_text(
+                self.repo_test_intent_matrix_id, field_name="repo_test_intent_matrix_id"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_id",
+            _assert_non_empty_text(self.repo_snapshot_id, field_name="repo_snapshot_id"),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_hash",
+            _assert_hash(self.repo_snapshot_hash, field_name="repo_snapshot_hash"),
+        )
+        object.__setattr__(
+            self,
+            "test_source_set",
+            _assert_sorted_unique(
+                [
+                    _assert_repo_rel_path(path, field_name="test_source_set")
+                    for path in self.test_source_set
+                ],
+                field_name="test_source_set",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "test_source_set_hash",
+            _assert_hash(self.test_source_set_hash, field_name="test_source_set_hash"),
+        )
+        object.__setattr__(
+            self,
+            "bound_symbol_catalog_ref",
+            _assert_non_empty_text(
+                self.bound_symbol_catalog_ref, field_name="bound_symbol_catalog_ref"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "bound_dependency_graph_ref",
+            _assert_non_empty_text(
+                self.bound_dependency_graph_ref, field_name="bound_dependency_graph_ref"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "matrix_scope",
+            _assert_no_forbidden_v45d_matrix_scope_terms(
+                self.matrix_scope, field_name="matrix_scope"
+            ),
+        )
+
+        evidence_by_ref = {entry.evidence_ref: entry for entry in self.evidence_refs}
+        if len(evidence_by_ref) != len(self.evidence_refs):
+            raise ValueError("evidence_refs evidence_ref values must be unique")
+        if [entry.evidence_ref for entry in self.evidence_refs] != sorted(evidence_by_ref):
+            raise ValueError("evidence_refs must be sorted lexicographically by evidence_ref")
+
+        entries_by_id = {entry.entry_id: entry for entry in self.test_intent_entries}
+        if len(entries_by_id) != len(self.test_intent_entries):
+            raise ValueError("test_intent_entries entry_id values must be unique")
+        if [entry.entry_id for entry in self.test_intent_entries] != sorted(entries_by_id):
+            raise ValueError("test_intent_entries must be sorted lexicographically by entry_id")
+
+        source_set_membership = set(self.test_source_set)
+        for entry in self.test_intent_entries:
+            test_source_path = _test_source_path_from_test_ref(entry.test_ref)
+            if test_source_path not in source_set_membership:
+                raise ValueError("test_ref must resolve inside test_source_set")
+            if any(ref not in source_set_membership for ref in entry.source_artifact_refs):
+                raise ValueError(
+                    "test_intent_entries source_artifact_refs must resolve inside "
+                    "test_source_set"
+                )
+            assertion_source_path = entry.observed_assertion_surface.assertion_source_ref[
+                len("assertion:") :
+            ].split("#L", 1)[0]
+            if assertion_source_path not in source_set_membership:
+                raise ValueError(
+                    "observed_assertion_surface assertion_source_ref must resolve inside "
+                    "test_source_set"
+                )
+            row_evidence = [evidence_by_ref.get(ref) for ref in entry.supporting_evidence_refs]
+            if any(item is None for item in row_evidence):
+                raise ValueError(
+                    "test_intent_entries supporting_evidence_refs must reference top-level "
+                    "evidence_refs"
+                )
+
+        payload_without_id = self.model_dump(mode="json")
+        payload_without_id.pop("repo_test_intent_matrix_id", None)
+        expected_id = compute_repo_test_intent_matrix_id(payload_without_id)
+        if self.repo_test_intent_matrix_id != expected_id:
+            raise ValueError(
+                "repo_test_intent_matrix_id must match canonical full payload hash identity"
+            )
+        return self
+
+
 def validate_repo_symbol_catalog_dependency_graph_pair(
     *,
     symbol_catalog_payload: dict[str, Any],
@@ -1186,6 +1583,54 @@ def validate_repo_symbol_catalog_dependency_graph_pair(
                 "dependency edge to_ref must resolve against internal module boundaries"
             )
     return symbol_catalog, dependency_graph
+
+
+def validate_repo_test_intent_matrix_against_v45b(
+    *,
+    test_intent_matrix_payload: dict[str, Any],
+    symbol_catalog_payload: dict[str, Any],
+    dependency_graph_payload: dict[str, Any],
+) -> tuple[RepoTestIntentMatrix, RepoSymbolCatalog, RepoDependencyGraph]:
+    matrix = RepoTestIntentMatrix.model_validate(test_intent_matrix_payload)
+    symbol_catalog, dependency_graph = validate_repo_symbol_catalog_dependency_graph_pair(
+        symbol_catalog_payload=symbol_catalog_payload,
+        dependency_graph_payload=dependency_graph_payload,
+    )
+    if matrix.bound_symbol_catalog_ref != symbol_catalog.repo_symbol_catalog_id:
+        raise ValueError("repo_test_intent_matrix must bind the provided repo_symbol_catalog")
+    if matrix.bound_dependency_graph_ref != dependency_graph.repo_dependency_graph_id:
+        raise ValueError("repo_test_intent_matrix must bind the provided repo_dependency_graph")
+    if matrix.repo_snapshot_id != symbol_catalog.repo_snapshot_id:
+        raise ValueError("repo_test_intent_matrix must share repo_snapshot_id with V45-B")
+    if matrix.repo_snapshot_hash != symbol_catalog.repo_snapshot_hash:
+        raise ValueError("repo_test_intent_matrix must share repo_snapshot_hash with V45-B")
+    if matrix.snapshot_validity_posture != symbol_catalog.snapshot_validity_posture:
+        raise ValueError(
+            "repo_test_intent_matrix must share snapshot_validity_posture with V45-B"
+        )
+    symbol_ids = {entry.symbol_id for entry in symbol_catalog.symbol_entries}
+    module_boundary_refs = {
+        compute_internal_module_boundary_ref(module_path=path) for path in symbol_catalog.source_set
+    }
+    for entry in matrix.test_intent_entries:
+        guarded_ref = entry.guarded_surface_ref
+        if (
+            guarded_ref.guarded_surface_ref_kind == "internal_symbol"
+            and guarded_ref.guarded_surface_ref_value not in symbol_ids
+        ):
+            raise ValueError(
+                "repo_test_intent_matrix guarded_surface_ref must resolve against "
+                "repo_symbol_catalog"
+            )
+        if (
+            guarded_ref.guarded_surface_ref_kind == "internal_module_boundary"
+            and guarded_ref.guarded_surface_ref_value not in module_boundary_refs
+        ):
+            raise ValueError(
+                "repo_test_intent_matrix guarded_surface_ref must resolve against "
+                "internal module boundaries"
+            )
+    return matrix, symbol_catalog, dependency_graph
 
 
 class RepoArcDependencyRegisterEntryV1(BaseModel):
@@ -1781,6 +2226,27 @@ def materialize_repo_dependency_graph_payload(
 
 def canonicalize_repo_dependency_graph_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return RepoDependencyGraph.model_validate(payload).model_dump(mode="json")
+
+
+def compute_repo_test_intent_matrix_id(payload_without_id: dict[str, Any]) -> str:
+    canonical_payload = deepcopy(payload_without_id)
+    canonical_payload.setdefault("schema", REPO_TEST_INTENT_MATRIX_SCHEMA)
+    canonical_payload.pop("repo_test_intent_matrix_id", None)
+    digest = sha256_canonical_json(canonical_payload)
+    return f"repo_test_intent_matrix_{digest[:24]}"
+
+
+def materialize_repo_test_intent_matrix_payload(
+    payload_without_matrix_id: dict[str, Any],
+) -> dict[str, Any]:
+    payload = deepcopy(payload_without_matrix_id)
+    payload.setdefault("schema", REPO_TEST_INTENT_MATRIX_SCHEMA)
+    payload["repo_test_intent_matrix_id"] = compute_repo_test_intent_matrix_id(payload)
+    return RepoTestIntentMatrix.model_validate(payload).model_dump(mode="json")
+
+
+def canonicalize_repo_test_intent_matrix_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    return RepoTestIntentMatrix.model_validate(payload).model_dump(mode="json")
 
 
 def compute_repo_arc_dependency_register_v1_id(payload_without_id: dict[str, Any]) -> str:
