@@ -7,6 +7,13 @@ from typing import Any
 
 from adeu_ir.repo import repo_root
 
+from .anm_models import (
+    CheckerFactBundle,
+    D1NormalizedIR,
+    PolicyEvaluationResultSet,
+    PolicyObligationLedger,
+    PredicateContractsBootstrap,
+)
 from .models import AdeuCommitmentsIR
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\\\")
@@ -61,19 +68,56 @@ def _assert_no_absolute_path_material(
 
 def main() -> None:
     root = repo_root(anchor=Path(__file__))
-    schema = AdeuCommitmentsIR.model_json_schema(by_alias=True)
-    _assert_no_absolute_path_material(schema, repo_root_path=root)
+    schema_outputs = [
+        (
+            AdeuCommitmentsIR,
+            root / "packages" / "adeu_commitments_ir" / "schema" / "adeu_commitments_ir.v0_1.json",
+            root / "spec" / "adeu_commitments_ir.schema.json",
+        ),
+        (
+            D1NormalizedIR,
+            root / "packages" / "adeu_commitments_ir" / "schema" / "d1_normalized_ir.v1.json",
+            root / "spec" / "d1_normalized_ir.schema.json",
+        ),
+        (
+            PredicateContractsBootstrap,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "predicate_contracts_bootstrap.v1.json",
+            root / "spec" / "predicate_contracts_bootstrap.schema.json",
+        ),
+        (
+            CheckerFactBundle,
+            root / "packages" / "adeu_commitments_ir" / "schema" / "checker_fact_bundle.v1.json",
+            root / "spec" / "checker_fact_bundle.schema.json",
+        ),
+        (
+            PolicyEvaluationResultSet,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "policy_evaluation_result_set.v1.json",
+            root / "spec" / "policy_evaluation_result_set.schema.json",
+        ),
+        (
+            PolicyObligationLedger,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "policy_obligation_ledger.v1.json",
+            root / "spec" / "policy_obligation_ledger.schema.json",
+        ),
+    ]
 
-    authoritative_path = (
-        root
-        / "packages"
-        / "adeu_commitments_ir"
-        / "schema"
-        / "adeu_commitments_ir.v0_1.json"
-    )
-    mirror_path = root / "spec" / "adeu_commitments_ir.schema.json"
-    _write_schema(authoritative_path, schema)
-    _write_schema(mirror_path, schema)
+    for model, authoritative_path, mirror_path in schema_outputs:
+        schema = model.model_json_schema(by_alias=True)
+        _assert_no_absolute_path_material(schema, repo_root_path=root)
+        _write_schema(authoritative_path, schema)
+        _write_schema(mirror_path, schema)
 
 
 if __name__ == "__main__":

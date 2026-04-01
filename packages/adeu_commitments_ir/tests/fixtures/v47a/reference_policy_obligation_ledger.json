@@ -1,0 +1,75 @@
+{
+  "ledger_id": "ledger:v47a-reference",
+  "result_set_refs": [
+    "result-set:v47a-reference"
+  ],
+  "rows": [
+    {
+      "clause_ref": "artifact_governance:identity_explicit",
+      "clause_semantic_hash": "fc0ac1269b46ad837f84bd1af9eb94b2e3626aec2867377cd07007cef3ab1c6f",
+      "first_seen_run": "result-set:v47a-reference",
+      "latest_applicability": "active",
+      "latest_effective_verdict": "pass",
+      "latest_observed_outcome": "pass",
+      "latest_result_run": "result-set:v47a-reference",
+      "ledger_state": "satisfied",
+      "obligation_id": "obligation:07a6fbe8cc0a",
+      "subject_ref": "artifact:alpha",
+      "updated_at": "result-set:v47a-reference"
+    },
+    {
+      "clause_ref": "artifact_governance:identity",
+      "clause_semantic_hash": "d6d67a4a321bbf843d1aee7dadd504ac1c33b34787139872a6d1a54d3cf8b2dd",
+      "first_seen_run": "result-set:v47a-reference",
+      "latest_applicability": "active",
+      "latest_effective_verdict": "pass",
+      "latest_observed_outcome": "pass",
+      "latest_result_run": "result-set:v47a-reference",
+      "ledger_state": "satisfied",
+      "obligation_id": "obligation:11008ad3ed92",
+      "subject_ref": "artifact:alpha",
+      "updated_at": "result-set:v47a-reference"
+    },
+    {
+      "clause_ref": "artifact_governance:no_override",
+      "clause_semantic_hash": "23d4bd2a485762cfd68efd54937518180cbf72f1a128a6afbb121d34a44a2e96",
+      "first_seen_run": "result-set:v47a-reference",
+      "latest_applicability": "active",
+      "latest_effective_verdict": "pass",
+      "latest_observed_outcome": "fail",
+      "latest_result_run": "result-set:v47a-reference",
+      "ledger_state": "satisfied",
+      "obligation_id": "obligation:1f0f865b5a14",
+      "subject_ref": "artifact:alpha",
+      "updated_at": "result-set:v47a-reference"
+    },
+    {
+      "clause_ref": "artifact_governance:guarded",
+      "clause_semantic_hash": "68a3fa1e3fb95e464e536a2b6df6d55e5a271b03e3bfad0d3b9f0edfbb724bc7",
+      "first_seen_run": "result-set:v47a-reference",
+      "latest_applicability": "gated_off",
+      "latest_effective_verdict": "gated_off",
+      "latest_observed_outcome": "not_evaluated",
+      "latest_result_run": "result-set:v47a-reference",
+      "ledger_state": "gated_off",
+      "obligation_id": "obligation:2f7806e03d82",
+      "subject_ref": "artifact:alpha",
+      "updated_at": "result-set:v47a-reference"
+    },
+    {
+      "clause_ref": "artifact_governance:carrier",
+      "clause_semantic_hash": "abbb2160585260d8843bc00ff389da26aa9bb940fb1f404928451e653386d342",
+      "first_seen_run": "result-set:v47a-reference",
+      "latest_applicability": "active",
+      "latest_effective_verdict": "pass",
+      "latest_observed_outcome": "pass",
+      "latest_result_run": "result-set:v47a-reference",
+      "ledger_state": "satisfied",
+      "obligation_id": "obligation:3e302015405b",
+      "subject_ref": "artifact:alpha",
+      "updated_at": "result-set:v47a-reference"
+    }
+  ],
+  "schema": "policy_obligation_ledger@1",
+  "scope_snapshot": "snapshot:v47a-reference"
+}

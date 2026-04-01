@@ -1,0 +1,168 @@
+{
+  "$defs": {
+    "PolicyObligationLedgerRow": {
+      "additionalProperties": false,
+      "properties": {
+        "clause_ref": {
+          "minLength": 1,
+          "title": "Clause Ref",
+          "type": "string"
+        },
+        "clause_semantic_hash": {
+          "minLength": 1,
+          "title": "Clause Semantic Hash",
+          "type": "string"
+        },
+        "deferral_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deferral Ref"
+        },
+        "first_seen_run": {
+          "minLength": 1,
+          "title": "First Seen Run",
+          "type": "string"
+        },
+        "latest_applicability": {
+          "enum": [
+            "active",
+            "gated_off",
+            "excepted"
+          ],
+          "title": "Latest Applicability",
+          "type": "string"
+        },
+        "latest_effective_verdict": {
+          "enum": [
+            "pass",
+            "fail",
+            "waived",
+            "deferred",
+            "gated_off",
+            "unknown_evidence",
+            "unknown_resolution"
+          ],
+          "title": "Latest Effective Verdict",
+          "type": "string"
+        },
+        "latest_observed_outcome": {
+          "enum": [
+            "not_evaluated",
+            "pass",
+            "fail",
+            "unknown_evidence",
+            "unknown_resolution"
+          ],
+          "title": "Latest Observed Outcome",
+          "type": "string"
+        },
+        "latest_result_run": {
+          "minLength": 1,
+          "title": "Latest Result Run",
+          "type": "string"
+        },
+        "ledger_state": {
+          "enum": [
+            "satisfied",
+            "violated",
+            "waived",
+            "deferred",
+            "gated_off",
+            "blocked_unknown_evidence",
+            "blocked_unknown_resolution"
+          ],
+          "title": "Ledger State",
+          "type": "string"
+        },
+        "obligation_id": {
+          "minLength": 1,
+          "title": "Obligation Id",
+          "type": "string"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        },
+        "updated_at": {
+          "minLength": 1,
+          "title": "Updated At",
+          "type": "string"
+        },
+        "waiver_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Waiver Ref"
+        }
+      },
+      "required": [
+        "obligation_id",
+        "clause_ref",
+        "clause_semantic_hash",
+        "subject_ref",
+        "latest_applicability",
+        "latest_observed_outcome",
+        "latest_effective_verdict",
+        "ledger_state",
+        "first_seen_run",
+        "latest_result_run",
+        "updated_at"
+      ],
+      "title": "PolicyObligationLedgerRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "ledger_id": {
+      "minLength": 1,
+      "title": "Ledger Id",
+      "type": "string"
+    },
+    "result_set_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Result Set Refs",
+      "type": "array"
+    },
+    "rows": {
+      "items": {
+        "$ref": "#/$defs/PolicyObligationLedgerRow"
+      },
+      "title": "Rows",
+      "type": "array"
+    },
+    "schema": {
+      "const": "policy_obligation_ledger@1",
+      "default": "policy_obligation_ledger@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_snapshot": {
+      "minLength": 1,
+      "title": "Scope Snapshot",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ledger_id",
+    "scope_snapshot"
+  ],
+  "title": "PolicyObligationLedger",
+  "type": "object"
+}

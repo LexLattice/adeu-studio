@@ -181,9 +181,10 @@ Planning relationship:
 - Recommended next path for this branch:
   - `V47-A`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+106_placeholder`
+  - `vNext+106`
 - Default path selection for this branch:
-  - select `V47-A` as the bounded starter
+  - select `V47-A` as the next default candidate
+  - treat that default as the bounded starter
 
 This family/path recommendation is branch-local to the `v30` planning surface.
 
@@ -535,7 +536,7 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
     "V47-E"
   ],
   "default_next_arc_candidate_for_this_branch": "V47-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+106_placeholder",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+106",
   "family_architecture_doc": "docs/DRAFT_AUTHORITATIVE_NORMATIVE_MARKDOWN_SPEC_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_D1_DIALECT_SPEC_v0.md",

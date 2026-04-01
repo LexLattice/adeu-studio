@@ -1,0 +1,83 @@
+{
+  "clauses": [
+    {
+      "assertion_kind": "exactly_one",
+      "clause_label": "carrier",
+      "clause_ref": "artifact_governance:carrier",
+      "expected_count": 1,
+      "modal": "MUST",
+      "normalized_predicate_id": "cardinality_eq",
+      "origin_block_ref": "artifact_governance",
+      "qualifiers": [],
+      "subject_selector_ref": "artifact_governance:selector",
+      "target_path": "primary_carrier_class"
+    },
+    {
+      "assertion_kind": "required",
+      "clause_label": "guarded",
+      "clause_ref": "artifact_governance:guarded",
+      "modal": "MUST",
+      "normalized_predicate_id": "present",
+      "origin_block_ref": "artifact_governance",
+      "qualifiers": [
+        {
+          "normalized_predicate_id": "present",
+          "qualifier_kind": "only_if",
+          "target_path": "gate.enabled"
+        }
+      ],
+      "subject_selector_ref": "artifact_governance:selector",
+      "target_path": "release.label"
+    },
+    {
+      "assertion_kind": "required",
+      "clause_label": "identity",
+      "clause_ref": "artifact_governance:identity",
+      "modal": "MUST",
+      "normalized_predicate_id": "present",
+      "origin_block_ref": "artifact_governance",
+      "qualifiers": [],
+      "subject_selector_ref": "artifact_governance:selector",
+      "target_path": "snapshot.identity"
+    },
+    {
+      "assertion_kind": "explicit",
+      "clause_label": "identity_explicit",
+      "clause_ref": "artifact_governance:identity_explicit",
+      "modal": "MUST",
+      "normalized_predicate_id": "explicit",
+      "origin_block_ref": "artifact_governance",
+      "qualifiers": [],
+      "subject_selector_ref": "artifact_governance:selector",
+      "target_path": "snapshot.identity"
+    },
+    {
+      "assertion_kind": "comparison",
+      "clause_label": "no_override",
+      "clause_ref": "artifact_governance:no_override",
+      "expected_scalar": true,
+      "modal": "MUST_NOT",
+      "normalized_predicate_id": "eq",
+      "origin_block_ref": "artifact_governance",
+      "qualifiers": [],
+      "subject_selector_ref": "artifact_governance:selector",
+      "target_path": "lexical_naming.override_higher_precedence"
+    }
+  ],
+  "d1_ir_id": "d1-ir:6357356a5903",
+  "schema": "d1_normalized_ir@1",
+  "selector_refs": [
+    {
+      "selector_kind": "bootstrap_string_selector",
+      "selector_ref": "artifact_governance:selector",
+      "selector_source_text": "artifact.emitted[*]"
+    }
+  ],
+  "selector_zero_match_policy": "allow_empty_with_notice",
+  "semantic_hash": "6357356a590373a72e9ff6b52aabfc57ae1934abf48e4b7ba0357473c1444745",
+  "source_block_refs": [
+    "artifact_governance"
+  ],
+  "source_doc_ref": "packages/adeu_semantic_source/tests/fixtures/v47a/reference_policy.adeu.md",
+  "source_doc_sha256": "8a2b7fb208ec17a7a35e966654e5e1536dba55fa06581f0c767210956d2b8006"
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "policy_evaluation_result_set@1",
+  "result_set_id": "result-set:bad-missing-outcome",
+  "scope_snapshot": "snapshot:v47a-reference",
+  "d_ir_ref": "d1-ir:bad",
+  "fact_bundle_ref": "fact-bundle:v47a-reference",
+  "predicate_contract_ref": "predicate-contracts:bootstrap",
+  "results": [
+    {
+      "applicability": "active",
+      "clause_ref": "artifact_governance:identity",
+      "clause_semantic_hash": "hash-identity",
+      "effective_verdict": "pass",
+      "message": "missing observed outcome",
+      "result_id": "result:bad",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:alpha",
+      "supporting_contract_refs": [
+        "present"
+      ],
+      "supporting_fact_refs": [
+        "fact:identity"
+      ]
+    }
+  ]
+}

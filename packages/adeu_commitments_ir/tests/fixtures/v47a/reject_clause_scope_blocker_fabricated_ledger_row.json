@@ -1,0 +1,23 @@
+{
+  "schema": "policy_obligation_ledger@1",
+  "ledger_id": "ledger:bad-fabricated",
+  "scope_snapshot": "snapshot:v47a-reference",
+  "result_set_refs": [
+    "result-set:blocker"
+  ],
+  "rows": [
+    {
+      "clause_ref": "artifact_governance:identity",
+      "clause_semantic_hash": "hash-identity",
+      "first_seen_run": "result-set:blocker",
+      "latest_applicability": "active",
+      "latest_effective_verdict": "unknown_resolution",
+      "latest_observed_outcome": "unknown_resolution",
+      "latest_result_run": "result-set:blocker",
+      "ledger_state": "blocked_unknown_resolution",
+      "obligation_id": "obligation:bad",
+      "subject_ref": "",
+      "updated_at": "result-set:blocker"
+    }
+  ]
+}
