@@ -3271,7 +3271,7 @@
     "extraction_method": "ast_parse",
     "extraction_posture": "derived_deterministically",
     "graph_scope": "v45b-bounded-python-symbol-catalog-and-dependency-graph-over-adeu_repo_description",
-    "repo_dependency_graph_id": "repo_dependency_graph_9bad78c02660609c062c29b9",
+    "repo_dependency_graph_id": "repo_dependency_graph_b678206047c5fb40a22f402e",
     "repo_snapshot_hash": "1111111111111111111111111111111111111111111111111111111111111111",
     "repo_snapshot_id": "repo_snapshot_111111111111111111111111",
     "schema": "repo_dependency_graph@1",
@@ -3282,7 +3282,7 @@
       "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
       "packages/adeu_repo_description/src/adeu_repo_description/models.py"
     ],
-    "source_set_hash": "c1bb0422859b4efde3ac48f8b8e891690b01199f1d6b93bdfddf616f4407292a"
+    "source_set_hash": "2190fc042b37345be63cbe65fe585af415a800009333bacec576440f53e632f0"
   },
   "entity_catalog": {
     "catalog_scope": "schema-visible-entity-catalog-over-bounded-repo-snapshot",
@@ -3544,11 +3544,11 @@
     "snapshot_validity_posture": "snapshot_bound_current"
   },
   "optimization_register": {
-    "bound_dependency_graph_ref": "repo_dependency_graph_9bad78c02660609c062c29b9",
+    "bound_dependency_graph_ref": "repo_dependency_graph_b678206047c5fb40a22f402e",
     "bound_entity_catalog_ref": "repo_entity_catalog_4f3bea1652190f3266973fef",
     "bound_schema_family_registry_ref": "repo_schema_family_registry_0295d9730ab7a2c940d7b56d",
-    "bound_symbol_catalog_ref": "repo_symbol_catalog_db0f6ad37ac5d35138fc778c",
-    "bound_test_intent_matrix_ref": "repo_test_intent_matrix_107874da73465385d9f0fdc8",
+    "bound_symbol_catalog_ref": "repo_symbol_catalog_cac4d23b4e9b1d23becdfe81",
+    "bound_test_intent_matrix_ref": "repo_test_intent_matrix_54469ac1cf3db8f48ad52b7e",
     "evidence_refs": [
       {
         "evidence_kind": "observed_anchor_tuple_evidence",
@@ -3611,8 +3611,8 @@
         "compression_axis": "surface_compression",
         "derivation_method": "cross_artifact_join",
         "derivation_posture": "derived_deterministically",
-        "descriptive_finding_summary": "packages/adeu_repo_description/src/adeu_repo_description/extract.py concentrates 2451 lines, 84 symbols, 36 dependency edges, and 7 test-intent bindings in the current repo-description baseline.",
-        "entry_id": "optimization_entry_4323973334350fdd63f0df0d",
+        "descriptive_finding_summary": "packages/adeu_repo_description/src/adeu_repo_description/extract.py concentrates 2455 lines, 86 symbols, 36 dependency edges, and 7 test-intent bindings in the current repo-description baseline.",
+        "entry_id": "optimization_entry_22a7347fceac46f8561bff1c",
         "finding_scope": {
           "cluster_member_refs": [],
           "finding_scope_kind": "file_surface",
@@ -3726,9 +3726,9 @@
       }
     ],
     "register_scope": "v45e-bounded-optimization-register-over-adeu_repo_description-surfaces",
-    "repo_optimization_register_id": "repo_optimization_register_64377859f9a0c98d993e18fc",
-    "repo_snapshot_hash": "c1bb0422859b4efde3ac48f8b8e891690b01199f1d6b93bdfddf616f4407292a",
-    "repo_snapshot_id": "repo_snapshot_c1bb0422859b4efde3ac48f8",
+    "repo_optimization_register_id": "repo_optimization_register_8fc78eab16c539fd1229716e",
+    "repo_snapshot_hash": "2190fc042b37345be63cbe65fe585af415a800009333bacec576440f53e632f0",
+    "repo_snapshot_id": "repo_snapshot_2190fc042b37345be63cbe65",
     "schema": "repo_optimization_register@1",
     "snapshot_validity_posture": "snapshot_bound_current",
     "source_set": [
@@ -3738,7 +3738,7 @@
       "packages/adeu_repo_description/src/adeu_repo_description/models.py",
       "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
     ],
-    "source_set_hash": "11414d52623216475ef84a000d0c1a1f2a22b71befcb9416a1fa3ed180745c99"
+    "source_set_hash": "6a5f8461403dc3309fe2852f7a4ccea7bce41fab5a650479e8b32a1e5a5917b9"
   },
   "schema_family_registry": {
     "classification_policy_hash": "6b55833c30f7628c0c623ba6b9c8d0a798d5b1e39c0e572b5118804b36ab9f8c",
@@ -8338,7 +8338,7 @@
     "graph_scope": "v45b-bounded-python-symbol-catalog-and-dependency-graph-over-adeu_repo_description",
     "repo_snapshot_hash": "1111111111111111111111111111111111111111111111111111111111111111",
     "repo_snapshot_id": "repo_snapshot_111111111111111111111111",
-    "repo_symbol_catalog_id": "repo_symbol_catalog_db0f6ad37ac5d35138fc778c",
+    "repo_symbol_catalog_id": "repo_symbol_catalog_cac4d23b4e9b1d23becdfe81",
     "schema": "repo_symbol_catalog@1",
     "snapshot_validity_posture": "snapshot_bound_current",
     "source_set": [
@@ -8347,7 +8347,7 @@
       "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
       "packages/adeu_repo_description/src/adeu_repo_description/models.py"
     ],
-    "source_set_hash": "c1bb0422859b4efde3ac48f8b8e891690b01199f1d6b93bdfddf616f4407292a",
+    "source_set_hash": "2190fc042b37345be63cbe65fe585af415a800009333bacec576440f53e632f0",
     "symbol_entries": [
       {
         "module_path": "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
@@ -8529,6 +8529,20 @@
           "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
         ],
         "symbol_id": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:_DEFAULT_V45E_SOURCE_PATHS:attribute",
+        "symbol_kind": "attribute"
+      },
+      {
+        "module_path": "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+        "qualname": "_V45C_V102_REFERENCE_FIXTURE_PATH",
+        "role_classification_method": "ast_signature",
+        "role_classification_posture": "derived_deterministically",
+        "source_artifact_refs": [
+          "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+        ],
+        "supporting_evidence_refs": [
+          "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+        ],
+        "symbol_id": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:_V45C_V102_REFERENCE_FIXTURE_PATH:attribute",
         "symbol_kind": "attribute"
       },
       {
@@ -9145,6 +9159,20 @@
           "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
         ],
         "symbol_id": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:_lineage_overlay:function",
+        "symbol_kind": "function"
+      },
+      {
+        "module_path": "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+        "qualname": "_load_historical_v45c_v102_reference",
+        "role_classification_method": "ast_signature",
+        "role_classification_posture": "derived_deterministically",
+        "source_artifact_refs": [
+          "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+        ],
+        "supporting_evidence_refs": [
+          "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+        ],
+        "symbol_id": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:_load_historical_v45c_v102_reference:function",
         "symbol_kind": "function"
       },
       {
@@ -15688,8 +15716,8 @@
     ]
   },
   "test_intent_matrix": {
-    "bound_dependency_graph_ref": "repo_dependency_graph_9bad78c02660609c062c29b9",
-    "bound_symbol_catalog_ref": "repo_symbol_catalog_db0f6ad37ac5d35138fc778c",
+    "bound_dependency_graph_ref": "repo_dependency_graph_b678206047c5fb40a22f402e",
+    "bound_symbol_catalog_ref": "repo_symbol_catalog_cac4d23b4e9b1d23becdfe81",
     "evidence_refs": [
       {
         "evidence_kind": "observed_anchor_tuple_evidence",
@@ -15717,7 +15745,7 @@
     "matrix_scope": "v45d-bounded-python-test-intent-matrix-over-adeu_repo_description-tests",
     "repo_snapshot_hash": "1111111111111111111111111111111111111111111111111111111111111111",
     "repo_snapshot_id": "repo_snapshot_111111111111111111111111",
-    "repo_test_intent_matrix_id": "repo_test_intent_matrix_107874da73465385d9f0fdc8",
+    "repo_test_intent_matrix_id": "repo_test_intent_matrix_54469ac1cf3db8f48ad52b7e",
     "schema": "repo_test_intent_matrix@1",
     "snapshot_validity_posture": "snapshot_bound_current",
     "test_intent_entries": [

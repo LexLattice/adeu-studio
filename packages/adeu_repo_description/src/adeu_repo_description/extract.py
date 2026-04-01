@@ -71,6 +71,10 @@ _DEFAULT_V45E_SOURCE_PATHS: tuple[str, ...] = (
     "packages/adeu_repo_description/src/adeu_repo_description/models.py",
     "packages/adeu_repo_description/tests/test_repo_description_v45b.py",
 )
+_V45C_V102_REFERENCE_FIXTURE_PATH = (
+    "apps/api/fixtures/repo_description/vnext_plus102/"
+    "repo_arc_dependency_register_v102_reference.json"
+)
 
 
 def _assert_repo_rel_path(value: str, *, field_name: str) -> str:
@@ -270,6 +274,14 @@ def _default_v45d_source_paths() -> list[str]:
 
 def _default_v45e_source_paths() -> list[str]:
     return list(_DEFAULT_V45E_SOURCE_PATHS)
+
+
+def _load_historical_v45c_v102_reference(*, root: Path) -> dict[str, Any]:
+    # V45-E binds V45-C as released historical baseline context. Loading the
+    # committed v102 fixture here preserves that explicit historical seam without
+    # re-deriving current planning-sensitive V45-C state inside V45-E extraction.
+    fixture_path = root / _V45C_V102_REFERENCE_FIXTURE_PATH
+    return json.loads(fixture_path.read_text(encoding="utf-8"))
 
 
 def _module_import_path_for_source_path(source_path: str) -> str:
@@ -2189,16 +2201,8 @@ def derive_v45e_repo_optimization_register(
             bound_dependency_graph_payload=bound_dependency_graph_payload,
         )
     if bound_arc_dependency_register_payload is None:
-        bound_arc_dependency_register_payload = json.loads(
-            (
-                root
-                / "apps"
-                / "api"
-                / "fixtures"
-                / "repo_description"
-                / "vnext_plus102"
-                / "repo_arc_dependency_register_v102_reference.json"
-            ).read_text(encoding="utf-8")
+        bound_arc_dependency_register_payload = _load_historical_v45c_v102_reference(
+            root=root
         )
 
     effective_snapshot_validity_posture = snapshot_validity_posture or "snapshot_bound_current"
