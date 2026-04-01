@@ -1,0 +1,10 @@
+{
+  "schema": "v45e_repo_optimization_register_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v104/evidence_inputs/v45e_repo_optimization_register_evidence_v104.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS104.md#v104-continuation-contract-machine-checkable",
+  "merged_pr": "#326",
+  "merge_commit": "864df1c0a1ac675becade0906c6ea16622050513",
+  "repo_optimization_register_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_optimization_register.v1.json",
+  "repo_optimization_register_mirror_schema_path": "spec/repo_optimization_register.schema.json",
+  "accepted_optimization_register_fixture_path": "apps/api/fixtures/repo_description/vnext_plus104/repo_optimization_register_v104_reference.json"
+}
