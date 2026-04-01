@@ -1,0 +1,10 @@
+{
+  "schema": "v45d_repo_test_intent_matrix_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v103/evidence_inputs/v45d_repo_test_intent_matrix_evidence_v103.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS103.md#v103-continuation-contract-machine-checkable",
+  "merged_pr": "#325",
+  "merge_commit": "d54c9d8c8a224aa2161a060e00fa1ce002181e1c",
+  "repo_test_intent_matrix_authoritative_schema_path": "packages/adeu_repo_description/schema/repo_test_intent_matrix.v1.json",
+  "repo_test_intent_matrix_mirror_schema_path": "spec/repo_test_intent_matrix.schema.json",
+  "accepted_test_intent_matrix_fixture_path": "apps/api/fixtures/repo_description/vnext_plus103/repo_test_intent_matrix_v103_reference.json"
+}
