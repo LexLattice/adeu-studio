@@ -13,6 +13,7 @@ REPO_ENTITY_CATALOG_SCHEMA = "repo_entity_catalog@1"
 REPO_SYMBOL_CATALOG_SCHEMA = "repo_symbol_catalog@1"
 REPO_DEPENDENCY_GRAPH_SCHEMA = "repo_dependency_graph@1"
 REPO_TEST_INTENT_MATRIX_SCHEMA = "repo_test_intent_matrix@1"
+REPO_OPTIMIZATION_REGISTER_SCHEMA = "repo_optimization_register@1"
 REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA = "repo_arc_dependency_register@1"
 REPO_ARC_DEPENDENCY_REGISTER_SCHEMA = "repo_arc_dependency_register@2"
 V45A_V99_CONTRACT_SOURCE = (
@@ -32,6 +33,9 @@ V45C_V102_CONTRACT_SOURCE = (
 )
 V45D_V103_CONTRACT_SOURCE = (
     "docs/LOCKED_CONTINUATION_vNEXT_PLUS103.md#v103-continuation-contract-machine-checkable"
+)
+V45E_V104_CONTRACT_SOURCE = (
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS104.md#v104-continuation-contract-machine-checkable"
 )
 V45C_DEPENDENCY_POLICY_REF = (
     "docs/DRAFT_V45_REPO_SELF_DESCRIPTION_DECOMPOSITION_v0.md"
@@ -92,6 +96,47 @@ AssertionSurfaceKind = Literal[
     "equality_assertion",
     "predicate_call_assertion",
     "response_or_status_assertion",
+]
+CompressionAxis = Literal[
+    "structural_compression",
+    "semantic_compression",
+    "governance_compression",
+    "surface_compression",
+]
+OptimizationPosture = Literal[
+    "hotspot",
+    "consolidation_candidate",
+    "justified_monolith",
+    "temporary_concentration",
+    "forbidden_drift_zone",
+]
+SupportBasis = Literal[
+    "duplicate_abstraction_signal",
+    "repeated_law_expression",
+    "cross_surface_invariant_restated",
+    "long_file_or_concentrated_surface",
+    "test_and_dependency_concentration",
+]
+PriorityPosture = Literal["informational_only", "planning_candidate", "adjudication_required"]
+AmendmentEntitlement = Literal["not_authorized_by_this_artifact"]
+OptimizationDerivationMethod = Literal[
+    "descriptive_projection",
+    "bounded_signal_rule",
+    "cross_artifact_join",
+    "adjudicated_policy",
+]
+FindingScopeKind = Literal[
+    "file_surface",
+    "module_surface",
+    "schema_surface",
+    "test_surface",
+    "cross_surface_cluster",
+]
+ClusterMemberRefKind = Literal[
+    "file_surface",
+    "module_surface",
+    "schema_surface",
+    "test_surface",
 ]
 SnapshotValidityPosture = Literal["snapshot_bound_current", "snapshot_bound_historical"]
 PrimaryCarrierClass = Literal[
@@ -175,6 +220,14 @@ _FORBIDDEN_V45D_MATRIX_SCOPE_TERMS: tuple[str, ...] = (
     "automatic_release_gating",
     "automatic_release_authority",
     "automatic_merge_block",
+)
+_FORBIDDEN_V45E_REGISTER_SCOPE_TERMS: tuple[str, ...] = (
+    "refactor_entitlement",
+    "automatic_refactor",
+    "automatic_release_gating",
+    "automatic_release_authority",
+    "automatic_priority",
+    "priority_entitlement",
 )
 
 
@@ -374,6 +427,18 @@ def _assert_no_forbidden_v45d_matrix_scope_terms(value: str, *, field_name: str)
     return normalized
 
 
+def _assert_no_forbidden_v45e_register_scope_terms(value: str, *, field_name: str) -> str:
+    normalized = _assert_no_forbidden_authority_terms(value, field_name=field_name)
+    normalized_tokens = _normalize_for_equality(normalized)
+    for forbidden_term in _FORBIDDEN_V45E_REGISTER_SCOPE_TERMS:
+        if _normalize_for_equality(forbidden_term) in normalized_tokens:
+            raise ValueError(
+                f"{field_name} may not carry refactor, release-gating, priority, scheduling, "
+                "or mutation entitlement claims"
+            )
+    return normalized
+
+
 def compute_symbol_id(*, module_path: str, qualname: str, symbol_kind: SymbolKind) -> str:
     normalized_module_path = _assert_repo_rel_path(module_path, field_name="module_path")
     normalized_qualname = _assert_non_empty_text(qualname, field_name="qualname")
@@ -484,6 +549,41 @@ def _assert_external_dependency_ref(
     if not suffix.strip():
         raise ValueError(f"{field_name} must not be empty after the prefix")
     return normalized
+
+
+def _assert_finding_scope_ref(
+    value: str,
+    *,
+    field_name: str,
+    finding_scope_kind: FindingScopeKind,
+) -> str:
+    normalized = _assert_non_empty_text(value, field_name=field_name)
+    if finding_scope_kind in {"file_surface", "schema_surface", "test_surface"}:
+        return _assert_repo_rel_path(normalized, field_name=field_name)
+    if finding_scope_kind == "module_surface":
+        return _assert_internal_module_boundary_ref(normalized, field_name=field_name)
+    if finding_scope_kind == "cross_surface_cluster":
+        if not normalized.startswith("cluster:"):
+            raise ValueError(f"{field_name} must use the cluster: prefix")
+        cluster_name = normalized[len("cluster:") :]
+        if not cluster_name.strip():
+            raise ValueError(f"{field_name} must not be empty after the cluster: prefix")
+        return normalized
+    raise ValueError(f"unsupported finding_scope_kind: {finding_scope_kind}")
+
+
+def _assert_cluster_member_ref(
+    value: str,
+    *,
+    field_name: str,
+    member_ref_kind: ClusterMemberRefKind,
+) -> str:
+    normalized = _assert_non_empty_text(value, field_name=field_name)
+    if member_ref_kind in {"file_surface", "schema_surface", "test_surface"}:
+        return _assert_repo_rel_path(normalized, field_name=field_name)
+    if member_ref_kind == "module_surface":
+        return _assert_internal_module_boundary_ref(normalized, field_name=field_name)
+    raise ValueError(f"unsupported member_ref_kind: {member_ref_kind}")
 
 
 class RepoDescriptionEvidenceRef(BaseModel):
@@ -1633,6 +1733,410 @@ def validate_repo_test_intent_matrix_against_v45b(
     return matrix, symbol_catalog, dependency_graph
 
 
+class RepoOptimizationClusterMemberRef(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    member_ref_kind: ClusterMemberRefKind
+    member_ref: str
+
+    @model_validator(mode="after")
+    def _validate_member_ref(self) -> RepoOptimizationClusterMemberRef:
+        object.__setattr__(
+            self,
+            "member_ref",
+            _assert_cluster_member_ref(
+                self.member_ref,
+                field_name="member_ref",
+                member_ref_kind=self.member_ref_kind,
+            ),
+        )
+        return self
+
+
+class RepoOptimizationFindingScope(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    finding_scope_kind: FindingScopeKind
+    finding_scope_ref: str
+    cluster_member_refs: list[RepoOptimizationClusterMemberRef] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _validate_scope(self) -> RepoOptimizationFindingScope:
+        object.__setattr__(
+            self,
+            "finding_scope_ref",
+            _assert_finding_scope_ref(
+                self.finding_scope_ref,
+                field_name="finding_scope_ref",
+                finding_scope_kind=self.finding_scope_kind,
+            ),
+        )
+        cluster_members = list(self.cluster_member_refs)
+        if self.finding_scope_kind == "cross_surface_cluster":
+            if len(cluster_members) < 2:
+                raise ValueError(
+                    "cross_surface_cluster finding_scope_kind requires at least two "
+                    "cluster_member_refs"
+                )
+            seen_members: set[tuple[str, str]] = set()
+            for member in cluster_members:
+                member_key = (member.member_ref_kind, member.member_ref)
+                if member_key in seen_members:
+                    raise ValueError("cluster_member_refs must be unique by kind/ref pair")
+                seen_members.add(member_key)
+        elif cluster_members:
+            raise ValueError(
+                "cluster_member_refs are only allowed when finding_scope_kind = "
+                "cross_surface_cluster"
+            )
+        return self
+
+
+def compute_repo_optimization_entry_id(payload_without_entry_id: dict[str, Any]) -> str:
+    canonical_payload = deepcopy(payload_without_entry_id)
+    canonical_payload.pop("entry_id", None)
+    digest = sha256_canonical_json(canonical_payload)
+    return f"optimization_entry_{digest[:24]}"
+
+
+class RepoOptimizationEntry(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    entry_id: str
+    finding_scope: RepoOptimizationFindingScope
+    compression_axis: CompressionAxis
+    optimization_posture: OptimizationPosture
+    support_basis: SupportBasis
+    secondary_compression_axes: list[CompressionAxis] = Field(default_factory=list)
+    secondary_support_basis_tags: list[SupportBasis] = Field(default_factory=list)
+    descriptive_finding_summary: str
+    optimization_candidate_summary: str
+    priority_posture: PriorityPosture
+    amendment_entitlement: AmendmentEntitlement
+    derivation_posture: ClassificationPosture
+    derivation_method: OptimizationDerivationMethod
+    source_artifact_refs: list[str] = Field(min_length=1)
+    supporting_evidence_refs: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_entry(self) -> RepoOptimizationEntry:
+        object.__setattr__(
+            self,
+            "descriptive_finding_summary",
+            _assert_no_forbidden_v45e_register_scope_terms(
+                self.descriptive_finding_summary,
+                field_name="descriptive_finding_summary",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "optimization_candidate_summary",
+            _assert_no_forbidden_v45e_register_scope_terms(
+                self.optimization_candidate_summary,
+                field_name="optimization_candidate_summary",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "source_artifact_refs",
+            _assert_sorted_unique(
+                [
+                    _assert_repo_rel_path(path, field_name="source_artifact_refs")
+                    for path in self.source_artifact_refs
+                ],
+                field_name="source_artifact_refs",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "supporting_evidence_refs",
+            _assert_sorted_unique(
+                self.supporting_evidence_refs, field_name="supporting_evidence_refs"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "secondary_compression_axes",
+            sorted(set(self.secondary_compression_axes)),
+        )
+        object.__setattr__(
+            self,
+            "secondary_support_basis_tags",
+            sorted(set(self.secondary_support_basis_tags)),
+        )
+        if self.compression_axis in self.secondary_compression_axes:
+            raise ValueError("secondary_compression_axes may not repeat compression_axis")
+        if self.support_basis in self.secondary_support_basis_tags:
+            raise ValueError("secondary_support_basis_tags may not repeat support_basis")
+        payload_without_id = self.model_dump(mode="json")
+        payload_without_id.pop("entry_id", None)
+        expected_id = compute_repo_optimization_entry_id(payload_without_id)
+        if self.entry_id != expected_id:
+            raise ValueError("entry_id must match canonical full payload hash identity")
+        return self
+
+
+class RepoOptimizationRegister(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, protected_namespaces=())
+
+    schema: Literal["repo_optimization_register@1"] = REPO_OPTIMIZATION_REGISTER_SCHEMA
+    repo_optimization_register_id: str
+    repo_snapshot_id: str
+    repo_snapshot_hash: str
+    snapshot_validity_posture: SnapshotValidityPosture
+    source_set: list[str] = Field(min_length=1)
+    source_set_hash: str
+    bound_entity_catalog_ref: str
+    bound_schema_family_registry_ref: str
+    bound_symbol_catalog_ref: str
+    bound_dependency_graph_ref: str
+    bound_test_intent_matrix_ref: str
+    register_scope: str
+    extraction_posture: ClassificationPosture
+    extraction_method: OptimizationDerivationMethod
+    optimization_entries: list[RepoOptimizationEntry] = Field(min_length=1)
+    evidence_refs: list[RepoDescriptionEvidenceRef] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_register(self) -> RepoOptimizationRegister:
+        object.__setattr__(
+            self,
+            "repo_optimization_register_id",
+            _assert_non_empty_text(
+                self.repo_optimization_register_id, field_name="repo_optimization_register_id"
+            ),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_id",
+            _assert_non_empty_text(self.repo_snapshot_id, field_name="repo_snapshot_id"),
+        )
+        object.__setattr__(
+            self,
+            "repo_snapshot_hash",
+            _assert_hash(self.repo_snapshot_hash, field_name="repo_snapshot_hash"),
+        )
+        object.__setattr__(
+            self,
+            "source_set",
+            _assert_sorted_unique(
+                [_assert_repo_rel_path(path, field_name="source_set") for path in self.source_set],
+                field_name="source_set",
+            ),
+        )
+        object.__setattr__(
+            self,
+            "source_set_hash",
+            _assert_hash(self.source_set_hash, field_name="source_set_hash"),
+        )
+        for field_name in (
+            "bound_entity_catalog_ref",
+            "bound_schema_family_registry_ref",
+            "bound_symbol_catalog_ref",
+            "bound_dependency_graph_ref",
+            "bound_test_intent_matrix_ref",
+        ):
+            object.__setattr__(
+                self,
+                field_name,
+                _assert_non_empty_text(getattr(self, field_name), field_name=field_name),
+            )
+        object.__setattr__(
+            self,
+            "register_scope",
+            _assert_no_forbidden_v45e_register_scope_terms(
+                self.register_scope, field_name="register_scope"
+            ),
+        )
+
+        evidence_by_ref = {entry.evidence_ref: entry for entry in self.evidence_refs}
+        if len(evidence_by_ref) != len(self.evidence_refs):
+            raise ValueError("evidence_refs evidence_ref values must be unique")
+        if [entry.evidence_ref for entry in self.evidence_refs] != sorted(evidence_by_ref):
+            raise ValueError("evidence_refs must be sorted lexicographically by evidence_ref")
+
+        entries_by_id = {entry.entry_id: entry for entry in self.optimization_entries}
+        if len(entries_by_id) != len(self.optimization_entries):
+            raise ValueError("optimization_entries entry_id values must be unique")
+        if [entry.entry_id for entry in self.optimization_entries] != sorted(entries_by_id):
+            raise ValueError("optimization_entries must be sorted lexicographically by entry_id")
+
+        source_set_membership = set(self.source_set)
+        for entry in self.optimization_entries:
+            if any(ref not in source_set_membership for ref in entry.source_artifact_refs):
+                raise ValueError(
+                    "optimization_entries source_artifact_refs must resolve inside source_set"
+                )
+            row_evidence = [evidence_by_ref.get(ref) for ref in entry.supporting_evidence_refs]
+            if any(item is None for item in row_evidence):
+                raise ValueError(
+                    "optimization_entries supporting_evidence_refs must reference top-level "
+                    "evidence_refs"
+                )
+
+        payload_without_id = self.model_dump(mode="json")
+        payload_without_id.pop("repo_optimization_register_id", None)
+        expected_id = compute_repo_optimization_register_id(payload_without_id)
+        if self.repo_optimization_register_id != expected_id:
+            raise ValueError(
+                "repo_optimization_register_id must match canonical full payload hash identity"
+            )
+        return self
+
+
+def validate_repo_optimization_register_against_v45_baseline(
+    *,
+    optimization_register_payload: dict[str, Any],
+    entity_catalog_payload: dict[str, Any],
+    schema_family_registry_payload: dict[str, Any],
+    symbol_catalog_payload: dict[str, Any],
+    dependency_graph_payload: dict[str, Any],
+    test_intent_matrix_payload: dict[str, Any],
+    arc_dependency_register_payload: dict[str, Any] | None = None,
+) -> tuple[
+    RepoOptimizationRegister,
+    RepoEntityCatalog,
+    RepoSchemaFamilyRegistry,
+    RepoSymbolCatalog,
+    RepoDependencyGraph,
+    RepoTestIntentMatrix,
+]:
+    optimization_register = RepoOptimizationRegister.model_validate(optimization_register_payload)
+    entity_catalog = RepoEntityCatalog.model_validate(entity_catalog_payload)
+    schema_family_registry = RepoSchemaFamilyRegistry.model_validate(schema_family_registry_payload)
+    symbol_catalog, dependency_graph = validate_repo_symbol_catalog_dependency_graph_pair(
+        symbol_catalog_payload=symbol_catalog_payload,
+        dependency_graph_payload=dependency_graph_payload,
+    )
+    test_intent_matrix, _bound_symbol_catalog, _bound_dependency_graph = (
+        validate_repo_test_intent_matrix_against_v45b(
+            test_intent_matrix_payload=test_intent_matrix_payload,
+            symbol_catalog_payload=symbol_catalog_payload,
+            dependency_graph_payload=dependency_graph_payload,
+        )
+    )
+    if arc_dependency_register_payload is not None:
+        arc_dependency_register = RepoArcDependencyRegister.model_validate(
+            arc_dependency_register_payload
+        )
+        if (
+            arc_dependency_register.snapshot_validity_posture
+            != optimization_register.snapshot_validity_posture
+        ):
+            raise ValueError(
+                "repo_optimization_register must share snapshot_validity_posture with V45-C"
+            )
+
+    if optimization_register.bound_entity_catalog_ref != entity_catalog.repo_entity_catalog_id:
+        raise ValueError("repo_optimization_register must bind the provided repo_entity_catalog")
+    if (
+        optimization_register.bound_schema_family_registry_ref
+        != schema_family_registry.schema_family_registry_id
+    ):
+        raise ValueError(
+            "repo_optimization_register must bind the provided repo_schema_family_registry"
+        )
+    if optimization_register.bound_symbol_catalog_ref != symbol_catalog.repo_symbol_catalog_id:
+        raise ValueError("repo_optimization_register must bind the provided repo_symbol_catalog")
+    if (
+        optimization_register.bound_dependency_graph_ref
+        != dependency_graph.repo_dependency_graph_id
+    ):
+        raise ValueError("repo_optimization_register must bind the provided repo_dependency_graph")
+    if (
+        optimization_register.bound_test_intent_matrix_ref
+        != test_intent_matrix.repo_test_intent_matrix_id
+    ):
+        raise ValueError(
+            "repo_optimization_register must bind the provided repo_test_intent_matrix"
+        )
+
+    if optimization_register.repo_snapshot_id != symbol_catalog.repo_snapshot_id:
+        raise ValueError("repo_optimization_register must share repo_snapshot_id with V45-B")
+    if optimization_register.repo_snapshot_hash != symbol_catalog.repo_snapshot_hash:
+        raise ValueError("repo_optimization_register must share repo_snapshot_hash with V45-B")
+    if optimization_register.snapshot_validity_posture != symbol_catalog.snapshot_validity_posture:
+        raise ValueError(
+            "repo_optimization_register must share snapshot_validity_posture with V45-B"
+        )
+    if optimization_register.repo_snapshot_id != test_intent_matrix.repo_snapshot_id:
+        raise ValueError("repo_optimization_register must share repo_snapshot_id with V45-D")
+    if optimization_register.repo_snapshot_hash != test_intent_matrix.repo_snapshot_hash:
+        raise ValueError("repo_optimization_register must share repo_snapshot_hash with V45-D")
+    if (
+        optimization_register.snapshot_validity_posture
+        != test_intent_matrix.snapshot_validity_posture
+    ):
+        raise ValueError(
+            "repo_optimization_register must share snapshot_validity_posture with V45-D"
+        )
+    if (
+        optimization_register.snapshot_validity_posture
+        != entity_catalog.snapshot_validity_posture
+    ):
+        raise ValueError(
+            "repo_optimization_register must share snapshot_validity_posture with "
+            "V45-A entity catalog"
+        )
+    if (
+        optimization_register.snapshot_validity_posture
+        != schema_family_registry.snapshot_validity_posture
+    ):
+        raise ValueError(
+            "repo_optimization_register must share snapshot_validity_posture with "
+            "V45-A schema registry"
+        )
+
+    source_set_membership = set(optimization_register.source_set)
+    schema_surface_refs = {
+        entry.schema_path for entry in schema_family_registry.schema_entries
+    } | set(schema_family_registry.source_set.source_paths)
+    module_boundary_refs = {
+        compute_internal_module_boundary_ref(module_path=path) for path in symbol_catalog.source_set
+    }
+    test_surface_refs = set(test_intent_matrix.test_source_set)
+
+    def _scope_ref_resolves(scope: RepoOptimizationFindingScope) -> bool:
+        if scope.finding_scope_kind in {"file_surface", "test_surface"}:
+            if scope.finding_scope_ref in source_set_membership:
+                return True
+            if (
+                scope.finding_scope_kind == "test_surface"
+                and scope.finding_scope_ref in test_surface_refs
+            ):
+                return True
+            return False
+        if scope.finding_scope_kind == "schema_surface":
+            return scope.finding_scope_ref in schema_surface_refs
+        if scope.finding_scope_kind == "module_surface":
+            return scope.finding_scope_ref in module_boundary_refs
+        if scope.finding_scope_kind == "cross_surface_cluster":
+            for member in scope.cluster_member_refs:
+                member_scope = RepoOptimizationFindingScope(
+                    finding_scope_kind=member.member_ref_kind,
+                    finding_scope_ref=member.member_ref,
+                )
+                if not _scope_ref_resolves(member_scope):
+                    return False
+            return True
+        return False
+
+    for entry in optimization_register.optimization_entries:
+        if not _scope_ref_resolves(entry.finding_scope):
+            raise ValueError(
+                "repo_optimization_register finding_scope must resolve against source_set "
+                "or a bound V45-A through V45-D descriptive artifact"
+            )
+    return (
+        optimization_register,
+        entity_catalog,
+        schema_family_registry,
+        symbol_catalog,
+        dependency_graph,
+        test_intent_matrix,
+    )
+
+
 class RepoArcDependencyRegisterEntryV1(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -2247,6 +2751,27 @@ def materialize_repo_test_intent_matrix_payload(
 
 def canonicalize_repo_test_intent_matrix_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return RepoTestIntentMatrix.model_validate(payload).model_dump(mode="json")
+
+
+def compute_repo_optimization_register_id(payload_without_id: dict[str, Any]) -> str:
+    canonical_payload = deepcopy(payload_without_id)
+    canonical_payload.setdefault("schema", REPO_OPTIMIZATION_REGISTER_SCHEMA)
+    canonical_payload.pop("repo_optimization_register_id", None)
+    digest = sha256_canonical_json(canonical_payload)
+    return f"repo_optimization_register_{digest[:24]}"
+
+
+def materialize_repo_optimization_register_payload(
+    payload_without_register_id: dict[str, Any],
+) -> dict[str, Any]:
+    payload = deepcopy(payload_without_register_id)
+    payload.setdefault("schema", REPO_OPTIMIZATION_REGISTER_SCHEMA)
+    payload["repo_optimization_register_id"] = compute_repo_optimization_register_id(payload)
+    return RepoOptimizationRegister.model_validate(payload).model_dump(mode="json")
+
+
+def canonicalize_repo_optimization_register_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    return RepoOptimizationRegister.model_validate(payload).model_dump(mode="json")
 
 
 def compute_repo_arc_dependency_register_v1_id(payload_without_id: dict[str, Any]) -> str:
