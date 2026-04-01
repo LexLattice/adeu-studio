@@ -1,6 +1,6 @@
 {
-  "bound_dependency_graph_ref": "repo_dependency_graph_4a1eafd64a58f2999ae3f892",
-  "bound_symbol_catalog_ref": "repo_symbol_catalog_1245fb85dc6a9ad6d8cfbedf",
+  "bound_dependency_graph_ref": "repo_dependency_graph_febb3965375536dbc970ae07",
+  "bound_symbol_catalog_ref": "repo_symbol_catalog_2dfcf53ea62ec707c3284c2a",
   "evidence_refs": [
     {
       "evidence_kind": "observed_anchor_tuple_evidence",
@@ -26,9 +26,9 @@
   "extraction_method": "bounded_inference_rule",
   "extraction_posture": "derived_deterministically",
   "matrix_scope": "v45d-bounded-python-test-intent-matrix-with-automatic-release-gating-entitlement",
-  "repo_snapshot_hash": "d7365e5c2ba3737e430ac2f5d9986f1dd1e7f6a734e17cecb562a2f6c331e514",
-  "repo_snapshot_id": "repo_snapshot_d7365e5c2ba3737e430ac2f5",
-  "repo_test_intent_matrix_id": "repo_test_intent_matrix_a25934393684f1edf879ed01",
+  "repo_snapshot_hash": "e3a23cf665cd96f6cf3b1846000f5c36173f96f710785b7e9113981d5c96086e",
+  "repo_snapshot_id": "repo_snapshot_e3a23cf665cd96f6cf3b1846",
+  "repo_test_intent_matrix_id": "repo_test_intent_matrix_2d4b176b5d9ca42386fab68e",
   "schema": "repo_test_intent_matrix@1",
   "snapshot_validity_posture": "snapshot_bound_current",
   "test_intent_entries": [
@@ -150,6 +150,64 @@
     },
     {
       "claimed_invariant_binding": {
+        "binding_id": "binding_d0e8eb7f4e4451ec626f2590",
+        "binding_statement": "collects nested control flow imports"
+      },
+      "confidence_posture": "low",
+      "derivation_method": "test_name_convention",
+      "derivation_posture": "inferred_heuristically",
+      "entry_id": "test_intent_entry_2e852e571436b1b73917b655",
+      "gating_posture": "release_gating",
+      "guarded_surface_ref": {
+        "guarded_surface_ref_kind": "internal_module_boundary",
+        "guarded_surface_ref_value": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      },
+      "invariant_domain": "epistemics",
+      "observed_assertion_surface": {
+        "assertion_source_ref": "assertion:packages/adeu_repo_description/tests/test_repo_description_v45b.py#L230",
+        "assertion_summary": "any((edge['dependency_kind'] == 'module_import' and edge['to_ref'] == 'external:json' for edge in graph['dependency_edges']))",
+        "assertion_surface_kind": "assert_statement"
+      },
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:test_source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:ast"
+      ],
+      "test_kind": "pytest_function",
+      "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v45b_collects_nested_control_flow_imports"
+    },
+    {
+      "claimed_invariant_binding": {
+        "binding_id": "binding_a76c51fcbfac6c629b9cbfa1",
+        "binding_statement": "external dotted refs do not duplicate segments"
+      },
+      "confidence_posture": "low",
+      "derivation_method": "test_name_convention",
+      "derivation_posture": "inferred_heuristically",
+      "entry_id": "test_intent_entry_37d3d8995b118fa88915d89c",
+      "gating_posture": "release_gating",
+      "guarded_surface_ref": {
+        "guarded_surface_ref_kind": "internal_module_boundary",
+        "guarded_surface_ref_value": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      },
+      "invariant_domain": "epistemics",
+      "observed_assertion_surface": {
+        "assertion_source_ref": "assertion:packages/adeu_repo_description/tests/test_repo_description_v45b.py#L276",
+        "assertion_summary": "inheritance_edges[0]['to_ref'] == 'external:external_pkg.submod.Base'",
+        "assertion_surface_kind": "equality_assertion"
+      },
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:test_source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:ast"
+      ],
+      "test_kind": "pytest_function",
+      "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v45b_external_dotted_refs_do_not_duplicate_segments"
+    },
+    {
+      "claimed_invariant_binding": {
         "binding_id": "binding_3fc1c1551f65eb37ca98296e",
         "binding_statement": "reference symbol catalog and dependency graph validate as historical baseline"
       },
@@ -179,35 +237,6 @@
     },
     {
       "claimed_invariant_binding": {
-        "binding_id": "binding_d0e8eb7f4e4451ec626f2590",
-        "binding_statement": "collects nested control flow imports"
-      },
-      "confidence_posture": "medium",
-      "derivation_method": "assertion_ast",
-      "derivation_posture": "derived_deterministically",
-      "entry_id": "test_intent_entry_385295ba6a6d7e22fb0c0771",
-      "gating_posture": "release_gating",
-      "guarded_surface_ref": {
-        "guarded_surface_ref_kind": "internal_symbol",
-        "guarded_surface_ref_value": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45b_repo_symbol_catalog_and_dependency_graph:function"
-      },
-      "invariant_domain": "epistemics",
-      "observed_assertion_surface": {
-        "assertion_source_ref": "assertion:packages/adeu_repo_description/tests/test_repo_description_v45b.py#L230",
-        "assertion_summary": "any((edge['dependency_kind'] == 'module_import' and edge['to_ref'] == 'external:json' for edge in graph['dependency_edges']))",
-        "assertion_surface_kind": "assert_statement"
-      },
-      "source_artifact_refs": [
-        "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
-      ],
-      "supporting_evidence_refs": [
-        "evidence:test_source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:ast"
-      ],
-      "test_kind": "pytest_function",
-      "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v45b_collects_nested_control_flow_imports"
-    },
-    {
-      "claimed_invariant_binding": {
         "binding_id": "binding_9efd688417694a8da27426f0",
         "binding_statement": "rejects dangling symbol ref when graph is paired to catalog"
       },
@@ -234,35 +263,6 @@
       ],
       "test_kind": "pytest_function",
       "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v101_rejects_dangling_symbol_ref_when_graph_is_paired_to_catalog"
-    },
-    {
-      "claimed_invariant_binding": {
-        "binding_id": "binding_d8b32259334ed3fbd94aa1fb",
-        "binding_statement": "collects unpacking targets and control flow symbols"
-      },
-      "confidence_posture": "medium",
-      "derivation_method": "assertion_ast",
-      "derivation_posture": "derived_deterministically",
-      "entry_id": "test_intent_entry_56489125bb77f757d7d1c9e9",
-      "gating_posture": "release_gating",
-      "guarded_surface_ref": {
-        "guarded_surface_ref_kind": "internal_symbol",
-        "guarded_surface_ref_value": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45b_repo_symbol_catalog_and_dependency_graph:function"
-      },
-      "invariant_domain": "ontology",
-      "observed_assertion_surface": {
-        "assertion_source_ref": "assertion:packages/adeu_repo_description/tests/test_repo_description_v45b.py#L214",
-        "assertion_summary": "{'__module__', 'Inner', 'fallback', 'x', 'y', 'z'} <= qualnames",
-        "assertion_surface_kind": "assert_statement"
-      },
-      "source_artifact_refs": [
-        "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
-      ],
-      "supporting_evidence_refs": [
-        "evidence:test_source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:ast"
-      ],
-      "test_kind": "pytest_function",
-      "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v45b_collects_unpacking_targets_and_control_flow_symbols"
     },
     {
       "claimed_invariant_binding": {
@@ -321,64 +321,6 @@
       ],
       "test_kind": "pytest_function",
       "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v45b_rejects_duplicate_normalized_module_import_paths"
-    },
-    {
-      "claimed_invariant_binding": {
-        "binding_id": "binding_a76c51fcbfac6c629b9cbfa1",
-        "binding_statement": "external dotted refs do not duplicate segments"
-      },
-      "confidence_posture": "high",
-      "derivation_method": "assertion_ast",
-      "derivation_posture": "derived_deterministically",
-      "entry_id": "test_intent_entry_6767285584b78b6ab85b0b99",
-      "gating_posture": "release_gating",
-      "guarded_surface_ref": {
-        "guarded_surface_ref_kind": "internal_symbol",
-        "guarded_surface_ref_value": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45b_repo_symbol_catalog_and_dependency_graph:function"
-      },
-      "invariant_domain": "epistemics",
-      "observed_assertion_surface": {
-        "assertion_source_ref": "assertion:packages/adeu_repo_description/tests/test_repo_description_v45b.py#L275",
-        "assertion_summary": "len(inheritance_edges) == 1",
-        "assertion_surface_kind": "equality_assertion"
-      },
-      "source_artifact_refs": [
-        "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
-      ],
-      "supporting_evidence_refs": [
-        "evidence:test_source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:ast"
-      ],
-      "test_kind": "pytest_function",
-      "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v45b_external_dotted_refs_do_not_duplicate_segments"
-    },
-    {
-      "claimed_invariant_binding": {
-        "binding_id": "binding_a76c51fcbfac6c629b9cbfa1",
-        "binding_statement": "external dotted refs do not duplicate segments"
-      },
-      "confidence_posture": "high",
-      "derivation_method": "assertion_ast",
-      "derivation_posture": "derived_deterministically",
-      "entry_id": "test_intent_entry_6c00f7cd0e9952fd57b93a23",
-      "gating_posture": "release_gating",
-      "guarded_surface_ref": {
-        "guarded_surface_ref_kind": "internal_symbol",
-        "guarded_surface_ref_value": "symbol:packages/adeu_repo_description/src/adeu_repo_description/extract.py:derive_v45b_repo_symbol_catalog_and_dependency_graph:function"
-      },
-      "invariant_domain": "epistemics",
-      "observed_assertion_surface": {
-        "assertion_source_ref": "assertion:packages/adeu_repo_description/tests/test_repo_description_v45b.py#L276",
-        "assertion_summary": "inheritance_edges[0]['to_ref'] == 'external:external_pkg.submod.Base'",
-        "assertion_surface_kind": "equality_assertion"
-      },
-      "source_artifact_refs": [
-        "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
-      ],
-      "supporting_evidence_refs": [
-        "evidence:test_source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:ast"
-      ],
-      "test_kind": "pytest_function",
-      "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v45b_external_dotted_refs_do_not_duplicate_segments"
     },
     {
       "claimed_invariant_binding": {
@@ -498,6 +440,35 @@
     },
     {
       "claimed_invariant_binding": {
+        "binding_id": "binding_a76c51fcbfac6c629b9cbfa1",
+        "binding_statement": "external dotted refs do not duplicate segments"
+      },
+      "confidence_posture": "low",
+      "derivation_method": "test_name_convention",
+      "derivation_posture": "inferred_heuristically",
+      "entry_id": "test_intent_entry_9f98182e80b03f5fe9c86a7b",
+      "gating_posture": "release_gating",
+      "guarded_surface_ref": {
+        "guarded_surface_ref_kind": "internal_module_boundary",
+        "guarded_surface_ref_value": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      },
+      "invariant_domain": "epistemics",
+      "observed_assertion_surface": {
+        "assertion_source_ref": "assertion:packages/adeu_repo_description/tests/test_repo_description_v45b.py#L275",
+        "assertion_summary": "len(inheritance_edges) == 1",
+        "assertion_surface_kind": "equality_assertion"
+      },
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:test_source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:ast"
+      ],
+      "test_kind": "pytest_function",
+      "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v45b_external_dotted_refs_do_not_duplicate_segments"
+    },
+    {
+      "claimed_invariant_binding": {
         "binding_id": "binding_587026e7d135c9d403bbfbb6",
         "binding_statement": "rejects invalid symbol catalog fixtures"
       },
@@ -553,6 +524,35 @@
       ],
       "test_kind": "pytest_function",
       "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v101_rejects_invalid_dependency_graph_fixtures"
+    },
+    {
+      "claimed_invariant_binding": {
+        "binding_id": "binding_d8b32259334ed3fbd94aa1fb",
+        "binding_statement": "collects unpacking targets and control flow symbols"
+      },
+      "confidence_posture": "low",
+      "derivation_method": "test_name_convention",
+      "derivation_posture": "inferred_heuristically",
+      "entry_id": "test_intent_entry_e4f4500d00f0a0c1cde1c329",
+      "gating_posture": "release_gating",
+      "guarded_surface_ref": {
+        "guarded_surface_ref_kind": "internal_module_boundary",
+        "guarded_surface_ref_value": "module:packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      },
+      "invariant_domain": "ontology",
+      "observed_assertion_surface": {
+        "assertion_source_ref": "assertion:packages/adeu_repo_description/tests/test_repo_description_v45b.py#L214",
+        "assertion_summary": "{'__module__', 'Inner', 'fallback', 'x', 'y', 'z'} <= qualnames",
+        "assertion_surface_kind": "assert_statement"
+      },
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
+      ],
+      "supporting_evidence_refs": [
+        "evidence:test_source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:ast"
+      ],
+      "test_kind": "pytest_function",
+      "test_ref": "test:packages/adeu_repo_description/tests/test_repo_description_v45b.py#test_v45b_collects_unpacking_targets_and_control_flow_symbols"
     },
     {
       "claimed_invariant_binding": {

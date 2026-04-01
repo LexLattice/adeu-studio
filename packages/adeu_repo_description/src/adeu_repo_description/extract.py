@@ -393,6 +393,15 @@ def _resolve_import_binding(
             symbol_id = unique_qualname_index.get(imported_name)
         if symbol_id is not None:
             return ("internal_symbol", symbol_id)
+        imported_submodule = (
+            f"{imported_module}.{imported_name}" if imported_module else imported_name
+        )
+        submodule_source_path = bound_module_to_source_path.get(imported_submodule)
+        if submodule_source_path is not None:
+            return (
+                "internal_module_boundary",
+                compute_internal_module_boundary_ref(module_path=submodule_source_path),
+            )
     source_path = bound_module_to_source_path.get(imported_module)
     if source_path is not None:
         return (
@@ -406,6 +415,7 @@ def _resolve_import_binding(
 
 def _extract_test_import_aliases(
     *,
+    source_path: str,
     tree: ast.Module,
     unique_qualname_index: dict[str, str],
     module_qualname_to_symbol: dict[tuple[str, str], str],
@@ -426,14 +436,20 @@ def _extract_test_import_aliases(
                 if resolved is not None:
                     alias_map[local_name] = resolved
         elif isinstance(node, ast.ImportFrom):
+            imported_module = _resolve_import_from_module(
+                source_path=source_path,
+                module=node.module,
+                level=node.level,
+            )
             if node.module is None:
-                continue
+                if not imported_module:
+                    continue
             for alias in node.names:
                 if alias.name == "*":
                     continue
                 local_name = alias.asname or alias.name
                 resolved = _resolve_import_binding(
-                    imported_module=node.module,
+                    imported_module=imported_module,
                     imported_name=alias.name,
                     unique_qualname_index=unique_qualname_index,
                     module_qualname_to_symbol=module_qualname_to_symbol,
@@ -492,6 +508,8 @@ def _update_test_provenance_for_assignment(
     alias_map: dict[str, tuple[str, str]],
     provenance_map: dict[str, tuple[str, str]],
 ) -> None:
+    if isinstance(node, ast.AnnAssign) and node.value is None:
+        return
     value_ref = _ref_from_expr(
         node.value,
         alias_map=alias_map,
@@ -819,7 +837,7 @@ def _derive_entries_for_test_function(
                     )
                 )
             for nested in _nested_statement_bodies(node):
-                visit_body(nested, provenance_map=provenance_map)
+                visit_body(nested, provenance_map=dict(provenance_map))
 
     visit_body(function_node.body, provenance_map={})
     return entries
@@ -2013,6 +2031,7 @@ def derive_v45d_repo_test_intent_matrix(
             )
         )
         alias_map = _extract_test_import_aliases(
+            source_path=source_path,
             tree=parsed_trees[source_path],
             unique_qualname_index=unique_qualname_index,
             module_qualname_to_symbol=module_qualname_to_symbol,

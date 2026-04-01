@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import tempfile
 from collections import Counter
+from contextlib import contextmanager
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -46,6 +48,19 @@ def _schema_validator(schema_filename: str) -> Draft202012Validator:
     )
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema)
+
+
+@contextmanager
+def _write_repo_temp_sources(sources: dict[str, str]) -> Any:
+    with tempfile.TemporaryDirectory(dir=_repo_root()) as tmpdir:
+        temp_root = Path(tmpdir)
+        written: dict[str, str] = {}
+        for relative_path, source_text in sources.items():
+            source_path = temp_root / relative_path
+            source_path.parent.mkdir(parents=True, exist_ok=True)
+            source_path.write_text(source_text, encoding="utf-8")
+            written[relative_path] = source_path.relative_to(_repo_root()).as_posix()
+        yield written
 
 
 def test_v103_reference_test_intent_matrix_replays_and_validates() -> None:
@@ -158,3 +173,112 @@ def test_v103_reference_fixture_preserves_row_granularity_and_pytest_raises_rows
         row["guarded_surface_ref"]["guarded_surface_ref_kind"] == "internal_symbol"
         for row in pytest_raises_rows
     )
+
+
+def test_v45d_accepts_annotation_only_annassign_in_test_body() -> None:
+    with _write_repo_temp_sources(
+        {
+            "tmp_v45d_case/src/test_pkg/helper.py": (
+                "class Marker:\n"
+                "    pass\n\n"
+                "VALUE = 1\n"
+            ),
+            "tmp_v45d_case/src/test_pkg/test_case.py": (
+                "from . import helper\n\n"
+                "def test_annotation_only_assignment():\n"
+                "    target: helper.Marker\n"
+                "    assert helper.VALUE == 1\n"
+            ),
+        }
+    ) as written:
+        helper_path = written["tmp_v45d_case/src/test_pkg/helper.py"]
+        test_path = written["tmp_v45d_case/src/test_pkg/test_case.py"]
+        bound_symbol_catalog, bound_dependency_graph = (
+            derive_v45b_repo_symbol_catalog_and_dependency_graph(
+                source_paths=[helper_path, test_path]
+            )
+        )
+
+        matrix = derive_v45d_repo_test_intent_matrix(
+            source_paths=[test_path],
+            bound_symbol_catalog_payload=bound_symbol_catalog,
+            bound_dependency_graph_payload=bound_dependency_graph,
+        )
+
+    assert len(matrix["test_intent_entries"]) == 1
+    assert (
+        matrix["test_intent_entries"][0]["guarded_surface_ref"]["guarded_surface_ref_value"]
+        == f"module:{helper_path}"
+    )
+
+
+def test_v45d_resolves_relative_import_from_aliases_to_internal_module_boundaries() -> None:
+    with _write_repo_temp_sources(
+        {
+            "tmp_v45d_case/src/test_pkg/helper.py": "VALUE = 1\n",
+            "tmp_v45d_case/src/test_pkg/test_case.py": (
+                "from . import helper\n\n"
+                "def test_relative_import_binding():\n"
+                "    assert helper.VALUE == 1\n"
+            ),
+        }
+    ) as written:
+        helper_path = written["tmp_v45d_case/src/test_pkg/helper.py"]
+        test_path = written["tmp_v45d_case/src/test_pkg/test_case.py"]
+        bound_symbol_catalog, bound_dependency_graph = (
+            derive_v45b_repo_symbol_catalog_and_dependency_graph(
+                source_paths=[helper_path, test_path]
+            )
+        )
+
+        matrix = derive_v45d_repo_test_intent_matrix(
+            source_paths=[test_path],
+            bound_symbol_catalog_payload=bound_symbol_catalog,
+            bound_dependency_graph_payload=bound_dependency_graph,
+        )
+
+    row = matrix["test_intent_entries"][0]
+    assert row["guarded_surface_ref"]["guarded_surface_ref_kind"] == "internal_module_boundary"
+    assert row["guarded_surface_ref"]["guarded_surface_ref_value"] == f"module:{helper_path}"
+
+
+def test_v45d_branch_local_provenance_does_not_leak_between_if_branches() -> None:
+    with _write_repo_temp_sources(
+        {
+            "tmp_v45d_case/src/test_pkg/helper.py": "VALUE = 1\n",
+            "tmp_v45d_case/src/test_pkg/alternate.py": "VALUE = 2\n",
+            "tmp_v45d_case/src/test_pkg/test_case.py": (
+                "from . import alternate, helper\n\n"
+                "def test_branch_local_provenance():\n"
+                "    target = alternate\n"
+                "    if FLAG:\n"
+                "        target = helper\n"
+                "        assert target.VALUE == 1\n"
+                "    else:\n"
+                "        assert target.VALUE == 2\n"
+            ),
+        }
+    ) as written:
+        helper_path = written["tmp_v45d_case/src/test_pkg/helper.py"]
+        alternate_path = written["tmp_v45d_case/src/test_pkg/alternate.py"]
+        test_path = written["tmp_v45d_case/src/test_pkg/test_case.py"]
+        bound_symbol_catalog, bound_dependency_graph = (
+            derive_v45b_repo_symbol_catalog_and_dependency_graph(
+                source_paths=[alternate_path, helper_path, test_path]
+            )
+        )
+
+        matrix = derive_v45d_repo_test_intent_matrix(
+            source_paths=[test_path],
+            bound_symbol_catalog_payload=bound_symbol_catalog,
+            bound_dependency_graph_payload=bound_dependency_graph,
+        )
+
+    guarded_refs = {
+        row["observed_assertion_surface"]["assertion_summary"]: row["guarded_surface_ref"][
+            "guarded_surface_ref_value"
+        ]
+        for row in matrix["test_intent_entries"]
+    }
+    assert guarded_refs["target.VALUE == 1"] == f"module:{helper_path}"
+    assert guarded_refs["target.VALUE == 2"] == f"module:{alternate_path}"
