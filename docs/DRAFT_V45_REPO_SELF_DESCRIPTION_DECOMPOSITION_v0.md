@@ -1,8 +1,8 @@
 # Draft V45 Repo Self-Description Decomposition v0
 
 Status: working decomposition draft for bounded `V45` continuation after
-`docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`, refreshed after `V45-A`, `V45-B`, and `V45-C`
-closed on `main` and after the `vNext+103` starter bundle was drafted for `V45-D`.
+`docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`, refreshed after `V45-A`, `V45-B`, `V45-C`, and
+`V45-D` closed on `main`.
 
 This document is an intermediate planning artifact between:
 
@@ -83,8 +83,7 @@ first schema registry kernel, then wider repo self-description
 - `V45-C` is closed on `main` through `vNext+100` and corrective hardening through
   `vNext+102`.
 - `V45-B` is closed on `main` through `vNext+101`.
-- `vNext+103` starter docs are drafted on `main` for the `V45-D` test-intent widening
-  seam.
+- `V45-D` is closed on `main` through `vNext+103`.
 - `V45` is the current connected planning family from
   `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
 - The first safe move is still descriptive-plane first.
@@ -93,10 +92,10 @@ first schema registry kernel, then wider repo self-description
   assumed from naming style alone.
 - `V45-C` legitimately preceded `V45-B` because dependency-register release did not
   require released symbol-catalog outputs.
-- `V45-D` is now the natural next widening seam after the released `V45-A`, `V45-B`,
-  and `V45-C` descriptive baselines.
+- `V45-E` is now the natural next widening seam after the released `V45-A`, `V45-B`,
+  `V45-C`, and `V45-D` descriptive baselines.
 - the bounded `V45-C` corrective follow-up has already shipped as `vNext+102`, so later
-  `V45-D` consumers should treat `repo_arc_dependency_register@2` as the current
+  `V45-E` consumers should treat `repo_arc_dependency_register@2` as the current
   planning-surface dependency baseline.
 
 ## Recommended First Concrete `V45-A` Slice
@@ -165,11 +164,14 @@ In particular:
 - `V45-C` is now closed on `main` as the planning/open-arc dependency lane for:
   - `repo_arc_dependency_register@1` baseline;
   - `repo_arc_dependency_register@2` corrective hardening;
-- `V45-D` should now be read as the default next lane for test-intent matrix
+- `V45-D` is now closed on `main` as the test-intent matrix lane for:
+  - `repo_test_intent_matrix@1`;
+- `V45-E` should now be read as the default next lane for optimization-register
   widening;
-- `V45-D` should consume the released `V45-B` code-structure baseline and may consult
-  the released `V45-C` planning-surface dependency baseline without collapsing either
-  artifact family into test-intent doctrine;
+- `V45-E` should consume the released `V45-B` code-structure baseline, may consult the
+  released `V45-C` planning-surface dependency baseline, and may consult the released
+  `V45-D` test-intent baseline without collapsing any of those artifact families into
+  optimization entitlement;
 - the released dependency-register seam remains descriptive-first:
   - no automatic scheduling authority;
   - no priority entitlement;
@@ -203,12 +205,12 @@ To stay aligned with the `V45` branch, the first slice should obey these rules:
   "schema": "v45_repo_self_description_decomposition@1",
   "source_architecture_doc": "docs/DRAFT_REPO_SELF_DESCRIPTION_SPEC_v0.md",
   "source_options_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
-  "baseline_arc": "vNext+101",
+  "baseline_arc": "vNext+103",
   "next_path_family": "V45",
-  "default_next_path": "V45-D",
-  "default_next_concrete_arc_candidate": "vNext+103",
+  "default_next_path": "V45-E",
+  "default_next_concrete_arc_candidate": "vNext+104",
   "v45b_closed_on_main": true,
-  "v45d_starter_bundle_drafted_on_main": true,
+  "v45d_closed_on_main": true,
   "planned_family_packages": [
     "packages/adeu_repo_description"
   ],
@@ -235,8 +237,9 @@ To stay aligned with the `V45` branch, the first slice should obey these rules:
   "v45c_corrective_hardening_released_on_main": true,
   "v45c_preceded_v45b_when_symbol_catalog_not_required": true,
   "test_intent_matrix_initially_deferred": false,
-  "test_intent_matrix_selected_next": true,
-  "optimization_register_initially_deferred": true,
+  "test_intent_matrix_closed_on_main": true,
+  "optimization_register_initially_deferred": false,
+  "optimization_register_selected_next": true,
   "recursive_governance_binding_initially_deferred": true,
   "descriptive_findings_non_promotional_required": true
 }

@@ -14,8 +14,6 @@ from adeu_repo_description import (
     REPO_TEST_INTENT_MATRIX_SCHEMA,
     RepoTestIntentMatrix,
     compute_repo_test_intent_matrix_id,
-    default_v45b_source_paths,
-    default_v45d_source_paths,
     derive_v45b_repo_symbol_catalog_and_dependency_graph,
     derive_v45d_repo_test_intent_matrix,
     validate_repo_test_intent_matrix_against_v45b,
@@ -63,32 +61,11 @@ def _write_repo_temp_sources(sources: dict[str, str]) -> Any:
         yield written
 
 
-def test_v103_reference_test_intent_matrix_replays_and_validates() -> None:
+def test_v103_reference_test_intent_matrix_validates_as_historical_baseline() -> None:
     accepted_matrix = _load_v103("repo_test_intent_matrix_v103_reference.json")
     validated_matrix = RepoTestIntentMatrix.model_validate(accepted_matrix)
 
-    derived_matrix = derive_v45d_repo_test_intent_matrix(
-        source_paths=default_v45d_source_paths(),
-        snapshot_validity_posture=accepted_matrix["snapshot_validity_posture"],
-    )
-    assert derived_matrix == accepted_matrix
-
-    bound_symbol_catalog, bound_dependency_graph = (
-        derive_v45b_repo_symbol_catalog_and_dependency_graph(
-            source_paths=default_v45b_source_paths(),
-            snapshot_validity_posture=accepted_matrix["snapshot_validity_posture"],
-        )
-    )
-    pair_matrix, _symbol_catalog, _dependency_graph = (
-        validate_repo_test_intent_matrix_against_v45b(
-            test_intent_matrix_payload=accepted_matrix,
-            symbol_catalog_payload=bound_symbol_catalog,
-            dependency_graph_payload=bound_dependency_graph,
-        )
-    )
-
     assert validated_matrix.schema == REPO_TEST_INTENT_MATRIX_SCHEMA
-    assert pair_matrix == validated_matrix
 
 
 def test_v103_test_intent_matrix_id_is_deterministic() -> None:

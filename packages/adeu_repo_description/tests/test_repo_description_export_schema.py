@@ -10,6 +10,7 @@ from adeu_repo_description import (
     REPO_ARC_DEPENDENCY_REGISTER_V1_SCHEMA,
     REPO_DEPENDENCY_GRAPH_SCHEMA,
     REPO_ENTITY_CATALOG_SCHEMA,
+    REPO_OPTIMIZATION_REGISTER_SCHEMA,
     REPO_SCHEMA_FAMILY_REGISTRY_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
@@ -61,6 +62,14 @@ def _schema_pairs() -> dict[str, tuple[Path, Path]]:
             / "schema"
             / "repo_test_intent_matrix.v1.json",
             root / "spec" / "repo_test_intent_matrix.schema.json",
+        ),
+        REPO_OPTIMIZATION_REGISTER_SCHEMA: (
+            root
+            / "packages"
+            / "adeu_repo_description"
+            / "schema"
+            / "repo_optimization_register.v1.json",
+            root / "spec" / "repo_optimization_register.schema.json",
         ),
     }
 

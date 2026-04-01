@@ -1,0 +1,197 @@
+{
+  "bound_dependency_graph_ref": "repo_dependency_graph_03338918875904cf34db7e29",
+  "bound_entity_catalog_ref": "repo_entity_catalog_4f3bea1652190f3266973fef",
+  "bound_schema_family_registry_ref": "repo_schema_family_registry_0295d9730ab7a2c940d7b56d",
+  "bound_symbol_catalog_ref": "repo_symbol_catalog_76a1cf3ad83c54650194fde2",
+  "bound_test_intent_matrix_ref": "repo_test_intent_matrix_4888564f0ded03d431083918",
+  "evidence_refs": [
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:bound:v45a:entity_catalog"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:bound:v45a:schema_family_registry"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:bound:v45b:dependency_graph"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:bound:v45b:symbol_catalog"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:bound:v45c:arc_dependency_register"
+    },
+    {
+      "evidence_kind": "observed_anchor_tuple_evidence",
+      "evidence_ref": "evidence:bound:v45d:test_intent_matrix"
+    },
+    {
+      "evidence_kind": "semantic_function_cue_evidence",
+      "evidence_ref": "evidence:cluster:v45e:core_logic"
+    },
+    {
+      "evidence_kind": "lock_contract_evidence",
+      "evidence_ref": "evidence:contract:v45e:v104"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/__init__.py:metrics"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/export_schema.py:metrics"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py:metrics"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py:metrics"
+    },
+    {
+      "evidence_kind": "structural_signature_evidence",
+      "evidence_ref": "evidence:source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:metrics"
+    }
+  ],
+  "extraction_method": "cross_artifact_join",
+  "extraction_posture": "derived_deterministically",
+  "optimization_entries": [
+    {
+      "amendment_entitlement": "not_authorized_by_this_artifact",
+      "compression_axis": "surface_compression",
+      "derivation_method": "cross_artifact_join",
+      "derivation_posture": "derived_deterministically",
+      "descriptive_finding_summary": "packages/adeu_repo_description/src/adeu_repo_description/models.py concentrates 2824 lines, 432 symbols, 32 dependency edges, and 12 test-intent bindings in the current repo-description baseline.",
+      "entry_id": "optimization_entry_81c1f90b67fa1ba7550232a2",
+      "finding_scope": {
+        "cluster_member_refs": [],
+        "finding_scope_kind": "file_surface",
+        "finding_scope_ref": "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      },
+      "optimization_candidate_summary": "Inspect whether bounded validation and payload-assembly responsibilities can be decomposed into smaller descriptive helper surfaces while preserving descriptive-only authority boundaries.",
+      "optimization_posture": "hotspot",
+      "priority_posture": "planning_candidate",
+      "secondary_compression_axes": [
+        "governance_compression"
+      ],
+      "secondary_support_basis_tags": [
+        "test_and_dependency_concentration"
+      ],
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py"
+      ],
+      "support_basis": "long_file_or_concentrated_surface",
+      "supporting_evidence_refs": [
+        "evidence:bound:v45b:dependency_graph",
+        "evidence:bound:v45b:symbol_catalog",
+        "evidence:bound:v45d:test_intent_matrix",
+        "evidence:contract:v45e:v104",
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py:metrics"
+      ]
+    },
+    {
+      "amendment_entitlement": "not_authorized_by_this_artifact",
+      "compression_axis": "surface_compression",
+      "derivation_method": "cross_artifact_join",
+      "derivation_posture": "derived_deterministically",
+      "descriptive_finding_summary": "Current repo-description logic and its defensive tests are concentrated across 3 bound surfaces with repeated fail-closed joins between code, dependency, and test-intent baselines.",
+      "entry_id": "optimization_entry_9f9554856d5911ed94c88fee",
+      "finding_scope": {
+        "cluster_member_refs": [
+          {
+            "member_ref": "packages/adeu_repo_description/src/adeu_repo_description/models.py",
+            "member_ref_kind": "file_surface"
+          },
+          {
+            "member_ref": "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+            "member_ref_kind": "file_surface"
+          },
+          {
+            "member_ref": "packages/adeu_repo_description/tests/test_repo_description_v45b.py",
+            "member_ref_kind": "test_surface"
+          }
+        ],
+        "finding_scope_kind": "cross_surface_cluster",
+        "finding_scope_ref": "cluster:repo_description_core_logic"
+      },
+      "optimization_candidate_summary": "Inspect whether shared helper seams for V45 binding, scope resolution, and fail-closed validation should be factored more explicitly while preserving descriptive-only authority boundaries.",
+      "optimization_posture": "consolidation_candidate",
+      "priority_posture": "planning_candidate",
+      "secondary_compression_axes": [
+        "governance_compression"
+      ],
+      "secondary_support_basis_tags": [
+        "long_file_or_concentrated_surface"
+      ],
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+        "packages/adeu_repo_description/src/adeu_repo_description/models.py",
+        "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
+      ],
+      "support_basis": "test_and_dependency_concentration",
+      "supporting_evidence_refs": [
+        "evidence:bound:v45b:dependency_graph",
+        "evidence:bound:v45b:symbol_catalog",
+        "evidence:bound:v45c:arc_dependency_register",
+        "evidence:bound:v45d:test_intent_matrix",
+        "evidence:cluster:v45e:core_logic",
+        "evidence:contract:v45e:v104",
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py:metrics",
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/models.py:metrics",
+        "evidence:source:packages/adeu_repo_description/tests/test_repo_description_v45b.py:metrics"
+      ]
+    },
+    {
+      "amendment_entitlement": "not_authorized_by_this_artifact",
+      "compression_axis": "surface_compression",
+      "derivation_method": "cross_artifact_join",
+      "derivation_posture": "derived_deterministically",
+      "descriptive_finding_summary": "packages/adeu_repo_description/src/adeu_repo_description/extract.py concentrates 2455 lines, 86 symbols, 36 dependency edges, and 7 test-intent bindings in the current repo-description baseline.",
+      "entry_id": "optimization_entry_ebc01cf64e9c538a6d49a8d3",
+      "finding_scope": {
+        "cluster_member_refs": [],
+        "finding_scope_kind": "file_surface",
+        "finding_scope_ref": "packages/adeu_repo_description/src/adeu_repo_description/missing_surface.py"
+      },
+      "optimization_candidate_summary": "Inspect whether bounded validation and payload-assembly responsibilities can be decomposed into smaller descriptive helper surfaces while preserving descriptive-only authority boundaries.",
+      "optimization_posture": "hotspot",
+      "priority_posture": "planning_candidate",
+      "secondary_compression_axes": [
+        "governance_compression"
+      ],
+      "secondary_support_basis_tags": [
+        "test_and_dependency_concentration"
+      ],
+      "source_artifact_refs": [
+        "packages/adeu_repo_description/src/adeu_repo_description/extract.py"
+      ],
+      "support_basis": "long_file_or_concentrated_surface",
+      "supporting_evidence_refs": [
+        "evidence:bound:v45b:dependency_graph",
+        "evidence:bound:v45b:symbol_catalog",
+        "evidence:bound:v45d:test_intent_matrix",
+        "evidence:contract:v45e:v104",
+        "evidence:source:packages/adeu_repo_description/src/adeu_repo_description/extract.py:metrics"
+      ]
+    }
+  ],
+  "register_scope": "v45e-bounded-optimization-register-over-adeu_repo_description-surfaces",
+  "repo_optimization_register_id": "repo_optimization_register_965a154a7069ad1d3c83849c",
+  "repo_snapshot_hash": "2190fc042b37345be63cbe65fe585af415a800009333bacec576440f53e632f0",
+  "repo_snapshot_id": "repo_snapshot_2190fc042b37345be63cbe65",
+  "schema": "repo_optimization_register@1",
+  "snapshot_validity_posture": "snapshot_bound_current",
+  "source_set": [
+    "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/models.py",
+    "packages/adeu_repo_description/tests/test_repo_description_v45b.py"
+  ],
+  "source_set_hash": "6a5f8461403dc3309fe2852f7a4ccea7bce41fab5a650479e8b32a1e5a5917b9"
+}

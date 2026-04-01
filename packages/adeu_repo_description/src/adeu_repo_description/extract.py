@@ -12,6 +12,7 @@ from urm_runtime.hashing import sha256_canonical_json
 
 from .models import (
     REPO_DEPENDENCY_GRAPH_SCHEMA,
+    REPO_OPTIMIZATION_REGISTER_SCHEMA,
     REPO_SYMBOL_CATALOG_SCHEMA,
     REPO_TEST_INTENT_MATRIX_SCHEMA,
     SCHEMA_VISIBLE_ENTITY_COVERAGE_MODE,
@@ -21,6 +22,7 @@ from .models import (
     RepoSchemaFamilyRegistry,
     compute_claimed_invariant_binding_id,
     compute_internal_module_boundary_ref,
+    compute_repo_optimization_entry_id,
     compute_repo_test_intent_entry_id,
     compute_repo_test_ref,
     compute_symbol_id,
@@ -29,10 +31,12 @@ from .models import (
     materialize_repo_arc_dependency_register_payload,
     materialize_repo_dependency_graph_payload,
     materialize_repo_entity_catalog_payload,
+    materialize_repo_optimization_register_payload,
     materialize_repo_schema_family_registry_payload,
     materialize_repo_symbol_catalog_payload,
     materialize_repo_test_intent_matrix_payload,
     representative_schema_keys,
+    validate_repo_optimization_register_against_v45_baseline,
     validate_repo_symbol_catalog_dependency_graph_pair,
     validate_repo_test_intent_matrix_against_v45b,
 )
@@ -59,6 +63,17 @@ _DEFAULT_V45B_SOURCE_PATHS: tuple[str, ...] = (
 )
 _DEFAULT_V45D_SOURCE_PATHS: tuple[str, ...] = (
     "packages/adeu_repo_description/tests/test_repo_description_v45b.py",
+)
+_DEFAULT_V45E_SOURCE_PATHS: tuple[str, ...] = (
+    "packages/adeu_repo_description/src/adeu_repo_description/__init__.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/export_schema.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/extract.py",
+    "packages/adeu_repo_description/src/adeu_repo_description/models.py",
+    "packages/adeu_repo_description/tests/test_repo_description_v45b.py",
+)
+_V45C_V102_REFERENCE_FIXTURE_PATH = (
+    "apps/api/fixtures/repo_description/vnext_plus102/"
+    "repo_arc_dependency_register_v102_reference.json"
 )
 
 
@@ -255,6 +270,18 @@ def _default_v45b_source_paths() -> list[str]:
 
 def _default_v45d_source_paths() -> list[str]:
     return list(_DEFAULT_V45D_SOURCE_PATHS)
+
+
+def _default_v45e_source_paths() -> list[str]:
+    return list(_DEFAULT_V45E_SOURCE_PATHS)
+
+
+def _load_historical_v45c_v102_reference(*, root: Path) -> dict[str, Any]:
+    # V45-E binds V45-C as released historical baseline context. Loading the
+    # committed v102 fixture here preserves that explicit historical seam without
+    # re-deriving current planning-sensitive V45-C state inside V45-E extraction.
+    fixture_path = root / _V45C_V102_REFERENCE_FIXTURE_PATH
+    return json.loads(fixture_path.read_text(encoding="utf-8"))
 
 
 def _module_import_path_for_source_path(source_path: str) -> str:
@@ -2075,6 +2102,339 @@ def derive_v45d_repo_test_intent_matrix(
     return matrix
 
 
+def _count_symbol_entries_by_module(symbol_catalog: dict[str, Any]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for entry in symbol_catalog["symbol_entries"]:
+        counts[entry["module_path"]] = counts.get(entry["module_path"], 0) + 1
+    return counts
+
+
+def _count_dependency_edges_by_source_path(dependency_graph: dict[str, Any]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for edge in dependency_graph["dependency_edges"]:
+        for source_path in edge["source_artifact_refs"]:
+            counts[source_path] = counts.get(source_path, 0) + 1
+    return counts
+
+
+def _guarded_surface_counts_by_module(
+    *,
+    test_intent_matrix: dict[str, Any],
+    symbol_catalog: dict[str, Any],
+) -> dict[str, int]:
+    symbol_to_module = {
+        entry["symbol_id"]: entry["module_path"] for entry in symbol_catalog["symbol_entries"]
+    }
+    counts: dict[str, int] = {}
+    for entry in test_intent_matrix["test_intent_entries"]:
+        guarded = entry["guarded_surface_ref"]
+        kind = guarded["guarded_surface_ref_kind"]
+        value = guarded["guarded_surface_ref_value"]
+        if kind == "internal_symbol":
+            module_path = symbol_to_module.get(value)
+            if module_path is None:
+                continue
+        elif kind == "internal_module_boundary":
+            module_path = value[len("module:") :]
+        else:
+            continue
+        counts[module_path] = counts.get(module_path, 0) + 1
+    return counts
+
+
+def derive_v45e_repo_optimization_register(
+    *,
+    source_paths: list[str] | None = None,
+    bound_entity_catalog_payload: dict[str, Any] | None = None,
+    bound_schema_family_registry_payload: dict[str, Any] | None = None,
+    bound_symbol_catalog_payload: dict[str, Any] | None = None,
+    bound_dependency_graph_payload: dict[str, Any] | None = None,
+    bound_test_intent_matrix_payload: dict[str, Any] | None = None,
+    bound_arc_dependency_register_payload: dict[str, Any] | None = None,
+    snapshot_validity_posture: str | None = None,
+) -> dict[str, Any]:
+    root = repo_root(anchor=Path(__file__))
+    normalized_source_paths = (
+        source_paths if source_paths is not None else _default_v45e_source_paths()
+    )
+    normalized_source_paths = sorted(
+        {_assert_repo_rel_path(path, field_name="source_paths") for path in normalized_source_paths}
+    )
+    if not normalized_source_paths:
+        raise ValueError("source_paths must not be empty")
+
+    if bound_schema_family_registry_payload is None or bound_entity_catalog_payload is None:
+        derived_schema_registry, derived_entity_catalog = derive_v45a_repo_description_bundle(
+            snapshot_validity_posture="snapshot_bound_current"
+        )
+        bound_schema_family_registry_payload = (
+            derived_schema_registry
+            if bound_schema_family_registry_payload is None
+            else bound_schema_family_registry_payload
+        )
+        bound_entity_catalog_payload = (
+            derived_entity_catalog
+            if bound_entity_catalog_payload is None
+            else bound_entity_catalog_payload
+        )
+    if bound_symbol_catalog_payload is None or bound_dependency_graph_payload is None:
+        derived_symbol_catalog, derived_dependency_graph = (
+            derive_v45b_repo_symbol_catalog_and_dependency_graph(
+                source_paths=default_v45b_source_paths(),
+                snapshot_validity_posture="snapshot_bound_current",
+            )
+        )
+        bound_symbol_catalog_payload = (
+            derived_symbol_catalog
+            if bound_symbol_catalog_payload is None
+            else bound_symbol_catalog_payload
+        )
+        bound_dependency_graph_payload = (
+            derived_dependency_graph
+            if bound_dependency_graph_payload is None
+            else bound_dependency_graph_payload
+        )
+    if bound_test_intent_matrix_payload is None:
+        bound_test_intent_matrix_payload = derive_v45d_repo_test_intent_matrix(
+            source_paths=default_v45d_source_paths(),
+            bound_symbol_catalog_payload=bound_symbol_catalog_payload,
+            bound_dependency_graph_payload=bound_dependency_graph_payload,
+        )
+    if bound_arc_dependency_register_payload is None:
+        bound_arc_dependency_register_payload = _load_historical_v45c_v102_reference(
+            root=root
+        )
+
+    effective_snapshot_validity_posture = snapshot_validity_posture or "snapshot_bound_current"
+
+    source_hashes: dict[str, str] = {}
+    source_line_counts: dict[str, int] = {}
+    for source_path in normalized_source_paths:
+        absolute_path = root / source_path
+        if not absolute_path.is_file():
+            raise FileNotFoundError(f"source path does not exist: {source_path}")
+        text = absolute_path.read_text(encoding="utf-8")
+        source_hashes[source_path] = sha256_canonical_json({"text": text})
+        source_line_counts[source_path] = len(text.splitlines())
+
+    source_set_hash = sha256_canonical_json(
+        {
+            "source_paths": normalized_source_paths,
+            "source_hashes": {path: source_hashes[path] for path in normalized_source_paths},
+        }
+    )
+
+    symbol_counts = _count_symbol_entries_by_module(bound_symbol_catalog_payload)
+    dependency_counts = _count_dependency_edges_by_source_path(bound_dependency_graph_payload)
+    guarded_surface_counts = _guarded_surface_counts_by_module(
+        test_intent_matrix=bound_test_intent_matrix_payload,
+        symbol_catalog=bound_symbol_catalog_payload,
+    )
+
+    evidence_refs_by_id: dict[str, RepoDescriptionEvidenceRef] = {
+        "evidence:contract:v45e:v104": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:contract:v45e:v104",
+            evidence_kind="lock_contract_evidence",
+        ),
+        "evidence:bound:v45a:entity_catalog": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45a:entity_catalog",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45a:schema_family_registry": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45a:schema_family_registry",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45b:symbol_catalog": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45b:symbol_catalog",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45b:dependency_graph": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45b:dependency_graph",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45c:arc_dependency_register": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45c:arc_dependency_register",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+        "evidence:bound:v45d:test_intent_matrix": RepoDescriptionEvidenceRef(
+            evidence_ref="evidence:bound:v45d:test_intent_matrix",
+            evidence_kind="observed_anchor_tuple_evidence",
+        ),
+    }
+    for source_path in normalized_source_paths:
+        evidence_refs_by_id[f"evidence:source:{source_path}:metrics"] = RepoDescriptionEvidenceRef(
+            evidence_ref=f"evidence:source:{source_path}:metrics",
+            evidence_kind="structural_signature_evidence",
+        )
+    evidence_refs_by_id["evidence:cluster:v45e:core_logic"] = RepoDescriptionEvidenceRef(
+        evidence_ref="evidence:cluster:v45e:core_logic",
+        evidence_kind="semantic_function_cue_evidence",
+    )
+
+    ranked_paths = sorted(
+        normalized_source_paths,
+        key=lambda path: (
+            -source_line_counts.get(path, 0),
+            -symbol_counts.get(path, 0),
+            path,
+        ),
+    )
+    hotspot_paths = ranked_paths[:2]
+    optimization_entries: list[dict[str, Any]] = []
+
+    for path in hotspot_paths:
+        symbol_count = symbol_counts.get(path, 0)
+        dependency_count = dependency_counts.get(path, 0)
+        test_count = guarded_surface_counts.get(path, 0)
+        payload_without_entry_id = {
+            "finding_scope": {
+                "finding_scope_kind": "file_surface",
+                "finding_scope_ref": path,
+                "cluster_member_refs": [],
+            },
+            "compression_axis": "surface_compression",
+            "optimization_posture": "hotspot",
+            "support_basis": "long_file_or_concentrated_surface",
+            "secondary_compression_axes": ["governance_compression"],
+            "secondary_support_basis_tags": ["test_and_dependency_concentration"],
+            "descriptive_finding_summary": (
+                f"{path} concentrates {source_line_counts.get(path, 0)} lines, "
+                f"{symbol_count} symbols, {dependency_count} dependency edges, and "
+                f"{test_count} test-intent bindings in the current repo-description baseline."
+            ),
+            "optimization_candidate_summary": (
+                "Inspect whether bounded validation and payload-assembly responsibilities "
+                "can be decomposed into smaller descriptive helper surfaces while "
+                "preserving descriptive-only authority boundaries."
+            ),
+            "priority_posture": "planning_candidate",
+            "amendment_entitlement": "not_authorized_by_this_artifact",
+            "derivation_posture": "derived_deterministically",
+            "derivation_method": "cross_artifact_join",
+            "source_artifact_refs": [path],
+            "supporting_evidence_refs": sorted(
+                {
+                    "evidence:contract:v45e:v104",
+                    "evidence:bound:v45b:symbol_catalog",
+                    "evidence:bound:v45b:dependency_graph",
+                    "evidence:bound:v45d:test_intent_matrix",
+                    f"evidence:source:{path}:metrics",
+                }
+            ),
+        }
+        optimization_entries.append(
+            {
+                "entry_id": compute_repo_optimization_entry_id(payload_without_entry_id),
+                **payload_without_entry_id,
+            }
+        )
+
+    cluster_members = [
+        {
+            "member_ref_kind": "file_surface",
+            "member_ref": path,
+        }
+        for path in hotspot_paths
+    ]
+    for path in sorted(bound_test_intent_matrix_payload["test_source_set"]):
+        cluster_members.append(
+            {
+                "member_ref_kind": "test_surface",
+                "member_ref": path,
+            }
+        )
+    cluster_source_refs = sorted(
+        {
+            *hotspot_paths,
+            *bound_test_intent_matrix_payload["test_source_set"],
+        }
+    )
+    cluster_payload_without_entry_id = {
+        "finding_scope": {
+            "finding_scope_kind": "cross_surface_cluster",
+            "finding_scope_ref": "cluster:repo_description_core_logic",
+            "cluster_member_refs": cluster_members,
+        },
+        "compression_axis": "surface_compression",
+        "optimization_posture": "consolidation_candidate",
+        "support_basis": "test_and_dependency_concentration",
+        "secondary_compression_axes": ["governance_compression"],
+        "secondary_support_basis_tags": ["long_file_or_concentrated_surface"],
+        "descriptive_finding_summary": (
+            "Current repo-description logic and its defensive tests are concentrated across "
+            f"{len(cluster_members)} bound surfaces with repeated fail-closed joins "
+            "between code, dependency, and test-intent baselines."
+        ),
+        "optimization_candidate_summary": (
+            "Inspect whether shared helper seams for V45 binding, scope resolution, and "
+            "fail-closed validation should be factored more explicitly while preserving "
+            "descriptive-only authority boundaries."
+        ),
+        "priority_posture": "planning_candidate",
+        "amendment_entitlement": "not_authorized_by_this_artifact",
+        "derivation_posture": "derived_deterministically",
+        "derivation_method": "cross_artifact_join",
+        "source_artifact_refs": cluster_source_refs,
+        "supporting_evidence_refs": sorted(
+            {
+                "evidence:contract:v45e:v104",
+                "evidence:bound:v45b:symbol_catalog",
+                "evidence:bound:v45b:dependency_graph",
+                "evidence:bound:v45c:arc_dependency_register",
+                "evidence:bound:v45d:test_intent_matrix",
+                "evidence:cluster:v45e:core_logic",
+                *(f"evidence:source:{path}:metrics" for path in cluster_source_refs),
+            }
+        ),
+    }
+    optimization_entries.append(
+        {
+            "entry_id": compute_repo_optimization_entry_id(cluster_payload_without_entry_id),
+            **cluster_payload_without_entry_id,
+        }
+    )
+
+    payload_without_register_id = {
+        "schema": REPO_OPTIMIZATION_REGISTER_SCHEMA,
+        "repo_snapshot_id": bound_symbol_catalog_payload["repo_snapshot_id"],
+        "repo_snapshot_hash": bound_symbol_catalog_payload["repo_snapshot_hash"],
+        "snapshot_validity_posture": effective_snapshot_validity_posture,
+        "source_set": normalized_source_paths,
+        "source_set_hash": source_set_hash,
+        "bound_entity_catalog_ref": bound_entity_catalog_payload["repo_entity_catalog_id"],
+        "bound_schema_family_registry_ref": bound_schema_family_registry_payload[
+            "schema_family_registry_id"
+        ],
+        "bound_symbol_catalog_ref": bound_symbol_catalog_payload["repo_symbol_catalog_id"],
+        "bound_dependency_graph_ref": bound_dependency_graph_payload[
+            "repo_dependency_graph_id"
+        ],
+        "bound_test_intent_matrix_ref": bound_test_intent_matrix_payload[
+            "repo_test_intent_matrix_id"
+        ],
+        "register_scope": (
+            "v45e-bounded-optimization-register-over-adeu_repo_description-surfaces"
+        ),
+        "extraction_posture": "derived_deterministically",
+        "extraction_method": "cross_artifact_join",
+        "optimization_entries": sorted(optimization_entries, key=lambda row: row["entry_id"]),
+        "evidence_refs": [
+            evidence_refs_by_id[key].model_dump(mode="json") for key in sorted(evidence_refs_by_id)
+        ],
+    }
+    register = materialize_repo_optimization_register_payload(payload_without_register_id)
+    validate_repo_optimization_register_against_v45_baseline(
+        optimization_register_payload=register,
+        entity_catalog_payload=bound_entity_catalog_payload,
+        schema_family_registry_payload=bound_schema_family_registry_payload,
+        symbol_catalog_payload=bound_symbol_catalog_payload,
+        dependency_graph_payload=bound_dependency_graph_payload,
+        test_intent_matrix_payload=bound_test_intent_matrix_payload,
+        arc_dependency_register_payload=bound_arc_dependency_register_payload,
+    )
+    return register
+
+
 def default_v45a_source_paths() -> list[str]:
     return list(_DEFAULT_SOURCE_PATHS)
 
@@ -2089,3 +2449,7 @@ def default_v45c_source_paths() -> list[str]:
 
 def default_v45d_source_paths() -> list[str]:
     return _default_v45d_source_paths()
+
+
+def default_v45e_source_paths() -> list[str]:
+    return _default_v45e_source_paths()

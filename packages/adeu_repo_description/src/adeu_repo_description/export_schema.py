@@ -12,6 +12,7 @@ from .models import (
     RepoArcDependencyRegisterV1,
     RepoDependencyGraph,
     RepoEntityCatalog,
+    RepoOptimizationRegister,
     RepoSchemaFamilyRegistry,
     RepoSymbolCatalog,
     RepoTestIntentMatrix,
@@ -72,6 +73,7 @@ def main() -> None:
     dependency_register_v1_schema = RepoArcDependencyRegisterV1.model_json_schema(by_alias=True)
     dependency_register_schema = RepoArcDependencyRegister.model_json_schema(by_alias=True)
     dependency_graph_schema = RepoDependencyGraph.model_json_schema(by_alias=True)
+    optimization_register_schema = RepoOptimizationRegister.model_json_schema(by_alias=True)
     test_intent_matrix_schema = RepoTestIntentMatrix.model_json_schema(by_alias=True)
     registry_schema = RepoSchemaFamilyRegistry.model_json_schema(by_alias=True)
     catalog_schema = RepoEntityCatalog.model_json_schema(by_alias=True)
@@ -80,6 +82,7 @@ def main() -> None:
     _assert_no_absolute_path_material(dependency_register_v1_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_register_schema, repo_root_path=root)
     _assert_no_absolute_path_material(dependency_graph_schema, repo_root_path=root)
+    _assert_no_absolute_path_material(optimization_register_schema, repo_root_path=root)
     _assert_no_absolute_path_material(test_intent_matrix_schema, repo_root_path=root)
     _assert_no_absolute_path_material(registry_schema, repo_root_path=root)
     _assert_no_absolute_path_material(catalog_schema, repo_root_path=root)
@@ -120,6 +123,18 @@ def main() -> None:
     _write_schema(
         root / "spec" / "repo_test_intent_matrix.schema.json",
         test_intent_matrix_schema,
+    )
+    _write_schema(
+        root
+        / "packages"
+        / "adeu_repo_description"
+        / "schema"
+        / "repo_optimization_register.v1.json",
+        optimization_register_schema,
+    )
+    _write_schema(
+        root / "spec" / "repo_optimization_register.schema.json",
+        optimization_register_schema,
     )
     _write_schema(
         root
