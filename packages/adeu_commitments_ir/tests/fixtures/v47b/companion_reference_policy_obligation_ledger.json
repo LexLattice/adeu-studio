@@ -1,0 +1,23 @@
+{
+  "ledger_id": "ledger:v47b-companion",
+  "result_set_refs": [
+    "result-set:v47b-companion"
+  ],
+  "rows": [
+    {
+      "clause_ref": "companion_surface:title",
+      "clause_semantic_hash": "f2790b6b51f159ec9aa2d9657e38b242eb90f486850435c7e5b57eaefa14ed77",
+      "first_seen_run": "result-set:v47b-companion",
+      "latest_applicability": "active",
+      "latest_effective_verdict": "pass",
+      "latest_observed_outcome": "pass",
+      "latest_result_run": "result-set:v47b-companion",
+      "ledger_state": "satisfied",
+      "obligation_id": "obligation:19b2e7c01871",
+      "subject_ref": "companion:surface-a",
+      "updated_at": "result-set:v47b-companion"
+    }
+  ],
+  "schema": "policy_obligation_ledger@1",
+  "scope_snapshot": "snapshot:v47b-companion"
+}

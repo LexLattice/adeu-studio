@@ -1,0 +1,28 @@
+{
+  "schema": "checker_fact_bundle@1",
+  "bundle_id": "fact-bundle:v47b-invalid-type-values",
+  "scope_snapshot": "snapshot:v47b-standalone",
+  "checker_profile": {
+    "checker_ids": [
+      "checker:v47b"
+    ],
+    "checker_profile_id": "checker-profile:v47b"
+  },
+  "facts": [
+    {
+      "checker_id": "checker:v47b",
+      "emitted_at": "2026-04-01T00:00:00Z",
+      "fact_id": "fact:owner_type",
+      "fact_type": "value_type_observation",
+      "path": "metadata.owner",
+      "provenance": {
+        "carrier_ref": "carrier:artifact-beta",
+        "mode": "indirect"
+      },
+      "subject_ref": "artifact:beta",
+      "values": [
+        1
+      ]
+    }
+  ]
+}

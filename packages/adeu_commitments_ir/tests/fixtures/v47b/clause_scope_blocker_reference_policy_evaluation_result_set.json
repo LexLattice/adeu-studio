@@ -1,0 +1,25 @@
+{
+  "d_ir_ref": "d1-ir:8de5d5b0313e",
+  "fact_bundle_ref": "fact-bundle:v47b-standalone",
+  "notices": [],
+  "predicate_contract_ref": "predicate-contracts:20d4cce83292",
+  "result_set_id": "result-set:v47b-clause-blocker",
+  "results": [
+    {
+      "applicability": "active",
+      "clause_ref": "blocked_surface:owner",
+      "clause_semantic_hash": "233f4ad2388f9d436f0e73093b0349c60dc544916d54504573e3cbc1fbac5b0d",
+      "effective_verdict": "unknown_resolution",
+      "message": "unsupported bootstrap selector",
+      "observed_outcome": "unknown_resolution",
+      "result_id": "result:blocked_surface:owner",
+      "result_scope_kind": "clause_scope_blocker",
+      "supporting_contract_refs": [
+        "present"
+      ],
+      "supporting_fact_refs": []
+    }
+  ],
+  "schema": "policy_evaluation_result_set@1",
+  "scope_snapshot": "snapshot:v47b-standalone"
+}

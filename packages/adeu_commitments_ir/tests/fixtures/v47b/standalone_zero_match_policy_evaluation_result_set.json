@@ -1,0 +1,39 @@
+{
+  "d_ir_ref": "d1-ir:9e694861e52e",
+  "fact_bundle_ref": "fact-bundle:v47b-standalone-zero-match",
+  "notices": [
+    {
+      "clause_ref": "release_envelope:owner",
+      "message": "selector resolved zero subjects under allow_empty_with_notice",
+      "notice_id": "notice:release_envelope:owner",
+      "notice_kind": "selector_zero_match",
+      "selector_ref": "release_envelope:selector"
+    },
+    {
+      "clause_ref": "release_envelope:owner_binding",
+      "message": "selector resolved zero subjects under allow_empty_with_notice",
+      "notice_id": "notice:release_envelope:owner_binding",
+      "notice_kind": "selector_zero_match",
+      "selector_ref": "release_envelope:selector"
+    },
+    {
+      "clause_ref": "release_envelope:owner_explicit",
+      "message": "selector resolved zero subjects under allow_empty_with_notice",
+      "notice_id": "notice:release_envelope:owner_explicit",
+      "notice_kind": "selector_zero_match",
+      "selector_ref": "release_envelope:selector"
+    },
+    {
+      "clause_ref": "release_envelope:runtime_guard",
+      "message": "selector resolved zero subjects under allow_empty_with_notice",
+      "notice_id": "notice:release_envelope:runtime_guard",
+      "notice_kind": "selector_zero_match",
+      "selector_ref": "release_envelope:selector"
+    }
+  ],
+  "predicate_contract_ref": "predicate-contracts:20d4cce83292",
+  "result_set_id": "result-set:v47b-standalone-zero-match",
+  "results": [],
+  "schema": "policy_evaluation_result_set@1",
+  "scope_snapshot": "snapshot:v47b-standalone"
+}

@@ -1,0 +1,9 @@
+{
+  "ledger_id": "ledger:v47b-clause-blocker",
+  "result_set_refs": [
+    "result-set:v47b-clause-blocker"
+  ],
+  "rows": [],
+  "schema": "policy_obligation_ledger@1",
+  "scope_snapshot": "snapshot:v47b-standalone"
+}

@@ -1,0 +1,31 @@
+{
+  "clauses": [
+    {
+      "assertion_kind": "required",
+      "clause_label": "title",
+      "clause_ref": "companion_surface:title",
+      "modal": "MUST",
+      "normalized_predicate_id": "present",
+      "origin_block_ref": "companion_surface",
+      "qualifiers": [],
+      "subject_selector_ref": "companion_surface:selector",
+      "target_path": "metadata.title"
+    }
+  ],
+  "d1_ir_id": "d1-ir:426553d8e3aa",
+  "schema": "d1_normalized_ir@1",
+  "selector_refs": [
+    {
+      "selector_kind": "bootstrap_string_selector",
+      "selector_ref": "companion_surface:selector",
+      "selector_source_text": "companion.section[*]"
+    }
+  ],
+  "selector_zero_match_policy": "allow_empty_with_notice",
+  "semantic_hash": "426553d8e3aa78701f60d948676d6fd59477316f662cfa09d449320d33b47352",
+  "source_block_refs": [
+    "companion_surface"
+  ],
+  "source_doc_ref": "packages/adeu_semantic_source/tests/fixtures/v47b/companion_policy.md",
+  "source_doc_sha256": "01de7e51759611c868861ba6675e22708c101d7eef22b3cbc45d13c7f23e4d24"
+}

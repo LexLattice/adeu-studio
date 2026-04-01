@@ -541,8 +541,19 @@ def _selector_subjects(
     selector: D1SelectorRef,
     fact_bundle: CheckerFactBundle,
 ) -> tuple[list[str], str | None]:
-    if selector.selector_source_text == "artifact.emitted[*]":
-        subjects = sorted({fact.subject_ref for fact in fact_bundle.facts})
+    selector_prefixes = {
+        "artifact.emitted[*]": "artifact:",
+        "companion.section[*]": "companion:",
+    }
+    if selector.selector_source_text in selector_prefixes:
+        prefix = selector_prefixes[selector.selector_source_text]
+        subjects = sorted(
+            {
+                fact.subject_ref
+                for fact in fact_bundle.facts
+                if fact.subject_ref.startswith(prefix)
+            }
+        )
         return subjects, None
     return [], "unsupported bootstrap selector"
 
@@ -737,6 +748,7 @@ def project_policy_obligation_ledger(
         for row in previous_ledger.rows
     } if previous_ledger is not None else {}
     rows: dict[str, PolicyObligationLedgerRow] = dict(existing)
+    updated_obligation_ids: set[str] = set()
 
     for result in result_set.results:
         if isinstance(result, ClauseScopeBlockerResultRow):
@@ -770,6 +782,34 @@ def project_policy_obligation_ledger(
             deferral_ref=prior_row.deferral_ref if prior_row is not None else None,
             updated_at=updated_at or result_set.result_set_id,
         )
+        updated_obligation_ids.add(obligation_id)
+
+    zero_match_clause_refs = {
+        notice.clause_ref
+        for notice in result_set.notices
+        if notice.notice_kind == "selector_zero_match"
+    }
+    if zero_match_clause_refs:
+        for obligation_id, prior_row in list(rows.items()):
+            if obligation_id in updated_obligation_ids:
+                continue
+            if prior_row.clause_ref not in zero_match_clause_refs:
+                continue
+            rows[obligation_id] = PolicyObligationLedgerRow(
+                obligation_id=prior_row.obligation_id,
+                clause_ref=prior_row.clause_ref,
+                clause_semantic_hash=prior_row.clause_semantic_hash,
+                subject_ref=prior_row.subject_ref,
+                latest_applicability="active",
+                latest_observed_outcome="unknown_resolution",
+                latest_effective_verdict="unknown_resolution",
+                ledger_state="blocked_unknown_resolution",
+                first_seen_run=prior_row.first_seen_run,
+                latest_result_run=result_set.result_set_id,
+                waiver_ref=prior_row.waiver_ref,
+                deferral_ref=prior_row.deferral_ref,
+                updated_at=updated_at or result_set.result_set_id,
+            )
 
     result_set_refs = sorted(
         set(previous_ledger.result_set_refs if previous_ledger is not None else [])

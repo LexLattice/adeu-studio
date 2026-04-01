@@ -222,6 +222,7 @@
           "enum": [
             "direct",
             "derived",
+            "indirect",
             "absent",
             "inconclusive"
           ],
@@ -431,6 +432,62 @@
       ],
       "title": "ValueObservationFact",
       "type": "object"
+    },
+    "ValueTypeObservationFact": {
+      "additionalProperties": false,
+      "properties": {
+        "checker_id": {
+          "minLength": 1,
+          "title": "Checker Id",
+          "type": "string"
+        },
+        "emitted_at": {
+          "minLength": 1,
+          "title": "Emitted At",
+          "type": "string"
+        },
+        "fact_id": {
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "fact_type": {
+          "const": "value_type_observation",
+          "default": "value_type_observation",
+          "title": "Fact Type",
+          "type": "string"
+        },
+        "path": {
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/FactProvenance"
+        },
+        "subject_ref": {
+          "minLength": 1,
+          "title": "Subject Ref",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "fact_id",
+        "subject_ref",
+        "provenance",
+        "checker_id",
+        "emitted_at",
+        "path"
+      ],
+      "title": "ValueTypeObservationFact",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -452,13 +509,17 @@
             "explicit_carriage_observation": "#/$defs/ExplicitCarriageObservationFact",
             "path_cardinality_observation": "#/$defs/PathCardinalityObservationFact",
             "path_presence_observation": "#/$defs/PathPresenceObservationFact",
-            "value_observation": "#/$defs/ValueObservationFact"
+            "value_observation": "#/$defs/ValueObservationFact",
+            "value_type_observation": "#/$defs/ValueTypeObservationFact"
           },
           "propertyName": "fact_type"
         },
         "oneOf": [
           {
             "$ref": "#/$defs/ValueObservationFact"
+          },
+          {
+            "$ref": "#/$defs/ValueTypeObservationFact"
           },
           {
             "$ref": "#/$defs/BindingObservationFact"

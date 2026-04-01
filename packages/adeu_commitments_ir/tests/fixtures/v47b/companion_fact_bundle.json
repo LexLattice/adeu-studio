@@ -1,0 +1,45 @@
+{
+  "schema": "checker_fact_bundle@1",
+  "bundle_id": "fact-bundle:v47b-companion",
+  "scope_snapshot": "snapshot:v47b-companion",
+  "checker_profile": {
+    "checker_ids": [
+      "checker:v47b"
+    ],
+    "checker_profile_id": "checker-profile:v47b"
+  },
+  "facts": [
+    {
+      "checker_id": "checker:v47b",
+      "emitted_at": "2026-04-01T00:00:00Z",
+      "fact_id": "fact:carrier_meta",
+      "fact_type": "carrier_read",
+      "carrier_payload": {
+        "carrier_kind": "markdown_companion",
+        "section_count": 1
+      },
+      "provenance": {
+        "carrier_ref": "carrier:companion-surface-a",
+        "mode": "direct",
+        "notes": "carrier metadata observed directly"
+      },
+      "subject_ref": "companion:surface-a"
+    },
+    {
+      "checker_id": "checker:v47b",
+      "emitted_at": "2026-04-01T00:00:00Z",
+      "fact_id": "fact:title_presence",
+      "fact_type": "path_presence_observation",
+      "path": "metadata.title",
+      "provenance": {
+        "carrier_ref": "carrier:companion-surface-a",
+        "mode": "direct",
+        "notes": "title field present"
+      },
+      "subject_ref": "companion:surface-a",
+      "values": [
+        true
+      ]
+    }
+  ]
+}

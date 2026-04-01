@@ -29,13 +29,14 @@ PredicateOwnerLayer = Literal["bootstrap_d"]
 ArgumentKind = Literal["path", "integer", "scalar"]
 FactType = Literal[
     "value_observation",
+    "value_type_observation",
     "binding_observation",
     "carrier_read",
     "path_presence_observation",
     "path_cardinality_observation",
     "explicit_carriage_observation",
 ]
-ProvenanceMode = Literal["direct", "derived", "absent", "inconclusive"]
+ProvenanceMode = Literal["direct", "derived", "indirect", "absent", "inconclusive"]
 Applicability = Literal["active", "gated_off", "excepted"]
 ObservedOutcome = Literal[
     "not_evaluated",
@@ -322,6 +323,12 @@ class ValueObservationFact(_CheckerFactRowBase):
     values: list[JsonScalar] = Field(default_factory=list)
 
 
+class ValueTypeObservationFact(_CheckerFactRowBase):
+    fact_type: Literal["value_type_observation"] = "value_type_observation"
+    path: str = Field(min_length=1)
+    values: list[str] = Field(default_factory=list)
+
+
 class BindingObservationFact(_CheckerFactRowBase):
     fact_type: Literal["binding_observation"] = "binding_observation"
     binding_payload: dict[str, JsonScalar] = Field(default_factory=dict)
@@ -352,6 +359,7 @@ class ExplicitCarriageObservationFact(_CheckerFactRowBase):
 
 CheckerFactRow = Annotated[
     ValueObservationFact
+    | ValueTypeObservationFact
     | BindingObservationFact
     | CarrierReadFact
     | PathPresenceObservationFact
@@ -647,6 +655,7 @@ __all__ = [
     "FactProvenance",
     "CheckerProfile",
     "ValueObservationFact",
+    "ValueTypeObservationFact",
     "BindingObservationFact",
     "CarrierReadFact",
     "PathPresenceObservationFact",

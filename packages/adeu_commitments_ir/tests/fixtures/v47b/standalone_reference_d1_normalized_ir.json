@@ -1,0 +1,70 @@
+{
+  "clauses": [
+    {
+      "assertion_kind": "required",
+      "clause_label": "owner",
+      "clause_ref": "release_envelope:owner",
+      "modal": "MUST",
+      "normalized_predicate_id": "present",
+      "origin_block_ref": "release_envelope",
+      "qualifiers": [],
+      "subject_selector_ref": "release_envelope:selector",
+      "target_path": "metadata.owner"
+    },
+    {
+      "assertion_kind": "predicate_call",
+      "clause_label": "owner_binding",
+      "clause_ref": "release_envelope:owner_binding",
+      "modal": "MUST",
+      "normalized_predicate_id": "bind_to",
+      "origin_block_ref": "release_envelope",
+      "qualifiers": [],
+      "subject_selector_ref": "release_envelope:selector",
+      "target_path": "metadata.owner"
+    },
+    {
+      "assertion_kind": "explicit",
+      "clause_label": "owner_explicit",
+      "clause_ref": "release_envelope:owner_explicit",
+      "modal": "MUST",
+      "normalized_predicate_id": "explicit",
+      "origin_block_ref": "release_envelope",
+      "qualifiers": [],
+      "subject_selector_ref": "release_envelope:selector",
+      "target_path": "metadata.owner"
+    },
+    {
+      "assertion_kind": "required",
+      "clause_label": "runtime_guard",
+      "clause_ref": "release_envelope:runtime_guard",
+      "modal": "MUST",
+      "normalized_predicate_id": "present",
+      "origin_block_ref": "release_envelope",
+      "qualifiers": [
+        {
+          "normalized_predicate_id": "present",
+          "qualifier_kind": "only_if",
+          "target_path": "runtime.enabled"
+        }
+      ],
+      "subject_selector_ref": "release_envelope:selector",
+      "target_path": "metadata.owner"
+    }
+  ],
+  "d1_ir_id": "d1-ir:9e694861e52e",
+  "schema": "d1_normalized_ir@1",
+  "selector_refs": [
+    {
+      "selector_kind": "bootstrap_string_selector",
+      "selector_ref": "release_envelope:selector",
+      "selector_source_text": "artifact.emitted[*]"
+    }
+  ],
+  "selector_zero_match_policy": "allow_empty_with_notice",
+  "semantic_hash": "9e694861e52e867980d654b4e06bbd07fbc882223dd557772e71065b16e7b08c",
+  "source_block_refs": [
+    "release_envelope"
+  ],
+  "source_doc_ref": "packages/adeu_semantic_source/tests/fixtures/v47b/standalone_policy.adeu.md",
+  "source_doc_sha256": "bfea817c455f3b4d03d25e59f2a867a83afc6368265326587ad7e9fc003d2869"
+}

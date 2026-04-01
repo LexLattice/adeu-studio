@@ -1,0 +1,79 @@
+{
+  "d_ir_ref": "d1-ir:9e694861e52e",
+  "fact_bundle_ref": "fact-bundle:v47b-standalone",
+  "notices": [],
+  "predicate_contract_ref": "predicate-contracts:20d4cce83292",
+  "result_set_id": "result-set:v47b-standalone",
+  "results": [
+    {
+      "applicability": "active",
+      "clause_ref": "release_envelope:owner",
+      "clause_semantic_hash": "de23182d991265e258f1e6d1a6b49b27ffc0c449ac7c65d21d559b21a45897ba",
+      "effective_verdict": "pass",
+      "message": "evaluated release_envelope:owner for artifact:beta",
+      "observed_outcome": "pass",
+      "result_id": "result:release_envelope:owner:artifact:beta",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:beta",
+      "supporting_contract_refs": [
+        "present"
+      ],
+      "supporting_fact_refs": [
+        "fact:owner_presence"
+      ]
+    },
+    {
+      "applicability": "active",
+      "clause_ref": "release_envelope:owner_binding",
+      "clause_semantic_hash": "c523e5dbcbcacb1eb1efbe1110c2288d1735455cfc5bbd2ae2026ee0809d2693",
+      "effective_verdict": "pass",
+      "message": "evaluated release_envelope:owner_binding for artifact:beta",
+      "observed_outcome": "pass",
+      "result_id": "result:release_envelope:owner_binding:artifact:beta",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:beta",
+      "supporting_contract_refs": [
+        "bind_to"
+      ],
+      "supporting_fact_refs": [
+        "fact:owner_binding"
+      ]
+    },
+    {
+      "applicability": "active",
+      "clause_ref": "release_envelope:owner_explicit",
+      "clause_semantic_hash": "702e468871b735d9eb9dc0e7e3a00d56a7f03789be35510be813349e21667153",
+      "effective_verdict": "pass",
+      "message": "evaluated release_envelope:owner_explicit for artifact:beta",
+      "observed_outcome": "pass",
+      "result_id": "result:release_envelope:owner_explicit:artifact:beta",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:beta",
+      "supporting_contract_refs": [
+        "explicit"
+      ],
+      "supporting_fact_refs": [
+        "fact:owner_explicit"
+      ]
+    },
+    {
+      "applicability": "gated_off",
+      "clause_ref": "release_envelope:runtime_guard",
+      "clause_semantic_hash": "f15a71961788d63b7be8c2094239a5e7281593c64989bca24c7753f5cd1bd4a1",
+      "effective_verdict": "gated_off",
+      "message": "release_envelope:runtime_guard gated off by ONLY_IF false",
+      "observed_outcome": "not_evaluated",
+      "result_id": "result:release_envelope:runtime_guard:artifact:beta",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "artifact:beta",
+      "supporting_contract_refs": [
+        "present"
+      ],
+      "supporting_fact_refs": [
+        "fact:runtime_enabled"
+      ]
+    }
+  ],
+  "schema": "policy_evaluation_result_set@1",
+  "scope_snapshot": "snapshot:v47b-standalone"
+}

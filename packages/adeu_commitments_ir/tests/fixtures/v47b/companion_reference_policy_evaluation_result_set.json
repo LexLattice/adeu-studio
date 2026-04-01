@@ -1,0 +1,28 @@
+{
+  "d_ir_ref": "d1-ir:426553d8e3aa",
+  "fact_bundle_ref": "fact-bundle:v47b-companion",
+  "notices": [],
+  "predicate_contract_ref": "predicate-contracts:20d4cce83292",
+  "result_set_id": "result-set:v47b-companion",
+  "results": [
+    {
+      "applicability": "active",
+      "clause_ref": "companion_surface:title",
+      "clause_semantic_hash": "f2790b6b51f159ec9aa2d9657e38b242eb90f486850435c7e5b57eaefa14ed77",
+      "effective_verdict": "pass",
+      "message": "evaluated companion_surface:title for companion:surface-a",
+      "observed_outcome": "pass",
+      "result_id": "result:companion_surface:title:companion:surface-a",
+      "result_scope_kind": "subject_scoped",
+      "subject_ref": "companion:surface-a",
+      "supporting_contract_refs": [
+        "present"
+      ],
+      "supporting_fact_refs": [
+        "fact:title_presence"
+      ]
+    }
+  ],
+  "schema": "policy_evaluation_result_set@1",
+  "scope_snapshot": "snapshot:v47b-companion"
+}
