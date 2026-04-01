@@ -6,6 +6,9 @@ from hashlib import sha256
 from typing import Any
 
 from adeu_commitments_ir import (
+    AnmAdoptionBoundaryRow,
+    AnmCoexistenceSourceRow,
+    AnmMarkdownCoexistenceProfile,
     CheckerFactBundle,
     ClauseScopeBlockerResultRow,
     D1Clause,
@@ -13,6 +16,7 @@ from adeu_commitments_ir import (
     D1Qualifier,
     D1SelectorRef,
     EvaluationNotice,
+    MigrationDiscipline,
     PolicyEvaluationResultSet,
     PolicyObligationLedger,
     PolicyObligationLedgerRow,
@@ -22,6 +26,7 @@ from adeu_commitments_ir import (
     SubjectScopedResultRow,
     stable_payload_hash,
 )
+from pydantic import ValidationError
 
 _D1_BLOCK_HEADER_RE = re.compile(r"^:::D@1(?:\s+id=(?P<block_id>[A-Za-z0-9_.-]+))\s*$")
 _CLAUSE_RE = re.compile(r"^@(?P<label>[A-Za-z0-9_.-]+)\s+(?P<modal>MUST|MUST_NOT)\s+(?P<rest>.+)$")
@@ -50,6 +55,13 @@ def _normalize_text(text: str) -> str:
 
 def _sha256_text(text: str) -> str:
     return sha256(text.encode("utf-8")).hexdigest()
+
+
+def _require_non_empty_text(value: str, *, field_name: str) -> str:
+    normalized = value.strip()
+    if not normalized:
+        raise AnmCompileError(f"{field_name} must not be empty")
+    return normalized
 
 
 def _json_scalar_from_text(value_text: str) -> str | int | bool | None:
@@ -227,6 +239,209 @@ def _extract_blocks(source_text: str) -> list[_ParsedBlock]:
     if not blocks:
         raise AnmCompileError("no D@1 blocks found; prose inference is forbidden")
     return blocks
+
+
+def _infer_source_posture(*, source_ref: str, source_text: str) -> str:
+    _extract_blocks(source_text)
+    return "standalone_anm" if source_ref.endswith(".adeu.md") else "companion_anm"
+
+
+def build_v47c_coexistence_profile(
+    *,
+    snapshot_id: str,
+    source_scope_profile: str,
+    released_stack_refs: list[str],
+    source_docs: dict[str, str],
+    source_row_specs: list[dict[str, Any]],
+    migration_discipline: dict[str, Any],
+    adoption_boundary_rows: list[dict[str, Any]],
+    host_registry: list[dict[str, Any]] | None = None,
+) -> AnmMarkdownCoexistenceProfile:
+    snapshot_id = _require_non_empty_text(snapshot_id, field_name="snapshot_id")
+    source_scope_profile = _require_non_empty_text(
+        source_scope_profile,
+        field_name="source_scope_profile",
+    )
+    if not source_docs:
+        raise AnmCompileError("source_docs must not be empty")
+
+    try:
+        migration = MigrationDiscipline.model_validate(migration_discipline)
+    except ValidationError as error:
+        raise AnmCompileError(str(error)) from error
+    compatible_scopes = set(migration.compatible_local_source_scopes)
+
+    normalized_source_docs: dict[str, str] = {}
+    for source_ref, source_text in sorted(source_docs.items()):
+        normalized_ref = _require_non_empty_text(source_ref, field_name="source_ref")
+        normalized_source_docs[normalized_ref] = _normalize_text(source_text)
+        _infer_source_posture(
+            source_ref=normalized_ref,
+            source_text=normalized_source_docs[normalized_ref],
+        )
+
+    row_specs_by_ref: dict[str, dict[str, Any]] = {}
+    local_scope_by_source_ref: dict[str, str] = {}
+    for spec in source_row_specs:
+        source_ref = _require_non_empty_text(spec["source_ref"], field_name="source_ref")
+        local_source_scope = _require_non_empty_text(
+            spec["local_source_scope"],
+            field_name="local_source_scope",
+        )
+        if source_ref in row_specs_by_ref:
+            raise AnmCompileError(f"duplicate source_row_specs entry for {source_ref}")
+        row_specs_by_ref[source_ref] = spec
+        local_scope_by_source_ref[source_ref] = local_source_scope
+
+    if sorted(row_specs_by_ref) != sorted(normalized_source_docs):
+        raise AnmCompileError("source_row_specs must exactly cover source_docs")
+
+    host_registry_index: dict[str, dict[str, Any]] = {}
+    for entry in host_registry or []:
+        host_ref = _require_non_empty_text(entry["host_ref"], field_name="host_ref")
+        if host_ref in host_registry_index:
+            raise AnmCompileError(f"duplicate host_registry entry for {host_ref}")
+        host_registry_index[host_ref] = entry
+
+    built_rows: list[AnmCoexistenceSourceRow] = []
+    for source_ref in sorted(row_specs_by_ref):
+        spec = row_specs_by_ref[source_ref]
+        local_source_scope = local_scope_by_source_ref[source_ref]
+        if local_source_scope not in compatible_scopes:
+            raise AnmCompileError(
+                f"source {source_ref} local_source_scope {local_source_scope} is not compatible"
+            )
+        source_posture = _infer_source_posture(
+            source_ref=source_ref,
+            source_text=normalized_source_docs[source_ref],
+        )
+        try:
+            row = AnmCoexistenceSourceRow.model_validate(
+                {
+                    "source_ref": source_ref,
+                    "source_posture": source_posture,
+                    "current_markdown_authority_relation": spec[
+                        "current_markdown_authority_relation"
+                    ],
+                    "host_or_companion_ref": spec.get("host_or_companion_ref"),
+                    "companion_embedding_posture": spec.get(
+                        "companion_embedding_posture",
+                        "not_applicable",
+                    ),
+                    "non_override_rule": spec.get(
+                        "non_override_rule",
+                        "current_markdown_not_overridden",
+                    ),
+                    "allowed_constrain_actions": spec.get("allowed_constrain_actions", []),
+                    "migration_posture": spec["migration_posture"],
+                    "requires_later_lock_for_supersession": spec[
+                        "requires_later_lock_for_supersession"
+                    ],
+                }
+            )
+        except ValidationError as error:
+            raise AnmCompileError(str(error)) from error
+        if row.source_posture == "companion_anm":
+            host_ref = row.host_or_companion_ref
+            assert host_ref is not None
+            if host_ref in normalized_source_docs:
+                linked_scope = local_scope_by_source_ref.get(host_ref)
+                if linked_scope is None:
+                    raise AnmCompileError(f"host_or_companion_ref {host_ref} is orphaned")
+                if linked_scope not in compatible_scopes:
+                    raise AnmCompileError(
+                        f"host_or_companion_ref {host_ref} has incompatible source scope"
+                    )
+            else:
+                host_entry = host_registry_index.get(host_ref)
+                if host_entry is None:
+                    raise AnmCompileError(f"host_or_companion_ref {host_ref} is orphaned")
+                if host_entry.get("snapshot_id") != snapshot_id:
+                    raise AnmCompileError(
+                        f"host_or_companion_ref {host_ref} is stale for snapshot {snapshot_id}"
+                    )
+                host_scope = _require_non_empty_text(
+                    host_entry["local_source_scope"],
+                    field_name="host_registry.local_source_scope",
+                )
+                if host_scope not in compatible_scopes:
+                    raise AnmCompileError(
+                        f"host_or_companion_ref {host_ref} has incompatible source scope"
+                    )
+                authority_surface_kind = host_entry.get(
+                    "authority_surface_kind",
+                    "current_markdown_authority",
+                )
+                if authority_surface_kind != "current_markdown_authority":
+                    raise AnmCompileError(
+                        f"host_or_companion_ref {host_ref} implies incompatible authority posture"
+                    )
+        built_rows.append(row)
+
+    try:
+        boundary_rows = [
+            AnmAdoptionBoundaryRow.model_validate(payload)
+            for payload in adoption_boundary_rows
+        ]
+    except ValidationError as error:
+        raise AnmCompileError(str(error)) from error
+    released_stack_refs = sorted(
+        {
+            _require_non_empty_text(item, field_name="released_stack_refs")
+            for item in released_stack_refs
+        }
+    )
+    snapshot_sha256 = stable_payload_hash(
+        {
+            "snapshot_id": snapshot_id,
+            "source_scope_profile": source_scope_profile,
+            "source_docs": [
+                {
+                    "source_ref": source_ref,
+                    "sha256": _sha256_text(source_text),
+                }
+                for source_ref, source_text in sorted(normalized_source_docs.items())
+            ],
+            "host_registry": [
+                {
+                    "host_ref": host_ref,
+                    "snapshot_id": host_entry["snapshot_id"],
+                    "local_source_scope": host_entry["local_source_scope"],
+                    "authority_surface_kind": host_entry.get(
+                        "authority_surface_kind",
+                        "current_markdown_authority",
+                    ),
+                }
+                for host_ref, host_entry in sorted(host_registry_index.items())
+            ],
+        }
+    )
+    semantic_hash = stable_payload_hash(
+        {
+            "snapshot_id": snapshot_id,
+            "snapshot_sha256": snapshot_sha256,
+            "source_scope_profile": source_scope_profile,
+            "released_stack_refs": released_stack_refs,
+            "source_rows": [
+                row.model_dump(mode="json", exclude_none=True) for row in built_rows
+            ],
+            "migration_discipline": migration.model_dump(mode="json", exclude_none=True),
+            "adoption_boundary_rows": [
+                row.model_dump(mode="json", exclude_none=True) for row in boundary_rows
+            ],
+        }
+    )
+    return AnmMarkdownCoexistenceProfile(
+        coexistence_profile_id=f"anm-coexistence:{semantic_hash[:12]}",
+        snapshot_id=snapshot_id,
+        snapshot_sha256=snapshot_sha256,
+        source_scope_profile=source_scope_profile,
+        released_stack_refs=released_stack_refs,
+        source_rows=built_rows,
+        migration_discipline=migration,
+        adoption_boundary_rows=boundary_rows,
+        semantic_hash=semantic_hash,
+    )
 
 
 def compile_authoritative_normative_markdown(
@@ -860,4 +1075,5 @@ __all__ = [
     "evaluate_authoritative_normative_markdown",
     "project_policy_obligation_ledger",
     "build_v47a_reference_chain",
+    "build_v47c_coexistence_profile",
 ]

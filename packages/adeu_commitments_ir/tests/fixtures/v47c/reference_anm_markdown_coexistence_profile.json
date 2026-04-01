@@ -1,0 +1,97 @@
+{
+  "adoption_boundary_rows": [
+    {
+      "adoption_boundary_posture": "allowed_now",
+      "allowed_now_actions": [
+        "record_non_override_binding",
+        "reference_released_anm_artifact"
+      ],
+      "consumer_surface": "current_markdown_authority",
+      "forbidden_actions": [
+        "embed_authoritative_d1_block",
+        "emit_migration_signal"
+      ],
+      "later_lock_required_actions": []
+    },
+    {
+      "adoption_boundary_posture": "forbidden_in_v47c",
+      "allowed_now_actions": [],
+      "consumer_surface": "execution_authority_surface",
+      "forbidden_actions": [
+        "embed_authoritative_d1_block",
+        "emit_migration_signal",
+        "record_non_override_binding",
+        "reference_released_anm_artifact"
+      ],
+      "later_lock_required_actions": []
+    },
+    {
+      "adoption_boundary_posture": "allowed_with_later_lock",
+      "allowed_now_actions": [],
+      "consumer_surface": "later_markdown_supersession",
+      "forbidden_actions": [
+        "record_non_override_binding",
+        "reference_released_anm_artifact"
+      ],
+      "later_lock_required_actions": [
+        "embed_authoritative_d1_block",
+        "emit_migration_signal"
+      ]
+    }
+  ],
+  "coexistence_profile_id": "anm-coexistence:57a8d61efb98",
+  "migration_discipline": {
+    "companion_posture_allowed": true,
+    "compatible_local_source_scopes": [
+      "anm_companion",
+      "anm_standalone",
+      "markdown_current_authority"
+    ],
+    "current_markdown_supersession_requires_later_lock": true,
+    "preferred_source_postures": [
+      "companion_anm",
+      "standalone_anm"
+    ],
+    "repo_wide_migration_forbidden": true,
+    "standalone_posture_allowed": true
+  },
+  "released_stack_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS106.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS107.md"
+  ],
+  "schema": "anm_markdown_coexistence_profile@1",
+  "semantic_hash": "57a8d61efb98aa6f4318b10fce33cd3dbb619044ca355f4c8d9ed27b27e5a516",
+  "snapshot_id": "snapshot:v47c-reference",
+  "snapshot_sha256": "18c8bed7473a0566d3410d39a670c6aa651bc59a9fb4a2193f60f6f7aa54793c",
+  "source_rows": [
+    {
+      "allowed_constrain_actions": [
+        "embed_authoritative_d1_block",
+        "emit_migration_signal",
+        "record_non_override_binding",
+        "reference_released_anm_artifact"
+      ],
+      "companion_embedding_posture": "embedded_in_host_markdown",
+      "current_markdown_authority_relation": "coexisting_non_override",
+      "host_or_companion_ref": "packages/adeu_semantic_source/tests/fixtures/v47c/current_authority.md",
+      "migration_posture": "prefer_companion",
+      "non_override_rule": "current_markdown_not_overridden",
+      "requires_later_lock_for_supersession": false,
+      "source_posture": "companion_anm",
+      "source_ref": "packages/adeu_semantic_source/tests/fixtures/v47c/companion_policy.md"
+    },
+    {
+      "allowed_constrain_actions": [
+        "reference_released_anm_artifact"
+      ],
+      "companion_embedding_posture": "not_applicable",
+      "current_markdown_authority_relation": "later_lock_required_for_supersession",
+      "migration_posture": "prefer_standalone",
+      "non_override_rule": "current_markdown_not_overridden",
+      "requires_later_lock_for_supersession": true,
+      "source_posture": "standalone_anm",
+      "source_ref": "packages/adeu_semantic_source/tests/fixtures/v47c/standalone_policy.adeu.md"
+    }
+  ],
+  "source_scope_profile": "mixed_v47c_reference_scope"
+}

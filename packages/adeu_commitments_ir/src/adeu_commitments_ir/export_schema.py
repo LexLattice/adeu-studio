@@ -8,6 +8,7 @@ from typing import Any
 from adeu_ir.repo import repo_root
 
 from .anm_models import (
+    AnmMarkdownCoexistenceProfile,
     CheckerFactBundle,
     D1NormalizedIR,
     PolicyEvaluationResultSet,
@@ -110,6 +111,15 @@ def main() -> None:
             / "schema"
             / "policy_obligation_ledger.v1.json",
             root / "spec" / "policy_obligation_ledger.schema.json",
+        ),
+        (
+            AnmMarkdownCoexistenceProfile,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_markdown_coexistence_profile.v1.json",
+            root / "spec" / "anm_markdown_coexistence_profile.schema.json",
         ),
     ]
 
