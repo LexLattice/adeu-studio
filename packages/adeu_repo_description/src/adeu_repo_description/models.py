@@ -3027,6 +3027,8 @@ def validate_repo_descriptive_normative_binding_frame_against_v45_baseline(
     for artifact_name, artifact in (
         ("V45-A entity catalog", entity_catalog),
         ("V45-A schema registry", schema_family_registry),
+        ("V45-B symbol catalog", symbol_catalog),
+        ("V45-B dependency graph", dependency_graph),
         ("V45-C arc dependency register", arc_dependency_register),
         ("V45-D test intent matrix", test_intent_matrix),
         ("V45-E optimization register", optimization_register),

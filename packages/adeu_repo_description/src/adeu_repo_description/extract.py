@@ -2463,6 +2463,7 @@ def derive_v45f_repo_descriptive_normative_binding_frame(
     snapshot_validity_posture: str | None = None,
 ) -> dict[str, Any]:
     root = repo_root(anchor=Path(__file__))
+    requested_snapshot_validity_posture = snapshot_validity_posture or "snapshot_bound_current"
     normalized_source_paths = (
         source_paths if source_paths is not None else _default_v45f_source_paths()
     )
@@ -2474,7 +2475,7 @@ def derive_v45f_repo_descriptive_normative_binding_frame(
 
     if bound_schema_family_registry_payload is None or bound_entity_catalog_payload is None:
         derived_schema_registry, derived_entity_catalog = derive_v45a_repo_description_bundle(
-            snapshot_validity_posture="snapshot_bound_current"
+            snapshot_validity_posture=requested_snapshot_validity_posture
         )
         bound_schema_family_registry_payload = (
             derived_schema_registry
@@ -2490,7 +2491,7 @@ def derive_v45f_repo_descriptive_normative_binding_frame(
         derived_symbol_catalog, derived_dependency_graph = (
             derive_v45b_repo_symbol_catalog_and_dependency_graph(
                 source_paths=default_v45b_source_paths(),
-                snapshot_validity_posture="snapshot_bound_current",
+                snapshot_validity_posture=requested_snapshot_validity_posture,
             )
         )
         bound_symbol_catalog_payload = (
@@ -2510,6 +2511,7 @@ def derive_v45f_repo_descriptive_normative_binding_frame(
             source_paths=default_v45d_source_paths(),
             bound_symbol_catalog_payload=bound_symbol_catalog_payload,
             bound_dependency_graph_payload=bound_dependency_graph_payload,
+            snapshot_validity_posture=requested_snapshot_validity_posture,
         )
     if bound_optimization_register_payload is None:
         bound_optimization_register_payload = derive_v45e_repo_optimization_register(
@@ -2520,6 +2522,7 @@ def derive_v45f_repo_descriptive_normative_binding_frame(
             bound_dependency_graph_payload=bound_dependency_graph_payload,
             bound_test_intent_matrix_payload=bound_test_intent_matrix_payload,
             bound_arc_dependency_register_payload=bound_arc_dependency_register_payload,
+            snapshot_validity_posture=requested_snapshot_validity_posture,
         )
 
     effective_snapshot_validity_posture = (
@@ -2615,8 +2618,8 @@ def derive_v45f_repo_descriptive_normative_binding_frame(
             "derivation_posture": "derived_deterministically",
             "derivation_method": "policy_binding_rule",
             "source_artifact_refs": [
-                "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md",
                 "docs/DRAFT_NEXT_ARC_OPTIONS_v28.md",
+                "docs/LOCKED_CONTINUATION_vNEXT_PLUS105.md",
             ],
             "supporting_evidence_refs": [
                 "evidence:bound:v45a:entity_catalog",
@@ -2780,8 +2783,8 @@ def derive_v45f_repo_descriptive_normative_binding_frame(
     for row in row_specs:
         payload_without_entry_id = {
             **row,
-            "source_artifact_refs": sorted(row["source_artifact_refs"]),
-            "supporting_evidence_refs": sorted(row["supporting_evidence_refs"]),
+            "source_artifact_refs": row["source_artifact_refs"],
+            "supporting_evidence_refs": row["supporting_evidence_refs"],
         }
         binding_entries.append(
             {

@@ -10,6 +10,7 @@ from adeu_ir.repo import repo_root
 from adeu_repo_description import (
     REPO_DESCRIPTIVE_NORMATIVE_BINDING_FRAME_SCHEMA,
     RepoDescriptiveNormativeBindingFrame,
+    compute_repo_arc_dependency_register_id,
     compute_repo_descriptive_normative_binding_frame_id,
     default_v45f_source_paths,
     derive_v45a_repo_description_bundle,
@@ -201,3 +202,55 @@ def test_v105_reference_fixture_binds_v45c_explicitly() -> None:
     assert payload["bound_arc_dependency_register_ref"].startswith(
         "repo_arc_dependency_register_"
     )
+
+
+def test_v45f_propagates_historical_snapshot_validity_to_nested_derivations() -> None:
+    bound_schema_registry, bound_entity_catalog = derive_v45a_repo_description_bundle(
+        snapshot_validity_posture="snapshot_bound_historical"
+    )
+    bound_symbol_catalog, bound_dependency_graph = (
+        derive_v45b_repo_symbol_catalog_and_dependency_graph(
+            snapshot_validity_posture="snapshot_bound_historical"
+        )
+    )
+    bound_arc_dependency_register = deepcopy(
+        _load_v102("repo_arc_dependency_register_v102_reference.json")
+    )
+    bound_arc_dependency_register["snapshot_validity_posture"] = "snapshot_bound_historical"
+    bound_arc_dependency_register["repo_arc_dependency_register_id"] = (
+        compute_repo_arc_dependency_register_id(
+            {
+                key: value
+                for key, value in bound_arc_dependency_register.items()
+                if key != "repo_arc_dependency_register_id"
+            }
+        )
+    )
+    bound_test_intent_matrix = derive_v45d_repo_test_intent_matrix(
+        bound_symbol_catalog_payload=bound_symbol_catalog,
+        bound_dependency_graph_payload=bound_dependency_graph,
+        snapshot_validity_posture="snapshot_bound_historical",
+    )
+    bound_optimization_register = derive_v45e_repo_optimization_register(
+        bound_entity_catalog_payload=bound_entity_catalog,
+        bound_schema_family_registry_payload=bound_schema_registry,
+        bound_symbol_catalog_payload=bound_symbol_catalog,
+        bound_dependency_graph_payload=bound_dependency_graph,
+        bound_test_intent_matrix_payload=bound_test_intent_matrix,
+        bound_arc_dependency_register_payload=bound_arc_dependency_register,
+        snapshot_validity_posture="snapshot_bound_historical",
+    )
+
+    frame = derive_v45f_repo_descriptive_normative_binding_frame(
+        source_paths=default_v45f_source_paths(),
+        bound_entity_catalog_payload=bound_entity_catalog,
+        bound_schema_family_registry_payload=bound_schema_registry,
+        bound_symbol_catalog_payload=bound_symbol_catalog,
+        bound_dependency_graph_payload=bound_dependency_graph,
+        bound_arc_dependency_register_payload=bound_arc_dependency_register,
+        bound_test_intent_matrix_payload=bound_test_intent_matrix,
+        bound_optimization_register_payload=bound_optimization_register,
+        snapshot_validity_posture="snapshot_bound_historical",
+    )
+
+    assert frame["snapshot_validity_posture"] == "snapshot_bound_historical"
