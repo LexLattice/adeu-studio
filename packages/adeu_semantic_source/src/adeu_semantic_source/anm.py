@@ -993,6 +993,11 @@ def build_v47e_policy_consumer_binding_profile(
                 raise AnmCompileError(
                     f"supporting ledger ref {ledger_ref} is unresolved for {row.consumer_ref}"
                 )
+            if ledger_row.latest_result_run != result_set.result_set_id:
+                raise AnmCompileError(
+                    f"supporting ledger ref {ledger_ref} does not belong to result_set "
+                    f"{result_set.result_set_id}"
+                )
             if ledger_row.clause_ref != row.policy_source_ref:
                 raise AnmCompileError(
                     f"supporting ledger ref {ledger_ref} contradicts bound policy source"

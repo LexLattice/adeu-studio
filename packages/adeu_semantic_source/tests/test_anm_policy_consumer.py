@@ -223,6 +223,35 @@ def test_v47e_rejects_contradictory_supporting_surfaces() -> None:
         )
 
 
+def test_v47e_rejects_supporting_ledger_ref_from_stale_result_run() -> None:
+    spec = _read_spec_v47e("reference_policy_consumer_spec.json")
+    d1_ir, result_set, ledger = _reference_result_chain()
+    payload = ledger.model_dump(mode="json", exclude_none=True)
+    payload["rows"][0]["latest_result_run"] = "result-set:v47e-previous"
+    stale_ledger = PolicyObligationLedger.model_validate(payload)
+
+    with pytest.raises(
+        AnmCompileError,
+        match=(
+            "supporting ledger ref obligation:dbab82f540f1 does not belong to result_set "
+            "result-set:v47e-reference"
+        ),
+    ):
+        build_v47e_policy_consumer_binding_profile(
+            snapshot_id=spec["snapshot_id"],
+            source_scope_profile=spec["source_scope_profile"],
+            released_stack_refs=spec["released_stack_refs"],
+            d1_ir=d1_ir,
+            result_set=result_set,
+            ledger=stale_ledger,
+            coexistence_profile=_reference_coexistence_profile(),
+            ownership_profile=_reference_ownership_profile(),
+            consumer_row_specs=spec["consumer_row_specs"],
+            descriptive_artifact_registry=spec["descriptive_artifact_registry"],
+            runtime_event_registry=spec["runtime_event_registry"],
+        )
+
+
 def test_v47e_rejects_world_ref_kind_mismatch() -> None:
     spec = _read_spec_v47e("reject_world_ref_kind_mismatch_spec.json")
     d1_ir, result_set, ledger = _reference_result_chain()
