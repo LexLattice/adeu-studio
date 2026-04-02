@@ -463,8 +463,8 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
 - no mutation, scheduling, recursive execution, or approval authority is authorized by
   this planning draft;
 - no repo-wide markdown migration is selected by this planning draft;
-- no downstream policy-bearing consumer seam is selected by this planning draft beyond
-  the bounded normative-compilation substrate itself.
+- no downstream policy-bearing consumer seam beyond the bounded `V47-E` candidate
+  below is selected by this planning draft.
 
 ## Machine-Checkable Planning Baseline
 
