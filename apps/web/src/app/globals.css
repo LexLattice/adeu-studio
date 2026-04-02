@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@source "../../prototypes/**/*.{js,jsx,ts,tsx}";
+
 :root {
   color-scheme: light;
   --border: #e5e7eb;
