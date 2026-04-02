@@ -996,6 +996,14 @@ class OwnershipCompatibilityRule(BaseModel):
                 "forbidden compatibility rows require compatibility_posture = "
                 "mixed_ownership_forbidden"
             )
+        if (
+            self.combination_allowed
+            and self.compatibility_posture == "mixed_ownership_forbidden"
+        ):
+            raise ValueError(
+                "allowed compatibility rows may not use compatibility_posture = "
+                "mixed_ownership_forbidden"
+            )
         return self
 
 

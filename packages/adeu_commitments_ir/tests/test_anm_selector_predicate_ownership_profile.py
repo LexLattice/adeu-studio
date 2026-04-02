@@ -82,3 +82,18 @@ def test_v47d_rejects_incomplete_compatibility_matrix() -> None:
         match="compatibility_rules must cover the four ownership combinations",
     ):
         AnmSelectorPredicateOwnershipProfile.model_validate(payload)
+
+
+def test_v47d_rejects_allowed_row_with_forbidden_posture() -> None:
+    payload = _read_json_v47d("reference_anm_selector_predicate_ownership_profile.json")
+    payload["compatibility_rules"][0]["combination_allowed"] = True
+    payload["compatibility_rules"][0]["compatibility_posture"] = "mixed_ownership_forbidden"
+
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "allowed compatibility rows may not use compatibility_posture = "
+            "mixed_ownership_forbidden"
+        ),
+    ):
+        AnmSelectorPredicateOwnershipProfile.model_validate(payload)

@@ -580,13 +580,6 @@ def build_v47d_selector_predicate_ownership_profile(
     bootstrap_predicate_contracts = {
         contract.predicate_id: contract for contract in predicate_contracts.contracts
     }
-    for contract in predicate_contracts.contracts:
-        if contract.owner_layer != "bootstrap_d":
-            raise AnmCompileError(
-                f"bootstrap predicate contract {contract.predicate_id} must use released "
-                "owner_layer bootstrap_d"
-            )
-
     imported_selector_index = _indexed_imported_registry(
         registry_payloads=imported_selector_registry,
         ref_field="imported_selector_handle_ref",
@@ -734,7 +727,12 @@ def build_v47d_selector_predicate_ownership_profile(
     }
     for selector_kind in present_selector_kinds:
         for predicate_kind in present_predicate_kinds:
-            rule = compatibility_index[(selector_kind, predicate_kind)]
+            rule = compatibility_index.get((selector_kind, predicate_kind))
+            if rule is None:
+                raise AnmCompileError(
+                    "compatibility_rules must explicitly cover present ownership combination "
+                    f"{selector_kind} + {predicate_kind}"
+                )
             if not rule.combination_allowed:
                 raise AnmCompileError(
                     "contradictory mixed ownership posture forbids present combination "

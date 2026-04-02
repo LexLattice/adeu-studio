@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from adeu_commitments_ir import AnmMarkdownCoexistenceProfile
+from adeu_ir.repo import repo_root
 from adeu_semantic_source import (
     AnmCompileError,
     build_v47d_selector_predicate_ownership_profile,
@@ -21,6 +22,10 @@ def _fixture_path_v47d(name: str) -> Path:
     return Path(__file__).parent / "fixtures" / "v47d" / name
 
 
+def _repo_root() -> Path:
+    return repo_root(anchor=Path(__file__))
+
+
 def _read_text_v47c(name: str) -> str:
     return _fixture_path_v47c(name).read_text(encoding="utf-8")
 
@@ -34,14 +39,7 @@ def _read_spec_v47d(name: str) -> dict[str, object]:
 
 
 def _read_commitments_fixture_v47d(name: str) -> dict[str, object]:
-    path = (
-        Path(__file__).resolve().parents[2]
-        / "adeu_commitments_ir"
-        / "tests"
-        / "fixtures"
-        / "v47d"
-        / name
-    )
+    path = _repo_root() / "packages" / "adeu_commitments_ir" / "tests" / "fixtures" / "v47d" / name
     return _read_json(path)
 
 
@@ -54,7 +52,8 @@ def _reference_d1_ir():
 
 def _reference_coexistence_profile() -> AnmMarkdownCoexistenceProfile:
     fixture = (
-        Path(__file__).resolve().parents[2]
+        _repo_root()
+        / "packages"
         / "adeu_commitments_ir"
         / "tests"
         / "fixtures"
@@ -121,6 +120,39 @@ def test_v47d_rejects_implicit_selector_promotion() -> None:
     with pytest.raises(
         AnmCompileError,
         match="imported_o_owned_selector_handle rows require imported_selector_handle_ref",
+    ):
+        build_v47d_selector_predicate_ownership_profile(
+            snapshot_id=spec["snapshot_id"],
+            source_scope_profile=spec["source_scope_profile"],
+            released_stack_refs=spec["released_stack_refs"],
+            d1_ir=_reference_d1_ir(),
+            predicate_contracts=default_bootstrap_predicate_contracts(),
+            coexistence_profile=_reference_coexistence_profile(),
+            selector_row_specs=spec["selector_row_specs"],
+            predicate_row_specs=spec["predicate_row_specs"],
+            compatibility_rule_specs=spec["compatibility_rule_specs"],
+            imported_selector_registry=spec.get("imported_selector_registry"),
+            imported_predicate_registry=spec.get("imported_predicate_registry"),
+        )
+
+
+def test_v47d_rejects_missing_present_compatibility_combination() -> None:
+    spec = _read_spec_v47d("reference_ownership_spec.json")
+    spec["compatibility_rule_specs"] = [
+        row
+        for row in spec["compatibility_rule_specs"]
+        if not (
+            row["selector_ref_kind"] == "imported_o_owned_selector_handle"
+            and row["predicate_ref_kind"] == "bootstrap_predicate_contract"
+        )
+    ]
+
+    with pytest.raises(
+        AnmCompileError,
+        match=(
+            "compatibility_rules must explicitly cover present ownership combination "
+            "imported_o_owned_selector_handle \\+ bootstrap_predicate_contract"
+        ),
     ):
         build_v47d_selector_predicate_ownership_profile(
             snapshot_id=spec["snapshot_id"],
