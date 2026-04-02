@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from adeu_agent_harness.taskpack_binding import (
+    AHK5601_INPUT_INVALID,
     AHK5603_CARDINALITY_VIOLATION,
     AHK5605_LINEAGE_MISMATCH,
     AHK5606_PROJECTION_CONFLICT,
@@ -89,6 +90,17 @@ def test_v48a_rejects_prompt_authority_drift() -> None:
     spec = _read_spec("reject_prompt_authority_drift_spec.json")
 
     with pytest.raises(TaskpackBindingError, match=AHK5607_PROMPT_AUTHORITY_DRIFT):
+        build_v48a_taskpack_binding_profile(
+            **spec,
+            repo_root_path=_repo_root(),
+        )
+
+
+def test_v48a_rejects_malformed_command_env_overrides_fail_closed() -> None:
+    spec = _read_spec("reference_taskpack_binding_spec.json")
+    spec["command_projection"][0]["env_overrides"] = ["LC_ALL=C"]
+
+    with pytest.raises(TaskpackBindingError, match=AHK5601_INPUT_INVALID):
         build_v48a_taskpack_binding_profile(
             **spec,
             repo_root_path=_repo_root(),

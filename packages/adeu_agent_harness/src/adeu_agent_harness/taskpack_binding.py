@@ -476,15 +476,28 @@ def _sorted_commands(values: list[dict[str, Any]]) -> list[dict[str, Any]]:
     normalized = []
     for value in values:
         env_overrides = value.get("env_overrides", {})
+        if not isinstance(env_overrides, dict):
+            raise _fail(
+                code=AHK5601_INPUT_INVALID,
+                message="command_projection env_overrides must be an object",
+                details={"command_id": value.get("command_id")},
+            )
+        normalized_env_overrides: dict[str, str] = {}
+        for key in sorted(env_overrides):
+            raw_value = env_overrides[key]
+            if not isinstance(key, str) or not key or not isinstance(raw_value, str):
+                raise _fail(
+                    code=AHK5601_INPUT_INVALID,
+                    message="command_projection env_overrides must contain non-empty string pairs",
+                    details={"command_id": value.get("command_id")},
+                )
+            normalized_env_overrides[key] = raw_value
         normalized.append(
             {
                 "command_id": value["command_id"],
                 "run": value["run"],
                 "working_directory_or_repo_root": value["working_directory_or_repo_root"],
-                "env_overrides": {
-                    key: env_overrides[key]
-                    for key in sorted(env_overrides)
-                },
+                "env_overrides": normalized_env_overrides,
             }
         )
     return sorted(normalized, key=lambda item: item["command_id"])
@@ -693,7 +706,7 @@ def build_v48a_taskpack_binding_profile(
     sorted_slots = _sorted_evidence_slots(evidence_slot_projection)
 
     overlapping_paths = sorted(set(sorted_allowlist) & set(normalized_forbidden["forbidden_paths"]))
-    if set(sorted_allowlist) & set(normalized_forbidden["forbidden_paths"]):
+    if overlapping_paths:
         raise _fail(
             code=AHK5606_PROJECTION_CONFLICT,
             message="allowlist_projection and forbidden_projection paths must not overlap",

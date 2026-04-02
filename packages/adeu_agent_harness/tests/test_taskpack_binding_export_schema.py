@@ -4,7 +4,13 @@ import json
 import re
 from pathlib import Path
 
-from adeu_agent_harness.export_schema import main as export_schema_main
+import pytest
+from adeu_agent_harness.export_schema import (
+    _assert_no_absolute_path_material,
+)
+from adeu_agent_harness.export_schema import (
+    main as export_schema_main,
+)
 from adeu_agent_harness.taskpack_binding import ANM_TASKPACK_BINDING_PROFILE_SCHEMA
 from adeu_ir.repo import repo_root
 
@@ -93,3 +99,13 @@ def test_exported_schema_contains_no_absolute_path_material() -> None:
         assert "/home/" not in payload_text
         assert "/Users/" not in payload_text
         assert _WINDOWS_ABSOLUTE_PATH_RE.search(payload_text) is None
+
+
+def test_absolute_path_guard_rejects_single_backslash_windows_paths() -> None:
+    root = repo_root(anchor=Path(__file__))
+
+    with pytest.raises(RuntimeError, match="Windows absolute path material"):
+        _assert_no_absolute_path_material(
+            {"bad_path": r"C:\Users\alice\repo\artifact.json"},
+            repo_root_path=root,
+        )

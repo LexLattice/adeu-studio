@@ -9,7 +9,7 @@ from adeu_ir.repo import repo_root
 
 from .taskpack_binding import AnmTaskpackBindingProfile
 
-_WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\\\")
+_WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:[\\/]")
 
 
 def _write_schema(path: Path, schema: dict[str, Any]) -> None:
