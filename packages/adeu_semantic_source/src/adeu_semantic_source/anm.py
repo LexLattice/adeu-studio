@@ -93,10 +93,19 @@ def _load_json_artifact_ref(
     field_name: str,
     expected_schema: str,
 ) -> dict[str, Any]:
+    repo_root_path = _repo_root_path().resolve()
+    ref_path = Path(ref)
+    if ref_path.is_absolute():
+        raise AnmCompileError(f"{field_name} {ref} must remain within the repo root")
+    candidate_path = (repo_root_path / ref_path).resolve()
+    if candidate_path != repo_root_path and repo_root_path not in candidate_path.parents:
+        raise AnmCompileError(f"{field_name} {ref} must remain within the repo root")
     try:
-        payload = json.loads((_repo_root_path() / ref).read_text(encoding="utf-8"))
+        payload = json.loads(candidate_path.read_text(encoding="utf-8"))
     except FileNotFoundError as error:
         raise AnmCompileError(f"{field_name} {ref} is unresolved") from error
+    except OSError as error:
+        raise AnmCompileError(f"{field_name} {ref} must be a readable JSON file") from error
     except json.JSONDecodeError as error:
         raise AnmCompileError(f"{field_name} {ref} must be valid JSON") from error
     payload = _require_mapping(payload, field_name=field_name)

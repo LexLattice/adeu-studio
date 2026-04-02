@@ -318,6 +318,68 @@ def test_v47f_rejects_unresolved_local_eval_ref() -> None:
         )
 
 
+def test_v47f_rejects_benchmark_ref_outside_repo_root() -> None:
+    spec = _read_spec_v47f("reference_benchmark_policy_consumer_spec.json")
+    escaped_ref = "../../../../../tmp/escape.json"
+    spec["benchmark_consumer_row_specs"][0]["benchmark_consumer_ref"] = escaped_ref
+    spec["local_eval_registry"][0]["benchmark_consumer_ref"] = escaped_ref
+    d1_ir, result_set, ledger = _reference_result_chain()
+
+    with pytest.raises(
+        AnmCompileError,
+        match=(
+            r"benchmark_consumer_ref \.\./\.\./\.\./\.\./\.\./tmp/escape\.json "
+            r"must remain within the repo root"
+        ),
+    ):
+        build_v47f_benchmark_policy_consumer_binding_profile(
+            snapshot_id=spec["snapshot_id"],
+            source_scope_profile=spec["source_scope_profile"],
+            released_stack_refs=spec["released_stack_refs"],
+            d1_ir=d1_ir,
+            result_set=result_set,
+            ledger=ledger,
+            coexistence_profile=_reference_coexistence_profile(),
+            ownership_profile=_reference_ownership_profile(),
+            policy_consumer_profile=_reference_policy_consumer_profile(),
+            benchmark_consumer_row_specs=spec["benchmark_consumer_row_specs"],
+            local_eval_registry=spec["local_eval_registry"],
+            scorecard_registry=spec["scorecard_registry"],
+            behavior_evidence_registry=spec["behavior_evidence_registry"],
+        )
+
+
+def test_v47f_wraps_unreadable_benchmark_ref_as_compile_error() -> None:
+    spec = _read_spec_v47f("reference_benchmark_policy_consumer_spec.json")
+    unreadable_ref = "apps/api/fixtures/arc_agi/vnext_plus92"
+    spec["benchmark_consumer_row_specs"][0]["benchmark_consumer_ref"] = unreadable_ref
+    spec["local_eval_registry"][0]["benchmark_consumer_ref"] = unreadable_ref
+    d1_ir, result_set, ledger = _reference_result_chain()
+
+    with pytest.raises(
+        AnmCompileError,
+        match=(
+            "benchmark_consumer_ref apps/api/fixtures/arc_agi/vnext_plus92 must be a "
+            "readable JSON file"
+        ),
+    ):
+        build_v47f_benchmark_policy_consumer_binding_profile(
+            snapshot_id=spec["snapshot_id"],
+            source_scope_profile=spec["source_scope_profile"],
+            released_stack_refs=spec["released_stack_refs"],
+            d1_ir=d1_ir,
+            result_set=result_set,
+            ledger=ledger,
+            coexistence_profile=_reference_coexistence_profile(),
+            ownership_profile=_reference_ownership_profile(),
+            policy_consumer_profile=_reference_policy_consumer_profile(),
+            benchmark_consumer_row_specs=spec["benchmark_consumer_row_specs"],
+            local_eval_registry=spec["local_eval_registry"],
+            scorecard_registry=spec["scorecard_registry"],
+            behavior_evidence_registry=spec["behavior_evidence_registry"],
+        )
+
+
 def test_v47f_rejects_world_ref_kind_mismatch() -> None:
     spec = _read_spec_v47f("reject_world_ref_kind_mismatch_spec.json")
     d1_ir, result_set, ledger = _reference_result_chain()
