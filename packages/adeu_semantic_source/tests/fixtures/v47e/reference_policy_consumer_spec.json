@@ -1,0 +1,73 @@
+{
+  "snapshot_id": "snapshot:v47c-reference",
+  "source_scope_profile": "mixed_v47c_reference_scope",
+  "released_stack_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS106.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS107.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS109.md"
+  ],
+  "consumer_row_specs": [
+    {
+      "allowed_now_actions": [
+        "attach_traceable_policy_binding",
+        "reference_released_policy_source"
+      ],
+      "consumer_ref": "apps/api/fixtures/repo_description/vnext_plus101/repo_symbol_catalog_v101_reference.json",
+      "consumer_ref_kind": "released_v45_artifact_ref",
+      "consumer_world_kind": "released_v45_descriptive_artifact_world",
+      "current_consumer_authority_relation": "constrain_only_non_executive",
+      "forbidden_actions": [
+        "record_fail_closed_consumer_block"
+      ],
+      "later_lock_required_actions": [
+        "emit_consumer_conformance_annotation"
+      ],
+      "policy_source_ref": "release_surface:owner",
+      "policy_source_ref_kind": "d1_clause_ref",
+      "supporting_ledger_refs": [
+        "obligation:dbab82f540f1"
+      ],
+      "supporting_result_refs": [
+        "result:release_surface:owner:artifact:beta"
+      ]
+    },
+    {
+      "allowed_now_actions": [
+        "record_fail_closed_consumer_block",
+        "reference_released_policy_source"
+      ],
+      "consumer_ref": "artifacts/agent_harness/v106/runtime/evidence/local/urm_events.ndjson",
+      "consumer_ref_kind": "released_runtime_event_stream_ref",
+      "consumer_world_kind": "released_runtime_event_artifact_world",
+      "current_consumer_authority_relation": "later_lock_required_for_effective_action",
+      "forbidden_actions": [],
+      "later_lock_required_actions": [
+        "attach_traceable_policy_binding",
+        "emit_consumer_conformance_annotation"
+      ],
+      "policy_source_ref": "release_surface:owner",
+      "policy_source_ref_kind": "d1_clause_ref",
+      "supporting_ledger_refs": [],
+      "supporting_result_refs": []
+    }
+  ],
+  "descriptive_artifact_registry": [
+    {
+      "consumer_ref": "apps/api/fixtures/repo_description/vnext_plus101/repo_symbol_catalog_v101_reference.json",
+      "required_coexistence_source_ref": "packages/adeu_semantic_source/tests/fixtures/v47c/standalone_policy.adeu.md",
+      "required_predicate_ref": "predicate-registry:present:v2",
+      "required_selector_ref": "selector-handle:artifact-emitted:v1",
+      "snapshot_id": "snapshot:v47c-reference",
+      "source_scope_profile": "mixed_v47c_reference_scope"
+    }
+  ],
+  "runtime_event_registry": [
+    {
+      "consumer_ref": "artifacts/agent_harness/v106/runtime/evidence/local/urm_events.ndjson",
+      "required_selector_ref": "selector-handle:artifact-emitted:v1",
+      "snapshot_id": "snapshot:v47c-reference",
+      "source_scope_profile": "mixed_v47c_reference_scope"
+    }
+  ]
+}

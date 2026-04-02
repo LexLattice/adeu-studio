@@ -9,6 +9,8 @@ from adeu_commitments_ir import (
     AnmAdoptionBoundaryRow,
     AnmCoexistenceSourceRow,
     AnmMarkdownCoexistenceProfile,
+    AnmPolicyConsumerBindingProfile,
+    AnmPolicyConsumerRow,
     AnmSelectorPredicateOwnershipProfile,
     CheckerFactBundle,
     ClauseScopeBlockerResultRow,
@@ -536,6 +538,49 @@ def _indexed_imported_registry(
     return index
 
 
+def _indexed_consumer_registry(
+    *,
+    registry_payloads: list[dict[str, Any]] | None,
+    ref_field: str,
+    entry_label: str,
+) -> dict[str, dict[str, str]]:
+    index: dict[str, dict[str, str]] = {}
+    optional_fields = (
+        "required_coexistence_source_ref",
+        "required_selector_ref",
+        "required_predicate_ref",
+    )
+    for position, payload in enumerate(registry_payloads or []):
+        label = f"{entry_label}[{position}]"
+        entry = _require_mapping(payload, field_name=label)
+        ref = _require_non_empty_text(
+            _require_mapping_value(entry, ref_field, field_name=label),
+            field_name=ref_field,
+        )
+        if ref in index:
+            raise AnmCompileError(f"duplicate {entry_label} entry for {ref}")
+        normalized_entry: dict[str, str] = {
+            ref_field: ref,
+            "snapshot_id": _require_non_empty_text(
+                _require_mapping_value(entry, "snapshot_id", field_name=label),
+                field_name=f"{entry_label}.snapshot_id",
+            ),
+            "source_scope_profile": _require_non_empty_text(
+                _require_mapping_value(entry, "source_scope_profile", field_name=label),
+                field_name=f"{entry_label}.source_scope_profile",
+            ),
+        }
+        for field_name in optional_fields:
+            if field_name not in entry or entry[field_name] is None:
+                continue
+            normalized_entry[field_name] = _require_non_empty_text(
+                entry[field_name],
+                field_name=field_name,
+            )
+        index[ref] = normalized_entry
+    return index
+
+
 def build_v47d_selector_predicate_ownership_profile(
     *,
     snapshot_id: str,
@@ -792,6 +837,220 @@ def build_v47d_selector_predicate_ownership_profile(
         selector_rows=selector_rows,
         predicate_rows=predicate_rows,
         compatibility_rules=compatibility_rules,
+        semantic_hash=semantic_hash,
+    )
+
+
+def build_v47e_policy_consumer_binding_profile(
+    *,
+    snapshot_id: str,
+    source_scope_profile: str,
+    released_stack_refs: list[str],
+    d1_ir: D1NormalizedIR,
+    result_set: PolicyEvaluationResultSet,
+    ledger: PolicyObligationLedger,
+    coexistence_profile: AnmMarkdownCoexistenceProfile,
+    ownership_profile: AnmSelectorPredicateOwnershipProfile,
+    consumer_row_specs: list[dict[str, Any]],
+    descriptive_artifact_registry: list[dict[str, Any]] | None = None,
+    runtime_event_registry: list[dict[str, Any]] | None = None,
+) -> AnmPolicyConsumerBindingProfile:
+    snapshot_id = _require_non_empty_text(snapshot_id, field_name="snapshot_id")
+    source_scope_profile = _require_non_empty_text(
+        source_scope_profile,
+        field_name="source_scope_profile",
+    )
+    if coexistence_profile.snapshot_id != snapshot_id:
+        raise AnmCompileError("coexistence_profile snapshot_id must match requested snapshot_id")
+    if coexistence_profile.source_scope_profile != source_scope_profile:
+        raise AnmCompileError(
+            "coexistence_profile source_scope_profile must match requested source_scope_profile"
+        )
+    if ownership_profile.snapshot_id != snapshot_id:
+        raise AnmCompileError("ownership_profile snapshot_id must match requested snapshot_id")
+    if ownership_profile.source_scope_profile != source_scope_profile:
+        raise AnmCompileError(
+            "ownership_profile source_scope_profile must match requested source_scope_profile"
+        )
+    if result_set.scope_snapshot != snapshot_id:
+        raise AnmCompileError("result_set scope_snapshot must match requested snapshot_id")
+    if ledger.scope_snapshot != snapshot_id:
+        raise AnmCompileError("ledger scope_snapshot must match requested snapshot_id")
+    if result_set.d_ir_ref != d1_ir.d1_ir_id:
+        raise AnmCompileError("result_set d_ir_ref must match provided d1_ir")
+    if result_set.result_set_id not in set(ledger.result_set_refs):
+        raise AnmCompileError("ledger must reference provided result_set")
+
+    compatible_source_refs = {row.source_ref for row in coexistence_profile.source_rows}
+    if d1_ir.source_doc_ref not in compatible_source_refs:
+        raise AnmCompileError(
+            f"d1_ir source_doc_ref {d1_ir.source_doc_ref} is not covered by coexistence_profile"
+        )
+
+    released_stack_refs = sorted(
+        {
+            _require_non_empty_text(item, field_name="released_stack_refs")
+            for item in released_stack_refs
+        }
+    )
+
+    clause_index = {clause.clause_ref: clause for clause in d1_ir.clauses}
+    result_index = {row.result_id: row for row in result_set.results}
+    ledger_index = {row.obligation_id: row for row in ledger.rows}
+    ownership_selector_refs = {row.selector_ref for row in ownership_profile.selector_rows}
+    ownership_predicate_refs = {row.predicate_ref for row in ownership_profile.predicate_rows}
+
+    descriptive_index = _indexed_consumer_registry(
+        registry_payloads=descriptive_artifact_registry,
+        ref_field="consumer_ref",
+        entry_label="descriptive_artifact_registry",
+    )
+    runtime_index = _indexed_consumer_registry(
+        registry_payloads=runtime_event_registry,
+        ref_field="consumer_ref",
+        entry_label="runtime_event_registry",
+    )
+
+    try:
+        consumer_rows = [
+            AnmPolicyConsumerRow.model_validate(payload)
+            for payload in consumer_row_specs
+        ]
+    except ValidationError as error:
+        raise AnmCompileError(str(error)) from error
+    consumer_rows = sorted(consumer_rows, key=lambda item: item.consumer_ref)
+
+    for row in consumer_rows:
+        clause = clause_index.get(row.policy_source_ref)
+        if clause is None:
+            raise AnmCompileError(
+                f"consumer row {row.consumer_ref} policy_source_ref {row.policy_source_ref} "
+                "does not resolve against d1_ir"
+            )
+        expected_clause_hash = _clause_semantic_hash(clause)
+        if row.consumer_world_kind == "released_v45_descriptive_artifact_world":
+            registry_entry = descriptive_index.get(row.consumer_ref)
+            if registry_entry is None:
+                raise AnmCompileError(
+                    f"released descriptive artifact ref {row.consumer_ref} is unresolved"
+                )
+        else:
+            registry_entry = runtime_index.get(row.consumer_ref)
+            if registry_entry is None:
+                raise AnmCompileError(
+                    f"runtime event stream ref {row.consumer_ref} is unresolved"
+                )
+        if registry_entry["snapshot_id"] != snapshot_id:
+            raise AnmCompileError(f"consumer ref {row.consumer_ref} is stale")
+        if registry_entry["source_scope_profile"] != source_scope_profile:
+            raise AnmCompileError(
+                f"consumer ref {row.consumer_ref} has incompatible source scope"
+            )
+        required_coexistence_source_ref = registry_entry.get("required_coexistence_source_ref")
+        if (
+            required_coexistence_source_ref is not None
+            and required_coexistence_source_ref not in compatible_source_refs
+        ):
+            raise AnmCompileError(
+                f"consumer ref {row.consumer_ref} bypasses released V47-C profile doctrine"
+            )
+        required_selector_ref = registry_entry.get("required_selector_ref")
+        if (
+            required_selector_ref is not None
+            and required_selector_ref not in ownership_selector_refs
+        ):
+            raise AnmCompileError(
+                f"consumer ref {row.consumer_ref} bypasses released V47-D selector doctrine"
+            )
+        required_predicate_ref = registry_entry.get("required_predicate_ref")
+        if (
+            required_predicate_ref is not None
+            and required_predicate_ref not in ownership_predicate_refs
+        ):
+            raise AnmCompileError(
+                f"consumer ref {row.consumer_ref} bypasses released V47-D predicate doctrine"
+            )
+
+        support_verdicts: set[str] = set()
+        for result_ref in row.supporting_result_refs:
+            result_row = result_index.get(result_ref)
+            if result_row is None:
+                raise AnmCompileError(
+                    f"supporting result ref {result_ref} is unresolved for {row.consumer_ref}"
+                )
+            if result_row.clause_ref != row.policy_source_ref:
+                raise AnmCompileError(
+                    f"supporting result ref {result_ref} contradicts bound policy source"
+                )
+            if result_row.clause_semantic_hash != expected_clause_hash:
+                raise AnmCompileError(
+                    f"supporting result ref {result_ref} is stale against bound policy source"
+                )
+            support_verdicts.add(result_row.effective_verdict)
+        for ledger_ref in row.supporting_ledger_refs:
+            ledger_row = ledger_index.get(ledger_ref)
+            if ledger_row is None:
+                raise AnmCompileError(
+                    f"supporting ledger ref {ledger_ref} is unresolved for {row.consumer_ref}"
+                )
+            if ledger_row.latest_result_run != result_set.result_set_id:
+                raise AnmCompileError(
+                    f"supporting ledger ref {ledger_ref} does not belong to result_set "
+                    f"{result_set.result_set_id}"
+                )
+            if ledger_row.clause_ref != row.policy_source_ref:
+                raise AnmCompileError(
+                    f"supporting ledger ref {ledger_ref} contradicts bound policy source"
+                )
+            if ledger_row.clause_semantic_hash != expected_clause_hash:
+                raise AnmCompileError(
+                    f"supporting ledger ref {ledger_ref} is stale against bound policy source"
+                )
+            support_verdicts.add(ledger_row.latest_effective_verdict)
+        if len(support_verdicts) > 1:
+            raise AnmCompileError(
+                "consumer row "
+                f"{row.consumer_ref} has contradictory supporting result/ledger posture"
+            )
+
+    snapshot_sha256 = stable_payload_hash(
+        {
+            "snapshot_id": snapshot_id,
+            "source_scope_profile": source_scope_profile,
+            "d1_ir_ref": d1_ir.d1_ir_id,
+            "d1_ir_sha256": d1_ir.source_doc_sha256,
+            "result_set_ref": result_set.result_set_id,
+            "ledger_ref": ledger.ledger_id,
+            "coexistence_profile_id": coexistence_profile.coexistence_profile_id,
+            "coexistence_snapshot_sha256": coexistence_profile.snapshot_sha256,
+            "ownership_profile_id": ownership_profile.ownership_profile_id,
+            "ownership_snapshot_sha256": ownership_profile.snapshot_sha256,
+            "descriptive_artifact_registry": [
+                descriptive_index[ref] for ref in sorted(descriptive_index)
+            ],
+            "runtime_event_registry": [
+                runtime_index[ref] for ref in sorted(runtime_index)
+            ],
+        }
+    )
+    semantic_hash = stable_payload_hash(
+        {
+            "snapshot_id": snapshot_id,
+            "snapshot_sha256": snapshot_sha256,
+            "source_scope_profile": source_scope_profile,
+            "released_stack_refs": released_stack_refs,
+            "consumer_rows": [
+                row.model_dump(mode="json", exclude_none=True) for row in consumer_rows
+            ],
+        }
+    )
+    return AnmPolicyConsumerBindingProfile(
+        consumer_binding_profile_id=f"anm-consumer-binding:{semantic_hash[:12]}",
+        snapshot_id=snapshot_id,
+        snapshot_sha256=snapshot_sha256,
+        source_scope_profile=source_scope_profile,
+        released_stack_refs=released_stack_refs,
+        consumer_rows=consumer_rows,
         semantic_hash=semantic_hash,
     )
 
@@ -1429,4 +1688,5 @@ __all__ = [
     "build_v47a_reference_chain",
     "build_v47c_coexistence_profile",
     "build_v47d_selector_predicate_ownership_profile",
+    "build_v47e_policy_consumer_binding_profile",
 ]
