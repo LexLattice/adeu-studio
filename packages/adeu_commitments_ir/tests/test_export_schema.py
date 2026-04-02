@@ -7,6 +7,7 @@ from pathlib import Path
 from adeu_commitments_ir import (
     ADEU_COMMITMENTS_IR_SCHEMA,
     ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA,
+    ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
     ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA,
     CHECKER_FACT_BUNDLE_SCHEMA,
     D1_NORMALIZED_IR_SCHEMA,
@@ -82,6 +83,15 @@ def _schema_pairs() -> list[tuple[str, Path, Path]]:
             / "schema"
             / "anm_selector_predicate_ownership_profile.v1.json",
             root / "spec" / "anm_selector_predicate_ownership_profile.schema.json",
+        ),
+        (
+            ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_policy_consumer_binding_profile.v1.json",
+            root / "spec" / "anm_policy_consumer_binding_profile.schema.json",
         ),
     ]
 
@@ -164,6 +174,12 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         ]["const"]
         == ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA
     )
+    assert (
+        schema_payloads[ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA]["properties"]["schema"][
+            "const"
+        ]
+        == ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA
+    )
     checker_fact_row_defs = schema_payloads[CHECKER_FACT_BUNDLE_SCHEMA]["$defs"]
     value_type_fact = checker_fact_row_defs["ValueTypeObservationFact"]
     assert value_type_fact["properties"]["fact_type"]["const"] == "value_type_observation"
@@ -234,6 +250,44 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "owned_preferred_bootstrap_still_allowed",
         "mixed_ownership_forbidden",
     ]
+    consumer_defs = schema_payloads[ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA]["$defs"]
+    assert (
+        schema_payloads[ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA]["properties"][
+            "released_stack_refs"
+        ]["uniqueItems"]
+        is True
+    )
+    consumer_world_kind = consumer_defs["AnmPolicyConsumerRow"]["properties"][
+        "consumer_world_kind"
+    ]["enum"]
+    assert consumer_world_kind == [
+        "released_v45_descriptive_artifact_world",
+        "released_runtime_event_artifact_world",
+    ]
+    consumer_ref_kind = consumer_defs["AnmPolicyConsumerRow"]["properties"][
+        "consumer_ref_kind"
+    ]["enum"]
+    assert consumer_ref_kind == [
+        "released_v45_artifact_ref",
+        "released_runtime_event_stream_ref",
+    ]
+    consumer_authority_relation = consumer_defs["AnmPolicyConsumerRow"]["properties"][
+        "current_consumer_authority_relation"
+    ]["enum"]
+    assert consumer_authority_relation == [
+        "constrain_only_non_executive",
+        "later_lock_required_for_effective_action",
+    ]
+    for field_name in (
+        "supporting_result_refs",
+        "supporting_ledger_refs",
+        "allowed_now_actions",
+        "later_lock_required_actions",
+        "forbidden_actions",
+    ):
+        assert consumer_defs["AnmPolicyConsumerRow"]["properties"][field_name][
+            "uniqueItems"
+        ] is True
 
 
 def test_exported_schema_has_no_absolute_path_material() -> None:

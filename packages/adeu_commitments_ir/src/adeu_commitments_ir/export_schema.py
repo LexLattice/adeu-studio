@@ -9,6 +9,7 @@ from adeu_ir.repo import repo_root
 
 from .anm_models import (
     AnmMarkdownCoexistenceProfile,
+    AnmPolicyConsumerBindingProfile,
     AnmSelectorPredicateOwnershipProfile,
     CheckerFactBundle,
     D1NormalizedIR,
@@ -130,6 +131,15 @@ def main() -> None:
             / "schema"
             / "anm_selector_predicate_ownership_profile.v1.json",
             root / "spec" / "anm_selector_predicate_ownership_profile.schema.json",
+        ),
+        (
+            AnmPolicyConsumerBindingProfile,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_policy_consumer_binding_profile.v1.json",
+            root / "spec" / "anm_policy_consumer_binding_profile.schema.json",
         ),
     ]
 

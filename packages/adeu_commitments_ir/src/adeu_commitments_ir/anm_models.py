@@ -14,6 +14,7 @@ POLICY_EVALUATION_RESULT_SET_SCHEMA = "policy_evaluation_result_set@1"
 POLICY_OBLIGATION_LEDGER_SCHEMA = "policy_obligation_ledger@1"
 ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA = "anm_markdown_coexistence_profile@1"
 ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA = "anm_selector_predicate_ownership_profile@1"
+ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA = "anm_policy_consumer_binding_profile@1"
 
 D1SchemaVersion = Literal["d1_normalized_ir@1"]
 PredicateContractsBootstrapSchemaVersion = Literal["predicate_contracts_bootstrap@1"]
@@ -23,6 +24,9 @@ PolicyObligationLedgerSchemaVersion = Literal["policy_obligation_ledger@1"]
 AnmMarkdownCoexistenceProfileSchemaVersion = Literal["anm_markdown_coexistence_profile@1"]
 AnmSelectorPredicateOwnershipProfileSchemaVersion = Literal[
     "anm_selector_predicate_ownership_profile@1"
+]
+AnmPolicyConsumerBindingProfileSchemaVersion = Literal[
+    "anm_policy_consumer_binding_profile@1"
 ]
 
 SelectorKind = Literal["bootstrap_string_selector"]
@@ -111,6 +115,25 @@ BootstrapRetirementPosture = Literal[
     "not_selected",
     "later_lock_required",
     "owned_successor_available_bootstrap_still_allowed",
+]
+ConsumerWorldKind = Literal[
+    "released_v45_descriptive_artifact_world",
+    "released_runtime_event_artifact_world",
+]
+ConsumerRefKind = Literal[
+    "released_v45_artifact_ref",
+    "released_runtime_event_stream_ref",
+]
+PolicySourceRefKind = Literal["d1_clause_ref"]
+ConsumerAuthorityRelation = Literal[
+    "constrain_only_non_executive",
+    "later_lock_required_for_effective_action",
+]
+AllowedConsumerAction = Literal[
+    "reference_released_policy_source",
+    "emit_consumer_conformance_annotation",
+    "record_fail_closed_consumer_block",
+    "attach_traceable_policy_binding",
 ]
 
 
@@ -1072,6 +1095,123 @@ class AnmSelectorPredicateOwnershipProfile(BaseModel):
         return self
 
 
+class AnmPolicyConsumerRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    consumer_ref: str = Field(min_length=1)
+    consumer_world_kind: ConsumerWorldKind
+    consumer_ref_kind: ConsumerRefKind
+    policy_source_ref: str = Field(min_length=1)
+    policy_source_ref_kind: PolicySourceRefKind
+    supporting_result_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    supporting_ledger_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    current_consumer_authority_relation: ConsumerAuthorityRelation
+    allowed_now_actions: list[AllowedConsumerAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    later_lock_required_actions: list[AllowedConsumerAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    forbidden_actions: list[AllowedConsumerAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmPolicyConsumerRow":
+        self.consumer_ref = _require_non_empty(self.consumer_ref, field_name="consumer_ref")
+        self.policy_source_ref = _require_non_empty(
+            self.policy_source_ref,
+            field_name="policy_source_ref",
+        )
+        if self.consumer_world_kind == "released_v45_descriptive_artifact_world":
+            if self.consumer_ref_kind != "released_v45_artifact_ref":
+                raise ValueError(
+                    "released_v45_descriptive_artifact_world rows require "
+                    "consumer_ref_kind = released_v45_artifact_ref"
+                )
+        else:
+            if self.consumer_ref_kind != "released_runtime_event_stream_ref":
+                raise ValueError(
+                    "released_runtime_event_artifact_world rows require "
+                    "consumer_ref_kind = released_runtime_event_stream_ref"
+                )
+        _require_sorted_unique(
+            self.supporting_result_refs,
+            field_name="supporting_result_refs",
+        )
+        _require_sorted_unique(
+            self.supporting_ledger_refs,
+            field_name="supporting_ledger_refs",
+        )
+        for field_name in (
+            "allowed_now_actions",
+            "later_lock_required_actions",
+            "forbidden_actions",
+        ):
+            _require_sorted_unique(getattr(self, field_name), field_name=field_name)
+        action_sets = [
+            set(self.allowed_now_actions),
+            set(self.later_lock_required_actions),
+            set(self.forbidden_actions),
+        ]
+        overlaps = (
+            action_sets[0] & action_sets[1],
+            action_sets[0] & action_sets[2],
+            action_sets[1] & action_sets[2],
+        )
+        if any(overlaps):
+            raise ValueError("consumer action lists must not overlap")
+        return self
+
+
+class AnmPolicyConsumerBindingProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: AnmPolicyConsumerBindingProfileSchemaVersion = (
+        ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA
+    )
+    consumer_binding_profile_id: str = Field(min_length=1)
+    snapshot_id: str = Field(min_length=1)
+    snapshot_sha256: str = Field(min_length=1)
+    source_scope_profile: str = Field(min_length=1)
+    released_stack_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    consumer_rows: list[AnmPolicyConsumerRow] = Field(default_factory=list)
+    semantic_hash: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmPolicyConsumerBindingProfile":
+        self.consumer_binding_profile_id = _require_non_empty(
+            self.consumer_binding_profile_id,
+            field_name="consumer_binding_profile_id",
+        )
+        self.snapshot_id = _require_non_empty(self.snapshot_id, field_name="snapshot_id")
+        self.snapshot_sha256 = _require_non_empty(
+            self.snapshot_sha256,
+            field_name="snapshot_sha256",
+        )
+        self.source_scope_profile = _require_non_empty(
+            self.source_scope_profile,
+            field_name="source_scope_profile",
+        )
+        self.semantic_hash = _require_non_empty(self.semantic_hash, field_name="semantic_hash")
+        _require_sorted_unique(self.released_stack_refs, field_name="released_stack_refs")
+        consumer_refs = [item.consumer_ref for item in self.consumer_rows]
+        _require_sorted_unique(consumer_refs, field_name="consumer_rows.consumer_ref")
+        return self
+
+
 def canonicalize_d1_normalized_ir_payload(
     payload: D1NormalizedIR | dict[str, Any],
 ) -> dict[str, Any]:
@@ -1149,6 +1289,17 @@ def canonicalize_anm_selector_predicate_ownership_profile_payload(
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
+def canonicalize_anm_policy_consumer_binding_profile_payload(
+    payload: AnmPolicyConsumerBindingProfile | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmPolicyConsumerBindingProfile)
+        else AnmPolicyConsumerBindingProfile.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
 __all__ = [
     "D1_NORMALIZED_IR_SCHEMA",
     "PREDICATE_CONTRACTS_BOOTSTRAP_SCHEMA",
@@ -1157,6 +1308,7 @@ __all__ = [
     "POLICY_OBLIGATION_LEDGER_SCHEMA",
     "ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA",
     "ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA",
+    "ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA",
     "D1NormalizedIR",
     "D1Clause",
     "D1Qualifier",
@@ -1188,9 +1340,17 @@ __all__ = [
     "PredicateOwnershipRow",
     "OwnershipCompatibilityRule",
     "AnmSelectorPredicateOwnershipProfile",
+    "ConsumerWorldKind",
+    "ConsumerRefKind",
+    "PolicySourceRefKind",
+    "ConsumerAuthorityRelation",
+    "AllowedConsumerAction",
+    "AnmPolicyConsumerRow",
+    "AnmPolicyConsumerBindingProfile",
     "stable_payload_hash",
     "canonicalize_anm_markdown_coexistence_profile_payload",
     "canonicalize_anm_selector_predicate_ownership_profile_payload",
+    "canonicalize_anm_policy_consumer_binding_profile_payload",
     "canonicalize_d1_normalized_ir_payload",
     "canonicalize_predicate_contracts_bootstrap_payload",
     "canonicalize_checker_fact_bundle_payload",
