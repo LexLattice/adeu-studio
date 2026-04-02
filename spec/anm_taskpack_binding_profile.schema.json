@@ -1,0 +1,243 @@
+{
+  "$defs": {
+    "TaskpackCommandProjection": {
+      "additionalProperties": false,
+      "properties": {
+        "command_id": {
+          "minLength": 1,
+          "title": "Command Id",
+          "type": "string"
+        },
+        "env_overrides": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Env Overrides",
+          "type": "object"
+        },
+        "run": {
+          "minLength": 1,
+          "title": "Run",
+          "type": "string"
+        },
+        "working_directory_or_repo_root": {
+          "minLength": 1,
+          "title": "Working Directory Or Repo Root",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command_id",
+        "run",
+        "working_directory_or_repo_root"
+      ],
+      "title": "TaskpackCommandProjection",
+      "type": "object"
+    },
+    "TaskpackEvidenceSlotProjection": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "slot_id": {
+          "minLength": 1,
+          "title": "Slot Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slot_id",
+        "description",
+        "required"
+      ],
+      "title": "TaskpackEvidenceSlotProjection",
+      "type": "object"
+    },
+    "TaskpackForbiddenProjection": {
+      "additionalProperties": false,
+      "properties": {
+        "forbidden_effects": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Effects",
+          "type": "array"
+        },
+        "forbidden_paths": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Forbidden Paths",
+          "type": "array"
+        }
+      },
+      "required": [
+        "forbidden_paths",
+        "forbidden_effects"
+      ],
+      "title": "TaskpackForbiddenProjection",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "allowlist_projection": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Allowlist Projection",
+      "type": "array"
+    },
+    "binding_profile_id": {
+      "minLength": 1,
+      "title": "Binding Profile Id",
+      "type": "string"
+    },
+    "binding_subject_id": {
+      "minLength": 1,
+      "title": "Binding Subject Id",
+      "type": "string"
+    },
+    "command_projection": {
+      "items": {
+        "$ref": "#/$defs/TaskpackCommandProjection"
+      },
+      "minItems": 1,
+      "title": "Command Projection",
+      "type": "array"
+    },
+    "evidence_slot_projection": {
+      "items": {
+        "$ref": "#/$defs/TaskpackEvidenceSlotProjection"
+      },
+      "minItems": 1,
+      "title": "Evidence Slot Projection",
+      "type": "array"
+    },
+    "forbidden_projection": {
+      "$ref": "#/$defs/TaskpackForbiddenProjection"
+    },
+    "lineage_resolution_posture": {
+      "const": "fail_closed_on_unresolved_or_stale_lineage",
+      "title": "Lineage Resolution Posture",
+      "type": "string"
+    },
+    "policy_authority_clause_ref": {
+      "minLength": 1,
+      "title": "Policy Authority Clause Ref",
+      "type": "string"
+    },
+    "policy_binding_source_kind": {
+      "const": "released_v47e_policy_consumer_row_ref",
+      "title": "Policy Binding Source Kind",
+      "type": "string"
+    },
+    "policy_source_ref": {
+      "minLength": 1,
+      "title": "Policy Source Ref",
+      "type": "string"
+    },
+    "prompt_projection_posture": {
+      "const": "projection_only_non_authoritative",
+      "title": "Prompt Projection Posture",
+      "type": "string"
+    },
+    "schema": {
+      "const": "anm_taskpack_binding_profile@1",
+      "default": "anm_taskpack_binding_profile@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_binding_authority_kind": {
+      "const": "released_v45f_binding_entry_ref",
+      "title": "Scope Binding Authority Kind",
+      "type": "string"
+    },
+    "scope_binding_entry_ref": {
+      "minLength": 1,
+      "title": "Scope Binding Entry Ref",
+      "type": "string"
+    },
+    "scope_binding_source_kind": {
+      "const": "released_v45_scope_surface_ref",
+      "title": "Scope Binding Source Kind",
+      "type": "string"
+    },
+    "scope_source_ref": {
+      "minLength": 1,
+      "title": "Scope Source Ref",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "minLength": 1,
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "snapshot_sha256": {
+      "minLength": 1,
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "task_scope_summary": {
+      "minLength": 1,
+      "title": "Task Scope Summary",
+      "type": "string"
+    },
+    "unsupported_mapping_posture": {
+      "const": "fail_closed",
+      "title": "Unsupported Mapping Posture",
+      "type": "string"
+    },
+    "worker_subject_kind": {
+      "const": "repo_internal_single_codex_worker",
+      "title": "Worker Subject Kind",
+      "type": "string"
+    },
+    "worker_subject_ref": {
+      "minLength": 1,
+      "title": "Worker Subject Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "binding_profile_id",
+    "snapshot_id",
+    "snapshot_sha256",
+    "binding_subject_id",
+    "task_scope_summary",
+    "policy_binding_source_kind",
+    "policy_source_ref",
+    "policy_authority_clause_ref",
+    "scope_binding_source_kind",
+    "scope_source_ref",
+    "scope_binding_authority_kind",
+    "scope_binding_entry_ref",
+    "worker_subject_kind",
+    "worker_subject_ref",
+    "allowlist_projection",
+    "forbidden_projection",
+    "command_projection",
+    "evidence_slot_projection",
+    "prompt_projection_posture",
+    "lineage_resolution_posture",
+    "unsupported_mapping_posture",
+    "semantic_hash"
+  ],
+  "title": "AnmTaskpackBindingProfile",
+  "type": "object"
+}
