@@ -1,0 +1,30 @@
+{
+  "schema": "v47d_authoritative_normative_markdown_selector_predicate_ownership_transition_evidence@1",
+  "evidence_input_path": "artifacts/agent_harness/v109/evidence_inputs/v47d_authoritative_normative_markdown_selector_predicate_ownership_transition_evidence_v109.json",
+  "contract_source": "docs/LOCKED_CONTINUATION_vNEXT_PLUS109.md#v109-continuation-contract-machine-checkable",
+  "merged_pr": "#331",
+  "merge_commit": "30624dbc63b9adce1aff7b35db779b90595c473b",
+  "implementation_packages": [
+    "adeu_semantic_source",
+    "adeu_commitments_ir"
+  ],
+  "ownership_profile_implementation_source_path": "packages/adeu_semantic_source/src/adeu_semantic_source/anm.py",
+  "ownership_profile_model_source_path": "packages/adeu_commitments_ir/src/adeu_commitments_ir/anm_models.py",
+  "ownership_profile_authoritative_schema_path": "packages/adeu_commitments_ir/schema/anm_selector_predicate_ownership_profile.v1.json",
+  "ownership_profile_mirror_schema_path": "spec/anm_selector_predicate_ownership_profile.schema.json",
+  "test_reference_paths": [
+    "packages/adeu_semantic_source/tests/test_anm_ownership_transition.py",
+    "packages/adeu_commitments_ir/tests/test_anm_selector_predicate_ownership_profile.py",
+    "packages/adeu_commitments_ir/tests/test_export_schema.py"
+  ],
+  "accepted_bootstrap_only_spec_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47d/bootstrap_only_ownership_spec.json",
+  "accepted_transition_spec_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47d/reference_ownership_spec.json",
+  "accepted_profile_fixture_path": "packages/adeu_commitments_ir/tests/fixtures/v47d/reference_anm_selector_predicate_ownership_profile.json",
+  "rejected_implicit_selector_promotion_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47d/reject_implicit_selector_promotion_spec.json",
+  "rejected_dangling_imported_selector_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47d/reject_dangling_imported_selector_spec.json",
+  "rejected_incompatible_imported_predicate_version_fixture_path": "packages/adeu_semantic_source/tests/fixtures/v47d/reject_incompatible_imported_predicate_version_spec.json",
+  "metric_key_continuity_assertion_path": "artifacts/agent_harness/v109/evidence_inputs/metric_key_continuity_assertion_v109.json",
+  "runtime_observability_comparison_path": "artifacts/agent_harness/v109/evidence_inputs/runtime_observability_comparison_v109.json",
+  "runtime_event_stream_path": "artifacts/agent_harness/v109/runtime/evidence/local/urm_events.ndjson",
+  "notes": "v109 evidence pins the released V47-D ownership-transition baseline on main: one canonical anm_selector_predicate_ownership_profile@1, normalized bootstrap owner-layer continuity across slices, explicit bootstrap-vs-owned selector/predicate rows, a typed four-combination compatibility matrix, fail-closed dangling or incompatible imported-ref resolution, contradictory mixed-ownership rejection, and retained non-executive/non-migratory authority posture."
+}
