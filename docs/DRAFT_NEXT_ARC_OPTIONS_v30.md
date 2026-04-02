@@ -41,10 +41,10 @@ Interpretive doctrine for this planning surface:
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` through `V45-F` are closed on `main` and now constitute the completed bounded
   repo self-description ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
-- `V47-A` through `V47-D` are closed on `main` and now constitute the released
-  ANM / `D@1` substrate plus the first hardening, coexistence/adoption, and
-  ownership-transition slices for this family.
-- `vNext+109` is the current baseline implementation state on `main`.
+- `V47-A` through `V47-E` are closed on `main` and now constitute the released
+  ANM / `D@1` substrate plus the first hardening, coexistence/adoption,
+  ownership-transition, and downstream consumer slices for this family.
+- `vNext+110` is the current baseline implementation state on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` records one connected candidate family:
   - `V43`
   - ADEU external governed contest participation substrate
@@ -182,13 +182,13 @@ Planning relationship:
   - `docs/DRAFT_POLICY_EVALUATION_RESULT_SET_SPEC_v0.md`
   - `docs/DRAFT_POLICY_OBLIGATION_LEDGER_SPEC_v0.md`
 - Recommended next path for this branch:
-  - `V47-E`
+  - `V47-F`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+110`
+  - `vNext+111`
 - Default path selection for this branch:
-  - select `V47-E` as the next default candidate
-  - treat that default as the bounded next downstream policy-bearing consumer seam
-    after released `V47-A` plus `V47-B` plus `V47-C` plus `V47-D`
+  - select `V47-F` as the next default candidate
+  - treat that default as the bounded next benchmark-world consumer widening seam
+    after released `V47-A` plus `V47-B` plus `V47-C` plus `V47-D` plus `V47-E`
 
 This family/path recommendation is branch-local to the `v30` planning surface.
 
@@ -298,28 +298,29 @@ The current recommended path ladder is:
 | `V47-B` | schema/example and vocabulary hardening | widened and hardened fact-kind / provenance vocabulary plus concrete ANM / fact-bundle / result-set / ledger examples | closed_on_main |
 | `V47-C` | coexistence and companion-doc adoption lane | broader standalone-vs-companion posture, current-markdown coexistence rules, and bounded migration discipline beyond the `V47-A` minimum non-override freeze | closed_on_main |
 | `V47-D` | selector / predicate ownership transition lane | later move from bootstrap string selectors and bootstrap contracts toward imported O-owned selectors and E-owned predicate registries | closed_on_main |
-| `V47-E` | downstream policy-bearing consumer seam | later consumers over descriptive, benchmark, or runtime artifact worlds using the released ANM substrate | planned_next_default_candidate |
+| `V47-E` | downstream policy-bearing consumer seam | released descriptive-world and runtime-world consumer doctrine over the released ANM substrate, still constrain-only and non-executive | closed_on_main |
+| `V47-F` | benchmark-world consumer widening seam | later bounded policy-bearing consumer bindings over released benchmark artifact worlds without widening into execution or approval authority | planned_next_default_candidate |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-The `V47-D` through `V47-E` ladder should be read as provisional planning scaffolding.
+The `V47-E` through `V47-F` ladder should be read as provisional planning scaffolding.
 
 If the released `V47-A` through `V47-D` stack reveals that downstream consumer doctrine
 is weaker or noisier than expected,
 widening into later paths may need to pause, reorder, or narrow.
 
-## Recommended Next Path (`V47-E`)
+## Recommended Next Path (`V47-F`)
 
-Implement the bounded downstream policy-bearing consumer seam next.
+Implement the bounded benchmark-world consumer widening seam next.
 
-`V47-E` should introduce:
+`V47-F` should introduce:
 
-- one bounded move from released ANM source / `D-IR` / checker-fact / result-set /
-  ledger surfaces toward typed downstream consumers over descriptive, benchmark, or
-  runtime artifact worlds;
-- one explicit consumer doctrine that makes input artifact worlds, allowed constrain
-  actions, and authority boundaries machine-inspectable rather than prose-implied;
-- one explicit anti-leakage rule for when policy-bearing downstream consumers may
+- one bounded move from the released descriptive/runtime consumer seam toward typed
+  benchmark-world consumers over already released benchmark artifact worlds;
+- one explicit benchmark-world consumer doctrine that makes benchmark inputs, allowed
+  constrain actions, and authority boundaries machine-inspectable rather than
+  prose-implied;
+- one explicit anti-leakage rule for when benchmark-world downstream consumers may
   constrain later surfaces without minting execution, approval, waiver, deferral, or
   migration authority;
 - no widening yet into:
@@ -329,33 +330,34 @@ Implement the bounded downstream policy-bearing consumer seam next.
   - waiver or deferral issuance;
   - automatic action against descriptive, benchmark, or runtime artifact worlds.
 
-`V47-E` remains consumer-seam-first and non-executive:
+`V47-F` remains consumer-seam-first and non-executive:
 
 - it may define how the released ANM stack is consumed by later bounded policy-bearing
-  surfaces over already typed artifact worlds;
+  surfaces over already typed benchmark artifact worlds;
 - it may not authorize execution, mutation, scheduling, approval, waiver issuance,
   deferral issuance, or repo-wide markdown supersession by itself.
 
 ## Why This Path
 
-- `V47-A` through `V47-D` are already closed, so the next unclosed gap is explicit
-  downstream consumer doctrine rather than more substrate, hardening, coexistence, or
-  ownership-transition posture.
-- The released stack is now strong enough that later policy-bearing consumers can be
-  made explicit without reopening ANM source syntax, `D-IR`, checker facts, result
-  sets, ledger state, coexistence/adoption posture, or ownership-transition doctrine.
-- The family still needs a bounded rule for how descriptive, benchmark, or runtime
-  artifact worlds may be constrained by released ANM policy surfaces before any wider
-  execution or recursive-governance seam is considered.
-- Doing this before any later execution-facing work keeps downstream consumer seams from
+- `V47-A` through `V47-E` are already closed, so the next unclosed gap is bounded
+  benchmark-world consumer doctrine rather than more substrate, hardening,
+  coexistence, ownership-transition, or descriptive/runtime consumer posture.
+- The released stack is now strong enough that benchmark-facing policy-bearing
+  consumers can be made explicit without reopening ANM source syntax, `D-IR`, checker
+  facts, result sets, ledger state, coexistence/adoption posture,
+  ownership-transition doctrine, or released descriptive/runtime consumer doctrine.
+- The family still needs a bounded rule for how released benchmark artifact worlds may
+  be constrained by released ANM policy surfaces before any wider execution or
+  recursive-governance seam is considered.
+- Doing this before any later execution-facing work keeps benchmark-facing seams from
   silently inheriting powers they were never granted.
 
-## First-Slice Boundary (`V47-E`)
+## First-Slice Boundary (`V47-F`)
 
-`V47-E` should stay bounded to:
+`V47-F` should stay bounded to:
 
 - downstream consumer doctrine only over the released ANM stack and already typed
-  descriptive / benchmark / runtime artifact worlds;
+  benchmark artifact worlds;
 - explicit consumer-input binding posture only;
 - explicit constrain-only and anti-leakage rules only;
 - explicit allowed constrain actions only:
@@ -403,10 +405,19 @@ Selector / predicate ownership transition lane, now closed on `main`:
 
 ### `V47-E`
 
-Downstream policy-bearing consumer seam:
+Downstream policy-bearing consumer seam, now closed on `main`:
 
 - later family work may use the released ANM substrate to express bounded
-  policy-bearing rules over descriptive, benchmark, or runtime artifact worlds;
+  policy-bearing rules over descriptive and runtime artifact worlds;
+- that seam is now closed and available as released baseline context for later paths.
+
+### `V47-F`
+
+Benchmark-world consumer widening seam:
+
+- later family work may use the released ANM substrate plus the closed `V47-E`
+  consumer surface to express bounded policy-bearing rules over released benchmark
+  artifact worlds;
 - that seam is now the default next candidate for this planning draft.
 
 ## Candidate Package Ownership
@@ -463,7 +474,7 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
 - no mutation, scheduling, recursive execution, or approval authority is authorized by
   this planning draft;
 - no repo-wide markdown migration is selected by this planning draft;
-- no downstream policy-bearing consumer seam beyond the bounded `V47-E` candidate
+- no downstream policy-bearing consumer seam beyond the bounded `V47-F` candidate
   below is selected by this planning draft.
 
 ## Machine-Checkable Planning Baseline
@@ -472,7 +483,7 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v29.md",
-  "baseline_arc": "vNext+109",
+  "baseline_arc": "vNext+110",
   "closed_prior_families": [
     "V41",
     "V42",
@@ -497,13 +508,14 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
     "V47-A",
     "V47-B",
     "V47-C",
-    "V47-D"
-  ],
-  "planned_current_family_paths": [
+    "V47-D",
     "V47-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V47-E",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+110",
+  "planned_current_family_paths": [
+    "V47-F"
+  ],
+  "default_next_arc_candidate_for_this_branch": "V47-F",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+111",
   "family_architecture_doc": "docs/DRAFT_AUTHORITATIVE_NORMATIVE_MARKDOWN_SPEC_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_D1_DIALECT_SPEC_v0.md",
