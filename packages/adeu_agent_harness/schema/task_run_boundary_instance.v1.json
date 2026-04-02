@@ -1,0 +1,117 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "boundary_instance_id": {
+      "minLength": 1,
+      "title": "Boundary Instance Id",
+      "type": "string"
+    },
+    "compiled_binding_ref": {
+      "minLength": 1,
+      "title": "Compiled Binding Ref",
+      "type": "string"
+    },
+    "compiled_binding_source_kind": {
+      "const": "released_compiled_policy_taskpack_binding_ref",
+      "title": "Compiled Binding Source Kind",
+      "type": "string"
+    },
+    "compiled_boundary_identity_hash": {
+      "minLength": 1,
+      "title": "Compiled Boundary Identity Hash",
+      "type": "string"
+    },
+    "execution_adapter_kind": {
+      "const": "released_taskpack_runner_adapter",
+      "title": "Execution Adapter Kind",
+      "type": "string"
+    },
+    "execution_adapter_ref": {
+      "minLength": 1,
+      "title": "Execution Adapter Ref",
+      "type": "string"
+    },
+    "repo_ref": {
+      "minLength": 1,
+      "title": "Repo Ref",
+      "type": "string"
+    },
+    "repo_ref_kind": {
+      "const": "exact_execution_repository_identity",
+      "title": "Repo Ref Kind",
+      "type": "string"
+    },
+    "schema": {
+      "const": "task_run_boundary_instance@1",
+      "default": "task_run_boundary_instance@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "minLength": 1,
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "snapshot_sha256": {
+      "minLength": 1,
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "task_instance_identity": {
+      "minLength": 1,
+      "title": "Task Instance Identity",
+      "type": "string"
+    },
+    "taskpack_manifest_ref": {
+      "minLength": 1,
+      "title": "Taskpack Manifest Ref",
+      "type": "string"
+    },
+    "worker_model_id": {
+      "minLength": 1,
+      "title": "Worker Model Id",
+      "type": "string"
+    },
+    "worker_provider_id": {
+      "minLength": 1,
+      "title": "Worker Provider Id",
+      "type": "string"
+    },
+    "worker_subject_kind": {
+      "const": "repo_internal_single_codex_worker",
+      "title": "Worker Subject Kind",
+      "type": "string"
+    },
+    "worker_subject_ref": {
+      "minLength": 1,
+      "title": "Worker Subject Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "boundary_instance_id",
+    "compiled_binding_source_kind",
+    "compiled_binding_ref",
+    "compiled_boundary_identity_hash",
+    "repo_ref_kind",
+    "repo_ref",
+    "task_instance_identity",
+    "snapshot_id",
+    "snapshot_sha256",
+    "worker_subject_kind",
+    "worker_subject_ref",
+    "execution_adapter_kind",
+    "execution_adapter_ref",
+    "worker_provider_id",
+    "worker_model_id",
+    "taskpack_manifest_ref",
+    "semantic_hash"
+  ],
+  "title": "TaskRunBoundaryInstance",
+  "type": "object"
+}

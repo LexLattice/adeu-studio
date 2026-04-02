@@ -1,0 +1,16 @@
+{
+  "attestation_validator_result_hash": "f7a3b79595b9eb2c50ef90abb8abb0886d78d61fd454f849613173b7fbe3188e",
+  "attestation_validator_result_ref": "artifacts/agent_harness/v48c/attestation_validator_result.json",
+  "boundary_instance_ref": "artifacts/agent_harness/v48c/reference_worker_execution/task_run_boundary_instance.json",
+  "compiled_binding_ref": "artifacts/agent_harness/v48b/reference_compiled_binding/compiled_policy_taskpack_binding.json",
+  "prompt_authority_posture": "projection_only_conflict_fail_closed",
+  "runner_provenance_hash": "96b8f5cdc1ccb913538cb7f6a4dd3174e5bed716c76bdaa2febc3bfb459513f2",
+  "runner_provenance_ref": "artifacts/agent_harness/v45/dry_run_preview/provenance/dc239ec4927243878347d5c4daaabfcde1fd9986cc8aede4fdea05e6e6bfe3ee_bde7b01f218ba8906293ecc80571b83ff3fc99b92b44b71573b330cadb9247e9.json",
+  "runner_result_hash": "b181a66eb0d1586aafad39c9d8bc5a36b6e9ffa3fe6e014f6dbbebf5d03c8d7f",
+  "runner_result_ref": "artifacts/agent_harness/v48c/runner_result_success.json",
+  "schema": "worker_execution_attestation@1",
+  "semantic_hash": "d5e8b03e76a751a149fe7b8eff03dfe6326e2e4f37a3af215cec4315f083a4aa",
+  "verification_result_hash": "87f4c7bcd53d873adb82a58dafc538c92fdf0ebf5ed97ef5ff4817b82b99ce3f",
+  "verification_result_ref": "artifacts/agent_harness/v46/verification/dc239ec4927243878347d5c4daaabfcde1fd9986cc8aede4fdea05e6e6bfe3ee_bde7b01f218ba8906293ecc80571b83ff3fc99b92b44b71573b330cadb9247e9.json",
+  "worker_execution_attestation_id": "worker_execution_attestation:8283f1cb13da6b05b050b8542421ea75983c170cfa7d5e945de2f69432f20eed"
+}

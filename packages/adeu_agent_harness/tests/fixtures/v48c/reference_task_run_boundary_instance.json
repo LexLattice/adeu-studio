@@ -1,0 +1,20 @@
+{
+  "boundary_instance_id": "task_run_boundary_instance:dae1bd4dce68ae9f8ff4d230a89f1cfe5663290635cc0a3eb59c4a386e48f23b",
+  "compiled_binding_ref": "artifacts/agent_harness/v48b/reference_compiled_binding/compiled_policy_taskpack_binding.json",
+  "compiled_binding_source_kind": "released_compiled_policy_taskpack_binding_ref",
+  "compiled_boundary_identity_hash": "4502a3ff215e1c0d0561d0a7cd6a29227301eadb3bf7a133ac36f4b62e6c95e6",
+  "execution_adapter_kind": "released_taskpack_runner_adapter",
+  "execution_adapter_ref": "artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json#default",
+  "repo_ref": "repo_identity:repo_snapshot_be15b89dfafbee994e98b291:be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+  "repo_ref_kind": "exact_execution_repository_identity",
+  "schema": "task_run_boundary_instance@1",
+  "semantic_hash": "cc72444f889c3cc014ba47136f7ecb2417c98a24ef2bfdc7f5dbcbbb2ced5164",
+  "snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
+  "snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+  "task_instance_identity": "task:v48c:reference_worker_execution",
+  "taskpack_manifest_ref": "artifacts/agent_harness/v48b/reference_compiled_binding/taskpack_manifest.json",
+  "worker_model_id": "gpt-5.4-codex",
+  "worker_provider_id": "openai",
+  "worker_subject_kind": "repo_internal_single_codex_worker",
+  "worker_subject_ref": "worker:repo_internal_single_codex_worker:default"
+}

@@ -9,6 +9,11 @@ from adeu_ir.repo import repo_root
 
 from .compiled_taskpack_binding import CompiledPolicyTaskpackBinding
 from .taskpack_binding import AnmTaskpackBindingProfile
+from .worker_execution_envelope import (
+    TaskRunBoundaryInstance,
+    WorkerExecutionAttestation,
+    WorkerExecutionProvenance,
+)
 
 _WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:[\\/]")
 
@@ -80,6 +85,33 @@ def main() -> None:
             / "schema"
             / "compiled_policy_taskpack_binding.v1.json",
             root / "spec" / "compiled_policy_taskpack_binding.schema.json",
+        ),
+        (
+            TaskRunBoundaryInstance.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_agent_harness"
+            / "schema"
+            / "task_run_boundary_instance.v1.json",
+            root / "spec" / "task_run_boundary_instance.schema.json",
+        ),
+        (
+            WorkerExecutionAttestation.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_agent_harness"
+            / "schema"
+            / "worker_execution_attestation.v1.json",
+            root / "spec" / "worker_execution_attestation.schema.json",
+        ),
+        (
+            WorkerExecutionProvenance.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_agent_harness"
+            / "schema"
+            / "worker_execution_provenance.v1.json",
+            root / "spec" / "worker_execution_provenance.schema.json",
         ),
     ]
     for schema, authoritative_path, mirror_path in schema_pairs:
