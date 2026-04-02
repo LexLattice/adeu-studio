@@ -2,7 +2,9 @@
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v29.md`, updated after the
 authoritative normative markdown / `D@1` seed bundle was consolidated into a bounded
-separate-but-connected infra family direction.
+separate-but-connected infra family direction and refreshed after `vNext+106`,
+`vNext+107`, `vNext+108`, `vNext+109`, `vNext+110`, and `vNext+111`
+(`V47-A` through `V47-F`) closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -41,10 +43,11 @@ Interpretive doctrine for this planning surface:
 - `V42-A` through `V42-G4` are closed on `main`.
 - `V45-A` through `V45-F` are closed on `main` and now constitute the completed bounded
   repo self-description ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`.
-- `V47-A` through `V47-E` are closed on `main` and now constitute the released
-  ANM / `D@1` substrate plus the first hardening, coexistence/adoption,
-  ownership-transition, and downstream consumer slices for this family.
-- `vNext+110` is the current baseline implementation state on `main`.
+- `V47-A` through `V47-F` are closed on `main` and now constitute the released
+  ANM / `D@1` substrate plus the hardening, coexistence/adoption,
+  ownership-transition, descriptive/runtime consumer, and benchmark-world consumer
+  slices for this family.
+- `vNext+111` is the current baseline implementation state on `main`.
 - `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md` records one connected candidate family:
   - `V43`
   - ADEU external governed contest participation substrate
@@ -68,29 +71,33 @@ Interpretive doctrine for this planning surface:
 
 ## Gap
 
-The repo still lacks a released way to:
+The repo no longer lacks the bounded authoritative normative markdown substrate
+targeted by this branch.
 
-- express machine-checkable obligations inside markdown without inferring obligation from
-  arbitrary prose;
-- separate:
-  - authoritative normative source;
-  - normalized semantic IR;
-  - observed checker facts;
-  - run-specific evaluation results;
-  - cross-run obligation state;
-- make selector, predicate, evidence, and failure posture explicit rather than hidden in
-  evaluator or checker code;
-- preserve a bounded operational obligation ledger without letting the ledger mint
-  policy, waiver, or deferral authority by itself;
-- adopt authoritative normative markdown in standalone or companion posture without
-  forcing repo-wide migration of current lock/planning markdown;
-- provide later consumers with a policy-bearing substrate that is narrower and less
-  prose-ambiguous than current freeform markdown alone.
+`V47` now ships the planned bounded stack on `main`:
 
-The missing layer is therefore not more descriptive self-modeling and not yet a
-recursive execution or amendment engine.
+- markdown-native ANM source posture and explicit `D@1` blocks;
+- normalized semantic `D-IR`;
+- bootstrap predicate contracts;
+- fact-only checker bundles;
+- run-specific policy evaluation result sets;
+- cross-run policy obligation ledger projection;
+- schema/example and starter-vocabulary hardening;
+- standalone-vs-companion coexistence and bounded migration discipline;
+- selector / predicate ownership-transition doctrine;
+- descriptive/runtime consumer doctrine;
+- benchmark-world consumer doctrine over released `V42` artifact worlds.
 
-The missing layer is an ADEU authoritative normative markdown substrate.
+No further internal `V47` path is currently selected.
+
+Future work, if chosen, should be treated as downstream family work or a new
+candidate family rather than another implicit `V47` widening, especially for:
+
+- official benchmark-family release;
+- execution or approval engines;
+- waiver or deferral issuance;
+- recursive-governance or amendment-execution consumers;
+- repo-wide markdown migration or supersession posture.
 
 ## Relationship To `V43`, `V44`, `V45`, And `V46`
 
@@ -181,14 +188,17 @@ Planning relationship:
   - `docs/DRAFT_CHECKER_FACT_BUNDLE_SPEC_v0.md`
   - `docs/DRAFT_POLICY_EVALUATION_RESULT_SET_SPEC_v0.md`
   - `docs/DRAFT_POLICY_OBLIGATION_LEDGER_SPEC_v0.md`
+- Current family state for this branch:
+  - bounded `V47-A` through `V47-F` ladder closed on `main`
 - Recommended next path for this branch:
-  - `V47-F`
+  - none currently selected inside `V47`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+111`
+  - none currently selected inside `V47`
 - Default path selection for this branch:
-  - select `V47-F` as the next default candidate
-  - treat that default as the bounded next benchmark-world consumer widening seam
-    after released `V47-A` plus `V47-B` plus `V47-C` plus `V47-D` plus `V47-E`
+  - no further `V47` continuation is currently selected
+  - later benchmark-family release, execution-facing consumers, or broader
+    recursive-governance work should be treated as downstream family work or a new
+    candidate family rather than another implicit `V47` widening
 
 This family/path recommendation is branch-local to the `v30` planning surface.
 
@@ -223,7 +233,7 @@ superseded here.
 thread without reopening descriptive self-modeling, benchmarking doctrine, or current
 markdown lock authority.
 
-`V47-A` should now be read as a released first substrate on `main`:
+`V47-A` should now be read as the released first substrate on `main`:
 
 - markdown-native ANM source posture;
 - explicit authoritative `D@1` blocks;
@@ -240,9 +250,25 @@ markdown lock authority.
 - imported O-owned selector handles or E-owned predicate registries;
 - downstream execution, mutation, waiver, deferral, or approval authority.
 
+The bounded `V47` ladder is now fully shipped on `main` through `V47-F`:
+
+- `V47-B` widened and hardened bounded example / schema / vocabulary surfaces;
+- `V47-C` released coexistence and companion-doc adoption doctrine;
+- `V47-D` released selector / predicate ownership-transition doctrine;
+- `V47-E` released descriptive-world and runtime-world consumer doctrine;
+- `V47-F` released benchmark-world consumer doctrine over already released
+  `V42-D`, `V42-E`, and `V42-G4` artifact worlds.
+
+The closed `V47` ladder still did not release:
+
+- official benchmark-family release under `V46`;
+- execution, approval, mutation, scheduling, waiver, or deferral authority;
+- repo-wide markdown migration or automatic supersession of current markdown
+  authority.
+
 ## Recommended Next Family (`V47`)
 
-`V47` should release a bounded normative-compilation doctrine around:
+`V47` should now be read as a released bounded normative-compilation doctrine around:
 
 - markdown-native ANM container posture;
 - opt-in authoritative fenced `D@1` blocks;
@@ -253,7 +279,10 @@ markdown lock authority.
 - run-specific evaluation result sets;
 - cross-run obligation ledger state;
 - explicit no-prose-inference posture outside `D@1`;
-- explicit coexistence and companion-doc posture relative to current markdown doctrine.
+- explicit coexistence and companion-doc posture relative to current markdown doctrine;
+- explicit ownership-transition posture for selectors and predicates;
+- explicit downstream consumer posture over descriptive, runtime, and released
+  benchmark artifact worlds, while remaining constrain-only and non-executive.
 
 The family should treat authoritative policy as a pipeline:
 
@@ -276,17 +305,14 @@ The family should treat waiver and deferral issuance as:
 - externally authorized inputs or later governed artifacts;
 - not authorities minted by result sets or ledger state by default.
 
-At minimum, later `V47` work should make explicit:
+Future downstream work should continue to preserve:
 
 - exact `ONLY_IF` and `UNLESS` applicability semantics;
 - zero-match selector policy;
 - result-to-ledger mapping posture;
 - clause-scope `unknown_resolution` posture without fake ledger-row creation;
-- frozen starter checker-fact kind vocabulary;
-- frozen starter provenance-mode vocabulary;
-- concrete example ANM source plus compiled companion artifacts;
-- the boundary between bootstrap string selectors / bootstrap predicate contracts and
-  later O-owned selector handles or E-owned predicate registries.
+- explicit boundaries between bootstrap and owned selector / predicate surfaces;
+- explicit anti-leakage posture around consumer bindings and live obligation state.
 
 ## Suggested `V47` Path Ladder
 
@@ -299,79 +325,28 @@ The current recommended path ladder is:
 | `V47-C` | coexistence and companion-doc adoption lane | broader standalone-vs-companion posture, current-markdown coexistence rules, and bounded migration discipline beyond the `V47-A` minimum non-override freeze | closed_on_main |
 | `V47-D` | selector / predicate ownership transition lane | later move from bootstrap string selectors and bootstrap contracts toward imported O-owned selectors and E-owned predicate registries | closed_on_main |
 | `V47-E` | downstream policy-bearing consumer seam | released descriptive-world and runtime-world consumer doctrine over the released ANM substrate, still constrain-only and non-executive | closed_on_main |
-| `V47-F` | benchmark-world consumer widening seam | later bounded policy-bearing consumer bindings over released benchmark artifact worlds without widening into execution or approval authority | planned_next_default_candidate |
+| `V47-F` | benchmark-world consumer widening seam | released bounded policy-bearing consumer bindings over released benchmark artifact worlds without widening into execution or approval authority | closed_on_main |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-The `V47-E` through `V47-F` ladder should be read as provisional planning scaffolding.
+The bounded `V47` ladder is now fully shipped on `main` through `V47-F`.
 
-If the released `V47-A` through `V47-D` stack reveals that downstream consumer doctrine
-is weaker or noisier than expected,
-widening into later paths may need to pause, reorder, or narrow.
+Further widening, if selected later, should be treated as downstream family work or a
+new candidate family rather than another implicit internal `V47` continuation.
 
-## Recommended Next Path (`V47-F`)
+## No Further Internal `V47` Path Is Currently Selected
 
-Implement the bounded benchmark-world consumer widening seam next.
+`V47` should now be read as a completed branch-local family for the `v30` planning
+surface.
 
-`V47-F` should introduce:
+That completion means:
 
-- one bounded move from the released descriptive/runtime consumer seam toward typed
-  benchmark-world consumers over already released benchmark artifact worlds;
-- one explicit benchmark-world consumer doctrine that makes benchmark inputs, allowed
-  constrain actions, and authority boundaries machine-inspectable rather than
-  prose-implied;
-- one explicit anti-leakage rule for when benchmark-world downstream consumers may
-  constrain later surfaces without minting execution, approval, waiver, deferral, or
-  migration authority;
-- no widening yet into:
-  - repo-wide markdown migration;
-  - recursive execution or approval engines;
-  - source-level `DEFERRED`;
-  - waiver or deferral issuance;
-  - automatic action against descriptive, benchmark, or runtime artifact worlds.
-
-`V47-F` remains consumer-seam-first and non-executive:
-
-- it may define how the released ANM stack is consumed by later bounded policy-bearing
-  surfaces over already typed benchmark artifact worlds;
-- it may not authorize execution, mutation, scheduling, approval, waiver issuance,
-  deferral issuance, or repo-wide markdown supersession by itself.
-
-## Why This Path
-
-- `V47-A` through `V47-E` are already closed, so the next unclosed gap is bounded
-  benchmark-world consumer doctrine rather than more substrate, hardening,
-  coexistence, ownership-transition, or descriptive/runtime consumer posture.
-- The released stack is now strong enough that benchmark-facing policy-bearing
-  consumers can be made explicit without reopening ANM source syntax, `D-IR`, checker
-  facts, result sets, ledger state, coexistence/adoption posture,
-  ownership-transition doctrine, or released descriptive/runtime consumer doctrine.
-- The family still needs a bounded rule for how released benchmark artifact worlds may
-  be constrained by released ANM policy surfaces before any wider execution or
-  recursive-governance seam is considered.
-- Doing this before any later execution-facing work keeps benchmark-facing seams from
-  silently inheriting powers they were never granted.
-
-## First-Slice Boundary (`V47-F`)
-
-`V47-F` should stay bounded to:
-
-- downstream consumer doctrine only over the released ANM stack and already typed
-  benchmark artifact worlds;
-- explicit consumer-input binding posture only;
-- explicit constrain-only and anti-leakage rules only;
-- explicit allowed constrain actions only:
-  - released ANM policy artifacts may constrain later consumers over typed artifact
-    worlds where that constrain posture is explicit and bounded;
-  - later consumer surfaces may remain inspectable and fail closed without silently
-    minting execution, migration, waiver, or approval authority.
-
-It should not attempt:
-
-- repo-wide conversion of existing docs;
-- source-level `DEFERRED`;
-- execution, approval, or mutation authority;
-- broad downstream consumer integrations.
+- the released ANM stack now spans source, IR, facts, results, ledger, coexistence,
+  ownership transition, descriptive/runtime consumer doctrine, and benchmark-world
+  consumer doctrine;
+- the branch no longer has an unclosed internal `V47` path on `main`;
+- later execution-facing, benchmark-family, or recursive-governance work should not be
+  backfilled into the completed `V47` ladder by implication.
 
 ## Follow-On Paths Inside `V47`
 
@@ -387,7 +362,7 @@ Schema/example and vocabulary hardening lane, now closed on `main`:
 
 ### `V47-C`
 
-Coexistence and companion-doc adoption lane:
+Coexistence and companion-doc adoption lane, now closed on `main`:
 
 - widen coexistence doctrine beyond the `V47-A` minimum boundary by making explicit:
   - standalone-vs-companion posture;
@@ -413,27 +388,25 @@ Downstream policy-bearing consumer seam, now closed on `main`:
 
 ### `V47-F`
 
-Benchmark-world consumer widening seam:
+Benchmark-world consumer widening seam, now closed on `main`:
 
 - later family work may use the released ANM substrate plus the closed `V47-E`
   consumer surface to express bounded policy-bearing rules over released benchmark
   artifact worlds;
-- that seam is now the default next candidate for this planning draft.
+- that seam is now shipped and forms the final bounded path in the internal `V47`
+  ladder.
 
 ## Candidate Package Ownership
 
-Package ownership should remain planning-bound for now.
+Package ownership is no longer planning-bound for the released `V47` baseline.
 
-The first planning pass should therefore assume:
+The closed family now ships on `main` in:
 
-- no package-lock commitment selected yet;
-- one likely bounded first owner may later be chosen, but it remains
-  `not_selected_yet` at this planning stage.
+- `packages/adeu_semantic_source`
+- `packages/adeu_commitments_ir`
 
-This should be read as intentional restraint, not missing planning detail.
-
-The family surface is stable enough to plan without freezing implementation-package
-placement prematurely.
+Later downstream work may widen or refactor package ownership only through a new
+bounded selection rather than by implication from the closed `V47` ladder.
 
 ## Governing References
 
@@ -474,8 +447,8 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
 - no mutation, scheduling, recursive execution, or approval authority is authorized by
   this planning draft;
 - no repo-wide markdown migration is selected by this planning draft;
-- no downstream policy-bearing consumer seam beyond the bounded `V47-F` candidate
-  below is selected by this planning draft.
+- no further internal `V47` path is selected by this planning draft now that the
+  bounded `V47-A` through `V47-F` ladder is closed on `main`.
 
 ## Machine-Checkable Planning Baseline
 
@@ -483,7 +456,7 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v29.md",
-  "baseline_arc": "vNext+110",
+  "baseline_arc": "vNext+111",
   "closed_prior_families": [
     "V41",
     "V42",
@@ -509,13 +482,12 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
     "V47-B",
     "V47-C",
     "V47-D",
-    "V47-E"
-  ],
-  "planned_current_family_paths": [
+    "V47-E",
     "V47-F"
   ],
-  "default_next_arc_candidate_for_this_branch": "V47-F",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+111",
+  "planned_current_family_paths": [],
+  "default_next_arc_candidate_for_this_branch": null,
+  "default_next_concrete_arc_candidate_for_this_branch": null,
   "family_architecture_doc": "docs/DRAFT_AUTHORITATIVE_NORMATIVE_MARKDOWN_SPEC_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_D1_DIALECT_SPEC_v0.md",
@@ -525,9 +497,15 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
     "docs/DRAFT_POLICY_EVALUATION_RESULT_SET_SPEC_v0.md",
     "docs/DRAFT_POLICY_OBLIGATION_LEDGER_SPEC_v0.md"
   ],
-  "planned_family_packages": [],
-  "first_slice_active_packages": [],
-  "package_selection_status": "not_selected_yet",
+  "planned_family_packages": [
+    "packages/adeu_semantic_source",
+    "packages/adeu_commitments_ir"
+  ],
+  "first_slice_active_packages": [
+    "packages/adeu_semantic_source",
+    "packages/adeu_commitments_ir"
+  ],
+  "package_selection_status": "selected_and_released_on_main",
   "family_theme": "adeu_authoritative_normative_markdown_and_bounded_d1_compilation_substrate",
   "branch_local_planning_selection_only": true,
   "v45_complete_and_consumed_as_descriptive_substrate_only": true,
@@ -551,9 +529,12 @@ Released earlier shaping surfaces that `V47` should learn from rather than reope
   "only_if_and_unless_semantics_required": true,
   "waiver_and_deferral_authority_initially_external_or_deferred": true,
   "repo_wide_migration_initially_deferred": true,
-  "v47c_broader_companion_doc_and_coexistence_lane_planned": true,
-  "v47d_selector_predicate_ownership_transition_deferred": true,
-  "v47e_downstream_consumer_seam_not_selected_here": true,
+  "v47c_coexistence_lane_closed_on_main": true,
+  "v47d_selector_predicate_ownership_transition_closed_on_main": true,
+  "v47e_downstream_consumer_seam_closed_on_main": true,
+  "v47f_benchmark_world_consumer_lane_closed_on_main": true,
+  "v47_branch_local_family_buildout_closed_on_main": true,
+  "no_further_internal_v47_path_selected": true,
   "planning_boundary_mode": "scope_guard_not_lock_authority",
   "authority_layering_note": "docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md",
   "horizon_glossary_note": "docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md",
