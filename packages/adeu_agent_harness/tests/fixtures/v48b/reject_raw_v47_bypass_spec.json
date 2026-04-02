@@ -1,0 +1,17 @@
+{
+  "binding_profile_refs": [
+    "packages/adeu_commitments_ir/tests/fixtures/v47e/reference_anm_policy_consumer_binding_profile.json"
+  ],
+  "binding_profile_semantic_hash": "9e99d026c1a98d35bc1fade6499ad61b4bbb57c01828fdb093975bdec69618d2",
+  "compiler_selections": [
+    "python -m adeu_agent_harness.compile"
+  ],
+  "compiled_commitments_ir_path": "artifacts/semantic_compiler/v40/commitments_ir.json",
+  "declared_task_identities": [
+    "task:v48b:reject_raw_v47_bypass"
+  ],
+  "out_dir": "artifacts/agent_harness/v48b/reject_raw_v47_bypass",
+  "source_semantic_arcs": [
+    "v41"
+  ]
+}

@@ -1,0 +1,237 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "acceptance_ref": {
+      "minLength": 1,
+      "title": "Acceptance Ref",
+      "type": "string"
+    },
+    "allowlist_ref": {
+      "minLength": 1,
+      "title": "Allowlist Ref",
+      "type": "string"
+    },
+    "binding_profile_ref": {
+      "minLength": 1,
+      "title": "Binding Profile Ref",
+      "type": "string"
+    },
+    "binding_profile_semantic_hash": {
+      "minLength": 1,
+      "title": "Binding Profile Semantic Hash",
+      "type": "string"
+    },
+    "binding_profile_source_kind": {
+      "const": "released_anm_taskpack_binding_profile_ref",
+      "title": "Binding Profile Source Kind",
+      "type": "string"
+    },
+    "binding_subject_id": {
+      "minLength": 1,
+      "title": "Binding Subject Id",
+      "type": "string"
+    },
+    "bundle_hash": {
+      "minLength": 1,
+      "title": "Bundle Hash",
+      "type": "string"
+    },
+    "commands_ref": {
+      "minLength": 1,
+      "title": "Commands Ref",
+      "type": "string"
+    },
+    "compiled_binding_id": {
+      "minLength": 1,
+      "title": "Compiled Binding Id",
+      "type": "string"
+    },
+    "compiled_boundary_identity_hash": {
+      "minLength": 1,
+      "title": "Compiled Boundary Identity Hash",
+      "type": "string"
+    },
+    "compiled_boundary_identity_posture": {
+      "const": "binding_lineage_plus_task_identity_hash",
+      "title": "Compiled Boundary Identity Posture",
+      "type": "string"
+    },
+    "compiled_commitments_ir_path": {
+      "minLength": 1,
+      "title": "Compiled Commitments Ir Path",
+      "type": "string"
+    },
+    "compiled_component_set_kind": {
+      "const": "released_taskpack_bundle_component_set",
+      "title": "Compiled Component Set Kind",
+      "type": "string"
+    },
+    "compiler_selection": {
+      "minLength": 1,
+      "title": "Compiler Selection",
+      "type": "string"
+    },
+    "compiler_selection_kind": {
+      "const": "released_adeu_agent_harness_taskpack_compiler",
+      "title": "Compiler Selection Kind",
+      "type": "string"
+    },
+    "declared_task_identity": {
+      "minLength": 1,
+      "title": "Declared Task Identity",
+      "type": "string"
+    },
+    "evidence_slots_ref": {
+      "minLength": 1,
+      "title": "Evidence Slots Ref",
+      "type": "string"
+    },
+    "forbidden_ref": {
+      "minLength": 1,
+      "title": "Forbidden Ref",
+      "type": "string"
+    },
+    "kernel_bridge_posture": {
+      "const": "released_pipeline_profile_and_registry_then_compile_taskpack",
+      "title": "Kernel Bridge Posture",
+      "type": "string"
+    },
+    "manifest_sha256": {
+      "minLength": 1,
+      "title": "Manifest Sha256",
+      "type": "string"
+    },
+    "pipeline_profile_ref": {
+      "minLength": 1,
+      "title": "Pipeline Profile Ref",
+      "type": "string"
+    },
+    "pipeline_profile_sha256": {
+      "minLength": 1,
+      "title": "Pipeline Profile Sha256",
+      "type": "string"
+    },
+    "policy_lineage_hash": {
+      "minLength": 1,
+      "title": "Policy Lineage Hash",
+      "type": "string"
+    },
+    "profile_registry_ref": {
+      "minLength": 1,
+      "title": "Profile Registry Ref",
+      "type": "string"
+    },
+    "profile_registry_sha256": {
+      "minLength": 1,
+      "title": "Profile Registry Sha256",
+      "type": "string"
+    },
+    "schema": {
+      "const": "compiled_policy_taskpack_binding@1",
+      "default": "compiled_policy_taskpack_binding@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "scope_lineage_hash": {
+      "minLength": 1,
+      "title": "Scope Lineage Hash",
+      "type": "string"
+    },
+    "semantic_compiler_evidence_manifest_path": {
+      "minLength": 1,
+      "title": "Semantic Compiler Evidence Manifest Path",
+      "type": "string"
+    },
+    "semantic_compiler_surface_diff_path": {
+      "minLength": 1,
+      "title": "Semantic Compiler Surface Diff Path",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "minLength": 1,
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "snapshot_sha256": {
+      "minLength": 1,
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "source_semantic_arc": {
+      "minLength": 1,
+      "title": "Source Semantic Arc",
+      "type": "string"
+    },
+    "taskpack_manifest_ref": {
+      "minLength": 1,
+      "title": "Taskpack Manifest Ref",
+      "type": "string"
+    },
+    "taskpack_markdown_ref": {
+      "minLength": 1,
+      "title": "Taskpack Markdown Ref",
+      "type": "string"
+    },
+    "unsupported_compilation_posture": {
+      "const": "fail_closed",
+      "title": "Unsupported Compilation Posture",
+      "type": "string"
+    },
+    "worker_subject_kind": {
+      "const": "repo_internal_single_codex_worker",
+      "title": "Worker Subject Kind",
+      "type": "string"
+    },
+    "worker_subject_ref": {
+      "minLength": 1,
+      "title": "Worker Subject Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "compiled_binding_id",
+    "snapshot_id",
+    "snapshot_sha256",
+    "binding_profile_source_kind",
+    "binding_profile_ref",
+    "binding_profile_semantic_hash",
+    "policy_lineage_hash",
+    "scope_lineage_hash",
+    "binding_subject_id",
+    "worker_subject_kind",
+    "worker_subject_ref",
+    "compiler_selection_kind",
+    "compiler_selection",
+    "source_semantic_arc",
+    "declared_task_identity",
+    "kernel_bridge_posture",
+    "pipeline_profile_ref",
+    "pipeline_profile_sha256",
+    "profile_registry_ref",
+    "profile_registry_sha256",
+    "compiled_commitments_ir_path",
+    "semantic_compiler_evidence_manifest_path",
+    "semantic_compiler_surface_diff_path",
+    "compiled_boundary_identity_posture",
+    "compiled_boundary_identity_hash",
+    "compiled_component_set_kind",
+    "taskpack_markdown_ref",
+    "acceptance_ref",
+    "allowlist_ref",
+    "forbidden_ref",
+    "commands_ref",
+    "evidence_slots_ref",
+    "taskpack_manifest_ref",
+    "manifest_sha256",
+    "bundle_hash",
+    "unsupported_compilation_posture",
+    "semantic_hash"
+  ],
+  "title": "CompiledPolicyTaskpackBinding",
+  "type": "object"
+}
