@@ -1,0 +1,146 @@
+{
+  "boundary_instance_ref": "artifacts/agent_harness/v48c/reference_worker_execution/task_run_boundary_instance.json",
+  "branch_ref_identity_ref": "artifacts/agent_harness/v48d/reference_conformant_inputs/execution_repository_identity.json",
+  "command_invocation_log_ref": "artifacts/agent_harness/v48d/reference_conformant_inputs/command_invocation_log.json",
+  "compiled_binding_ref": "artifacts/agent_harness/v48b/reference_compiled_binding/compiled_policy_taskpack_binding.json",
+  "conformance_checks": [
+    {
+      "check_family": "lineage_match",
+      "check_id": "lineage_match:8913e10c1625",
+      "detail": {
+        "boundary_instance_ref": "artifacts/agent_harness/v48c/reference_worker_execution/task_run_boundary_instance.json",
+        "compiled_binding_ref": "artifacts/agent_harness/v48b/reference_compiled_binding/compiled_policy_taskpack_binding.json",
+        "worker_execution_attestation_ref": "artifacts/agent_harness/v48c/reference_worker_execution/worker_execution_attestation.json",
+        "worker_execution_provenance_ref": "artifacts/agent_harness/v48c/reference_worker_execution/worker_execution_provenance.json"
+      },
+      "judgment": "pass",
+      "supporting_observed_action_refs": [
+        "artifacts/agent_harness/v48d/reference_conformant_inputs/command_invocation_log.json",
+        "artifacts/agent_harness/v48d/reference_conformant_inputs/emitted_artifact_set.json",
+        "artifacts/agent_harness/v48d/reference_conformant_inputs/execution_repository_identity.json",
+        "artifacts/agent_harness/v48d/reference_conformant_inputs/filesystem_mutation_set.json"
+      ]
+    },
+    {
+      "check_family": "filesystem_mutation_scope",
+      "check_id": "filesystem_mutation_scope:bc6216e0f017",
+      "detail": {
+        "forbidden_operation_kind_hits": [],
+        "forbidden_paths_hit": [],
+        "observed_mutations": [],
+        "outside_allowlist_paths": []
+      },
+      "judgment": "pass",
+      "supporting_observed_action_refs": [
+        "artifacts/agent_harness/v48d/reference_conformant_inputs/filesystem_mutation_set.json"
+      ]
+    },
+    {
+      "check_family": "command_invocation_scope",
+      "check_id": "command_invocation_scope:279561783785",
+      "detail": {
+        "forbidden_effect_hits": [],
+        "observed_invocations": [],
+        "unauthorized_commands": []
+      },
+      "judgment": "pass",
+      "supporting_observed_action_refs": [
+        "artifacts/agent_harness/v48d/reference_conformant_inputs/command_invocation_log.json"
+      ]
+    },
+    {
+      "check_family": "emitted_artifact_coherence",
+      "check_id": "emitted_artifact_coherence:b673d2628400",
+      "detail": {
+        "expected_support_artifact_refs": [
+          "artifacts/agent_harness/v45/dry_run_preview/provenance/dc239ec4927243878347d5c4daaabfcde1fd9986cc8aede4fdea05e6e6bfe3ee_bde7b01f218ba8906293ecc80571b83ff3fc99b92b44b71573b330cadb9247e9.json",
+          "artifacts/agent_harness/v46/verification/dc239ec4927243878347d5c4daaabfcde1fd9986cc8aede4fdea05e6e6bfe3ee_bde7b01f218ba8906293ecc80571b83ff3fc99b92b44b71573b330cadb9247e9.json",
+          "artifacts/agent_harness/v48c/attestation_validator_result.json",
+          "artifacts/agent_harness/v48c/runner_result_success.json"
+        ],
+        "extra_artifact_refs": [],
+        "missing_artifact_refs": [],
+        "observed_artifact_refs": [
+          "artifacts/agent_harness/v45/dry_run_preview/provenance/dc239ec4927243878347d5c4daaabfcde1fd9986cc8aede4fdea05e6e6bfe3ee_bde7b01f218ba8906293ecc80571b83ff3fc99b92b44b71573b330cadb9247e9.json",
+          "artifacts/agent_harness/v46/verification/dc239ec4927243878347d5c4daaabfcde1fd9986cc8aede4fdea05e6e6bfe3ee_bde7b01f218ba8906293ecc80571b83ff3fc99b92b44b71573b330cadb9247e9.json",
+          "artifacts/agent_harness/v48c/attestation_validator_result.json",
+          "artifacts/agent_harness/v48c/runner_result_success.json"
+        ]
+      },
+      "judgment": "pass",
+      "supporting_observed_action_refs": [
+        "artifacts/agent_harness/v48d/reference_conformant_inputs/emitted_artifact_set.json"
+      ]
+    },
+    {
+      "check_family": "execution_repository_identity_match",
+      "check_id": "execution_repository_identity_match:4bec8058b76e",
+      "detail": {
+        "branch_ref": "refs/heads/main",
+        "commit_sha": "1111111111111111111111111111111111111111",
+        "expected_repo_ref": "repo_identity:repo_snapshot_be15b89dfafbee994e98b291:be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+        "expected_snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
+        "expected_snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+        "observed_repo_ref": "repo_identity:repo_snapshot_be15b89dfafbee994e98b291:be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+        "observed_snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
+        "observed_snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab"
+      },
+      "judgment": "pass",
+      "supporting_observed_action_refs": [
+        "artifacts/agent_harness/v48d/reference_conformant_inputs/execution_repository_identity.json"
+      ]
+    },
+    {
+      "check_family": "prompt_conflict",
+      "check_id": "prompt_conflict:7b26f0be8467",
+      "detail": {
+        "prompt_authority_posture": "projection_only_conflict_fail_closed",
+        "required_prompt_authority_posture": "projection_only_conflict_fail_closed"
+      },
+      "judgment": "pass",
+      "supporting_observed_action_refs": []
+    }
+  ],
+  "emitted_artifact_set_ref": "artifacts/agent_harness/v48d/reference_conformant_inputs/emitted_artifact_set.json",
+  "filesystem_mutation_set_ref": "artifacts/agent_harness/v48d/reference_conformant_inputs/filesystem_mutation_set.json",
+  "observed_action_carriers": [
+    {
+      "carrier_observation_scope": "same_exact_run_pre_post_repo_state",
+      "carrier_ref": "artifacts/agent_harness/v48d/reference_conformant_inputs/filesystem_mutation_set.json",
+      "carrier_source_of_truth": "observed_execution_state_change_or_governed_replay_artifact",
+      "observed_action_carrier_kind": "filesystem_mutation_set_ref"
+    },
+    {
+      "carrier_observation_scope": "same_exact_run_command_event_stream",
+      "carrier_ref": "artifacts/agent_harness/v48d/reference_conformant_inputs/command_invocation_log.json",
+      "carrier_source_of_truth": "runner_observed_command_events_or_governed_replay_artifact",
+      "observed_action_carrier_kind": "command_invocation_log_ref"
+    },
+    {
+      "carrier_observation_scope": "same_exact_run_materialized_outputs",
+      "carrier_ref": "artifacts/agent_harness/v48d/reference_conformant_inputs/emitted_artifact_set.json",
+      "carrier_source_of_truth": "observed_materialized_run_outputs_or_governed_replay_artifact",
+      "observed_action_carrier_kind": "emitted_artifact_set_ref"
+    },
+    {
+      "carrier_observation_scope": "same_exact_run_execution_repository_identity",
+      "carrier_ref": "artifacts/agent_harness/v48d/reference_conformant_inputs/execution_repository_identity.json",
+      "carrier_source_of_truth": "exact_execution_repository_identity_capture",
+      "observed_action_carrier_kind": "branch_ref_identity_ref"
+    }
+  ],
+  "overall_judgment": "conformant",
+  "repo_ref": "repo_identity:repo_snapshot_be15b89dfafbee994e98b291:be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+  "schema": "worker_boundary_conformance_report@1",
+  "semantic_hash": "730eb93d32170400cb690be43523114ecf052bc714bccaa49f9c27294dc95bf9",
+  "snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
+  "snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+  "supporting_diagnostic_ids": [],
+  "task_instance_identity": "task:v48c:reference_worker_execution",
+  "worker_boundary_conformance_report_id": "worker_boundary_conformance_report:6e93ef9c5cb1257000d2b6a45daa58c9a85beb5052d5e36561f12791a3347d51",
+  "worker_execution_attestation_ref": "artifacts/agent_harness/v48c/reference_worker_execution/worker_execution_attestation.json",
+  "worker_execution_provenance_ref": "artifacts/agent_harness/v48c/reference_worker_execution/worker_execution_provenance.json",
+  "worker_scope_posture": "single_worker_only",
+  "worker_subject_kind": "repo_internal_single_codex_worker",
+  "worker_subject_ref": "worker:repo_internal_single_codex_worker:default"
+}

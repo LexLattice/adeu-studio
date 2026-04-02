@@ -1,0 +1,253 @@
+{
+  "$defs": {
+    "ObservedActionCarrier": {
+      "additionalProperties": false,
+      "properties": {
+        "carrier_observation_scope": {
+          "enum": [
+            "same_exact_run_pre_post_repo_state",
+            "same_exact_run_command_event_stream",
+            "same_exact_run_materialized_outputs",
+            "same_exact_run_execution_repository_identity"
+          ],
+          "title": "Carrier Observation Scope",
+          "type": "string"
+        },
+        "carrier_ref": {
+          "minLength": 1,
+          "title": "Carrier Ref",
+          "type": "string"
+        },
+        "carrier_source_of_truth": {
+          "enum": [
+            "observed_execution_state_change_or_governed_replay_artifact",
+            "runner_observed_command_events_or_governed_replay_artifact",
+            "observed_materialized_run_outputs_or_governed_replay_artifact",
+            "exact_execution_repository_identity_capture"
+          ],
+          "title": "Carrier Source Of Truth",
+          "type": "string"
+        },
+        "observed_action_carrier_kind": {
+          "enum": [
+            "filesystem_mutation_set_ref",
+            "command_invocation_log_ref",
+            "emitted_artifact_set_ref",
+            "branch_ref_identity_ref"
+          ],
+          "title": "Observed Action Carrier Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observed_action_carrier_kind",
+        "carrier_ref",
+        "carrier_source_of_truth",
+        "carrier_observation_scope"
+      ],
+      "title": "ObservedActionCarrier",
+      "type": "object"
+    },
+    "WorkerBoundaryConformanceCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "check_family": {
+          "enum": [
+            "lineage_match",
+            "filesystem_mutation_scope",
+            "command_invocation_scope",
+            "emitted_artifact_coherence",
+            "execution_repository_identity_match",
+            "prompt_conflict"
+          ],
+          "title": "Check Family",
+          "type": "string"
+        },
+        "check_id": {
+          "minLength": 1,
+          "title": "Check Id",
+          "type": "string"
+        },
+        "detail": {
+          "additionalProperties": true,
+          "title": "Detail",
+          "type": "object"
+        },
+        "judgment": {
+          "enum": [
+            "pass",
+            "fail",
+            "incomplete_evidence"
+          ],
+          "title": "Judgment",
+          "type": "string"
+        },
+        "supporting_observed_action_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Observed Action Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "check_id",
+        "check_family",
+        "judgment",
+        "detail",
+        "supporting_observed_action_refs"
+      ],
+      "title": "WorkerBoundaryConformanceCheck",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "boundary_instance_ref": {
+      "minLength": 1,
+      "title": "Boundary Instance Ref",
+      "type": "string"
+    },
+    "branch_ref_identity_ref": {
+      "minLength": 1,
+      "title": "Branch Ref Identity Ref",
+      "type": "string"
+    },
+    "command_invocation_log_ref": {
+      "minLength": 1,
+      "title": "Command Invocation Log Ref",
+      "type": "string"
+    },
+    "compiled_binding_ref": {
+      "minLength": 1,
+      "title": "Compiled Binding Ref",
+      "type": "string"
+    },
+    "conformance_checks": {
+      "items": {
+        "$ref": "#/$defs/WorkerBoundaryConformanceCheck"
+      },
+      "title": "Conformance Checks",
+      "type": "array"
+    },
+    "emitted_artifact_set_ref": {
+      "minLength": 1,
+      "title": "Emitted Artifact Set Ref",
+      "type": "string"
+    },
+    "filesystem_mutation_set_ref": {
+      "minLength": 1,
+      "title": "Filesystem Mutation Set Ref",
+      "type": "string"
+    },
+    "observed_action_carriers": {
+      "items": {
+        "$ref": "#/$defs/ObservedActionCarrier"
+      },
+      "title": "Observed Action Carriers",
+      "type": "array"
+    },
+    "overall_judgment": {
+      "enum": [
+        "conformant",
+        "non_conformant",
+        "incomplete_evidence"
+      ],
+      "title": "Overall Judgment",
+      "type": "string"
+    },
+    "repo_ref": {
+      "minLength": 1,
+      "title": "Repo Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "worker_boundary_conformance_report@1",
+      "default": "worker_boundary_conformance_report@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "minLength": 1,
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "snapshot_sha256": {
+      "minLength": 1,
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "supporting_diagnostic_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supporting Diagnostic Ids",
+      "type": "array"
+    },
+    "task_instance_identity": {
+      "minLength": 1,
+      "title": "Task Instance Identity",
+      "type": "string"
+    },
+    "worker_boundary_conformance_report_id": {
+      "minLength": 1,
+      "title": "Worker Boundary Conformance Report Id",
+      "type": "string"
+    },
+    "worker_execution_attestation_ref": {
+      "minLength": 1,
+      "title": "Worker Execution Attestation Ref",
+      "type": "string"
+    },
+    "worker_execution_provenance_ref": {
+      "minLength": 1,
+      "title": "Worker Execution Provenance Ref",
+      "type": "string"
+    },
+    "worker_scope_posture": {
+      "const": "single_worker_only",
+      "title": "Worker Scope Posture",
+      "type": "string"
+    },
+    "worker_subject_kind": {
+      "const": "repo_internal_single_codex_worker",
+      "title": "Worker Subject Kind",
+      "type": "string"
+    },
+    "worker_subject_ref": {
+      "minLength": 1,
+      "title": "Worker Subject Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "worker_boundary_conformance_report_id",
+    "snapshot_id",
+    "snapshot_sha256",
+    "compiled_binding_ref",
+    "boundary_instance_ref",
+    "worker_execution_attestation_ref",
+    "worker_execution_provenance_ref",
+    "repo_ref",
+    "task_instance_identity",
+    "worker_subject_kind",
+    "worker_subject_ref",
+    "worker_scope_posture",
+    "filesystem_mutation_set_ref",
+    "command_invocation_log_ref",
+    "emitted_artifact_set_ref",
+    "branch_ref_identity_ref",
+    "observed_action_carriers",
+    "conformance_checks",
+    "overall_judgment",
+    "supporting_diagnostic_ids",
+    "semantic_hash"
+  ],
+  "title": "WorkerBoundaryConformanceReport",
+  "type": "object"
+}
