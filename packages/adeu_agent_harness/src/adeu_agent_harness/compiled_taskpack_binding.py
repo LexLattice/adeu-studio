@@ -88,7 +88,7 @@ def _serialize_payload(payload: dict[str, Any]) -> str:
 
 
 class CompiledPolicyTaskpackBinding(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     schema: Literal["compiled_policy_taskpack_binding@1"] = COMPILED_POLICY_TASKPACK_BINDING_SCHEMA
     compiled_binding_id: str = Field(min_length=1)
@@ -131,43 +131,6 @@ class CompiledPolicyTaskpackBinding(BaseModel):
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "CompiledPolicyTaskpackBinding":
-        for field_name in (
-            "compiled_binding_id",
-            "snapshot_id",
-            "snapshot_sha256",
-            "binding_profile_ref",
-            "binding_profile_semantic_hash",
-            "policy_lineage_hash",
-            "scope_lineage_hash",
-            "binding_subject_id",
-            "worker_subject_ref",
-            "compiler_selection",
-            "source_semantic_arc",
-            "declared_task_identity",
-            "pipeline_profile_ref",
-            "pipeline_profile_sha256",
-            "profile_registry_ref",
-            "profile_registry_sha256",
-            "compiled_commitments_ir_path",
-            "semantic_compiler_evidence_manifest_path",
-            "semantic_compiler_surface_diff_path",
-            "compiled_boundary_identity_hash",
-            "taskpack_markdown_ref",
-            "acceptance_ref",
-            "allowlist_ref",
-            "forbidden_ref",
-            "commands_ref",
-            "evidence_slots_ref",
-            "taskpack_manifest_ref",
-            "manifest_sha256",
-            "bundle_hash",
-        ):
-            value = getattr(self, field_name)
-            normalized = value.strip()
-            if not normalized:
-                raise ValueError(f"{field_name} must not be empty")
-            setattr(self, field_name, normalized)
-
         payload = self.model_dump(mode="json", exclude={"semantic_hash"})
         self.semantic_hash = _stable_payload_hash(payload)
         return self
@@ -262,6 +225,20 @@ def _safe_join(root: Path, rel_path: str) -> Path:
             details={"path": rel_path},
         ) from exc
     return path
+
+
+def _resolve_under(base_dir: Path, candidate: Path, *, details: dict[str, Any]) -> Path:
+    resolved = candidate.resolve()
+    base_resolved = base_dir.resolve()
+    try:
+        resolved.relative_to(base_resolved)
+    except ValueError as exc:
+        raise _fail(
+            code=AHK5704_LINEAGE_UNRESOLVED,
+            message="resolved path escapes allowed base directory",
+            details=details,
+        ) from exc
+    return resolved
 
 
 def _to_repo_relative(path: Path, *, root: Path) -> str:
@@ -433,14 +410,27 @@ def _resolve_semantic_authority_inputs(
             details={"source_semantic_arc": source_semantic_arc},
         )
 
-    semantic_compiler_root = root / "artifacts" / "semantic_compiler"
-    all_evidence = sorted(semantic_compiler_root.glob("*/evidence_manifest.json"))
-    all_surface_diff = sorted(semantic_compiler_root.glob("*/surface_diff.json"))
-    selected_evidence = [path for path in all_evidence if path.parent.name == source_semantic_arc]
-    selected_surface_diff = [
-        path for path in all_surface_diff if path.parent.name == source_semantic_arc
-    ]
-    if len(selected_evidence) != 1 or len(selected_surface_diff) != 1:
+    semantic_compiler_root = _safe_join(root, "artifacts/semantic_compiler")
+    evidence_candidate = semantic_compiler_root / source_semantic_arc / "evidence_manifest.json"
+    surface_diff_candidate = semantic_compiler_root / source_semantic_arc / "surface_diff.json"
+
+    evidence_path = _resolve_under(
+        semantic_compiler_root,
+        evidence_candidate,
+        details={
+            "source_semantic_arc": source_semantic_arc,
+            "candidate": str(evidence_candidate),
+        },
+    )
+    surface_diff_path = _resolve_under(
+        semantic_compiler_root,
+        surface_diff_candidate,
+        details={
+            "source_semantic_arc": source_semantic_arc,
+            "candidate": str(surface_diff_candidate),
+        },
+    )
+    if not evidence_path.is_file() or not surface_diff_path.is_file():
         raise _fail(
             code=AHK5704_LINEAGE_UNRESOLVED,
             message=(
@@ -449,11 +439,11 @@ def _resolve_semantic_authority_inputs(
             ),
             details={
                 "source_semantic_arc": source_semantic_arc,
-                "evidence_matches": [str(path) for path in selected_evidence],
-                "surface_diff_matches": [str(path) for path in selected_surface_diff],
+                "evidence_path": str(evidence_path),
+                "surface_diff_path": str(surface_diff_path),
             },
         )
-    return selected_evidence[0], selected_surface_diff[0]
+    return evidence_path, surface_diff_path
 
 
 def _coerce_binding_profile(
@@ -769,7 +759,7 @@ def compile_v48b_taskpack_binding(
     )
     compiled_commitments_ir_path = _normalize_relative_path(compiled_commitments_ir_path)
     out_rel = _normalize_relative_path(str(out_dir))
-    out_path = root / out_rel
+    out_path = _safe_join(root, out_rel)
 
     if compiler_selection != RELEASED_TASKPACK_COMPILER_SELECTION:
         raise _fail(

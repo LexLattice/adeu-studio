@@ -6,8 +6,10 @@ from pathlib import Path
 
 import pytest
 from adeu_agent_harness.compiled_taskpack_binding import (
+    AHK5701_INPUT_INVALID,
     AHK5702_SCHEMA_MISMATCH,
     AHK5703_CARDINALITY_VIOLATION,
+    AHK5704_LINEAGE_UNRESOLVED,
     AHK5705_LINEAGE_MISMATCH,
     AHK5706_BRIDGE_INVALID,
     COMPILED_POLICY_TASKPACK_BINDING_SCHEMA,
@@ -16,6 +18,7 @@ from adeu_agent_harness.compiled_taskpack_binding import (
     compile_v48b_taskpack_binding,
 )
 from adeu_ir.repo import repo_root
+from urm_runtime.hashing import canonical_json
 
 
 def _fixture_path(name: str) -> Path:
@@ -34,6 +37,11 @@ def _repo_root() -> Path:
     return repo_root(anchor=Path(__file__))
 
 
+def _write_json(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(canonical_json(payload) + "\n", encoding="utf-8")
+
+
 def _seed_reference_repo(tmp_path: Path) -> Path:
     root = tmp_path / "repo"
     root.mkdir()
@@ -46,13 +54,21 @@ def _seed_reference_repo(tmp_path: Path) -> Path:
         "packages/adeu_commitments_ir/tests/fixtures/v47e/reference_anm_policy_consumer_binding_profile.json",
         "apps/api/fixtures/repo_description/vnext_plus101/repo_symbol_catalog_v101_reference.json",
         "apps/api/fixtures/repo_description/vnext_plus105/repo_descriptive_normative_binding_frame_v105_reference.json",
-        "artifacts/semantic_compiler/v40/commitments_ir.json",
         "artifacts/semantic_compiler/v41/evidence_manifest.json",
         "artifacts/semantic_compiler/v41/surface_diff.json",
     ):
         destination = root / rel_path
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source_root / rel_path, destination)
+
+    _write_json(
+        root / "artifacts" / "semantic_compiler" / "v40" / "commitments_ir.json",
+        {
+            "schema": "adeu_commitments_ir@0.1",
+            "modules": [],
+            "locks": [],
+        },
+    )
 
     return root
 
@@ -173,6 +189,63 @@ def test_v48b_rejects_malformed_pipeline_profile_bridge(
     )
 
     with pytest.raises(CompiledPolicyTaskpackBindingError, match=AHK5706_BRIDGE_INVALID):
+        compile_v48b_taskpack_binding(
+            **spec,
+            repo_root_path=root,
+        )
+
+
+def test_v48b_rejects_out_dir_symlink_escape(tmp_path: Path) -> None:
+    root = _seed_reference_repo(tmp_path)
+    spec = _read_fixture("reference_compiled_taskpack_binding_spec.json")
+    external = tmp_path / "external_out"
+    external.mkdir()
+    (root / "leak").symlink_to(external, target_is_directory=True)
+    spec["out_dir"] = "leak/out"
+
+    with pytest.raises(CompiledPolicyTaskpackBindingError, match=AHK5701_INPUT_INVALID):
+        compile_v48b_taskpack_binding(
+            **spec,
+            repo_root_path=root,
+        )
+
+
+def test_v48b_rejects_semantic_authority_symlink_escape(tmp_path: Path) -> None:
+    root = _seed_reference_repo(tmp_path)
+    spec = _read_fixture("reference_compiled_taskpack_binding_spec.json")
+    shutil.rmtree(root / "artifacts" / "semantic_compiler" / "v41")
+
+    external = tmp_path / "external_semantic_arc"
+    external.mkdir()
+    _write_json(
+        external / "evidence_manifest.json",
+        {
+            "schema": "semantic_compiler_evidence_manifest@0.1",
+            "arc": "vnext_plus41",
+            "compiler_entrypoint": "python -m adeu_semantic_compiler.compile",
+            "source_set_hash": "0" * 64,
+            "required_evidence": [],
+            "artifacts": {},
+            "artifact_hashes": {},
+        },
+    )
+    _write_json(
+        external / "surface_diff.json",
+        {
+            "schema": "semantic_compiler_surface_diff@0.1",
+            "baseline_present": True,
+            "delta_eval_mode": "exact_set",
+            "adds": [],
+            "removes": [],
+            "changes": [],
+        },
+    )
+    (root / "artifacts" / "semantic_compiler" / "v41").symlink_to(
+        external,
+        target_is_directory=True,
+    )
+
+    with pytest.raises(CompiledPolicyTaskpackBindingError, match=AHK5704_LINEAGE_UNRESOLVED):
         compile_v48b_taskpack_binding(
             **spec,
             repo_root_path=root,
