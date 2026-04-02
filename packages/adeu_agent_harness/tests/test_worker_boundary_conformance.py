@@ -22,6 +22,7 @@ from adeu_agent_harness.verify_taskpack_run import (
     verify_taskpack_run,
 )
 from adeu_agent_harness.worker_boundary_conformance import (
+    AHK5901_INPUT_INVALID,
     AHK5902_SCHEMA_MISMATCH,
     AHK5903_CARDINALITY_VIOLATION,
     AHK5905_LINEAGE_MISMATCH,
@@ -687,6 +688,25 @@ def test_v48d_rejects_missing_observed_action_carrier(tmp_path: Path) -> None:
         )
 
 
+def test_v48d_rejects_invalid_relative_path_with_conformance_error(tmp_path: Path) -> None:
+    seeded = _seed_v48d_inputs(
+        tmp_path,
+        out_dir="artifacts/agent_harness/v48d/reject_invalid_relative_path_inputs",
+    )
+    with pytest.raises(WorkerBoundaryConformanceError, match=AHK5901_INPUT_INVALID):
+        build_v48d_worker_boundary_conformance_report(
+            boundary_instance_refs=["../escape.json"],
+            worker_execution_attestation_refs=[seeded["worker_execution_attestation_ref"]],
+            worker_execution_provenance_refs=[seeded["worker_execution_provenance_ref"]],
+            filesystem_mutation_set_refs=[seeded["filesystem_mutation_set_ref"]],
+            command_invocation_log_refs=[seeded["command_invocation_log_ref"]],
+            emitted_artifact_set_refs=[seeded["emitted_artifact_set_ref"]],
+            branch_ref_identity_refs=[seeded["branch_ref_identity_ref"]],
+            out_dir="artifacts/agent_harness/v48d/reject_invalid_relative_path_report",
+            repo_root_path=seeded["root"],
+        )
+
+
 def test_v48d_rejects_carrier_repo_identity_mismatch(tmp_path: Path) -> None:
     seeded = _seed_v48d_inputs(
         tmp_path,
@@ -711,6 +731,32 @@ def test_v48d_rejects_support_artifact_substitution_posture(tmp_path: Path) -> N
             seeded,
             out_dir="artifacts/agent_harness/v48d/reject_support_substitution_report",
         )
+
+
+def test_v48d_marks_forbidden_operation_kind_non_conformant(tmp_path: Path) -> None:
+    seeded = _seed_v48d_inputs(
+        tmp_path,
+        out_dir="artifacts/agent_harness/v48d/nonconformant_forbidden_operation_inputs",
+        mutations=[
+            {
+                "path": "packages/adeu_agent_harness/tests/test_taskpack_binding.py",
+                "operation_kind": "delete",
+            }
+        ],
+    )
+    report = _build_report(
+        seeded,
+        out_dir="artifacts/agent_harness/v48d/nonconformant_forbidden_operation_report",
+    )
+
+    assert report.overall_judgment == "non_conformant"
+    filesystem_check = next(
+        check
+        for check in report.conformance_checks
+        if check.check_family == "filesystem_mutation_scope"
+    )
+    assert filesystem_check.judgment == "fail"
+    assert filesystem_check.detail["forbidden_operation_kind_hits"] == ["delete"]
 
 
 def test_v48d_marks_branch_identity_mismatch_non_conformant(tmp_path: Path) -> None:

@@ -23,8 +23,9 @@
     },
     {
       "check_family": "filesystem_mutation_scope",
-      "check_id": "filesystem_mutation_scope:586e8e57e0c0",
+      "check_id": "filesystem_mutation_scope:987c2cd03521",
       "detail": {
+        "forbidden_operation_kind_hits": [],
         "forbidden_paths_hit": [
           "apps/web/page.tsx"
         ],
@@ -140,7 +141,7 @@
   "overall_judgment": "non_conformant",
   "repo_ref": "repo_identity:repo_snapshot_be15b89dfafbee994e98b291:be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
   "schema": "worker_boundary_conformance_report@1",
-  "semantic_hash": "c092fc0f25f2bc2cd5a58599d03180d30a1e619ea3c21687027e3172b5811713",
+  "semantic_hash": "19469622c77ca667f5b98c7c08685ec9b12793b567235d1aa4ac985c7a4e6e45",
   "snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
   "snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
   "supporting_diagnostic_ids": [

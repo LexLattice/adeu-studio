@@ -23,8 +23,9 @@
     },
     {
       "check_family": "filesystem_mutation_scope",
-      "check_id": "filesystem_mutation_scope:57decfe9f4f9",
+      "check_id": "filesystem_mutation_scope:a387bfb4adf8",
       "detail": {
+        "forbidden_operation_kind_hits": [],
         "forbidden_paths_hit": [],
         "observed_mutations": [],
         "outside_allowlist_paths": []
@@ -151,7 +152,7 @@
   "overall_judgment": "non_conformant",
   "repo_ref": "repo_identity:repo_snapshot_be15b89dfafbee994e98b291:be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
   "schema": "worker_boundary_conformance_report@1",
-  "semantic_hash": "c92be4bfe8768d5bf43f5fcafe8e769159cb6955d8c0fb2c69cdbc78d78fe8bd",
+  "semantic_hash": "c3beabd5b110c0b97841e3671da4482a517c933c81e811217f29f4e73823150c",
   "snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
   "snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
   "supporting_diagnostic_ids": [

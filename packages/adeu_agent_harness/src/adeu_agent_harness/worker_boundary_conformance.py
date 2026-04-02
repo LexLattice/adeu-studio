@@ -15,6 +15,7 @@ from .compiled_taskpack_binding import (
     CompiledPolicyTaskpackBinding,
 )
 from .run_taskpack import (
+    TaskpackRunnerError,
     _load_allowlist_payload,
     _load_commands_payload,
     _load_forbidden_payload,
@@ -331,7 +332,14 @@ def _normalize_relative_ref(raw_path: str) -> str:
             message="windows absolute paths are forbidden",
             details={"path": raw_path},
         )
-    return _normalize_relative_path(path_text)
+    try:
+        return _normalize_relative_path(path_text)
+    except TaskpackRunnerError as exc:
+        raise _fail(
+            code=AHK5901_INPUT_INVALID,
+            message="path is invalid for worker boundary conformance input",
+            details={"path": raw_path, "runner_error_code": exc.code},
+        ) from exc
 
 
 def _safe_join(root: Path, rel_path: str) -> Path:
@@ -836,7 +844,7 @@ def build_v48d_worker_boundary_conformance_report(
         )
 
     allowlist_paths = _load_allowlist_payload(_safe_join(root, compiled_binding.allowlist_ref))
-    forbidden_paths, forbidden_effects, _forbidden_operation_kinds = _load_forbidden_payload(
+    forbidden_paths, forbidden_effects, forbidden_operation_kinds = _load_forbidden_payload(
         _safe_join(root, compiled_binding.forbidden_ref)
     )
     _deterministic_env, commands_by_run = _load_commands_payload(
@@ -876,15 +884,29 @@ def build_v48d_worker_boundary_conformance_report(
             for prefix in forbidden_paths
         )
     )
+    forbidden_operation_kind_hits = sorted(
+        {
+            mutation.operation_kind
+            for mutation in filesystem_mutation_set.mutations
+            if mutation.operation_kind in forbidden_operation_kinds
+        }
+    )
     filesystem_check = _make_check(
         check_family="filesystem_mutation_scope",
-        judgment="fail" if outside_allowlist_paths or forbidden_paths_hit else "pass",
+        judgment=(
+            "fail"
+            if outside_allowlist_paths
+            or forbidden_paths_hit
+            or forbidden_operation_kind_hits
+            else "pass"
+        ),
         detail={
             "observed_mutations": [
                 mutation.model_dump(mode="json") for mutation in filesystem_mutation_set.mutations
             ],
             "outside_allowlist_paths": outside_allowlist_paths,
             "forbidden_paths_hit": forbidden_paths_hit,
+            "forbidden_operation_kind_hits": forbidden_operation_kind_hits,
         },
         supporting_observed_action_refs=[filesystem_mutation_set_ref],
     )
