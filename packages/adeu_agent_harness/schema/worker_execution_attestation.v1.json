@@ -1,0 +1,123 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "attestation_validator_result_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Attestation Validator Result Hash"
+    },
+    "attestation_validator_result_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Attestation Validator Result Ref"
+    },
+    "boundary_instance_ref": {
+      "minLength": 1,
+      "title": "Boundary Instance Ref",
+      "type": "string"
+    },
+    "compiled_binding_ref": {
+      "minLength": 1,
+      "title": "Compiled Binding Ref",
+      "type": "string"
+    },
+    "prompt_authority_posture": {
+      "const": "projection_only_conflict_fail_closed",
+      "title": "Prompt Authority Posture",
+      "type": "string"
+    },
+    "runner_provenance_hash": {
+      "minLength": 1,
+      "title": "Runner Provenance Hash",
+      "type": "string"
+    },
+    "runner_provenance_ref": {
+      "minLength": 1,
+      "title": "Runner Provenance Ref",
+      "type": "string"
+    },
+    "runner_result_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Runner Result Hash"
+    },
+    "runner_result_ref": {
+      "minLength": 1,
+      "title": "Runner Result Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "worker_execution_attestation@1",
+      "default": "worker_execution_attestation@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "verification_result_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verification Result Hash"
+    },
+    "verification_result_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verification Result Ref"
+    },
+    "worker_execution_attestation_id": {
+      "minLength": 1,
+      "title": "Worker Execution Attestation Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "worker_execution_attestation_id",
+    "boundary_instance_ref",
+    "compiled_binding_ref",
+    "runner_result_ref",
+    "runner_provenance_ref",
+    "runner_provenance_hash",
+    "prompt_authority_posture",
+    "semantic_hash"
+  ],
+  "title": "WorkerExecutionAttestation",
+  "type": "object"
+}

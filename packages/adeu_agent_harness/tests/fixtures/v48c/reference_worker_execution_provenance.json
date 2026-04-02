@@ -1,0 +1,19 @@
+{
+  "boundary_instance_ref": "artifacts/agent_harness/v48c/reference_worker_execution/task_run_boundary_instance.json",
+  "emitted_artifact_refs": [
+    "artifacts/agent_harness/v45/dry_run_preview/provenance/dc239ec4927243878347d5c4daaabfcde1fd9986cc8aede4fdea05e6e6bfe3ee_bde7b01f218ba8906293ecc80571b83ff3fc99b92b44b71573b330cadb9247e9.json",
+    "artifacts/agent_harness/v46/verification/dc239ec4927243878347d5c4daaabfcde1fd9986cc8aede4fdea05e6e6bfe3ee_bde7b01f218ba8906293ecc80571b83ff3fc99b92b44b71573b330cadb9247e9.json",
+    "artifacts/agent_harness/v48c/attestation_validator_result.json",
+    "artifacts/agent_harness/v48c/runner_result_success.json"
+  ],
+  "execution_adapter_ref": "artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json#default",
+  "repo_ref": "repo_identity:repo_snapshot_be15b89dfafbee994e98b291:be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+  "runner_provenance_hash": "96b8f5cdc1ccb913538cb7f6a4dd3174e5bed716c76bdaa2febc3bfb459513f2",
+  "runner_provenance_ref": "artifacts/agent_harness/v45/dry_run_preview/provenance/dc239ec4927243878347d5c4daaabfcde1fd9986cc8aede4fdea05e6e6bfe3ee_bde7b01f218ba8906293ecc80571b83ff3fc99b92b44b71573b330cadb9247e9.json",
+  "schema": "worker_execution_provenance@1",
+  "semantic_hash": "5f507b9e9671440a6d15e71183559474e6840d6461155f3f801d4608170e5ac0",
+  "task_instance_identity": "task:v48c:reference_worker_execution",
+  "worker_execution_provenance_id": "worker_execution_provenance:68ae54fc6fccba63aad7306cee9f3de63604a4ac7c42be36917f595ad03552c3",
+  "worker_model_id": "gpt-5.4-codex",
+  "worker_provider_id": "openai"
+}

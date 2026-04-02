@@ -1,0 +1,83 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "boundary_instance_ref": {
+      "minLength": 1,
+      "title": "Boundary Instance Ref",
+      "type": "string"
+    },
+    "emitted_artifact_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Emitted Artifact Refs",
+      "type": "array"
+    },
+    "execution_adapter_ref": {
+      "minLength": 1,
+      "title": "Execution Adapter Ref",
+      "type": "string"
+    },
+    "repo_ref": {
+      "minLength": 1,
+      "title": "Repo Ref",
+      "type": "string"
+    },
+    "runner_provenance_hash": {
+      "minLength": 1,
+      "title": "Runner Provenance Hash",
+      "type": "string"
+    },
+    "runner_provenance_ref": {
+      "minLength": 1,
+      "title": "Runner Provenance Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "worker_execution_provenance@1",
+      "default": "worker_execution_provenance@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "task_instance_identity": {
+      "minLength": 1,
+      "title": "Task Instance Identity",
+      "type": "string"
+    },
+    "worker_execution_provenance_id": {
+      "minLength": 1,
+      "title": "Worker Execution Provenance Id",
+      "type": "string"
+    },
+    "worker_model_id": {
+      "minLength": 1,
+      "title": "Worker Model Id",
+      "type": "string"
+    },
+    "worker_provider_id": {
+      "minLength": 1,
+      "title": "Worker Provider Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "worker_execution_provenance_id",
+    "boundary_instance_ref",
+    "runner_provenance_ref",
+    "runner_provenance_hash",
+    "repo_ref",
+    "task_instance_identity",
+    "worker_provider_id",
+    "worker_model_id",
+    "execution_adapter_ref",
+    "emitted_artifact_refs",
+    "semantic_hash"
+  ],
+  "title": "WorkerExecutionProvenance",
+  "type": "object"
+}
