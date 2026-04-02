@@ -1,0 +1,176 @@
+{
+  "$defs": {
+    "AnmBenchmarkPolicyConsumerRow": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_now_actions": {
+          "items": {
+            "enum": [
+              "reference_released_policy_source",
+              "emit_benchmark_conformance_annotation",
+              "record_fail_closed_benchmark_consumer_block",
+              "attach_traceable_benchmark_policy_binding"
+            ],
+            "type": "string"
+          },
+          "title": "Allowed Now Actions",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "benchmark_consumer_ref": {
+          "minLength": 1,
+          "title": "Benchmark Consumer Ref",
+          "type": "string"
+        },
+        "benchmark_consumer_ref_kind": {
+          "enum": [
+            "released_v42_local_eval_record_ref",
+            "released_v42_scorecard_manifest_ref",
+            "released_v42_behavior_evidence_bundle_ref"
+          ],
+          "title": "Benchmark Consumer Ref Kind",
+          "type": "string"
+        },
+        "benchmark_consumer_world_kind": {
+          "enum": [
+            "released_v42_local_eval_artifact_world",
+            "released_v42_scorecard_artifact_world",
+            "released_v42_behavior_evidence_artifact_world"
+          ],
+          "title": "Benchmark Consumer World Kind",
+          "type": "string"
+        },
+        "current_benchmark_consumer_authority_relation": {
+          "enum": [
+            "constrain_only_non_executive",
+            "later_lock_required_for_effective_action"
+          ],
+          "title": "Current Benchmark Consumer Authority Relation",
+          "type": "string"
+        },
+        "forbidden_actions": {
+          "items": {
+            "enum": [
+              "reference_released_policy_source",
+              "emit_benchmark_conformance_annotation",
+              "record_fail_closed_benchmark_consumer_block",
+              "attach_traceable_benchmark_policy_binding"
+            ],
+            "type": "string"
+          },
+          "title": "Forbidden Actions",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "later_lock_required_actions": {
+          "items": {
+            "enum": [
+              "reference_released_policy_source",
+              "emit_benchmark_conformance_annotation",
+              "record_fail_closed_benchmark_consumer_block",
+              "attach_traceable_benchmark_policy_binding"
+            ],
+            "type": "string"
+          },
+          "title": "Later Lock Required Actions",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "policy_source_ref": {
+          "minLength": 1,
+          "title": "Policy Source Ref",
+          "type": "string"
+        },
+        "policy_source_ref_kind": {
+          "const": "d1_clause_ref",
+          "title": "Policy Source Ref Kind",
+          "type": "string"
+        },
+        "supporting_ledger_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Ledger Refs",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "supporting_result_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Result Refs",
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "benchmark_consumer_ref",
+        "benchmark_consumer_world_kind",
+        "benchmark_consumer_ref_kind",
+        "policy_source_ref",
+        "policy_source_ref_kind",
+        "current_benchmark_consumer_authority_relation"
+      ],
+      "title": "AnmBenchmarkPolicyConsumerRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_consumer_binding_profile_id": {
+      "minLength": 1,
+      "title": "Benchmark Consumer Binding Profile Id",
+      "type": "string"
+    },
+    "benchmark_consumer_rows": {
+      "items": {
+        "$ref": "#/$defs/AnmBenchmarkPolicyConsumerRow"
+      },
+      "title": "Benchmark Consumer Rows",
+      "type": "array"
+    },
+    "released_stack_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Released Stack Refs",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema": {
+      "const": "anm_benchmark_policy_consumer_binding_profile@1",
+      "default": "anm_benchmark_policy_consumer_binding_profile@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "minLength": 1,
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "snapshot_sha256": {
+      "minLength": 1,
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "source_scope_profile": {
+      "minLength": 1,
+      "title": "Source Scope Profile",
+      "type": "string"
+    }
+  },
+  "required": [
+    "benchmark_consumer_binding_profile_id",
+    "snapshot_id",
+    "snapshot_sha256",
+    "source_scope_profile",
+    "semantic_hash"
+  ],
+  "title": "AnmBenchmarkPolicyConsumerBindingProfile",
+  "type": "object"
+}

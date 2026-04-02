@@ -1,0 +1,90 @@
+{
+  "benchmark_consumer_binding_profile_id": "anm-benchmark-consumer-binding:75460b4d2446",
+  "benchmark_consumer_rows": [
+    {
+      "allowed_now_actions": [
+        "record_fail_closed_benchmark_consumer_block",
+        "reference_released_policy_source"
+      ],
+      "benchmark_consumer_ref": "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_reference.json",
+      "benchmark_consumer_ref_kind": "released_v42_local_eval_record_ref",
+      "benchmark_consumer_world_kind": "released_v42_local_eval_artifact_world",
+      "current_benchmark_consumer_authority_relation": "constrain_only_non_executive",
+      "forbidden_actions": [
+        "attach_traceable_benchmark_policy_binding",
+        "emit_benchmark_conformance_annotation"
+      ],
+      "later_lock_required_actions": [],
+      "policy_source_ref": "release_surface:owner",
+      "policy_source_ref_kind": "d1_clause_ref",
+      "supporting_ledger_refs": [
+        "obligation:dbab82f540f1"
+      ],
+      "supporting_result_refs": [
+        "result:release_surface:owner:artifact:beta"
+      ]
+    },
+    {
+      "allowed_now_actions": [
+        "reference_released_policy_source"
+      ],
+      "benchmark_consumer_ref": "apps/api/fixtures/arc_agi/vnext_plus93/adeu_arc_scorecard_manifest_v93_reference.json",
+      "benchmark_consumer_ref_kind": "released_v42_scorecard_manifest_ref",
+      "benchmark_consumer_world_kind": "released_v42_scorecard_artifact_world",
+      "current_benchmark_consumer_authority_relation": "later_lock_required_for_effective_action",
+      "forbidden_actions": [
+        "record_fail_closed_benchmark_consumer_block"
+      ],
+      "later_lock_required_actions": [
+        "attach_traceable_benchmark_policy_binding",
+        "emit_benchmark_conformance_annotation"
+      ],
+      "policy_source_ref": "release_surface:owner",
+      "policy_source_ref_kind": "d1_clause_ref",
+      "supporting_ledger_refs": [
+        "obligation:dbab82f540f1"
+      ],
+      "supporting_result_refs": [
+        "result:release_surface:owner:artifact:beta"
+      ]
+    },
+    {
+      "allowed_now_actions": [
+        "record_fail_closed_benchmark_consumer_block",
+        "reference_released_policy_source"
+      ],
+      "benchmark_consumer_ref": "apps/api/fixtures/arc_agi/vnext_plus98/adeu_arc_behavior_evidence_bundle_v98_reference.json",
+      "benchmark_consumer_ref_kind": "released_v42_behavior_evidence_bundle_ref",
+      "benchmark_consumer_world_kind": "released_v42_behavior_evidence_artifact_world",
+      "current_benchmark_consumer_authority_relation": "constrain_only_non_executive",
+      "forbidden_actions": [
+        "attach_traceable_benchmark_policy_binding",
+        "emit_benchmark_conformance_annotation"
+      ],
+      "later_lock_required_actions": [],
+      "policy_source_ref": "release_surface:owner",
+      "policy_source_ref_kind": "d1_clause_ref",
+      "supporting_ledger_refs": [
+        "obligation:dbab82f540f1"
+      ],
+      "supporting_result_refs": [
+        "result:release_surface:owner:artifact:beta"
+      ]
+    }
+  ],
+  "released_stack_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS106.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS107.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS109.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS110.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS92.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS93.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS98.md"
+  ],
+  "schema": "anm_benchmark_policy_consumer_binding_profile@1",
+  "semantic_hash": "75460b4d2446da1bce17de2b00b923520fa154ab1f319a84adb79273b4681f02",
+  "snapshot_id": "snapshot:v47c-reference",
+  "snapshot_sha256": "04fec228d98e63742ed8a1e7a34c5c5a41488cb15d72e5798c13b901776f241d",
+  "source_scope_profile": "mixed_v47c_reference_scope"
+}

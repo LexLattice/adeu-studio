@@ -15,6 +15,9 @@ POLICY_OBLIGATION_LEDGER_SCHEMA = "policy_obligation_ledger@1"
 ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA = "anm_markdown_coexistence_profile@1"
 ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA = "anm_selector_predicate_ownership_profile@1"
 ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA = "anm_policy_consumer_binding_profile@1"
+ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA = (
+    "anm_benchmark_policy_consumer_binding_profile@1"
+)
 
 D1SchemaVersion = Literal["d1_normalized_ir@1"]
 PredicateContractsBootstrapSchemaVersion = Literal["predicate_contracts_bootstrap@1"]
@@ -27,6 +30,9 @@ AnmSelectorPredicateOwnershipProfileSchemaVersion = Literal[
 ]
 AnmPolicyConsumerBindingProfileSchemaVersion = Literal[
     "anm_policy_consumer_binding_profile@1"
+]
+AnmBenchmarkPolicyConsumerBindingProfileSchemaVersion = Literal[
+    "anm_benchmark_policy_consumer_binding_profile@1"
 ]
 
 SelectorKind = Literal["bootstrap_string_selector"]
@@ -134,6 +140,26 @@ AllowedConsumerAction = Literal[
     "emit_consumer_conformance_annotation",
     "record_fail_closed_consumer_block",
     "attach_traceable_policy_binding",
+]
+BenchmarkConsumerWorldKind = Literal[
+    "released_v42_local_eval_artifact_world",
+    "released_v42_scorecard_artifact_world",
+    "released_v42_behavior_evidence_artifact_world",
+]
+BenchmarkConsumerRefKind = Literal[
+    "released_v42_local_eval_record_ref",
+    "released_v42_scorecard_manifest_ref",
+    "released_v42_behavior_evidence_bundle_ref",
+]
+BenchmarkConsumerAuthorityRelation = Literal[
+    "constrain_only_non_executive",
+    "later_lock_required_for_effective_action",
+]
+AllowedBenchmarkConsumerAction = Literal[
+    "reference_released_policy_source",
+    "emit_benchmark_conformance_annotation",
+    "record_fail_closed_benchmark_consumer_block",
+    "attach_traceable_benchmark_policy_binding",
 ]
 
 
@@ -1212,6 +1238,141 @@ class AnmPolicyConsumerBindingProfile(BaseModel):
         return self
 
 
+class AnmBenchmarkPolicyConsumerRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    benchmark_consumer_ref: str = Field(min_length=1)
+    benchmark_consumer_world_kind: BenchmarkConsumerWorldKind
+    benchmark_consumer_ref_kind: BenchmarkConsumerRefKind
+    policy_source_ref: str = Field(min_length=1)
+    policy_source_ref_kind: PolicySourceRefKind
+    supporting_result_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    supporting_ledger_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    current_benchmark_consumer_authority_relation: BenchmarkConsumerAuthorityRelation
+    allowed_now_actions: list[AllowedBenchmarkConsumerAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    later_lock_required_actions: list[AllowedBenchmarkConsumerAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    forbidden_actions: list[AllowedBenchmarkConsumerAction] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmBenchmarkPolicyConsumerRow":
+        self.benchmark_consumer_ref = _require_non_empty(
+            self.benchmark_consumer_ref,
+            field_name="benchmark_consumer_ref",
+        )
+        self.policy_source_ref = _require_non_empty(
+            self.policy_source_ref,
+            field_name="policy_source_ref",
+        )
+        expected_ref_kind = {
+            "released_v42_local_eval_artifact_world": "released_v42_local_eval_record_ref",
+            "released_v42_scorecard_artifact_world": "released_v42_scorecard_manifest_ref",
+            "released_v42_behavior_evidence_artifact_world": (
+                "released_v42_behavior_evidence_bundle_ref"
+            ),
+        }[self.benchmark_consumer_world_kind]
+        if self.benchmark_consumer_ref_kind != expected_ref_kind:
+            raise ValueError(
+                f"{self.benchmark_consumer_world_kind} rows require "
+                f"benchmark_consumer_ref_kind = {expected_ref_kind}"
+            )
+        _require_sorted_unique(
+            self.supporting_result_refs,
+            field_name="supporting_result_refs",
+        )
+        _require_sorted_unique(
+            self.supporting_ledger_refs,
+            field_name="supporting_ledger_refs",
+        )
+        for field_name in (
+            "allowed_now_actions",
+            "later_lock_required_actions",
+            "forbidden_actions",
+        ):
+            _require_sorted_unique(getattr(self, field_name), field_name=field_name)
+        action_sets = [
+            set(self.allowed_now_actions),
+            set(self.later_lock_required_actions),
+            set(self.forbidden_actions),
+        ]
+        overlaps = (
+            action_sets[0] & action_sets[1],
+            action_sets[0] & action_sets[2],
+            action_sets[1] & action_sets[2],
+        )
+        if any(overlaps):
+            raise ValueError("benchmark consumer action lists must not overlap")
+        if self.current_benchmark_consumer_authority_relation == "constrain_only_non_executive":
+            if self.later_lock_required_actions:
+                raise ValueError(
+                    "constrain_only_non_executive rows must not declare "
+                    "later_lock_required_actions"
+                )
+        else:
+            if not self.later_lock_required_actions:
+                raise ValueError(
+                    "later_lock_required_for_effective_action rows must declare "
+                    "later_lock_required_actions"
+                )
+        return self
+
+
+class AnmBenchmarkPolicyConsumerBindingProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema: AnmBenchmarkPolicyConsumerBindingProfileSchemaVersion = (
+        ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA
+    )
+    benchmark_consumer_binding_profile_id: str = Field(min_length=1)
+    snapshot_id: str = Field(min_length=1)
+    snapshot_sha256: str = Field(min_length=1)
+    source_scope_profile: str = Field(min_length=1)
+    released_stack_refs: list[str] = Field(
+        default_factory=list,
+        json_schema_extra={"uniqueItems": True},
+    )
+    benchmark_consumer_rows: list[AnmBenchmarkPolicyConsumerRow] = Field(default_factory=list)
+    semantic_hash: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_contract(self) -> "AnmBenchmarkPolicyConsumerBindingProfile":
+        self.benchmark_consumer_binding_profile_id = _require_non_empty(
+            self.benchmark_consumer_binding_profile_id,
+            field_name="benchmark_consumer_binding_profile_id",
+        )
+        self.snapshot_id = _require_non_empty(self.snapshot_id, field_name="snapshot_id")
+        self.snapshot_sha256 = _require_non_empty(
+            self.snapshot_sha256,
+            field_name="snapshot_sha256",
+        )
+        self.source_scope_profile = _require_non_empty(
+            self.source_scope_profile,
+            field_name="source_scope_profile",
+        )
+        self.semantic_hash = _require_non_empty(self.semantic_hash, field_name="semantic_hash")
+        _require_sorted_unique(self.released_stack_refs, field_name="released_stack_refs")
+        consumer_refs = [item.benchmark_consumer_ref for item in self.benchmark_consumer_rows]
+        _require_sorted_unique(
+            consumer_refs,
+            field_name="benchmark_consumer_rows.benchmark_consumer_ref",
+        )
+        return self
+
+
 def canonicalize_d1_normalized_ir_payload(
     payload: D1NormalizedIR | dict[str, Any],
 ) -> dict[str, Any]:
@@ -1300,6 +1461,17 @@ def canonicalize_anm_policy_consumer_binding_profile_payload(
     return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
 
 
+def canonicalize_anm_benchmark_policy_consumer_binding_profile_payload(
+    payload: AnmBenchmarkPolicyConsumerBindingProfile | dict[str, Any],
+) -> dict[str, Any]:
+    normalized = (
+        payload
+        if isinstance(payload, AnmBenchmarkPolicyConsumerBindingProfile)
+        else AnmBenchmarkPolicyConsumerBindingProfile.model_validate(payload)
+    )
+    return normalized.model_dump(mode="json", by_alias=True, exclude_none=True)
+
+
 __all__ = [
     "D1_NORMALIZED_IR_SCHEMA",
     "PREDICATE_CONTRACTS_BOOTSTRAP_SCHEMA",
@@ -1309,6 +1481,7 @@ __all__ = [
     "ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA",
     "ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA",
     "ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA",
+    "ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA",
     "D1NormalizedIR",
     "D1Clause",
     "D1Qualifier",
@@ -1347,10 +1520,17 @@ __all__ = [
     "AllowedConsumerAction",
     "AnmPolicyConsumerRow",
     "AnmPolicyConsumerBindingProfile",
+    "BenchmarkConsumerWorldKind",
+    "BenchmarkConsumerRefKind",
+    "BenchmarkConsumerAuthorityRelation",
+    "AllowedBenchmarkConsumerAction",
+    "AnmBenchmarkPolicyConsumerRow",
+    "AnmBenchmarkPolicyConsumerBindingProfile",
     "stable_payload_hash",
     "canonicalize_anm_markdown_coexistence_profile_payload",
     "canonicalize_anm_selector_predicate_ownership_profile_payload",
     "canonicalize_anm_policy_consumer_binding_profile_payload",
+    "canonicalize_anm_benchmark_policy_consumer_binding_profile_payload",
     "canonicalize_d1_normalized_ir_payload",
     "canonicalize_predicate_contracts_bootstrap_payload",
     "canonicalize_checker_fact_bundle_payload",
