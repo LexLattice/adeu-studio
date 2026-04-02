@@ -1,0 +1,52 @@
+{
+  "allowlist_projection": [
+    "packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py",
+    "packages/adeu_agent_harness/tests/test_taskpack_binding.py"
+  ],
+  "binding_profile_id": "v48a_reject_multiple_policy_sources",
+  "binding_subject_ids": [
+    "binding_subject:repo_symbol_catalog:owner_projection"
+  ],
+  "command_projection": [
+    {
+      "command_id": "pytest",
+      "env_overrides": {
+        "LC_ALL": "C"
+      },
+      "run": ".venv/bin/python -m pytest packages/adeu_agent_harness/tests/test_taskpack_binding.py",
+      "working_directory_or_repo_root": "repo_root"
+    }
+  ],
+  "evidence_slot_projection": [
+    {
+      "description": "Capture the canonical binding profile JSON payload.",
+      "required": true,
+      "slot_id": "binding_profile_json"
+    }
+  ],
+  "forbidden_projection": {
+    "forbidden_effects": [
+      "network_calls"
+    ],
+    "forbidden_paths": [
+      "apps/web"
+    ]
+  },
+  "policy_source_refs": [
+    "packages/adeu_commitments_ir/tests/fixtures/v47e/reference_anm_policy_consumer_binding_profile.json#consumer_rows[0]",
+    "packages/adeu_commitments_ir/tests/fixtures/v47e/reference_anm_policy_consumer_binding_profile.json#consumer_rows[1]"
+  ],
+  "prompt_projection_inputs": [],
+  "scope_binding_entry_refs": [
+    "apps/api/fixtures/repo_description/vnext_plus105/repo_descriptive_normative_binding_frame_v105_reference.json#binding_entry_d9b4bd5b1693dea4ec3c09cd"
+  ],
+  "scope_source_refs": [
+    "apps/api/fixtures/repo_description/vnext_plus101/repo_symbol_catalog_v101_reference.json"
+  ],
+  "snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
+  "snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+  "task_scope_summary": "Reject multi-policy binding in the V48-A starter slice.",
+  "worker_subject_refs": [
+    "worker:repo_internal_single_codex_worker:default"
+  ]
+}
