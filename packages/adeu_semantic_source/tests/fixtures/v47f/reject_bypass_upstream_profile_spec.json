@@ -1,0 +1,46 @@
+{
+  "snapshot_id": "snapshot:v47c-reference",
+  "source_scope_profile": "mixed_v47c_reference_scope",
+  "released_stack_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS106.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS107.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS109.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS110.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS92.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS93.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS98.md"
+  ],
+  "benchmark_consumer_row_specs": [
+    {
+      "allowed_now_actions": [
+        "record_fail_closed_benchmark_consumer_block",
+        "reference_released_policy_source"
+      ],
+      "benchmark_consumer_ref": "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_reference.json",
+      "benchmark_consumer_ref_kind": "released_v42_local_eval_record_ref",
+      "benchmark_consumer_world_kind": "released_v42_local_eval_artifact_world",
+      "current_benchmark_consumer_authority_relation": "constrain_only_non_executive",
+      "forbidden_actions": [
+        "attach_traceable_benchmark_policy_binding",
+        "emit_benchmark_conformance_annotation"
+      ],
+      "later_lock_required_actions": [],
+      "policy_source_ref": "release_surface:owner",
+      "policy_source_ref_kind": "d1_clause_ref",
+      "supporting_ledger_refs": [],
+      "supporting_result_refs": []
+    }
+  ],
+  "local_eval_registry": [
+    {
+      "benchmark_consumer_ref": "apps/api/fixtures/arc_agi/vnext_plus92/adeu_arc_local_eval_record_v92_reference.json",
+      "required_coexistence_source_ref": "packages/adeu_semantic_source/tests/fixtures/v47c/standalone_policy.adeu.md",
+      "required_predicate_ref": "predicate-registry:present:v2",
+      "required_selector_ref": "selector-handle:missing:v1",
+      "required_support_subject_ref": "artifact:beta",
+      "snapshot_id": "snapshot:v47c-reference",
+      "source_scope_profile": "mixed_v47c_reference_scope"
+    }
+  ]
+}

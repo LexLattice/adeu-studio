@@ -6,6 +6,7 @@ from pathlib import Path
 
 from adeu_commitments_ir import (
     ADEU_COMMITMENTS_IR_SCHEMA,
+    ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
     ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA,
     ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
     ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA,
@@ -93,6 +94,15 @@ def _schema_pairs() -> list[tuple[str, Path, Path]]:
             / "anm_policy_consumer_binding_profile.v1.json",
             root / "spec" / "anm_policy_consumer_binding_profile.schema.json",
         ),
+        (
+            ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_benchmark_policy_consumer_binding_profile.v1.json",
+            root / "spec" / "anm_benchmark_policy_consumer_binding_profile.schema.json",
+        ),
     ]
 
 
@@ -179,6 +189,12 @@ def test_exported_schema_has_stable_contract_markers() -> None:
             "const"
         ]
         == ANM_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA
+    )
+    assert (
+        schema_payloads[ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA]["properties"][
+            "schema"
+        ]["const"]
+        == ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA
     )
     checker_fact_row_defs = schema_payloads[CHECKER_FACT_BUNDLE_SCHEMA]["$defs"]
     value_type_fact = checker_fact_row_defs["ValueTypeObservationFact"]
@@ -286,6 +302,50 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         "forbidden_actions",
     ):
         assert consumer_defs["AnmPolicyConsumerRow"]["properties"][field_name][
+            "uniqueItems"
+        ] is True
+    benchmark_defs = schema_payloads[
+        ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA
+    ]["$defs"]
+    assert (
+        schema_payloads[ANM_BENCHMARK_POLICY_CONSUMER_BINDING_PROFILE_SCHEMA]["properties"][
+            "released_stack_refs"
+        ]["uniqueItems"]
+        is True
+    )
+    benchmark_world_kind = benchmark_defs["AnmBenchmarkPolicyConsumerRow"]["properties"][
+        "benchmark_consumer_world_kind"
+    ]["enum"]
+    assert benchmark_world_kind == [
+        "released_v42_local_eval_artifact_world",
+        "released_v42_scorecard_artifact_world",
+        "released_v42_behavior_evidence_artifact_world",
+    ]
+    benchmark_ref_kind = benchmark_defs["AnmBenchmarkPolicyConsumerRow"]["properties"][
+        "benchmark_consumer_ref_kind"
+    ]["enum"]
+    assert benchmark_ref_kind == [
+        "released_v42_local_eval_record_ref",
+        "released_v42_scorecard_manifest_ref",
+        "released_v42_behavior_evidence_bundle_ref",
+    ]
+    benchmark_actions = benchmark_defs["AnmBenchmarkPolicyConsumerRow"]["properties"][
+        "allowed_now_actions"
+    ]["items"]["enum"]
+    assert benchmark_actions == [
+        "reference_released_policy_source",
+        "emit_benchmark_conformance_annotation",
+        "record_fail_closed_benchmark_consumer_block",
+        "attach_traceable_benchmark_policy_binding",
+    ]
+    for field_name in (
+        "supporting_result_refs",
+        "supporting_ledger_refs",
+        "allowed_now_actions",
+        "later_lock_required_actions",
+        "forbidden_actions",
+    ):
+        assert benchmark_defs["AnmBenchmarkPolicyConsumerRow"]["properties"][field_name][
             "uniqueItems"
         ] is True
 
