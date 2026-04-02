@@ -503,6 +503,21 @@ def _validate_verification_result(payload: dict[str, Any], *, ref: str) -> str:
                 "observed_schema": payload.get("schema"),
             },
         )
+    for field in (
+        "taskpack_manifest_hash",
+        "candidate_change_plan_hash",
+        "runner_provenance_hash",
+        "verification_result",
+        "exit_status",
+        "verified_result_hash",
+        "verified_artifacts",
+    ):
+        if field not in payload:
+            raise _fail(
+                code=AHK5801_INPUT_INVALID,
+                message="verification result is missing a required field",
+                details={"verification_result_ref": ref, "field": field},
+            )
     observed_hash = payload.get("verified_result_hash")
     if not isinstance(observed_hash, str) or not observed_hash.strip():
         raise _fail(
@@ -541,6 +556,18 @@ def _validate_attestation_verification_result(payload: dict[str, Any], *, ref: s
                 "observed_schema": payload.get("schema"),
             },
         )
+    for field in (
+        "taskpack_manifest_hash",
+        "runner_provenance_hash",
+        "provider_id",
+        "result_hash",
+    ):
+        if field not in payload:
+            raise _fail(
+                code=AHK5801_INPUT_INVALID,
+                message="attestation verification result is missing a required field",
+                details={"attestation_verification_result_ref": ref, "field": field},
+            )
     observed_hash = payload.get("result_hash")
     if not isinstance(observed_hash, str) or not observed_hash.strip():
         raise _fail(
@@ -574,6 +601,8 @@ def _validate_attestation_validator_result(payload: dict[str, Any], *, ref: str)
             },
         )
     for field in (
+        "remote_enclave_attestation_path",
+        "remote_enclave_attestation_hash",
         "attestation_verification_result_path",
         "attestation_verification_result_hash",
         "attested_verified_result_path",

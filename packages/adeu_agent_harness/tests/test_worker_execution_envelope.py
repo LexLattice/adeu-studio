@@ -22,6 +22,7 @@ from adeu_agent_harness.verify_taskpack_run import (
     verify_taskpack_run,
 )
 from adeu_agent_harness.worker_execution_envelope import (
+    AHK5801_INPUT_INVALID,
     AHK5802_SCHEMA_MISMATCH,
     AHK5805_LINEAGE_MISMATCH,
     AHK5806_HASH_DRIFT,
@@ -507,6 +508,102 @@ def test_v48c_rejects_runner_provenance_hash_mismatch(tmp_path: Path) -> None:
             attestation_validator_result_refs=None,
             prompt_authority_postures=["projection_only_conflict_fail_closed"],
             out_dir="artifacts/agent_harness/v48c/reject_runner_provenance_hash_mismatch",
+            repo_root_path=root,
+        )
+
+
+def test_v48c_rejects_missing_verification_result_required_field(tmp_path: Path) -> None:
+    seeded = _seed_v48c_support_chain(tmp_path)
+    root = seeded["root"]
+    compiled_binding = seeded["compiled_binding"]
+    verification_result_payload = _read_json(seeded["verification_result_path"])
+    verification_result_payload.pop("taskpack_manifest_hash")
+    _write_json(seeded["verification_result_path"], verification_result_payload)
+
+    with pytest.raises(WorkerExecutionEnvelopeError, match=AHK5801_INPUT_INVALID):
+        build_v48c_worker_execution_envelope(
+            compiled_binding_refs=[seeded["compiled_binding_path"].relative_to(root).as_posix()],
+            repo_refs=[f"repo_identity:{compiled_binding.snapshot_id}:{compiled_binding.snapshot_sha256}"],
+            task_instance_identities=["task:v48c:reference_worker_execution"],
+            worker_provider_ids=["openai"],
+            worker_model_ids=["gpt-5.4-codex"],
+            execution_adapter_refs=[
+                "artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json#default"
+            ],
+            runner_result_refs=[seeded["runner_result_path"].relative_to(root).as_posix()],
+            runner_provenance_refs=[seeded["runner_provenance_path"].relative_to(root).as_posix()],
+            verification_result_refs=[
+                seeded["verification_result_path"].relative_to(root).as_posix(),
+            ],
+            attestation_validator_result_refs=None,
+            prompt_authority_postures=["projection_only_conflict_fail_closed"],
+            out_dir="artifacts/agent_harness/v48c/reject_missing_verification_field",
+            repo_root_path=root,
+        )
+
+
+def test_v48c_rejects_missing_attestation_verification_required_field(tmp_path: Path) -> None:
+    seeded = _seed_v48c_support_chain(tmp_path)
+    root = seeded["root"]
+    compiled_binding = seeded["compiled_binding"]
+    attestation_validator_payload = _read_json(seeded["attestation_validator_result_path"])
+    attestation_verification_result_path = (
+        root / attestation_validator_payload["attestation_verification_result_path"]
+    )
+    attestation_verification_payload = _read_json(attestation_verification_result_path)
+    attestation_verification_payload.pop("provider_id")
+    _write_json(attestation_verification_result_path, attestation_verification_payload)
+
+    with pytest.raises(WorkerExecutionEnvelopeError, match=AHK5801_INPUT_INVALID):
+        build_v48c_worker_execution_envelope(
+            compiled_binding_refs=[seeded["compiled_binding_path"].relative_to(root).as_posix()],
+            repo_refs=[f"repo_identity:{compiled_binding.snapshot_id}:{compiled_binding.snapshot_sha256}"],
+            task_instance_identities=["task:v48c:reference_worker_execution"],
+            worker_provider_ids=["openai"],
+            worker_model_ids=["gpt-5.4-codex"],
+            execution_adapter_refs=[
+                "artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json#default"
+            ],
+            runner_result_refs=[seeded["runner_result_path"].relative_to(root).as_posix()],
+            runner_provenance_refs=[seeded["runner_provenance_path"].relative_to(root).as_posix()],
+            verification_result_refs=[
+                seeded["verification_result_path"].relative_to(root).as_posix(),
+            ],
+            attestation_validator_result_refs=[
+                seeded["attestation_validator_result_path"].relative_to(root).as_posix(),
+            ],
+            prompt_authority_postures=["projection_only_conflict_fail_closed"],
+            out_dir="artifacts/agent_harness/v48c/reject_missing_attestation_verification_field",
+            repo_root_path=root,
+        )
+
+
+def test_v48c_rejects_missing_attestation_output_remote_fields(tmp_path: Path) -> None:
+    seeded = _seed_v48c_support_chain(tmp_path)
+    root = seeded["root"]
+    compiled_binding = seeded["compiled_binding"]
+    attestation_validator_payload = _read_json(seeded["attestation_validator_result_path"])
+    attestation_validator_payload.pop("remote_enclave_attestation_path")
+    _write_json(seeded["attestation_validator_result_path"], attestation_validator_payload)
+
+    with pytest.raises(WorkerExecutionEnvelopeError, match=AHK5801_INPUT_INVALID):
+        build_v48c_worker_execution_envelope(
+            compiled_binding_refs=[seeded["compiled_binding_path"].relative_to(root).as_posix()],
+            repo_refs=[f"repo_identity:{compiled_binding.snapshot_id}:{compiled_binding.snapshot_sha256}"],
+            task_instance_identities=["task:v48c:reference_worker_execution"],
+            worker_provider_ids=["openai"],
+            worker_model_ids=["gpt-5.4-codex"],
+            execution_adapter_refs=[
+                "artifacts/agent_harness/v45/taskpack_runner_adapter_registry.json#default"
+            ],
+            runner_result_refs=[seeded["runner_result_path"].relative_to(root).as_posix()],
+            runner_provenance_refs=[seeded["runner_provenance_path"].relative_to(root).as_posix()],
+            verification_result_refs=None,
+            attestation_validator_result_refs=[
+                seeded["attestation_validator_result_path"].relative_to(root).as_posix(),
+            ],
+            prompt_authority_postures=["projection_only_conflict_fail_closed"],
+            out_dir="artifacts/agent_harness/v48c/reject_missing_attestation_output_remote_fields",
             repo_root_path=root,
         )
 
