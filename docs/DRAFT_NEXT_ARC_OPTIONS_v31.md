@@ -1,9 +1,9 @@
 # Draft Next Arc Options v31
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v30.md`, updated after the
-bounded ANM / `D@1` family closed on `main` and the remaining policy-to-taskpack /
+bounded ANM / `D@1` family closed on `main`, the remaining policy-to-taskpack /
 worker-enforcement bridge was identified as a separate infra gap rather than another
-implicit `V47` widening.
+implicit `V47` widening, and `vNext+112` (`V48-A`) closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -46,7 +46,9 @@ Interpretive doctrine for this planning surface:
 - `V47-A` through `V47-F` are closed on `main` and now constitute the completed ANM /
   `D@1` policy-source, IR, facts, results, ledger, coexistence, ownership-transition,
   and consumer ladder recorded in `docs/DRAFT_NEXT_ARC_OPTIONS_v30.md`.
-- `vNext+111` is the current baseline implementation state on `main`.
+- `V48-A` is closed on `main` and now constitutes the released bounded binding-profile
+  starter slice for this family.
+- `vNext+112` is the current baseline implementation state on `main`.
 - released agent-harness kernel surfaces already exist on `main`, including:
   - deterministic taskpack compilation in `packages/adeu_agent_harness`;
   - deterministic taskpack runner enforcement in `packages/adeu_agent_harness`;
@@ -203,14 +205,16 @@ Planning relationship:
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v7.md`
   - `docs/DRAFT_AUTHORITATIVE_NORMATIVE_MARKDOWN_SPEC_v0.md`
+- Current family state for this branch:
+  - `V48-A` closed on `main`
 - Recommended next path for this branch:
-  - `V48-A`
+  - `V48-B`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+112`
+  - `vNext+113`
 - Default path selection for this branch:
-  - select `V48-A` as the next default candidate
-  - treat that default as the policy/scope-to-taskpack binding lane prior to any
-    worker-run orchestration widening
+  - select `V48-B` as the next default candidate
+  - treat that default as the deterministic policy-to-taskpack compiler lane over the
+    now-released `V48-A` binding profile prior to attestation or conformance widening
 
 This family/path recommendation is branch-local to the `v31` planning surface.
 
@@ -309,8 +313,8 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V48-A` | policy/scope to taskpack binding profile | candidate `anm_taskpack_binding_profile@1` over released `V47` policy lineage and released `V45` scope lineage | planned |
-| `V48-B` | deterministic policy-to-taskpack compiler lane | candidate `compiled_policy_taskpack_binding@1` plus deterministic taskpack derivation from the released binding profile | planned |
+| `V48-A` | policy/scope to taskpack binding profile | candidate `anm_taskpack_binding_profile@1` over released `V47` policy lineage and released `V45` scope lineage | closed_on_main |
+| `V48-B` | deterministic policy-to-taskpack compiler lane | candidate `compiled_policy_taskpack_binding@1` plus deterministic taskpack derivation from the released binding profile | default_next_candidate |
 | `V48-C` | worker execution envelope + attestation lane | candidate `task_run_boundary_instance@1`, candidate `worker_execution_attestation@1`, and candidate `worker_execution_provenance@1` | planned |
 | `V48-D` | post-run conformance / replay lane | candidate `worker_boundary_conformance_report@1` plus replayable diagnostics over frozen observed-action carriers | planned |
 | `V48-E` | delegated multi-worker topology seam | candidate `worker_delegation_topology@1` and bounded supervisor/worker handoff doctrine | planned_later_not_selected_here |
@@ -330,43 +334,42 @@ That is:
 So the `A -> B -> C -> D` staging is an intentional lower-risk subdivision, not a
 deviation from the bridge-first doctrine.
 
-## Recommended Next Path (`V48-A`)
+## Recommended Next Path (`V48-B`)
 
-Implement the bounded policy/scope-to-taskpack binding lane first.
+Implement the deterministic policy-to-taskpack compiler lane next.
 
-`V48-A` should introduce:
+`V48-A` is now closed on `main` and should be read as the released starter binding
+surface for:
 
-- one canonical bounded binding-profile artifact candidate:
-  - explicit released policy source lineage;
-  - explicit released repo-scope lineage;
-  - explicit taskpack-surface mapping posture for:
-    - allowlist;
-    - forbidden effects;
-    - commands;
-    - evidence slots;
-  - explicit projection-only posture for prompt text and repo prose;
-  - explicit prompt-boundary conflict posture where the compiled boundary wins and
-    conflicting prose is a verifier/compiler error rather than added authority;
-  - explicit stale-lineage and unresolved-lineage fail-closed posture;
-  - explicit unsupported policy-to-taskpack mapping fail-closed posture;
-- one small initial binding set rich enough to cover:
-  - exactly one bounded repo-internal task over one released `V45` scope-bearing
-    surface;
-  - exactly one released `V47` policy-bearing surface;
-  - exactly one worker;
-  - exactly one resulting boundary instance lineage with no ambiguity about authority
-    order;
-- no policy-composition algebra, policy conflict-resolution algebra, scope union, or
-  scope widening semantics are selected in `V48-A`;
-- deterministic local fixtures for one or more initial repo-internal worker tasks;
-- no widening yet into multi-worker orchestration, automatic decomposition, or
-  execution entitlement expansion.
+- exactly one released `V47-E` policy carrier;
+- exactly one released `V45` scope surface;
+- exactly one released `V45-F` admission entry;
+- exactly one worker;
+- exact kernel-shaped allowlist / forbidden / command / evidence-slot projection
+  categories;
+- fail-closed prompt-conflict, projection-conflict, and lineage-resolution posture.
 
-`V48-A` is binding-first and non-orchestrational:
+`V48-B` should now introduce:
 
-- it may emit binding profiles and bounded diagnostics;
-- it may not yet emit multi-worker topology, automatic planner decomposition, or
-  broader execution powers.
+- one canonical compiled-boundary artifact candidate:
+  - deterministic lowering of one released `anm_taskpack_binding_profile@1` into
+    released taskpack carriers;
+  - explicit lineage back to the bound released policy carrier and released scope
+    carrier;
+  - explicit compiler-version and declared task-identity binding;
+  - one compiled boundary identity hash;
+- one small initial compiler surface rich enough to cover:
+  - the released `V48-A` reference binding profile;
+  - deterministic taskpack carrier replay over the same bounded local task;
+  - fail-closed rejection for unsupported compiled output drift;
+- no widening yet into worker-run attestation, post-run conformance, or multi-worker
+  topology.
+
+`V48-B` is compiler-first and still non-attestational:
+
+- it may emit compiled taskpack-boundary carriers and bounded diagnostics;
+- it may not yet emit worker execution attestation, worker execution provenance, or
+  post-run conformance reports.
 
 ## Why This Path
 
@@ -381,9 +384,9 @@ Implement the bounded policy/scope-to-taskpack binding lane first.
   actually govern worker behavior externally rather than only describe desired
   behavior in prose.
 
-## First-Slice Boundary (`V48-A`)
+## Closed Starter Path (`V48-A`)
 
-`V48-A` should stay bounded to:
+`V48-A` is now closed on `main` and should be read as bounded to:
 
 - released `V45` scope inputs only;
 - released `V47` policy inputs only;
@@ -537,7 +540,7 @@ Concrete released substrate anchors for this family direction are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v30.md",
-  "baseline_arc": "vNext+111",
+  "baseline_arc": "vNext+112",
   "closed_prior_families": [
     "V41",
     "V42",
@@ -561,16 +564,17 @@ Concrete released substrate anchors for this family direction are:
     "V46",
     "V47"
   ],
-  "closed_current_family_paths": [],
+  "closed_current_family_paths": [
+    "V48-A"
+  ],
   "planned_current_family_paths": [
-    "V48-A",
     "V48-B",
     "V48-C",
     "V48-D",
     "V48-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V48-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+112",
+  "default_next_arc_candidate_for_this_branch": "V48-B",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+113",
   "family_architecture_doc": "docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_NEXT_ARC_OPTIONS_v30.md",
