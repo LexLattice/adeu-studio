@@ -1,0 +1,109 @@
+{
+  "snapshot_id": "snapshot:v47c-reference",
+  "source_scope_profile": "mixed_v47c_reference_scope",
+  "released_stack_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS106.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS107.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md"
+  ],
+  "selector_row_specs": [
+    {
+      "selector_ref": "release_surface:selector",
+      "selector_ref_kind": "bootstrap_string_selector",
+      "selector_owner_layer": "bootstrap",
+      "bootstrap_selector_source_ref": "release_surface:selector",
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "bootstrap_retirement_posture": "later_lock_required"
+    },
+    {
+      "selector_ref": "selector-handle:artifact-emitted:v1",
+      "selector_ref_kind": "imported_o_owned_selector_handle",
+      "selector_owner_layer": "o_owned",
+      "imported_selector_handle_ref": "selector-handle:artifact-emitted:v1",
+      "imported_selector_identity": "artifact.emitted[*]",
+      "imported_selector_version": "1",
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "bootstrap_retirement_posture": "owned_successor_available_bootstrap_still_allowed"
+    }
+  ],
+  "predicate_row_specs": [
+    {
+      "predicate_ref": "bind_to",
+      "predicate_ref_kind": "bootstrap_predicate_contract",
+      "predicate_owner_layer": "bootstrap",
+      "bootstrap_predicate_contract_ref": "bind_to",
+      "compatibility_posture": "bootstrap_only",
+      "bootstrap_retirement_posture": "not_selected"
+    },
+    {
+      "predicate_ref": "cardinality_eq",
+      "predicate_ref_kind": "bootstrap_predicate_contract",
+      "predicate_owner_layer": "bootstrap",
+      "bootstrap_predicate_contract_ref": "cardinality_eq",
+      "compatibility_posture": "bootstrap_only",
+      "bootstrap_retirement_posture": "not_selected"
+    },
+    {
+      "predicate_ref": "eq",
+      "predicate_ref_kind": "bootstrap_predicate_contract",
+      "predicate_owner_layer": "bootstrap",
+      "bootstrap_predicate_contract_ref": "eq",
+      "compatibility_posture": "bootstrap_only",
+      "bootstrap_retirement_posture": "not_selected"
+    },
+    {
+      "predicate_ref": "explicit",
+      "predicate_ref_kind": "bootstrap_predicate_contract",
+      "predicate_owner_layer": "bootstrap",
+      "bootstrap_predicate_contract_ref": "explicit",
+      "compatibility_posture": "bootstrap_only",
+      "bootstrap_retirement_posture": "not_selected"
+    },
+    {
+      "predicate_ref": "present",
+      "predicate_ref_kind": "bootstrap_predicate_contract",
+      "predicate_owner_layer": "bootstrap",
+      "bootstrap_predicate_contract_ref": "present",
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "bootstrap_retirement_posture": "later_lock_required"
+    }
+  ],
+  "compatibility_rule_specs": [
+    {
+      "selector_ref_kind": "bootstrap_string_selector",
+      "predicate_ref_kind": "bootstrap_predicate_contract",
+      "combination_allowed": true,
+      "compatibility_posture": "bootstrap_only",
+      "backward_replay_preserved": true,
+      "later_lock_required_before_retirement": false,
+      "mixed_ownership_normatively_constrained": false
+    },
+    {
+      "selector_ref_kind": "bootstrap_string_selector",
+      "predicate_ref_kind": "imported_e_owned_predicate_ref",
+      "combination_allowed": true,
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "backward_replay_preserved": true,
+      "later_lock_required_before_retirement": true,
+      "mixed_ownership_normatively_constrained": true
+    },
+    {
+      "selector_ref_kind": "imported_o_owned_selector_handle",
+      "predicate_ref_kind": "bootstrap_predicate_contract",
+      "combination_allowed": true,
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "backward_replay_preserved": true,
+      "later_lock_required_before_retirement": true,
+      "mixed_ownership_normatively_constrained": true
+    },
+    {
+      "selector_ref_kind": "imported_o_owned_selector_handle",
+      "predicate_ref_kind": "imported_e_owned_predicate_ref",
+      "combination_allowed": true,
+      "compatibility_posture": "bootstrap_compatible_with_owned_successor",
+      "backward_replay_preserved": true,
+      "later_lock_required_before_retirement": true,
+      "mixed_ownership_normatively_constrained": false
+    }
+  ]
+}

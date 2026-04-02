@@ -9,6 +9,7 @@ from adeu_commitments_ir import (
     AnmAdoptionBoundaryRow,
     AnmCoexistenceSourceRow,
     AnmMarkdownCoexistenceProfile,
+    AnmSelectorPredicateOwnershipProfile,
     CheckerFactBundle,
     ClauseScopeBlockerResultRow,
     D1Clause,
@@ -17,12 +18,15 @@ from adeu_commitments_ir import (
     D1SelectorRef,
     EvaluationNotice,
     MigrationDiscipline,
+    OwnershipCompatibilityRule,
     PolicyEvaluationResultSet,
     PolicyObligationLedger,
     PolicyObligationLedgerRow,
     PredicateArgumentSpec,
     PredicateContract,
     PredicateContractsBootstrap,
+    PredicateOwnershipRow,
+    SelectorOwnershipRow,
     SubjectScopedResultRow,
     stable_payload_hash,
 )
@@ -488,6 +492,306 @@ def build_v47c_coexistence_profile(
         source_rows=built_rows,
         migration_discipline=migration,
         adoption_boundary_rows=boundary_rows,
+        semantic_hash=semantic_hash,
+    )
+
+
+def _indexed_imported_registry(
+    *,
+    registry_payloads: list[dict[str, Any]] | None,
+    ref_field: str,
+    identity_field: str,
+    version_field: str,
+    entry_label: str,
+) -> dict[str, dict[str, str]]:
+    index: dict[str, dict[str, str]] = {}
+    for position, payload in enumerate(registry_payloads or []):
+        label = f"{entry_label}[{position}]"
+        entry = _require_mapping(payload, field_name=label)
+        ref = _require_non_empty_text(
+            _require_mapping_value(entry, ref_field, field_name=label),
+            field_name=ref_field,
+        )
+        if ref in index:
+            raise AnmCompileError(f"duplicate {entry_label} entry for {ref}")
+        index[ref] = {
+            ref_field: ref,
+            "snapshot_id": _require_non_empty_text(
+                _require_mapping_value(entry, "snapshot_id", field_name=label),
+                field_name=f"{entry_label}.snapshot_id",
+            ),
+            "source_scope_profile": _require_non_empty_text(
+                _require_mapping_value(entry, "source_scope_profile", field_name=label),
+                field_name=f"{entry_label}.source_scope_profile",
+            ),
+            identity_field: _require_non_empty_text(
+                _require_mapping_value(entry, identity_field, field_name=label),
+                field_name=identity_field,
+            ),
+            version_field: _require_non_empty_text(
+                _require_mapping_value(entry, version_field, field_name=label),
+                field_name=version_field,
+            ),
+        }
+    return index
+
+
+def build_v47d_selector_predicate_ownership_profile(
+    *,
+    snapshot_id: str,
+    source_scope_profile: str,
+    released_stack_refs: list[str],
+    d1_ir: D1NormalizedIR,
+    predicate_contracts: PredicateContractsBootstrap,
+    coexistence_profile: AnmMarkdownCoexistenceProfile,
+    selector_row_specs: list[dict[str, Any]],
+    predicate_row_specs: list[dict[str, Any]],
+    compatibility_rule_specs: list[dict[str, Any]],
+    imported_selector_registry: list[dict[str, Any]] | None = None,
+    imported_predicate_registry: list[dict[str, Any]] | None = None,
+) -> AnmSelectorPredicateOwnershipProfile:
+    snapshot_id = _require_non_empty_text(snapshot_id, field_name="snapshot_id")
+    source_scope_profile = _require_non_empty_text(
+        source_scope_profile,
+        field_name="source_scope_profile",
+    )
+    if coexistence_profile.snapshot_id != snapshot_id:
+        raise AnmCompileError("coexistence_profile snapshot_id must match requested snapshot_id")
+    if coexistence_profile.source_scope_profile != source_scope_profile:
+        raise AnmCompileError(
+            "coexistence_profile source_scope_profile must match requested source_scope_profile"
+        )
+
+    compatible_source_refs = {row.source_ref for row in coexistence_profile.source_rows}
+    if d1_ir.source_doc_ref not in compatible_source_refs:
+        raise AnmCompileError(
+            f"d1_ir source_doc_ref {d1_ir.source_doc_ref} is not covered by coexistence_profile"
+        )
+
+    released_stack_refs = sorted(
+        {
+            _require_non_empty_text(item, field_name="released_stack_refs")
+            for item in released_stack_refs
+        }
+    )
+
+    bootstrap_selector_refs = sorted(item.selector_ref for item in d1_ir.selector_refs)
+    bootstrap_selector_ref_set = set(bootstrap_selector_refs)
+    bootstrap_predicate_contracts = {
+        contract.predicate_id: contract for contract in predicate_contracts.contracts
+    }
+    imported_selector_index = _indexed_imported_registry(
+        registry_payloads=imported_selector_registry,
+        ref_field="imported_selector_handle_ref",
+        identity_field="imported_selector_identity",
+        version_field="imported_selector_version",
+        entry_label="imported_selector_registry",
+    )
+    imported_predicate_index = _indexed_imported_registry(
+        registry_payloads=imported_predicate_registry,
+        ref_field="imported_predicate_registry_ref",
+        identity_field="imported_predicate_identity",
+        version_field="imported_predicate_version",
+        entry_label="imported_predicate_registry",
+    )
+
+    try:
+        selector_rows = [
+            SelectorOwnershipRow.model_validate(payload)
+            for payload in selector_row_specs
+        ]
+    except ValidationError as error:
+        raise AnmCompileError(str(error)) from error
+    selector_rows = sorted(selector_rows, key=lambda item: item.selector_ref)
+    selector_bootstrap_refs: set[str] = set()
+    for row in selector_rows:
+        if row.selector_ref_kind == "bootstrap_string_selector":
+            bootstrap_ref = row.bootstrap_selector_source_ref
+            assert bootstrap_ref is not None
+            if row.selector_ref != bootstrap_ref:
+                raise AnmCompileError(
+                    "bootstrap selector rows must use selector_ref identical to "
+                    "bootstrap_selector_source_ref"
+                )
+            if bootstrap_ref not in bootstrap_selector_ref_set:
+                raise AnmCompileError(
+                    f"bootstrap selector row {bootstrap_ref} does not resolve against d1_ir"
+                )
+            selector_bootstrap_refs.add(bootstrap_ref)
+            continue
+        imported_ref = row.imported_selector_handle_ref
+        assert imported_ref is not None
+        if row.selector_ref != imported_ref:
+            raise AnmCompileError(
+                "owned selector rows must use selector_ref identical to "
+                "imported_selector_handle_ref"
+            )
+        imported_entry = imported_selector_index.get(imported_ref)
+        if imported_entry is None:
+            raise AnmCompileError(f"imported selector handle {imported_ref} is dangling")
+        if imported_entry["snapshot_id"] != snapshot_id:
+            raise AnmCompileError(f"imported selector handle {imported_ref} is stale")
+        if imported_entry["source_scope_profile"] != source_scope_profile:
+            raise AnmCompileError(
+                f"imported selector handle {imported_ref} has incompatible source scope"
+            )
+        if imported_entry["imported_selector_identity"] != row.imported_selector_identity:
+            raise AnmCompileError(
+                f"imported selector handle {imported_ref} has incompatible declared identity"
+            )
+        if imported_entry["imported_selector_version"] != row.imported_selector_version:
+            raise AnmCompileError(
+                f"imported selector handle {imported_ref} has incompatible declared version"
+            )
+    if selector_bootstrap_refs != bootstrap_selector_ref_set:
+        missing = sorted(bootstrap_selector_ref_set - selector_bootstrap_refs)
+        raise AnmCompileError(
+            "bootstrap selector replay rows must exactly cover d1_ir selectors; missing "
+            + ", ".join(missing)
+        )
+
+    try:
+        predicate_rows = [
+            PredicateOwnershipRow.model_validate(payload)
+            for payload in predicate_row_specs
+        ]
+    except ValidationError as error:
+        raise AnmCompileError(str(error)) from error
+    predicate_rows = sorted(predicate_rows, key=lambda item: item.predicate_ref)
+    predicate_bootstrap_refs: set[str] = set()
+    for row in predicate_rows:
+        if row.predicate_ref_kind == "bootstrap_predicate_contract":
+            bootstrap_ref = row.bootstrap_predicate_contract_ref
+            assert bootstrap_ref is not None
+            if row.predicate_ref != bootstrap_ref:
+                raise AnmCompileError(
+                    "bootstrap predicate rows must use predicate_ref identical to "
+                    "bootstrap_predicate_contract_ref"
+                )
+            if bootstrap_ref not in bootstrap_predicate_contracts:
+                raise AnmCompileError(
+                    f"bootstrap predicate row {bootstrap_ref} does not resolve against "
+                    "predicate_contracts"
+                )
+            predicate_bootstrap_refs.add(bootstrap_ref)
+            continue
+        imported_ref = row.imported_predicate_registry_ref
+        assert imported_ref is not None
+        if row.predicate_ref != imported_ref:
+            raise AnmCompileError(
+                "owned predicate rows must use predicate_ref identical to "
+                "imported_predicate_registry_ref"
+            )
+        imported_entry = imported_predicate_index.get(imported_ref)
+        if imported_entry is None:
+            raise AnmCompileError(f"imported predicate registry ref {imported_ref} is dangling")
+        if imported_entry["snapshot_id"] != snapshot_id:
+            raise AnmCompileError(f"imported predicate registry ref {imported_ref} is stale")
+        if imported_entry["source_scope_profile"] != source_scope_profile:
+            raise AnmCompileError(
+                f"imported predicate registry ref {imported_ref} has incompatible source scope"
+            )
+        if imported_entry["imported_predicate_identity"] != row.imported_predicate_identity:
+            raise AnmCompileError(
+                f"imported predicate registry ref {imported_ref} has incompatible declared "
+                "identity"
+            )
+        if imported_entry["imported_predicate_version"] != row.imported_predicate_version:
+            raise AnmCompileError(
+                f"imported predicate registry ref {imported_ref} has incompatible declared "
+                "version"
+            )
+    if predicate_bootstrap_refs != set(bootstrap_predicate_contracts):
+        missing = sorted(set(bootstrap_predicate_contracts) - predicate_bootstrap_refs)
+        raise AnmCompileError(
+            "bootstrap predicate replay rows must exactly cover predicate_contracts; missing "
+            + ", ".join(missing)
+        )
+
+    try:
+        compatibility_rules = [
+            OwnershipCompatibilityRule.model_validate(payload)
+            for payload in compatibility_rule_specs
+        ]
+    except ValidationError as error:
+        raise AnmCompileError(str(error)) from error
+    compatibility_rules = sorted(
+        compatibility_rules,
+        key=lambda item: (item.selector_ref_kind, item.predicate_ref_kind),
+    )
+    present_selector_kinds = {row.selector_ref_kind for row in selector_rows}
+    present_predicate_kinds = {row.predicate_ref_kind for row in predicate_rows}
+    compatibility_index = {
+        (row.selector_ref_kind, row.predicate_ref_kind): row
+        for row in compatibility_rules
+    }
+    for selector_kind in present_selector_kinds:
+        for predicate_kind in present_predicate_kinds:
+            rule = compatibility_index.get((selector_kind, predicate_kind))
+            if rule is None:
+                raise AnmCompileError(
+                    "compatibility_rules must explicitly cover present ownership combination "
+                    f"{selector_kind} + {predicate_kind}"
+                )
+            if not rule.combination_allowed:
+                raise AnmCompileError(
+                    "contradictory mixed ownership posture forbids present combination "
+                    f"{selector_kind} + {predicate_kind}"
+                )
+
+    snapshot_sha256 = stable_payload_hash(
+        {
+            "snapshot_id": snapshot_id,
+            "source_scope_profile": source_scope_profile,
+            "d1_ir_ref": d1_ir.d1_ir_id,
+            "d1_ir_sha256": d1_ir.source_doc_sha256,
+            "predicate_contract_bundle_id": predicate_contracts.predicate_contract_bundle_id,
+            "predicate_contract_versions": [
+                {
+                    "predicate_id": contract.predicate_id,
+                    "owner_layer": contract.owner_layer,
+                    "version": contract.version,
+                }
+                for contract in predicate_contracts.contracts
+            ],
+            "coexistence_profile_id": coexistence_profile.coexistence_profile_id,
+            "coexistence_snapshot_sha256": coexistence_profile.snapshot_sha256,
+            "imported_selector_registry": [
+                imported_selector_index[ref]
+                for ref in sorted(imported_selector_index)
+            ],
+            "imported_predicate_registry": [
+                imported_predicate_index[ref]
+                for ref in sorted(imported_predicate_index)
+            ],
+        }
+    )
+    semantic_hash = stable_payload_hash(
+        {
+            "snapshot_id": snapshot_id,
+            "snapshot_sha256": snapshot_sha256,
+            "source_scope_profile": source_scope_profile,
+            "released_stack_refs": released_stack_refs,
+            "selector_rows": [
+                row.model_dump(mode="json", exclude_none=True) for row in selector_rows
+            ],
+            "predicate_rows": [
+                row.model_dump(mode="json", exclude_none=True) for row in predicate_rows
+            ],
+            "compatibility_rules": [
+                row.model_dump(mode="json", exclude_none=True) for row in compatibility_rules
+            ],
+        }
+    )
+    return AnmSelectorPredicateOwnershipProfile(
+        ownership_profile_id=f"anm-ownership:{semantic_hash[:12]}",
+        snapshot_id=snapshot_id,
+        snapshot_sha256=snapshot_sha256,
+        source_scope_profile=source_scope_profile,
+        released_stack_refs=released_stack_refs,
+        selector_rows=selector_rows,
+        predicate_rows=predicate_rows,
+        compatibility_rules=compatibility_rules,
         semantic_hash=semantic_hash,
     )
 
@@ -1124,4 +1428,5 @@ __all__ = [
     "project_policy_obligation_ledger",
     "build_v47a_reference_chain",
     "build_v47c_coexistence_profile",
+    "build_v47d_selector_predicate_ownership_profile",
 ]

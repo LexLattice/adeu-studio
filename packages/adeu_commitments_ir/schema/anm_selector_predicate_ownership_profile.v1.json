@@ -1,0 +1,338 @@
+{
+  "$defs": {
+    "OwnershipCompatibilityRule": {
+      "additionalProperties": false,
+      "properties": {
+        "backward_replay_preserved": {
+          "title": "Backward Replay Preserved",
+          "type": "boolean"
+        },
+        "combination_allowed": {
+          "title": "Combination Allowed",
+          "type": "boolean"
+        },
+        "compatibility_posture": {
+          "enum": [
+            "bootstrap_only",
+            "bootstrap_compatible_with_owned_successor",
+            "owned_preferred_bootstrap_still_allowed",
+            "mixed_ownership_forbidden"
+          ],
+          "title": "Compatibility Posture",
+          "type": "string"
+        },
+        "later_lock_required_before_retirement": {
+          "title": "Later Lock Required Before Retirement",
+          "type": "boolean"
+        },
+        "mixed_ownership_normatively_constrained": {
+          "title": "Mixed Ownership Normatively Constrained",
+          "type": "boolean"
+        },
+        "predicate_ref_kind": {
+          "enum": [
+            "bootstrap_predicate_contract",
+            "imported_e_owned_predicate_ref"
+          ],
+          "title": "Predicate Ref Kind",
+          "type": "string"
+        },
+        "selector_ref_kind": {
+          "enum": [
+            "bootstrap_string_selector",
+            "imported_o_owned_selector_handle"
+          ],
+          "title": "Selector Ref Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "selector_ref_kind",
+        "predicate_ref_kind",
+        "combination_allowed",
+        "compatibility_posture",
+        "backward_replay_preserved",
+        "later_lock_required_before_retirement",
+        "mixed_ownership_normatively_constrained"
+      ],
+      "title": "OwnershipCompatibilityRule",
+      "type": "object"
+    },
+    "PredicateOwnershipRow": {
+      "additionalProperties": false,
+      "properties": {
+        "bootstrap_predicate_contract_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bootstrap Predicate Contract Ref"
+        },
+        "bootstrap_retirement_posture": {
+          "enum": [
+            "not_selected",
+            "later_lock_required",
+            "owned_successor_available_bootstrap_still_allowed"
+          ],
+          "title": "Bootstrap Retirement Posture",
+          "type": "string"
+        },
+        "compatibility_posture": {
+          "enum": [
+            "bootstrap_only",
+            "bootstrap_compatible_with_owned_successor",
+            "owned_preferred_bootstrap_still_allowed",
+            "mixed_ownership_forbidden"
+          ],
+          "title": "Compatibility Posture",
+          "type": "string"
+        },
+        "imported_predicate_identity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Imported Predicate Identity"
+        },
+        "imported_predicate_registry_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Imported Predicate Registry Ref"
+        },
+        "imported_predicate_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Imported Predicate Version"
+        },
+        "predicate_owner_layer": {
+          "enum": [
+            "bootstrap",
+            "e_owned"
+          ],
+          "title": "Predicate Owner Layer",
+          "type": "string"
+        },
+        "predicate_ref": {
+          "minLength": 1,
+          "title": "Predicate Ref",
+          "type": "string"
+        },
+        "predicate_ref_kind": {
+          "enum": [
+            "bootstrap_predicate_contract",
+            "imported_e_owned_predicate_ref"
+          ],
+          "title": "Predicate Ref Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "predicate_ref",
+        "predicate_ref_kind",
+        "predicate_owner_layer",
+        "compatibility_posture",
+        "bootstrap_retirement_posture"
+      ],
+      "title": "PredicateOwnershipRow",
+      "type": "object"
+    },
+    "SelectorOwnershipRow": {
+      "additionalProperties": false,
+      "properties": {
+        "bootstrap_retirement_posture": {
+          "enum": [
+            "not_selected",
+            "later_lock_required",
+            "owned_successor_available_bootstrap_still_allowed"
+          ],
+          "title": "Bootstrap Retirement Posture",
+          "type": "string"
+        },
+        "bootstrap_selector_source_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bootstrap Selector Source Ref"
+        },
+        "compatibility_posture": {
+          "enum": [
+            "bootstrap_only",
+            "bootstrap_compatible_with_owned_successor",
+            "owned_preferred_bootstrap_still_allowed",
+            "mixed_ownership_forbidden"
+          ],
+          "title": "Compatibility Posture",
+          "type": "string"
+        },
+        "imported_selector_handle_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Imported Selector Handle Ref"
+        },
+        "imported_selector_identity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Imported Selector Identity"
+        },
+        "imported_selector_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Imported Selector Version"
+        },
+        "selector_owner_layer": {
+          "enum": [
+            "bootstrap",
+            "o_owned"
+          ],
+          "title": "Selector Owner Layer",
+          "type": "string"
+        },
+        "selector_ref": {
+          "minLength": 1,
+          "title": "Selector Ref",
+          "type": "string"
+        },
+        "selector_ref_kind": {
+          "enum": [
+            "bootstrap_string_selector",
+            "imported_o_owned_selector_handle"
+          ],
+          "title": "Selector Ref Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "selector_ref",
+        "selector_ref_kind",
+        "selector_owner_layer",
+        "compatibility_posture",
+        "bootstrap_retirement_posture"
+      ],
+      "title": "SelectorOwnershipRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "compatibility_rules": {
+      "items": {
+        "$ref": "#/$defs/OwnershipCompatibilityRule"
+      },
+      "title": "Compatibility Rules",
+      "type": "array"
+    },
+    "ownership_profile_id": {
+      "minLength": 1,
+      "title": "Ownership Profile Id",
+      "type": "string"
+    },
+    "predicate_rows": {
+      "items": {
+        "$ref": "#/$defs/PredicateOwnershipRow"
+      },
+      "title": "Predicate Rows",
+      "type": "array"
+    },
+    "released_stack_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Released Stack Refs",
+      "type": "array",
+      "uniqueItems": true
+    },
+    "schema": {
+      "const": "anm_selector_predicate_ownership_profile@1",
+      "default": "anm_selector_predicate_ownership_profile@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "selector_rows": {
+      "items": {
+        "$ref": "#/$defs/SelectorOwnershipRow"
+      },
+      "title": "Selector Rows",
+      "type": "array"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "minLength": 1,
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "snapshot_sha256": {
+      "minLength": 1,
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "source_scope_profile": {
+      "minLength": 1,
+      "title": "Source Scope Profile",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ownership_profile_id",
+    "snapshot_id",
+    "snapshot_sha256",
+    "source_scope_profile",
+    "semantic_hash"
+  ],
+  "title": "AnmSelectorPredicateOwnershipProfile",
+  "type": "object"
+}

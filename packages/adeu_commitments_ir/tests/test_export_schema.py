@@ -7,6 +7,7 @@ from pathlib import Path
 from adeu_commitments_ir import (
     ADEU_COMMITMENTS_IR_SCHEMA,
     ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA,
+    ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA,
     CHECKER_FACT_BUNDLE_SCHEMA,
     D1_NORMALIZED_IR_SCHEMA,
     POLICY_EVALUATION_RESULT_SET_SCHEMA,
@@ -72,6 +73,15 @@ def _schema_pairs() -> list[tuple[str, Path, Path]]:
             / "schema"
             / "anm_markdown_coexistence_profile.v1.json",
             root / "spec" / "anm_markdown_coexistence_profile.schema.json",
+        ),
+        (
+            ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA,
+            root
+            / "packages"
+            / "adeu_commitments_ir"
+            / "schema"
+            / "anm_selector_predicate_ownership_profile.v1.json",
+            root / "spec" / "anm_selector_predicate_ownership_profile.schema.json",
         ),
     ]
 
@@ -148,6 +158,12 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         schema_payloads[ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA]["properties"]["schema"]["const"]
         == ANM_MARKDOWN_COEXISTENCE_PROFILE_SCHEMA
     )
+    assert (
+        schema_payloads[ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA]["properties"][
+            "schema"
+        ]["const"]
+        == ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA
+    )
     checker_fact_row_defs = schema_payloads[CHECKER_FACT_BUNDLE_SCHEMA]["$defs"]
     value_type_fact = checker_fact_row_defs["ValueTypeObservationFact"]
     assert value_type_fact["properties"]["fact_type"]["const"] == "value_type_observation"
@@ -194,6 +210,30 @@ def test_exported_schema_has_stable_contract_markers() -> None:
         assert coexistence_defs["AnmAdoptionBoundaryRow"]["properties"][field_name][
             "uniqueItems"
         ] is True
+    ownership_defs = schema_payloads[ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA]["$defs"]
+    assert (
+        schema_payloads[ANM_SELECTOR_PREDICATE_OWNERSHIP_PROFILE_SCHEMA]["properties"][
+            "released_stack_refs"
+        ]["uniqueItems"]
+        is True
+    )
+    selector_owner_layer = ownership_defs["SelectorOwnershipRow"]["properties"][
+        "selector_owner_layer"
+    ]["enum"]
+    assert selector_owner_layer == ["bootstrap", "o_owned"]
+    predicate_owner_layer = ownership_defs["PredicateOwnershipRow"]["properties"][
+        "predicate_owner_layer"
+    ]["enum"]
+    assert predicate_owner_layer == ["bootstrap", "e_owned"]
+    compatibility_posture = ownership_defs["OwnershipCompatibilityRule"]["properties"][
+        "compatibility_posture"
+    ]["enum"]
+    assert compatibility_posture == [
+        "bootstrap_only",
+        "bootstrap_compatible_with_owned_successor",
+        "owned_preferred_bootstrap_still_allowed",
+        "mixed_ownership_forbidden",
+    ]
 
 
 def test_exported_schema_has_no_absolute_path_material() -> None:

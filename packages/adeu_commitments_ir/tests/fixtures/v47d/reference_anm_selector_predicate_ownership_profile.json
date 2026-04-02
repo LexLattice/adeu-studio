@@ -1,0 +1,123 @@
+{
+  "compatibility_rules": [
+    {
+      "backward_replay_preserved": true,
+      "combination_allowed": true,
+      "compatibility_posture": "bootstrap_only",
+      "later_lock_required_before_retirement": false,
+      "mixed_ownership_normatively_constrained": false,
+      "predicate_ref_kind": "bootstrap_predicate_contract",
+      "selector_ref_kind": "bootstrap_string_selector"
+    },
+    {
+      "backward_replay_preserved": true,
+      "combination_allowed": true,
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "later_lock_required_before_retirement": true,
+      "mixed_ownership_normatively_constrained": true,
+      "predicate_ref_kind": "imported_e_owned_predicate_ref",
+      "selector_ref_kind": "bootstrap_string_selector"
+    },
+    {
+      "backward_replay_preserved": true,
+      "combination_allowed": true,
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "later_lock_required_before_retirement": true,
+      "mixed_ownership_normatively_constrained": true,
+      "predicate_ref_kind": "bootstrap_predicate_contract",
+      "selector_ref_kind": "imported_o_owned_selector_handle"
+    },
+    {
+      "backward_replay_preserved": true,
+      "combination_allowed": true,
+      "compatibility_posture": "bootstrap_compatible_with_owned_successor",
+      "later_lock_required_before_retirement": true,
+      "mixed_ownership_normatively_constrained": false,
+      "predicate_ref_kind": "imported_e_owned_predicate_ref",
+      "selector_ref_kind": "imported_o_owned_selector_handle"
+    }
+  ],
+  "ownership_profile_id": "anm-ownership:3e9c3766b2fe",
+  "predicate_rows": [
+    {
+      "bootstrap_predicate_contract_ref": "bind_to",
+      "bootstrap_retirement_posture": "not_selected",
+      "compatibility_posture": "bootstrap_only",
+      "predicate_owner_layer": "bootstrap",
+      "predicate_ref": "bind_to",
+      "predicate_ref_kind": "bootstrap_predicate_contract"
+    },
+    {
+      "bootstrap_predicate_contract_ref": "cardinality_eq",
+      "bootstrap_retirement_posture": "not_selected",
+      "compatibility_posture": "bootstrap_only",
+      "predicate_owner_layer": "bootstrap",
+      "predicate_ref": "cardinality_eq",
+      "predicate_ref_kind": "bootstrap_predicate_contract"
+    },
+    {
+      "bootstrap_predicate_contract_ref": "eq",
+      "bootstrap_retirement_posture": "not_selected",
+      "compatibility_posture": "bootstrap_only",
+      "predicate_owner_layer": "bootstrap",
+      "predicate_ref": "eq",
+      "predicate_ref_kind": "bootstrap_predicate_contract"
+    },
+    {
+      "bootstrap_predicate_contract_ref": "explicit",
+      "bootstrap_retirement_posture": "not_selected",
+      "compatibility_posture": "bootstrap_only",
+      "predicate_owner_layer": "bootstrap",
+      "predicate_ref": "explicit",
+      "predicate_ref_kind": "bootstrap_predicate_contract"
+    },
+    {
+      "bootstrap_retirement_posture": "owned_successor_available_bootstrap_still_allowed",
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "imported_predicate_identity": "present",
+      "imported_predicate_registry_ref": "predicate-registry:present:v2",
+      "imported_predicate_version": "2",
+      "predicate_owner_layer": "e_owned",
+      "predicate_ref": "predicate-registry:present:v2",
+      "predicate_ref_kind": "imported_e_owned_predicate_ref"
+    },
+    {
+      "bootstrap_predicate_contract_ref": "present",
+      "bootstrap_retirement_posture": "later_lock_required",
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "predicate_owner_layer": "bootstrap",
+      "predicate_ref": "present",
+      "predicate_ref_kind": "bootstrap_predicate_contract"
+    }
+  ],
+  "released_stack_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS106.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS107.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md"
+  ],
+  "schema": "anm_selector_predicate_ownership_profile@1",
+  "selector_rows": [
+    {
+      "bootstrap_retirement_posture": "later_lock_required",
+      "bootstrap_selector_source_ref": "release_surface:selector",
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "selector_owner_layer": "bootstrap",
+      "selector_ref": "release_surface:selector",
+      "selector_ref_kind": "bootstrap_string_selector"
+    },
+    {
+      "bootstrap_retirement_posture": "owned_successor_available_bootstrap_still_allowed",
+      "compatibility_posture": "owned_preferred_bootstrap_still_allowed",
+      "imported_selector_handle_ref": "selector-handle:artifact-emitted:v1",
+      "imported_selector_identity": "artifact.emitted[*]",
+      "imported_selector_version": "1",
+      "selector_owner_layer": "o_owned",
+      "selector_ref": "selector-handle:artifact-emitted:v1",
+      "selector_ref_kind": "imported_o_owned_selector_handle"
+    }
+  ],
+  "semantic_hash": "3e9c3766b2fecdd04a7d7423d3c54b1b30cddb0effe4c5405fa914870c12e4d6",
+  "snapshot_id": "snapshot:v47c-reference",
+  "snapshot_sha256": "3f8c7498e39ff1abccf9006fce0adf177539ee322178252a8b642a387304c421",
+  "source_scope_profile": "mixed_v47c_reference_scope"
+}
