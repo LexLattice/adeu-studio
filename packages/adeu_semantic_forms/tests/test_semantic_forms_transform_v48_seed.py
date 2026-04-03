@@ -102,6 +102,31 @@ def test_missing_required_relation_fails_closed() -> None:
     assert excinfo.value.code == "ASF5904"
 
 
+def test_contract_required_singleton_relations_are_enforced_generically() -> None:
+    normal_form = SemanticNormalForm.model_validate(
+        _read_v49a_json("reference_semantic_normal_form.json")
+    )
+    contract_payload = _read_v49a_json("reference_semantic_transform_contract.json")
+    contract_payload["required_singleton_relations"] = sorted(
+        contract_payload["required_singleton_relations"] + ["forbid_path"]
+    )
+    contract_payload["supported_multi_relations"] = [
+        relation
+        for relation in contract_payload["supported_multi_relations"]
+        if relation != "forbid_path"
+    ]
+    contract_payload["semantic_hash"] = "derived-by-model-validator"
+    transform_contract = SemanticTransformContract.model_validate(contract_payload)
+
+    with pytest.raises(SemanticFormsLoweringError) as excinfo:
+        lower_semantic_normal_form_to_taskpack_binding_spec_seed(
+            normal_form=normal_form,
+            transform_contract=transform_contract,
+        )
+
+    assert excinfo.value.code == "ASF5904"
+
+
 def test_duplicate_singleton_relation_fails_closed() -> None:
     normal_form = SemanticNormalForm.model_validate(
         _read_json("mutation_semantic_normal_form_duplicate_worker_subject.json")

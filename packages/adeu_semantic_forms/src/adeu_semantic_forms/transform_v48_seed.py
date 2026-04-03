@@ -68,21 +68,20 @@ def _required_singleton_value(
             message="required singleton relation is missing",
             details={"relation_kind": relation_kind},
         )
-    unique_values = sorted(dict.fromkeys(values))
-    if len(unique_values) != 1 or len(values) != 1:
+    if len(values) != 1:
         _fail(
             code=ASF5905_SINGLETON_CONFLICT,
             message="required singleton relation must occur exactly once",
             details={"relation_kind": relation_kind, "values": values},
         )
-    return unique_values[0]
+    return values[0]
 
 
 def _supported_multi_values(
     normal_form: SemanticNormalForm,
     relation_kind: str,
 ) -> list[str]:
-    return sorted(dict.fromkeys(_relation_values(normal_form, relation_kind)))
+    return _relation_values(normal_form, relation_kind)
 
 
 def lower_semantic_normal_form_to_taskpack_binding_spec_seed(
@@ -145,11 +144,36 @@ def lower_semantic_normal_form_to_taskpack_binding_spec_seed(
                 details={"relation_kind": core.relation_kind},
             )
 
-    scope_anchor_ref = _required_singleton_value(normal_form, "bind_scope_anchor")
-    policy_anchor_ref = _required_singleton_value(normal_form, "bind_policy_anchor")
-    worker_subject_ref = _required_singleton_value(normal_form, "use_worker_subject")
-    mutation_posture = _required_singleton_value(normal_form, "set_mutation_posture")
-    artifact_kind = _required_singleton_value(normal_form, "produce_artifact_kind")
+    required_singleton_values = {
+        relation_kind: _required_singleton_value(normal_form, relation_kind)
+        for relation_kind in transform_contract.required_singleton_relations
+    }
+    unsupported_required_singleton_relations = sorted(
+        set(required_singleton_values) - {
+            "bind_scope_anchor",
+            "bind_policy_anchor",
+            "use_worker_subject",
+            "set_mutation_posture",
+            "produce_artifact_kind",
+        }
+    )
+    if unsupported_required_singleton_relations:
+        _fail(
+            code=ASF5906_UNSUPPORTED_RELATION,
+            message=(
+                "transform contract declares required singleton relations not supported "
+                "by starter V49-C lowering"
+            ),
+            details={
+                "required_singleton_relations": unsupported_required_singleton_relations,
+            },
+        )
+
+    scope_anchor_ref = required_singleton_values["bind_scope_anchor"]
+    policy_anchor_ref = required_singleton_values["bind_policy_anchor"]
+    worker_subject_ref = required_singleton_values["use_worker_subject"]
+    mutation_posture = required_singleton_values["set_mutation_posture"]
+    artifact_kind = required_singleton_values["produce_artifact_kind"]
 
     if mutation_posture != "read_only":
         _fail(
