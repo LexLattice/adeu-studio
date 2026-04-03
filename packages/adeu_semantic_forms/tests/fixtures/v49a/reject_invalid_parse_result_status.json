@@ -1,0 +1,15 @@
+{
+  "ambiguities": [],
+  "candidates": [],
+  "input_kind": "natural_language",
+  "input_text": "Prepare a read-only binding seed for the symbol catalog.",
+  "input_text_hash": "derived-by-model-validator",
+  "notices": [
+    "This fixture proves invalid outcome vocabulary fails closed."
+  ],
+  "parse_result_id": "derived-by-model-validator",
+  "parse_status": "invalid_outcome",
+  "profile_id": "repo_policy_work.reference_v49a",
+  "rejected_reason_codes": [],
+  "schema": "adeu_semantic_parse_result@1"
+}

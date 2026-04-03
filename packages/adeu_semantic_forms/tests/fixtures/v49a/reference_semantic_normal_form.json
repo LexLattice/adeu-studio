@@ -1,0 +1,112 @@
+{
+  "confidence_band": "medium",
+  "domain_kind": "repo_policy_work",
+  "identity_field_names": [
+    "relation_kind",
+    "object_value"
+  ],
+  "normal_form_id": "snf:06e2e6449462c7b3",
+  "profile_id": "repo_policy_work.reference_v49a",
+  "projection_field_names": [
+    "lane_tag",
+    "object_kind",
+    "evidence",
+    "confidence_band",
+    "uncertainty_notes"
+  ],
+  "schema": "adeu_semantic_normal_form@1",
+  "semantic_hash": "06e2e6449462c7b323af044020141478a26c2c30e3333d6096b94ef685853b6a",
+  "statement_cores": [
+    {
+      "evidence": [
+        "allow_path:packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py"
+      ],
+      "lane_tag": "constraint",
+      "object_kind": "repo_rel_path",
+      "object_value": "packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py",
+      "relation_kind": "allow_path",
+      "schema": "adeu_semantic_statement_core@1"
+    },
+    {
+      "evidence": [
+        "allow_path:packages/adeu_agent_harness/tests/test_taskpack_binding.py"
+      ],
+      "lane_tag": "constraint",
+      "object_kind": "repo_rel_path",
+      "object_value": "packages/adeu_agent_harness/tests/test_taskpack_binding.py",
+      "relation_kind": "allow_path",
+      "schema": "adeu_semantic_statement_core@1"
+    },
+    {
+      "evidence": [
+        "policy_anchor:release_surface:owner"
+      ],
+      "lane_tag": "policy",
+      "object_kind": "policy_anchor",
+      "object_value": "release_surface:owner",
+      "relation_kind": "bind_policy_anchor",
+      "schema": "adeu_semantic_statement_core@1"
+    },
+    {
+      "evidence": [
+        "scope_anchor:repo_symbol_catalog"
+      ],
+      "lane_tag": "scope",
+      "object_kind": "scope_anchor",
+      "object_value": "repo_symbol_catalog",
+      "relation_kind": "bind_scope_anchor",
+      "schema": "adeu_semantic_statement_core@1"
+    },
+    {
+      "evidence": [
+        "forbid_effect:multi_worker_topology"
+      ],
+      "lane_tag": "constraint",
+      "object_kind": "effect_tag",
+      "object_value": "multi_worker_topology",
+      "relation_kind": "forbid_effect",
+      "schema": "adeu_semantic_statement_core@1"
+    },
+    {
+      "evidence": [
+        "forbid_effect:network_calls"
+      ],
+      "lane_tag": "constraint",
+      "object_kind": "effect_tag",
+      "object_value": "network_calls",
+      "relation_kind": "forbid_effect",
+      "schema": "adeu_semantic_statement_core@1"
+    },
+    {
+      "evidence": [
+        "artifact_kind:taskpack_binding_spec_seed"
+      ],
+      "lane_tag": "deliverable",
+      "object_kind": "artifact_kind",
+      "object_value": "taskpack_binding_spec_seed",
+      "relation_kind": "produce_artifact_kind",
+      "schema": "adeu_semantic_statement_core@1"
+    },
+    {
+      "evidence": [
+        "mutation_posture:read_only"
+      ],
+      "lane_tag": "mutation",
+      "object_kind": "mutation_posture",
+      "object_value": "read_only",
+      "relation_kind": "set_mutation_posture",
+      "schema": "adeu_semantic_statement_core@1"
+    },
+    {
+      "evidence": [
+        "worker_anchor:worker:repo_internal_single_codex_worker:default"
+      ],
+      "lane_tag": "worker",
+      "object_kind": "worker_subject",
+      "object_value": "worker:repo_internal_single_codex_worker:default",
+      "relation_kind": "use_worker_subject",
+      "schema": "adeu_semantic_statement_core@1"
+    }
+  ],
+  "uncertainty_notes": []
+}

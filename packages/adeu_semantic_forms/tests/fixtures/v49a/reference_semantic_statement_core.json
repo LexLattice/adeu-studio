@@ -1,0 +1,10 @@
+{
+  "evidence": [
+    "policy_anchor:release_surface:owner"
+  ],
+  "lane_tag": "policy",
+  "object_kind": "policy_anchor",
+  "object_value": "release_surface:owner",
+  "relation_kind": "bind_policy_anchor",
+  "schema": "adeu_semantic_statement_core@1"
+}

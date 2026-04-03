@@ -1,0 +1,192 @@
+{
+  "ambiguities": [
+    {
+      "alternatives": [
+        "repo_entity_catalog",
+        "repo_symbol_catalog"
+      ],
+      "ambiguity_id": "scope_alternatives",
+      "ambiguity_kind": "multiple_scope_anchor_matches",
+      "notes": "Input matched more than one released scope anchor alias."
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_id": "candidate:1:c2b05e3a831a1193",
+      "candidate_rank": 1,
+      "evidence_summary": [
+        "artifact_kind=taskpack_binding_spec_seed",
+        "mutation_posture=read_only",
+        "policy_anchor=release_surface:owner",
+        "scope_anchor=repo_entity_catalog",
+        "worker_anchor=worker:repo_internal_single_codex_worker:default"
+      ],
+      "normal_form": {
+        "confidence_band": "medium",
+        "domain_kind": "repo_policy_work",
+        "identity_field_names": [
+          "relation_kind",
+          "object_value"
+        ],
+        "normal_form_id": "snf:c2b05e3a831a1193",
+        "profile_id": "repo_policy_work.reference_v49a",
+        "projection_field_names": [
+          "lane_tag",
+          "object_kind",
+          "evidence",
+          "confidence_band",
+          "uncertainty_notes"
+        ],
+        "schema": "adeu_semantic_normal_form@1",
+        "semantic_hash": "c2b05e3a831a11934280e6ae36b658f331cd7e5354d8bece4d46dcaf453d31fc",
+        "statement_cores": [
+          {
+            "evidence": [
+              "policy_anchor:release_surface:owner"
+            ],
+            "lane_tag": "policy",
+            "object_kind": "policy_anchor",
+            "object_value": "release_surface:owner",
+            "relation_kind": "bind_policy_anchor",
+            "schema": "adeu_semantic_statement_core@1"
+          },
+          {
+            "evidence": [
+              "scope_anchor:repo_entity_catalog"
+            ],
+            "lane_tag": "scope",
+            "object_kind": "scope_anchor",
+            "object_value": "repo_entity_catalog",
+            "relation_kind": "bind_scope_anchor",
+            "schema": "adeu_semantic_statement_core@1"
+          },
+          {
+            "evidence": [
+              "artifact_kind:taskpack_binding_spec_seed"
+            ],
+            "lane_tag": "deliverable",
+            "object_kind": "artifact_kind",
+            "object_value": "taskpack_binding_spec_seed",
+            "relation_kind": "produce_artifact_kind",
+            "schema": "adeu_semantic_statement_core@1"
+          },
+          {
+            "evidence": [
+              "mutation_posture:read_only"
+            ],
+            "lane_tag": "mutation",
+            "object_kind": "mutation_posture",
+            "object_value": "read_only",
+            "relation_kind": "set_mutation_posture",
+            "schema": "adeu_semantic_statement_core@1"
+          },
+          {
+            "evidence": [
+              "worker_anchor:worker:repo_internal_single_codex_worker:default"
+            ],
+            "lane_tag": "worker",
+            "object_kind": "worker_subject",
+            "object_value": "worker:repo_internal_single_codex_worker:default",
+            "relation_kind": "use_worker_subject",
+            "schema": "adeu_semantic_statement_core@1"
+          }
+        ],
+        "uncertainty_notes": []
+      }
+    },
+    {
+      "candidate_id": "candidate:2:a03f23dd318a6f78",
+      "candidate_rank": 2,
+      "evidence_summary": [
+        "artifact_kind=taskpack_binding_spec_seed",
+        "mutation_posture=read_only",
+        "policy_anchor=release_surface:owner",
+        "scope_anchor=repo_symbol_catalog",
+        "worker_anchor=worker:repo_internal_single_codex_worker:default"
+      ],
+      "normal_form": {
+        "confidence_band": "medium",
+        "domain_kind": "repo_policy_work",
+        "identity_field_names": [
+          "relation_kind",
+          "object_value"
+        ],
+        "normal_form_id": "snf:a03f23dd318a6f78",
+        "profile_id": "repo_policy_work.reference_v49a",
+        "projection_field_names": [
+          "lane_tag",
+          "object_kind",
+          "evidence",
+          "confidence_band",
+          "uncertainty_notes"
+        ],
+        "schema": "adeu_semantic_normal_form@1",
+        "semantic_hash": "a03f23dd318a6f78142e5784b172d264f04a1e63072395d314484198416c9032",
+        "statement_cores": [
+          {
+            "evidence": [
+              "policy_anchor:release_surface:owner"
+            ],
+            "lane_tag": "policy",
+            "object_kind": "policy_anchor",
+            "object_value": "release_surface:owner",
+            "relation_kind": "bind_policy_anchor",
+            "schema": "adeu_semantic_statement_core@1"
+          },
+          {
+            "evidence": [
+              "scope_anchor:repo_symbol_catalog"
+            ],
+            "lane_tag": "scope",
+            "object_kind": "scope_anchor",
+            "object_value": "repo_symbol_catalog",
+            "relation_kind": "bind_scope_anchor",
+            "schema": "adeu_semantic_statement_core@1"
+          },
+          {
+            "evidence": [
+              "artifact_kind:taskpack_binding_spec_seed"
+            ],
+            "lane_tag": "deliverable",
+            "object_kind": "artifact_kind",
+            "object_value": "taskpack_binding_spec_seed",
+            "relation_kind": "produce_artifact_kind",
+            "schema": "adeu_semantic_statement_core@1"
+          },
+          {
+            "evidence": [
+              "mutation_posture:read_only"
+            ],
+            "lane_tag": "mutation",
+            "object_kind": "mutation_posture",
+            "object_value": "read_only",
+            "relation_kind": "set_mutation_posture",
+            "schema": "adeu_semantic_statement_core@1"
+          },
+          {
+            "evidence": [
+              "worker_anchor:worker:repo_internal_single_codex_worker:default"
+            ],
+            "lane_tag": "worker",
+            "object_kind": "worker_subject",
+            "object_value": "worker:repo_internal_single_codex_worker:default",
+            "relation_kind": "use_worker_subject",
+            "schema": "adeu_semantic_statement_core@1"
+          }
+        ],
+        "uncertainty_notes": []
+      }
+    }
+  ],
+  "input_kind": "natural_language",
+  "input_text": "Prepare a read-only binding seed for the catalog under the owner rule. Use the default codex worker.",
+  "input_text_hash": "4442fb4c4645d0631071d6b81ed054b23824a2146013cc0d152cd7e6436e9c66",
+  "notices": [
+    "Natural-language recovery is profile-relative and bounded to released anchors only."
+  ],
+  "parse_result_id": "parse:4442fb4c4645d063",
+  "parse_status": "typed_alternatives",
+  "profile_id": "repo_policy_work.reference_v49a",
+  "rejected_reason_codes": [],
+  "schema": "adeu_semantic_parse_result@1"
+}
