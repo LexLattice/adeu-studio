@@ -99,17 +99,30 @@ class WorkerDelegationTopology(BaseModel):
 
     @model_validator(mode="after")
     def _validate_contract(self) -> "WorkerDelegationTopology":
-        self.supporting_diagnostic_ids = sorted(
-            {
-                diagnostic_id.strip()
-                for diagnostic_id in self.supporting_diagnostic_ids
-                if diagnostic_id.strip()
-            }
-        )
-        self.supporting_diagnostic_families = sorted(
-            set(self.supporting_diagnostic_families),
+        if len(self.supporting_diagnostic_families) != len(
+            set(self.supporting_diagnostic_families)
+        ):
+            raise ValueError("supporting_diagnostic_families must not contain duplicates")
+        expected_families = sorted(
+            self.supporting_diagnostic_families,
             key=_DIAGNOSTIC_FAMILY_ORDER.index,
         )
+        if self.supporting_diagnostic_families != expected_families:
+            raise ValueError(
+                "supporting_diagnostic_families must already be ordered by the "
+                "released V48-E diagnostic family vocabulary"
+            )
+
+        expected_diagnostic_ids = [
+            _diagnostic_id_for(family) for family in self.supporting_diagnostic_families
+        ]
+        if len(self.supporting_diagnostic_ids) != len(set(self.supporting_diagnostic_ids)):
+            raise ValueError("supporting_diagnostic_ids must not contain duplicates")
+        if self.supporting_diagnostic_ids != expected_diagnostic_ids:
+            raise ValueError(
+                "supporting_diagnostic_ids must exactly match the released V48-E "
+                "diagnostic family mapping and ordering"
+            )
         payload = self.model_dump(mode="json", exclude={"semantic_hash"})
         self.semantic_hash = _stable_payload_hash(payload)
         return self
@@ -354,23 +367,35 @@ def _diagnostic_id_for(family: SupportingDiagnosticFamily) -> str:
     return f"worker_delegation_topology:{family}"
 
 
-def _derive_topology_id(
-    *,
-    parent_report: WorkerBoundaryConformanceReport,
-    child_report: WorkerBoundaryConformanceReport,
-    delegation_edge_id: str,
-    delegated_task_identity: str,
-    parent_role_kind: WorkerRoleKind,
-    child_role_kind: WorkerRoleKind,
-) -> str:
+def _derive_topology_id(payload: dict[str, Any]) -> str:
     digest = _stable_payload_hash(
         {
-            "parent_report_semantic_hash": parent_report.semantic_hash,
-            "child_report_semantic_hash": child_report.semantic_hash,
-            "delegation_edge_id": delegation_edge_id,
-            "delegated_task_identity": delegated_task_identity,
-            "parent_role_kind": parent_role_kind,
-            "child_role_kind": child_role_kind,
+            "snapshot_id": payload["snapshot_id"],
+            "snapshot_sha256": payload["snapshot_sha256"],
+            "repo_ref": payload["repo_ref"],
+            "parent_report_semantic_hash": payload["parent_report_semantic_hash"],
+            "child_report_semantic_hash": payload["child_report_semantic_hash"],
+            "parent_boundary_instance_semantic_hash": payload[
+                "parent_boundary_instance_semantic_hash"
+            ],
+            "child_boundary_instance_semantic_hash": payload[
+                "child_boundary_instance_semantic_hash"
+            ],
+            "parent_compiled_binding_semantic_hash": payload[
+                "parent_compiled_binding_semantic_hash"
+            ],
+            "child_compiled_binding_semantic_hash": payload[
+                "child_compiled_binding_semantic_hash"
+            ],
+            "parent_lineage_complete": payload["parent_lineage_complete"],
+            "child_lineage_complete": payload["child_lineage_complete"],
+            "parent_role_kind": payload["parent_role_kind"],
+            "child_role_kind": payload["child_role_kind"],
+            "delegation_edge_id": payload["delegation_edge_id"],
+            "delegated_task_identity": payload["delegated_task_identity"],
+            "handoff_result": payload["handoff_result"],
+            "supporting_diagnostic_families": payload["supporting_diagnostic_families"],
+            "supporting_diagnostic_ids": payload["supporting_diagnostic_ids"],
         }
     )
     return f"worker_delegation_topology:{digest}"
@@ -515,40 +540,67 @@ def build_v48e_worker_delegation_topology(
         supporting_diagnostic_families,
         key=_DIAGNOSTIC_FAMILY_ORDER.index,
     )
-    topology = WorkerDelegationTopology(
-        worker_delegation_topology_id=_derive_topology_id(
-            parent_report=parent_report,
-            child_report=child_report,
-            delegation_edge_id=delegation_edge_id,
-            delegated_task_identity=delegated_task_identity,
-            parent_role_kind=parent_role_kind,
-            child_role_kind=child_role_kind,
+    supporting_diagnostic_ids = [
+        _diagnostic_id_for(family) for family in ordered_families
+    ]
+    topology_payload = {
+        "snapshot_id": parent_report.snapshot_id,
+        "snapshot_sha256": parent_report.snapshot_sha256,
+        "repo_ref": parent_report.repo_ref,
+        "parent_worker_boundary_conformance_report_ref": parent_report_ref,
+        "child_worker_boundary_conformance_report_ref": child_report_ref,
+        "parent_boundary_instance_ref": parent_report.boundary_instance_ref,
+        "child_boundary_instance_ref": child_report.boundary_instance_ref,
+        "parent_compiled_binding_ref": parent_report.compiled_binding_ref,
+        "child_compiled_binding_ref": child_report.compiled_binding_ref,
+        "parent_task_instance_identity": parent_report.task_instance_identity,
+        "child_task_instance_identity": child_report.task_instance_identity,
+        "parent_worker_subject_kind": parent_report.worker_subject_kind,
+        "parent_worker_subject_ref": parent_report.worker_subject_ref,
+        "child_worker_subject_kind": child_report.worker_subject_kind,
+        "child_worker_subject_ref": child_report.worker_subject_ref,
+        "parent_role_kind": parent_role_kind,
+        "child_role_kind": child_role_kind,
+        "delegation_edge_id": delegation_edge_id,
+        "delegated_task_identity": delegated_task_identity,
+        "handoff_result": handoff_result,
+        "supporting_diagnostic_ids": supporting_diagnostic_ids,
+        "supporting_diagnostic_families": ordered_families,
+        "semantic_hash": "0" * 64,
+    }
+    topology_id_payload = {
+        **topology_payload,
+        "parent_report_semantic_hash": parent_report.semantic_hash,
+        "child_report_semantic_hash": child_report.semantic_hash,
+        "parent_boundary_instance_semantic_hash": (
+            parent_chain.boundary_instance.semantic_hash
+            if parent_chain.boundary_instance is not None
+            else None
         ),
-        snapshot_id=parent_report.snapshot_id,
-        snapshot_sha256=parent_report.snapshot_sha256,
-        repo_ref=parent_report.repo_ref,
-        parent_worker_boundary_conformance_report_ref=parent_report_ref,
-        child_worker_boundary_conformance_report_ref=child_report_ref,
-        parent_boundary_instance_ref=parent_report.boundary_instance_ref,
-        child_boundary_instance_ref=child_report.boundary_instance_ref,
-        parent_compiled_binding_ref=parent_report.compiled_binding_ref,
-        child_compiled_binding_ref=child_report.compiled_binding_ref,
-        parent_task_instance_identity=parent_report.task_instance_identity,
-        child_task_instance_identity=child_report.task_instance_identity,
-        parent_worker_subject_kind=parent_report.worker_subject_kind,
-        parent_worker_subject_ref=parent_report.worker_subject_ref,
-        child_worker_subject_kind=child_report.worker_subject_kind,
-        child_worker_subject_ref=child_report.worker_subject_ref,
-        parent_role_kind=parent_role_kind,
-        child_role_kind=child_role_kind,
-        delegation_edge_id=delegation_edge_id,
-        delegated_task_identity=delegated_task_identity,
-        handoff_result=handoff_result,
-        supporting_diagnostic_ids=[
-            _diagnostic_id_for(family) for family in ordered_families
-        ],
-        supporting_diagnostic_families=ordered_families,
-        semantic_hash="0" * 64,
+        "child_boundary_instance_semantic_hash": (
+            child_chain.boundary_instance.semantic_hash
+            if child_chain.boundary_instance is not None
+            else None
+        ),
+        "parent_compiled_binding_semantic_hash": (
+            parent_chain.compiled_binding.semantic_hash
+            if parent_chain.compiled_binding is not None
+            else None
+        ),
+        "child_compiled_binding_semantic_hash": (
+            child_chain.compiled_binding.semantic_hash
+            if child_chain.compiled_binding is not None
+            else None
+        ),
+        "parent_lineage_complete": parent_chain.lineage_complete,
+        "child_lineage_complete": child_chain.lineage_complete,
+    }
+    topology = WorkerDelegationTopology.model_validate(
+        {
+            "schema": WORKER_DELEGATION_TOPOLOGY_SCHEMA,
+            "worker_delegation_topology_id": _derive_topology_id(topology_id_payload),
+            **topology_payload,
+        }
     )
 
     topology_path = out_dir_path / "worker_delegation_topology.json"

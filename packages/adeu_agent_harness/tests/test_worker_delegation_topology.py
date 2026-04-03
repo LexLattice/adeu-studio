@@ -19,6 +19,7 @@ from adeu_agent_harness.worker_delegation_topology import (
 )
 from adeu_agent_harness.worker_execution_envelope import TaskRunBoundaryInstance
 from adeu_ir.repo import repo_root
+from pydantic import ValidationError
 from urm_runtime.hashing import canonical_json
 
 
@@ -95,16 +96,17 @@ def _seed_v48e_inputs(
         "artifacts/agent_harness/v48e/reference_child/"
         "worker_boundary_conformance_report.json"
     )
+    child_boundary_identity_hash = (
+        child_compiled_boundary_identity_hash
+        or parent_compiled_binding_payload["compiled_boundary_identity_hash"]
+    )
 
     child_compiled_binding = CompiledPolicyTaskpackBinding.model_validate(
         {
             **parent_compiled_binding_payload,
             "compiled_binding_id": "compiled-taskpack-binding:child4502a3ff",
             "worker_subject_ref": child_worker_subject_ref,
-            "compiled_boundary_identity_hash": (
-                child_compiled_boundary_identity_hash
-                or parent_compiled_binding_payload["compiled_boundary_identity_hash"]
-            ),
+            "compiled_boundary_identity_hash": child_boundary_identity_hash,
             "taskpack_markdown_ref": "artifacts/agent_harness/v48e/reference_child/TASKPACK.md",
             "acceptance_ref": "artifacts/agent_harness/v48e/reference_child/ACCEPTANCE.json",
             "allowlist_ref": "artifacts/agent_harness/v48e/reference_child/ALLOWLIST.json",
@@ -134,6 +136,7 @@ def _seed_v48e_inputs(
                 "task_run_boundary_instance:childae1bd4dce68ae9f8ff4d230a89f1cfe"
             ),
             "compiled_binding_ref": child_compiled_binding_ref,
+            "compiled_boundary_identity_hash": child_boundary_identity_hash,
             "task_instance_identity": "task:v48e:child_worker_execution",
             "worker_subject_ref": child_worker_subject_ref,
             "semantic_hash": "derived-by-model-validator",
@@ -255,11 +258,52 @@ def test_v48e_reference_incomplete_lineage_fixture_replays(tmp_path: Path) -> No
     )
 
 
+def test_v48e_topology_id_changes_when_resolved_outcome_changes(tmp_path: Path) -> None:
+    seeded = _seed_v48e_inputs(tmp_path)
+    accepted = _build_topology(
+        seeded,
+        out_dir="artifacts/agent_harness/v48e/reference_topology",
+    )
+
+    mismatch_tmp = tmp_path / "boundary_mismatch"
+    mismatch_tmp.mkdir()
+    mismatch_seeded = _seed_v48e_inputs(
+        mismatch_tmp,
+        child_compiled_boundary_identity_hash="f" * 64,
+    )
+    rejected = _build_topology(
+        mismatch_seeded,
+        out_dir="artifacts/agent_harness/v48e/rejected_boundary_mismatch",
+    )
+
+    assert accepted.handoff_result == "completed"
+    assert rejected.handoff_result == "rejected"
+    assert accepted.worker_delegation_topology_id != rejected.worker_delegation_topology_id
+
+
 def test_v48e_models_accept_committed_reference_payloads() -> None:
     topology = WorkerDelegationTopology.model_validate(
         _read_fixture("reference_worker_delegation_topology.json")
     )
     assert topology.schema == WORKER_DELEGATION_TOPOLOGY_SCHEMA
+
+
+def test_v48e_model_rejects_out_of_order_or_duplicate_diagnostics() -> None:
+    payload = _read_fixture(
+        "reference_worker_delegation_topology_rejected_compiled_boundary_mismatch.json"
+    )
+    payload["supporting_diagnostic_families"] = [
+        "compiled_boundary_mismatch",
+        "compiled_boundary_mismatch",
+    ]
+    payload["supporting_diagnostic_ids"] = [
+        "worker_delegation_topology:compiled_boundary_mismatch",
+        "worker_delegation_topology:compiled_boundary_mismatch",
+    ]
+    payload["semantic_hash"] = "derived-by-model-validator"
+
+    with pytest.raises(ValidationError):
+        WorkerDelegationTopology.model_validate(payload)
 
 
 def test_v48e_rejects_raw_v48d_bypass(tmp_path: Path) -> None:
