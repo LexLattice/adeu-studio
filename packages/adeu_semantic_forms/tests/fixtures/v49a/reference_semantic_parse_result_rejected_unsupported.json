@@ -1,0 +1,17 @@
+{
+  "ambiguities": [],
+  "candidates": [],
+  "input_kind": "natural_language",
+  "input_text": "Pick whatever policy seems closest and modify the repo if needed.",
+  "input_text_hash": "d789a7a55c733d8757613ad58aabe57fc66732c50e1dbbcd8afd7c052f4ffdea",
+  "notices": [
+    "unsupported pattern(s): if, modify the repo, whatever policy"
+  ],
+  "parse_result_id": "parse:d789a7a55c733d87",
+  "parse_status": "rejected_unsupported",
+  "profile_id": "repo_policy_work.reference_v49a",
+  "rejected_reason_codes": [
+    "ASL-PARSE-UNSUPPORTED"
+  ],
+  "schema": "adeu_semantic_parse_result@1"
+}

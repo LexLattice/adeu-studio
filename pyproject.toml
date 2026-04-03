@@ -1,6 +1,7 @@
 [tool.ruff]
 target-version = "py311"
 line-length = 100
+extend-exclude = ["examples/external_prototypes"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
@@ -8,3 +9,4 @@ ignore = ["E741"]
 
 [tool.pytest.ini_options]
 addopts = "-q"
+norecursedirs = ["examples/external_prototypes"]
