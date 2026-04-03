@@ -141,7 +141,7 @@
       "anchor_id": "repo_entity_catalog",
       "display_name": "released V45 repo entity catalog",
       "resolved_binding_entry_ref": "apps/api/fixtures/repo_description/vnext_plus105/repo_descriptive_normative_binding_frame_v105_reference.json#binding_entry_a24a84cd152f890bb21be04c",
-      "resolved_scope_ref": "apps/api/fixtures/repo_description/vnext_plus101/repo_entity_catalog_v101_reference.json"
+      "resolved_scope_ref": "apps/api/fixtures/repo_description/vnext_plus99/repo_entity_catalog_v99_reference.json"
     },
     {
       "aliases": [
@@ -168,7 +168,7 @@
       "resolved_scope_ref": "apps/api/fixtures/repo_description/vnext_plus101/repo_symbol_catalog_v101_reference.json"
     }
   ],
-  "semantic_hash": "8453a39713f353f1d4fc2452bd239896b1e3f92c95abb17e9859af99e5ce7136",
+  "semantic_hash": "320d98749abe1fcc689564e6dc5556adb4c069b07b3ffe5a2078bc25a89fd921",
   "snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
   "snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
   "unsupported_patterns": [

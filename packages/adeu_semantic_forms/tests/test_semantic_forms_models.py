@@ -9,9 +9,12 @@ from adeu_semantic_forms import (
     ADEU_SEMANTIC_NORMAL_FORM_SCHEMA,
     ADEU_SEMANTIC_PARSE_RESULT_SCHEMA,
     ADEU_SEMANTIC_STATEMENT_CORE_SCHEMA,
+    SemanticLexiconEntry,
     SemanticNormalForm,
     SemanticParseResult,
     SemanticStatementCore,
+    WorkerAnchor,
+    sha256_canonical_json,
 )
 from pydantic import ValidationError
 
@@ -93,13 +96,15 @@ def test_invalid_parse_status_fixture_fails_closed() -> None:
 
 def test_clarification_required_contract_accepts_missing_required_anchor_case() -> None:
     reference = _read_json("reference_semantic_parse_result_rejected_unsupported.json")
+    input_text = "Prepare a read-only binding seed under the owner rule."
+    input_text_hash = sha256_canonical_json({"input_text": input_text})
     payload = {
         "schema": ADEU_SEMANTIC_PARSE_RESULT_SCHEMA,
-        "parse_result_id": "derived-by-model-validator",
+        "parse_result_id": f"parse:{input_text_hash[:16]}",
         "profile_id": reference["profile_id"],
         "input_kind": "natural_language",
-        "input_text": "Prepare a read-only binding seed under the owner rule.",
-        "input_text_hash": "derived-by-model-validator",
+        "input_text": input_text,
+        "input_text_hash": input_text_hash,
         "parse_status": "clarification_required",
         "candidates": [],
         "ambiguities": [
@@ -141,3 +146,38 @@ def test_rejected_unsupported_rejects_ambiguity_mixture() -> None:
 
     with pytest.raises(ValidationError):
         SemanticParseResult.model_validate(payload)
+
+
+def test_parse_result_rejects_mismatched_hash_and_id() -> None:
+    payload = _read_json("reference_semantic_parse_result_resolved_singleton.json")
+    payload["input_text_hash"] = "tampered"
+
+    with pytest.raises(ValidationError):
+        SemanticParseResult.model_validate(payload)
+
+    payload = _read_json("reference_semantic_parse_result_resolved_singleton.json")
+    payload["parse_result_id"] = "parse:tampered"
+
+    with pytest.raises(ValidationError):
+        SemanticParseResult.model_validate(payload)
+
+
+def test_worker_anchor_requires_at_least_one_alias() -> None:
+    with pytest.raises(ValidationError):
+        WorkerAnchor.model_validate(
+            {
+                "anchor_id": "worker:repo_internal_single_codex_worker:default",
+                "resolved_worker_subject_ref": "worker:repo_internal_single_codex_worker:default",
+                "aliases": [],
+            }
+        )
+
+
+def test_lexicon_entry_requires_at_least_one_alias() -> None:
+    with pytest.raises(ValidationError):
+        SemanticLexiconEntry.model_validate(
+            {
+                "canonical_value": "read_only",
+                "aliases": [],
+            }
+        )

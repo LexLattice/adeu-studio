@@ -3,8 +3,8 @@ from __future__ import annotations
 from .models import SemanticParseProfile, SemanticTransformContract
 
 ENTITY_CATALOG_SCOPE_REF = (
-    "apps/api/fixtures/repo_description/vnext_plus101/"
-    "repo_entity_catalog_v101_reference.json"
+    "apps/api/fixtures/repo_description/vnext_plus99/"
+    "repo_entity_catalog_v99_reference.json"
 )
 ENTITY_CATALOG_BINDING_ENTRY_REF = (
     "apps/api/fixtures/repo_description/vnext_plus105/"

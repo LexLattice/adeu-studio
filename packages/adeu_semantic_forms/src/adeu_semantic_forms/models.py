@@ -88,6 +88,21 @@ def sha256_canonical_json(value: Any) -> str:
     return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
 
 
+def _normalize_aliases(
+    aliases: list["AnchorAlias"],
+    *,
+    owner_name: str,
+    require_non_empty: bool,
+) -> list["AnchorAlias"]:
+    normalized = sorted(
+        {(alias.alias_kind, alias.alias): alias for alias in aliases}.values(),
+        key=lambda alias: (alias.alias_kind, alias.alias),
+    )
+    if require_non_empty and not normalized:
+        raise ValueError(f"{owner_name} must declare at least one alias")
+    return normalized
+
+
 class AnchorAlias(BaseModel):
     model_config = MODEL_CONFIG
 
@@ -106,12 +121,11 @@ class ScopeAnchor(BaseModel):
 
     @model_validator(mode="after")
     def _validate(self) -> "ScopeAnchor":
-        self.aliases = sorted(
-            {(alias.alias_kind, alias.alias): alias for alias in self.aliases}.values(),
-            key=lambda alias: (alias.alias_kind, alias.alias),
+        self.aliases = _normalize_aliases(
+            self.aliases,
+            owner_name="scope anchors",
+            require_non_empty=True,
         )
-        if not self.aliases:
-            raise ValueError("scope anchors must declare at least one alias")
         return self
 
 
@@ -126,12 +140,11 @@ class PolicyAnchor(BaseModel):
 
     @model_validator(mode="after")
     def _validate(self) -> "PolicyAnchor":
-        self.aliases = sorted(
-            {(alias.alias_kind, alias.alias): alias for alias in self.aliases}.values(),
-            key=lambda alias: (alias.alias_kind, alias.alias),
+        self.aliases = _normalize_aliases(
+            self.aliases,
+            owner_name="policy anchors",
+            require_non_empty=True,
         )
-        if not self.aliases:
-            raise ValueError("policy anchors must declare at least one alias")
         return self
 
 
@@ -144,9 +157,10 @@ class WorkerAnchor(BaseModel):
 
     @model_validator(mode="after")
     def _validate(self) -> "WorkerAnchor":
-        self.aliases = sorted(
-            {(alias.alias_kind, alias.alias): alias for alias in self.aliases}.values(),
-            key=lambda alias: (alias.alias_kind, alias.alias),
+        self.aliases = _normalize_aliases(
+            self.aliases,
+            owner_name="worker anchors",
+            require_non_empty=True,
         )
         return self
 
@@ -159,9 +173,10 @@ class SemanticLexiconEntry(BaseModel):
 
     @model_validator(mode="after")
     def _validate(self) -> "SemanticLexiconEntry":
-        self.aliases = sorted(
-            {(alias.alias_kind, alias.alias): alias for alias in self.aliases}.values(),
-            key=lambda alias: (alias.alias_kind, alias.alias),
+        self.aliases = _normalize_aliases(
+            self.aliases,
+            owner_name="lexicon entries",
+            require_non_empty=True,
         )
         return self
 
@@ -388,8 +403,16 @@ class SemanticParseResult(BaseModel):
         )
         self.ambiguities = sorted(self.ambiguities, key=lambda ambiguity: ambiguity.ambiguity_id)
         self.notices = sorted(dict.fromkeys(self.notices))
-        self.input_text_hash = sha256_canonical_json({"input_text": self.input_text})
-        self.parse_result_id = f"parse:{self.input_text_hash[:16]}"
+        expected_input_text_hash = sha256_canonical_json({"input_text": self.input_text})
+        expected_parse_result_id = f"parse:{expected_input_text_hash[:16]}"
+        if self.input_text_hash != expected_input_text_hash:
+            raise ValueError(
+                "input_text_hash must match the canonical hash derived from input_text"
+            )
+        if self.parse_result_id != expected_parse_result_id:
+            raise ValueError(
+                "parse_result_id must match the canonical ID derived from input_text_hash"
+            )
 
         if self.parse_status == "resolved_singleton":
             if len(self.candidates) != 1 or self.ambiguities or self.rejected_reason_codes:
