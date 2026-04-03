@@ -106,6 +106,16 @@ _FROZEN_HELPER_ENTRYPOINTS: tuple[_FrozenEntrypoint, ...] = (
         module="adeu_semantic_depth.semantic_depth",
         symbol="_canonical_json",
     ),
+    _FrozenEntrypoint(
+        repo_path="packages/adeu_semantic_forms/src/adeu_semantic_forms/models.py",
+        module="adeu_semantic_forms.models",
+        symbol="canonical_json",
+    ),
+    _FrozenEntrypoint(
+        repo_path="packages/adeu_semantic_forms/src/adeu_semantic_forms/models.py",
+        module="adeu_semantic_forms.models",
+        symbol="sha256_canonical_json",
+    ),
 )
 
 _EXPECTED_DISCOVERY_ENTRYPOINTS: tuple[str, ...] = tuple(
@@ -254,7 +264,7 @@ def test_vnext_plus27_conformance_coverage_guard_exercises_frozen_entrypoints() 
     expected_entrypoints = tuple(entry.entrypoint for entry in _FROZEN_HELPER_ENTRYPOINTS)
 
     assert tuple(loaded.keys()) == expected_entrypoints
-    assert len(loaded) == len(_FROZEN_HELPER_ENTRYPOINTS) == 11
+    assert len(loaded) == len(_FROZEN_HELPER_ENTRYPOINTS) == 13
 
 
 def test_vnext_plus27_canonical_definition_discovery_report_is_deterministic() -> None:
