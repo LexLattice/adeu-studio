@@ -3,8 +3,9 @@
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v30.md`, updated after the
 bounded ANM / `D@1` family closed on `main`, the remaining policy-to-taskpack /
 worker-enforcement bridge was identified as a separate infra gap rather than another
-implicit `V47` widening, and `vNext+112` (`V48-A`) plus `vNext+113` (`V48-B`) plus
-`vNext+114` (`V48-C`) plus `vNext+115` (`V48-D`) closed on `main`.
+implicit `V47` widening, and `vNext+112` (`V48-A`) through `vNext+116` (`V48-E`)
+closed on `main`, completing the bounded `V48` family with no further internal
+`V48` path currently selected.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -55,7 +56,9 @@ Interpretive doctrine for this planning surface:
   envelope + attestation / provenance slice for this family.
 - `V48-D` is closed on `main` and now constitutes the released bounded replayable
   single-worker conformance slice for this family.
-- `vNext+115` is the current baseline implementation state on `main`.
+- `V48-E` is closed on `main` and now constitutes the released bounded delegated
+  topology slice for this family.
+- `vNext+116` is the current baseline implementation state on `main`.
 - released agent-harness kernel surfaces already exist on `main`, including:
   - deterministic taskpack compilation in `packages/adeu_agent_harness`;
   - deterministic taskpack runner enforcement in `packages/adeu_agent_harness`;
@@ -97,37 +100,35 @@ The repo no longer lacks:
 - one canonical typed `V48-D` conformance surface that binds one released `V48-C`
   worker-envelope chain to one frozen four-carrier observed-action set and emits one
   replayable `worker_boundary_conformance_report@1`;
+- one canonical typed `V48-E` delegated-topology surface that binds one released
+  parent `V48-D` report and one released child `V48-D` report into one bounded
+  `worker_delegation_topology@1` with one explicit `supervisor_to_worker` handoff
+  edge and no boundary widening;
 - a generic deterministic harness kernel with taskpack compile/run/verify surfaces.
 
-The remaining missing layer now sits downstream of the released single-worker
-conformance surface.
+The branch-local internal `V48` ladder no longer has a remaining selected seam.
 
-Today the repo still lacks a released way to:
+Today the repo does not have a further internal `V48` continuation selected.
 
-- bind multiple already released worker-bound execution surfaces into one typed,
-  bounded delegation topology;
-- make explicit how one supervisor/worker or worker/worker handoff edge is derived
-  from already released boundary, provenance, and conformance lineage rather than
-  from ambient orchestration prose;
-- distinguish:
-  - released policy source;
-  - released scope source;
-  - released compiled boundary;
-  - released worker-run boundary instance / attestation / provenance;
-  - released post-run conformance judgment;
-  - later delegated topology / handoff doctrine;
-- keep single-worker conformance distinct from later delegated topology and handoff
-  reasoning;
-- reject ambient planner decomposition or prompt-only delegation claims that are not
-  backed by typed released boundary and conformance lineage.
+`V48` now covers, on `main`:
 
-The missing layer is therefore not more normative-source work, not more binding-profile
-work, not more deterministic taskpack-compilation work, and not more worker-run
-attestation / provenance work, and not more single-worker conformance work.
+- released policy/scope-to-taskpack binding;
+- released deterministic taskpack compilation over that binding;
+- released worker-run boundary instance / attestation / provenance linkage;
+- released replayable single-worker conformance over frozen observed-action carriers;
+- released bounded delegated topology over two released conformant worker surfaces.
 
-The missing layer is the bounded delegated multi-worker topology seam that now sits
-downstream of the released compiled boundary, the released worker-envelope carriers,
-and the released single-worker conformance surface.
+So the remaining work after `vNext+116` is not another implicit `V48-F`.
+
+Any later widening beyond the shipped same-boundary, one-edge delegated topology
+should be treated as:
+
+- a new planning decision;
+- a downstream consumer or adjacent family choice; or
+- a separately scoped future seam selection,
+
+rather than as an ambient continuation automatically authorized by this planning
+surface.
 
 ## Relationship To `V43`, `V44`, `V45`, `V46`, And `V47`
 
@@ -233,14 +234,14 @@ Planning relationship:
   - `V48-B` closed on `main`
   - `V48-C` closed on `main`
   - `V48-D` closed on `main`
+  - `V48-E` closed on `main`
 - Recommended next path for this branch:
-  - `V48-E`
+  - no further internal `V48` path currently selected
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+116`
+  - no further internal `V48` concrete arc currently selected
 - Default path selection for this branch:
-  - select `V48-E` as the next default candidate
-  - treat that default as the bounded delegated topology lane over the now-released
-    `V48-D` single-worker conformance surface
+  - no further internal `V48` path currently selected after the bounded
+    `V48-A` through `V48-E` ladder closed on `main`
 
 This family/path recommendation is branch-local to the `v31` planning surface.
 
@@ -266,19 +267,19 @@ Released harness surfaces should now be read as a generic execution substrate:
 - deterministic taskpack runner;
 - deterministic signing / verification / provenance surfaces.
 
-None of those released surfaces, by themselves, yet solve:
+None of those released surfaces, by themselves, solved:
 
 - how released policy rows and released repo scope become one typed taskpack boundary;
 - how a worker run proves which released policy and scope artifacts governed it;
 - how to reject runs that are taskpack-valid in the generic sense but not actually
   derived from the intended released policy/scope lineage.
 
-`V48` is the planning move that fills that bridge without reopening released
-descriptive, normative, or harness-kernel baselines.
+`V48` is now the released bounded family that filled that bridge on `main` without
+reopening released descriptive, normative, or harness-kernel baselines.
 
-## Recommended Next Family (`V48`)
+## Completed Family (`V48`)
 
-`V48` should release a bounded enactment bridge around:
+`V48` should now be read as the released bounded enactment bridge around:
 
 - task-scoped policy binding profiles;
 - repo-scope binding profiles;
@@ -288,6 +289,8 @@ descriptive, normative, or harness-kernel baselines.
   worker-run context;
 - deterministic conformance reporting over observed worker actions versus the compiled
   boundary;
+- bounded supervisor/worker delegated topology over two released conformant worker
+  surfaces with exact same repo/snapshot/compiled-boundary posture;
 - explicit projection-only posture for prompts and repo prose when a typed worker
   boundary exists.
 
@@ -306,12 +309,14 @@ The family should treat taskpack and runner surfaces as:
 - execution-envelope carriers derived from upstream authority;
 - not independent policy sources.
 
-The family should treat later multi-worker orchestration as:
+The family should treat later multi-worker orchestration beyond the shipped
+`V48-E` seam as:
 
-- downstream consumers of the bridge;
-- not the first release inside this family.
+- downstream consumers or adjacent later families;
+- not something automatically selected inside this planning surface now that the
+  bounded `V48` ladder is closed on `main`.
 
-At minimum, later `V48` work should make explicit:
+The released `V48` work made explicit:
 
 - how a released `V47` policy row or profile maps into:
   - taskpack allowlist posture;
@@ -326,6 +331,9 @@ At minimum, later `V48` work should make explicit:
   - prompt-only authority claims;
   - missing lineage;
   - stale boundary reuse.
+- how delegated topology binds one released parent `V48-D` report and one released
+  child `V48-D` report into one bounded handoff artifact without widening the shared
+  compiled boundary.
 - what observed-action carriers are admissible before conformance becomes
   implementation-facing, including:
   - filesystem mutation set;
@@ -343,208 +351,74 @@ The current recommended path ladder is:
 | `V48-B` | deterministic policy-to-taskpack compiler lane | candidate `compiled_policy_taskpack_binding@1` plus deterministic taskpack derivation from the released binding profile | closed_on_main |
 | `V48-C` | worker execution envelope + attestation lane | candidate `task_run_boundary_instance@1`, candidate `worker_execution_attestation@1`, and candidate `worker_execution_provenance@1` | closed_on_main |
 | `V48-D` | post-run conformance / replay lane | candidate `worker_boundary_conformance_report@1` plus replayable diagnostics over frozen observed-action carriers | closed_on_main |
-| `V48-E` | delegated multi-worker topology seam | candidate `worker_delegation_topology@1` and bounded supervisor/worker handoff doctrine | default_next_candidate |
+| `V48-E` | delegated multi-worker topology seam | candidate `worker_delegation_topology@1` and bounded supervisor/worker handoff doctrine | closed_on_main |
 
 These output names are planning-level candidate names, not lock-level schema authority.
 
-`V48-A` through `V48-D` should now be read together as the released single-worker
-realization of the policy-to-enforcement bridge's first safe family shape.
+`V48-A` through `V48-E` should now be read together as the completed bounded
+policy-to-taskpack and worker-enforcement bridge on `main`.
 
 That is:
 
-- `V48-A` intentionally narrowed the first move to explicit binding doctrine;
-- `V48-B` then compiled that doctrine into deterministic taskpack surfaces;
-- `V48-C` then made actual worker-run boundary lineage explicit;
-- `V48-D` then made replayable single-worker conformance judgment explicit over those
-  runs.
+- `V48-A` released one canonical policy/scope-to-taskpack binding doctrine;
+- `V48-B` released deterministic lowering of that doctrine into released kernel
+  taskpack carriers;
+- `V48-C` released one worker-run boundary instance plus attestation / provenance
+  linkage over one compiled boundary;
+- `V48-D` released replayable single-worker conformance over one frozen observed-action
+  carrier set;
+- `V48-E` released one bounded supervisor-to-worker delegation topology over two
+  released `V48-D` reports with exact same repo/snapshot/compiled-boundary posture.
 
-So the `A -> B -> C -> D` staging should now be read as completed groundwork for the
-later topology seam rather than as an unfinished single-worker bridge.
+So the `A -> B -> C -> D -> E` staging should now be read as a completed bounded
+family ladder rather than as an unfinished bridge.
 
-## Recommended Next Path (`V48-E`)
+## Current Family Closeout (`V48`)
 
-Implement the delegated multi-worker topology seam next.
+`V48-E` is now closed on `main` and should be read as bounded to:
 
-`V48-A` is now closed on `main` and should be read as the released starter binding
-surface for:
+- one released parent `worker_boundary_conformance_report@1`;
+- one released child `worker_boundary_conformance_report@1`;
+- one explicit `supervisor_to_worker` edge only;
+- one explicit parent task identity, one explicit delegated task identity, and one
+  explicit child task identity;
+- one exact same repo identity, one exact same snapshot identity, and one exact same
+  compiled-boundary posture on parent and child;
+- one distinct parent worker subject and one distinct child worker subject;
+- one typed `handoff_result` with frozen starter supporting-diagnostic families;
+- one topology artifact only, with no recursive fan-out or repo-wide orchestration.
 
-- exactly one released `V47-E` policy carrier;
-- exactly one released `V45` scope surface;
-- exactly one released `V45-F` admission entry;
-- exactly one worker;
-- exact kernel-shaped allowlist / forbidden / command / evidence-slot projection
-  categories;
-- fail-closed prompt-conflict, projection-conflict, and lineage-resolution posture.
+It does not authorize:
 
-`V48-B` is now also closed on `main` and should be read as the released deterministic
-compiler surface for:
+- worker/worker doctrine;
+- recursive topology or many-child topology;
+- repo-wide orchestration regime;
+- open-ended planner decomposition;
+- compiled-boundary widening algebra;
+- execution or approval authority expansion.
 
-- exactly one released `V48-A` binding profile in;
-- exactly one explicit kernel-facing `taskpack/pipeline_profile@1` plus one
-  `taskpack_profile_registry@1` bridge;
-- unchanged reuse of released `compile_taskpack(...)`;
-- explicit compiled-boundary identity, emitted component refs, manifest hash, and
-  bundle hash;
-- fail-closed raw-input bypass, hash-drift, malformed-bridge, and repo-escape posture.
+No further internal `V48` continuation path is currently selected in this planning
+surface.
 
-`V48-C` is now also closed on `main` and should be read as the released worker-run
-envelope lane for:
-
-- exactly one released compiled boundary;
-- exactly one task/run boundary instance;
-- exactly one worker execution attestation;
-- exactly one worker execution provenance carrier;
-- explicit single-worker subject and provider/model/adapter identity;
-- explicit runner-result / runner-provenance consumption plus optional verifier /
-  attestation support refs;
-- fail-closed raw-input bypass, prompt-authority drift, stale boundary reuse, and
-  incomplete support-carrier posture.
-
-`V48-D` is now also closed on `main` and should be read as the released single-worker
-post-run conformance lane for:
-
-- one canonical `worker_boundary_conformance_report@1`;
-- one explicit frozen four-carrier observed-action set over one released `V48-C`
-  boundary-instance / attestation / provenance chain;
-- exact `conformant` / `non_conformant` / `incomplete_evidence` aggregation posture;
-- fail-closed raw-input bypass, missing observed carrier, support-artifact
-  substitution, invalid relative-path ref, forbidden operation kind, command drift,
-  and branch-identity mismatch posture.
-
-`V48-E` should now introduce:
-
-- one canonical worker-delegation topology artifact candidate:
-  - explicit supervisor/worker or worker/worker handoff linkage over already released
-    boundary, provenance, and conformance lineage;
-  - explicit parent/child role vocabulary and handoff-edge identity;
-  - explicit no-authority-expansion posture beyond the already released compiled
-    boundary chain;
-  - explicit stale or missing delegation-lineage fail-closed posture;
-- one small initial topology surface rich enough to cover:
-  - one bounded repo-internal delegation edge;
-  - one parent worker surface and one child worker surface only;
-  - one typed handoff result with no ambiguity about authority order;
-- no widening yet into recursive fan-out, arbitrary worker graphs, repo-wide
-  orchestration regime, or execution / approval authority expansion.
-
-`V48-E` is topology-first and still bounded:
-
-- it may emit bounded supervisor/worker or worker/worker handoff doctrine over the
-  already released single-worker bridge surfaces;
-- it may not yet emit recursive planner decomposition, open-ended orchestration
-  algebra, or broader authority powers.
-
-## Why This Path
-
-- It is the narrowest safe consumer of the new bridge gap.
-- It makes the policy-to-execution authority chain explicit before worker orchestration
-  and runtime behavior widen.
-- It prevents the family from collapsing immediately into “Codex orchestration” without
-  first making the authority inputs typed and inspectable.
-- It creates the raw binding layer needed before deterministic taskpack derivation,
-  run attestation, and conformance reporting.
-- It lets ADEU test whether its released descriptive and normative artifacts can
-  actually govern worker behavior externally rather than only describe desired
-  behavior in prose.
-
-## Closed Starter Path (`V48-A`)
-
-`V48-A` is now closed on `main` and should be read as bounded to:
-
-- released `V45` scope inputs only;
-- released `V47` policy inputs only;
-- one canonical binding profile only;
-- one released policy source only;
-- one released scope source only;
-- one worker only;
-- one boundary instance only;
-- deterministic mapping into taskpack surface categories only;
-- small local fixtures only;
-- explicit fail-closed lineage and resolution posture only.
-
-It should not attempt:
-
-- policy conflict resolution;
-- policy aggregation or policy composition;
-- scope union or scope widening;
-- multi-worker orchestration;
-- automatic task decomposition;
-- runtime execution entitlement beyond released policy;
-- waiver or deferral issuance;
-- free-form prompt synthesis as authority;
-- repo-wide taskpack generation for arbitrary tasks;
-- contest, benchmark, or structural-assessment family widening;
-- reopening generic harness-kernel semantics already shipped on `main`.
-
-## Follow-On Paths Inside `V48`
-
-### `V48-B`
-
-Deterministic policy-to-taskpack compiler lane:
-
-- compile the released binding profile into actual taskpack surfaces;
-- prove taskpack lineage back to released policy and released scope;
-- emit one compiled boundary identity hash over policy lineage, scope lineage,
-  compiler/runtime selection, and declared task identity;
-- keep generic taskpack semantics closed while adding bridge-specific compilation.
-
-### `V48-C`
-
-Worker execution envelope + attestation lane:
-
-- make explicit which compiled boundary governed one worker run;
-- emit one task/run-scoped boundary instance keyed to:
-  - policy lineage hash;
-  - scope lineage hash;
-  - compiled boundary identity hash;
-  - compiler version;
-  - repo ref;
-  - task instance identity;
-- record worker/provider/model/adapter provenance against the bound taskpack lineage;
-- keep prompts projection-only and non-authoritative.
-
-### `V48-D`
-
-Post-run conformance / replay lane:
-
-- freeze the first admissible observed-action carriers before release-level conformance
-  judgment widens, including:
-  - filesystem mutation set;
-  - command invocation log;
-  - emitted artifact set;
-  - branch/ref identity;
-- verify whether observed worker behavior stayed inside the compiled boundary;
-- emit replayable conformance reports and fail-closed diagnostics;
-- prevent “taskpack existed” from being treated as proof that the worker actually
-  followed it.
-
-### `V48-E`
-
-Delegated multi-worker topology seam:
-
-- later family work may widen from one worker boundary into supervisor/worker or
-  worker/worker handoff doctrine;
-- that seam is explicitly later and not selected in the first family move.
+Any later widening beyond the shipped same-boundary, one-edge delegated topology
+should be proposed through a new planning move rather than treated as an implicit
+`V48-F`.
 
 ## Candidate Package Ownership
 
-Package ownership should remain planning-bound for now.
+Package ownership should now be read as selected and released on `main` for this
+bounded family.
 
-The first planning pass should therefore assume:
+The implemented `V48` ladder is carried by:
 
-- `packages/adeu_agent_harness` is the likely first owning package for the bridge;
+- `packages/adeu_agent_harness` as the released owner for the bridge surfaces;
 - released `packages/adeu_repo_description` outputs are consumed as scope inputs, not
   reopened as first-owner surfaces;
 - released `packages/adeu_semantic_source` and `packages/adeu_commitments_ir` outputs
   are consumed as policy inputs, not reopened as first-owner surfaces.
 
-This should be read as intentional restraint, not missing planning detail.
-
-The family surface is stable enough to plan without freezing cross-package placement
-prematurely.
-
-That likely first implementation placement should not, by itself, be read as permanent
-schema-identity ownership for every later `V48` surface.
+This should still be read as bounded family ownership rather than as a universal claim
+about every possible later downstream orchestration surface.
 
 ## Governing References
 
@@ -594,8 +468,9 @@ Concrete released substrate anchors for this family direction are:
   rather than extra authority;
 - no waiver, deferral, mutation, scheduling, recursive execution, or approval
   authority is authorized by this planning draft;
-- no multi-worker topology beyond the bounded `V48-E` branch-local next candidate is
-  selected by this planning draft;
+- no further internal `V48` topology or orchestration path is selected by this
+  planning draft now that the bounded `V48-A` through `V48-E` ladder is closed on
+  `main`;
 - no repo-wide orchestration regime is selected by this planning draft.
 
 ## Machine-Checkable Planning Baseline
@@ -604,7 +479,7 @@ Concrete released substrate anchors for this family direction are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v30.md",
-  "baseline_arc": "vNext+115",
+  "baseline_arc": "vNext+116",
   "closed_prior_families": [
     "V41",
     "V42",
@@ -632,13 +507,12 @@ Concrete released substrate anchors for this family direction are:
     "V48-A",
     "V48-B",
     "V48-C",
-    "V48-D"
-  ],
-  "planned_current_family_paths": [
+    "V48-D",
     "V48-E"
   ],
-  "default_next_arc_candidate_for_this_branch": "V48-E",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+116",
+  "planned_current_family_paths": [],
+  "default_next_arc_candidate_for_this_branch": null,
+  "default_next_concrete_arc_candidate_for_this_branch": null,
   "family_architecture_doc": "docs/DRAFT_PRACTICAL_HARNESS_FLOW_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_NEXT_ARC_OPTIONS_v30.md",
@@ -651,7 +525,7 @@ Concrete released substrate anchors for this family direction are:
   "first_slice_active_packages": [
     "packages/adeu_agent_harness"
   ],
-  "package_selection_status": "likely_first_owner_selected_in_planning_not_locked_yet",
+  "package_selection_status": "selected_and_released_on_main",
   "family_theme": "adeu_policy_to_taskpack_and_worker_enforcement_bridge",
   "branch_local_planning_selection_only": true,
   "released_repo_scope_family_consumed": "V45",
@@ -677,7 +551,7 @@ Concrete released substrate anchors for this family direction are:
   "worker_run_lineage_to_compiled_boundary_required": true,
   "post_run_boundary_conformance_required": true,
   "multi_worker_topology_initially_deferred": false,
-  "multi_worker_topology_default_next_path_selected": true,
+  "multi_worker_topology_default_next_path_selected": false,
   "planning_boundary_mode": "scope_guard_not_lock_authority",
   "authority_layering_note": "docs/DRAFT_INTENT_AUTHORITY_LAYERING_NOTE_v0.md",
   "horizon_glossary_note": "docs/DRAFT_INTENT_HORIZON_GLOSSARY_v0.md",
