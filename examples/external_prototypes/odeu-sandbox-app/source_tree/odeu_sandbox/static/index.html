@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ODEU Sandbox</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <h1>ODEU Sandbox</h1>
+        <p class="subtitle">
+          A minimal agent society showing how Ontology, Epistemics, Deontics, and Utility co-produce cooperation,
+          capture, symbolic drift, and collapse.
+        </p>
+      </div>
+      <div id="regimeBadge" class="regime-badge">Loading…</div>
+    </header>
+
+    <main class="layout">
+      <section class="panel controls">
+        <h2>Controls</h2>
+        <div class="control-grid">
+          <label>
+            Scenario
+            <select id="scenarioSelect"></select>
+          </label>
+          <label>
+            Seed
+            <input id="seedInput" type="number" value="7" min="1" step="1" />
+          </label>
+          <label>
+            Speed (ms)
+            <input id="speedInput" type="range" min="100" max="1200" value="350" step="50" />
+            <span id="speedValue">350</span>
+          </label>
+        </div>
+        <div class="button-row">
+          <button id="resetBtn">Reset</button>
+          <button id="stepBtn">Step</button>
+          <button id="step10Btn">Step ×10</button>
+          <button id="startBtn">Start</button>
+          <button id="pauseBtn">Pause</button>
+        </div>
+        <div id="scenarioDescription" class="scenario-description"></div>
+      </section>
+
+      <section class="panel parameters">
+        <h2>Parameters</h2>
+        <div id="parameterGrid" class="parameter-grid"></div>
+      </section>
+
+      <section class="panel lane-panel">
+        <h2>ODEU Lanes</h2>
+        <div id="laneCards" class="lane-cards"></div>
+      </section>
+
+      <section class="panel metrics-panel">
+        <h2>Metrics</h2>
+        <div id="metricsGrid" class="metrics-grid"></div>
+      </section>
+
+      <section class="panel world-panel">
+        <div class="split-header">
+          <h2>World / Trust Network</h2>
+          <div id="countsSummary" class="counts-summary"></div>
+        </div>
+        <svg id="networkSvg" viewBox="0 0 880 420"></svg>
+        <div class="legend">
+          <span><i class="dot cooperator"></i>Cooperator</span>
+          <span><i class="dot opportunist"></i>Opportunist</span>
+          <span><i class="dot auditor"></i>Auditor</span>
+          <span><i class="dot official"></i>Official</span>
+          <span><i class="dot ai_dependent"></i>AI dependent</span>
+        </div>
+      </section>
+
+      <section class="panel traces-panel">
+        <h2>Recent Reports, Evidence, and Actions</h2>
+        <div class="traces-grid">
+          <div>
+            <h3>Public reports</h3>
+            <div id="reportsList" class="mini-list"></div>
+          </div>
+          <div>
+            <h3>Evidence records</h3>
+            <div id="evidenceList" class="mini-list"></div>
+          </div>
+          <div>
+            <h3>Actions</h3>
+            <div id="actionsList" class="mini-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel event-panel">
+        <h2>Event log / causal trace</h2>
+        <div id="eventLog" class="event-log"></div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

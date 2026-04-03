@@ -1,0 +1,16 @@
+{
+  "audit_hash": "sha256:2e5841c1027e2f3ca4bbc2ca15537a1a0363d060809246b3f1e8b210cbe62c99",
+  "audited_symbol_count": 62,
+  "census_hash": "sha256:8c710420602a6a705bbc0e876b5373e5d4832cb542ed15947c992cf43a1facc8",
+  "completion_gate_reason": "100% coverage reached; low-confidence hypotheses still require review",
+  "completion_status": "closed_with_low_confidence",
+  "duplicate_audit_symbol_ids": [],
+  "expected_symbol_count": 62,
+  "low_confidence_count": 21,
+  "missing_symbol_ids": [],
+  "schema": "adeu_symbol_audit_coverage_report@1",
+  "schema_valid_count": 62,
+  "scope_id": "architecture_ir.analysis_request_settlement_export.v0",
+  "unexpected_symbol_ids": [],
+  "unresolved_count": 0
+}

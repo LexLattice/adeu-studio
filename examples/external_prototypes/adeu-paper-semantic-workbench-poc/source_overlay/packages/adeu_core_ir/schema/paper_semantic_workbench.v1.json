@@ -1,0 +1,572 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "paper_semantic_workbench.v1.json",
+  "title": "paper_semantic_workbench@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "artifact_id",
+    "source",
+    "processing",
+    "spans",
+    "claims",
+    "lane_fragments",
+    "inference_bridges",
+    "diagnostics",
+    "visual_projection"
+  ],
+  "properties": {
+    "schema": {
+      "const": "paper_semantic_workbench@1"
+    },
+    "artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "$ref": "#/$defs/PaperClaimSource"
+    },
+    "processing": {
+      "$ref": "#/$defs/ProcessingMetadata"
+    },
+    "spans": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PaperClaimSpan"
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ODEUClaimDecomposition"
+      }
+    },
+    "lane_fragments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ODEULaneFragment"
+      }
+    },
+    "inference_bridges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ODEUInferenceBridge"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ODEUSemanticDiagnostic"
+      }
+    },
+    "visual_projection": {
+      "$ref": "#/$defs/ODEUVisualProjection"
+    }
+  },
+  "$defs": {
+    "LaneId": {
+      "enum": ["O", "E", "D", "U"],
+      "type": "string"
+    },
+    "FragmentSourceKind": {
+      "enum": ["explicit", "inferred"],
+      "type": "string"
+    },
+    "FragmentStatus": {
+      "enum": ["explicit", "inferred", "contested", "underdetermined", "missing"],
+      "type": "string"
+    },
+    "ClaimStatus": {
+      "enum": ["stable", "contested", "underdetermined"],
+      "type": "string"
+    },
+    "BridgeKind": {
+      "enum": [
+        "canonical_bridge",
+        "supporting_bridge",
+        "missing_bridge",
+        "contested_bridge",
+        "projection_bridge",
+        "contradiction_bridge"
+      ],
+      "type": "string"
+    },
+    "DiagnosticKind": {
+      "enum": [
+        "contradiction",
+        "underdetermination",
+        "missing_bridge",
+        "overloaded_term",
+        "implicit_assumption",
+        "u_overreach"
+      ],
+      "type": "string"
+    },
+    "DiagnosticSeverity": {
+      "enum": ["critical", "warning", "advisory"],
+      "type": "string"
+    },
+    "SurfaceView": {
+      "enum": ["artifact", "local", "spatial"],
+      "type": "string"
+    },
+    "WorkbenchDepth": {
+      "enum": [1, 2]
+    },
+    "PaperClaimSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "source_id",
+        "artifact_kind",
+        "title",
+        "authors",
+        "year",
+        "source_text"
+      ],
+      "properties": {
+        "schema": {
+          "const": "paper_claim_source@1"
+        },
+        "source_id": {
+          "type": "string"
+        },
+        "artifact_kind": {
+          "enum": ["paper.abstract", "paper.abstract_digest", "pasted.paragraph"],
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "year": {
+          "type": ["integer", "null"]
+        },
+        "venue": {
+          "type": "string"
+        },
+        "source_text": {
+          "type": "string"
+        },
+        "source_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "PaperClaimSpan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "span_id",
+        "start",
+        "end",
+        "quote",
+        "sentence_index",
+        "paragraph_index"
+      ],
+      "properties": {
+        "schema": {
+          "const": "paper_claim_span@1"
+        },
+        "span_id": {
+          "type": "string"
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "quote": {
+          "type": "string"
+        },
+        "sentence_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "paragraph_index": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ODEULaneFragment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "fragment_id",
+        "claim_id",
+        "lane",
+        "short_label",
+        "text",
+        "source_kind",
+        "status",
+        "confidence",
+        "warrant",
+        "span_ids",
+        "bridge_ids",
+        "diagnostic_ids"
+      ],
+      "properties": {
+        "schema": {
+          "const": "odeu_lane_fragment@1"
+        },
+        "fragment_id": {
+          "type": "string"
+        },
+        "claim_id": {
+          "type": "string"
+        },
+        "lane": {
+          "$ref": "#/$defs/LaneId"
+        },
+        "short_label": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "source_kind": {
+          "$ref": "#/$defs/FragmentSourceKind"
+        },
+        "status": {
+          "$ref": "#/$defs/FragmentStatus"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "warrant": {
+          "type": "string"
+        },
+        "span_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bridge_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "diagnostic_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ODEUClaimDecomposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "claim_id",
+        "parent_claim_id",
+        "depth",
+        "claim_text",
+        "summary",
+        "span_ids",
+        "explicitness",
+        "confidence",
+        "status",
+        "lane_fragment_ids",
+        "subclaim_ids",
+        "diagnostic_ids"
+      ],
+      "properties": {
+        "schema": {
+          "const": "odeu_claim_decomposition@1"
+        },
+        "claim_id": {
+          "type": "string"
+        },
+        "parent_claim_id": {
+          "type": ["string", "null"]
+        },
+        "depth": {
+          "$ref": "#/$defs/WorkbenchDepth"
+        },
+        "claim_text": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "span_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "explicitness": {
+          "$ref": "#/$defs/FragmentSourceKind"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "status": {
+          "$ref": "#/$defs/ClaimStatus"
+        },
+        "lane_fragment_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subclaim_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "diagnostic_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ODEUInferenceBridge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "bridge_id",
+        "claim_id",
+        "from_fragment_id",
+        "to_fragment_id",
+        "kind",
+        "rationale",
+        "confidence",
+        "diagnostic_ids"
+      ],
+      "properties": {
+        "schema": {
+          "const": "odeu_inference_bridge@1"
+        },
+        "bridge_id": {
+          "type": "string"
+        },
+        "claim_id": {
+          "type": "string"
+        },
+        "from_fragment_id": {
+          "type": "string"
+        },
+        "to_fragment_id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/BridgeKind"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "diagnostic_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ODEUSemanticDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "diagnostic_id",
+        "claim_id",
+        "kind",
+        "severity",
+        "summary",
+        "lane_ids",
+        "related_fragment_ids",
+        "span_ids"
+      ],
+      "properties": {
+        "schema": {
+          "const": "odeu_semantic_diagnostics@1"
+        },
+        "diagnostic_id": {
+          "type": "string"
+        },
+        "claim_id": {
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/DiagnosticKind"
+        },
+        "severity": {
+          "$ref": "#/$defs/DiagnosticSeverity"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "lane_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LaneId"
+          }
+        },
+        "related_fragment_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "span_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ODEUVisualProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "default_view",
+        "lane_order",
+        "inline_claim_order",
+        "recommended_focus_claim_id",
+        "lane_node_order"
+      ],
+      "properties": {
+        "schema": {
+          "const": "odeu_visual_projection@1"
+        },
+        "default_view": {
+          "$ref": "#/$defs/SurfaceView"
+        },
+        "lane_order": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LaneId"
+          }
+        },
+        "inline_claim_order": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommended_focus_claim_id": {
+          "type": ["string", "null"]
+        },
+        "lane_node_order": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["O", "E", "D", "U"],
+          "properties": {
+            "O": { "type": "array", "items": { "type": "string" } },
+            "E": { "type": "array", "items": { "type": "string" } },
+            "D": { "type": "array", "items": { "type": "string" } },
+            "U": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "AuthorityPosture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_artifact_authority",
+        "semantic_projection_authority",
+        "inferred_content_authority"
+      ],
+      "properties": {
+        "source_artifact_authority": {
+          "const": "reference-anchor"
+        },
+        "semantic_projection_authority": {
+          "const": "advisory-only"
+        },
+        "inferred_content_authority": {
+          "const": "non-authoritative"
+        }
+      }
+    },
+    "WorkerHandle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "template_id",
+        "template_version",
+        "status"
+      ],
+      "properties": {
+        "template_id": { "type": "string" },
+        "template_version": { "type": "string" },
+        "evidence_id": { "type": ["string", "null"] },
+        "worker_id": { "type": ["string", "null"] },
+        "status": {
+          "enum": ["idle", "starting", "ok", "failed", "cancelled", "unavailable"],
+          "type": "string"
+        },
+        "status_detail": { "type": ["string", "null"] }
+      }
+    },
+    "ProcessingMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pipeline_mode",
+        "processor_version",
+        "depth_requested",
+        "generated_at",
+        "authority_posture"
+      ],
+      "properties": {
+        "pipeline_mode": {
+          "enum": ["mock-curated", "mock-heuristic", "resident-codex"],
+          "type": "string"
+        },
+        "processor_version": {
+          "type": "string"
+        },
+        "depth_requested": {
+          "$ref": "#/$defs/WorkbenchDepth"
+        },
+        "generated_at": {
+          "type": "string"
+        },
+        "authority_posture": {
+          "$ref": "#/$defs/AuthorityPosture"
+        },
+        "worker": {
+          "$ref": "#/$defs/WorkerHandle"
+        }
+      }
+    }
+  }
+}

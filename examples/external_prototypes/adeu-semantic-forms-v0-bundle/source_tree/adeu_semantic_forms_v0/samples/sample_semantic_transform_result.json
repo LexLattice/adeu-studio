@@ -1,0 +1,41 @@
+{
+  "blocking_issues": [],
+  "contract_id": "repo_policy_work_v0_to_taskpack_binding_spec_seed@1",
+  "schema": "adeu_semantic_transform_result@1",
+  "source_semantic_hash": "fbf63c0e4fae309a24be8d751c2b44b43ea5be5506231b2ee822565e69830cf9",
+  "target_payload": {
+    "allowlist_projection": [
+      "packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py",
+      "packages/adeu_agent_harness/tests/test_taskpack_binding.py"
+    ],
+    "binding_subject_id": "binding_subject:repo_symbol_catalog:release_surface_owner_projection",
+    "forbidden_projection": {
+      "forbidden_effects": [
+        "multi_worker_topology",
+        "network_calls"
+      ],
+      "forbidden_paths": []
+    },
+    "lineage_resolution_posture": "fail_closed_on_unresolved_or_stale_lineage",
+    "mutation_posture": "read_only",
+    "policy_anchor_id": "release_surface:owner",
+    "policy_authority_clause_ref": "release_surface:owner",
+    "policy_source_ref": "packages/adeu_commitments_ir/tests/fixtures/v47e/reference_anm_policy_consumer_binding_profile.json#consumer_rows[0]",
+    "profile_id": "repo_policy_work_v0.reference_v48a",
+    "prompt_projection_posture": "projection_only_non_authoritative",
+    "schema": "adeu_taskpack_binding_spec_seed@1",
+    "scope_anchor_id": "repo_symbol_catalog",
+    "scope_binding_entry_ref": "apps/api/fixtures/repo_description/vnext_plus105/repo_descriptive_normative_binding_frame_v105_reference.json#binding_entry_d9b4bd5b1693dea4ec3c09cd",
+    "scope_source_ref": "apps/api/fixtures/repo_description/vnext_plus101/repo_symbol_catalog_v101_reference.json",
+    "seed_id": "seed:73e8cd56b1839331",
+    "semantic_hash": "73e8cd56b1839331395fec120e9a9c3da37c44f5f3d397359923e4691a3e7207",
+    "snapshot_id": "repo_snapshot_be15b89dfafbee994e98b291",
+    "snapshot_sha256": "be15b89dfafbee994e98b2917db37160810bc685d7731740b2b56defbfadd1ab",
+    "unsupported_mapping_posture": "fail_closed",
+    "worker_subject_ref": "worker:repo_internal_single_codex_worker:default"
+  },
+  "target_schema": "adeu_taskpack_binding_spec_seed@1",
+  "target_semantic_hash": "73e8cd56b1839331395fec120e9a9c3da37c44f5f3d397359923e4691a3e7207",
+  "transform_result_id": "transform:cb74c3787204a9d3",
+  "transform_status": "transformed"
+}

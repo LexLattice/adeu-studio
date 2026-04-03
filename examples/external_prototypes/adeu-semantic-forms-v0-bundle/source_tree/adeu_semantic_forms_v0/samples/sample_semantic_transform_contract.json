@@ -1,0 +1,26 @@
+{
+  "contract_id": "repo_policy_work_v0_to_taskpack_binding_spec_seed@1",
+  "fixed_defaults": {
+    "lineage_resolution_posture": "fail_closed_on_unresolved_or_stale_lineage",
+    "prompt_projection_posture": "projection_only_non_authoritative",
+    "unsupported_mapping_posture": "fail_closed"
+  },
+  "profile_id": "repo_policy_work_v0.reference_v48a",
+  "required_singleton_relations": [
+    "bind_policy_anchor",
+    "bind_scope_anchor",
+    "produce_artifact_kind",
+    "set_mutation_posture",
+    "use_worker_subject"
+  ],
+  "schema": "adeu_semantic_transform_contract@1",
+  "semantic_hash": "d9c8491ff089054e2b26a931e1162ef5a6ca677164ac6bd6b8590cb61574f708",
+  "source_schema": "adeu_semantic_normal_form@1",
+  "supported_multi_relations": [
+    "allow_path",
+    "forbid_effect",
+    "forbid_path"
+  ],
+  "target_schema": "adeu_taskpack_binding_spec_seed@1",
+  "unsupported_relation_kinds": []
+}

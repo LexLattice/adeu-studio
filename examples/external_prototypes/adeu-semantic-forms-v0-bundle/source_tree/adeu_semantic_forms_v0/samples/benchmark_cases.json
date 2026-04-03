@@ -1,0 +1,33 @@
+{
+  "schema": "adeu_semantic_paraphrase_benchmark@1",
+  "benchmark_id": "repo_policy_work_v0.reference_v48a",
+  "profile_id": "repo_policy_work_v0.reference_v48a",
+  "paraphrase_groups": [
+    {
+      "group_id": "symbol_catalog_owner_seed",
+      "expected_parse_status": "resolved_singleton",
+      "expected_target_schema": "adeu_taskpack_binding_spec_seed@1",
+      "cases": [
+        "Prepare a read-only taskpack binding seed for the released symbol catalog under release_surface:owner. Use the default codex worker. Allow packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py and packages/adeu_agent_harness/tests/test_taskpack_binding.py. Forbid network calls and multi-worker topology.",
+        "Create a binding seed for the repo symbol catalog using the owner policy. Keep it read-only, use the default worker, allow only packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py and packages/adeu_agent_harness/tests/test_taskpack_binding.py, and forbid internet plus multiple workers.",
+        "For release_surface:owner, emit a read-only taskpack boundary seed over the released symbol catalog with the default codex worker. Permit packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py and packages/adeu_agent_harness/tests/test_taskpack_binding.py only. Block network access and multi-worker topology."
+      ]
+    }
+  ],
+  "ambiguity_cases": [
+    {
+      "case_id": "catalog_under_owner",
+      "text": "Prepare a read-only binding seed for the catalog under the owner rule. Use the default codex worker.",
+      "expected_parse_status": "typed_alternatives",
+      "expected_ambiguity_kind": "multiple_scope_anchor_matches"
+    }
+  ],
+  "unsupported_cases": [
+    {
+      "case_id": "free_policy_choice_with_mutation",
+      "text": "Pick whatever policy seems closest and modify the repo if needed.",
+      "expected_parse_status": "rejected_unsupported",
+      "expected_reason_code": "ASL-PARSE-UNSUPPORTED"
+    }
+  ]
+}

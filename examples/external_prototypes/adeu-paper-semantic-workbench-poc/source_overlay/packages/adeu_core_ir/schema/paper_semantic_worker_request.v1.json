@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "paper_semantic_worker_request.v1.json",
+  "title": "paper_semantic_worker_request@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "request_id",
+    "source_text",
+    "source_kind",
+    "requested_depth",
+    "return_schema",
+    "operator_posture",
+    "constraints"
+  ],
+  "properties": {
+    "schema": {
+      "const": "paper_semantic_worker_request@1"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "source_text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_kind": {
+      "enum": ["paper.abstract", "pasted.paragraph"],
+      "type": "string"
+    },
+    "requested_depth": {
+      "enum": [1, 2]
+    },
+    "return_schema": {
+      "const": "paper_semantic_workbench@1"
+    },
+    "operator_posture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "analysis_mode",
+        "authority_mode",
+        "preserve_source_anchor"
+      ],
+      "properties": {
+        "analysis_mode": { "const": "evidence-first" },
+        "authority_mode": { "const": "advisory-only" },
+        "preserve_source_anchor": { "const": true }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "anchor_explicit_claims_to_source_spans",
+        "infer_missing_odeu_lanes",
+        "mark_inferred_and_contested_content",
+        "include_diagnostics",
+        "max_top_level_claims",
+        "max_subclaims_per_claim"
+      ],
+      "properties": {
+        "anchor_explicit_claims_to_source_spans": { "const": true },
+        "infer_missing_odeu_lanes": { "const": true },
+        "mark_inferred_and_contested_content": { "const": true },
+        "include_diagnostics": { "const": true },
+        "max_top_level_claims": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "max_subclaims_per_claim": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2032 @@
+{
+  "audit_entries": [
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L523-L536",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "ValueError | captured_input_ids.get | source_item_by_path.get",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_ref(ref: str, *, field_name: str, expected_kind: CapturedInputKind) -> None",
+      "likely_canonical_family": "nested_validation_helper",
+      "local_behavior_summary": "Checks a specific reference against source-set or captured-input constraints inside the enclosing validator.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest._validate_request:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest:class"
+      ],
+      "role_summary": "Nested helper scoped to outer validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest._validate_request._validate_ref:local_function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body.",
+        "Nested helper role inferred mainly from enclosing method and local calls, not from a public contract."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L430-L543",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _assert_non_empty_text | _assert_sorted_unique | _path_is_excluded | _path_is_within_prefix | _validate_ref | captured_input_ids.get | compute_adeu_architecture_analysis_source_set_hash",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_request(self, info: ValidationInfo) -> AdeuArchitectureAnalysisRequest",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest._validate_request._validate_ref:local_function",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest._validate_request:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L410-L543",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | Field | ValueError | _assert_non_empty_text | _assert_sorted_unique | _path_is_excluded | _path_is_within_prefix | _validate_ref",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class AdeuArchitectureAnalysisRequest(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest._validate_request._validate_ref:local_function",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest._validate_request:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:canonicalize_adeu_architecture_analysis_request_payload:function",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:materialize_adeu_architecture_analysis_request_payload:function"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L211-L241",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _normalize_repo_relative_path | len | model_validator | object.__setattr__ | set | sorted",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_scope(self) -> AnalysisRequestScope",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AnalysisRequestScope:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AnalysisRequestScope._validate_scope:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L202-L241",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | Field | ValueError | _normalize_repo_relative_path | len | model_validator | object.__setattr__ | set",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class AnalysisRequestScope(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AnalysisRequestScope._validate_scope:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AnalysisRequestScope:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L253-L283",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _SHA1_RE.fullmatch | _SHA256_RE.fullmatch | _assert_non_empty_text | _normalize_repo_relative_path | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_identity_shape(self) -> AnalysisSnapshotIdentity",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AnalysisSnapshotIdentity._validate_identity_shape:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L244-L283",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | ValueError | _SHA1_RE.fullmatch | _SHA256_RE.fullmatch | _assert_non_empty_text | _normalize_repo_relative_path | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class AnalysisSnapshotIdentity(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AnalysisSnapshotIdentity:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L358-L388",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _SHA256_RE.fullmatch | _assert_non_empty_text | _infer_artifact_kind | _normalize_repo_relative_path | _sha256_git_text | _sha256_repo_file | info.context.get",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_item(self, info: ValidationInfo) -> ArchitectureAnalysisSourceItem",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:ArchitectureAnalysisSourceItem:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:ArchitectureAnalysisSourceItem._validate_item:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L350-L388",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | ValueError | _SHA256_RE.fullmatch | _assert_non_empty_text | _infer_artifact_kind | _normalize_repo_relative_path | _sha256_git_text | _sha256_repo_file",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class ArchitectureAnalysisSourceItem(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:ArchitectureAnalysisSourceItem._validate_item:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:ArchitectureAnalysisSourceItem:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L397-L407",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | len | model_validator | object.__setattr__ | set | sorted",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_items(self) -> ArchitectureAnalysisSourceSet",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:ArchitectureAnalysisSourceSet:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:ArchitectureAnalysisSourceSet._validate_items:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L391-L407",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | ValueError | len | model_validator | object.__setattr__ | set | sorted",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class ArchitectureAnalysisSourceSet(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:ArchitectureAnalysisSourceSet._validate_items:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:ArchitectureAnalysisSourceSet:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L331-L347",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _assert_non_empty_text | info.context.get | is_file | model_validator | object.__setattr__ | policy_path.startswith | policy_ref.split",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_policy_pin(self, info: ValidationInfo) -> AuthorityBoundaryPolicyPin",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AuthorityBoundaryPolicyPin:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AuthorityBoundaryPolicyPin._validate_policy_pin:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L324-L347",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | ValueError | _assert_non_empty_text | info.context.get | is_file | model_validator | object.__setattr__ | policy_path.startswith",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class AuthorityBoundaryPolicyPin(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AuthorityBoundaryPolicyPin._validate_policy_pin:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AuthorityBoundaryPolicyPin:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L296-L321",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _SHA256_RE.fullmatch | _assert_non_empty_text | model_validator | object.__setattr__ | sha256_text",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_input(self) -> CapturedInput",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:CapturedInput:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:CapturedInput._validate_input:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L286-L321",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | ValueError | _SHA256_RE.fullmatch | _assert_non_empty_text | model_validator | object.__setattr__ | sha256_text",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class CapturedInput(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:CapturedInput._validate_input:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:CapturedInput:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L109-L113",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "ValueError | value.strip",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _assert_non_empty_text(value: str, *, field_name: str) -> str",
+      "likely_canonical_family": "validation_helper",
+      "local_behavior_summary": "Checks a local invariant and raises ValueError on mismatch.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "Assertion / invariant helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_assert_non_empty_text:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L116-L120",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "ValueError | _assert_non_empty_text | len | set | sorted",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _assert_sorted_unique(values: list[str], *, field_name: str) -> list[str]",
+      "likely_canonical_family": "validation_helper",
+      "local_behavior_summary": "Checks a local invariant and raises ValueError on mismatch.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "Assertion / invariant helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_assert_sorted_unique:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L194-L195",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "deepcopy",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _canonical_source_set_hash_basis(payload: dict[str, Any]) -> dict[str, Any]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_canonical_source_set_hash_basis:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L123-L124",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model.model_dump",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _dump_json_payload(model: BaseModel) -> dict[str, Any]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_dump_json_payload:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L172-L191",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "Path | Path.suffix.lower | ValueError | _normalize_repo_relative_path | any | lowered_name.endswith | lowered_name.startswith | name.lower",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _infer_artifact_kind(path: str) -> AnalysisArtifactKind",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_infer_artifact_kind:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L546-L569",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "_normalize_repo_relative_path | _run_git | path.strip | paths.add | sorted | subtree_result.stdout.splitlines",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _list_committed_files(scope: AnalysisRequestScope, *, repository_root: Path, rev: str) -> list[str]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_list_committed_files:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L572-L594",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "ValueError | _normalize_repo_relative_path | candidate.is_file | file_path.is_file | file_path.relative_to | paths.add | set | sorted",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _list_materialized_snapshot_files(scope: AnalysisRequestScope, *, repository_root: Path) -> list[str]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_list_materialized_snapshot_files:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L88-L106",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "ValueError | _WINDOWS_ABSOLUTE_PATH_RE.match | join | parts.append | parts.pop | raw_path.strip | raw_path.strip.replace | value.split",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _normalize_repo_relative_path(raw_path: str, *, field_name: str) -> str",
+      "likely_canonical_family": "normalization_helper",
+      "local_behavior_summary": "Normalizes input text into a repo-safe canonical form and rejects illegal path or ref shapes.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "String/ref/path normalization helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_normalize_repo_relative_path:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L168-L169",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "_path_is_within_prefix | any",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _path_is_excluded(path: str, exclusions: list[str]) -> bool",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_path_is_excluded:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L164-L165",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "path.startswith",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _path_is_within_prefix(path: str, prefix: str) -> bool",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_path_is_within_prefix:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L82-L85",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "Path | explicit_root.resolve | repo_root",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _resolve_repository_root(explicit_root: Path | None=None) -> Path",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_resolve_repository_root:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L127-L144",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "ValueError | join | result.stderr.decode | stderr.strip | subprocess.run",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _run_git(repository_root: Path, *args: str, binary: bool=False) -> subprocess.CompletedProcess[bytes] | subprocess.CompletedProcess[str]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "subprocess_read"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_run_git:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L147-L154",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "_run_git | hashlib.sha256 | hashlib.sha256.hexdigest",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _sha256_git_text(path: str, *, repository_root: Path, rev: str) -> str",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_sha256_git_text:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L157-L161",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "ValueError | file_path.is_file | file_path.read_text | sha256_text",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _sha256_repo_file(path: str, *, repository_root: Path) -> str",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "filesystem_read"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_sha256_repo_file:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": "Appears in both analysis_request.py and analysis_settlement.py with the same broad shape; candidate for shared helper extraction if semantics remain identical.",
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L73-L79",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "context.update",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validation_context(repository_root: Path | None=None, **extra: Any) -> dict[str, Any]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:_validation_context:function"
+      ],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_validation_context:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "validation_or_boundary_bridge",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L654-L672",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "AdeuArchitectureAnalysisRequest.model_validate | AnalysisSnapshotIdentity.model_validate | _dump_json_payload | _resolve_repository_root | _validation_context | payload.get",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def canonicalize_adeu_architecture_analysis_request_payload(payload: dict[str, Any], *, repository_root: Path | None=None) -> dict[str, Any]",
+      "likely_canonical_family": "canonicalization",
+      "local_behavior_summary": "Validates a payload against the contract model and re-emits canonical JSON-safe form.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest:class",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:materialize_adeu_architecture_analysis_request_payload:function"
+      ],
+      "role_summary": "Canonical payload normalizer / validator",
+      "side_effect_profile": [
+        "schema_validation"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:canonicalize_adeu_architecture_analysis_request_payload:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "validation_or_boundary_bridge",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L597-L651",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "AnalysisRequestScope.model_validate | AnalysisSnapshotIdentity.model_validate | ArchitectureAnalysisSourceSet.model_validate | ValueError | _dump_json_payload | _infer_artifact_kind | _list_committed_files | _list_materialized_snapshot_files",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def capture_adeu_architecture_analysis_source_set_payload(*, request_scope: dict[str, Any] | AnalysisRequestScope, snapshot_mode: AnalysisSnapshotMode, snapshot_identity: dict[str, Any] | AnalysisSnapshotIdentity, repository_root: Path | None=None) -> dict[str, Any]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "schema_validation"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:capture_adeu_architecture_analysis_source_set_payload:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L198-L199",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "_canonical_source_set_hash_basis | sha256_canonical_json",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def compute_adeu_architecture_analysis_source_set_hash(payload: dict[str, Any]) -> str",
+      "likely_canonical_family": "hash_or_id_computation",
+      "local_behavior_summary": "Computes a stable digest from a canonicalized payload basis.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "Deterministic hash or identity computation",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:compute_adeu_architecture_analysis_source_set_hash:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-A analysis request contract: scope declaration, snapshot identity binding, source-set capture, and canonicalization.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py#L675-L700",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "_resolve_repository_root | canonicalize_adeu_architecture_analysis_request_payload | capture_adeu_architecture_analysis_source_set_payload | compute_adeu_architecture_analysis_source_set_hash | deepcopy | payload.setdefault",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def materialize_adeu_architecture_analysis_request_payload(payload_without_source_set: dict[str, Any], *, repository_root: Path | None=None) -> dict[str, Any]",
+      "likely_canonical_family": "materialization",
+      "local_behavior_summary": "Fills carried identity and boundary fields into a partial payload, then canonicalizes.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:AdeuArchitectureAnalysisRequest:class",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:canonicalize_adeu_architecture_analysis_request_payload:function"
+      ],
+      "role_summary": "Payload completion helper that fills carried fields then canonicalizes",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:materialize_adeu_architecture_analysis_request_payload:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L336-L344",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _sort_unique_ref_list | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_record(self) -> ActiveEscalationRecord",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ActiveEscalationRecord:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ActiveEscalationRecord._validate_record:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L329-L344",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | ValueError | _sort_unique_ref_list | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class ActiveEscalationRecord(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ActiveEscalationRecord._validate_record:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ActiveEscalationRecord:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L398-L592",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _assert_non_empty_text | _assert_sorted_unique | _load_analysis_request_from_ref | _normalize_ref | _ref_resolves_to_request_boundary | _sort_unique_ref_list | _typed_refs_from_frame",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_frame(self, info: ValidationInfo) -> 'AdeuArchitectureAnalysisSettlementFrame'",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AdeuArchitectureAnalysisSettlementFrame:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AdeuArchitectureAnalysisSettlementFrame._validate_frame:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L376-L592",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | Field | ValueError | _assert_non_empty_text | _assert_sorted_unique | _load_analysis_request_from_ref | _normalize_ref | _ref_resolves_to_request_boundary",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class AdeuArchitectureAnalysisSettlementFrame(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AdeuArchitectureAnalysisSettlementFrame._validate_frame:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:canonicalize_adeu_architecture_analysis_settlement_frame_payload:function",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:materialize_adeu_architecture_analysis_settlement_frame_payload:function"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AdeuArchitectureAnalysisSettlementFrame:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L258-L274",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "_assert_non_empty_text | _normalize_ref | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_entry(self) -> AffordanceDecisionEntry",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AffordanceDecisionEntry:class",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:BlockingLineageEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ClaimPostureEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:DeonticTypingEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:InterpretationEntry._validate_entry:method"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AffordanceDecisionEntry._validate_entry:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L249-L274",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | _assert_non_empty_text | _normalize_ref | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class AffordanceDecisionEntry(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AffordanceDecisionEntry._validate_entry:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AffordanceDecisionEntry:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L355-L373",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _assert_non_empty_text | _sort_unique_ref_list | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_entry(self) -> BlockingLineageEntry",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AffordanceDecisionEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:BlockingLineageEntry:class",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ClaimPostureEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:DeonticTypingEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:InterpretationEntry._validate_entry:method"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:BlockingLineageEntry._validate_entry:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L347-L373",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | ValueError | _assert_non_empty_text | _sort_unique_ref_list | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class BlockingLineageEntry(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:BlockingLineageEntry._validate_entry:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:BlockingLineageEntry:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L287-L310",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _assert_non_empty_text | _normalize_ref | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_entry(self) -> ClaimPostureEntry",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AffordanceDecisionEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:BlockingLineageEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ClaimPostureEntry:class",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:DeonticTypingEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:InterpretationEntry._validate_entry:method"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ClaimPostureEntry._validate_entry:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L277-L310",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | ValueError | _assert_non_empty_text | _normalize_ref | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class ClaimPostureEntry(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ClaimPostureEntry._validate_entry:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ClaimPostureEntry:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L225-L246",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "_assert_non_empty_text | _normalize_ref | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_entry(self) -> DeonticTypingEntry",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AffordanceDecisionEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:BlockingLineageEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ClaimPostureEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:DeonticTypingEntry:class",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:InterpretationEntry._validate_entry:method"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:DeonticTypingEntry._validate_entry:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L215-L246",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | _assert_non_empty_text | _normalize_ref | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class DeonticTypingEntry(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:DeonticTypingEntry._validate_entry:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:DeonticTypingEntry:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L319-L326",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | model_validator | object.__setattr__ | set | sorted",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_policy(self) -> EscalationTriggerPolicy",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:EscalationTriggerPolicy:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:EscalationTriggerPolicy._validate_policy:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L313-L326",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | ValueError | model_validator | object.__setattr__ | set | sorted",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class EscalationTriggerPolicy(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:EscalationTriggerPolicy._validate_policy:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:EscalationTriggerPolicy:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L189-L212",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "model_validator(mode='after')",
+          "evidence_kind": "decorator"
+        },
+        {
+          "detail": "ValueError | _assert_non_empty_text | _sort_unique_ref_list | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validate_entry(self) -> InterpretationEntry",
+      "likely_canonical_family": "pydantic_post_validation",
+      "local_behavior_summary": "Rewrites/normalizes fields after model parse and enforces cross-field invariants.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AffordanceDecisionEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:BlockingLineageEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:ClaimPostureEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:DeonticTypingEntry._validate_entry:method",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:InterpretationEntry:class"
+      ],
+      "role_summary": "Post-parse contract validator",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:InterpretationEntry._validate_entry:method",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "contract_surface",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L180-L212",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "BaseModel",
+          "evidence_kind": "baseclass"
+        },
+        {
+          "detail": "ConfigDict | Field | ValueError | _assert_non_empty_text | _sort_unique_ref_list | model_validator | object.__setattr__",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "class InterpretationEntry(BaseModel)",
+      "likely_canonical_family": "pydantic_contract_model",
+      "local_behavior_summary": "Declares a typed contract surface whose field constraints are enforced by attached validators.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:InterpretationEntry._validate_entry:method"
+      ],
+      "role_summary": "Typed contract carrier with schema validation semantics",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:InterpretationEntry:class",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "validation_or_boundary_bridge",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L104-L124",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "AdeuArchitectureAnalysisRequest.model_validate | ValueError | _request_ref_path | json.loads | payload.get | request_path.is_file | request_path.read_text",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _load_analysis_request_from_ref(analysis_request_ref: str, *, repository_root: Path) -> AdeuArchitectureAnalysisRequest",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "filesystem_read",
+        "schema_validation"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:_load_analysis_request_from_ref:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L84-L92",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "ValueError | _assert_non_empty_text | _normalize_repo_relative_path | fragment.strip | normalized.split",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _normalize_ref(raw_ref: str, *, field_name: str) -> str",
+      "likely_canonical_family": "normalization_helper",
+      "local_behavior_summary": "Normalizes input text into a repo-safe canonical form and rejects illegal path or ref shapes.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "String/ref/path normalization helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:_normalize_ref:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L144-L156",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "_request_named_refs | _request_ref_path",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _ref_resolves_to_request_boundary(ref: str, *, request: AdeuArchitectureAnalysisRequest, analysis_request_ref: str) -> bool",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:_ref_resolves_to_request_boundary:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L127-L141",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "refs.add | refs.update",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _request_named_refs(request: AdeuArchitectureAnalysisRequest, *, analysis_request_ref: str) -> set[str]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:_request_named_refs:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L100-L101",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "ref.split",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _request_ref_path(ref: str) -> str",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:_request_ref_path:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L95-L97",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "_normalize_ref | sorted",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _sort_unique_ref_list(values: list[str], *, field_name: str) -> list[str]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:_sort_unique_ref_list:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L159-L177",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "refs.add | refs.update",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _typed_refs_from_frame(frame: 'AdeuArchitectureAnalysisSettlementFrame') -> set[str]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:_typed_refs_from_frame:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": "Appears in both analysis_request.py and analysis_settlement.py with the same broad shape; candidate for shared helper extraction if semantics remain identical.",
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_low_confidence",
+      "confidence_band": "low",
+      "dependency_position": "local_helper",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L75-L81",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "context.update",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _validation_context(repository_root: Path | None=None, **extra: Any) -> dict[str, Any]",
+      "likely_canonical_family": "general_helper",
+      "local_behavior_summary": "Provides local deterministic helper logic for the enclosing contract workflow.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_request.py:_validation_context:function"
+      ],
+      "role_summary": "General deterministic helper",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:_validation_context:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "validation_or_boundary_bridge",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L595-L613",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "AdeuArchitectureAnalysisRequest.model_validate | AdeuArchitectureAnalysisSettlementFrame.model_validate | _dump_json_payload | _resolve_repository_root | _validation_context | isinstance",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def canonicalize_adeu_architecture_analysis_settlement_frame_payload(payload: dict[str, Any], *, repository_root: Path | None=None, analysis_request_payload: dict[str, Any] | AdeuArchitectureAnalysisRequest | None=None) -> dict[str, Any]",
+      "likely_canonical_family": "canonicalization",
+      "local_behavior_summary": "Validates a payload against the contract model and re-emits canonical JSON-safe form.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AdeuArchitectureAnalysisSettlementFrame:class",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:materialize_adeu_architecture_analysis_settlement_frame_payload:function"
+      ],
+      "role_summary": "Canonical payload normalizer / validator",
+      "side_effect_profile": [
+        "schema_validation"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:canonicalize_adeu_architecture_analysis_settlement_frame_payload:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Supports the V41-B settlement frame contract: interpretation registers, entitlement gating, and request-bound reference checks.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "validation_or_boundary_bridge",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py#L616-L649",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "AdeuArchitectureAnalysisRequest.model_validate | _resolve_repository_root | canonicalize_adeu_architecture_analysis_settlement_frame_payload | deepcopy | isinstance | payload.setdefault | request.authority_boundary_policy.model_dump",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def materialize_adeu_architecture_analysis_settlement_frame_payload(payload_without_request_carry: dict[str, Any], *, analysis_request_payload: dict[str, Any] | AdeuArchitectureAnalysisRequest, analysis_request_ref: str, repository_root: Path | None=None) -> dict[str, Any]",
+      "likely_canonical_family": "materialization",
+      "local_behavior_summary": "Fills carried identity and boundary fields into a partial payload, then canonicalizes.",
+      "overlap_candidate_symbol_ids": [
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:AdeuArchitectureAnalysisSettlementFrame:class",
+        "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:canonicalize_adeu_architecture_analysis_settlement_frame_payload:function"
+      ],
+      "role_summary": "Payload completion helper that fills carried fields then canonicalizes",
+      "side_effect_profile": [
+        "schema_validation"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/analysis_settlement.py:materialize_adeu_architecture_analysis_settlement_frame_payload:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Exports package JSON Schemas into authoritative package/schema and mirrored spec/ locations.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "artifact_emitter",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py#L30-L32",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "json.dumps | path.parent.mkdir | path.write_text",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def _write_schema(path: Path, schema: dict[str, object]) -> None",
+      "likely_canonical_family": "io_emit_helper",
+      "local_behavior_summary": "Writes structured artifact content to disk after ensuring directory existence.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "Filesystem emission helper",
+      "side_effect_profile": [
+        "filesystem_write"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py:_write_schema:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    },
+    {
+      "abstraction_candidate_notes": null,
+      "architectural_purpose": "Exports package JSON Schemas into authoritative package/schema and mirrored spec/ locations.",
+      "audit_status": "audited_hypothesis",
+      "confidence_band": "medium",
+      "dependency_position": "orchestration_entrypoint",
+      "evidence_refs": [
+        {
+          "detail": "packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py#L35-L111",
+          "evidence_kind": "source_span"
+        },
+        {
+          "detail": "AdeuArchitectureAnalysisRequest.model_json_schema | AdeuArchitectureAnalysisSettlementFrame.model_json_schema | AdeuArchitectureSemanticIR.model_json_schema | ArchitectureBoundaryGraph.model_json_schema | ArchitectureIntentPacket.model_json_schema | ArchitectureOntologyFrame.model_json_schema | ArchitectureWorldHypothesis.model_json_schema | Path",
+          "evidence_kind": "call_summary"
+        }
+      ],
+      "inputs_outputs_summary": "def main() -> None",
+      "likely_canonical_family": "orchestration_entrypoint",
+      "local_behavior_summary": "Builds schema mappings and writes authoritative and mirrored schema files.",
+      "overlap_candidate_symbol_ids": [],
+      "role_summary": "Orchestrates schema export for this package",
+      "side_effect_profile": [
+        "in_process_only"
+      ],
+      "symbol_id": "symbol:packages/adeu_architecture_ir/src/adeu_architecture_ir/export_schema.py:main:function",
+      "uncertainty_notes": [
+        "No docstring present in symbol body."
+      ]
+    }
+  ],
+  "audit_entry_count": 62,
+  "audit_hash": "sha256:2e5841c1027e2f3ca4bbc2ca15537a1a0363d060809246b3f1e8b210cbe62c99",
+  "census_hash": "sha256:8c710420602a6a705bbc0e876b5373e5d4832cb542ed15947c992cf43a1facc8",
+  "schema": "adeu_symbol_semantic_audit@1",
+  "scope_id": "architecture_ir.analysis_request_settlement_export.v0",
+  "spu_name": "adeu_symbol_audit.heuristic_spu",
+  "spu_version": "0.1.0"
+}
