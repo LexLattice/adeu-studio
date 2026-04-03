@@ -1,0 +1,143 @@
+{
+  "schema": "adeu_semantic_parse_result@1",
+  "parse_result_id": "parse:eeca8abdd17b0dc5",
+  "profile_id": "repo_policy_work.reference_v49a",
+  "input_kind": "natural_language",
+  "input_text": "Prepare a read-only taskpack binding seed for the released symbol catalog under release_surface:owner. Use the default codex worker. Allow packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py and packages/adeu_agent_harness/tests/test_taskpack_binding.py. Forbid network calls and multi-worker topology.",
+  "input_text_hash": "eeca8abdd17b0dc545ed662d9a0c33f572f150a5dab51e3c76f2f9cdee255411",
+  "parse_status": "resolved_singleton",
+  "candidates": [
+    {
+      "candidate_id": "candidate:1:06e2e6449462c7b3",
+      "candidate_rank": 1,
+      "normal_form": {
+        "schema": "adeu_semantic_normal_form@1",
+        "normal_form_id": "snf:06e2e6449462c7b3",
+        "profile_id": "repo_policy_work.reference_v49a",
+        "domain_kind": "repo_policy_work",
+        "statement_cores": [
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "allow_path",
+            "object_value": "packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py",
+            "lane_tag": "constraint",
+            "object_kind": "repo_rel_path",
+            "evidence": [
+              "allow_path:packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "allow_path",
+            "object_value": "packages/adeu_agent_harness/tests/test_taskpack_binding.py",
+            "lane_tag": "constraint",
+            "object_kind": "repo_rel_path",
+            "evidence": [
+              "allow_path:packages/adeu_agent_harness/tests/test_taskpack_binding.py"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "bind_policy_anchor",
+            "object_value": "release_surface:owner",
+            "lane_tag": "policy",
+            "object_kind": "policy_anchor",
+            "evidence": [
+              "policy_anchor:release_surface:owner"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "bind_scope_anchor",
+            "object_value": "repo_symbol_catalog",
+            "lane_tag": "scope",
+            "object_kind": "scope_anchor",
+            "evidence": [
+              "scope_anchor:repo_symbol_catalog"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "forbid_effect",
+            "object_value": "multi_worker_topology",
+            "lane_tag": "constraint",
+            "object_kind": "effect_tag",
+            "evidence": [
+              "forbid_effect:multi_worker_topology"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "forbid_effect",
+            "object_value": "network_calls",
+            "lane_tag": "constraint",
+            "object_kind": "effect_tag",
+            "evidence": [
+              "forbid_effect:network_calls"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "produce_artifact_kind",
+            "object_value": "taskpack_binding_spec_seed",
+            "lane_tag": "deliverable",
+            "object_kind": "artifact_kind",
+            "evidence": [
+              "artifact_kind:taskpack_binding_spec_seed"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "set_mutation_posture",
+            "object_value": "read_only",
+            "lane_tag": "mutation",
+            "object_kind": "mutation_posture",
+            "evidence": [
+              "mutation_posture:read_only"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "use_worker_subject",
+            "object_value": "worker:repo_internal_single_codex_worker:default",
+            "lane_tag": "worker",
+            "object_kind": "worker_subject",
+            "evidence": [
+              "worker_anchor:worker:repo_internal_single_codex_worker:default"
+            ]
+          }
+        ],
+        "identity_field_names": [
+          "relation_kind",
+          "object_value"
+        ],
+        "projection_field_names": [
+          "lane_tag",
+          "object_kind",
+          "evidence",
+          "confidence_band",
+          "uncertainty_notes"
+        ],
+        "semantic_hash": "06e2e6449462c7b323af044020141478a26c2c30e3333d6096b94ef685853b6a",
+        "confidence_band": "medium",
+        "uncertainty_notes": []
+      },
+      "evidence_summary": [
+        "allow_path=packages/adeu_agent_harness/src/adeu_agent_harness/taskpack_binding.py",
+        "allow_path=packages/adeu_agent_harness/tests/test_taskpack_binding.py",
+        "artifact_kind=taskpack_binding_spec_seed",
+        "forbid_effect=multi_worker_topology",
+        "forbid_effect=network_calls",
+        "mutation_posture=read_only",
+        "policy_anchor=release_surface:owner",
+        "scope_anchor=repo_symbol_catalog",
+        "worker_anchor=worker:repo_internal_single_codex_worker:default"
+      ]
+    }
+  ],
+  "ambiguities": [],
+  "rejected_reason_codes": [],
+  "notices": [
+    "Natural-language recovery is profile-relative and bounded to released anchors only."
+  ]
+}

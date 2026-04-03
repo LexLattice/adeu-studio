@@ -1,0 +1,22 @@
+{
+  "schema": "adeu_semantic_parse_result@1",
+  "parse_result_id": "parse:5f8848f55c09c929",
+  "profile_id": "repo_policy_work.reference_v49a",
+  "input_kind": "natural_language",
+  "input_text": "Prepare a read-only binding seed under the owner rule. Use the default codex worker.",
+  "input_text_hash": "5f8848f55c09c9296a9f3f26b98f3faa916b32b984a06b93ec2a3cc3b5734687",
+  "parse_status": "clarification_required",
+  "candidates": [],
+  "ambiguities": [
+    {
+      "ambiguity_id": "missing_scope_anchor",
+      "ambiguity_kind": "missing_required_anchor",
+      "alternatives": [],
+      "notes": "No released scope anchor was resolved from the bounded starter calculus."
+    }
+  ],
+  "rejected_reason_codes": [],
+  "notices": [
+    "Clarification is required before a canonical semantic object can be licensed."
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "schema": "adeu_semantic_parse_result@1",
+  "parse_result_id": "parse:8c1bf069fb9e7934",
+  "profile_id": "repo_policy_work.reference_v49a",
+  "input_kind": "natural_language",
+  "input_text": "Prepare a read-only binding seed for repo_symbol_catalog catalog under release_surface:owner. Use the default codex worker.",
+  "input_text_hash": "8c1bf069fb9e79345c37e32ae5f98791b9344a764a4db7bef033275fe749061c",
+  "parse_status": "resolved_singleton",
+  "candidates": [
+    {
+      "candidate_id": "candidate:1:a03f23dd318a6f78",
+      "candidate_rank": 1,
+      "normal_form": {
+        "schema": "adeu_semantic_normal_form@1",
+        "normal_form_id": "snf:a03f23dd318a6f78",
+        "profile_id": "repo_policy_work.reference_v49a",
+        "domain_kind": "repo_policy_work",
+        "statement_cores": [
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "bind_policy_anchor",
+            "object_value": "release_surface:owner",
+            "lane_tag": "policy",
+            "object_kind": "policy_anchor",
+            "evidence": [
+              "policy_anchor:release_surface:owner"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "bind_scope_anchor",
+            "object_value": "repo_symbol_catalog",
+            "lane_tag": "scope",
+            "object_kind": "scope_anchor",
+            "evidence": [
+              "scope_anchor:repo_symbol_catalog"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "produce_artifact_kind",
+            "object_value": "taskpack_binding_spec_seed",
+            "lane_tag": "deliverable",
+            "object_kind": "artifact_kind",
+            "evidence": [
+              "artifact_kind:taskpack_binding_spec_seed"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "set_mutation_posture",
+            "object_value": "read_only",
+            "lane_tag": "mutation",
+            "object_kind": "mutation_posture",
+            "evidence": [
+              "mutation_posture:read_only"
+            ]
+          },
+          {
+            "schema": "adeu_semantic_statement_core@1",
+            "relation_kind": "use_worker_subject",
+            "object_value": "worker:repo_internal_single_codex_worker:default",
+            "lane_tag": "worker",
+            "object_kind": "worker_subject",
+            "evidence": [
+              "worker_anchor:worker:repo_internal_single_codex_worker:default"
+            ]
+          }
+        ],
+        "identity_field_names": [
+          "relation_kind",
+          "object_value"
+        ],
+        "projection_field_names": [
+          "lane_tag",
+          "object_kind",
+          "evidence",
+          "confidence_band",
+          "uncertainty_notes"
+        ],
+        "semantic_hash": "a03f23dd318a6f78142e5784b172d264f04a1e63072395d314484198416c9032",
+        "confidence_band": "medium",
+        "uncertainty_notes": []
+      },
+      "evidence_summary": [
+        "artifact_kind=taskpack_binding_spec_seed",
+        "mutation_posture=read_only",
+        "policy_anchor=release_surface:owner",
+        "scope_anchor=repo_symbol_catalog",
+        "worker_anchor=worker:repo_internal_single_codex_worker:default"
+      ]
+    }
+  ],
+  "ambiguities": [],
+  "rejected_reason_codes": [],
+  "notices": [
+    "Natural-language recovery is profile-relative and bounded to released anchors only."
+  ]
+}
