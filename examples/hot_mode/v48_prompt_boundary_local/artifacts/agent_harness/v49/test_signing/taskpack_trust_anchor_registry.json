@@ -1,0 +1,1 @@
+{"keys":[{"algorithm":"ed25519","expires_at_utc":"2026-12-31T00:00:00Z","key_id":"key_ed25519_test","public_key":"ERERERERERERERERERERERERERERERERERERERERERE=","revoked":false}],"schema":"taskpack_trust_anchor_registry@1"}

@@ -1,0 +1,59 @@
+{
+  "consumer_binding_profile_id": "anm-consumer-binding:1229ad180f11",
+  "consumer_rows": [
+    {
+      "allowed_now_actions": [
+        "attach_traceable_policy_binding",
+        "reference_released_policy_source"
+      ],
+      "consumer_ref": "apps/api/fixtures/repo_description/vnext_plus101/repo_symbol_catalog_v101_reference.json",
+      "consumer_ref_kind": "released_v45_artifact_ref",
+      "consumer_world_kind": "released_v45_descriptive_artifact_world",
+      "current_consumer_authority_relation": "constrain_only_non_executive",
+      "forbidden_actions": [
+        "record_fail_closed_consumer_block"
+      ],
+      "later_lock_required_actions": [
+        "emit_consumer_conformance_annotation"
+      ],
+      "policy_source_ref": "release_surface:owner",
+      "policy_source_ref_kind": "d1_clause_ref",
+      "supporting_ledger_refs": [
+        "obligation:dbab82f540f1"
+      ],
+      "supporting_result_refs": [
+        "result:release_surface:owner:artifact:beta"
+      ]
+    },
+    {
+      "allowed_now_actions": [
+        "record_fail_closed_consumer_block",
+        "reference_released_policy_source"
+      ],
+      "consumer_ref": "artifacts/agent_harness/v106/runtime/evidence/local/urm_events.ndjson",
+      "consumer_ref_kind": "released_runtime_event_stream_ref",
+      "consumer_world_kind": "released_runtime_event_artifact_world",
+      "current_consumer_authority_relation": "later_lock_required_for_effective_action",
+      "forbidden_actions": [],
+      "later_lock_required_actions": [
+        "attach_traceable_policy_binding",
+        "emit_consumer_conformance_annotation"
+      ],
+      "policy_source_ref": "release_surface:owner",
+      "policy_source_ref_kind": "d1_clause_ref",
+      "supporting_ledger_refs": [],
+      "supporting_result_refs": []
+    }
+  ],
+  "released_stack_refs": [
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS106.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS107.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS108.md",
+    "docs/LOCKED_CONTINUATION_vNEXT_PLUS109.md"
+  ],
+  "schema": "anm_policy_consumer_binding_profile@1",
+  "semantic_hash": "1229ad180f110b19fb27c0e2535b4a60daeabf2f4d028f862e4ecc7b84c0d298",
+  "snapshot_id": "snapshot:v47c-reference",
+  "snapshot_sha256": "ee1c8f9fc20fdb40fd597da89a594682afb9036aa21d2cf93c45b6463e4ffcd4",
+  "source_scope_profile": "mixed_v47c_reference_scope"
+}

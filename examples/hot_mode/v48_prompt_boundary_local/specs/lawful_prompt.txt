@@ -1,0 +1,1 @@
+Edit only the allowed topology fixture and stay inside the typed boundary.

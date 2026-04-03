@@ -1,0 +1,1 @@
+{"commands":[{"command_id":"pytest_topology","env_overrides":{"LC_ALL":"C","TZ":"UTC"},"run":".venv/bin/python -m pytest packages/adeu_agent_harness/tests/test_worker_delegation_topology.py -q","working_directory_or_repo_root":"repo_root"}],"deterministic_env":{"LC_ALL":"C","PYTHONHASHSEED":"0","TZ":"UTC"},"profile_id":"v48b_a35a24d7f420","schema":"taskpack/commands@1"}

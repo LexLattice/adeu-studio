@@ -1,0 +1,1 @@
+{"profile_id":"v48b_a35a24d7f420","required_count":1,"schema":"taskpack/evidence_slots@1","slots":[{"description":"Capture the hot-mode summary JSON for the boundary experiment.","required":true,"slot_id":"hot_mode_summary"}]}
