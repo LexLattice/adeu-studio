@@ -7,15 +7,18 @@ __all__ = [
     "WORKER_EXECUTION_ATTESTATION_SCHEMA",
     "WORKER_EXECUTION_PROVENANCE_SCHEMA",
     "WORKER_BOUNDARY_CONFORMANCE_REPORT_SCHEMA",
+    "WORKER_DELEGATION_TOPOLOGY_SCHEMA",
     "AnmTaskpackBindingProfile",
     "CompiledPolicyTaskpackBinding",
     "TaskRunBoundaryInstance",
     "WorkerExecutionAttestation",
     "WorkerExecutionProvenance",
     "WorkerBoundaryConformanceReport",
+    "WorkerDelegationTopology",
     "build_v48a_taskpack_binding_profile",
     "build_v48c_worker_execution_envelope",
     "build_v48d_worker_boundary_conformance_report",
+    "build_v48e_worker_delegation_topology",
     "compile_v48b_taskpack_binding",
     "compile_taskpack",
     "verify_taskpack_bundle",
@@ -68,4 +71,12 @@ def __getattr__(name: str) -> object:
         from . import worker_boundary_conformance as worker_conformance_module
 
         return getattr(worker_conformance_module, name)
+    if name in {
+        "WORKER_DELEGATION_TOPOLOGY_SCHEMA",
+        "WorkerDelegationTopology",
+        "build_v48e_worker_delegation_topology",
+    }:
+        from . import worker_delegation_topology as worker_topology_module
+
+        return getattr(worker_topology_module, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

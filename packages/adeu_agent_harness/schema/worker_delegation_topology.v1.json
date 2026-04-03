@@ -1,0 +1,200 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "authority_relation_posture": {
+      "const": "same_compiled_boundary_no_widening",
+      "default": "same_compiled_boundary_no_widening",
+      "title": "Authority Relation Posture",
+      "type": "string"
+    },
+    "child_boundary_instance_ref": {
+      "minLength": 1,
+      "title": "Child Boundary Instance Ref",
+      "type": "string"
+    },
+    "child_compiled_binding_ref": {
+      "minLength": 1,
+      "title": "Child Compiled Binding Ref",
+      "type": "string"
+    },
+    "child_role_kind": {
+      "enum": [
+        "supervisor",
+        "worker"
+      ],
+      "title": "Child Role Kind",
+      "type": "string"
+    },
+    "child_task_instance_identity": {
+      "minLength": 1,
+      "title": "Child Task Instance Identity",
+      "type": "string"
+    },
+    "child_worker_boundary_conformance_report_ref": {
+      "minLength": 1,
+      "title": "Child Worker Boundary Conformance Report Ref",
+      "type": "string"
+    },
+    "child_worker_subject_kind": {
+      "const": "repo_internal_single_codex_worker",
+      "title": "Child Worker Subject Kind",
+      "type": "string"
+    },
+    "child_worker_subject_ref": {
+      "minLength": 1,
+      "title": "Child Worker Subject Ref",
+      "type": "string"
+    },
+    "delegated_task_identity": {
+      "minLength": 1,
+      "title": "Delegated Task Identity",
+      "type": "string"
+    },
+    "delegation_edge_id": {
+      "minLength": 1,
+      "title": "Delegation Edge Id",
+      "type": "string"
+    },
+    "delegation_edge_kind": {
+      "const": "supervisor_to_worker",
+      "default": "supervisor_to_worker",
+      "title": "Delegation Edge Kind",
+      "type": "string"
+    },
+    "handoff_result": {
+      "enum": [
+        "completed",
+        "rejected",
+        "incomplete_lineage"
+      ],
+      "title": "Handoff Result",
+      "type": "string"
+    },
+    "parent_boundary_instance_ref": {
+      "minLength": 1,
+      "title": "Parent Boundary Instance Ref",
+      "type": "string"
+    },
+    "parent_compiled_binding_ref": {
+      "minLength": 1,
+      "title": "Parent Compiled Binding Ref",
+      "type": "string"
+    },
+    "parent_role_kind": {
+      "enum": [
+        "supervisor",
+        "worker"
+      ],
+      "title": "Parent Role Kind",
+      "type": "string"
+    },
+    "parent_task_instance_identity": {
+      "minLength": 1,
+      "title": "Parent Task Instance Identity",
+      "type": "string"
+    },
+    "parent_worker_boundary_conformance_report_ref": {
+      "minLength": 1,
+      "title": "Parent Worker Boundary Conformance Report Ref",
+      "type": "string"
+    },
+    "parent_worker_subject_kind": {
+      "const": "repo_internal_single_codex_worker",
+      "title": "Parent Worker Subject Kind",
+      "type": "string"
+    },
+    "parent_worker_subject_ref": {
+      "minLength": 1,
+      "title": "Parent Worker Subject Ref",
+      "type": "string"
+    },
+    "repo_ref": {
+      "minLength": 1,
+      "title": "Repo Ref",
+      "type": "string"
+    },
+    "schema": {
+      "const": "worker_delegation_topology@1",
+      "default": "worker_delegation_topology@1",
+      "title": "Schema",
+      "type": "string"
+    },
+    "semantic_hash": {
+      "minLength": 1,
+      "title": "Semantic Hash",
+      "type": "string"
+    },
+    "snapshot_id": {
+      "minLength": 1,
+      "title": "Snapshot Id",
+      "type": "string"
+    },
+    "snapshot_sha256": {
+      "minLength": 1,
+      "title": "Snapshot Sha256",
+      "type": "string"
+    },
+    "supporting_diagnostic_families": {
+      "items": {
+        "enum": [
+          "role_ambiguity",
+          "lineage_mismatch",
+          "compiled_boundary_mismatch",
+          "repo_snapshot_mismatch",
+          "non_conformant_parent",
+          "non_conformant_child",
+          "recursive_topology_forbidden"
+        ],
+        "type": "string"
+      },
+      "title": "Supporting Diagnostic Families",
+      "type": "array"
+    },
+    "supporting_diagnostic_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supporting Diagnostic Ids",
+      "type": "array"
+    },
+    "topology_scope_posture": {
+      "const": "one_parent_one_child_one_edge_only",
+      "default": "one_parent_one_child_one_edge_only",
+      "title": "Topology Scope Posture",
+      "type": "string"
+    },
+    "worker_delegation_topology_id": {
+      "minLength": 1,
+      "title": "Worker Delegation Topology Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "worker_delegation_topology_id",
+    "snapshot_id",
+    "snapshot_sha256",
+    "repo_ref",
+    "parent_worker_boundary_conformance_report_ref",
+    "child_worker_boundary_conformance_report_ref",
+    "parent_boundary_instance_ref",
+    "child_boundary_instance_ref",
+    "parent_compiled_binding_ref",
+    "child_compiled_binding_ref",
+    "parent_task_instance_identity",
+    "child_task_instance_identity",
+    "parent_worker_subject_kind",
+    "parent_worker_subject_ref",
+    "child_worker_subject_kind",
+    "child_worker_subject_ref",
+    "parent_role_kind",
+    "child_role_kind",
+    "delegation_edge_id",
+    "delegated_task_identity",
+    "handoff_result",
+    "supporting_diagnostic_ids",
+    "supporting_diagnostic_families",
+    "semantic_hash"
+  ],
+  "title": "WorkerDelegationTopology",
+  "type": "object"
+}
