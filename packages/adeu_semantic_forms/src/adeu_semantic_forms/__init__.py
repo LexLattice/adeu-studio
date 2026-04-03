@@ -27,6 +27,7 @@ from .parse_profile import (
     build_reference_repo_policy_work_profile,
     build_reference_transform_contract,
 )
+from .parser import parse_nl_to_semantic_result
 
 __all__ = [
     "ADEU_TASKPACK_BINDING_SPEC_SEED_SCHEMA",
@@ -53,5 +54,6 @@ __all__ = [
     "build_reference_repo_policy_work_profile",
     "build_reference_transform_contract",
     "canonical_json",
+    "parse_nl_to_semantic_result",
     "sha256_canonical_json",
 ]
