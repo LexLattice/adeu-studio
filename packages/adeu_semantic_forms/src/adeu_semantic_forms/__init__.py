@@ -19,6 +19,7 @@ from .models import (
     SemanticParseResult,
     SemanticStatementCore,
     SemanticTransformContract,
+    TaskpackBindingSpecSeed,
     WorkerAnchor,
     canonical_json,
     sha256_canonical_json,
@@ -28,6 +29,11 @@ from .parse_profile import (
     build_reference_transform_contract,
 )
 from .parser import parse_nl_to_semantic_result
+from .transform_v48_seed import (
+    SemanticFormsLoweringError,
+    lower_parse_result_to_taskpack_binding_spec_seed,
+    lower_semantic_normal_form_to_taskpack_binding_spec_seed,
+)
 
 __all__ = [
     "ADEU_TASKPACK_BINDING_SPEC_SEED_SCHEMA",
@@ -50,10 +56,14 @@ __all__ = [
     "SemanticParseResult",
     "SemanticStatementCore",
     "SemanticTransformContract",
+    "TaskpackBindingSpecSeed",
     "WorkerAnchor",
     "build_reference_repo_policy_work_profile",
     "build_reference_transform_contract",
     "canonical_json",
+    "lower_parse_result_to_taskpack_binding_spec_seed",
+    "lower_semantic_normal_form_to_taskpack_binding_spec_seed",
     "parse_nl_to_semantic_result",
     "sha256_canonical_json",
+    "SemanticFormsLoweringError",
 ]

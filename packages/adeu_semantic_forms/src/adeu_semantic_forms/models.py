@@ -31,6 +31,7 @@ ParseStatus = Literal[
     "rejected_unsupported",
 ]
 ConfidenceBand = Literal["high", "medium", "low"]
+MutationPosture = Literal["read_only"]
 LaneTag = Literal["scope", "policy", "worker", "mutation", "constraint", "deliverable"]
 RelationKind = Literal[
     "bind_scope_anchor",
@@ -442,6 +443,62 @@ class SemanticParseResult(BaseModel):
                     "at least one rejected reason"
                 )
 
+        return self
+
+
+class TaskpackBindingSpecSeed(BaseModel):
+    model_config = MODEL_CONFIG
+
+    schema_id: Literal[ADEU_TASKPACK_BINDING_SPEC_SEED_SCHEMA] = Field(
+        default=ADEU_TASKPACK_BINDING_SPEC_SEED_SCHEMA,
+        alias="schema",
+    )
+    seed_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    source_normal_form_hash: str = Field(min_length=1)
+    transform_contract_id: str = Field(min_length=1)
+    transform_contract_hash: str = Field(min_length=1)
+    scope_anchor_ref: str = Field(min_length=1)
+    policy_anchor_ref: str = Field(min_length=1)
+    worker_subject_ref: str = Field(min_length=1)
+    mutation_posture: MutationPosture = "read_only"
+    allow_paths: list[str] = Field(default_factory=list)
+    forbid_paths: list[str] = Field(default_factory=list)
+    forbid_effects: list[str] = Field(default_factory=list)
+    artifact_kinds: list[Literal["taskpack_binding_spec_seed"]] = Field(default_factory=list)
+    fixed_defaults: dict[str, str] = Field(default_factory=dict)
+    seed_hash: str = Field(min_length=1)
+
+    @property
+    def schema(self) -> str:
+        return self.schema_id
+
+    @model_validator(mode="after")
+    def _validate(self) -> "TaskpackBindingSpecSeed":
+        self.allow_paths = sorted(dict.fromkeys(self.allow_paths))
+        self.forbid_paths = sorted(dict.fromkeys(self.forbid_paths))
+        self.forbid_effects = sorted(dict.fromkeys(self.forbid_effects))
+        self.artifact_kinds = sorted(dict.fromkeys(self.artifact_kinds))
+        if len(self.artifact_kinds) != 1:
+            raise ValueError(
+                "artifact_kinds must contain exactly one canonical value in the starter V49-C slice"
+            )
+        normalized_defaults: dict[str, str] = {}
+        for key, value in sorted(self.fixed_defaults.items()):
+            key_text = str(key).strip()
+            value_text = str(value).strip()
+            if not key_text or not value_text:
+                raise ValueError("fixed_defaults must contain only non-empty string pairs")
+            normalized_defaults[key_text] = value_text
+        self.fixed_defaults = normalized_defaults
+        basis = self.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude={"seed_id", "seed_hash"},
+            exclude_none=True,
+        )
+        self.seed_hash = sha256_canonical_json(basis)
+        self.seed_id = f"seed:{self.seed_hash[:16]}"
         return self
 
 
