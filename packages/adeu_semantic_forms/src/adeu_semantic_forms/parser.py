@@ -133,15 +133,33 @@ def _collect_best_lexicon_matches(
     return sorted({value for strength, value in scored if strength == best_strength})
 
 
+def _collect_all_lexicon_matches(
+    *,
+    text: str,
+    entries: Iterable[SemanticLexiconEntry],
+) -> list[str]:
+    raw_text = text.casefold()
+    normalized_text = _normalize_text(text)
+    matches: set[str] = set()
+    for entry in entries:
+        strength = _best_lexicon_strength(
+            canonical_value=entry.canonical_value,
+            aliases=entry.aliases,
+            raw_text=raw_text,
+            normalized_text=normalized_text,
+        )
+        if strength is not None:
+            matches.add(entry.canonical_value)
+    return sorted(matches)
+
+
 def _collect_repo_paths(text: str) -> list[str]:
-    candidates = []
+    candidates: set[str] = set()
     for match in _REPO_PATH_RE.findall(text):
-        if "/" not in match:
-            continue
         value = match.strip(" .,;:()[]{}<>\"'")
         if value:
-            candidates.append(value)
-    return sorted(dict.fromkeys(candidates))
+            candidates.add(value)
+    return sorted(candidates)
 
 
 def _build_normal_form(
@@ -387,7 +405,7 @@ def parse_nl_to_semantic_result(
     artifact_kind_matches = _collect_best_lexicon_matches(
         text=text, entries=profile.artifact_kind_lexicon
     )
-    effect_matches = _collect_best_lexicon_matches(text=text, entries=profile.effect_lexicon)
+    effect_matches = _collect_all_lexicon_matches(text=text, entries=profile.effect_lexicon)
     path_matches = _collect_repo_paths(text)
 
     ambiguities: list[ParseAmbiguity] = []

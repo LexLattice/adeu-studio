@@ -89,6 +89,24 @@ def test_exact_anchor_text_outranks_normalized_alias_match() -> None:
     assert scope_core.object_value == "repo_symbol_catalog"
 
 
+def test_all_recovered_forbid_effects_are_preserved() -> None:
+    payload = _read_json("reference_semantic_parse_result_resolved_singleton.json")
+    profile = build_reference_repo_policy_work_profile()
+
+    result = parse_nl_to_semantic_result(
+        text=str(payload["input_text"]),
+        profile=profile,
+    )
+
+    forbid_effects = sorted(
+        core.object_value
+        for core in result.candidates[0].normal_form.statement_cores
+        if core.relation_kind == "forbid_effect"
+    )
+
+    assert forbid_effects == ["multi_worker_topology", "network_calls"]
+
+
 def test_dedupe_candidates_collapses_same_semantic_hash() -> None:
     payload = _read_json("reference_semantic_parse_result_resolved_singleton.json")
     candidate_payload = payload["candidates"][0]
