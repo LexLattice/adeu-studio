@@ -1,8 +1,9 @@
 # Draft Next Arc Options v32
 
 Status: planning draft after `docs/DRAFT_NEXT_ARC_OPTIONS_v31.md`, updated after the
-bounded `V48` family closed on `main` and the imported GPT Pro prototype bundles were
-normalized into repo-owned intake packs plus maintainer-side moduleization planning.
+bounded `V48` family closed on `main`, the imported GPT Pro prototype bundles were
+normalized into repo-owned intake packs plus maintainer-side moduleization planning,
+and the bounded `V49-A` semantic substrate contract slice closed on `main`.
 
 This draft does not automatically supersede the contest-participation planning branch in
 `docs/DRAFT_NEXT_ARC_OPTIONS_v26.md`, the structural-reasoning assessment planning
@@ -51,7 +52,9 @@ Interpretive doctrine for this planning surface:
 - `V48-A` through `V48-E` are closed on `main` and now constitute the completed bounded
   policy-to-taskpack and worker-enforcement bridge recorded in
   `docs/DRAFT_NEXT_ARC_OPTIONS_v31.md`.
-- `vNext+116` is the current implementation-arc baseline on `main`.
+- `V49-A` is closed on `main` and now constitutes the completed bounded first semantic
+  substrate contract slice recorded in this draft.
+- `vNext+117` is the current implementation-arc baseline on `main`.
 - imported GPT Pro prototype bundles have been normalized under:
   - `examples/external_prototypes/adeu-semantic-forms-v0-bundle`
   - `examples/external_prototypes/adeu-symbol-audit-v0-bundle`
@@ -78,10 +81,6 @@ The repo no longer lacks:
 
 The repo still lacks a released, repo-owned semantic substrate family for:
 
-- parse profiles over released ADEU anchors;
-- canonical semantic normal forms;
-- canonical semantic identity and equivalence law;
-- typed ambiguity posture and unsupported posture;
 - explicit separation between:
   - fallible `NL -> ADEU` semantic recovery;
   - deterministic `ADEU -> ADEU` lowering;
@@ -91,8 +90,9 @@ The repo still lacks a released, repo-owned semantic substrate family for:
 So the missing layer is not another `V48` continuation and not direct import of the
 intake bundle into live package paths.
 
-The missing layer is the first repo-owned semantic substrate family grounded in the
-`adeu_semantic_forms` intake pack.
+The missing layer is the next semantic substrate realization lane grounded in the
+released `V49-A` contracts: bounded recovery, bounded lowering, and later bounded
+downstream bridge behavior.
 
 ## Relationship To `V45`, `V47`, `V48`, And The Imported Bundles
 
@@ -186,13 +186,13 @@ Planning relationship:
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v30.md`
   - `docs/DRAFT_NEXT_ARC_OPTIONS_v28.md`
 - Recommended next path for this branch:
-  - `V49-A`
+  - `V49-B`
 - Recommended next concrete arc for this branch if selected:
-  - `vNext+117`
+  - `vNext+118`
 - Default path selection for this branch:
-  - select `V49-A` as the next default candidate
-  - treat that default as the substrate-contract lane before recovery, lowering, or
-    downstream consumer widening
+  - select `V49-B` as the next default candidate
+  - treat that default as the bounded recovery lane after the substrate-contract lane
+    closed on `main` and before deterministic lowering or downstream consumer widening
 
 This family/path recommendation is branch-local to the `v32` planning surface.
 
@@ -257,7 +257,7 @@ The current recommended path ladder is:
 
 | Path | Theme | Primary output | Status |
 |---|---|---|---|
-| `V49-A` | core semantic contracts | candidate parse-profile, semantic-normal-form, parse-result, and transform-contract surfaces plus starter statement calculus, identity/equivalence law, ambiguity law, and unsupported law | planned |
+| `V49-A` | core semantic contracts | candidate parse-profile, semantic-normal-form, parse-result, and transform-contract surfaces plus starter statement calculus, identity/equivalence law, ambiguity law, and unsupported law | closed_on_main |
 | `V49-B` | bounded recovery engine | candidate `NL -> ADEU` recovery lane over one starter domain with explicit ambiguity posture | planned |
 | `V49-C` | deterministic lowering lane | candidate `semantic_normal_form -> taskpack_binding_spec_seed` lowering for one downstream target | planned |
 | `V49-D` | downstream `V48` bridge | one narrow bridge helper into released `V48-A` / `V48-B` flows | planned |
@@ -281,90 +281,77 @@ So the `A -> B -> C -> D` staging is an intentional separation between:
 - deterministic lowering;
 - downstream operational bridge.
 
-## Recommended Next Path (`V49-A`)
+## Recommended Next Path (`V49-B`)
 
-Implement the bounded semantic-contract lane first.
+Implement the bounded recovery lane next.
 
-`V49-A` should introduce:
+`V49-B` should introduce:
 
-- one repo-owned package scaffold:
-  - `packages/adeu_semantic_forms/pyproject.toml`
-  - `packages/adeu_semantic_forms/src/adeu_semantic_forms/`
-  - `packages/adeu_semantic_forms/tests/`
-- one canonical starter contract set rich enough to cover:
-  - parse profile;
-  - semantic normal form;
-  - parse result;
-  - transform contract;
-  - one starter ADEU statement / calculus shape only;
-  - one operator / relation posture only;
-  - one semantic-kind / lane-tag posture only;
-  - canonical semantic identity law;
-  - canonical hash subject;
-  - one explicit split between:
-    - identity-participating fields;
-    - projection-only or support-only fields that do not enter semantic identity;
-  - semantic equivalence posture;
-  - ambiguity posture;
-  - unsupported posture;
-  - parse-result outcome vocabulary as contract only:
+- one repo-owned recovery surface:
+  - `packages/adeu_semantic_forms/src/adeu_semantic_forms/parser.py`
+- one bounded recovery input/output posture rich enough to cover:
+  - exactly one natural-language input text;
+  - exactly one released `adeu_semantic_parse_profile@1`;
+  - exactly one emitted `adeu_semantic_parse_result@1`;
+  - exactly one starter domain only:
+    - `repo_policy_work`;
+  - exactly the released `V49-A` statement-core / normal-form / ambiguity /
+    unsupported doctrine;
+  - explicit typed production of:
     - `resolved_singleton`
     - `typed_alternatives`
     - `clarification_required`
     - `rejected_unsupported`
-- one bounded starter domain posture only:
-  - `repo_policy_work`
-- one small normalized reference fixture set derived from the intake pack only as
-  support evidence;
-- no recovery engine yet;
+- one small deterministic reference fixture set proving:
+  - successful bounded recovery;
+  - typed alternatives;
+  - clarification required;
+  - rejected unsupported;
 - no deterministic lowering yet;
 - no `V48` bridge yet;
 - no CLI, API, or web consumer surfaces.
 
-`V49-A` is contract-first and substrate-first:
+`V49-B` is recovery-first and still bounded:
 
-- it may emit contract models, validation logic, and bounded fixtures;
-- it may not yet emit parser behavior, lowering behavior, runtime behavior, or product
-  consumers.
+- it may emit bounded parser behavior into the released `V49-A` contracts;
+- it may not yet emit deterministic lowering, worker-boundary seed artifacts, runtime
+  execution behavior, or product consumers.
 
 ## Why This Path
 
-- It is the narrowest safe consumer of the imported `adeu_semantic_forms` bundle.
-- It freezes the semantic identity law before the repo accepts fallible recovery.
-- It prevents `NL -> ADEU` behavior from laundering itself into substrate authority.
-- It lets later consumers such as symbol audit or paper semantics depend on an explicit
-  semantic substrate instead of ad hoc local conventions.
+- It is the narrowest safe consumer of the released `V49-A` contract surface.
+- It keeps fallible `NL -> ADEU` behavior subordinate to already released semantic
+  identity and ambiguity law rather than deciding substrate doctrine implicitly.
+- It proves whether the frozen starter-domain contracts are practically recoverable
+  before the repo accepts deterministic lowering or `V48` bridge helpers.
+- It lets later consumers such as symbol audit or paper semantics depend on an
+  explicit recovery lane instead of ad hoc local conventions.
 - It aligns with the current cross-module dependency table in
   `docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md`.
 
-## First-Slice Boundary (`V49-A`)
+## Current Next-Slice Boundary (`V49-B`)
 
-`V49-A` should stay bounded to:
+`V49-B` should stay bounded to:
 
 - one repo-owned package only:
   - `packages/adeu_semantic_forms`
-- core contract ownership only:
-  - `models.py`
-  - `parse_profile.py`
-- one canonical semantic identity law only;
-- one canonical hash subject only;
-- one explicit identity-field versus projection-field split only;
-- one starter ADEU statement / calculus shape only;
-- one operator / relation posture only;
-- one semantic-kind / lane-tag posture only;
-- one semantic equivalence posture only;
-- one ambiguity posture only;
-- one unsupported posture only;
-- one contract-only parse-result outcome vocabulary only;
-- normalized support fixtures only;
+- recovery ownership only:
+  - `parser.py`
+  - bounded additions to package tests / fixtures
+- exactly one released `V49-A` parse profile as recovery anchor only;
+- exactly one released `V49-A` parse-result contract family only;
+- exactly one starter domain only:
+  - `repo_policy_work`;
+- exactly the released `V49-A` relation / lane / object vocabularies only;
+- explicit typed ambiguity / unsupported posture only;
+- deterministic reference fixtures only;
 - repo-native unit tests only.
 
 It should not attempt:
 
 - generalized natural language;
-- arbitrary boolean composition;
-- recovery heuristics;
-- lowering into `V48` seed artifacts;
+- arbitrary boolean composition beyond the released `V49-A` contracts;
+- deterministic lowering into `V48` seed artifacts;
 - worker execution or harness runtime wiring;
 - symbol audit integration;
 - paper semantic contract integration;
@@ -372,15 +359,6 @@ It should not attempt:
 - CLI, API, or web surfaces.
 
 ## Follow-On Paths Inside `V49`
-
-### `V49-B`
-
-Bounded recovery engine lane:
-
-- add `parser.py`;
-- make `NL -> ADEU` recovery explicit and bounded to one starter domain;
-- freeze `resolved_singleton`, `typed_alternatives`, `clarification_required`, and
-  `rejected_unsupported`.
 
 ### `V49-C`
 
@@ -460,7 +438,7 @@ are:
 {
   "schema": "next_arc_planning_baseline@1",
   "source_baseline_doc": "docs/DRAFT_NEXT_ARC_OPTIONS_v31.md",
-  "baseline_arc": "vNext+116",
+  "baseline_arc": "vNext+117",
   "closed_prior_families": [
     "V45",
     "V47",
@@ -485,15 +463,16 @@ are:
     "V47",
     "V48"
   ],
-  "closed_current_family_paths": [],
+  "closed_current_family_paths": [
+    "V49-A"
+  ],
   "planned_current_family_paths": [
-    "V49-A",
     "V49-B",
     "V49-C",
     "V49-D"
   ],
-  "default_next_arc_candidate_for_this_branch": "V49-A",
-  "default_next_concrete_arc_candidate_for_this_branch": "vNext+117",
+  "default_next_arc_candidate_for_this_branch": "V49-B",
+  "default_next_concrete_arc_candidate_for_this_branch": "vNext+118",
   "family_architecture_doc": "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
   "pre_lock_companion_docs_expected": [
     "docs/DRAFT_GPT_PRO_PROTOTYPE_MODULEIZATION_PLAN_v0.md",
@@ -511,6 +490,7 @@ are:
   "branch_local_planning_selection_only": true,
   "imported_shaping_bundle": "examples/external_prototypes/adeu-semantic-forms-v0-bundle",
   "imported_bundle_authority_status": "support_only_non_precedent",
+  "released_semantic_forms_contract_slice_consumed": "V49-A",
   "canonical_semantic_identity_required": true,
   "canonical_hash_subject_required": true,
   "semantic_equivalence_posture_required": true,
