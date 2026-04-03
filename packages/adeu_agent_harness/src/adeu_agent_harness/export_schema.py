@@ -10,6 +10,7 @@ from adeu_ir.repo import repo_root
 from .compiled_taskpack_binding import CompiledPolicyTaskpackBinding
 from .taskpack_binding import AnmTaskpackBindingProfile
 from .worker_boundary_conformance import WorkerBoundaryConformanceReport
+from .worker_delegation_topology import WorkerDelegationTopology
 from .worker_execution_envelope import (
     TaskRunBoundaryInstance,
     WorkerExecutionAttestation,
@@ -122,6 +123,15 @@ def main() -> None:
             / "schema"
             / "worker_boundary_conformance_report.v1.json",
             root / "spec" / "worker_boundary_conformance_report.schema.json",
+        ),
+        (
+            WorkerDelegationTopology.model_json_schema(by_alias=True),
+            root
+            / "packages"
+            / "adeu_agent_harness"
+            / "schema"
+            / "worker_delegation_topology.v1.json",
+            root / "spec" / "worker_delegation_topology.schema.json",
         ),
     ]
     for schema, authoritative_path, mirror_path in schema_pairs:
