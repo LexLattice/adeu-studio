@@ -1,0 +1,9 @@
+{
+  "schema": "adeu_odeu_run_response@1",
+  "request_status": "fail_closed_kernel_mismatch",
+  "request_ref": "artifact:odeu_run_request:de29e7bba49b4c33d87ae8ccbf712163bc0135e68902c6baf9bf2ed983b643e1",
+  "kernel_contract_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS124.md#v124-continuation-contract-machine-checkable",
+  "run_summary": null,
+  "failure_code": "ODEU_SIM_KERNEL_MISMATCH",
+  "response_hash": "4f8d5ffcf8c5bf38d5b460cae29be22bcd9c725bd89d8942fc4e5900c0999e71"
+}

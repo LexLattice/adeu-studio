@@ -1,0 +1,9 @@
+{
+  "schema": "adeu_odeu_run_response@1",
+  "request_status": "fail_closed_invalid_request",
+  "request_ref": "artifact:odeu_run_request:invalid_request",
+  "kernel_contract_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS124.md#v124-continuation-contract-machine-checkable",
+  "run_summary": null,
+  "failure_code": "ODEU_SIM_INVALID_REQUEST",
+  "response_hash": "83c7bbaa970fd3744461087a8898589b92791f0d4d81cf392dabd058096d04fd"
+}

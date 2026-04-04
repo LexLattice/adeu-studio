@@ -1,0 +1,73 @@
+{
+  "schema": "adeu_odeu_run_response@1",
+  "request_status": "completed_clean",
+  "request_ref": "artifact:odeu_run_request:de29e7bba49b4c33d87ae8ccbf712163bc0135e68902c6baf9bf2ed983b643e1",
+  "kernel_contract_ref": "docs/LOCKED_CONTINUATION_vNEXT_PLUS124.md#v124-continuation-contract-machine-checkable",
+  "run_summary": {
+    "schema": "adeu_odeu_run_summary@1",
+    "meta": {
+      "scenario": "healthy_baseline",
+      "seed": 7,
+      "turn": 25,
+      "regime_label": "Cooperative Legible Order"
+    },
+    "config_snapshot": {
+      "schema": "adeu_odeu_scenario_config@1",
+      "name": "healthy_baseline",
+      "description": "Moderate scarcity with decent evidence, decent institutions, and mixed archetypes.",
+      "num_agents": 48,
+      "scarcity": 0.35,
+      "regeneration_rate": 0.12,
+      "misinformation": 0.12,
+      "verification_capacity": 0.62,
+      "enforcement_capacity": 0.65,
+      "sanction_severity": 1.25,
+      "initial_legitimacy": 0.7,
+      "initial_operativity": 0.68,
+      "sanction_consistency": 0.75,
+      "archive_capacity": 0.62,
+      "appeal_availability": 0.75,
+      "public_epistemics_level": 0.62,
+      "ai_mode": "none",
+      "ai_reliability": 0.0,
+      "cooperator_share": 0.34,
+      "opportunist_share": 0.28,
+      "auditor_share": 0.18,
+      "official_share": 0.08,
+      "ai_dependent_share": 0.12,
+      "max_turns": 200
+    },
+    "scenario": "healthy_baseline",
+    "seed": 7,
+    "turn": 25,
+    "current_metric": {
+      "schema": "adeu_odeu_metric_point@1",
+      "turn": 25,
+      "cooperation_rate": 1.0,
+      "commons_health": 1.0,
+      "average_belief_accuracy": 0.945915129618085,
+      "epistemic_integrity": 0.5775812362930639,
+      "institution_legitimacy": 0.78,
+      "institution_operativity": 0.7700000000000001,
+      "symbolic_gap": 0.22999999999999987,
+      "sanction_consistency": 0.75,
+      "utility_concentration": 0.506169398313352,
+      "trust_fragmentation": 0.1521996932816082,
+      "regime_label": "Cooperative Legible Order"
+    },
+    "lane_summary": {
+      "mean_legitimacy_belief": 0.906322,
+      "mean_uncertainty": 0.05,
+      "mean_resources": 8.619491
+    },
+    "action_counts": {
+      "contribute_to_commons": 34,
+      "share_claim": 14
+    },
+    "event_record_count": 2520,
+    "evidence_record_count": 17,
+    "sanction_event_count": 6
+  },
+  "failure_code": null,
+  "response_hash": "25a6b6782b69791f9b73025420af0fe5f7637b964c2120701692367bb14b8690"
+}
