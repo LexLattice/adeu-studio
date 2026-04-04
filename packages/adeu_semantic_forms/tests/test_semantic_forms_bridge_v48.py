@@ -238,6 +238,28 @@ def test_fixed_default_conflict_fails_closed() -> None:
     assert excinfo.value.code == "ASF6004"
 
 
+@pytest.mark.parametrize("field_name", ["allow_paths", "forbid_paths", "forbid_effects"])
+def test_empty_seed_projection_fails_closed(field_name: str) -> None:
+    seed_payload = _read_fixture("reference_taskpack_binding_spec_seed.json")
+    seed_payload[field_name] = []
+    seed_payload["seed_id"] = "derived-by-model-validator"
+    seed_payload["seed_hash"] = "derived-by-model-validator"
+    seed = TaskpackBindingSpecSeed.model_validate(seed_payload)
+    contract = SemanticSeedV48BridgeContract.model_validate(
+        _read_fixture("reference_semantic_seed_v48_bridge_contract.json")
+    )
+
+    with pytest.raises(SemanticFormsV48BridgeError) as excinfo:
+        bridge_seed_to_v48a_taskpack_binding_profile(
+            seed=seed,
+            bridge_contract=contract,
+            repo_root_path=_repo_root(),
+        )
+
+    assert excinfo.value.code == "ASF6005"
+    assert excinfo.value.details["missing_projection_fields"] == [field_name]
+
+
 def test_reference_bridge_output_is_compile_compatible(tmp_path: Path) -> None:
     seed = TaskpackBindingSpecSeed.model_validate(
         _read_fixture("reference_taskpack_binding_spec_seed.json")

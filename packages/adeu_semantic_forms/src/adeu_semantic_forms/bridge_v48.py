@@ -115,6 +115,24 @@ def _validate_seed_defaults(
             )
 
 
+def _validate_seed_projections(*, seed: TaskpackBindingSpecSeed) -> None:
+    projection_fields = {
+        "allow_paths": seed.allow_paths,
+        "forbid_paths": seed.forbid_paths,
+        "forbid_effects": seed.forbid_effects,
+    }
+    missing = sorted(field_name for field_name, values in projection_fields.items() if not values)
+    if missing:
+        _fail(
+            code=ASF6005_UNSUPPORTED_SEED,
+            message=(
+                "starter V49-D bridge requires non-empty seed projections for the "
+                "released V48-A builder"
+            ),
+            details={"missing_projection_fields": missing},
+        )
+
+
 def bridge_seed_to_v48a_taskpack_binding_profile(
     *,
     seed: TaskpackBindingSpecSeed,
@@ -166,6 +184,7 @@ def bridge_seed_to_v48a_taskpack_binding_profile(
             details={"artifact_kinds": seed.artifact_kinds},
         )
 
+    _validate_seed_projections(seed=seed)
     _validate_seed_defaults(seed=seed, bridge_contract=bridge_contract)
 
     try:
