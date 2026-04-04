@@ -18,6 +18,15 @@ export const ROUTE_STATUS_VALUES = ["ready_clean", "fail_closed_invalid_fixture_
 export const SELECTED_SURFACE_VALUES = ["artifact", "local"] as const;
 export const VISIBLE_LANE_VALUES = ["O", "E", "D", "U"] as const;
 export const SOURCE_ARTIFACT_KIND_VALUES = ["paper.abstract", "pasted.paragraph"] as const;
+export const DIAGNOSTIC_KIND_VALUES = [
+  "contradiction",
+  "underdetermination",
+  "missing_bridge",
+  "overloaded_term",
+  "implicit_assumption",
+  "u_overreach",
+] as const;
+export const DIAGNOSTIC_SEVERITY_VALUES = ["critical", "warning", "advisory"] as const;
 export const SOURCE_AUTHORITY_POSTURE =
   "source_text_and_explicit_span_anchors_authoritative" as const;
 export const INTERPRETATION_AUTHORITY_POSTURE = "advisory_only" as const;
@@ -27,6 +36,8 @@ export type WorkbenchRouteStatus = (typeof ROUTE_STATUS_VALUES)[number];
 export type SelectedSurface = (typeof SELECTED_SURFACE_VALUES)[number];
 export type VisibleLaneId = (typeof VISIBLE_LANE_VALUES)[number];
 export type SourceArtifactKind = (typeof SOURCE_ARTIFACT_KIND_VALUES)[number];
+export type DiagnosticKind = (typeof DIAGNOSTIC_KIND_VALUES)[number];
+export type DiagnosticSeverity = (typeof DIAGNOSTIC_SEVERITY_VALUES)[number];
 
 export type PaperSourceArtifact = {
   schema: "adeu_paper_source_artifact@1";
@@ -93,10 +104,10 @@ export type PaperSemanticInferenceBridge = {
 export type PaperSemanticDiagnostic = {
   schema: "adeu_paper_semantic_diagnostic@1";
   diagnostic_id: string;
-  diagnostic_kind: string;
+  diagnostic_kind: DiagnosticKind;
   lane_ids: VisibleLaneId[];
   related_fragment_ids: string[];
-  severity: string;
+  severity: DiagnosticSeverity;
   span_ids: string[];
   summary: string;
 };
@@ -210,16 +221,18 @@ export function createViewModel(
   }
 
   const projection =
-    selectedArtifact.artifact.projections.find(
-      (item) => item.surface === config.selected_surface,
-    ) ?? selectedArtifact.artifact.projections[0];
+    selectedArtifact.artifact.projections.find((item) => item.surface === config.selected_surface) ??
+    null;
+  if (!projection) {
+    return buildFailureViewModel(config, availableRefs, "INVALID_SELECTED_SURFACE_PROJECTION");
+  }
   const claimIds = new Set(selectedArtifact.artifact.claims.map((item) => item.claim_id));
   const orderedClaimIds =
     projection && projection.claim_order.every((claimId) => claimIds.has(claimId))
       ? [...projection.claim_order]
       : [...selectedArtifact.artifact.claims]
           .map((item) => item.claim_id)
-          .toSorted((left, right) => left.localeCompare(right));
+          .sort((left, right) => left.localeCompare(right));
 
   const focusClaimId =
     config.focus_claim_id && claimIds.has(config.focus_claim_id)
@@ -264,11 +277,11 @@ export function createInvalidFixtureStackViewModel(params: {
   availableSampleArtifactRefs: readonly string[];
   failureCode: string;
 }): PaperSemanticWorkbenchViewModel {
-  const config = {
+  const config: PaperSemanticWorkbenchViewConfig = {
     schema: PAPER_SEMANTIC_WORKBENCH_VIEW_CONFIG_SCHEMA,
     route_id: PAPER_SEMANTIC_WORKBENCH_ROUTE_ID,
     selected_sample_artifact_ref: params.selectedSampleArtifactRef,
-    selected_surface: "artifact" as const,
+    selected_surface: "artifact",
     focus_claim_id: null,
     visible_lane_ids: [...VISIBLE_LANE_VALUES],
   };
@@ -448,7 +461,7 @@ function buildFailureViewModel(
     artifact_ref: null,
     selected_surface: config.selected_surface,
     focus_claim_id: config.focus_claim_id,
-    visible_lane_ids: [...config.visible_lane_ids].toSorted(),
+    visible_lane_ids: [...config.visible_lane_ids].sort(),
     ordered_claim_ids: [],
     failure_code: failureCode,
   };
@@ -641,8 +654,8 @@ function parsePaperSemanticDiagnostic(value: unknown): PaperSemanticDiagnostic |
     !relatedFragmentIds ||
     !spanIds ||
     typeof value.diagnostic_id !== "string" ||
-    typeof value.diagnostic_kind !== "string" ||
-    typeof value.severity !== "string" ||
+    !DIAGNOSTIC_KIND_VALUES.includes(value.diagnostic_kind as DiagnosticKind) ||
+    !DIAGNOSTIC_SEVERITY_VALUES.includes(value.severity as DiagnosticSeverity) ||
     typeof value.summary !== "string"
   ) {
     return null;
@@ -650,10 +663,10 @@ function parsePaperSemanticDiagnostic(value: unknown): PaperSemanticDiagnostic |
   return {
     schema: PAPER_SEMANTIC_DIAGNOSTIC_SCHEMA,
     diagnostic_id: value.diagnostic_id,
-    diagnostic_kind: value.diagnostic_kind,
+    diagnostic_kind: value.diagnostic_kind as DiagnosticKind,
     lane_ids: laneIds,
     related_fragment_ids: relatedFragmentIds,
-    severity: value.severity,
+    severity: value.severity as DiagnosticSeverity,
     span_ids: spanIds,
     summary: value.summary,
   };
@@ -759,7 +772,7 @@ function stableStringify(value: unknown): string {
   if (Array.isArray(value)) {
     return `[${value.map((item) => stableStringify(item)).join(",")}]`;
   }
-  const entries = Object.entries(value as Record<string, unknown>).toSorted(([left], [right]) =>
+  const entries = Object.entries(value as Record<string, unknown>).sort(([left], [right]) =>
     left.localeCompare(right),
   );
   return `{${entries

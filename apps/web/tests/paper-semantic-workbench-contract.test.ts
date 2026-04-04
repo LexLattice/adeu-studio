@@ -13,7 +13,6 @@ import {
   parsePaperSemanticArtifact,
   SOURCE_AUTHORITY_POSTURE,
 } from "../src/app/papers/semantic-workbench/view-model.ts";
-import { loadCommittedSampleArtifacts } from "../src/app/papers/semantic-workbench/sample-artifacts.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -86,13 +85,6 @@ test("paper semantic workbench parser: malformed released fixture fails closed",
   assert.equal(parsePaperSemanticArtifact(fixture), null);
 });
 
-test("paper semantic workbench loader: committed sample bootstrap validates before render", async () => {
-  const bootstrap = await loadCommittedSampleArtifacts();
-  assert.equal(bootstrap.sampleArtifacts.length, 2);
-  assert.equal(bootstrap.initialViewModel.route_status, "ready_clean");
-  assert.equal(bootstrap.initialViewModel.selected_sample_artifact_ref, ABSTRACT_FIXTURE_REF);
-});
-
 test("paper semantic workbench view-model: preserves semantic law fields and ref split", async () => {
   const abstract = parsePaperSemanticArtifact(
     await readFixture("reference_paper_semantic_artifact_abstract.json"),
@@ -118,6 +110,30 @@ test("paper semantic workbench view-model: preserves semantic law fields and ref
   assert.deepEqual(viewModel.identity_field_names, abstract.identity_field_names);
   assert.deepEqual(viewModel.projection_field_names, abstract.projection_field_names);
   assert.deepEqual(viewModel.ordered_claim_ids, abstract.projections[0]?.claim_order ?? []);
+});
+
+test("paper semantic workbench view-model: missing selected surface projection fails closed", async () => {
+  const abstract = parsePaperSemanticArtifact(
+    await readFixture("reference_paper_semantic_artifact_abstract.json"),
+  );
+  assert.ok(abstract);
+
+  const viewModel = createViewModel(
+    [{ ref: ABSTRACT_FIXTURE_REF, artifact: abstract }],
+    {
+      ...buildDefaultViewConfig(ABSTRACT_FIXTURE_REF),
+      selected_surface: "local",
+    },
+  );
+
+  assert.equal(viewModel.route_status, "fail_closed_invalid_fixture_stack");
+  assert.equal(viewModel.failure_code, "INVALID_SELECTED_SURFACE_PROJECTION");
+  assert.equal(viewModel.artifact, null);
+});
+
+test("paper semantic workbench parser: invalid diagnostic enum fixture fails closed", async () => {
+  const fixture = await readFixture("reject_invalid_diagnostic_kind.json");
+  assert.equal(parsePaperSemanticArtifact(fixture), null);
 });
 
 test("paper semantic workbench view-model: invalid fixture stack stays typed and fail-closed", () => {

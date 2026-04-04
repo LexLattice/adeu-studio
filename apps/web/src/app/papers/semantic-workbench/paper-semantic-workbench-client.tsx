@@ -130,7 +130,7 @@ export function PaperSemanticWorkbenchClient({
         ...current,
         visible_lane_ids: isVisible
           ? current.visible_lane_ids.filter((item) => item !== laneId)
-          : [...current.visible_lane_ids, laneId].filter((item, index, values) => values.indexOf(item) === index),
+          : [...current.visible_lane_ids, laneId],
       };
     });
   }

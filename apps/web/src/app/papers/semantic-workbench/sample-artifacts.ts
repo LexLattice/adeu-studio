@@ -11,7 +11,7 @@ import {
   createInvalidFixtureStackViewModel,
   type PaperSemanticWorkbenchViewModel,
   parsePaperSemanticArtifact,
-} from "./view-model.ts";
+} from "./view-model";
 
 export const COMMITTED_SAMPLE_ARTIFACT_REFS = [
   "packages/adeu_paper_semantics/tests/fixtures/v52a/reference_paper_semantic_artifact_abstract.json",
